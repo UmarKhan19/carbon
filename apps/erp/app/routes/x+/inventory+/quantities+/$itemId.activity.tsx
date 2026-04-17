@@ -1,6 +1,7 @@
 import { error, notFound, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { Trans } from "@lingui/react/macro";
 import { useCallback, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
@@ -119,7 +120,9 @@ export default function ItemInventoryActivityRoute() {
   return (
     <>
       <div className="w-full space-y-4 pt-6 px-4">
-        <h2 className="text-2xl font-semibold mb-4">Activity</h2>
+        <h2 className="text-2xl font-semibold mb-4">
+          <Trans>Activity</Trans>
+        </h2>
 
         <InfiniteScroll
           component={InventoryActivity}

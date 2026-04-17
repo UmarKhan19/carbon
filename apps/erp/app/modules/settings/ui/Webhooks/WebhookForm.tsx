@@ -16,6 +16,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -38,6 +39,7 @@ const WebhookForm = ({
   open = true,
   onClose
 }: WebhookFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
 
@@ -46,13 +48,11 @@ const WebhookForm = ({
   useEffect(() => {
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created unit of measure`);
+      toast.success(t`Created webhook`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
-      toast.error(
-        `Failed to create unit of measure: ${fetcher.data.error.message}`
-      );
+      toast.error(t`Failed to create webhook: ${fetcher.data.error.message}`);
     }
-  }, [fetcher.data, fetcher.state, onClose]);
+  }, [fetcher.data, fetcher.state, onClose, t]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -78,15 +78,23 @@ const WebhookForm = ({
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditing ? "Edit" : "New"} Webhook</DrawerTitle>
+            <DrawerTitle>
+              {isEditing ? (
+                <Trans>Edit Webhook</Trans>
+              ) : (
+                <Trans>New Webhook</Trans>
+              )}
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
 
             <VStack spacing={4}>
-              <Select name="table" label="Table" options={tables} />
+              <Select name="table" label={t`Table`} options={tables} />
               <FormControl>
-                <FormLabel>Notifications</FormLabel>
+                <FormLabel>
+                  <Trans>Notifications</Trans>
+                </FormLabel>
                 <VStack>
                   <Boolean
                     name="onInsert"
@@ -107,26 +115,28 @@ const WebhookForm = ({
 
               <Input
                 name="name"
-                label="Name"
-                helperText="This is a unique identifier for the webhook"
+                label={t`Name`}
+                helperText={t`This is a unique identifier for the webhook`}
               />
 
               <Input
                 name="url"
-                label="Webhook URL"
-                helperText="The endpoint that receives a POST request with the updated data when the table is updated"
+                label={t`Webhook URL`}
+                helperText={t`The endpoint that receives a POST request with the updated data when the table is updated`}
               />
 
               <Separator />
 
-              <Boolean name="active" label="Active" />
+              <Boolean name="active" label={t`Active`} />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={() => onClose()}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

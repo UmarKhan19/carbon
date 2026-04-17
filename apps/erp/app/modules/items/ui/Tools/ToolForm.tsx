@@ -20,6 +20,7 @@ import {
   getFileSizeLimit,
   supportedModelTypes
 } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
@@ -63,6 +64,7 @@ function startsWithLetter(value: string) {
 }
 
 const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
+  const { t } = useLingui();
   const { company } = useUser();
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
 
@@ -99,11 +101,11 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
     ]);
 
     if (fileUpload.error || recordInsert.error) {
-      toast.error(`Failed to upload model`);
+      toast.error(t`Failed to upload model`);
     } else {
       setModelUploadId(modelId);
       setModelFile(file);
-      toast.success(`Uploaded model`);
+      toast.success(t`Uploaded model`);
     }
 
     setModelIsUploading(false);
@@ -122,12 +124,12 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
 
       const fileExtension = file.name.split(".").pop()?.toLowerCase();
       if (!fileExtension || !supportedModelTypes.includes(fileExtension)) {
-        toast.error("File type not supported");
+        toast.error(t`File type not supported`);
         return;
       }
 
       if (file.size > SIZE_LIMIT.bytes) {
-        toast.error(`File size too big (max. ${SIZE_LIMIT.format()})`);
+        toast.error(t`File size too big (max. ${SIZE_LIMIT.format()})`);
         return;
       }
 
@@ -137,9 +139,9 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
       const { errors } = fileRejections[0];
       let message;
       if (errors[0].code === "file-too-large") {
-        message = `File size too big (max. ${SIZE_LIMIT.format()})`;
+        message = t`File size too big (max. ${SIZE_LIMIT.format()})`;
       } else if (errors[0].code === "file-invalid-type") {
-        message = "File type not supported";
+        message = t`File type not supported`;
       } else {
         message = errors[0].message;
       }
@@ -152,21 +154,30 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created tool`);
+      toast.success(t`Created tool`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
-      toast.error(`Failed to create tool: ${fetcher.data.error.message}`);
+      toast.error(t`Failed to create tool: ${fetcher.data.error.message}`);
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   const { id, onIdChange, loading } = useNextItemId("Tool");
   const permissions = usePermissions();
   const isEditing = !!initialValues.id;
 
+  const translateItemTrackingType = (v: string) =>
+    v === "Inventory"
+      ? t`Inventory`
+      : v === "Non-Inventory"
+        ? t`Non-Inventory`
+        : v === "Serial"
+          ? t`Serial`
+          : t`Batch`;
+
   const itemTrackingTypeOptions = itemTrackingTypes.map((itemTrackingType) => ({
     label: (
       <span className="flex items-center gap-2">
         <TrackingTypeIcon type={itemTrackingType} />
-        {itemTrackingType}
+        {translateItemTrackingType(itemTrackingType)}
       </span>
     ),
     value: itemTrackingType
@@ -183,7 +194,11 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
       label: (
         <span className="flex items-center gap-2">
           <ReplenishmentSystemIcon type={itemReplenishmentSystem} />
-          {itemReplenishmentSystem}
+          {itemReplenishmentSystem === "Buy"
+            ? t`Buy`
+            : itemReplenishmentSystem === "Make"
+              ? t`Make`
+              : t`Buy and Make`}
         </span>
       ),
       value: itemReplenishmentSystem
@@ -202,12 +217,18 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
           >
             <ModalCardHeader>
               <ModalCardTitle>
-                {isEditing ? "Tool Details" : "New Tool"}
+                {isEditing ? (
+                  <Trans>Tool Details</Trans>
+                ) : (
+                  <Trans>New Tool</Trans>
+                )}
               </ModalCardTitle>
               {!isEditing && (
                 <ModalCardDescription>
-                  A tool is a physical item used to make a part that can be used
-                  across multiple jobs
+                  <Trans>
+                    A tool is a physical item used to make a part that can be
+                    used across multiple jobs
+                  </Trans>
                 </ModalCardDescription>
               )}
             </ModalCardHeader>
@@ -223,14 +244,14 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                 )}
               >
                 {isEditing ? (
-                  <Input name="id" label="Tool ID" isReadOnly />
+                  <Input name="id" label={t`Tool ID`} isReadOnly />
                 ) : (
                   <InputControlled
                     name="id"
-                    label="Tool ID"
+                    label={t`Tool ID`}
                     helperText={
                       startsWithLetter(id)
-                        ? "Use ... to get the next tool ID"
+                        ? t`Use ... to get the next tool ID`
                         : undefined
                     }
                     value={id}
@@ -242,22 +263,22 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                 )}
                 <Input
                   name="revision"
-                  label="Revision"
+                  label={t`Revision`}
                   isReadOnly={isEditing}
                 />
 
-                <Input name="name" label="Short Description" />
+                <Input name="name" label={t`Short Description`} />
                 <Select
                   name="itemTrackingType"
-                  label="Tracking Type"
+                  label={t`Tracking Type`}
                   options={itemTrackingTypeOptions}
                 />
                 {isEditing && (
-                  <TextArea name="description" label="Long Description" />
+                  <TextArea name="description" label={t`Long Description`} />
                 )}
                 <Select
                   name="replenishmentSystem"
-                  label="Replenishment System"
+                  label={t`Replenishment System`}
                   options={itemReplenishmentSystemOptions}
                   onChange={(newValue) => {
                     setReplenishmentSystem(newValue?.value ?? "Buy");
@@ -270,7 +291,7 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                 />
                 <DefaultMethodType
                   name="defaultMethodType"
-                  label="Default Method Type"
+                  label={t`Default Method Type`}
                   replenishmentSystem={replenishmentSystem}
                   value={defaultMethodType}
                   onChange={(newValue) =>
@@ -280,19 +301,19 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
 
                 <UnitOfMeasure
                   name="unitOfMeasureCode"
-                  label="Unit of Measure"
+                  label={t`Unit of Measure`}
                 />
                 {!isEditing && (
                   <ItemPostingGroup
                     name="postingGroupId"
-                    label="Item Group"
+                    label={t`Item Group`}
                     isClearable
                   />
                 )}
                 {!isEditing && (
                   <Number
                     name="unitCost"
-                    label="Unit Cost"
+                    label={t`Unit Cost`}
                     formatOptions={{
                       style: "currency",
                       currency: baseCurrency
@@ -309,7 +330,7 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                   htmlFor="model-upload"
                   className="text-xs font-medium text-muted-foreground"
                 >
-                  CAD Model
+                  <Trans>CAD Model</Trans>
                 </label>
                 <div
                   {...getRootProps()}
@@ -334,14 +355,14 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                         className="mt-2"
                         onClick={removeModel}
                       >
-                        Remove
+                        <Trans>Remove</Trans>
                       </Button>
                     </>
                   ) : (
                     <Loading isLoading={modelIsUploading}>
                       <LuCloudUpload className="mx-auto h-12 w-12 text-muted-foreground group-hover:text-primary-foreground" />
                       <p className="text-xs text-muted-foreground group-hover:text-foreground">
-                        Supports {supportedModelTypes.join(", ")} files
+                        {t`Supports ${supportedModelTypes.join(", ")} files`}
                       </p>
                     </Loading>
                   )}
@@ -357,7 +378,7 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                     : !permissions.can("create", "parts")
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </ModalCardFooter>
           </ValidatedForm>

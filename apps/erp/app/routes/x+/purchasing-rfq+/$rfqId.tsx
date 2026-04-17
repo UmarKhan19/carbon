@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { type JSONContent, VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider, ResizablePanels } from "~/components/Layout/Panels";
@@ -23,7 +24,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "RFQs",
+  breadcrumb: msg`RFQs`,
   to: path.to.purchasingRfqs
 };
 
@@ -125,7 +126,7 @@ export default function PurchasingRFQRoute() {
                   </VStack>
                 </div>
               }
-              properties={<PurchasingRFQProperties />}
+              properties={<PurchasingRFQProperties key={rfqId} />}
             />
           </div>
         </div>

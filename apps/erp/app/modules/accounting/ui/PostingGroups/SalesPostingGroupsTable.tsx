@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { Table } from "~/components";
@@ -24,6 +25,7 @@ const SalesPostingGroupsTable = ({
   balanceSheetAccounts,
   incomeStatementAccounts
 }: SalesPostingGroupsTableProps) => {
+  const { t } = useLingui();
   const { canEdit, onCellEdit } = usePostingGroups("postingGroupSales");
 
   const balanceSheetAccountOptions = useMemo(() => {
@@ -44,7 +46,7 @@ const SalesPostingGroupsTable = ({
     return [
       {
         id: "itemPostingGroupId",
-        header: "Posting Group",
+        header: t`Posting Group`,
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -66,7 +68,7 @@ const SalesPostingGroupsTable = ({
       },
       {
         id: "customerTypeId",
-        header: "Customer Type",
+        header: t`Customer Type`,
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -88,36 +90,36 @@ const SalesPostingGroupsTable = ({
       },
       {
         accessorKey: "receivablesAccount",
-        header: "Receivables",
+        header: t`Receivables`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "salesAccount",
-        header: "Sales",
+        header: t`Sales`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "salesDiscountAccount",
-        header: "Sales Discount",
+        header: t`Sales Discount`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "salesCreditAccount",
-        header: "Sales Credit",
+        header: t`Sales Credit`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "salesPrepaymentAccount",
-        header: "Sales Prepayment",
+        header: t`Sales Prepayment`,
         cell: (item) => item.getValue()
       },
       {
         accessorKey: "salesTaxPayableAccount",
-        header: "Sales Tax Payable",
+        header: t`Sales Tax Payable`,
         cell: (item) => item.getValue()
       }
     ];
-  }, [customerTypes, itemPostingGroups]);
+  }, [customerTypes, itemPostingGroups, t]);
 
   const editableComponents = useMemo(
     () => ({
@@ -148,7 +150,7 @@ const SalesPostingGroupsTable = ({
       editableComponents={editableComponents}
       withInlineEditing={canEdit}
       withSearch={false}
-      title="Sales Posting Groups"
+      title={t`Sales Posting Groups`}
     />
   );
 };

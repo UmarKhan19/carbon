@@ -1,13 +1,17 @@
+import { useField } from "@carbon/form";
 import { FormControl, FormHelperText, FormLabel } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 
 import { Select } from "~/components";
 import type { SelectProps } from "~/components/Select";
 import type { StandardFactor } from "~/modules/shared";
 
 export type UnitHintProps = Omit<SelectProps, "onChange" | "options"> & {
+  name: string;
   defaultUnit?: StandardFactor;
   label?: string;
   helperText?: string;
+  isOptional?: boolean;
   isConfigured?: boolean;
   value: string;
   onChange: (newValue: string) => void;
@@ -22,14 +26,22 @@ const UnitHint = ({
   name,
   label,
   helperText,
+  isOptional,
   isConfigured,
   value = getUnitHint(defaultUnit),
   onConfigure,
   ...props
 }: UnitHintProps) => {
+  const { t } = useLingui();
+  const { isOptional: fieldIsOptional } = useField(name);
+  const resolvedIsOptional = isOptional ?? fieldIsOptional ?? false;
+
   const onChange = (value: string) => {
     props?.onChange?.(value);
   };
+
+  const translateUnitHint = (v: string) =>
+    v === "Fixed" ? t`Fixed` : t`Per Unit`;
 
   return (
     <FormControl className={props.className}>
@@ -37,6 +49,7 @@ const UnitHint = ({
         <FormLabel
           htmlFor={name}
           isConfigured={isConfigured}
+          isOptional={resolvedIsOptional}
           onConfigure={onConfigure}
         >
           {label}
@@ -50,7 +63,7 @@ const UnitHint = ({
         className="w-full"
         options={["Fixed", "Per Unit"].map((u) => ({
           value: u,
-          label: u
+          label: translateUnitHint(u)
         }))}
       />
 

@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuBookMarked, LuCode, LuPencil, LuTrash } from "react-icons/lu";
@@ -19,6 +20,7 @@ const UnitOfMeasuresTable = memo(
   ({ data, count }: UnitOfMeasuresTableProps) => {
     const [params] = useUrlParams();
     const navigate = useNavigate();
+    const { t } = useLingui();
     const permissions = usePermissions();
 
     const customColumns = useCustomColumns<UnitOfMeasure>("unitOfMeasure");
@@ -26,7 +28,7 @@ const UnitOfMeasuresTable = memo(
       const defaultColumns: ColumnDef<(typeof data)[number]>[] = [
         {
           accessorKey: "name",
-          header: "Name",
+          header: t`Name`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id}>
               <Enumerable value={row.original.name} />
@@ -38,7 +40,7 @@ const UnitOfMeasuresTable = memo(
         },
         {
           accessorKey: "code",
-          header: "Code",
+          header: t`Code`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuCode />
@@ -46,7 +48,7 @@ const UnitOfMeasuresTable = memo(
         }
       ];
       return [...defaultColumns, ...customColumns];
-    }, [customColumns]);
+    }, [customColumns, t]);
 
     const renderContextMenu = useCallback(
       (row: (typeof data)[number]) => {
@@ -85,13 +87,13 @@ const UnitOfMeasuresTable = memo(
         primaryAction={
           permissions.can("create", "parts") && (
             <New
-              label="Unit of Measure"
+              label={t`Unit of Measure`}
               to={`${path.to.newUom}?${params.toString()}`}
             />
           )
         }
         renderContextMenu={renderContextMenu}
-        title="Unit of Measures"
+        title={t`Unit of Measures`}
       />
     );
   }

@@ -48,7 +48,7 @@
   "version": "*",
   "dependencies": {
     "cookie": "1.1.1",
-    "dompurify": "3.3.3",
+    "dompurify": "^3.4.0",
     "kysely": "^0.28.9",
     "kysely-supabase": "^0.2.1",
     "nanoid": "5.1.7",

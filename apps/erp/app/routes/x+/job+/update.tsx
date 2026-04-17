@@ -1,7 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import type { recalculateTask } from "@carbon/jobs/trigger/recalculate";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import {
   calculateJobPriority,
@@ -126,7 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
           upsertMethod.error;
         }
 
-        await tasks.trigger<typeof recalculateTask>("recalculate", {
+        await trigger("recalculate", {
           type: "jobRequirements",
           id: id as string,
           companyId,

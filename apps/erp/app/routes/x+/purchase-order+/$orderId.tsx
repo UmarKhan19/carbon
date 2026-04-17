@@ -4,12 +4,12 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
 import { renderAsync } from "@react-email/components";
 import { FunctionRegion } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
@@ -48,7 +48,7 @@ import { path } from "~/utils/path";
 import { stripSpecialCharacters } from "~/utils/string";
 
 export const handle: Handle = {
-  breadcrumb: "Orders",
+  breadcrumb: msg`Orders`,
   to: path.to.purchaseOrders,
   module: "purchasing"
 };
@@ -138,7 +138,7 @@ export async function action(args: ActionFunctionArgs) {
   const requestedBy = approvalRequest.data?.requestedBy;
   if (requestedBy && requestedBy !== userId) {
     try {
-      await tasks.trigger("notify", {
+      await trigger("notify", {
         event:
           decision === "Approved"
             ? NotificationEvent.ApprovalApproved
@@ -158,21 +158,21 @@ export async function action(args: ActionFunctionArgs) {
   if (decision === "Approved") {
     const purchaseOrder = await getPurchaseOrder(serviceRole, orderId);
     if (purchaseOrder.data) {
-      let file: ArrayBuffer | undefined;
       let fileName: string | undefined;
+      let documentFilePath: string | undefined;
 
       // Generate PDF and create document
       try {
         const pdf = await pdfLoader(args);
         if (pdf.headers.get("content-type") === "application/pdf") {
-          file = await pdf.arrayBuffer();
+          const file = await pdf.arrayBuffer();
           fileName = stripSpecialCharacters(
             `${purchaseOrder.data.purchaseOrderId} - ${new Date()
               .toISOString()
               .slice(0, -5)}.pdf`
           );
 
-          const documentFilePath = `${companyId}/supplier-interaction/${purchaseOrder.data.supplierInteractionId}/${fileName}`;
+          documentFilePath = `${companyId}/supplier-interaction/${purchaseOrder.data.supplierInteractionId}/${fileName}`;
 
           const documentFileUpload = await serviceRole.storage
             .from("private")
@@ -202,7 +202,12 @@ export async function action(args: ActionFunctionArgs) {
       }
 
       // Send email notification if requested
-      if (notification === "Email" && supplierContact && file && fileName) {
+      if (
+        notification === "Email" &&
+        supplierContact &&
+        documentFilePath &&
+        fileName
+      ) {
         try {
           const acceptLanguage = request.headers.get("accept-language");
           const locales = parseAcceptLanguage(acceptLanguage, {
@@ -256,24 +261,27 @@ export async function action(args: ActionFunctionArgs) {
             const html = await renderAsync(emailTemplate);
             const text = await renderAsync(emailTemplate, { plainText: true });
 
-            await tasks.trigger<typeof sendEmailResendTask>(
-              "send-email-resend",
-              {
-                to: [buyer.data.email, supplierEmail],
-                cc: ccSelections?.length ? ccSelections : undefined,
-                from: buyer.data.email,
-                subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
-                html,
-                text,
-                attachments: [
-                  {
-                    content: Buffer.from(file).toString("base64"),
-                    filename: fileName
-                  }
-                ],
-                companyId
-              }
-            );
+            const { data: signedUrlData } = await serviceRole.storage
+              .from("private")
+              .createSignedUrl(documentFilePath!, 3600);
+
+            await trigger("send-email-resend", {
+              to: [buyer.data.email, supplierEmail],
+              cc: ccSelections?.length ? ccSelections : undefined,
+              from: buyer.data.email,
+              subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
+              html,
+              text,
+              attachments: signedUrlData?.signedUrl
+                ? [
+                    {
+                      path: signedUrlData.signedUrl,
+                      filename: fileName!
+                    }
+                  ]
+                : undefined,
+              companyId
+            });
           }
         } catch (err) {
           console.error("Failed to send email after approval:", err);
@@ -459,7 +467,7 @@ export default function PurchaseOrderRoute() {
                   </VStack>
                 </div>
               }
-              properties={<PurchaseOrderProperties />}
+              properties={<PurchaseOrderProperties key={orderId} />}
             />
           </div>
         </div>

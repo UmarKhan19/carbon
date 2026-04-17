@@ -13,6 +13,7 @@ import {
   HStack
 } from "@carbon/react";
 import { useMode } from "@carbon/remix";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { BsFillHexagonFill } from "react-icons/bs";
 import { LuChevronsUpDown, LuHouse } from "react-icons/lu";
 import { Form, Link } from "react-router";
@@ -21,6 +22,7 @@ import type { Company } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 const CompanySwitcher = () => {
+  const { t } = useLingui();
   const routeData = useRouteData<{ company: Company; companies: Company[] }>(
     path.to.authenticatedRoot
   );
@@ -86,10 +88,10 @@ const CompanySwitcher = () => {
         <DropdownMenuItem asChild>
           <Link to={path.to.authenticatedRoot}>
             <DropdownMenuIcon icon={<LuHouse />} />
-            Dashboard
+            <Trans>Dashboard</Trans>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuLabel>Companies</DropdownMenuLabel>
+        <DropdownMenuLabel>{t`Companies`}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           {routeData?.companies.map((c) => {

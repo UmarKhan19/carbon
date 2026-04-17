@@ -14,6 +14,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuCopy, LuLink } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -40,6 +41,7 @@ const PurchasingRFQProperties = () => {
     suppliers: PurchasingRFQSupplier[];
   }>(path.to.purchasingRfq(rfqId));
 
+  const { t } = useLingui();
   const newSupplierModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
 
@@ -150,14 +152,14 @@ const PurchasingRFQProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -178,7 +180,7 @@ const PurchasingRFQProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -216,7 +218,7 @@ const PurchasingRFQProperties = () => {
       >
         <CreatableMultiSelect
           name="supplierIds"
-          label="Suppliers"
+          label={t`Suppliers`}
           options={supplierOptions}
           value={currentSupplierIds}
           inline={SuppliersInlinePreview}
@@ -255,7 +257,7 @@ const PurchasingRFQProperties = () => {
       >
         <DatePicker
           name="rfqDate"
-          label="RFQ Date"
+          label={t`RFQ Date`}
           inline
           onChange={(date) => {
             onUpdate("rfqDate", date);
@@ -274,7 +276,7 @@ const PurchasingRFQProperties = () => {
       >
         <DatePicker
           name="expirationDate"
-          label="Expiration Date"
+          label={t`Expiration Date`}
           inline
           onChange={(date) => {
             onUpdate("expirationDate", date);
@@ -292,7 +294,7 @@ const PurchasingRFQProperties = () => {
         className="w-full"
       >
         <Location
-          label="RFQ Location"
+          label={t`RFQ Location`}
           name="locationId"
           inline
           isReadOnly={isDisabled}
@@ -315,7 +317,7 @@ const PurchasingRFQProperties = () => {
       >
         <Employee
           name="employeeId"
-          label="Buyer"
+          label={t`Buyer`}
           inline
           isReadOnly={isDisabled}
           onChange={(value) => {

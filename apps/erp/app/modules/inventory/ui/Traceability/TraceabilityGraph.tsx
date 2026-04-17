@@ -12,6 +12,7 @@ import type {
   TrackedActivityAttributes,
   TrackedEntityAttributes
 } from "@carbon/utils";
+import { useLingui } from "@lingui/react/macro";
 import * as d3 from "d3";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -367,6 +368,7 @@ export function TraceabilitySidebar({
   entity: TrackedEntity | null;
   activity: Activity | null;
 }) {
+  const { t } = useLingui();
   const selectedNode = entity ?? activity;
   const selectedNodeType = entity ? "entity" : "activity";
   const selectedNodeAttributes = (
@@ -386,7 +388,7 @@ export function TraceabilitySidebar({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() => copyToClipboard(window.location.href)}
@@ -402,7 +404,7 @@ export function TraceabilitySidebar({
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() => copyToClipboard(selectedNode?.id ?? "")}

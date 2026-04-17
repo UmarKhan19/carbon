@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -24,6 +25,7 @@ type PaymentTermsTableProps = {
 };
 
 const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
@@ -33,7 +35,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
     const defaultColumns: ColumnDef<PaymentTerm>[] = [
       {
         accessorKey: "name",
-        header: "Name",
+        header: t`Name`,
         cell: ({ row }) => (
           <Hyperlink to={`${row.original.id}?${params.toString()}`}>
             {row.original.name}
@@ -45,7 +47,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
       },
       {
         accessorKey: "daysDue",
-        header: "Days Due",
+        header: t`Days Due`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuCalendar />
@@ -53,7 +55,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
       },
       {
         accessorKey: "daysDiscount",
-        header: "Days Discount",
+        header: t`Days Discount`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuCalendar />
@@ -61,7 +63,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
       },
       {
         accessorKey: "discountPercentage",
-        header: "Discount Percentage",
+        header: t`Discount Percentage`,
         cell: (item) => item.getValue(),
         meta: {
           icon: <LuPercent />
@@ -69,7 +71,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
       },
       {
         accessorKey: "calculationMethod",
-        header: "Calculation Method",
+        header: t`Calculation Method`,
         cell: (item) => <Enumerable value={item.getValue<string>()} />,
         meta: {
           filter: {
@@ -84,7 +86,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [params, customColumns]);
+  }, [params, customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: PaymentTerm) => {
@@ -97,7 +99,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuPencil />} />
-            Edit Payment Term
+            <Trans>Edit Payment Term</Trans>
           </MenuItem>
           <MenuItem
             disabled={!permissions.can("delete", "accounting")}
@@ -108,7 +110,7 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
             }}
           >
             <MenuIcon icon={<LuTrash />} />
-            Delete Payment Term
+            <Trans>Delete Payment Term</Trans>
           </MenuItem>
         </>
       );
@@ -123,11 +125,11 @@ const PaymentTermsTable = memo(({ data, count }: PaymentTermsTableProps) => {
       count={count}
       primaryAction={
         permissions.can("create", "accounting") && (
-          <New label="Payment Term" to={`new?${params.toString()}`} />
+          <New label={t`Payment Term`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Payment Terms"
+      title={t`Payment Terms`}
     />
   );
 });

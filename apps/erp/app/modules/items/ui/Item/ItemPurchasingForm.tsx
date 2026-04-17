@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useParams } from "react-router";
 import type { z } from "zod";
@@ -32,6 +33,7 @@ const ItemPurchasingForm = ({
   allowedSuppliers
 }: ItemPurchasingFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
@@ -66,20 +68,22 @@ const ItemPurchasingForm = ({
         defaultValues={initialValues}
       >
         <CardHeader>
-          <CardTitle>Purchasing</CardTitle>
+          <CardTitle>
+            <Trans>Purchasing</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="itemId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Select
               name="preferredSupplierId"
-              label="Preferred Supplier"
+              label={t`Preferred Supplier`}
               options={allowedSuppliersOptions}
             />
-            <Number name="leadTime" label="Lead Time (Days)" />
+            <Number name="leadTime" label={t`Lead Time (Days)`} />
             <UnitOfMeasure
               name="purchasingUnitOfMeasureCode"
-              label="Purchasing Unit of Measure"
+              label={t`Purchasing Unit of Measure`}
               onChange={(newValue) => {
                 if (newValue) setPurchasingCode(newValue.value);
               }}
@@ -90,11 +94,13 @@ const ItemPurchasingForm = ({
               purchasingCode={purchasingCode ?? undefined}
               inventoryCode={inventoryCode ?? undefined}
             />
-            {/* <Boolean name="purchasingBlocked" label="Purchasing Blocked" /> */}
+            {/* <Boolean name="purchasingBlocked" label={t`Purchasing Blocked`} /> */}
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={!permissions.can("update", "parts")}>Save</Submit>
+          <Submit isDisabled={!permissions.can("update", "parts")}>
+            <Trans>Save</Trans>
+          </Submit>
         </CardFooter>
       </ValidatedForm>
     </Card>

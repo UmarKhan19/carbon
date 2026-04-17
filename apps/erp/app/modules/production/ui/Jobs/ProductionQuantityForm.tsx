@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
@@ -39,6 +40,7 @@ const ProductionQuantityForm = ({
   operationOptions
 }: ProductionQuantityFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
 
@@ -79,15 +81,15 @@ const ProductionQuantityForm = ({
               ) : (
                 <Select
                   name="jobOperationId"
-                  label="Operation"
+                  label={t`Operation`}
                   options={operationOptions ?? []}
                 />
               )}
-              <Employee name="createdBy" label="Employee" />
-              <Number name="quantity" label="Quantity" />
+              <Employee name="createdBy" label={t`Employee`} />
+              <Number name="quantity" label={t`Quantity`} />
               <Select
                 name="type"
-                label="Quantity Type"
+                label={t`Quantity Type`}
                 options={[
                   { label: "Production", value: "Production" },
                   { label: "Scrap", value: "Scrap" },
@@ -98,14 +100,16 @@ const ProductionQuantityForm = ({
                 }
               />
               {type === "Scrap" && (
-                <ScrapReason name="scrapReasonId" label="Scrap Reason" />
+                <ScrapReason name="scrapReasonId" label={t`Scrap Reason`} />
               )}
-              <TextArea name="notes" label="Notes" />
+              <TextArea name="notes" label={t`Notes`} />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button variant="solid" onClick={onClose}>
                 Cancel
               </Button>

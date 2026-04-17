@@ -1,4 +1,5 @@
 import { cn } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { LuTable2 } from "react-icons/lu";
 import { useSwaggerDocs } from "~/hooks/useSwaggerDocs";
 import type { ValidLang } from "~/modules/api";
@@ -121,12 +122,16 @@ const TableDocs = ({
       )}
       {methods.includes("GET") && (
         <>
-          <h3 className="text-foreground mt-4 px-6">Read rows</h3>
+          <h3 className="text-foreground mt-4 px-6">
+            <Trans>Read rows</Trans>
+          </h3>
           <div className="doc-section">
             <article className="code-column text-foreground">
               <p>
-                To read rows in <code>{resourceId}</code>, use the{" "}
-                <code>select</code> method.
+                <Trans>
+                  To read rows in <code>{resourceId}</code>, use the{" "}
+                  <code>select</code> method.
+                </Trans>
               </p>
               <p>
                 <a
@@ -134,7 +139,7 @@ const TableDocs = ({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Learn more
+                  <Trans>Learn more</Trans>
                 </a>
               </p>
             </article>
@@ -167,15 +172,19 @@ const TableDocs = ({
           </div>
           <div className="doc-section">
             <article className="code-column text-foreground">
-              <h4 className="mt-0 text-white">Filtering</h4>
-              <p>Supabase provides a wide range of filters.</p>
+              <h4 className="mt-0 text-white">
+                <Trans>Filtering</Trans>
+              </h4>
+              <p>
+                <Trans>Supabase provides a wide range of filters.</Trans>
+              </p>
               <p>
                 <a
                   href="https://supabase.com/docs/reference/javascript/using-filters"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Learn more
+                  <Trans>Learn more</Trans>
                 </a>
               </p>
             </article>
@@ -190,16 +199,22 @@ const TableDocs = ({
       )}
       {methods.includes("POST") && (
         <>
-          <h3 className="text-foreground mt-4 px-6">Insert rows</h3>
+          <h3 className="text-foreground mt-4 px-6">
+            <Trans>Insert rows</Trans>
+          </h3>
           <div className="doc-section">
             <article className="code-column text-foreground">
               <p>
-                <code>insert</code> lets you insert into your tables. You can
-                also insert in bulk and do UPSERT.
+                <Trans>
+                  <code>insert</code> lets you insert into your tables. You can
+                  also insert in bulk and do UPSERT.
+                </Trans>
               </p>
               <p>
-                <code>insert</code> will also return the replaced values for
-                UPSERT.
+                <Trans>
+                  <code>insert</code> will also return the replaced values for
+                  UPSERT.
+                </Trans>
               </p>
               <p>
                 <a
@@ -207,7 +222,7 @@ const TableDocs = ({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Learn more
+                  <Trans>Learn more</Trans>
                 </a>
               </p>
             </article>
@@ -230,18 +245,24 @@ const TableDocs = ({
       )}
       {methods.includes("PATCH") && (
         <>
-          <h3 className="text-foreground mt-4 px-6">Update rows</h3>
+          <h3 className="text-foreground mt-4 px-6">
+            <Trans>Update rows</Trans>
+          </h3>
           <div className="doc-section">
             <article className="code-column text-foreground">
               <p>
-                <code>update</code> lets you update rows. <code>update</code>{" "}
-                will match all rows by default. You can update specific rows
-                using horizontal filters, e.g. <code>eq</code>, <code>lt</code>,
-                and <code>is</code>.
+                <Trans>
+                  <code>update</code> lets you update rows. <code>update</code>{" "}
+                  will match all rows by default. You can update specific rows
+                  using horizontal filters, e.g. <code>eq</code>,{" "}
+                  <code>lt</code>, and <code>is</code>.
+                </Trans>
               </p>
               <p>
-                <code>update</code> will also return the replaced values for
-                UPDATE.
+                <Trans>
+                  <code>update</code> will also return the replaced values for
+                  UPDATE.
+                </Trans>
               </p>
               <p>
                 <a
@@ -249,7 +270,7 @@ const TableDocs = ({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Learn more
+                  <Trans>Learn more</Trans>
                 </a>
               </p>
             </article>
@@ -264,13 +285,17 @@ const TableDocs = ({
       )}
       {methods.includes("DELETE") && (
         <>
-          <h3 className="text-foreground mt-4 px-6">Delete rows</h3>
+          <h3 className="text-foreground mt-4 px-6">
+            <Trans>Delete rows</Trans>
+          </h3>
           <div className="doc-section">
             <article className="code-column text-foreground">
               <p>
-                <code>delete</code> lets you delete rows. <code>delete</code>{" "}
-                will match all rows by default, so remember to specify your
-                filters!
+                <Trans>
+                  <code>delete</code> lets you delete rows. <code>delete</code>{" "}
+                  will match all rows by default, so remember to specify your
+                  filters!
+                </Trans>
               </p>
               <p>
                 <a
@@ -278,7 +303,7 @@ const TableDocs = ({
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Learn more
+                  <Trans>Learn more</Trans>
                 </a>
               </p>
             </article>
@@ -296,13 +321,17 @@ const TableDocs = ({
           methods.includes("POST") ||
           methods.includes("PATCH")) && (
           <>
-            <h3 className="text-foreground mt-4 px-6">Subscribe to changes</h3>
+            <h3 className="text-foreground mt-4 px-6">
+              <Trans>Subscribe to changes</Trans>
+            </h3>
             <div className="doc-section">
               <article className="code-column text-foreground">
                 <p>
-                  Supabase provides realtime functionality and broadcasts
-                  database changes to authorized users depending on Row Level
-                  Security (RLS) policies.
+                  <Trans>
+                    Supabase provides realtime functionality and broadcasts
+                    database changes to authorized users depending on Row Level
+                    Security (RLS) policies.
+                  </Trans>
                 </p>
                 <p>
                   <a
@@ -310,7 +339,7 @@ const TableDocs = ({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Learn more
+                    <Trans>Learn more</Trans>
                   </a>
                 </p>
               </article>
@@ -385,7 +414,7 @@ const Param = ({
         <div className="flex gap-2 items-center">
           <div className="flex items-center gap-2">
             <label className="font-mono text-xs uppercase text-foreground-lighter  min-w-[55px]">
-              Column
+              <Trans>Column</Trans>
             </label>
             <div className="flex items-center gap-4">
               <span className="text-md text-foreground pb-0.5">{name}</span>
@@ -398,13 +427,13 @@ const Param = ({
             !isOptional && "border-amber-700 bg-amber-300 text-amber-900 "
           )}
         >
-          {isOptional ? "Optional" : "Required"}
+          {isOptional ? <Trans>Optional</Trans> : <Trans>Required</Trans>}
         </div>
       </div>
       <div className="grid gap-2 mt-6">
         <div className="mb-4 flex items-center gap-2">
           <label className="font-mono text-xs uppercase text-foreground-lighter min-w-[55px]">
-            Type
+            <Trans>Type</Trans>
           </label>
           <div>
             <span className="flex grow-0 bg-muted px-2 py-0.5 rounded-md text-foreground-light">
@@ -429,7 +458,7 @@ const Param = ({
         </div>
         <div className="mb-4 flex items-center gap-2">
           <label className="font-mono text-xs uppercase text-foreground-lighter min-w-[55px]">
-            Format
+            <Trans>Format</Trans>
           </label>
           <div>
             <span className="flex grow-0 bg-muted px-2 py-0.5 rounded-md text-foreground-light">

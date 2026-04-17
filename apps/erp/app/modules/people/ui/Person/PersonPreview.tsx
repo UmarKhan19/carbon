@@ -11,6 +11,7 @@ import {
   HStack,
   useDisclosure
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 // import { LuHistory } from "react-icons/lu";
 import { useParams } from "react-router";
 import { Avatar } from "~/components";
@@ -50,25 +51,33 @@ const PersonHeader = () => {
         <CardContent>
           <CardAttributes>
             <CardAttribute>
-              <CardAttributeLabel>Department</CardAttributeLabel>
+              <CardAttributeLabel>
+                <Trans>Department</Trans>
+              </CardAttributeLabel>
               <CardAttributeValue>
                 {routeData?.employeeSummary?.departmentName}
               </CardAttributeValue>
             </CardAttribute>
             <CardAttribute>
-              <CardAttributeLabel>Location</CardAttributeLabel>
+              <CardAttributeLabel>
+                <Trans>Location</Trans>
+              </CardAttributeLabel>
               <CardAttributeValue>
                 {routeData?.employeeSummary?.locationName}
               </CardAttributeValue>
             </CardAttribute>
             <CardAttribute>
-              <CardAttributeLabel>Manager</CardAttributeLabel>
+              <CardAttributeLabel>
+                <Trans>Manager</Trans>
+              </CardAttributeLabel>
               <CardAttributeValue>
                 {routeData?.employeeSummary?.managerName}
               </CardAttributeValue>
             </CardAttribute>
             <CardAttribute>
-              <CardAttributeLabel>Start Date</CardAttributeLabel>
+              <CardAttributeLabel>
+                <Trans>Start Date</Trans>
+              </CardAttributeLabel>
               <CardAttributeValue>
                 {routeData?.employeeSummary?.startDate}
               </CardAttributeValue>

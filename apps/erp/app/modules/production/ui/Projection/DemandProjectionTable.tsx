@@ -11,6 +11,7 @@ import {
 } from "@carbon/react";
 import { useUrlParams } from "@carbon/remix";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
+import { useLingui } from "@lingui/react/macro";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
@@ -49,6 +50,7 @@ const DemandProjectionsTable = memo(
       day: "numeric"
     });
     const [params] = useUrlParams();
+    const { t } = useLingui();
     const permissions = usePermissions();
     const locations = useLocations();
     const [selectedItem, setSelectedItem] = useState<DemandProjection | null>(
@@ -92,7 +94,7 @@ const DemandProjectionsTable = memo(
       return [
         {
           accessorKey: "readableIdWithRevision",
-          header: "Part ID",
+          header: t`Part ID`,
           cell: ({ row }) => (
             <Hyperlink
               to={path.to.demandProjection(row.original.id!, locationId)}
@@ -131,7 +133,7 @@ const DemandProjectionsTable = memo(
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <IconButton
-                      aria-label="Actions"
+                      aria-label={t`Actions`}
                       variant="secondary"
                       icon={<LuEllipsisVertical />}
                     />
@@ -162,7 +164,7 @@ const DemandProjectionsTable = memo(
           }
         }
       ];
-    }, [periods, dateFormatter, numberFormatter, locationId, permissions]);
+    }, [periods, dateFormatter, numberFormatter, locationId, permissions, t]);
 
     return (
       <>
@@ -171,7 +173,7 @@ const DemandProjectionsTable = memo(
           columns={columns}
           count={count}
           defaultColumnPinning={defaultColumnPinning}
-          title="Demand Projections"
+          title={t`Demand Projections`}
           table="production-planning"
           withSavedView
           withSelectableRows
@@ -189,7 +191,7 @@ const DemandProjectionsTable = memo(
                 }}
               />
               {permissions.can("create", "production") && (
-                <New label="Part" to={`new?${params.toString()}`} />
+                <New label={t`Part`} to={`new?${params.toString()}`} />
               )}
             </div>
           }

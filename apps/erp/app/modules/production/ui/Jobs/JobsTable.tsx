@@ -21,6 +21,7 @@ import {
   parseDate,
   today
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePartition } from "react-icons/ai";
@@ -138,6 +139,7 @@ function useReadableTrackedEntities(data: Job[], companyId: string) {
 
 const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
   const navigate = useNavigate();
+  const { t } = useLingui();
   const [params] = useUrlParams();
   const parts = useParts();
   const tools = useTools();
@@ -175,7 +177,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
     const defaultColumns: ColumnDef<Job>[] = [
       {
         accessorKey: "jobId",
-        header: "Job ID",
+        header: t`Job ID`,
         cell: ({ row }) => (
           <HStack>
             <ItemThumbnail
@@ -195,7 +197,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "itemReadableIdWithRevision",
-        header: "Item",
+        header: t`Item`,
         cell: ({ row }) => {
           return (
             <VStack spacing={0}>
@@ -219,7 +221,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         id: "trackedEntityId",
-        header: "Tracking",
+        header: t`Tracking`,
         cell: ({ row }) =>
           row.original.jobMakeMethodId &&
           trackedEntities[row.original.jobMakeMethodId] ? (
@@ -234,7 +236,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "quantity",
-        header: "Quantity",
+        header: t`Quantity`,
         cell: ({ row }) => {
           const quantity = row.original.quantity;
           const quantityComplete = row.original.quantityComplete ?? 0;
@@ -261,7 +263,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
 
       {
         id: "customerId",
-        header: "Customer",
+        header: t`Customer`,
         cell: ({ row }) => (
           <CustomerAvatar customerId={row.original.customerId} />
         ),
@@ -278,7 +280,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "salesOrderReadableId",
-        header: "Sales Order",
+        header: t`Sales Order`,
         cell: ({ row }) =>
           row.original.salesOrderId && row.original.salesOrderLineId ? (
             <Hyperlink
@@ -305,7 +307,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: t`Status`,
         cell: ({ row }) => {
           const status = row.original.status;
           const dueDate = row.original.dueDate;
@@ -335,13 +337,13 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
               label: <JobStatus status={status} />
             }))
           },
-          pluralHeader: "Statuses",
+          pluralHeader: t`Statuses`,
           icon: <LuUsers />
         }
       },
       {
         id: "assignee",
-        header: "Assignee",
+        header: t`Assignee`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.assignee} />
         ),
@@ -358,7 +360,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "startDate",
-        header: "Start Date",
+        header: t`Start Date`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -366,7 +368,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "dueDate",
-        header: "Due Date",
+        header: t`Due Date`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -374,7 +376,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "deadlineType",
-        header: "Deadline Type",
+        header: t`Deadline Type`,
         cell: ({ row }) => {
           const dueDate = row.original.dueDate!;
           const deadlineType = row.original.deadlineType!;
@@ -412,7 +414,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "tags",
-        header: "Tags",
+        header: t`Tags`,
         cell: ({ row }) => (
           <HStack spacing={0} className="gap-1">
             {row.original.tags?.map((tag) => (
@@ -436,7 +438,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "orderQuantity",
-        header: "Order Qty",
+        header: t`Order Qty`,
         cell: (item) => item.getValue<number>(),
         meta: {
           icon: <LuHash />,
@@ -445,7 +447,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "inventoryQuantity",
-        header: "Inventory Qty",
+        header: t`Inventory Qty`,
         cell: (item) => item.getValue<number>(),
         meta: {
           icon: <LuHash />,
@@ -454,7 +456,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "productionQuantity",
-        header: "Production Qty",
+        header: t`Production Qty`,
         cell: (item) => item.getValue<number>(),
         meta: {
           icon: <LuHash />,
@@ -463,7 +465,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "scrapQuantity",
-        header: "Scrap Qty",
+        header: t`Scrap Qty`,
         cell: (item) => item.getValue<number>(),
         meta: {
           icon: <LuHash />,
@@ -472,7 +474,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "quantityComplete",
-        header: "Completed Qty",
+        header: t`Completed Qty`,
         cell: (item) => item.getValue<number>(),
         meta: {
           icon: <LuHash />,
@@ -481,7 +483,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "quantityShipped",
-        header: "Shipped Qty",
+        header: t`Shipped Qty`,
         cell: (item) => item.getValue<number>(),
         meta: {
           icon: <LuHash />,
@@ -490,7 +492,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "quantityReceivedToInventory",
-        header: "Received Qty",
+        header: t`Received Qty`,
         cell: (item) => item.getValue<number>(),
         meta: {
           icon: <LuHash />,
@@ -499,7 +501,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "locationId",
-        header: "Location",
+        header: t`Location`,
         cell: ({ row }) => (
           <Enumerable
             value={
@@ -521,7 +523,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         id: "createdBy",
-        header: "Created By",
+        header: t`Created By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.createdBy} />
         ),
@@ -538,7 +540,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "createdAt",
-        header: "Created At",
+        header: t`Created At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -546,7 +548,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         id: "updatedBy",
-        header: "Updated By",
+        header: t`Updated By`,
         cell: ({ row }) => (
           <EmployeeAvatar employeeId={row.original.updatedBy} />
         ),
@@ -563,7 +565,7 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
       },
       {
         accessorKey: "updatedAt",
-        header: "Updated At",
+        header: t`Updated At`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendar />
@@ -602,7 +604,9 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
     (selectedRows: typeof data) => {
       return (
         <DropdownMenuContent align="end" className="min-w-[200px]">
-          <DropdownMenuLabel>Update</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            <Trans>Update</Trans>
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem
@@ -670,12 +674,12 @@ const JobsTable = memo(({ data, count, tags }: JobsTableProps) => {
         count={count ?? 0}
         primaryAction={
           permissions.can("update", "resources") && (
-            <New label="Job" to={path.to.newJob} />
+            <New label={t`Job`} to={path.to.newJob} />
           )
         }
         renderActions={renderActions}
         renderContextMenu={renderContextMenu}
-        title="Jobs"
+        title={t`Jobs`}
         table="job"
         withSavedView
         withSelectableRows

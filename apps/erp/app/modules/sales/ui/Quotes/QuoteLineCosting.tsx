@@ -21,6 +21,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDurationHours } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { LuClock, LuInfo } from "react-icons/lu";
 import { useParams } from "react-router";
 import { MethodItemTypeIcon, TimeTypeIcon } from "~/components";
@@ -57,7 +58,9 @@ const QuoteLineCosting = ({
     <Card>
       <HStack className="justify-between items-start">
         <CardHeader>
-          <CardTitle>Costing</CardTitle>
+          <CardTitle>
+            <Trans>Costing</Trans>
+          </CardTitle>
         </CardHeader>
         <CardAction>
           <div className="flex items-center space-x-2 py-2">

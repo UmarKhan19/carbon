@@ -1,5 +1,6 @@
 import { MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -36,6 +37,7 @@ const WarehouseTransfersTable = memo(
     );
 
     const [params] = useUrlParams();
+    const { t } = useLingui();
     const navigate = useNavigate();
     const permissions = usePermissions();
 
@@ -48,7 +50,7 @@ const WarehouseTransfersTable = memo(
       const result: ColumnDef<(typeof rows)[number]>[] = [
         {
           accessorKey: "transferId",
-          header: "Transfer ID",
+          header: t`Transfer ID`,
           cell: ({ row }) => (
             <Hyperlink to={path.to.warehouseTransferDetails(row.original.id!)}>
               {row.original.transferId}
@@ -60,7 +62,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           accessorKey: "status",
-          header: "Status",
+          header: t`Status`,
           cell: (item) => {
             const status =
               item.getValue<(typeof warehouseTransferStatusType)[number]>();
@@ -74,13 +76,13 @@ const WarehouseTransfersTable = memo(
                 label: <WarehouseTransferStatus status={type} />
               }))
             },
-            pluralHeader: "Statuses",
+            pluralHeader: t`Statuses`,
             icon: <LuClock />
           }
         },
         {
           id: "fromLocation",
-          header: "From Location",
+          header: t`From Location`,
           cell: ({ row }) => row.original.fromLocation?.name || "N/A",
           meta: {
             icon: <LuMapPin />
@@ -88,7 +90,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           id: "toLocation",
-          header: "To Location",
+          header: t`To Location`,
           cell: ({ row }) => row.original.toLocation?.name || "N/A",
           meta: {
             icon: <LuMapPin />
@@ -96,7 +98,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           accessorKey: "reference",
-          header: "Reference",
+          header: t`Reference`,
           cell: (item) => item.getValue(),
           meta: {
             icon: <LuHash />
@@ -104,7 +106,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           accessorKey: "transferDate",
-          header: "Transfer Date",
+          header: t`Transfer Date`,
           cell: (item) => {
             const date = item.getValue<string>();
             return date ? formatDate(date) : "N/A";
@@ -115,7 +117,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           accessorKey: "expectedReceiptDate",
-          header: "Expected Receipt",
+          header: t`Expected Receipt`,
           cell: (item) => {
             const date = item.getValue<string>();
             return date ? formatDate(date) : "N/A";
@@ -126,7 +128,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           id: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -143,7 +145,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -151,7 +153,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -168,7 +170,7 @@ const WarehouseTransfersTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -177,7 +179,7 @@ const WarehouseTransfersTable = memo(
       ];
 
       return [...result, ...customColumns];
-    }, [people, customColumns]);
+    }, [people, customColumns, t]);
 
     const [selectedTransfer, setSelectedTransfer] =
       useState<WarehouseTransfer | null>(null);
@@ -198,7 +200,7 @@ const WarehouseTransfersTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              {row.status !== "Draft" ? "View Transfer" : "Edit Transfer"}
+              {row.status !== "Draft" ? t`View Transfer` : t`Edit Transfer`}
             </MenuItem>
             <MenuItem
               disabled={
@@ -212,12 +214,12 @@ const WarehouseTransfersTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Transfer
+              <Trans>Delete Transfer</Trans>
             </MenuItem>
           </>
         );
       },
-      [deleteTransferModal, navigate, params, permissions]
+      [deleteTransferModal, navigate, params, permissions, t]
     );
 
     return (
@@ -238,13 +240,13 @@ const WarehouseTransfersTable = memo(
           primaryAction={
             permissions.can("create", "inventory") && (
               <New
-                label="Warehouse Transfer"
+                label={t`Warehouse Transfer`}
                 to={path.to.newWarehouseTransfer}
               />
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Warehouse Transfers"
+          title={t`Warehouse Transfers`}
           table="warehouseTransfer"
           withSavedView
         />

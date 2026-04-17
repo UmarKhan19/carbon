@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Menubar, Spinner, VStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import type {
@@ -206,6 +207,7 @@ export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
 }
 
 export default function PartDetailsRoute() {
+  const { t } = useLingui();
   const { itemId } = useParams();
   if (!itemId) throw new Error("Could not find itemId");
 
@@ -337,7 +339,7 @@ export default function PartDetailsRoute() {
             isReadOnly={!permissions.can("update", "parts")}
             metadata={{ itemId }}
             modelPath={partData?.partSummary?.modelPath ?? null}
-            title="CAD Model"
+            title={t`CAD Model`}
           />
           <ItemRiskRegister itemId={itemId} />
         </>

@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuCalendarClock,
   LuCalendarHeart,
@@ -11,53 +12,55 @@ import { useSettings } from "~/hooks/useSettings";
 import type { RouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
-const peopleRoutes: RouteGroup[] = [
-  {
-    name: "Manage",
-    routes: [
-      {
-        name: "Employees",
-        to: path.to.people,
-        icon: <LuUsers />,
-        table: "employee"
-      },
-      {
-        name: "Timecards",
-        to: path.to.peopleTimecard,
-        icon: <LuClock />,
-        setting: "timeCardEnabled",
-        table: "timeCardEntry"
-      }
-    ]
-  },
-  {
-    name: "Configure",
-    routes: [
-      {
-        name: "Attributes",
-        to: path.to.attributes,
-        icon: <LuListChecks />
-      },
-      {
-        name: "Departments",
-        to: path.to.departments,
-        icon: <LuNetwork />
-      },
-      {
-        name: "Holidays",
-        to: path.to.holidays,
-        icon: <LuCalendarHeart />
-      },
-      {
-        name: "Shifts",
-        to: path.to.shifts,
-        icon: <LuCalendarClock />
-      }
-    ]
-  }
-];
-
 export default function usePeopleSubmodules() {
+  const { t } = useLingui();
+
+  const peopleRoutes: RouteGroup[] = [
+    {
+      name: t`Manage`,
+      routes: [
+        {
+          name: t`Employees`,
+          to: path.to.people,
+          icon: <LuUsers />,
+          table: "employee"
+        },
+        {
+          name: t`Timecards`,
+          to: path.to.peopleTimecard,
+          icon: <LuClock />,
+          setting: "timeCardEnabled",
+          table: "timeCardEntry"
+        }
+      ]
+    },
+    {
+      name: t`Configure`,
+      routes: [
+        {
+          name: t`Attributes`,
+          to: path.to.attributes,
+          icon: <LuListChecks />
+        },
+        {
+          name: t`Departments`,
+          to: path.to.departments,
+          icon: <LuNetwork />
+        },
+        {
+          name: t`Holidays`,
+          to: path.to.holidays,
+          icon: <LuCalendarHeart />
+        },
+        {
+          name: t`Shifts`,
+          to: path.to.shifts,
+          icon: <LuCalendarClock />
+        }
+      ]
+    }
+  ];
+
   const { addSavedViewsToRoutes } = useSavedViews();
 
   const settings = useSettings();

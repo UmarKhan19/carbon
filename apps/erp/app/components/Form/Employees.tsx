@@ -19,7 +19,12 @@ export type EmployeesProps = {
 } & UserSelectProps;
 
 const Employees = ({ name, label, helperText, ...props }: EmployeesProps) => {
-  const { error, defaultValue, validate } = useField(name);
+  const {
+    error,
+    defaultValue,
+    validate,
+    isOptional: fieldIsOptional
+  } = useField(name);
   const [selections, setSelections] = useState<string[]>(defaultValue);
 
   const handleChange = (items: IndividualOrGroup[]) => {
@@ -29,7 +34,11 @@ const Employees = ({ name, label, helperText, ...props }: EmployeesProps) => {
 
   return (
     <FormControl isInvalid={!!error}>
-      {label && <FormLabel htmlFor={name}>{label}</FormLabel>}
+      {label && (
+        <FormLabel htmlFor={name} isOptional={fieldIsOptional}>
+          {label}
+        </FormLabel>
+      )}
       {selections.map((selection, index) => (
         <input
           key={`${name}[${index}]`}

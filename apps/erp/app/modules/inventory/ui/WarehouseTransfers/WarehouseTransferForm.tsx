@@ -7,6 +7,7 @@ import {
   CardTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import {
   DatePicker,
@@ -31,6 +32,7 @@ const WarehouseTransferForm = ({
   initialValues
 }: WarehouseTransferFormProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const isEditing = !!initialValues.id;
   const isLocked = isWarehouseTransferLocked(initialValues.status);
   const canEdit =
@@ -47,11 +49,12 @@ const WarehouseTransferForm = ({
     >
       <Card className="w-full">
         <CardHeader>
-          <CardTitle>{isEditing ? "Warehouse" : "New"} Transfer</CardTitle>
+          <CardTitle>
+            {isEditing ? t`Warehouse Transfer` : t`New Transfer`}
+          </CardTitle>
           {!isEditing && (
             <CardDescription>
-              A warehouse transfer is an inter-company movement of inventory
-              between two locations
+              {t`A warehouse transfer is an inter-company movement of inventory between two locations`}
             </CardDescription>
           )}
         </CardHeader>
@@ -62,34 +65,36 @@ const WarehouseTransferForm = ({
               {isEditing ? (
                 <InputControlled
                   name="transferId"
-                  label="Transfer ID"
+                  label={t`Transfer ID`}
                   isDisabled
                   value={initialValues.transferId!}
                 />
               ) : (
                 <SequenceOrCustomId
                   name="transferId"
-                  label="Transfer ID"
+                  label={t`Transfer ID`}
                   table="warehouseTransfer"
                 />
               )}
-              <Input name="reference" label="Reference" />
-              <Location name="fromLocationId" label="From Location" />
-              <Location name="toLocationId" label="To Location" />
+              <Input name="reference" label={t`Reference`} />
+              <Location name="fromLocationId" label={t`From Location`} />
+              <Location name="toLocationId" label={t`To Location`} />
               {isEditing && (
                 <>
-                  <DatePicker name="transferDate" label="Transfer Date" />
+                  <DatePicker name="transferDate" label={t`Transfer Date`} />
                   <DatePicker
                     name="expectedReceiptDate"
-                    label="Expected Receipt Date"
+                    label={t`Expected Receipt Date`}
                   />
                 </>
               )}
             </div>
 
-            <TextArea name="notes" label="Notes" />
+            <TextArea name="notes" label={t`Notes`} />
 
-            <Submit disabled={!canEdit}>Save</Submit>
+            <Submit disabled={!canEdit}>
+              <Trans>Save</Trans>
+            </Submit>
           </VStack>
         </CardContent>
       </Card>

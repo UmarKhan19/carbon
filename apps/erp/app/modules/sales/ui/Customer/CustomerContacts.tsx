@@ -7,6 +7,8 @@ import {
   HStack,
   useDisclosure
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
+
 import { useCallback, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { LuPencil, LuTrash } from "react-icons/lu";
@@ -84,7 +86,9 @@ const CustomerContacts = ({ contacts }: CustomerContactsProps) => {
       <Card>
         <HStack className="justify-between items-start">
           <CardHeader>
-            <CardTitle>Contacts</CardTitle>
+            <CardTitle>
+              <Trans>Contacts</Trans>
+            </CardTitle>
           </CardHeader>
           <CardAction>{canEdit && <New to="new" />}</CardAction>
         </HStack>

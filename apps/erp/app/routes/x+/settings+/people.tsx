@@ -24,7 +24,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-
+import { msg } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -38,7 +39,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "People",
+  breadcrumb: msg`People`,
   to: path.to.peopleSettings
 };
 
@@ -159,31 +160,46 @@ export default function PeopleSettingsRoute() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">People</Heading>
+        <Heading size="h3">
+          <Trans>People</Trans>
+        </Heading>
 
         <Card>
           <CardHeader>
-            <CardTitle>Console Mode</CardTitle>
+            <CardTitle>
+              <Trans>Console Mode</Trans>
+            </CardTitle>
             <CardDescription>
-              Enable shared workstation mode for MES terminals. Operators
-              identify themselves via PIN before performing work.
+              <Trans>
+                Enable shared workstation mode for MES terminals. Operators
+                identify themselves via PIN before performing work.
+              </Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
               <VStack className="items-start gap-1">
                 <span className="font-medium">
-                  {(companySettings as any).consoleEnabled
-                    ? "Console mode is enabled"
-                    : "Console mode is disabled"}
+                  {(companySettings as any).consoleEnabled ? (
+                    <Trans>Console mode is enabled</Trans>
+                  ) : (
+                    <Trans>Console mode is disabled</Trans>
+                  )}
                 </span>
                 <HStack className="items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {(companySettings as any).consoleEnabled
-                      ? "Operators can use shared workstations with PIN authentication."
-                      : "Enable to allow shared workstation mode."}
+                    {(companySettings as any).consoleEnabled ? (
+                      <Trans>
+                        Operators can use shared workstations with PIN
+                        authentication.
+                      </Trans>
+                    ) : (
+                      <Trans>Enable to allow shared workstation mode.</Trans>
+                    )}
                   </span>
-                  <Badge variant="yellow">Beta</Badge>
+                  <Badge variant="yellow">
+                    <Trans>Beta</Trans>
+                  </Badge>
                 </HStack>
               </VStack>
               <Switch
@@ -197,26 +213,34 @@ export default function PeopleSettingsRoute() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Timecards</CardTitle>
+            <CardTitle>
+              <Trans>Timecards</Trans>
+            </CardTitle>
             <CardDescription>
-              Enable timecard tracking for work shifts.
+              <Trans>Enable timecard tracking for work shifts.</Trans>
             </CardDescription>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
               <VStack className="items-start gap-1">
                 <span className="font-medium">
-                  {companySettings.timeCardEnabled
-                    ? "Timecards are enabled"
-                    : "Timecards are disabled"}
+                  {companySettings.timeCardEnabled ? (
+                    <Trans>Timecards are enabled</Trans>
+                  ) : (
+                    <Trans>Timecards are disabled</Trans>
+                  )}
                 </span>
                 <HStack className="items-center gap-2">
                   <span className="text-sm text-muted-foreground">
-                    {companySettings.timeCardEnabled
-                      ? "Work shift tracking is active."
-                      : "Enable to start tracking work shifts."}
+                    {companySettings.timeCardEnabled ? (
+                      <Trans>Work shift tracking is active.</Trans>
+                    ) : (
+                      <Trans>Enable to start tracking work shifts.</Trans>
+                    )}
                   </span>
-                  <Badge variant="yellow">Beta</Badge>
+                  <Badge variant="yellow">
+                    <Trans>Beta</Trans>
+                  </Badge>
                 </HStack>
               </VStack>
               <Switch
@@ -234,13 +258,17 @@ export default function PeopleSettingsRoute() {
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>
-              <ModalTitle>Your Console PIN</ModalTitle>
+              <ModalTitle>
+                <Trans>Your Console PIN</Trans>
+              </ModalTitle>
             </ModalHeader>
             <ModalBody>
               <VStack spacing={4}>
                 <p className="text-sm text-muted-foreground">
-                  Console mode has been enabled. Use this PIN to identify
-                  yourself at MES terminals.
+                  <Trans>
+                    Console mode has been enabled. Use this PIN to identify
+                    yourself at MES terminals.
+                  </Trans>
                 </p>
                 <div className="flex items-center justify-center gap-3">
                   <span className="font-mono text-3xl tracking-[0.4em]">
@@ -249,14 +277,18 @@ export default function PeopleSettingsRoute() {
                   <Copy text={generatedPin} />
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  Remember this PIN. You will need it to exit console mode on
-                  MES terminals.
+                  <Trans>
+                    Remember this PIN. You will need it to exit console mode on
+                    MES terminals.
+                  </Trans>
                 </p>
               </VStack>
             </ModalBody>
             <ModalFooter>
               <HStack>
-                <Button onClick={() => setShowPinModal(false)}>Done</Button>
+                <Button onClick={() => setShowPinModal(false)}>
+                  <Trans>Done</Trans>
+                </Button>
               </HStack>
             </ModalFooter>
           </ModalContent>

@@ -4,11 +4,10 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import { renderAsync } from "@react-email/components";
 import { FunctionRegion } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -51,6 +50,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let file: ArrayBuffer;
   let fileName: string;
+  let documentFilePath: string;
 
   const serviceRole = getCarbonServiceRole();
 
@@ -147,7 +147,7 @@ export async function action(args: ActionFunctionArgs) {
 
       if (approverIds.length > 0) {
         try {
-          await tasks.trigger("notify", {
+          await trigger("notify", {
             event: NotificationEvent.ApprovalRequested,
             companyId,
             documentId: orderId,
@@ -217,7 +217,7 @@ export async function action(args: ActionFunctionArgs) {
         .slice(0, -5)}.pdf`
     );
 
-    const documentFilePath = `${companyId}/supplier-interaction/${purchaseOrder.data.supplierInteractionId}/${fileName}`;
+    documentFilePath = `${companyId}/supplier-interaction/${purchaseOrder.data.supplierInteractionId}/${fileName}`;
 
     const documentFileUpload = await serviceRole.storage
       .from("private")
@@ -332,20 +332,26 @@ export async function action(args: ActionFunctionArgs) {
           const html = await renderAsync(emailTemplate);
           const text = await renderAsync(emailTemplate, { plainText: true });
 
+          const { data: signedUrlData } = await serviceRole.storage
+            .from("private")
+            .createSignedUrl(documentFilePath, 3600);
+
           await Promise.all([
-            tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
+            trigger("send-email-resend", {
               to: [buyer.data.email, supplier.data.contact.email],
               cc: ccSelections?.length ? ccSelections : undefined,
               from: buyer.data.email,
               subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
               html,
               text,
-              attachments: [
-                {
-                  content: Buffer.from(file).toString("base64"),
-                  filename: fileName
-                }
-              ],
+              attachments: signedUrlData?.signedUrl
+                ? [
+                    {
+                      path: signedUrlData.signedUrl,
+                      filename: fileName
+                    }
+                  ]
+                : undefined,
               companyId
             })
           ]);

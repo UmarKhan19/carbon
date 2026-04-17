@@ -10,6 +10,7 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
@@ -41,6 +42,7 @@ type QualityDocumentsTableProps = {
 const QualityDocumentsTable = memo(
   ({ data, count, tags }: QualityDocumentsTableProps) => {
     const navigate = useNavigate();
+    const { t } = useLingui();
     const permissions = usePermissions();
     const seedFetcher = useFetcher<{ success: boolean; message: string }>();
 
@@ -61,7 +63,7 @@ const QualityDocumentsTable = memo(
       const defaultColumns: ColumnDef<QualityDocuments>[] = [
         {
           accessorKey: "name",
-          header: "Name",
+          header: t`Name`,
           cell: ({ row }) => (
             <div className="flex flex-col gap-0">
               <Hyperlink to={path.to.qualityDocument(row.original.id!)}>
@@ -79,7 +81,7 @@ const QualityDocumentsTable = memo(
 
         {
           accessorKey: "status",
-          header: "Status",
+          header: t`Status`,
           cell: ({ row }) => (
             <QualityDocumentStatus status={row.original.status} />
           ),
@@ -89,7 +91,7 @@ const QualityDocumentsTable = memo(
         },
         {
           accessorKey: "assignee",
-          header: "Assignee",
+          header: t`Assignee`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.assignee} />
           ),
@@ -99,7 +101,7 @@ const QualityDocumentsTable = memo(
         },
         {
           accessorKey: "tags",
-          header: "Tags",
+          header: t`Tags`,
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
               {row.original.tags?.map((tag) => (
@@ -123,7 +125,7 @@ const QualityDocumentsTable = memo(
         },
         {
           id: "versions",
-          header: "Versions",
+          header: t`Versions`,
           cell: ({ row }) => {
             const versions = row.original?.versions as Array<{
               id: string;
@@ -171,7 +173,7 @@ const QualityDocumentsTable = memo(
         }
       ];
       return [...defaultColumns];
-    }, [tags]);
+    }, [tags, t]);
 
     const renderContextMenu = useCallback(
       (row: QualityDocuments) => {
@@ -226,12 +228,12 @@ const QualityDocumentsTable = memo(
                       variant="primary"
                       type="submit"
                     >
-                      Load Templates
+                      <Trans>Load Templates</Trans>
                     </Button>
                   </seedFetcher.Form>
                 )}
                 <New
-                  label="Document"
+                  label={t`Document`}
                   variant={data.length === 0 ? "secondary" : "primary"}
                   to={path.to.newQualityDocument}
                 />
@@ -239,7 +241,7 @@ const QualityDocumentsTable = memo(
             )
           }
           renderContextMenu={renderContextMenu}
-          title="Quality Documents"
+          title={t`Quality Documents`}
           table="qualityDocument"
           withSavedView
         />
@@ -256,7 +258,7 @@ const QualityDocumentsTable = memo(
               deleteDisclosure.onClose();
             }}
             name={selectedQualityDocument.name ?? "quality document"}
-            text="Are you sure you want to delete this quality document?"
+            text={t`Are you sure you want to delete this quality document?`}
           />
         )}
       </>

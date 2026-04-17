@@ -2,9 +2,9 @@ import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import { useDisclosure } from "@carbon/react";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { riskRegisterValidator } from "~/modules/quality/quality.models";
@@ -48,7 +48,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // Notify the assignee if one was set
   if (d.assignee && result.data?.id) {
     try {
-      await tasks.trigger("notify", {
+      await trigger("notify", {
         companyId,
         documentId: result.data.id,
         event: NotificationEvent.RiskAssignment,

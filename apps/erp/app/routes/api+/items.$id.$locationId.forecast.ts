@@ -1,7 +1,7 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { getLocalTimeZone, startOfWeek, today } from "@internationalized/date";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
@@ -13,7 +13,7 @@ import {
   getOpenPurchaseOrderLines,
   getOpenSalesOrderLines
 } from "~/modules/items/items.service";
-import { getPeriods } from "~/modules/shared/shared.service";
+import { getOrCreatePeriods } from "~/modules/shared/shared.server";
 
 const defaultResponse = {
   demand: [],
@@ -38,19 +38,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
   if (!locationId) throw new Error("Could not find locationId");
 
-  const startDate = startOfWeek(today(getLocalTimeZone()), "en-US");
-  const endDate = startDate.add({ weeks: WEEKS_TO_FORECAST });
-  const periods = await getPeriods(client, {
-    startDate: startDate.toString(),
-    endDate: endDate.toString()
-  });
-
-  if (periods.error) {
-    return data(
-      defaultResponse,
-      await flash(request, error(periods.error, "Failed to load periods"))
-    );
-  }
+  const periods = await getOrCreatePeriods(
+    today(getLocalTimeZone()),
+    WEEKS_TO_FORECAST
+  );
 
   const [
     demand,
@@ -64,13 +55,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getItemDemand(client, {
       itemId,
       locationId,
-      periods: periods.data.map((p) => p.id ?? ""),
+      periods: periods.map((p) => p.id ?? ""),
       companyId
     }),
     getItemSupply(client, {
       itemId,
       locationId,
-      periods: periods.data.map((p) => p.id ?? ""),
+      periods: periods.map((p) => p.id ?? ""),
       companyId
     }),
     getItemQuantities(client, itemId, companyId, locationId),
@@ -97,7 +88,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         actualQuantity: f.forecastQuantity
       }))
     ],
-    periods: periods.data,
+    periods,
     quantityOnHand: quantities.data?.quantityOnHand ?? 0,
     openSalesOrderLines: openSalesOrderLines.data ?? [],
     openJobMaterials: openJobMaterials.data ?? [],

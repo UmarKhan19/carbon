@@ -17,6 +17,7 @@ import {
   TabsTrigger,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { LuExternalLink } from "react-icons/lu";
 import { PiLinkBreak } from "react-icons/pi";
@@ -33,6 +34,7 @@ interface Props {
 }
 
 export const JiraIssueDialog = ({ task }: Props) => {
+  const { t } = useLingui();
   const [tab, setTab] = useState("link");
   const revalidator = useRevalidator();
 
@@ -70,7 +72,7 @@ export const JiraIssueDialog = ({ task }: Props) => {
           <Button
             leftIcon={<JiraIcon className={"size-4"} />}
             variant="ghost"
-            aria-label="Update Jira issue"
+            aria-label={t`Update Jira issue`}
           >
             {linked.key}
           </Button>
@@ -78,7 +80,7 @@ export const JiraIssueDialog = ({ task }: Props) => {
           <IconButton
             icon={<JiraIcon className={"size-4 grayscale"} />}
             variant="ghost"
-            aria-label="Connect Jira issue"
+            aria-label={t`Connect Jira issue`}
           />
         )}
       </ModalTrigger>
@@ -86,9 +88,11 @@ export const JiraIssueDialog = ({ task }: Props) => {
         <Tabs value={tab} onValueChange={setTab} defaultValue="link">
           <ModalHeader className="mb-1 flex-row justify-between py-3 pr-10">
             <div className="space-y-1">
-              <ModalTitle>Link Jira Issue</ModalTitle>
+              <ModalTitle>
+                <Trans>Link Jira Issue</Trans>
+              </ModalTitle>
               <ModalDescription>
-                Search for existing or create a new one
+                <Trans>Search for existing or create a new one</Trans>
               </ModalDescription>
             </div>
 
@@ -151,7 +155,7 @@ export const JiraIssueDialog = ({ task }: Props) => {
                         size="sm"
                         variant={"destructive"}
                       >
-                        Unlink
+                        <Trans>Unlink</Trans>
                       </Button>
                     </div>
                   </div>

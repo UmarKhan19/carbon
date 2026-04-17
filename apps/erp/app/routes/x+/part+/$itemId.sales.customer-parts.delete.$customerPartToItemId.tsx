@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
@@ -65,6 +66,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function DeleteCustomerPartRoute() {
+  const { t } = useLingui();
   const { itemId, customerPartToItemId } = useParams();
   const { customerPart } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
@@ -79,8 +81,8 @@ export default function DeleteCustomerPartRoute() {
   return (
     <ConfirmDelete
       action={path.to.deleteCustomerPart(itemId, customerPartToItemId)}
-      name="Customer Part"
-      text={`Are you sure you want to delete the customer part for ${
+      name={t`Customer Part`}
+      text={t`Are you sure you want to delete the customer part for ${
         customerPart?.customer?.name ?? ""
       }? This cannot be undone.`}
       onCancel={onCancel}

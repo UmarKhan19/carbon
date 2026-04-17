@@ -7,10 +7,10 @@ import {
 } from "@carbon/auth";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
+import { trigger } from "@carbon/jobs";
 import { redis } from "@carbon/kv";
 import { Edition, Plan } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
 import { Stripe } from "stripe";
 import { z } from "zod";
 
@@ -473,7 +473,7 @@ async function sendNewCustomerNotification(
   );
 
   if (CarbonEdition === Edition.Cloud) {
-    tasks.trigger("onboard", {
+    trigger("onboard", {
       type: "customer",
       companyId,
       userId,

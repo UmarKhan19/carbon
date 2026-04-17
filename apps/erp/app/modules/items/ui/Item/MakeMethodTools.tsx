@@ -1,4 +1,5 @@
-import { Number, Submit, ValidatedForm } from "@carbon/form";
+import { useCarbon } from "@carbon/auth";
+import { Number, SelectControlled, Submit, ValidatedForm } from "@carbon/form";
 import {
   Alert,
   AlertTitle,
@@ -33,7 +34,8 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { useEffect, useState } from "react";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { Fragment, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import {
   LuCheck,
@@ -50,7 +52,7 @@ import {
 import { Link, useFetcher, useParams } from "react-router";
 import { Hidden, Item, useConfigurableItems } from "~/components/Form";
 import { Confirm } from "~/components/Modals";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useUser } from "~/hooks";
 import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
 import {
@@ -76,6 +78,7 @@ const MakeMethodTools = ({
   currentMethodId
 }: MakeMethodToolsProps) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const fetcher = useFetcher<{ error: string | null }>();
   const params = useParams();
   const { methodId, makeMethodId } = params;
@@ -109,20 +112,118 @@ const MakeMethodTools = ({
   const [selectedVersion, setSelectedVersion] =
     useState<MakeMethod>(activeMethod);
 
+  // Reset selectedVersion when itemId or activeMethod changes
+  useEffect(() => {
+    setSelectedVersion(activeMethod);
+  }, [itemId, activeMethod]);
+
+  // State for Get and Save Method modals
+  const { carbon } = useCarbon();
+  const {
+    company: { id: companyId }
+  } = useUser();
+
+  // State for Get Method modal - source versions
+  const [sourceMakeMethods, setSourceMakeMethods] = useState<
+    { label: JSX.Element; value: string }[]
+  >([]);
+  const [selectedSourceMethod, setSelectedSourceMethod] = useState<
+    string | null
+  >(null);
+
+  // State for Save Method modal - target versions
+  const [targetMakeMethods, setTargetMakeMethods] = useState<
+    { label: JSX.Element; value: string }[]
+  >([]);
+  const [selectedTargetMethod, setSelectedTargetMethod] = useState<
+    string | null
+  >(null);
+
+  const getSourceMakeMethods = async (sourceItemId: string) => {
+    setSourceMakeMethods([]);
+    setSelectedSourceMethod(null);
+    if (!carbon) return;
+    const { data, error } = await carbon
+      .from("makeMethod")
+      .select("id, version, status")
+      .eq("itemId", sourceItemId)
+      .eq("companyId", companyId)
+      .order("version", { ascending: false });
+
+    if (error) {
+      toast.error(error.message);
+    }
+
+    // For source, we can select any version (Draft, Active, or Archived)
+    setSourceMakeMethods(
+      data?.map(({ id, version, status }) => ({
+        label: (
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">V{version}</Badge>{" "}
+            <MakeMethodVersionStatus status={status} />
+          </div>
+        ),
+        value: id
+      })) ?? []
+    );
+
+    if (data?.length === 1) {
+      setSelectedSourceMethod(data[0].id);
+    }
+  };
+
+  const getTargetMakeMethods = async (targetItemId: string) => {
+    setTargetMakeMethods([]);
+    setSelectedTargetMethod(null);
+    if (!carbon) return;
+    const { data, error } = await carbon
+      .from("makeMethod")
+      .select("id, version, status")
+      .eq("itemId", targetItemId)
+      .eq("companyId", companyId)
+      .order("version", { ascending: false });
+
+    if (error) {
+      toast.error(error.message);
+    }
+
+    // Only Draft versions can be overwritten - Active and Archived are read-only
+    const availableVersions =
+      data?.filter(({ status }) => status === "Draft") ?? [];
+
+    setTargetMakeMethods(
+      availableVersions.map(({ id, version, status }) => ({
+        label: (
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">V{version}</Badge>{" "}
+            <MakeMethodVersionStatus status={status} />
+          </div>
+        ),
+        value: id
+      }))
+    );
+
+    if (availableVersions.length === 1) {
+      setSelectedTargetMethod(availableVersions[0].id);
+    }
+  };
+
   return (
-    <>
+    <Fragment key={itemId}>
       <Menubar>
         <HStack className="w-full justify-between">
           <HStack spacing={0}>
             <MenubarItem
               isLoading={isGetMethodLoading}
               isDisabled={
-                !permissions.can("update", "parts") || isGetMethodLoading
+                !permissions.can("update", "parts") ||
+                isGetMethodLoading ||
+                activeMethod.status !== "Draft" // Can only overwrite Draft versions
               }
               leftIcon={<LuGitBranch />}
               onClick={getMethodModal.onOpen}
             >
-              Get Method
+              <Trans>Get Method</Trans>
             </MenubarItem>
             <MenubarItem
               isDisabled={
@@ -132,7 +233,7 @@ const MakeMethodTools = ({
               leftIcon={<LuGitMerge />}
               onClick={saveMethodModal.onOpen}
             >
-              Save Method
+              <Trans>Save Method</Trans>
             </MenubarItem>
             {itemLink && (
               <MenubarItem leftIcon={<LuGitFork />} asChild>
@@ -248,6 +349,8 @@ const MakeMethodTools = ({
           onOpenChange={(open) => {
             if (!open) {
               getMethodModal.onClose();
+              setSourceMakeMethods([]);
+              setSelectedSourceMethod(null);
             }
           }}
         >
@@ -262,25 +365,52 @@ const MakeMethodTools = ({
               <ModalHeader>
                 <ModalTitle>Get Method</ModalTitle>
                 <ModalDescription>
-                  Overwrite the item method with the source method
+                  Overwrite the current version with the source method
                 </ModalDescription>
               </ModalHeader>
               <ModalBody>
-                <Hidden name="targetId" value={itemId} />
+                <Hidden name="targetId" value={activeMethodId} />
                 <VStack spacing={4}>
                   <Alert variant="destructive" className="mt-4">
                     <LuTriangleAlert className="h-4 w-4" />
                     <AlertTitle>
-                      This will overwrite the existing manufacturing method
+                      This will overwrite version {activeMethod.version} of this
+                      manufacturing method
                     </AlertTitle>
                   </Alert>
                   <Item
-                    name="sourceId"
-                    label="Source Method"
+                    name="itemId"
+                    label={t`Source Item`}
                     type={type}
-                    blacklist={configurableItemIds}
+                    blacklist={[itemId, ...configurableItemIds]}
                     includeInactive={includeInactive}
                     replenishmentSystem="Make"
+                    onChange={(value) => {
+                      if (value) {
+                        getSourceMakeMethods(value?.value);
+                      } else {
+                        setSourceMakeMethods([]);
+                        setSelectedSourceMethod(null);
+                      }
+                    }}
+                  />
+                  <SelectControlled
+                    name="sourceId"
+                    options={sourceMakeMethods}
+                    label={t`Source Version`}
+                    value={selectedSourceMethod ?? undefined}
+                    onChange={(value) => {
+                      if (value) {
+                        setSelectedSourceMethod(value?.value);
+                      } else {
+                        setSelectedSourceMethod(null);
+                      }
+                    }}
+                    placeholder={
+                      sourceMakeMethods.length === 0
+                        ? t`Select an item first`
+                        : undefined
+                    }
                   />
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -305,7 +435,10 @@ const MakeMethodTools = ({
                 <Button onClick={getMethodModal.onClose} variant="secondary">
                   Cancel
                 </Button>
-                <Submit isDisabled={!hasMethodParts} variant="destructive">
+                <Submit
+                  isDisabled={!hasMethodParts || !selectedSourceMethod}
+                  variant="destructive"
+                >
                   Confirm
                 </Submit>
               </ModalFooter>
@@ -320,6 +453,8 @@ const MakeMethodTools = ({
           onOpenChange={(open) => {
             if (!open) {
               saveMethodModal.onClose();
+              setTargetMakeMethods([]);
+              setSelectedTargetMethod(null);
             }
           }}
         >
@@ -334,19 +469,45 @@ const MakeMethodTools = ({
               <ModalHeader>
                 <ModalTitle>Save Method</ModalTitle>
                 <ModalDescription>
-                  Overwrite the target manufacturing method with the item method
+                  Save version {activeMethod.version} to another item's method
                 </ModalDescription>
               </ModalHeader>
               <ModalBody>
-                <Hidden name="sourceId" value={itemId} />
+                <Hidden name="sourceId" value={activeMethodId} />
                 <VStack spacing={4}>
                   <Item
-                    name="targetId"
-                    label="Target Method"
+                    name="itemId"
+                    label={t`Target Item`}
                     type={type}
                     includeInactive={includeInactive}
                     blacklist={[itemId, ...configurableItemIds]}
                     replenishmentSystem="Make"
+                    onChange={(value) => {
+                      if (value) {
+                        getTargetMakeMethods(value?.value);
+                      } else {
+                        setTargetMakeMethods([]);
+                        setSelectedTargetMethod(null);
+                      }
+                    }}
+                  />
+                  <SelectControlled
+                    name="targetId"
+                    options={targetMakeMethods}
+                    label={t`Target Version`}
+                    value={selectedTargetMethod ?? undefined}
+                    onChange={(value) => {
+                      if (value) {
+                        setSelectedTargetMethod(value?.value);
+                      } else {
+                        setSelectedTargetMethod(null);
+                      }
+                    }}
+                    placeholder={
+                      targetMakeMethods.length === 0
+                        ? t`No draft versions available`
+                        : undefined
+                    }
                   />
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -370,7 +531,9 @@ const MakeMethodTools = ({
                 <Button onClick={saveMethodModal.onClose} variant="secondary">
                   Cancel
                 </Button>
-                <Submit isDisabled={!hasMethodParts}>Confirm</Submit>
+                <Submit isDisabled={!hasMethodParts || !selectedTargetMethod}>
+                  <Trans>Confirm</Trans>
+                </Submit>
               </ModalFooter>
             </ValidatedForm>
           </ModalContent>
@@ -422,8 +585,8 @@ const MakeMethodTools = ({
                   )}
                   <Number
                     name="version"
-                    label="New Version"
-                    helperText="The new version number of the method"
+                    label={t`New Version`}
+                    helperText={t`The new version number of the method`}
                     minValue={maxVersion + 1}
                     maxValue={100000}
                     step={1}
@@ -434,7 +597,9 @@ const MakeMethodTools = ({
                 <Button onClick={newVersionModal.onClose} variant="secondary">
                   Cancel
                 </Button>
-                <Submit>Create Version</Submit>
+                <Submit>
+                  <Trans>Create Version</Trans>
+                </Submit>
               </ModalFooter>
             </ValidatedForm>
           </ModalContent>
@@ -446,9 +611,9 @@ const MakeMethodTools = ({
           action={`${path.to.activeMethodVersion(
             selectedVersion.id
           )}?methodToReplace=${activeMethodId}`}
-          confirmText="Make Active"
-          title={`Set Version ${selectedVersion.version} as Active Version?`}
-          text="This will make this version read-only and replace any material make methods with this version."
+          confirmText={t`Make Active`}
+          title={t`Set Version ${selectedVersion.version} as Active Version?`}
+          text={t`This will make this version read-only and replace any material make methods with this version.`}
           isOpen
           onSubmit={() => {
             activeMethodModal.onClose();
@@ -457,7 +622,7 @@ const MakeMethodTools = ({
           onCancel={activeMethodModal.onClose}
         />
       )}
-    </>
+    </Fragment>
   );
 };
 
@@ -466,6 +631,7 @@ function AdvancedSection({
 }: {
   onChange?: (hasSelection: boolean) => void;
 }) {
+  const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const [billOfMaterial, setBillOfMaterial] = useState(true);
   const [billOfProcess, setBillOfProcess] = useState(true);
@@ -485,15 +651,15 @@ function AdvancedSection({
   const processChildren = [
     {
       name: "parameters",
-      label: "Parameters",
+      label: t`Parameters`,
       checked: parameters,
       onChange: setParameters
     },
-    { name: "tools", label: "Tools", checked: tools, onChange: setTools },
-    { name: "steps", label: "Steps", checked: steps, onChange: setSteps },
+    { name: "tools", label: t`Tools`, checked: tools, onChange: setTools },
+    { name: "steps", label: t`Steps`, checked: steps, onChange: setSteps },
     {
       name: "workInstructions",
-      label: "Work Instructions",
+      label: t`Work Instructions`,
       checked: workInstructions,
       onChange: setWorkInstructions
     }

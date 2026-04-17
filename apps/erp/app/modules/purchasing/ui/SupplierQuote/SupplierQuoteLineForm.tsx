@@ -22,6 +22,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { LuTrash } from "react-icons/lu";
@@ -61,6 +62,7 @@ const SupplierQuoteLineForm = ({
   type,
   onClose
 }: SupplierQuoteLineFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { company } = useUser();
   const { carbon } = useCarbon();
@@ -105,7 +107,7 @@ const SupplierQuoteLineForm = ({
       .maybeSingle();
 
     if (supplierPart.error) {
-      toast.error("Failed to load supplier part details");
+      toast.error(t`Failed to load supplier part details`);
       return;
     }
 
@@ -133,7 +135,7 @@ const SupplierQuoteLineForm = ({
     ]);
 
     if (item.error) {
-      toast.error("Failed to load item details");
+      toast.error(t`Failed to load item details`);
       return;
     }
 
@@ -216,7 +218,7 @@ const SupplierQuoteLineForm = ({
                         <DropdownMenuTrigger asChild>
                           <IconButton
                             icon={<BsThreeDotsVertical />}
-                            aria-label="More"
+                            aria-label={t`More`}
                             variant="ghost"
                           />
                         </DropdownMenuTrigger>
@@ -226,7 +228,7 @@ const SupplierQuoteLineForm = ({
                             onClick={deleteDisclosure.onOpen}
                           >
                             <DropdownMenuIcon icon={<LuTrash />} />
-                            Delete Line
+                            <Trans>Delete Line</Trans>
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -246,7 +248,7 @@ const SupplierQuoteLineForm = ({
                       <Item
                         autoFocus
                         name="itemId"
-                        label="Part"
+                        label={t`Part`}
                         type={itemType}
                         value={itemData.itemId}
                         includeInactive
@@ -270,13 +272,13 @@ const SupplierQuoteLineForm = ({
 
                       <InputControlled
                         name="description"
-                        label="Short Description"
+                        label={t`Short Description`}
                         value={itemData.description}
                       />
 
                       <InputControlled
                         name="supplierPartId"
-                        label="Supplier Part Number"
+                        label={t`Supplier Part Number`}
                         value={itemData.supplierPartId}
                         onChange={(newValue) => {
                           setItemData((d) => ({
@@ -288,7 +290,7 @@ const SupplierQuoteLineForm = ({
                       />
                       <UnitOfMeasure
                         name="purchaseUnitOfMeasureCode"
-                        label="Purchase Unit of Measure"
+                        label={t`Purchase Unit of Measure`}
                         value={itemData.purchaseUom}
                         onChange={(newValue) => {
                           if (newValue) {
@@ -317,7 +319,7 @@ const SupplierQuoteLineForm = ({
                     <div className="flex gap-y-4">
                       <ArrayNumeric
                         name="quantity"
-                        label="Quantity"
+                        label={t`Quantity`}
                         defaults={[1, 25, 50, 100]}
                         isDisabled={isLocked}
                       />
@@ -334,7 +336,7 @@ const SupplierQuoteLineForm = ({
                       : !permissions.can("create", "purchasing"))
                   }
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Submit>
               </ModalCardFooter>
             </ValidatedForm>

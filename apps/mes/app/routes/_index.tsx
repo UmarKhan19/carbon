@@ -1,4 +1,5 @@
 import { requireAuthSession } from "@carbon/auth/session.server";
+import { Trans } from "@lingui/react/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -12,7 +13,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function IndexRoute() {
   return (
     <p>
-      Oops. You shouldn't see this page. Eventually it will be a landing page.
+      <Trans>
+        Oops. You shouldn't see this page. Eventually it will be a landing page.
+      </Trans>
     </p>
   );
 }

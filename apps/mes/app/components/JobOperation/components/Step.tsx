@@ -34,6 +34,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDateTime, parseMentionsFromDocument } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -73,6 +74,7 @@ export function StepsListItem({
 }) {
   const fetcher = useFetcher<{ success: boolean }>();
   const user = useUser();
+  const { t } = useLingui();
   const { name, description, type, unitOfMeasureCode, minValue, maxValue } =
     step;
 
@@ -106,11 +108,11 @@ export function StepsListItem({
               {type === "Measurement" && (
                 <span className="text-xs text-muted-foreground">
                   {minValue !== null && maxValue !== null
-                    ? `Must be between ${minValue} and ${maxValue} ${unitOfMeasureCode}`
+                    ? t`Must be between ${minValue} and ${maxValue} ${unitOfMeasureCode}`
                     : minValue !== null
-                      ? `Must be > ${minValue} ${unitOfMeasureCode}`
+                      ? t`Must be > ${minValue} ${unitOfMeasureCode}`
                       : maxValue !== null
-                        ? `Must be < ${maxValue} ${unitOfMeasureCode}`
+                        ? t`Must be < ${maxValue} ${unitOfMeasureCode}`
                         : null}
                 </span>
               )}
@@ -149,7 +151,7 @@ export function StepsListItem({
                     rightIcon={<LuCircleCheck />}
                     onClick={() => onRecord(step)}
                   >
-                    Update
+                    <Trans>Update</Trans>
                   </Button>
                 ))}
               <IconButton
@@ -183,7 +185,7 @@ export function StepsListItem({
                   isLoading={fetcher.state !== "idle"}
                   isDisabled={fetcher.state !== "idle"}
                 >
-                  Complete
+                  <Trans>Complete</Trans>
                 </Button>
               )}
             </fetcher.Form>
@@ -200,7 +202,7 @@ export function StepsListItem({
               rightIcon={<LuCircleCheck />}
               onClick={() => onRecord(step)}
             >
-              Record
+              <Trans>Record</Trans>
             </Button>
           )}
           {hasDescription && (
@@ -355,6 +357,7 @@ export function RecordModal({
     }));
   }, [employees]);
 
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const { company } = useUser();
   const [file, setFile] = useState<File | null>(null);
@@ -367,7 +370,7 @@ export function RecordModal({
     const fileUpload = acceptedFiles[0];
 
     setFile(fileUpload);
-    toast.info(`Uploading ${fileUpload.name}`);
+    toast.info(t`Uploading ${fileUpload.name}`);
 
     const fileName = `${company.id}/job/${attribute.operationId}/${fileUpload.name}`;
 
@@ -379,9 +382,9 @@ export function RecordModal({
       });
 
     if (upload.error) {
-      toast.error(`Failed to upload file: ${fileUpload.name}`);
+      toast.error(t`Failed to upload file: ${fileUpload.name}`);
     } else if (upload.data?.path) {
-      toast.success(`Uploaded: ${fileUpload.name}`);
+      toast.success(t`Uploaded: ${fileUpload.name}`);
       setFilePath(upload.data.path);
     }
   };
@@ -428,7 +431,9 @@ export function RecordModal({
         >
           <ModalHeader>
             <ModalTitle>
-              {attribute.name} - Set {activeStep + 1}
+              <Trans>
+                {attribute.name} - Set {activeStep + 1}
+              </Trans>
             </ModalTitle>
           </ModalHeader>
           <ModalBody>
@@ -503,7 +508,7 @@ export function RecordModal({
                         setFilePath(null);
                       }}
                     >
-                      Remove
+                      <Trans>Remove</Trans>
                     </Button>
                   </div>
                 ) : (
@@ -533,7 +538,7 @@ export function RecordModal({
                   )}
                   <div className="flex items-center justify-between py-4 w-full">
                     <span className="text-sm font-medium">
-                      Passed Inspection
+                      <Trans>Passed Inspection</Trans>
                     </span>
                     <Switch
                       checked={booleanControlled}
@@ -548,7 +553,7 @@ export function RecordModal({
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <Submit
               isLoading={fetcher.state !== "idle"}
@@ -559,7 +564,7 @@ export function RecordModal({
               rightIcon={<LuCircleCheck />}
               type="submit"
             >
-              Record
+              <Trans>Record</Trans>
             </Submit>
           </ModalFooter>
         </ValidatedForm>
@@ -596,7 +601,7 @@ export function DeleteStepRecordModal({
         </ModalHeader>
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <fetcher.Form method="post" action={path.to.recordDelete(id)}>
             <Button
@@ -605,7 +610,7 @@ export function DeleteStepRecordModal({
               type="submit"
               variant="destructive"
             >
-              Delete
+              <Trans>Delete</Trans>
             </Button>
           </fetcher.Form>
         </ModalFooter>

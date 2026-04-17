@@ -11,6 +11,7 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import {
@@ -39,6 +40,7 @@ const CustomerLocationForm = ({
   type = "drawer",
   onClose
 }: CustomerLocationFormProps) => {
+  const { t } = useLingui();
   const fetcher = useFetcher<{}>();
 
   const permissions = usePermissions();
@@ -75,7 +77,8 @@ const CustomerLocationForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Location
+                {isEditing ? <Trans>Edit</Trans> : <Trans>New</Trans>}{" "}
+                <Trans>Location</Trans>
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
@@ -83,16 +86,18 @@ const CustomerLocationForm = ({
               <Hidden name="type" value={type} />
               <Hidden name="addressId" />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
                 <AddressAutocomplete />
                 <CustomFormFields table="customerLocation" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={onClose}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

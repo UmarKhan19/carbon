@@ -19,6 +19,7 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -61,26 +62,26 @@ export function QuantityModal({
   type: "scrap" | "rework" | "complete" | "finish";
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher<ProductionQuantity>();
   const [quantity, setQuantity] = useState(parentIsSerial ? 1 : 0);
   const [confirmedUnissued, setConfirmedUnissued] = useState(false);
 
   const titleMap = {
-    scrap: `Log scrap for ${operation.itemReadableId}`,
-    rework: `Log rework for ${operation.itemReadableId}`,
-    complete: `Log completed for ${operation.itemReadableId}`,
-    finish: `Close out ${operation.itemReadableId}`
+    scrap: t`Log scrap for ${operation.itemReadableId}`,
+    rework: t`Log rework for ${operation.itemReadableId}`,
+    complete: t`Log completed for ${operation.itemReadableId}`,
+    finish: t`Close out ${operation.itemReadableId}`
   };
 
   const isOperationComplete =
     operation.quantityComplete >= operation.operationQuantity;
 
   const descriptionMap = {
-    scrap: "Select a scrap quantity and reason",
-    rework: "Select a rework quantity",
-    complete: "Select a completion quantity",
-    finish:
-      "Are you sure you want to close out this operation? This will end all active production events for this operation."
+    scrap: t`Select a scrap quantity and reason`,
+    rework: t`Select a rework quantity`,
+    complete: t`Select a completion quantity`,
+    finish: t`Are you sure you want to close out this operation? This will end all active production events for this operation.`
   };
 
   const actionMap = {
@@ -91,10 +92,10 @@ export function QuantityModal({
   };
 
   const actionButtonMap = {
-    scrap: "Log Scrap",
-    rework: "Log Rework",
-    complete: "Log Completed",
-    finish: isOperationComplete ? "Close" : "Close Anyways"
+    scrap: t`Log Scrap`,
+    rework: t`Log Rework`,
+    complete: t`Log Completed`,
+    finish: isOperationComplete ? t`Close` : t`Close Anyways`
   };
 
   const validatorMap = {
@@ -174,11 +175,16 @@ export function QuantityModal({
               {hasUnissuedTrackedMaterials && type === "complete" && (
                 <Alert variant="destructive">
                   <LuTriangleAlert className="h-4 w-4" />
-                  <AlertTitle>Unissued serial/batch materials</AlertTitle>
+                  <AlertTitle>
+                    <Trans>Unissued serial/batch materials</Trans>
+                  </AlertTitle>
                   <AlertDescription>
-                    There are serial or batch tracked materials on the bill of
-                    material that have not been fully issued. Completing without
-                    issuing may result in incorrect traceability records.
+                    <Trans>
+                      There are serial or batch tracked materials on the bill of
+                      material that have not been fully issued. Completing
+                      without issuing may result in incorrect traceability
+                      records.
+                    </Trans>
                   </AlertDescription>
                   <label className="flex items-center gap-2 mt-2 cursor-pointer">
                     <Checkbox
@@ -188,7 +194,9 @@ export function QuantityModal({
                       }
                     />
                     <span className="text-sm">
-                      I understand and want to complete without issuing
+                      <Trans>
+                        I understand and want to complete without issuing
+                      </Trans>
                     </span>
                   </label>
                 </Alert>
@@ -197,19 +205,27 @@ export function QuantityModal({
               {type === "finish" && !isOperationComplete && (
                 <Alert variant="destructive">
                   <LuTriangleAlert className="h-4 w-4" />
-                  <AlertTitle>Insufficient quantity</AlertTitle>
+                  <AlertTitle>
+                    <Trans>Insufficient quantity</Trans>
+                  </AlertTitle>
                   <AlertDescription>
-                    The completed quantity for this operation is less than the
-                    required quantity of {operation.operationQuantity}.
+                    <Trans>
+                      The completed quantity for this operation is less than the
+                      required quantity of {operation.operationQuantity}.
+                    </Trans>
                   </AlertDescription>
                 </Alert>
               )}
               {type === "finish" && !allStepsRecorded && (
                 <Alert variant="destructive">
                   <LuTriangleAlert className="h-4 w-4" />
-                  <AlertTitle>Steps are missing</AlertTitle>
+                  <AlertTitle>
+                    <Trans>Steps are missing</Trans>
+                  </AlertTitle>
                   <AlertDescription>
-                    Please record all steps for this operation before closing.
+                    <Trans>
+                      Please record all steps for this operation before closing.
+                    </Trans>
                   </AlertDescription>
                 </Alert>
               )}
@@ -217,7 +233,7 @@ export function QuantityModal({
                 <>
                   <NumberControlled
                     name="quantity"
-                    label="Quantity"
+                    label={t`Quantity`}
                     value={quantity}
                     onChange={setQuantity}
                     isReadOnly={parentIsSerial}
@@ -227,14 +243,14 @@ export function QuantityModal({
               )}
               {type === "scrap" ? (
                 <>
-                  <ScrapReason name="scrapReasonId" label="Scrap Reason" />
-                  <TextArea label="Notes" name="notes" />
+                  <ScrapReason name="scrapReasonId" label={t`Scrap Reason`} />
+                  <TextArea label={t`Notes`} name="notes" />
                 </>
               ) : (
                 <>
                   <NumberControlled
                     name="totalQuantity"
-                    label="Total Quantity"
+                    label={t`Total Quantity`}
                     value={
                       quantity +
                       (type === "rework"
@@ -249,7 +265,7 @@ export function QuantityModal({
           </ModalBody>
           <ModalFooter>
             <Button variant="secondary" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
 
             <Button

@@ -20,6 +20,7 @@ import {
   VStack
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -65,6 +66,21 @@ type ConsumablesTableProps = {
 
 const ConsumablesTable = memo(
   ({ data, count, tags }: ConsumablesTableProps) => {
+    const { t } = useLingui();
+    const translateMethodType = (v: string) =>
+      v === "Purchase to Order"
+        ? t`Purchase to Order`
+        : v === "Pull from Inventory"
+          ? t`Pull from Inventory`
+          : t`Make to Order`;
+    const translateTrackingType = (v: string) =>
+      v === "Inventory"
+        ? t`Inventory`
+        : v === "Non-Inventory"
+          ? t`Non-Inventory`
+          : v === "Serial"
+            ? t`Serial`
+            : t`Batch`;
     const navigate = useNavigate();
     const permissions = usePermissions();
 
@@ -79,7 +95,7 @@ const ConsumablesTable = memo(
       const defaultColumns: ColumnDef<Consumable>[] = [
         {
           accessorKey: "id",
-          header: "Consumable ID",
+          header: t`Consumable ID`,
           cell: ({ row }) => (
             <HStack className="py-1 min-w-[200px] truncate">
               <ItemThumbnail
@@ -102,7 +118,7 @@ const ConsumablesTable = memo(
         },
         {
           accessorKey: "description",
-          header: "Description",
+          header: t`Description`,
           cell: (item) => (
             <div className="max-w-[320px] truncate">
               {item.getValue<string>()}
@@ -114,7 +130,7 @@ const ConsumablesTable = memo(
         },
         {
           accessorKey: "itemPostingGroupId",
-          header: "Item Group",
+          header: t`Item Group`,
           cell: (item) => {
             const itemPostingGroupId = item.getValue<string>();
             const itemPostingGroup = itemPostingGroups.find(
@@ -135,14 +151,14 @@ const ConsumablesTable = memo(
         },
         {
           accessorKey: "itemTrackingType",
-          header: "Tracking",
+          header: t`Tracking`,
           cell: (item) => (
             <Badge variant="secondary">
               <TrackingTypeIcon
                 type={item.getValue<string>()}
                 className="mr-2"
               />
-              <span>{item.getValue<string>()}</span>
+              <span>{translateTrackingType(item.getValue<string>())}</span>
             </Badge>
           ),
           meta: {
@@ -153,7 +169,7 @@ const ConsumablesTable = memo(
                 label: (
                   <Badge variant="secondary">
                     <TrackingTypeIcon type={type} className="mr-2" />
-                    <span>{type}</span>
+                    <span>{translateTrackingType(type)}</span>
                   </Badge>
                 )
               }))
@@ -163,11 +179,11 @@ const ConsumablesTable = memo(
         },
         {
           accessorKey: "defaultMethodType",
-          header: "Default Method",
+          header: t`Default Method`,
           cell: (item) => (
             <Badge variant="secondary">
               <MethodIcon type={item.getValue<string>()} className="mr-2" />
-              <span>{item.getValue<string>()}</span>
+              <span>{translateMethodType(item.getValue<string>())}</span>
             </Badge>
           ),
           meta: {
@@ -178,7 +194,7 @@ const ConsumablesTable = memo(
                 label: (
                   <Badge variant="secondary">
                     <MethodIcon type={value} className="mr-2" />
-                    <span>{value}</span>
+                    <span>{translateMethodType(value)}</span>
                   </Badge>
                 )
               }))
@@ -188,7 +204,7 @@ const ConsumablesTable = memo(
         },
         {
           accessorKey: "tags",
-          header: "Tags",
+          header: t`Tags`,
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
               {row.original.tags?.map((tag) => (
@@ -212,23 +228,23 @@ const ConsumablesTable = memo(
         },
         {
           accessorKey: "active",
-          header: "Active",
+          header: t`Active`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
           meta: {
             filter: {
               type: "static",
               options: [
-                { value: "true", label: "Active" },
-                { value: "false", label: "Inactive" }
+                { value: "true", label: t`Active` },
+                { value: "false", label: t`Inactive` }
               ]
             },
-            pluralHeader: "Active Statuses",
+            pluralHeader: t`Active Statuses`,
             icon: <LuCheck />
           }
         },
         // {
         //   id: "assignee",
-        //   header: "Assignee",
+        //   header: t`Assignee`,
         //   cell: ({ row }) => (
         //     <EmployeeAvatar employeeId={row.original.assignee} />
         //   ),
@@ -244,7 +260,7 @@ const ConsumablesTable = memo(
         // },
         {
           id: "createdBy",
-          header: "Created By",
+          header: t`Created By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.createdBy} />
           ),
@@ -261,7 +277,7 @@ const ConsumablesTable = memo(
         },
         {
           accessorKey: "createdAt",
-          header: "Created At",
+          header: t`Created At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -269,7 +285,7 @@ const ConsumablesTable = memo(
         },
         {
           id: "updatedBy",
-          header: "Updated By",
+          header: t`Updated By`,
           cell: ({ row }) => (
             <EmployeeAvatar employeeId={row.original.updatedBy} />
           ),
@@ -286,7 +302,7 @@ const ConsumablesTable = memo(
         },
         {
           accessorKey: "updatedAt",
-          header: "Updated At",
+          header: t`Updated At`,
           cell: (item) => formatDate(item.getValue<string>()),
           meta: {
             icon: <LuCalendar />
@@ -294,7 +310,7 @@ const ConsumablesTable = memo(
         }
       ];
       return [...defaultColumns, ...customColumns];
-    }, [tags, people, customColumns, itemPostingGroups]);
+    }, [tags, people, customColumns, itemPostingGroups, t]);
 
     const fetcher = useFetcher<typeof action>();
     useEffect(() => {
@@ -332,11 +348,15 @@ const ConsumablesTable = memo(
       (selectedRows: typeof data) => {
         return (
           <DropdownMenuContent align="end" className="min-w-[200px]">
-            <DropdownMenuLabel>Update</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              <Trans>Update</Trans>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Item Group</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger>
+                  <Trans>Item Group</Trans>
+                </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
                     {itemPostingGroups.map((group) => (
@@ -358,7 +378,7 @@ const ConsumablesTable = memo(
               </DropdownMenuSub>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
-                  Default Method Type
+                  <Trans>Default Method Type</Trans>
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
@@ -370,14 +390,16 @@ const ConsumablesTable = memo(
                         }
                       >
                         <DropdownMenuIcon icon={<MethodIcon type={type} />} />
-                        <span>{type}</span>
+                        <span>{translateMethodType(type)}</span>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Tracking Type</DropdownMenuSubTrigger>
+                <DropdownMenuSubTrigger>
+                  <Trans>Tracking Type</Trans>
+                </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
                     {itemTrackingTypes.map((type) => (
@@ -390,7 +412,7 @@ const ConsumablesTable = memo(
                         <DropdownMenuIcon
                           icon={<TrackingTypeIcon type={type} />}
                         />
-                        <span>{type}</span>
+                        <span>{translateTrackingType(type)}</span>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuSubContent>
@@ -445,22 +467,24 @@ const ConsumablesTable = memo(
           importCSV={[
             {
               table: "consumable",
-              label: "Consumables"
+              label: t`Consumables`
             }
           ]}
           primaryAction={
             permissions.can("create", "parts") && (
               <div className="flex items-center gap-2">
                 <Button variant="secondary" leftIcon={<LuGroup />} asChild>
-                  <Link to={path.to.itemPostingGroups}>Item Groups</Link>
+                  <Link to={path.to.itemPostingGroups}>
+                    <Trans>Item Groups</Trans>
+                  </Link>
                 </Button>
-                <New label="Consumable" to={path.to.newConsumable} />
+                <New label={t`Consumable`} to={path.to.newConsumable} />
               </div>
             )
           }
           renderActions={renderActions}
           renderContextMenu={renderContextMenu}
-          title="Consumables"
+          title={t`Consumables`}
           table="consumable"
           withSavedView
           withSelectableRows
@@ -470,7 +494,7 @@ const ConsumablesTable = memo(
             action={path.to.deleteItem(selectedItem.id!)}
             isOpen={deleteItemModal.isOpen}
             name={selectedItem.readableIdWithRevision!}
-            text={`Are you sure you want to delete ${selectedItem.readableIdWithRevision!}? This cannot be undone.`}
+            text={t`Are you sure you want to delete ${selectedItem.readableIdWithRevision!}? This cannot be undone.`}
             onCancel={() => {
               deleteItemModal.onClose();
               setSelectedItem(null);

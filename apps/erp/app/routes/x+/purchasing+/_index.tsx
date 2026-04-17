@@ -40,6 +40,7 @@ import {
   parseDate,
   toCalendarDateTime
 } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import type { DateRange } from "@react-types/datepicker";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -246,6 +247,7 @@ export default function PurchaseDashboard() {
     purchaseOrdersNeedingApproval
   ]);
 
+  const { t } = useLingui();
   const kpiFetcher = useFetcher<typeof kpiLoader>();
   const isFetching = kpiFetcher.state !== "idle" || !kpiFetcher.data;
 
@@ -273,13 +275,13 @@ export default function PurchaseDashboard() {
   const [suppliers] = useSuppliers();
   const supplierOptions = useMemo(() => {
     return [
-      { label: "All Suppliers", value: "all" },
+      { label: t`All Suppliers`, value: "all" },
       ...suppliers.map((supplier) => ({
         label: supplier.name,
         value: supplier.id
       }))
     ];
-  }, [suppliers]);
+  }, [suppliers, t]);
 
   const [interval, setInterval] = useState("month");
   const [selectedKpi, setSelectedKpi] = useState("purchaseOrderAmount");
@@ -290,6 +292,17 @@ export default function PurchaseDashboard() {
   });
 
   const selectedKpiData = KPIs.find((k) => k.key === selectedKpi) || KPIs[0];
+
+  const kpiLabels: Record<string, string> = useMemo(
+    () => ({
+      supplierQuoteCount: t`Supplier Quotes`,
+      purchaseOrderCount: t`Purchase Orders`,
+      purchaseInvoiceCount: t`Purchase Invoices`,
+      purchaseOrderAmount: t`Purchase Order Amount`,
+      purchaseInvoiceAmount: t`Purchase Invoice Amount`
+    }),
+    [t]
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -373,8 +386,8 @@ export default function PurchaseDashboard() {
   const csvFilename = useMemo(() => {
     const startDate = dateRange?.start.toString();
     const endDate = dateRange?.end.toString();
-    return `${selectedKpiData.label}_${startDate}_to_${endDate}.csv`;
-  }, [dateRange, selectedKpiData.label]);
+    return `${kpiLabels[selectedKpiData.key]}_${startDate}_to_${endDate}.csv`;
+  }, [dateRange, kpiLabels, selectedKpiData.key]);
 
   return (
     <div className="flex flex-col gap-4 w-full p-4 h-[calc(100dvh-var(--header-height))] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded-full scrollbar-thumb-muted-foreground">
@@ -382,7 +395,9 @@ export default function PurchaseDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuPackageSearch className="text-muted-foreground" />
-            <CardTitle>Active Supplier Quotes</CardTitle>
+            <CardTitle>
+              <Trans>Active Supplier Quotes</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -399,7 +414,7 @@ export default function PurchaseDashboard() {
                     path.to.supplierQuotes
                   }?filter=status:in:${OPEN_SUPPLIER_QUOTE_STATUSES.join(",")}`}
                 >
-                  View Active Quotes
+                  <Trans>View Active Quotes</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -409,7 +424,9 @@ export default function PurchaseDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuLayoutList className="text-muted-foreground" />
-            <CardTitle>Open Purchase Orders</CardTitle>
+            <CardTitle>
+              <Trans>Open Purchase Orders</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -426,7 +443,7 @@ export default function PurchaseDashboard() {
                     path.to.purchaseOrders
                   }?filter=status:in:${OPEN_PURCHASE_ORDER_STATUSES.join(",")}`}
                 >
-                  View Open POs
+                  <Trans>View Open POs</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -436,7 +453,9 @@ export default function PurchaseDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuCreditCard className="text-muted-foreground" />
-            <CardTitle>Open Purchase Invoices</CardTitle>
+            <CardTitle>
+              <Trans>Open Purchase Invoices</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <HStack className="justify-between w-full items-center">
@@ -453,7 +472,7 @@ export default function PurchaseDashboard() {
                     path.to.purchaseInvoices
                   }?filter=status:in:${OPEN_INVOICE_STATUSES.join(",")}`}
                 >
-                  View Open Invoices
+                  <Trans>View Open Invoices</Trans>
                 </Link>
               </Button>
             </HStack>
@@ -472,7 +491,7 @@ export default function PurchaseDashboard() {
                     rightIcon={<LuChevronDown />}
                     className="hover:bg-background/80"
                   >
-                    <span>{selectedKpiData.label}</span>
+                    <span>{kpiLabels[selectedKpiData.key]}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start">
@@ -482,7 +501,7 @@ export default function PurchaseDashboard() {
                   >
                     {KPIs.map((kpi) => (
                       <DropdownMenuRadioItem key={kpi.key} value={kpi.key}>
-                        {kpi.label}
+                        {kpiLabels[kpi.key]}
                       </DropdownMenuRadioItem>
                     ))}
                   </DropdownMenuRadioGroup>
@@ -511,7 +530,7 @@ export default function PurchaseDashboard() {
                 <IconButton
                   variant="secondary"
                   icon={<LuEllipsisVertical />}
-                  aria-label="More"
+                  aria-label={t`More`}
                 />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -522,7 +541,7 @@ export default function PurchaseDashboard() {
                     className="flex flex-row items-center gap-2"
                   >
                     <DropdownMenuIcon icon={<LuFile />} />
-                    Export CSV
+                    <Trans>Export CSV</Trans>
                   </CSVLink>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -623,7 +642,9 @@ export default function PurchaseDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuClock className="text-muted-foreground" />
-            <CardTitle>Recently Created</CardTitle>
+            <CardTitle>
+              <Trans>Recently Created</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="min-h-[200px] max-h-[360px] w-full overflow-y-auto">
@@ -631,9 +652,15 @@ export default function PurchaseDashboard() {
                 <Table>
                   <Thead>
                     <Tr>
-                      <Th>Document</Th>
-                      <Th>Status</Th>
-                      <Th>Supplier</Th>
+                      <Th>
+                        <Trans>Document</Trans>
+                      </Th>
+                      <Th>
+                        <Trans>Status</Trans>
+                      </Th>
+                      <Th>
+                        <Trans>Supplier</Trans>
+                      </Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -678,13 +705,19 @@ export default function PurchaseDashboard() {
         <Card>
           <CardHeader className="flex-row gap-2">
             <LuInbox className="text-muted-foreground" />
-            <CardTitle>Assigned to Me</CardTitle>
+            <CardTitle>
+              <Trans>Assigned to Me</Trans>
+            </CardTitle>
           </CardHeader>
           <CardContent className="min-h-[200px]">
             <Suspense fallback={<Loading isLoading />}>
               <Await
                 resolve={assignedToMe}
-                errorElement={<div>Error loading assigned documents</div>}
+                errorElement={
+                  <div>
+                    <Trans>Error loading assigned documents</Trans>
+                  </div>
+                }
               >
                 {(assignedDocs) => (
                   <AssignedDocumentsTable
@@ -770,9 +803,15 @@ function AssignedDocumentsTable({
     <Table>
       <Thead>
         <Tr>
-          <Th>Document</Th>
-          <Th>Status</Th>
-          <Th>Supplier</Th>
+          <Th>
+            <Trans>Document</Trans>
+          </Th>
+          <Th>
+            <Trans>Status</Trans>
+          </Th>
+          <Th>
+            <Trans>Supplier</Trans>
+          </Th>
         </Tr>
       </Thead>
       <Tbody>

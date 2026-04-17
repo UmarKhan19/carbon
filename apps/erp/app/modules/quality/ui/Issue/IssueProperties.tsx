@@ -15,6 +15,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect } from "react";
 import { LuCopy, LuKeySquare, LuLink } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
@@ -45,6 +46,7 @@ const IssueProperties = () => {
   const { id } = useParams();
   if (!id) throw new Error("id not found");
 
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   const routeData = useRouteData<{
@@ -159,14 +161,14 @@ const IssueProperties = () => {
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -177,14 +179,16 @@ const IssueProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to issue</span>
+                <span>
+                  <Trans>Copy link to issue</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -197,14 +201,16 @@ const IssueProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy issue unique identifier</span>
+                <span>
+                  <Trans>Copy issue unique identifier</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -217,7 +223,9 @@ const IssueProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy issue number</span>
+                <span>
+                  <Trans>Copy issue number</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -254,7 +262,9 @@ const IssueProperties = () => {
       </VStack>
 
       <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Assignee</h3>
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Assignee</Trans>
+        </h3>
         <Assignee
           id={id}
           table="nonConformance"
@@ -280,7 +290,7 @@ const IssueProperties = () => {
             label: <Enumerable value={type.name} />
           }))}
           isReadOnly={disableStructureUpdate}
-          label="Issue Type"
+          label={t`Issue Type`}
           name="nonConformanceTypeId"
           inline={(value, options) => {
             return (
@@ -320,7 +330,7 @@ const IssueProperties = () => {
             )
           }))}
           isReadOnly={disableStructureUpdate}
-          label="Source"
+          label={t`Source`}
           name="source"
           inline={(value, options) => {
             return (
@@ -358,7 +368,7 @@ const IssueProperties = () => {
             )
           }))}
           isReadOnly={disableStructureUpdate}
-          label="Priority"
+          label={t`Priority`}
           name="priority"
           inline={(value, options) => {
             return (
@@ -394,7 +404,7 @@ const IssueProperties = () => {
             label: type.name
           }))}
           isReadOnly={disableStructureUpdate}
-          label="Required Actions"
+          label={t`Required Actions`}
           name="requiredActionIds"
           inline
           value={routeData?.nonConformance?.requiredActionIds ?? []}
@@ -420,7 +430,7 @@ const IssueProperties = () => {
             label: type
           }))}
           isReadOnly={disableStructureUpdate}
-          label="Approval Requirements"
+          label={t`Approval Requirements`}
           name="approvalRequirements"
           inline
           onChange={(value) => {
@@ -443,7 +453,7 @@ const IssueProperties = () => {
       >
         <DatePicker
           name="openDate"
-          label="Open Date"
+          label={t`Open Date`}
           inline
           isDisabled={!permissions.can("update", "quality") || isLocked}
           onChange={(date) => {
@@ -453,7 +463,9 @@ const IssueProperties = () => {
       </ValidatedForm>
 
       <VStack spacing={2}>
-        <h3 className="text-xs text-muted-foreground">Created By</h3>
+        <h3 className="text-xs text-muted-foreground">
+          <Trans>Created By</Trans>
+        </h3>
         <EmployeeAvatar
           employeeId={routeData?.nonConformance?.createdBy!}
           size="xxs"
@@ -471,7 +483,7 @@ const IssueProperties = () => {
       >
         <DatePicker
           name="dueDate"
-          label="Due Date"
+          label={t`Due Date`}
           inline
           isDisabled={!permissions.can("update", "quality") || isLocked}
           onChange={(date) => {
@@ -491,7 +503,7 @@ const IssueProperties = () => {
       >
         <DatePicker
           name="closeDate"
-          label="Close Date"
+          label={t`Close Date`}
           inline
           isDisabled={!permissions.can("update", "quality") || isLocked}
           onChange={(date) => {
@@ -511,7 +523,7 @@ const IssueProperties = () => {
       >
         <Tags
           availableTags={routeData?.tags ?? []}
-          label="Tags"
+          label={t`Tags`}
           name="tags"
           table="nonConformance"
           inline

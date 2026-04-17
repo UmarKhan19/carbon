@@ -12,6 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { Column, ColumnOrderState } from "@tanstack/react-table";
 import { Reorder } from "framer-motion";
 import {
@@ -36,27 +37,37 @@ const Columns = <T extends object>({
   withSelectableRows,
   setColumnOrder
 }: ColumnsProps<T>) => {
+  const { t, i18n } = useLingui();
+
+  const translate = (value: string) => i18n._(value);
+
   return (
     <Drawer>
       <DrawerTrigger>
         <Tooltip>
           <TooltipTrigger asChild>
             <IconButton
-              aria-label="Columns"
-              title="Columns"
+              aria-label={t`Columns`}
+              title={t`Columns`}
               variant="ghost"
               icon={<LuColumns2 />}
             />
           </TooltipTrigger>
           <TooltipContent>
-            <p>Column visibility and order</p>
+            <p>
+              <Trans>Column visibility and order</Trans>
+            </p>
           </TooltipContent>
         </Tooltip>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>Edit column visibility</DrawerTitle>
-          <DrawerDescription>Hide, pin and reorder columns</DrawerDescription>
+          <DrawerTitle>
+            <Trans>Edit column visibility</Trans>
+          </DrawerTitle>
+          <DrawerDescription>
+            <Trans>Hide, pin and reorder columns</Trans>
+          </DrawerDescription>
         </DrawerHeader>
         <DrawerBody>
           <Reorder.Group
@@ -106,16 +117,16 @@ const Columns = <T extends object>({
                   >
                     <HStack className="w-full">
                       <IconButton
-                        aria-label="Drag handle"
+                        aria-label={t`Drag handle`}
                         icon={<LuGripVertical />}
                         variant="ghost"
                       />
                       <span className="text-sm flex-grow flex items-center gap-2">
                         {column.columnDef.meta?.icon}
-                        <>{column.columnDef.header}</>
+                        <>{translate(column.columnDef.header as string)}</>
                       </span>
                       <IconButton
-                        aria-label="Toggle column"
+                        aria-label={t`Toggle column`}
                         icon={column.getIsPinned() ? <LuPin /> : <LuPinOff />}
                         onClick={() => {
                           if (column.getIsPinned()) {
@@ -159,7 +170,7 @@ const Columns = <T extends object>({
                         disabled={!column.getIsPinned() && !canPin}
                       />
                       <IconButton
-                        aria-label="Toggle column"
+                        aria-label={t`Toggle column`}
                         icon={column.getIsVisible() ? <LuEye /> : <LuEyeOff />}
                         onClick={() => {
                           // When hiding a column, unpin it and move after pinned columns

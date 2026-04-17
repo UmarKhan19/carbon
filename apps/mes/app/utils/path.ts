@@ -96,7 +96,6 @@ export const path = {
     companySwitch: (companyId: string) =>
       generatePath(`${x}/company/switch/${companyId}`),
     complete: `${x}/complete`,
-    consoleAddOperator: `${x}/console/add-operator`,
     consolePinIn: `${x}/console/pin-in`,
     consolePinOut: `${x}/console/pin-out`,
     consoleToggle: `${x}/console/toggle`,

@@ -14,6 +14,7 @@ import {
   useDisclosure
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuCheckCheck,
   LuCreditCard,
@@ -24,7 +25,6 @@ import {
   LuTruck
 } from "react-icons/lu";
 import { Link, useParams } from "react-router";
-
 import { useAuditLog } from "~/components/AuditLog";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
@@ -44,6 +44,7 @@ const ReceiptHeader = () => {
 
   if (!routeData?.receipt) throw new Error("Failed to load receipt");
 
+  const { t } = useLingui();
   const { company } = useUser();
   const permissions = usePermissions();
   const postModal = useDisclosure();
@@ -92,7 +93,7 @@ const ReceiptHeader = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More options"
+                  aria-label={t`More options`}
                   icon={<LuEllipsisVertical />}
                   variant="secondary"
                   size="sm"
@@ -110,7 +111,7 @@ const ReceiptHeader = () => {
                   onClick={deleteModal.onOpen}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Receipt
+                  <Trans>Delete Receipt</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -128,7 +129,7 @@ const ReceiptHeader = () => {
                 onClick={() => navigateToTrackingLabels(false)}
                 variant={isPosted ? "primary" : "secondary"}
               >
-                Tracking Labels
+                <Trans>Tracking Labels</Trans>
               </SplitButton>
             )}
             <SourceDocumentLink
@@ -144,7 +145,7 @@ const ReceiptHeader = () => {
               isDisabled={!canPost || isPosted || !permissions.is("employee")}
               leftIcon={<LuCheckCheck />}
             >
-              Post
+              <Trans>Post</Trans>
             </Button>
           </HStack>
         </HStack>
@@ -156,7 +157,7 @@ const ReceiptHeader = () => {
           action={path.to.deleteReceipt(receiptId)}
           isOpen={deleteModal.isOpen}
           name={routeData?.receipt?.receiptId ?? "receipt"}
-          text={`Are you sure you want to delete ${routeData?.receipt?.receiptId}? This cannot be undone.`}
+          text={t`Are you sure you want to delete ${routeData?.receipt?.receiptId}? This cannot be undone.`}
           onCancel={() => {
             deleteModal.onClose();
           }}
@@ -189,7 +190,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuShoppingCart />} asChild>
           <Link to={path.to.purchaseOrderDetails(sourceDocumentId!)}>
-            Purchase Order
+            <Trans>Purchase Order</Trans>
           </Link>
         </Button>
       );
@@ -198,7 +199,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuCreditCard />} asChild>
           <Link to={path.to.purchaseInvoice(sourceDocumentId!)}>
-            Purchase Invoice
+            <Trans>Purchase Invoice</Trans>
           </Link>
         </Button>
       );
@@ -207,7 +208,7 @@ function SourceDocumentLink({
       return (
         <Button variant="secondary" leftIcon={<LuTruck />} asChild>
           <Link to={path.to.warehouseTransferDetails(sourceDocumentId!)}>
-            Warehouse Transfer
+            <Trans>Warehouse Transfer</Trans>
           </Link>
         </Button>
       );

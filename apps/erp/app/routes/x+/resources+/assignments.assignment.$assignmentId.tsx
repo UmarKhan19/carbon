@@ -2,8 +2,9 @@ import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
-import { tasks } from "@trigger.dev/sdk";
+import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   data,
@@ -28,7 +29,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Edit Assignment",
+  breadcrumb: msg`Edit Assignment`,
   to: path.to.trainingAssignments
 };
 
@@ -131,7 +132,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   // Send notifications to all users in the assigned groups
   try {
-    await tasks.trigger("notify", {
+    await trigger("notify", {
       companyId,
       documentId: assignmentId,
       event: NotificationEvent.TrainingAssignment,

@@ -13,6 +13,8 @@ import {
   ModalOverlay,
   ModalTitle
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
+
 import { useEffect, useRef } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher, useNavigation, useParams } from "react-router";
@@ -43,16 +45,22 @@ const SalesInvoiceVoidModal = ({ onClose }: { onClose: () => void }) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Void Sales Invoice</ModalTitle>
+          <ModalTitle>
+            <Trans>Void Sales Invoice</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Are you sure you want to void this sales invoice? This action will
-            reverse all financial transactions and cannot be undone.
+            <Trans>
+              Are you sure you want to void this sales invoice? This action will
+              reverse all financial transactions and cannot be undone.
+            </Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
           <Alert variant="destructive">
             <LuTriangleAlert className="h-4 w-4" />
-            <AlertTitle>Warning</AlertTitle>
+            <AlertTitle>
+              <Trans>Warning</Trans>
+            </AlertTitle>
             <AlertDescription>
               Voiding this sales invoice will:
               <ul className="list-disc pl-4 mt-2 space-y-1">
@@ -67,7 +75,7 @@ const SalesInvoiceVoidModal = ({ onClose }: { onClose: () => void }) => {
         <ModalFooter>
           <HStack>
             <Button variant="solid" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <fetcher.Form
               action={path.to.salesInvoiceVoid(invoiceId)}

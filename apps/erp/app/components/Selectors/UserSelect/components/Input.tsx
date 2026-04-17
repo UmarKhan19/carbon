@@ -9,10 +9,12 @@ import {
   InputRightElement,
   Spinner
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { LuX } from "react-icons/lu";
 import useUserSelectContext from "../provider";
 
 const Input = () => {
+  const { t } = useLingui();
   const {
     aria: { inputProps },
     innerProps: { disabled, isMulti, placeholder, readOnly },
@@ -60,7 +62,7 @@ const Input = () => {
             {loading && <Spinner />}
             {!loading && !disabled && inputValue.length > 0 && (
               <IconButton
-                aria-label="Clear search query"
+                aria-label={t`Clear search query`}
                 icon={<LuX />}
                 onClick={onClearInput}
                 variant="ghost"

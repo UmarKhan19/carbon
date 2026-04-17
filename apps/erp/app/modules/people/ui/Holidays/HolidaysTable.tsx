@@ -1,5 +1,6 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { BsFillPenFill } from "react-icons/bs";
@@ -20,6 +21,7 @@ type HolidaysTableProps = {
 };
 
 const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [params] = useUrlParams();
@@ -30,7 +32,7 @@ const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
     const defaultColumns: ColumnDef<(typeof data)[number]>[] = [
       {
         accessorKey: "name",
-        header: "Holiday",
+        header: t`Holiday`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id}>{row.original.name}</Hyperlink>
         ),
@@ -40,7 +42,7 @@ const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
       },
       {
         accessorKey: "year",
-        header: "Year",
+        header: t`Year`,
         cell: (item) => (
           <Enumerable value={item.getValue<number>().toString()} />
         ),
@@ -57,7 +59,7 @@ const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
       },
       {
         accessorKey: "date",
-        header: "Date",
+        header: t`Date`,
         cell: (item) => formatDate(item.getValue<string>()),
         meta: {
           icon: <LuCalendarDays />
@@ -65,7 +67,7 @@ const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns, years]);
+  }, [customColumns, years, t]);
 
   const renderContextMenu = useCallback(
     (row: (typeof data)[number]) => {
@@ -77,7 +79,7 @@ const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
             }}
           >
             <MenuIcon icon={<BsFillPenFill />} />
-            Edit Holiday
+            <Trans>Edit Holiday</Trans>
           </MenuItem>
           <MenuItem
             disabled={!permissions.can("delete", "people")}
@@ -87,7 +89,7 @@ const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
             }}
           >
             <MenuIcon icon={<IoMdTrash />} />
-            Delete Holiday
+            <Trans>Delete Holiday</Trans>
           </MenuItem>
         </>
       );
@@ -102,11 +104,11 @@ const HolidaysTable = memo(({ data, count, years }: HolidaysTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "people") && (
-          <New label="Holiday" to={`new?${params.toString()}`} />
+          <New label={t`Holiday`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Holidays"
+      title={t`Holidays`}
     />
   );
 });

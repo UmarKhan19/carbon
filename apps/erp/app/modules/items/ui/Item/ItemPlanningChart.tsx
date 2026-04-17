@@ -24,6 +24,7 @@ import {
 } from "@carbon/react/Chart";
 import { formatDate } from "@carbon/utils";
 import { getLocalTimeZone, parseDate } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useDateFormatter, useNumberFormatter } from "@react-aria/i18n";
 import { useMemo, useState } from "react";
 import {
@@ -90,6 +91,7 @@ export const ItemPlanningChart = ({
   safetyStock?: number;
   conversionFactor?: number;
 }) => {
+  const { t } = useLingui();
   const forecastFetcher = useFetcher<typeof forecastLoader>();
   const isFetching = forecastFetcher.state !== "idle" || !forecastFetcher.data;
   const [searchTerm, setSearchTerm] = useState("");
@@ -336,10 +338,14 @@ export const ItemPlanningChart = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Projections</CardTitle>
+          <CardTitle>
+            <Trans>Projections</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent className="min-h-[360px] flex items-center justify-center">
-          <Empty>No planning data</Empty>
+          <Empty>
+            <Trans>No planning data</Trans>
+          </Empty>
         </CardContent>
       </Card>
     );
@@ -349,7 +355,9 @@ export const ItemPlanningChart = ({
     <>
       <Card className={cn(compact && "border-none p-0 dark:shadow-none")}>
         <CardHeader>
-          <CardTitle>Projections</CardTitle>
+          <CardTitle>
+            <Trans>Projections</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="w-full h-[360px]">
@@ -458,13 +466,21 @@ export const ItemPlanningChart = ({
         <Card className={cn(compact && "border-none p-0 dark:shadow-none")}>
           <HStack className="w-full justify-between">
             <CardHeader>
-              <CardTitle>Supply & Demand</CardTitle>
+              <CardTitle>
+                <Trans>Supply & Demand</Trans>
+              </CardTitle>
             </CardHeader>
             <CardAction className="flex items-center gap-2">
               <TabsList>
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="supply">Supply</TabsTrigger>
-                <TabsTrigger value="demand">Demand</TabsTrigger>
+                <TabsTrigger value="all">
+                  <Trans>All</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="supply">
+                  <Trans>Supply</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="demand">
+                  <Trans>Demand</Trans>
+                </TabsTrigger>
               </TabsList>
             </CardAction>
           </HStack>
@@ -473,7 +489,9 @@ export const ItemPlanningChart = ({
               <Card>
                 <CardHeader className="pb-8">
                   <CardDescription>
-                    <VStack>Quantity on Hand</VStack>
+                    <VStack>
+                      <Trans>Quantity on Hand</Trans>
+                    </VStack>
                   </CardDescription>
                   <CardTitle className="text-4xl ">
                     <div className="flex justify-start items-center gap-1">
@@ -487,7 +505,9 @@ export const ItemPlanningChart = ({
               <Card>
                 <CardHeader className="pb-8">
                   <CardDescription>
-                    <VStack>Incoming</VStack>
+                    <VStack>
+                      <Trans>Incoming</Trans>
+                    </VStack>
                   </CardDescription>
                   <CardTitle className="text-4xl ">
                     <div className="flex justify-start items-center gap-1">
@@ -505,7 +525,9 @@ export const ItemPlanningChart = ({
               <Card>
                 <CardHeader className="pb-8">
                   <CardDescription>
-                    <VStack>Outgoing</VStack>
+                    <VStack>
+                      <Trans>Outgoing</Trans>
+                    </VStack>
                   </CardDescription>
                   <CardTitle className="text-4xl ">
                     <div className="flex justify-start items-center gap-1">
@@ -528,7 +550,7 @@ export const ItemPlanningChart = ({
 
             <div className="relative w-full mb-4">
               <Input
-                placeholder="Search"
+                placeholder={t`Search`}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -597,6 +619,7 @@ const sourceTypeIcons: Record<SourceType, JSX.Element> = {
 };
 
 function SupplyDemandPlanningItem({ item }: { item: PlanningItem }) {
+  const { t } = useLingui();
   const numberFormatter = useNumberFormatter();
 
   return (
@@ -614,7 +637,7 @@ function SupplyDemandPlanningItem({ item }: { item: PlanningItem }) {
               {item.documentReadableId}
             </Hyperlink>
             <span className="text-xs text-muted-foreground">
-              {item.dueDate ? formatDate(item.dueDate) : "No due date"}
+              {item.dueDate ? formatDate(item.dueDate) : t`No due date`}
             </span>
           </VStack>
           <div className="flex items-center gap-1 text-sm text-muted-foreground text-right">

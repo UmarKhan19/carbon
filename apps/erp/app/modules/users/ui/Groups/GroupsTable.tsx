@@ -5,6 +5,7 @@ import {
   DropdownMenuIcon,
   MenuItem
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuBookMarked, LuPencil, LuTrash, LuUsers } from "react-icons/lu";
@@ -20,6 +21,7 @@ type GroupsTableProps = {
 };
 
 const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
   const [params] = useUrlParams();
@@ -44,7 +46,7 @@ const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
     return [
       {
         accessorKey: "name",
-        header: "Group Name",
+        header: t`Group Name`,
         cell: ({ row }) =>
           row.original.isEmployeeTypeGroup ||
           row.original.isCustomerTypeGroup ||
@@ -60,7 +62,7 @@ const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
         }
       },
       {
-        header: "Members",
+        header: t`Members`,
         // accessorKey: undefined, // makes the column unsortable
         cell: ({ row }) => (
           <AvatarGroup limit={3}>
@@ -87,7 +89,7 @@ const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
         }
       }
     ];
-  }, []);
+  }, [t]);
 
   const renderContextMenu = useCallback(
     (row: (typeof rows)[number]) => {
@@ -105,7 +107,7 @@ const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
             }}
           >
             <DropdownMenuIcon icon={<LuPencil />} />
-            Edit Group
+            <Trans>Edit Group</Trans>
           </MenuItem>
           <MenuItem
             destructive
@@ -120,7 +122,7 @@ const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
             }}
           >
             <DropdownMenuIcon icon={<LuTrash />} />
-            Delete Group
+            <Trans>Delete Group</Trans>
           </MenuItem>
         </>
       );
@@ -135,11 +137,11 @@ const GroupsTable = memo(({ data, count }: GroupsTableProps) => {
       columns={columns}
       primaryAction={
         permissions.can("create", "users") && (
-          <New label="Group" to={`new?${params.toString()}`} />
+          <New label={t`Group`} to={`new?${params.toString()}`} />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Groups"
+      title={t`Groups`}
     />
   );
 });

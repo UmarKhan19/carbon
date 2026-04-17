@@ -3,10 +3,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { SalesInvoiceEmail } from "@carbon/documents/email";
 import { validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
+import { trigger } from "@carbon/jobs";
 import { renderAsync } from "@react-email/components";
 import { FunctionRegion } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { getPaymentTermsList } from "~/modules/accounting";
@@ -42,6 +41,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let file: ArrayBuffer;
   let fileName: string;
+  let documentFilePath: string;
 
   const setPendingState = await client
     .from("salesInvoice")
@@ -142,7 +142,7 @@ export async function action(args: ActionFunctionArgs) {
         .slice(0, -5)}.pdf`
     );
 
-    const documentFilePath = `${companyId}/opportunity/${salesInvoice.data.opportunityId}/${fileName}`;
+    documentFilePath = `${companyId}/opportunity/${salesInvoice.data.opportunityId}/${fileName}`;
 
     const documentFileUpload = await serviceRole.storage
       .from("private")
@@ -296,20 +296,25 @@ export async function action(args: ActionFunctionArgs) {
         const html = await renderAsync(emailTemplate);
         const text = await renderAsync(emailTemplate, { plainText: true });
 
-        await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
-          // @ts-expect-error TS2322 - TODO: fix type
-          to: [seller.data.email, customer.data.contact.email],
+        const { data: signedUrlData } = await serviceRole.storage
+          .from("private")
+          .createSignedUrl(documentFilePath, 3600);
+
+        await trigger("send-email-resend", {
+          to: [seller.data.email, customer.data.contact.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: seller.data.email,
           subject: `Invoice ${salesInvoice.data.invoiceId} from ${company.data.name}`,
           html,
           text,
-          attachments: [
-            {
-              content: Buffer.from(file).toString("base64"),
-              filename: fileName
-            }
-          ],
+          attachments: signedUrlData?.signedUrl
+            ? [
+                {
+                  path: signedUrlData.signedUrl,
+                  filename: fileName
+                }
+              ]
+            : undefined,
           companyId
         });
         // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration

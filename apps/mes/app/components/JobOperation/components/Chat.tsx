@@ -10,6 +10,7 @@ import {
   useMount,
   useRealtimeChannel
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -31,6 +32,7 @@ export function OperationChat({
 }: {
   operation: OperationWithDetails;
 }) {
+  const { t } = useLingui();
   const user = useUser();
 
   const [employees] = usePeople();
@@ -206,7 +208,7 @@ export function OperationChat({
         <form className="flex gap-2" onSubmit={handleSubmit}>
           <Input
             className="flex-1"
-            placeholder="Type a message..."
+            placeholder={t`Type a message...`}
             name="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -217,7 +219,7 @@ export function OperationChat({
             type="submit"
             leftIcon={<LuArrowUp />}
           >
-            Send
+            <Trans>Send</Trans>
           </Button>
         </form>
       </div>

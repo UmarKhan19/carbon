@@ -10,6 +10,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { z } from "zod";
 import { Boolean, EmojiPicker, Hidden, Input, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
@@ -26,6 +27,7 @@ const AttributeCategoryForm = ({
   initialValues,
   onClose
 }: AttributeCategoryFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -53,7 +55,11 @@ const AttributeCategoryForm = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? "Edit" : "New"} Attribute Category
+              {isEditing ? (
+                <Trans>Edit Attribute Category</Trans>
+              ) : (
+                <Trans>New Attribute Category</Trans>
+              )}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
@@ -61,20 +67,22 @@ const AttributeCategoryForm = ({
             <VStack spacing={4}>
               <EmojiPicker name="emoji" />
 
-              <Input name="name" label="Category Name" />
+              <Input name="name" label={t`Category Name`} />
 
               <Boolean
                 name="isPublic"
-                label="Public"
-                description="Visible on a user's public profile"
+                label={t`Public`}
+                description={t`Visible on a user's public profile`}
               />
             </VStack>
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

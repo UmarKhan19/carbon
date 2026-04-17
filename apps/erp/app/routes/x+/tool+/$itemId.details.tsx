@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import { Menubar, Spinner, VStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -170,6 +171,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function ToolDetailsRoute() {
+  const { t } = useLingui();
   const { itemId } = useParams();
   if (!itemId) throw new Error("Could not find itemId");
 
@@ -272,7 +274,7 @@ export default function ToolDetailsRoute() {
             isReadOnly={!permissions.can("update", "parts")}
             metadata={{ itemId }}
             modelPath={toolData?.toolSummary?.modelPath ?? null}
-            title="CAD Model"
+            title={t`CAD Model`}
           />
 
           <ItemRiskRegister itemId={itemId} />

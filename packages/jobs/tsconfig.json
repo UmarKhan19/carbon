@@ -1,16 +1,11 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./trigger",
     "sourceMap": true,
     "allowImportingTsExtensions": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "jsx": "react-jsx",
-    "noEmit": true,
-    "noUncheckedIndexedAccess": false
+    "noEmit": true
   },
   "exclude": ["node_modules"],
   "extends": "@carbon/config/tsconfig/base.json",
-  "include": ["trigger"]
+  "include": ["src"]
 }

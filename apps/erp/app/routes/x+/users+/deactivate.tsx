@@ -3,8 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { deactivateUser } from "@carbon/auth/users.server";
 import { validationError, validator } from "@carbon/form";
-import type { userAdminTask } from "@carbon/jobs/trigger/user-admin";
-import { tasks } from "@trigger.dev/sdk";
+import { batchTrigger } from "@carbon/jobs";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { deactivateUsersValidator } from "~/modules/users";
@@ -40,10 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }));
 
     try {
-      await tasks.batchTrigger<typeof userAdminTask>(
-        "user-admin",
-        batchPayload
-      );
+      await batchTrigger("user-admin", batchPayload);
       throw redirect(
         safeRedirect(redirectTo),
         await flash(

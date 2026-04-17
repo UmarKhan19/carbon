@@ -10,6 +10,7 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
@@ -38,6 +39,7 @@ const EmployeePermissionsForm = ({
   employeeTypes,
   initialValues
 }: EmployeePermissionsFormProps) => {
+  const { t } = useLingui();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
 
@@ -47,7 +49,6 @@ const EmployeePermissionsForm = ({
       label: et.name
     })) ?? [];
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const { state: initialState, modules } = useMemo(
     () => fromCompanyPermissions(initialValues.permissions),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,9 +87,9 @@ const EmployeePermissionsForm = ({
             <VStack spacing={4}>
               <Select
                 name="employeeType"
-                label="Employee Type"
+                label={t`Employee Type`}
                 options={employeeTypeOptions}
-                placeholder="Select Employee Type"
+                placeholder={t`Select Employee Type`}
               />
               <PermissionMatrix matrix={matrix} />
               <Hidden name="id" />
@@ -97,9 +98,11 @@ const EmployeePermissionsForm = ({
           </ModalBody>
           <ModalFooter>
             <HStack>
-              <Submit>Save</Submit>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </ModalFooter>

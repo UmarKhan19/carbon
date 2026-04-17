@@ -1,6 +1,8 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { msg } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { Suspense, useMemo } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
@@ -31,7 +33,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Jobs",
+  breadcrumb: msg`Jobs`,
   to: path.to.jobs,
   module: "production"
 };
@@ -96,7 +98,7 @@ export default function JobRoute() {
                       resolve={method}
                       errorElement={
                         <div className="p-2 text-red-500">
-                          Error loading job tree.
+                          <Trans>Error loading job tree.</Trans>
                         </div>
                       }
                     >
@@ -114,7 +116,7 @@ export default function JobRoute() {
                   <Outlet />
                 </div>
               }
-              properties={<JobProperties />}
+              properties={<JobProperties key={jobId} />}
             />
           </div>
         </div>

@@ -9,6 +9,7 @@ import {
   ModalHeader,
   ModalTitle
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import { useFetcher } from "react-router";
 import { UserSelect } from "~/components/Selectors";
 import { revokeInviteValidator } from "~/modules/users";
@@ -38,21 +39,32 @@ const RevokeInviteModal = ({
       <ModalContent>
         <ModalHeader>
           <ModalTitle>
-            {isSingleUser ? "Revoke Invite" : "Revoke Invites"}
+            {isSingleUser ? (
+              <Trans>Revoke Invite</Trans>
+            ) : (
+              <Trans>Revoke Invites</Trans>
+            )}
           </ModalTitle>
         </ModalHeader>
 
         <ModalBody>
           <p className="mb-2">
-            Are you sure you want to revoke the invitations for
-            {isSingleUser ? " this user" : " these users"}?
+            {isSingleUser ? (
+              <Trans>
+                Are you sure you want to revoke the invitation for this user?
+              </Trans>
+            ) : (
+              <Trans>
+                Are you sure you want to revoke the invitations for these users?
+              </Trans>
+            )}
           </p>
           <UserSelect value={userIds} readOnly isMulti />
         </ModalBody>
         <ModalFooter>
           <HStack>
             <Button variant="ghost" onClick={onClose}>
-              Cancel
+              <Trans>Cancel</Trans>
             </Button>
             <ValidatedForm
               method="post"
@@ -70,7 +82,7 @@ const RevokeInviteModal = ({
                 />
               ))}
               <Button variant="destructive" type="submit">
-                Revoke
+                <Trans>Revoke</Trans>
               </Button>
             </ValidatedForm>
           </HStack>

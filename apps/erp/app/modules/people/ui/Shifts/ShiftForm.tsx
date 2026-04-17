@@ -12,6 +12,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNavigate } from "react-router";
 import type { z } from "zod";
 import {
@@ -32,6 +33,7 @@ type ShiftFormProps = {
 };
 
 const ShiftForm = ({ initialValues }: ShiftFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const navigate = useNavigate();
   const onClose = () => navigate(-1);
@@ -59,26 +61,30 @@ const ShiftForm = ({ initialValues }: ShiftFormProps) => {
           className="flex flex-col h-full"
         >
           <DrawerHeader>
-            <DrawerTitle>{isEditing ? "Edit" : "New"} Shift</DrawerTitle>
+            <DrawerTitle>
+              {isEditing ? <Trans>Edit Shift</Trans> : <Trans>New Shift</Trans>}
+            </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
             <Hidden name="id" />
             <VStack spacing={4}>
-              <Input name="name" label="Shift Name" />
-              <Location name="locationId" label="Location" />
-              <TimePicker name="startTime" label="Start Time" />
-              <TimePicker name="endTime" label="End Time" />
+              <Input name="name" label={t`Shift Name`} />
+              <Location name="locationId" label={t`Location`} />
+              <TimePicker name="startTime" label={t`Start Time`} />
+              <TimePicker name="endTime" label={t`End Time`} />
 
               <FormControl>
-                <FormLabel>Days</FormLabel>
+                <FormLabel>
+                  <Trans>Days</Trans>
+                </FormLabel>
                 <VStack>
-                  <Boolean name="monday" description="Monday" />
-                  <Boolean name="tuesday" description="Tuesday" />
-                  <Boolean name="wednesday" description="Wednesday" />
-                  <Boolean name="thursday" description="Thursday" />
-                  <Boolean name="friday" description="Friday" />
-                  <Boolean name="saturday" description="Saturday" />
-                  <Boolean name="sunday" description="Sunday" />
+                  <Boolean name="monday" description={t`Monday`} />
+                  <Boolean name="tuesday" description={t`Tuesday`} />
+                  <Boolean name="wednesday" description={t`Wednesday`} />
+                  <Boolean name="thursday" description={t`Thursday`} />
+                  <Boolean name="friday" description={t`Friday`} />
+                  <Boolean name="saturday" description={t`Saturday`} />
+                  <Boolean name="sunday" description={t`Sunday`} />
                 </VStack>
               </FormControl>
               <CustomFormFields table="shift" />
@@ -86,9 +92,11 @@ const ShiftForm = ({ initialValues }: ShiftFormProps) => {
           </DrawerBody>
           <DrawerFooter>
             <HStack>
-              <Submit isDisabled={isDisabled}>Save</Submit>
+              <Submit isDisabled={isDisabled}>
+                <Trans>Save</Trans>
+              </Submit>
               <Button size="md" variant="solid" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

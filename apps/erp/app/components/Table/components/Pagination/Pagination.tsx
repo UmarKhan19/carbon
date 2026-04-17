@@ -15,6 +15,7 @@ import {
   useKeyboardShortcuts,
   usePrettifyShortcut
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useRef } from "react";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 
@@ -51,10 +52,14 @@ const Pagination = (props: PaginationProps) => {
       >
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary">{pageSize} rows</Button>
+            <Button variant="secondary">
+              {pageSize} <Trans>rows</Trans>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-48">
-            <DropdownMenuLabel>Results per page</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              <Trans>Results per page</Trans>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup value={`${pageSize}`}>
               {pageSizes.map((size) => (
@@ -89,6 +94,7 @@ export const PaginationButtons = ({
   pageSize,
   previousPage
 }: PaginationProps & { condensed?: boolean }) => {
+  const { t } = useLingui();
   const nextButtonRef = useRef<HTMLButtonElement>(null);
   const previousButtonRef = useRef<HTMLButtonElement>(null);
   const prettifyShortcut = usePrettifyShortcut();
@@ -127,7 +133,7 @@ export const PaginationButtons = ({
           <Tooltip>
             <TooltipTrigger>
               <IconButton
-                aria-label="Previous"
+                aria-label={t`Previous`}
                 icon={<BsChevronLeft />}
                 isDisabled={!canPreviousPage}
                 onClick={handlePreviousPage}
@@ -141,7 +147,7 @@ export const PaginationButtons = ({
           <Tooltip>
             <TooltipTrigger>
               <IconButton
-                aria-label="Next"
+                aria-label={t`Next`}
                 icon={<BsChevronRight />}
                 isDisabled={!canNextPage}
                 onClick={handleNextPage}
@@ -157,7 +163,7 @@ export const PaginationButtons = ({
         <>
           <div className="text-foreground text-sm font-medium align-center hidden lg:flex">
             {count > 0 ? offset + 1 : 0} - {Math.min(offset + pageSize, count)}{" "}
-            of {count}
+            <Trans>of</Trans> {count}
           </div>
           <Tooltip>
             <TooltipTrigger>
@@ -168,7 +174,7 @@ export const PaginationButtons = ({
                 onClick={handlePreviousPage}
                 leftIcon={<BsChevronLeft />}
               >
-                Previous
+                <Trans>Previous</Trans>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -184,7 +190,7 @@ export const PaginationButtons = ({
                 onClick={handleNextPage}
                 rightIcon={<BsChevronRight />}
               >
-                Next
+                <Trans>Next</Trans>
               </Button>
             </TooltipTrigger>
             <TooltipContent>

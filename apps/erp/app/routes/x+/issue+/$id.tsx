@@ -2,6 +2,8 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react/macro";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import {
@@ -32,7 +34,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Issues",
+  breadcrumb: msg`Issues`,
   to: path.to.issues,
   module: "quality"
 };
@@ -79,6 +81,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function IssueRoute() {
+  const { t } = useLingui();
   const { associations } = useLoaderData<typeof loader>();
   const { id } = useParams();
   if (!id) throw new Error("Could not find id");
@@ -98,64 +101,64 @@ export default function IssueRoute() {
                       const tree: IssueAssociationNode[] = [
                         {
                           key: "items",
-                          name: "Item",
-                          pluralName: "Items",
+                          name: t`Item`,
+                          pluralName: t`Items`,
                           module: "parts",
                           children: resolvedAssociations.items
                         },
                         {
                           key: "jobOperations",
-                          name: "Job Operation",
-                          pluralName: "Job Operations",
+                          name: t`Job Operation`,
+                          pluralName: t`Job Operations`,
                           module: "production",
                           children: resolvedAssociations.jobOperations
                         },
                         {
                           key: "purchaseOrderLines",
-                          name: "Purchase Order",
-                          pluralName: "Purchase Orders",
+                          name: t`Purchase Order`,
+                          pluralName: t`Purchase Orders`,
                           module: "purchasing",
                           children: resolvedAssociations.purchaseOrderLines
                         },
                         {
                           key: "salesOrderLines",
-                          name: "Sales Order",
-                          pluralName: "Sales Orders",
+                          name: t`Sales Order`,
+                          pluralName: t`Sales Orders`,
                           module: "sales",
                           children: resolvedAssociations.salesOrderLines
                         },
                         {
                           key: "shipmentLines",
-                          name: "Shipment",
-                          pluralName: "Shipments",
+                          name: t`Shipment`,
+                          pluralName: t`Shipments`,
                           module: "shipping",
                           children: resolvedAssociations.shipmentLines
                         },
                         {
                           key: "receiptLines",
-                          name: "Receipt",
-                          pluralName: "Receipts",
+                          name: t`Receipt`,
+                          pluralName: t`Receipts`,
                           module: "receiving",
                           children: resolvedAssociations.receiptLines
                         },
                         {
                           key: "trackedEntities",
-                          name: "Tracked Entity",
-                          pluralName: "Tracked Entities",
+                          name: t`Tracked Entity`,
+                          pluralName: t`Tracked Entities`,
                           module: "inventory",
                           children: resolvedAssociations.trackedEntities
                         },
                         {
                           key: "customers",
-                          name: "Customer",
-                          pluralName: "Customers",
+                          name: t`Customer`,
+                          pluralName: t`Customers`,
                           module: "sales",
                           children: resolvedAssociations.customers
                         },
                         {
                           key: "suppliers",
-                          name: "Supplier",
-                          pluralName: "Suppliers",
+                          name: t`Supplier`,
+                          pluralName: t`Suppliers`,
                           module: "purchasing",
                           children: resolvedAssociations.suppliers
                         }
@@ -182,7 +185,7 @@ export default function IssueRoute() {
                   </VStack>
                 </div>
               }
-              properties={<IssueProperties />}
+              properties={<IssueProperties key={id} />}
             />
           </div>
         </div>

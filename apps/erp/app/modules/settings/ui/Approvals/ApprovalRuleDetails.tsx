@@ -1,5 +1,6 @@
 import { cn, HStack, VStack } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { memo } from "react";
 import {
   LuCalendar,
@@ -45,11 +46,12 @@ FieldItem.displayName = "FieldItem";
 
 const ApprovalRuleDetails = memo(
   ({ rule, documentType, currencyFormatter }: ApprovalRuleDetailsProps) => {
+    const { t } = useLingui();
     return (
       <VStack spacing={4} className="w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           {documentType === "purchaseOrder" && (
-            <FieldItem icon={LuDollarSign} label="Minimum Amount">
+            <FieldItem icon={LuDollarSign} label={t`Minimum Amount`}>
               <p className="text-sm font-semibold text-foreground leading-relaxed">
                 {currencyFormatter.format(rule.lowerBoundAmount ?? 0)}
               </p>
@@ -57,7 +59,7 @@ const ApprovalRuleDetails = memo(
           )}
 
           {/* Approver Groups */}
-          <FieldItem icon={LuUsers} label="Who Can Approve">
+          <FieldItem icon={LuUsers} label={t`Who Can Approve`}>
             {rule.approverGroupIds && rule.approverGroupIds.length > 0 ? (
               <UserSelect
                 value={rule.approverGroupIds ?? []}
@@ -67,18 +69,18 @@ const ApprovalRuleDetails = memo(
               />
             ) : (
               <p className="text-sm text-muted-foreground leading-relaxed">
-                No groups assigned
+                <Trans>No groups assigned</Trans>
               </p>
             )}
           </FieldItem>
 
           {/* Default Approver */}
-          <FieldItem icon={LuUser} label="Default Approver">
+          <FieldItem icon={LuUser} label={t`Default Approver`}>
             {rule.defaultApproverId ? (
               <EmployeeAvatar employeeId={rule.defaultApproverId} />
             ) : (
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Not set
+                <Trans>Not set</Trans>
               </p>
             )}
           </FieldItem>
@@ -86,10 +88,13 @@ const ApprovalRuleDetails = memo(
           {/* Escalation Days */}
           {rule.escalationDays !== null &&
             rule.escalationDays !== undefined && (
-              <FieldItem icon={LuCircleCheck} label="Escalation">
+              <FieldItem icon={LuCircleCheck} label={t`Escalation`}>
                 <p className="text-sm font-semibold text-foreground leading-relaxed">
-                  {rule.escalationDays}{" "}
-                  {rule.escalationDays === 1 ? "day" : "days"}
+                  {rule.escalationDays === 1 ? (
+                    <Trans>1 day</Trans>
+                  ) : (
+                    <Trans>{rule.escalationDays} days</Trans>
+                  )}
                 </p>
               </FieldItem>
             )}
@@ -98,12 +103,12 @@ const ApprovalRuleDetails = memo(
         {/* Metadata Section */}
         <div className="pt-6 border-t border-border w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-            <FieldItem icon={LuUser} label="Created By">
+            <FieldItem icon={LuUser} label={t`Created By`}>
               <EmployeeAvatar employeeId={rule.createdBy} />
             </FieldItem>
 
             {rule.createdAt && (
-              <FieldItem icon={LuCalendar} label="Created At">
+              <FieldItem icon={LuCalendar} label={t`Created At`}>
                 <p className="text-sm text-foreground leading-relaxed">
                   {formatDate(rule.createdAt)}
                 </p>

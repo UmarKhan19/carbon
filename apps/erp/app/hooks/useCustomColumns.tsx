@@ -1,5 +1,6 @@
 import type { Json } from "@carbon/database";
 import { Checkbox } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   LuCalendar,
@@ -21,6 +22,7 @@ import { useCustomFieldsSchema } from "./useCustomFieldsSchema";
 export function useCustomColumns<T extends { customFields: Json }>(
   table: string
 ) {
+  const { t } = useLingui();
   const customFieldsSchemas = useCustomFieldsSchema();
   const schema = customFieldsSchemas?.[table];
 
@@ -40,8 +42,8 @@ export function useCustomColumns<T extends { customFields: Json }>(
             ? {
                 type: "static",
                 options: [
-                  { value: "on", label: "Yes" },
-                  { value: "", label: "No" }
+                  { value: "on", label: t`Yes` },
+                  { value: "", label: t`No` }
                 ]
               }
             : field.dataTypeId === DataType.List

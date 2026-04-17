@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import { VStack } from "@carbon/react";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { DndContext } from "@dnd-kit/core";
+import { msg } from "@lingui/core/macro";
 import type { FileObject } from "@supabase/storage-js";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import type { LoaderFunctionArgs } from "react-router";
@@ -41,7 +42,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Quotes",
+  breadcrumb: msg`Quotes`,
   to: path.to.quotes,
   module: "sales"
 };
@@ -246,7 +247,7 @@ export default function QuoteRoute() {
                     </VStack>
                   </div>
                 }
-                properties={<QuoteProperties />}
+                properties={<QuoteProperties key={quoteId} />}
               />
             </div>
           </div>

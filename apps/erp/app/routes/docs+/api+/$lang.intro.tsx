@@ -10,7 +10,7 @@ import {
 } from "~/modules/api";
 import { path } from "~/utils/path";
 
-const { CARBON_API_URL } = getBrowserEnv();
+const { CARBON_API_URL, ERP_URL } = getBrowserEnv();
 
 export default function Route() {
   const selectedLang = useSelectedLang();
@@ -28,17 +28,45 @@ export default function Route() {
           <p>
             First you'll need an <Link to={path.to.apiKeys}>API Key</Link>.
           </p>
-          <p>Next save the API Key as an Environment Variable.</p>
+          <Alert variant="destructive">
+            <LuTriangleAlert className="h-4 w-4 my-1" />
+            <AlertTitle className="!my-0 font-bold text-base">
+              You should never expose the API key in the client
+            </AlertTitle>
+            <AlertDescription>
+              Your API key gives full access to your database. Never expose it
+              in a public-facing client.
+            </AlertDescription>
+          </Alert>
+        </article>
+      </div>
+      <h2 className="doc-heading">MCP</h2>
+      <div className="doc-section">
+        <article className="code-column text-foreground">
+          <p>
+            Carbon provides an MCP server that you can connect to from any MCP
+            client, such as Claude Code or Claude Desktop.
+          </p>
+          <p>To connect, run the following command with your API token:</p>
           <article>
             <CodeSnippet
               selectedLang={selectedLang}
-              snippet={Snippets.env({ apiUrl, apiKey })}
+              snippet={{
+                bash: {
+                  language: "bash",
+                  code: `claude mcp add --transport http \\
+  carbon ${ERP_URL}/api/mcp \\
+  --header "Authorization: Bearer ${apiKey}"`
+                },
+                js: {
+                  language: "bash",
+                  code: `claude mcp add --transport http \\
+  carbon ${ERP_URL}/api/mcp \\
+  --header "Authorization: Bearer ${apiKey}"`
+                }
+              }}
             />
           </article>
-          <p>
-            The API Key is provided via the <code>Authorization</code> header
-            when making requests to the API.
-          </p>
         </article>
       </div>
       {selectedLang == "js" ? (
@@ -50,21 +78,17 @@ export default function Route() {
                 The easiest way to interact with the public API is via the
                 JavaScript Client Library SDK.
               </p>
+              <p>Save the API Key as an Environment Variable.</p>
+              <article>
+                <CodeSnippet
+                  selectedLang={selectedLang}
+                  snippet={Snippets.env({ apiUrl, apiKey })}
+                />
+              </article>
               <p>
-                To initialize the Client Library SDK, you will need the
-                environment variables you set up earlier.
+                The API Key is provided via the <code>Authorization</code>{" "}
+                header when making requests to the API.
               </p>
-              <Alert variant="destructive">
-                <LuTriangleAlert className="h-4 w-4 my-1" />
-                <AlertTitle className="!my-0 font-bold text-base">
-                  You should never expose the API key in the client
-                </AlertTitle>
-                <AlertDescription>
-                  Your API key gives full access to your database. Never expose
-                  it in a public-facing client.
-                </AlertDescription>
-              </Alert>
-
               <p>
                 As with your API Key, we recommend setting your Client Key as an
                 Environment Variable.

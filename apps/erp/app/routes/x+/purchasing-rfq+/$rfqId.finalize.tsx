@@ -2,10 +2,9 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend";
+import { trigger } from "@carbon/jobs";
 import { tiptapToHTML } from "@carbon/utils";
 import type { JSONContent } from "@tiptap/react";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
@@ -226,7 +225,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // Send emails if we have any contacts (using same format as supplier quote send)
   if (emailsToSend.length > 0 && company.data && user.data) {
     // Build attachments: RFQ-level documents + line-level documents
-    const attachments: Array<{ filename: string; content: string }> = [];
+    const attachments: Array<{ filename: string; path: string }> = [];
 
     // Fetch RFQ-level supplier interaction documents
     const rfqDocs = await getSupplierInteractionDocuments(
@@ -236,14 +235,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
 
     for (const doc of rfqDocs) {
-      const { data: fileData } = await client.storage
+      const storagePath = `${companyId}/supplier-interaction/${rfqId}/${doc.name}`;
+      const { data: signedUrlData } = await client.storage
         .from("private")
-        .download(`${companyId}/supplier-interaction/${rfqId}/${doc.name}`);
+        .createSignedUrl(storagePath, 3600);
 
-      if (fileData) {
-        const arrayBuffer = await fileData.arrayBuffer();
-        const base64 = Buffer.from(arrayBuffer).toString("base64");
-        attachments.push({ filename: doc.name, content: base64 });
+      if (signedUrlData?.signedUrl) {
+        attachments.push({ filename: doc.name, path: signedUrlData.signedUrl });
       }
     }
 
@@ -258,16 +256,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
       );
 
       for (const doc of lineDocs) {
-        const { data: fileData } = await client.storage
+        const storagePath = `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`;
+        const { data: signedUrlData } = await client.storage
           .from("private")
-          .download(
-            `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`
-          );
+          .createSignedUrl(storagePath, 3600);
 
-        if (fileData) {
-          const arrayBuffer = await fileData.arrayBuffer();
-          const base64 = Buffer.from(arrayBuffer).toString("base64");
-          attachments.push({ filename: doc.name, content: base64 });
+        if (signedUrlData?.signedUrl) {
+          attachments.push({
+            filename: doc.name,
+            path: signedUrlData.signedUrl
+          });
         }
       }
     }
@@ -294,7 +292,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         htmlParts.push(`<br><br>${emailSignature.replace(/\n/g, "<br>")}`);
 
-        await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
+        await trigger("send-email-resend", {
           to: [user.data.email, email.contactEmail],
           from: user.data.email,
           subject: emailSubject,

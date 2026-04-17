@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
 import {
@@ -31,6 +32,7 @@ const ItemManufacturingForm = ({
 }: ItemManufacturingFormProps) => {
   const fetcher = useFetcher<typeof action>();
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { itemId } = useParams();
 
   if (!itemId) throw new Error("Could not find itemId");
@@ -44,24 +46,26 @@ const ItemManufacturingForm = ({
         fetcher={fetcher}
       >
         <CardHeader>
-          <CardTitle>Manufacturing</CardTitle>
+          <CardTitle>
+            <Trans>Manufacturing</Trans>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Hidden name="intent" value="manufacturing" />
           <Hidden name="itemId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
-            <Number name="lotSize" label="Batch Size" />
+            <Number name="lotSize" label={t`Batch Size`} />
             <Number
               name="scrapPercentage"
-              label="Scrap Percent"
+              label={t`Scrap Percent`}
               formatOptions={{
                 style: "percent"
               }}
             />
-            <Number name="leadTime" label="Lead Time (Days)" />
+            <Number name="leadTime" label={t`Lead Time (Days)`} />
             {/* <Boolean
               name="manufacturingBlocked"
-              label="Manufacturing Blocked"
+              label={t`Manufacturing Blocked`}
             /> */}
             <div className="col-span-2" />
 
@@ -69,7 +73,7 @@ const ItemManufacturingForm = ({
               <Boolean
                 name="requiresConfiguration"
                 label=""
-                description="Configured"
+                description={t`Configured`}
               />
             )}
             <CustomFormFields table="partReplenishment" />

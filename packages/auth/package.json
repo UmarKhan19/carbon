@@ -46,7 +46,7 @@
   "version": "*",
   "dependencies": {
     "cookie": "1.1.1",
-    "dompurify": "3.3.3",
+    "dompurify": "^3.4.0",
     "nanoid": "5.1.7"
   }
 }

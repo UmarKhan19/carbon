@@ -1,5 +1,7 @@
+import { trigger } from "@carbon/jobs";
+
 /**
- * Triggers a job scheduling task via Trigger.dev.
+ * Triggers a job scheduling task via inngest.
  * Supports both initial scheduling and rescheduling.
  */
 export async function triggerJobSchedule(
@@ -9,9 +11,7 @@ export async function triggerJobSchedule(
   mode: "initial" | "reschedule" = "reschedule",
   direction: "backward" | "forward" = "backward"
 ) {
-  const { scheduleJob } = await import("@carbon/jobs/trigger/reschedule-job");
-
-  const handle = await scheduleJob.trigger({
+  const result = await trigger("schedule-job", {
     jobId,
     companyId,
     userId,
@@ -19,7 +19,7 @@ export async function triggerJobSchedule(
     direction
   });
 
-  return { success: true, runId: handle.id };
+  return { success: true, runId: result.ids[0] };
 }
 
 /**

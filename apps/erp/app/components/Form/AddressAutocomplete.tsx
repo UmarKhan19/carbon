@@ -12,6 +12,7 @@ import {
   useDebounce,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGooglePlaces } from "~/hooks/useGooglePlaces";
 import Country from "./Country";
@@ -23,11 +24,12 @@ type AddressAutocompleteProps = {
 const AddressAutocomplete = ({
   variant = "vertical"
 }: AddressAutocompleteProps) => {
+  const { t } = useLingui();
   const address1Field = "addressLine1";
 
   const [value, setValue] = useControlField<string>(address1Field);
   const { clearError } = useFormContext();
-  const { error } = useField(address1Field);
+  const { error, isOptional: isAddressLine1Optional } = useField(address1Field);
   const [open, setOpen] = useState(false);
   const [justSelected, setJustSelected] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
@@ -146,7 +148,9 @@ const AddressAutocomplete = ({
 
   const addressAutocompleteField = (
     <FormControl isInvalid={!!error}>
-      <FormLabel htmlFor={address1Field}>Address Line 1</FormLabel>
+      <FormLabel htmlFor={address1Field} isOptional={isAddressLine1Optional}>
+        <Trans>Address Line 1</Trans>
+      </FormLabel>
       <div className="relative w-full" ref={containerRef}>
         <Command shouldFilter={false} className="bg-transparent">
           <CommandInputTextField
@@ -162,7 +166,7 @@ const AddressAutocomplete = ({
           {open && suggestions.length > 0 && (
             <CommandList className="absolute w-full top-10 z-[9999] rounded-md border bg-popover text-popover-foreground shadow-md p-0">
               <CommandEmpty>
-                {loading ? "Loading..." : "No addresses found"}
+                {loading ? t`Loading...` : t`No addresses found`}
               </CommandEmpty>
               <CommandGroup>
                 {suggestions.map((suggestion) => (
@@ -189,21 +193,25 @@ const AddressAutocomplete = ({
   );
 
   const addressLine2Field = (
-    <Input ref={addressLine2Ref} name="addressLine2" label="Address Line 2" />
+    <Input
+      ref={addressLine2Ref}
+      name="addressLine2"
+      label={t`Address Line 2`}
+    />
   );
 
-  const cityField = <Input ref={cityRef} name="city" label="City" />;
+  const cityField = <Input ref={cityRef} name="city" label={t`City`} />;
 
   const stateProvinceField = (
     <Input
       ref={stateProvinceRef}
       name="stateProvince"
-      label="State / Province"
+      label={t`State / Province`}
     />
   );
 
   const postalCodeField = (
-    <Input ref={postalCodeRef} name="postalCode" label="Postal Code" />
+    <Input ref={postalCodeRef} name="postalCode" label={t`Postal Code`} />
   );
 
   const countryField = <Country name="countryCode" />;

@@ -13,6 +13,7 @@ import {
   reactNodeToString,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
@@ -32,6 +33,7 @@ export type FilterProps = Omit<
 
 const Filter = forwardRef<HTMLButtonElement, FilterProps>(
   ({ filters, trigger = "button", ...props }, ref) => {
+    const { t } = useLingui();
     const { clearFilters, hasFilter, hasFilters, hasFilterKey, toggleFilter } =
       useFilters();
 
@@ -116,7 +118,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
           onClick={clearFilters}
           {...props}
         >
-          Clear Filters
+          <Trans>Clear Filters</Trans>
         </Button>
       </HStack>
     ) : (
@@ -124,7 +126,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
         <PopoverTrigger asChild>
           {trigger === "icon" ? (
             <Button
-              aria-label="Remove filter"
+              aria-label={t`Remove filter`}
               className="px-1 w-6"
               variant="secondary"
               size="sm"
@@ -146,7 +148,7 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
               className={"!border-dashed border-border"}
               {...props}
             >
-              Filter
+              <Trans>Filter</Trans>
             </Button>
           )}
         </PopoverTrigger>
@@ -158,11 +160,11 @@ const Filter = forwardRef<HTMLButtonElement, FilterProps>(
             <CommandInput
               value={input}
               onValueChange={setInput}
-              placeholder="Search..."
+              placeholder={t`Search...`}
               className="h-9"
             />
             <CommandEmpty>
-              {loading ? "Loading..." : "No available filters"}
+              {loading ? t`Loading...` : t`No available filters`}
             </CommandEmpty>
             {activeFilter === null ? (
               <CommandGroup>

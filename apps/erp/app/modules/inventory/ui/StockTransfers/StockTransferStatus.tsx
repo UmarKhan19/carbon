@@ -1,4 +1,5 @@
 import { Status } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type { stockTransferStatusType } from "~/modules/inventory";
 
 type StockTransferStatusProps = {
@@ -8,13 +9,29 @@ type StockTransferStatusProps = {
 const StockTransferStatus = ({ status }: StockTransferStatusProps) => {
   switch (status) {
     case "Draft":
-      return <Status color="gray">{status}</Status>;
+      return (
+        <Status color="gray">
+          <Trans>Draft</Trans>
+        </Status>
+      );
     case "Released":
-      return <Status color="orange">{status}</Status>;
+      return (
+        <Status color="orange">
+          <Trans>Released</Trans>
+        </Status>
+      );
     case "In Progress":
-      return <Status color="blue">{status}</Status>;
+      return (
+        <Status color="blue">
+          <Trans>In Progress</Trans>
+        </Status>
+      );
     case "Completed":
-      return <Status color="green">{status}</Status>;
+      return (
+        <Status color="green">
+          <Trans>Completed</Trans>
+        </Status>
+      );
     default:
       return null;
   }

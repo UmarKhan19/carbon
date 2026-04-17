@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect } from "react";
 import { useFetcher } from "react-router";
@@ -35,6 +36,7 @@ const MaterialDimensionForm = ({
   type = "drawer",
   onClose
 }: MaterialDimensionFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string; name: string }>>();
 
@@ -48,13 +50,13 @@ const MaterialDimensionForm = ({
 
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
-      toast.success(`Created material dimension`);
+      toast.success(t`Created material dimension`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(
-        `Failed to create material dimension: ${fetcher.data.error.message}`
+        t`Failed to create material dimension: ${fetcher.data.error.message}`
       );
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, type, t]);
 
   return (
     <ModalDrawerProvider type={type}>
@@ -79,22 +81,28 @@ const MaterialDimensionForm = ({
           >
             <ModalDrawerHeader>
               <ModalDrawerTitle>
-                {isEditing ? "Edit" : "New"} Material Dimension
+                {isEditing ? (
+                  <Trans>Edit Material Dimension</Trans>
+                ) : (
+                  <Trans>New Material Dimension</Trans>
+                )}
               </ModalDrawerTitle>
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
               <Hidden name="type" value={type} />
               <VStack spacing={4}>
-                <Shape name="materialFormId" label="Shape" />
-                <Input name="name" label="Name" />
+                <Shape name="materialFormId" label={t`Shape`} />
+                <Input name="name" label={t`Name`} />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

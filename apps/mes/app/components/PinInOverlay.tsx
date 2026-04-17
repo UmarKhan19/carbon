@@ -3,42 +3,19 @@
 import {
   Avatar,
   Button,
-  HStack,
-  Input,
   InputOTP,
   InputOTPGroup,
-  InputOTPSlot,
-  Label,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-  ModalTitle,
-  VStack
+  InputOTPSlot
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  LuCheck,
-  LuCopy,
-  LuLoader,
-  LuLogOut,
-  LuPlus,
-  LuRefreshCw,
-  LuSearch,
-  LuX
-} from "react-icons/lu";
+import { LuCheck, LuLoader, LuLogOut, LuSearch, LuX } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { usePeople } from "~/stores";
 import { path } from "~/utils/path";
 
 const RECENT_KEY_PREFIX = "console-recent-";
 const MAX_RECENT = 5;
-
-function generatePin(): string {
-  return Math.floor(1000 + Math.random() * 9000).toString();
-}
 
 function getRecentOperators(companyId: string): string[] {
   try {
@@ -79,36 +56,28 @@ export function PinInOverlay({
   dismissable?: boolean;
   onDismiss?: () => void;
 }) {
+  const { t } = useLingui();
   const [people] = usePeople();
   const [search, setSearch] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState<string | null>(null);
-  const [generatedPin, setGeneratedPin] = useState(generatePin);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const pinInFetcher = useFetcher<{ error?: string }>();
   const pinOutFetcher = useFetcher();
-  const addOperatorFetcher = useFetcher<{
-    success: boolean;
-    message?: string;
-    operator?: Person & { pin: string };
-  }>();
 
   const recentIds = useMemo(() => getRecentOperators(companyId), [companyId]);
-  const isAdding = addOperatorFetcher.state !== "idle";
   const isPinning = pinInFetcher.state !== "idle";
 
-  // Escape key to close when dismissable (but not when add modal is open)
   useEffect(() => {
     if (!dismissable) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !showAddModal) onDismiss?.();
+      if (e.key === "Escape") onDismiss?.();
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [dismissable, onDismiss, showAddModal]);
+  }, [dismissable, onDismiss]);
 
   const submitPinIn = useCallback(
     (person: Person, pinValue: string) => {
@@ -126,27 +95,12 @@ export function PinInOverlay({
     [companyId, pinInFetcher]
   );
 
-  // Handle pin-in errors
   useEffect(() => {
     if (pinInFetcher.state === "idle" && pinInFetcher.data?.error) {
       setPinError(pinInFetcher.data.error);
       setPin("");
     }
   }, [pinInFetcher.state, pinInFetcher.data]);
-
-  // Auto-pin after successful quick-add
-  useEffect(() => {
-    if (
-      addOperatorFetcher.state === "idle" &&
-      addOperatorFetcher.data?.success &&
-      addOperatorFetcher.data.operator
-    ) {
-      const op = addOperatorFetcher.data.operator;
-      setShowAddModal(false);
-      submitPinIn(op, op.pin);
-      // Don't dismiss — the pinInFetcher completion effect handles it
-    }
-  }, [addOperatorFetcher.state, addOperatorFetcher.data, submitPinIn]);
 
   // Focus search on mount
   useEffect(() => {
@@ -220,23 +174,9 @@ export function PinInOverlay({
     [selectedPerson, submitPinIn]
   );
 
-  const handleAddOperator = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      const formData = new FormData(e.currentTarget);
-      addOperatorFetcher.submit(formData, {
-        method: "POST",
-        action: path.to.consoleAddOperator
-      });
-    },
-    [addOperatorFetcher]
-  );
-
   const handleBackdropClick = useCallback(() => {
-    // Don't dismiss if add modal is open
-    if (showAddModal) return;
     if (dismissable) onDismiss?.();
-  }, [dismissable, onDismiss, showAddModal]);
+  }, [dismissable, onDismiss]);
 
   return (
     <div
@@ -264,7 +204,7 @@ export function PinInOverlay({
           <input
             ref={searchRef}
             type="text"
-            placeholder="Search operators..."
+            placeholder={t`Search operators...`}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -280,14 +220,14 @@ export function PinInOverlay({
         <div className="max-h-[240px] overflow-y-auto">
           {operatorList.all.length === 0 ? (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              {search ? "No results" : "No operators"}
+              {search ? <Trans>No results</Trans> : <Trans>No operators</Trans>}
             </div>
           ) : (
             <div className="py-1">
               {operatorList.recent.length > 0 && (
                 <>
                   <p className="px-4 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    Recent
+                    <Trans>Recent</Trans>
                   </p>
                   {operatorList.recent.map((person) => (
                     <OperatorRow
@@ -328,7 +268,7 @@ export function PinInOverlay({
         {stationUser && !search && (
           <div className="border-t">
             <p className="px-4 pt-1.5 pb-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Station User
+              <Trans>Station User</Trans>
             </p>
             <OperatorRow
               person={stationUser}
@@ -347,7 +287,7 @@ export function PinInOverlay({
           <div className="border-t px-4 py-3">
             <div className="flex flex-col items-center gap-2">
               <p className="text-xs text-muted-foreground">
-                Enter PIN for {selectedPerson.name}
+                <Trans>Enter PIN for {selectedPerson.name}</Trans>
               </p>
               <div className="flex items-center gap-3">
                 <InputOTP
@@ -400,25 +340,12 @@ export function PinInOverlay({
           </div>
         )}
 
-        {/* Footer */}
-        <div className="border-t px-3 py-2.5 flex gap-2">
-          <Button
-            variant="ghost"
-            size="md"
-            className="flex-1"
-            onClick={() => {
-              setGeneratedPin(generatePin());
-              setShowAddModal(true);
-            }}
-          >
-            <LuPlus className="mr-2 h-4 w-4" />
-            Add Operator
-          </Button>
-          {hasPinnedUser && (
+        {hasPinnedUser && (
+          <div className="border-t px-3 py-2.5">
             <Button
               variant="ghost"
               size="md"
-              className="flex-1 text-destructive hover:text-destructive"
+              className="w-full text-destructive hover:text-destructive"
               onClick={() => {
                 pinOutFetcher.submit(null, {
                   method: "POST",
@@ -427,26 +354,11 @@ export function PinInOverlay({
               }}
             >
               <LuLogOut className="mr-2 h-4 w-4" />
-              Pin Out
+              <Trans>Pin Out</Trans>
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-
-      {showAddModal && (
-        <AddOperatorModal
-          generatedPin={generatedPin}
-          onRegeneratePin={() => setGeneratedPin(generatePin())}
-          onSubmit={handleAddOperator}
-          isAdding={isAdding}
-          error={
-            addOperatorFetcher.data?.success === false
-              ? addOperatorFetcher.data.message
-              : null
-          }
-          onClose={() => setShowAddModal(false)}
-        />
-      )}
     </div>
   );
 }
@@ -476,145 +388,5 @@ function OperatorRow({
       <span className="text-sm flex-1 truncate">{person.name}</span>
       {isSelected && <LuCheck className="h-3.5 w-3.5 text-primary shrink-0" />}
     </button>
-  );
-}
-
-function AddOperatorModal({
-  generatedPin,
-  onRegeneratePin,
-  onSubmit,
-  isAdding,
-  error,
-  onClose
-}: {
-  generatedPin: string;
-  onRegeneratePin: () => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  isAdding: boolean;
-  error: string | null | undefined;
-  onClose: () => void;
-}) {
-  const [editablePin, setEditablePin] = useState(generatedPin);
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    setEditablePin(generatedPin);
-    setCopied(false);
-  }, [generatedPin]);
-
-  return (
-    <Modal open onOpenChange={(open) => !open && onClose()}>
-      <ModalOverlay />
-      <ModalContent>
-        <form onSubmit={onSubmit} className="flex flex-col h-full">
-          <ModalHeader>
-            <ModalTitle>Add New Operator</ModalTitle>
-          </ModalHeader>
-          <ModalBody>
-            <VStack spacing={4}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    name="firstName"
-                    placeholder="Enter first name"
-                    required
-                    disabled={isAdding}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    name="lastName"
-                    placeholder="Enter last name"
-                    required
-                    disabled={isAdding}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2 w-full">
-                <Label htmlFor="pin">PIN</Label>
-                <HStack>
-                  <Input
-                    id="pin"
-                    name="pin"
-                    value={editablePin}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "").slice(0, 4);
-                      setEditablePin(val);
-                    }}
-                    maxLength={4}
-                    inputMode="numeric"
-                    required
-                    disabled={isAdding}
-                    className="font-mono text-lg tracking-[0.3em] text-center"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(editablePin);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 2000);
-                    }}
-                    disabled={isAdding}
-                    title="Copy PIN"
-                  >
-                    {copied ? (
-                      <LuCheck className="h-4 w-4 text-emerald-500" />
-                    ) : (
-                      <LuCopy className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={onRegeneratePin}
-                    disabled={isAdding}
-                    title="Generate new PIN"
-                  >
-                    <LuRefreshCw className="h-4 w-4" />
-                  </Button>
-                </HStack>
-                <p className="text-xs text-muted-foreground">
-                  Share this PIN with the operator so they can pin in at the
-                  terminal.
-                </p>
-              </div>
-              {error && (
-                <p className="text-sm text-destructive">
-                  {error ?? "Failed to add operator"}
-                </p>
-              )}
-            </VStack>
-          </ModalBody>
-          <ModalFooter>
-            <HStack>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={onClose}
-                disabled={isAdding}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={isAdding || editablePin.length < 4}
-              >
-                {isAdding ? (
-                  <LuLoader className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
-                Add Operator
-              </Button>
-            </HStack>
-          </ModalFooter>
-        </form>
-      </ModalContent>
-    </Modal>
   );
 }

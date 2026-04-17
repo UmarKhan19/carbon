@@ -10,6 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect } from "react";
 import {
@@ -24,7 +25,6 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { MethodBadge, MethodIcon, TrackingTypeIcon } from "~/components";
 import {
-  // biome-ignore lint/suspicious/noShadowRestrictedNames: Boolean is a component name
   Boolean,
   ItemPostingGroup,
   Tags,
@@ -54,6 +54,7 @@ import type {
 import { FileBadge } from "../Item";
 
 const PartProperties = () => {
+  const { t } = useLingui();
   const { itemId } = useParams();
   if (!itemId) throw new Error("itemId not found");
 
@@ -166,14 +167,14 @@ const PartProperties = () => {
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -186,14 +187,16 @@ const PartProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy link to part</span>
+                <span>
+                  <Trans>Copy link to part</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() => copyToClipboard(itemId)}
@@ -202,14 +205,16 @@ const PartProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy part unique identifier</span>
+                <span>
+                  <Trans>Copy part unique identifier</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -222,7 +227,9 @@ const PartProperties = () => {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span>Copy part number</span>
+                <span>
+                  <Trans>Copy part number</Trans>
+                </span>
               </TooltipContent>
             </Tooltip>
           </HStack>
@@ -304,7 +311,7 @@ const PartProperties = () => {
         className="w-full"
       >
         <ItemPostingGroup
-          label="Item Group"
+          label={t`Item Group`}
           name="itemPostingGroupId"
           inline
           isClearable
@@ -326,11 +333,17 @@ const PartProperties = () => {
       >
         <Select
           name="replenishmentSystem"
-          label="Replenishment"
+          label={t`Replenishment`}
           inline={(value) => (
             <Badge variant="secondary">
               <ReplenishmentSystemIcon type={value} className="mr-2" />
-              <span>{value}</span>
+              <span>
+                {value === "Buy"
+                  ? t`Buy`
+                  : value === "Make"
+                    ? t`Make`
+                    : t`Buy and Make`}
+              </span>
             </Badge>
           )}
           options={itemReplenishmentSystems.map((system) => ({
@@ -338,7 +351,11 @@ const PartProperties = () => {
             label: (
               <span className="flex items-center gap-2">
                 <ReplenishmentSystemIcon type={system} />
-                {system}
+                {system === "Buy"
+                  ? t`Buy`
+                  : system === "Make"
+                    ? t`Make`
+                    : t`Buy and Make`}
               </span>
             )
           }))}
@@ -360,11 +377,19 @@ const PartProperties = () => {
       >
         <Select
           name="itemTrackingType"
-          label="Tracking Type"
+          label={t`Tracking Type`}
           inline={(value) => (
             <Badge variant="secondary">
               <TrackingTypeIcon type={value} className="mr-2" />
-              <span>{value}</span>
+              <span>
+                {value === "Inventory"
+                  ? t`Inventory`
+                  : value === "Non-Inventory"
+                    ? t`Non-Inventory`
+                    : value === "Serial"
+                      ? t`Serial`
+                      : t`Batch`}
+              </span>
             </Badge>
           )}
           options={itemTrackingTypes.map((type) => ({
@@ -372,7 +397,13 @@ const PartProperties = () => {
             label: (
               <span className="flex items-center gap-2">
                 <TrackingTypeIcon type={type} />
-                {type}
+                {type === "Inventory"
+                  ? t`Inventory`
+                  : type === "Non-Inventory"
+                    ? t`Non-Inventory`
+                    : type === "Serial"
+                      ? t`Serial`
+                      : t`Batch`}
               </span>
             )
           }))}
@@ -394,11 +425,17 @@ const PartProperties = () => {
       >
         <Select
           name="defaultMethodType"
-          label="Default Method Type"
+          label={t`Default Method Type`}
           inline={(value) => (
             <Badge variant="secondary">
               <MethodIcon type={value} className="mr-2" />
-              <span>{value}</span>
+              <span>
+                {value === "Purchase to Order"
+                  ? t`Purchase to Order`
+                  : value === "Pull from Inventory"
+                    ? t`Pull from Inventory`
+                    : t`Make to Order`}
+              </span>
             </Badge>
           )}
           options={methodType
@@ -413,7 +450,11 @@ const PartProperties = () => {
               label: (
                 <span className="flex items-center gap-2">
                   <MethodIcon type={type} />
-                  {type}
+                  {type === "Purchase to Order"
+                    ? t`Purchase to Order`
+                    : type === "Pull from Inventory"
+                      ? t`Pull from Inventory`
+                      : t`Make to Order`}
                 </span>
               )
             }))}
@@ -436,7 +477,7 @@ const PartProperties = () => {
         className="w-full"
       >
         <UnitOfMeasure
-          label="Unit of Measure"
+          label={t`Unit of Measure`}
           name="unitOfMeasureCode"
           inline
           onChange={(value) => {
@@ -447,7 +488,9 @@ const PartProperties = () => {
 
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
-          <h3 className="text-xs text-muted-foreground">Methods</h3>
+          <h3 className="text-xs text-muted-foreground">
+            <Trans>Methods</Trans>
+          </h3>
         </HStack>
         {routeData?.partSummary?.replenishmentSystem?.includes("Make") && (
           <Suspense fallback={null}>
@@ -503,7 +546,7 @@ const PartProperties = () => {
         className="w-full"
       >
         <Boolean
-          label="Active"
+          label={t`Active`}
           name="active"
           variant="small"
           onChange={(value) => {
@@ -522,7 +565,7 @@ const PartProperties = () => {
       >
         <Tags
           availableTags={routeData?.tags ?? []}
-          label="Tags"
+          label={t`Tags`}
           name="tags"
           table="part"
           inline
@@ -541,7 +584,9 @@ const PartProperties = () => {
 
       <VStack spacing={2}>
         <HStack className="w-full justify-between">
-          <h3 className="text-xs text-muted-foreground">Files</h3>
+          <h3 className="text-xs text-muted-foreground">
+            <Trans>Files</Trans>
+          </h3>
         </HStack>
         {routeData?.partSummary?.modelId && (
           <Link
@@ -551,7 +596,7 @@ const PartProperties = () => {
           >
             <Badge variant="secondary">
               <LuMove3D className="w-3 h-3 mr-1 text-emerald-500" />
-              3D Model
+              <Trans>3D Model</Trans>
             </Badge>
             <span className="group-hover:opacity-100 opacity-0 transition-opacity duration-200 w-4 h-4 text-foreground">
               <LuExternalLink />

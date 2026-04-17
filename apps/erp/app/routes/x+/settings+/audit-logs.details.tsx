@@ -7,6 +7,7 @@ import {
   DrawerHeader,
   DrawerTitle
 } from "@carbon/react";
+import { Trans } from "@lingui/react/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigate } from "react-router";
 import { AuditLogTable } from "~/modules/settings";
@@ -60,7 +61,9 @@ export default function AuditLogDetailsRoute() {
     >
       <DrawerContent size="full">
         <DrawerHeader>
-          <DrawerTitle>All Audit Logs</DrawerTitle>
+          <DrawerTitle>
+            <Trans>All Audit Logs</Trans>
+          </DrawerTitle>
         </DrawerHeader>
         <DrawerBody className="p-0">
           <AuditLogTable entries={entries} count={count} />

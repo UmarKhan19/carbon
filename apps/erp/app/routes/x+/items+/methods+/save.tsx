@@ -3,7 +3,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { copyItem, getMethodValidator } from "~/modules/items";
+import { copyItem, copyMakeMethod, getMethodValidator } from "~/modules/items";
 import { path, requestReferrer } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -20,11 +20,23 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const upsert = await copyItem(serviceRole, {
-    ...validation.data,
-    companyId,
-    userId
-  });
+  // Check if we're dealing with makeMethod IDs (format: make_xxxxx)
+  // MakeMethodTools.tsx now sends makeMethod IDs directly
+  const isMakeMethodId = (id: string) => id.startsWith("make_");
+
+  const upsert =
+    isMakeMethodId(validation.data.sourceId) ||
+    isMakeMethodId(validation.data.targetId)
+      ? await copyMakeMethod(serviceRole, {
+          ...validation.data,
+          companyId,
+          userId
+        })
+      : await copyItem(serviceRole, {
+          ...validation.data,
+          companyId,
+          userId
+        });
 
   if (upsert.error) {
     return {

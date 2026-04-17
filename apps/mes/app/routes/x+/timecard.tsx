@@ -29,6 +29,7 @@ import {
   Tr
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
   LuChevronLeft,
@@ -200,6 +201,7 @@ export default function MESTimecardPage() {
   const [editClockIn, setEditClockIn] = useState("");
   const [editClockOut, setEditClockOut] = useState("");
   const [, setTick] = useState(0);
+  const { t } = useLingui();
   const [deletingEntry, setDeletingEntry] = useState<{
     id: string;
     clockIn: string;
@@ -236,7 +238,9 @@ export default function MESTimecardPage() {
         <Card className="overflow-hidden">
           <CardHeader>
             <HStack className="justify-between items-center">
-              <CardTitle>My Hours</CardTitle>
+              <CardTitle>
+                <Trans>My Hours</Trans>
+              </CardTitle>
               <HStack className="gap-1">
                 {openEntry ? (
                   <fetcher.Form method="post">
@@ -246,7 +250,7 @@ export default function MESTimecardPage() {
                       type="submit"
                       disabled={fetcher.state !== "idle"}
                     >
-                      Clock Out
+                      <Trans>Clock Out</Trans>
                     </Button>
                   </fetcher.Form>
                 ) : (
@@ -257,7 +261,7 @@ export default function MESTimecardPage() {
                       type="submit"
                       disabled={fetcher.state !== "idle"}
                     >
-                      Clock In
+                      <Trans>Clock In</Trans>
                     </Button>
                   </fetcher.Form>
                 )}
@@ -265,7 +269,7 @@ export default function MESTimecardPage() {
             </HStack>
             {openEntry && (
               <Badge variant="green" className="w-fit">
-                Clocked in since {formatTime(openEntry.clockIn)}
+                <Trans>Clocked in since {formatTime(openEntry.clockIn)}</Trans>
               </Badge>
             )}
           </CardHeader>
@@ -273,7 +277,7 @@ export default function MESTimecardPage() {
             <HStack className="justify-between items-center mb-4">
               <Button variant="outline" asChild leftIcon={<LuChevronLeft />}>
                 <Link to={`${path.to.timeCardPage}?week=${weekOffset - 1}`}>
-                  Prev
+                  <Trans>Prev</Trans>
                 </Link>
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -287,10 +291,12 @@ export default function MESTimecardPage() {
                 rightIcon={<LuChevronRight />}
               >
                 {isCurrentWeek ? (
-                  <span>Next</span>
+                  <span>
+                    <Trans>Next</Trans>
+                  </span>
                 ) : (
                   <Link to={`${path.to.timeCardPage}?week=${weekOffset + 1}`}>
-                    Next
+                    <Trans>Next</Trans>
                   </Link>
                 )}
               </Button>
@@ -306,10 +312,18 @@ export default function MESTimecardPage() {
               </colgroup>
               <Thead>
                 <Tr>
-                  <Th className="whitespace-nowrap">Date</Th>
-                  <Th>Clock In</Th>
-                  <Th>Clock Out</Th>
-                  <Th className="text-center">Duration</Th>
+                  <Th className="whitespace-nowrap">
+                    <Trans>Date</Trans>
+                  </Th>
+                  <Th>
+                    <Trans>Clock In</Trans>
+                  </Th>
+                  <Th>
+                    <Trans>Clock Out</Trans>
+                  </Th>
+                  <Th className="text-center">
+                    <Trans>Duration</Trans>
+                  </Th>
                   <Th />
                 </Tr>
               </Thead>
@@ -320,7 +334,7 @@ export default function MESTimecardPage() {
                       colSpan={5}
                       className="text-center text-muted-foreground py-8"
                     >
-                      No time entries for this week
+                      <Trans>No time entries for this week</Trans>
                     </Td>
                   </Tr>
                 ) : (
@@ -384,14 +398,14 @@ export default function MESTimecardPage() {
                                   new Date(editClockIn).getTime()
                                 )}
                               >
-                                Save
+                                <Trans>Save</Trans>
                               </Button>
                             </fetcher.Form>
                             <Button
                               variant="ghost"
                               onClick={() => setEditingId(null)}
                             >
-                              Cancel
+                              <Trans>Cancel</Trans>
                             </Button>
                           </HStack>
                         </Td>
@@ -406,7 +420,9 @@ export default function MESTimecardPage() {
                           {entry.clockOut ? (
                             formatTime(entry.clockOut)
                           ) : (
-                            <Badge variant="green">Active</Badge>
+                            <Badge variant="green">
+                              <Trans>Active</Trans>
+                            </Badge>
                           )}
                         </Td>
                         <Td className="text-center">
@@ -416,7 +432,7 @@ export default function MESTimecardPage() {
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <IconButton
-                                aria-label="More options"
+                                aria-label={t`More options`}
                                 variant="ghost"
                                 icon={<LuEllipsisVertical />}
                               />
@@ -426,7 +442,7 @@ export default function MESTimecardPage() {
                                 onClick={() => startEdit(entry)}
                               >
                                 <DropdownMenuIcon icon={<LuPencil />} />
-                                Edit
+                                <Trans>Edit</Trans>
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() =>
@@ -438,7 +454,7 @@ export default function MESTimecardPage() {
                                 className="text-destructive"
                               >
                                 <DropdownMenuIcon icon={<LuTrash />} />
-                                Delete
+                                <Trans>Delete</Trans>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -452,7 +468,7 @@ export default function MESTimecardPage() {
 
             {entries.length > 0 && (
               <div className="mt-4 text-right text-sm font-medium">
-                Total: {formatTotalHours(entries)}
+                <Trans>Total: {formatTotalHours(entries)}</Trans>
               </div>
             )}
           </CardContent>
@@ -469,20 +485,24 @@ export default function MESTimecardPage() {
           <ModalContent>
             <ModalHeader>
               <ModalTitle>
-                Delete Timecard (
-                {new Date(deletingEntry.clockIn).toLocaleString()})
+                <Trans>
+                  Delete Timecard (
+                  {new Date(deletingEntry.clockIn).toLocaleString()})
+                </Trans>
               </ModalTitle>
             </ModalHeader>
             <ModalBody>
-              Are you sure you want to delete this timecard? This cannot be
-              undone.
+              <Trans>
+                Are you sure you want to delete this timecard? This cannot be
+                undone.
+              </Trans>
             </ModalBody>
             <ModalFooter>
               <Button
                 variant="secondary"
                 onClick={() => setDeletingEntry(null)}
               >
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Button
                 variant="destructive"
@@ -494,7 +514,7 @@ export default function MESTimecardPage() {
                   setDeletingEntry(null);
                 }}
               >
-                Delete
+                <Trans>Delete</Trans>
               </Button>
             </ModalFooter>
           </ModalContent>

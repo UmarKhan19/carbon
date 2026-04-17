@@ -24,6 +24,7 @@ import {
   CarouselPrevious
 } from "@carbon/react/Carousel";
 import { formatDate } from "@carbon/utils";
+import { Trans } from "@lingui/react/macro";
 import { Link } from "react-router";
 import { Empty } from "~/components";
 import { useCustomers } from "~/stores/customers";
@@ -68,7 +69,9 @@ const QuoteLinePricingHistory = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>History</CardTitle>
+        <CardTitle>
+          <Trans>History</Trans>
+        </CardTitle>
         <CardDescription>
           {orderLineCount > 0 || quoteLineCount > 0 ? (
             <span className="text-sm text-muted-foreground">
@@ -90,8 +93,12 @@ const QuoteLinePricingHistory = ({
           <Tabs defaultValue={defaultTab} className="w-full">
             {hasBothTypes && (
               <TabsList className="mb-4">
-                <TabsTrigger value="salesOrderLines">Orders</TabsTrigger>
-                <TabsTrigger value="quoteLines">Quotes</TabsTrigger>
+                <TabsTrigger value="salesOrderLines">
+                  <Trans>Orders</Trans>
+                </TabsTrigger>
+                <TabsTrigger value="quoteLines">
+                  <Trans>Quotes</Trans>
+                </TabsTrigger>
               </TabsList>
             )}
             <TabsContent value="salesOrderLines">

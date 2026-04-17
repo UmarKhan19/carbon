@@ -1,3 +1,4 @@
+import { getBrowserEnv } from "@carbon/auth";
 import { DateTimePicker, ValidatedForm } from "@carbon/form";
 import {
   Alert,
@@ -8,6 +9,7 @@ import {
   Input as InputBase,
   InputGroup,
   InputRightElement,
+  Label,
   Modal,
   ModalBody,
   ModalContent,
@@ -16,6 +18,12 @@ import {
   ModalTitle,
   VStack
 } from "@carbon/react";
+import {
+  getLocalTimeZone,
+  toCalendarDateTime,
+  today
+} from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useMemo, useState } from "react";
 import { LuCheck, LuClipboard, LuLock } from "react-icons/lu";
 import { useFetcher } from "react-router";
@@ -45,6 +53,7 @@ const ApiKeyForm = ({
   existingScopes,
   onClose
 }: ApiKeyFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<{ key: string }>();
 
@@ -53,7 +62,6 @@ const ApiKeyForm = ({
 
   const [key, setKey] = useState<string | null>(null);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: deps are intentionally limited
   const initialScopeState = useMemo(
     () =>
       isEditing
@@ -68,12 +76,11 @@ const ApiKeyForm = ({
     initialState: initialScopeState
   });
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     if (fetcher.data?.key) {
       setKey(fetcher.data.key);
     }
-  }, [fetcher.data, fetcher.state, onClose]);
+  }, [fetcher.data]);
 
   // Serialize scopes to JSONB format for form submission
   const scopesJsonb = companyId
@@ -100,17 +107,24 @@ const ApiKeyForm = ({
             className="flex flex-col h-full"
           >
             <ModalHeader>
-              <ModalTitle>{isEditing ? "Edit" : "New"} API Key</ModalTitle>
+              <ModalTitle>
+                {isEditing ? (
+                  <Trans>Edit API Key</Trans>
+                ) : (
+                  <Trans>New API Key</Trans>
+                )}
+              </ModalTitle>
             </ModalHeader>
             <ModalBody className="max-h-[70dvh] overflow-y-auto">
               <Hidden name="id" />
               <Hidden name="scopes" value={scopesJsonb} />
               <VStack spacing={4}>
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
 
                 <DateTimePicker
                   name="expiresAt"
-                  label="Expires At (optional)"
+                  label={t`Expires At (optional)`}
+                  minValue={toCalendarDateTime(today(getLocalTimeZone()))}
                 />
 
                 <PermissionMatrix matrix={matrix} />
@@ -118,9 +132,11 @@ const ApiKeyForm = ({
             </ModalBody>
             <ModalFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalFooter>
@@ -140,12 +156,18 @@ type ApiKeyViewProps = {
 };
 
 function ApiKeyView({ apiKey, onClose }: ApiKeyViewProps) {
-  const [copied, setCopied] = useState(false);
+  const { t } = useLingui();
+  const [copied, setCopied] = useState<"key" | "mcp" | null>(null);
   useEffect(() => {
     if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 2000);
+    const timer = setTimeout(() => setCopied(null), 2000);
     return () => clearTimeout(timer);
   }, [copied]);
+
+  const { ERP_URL } = getBrowserEnv();
+  const mcpCommand = `claude mcp add --transport http \\
+  carbon ${ERP_URL}/api/mcp \\
+  --header "Authorization: Bearer ${apiKey}"`;
 
   return (
     <Modal
@@ -156,31 +178,58 @@ function ApiKeyView({ apiKey, onClose }: ApiKeyViewProps) {
     >
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>API Key</ModalTitle>
+          <ModalTitle>
+            <Trans>API Key</Trans>
+          </ModalTitle>
         </ModalHeader>
         <ModalBody>
           <VStack spacing={4}>
             <Alert variant="warning">
               <LuLock className="w-4 h-4" />
               <AlertTitle>
-                You can only see this key once. Store it safely.
+                <Trans>You can only see this key once. Store it safely.</Trans>
               </AlertTitle>
             </Alert>
-            <InputGroup>
-              <InputBase value={apiKey} />
-              <InputRightElement className="w-[2.75rem]">
-                <IconButton
-                  aria-label="Copy"
-                  icon={copied ? <LuCheck /> : <LuClipboard />}
-                  variant="ghost"
-                  onClick={() => {
-                    copyToClipboard(apiKey, () => {
-                      setCopied(true);
-                    });
-                  }}
-                />
-              </InputRightElement>
-            </InputGroup>
+            <div className="flex flex-col gap-2 w-full">
+              <Label htmlFor="api-key">
+                <Trans>API Key</Trans>
+              </Label>
+              <InputGroup>
+                <InputBase id="api-key" value={apiKey} />
+                <InputRightElement className="w-[2.75rem]">
+                  <IconButton
+                    aria-label={t`Copy API Key`}
+                    icon={copied === "key" ? <LuCheck /> : <LuClipboard />}
+                    variant="ghost"
+                    onClick={() => {
+                      copyToClipboard(apiKey, () => {
+                        setCopied("key");
+                      });
+                    }}
+                  />
+                </InputRightElement>
+              </InputGroup>
+            </div>
+            <div className="flex flex-col gap-2 w-full">
+              <Label htmlFor="mcp-command">
+                <Trans>MCP Command</Trans>
+              </Label>
+              <InputGroup>
+                <InputBase id="mcp-command" value={mcpCommand} />
+                <InputRightElement className="w-[2.75rem]">
+                  <IconButton
+                    aria-label={t`Copy MCP Command`}
+                    icon={copied === "mcp" ? <LuCheck /> : <LuClipboard />}
+                    variant="ghost"
+                    onClick={() => {
+                      copyToClipboard(mcpCommand, () => {
+                        setCopied("mcp");
+                      });
+                    }}
+                  />
+                </InputRightElement>
+              </InputGroup>
+            </div>
           </VStack>
         </ModalBody>
         <ModalFooter>
@@ -192,7 +241,7 @@ function ApiKeyView({ apiKey, onClose }: ApiKeyViewProps) {
                 onClose();
               }}
             >
-              Close
+              <Trans>Close</Trans>
             </Button>
           </HStack>
         </ModalFooter>

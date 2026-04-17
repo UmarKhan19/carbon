@@ -1,6 +1,7 @@
 import { error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { useLingui } from "@lingui/react/macro";
 import type {
   ActionFunctionArgs,
   ClientActionFunctionArgs,
@@ -78,6 +79,7 @@ export default function DeletePaymentTermRoute() {
   const { paymentTermId } = useParams();
   const { paymentTerm } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  const { t } = useLingui();
 
   if (!paymentTermId || !paymentTerm) return null; // TODO - handle this better (404?)
 
@@ -87,7 +89,7 @@ export default function DeletePaymentTermRoute() {
     <ConfirmDelete
       action={path.to.deletePaymentTerm(paymentTermId)}
       name={paymentTerm.name}
-      text={`Are you sure you want to delete the payment term: ${paymentTerm.name}? This cannot be undone.`}
+      text={t`Are you sure you want to delete the payment term: ${paymentTerm.name}? This cannot be undone.`}
       onCancel={onCancel}
     />
   );

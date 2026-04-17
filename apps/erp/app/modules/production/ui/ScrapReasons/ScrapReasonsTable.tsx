@@ -1,4 +1,5 @@
 import { MenuIcon, MenuItem } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import { LuPencil, LuTrash } from "react-icons/lu";
@@ -17,6 +18,7 @@ type ScrapReasonsTableProps = {
 
 const ScrapReasonsTable = memo(({ data, count }: ScrapReasonsTableProps) => {
   const [params] = useUrlParams();
+  const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
 
@@ -25,7 +27,7 @@ const ScrapReasonsTable = memo(({ data, count }: ScrapReasonsTableProps) => {
     const defaultColumns: ColumnDef<ScrapReason>[] = [
       {
         accessorKey: "name",
-        header: "Scrap Reason",
+        header: t`Scrap Reason`,
         cell: ({ row }) => (
           <Hyperlink to={row.original.id}>
             <Enumerable value={row.original.name} />
@@ -37,7 +39,7 @@ const ScrapReasonsTable = memo(({ data, count }: ScrapReasonsTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns]);
+  }, [customColumns, t]);
 
   const renderContextMenu = useCallback(
     (row: ScrapReason) => {
@@ -77,13 +79,13 @@ const ScrapReasonsTable = memo(({ data, count }: ScrapReasonsTableProps) => {
       primaryAction={
         permissions.can("create", "sales") && (
           <New
-            label="Scrap Reason"
+            label={t`Scrap Reason`}
             to={`${path.to.newScrapReason}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title="Scrap Reasons"
+      title={t`Scrap Reasons`}
     />
   );
 });

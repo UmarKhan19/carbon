@@ -29,6 +29,7 @@ import {
   getItemById,
   getItemReadableId
 } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef } from "react";
 import { LuArrowRight, LuCirclePlus, LuEllipsisVertical } from "react-icons/lu";
 import { Link, Outlet, useFetcher, useNavigate } from "react-router";
@@ -66,7 +67,7 @@ const WarehouseTransferLines = ({
         <HStack className="justify-between">
           <CardHeader className={cn(compact && "px-0")}>
             <CardTitle className="flex flex-row items-center gap-2">
-              Transfer Lines
+              <Trans>Transfer Lines</Trans>
               {sortedLines.length > 0 && <Count count={sortedLines.length} />}
             </CardTitle>
           </CardHeader>
@@ -127,6 +128,7 @@ function WarehouseTransferLineListItem({
   isDisabled: boolean;
   className?: string;
 }) {
+  const { t } = useLingui();
   const deleteModalDisclosure = useDisclosure();
 
   const [items] = useItems();
@@ -178,7 +180,7 @@ function WarehouseTransferLineListItem({
         <div className="flex items-center justify-end gap-2">
           <HStack spacing={2}>
             <span className="text-xs text-muted-foreground">
-              {isUpdated ? "Updated" : "Created"} {formatRelativeTime(date)}
+              {isUpdated ? t`Updated` : t`Created`} {formatRelativeTime(date)}
             </span>
             <EmployeeAvatar employeeId={person} withName={false} />
           </HStack>
@@ -186,7 +188,7 @@ function WarehouseTransferLineListItem({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="Open menu"
+                  aria-label={t`Open menu`}
                   icon={<LuEllipsisVertical />}
                   variant="ghost"
                 />
@@ -203,14 +205,14 @@ function WarehouseTransferLineListItem({
                     )
                   }
                 >
-                  Edit
+                  <Trans>Edit</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   disabled={isDisabled}
                   destructive
                   onClick={deleteModalDisclosure.onOpen}
                 >
-                  Delete
+                  <Trans>Delete</Trans>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -268,7 +270,9 @@ function DeleteWarehouseTransferLine({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Delete Transfer Line</ModalTitle>
+          <ModalTitle>
+            <Trans>Delete Transfer Line</Trans>
+          </ModalTitle>
         </ModalHeader>
         <ModalBody>
           Are you sure you want to delete this transfer line for {itemName}?
@@ -276,7 +280,7 @@ function DeleteWarehouseTransferLine({
         </ModalBody>
         <ModalFooter>
           <Button variant="secondary" onClick={onCancel}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <fetcher.Form
             method="post"

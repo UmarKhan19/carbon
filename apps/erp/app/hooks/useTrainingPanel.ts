@@ -19,7 +19,7 @@ function safeLocalSet(key: string, value: string) {
   try {
     localStorage.setItem(key, value);
   } catch {
-    /* intentionally ignore storage errors */
+    // localStorage may be unavailable
   }
 }
 

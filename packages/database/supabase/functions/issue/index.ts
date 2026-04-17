@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
+import { Transaction } from "kysely";
 import { z } from "npm:zod@^3.24.1";
 
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
@@ -12,6 +13,204 @@ import {
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 import { TrackedEntityAttributes } from "../lib/utils.ts";
+
+async function issueJobOperationMaterials(
+  trx: Transaction<DB>,
+  {
+    jobOperationId,
+    quantity,
+    companyId,
+    userId,
+  }: {
+    jobOperationId: string;
+    quantity: number;
+    companyId: string;
+    userId: string;
+  }
+) {
+  const materialsToIssue = await trx
+    .selectFrom("jobMaterial")
+    .where("jobOperationId", "=", jobOperationId)
+    .where("quantityToIssue", ">", 0)
+    .where("itemType", "in", ["Material", "Part", "Consumable"])
+    .where("methodType", "!=", "Make to Order")
+    .where("estimatedQuantity", ">", 0)
+    .where("requiresBatchTracking", "=", false)
+    .where("requiresSerialTracking", "=", false)
+    .selectAll()
+    .execute();
+
+  const kittedChildren = await trx
+    .selectFrom("jobMaterialWithMakeMethodId")
+    .where("jobOperationId", "=", jobOperationId)
+    .where("itemType", "in", ["Material", "Part", "Consumable"])
+    .where("methodType", "=", "Make to Order")
+    .where("kit", "=", true)
+    .selectAll()
+    .execute();
+
+  const jobMakeMethodIdsOfKittedChildren = kittedChildren.map(
+    (kittedChild) => kittedChild.jobMaterialMakeMethodId
+  );
+
+  if (jobMakeMethodIdsOfKittedChildren.length > 0) {
+    const materialsToIssueFromKittedChildren = await trx
+      .selectFrom("jobMaterial")
+      .where("jobMakeMethodId", "in", jobMakeMethodIdsOfKittedChildren)
+      .where("quantityToIssue", ">", 0)
+      .where("itemType", "in", ["Material", "Part", "Consumable"])
+      .where("methodType", "!=", "Make to Order")
+      .where("estimatedQuantity", ">", 0)
+      .where("requiresBatchTracking", "=", false)
+      .where("requiresSerialTracking", "=", false)
+      .selectAll()
+      .execute();
+
+    materialsToIssue.push(...materialsToIssueFromKittedChildren);
+  }
+
+  if (materialsToIssue.length === 0) return;
+
+  const jobId = materialsToIssue[0].jobId;
+
+  const [job, items] = await Promise.all([
+    trx
+      .selectFrom("job")
+      .where("id", "=", jobId)
+      .select("locationId")
+      .executeTakeFirst(),
+    trx
+      .selectFrom("item")
+      .where(
+        "id",
+        "in",
+        materialsToIssue.map((material) => material.itemId)
+      )
+      .select(["id", "item.itemTrackingType"])
+      .execute(),
+  ]);
+
+  if (!job?.locationId) {
+    throw new Error("Job location is required");
+  }
+
+  const itemIdIsTracked = new Map(
+    items.map((item) => [item.id, item.itemTrackingType === "Inventory"])
+  );
+
+  const itemLedgerInserts: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
+    [];
+
+  for await (const material of materialsToIssue) {
+    if (!material.quantityToIssue) continue;
+
+    const quantityToIssue = Number(material.quantity) * quantity;
+
+    let proposedShelfId = material.shelfId;
+
+    if (!proposedShelfId) {
+      if (material.defaultShelf) {
+        const pickMethod = await trx
+          .selectFrom("pickMethod")
+          .where("itemId", "=", material.itemId)
+          .where("locationId", "=", job.locationId!)
+          .where("companyId", "=", companyId)
+          .select("defaultShelfId")
+          .executeTakeFirst();
+
+        proposedShelfId = pickMethod?.defaultShelfId;
+
+        if (!proposedShelfId) {
+          proposedShelfId = await getShelfWithHighestQuantity(
+            trx,
+            material.itemId,
+            job.locationId!
+          );
+        }
+      } else {
+        proposedShelfId = await getShelfWithHighestQuantity(
+          trx,
+          material.itemId,
+          job.locationId!
+        );
+      }
+    }
+
+    const currentShelfQuantity = await trx
+      .selectFrom("itemLedger")
+      .select((eb) => eb.fn.sum("quantity").as("quantity"))
+      .where("itemId", "=", material.itemId)
+      .where("locationId", "=", job.locationId!)
+      .where("shelfId", "=", proposedShelfId ?? "")
+      .executeTakeFirst();
+
+    const allShelfQuantities = await trx
+      .selectFrom("itemLedger")
+      .select([
+        "shelfId",
+        (eb) => eb.fn.sum("quantity").as("quantity"),
+      ])
+      .where("itemId", "=", material.itemId)
+      .where("locationId", "=", job.locationId!)
+      .groupBy("shelfId")
+      .having((eb) => eb.fn.sum("quantity"), ">", 0)
+      .execute();
+
+    let finalShelfId = proposedShelfId;
+    const currentQuantity = Number(currentShelfQuantity?.quantity ?? 0);
+
+    if (
+      currentQuantity < quantityToIssue &&
+      allShelfQuantities.length > 0
+    ) {
+      const bestShelf = allShelfQuantities.reduce((best, current) =>
+        Number(current.quantity) > Number(best.quantity) ? current : best
+      );
+      finalShelfId = bestShelf.shelfId ?? null;
+    }
+
+    const isTracked = itemIdIsTracked.get(material.itemId);
+
+    if (isTracked) {
+      itemLedgerInserts.push({
+        entryType: "Consumption",
+        documentType: "Job Consumption",
+        documentId: jobId,
+        documentLineId: jobOperationId,
+        companyId,
+        itemId: material.itemId,
+        quantity: -quantityToIssue,
+        locationId: job.locationId,
+        shelfId: finalShelfId,
+        createdBy: userId,
+      });
+    }
+
+    await trx
+      .updateTable("jobMaterial")
+      .set({
+        quantityIssued:
+          (Number(material.quantityIssued) ?? 0) + quantityToIssue,
+      })
+      .where("id", "=", material.id)
+      .execute();
+  }
+
+  if (itemLedgerInserts.length > 0) {
+    await trx.insertInto("itemLedger").values(itemLedgerInserts).execute();
+
+    for (const ledger of itemLedgerInserts) {
+      await updatePickMethodDefaultShelfIfNeeded(
+        trx,
+        ledger.itemId,
+        ledger.locationId,
+        ledger.shelfId,
+        companyId,
+        userId
+      );
+    }
+  }
+}
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -336,204 +535,12 @@ serve(async (req: Request) => {
       case "jobOperation": {
         const { id, companyId, quantity, userId } = validatedPayload;
         await db.transaction().execute(async (trx) => {
-          const materialsToIssue = await trx
-            .selectFrom("jobMaterial")
-            .where("jobOperationId", "=", id)
-            .where("quantityToIssue", ">", 0)
-            .where("itemType", "in", ["Material", "Part", "Consumable"])
-            .where("methodType", "!=", "Make to Order")
-            .where("estimatedQuantity", ">", 0)
-            .where("requiresBatchTracking", "=", false)
-            .where("requiresSerialTracking", "=", false)
-            .selectAll()
-            .execute();
-
-          const kittedChildren = await trx
-            .selectFrom("jobMaterialWithMakeMethodId")
-            .where("jobOperationId", "=", id)
-            .where("itemType", "in", ["Material", "Part", "Consumable"])
-            .where("methodType", "=", "Make to Order")
-            .where("kit", "=", true)
-            .selectAll()
-            .execute();
-
-          const jobMakeMethodIdsOfKittedChildren = kittedChildren.map(
-            (kittedChild) => kittedChild.jobMaterialMakeMethodId
-          );
-
-          if (jobMakeMethodIdsOfKittedChildren.length > 0) {
-            const materialsToIssueFromKittedChildren = await trx
-              .selectFrom("jobMaterial")
-              .where("jobMakeMethodId", "in", jobMakeMethodIdsOfKittedChildren)
-              .where("quantityToIssue", ">", 0)
-              .where("itemType", "in", ["Material", "Part", "Consumable"])
-              .where("methodType", "!=", "Make to Order")
-              .where("estimatedQuantity", ">", 0)
-              .where("requiresBatchTracking", "=", false)
-              .where("requiresSerialTracking", "=", false)
-              .selectAll()
-              .execute();
-
-            materialsToIssue.push(...materialsToIssueFromKittedChildren);
-          }
-
-          if (materialsToIssue.length > 0) {
-            const jobId = materialsToIssue[0].jobId;
-
-            const [job, items] = await Promise.all([
-              trx
-                .selectFrom("job")
-                .where("id", "=", jobId)
-                .select("locationId")
-                .executeTakeFirst(),
-              trx
-                .selectFrom("item")
-                .where(
-                  "id",
-                  "in",
-                  materialsToIssue.map((material) => material.itemId)
-                )
-                .select(["id", "item.itemTrackingType"])
-                .execute(),
-            ]);
-
-            if (!job?.locationId) {
-              throw new Error("Job location is required");
-            }
-
-            const itemIdIsTracked = new Map(
-              items.map((item) => [
-                item.id,
-                item.itemTrackingType === "Inventory",
-              ])
-            );
-
-            for await (const material of materialsToIssue) {
-              if (material.quantityToIssue) {
-                // Calculate the quantity to issue based on payload quantity multiplied by the material quantity
-                const quantityToIssue = Number(material.quantity) * quantity;
-
-                // Determine shelf to use - prioritize material.shelfId, then fetch if needed
-                let proposedShelfId = material.shelfId;
-
-                if (!proposedShelfId) {
-                  if (material.defaultShelf) {
-                    // Fetch pick method default shelf
-                    const pickMethod = await trx
-                      .selectFrom("pickMethod")
-                      .where("itemId", "=", material.itemId)
-                      .where("locationId", "=", job?.locationId!)
-                      .where("companyId", "=", companyId)
-                      .select("defaultShelfId")
-                      .executeTakeFirst();
-
-                    proposedShelfId = pickMethod?.defaultShelfId;
-
-                    // If defaultShelfId is null, get shelf with highest quantity
-                    if (!proposedShelfId) {
-                      proposedShelfId = await getShelfWithHighestQuantity(
-                        trx,
-                        material.itemId,
-                        job?.locationId!
-                      );
-                    }
-                  } else {
-                    // Get shelf with highest quantity
-                    proposedShelfId = await getShelfWithHighestQuantity(
-                      trx,
-                      material.itemId,
-                      job?.locationId!
-                    );
-                  }
-                }
-
-                // Get current quantity on this shelf for diagnostics
-                const currentShelfQuantity = await trx
-                  .selectFrom("itemLedger")
-                  .select((eb) => eb.fn.sum("quantity").as("quantity"))
-                  .where("itemId", "=", material.itemId)
-                  .where("locationId", "=", job.locationId!)
-                  .where("shelfId", "=", proposedShelfId ?? "")
-                  .executeTakeFirst();
-
-                // Get all shelf quantities for this item for diagnostics
-                const allShelfQuantities = await trx
-                  .selectFrom("itemLedger")
-                  .select([
-                    "shelfId",
-                    (eb) => eb.fn.sum("quantity").as("quantity"),
-                  ])
-                  .where("itemId", "=", material.itemId)
-                  .where("locationId", "=", job.locationId!)
-                  .groupBy("shelfId")
-                  .having((eb) => eb.fn.sum("quantity"), ">", 0)
-                  .execute();
-
-                // Use shelf with highest quantity if proposed shelf has insufficient quantity
-                let finalShelfId = proposedShelfId;
-                const currentQuantity = Number(
-                  currentShelfQuantity?.quantity ?? 0
-                );
-
-                if (
-                  currentQuantity < quantityToIssue &&
-                  allShelfQuantities.length > 0
-                ) {
-                  const bestShelf = allShelfQuantities.reduce((best, current) =>
-                    Number(current.quantity) > Number(best.quantity)
-                      ? current
-                      : best
-                  );
-                  finalShelfId = bestShelf.shelfId ?? null;
-                }
-
-                const isTracked = itemIdIsTracked.get(material.itemId);
-
-                if (isTracked) {
-                  itemLedgerInserts.push({
-                    entryType: "Consumption",
-                    documentType: "Job Consumption",
-                    documentId: jobId,
-                    documentLineId: id,
-                    companyId,
-                    itemId: material.itemId,
-                    quantity: -quantityToIssue,
-                    locationId: job?.locationId,
-                    shelfId: finalShelfId,
-                    createdBy: userId,
-                  });
-                }
-
-                await trx
-                  .updateTable("jobMaterial")
-                  .set({
-                    quantityIssued:
-                      (Number(material.quantityIssued) ?? 0) + quantityToIssue,
-                  })
-                  .where("id", "=", material.id)
-                  .execute();
-              }
-            }
-
-            if (itemLedgerInserts.length > 0) {
-              await trx
-                .insertInto("itemLedger")
-                .values(itemLedgerInserts)
-                .execute();
-
-              // Update pickMethod defaultShelfId if needed for each inserted ledger
-              for (const ledger of itemLedgerInserts) {
-                await updatePickMethodDefaultShelfIfNeeded(
-                  trx,
-                  ledger.itemId,
-                  ledger.locationId,
-                  ledger.shelfId,
-                  companyId,
-                  userId
-                );
-              }
-            }
-          }
+          await issueJobOperationMaterials(trx, {
+            jobOperationId: id,
+            quantity,
+            companyId,
+            userId,
+          });
         });
 
         break;
@@ -630,6 +637,13 @@ serve(async (req: Request) => {
               .where("id", "=", trackedEntityId)
               .execute();
           }
+
+          await issueJobOperationMaterials(trx, {
+            jobOperationId: row.jobOperationId,
+            quantity: row.quantity,
+            companyId,
+            userId,
+          });
         });
 
         return new Response(
@@ -764,6 +778,13 @@ serve(async (req: Request) => {
 
             newEntityId = newTrackedEntityResult?.id;
           }
+
+          await issueJobOperationMaterials(trx, {
+            jobOperationId: row.jobOperationId,
+            quantity: row.quantity,
+            companyId,
+            userId,
+          });
         });
 
         return new Response(

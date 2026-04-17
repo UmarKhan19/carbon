@@ -8,6 +8,7 @@ import {
   ModalOverlay,
   ModalTitle
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef } from "react";
 import { useFetcher } from "react-router";
 
@@ -30,6 +31,7 @@ const ConfirmDelete = ({
   onCancel,
   onSubmit
 }: ConfirmDeleteProps) => {
+  const { t } = useLingui();
   const fetcher = useFetcher<{}>();
   const submitted = useRef(false);
   useEffect(() => {
@@ -48,14 +50,16 @@ const ConfirmDelete = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Delete {name}</ModalTitle>
+          <ModalTitle>{t`Delete ${name}`}</ModalTitle>
         </ModalHeader>
 
-        <ModalBody>{text}</ModalBody>
+        <ModalBody>
+          <p className="text-sm text-muted-foreground">{text}</p>
+        </ModalBody>
 
         <ModalFooter>
           <Button variant="secondary" onClick={onCancel}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <fetcher.Form
             method="post"

@@ -24,6 +24,8 @@ import {
 import { useEdition } from "@carbon/remix";
 import { getBillingPortalRedirectUrl } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, Form, redirect, useLoaderData } from "react-router";
@@ -33,7 +35,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: "Payment",
+  breadcrumb: msg`Payment`,
   to: path.to.billing
 };
 
@@ -179,6 +181,7 @@ export default function PaymentSettings() {
   const { id: userId } = useUser();
   const edition = useEdition();
   const [ownerId, setOwnerId] = useState<string | null>(userId);
+  const { t } = useLingui();
 
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
@@ -186,27 +189,37 @@ export default function PaymentSettings() {
         spacing={4}
         className="py-12 px-4 max-w-[60rem] h-full mx-auto gap-4"
       >
-        <Heading size="h3">Billing</Heading>
+        <Heading size="h3">
+          <Trans>Billing</Trans>
+        </Heading>
         {edition === Edition.Cloud && isOwner() && (
           <>
             <Card>
               <CardHeader>
-                <CardTitle>Manage Subscription</CardTitle>
+                <CardTitle>
+                  <Trans>Manage Subscription</Trans>
+                </CardTitle>
                 <CardDescription>
-                  Manage your subscription and billing information
+                  <Trans>
+                    Manage your subscription and billing information
+                  </Trans>
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <VStack spacing={4}>
                   <div className="grid grid-cols-2 gap-4 w-full">
                     <div>
-                      <h4 className="font-medium">Plan</h4>
+                      <h4 className="font-medium">
+                        <Trans>Plan</Trans>
+                      </h4>
                       <Status color="blue">
-                        {plan?.plan?.name || "No active plan"}
+                        {plan?.plan?.name || t`No active plan`}
                       </Status>
                     </div>
                     <div>
-                      <h4 className="font-medium">Status</h4>
+                      <h4 className="font-medium">
+                        <Trans>Status</Trans>
+                      </h4>
 
                       <SubscriptionStatus
                         status={plan?.stripeSubscriptionStatus || "Unknown"}
@@ -217,20 +230,26 @@ export default function PaymentSettings() {
                   {usage && (
                     <div className="grid grid-cols-3 gap-4 pt-4 border-t">
                       <div>
-                        <h4 className="font-medium">Users</h4>
+                        <h4 className="font-medium">
+                          <Trans>Users</Trans>
+                        </h4>
                         <p className="text-sm text-muted-foreground">
                           {usage.users} / {plan?.usersLimit || "∞"}
                         </p>
                       </div>
                       <div>
-                        <h4 className="font-medium">Tasks</h4>
+                        <h4 className="font-medium">
+                          <Trans>Tasks</Trans>
+                        </h4>
                         <p className="text-sm text-muted-foreground">
                           {usage.tasks.toLocaleString()} /{" "}
                           {plan?.tasksLimit?.toLocaleString() || "∞"}
                         </p>
                       </div>
                       <div>
-                        <h4 className="font-medium">AI Tokens</h4>
+                        <h4 className="font-medium">
+                          <Trans>AI Tokens</Trans>
+                        </h4>
                         <p className="text-sm text-muted-foreground">
                           {usage.aiTokens.toLocaleString()} /{" "}
                           {plan?.aiTokensLimit?.toLocaleString() || "∞"}
@@ -243,7 +262,9 @@ export default function PaymentSettings() {
               <CardFooter>
                 <Form method="post" action={path.to.billing}>
                   <input type="hidden" name="intent" value="billing-portal" />
-                  <Button type="submit">Manage Subscription</Button>
+                  <Button type="submit">
+                    <Trans>Manage Subscription</Trans>
+                  </Button>
                 </Form>
               </CardFooter>
             </Card>
@@ -251,17 +272,23 @@ export default function PaymentSettings() {
             <ValidatedForm validator={transferOwnershipValidator} method="post">
               <Card>
                 <CardHeader>
-                  <CardTitle>Manage Ownership</CardTitle>
+                  <CardTitle>
+                    <Trans>Manage Ownership</Trans>
+                  </CardTitle>
                   <CardDescription>
-                    Transfer ownership of this company to another user
+                    <Trans>
+                      Transfer ownership of this company to another user
+                    </Trans>
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <VStack spacing={4}>
                     <p className="text-sm text-muted-foreground">
-                      As the company owner, you can transfer ownership to
-                      another employee. This will give them full access to
-                      billing and administrative settings.
+                      <Trans>
+                        As the company owner, you can transfer ownership to
+                        another employee. This will give them full access to
+                        billing and administrative settings.
+                      </Trans>
                     </p>
                     {employees.length > 0 ? (
                       <>
@@ -273,8 +300,8 @@ export default function PaymentSettings() {
                         <div className="grid grid-cols-2 gap-4 w-full">
                           <SelectControlled
                             name="newOwnerId"
-                            label="New Owner"
-                            placeholder="Select a new owner"
+                            label={t`New Owner`}
+                            placeholder={t`Select a new owner`}
                             value={ownerId || undefined}
                             onChange={(value) => {
                               if (value?.value) {
@@ -290,15 +317,17 @@ export default function PaymentSettings() {
                       </>
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        No other employees found. Add employees to enable
-                        ownership transfer.
+                        <Trans>
+                          No other employees found. Add employees to enable
+                          ownership transfer.
+                        </Trans>
                       </p>
                     )}
                   </VStack>
                 </CardContent>
                 <CardFooter>
                   <Submit withBlocker={false} isDisabled={ownerId === userId}>
-                    Transfer Ownership
+                    <Trans>Transfer Ownership</Trans>
                   </Submit>
                 </CardFooter>
               </Card>
@@ -313,12 +342,28 @@ export default function PaymentSettings() {
 function SubscriptionStatus({ status }: { status: string }) {
   switch (status) {
     case "Active":
-      return <Status color="green">Active</Status>;
+      return (
+        <Status color="green">
+          <Trans>Active</Trans>
+        </Status>
+      );
     case "Inactive":
-      return <Status color="orange">Inactive</Status>;
+      return (
+        <Status color="orange">
+          <Trans>Inactive</Trans>
+        </Status>
+      );
     case "Cancelled":
-      return <Status color="red">Cancelled</Status>;
+      return (
+        <Status color="red">
+          <Trans>Cancelled</Trans>
+        </Status>
+      );
     default:
-      return <Status color="gray">Unknown</Status>;
+      return (
+        <Status color="gray">
+          <Trans>Unknown</Trans>
+        </Status>
+      );
   }
 }

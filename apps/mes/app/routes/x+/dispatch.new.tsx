@@ -3,10 +3,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { notifyTask } from "@carbon/jobs/trigger/notify";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import { getLocalTimeZone, now } from "@internationalized/date";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { maintenanceDispatchValidator } from "~/services/models";
@@ -173,7 +172,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
         // Send notification if there's a notification group configured
         if (notificationGroup.length > 0) {
-          await tasks.trigger<typeof notifyTask>("notify", {
+          await trigger("notify", {
             companyId,
             documentId: insertDispatch.data.id,
             event: NotificationEvent.MaintenanceDispatchCreated,

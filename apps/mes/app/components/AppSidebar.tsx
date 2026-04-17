@@ -33,6 +33,7 @@ import {
   useSidebar
 } from "@carbon/react";
 import { ItarDisclosure, useMode, useRouteData } from "@carbon/remix";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ComponentProps } from "react";
 import { Suspense, useRef } from "react";
 import { BsFillHexagonFill } from "react-icons/bs";
@@ -183,30 +184,31 @@ export function OperationsNav({
   activeEvents: number;
   activeMaintenanceCount: number;
 }) {
+  const { t } = useLingui();
   const links = [
     {
-      title: "Schedule",
+      title: t`Schedule`,
       icon: LuCalendarDays,
       to: path.to.operations
     },
     {
-      title: "Assigned",
+      title: t`Assigned`,
       icon: LuClipboardList,
       to: path.to.assigned
     },
     {
-      title: "Active",
+      title: t`Active`,
       icon: LuActivity,
       label: (activeEvents ?? 0).toString(),
       to: path.to.active
     },
     {
-      title: "Recent",
+      title: t`Recent`,
       icon: LuHistory,
       to: path.to.recent
     },
     {
-      title: "Maintenance",
+      title: t`Maintenance`,
       icon: LuWrench,
       label: (activeMaintenanceCount ?? 0).toString(),
       to: path.to.maintenance
@@ -223,7 +225,9 @@ export function OperationsNav({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Operations</SidebarGroupLabel>
+      <SidebarGroupLabel>
+        <Trans>Operations</Trans>
+      </SidebarGroupLabel>
       <SidebarMenu>
         {links.map((item) => {
           const isActive =
@@ -267,7 +271,9 @@ export function ToolsNav() {
   return (
     <>
       <SidebarGroup>
-        <SidebarGroupLabel>Inventory Adjustments</SidebarGroupLabel>
+        <SidebarGroupLabel>
+          <Trans>Inventory Adjustments</Trans>
+        </SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <AdjustInventory add={true} />
@@ -278,7 +284,9 @@ export function ToolsNav() {
         </SidebarMenu>
       </SidebarGroup>
       <SidebarGroup>
-        <SidebarGroupLabel>Tools</SidebarGroupLabel>
+        <SidebarGroupLabel>
+          <Trans>Tools</Trans>
+        </SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem>
             <EndShift />
@@ -310,6 +318,7 @@ export function UserNav({
   locations: Location[];
   pinnedInUser: PinnedInUser | null;
 }) {
+  const { t } = useLingui();
   const user = useUser();
   const stationName = `${user.firstName} ${user.lastName}`;
   const { isMobile } = useSidebar();
@@ -347,7 +356,7 @@ export function UserNav({
   const displayAvatar = showingOperator
     ? pinnedInUser.avatarUrl
     : user.avatarUrl;
-  const displaySubtext = showingOperator ? "Console" : user.email;
+  const displaySubtext = showingOperator ? t`Console` : user.email;
 
   return (
     <SidebarMenu>
@@ -390,23 +399,23 @@ export function UserNav({
                   }}
                 >
                   <DropdownMenuIcon icon={<LuUsers />} />
-                  Switch Operator
+                  <Trans>Switch Operator</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
-                  Station: {stationName}
+                  <Trans>Station: {stationName}</Trans>
                 </DropdownMenuLabel>
               </>
             ) : (
               <>
                 <DropdownMenuLabel>
-                  Signed in as {stationName}
+                  <Trans>Signed in as {stationName}</Trans>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to={path.to.accountSettings}>
                     <DropdownMenuIcon icon={<LuUser />} />
-                    Account Settings
+                    <Trans>Account Settings</Trans>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -414,7 +423,7 @@ export function UserNav({
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger>
                     <DropdownMenuIcon icon={<LuBuilding />} />
-                    Company
+                    <Trans>Company</Trans>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuRadioGroup value={company.companyId!}>
@@ -454,7 +463,7 @@ export function UserNav({
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger>
                         <DropdownMenuIcon icon={<LuMapPin />} />
-                        Location
+                        <Trans>Location</Trans>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent>
                         <DropdownMenuRadioGroup value={optimisticLocation}>
@@ -483,7 +492,7 @@ export function UserNav({
                   <DropdownMenuIcon
                     icon={mode === "dark" ? <LuMoon /> : <LuSun />}
                   />
-                  Dark Mode
+                  <Trans>Dark Mode</Trans>
                 </div>
                 <div>
                   <Switch
@@ -519,7 +528,7 @@ export function UserNav({
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center justify-start">
                         <DropdownMenuIcon icon={<LuMonitor />} />
-                        Console Mode
+                        <Trans>Console Mode</Trans>
                       </div>
                       <div>
                         <Switch
@@ -552,14 +561,16 @@ export function UserNav({
                 {CONTROLLED_ENVIRONMENT && (
                   <DropdownMenuItem onClick={itarDisclosure.onOpen}>
                     <DropdownMenuIcon icon={<LuShieldCheck />} />
-                    About
+                    <Trans>About</Trans>
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                   <Form method="post" action={path.to.logout}>
                     <button type="submit" className="w-full flex items-center">
                       <DropdownMenuIcon icon={<LuLogOut />} />
-                      <span>Sign Out</span>
+                      <span>
+                        <Trans>Sign Out</Trans>
+                      </span>
                     </button>
                   </Form>
                 </DropdownMenuItem>

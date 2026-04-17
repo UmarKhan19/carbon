@@ -1,9 +1,8 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import type { notifyTask } from "@carbon/jobs/trigger/notify";
+import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
@@ -57,7 +56,7 @@ export async function action({ request }: ActionFunctionArgs) {
         if (usersToNotify.length > 0) {
           const notificationEvent = getNotificationEvent("jobOperationNote");
           if (notificationEvent) {
-            await tasks.trigger<typeof notifyTask>("notify", {
+            await trigger("notify", {
               companyId,
               documentId: `${jobId}:${operationId}:${makeMethodId}:${
                 materialId ?? ""

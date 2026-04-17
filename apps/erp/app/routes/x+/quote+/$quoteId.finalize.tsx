@@ -3,10 +3,9 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { QuoteEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
-import type { sendEmailResendTask } from "@carbon/jobs/trigger/send-email-resend"; // Assuming you have this task defined
+import { trigger } from "@carbon/jobs";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import { renderAsync } from "@react-email/components";
-import { tasks } from "@trigger.dev/sdk";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { upsertDocument } from "~/modules/documents";
@@ -39,6 +38,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let file: ArrayBuffer;
   let fileName: string;
+  let documentFilePath: string;
 
   const [quote] = await Promise.all([getQuote(client, quoteId)]);
   if (quote.error) {
@@ -79,7 +79,7 @@ export async function action(args: ActionFunctionArgs) {
       `${quote.data.quoteId} - ${new Date().toISOString().slice(0, -5)}.pdf`
     );
 
-    const documentFilePath = `${companyId}/opportunity/${quote.data.opportunityId}/${fileName}`;
+    documentFilePath = `${companyId}/opportunity/${quote.data.opportunityId}/${fileName}`;
 
     const documentFileUpload = await client.storage
       .from("private")
@@ -192,19 +192,25 @@ export async function action(args: ActionFunctionArgs) {
         const html = await renderAsync(emailTemplate);
         const text = await renderAsync(emailTemplate, { plainText: true });
 
-        await tasks.trigger<typeof sendEmailResendTask>("send-email-resend", {
+        const { data: signedUrlData } = await client.storage
+          .from("private")
+          .createSignedUrl(documentFilePath, 3600);
+
+        await trigger("send-email-resend", {
           to: [user.data.email, customerContact.data.contact!.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: user.data.email,
           subject: `Quote ${quote.data.quoteId}`,
           html,
           text,
-          attachments: [
-            {
-              content: Buffer.from(file).toString("base64"),
-              filename: fileName
-            }
-          ],
+          attachments: signedUrlData?.signedUrl
+            ? [
+                {
+                  path: signedUrlData.signedUrl,
+                  filename: fileName
+                }
+              ]
+            : undefined,
           companyId
         });
       } catch (err) {

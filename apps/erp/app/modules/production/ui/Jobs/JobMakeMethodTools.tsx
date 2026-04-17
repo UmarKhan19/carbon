@@ -31,7 +31,8 @@ import {
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
-import { useEffect, useState } from "react";
+import { Trans, useLingui } from "@lingui/react/macro";
+import { Fragment, useEffect, useState } from "react";
 import {
   LuChevronRight,
   LuGitBranch,
@@ -63,6 +64,7 @@ import type { Job, JobMakeMethod, JobMethod } from "../../types";
 
 const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
   const permissions = usePermissions();
+  const { t } = useLingui();
   const { jobId, methodId } = useParams();
   if (!jobId) throw new Error("jobId not found");
 
@@ -228,8 +230,12 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
       toast.error(error.message);
     }
 
+    // Only Draft versions can be overwritten - Active and Archived are read-only
+    const availableVersions =
+      data?.filter(({ status }) => status === "Draft") ?? [];
+
     setMakeMethods(
-      data?.map(({ id, version, status }) => ({
+      availableVersions.map(({ id, version, status }) => ({
         label: (
           <div className="flex items-center gap-2">
             <Badge variant="outline">V{version}</Badge>{" "}
@@ -237,11 +243,11 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           </div>
         ),
         value: id
-      })) ?? []
+      }))
     );
 
-    if (data?.length === 1) {
-      setSelectedMakeMethod(data[0].id);
+    if (availableVersions.length === 1) {
+      setSelectedMakeMethod(availableVersions[0].id);
     }
   };
 
@@ -252,7 +258,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
   });
 
   return (
-    <>
+    <Fragment key={jobId}>
       {permissions.can("update", "production") &&
         (isJobMethod || isJobMakeMethod) && (
           <Menubar>
@@ -264,7 +270,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   leftIcon={<LuGitBranch />}
                   onClick={getMethodModal.onOpen}
                 >
-                  Get Method
+                  <Trans>Get Method</Trans>
                 </MenubarItem>
                 <MenubarItem
                   isDisabled={
@@ -274,7 +280,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   leftIcon={<LuGitMerge />}
                   onClick={saveMethodModal.onOpen}
                 >
-                  Save Method
+                  <Trans>Save Method</Trans>
                 </MenubarItem>
 
                 {configurableItemIds.length > 0 && isJobMethod && (
@@ -288,13 +294,13 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                     isLoading={isConfigureLoading}
                     onClick={configureSelectModal.onOpen}
                   >
-                    Configure
+                    <Trans>Configure</Trans>
                   </MenubarItem>
                 )}
                 {itemLink && (
                   <MenubarItem leftIcon={<LuGitFork />} asChild>
                     <Link prefetch="intent" to={itemLink}>
-                      Item Master
+                      <Trans>Item Master</Trans>
                     </Link>
                   </MenubarItem>
                 )}
@@ -315,7 +321,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                         navigateToTrackingLabels(makeMethod.id, false)
                       }
                     >
-                      Tracking Labels
+                      <Trans>Tracking Labels</Trans>
                     </SplitButton>
                   )}
               </HStack>
@@ -340,7 +346,9 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
               onSubmit={getMethodModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Get Method</ModalTitle>
+                <ModalTitle>
+                  <Trans>Get Method</Trans>
+                </ModalTitle>
                 <ModalDescription>
                   Overwrite the job method with the source method
                 </ModalDescription>
@@ -354,7 +362,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                       </TabsTrigger>
                       <TabsTrigger value="quote">
                         <RiProgress4Line className="mr-2" />
-                        Quote
+                        <Trans>Quote</Trans>
                       </TabsTrigger>
                     </TabsList>
                   )}
@@ -376,13 +384,15 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                         <Alert variant="destructive">
                           <LuTriangleAlert className="h-4 w-4" />
                           <AlertTitle>
-                            This will overwrite the existing job method
+                            <Trans>
+                              This will overwrite the existing job method
+                            </Trans>
                           </AlertTitle>
                         </Alert>
                       )}
                       <Item
                         name="sourceId"
-                        label="Source Method"
+                        label={t`Source Method`}
                         type={(routeData?.job.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
@@ -398,7 +408,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                           htmlFor="include-inactive"
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                         >
-                          Include Inactive
+                          <Trans>Include Inactive</Trans>
                         </label>
                       </div>
 
@@ -417,13 +427,13 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
               </ModalBody>
               <ModalFooter>
                 <Button onClick={getMethodModal.onClose} variant="secondary">
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit
                   isDisabled={!hasMethodParts}
                   variant={hasMethods ? "destructive" : "primary"}
                 >
-                  Confirm
+                  <Trans>Confirm</Trans>
                 </Submit>
               </ModalFooter>
             </ValidatedForm>
@@ -454,7 +464,9 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
               onSubmit={saveMethodModal.onClose}
             >
               <ModalHeader>
-                <ModalTitle>Save Method</ModalTitle>
+                <ModalTitle>
+                  <Trans>Save Method</Trans>
+                </ModalTitle>
                 <ModalDescription>
                   Overwrite the target manufacturing method with the job method
                 </ModalDescription>
@@ -476,13 +488,15 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   <Alert variant="destructive">
                     <LuTriangleAlert className="h-4 w-4" />
                     <AlertTitle>
-                      This will overwrite the existing manufacturing method and
-                      the latest versions of all subassemblies.
+                      <Trans>
+                        This will overwrite the existing manufacturing method
+                        and the latest versions of all subassemblies.
+                      </Trans>
                     </AlertTitle>
                   </Alert>
                   <Item
                     name="itemId"
-                    label="Target Method"
+                    label={t`Target Method`}
                     type={(routeData?.job?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
                     onChange={(value) => {
@@ -499,7 +513,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   <SelectControlled
                     name="targetId"
                     options={makeMethods}
-                    label="Version"
+                    label={t`Version`}
                     value={selectedMakeMethod ?? undefined}
                     onChange={(value) => {
                       if (value) {
@@ -508,6 +522,11 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                         setSelectedMakeMethod(null);
                       }
                     }}
+                    placeholder={
+                      makeMethods.length === 0
+                        ? t`No draft versions available`
+                        : undefined
+                    }
                   />
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -519,7 +538,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                       htmlFor="include-inactive"
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
-                      Include Inactive
+                      <Trans>Include Inactive</Trans>
                     </label>
                   </div>
 
@@ -528,7 +547,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
               </ModalBody>
               <ModalFooter>
                 <Button onClick={saveMethodModal.onClose} variant="secondary">
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit
                   variant={hasMethods ? "destructive" : "primary"}
@@ -538,7 +557,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                     !hasMethodParts
                   }
                 >
-                  Confirm
+                  <Trans>Confirm</Trans>
                 </Submit>
               </ModalFooter>
             </ValidatedForm>
@@ -557,13 +576,17 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           <ModalContent>
             <ValidatedForm validator={getJobMethodValidator}>
               <ModalHeader>
-                <ModalTitle>Configure Item</ModalTitle>
-                <ModalDescription>Select an item to configure</ModalDescription>
+                <ModalTitle>
+                  <Trans>Configure Item</Trans>
+                </ModalTitle>
+                <ModalDescription>
+                  <Trans>Select an item to configure</Trans>
+                </ModalDescription>
               </ModalHeader>
               <ModalBody>
                 <Item
                   name="sourceId"
-                  label="Item"
+                  label={t`Item`}
                   type={(routeData?.job?.itemType ?? "Part") as "Part"}
                   includeInactive={includeInactive === true}
                   whitelist={configurableItemIds}
@@ -580,7 +603,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   onClick={configureSelectModal.onClose}
                   variant="secondary"
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </ModalFooter>
             </ValidatedForm>
@@ -604,7 +627,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
           }}
         />
       )}
-    </>
+    </Fragment>
   );
 };
 
@@ -613,6 +636,7 @@ function AdvancedSection({
 }: {
   onChange?: (hasSelection: boolean) => void;
 }) {
+  const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const [billOfMaterial, setBillOfMaterial] = useState(true);
   const [billOfProcess, setBillOfProcess] = useState(true);
@@ -632,15 +656,15 @@ function AdvancedSection({
   const processChildren = [
     {
       name: "parameters",
-      label: "Parameters",
+      label: t`Parameters`,
       checked: parameters,
       onChange: setParameters
     },
-    { name: "tools", label: "Tools", checked: tools, onChange: setTools },
-    { name: "steps", label: "Steps", checked: steps, onChange: setSteps },
+    { name: "tools", label: t`Tools`, checked: tools, onChange: setTools },
+    { name: "steps", label: t`Steps`, checked: steps, onChange: setSteps },
     {
       name: "workInstructions",
-      label: "Work Instructions",
+      label: t`Work Instructions`,
       checked: workInstructions,
       onChange: setWorkInstructions
     }
@@ -653,7 +677,7 @@ function AdvancedSection({
           <LuChevronRight
             className={cn("h-4 w-4 transition-transform", open && "rotate-90")}
           />
-          Advanced
+          <Trans>Advanced</Trans>
         </Button>
       </CollapsibleTrigger>
       <CollapsibleContent forceMount className={cn(!open && "hidden")}>
@@ -669,7 +693,7 @@ function AdvancedSection({
               htmlFor="billOfMaterial"
               className="text-sm font-medium leading-none"
             >
-              Bill of Material
+              <Trans>Bill of Material</Trans>
             </label>
           </div>
           <div className="flex items-center space-x-2">
@@ -683,7 +707,7 @@ function AdvancedSection({
               htmlFor="billOfProcess"
               className="text-sm font-medium leading-none"
             >
-              Bill of Process
+              <Trans>Bill of Process</Trans>
             </label>
           </div>
           <VStack spacing={2} className="pl-6">

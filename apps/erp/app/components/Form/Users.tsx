@@ -27,7 +27,12 @@ const Users = ({
   verbose = false,
   ...props
 }: UsersProps) => {
-  const { error, defaultValue, validate } = useField(name);
+  const {
+    error,
+    defaultValue,
+    validate,
+    isOptional: fieldIsOptional
+  } = useField(name);
   const [selections, setSelections] = useState<string[]>(defaultValue);
 
   const handleChange = (items: IndividualOrGroup[]) => {
@@ -43,7 +48,11 @@ const Users = ({
 
   return (
     <FormControl isInvalid={!!error}>
-      {label && <FormLabel htmlFor={name}>{label}</FormLabel>}
+      {label && (
+        <FormLabel htmlFor={name} isOptional={fieldIsOptional}>
+          {label}
+        </FormLabel>
+      )}
       {selections.map((selection, index) => (
         <input
           key={`${name}[${index}]`}

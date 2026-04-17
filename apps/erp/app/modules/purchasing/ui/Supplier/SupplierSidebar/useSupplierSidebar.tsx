@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import {
   LuBuilding,
   LuCog,
@@ -19,19 +20,20 @@ type Props = {
 };
 
 export function useSupplierSidebar({ contacts, locations }: Props) {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { supplierId } = useParams();
   if (!supplierId) throw new Error("supplierId not found");
 
   return [
     {
-      name: "Details",
+      name: t`Details`,
       to: path.to.supplierDetails(supplierId),
       icon: <LuBuilding />,
       shortcut: "Command+Shift+d"
     },
     {
-      name: "Contacts",
+      name: t`Contacts`,
       to: path.to.supplierContacts(supplierId),
       role: ["employee"],
       count: contacts,
@@ -39,7 +41,7 @@ export function useSupplierSidebar({ contacts, locations }: Props) {
       shortcut: "Command+Shift+c"
     },
     {
-      name: "Locations",
+      name: t`Locations`,
       to: path.to.supplierLocations(supplierId),
       role: ["employee", "supplier"],
       count: locations,
@@ -47,50 +49,50 @@ export function useSupplierSidebar({ contacts, locations }: Props) {
       shortcut: "Command+Shift+l"
     },
     {
-      name: "Payment",
+      name: t`Payment`,
       to: path.to.supplierPayment(supplierId),
       role: ["employee"],
       icon: <LuCreditCard />,
       shortcut: "Command+Shift+p"
     },
     {
-      name: "Processes",
+      name: t`Processes`,
       to: path.to.supplierProcesses(supplierId),
       role: ["employee"],
       icon: <LuCog />,
       shortcut: "Command+Shift+r"
     },
     {
-      name: "Risks",
+      name: t`Risks`,
       to: path.to.supplierRisks(supplierId),
       role: ["employee"],
       icon: <LuShieldAlert />
     },
     {
-      name: "Quotes",
+      name: t`Quotes`,
       to: `${path.to.supplierQuotes}?filter=supplierId:eq:${supplierId}`,
 
       icon: <LuPackageSearch />
     },
     {
-      name: "Orders",
+      name: t`Orders`,
       to: `${path.to.purchaseOrders}?filter=supplierId:eq:${supplierId}`,
       icon: <LuLayoutList />
     },
     {
-      name: "Invoices",
+      name: t`Invoices`,
       to: `${path.to.purchaseInvoices}?filter=supplierId:eq:${supplierId}`,
       icon: <LuCreditCard />
     }
     // {
-    //   name: "Shipping",
+    //   name: t`Shipping`,
     //   to: path.to.supplierShipping(supplierId),
     //   role: ["employee"],
     //   icon: <LuTruck />,
     //   shortcut: "Command+Shift+s",
     // },
     // {
-    //   name: "Accounting",
+    //   name: t`Accounting`,
     //   to: path.to.supplierAccounting(supplierId),
     //   role: ["employee"],
     //   icon: <LuLandmark />,

@@ -16,6 +16,7 @@ import {
   HStack,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { Employee, Users } from "~/components/Form";
 import { usePermissions, useUser } from "~/hooks";
 import type { ApprovalRule } from "~/modules/shared";
@@ -37,6 +38,7 @@ const ApprovalRuleForm = ({
   documentType,
   onClose
 }: ApprovalRuleFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const {
     company: { baseCurrencyCode }
@@ -81,7 +83,11 @@ const ApprovalRuleForm = ({
         >
           <DrawerHeader>
             <DrawerTitle>
-              {isEditing ? "Edit" : "New"} Approval Rule
+              {isEditing ? (
+                <Trans>Edit Approval Rule</Trans>
+              ) : (
+                <Trans>New Approval Rule</Trans>
+              )}
             </DrawerTitle>
           </DrawerHeader>
           <DrawerBody>
@@ -99,7 +105,7 @@ const ApprovalRuleForm = ({
                 ) && (
                   <FormNumber
                     name="lowerBoundAmount"
-                    label="Minimum Amount"
+                    label={t`Minimum Amount`}
                     formatOptions={{
                       style: "currency",
                       currency: baseCurrencyCode
@@ -109,27 +115,27 @@ const ApprovalRuleForm = ({
 
               <Users
                 name="approverGroupIds"
-                label="Who Can Approve"
+                label={t`Who Can Approve`}
                 type="employee"
-                placeholder="Select groups or individuals"
-                helperText="All members of selected groups and selected individuals will be able to approve requests"
+                placeholder={t`Select groups or individuals`}
+                helperText={t`All members of selected groups and selected individuals will be able to approve requests`}
               />
 
               <Employee
                 name="defaultApproverId"
-                label="Default Approver"
-                placeholder="Select a default approver"
+                label={t`Default Approver`}
+                placeholder={t`Select a default approver`}
               />
 
               <FormBoolean
                 name="enabled"
-                label="Enabled"
-                helperText="Enable this rule to automatically require approval for matching documents"
+                label={t`Enabled`}
+                helperText={t`Enable this rule to automatically require approval for matching documents`}
                 variant="large"
               />
               {/* <FormNumber
                 name="escalationDays"
-                label="Escalation Days"
+                label={t`Escalation Days`}
                 helperText="Automatically escalate approval requests after this many days. Leave empty to disable escalation."
               /> */}
             </VStack>
@@ -137,10 +143,14 @@ const ApprovalRuleForm = ({
           <DrawerFooter>
             <HStack>
               <Submit isDisabled={isDisabled}>
-                {isEditing ? "Update" : "Create"} Rule
+                {isEditing ? (
+                  <Trans>Update Rule</Trans>
+                ) : (
+                  <Trans>Create Rule</Trans>
+                )}
               </Submit>
               <Button variant="secondary" onClick={onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
             </HStack>
           </DrawerFooter>

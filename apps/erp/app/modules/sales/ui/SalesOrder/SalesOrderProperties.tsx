@@ -10,6 +10,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { useCallback, useEffect, useMemo } from "react";
 import { LuCopy, LuInfo, LuLink, LuRefreshCcw } from "react-icons/lu";
@@ -39,6 +40,7 @@ import { isSalesOrderLocked } from "../../sales.models";
 import type { SalesOrder } from "../../types";
 
 const SalesOrderProperties = () => {
+  const { t } = useLingui();
   const { orderId } = useParams();
   if (!orderId) throw new Error("orderId not found");
 
@@ -128,14 +130,14 @@ const SalesOrderProperties = () => {
       <VStack spacing={4}>
         <HStack className="w-full justify-between">
           <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
-            Properties
+            <Trans>Properties</Trans>
           </h3>
           <HStack spacing={1}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Link"
+                  aria-label={t`Link`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -156,7 +158,7 @@ const SalesOrderProperties = () => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  aria-label="Copy"
+                  aria-label={t`Copy`}
                   size="sm"
                   className="p-1"
                   onClick={() =>
@@ -214,7 +216,7 @@ const SalesOrderProperties = () => {
       >
         <InputControlled
           name="customerReference"
-          label="Customer PO"
+          label={t`Customer PO`}
           value={routeData?.salesOrder?.customerReference ?? ""}
           size="sm"
           inline
@@ -257,7 +259,7 @@ const SalesOrderProperties = () => {
       >
         <CustomerContact
           name="customerContactId"
-          label="Purchasing Contact"
+          label={t`Purchasing Contact`}
           customer={routeData?.salesOrder?.customerId ?? ""}
           inline
           isReadOnly={isDisabled}
@@ -281,7 +283,7 @@ const SalesOrderProperties = () => {
       >
         <CustomerContact
           name="customerEngineeringContactId"
-          label="Engineering Contact"
+          label={t`Engineering Contact`}
           customer={routeData?.salesOrder?.customerId ?? ""}
           inline
           isReadOnly={isDisabled}
@@ -307,7 +309,7 @@ const SalesOrderProperties = () => {
       >
         <DatePicker
           name="orderDate"
-          label="Order Date"
+          label={t`Order Date`}
           inline
           onChange={(date) => {
             onUpdate("orderDate", date);
@@ -327,7 +329,7 @@ const SalesOrderProperties = () => {
       >
         <DatePicker
           name="receiptRequestedDate"
-          label="Requested Date"
+          label={t`Requested Date`}
           inline
           onChange={(date) => {
             onUpdate("receiptRequestedDate", date);
@@ -346,7 +348,7 @@ const SalesOrderProperties = () => {
       >
         <DatePicker
           name="receiptPromisedDate"
-          label="Promised Date"
+          label={t`Promised Date`}
           inline
           onChange={(date) => {
             onUpdate("receiptPromisedDate", date);
@@ -362,7 +364,7 @@ const SalesOrderProperties = () => {
         className="w-full"
       >
         <Location
-          label="Sales Order Location"
+          label={t`Sales Order Location`}
           name="locationId"
           inline
           isReadOnly={isDisabled}
@@ -383,7 +385,7 @@ const SalesOrderProperties = () => {
       >
         <Employee
           name="salesPersonId"
-          label="Sales Person"
+          label={t`Sales Person`}
           inline
           isReadOnly={isDisabled}
           onChange={(value) => {
@@ -405,7 +407,7 @@ const SalesOrderProperties = () => {
       >
         <Currency
           name="currencyCode"
-          label="Currency"
+          label={t`Currency`}
           inline
           value={routeData?.salesOrder?.currencyCode ?? ""}
           isReadOnly={isDisabled}
@@ -445,7 +447,7 @@ const SalesOrderProperties = () => {
               <IconButton
                 size="sm"
                 variant="secondary"
-                aria-label="Refresh"
+                aria-label={t`Refresh`}
                 icon={<LuRefreshCcw />}
                 isDisabled={isDisabled}
                 onClick={() => {

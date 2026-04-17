@@ -551,6 +551,14 @@ export async function getSupplierInteractionDocuments(
     .from("private")
     .list(`${companyId}/supplier-interaction/${interactionId}`);
 
+  if (result.error) {
+    console.error(
+      "Failed to list supplier interaction documents",
+      result.error
+    );
+    return [];
+  }
+
   return (
     result.data?.map((f) => ({ ...f, bucket: "supplier-interaction" })) ?? []
   );
@@ -565,9 +573,19 @@ export async function getSupplierInteractionLineDocuments(
     .from("private")
     .list(`${companyId}/supplier-interaction-line/${lineId}`);
 
+  if (result.error) {
+    console.error(
+      "Failed to list supplier interaction line documents",
+      result.error
+    );
+    return [];
+  }
+
   return (
-    result.data?.map((f) => ({ ...f, bucket: "supplier-interaction-line" })) ??
-    []
+    result.data?.map((f) => ({
+      ...f,
+      bucket: "supplier-interaction-line"
+    })) ?? []
   );
 }
 

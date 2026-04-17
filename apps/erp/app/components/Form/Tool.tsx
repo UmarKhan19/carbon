@@ -55,7 +55,7 @@ const Tool = ({ name, label, helperText, ...props }: ToolSelectProps) => {
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const { getInputProps, error } = useField(name);
+  const { getInputProps, error, isOptional: fieldIsOptional } = useField(name);
   const [value, setValue] = useControlField<string | undefined>(name);
 
   useEffect(() => {
@@ -74,7 +74,7 @@ const Tool = ({ name, label, helperText, ...props }: ToolSelectProps) => {
   return (
     <>
       <FormControl isInvalid={!!error} className="w-full">
-        {label && <FormLabel>{label}</FormLabel>}
+        {label && <FormLabel isOptional={fieldIsOptional}>{label}</FormLabel>}
         <input
           {...getInputProps({
             id: name

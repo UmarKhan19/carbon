@@ -2,12 +2,12 @@ import { notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
+import { trigger } from "@carbon/jobs";
 import type { PrintingSettings } from "@carbon/printing";
 import { Loading } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { FunctionRegion } from "@supabase/supabase-js";
-import { tasks } from "@trigger.dev/sdk";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, useLoaderData } from "react-router";
@@ -168,20 +168,13 @@ async function handleKanban({
         .single();
       const printing = cs?.printing as PrintingSettings | null;
       if (printing?.autoPrint?.kanbanCards) {
-        await tasks.trigger(
-          "print-job",
-          {
-            sourceDocument: "Kanban" as const,
-            sourceDocumentId: kanban.data.id!,
-            companyId,
-            userId,
-            locationId: kanban.data.locationId ?? undefined
-          },
-          {
-            idempotencyKey: `auto-print-Kanban-${kanban.data.id}`,
-            idempotencyKeyTTL: "5m"
-          }
-        );
+        await trigger("print-job", {
+          sourceDocument: "Kanban",
+          sourceDocumentId: kanban.data.id!,
+          companyId,
+          userId,
+          locationId: kanban.data.locationId ?? undefined
+        });
       }
     } catch (e) {
       console.error("Auto-print failed:", e);
@@ -189,7 +182,7 @@ async function handleKanban({
 
     if (!upsertMethod.error && kanban.data.autoRelease) {
       await Promise.all([
-        tasks.trigger("recalculate", {
+        trigger("recalculate", {
           type: "jobRequirements",
           id,
           companyId,
@@ -384,20 +377,13 @@ async function handleKanban({
         .single();
       const printing = cs?.printing as PrintingSettings | null;
       if (printing?.autoPrint?.kanbanCards) {
-        await tasks.trigger(
-          "print-job",
-          {
-            sourceDocument: "Kanban" as const,
-            sourceDocumentId: kanban.data.id!,
-            companyId,
-            userId,
-            locationId: kanban.data.locationId ?? undefined
-          },
-          {
-            idempotencyKey: `auto-print-Kanban-${kanban.data.id}`,
-            idempotencyKeyTTL: "5m"
-          }
-        );
+        await trigger("print-job", {
+          sourceDocument: "Kanban",
+          sourceDocumentId: kanban.data.id!,
+          companyId,
+          userId,
+          locationId: kanban.data.locationId ?? undefined
+        });
       }
     } catch (e) {
       console.error("Auto-print failed:", e);

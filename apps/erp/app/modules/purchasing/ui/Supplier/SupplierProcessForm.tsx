@@ -12,6 +12,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFetcher, useNavigate, useParams } from "react-router";
@@ -42,6 +43,7 @@ const SupplierProcessForm = ({
   open = true,
   onClose
 }: SupplierProcessFormProps) => {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<SupplierProcess>>();
   const { supplierId } = useParams();
@@ -108,14 +110,14 @@ const SupplierProcessForm = ({
                 {supplierId === undefined && (
                   <Supplier
                     name="supplierId"
-                    label="Supplier"
+                    label={t`Supplier`}
                     onChange={(newValue) => setSupplier(newValue?.value)}
                   />
                 )}
-                <Process name="processId" label="Process" />
+                <Process name="processId" label={t`Process`} />
                 <Number
                   name="minimumCost"
-                  label="Minimum Cost"
+                  label={t`Minimum Cost`}
                   formatOptions={{
                     style: "currency",
                     currency: baseCurrency
@@ -124,7 +126,7 @@ const SupplierProcessForm = ({
                 />
                 <Number
                   name="leadTime"
-                  label="Standard Lead Time"
+                  label={t`Standard Lead Time`}
                   minValue={0}
                 />
 
@@ -133,9 +135,11 @@ const SupplierProcessForm = ({
             </ModalDrawerBody>
             <ModalDrawerFooter>
               <HStack>
-                <Submit isDisabled={isDisabled}>Save</Submit>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
                 <Button size="md" variant="solid" onClick={() => onClose?.()}>
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
               </HStack>
             </ModalDrawerFooter>

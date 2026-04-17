@@ -14,6 +14,7 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import {
   LuDice5,
@@ -44,6 +45,7 @@ export default function RiskRegisterCard({
   source,
   itemId
 }: RiskRegisterCardProps) {
+  const { t } = useLingui();
   const { carbon } = useCarbon();
   const { company } = useUser();
 
@@ -64,7 +66,7 @@ export default function RiskRegisterCard({
       .order("createdAt", { ascending: false });
 
     if (error) {
-      toast.error(`Failed to fetch risks`);
+      toast.error(t`Failed to fetch risks`);
       return;
     }
 
@@ -72,7 +74,7 @@ export default function RiskRegisterCard({
       setRisks(data as unknown as Risk[]);
     }
     setLoading(false);
-  }, [carbon, company?.id, sourceId, source, itemId]);
+  }, [carbon, company?.id, sourceId, source, itemId, t]);
 
   useEffect(() => {
     fetchRisks();
@@ -97,11 +99,17 @@ export default function RiskRegisterCard({
     <Card className="h-full">
       <HStack className="justify-between">
         <CardHeader>
-          <CardTitle>Risks</CardTitle>
+          <CardTitle>
+            <Trans>Risks</Trans>
+          </CardTitle>
         </CardHeader>
         <CardAction>
-          <Button aria-label="Add Risk" variant="secondary" onClick={handleAdd}>
-            Add Risk
+          <Button
+            aria-label={t`Add Risk`}
+            variant="secondary"
+            onClick={handleAdd}
+          >
+            <Trans>Add Risk</Trans>
           </Button>
         </CardAction>
       </HStack>
@@ -169,7 +177,7 @@ export default function RiskRegisterCard({
       {selectedRisk && deleteDisclosure.isOpen && (
         <Confirm
           isOpen={deleteDisclosure.isOpen}
-          confirmText="Delete"
+          confirmText={t`Delete`}
           onCancel={() => {
             deleteDisclosure.onClose();
             setSelectedRisk(undefined);
@@ -179,8 +187,8 @@ export default function RiskRegisterCard({
             setSelectedRisk(undefined);
             fetchRisks();
           }}
-          title="Delete Risk"
-          text="Are you sure you want to delete this risk?"
+          title={t`Delete Risk`}
+          text={t`Are you sure you want to delete this risk?`}
           // @ts-expect-error TS2345 - TODO: fix type
           action={path.to.deleteRisk(selectedRisk.id)}
         />
@@ -200,6 +208,7 @@ function RiskRegisterCardItem({
   handleEdit: (risk: Risk) => void;
   handleDelete: (risk: Risk) => void;
 }) {
+  const { t } = useLingui();
   const permissions = usePermissions();
 
   return (
@@ -223,7 +232,7 @@ function RiskRegisterCardItem({
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <IconButton
-            aria-label="Edit"
+            aria-label={t`Edit`}
             icon={<LuSettings2 className="h-4 w-4" />}
             variant="secondary"
             size="sm"
@@ -231,7 +240,7 @@ function RiskRegisterCardItem({
           />
           {permissions.can("delete", "quality") && (
             <IconButton
-              aria-label="Delete"
+              aria-label={t`Delete`}
               icon={<LuTrash2 className="h-4 w-4" />}
               variant="secondary"
               size="sm"

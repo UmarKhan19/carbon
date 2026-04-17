@@ -18,6 +18,7 @@ import {
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
 import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { Link, useParams } from "react-router";
@@ -114,7 +115,7 @@ export default function PurchaseInvoiceExplorer() {
                   variant="secondary"
                   onClick={newPurchaseInvoiceLineDisclosure.onOpen}
                 >
-                  Add Line Item
+                  <Trans>Add Line Item</Trans>
                 </Button>
               )}
             </Empty>
@@ -131,12 +132,14 @@ export default function PurchaseInvoiceExplorer() {
                 variant="secondary"
                 onClick={newPurchaseInvoiceLineDisclosure.onOpen}
               >
-                Add Line Item
+                <Trans>Add Line Item</Trans>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
               <HStack>
-                <span>New Line Item</span>
+                <span>
+                  <Trans>New Line Item</Trans>
+                </span>
                 <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
               </HStack>
             </TooltipContent>
@@ -171,6 +174,7 @@ function PurchaseInvoiceLineItem({
   isDisabled,
   onDelete
 }: PurchaseInvoiceLineItemProps) {
+  const { t } = useLingui();
   const { invoiceId } = useParams();
   if (!invoiceId) throw new Error("Could not find invoiceId");
   const permissions = usePermissions();
@@ -209,7 +213,7 @@ function PurchaseInvoiceLineItem({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <IconButton
-                  aria-label="More"
+                  aria-label={t`More`}
                   className="opacity-0 group-hover:opacity-100 group-active:opacity-100 data-[state=open]:opacity-100"
                   icon={<LuEllipsisVertical />}
                   variant="solid"
@@ -226,7 +230,7 @@ function PurchaseInvoiceLineItem({
                   }}
                 >
                   <DropdownMenuIcon icon={<LuTrash />} />
-                  Delete Line
+                  <Trans>Delete Line</Trans>
                 </DropdownMenuItem>
                 {/* @ts-expect-error */}
                 {methodItemType.includes(line.invoiceLineType ?? "") && (
@@ -243,7 +247,7 @@ function PurchaseInvoiceLineItem({
                       <DropdownMenuIcon
                         icon={<MethodItemTypeIcon type={"Part"} />}
                       />
-                      View Item Master
+                      <Trans>View Item Master</Trans>
                     </Link>
                   </DropdownMenuItem>
                 )}

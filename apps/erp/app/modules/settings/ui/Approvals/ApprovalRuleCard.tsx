@@ -15,6 +15,7 @@ import {
   Status,
   useDisclosure
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { memo, useCallback } from "react";
 import { LuEllipsisVertical, LuPencil, LuTrash } from "react-icons/lu";
 import { useNavigate } from "react-router";
@@ -36,6 +37,7 @@ type ApprovalRuleCardProps = {
 
 const ApprovalRuleCard = memo(
   ({ rule, documentType }: ApprovalRuleCardProps) => {
+    const { t } = useLingui();
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -82,7 +84,11 @@ const ApprovalRuleCard = memo(
                       color={rule.enabled ? "green" : "gray"}
                       className="text-xs font-medium"
                     >
-                      {rule.enabled ? "Enabled" : "Disabled"}
+                      {rule.enabled ? (
+                        <Trans>Enabled</Trans>
+                      ) : (
+                        <Trans>Disabled</Trans>
+                      )}
                     </Status>
                   </HStack>
                 </AccordionTrigger>
@@ -90,7 +96,7 @@ const ApprovalRuleCard = memo(
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <IconButton
-                        aria-label="More options"
+                        aria-label={t`More options`}
                         icon={<LuEllipsisVertical />}
                         variant="ghost"
                         onClick={(e) => e.stopPropagation()}
@@ -105,7 +111,7 @@ const ApprovalRuleCard = memo(
                         }}
                       >
                         <LuPencil className="mr-2 h-4 w-4" />
-                        Edit Rule
+                        <Trans>Edit Rule</Trans>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -117,7 +123,7 @@ const ApprovalRuleCard = memo(
                         }}
                       >
                         <LuTrash className="mr-2 h-4 w-4" />
-                        Delete Rule
+                        <Trans>Delete Rule</Trans>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -136,8 +142,12 @@ const ApprovalRuleCard = memo(
         <ConfirmDelete
           action={path.to.deleteApprovalRule(rule.id)}
           isOpen={deleteDisclosure.isOpen}
-          name={`${documentType === "purchaseOrder" ? "Purchase Order" : "Quality Document"} approval rule`}
-          text={`Are you sure you want to delete this approval rule? This cannot be undone.`}
+          name={
+            documentType === "purchaseOrder"
+              ? t`Purchase Order approval rule`
+              : t`Quality Document approval rule`
+          }
+          text={t`Are you sure you want to delete this approval rule? This cannot be undone.`}
           onCancel={deleteDisclosure.onClose}
           onSubmit={handleDeleteConfirm}
         />

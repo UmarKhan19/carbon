@@ -1,6 +1,7 @@
 "use client";
 
 import { Checkbox, cn, HStack } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { LayoutGroup, motion, Reorder, useDragControls } from "framer-motion";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
@@ -51,6 +52,7 @@ function SortableListItem<T>({
   className,
   isReadOnly = false
 }: SortableListItemProps<T>) {
+  const { t } = useLingui();
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggable] = useState(!isExpanded && !isReadOnly);
   const dragControls = useDragControls();
@@ -125,7 +127,7 @@ function SortableListItem<T>({
                       <Checkbox
                         checked={item.checked}
                         id={`checkbox-${item.id}`}
-                        aria-label="Mark to delete"
+                        aria-label={t`Mark to delete`}
                         onCheckedChange={() => onToggleItem(item.id)}
                         className="border-foreground/20 bg-background/30 data-[state=checked]:bg-background data-[state=checked]:text-red-200 flex flex-shrink-0 "
                       />

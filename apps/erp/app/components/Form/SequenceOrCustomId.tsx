@@ -10,6 +10,7 @@ import {
   IconButton,
   Input
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import { forwardRef, useState } from "react";
 import { LuToggleLeft, LuToggleRight } from "react-icons/lu";
 
@@ -31,20 +32,27 @@ const SequenceOrCustomId = forwardRef<
       name,
       label,
       table,
-      isOptional = false,
+      isOptional,
       helperText,
-      placeholder = "Next Sequence",
+      placeholder: placeholderProp,
       ...rest
     },
     ref
   ) => {
-    const { getInputProps, error } = useField(name);
+    const { t } = useLingui();
+    const placeholder = placeholderProp ?? t`Next Sequence`;
+    const {
+      getInputProps,
+      error,
+      isOptional: fieldIsOptional
+    } = useField(name);
     const [isCustom, setIsCustom] = useState(!!getInputProps()?.defaultValue);
+    const resolvedIsOptional = isOptional ?? fieldIsOptional ?? false;
 
     return (
       <FormControl isInvalid={!!error}>
         {label && (
-          <FormLabel htmlFor={name} isOptional={isOptional}>
+          <FormLabel htmlFor={name} isOptional={resolvedIsOptional}>
             {label}
           </FormLabel>
         )}
@@ -54,7 +62,7 @@ const SequenceOrCustomId = forwardRef<
               ref={ref}
               {...getInputProps({
                 id: name,
-                placeholder: `Custom ${label}`,
+                placeholder: t`Custom ${label}`,
                 ...rest
               })}
               className="w-full"
@@ -69,7 +77,7 @@ const SequenceOrCustomId = forwardRef<
             </Button>
           )}
           <IconButton
-            aria-label="Toggle"
+            aria-label={t`Toggle`}
             className={cn(
               "bg-card absolute right-0 top-0",
               "flex-shrink-0 h-10 w-10 px-3 rounded-l-none before:rounded-l-none border-none -ml-px shadow-button-base"

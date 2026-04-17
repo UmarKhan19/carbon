@@ -25,6 +25,7 @@ import {
   TabsTrigger,
   toast
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
 import {
   LuCheck,
@@ -58,6 +59,7 @@ export function MaintenanceAddPartModal({
   itemOptions: ItemOption[];
   onClose: () => void;
 }) {
+  const { t } = useLingui();
   const fetcher = useFetcher<{ success: boolean; message: string }>();
   const { carbon } = useCarbon();
 
@@ -123,7 +125,7 @@ export function MaintenanceAddPartModal({
               serials?.map((sn) => ({
                 label: sn.id ?? "",
                 value: sn.id,
-                helper: sn.readableId ? `Serial ${sn.readableId}` : undefined
+                helper: sn.readableId ? t`Serial ${sn.readableId}` : undefined
               })) ?? []
             );
           }
@@ -141,8 +143,8 @@ export function MaintenanceAddPartModal({
                 label: batch.id ?? "",
                 value: batch.id,
                 helper: batch.readableId
-                  ? `Batch ${batch.readableId} (${batch.quantity} available)`
-                  : `${batch.quantity} available`,
+                  ? t`Batch ${batch.readableId} (${batch.quantity} available)`
+                  : t`${batch.quantity} available`,
                 quantity: batch.quantity ?? 0
               })) ?? []
             );
@@ -156,13 +158,13 @@ export function MaintenanceAddPartModal({
 
   const validateSerialNumber = useCallback(
     (value: string, index: number) => {
-      if (!value) return "Serial number is required";
+      if (!value) return t`Serial number is required`;
       const isDuplicate = selectedSerialNumbers.some(
         (sn, i) => sn.id === value && i !== index
       );
-      if (isDuplicate) return "Duplicate serial number";
+      if (isDuplicate) return t`Duplicate serial number`;
       const isValid = serialOptions.some((opt) => opt.value === value);
-      if (!isValid) return "Serial number is not available";
+      if (!isValid) return t`Serial number is not available`;
       return null;
     },
     [selectedSerialNumbers, serialOptions]
@@ -170,15 +172,15 @@ export function MaintenanceAddPartModal({
 
   const validateBatch = useCallback(
     (value: string, qty: number, index: number) => {
-      if (!value) return "Batch number is required";
-      if (qty <= 0) return "Quantity must be greater than 0";
+      if (!value) return t`Batch number is required`;
+      if (qty <= 0) return t`Quantity must be greater than 0`;
       const isDuplicate = selectedBatches.some(
         (b, i) => b.id === value && i !== index
       );
-      if (isDuplicate) return "Duplicate batch number";
+      if (isDuplicate) return t`Duplicate batch number`;
       const batch = batchOptions.find((b) => b.value === value);
-      if (!batch) return "Batch is not available";
-      if (qty > batch.quantity) return `Only ${batch.quantity} available`;
+      if (!batch) return t`Batch is not available`;
+      if (qty > batch.quantity) return t`Only ${batch.quantity} available`;
       return null;
     },
     [selectedBatches, batchOptions]
@@ -186,7 +188,7 @@ export function MaintenanceAddPartModal({
 
   const handleSubmit = useCallback(() => {
     if (!selectedItemId || !itemDetails) {
-      toast.error("Please select an item");
+      toast.error(t`Please select an item`);
       return;
     }
 
@@ -253,7 +255,7 @@ export function MaintenanceAddPartModal({
     } else {
       // Inventory item
       if (quantity <= 0) {
-        toast.error("Quantity must be greater than 0");
+        toast.error(t`Quantity must be greater than 0`);
         return;
       }
 
@@ -296,18 +298,22 @@ export function MaintenanceAddPartModal({
     <Modal open onOpenChange={onClose}>
       <ModalContent>
         <ModalHeader>
-          <ModalTitle>Add Spare Part</ModalTitle>
+          <ModalTitle>
+            <Trans>Add Spare Part</Trans>
+          </ModalTitle>
           <ModalDescription>
-            Select an item and specify the quantity to issue
+            <Trans>Select an item and specify the quantity to issue</Trans>
           </ModalDescription>
         </ModalHeader>
         <ModalBody>
           <div className="flex flex-col gap-4">
             {/* Item Selection */}
             <div>
-              <label className="block text-sm font-medium mb-1">Item</label>
+              <label className="block text-sm font-medium mb-1">
+                <Trans>Item</Trans>
+              </label>
               <ComboboxBase
-                placeholder="Select an item..."
+                placeholder={t`Select an item...`}
                 value={selectedItemId}
                 onChange={handleItemChange}
                 options={itemOptions}
@@ -316,7 +322,7 @@ export function MaintenanceAddPartModal({
 
             {isLoadingItem && (
               <div className="text-sm text-muted-foreground">
-                Loading item details...
+                <Trans>Loading item details...</Trans>
               </div>
             )}
 
@@ -326,7 +332,7 @@ export function MaintenanceAddPartModal({
                 !itemDetails.itemTrackingType) && (
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Quantity
+                    <Trans>Quantity</Trans>
                   </label>
                   <NumberField
                     value={quantity}
@@ -354,11 +360,11 @@ export function MaintenanceAddPartModal({
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger value="scan">
                     <LuQrCode className="mr-2" />
-                    Scan
+                    <Trans>Scan</Trans>
                   </TabsTrigger>
                   <TabsTrigger value="select">
                     <LuList className="mr-2" />
-                    Select
+                    <Trans>Select</Trans>
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="scan">
@@ -372,7 +378,7 @@ export function MaintenanceAddPartModal({
                           <div className="flex-1">
                             <InputGroup>
                               <Input
-                                placeholder={`Serial Number ${index + 1}`}
+                                placeholder={t`Serial Number ${index + 1}`}
                                 value={sn.id}
                                 onChange={(e) => {
                                   const newValue = e.target.value;
@@ -430,7 +436,7 @@ export function MaintenanceAddPartModal({
                         <div className="flex items-center gap-2">
                           <div className="flex-1">
                             <ComboboxBase
-                              placeholder={`Select Serial ${index + 1}`}
+                              placeholder={t`Select Serial ${index + 1}`}
                               value={sn.id}
                               onChange={(value) => {
                                 setSelectedSerialNumbers((prev) => {
@@ -474,11 +480,11 @@ export function MaintenanceAddPartModal({
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger value="scan">
                     <LuQrCode className="mr-2" />
-                    Scan
+                    <Trans>Scan</Trans>
                   </TabsTrigger>
                   <TabsTrigger value="select">
                     <LuList className="mr-2" />
-                    Select
+                    <Trans>Select</Trans>
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="scan">
@@ -492,7 +498,7 @@ export function MaintenanceAddPartModal({
                           <div className="flex-1">
                             <InputGroup>
                               <Input
-                                placeholder={`Batch Number ${index + 1}`}
+                                placeholder={t`Batch Number ${index + 1}`}
                                 value={batch.id}
                                 onChange={(e) => {
                                   const newValue = e.target.value;
@@ -582,7 +588,7 @@ export function MaintenanceAddPartModal({
                         <div className="flex items-center gap-2">
                           <div className="flex-1">
                             <ComboboxBase
-                              placeholder={`Select Batch ${index + 1}`}
+                              placeholder={t`Select Batch ${index + 1}`}
                               value={batch.id}
                               onChange={(value) => {
                                 setSelectedBatches((prev) => {
@@ -648,7 +654,7 @@ export function MaintenanceAddPartModal({
         </ModalBody>
         <ModalFooter>
           <Button variant="secondary" onClick={onClose}>
-            Cancel
+            <Trans>Cancel</Trans>
           </Button>
           <Button
             variant="primary"
@@ -658,7 +664,7 @@ export function MaintenanceAddPartModal({
               fetcher.state !== "idle" || !selectedItemId || isLoadingItem
             }
           >
-            Add & Issue
+            <Trans>Add & Issue</Trans>
           </Button>
         </ModalFooter>
       </ModalContent>

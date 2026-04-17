@@ -1,4 +1,6 @@
 import { Heading, VStack } from "@carbon/react";
+import { msg } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import type { MetaFunction } from "react-router";
 import { Outlet } from "react-router";
 import type { Handle } from "~/utils/handle";
@@ -9,7 +11,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: "Account",
+  breadcrumb: msg`Account`,
   to: path.to.profile,
   module: "account"
 };
@@ -24,7 +26,9 @@ export default function AccountRoute() {
     >
       <div className="flex bg-card border-b border-border py-8 px-2 w-full justify-center">
         <div className="w-full max-w-[60rem]">
-          <Heading size="h3">Account Settings</Heading>
+          <Heading size="h3">
+            <Trans>Account Settings</Trans>
+          </Heading>
         </div>
       </div>
 

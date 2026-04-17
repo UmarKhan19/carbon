@@ -1,6 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import type { paperlessPartsTask } from "@carbon/jobs/trigger/paperless-parts";
-import { tasks } from "@trigger.dev/sdk";
+import { trigger } from "@carbon/jobs";
 import crypto from "crypto";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data } from "react-router";
@@ -100,7 +99,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const payload = JSON.parse(payloadText);
     console.log("payload", payload);
 
-    await tasks.trigger<typeof paperlessPartsTask>("paperless-parts", {
+    await trigger("paperless-parts", {
       apiKey,
       companyId,
       payload

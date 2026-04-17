@@ -3,7 +3,7 @@ export default {
   info: {
     description: "",
     title: "standard public schema",
-    version: "14.7",
+    version: "14.8",
   },
   host: "0.0.0.0:3000",
   basePath: "/",
@@ -63493,9 +63493,6 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.printing",
-          },
-          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
@@ -63663,9 +63660,6 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.printing",
-          },
-          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
@@ -63785,9 +63779,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled",
-          },
-          {
-            $ref: "#/parameters/rowFilter.companySettings.printing",
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
@@ -65122,6 +65113,96 @@ export default {
         tags: ["(rpc) create_rfq_from_models_v2"],
       },
     },
+    "/rpc/sync_protect_system_required_actions": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_protect_system_required_actions"],
+      },
+    },
+    "/rpc/sync_create_location_related_records": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_location_related_records"],
+      },
+    },
     "/rpc/get_supplier_interaction_with_related_records": {
       post: {
         parameters: [
@@ -65200,6 +65281,51 @@ export default {
           },
         },
         tags: ["(rpc) sync_contact_to_parent"],
+      },
+    },
+    "/rpc/sync_insert_quote_line_make_method": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_insert_quote_line_make_method"],
       },
     },
     "/rpc/check_operation_dependencies": {
@@ -65290,7 +65416,7 @@ export default {
             type: "number",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "match_count",
             required: true,
@@ -65325,7 +65451,7 @@ export default {
             schema: {
               properties: {
                 match_count: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 match_threshold: {
@@ -65428,6 +65554,51 @@ export default {
           },
         },
         tags: ["(rpc) get_unscheduled_jobs"],
+      },
+    },
+    "/rpc/sync_update_quote_exchange_rate": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_quote_exchange_rate"],
       },
     },
     "/rpc/delete_from_search_index": {
@@ -65578,6 +65749,96 @@ export default {
         tags: ["(rpc) get_tool_details"],
       },
     },
+    "/rpc/sync_purchase_invoice_line_price_change": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_purchase_invoice_line_price_change"],
+      },
+    },
+    "/rpc/sync_create_nc_external_link": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_nc_external_link"],
+      },
+    },
     "/rpc/get_inventory_quantities": {
       post: {
         parameters: [
@@ -65650,6 +65911,51 @@ export default {
           },
         },
         tags: ["(rpc) get_direct_descendants_of_tracked_entity_strict"],
+      },
+    },
+    "/rpc/sync_update_job_operation_quantities": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_job_operation_quantities"],
       },
     },
     "/rpc/insert_audit_log_batch": {
@@ -65745,6 +66051,51 @@ export default {
         tags: ["(rpc) create_rfq_from_models_v1"],
       },
     },
+    "/rpc/sync_edit_document_transaction": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_edit_document_transaction"],
+      },
+    },
     "/rpc/get_jobs_by_date_range": {
       post: {
         parameters: [
@@ -65799,42 +66150,42 @@ export default {
             type: "string",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "p_reorder_point",
             required: true,
             type: "integer",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "p_reorder_quantity",
             required: true,
             type: "integer",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "p_minimum_order_quantity",
             required: true,
             type: "integer",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "p_maximum_order_quantity",
             required: true,
             type: "integer",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "p_order_multiple",
             required: true,
             type: "integer",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "p_lot_size",
             required: true,
@@ -65848,7 +66199,7 @@ export default {
             type: "number",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "p_demand_accumulation_period",
             required: true,
@@ -65890,7 +66241,7 @@ export default {
             schema: {
               properties: {
                 p_demand_accumulation_period: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_demand_accumulation_safety_stock: {
@@ -65898,7 +66249,7 @@ export default {
                   type: "number",
                 },
                 p_lot_size: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_maximum_inventory_quantity: {
@@ -65906,15 +66257,15 @@ export default {
                   type: "number",
                 },
                 p_maximum_order_quantity: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_minimum_order_quantity: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_order_multiple: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_projections: {
@@ -65925,11 +66276,11 @@ export default {
                   type: "array",
                 },
                 p_reorder_point: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_reorder_quantity: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_reordering_policy: {
@@ -66386,7 +66737,7 @@ export default {
             schema: {
               properties: {
                 p_index: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_receipt_id: {
@@ -66430,6 +66781,51 @@ export default {
           },
         },
         tags: ["(rpc) update_receipt_line_serial_tracking"],
+      },
+    },
+    "/rpc/sync_insert_quote_material_make_method": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_insert_quote_material_make_method"],
       },
     },
     "/rpc/get_production_projections": {
@@ -66558,6 +66954,51 @@ export default {
           },
         },
         tags: ["(rpc) get_item_quantities_by_tracking_id"],
+      },
+    },
+    "/rpc/sync_update_customer_type_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_customer_type_group"],
       },
     },
     "/rpc/get_inventory_value_by_location": {
@@ -66742,6 +67183,96 @@ export default {
           },
         },
         tags: ["(rpc) xid_time"],
+      },
+    },
+    "/rpc/sync_update_quote_material_make_method_item_id": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_quote_material_make_method_item_id"],
+      },
+    },
+    "/rpc/sync_update_supplier_type_group_name": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_supplier_type_group_name"],
       },
     },
     "/rpc/get_item_shelf_requirements_by_location": {
@@ -66970,7 +67501,7 @@ export default {
                   type: "string",
                 },
                 p_limit: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_window: {
@@ -67013,15 +67544,15 @@ export default {
                   type: "string",
                 },
                 mask: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 size: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 step: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
               },
@@ -67197,6 +67728,51 @@ export default {
         tags: ["(rpc) get_part_details"],
       },
     },
+    "/rpc/sync_update_job_material_make_method_item_id": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_job_material_make_method_item_id"],
+      },
+    },
     "/rpc/get_action_tasks_by_item_and_process": {
       get: {
         parameters: [
@@ -67274,6 +67850,51 @@ export default {
           },
         },
         tags: ["(rpc) get_action_tasks_by_item_and_process"],
+      },
+    },
+    "/rpc/sync_create_posting_groups_for_customer_type": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_posting_groups_for_customer_type"],
       },
     },
     "/rpc/xid_pid": {
@@ -67385,6 +68006,51 @@ export default {
         tags: ["(rpc) upsert_to_search_index"],
       },
     },
+    "/rpc/sync_update_sales_order_exchange_rate": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_sales_order_exchange_rate"],
+      },
+    },
     "/rpc/prevent_posted_sales_invoice_deletion": {
       post: {
         parameters: [
@@ -67430,6 +68096,51 @@ export default {
         tags: ["(rpc) prevent_posted_sales_invoice_deletion"],
       },
     },
+    "/rpc/sync_create_make_method_related_records": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_make_method_related_records"],
+      },
+    },
     "/rpc/get_entity_audit_log": {
       post: {
         parameters: [
@@ -67452,11 +68163,11 @@ export default {
                   type: "string",
                 },
                 p_limit: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_offset: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
               },
@@ -67479,6 +68190,51 @@ export default {
           },
         },
         tags: ["(rpc) get_entity_audit_log"],
+      },
+    },
+    "/rpc/sync_create_item_related_records": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_item_related_records"],
       },
     },
     "/rpc/get_active_job_count": {
@@ -67557,6 +68313,51 @@ export default {
           },
         },
         tags: ["(rpc) delete_event_system_subscriptions_by_name"],
+      },
+    },
+    "/rpc/sync_create_supplier_entries": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_supplier_entries"],
       },
     },
     "/rpc/get_primary_key_column": {
@@ -67878,6 +68679,141 @@ export default {
         tags: ["(rpc) get_radan_v1"],
       },
     },
+    "/rpc/sync_update_supplier_type_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_supplier_type_group"],
+      },
+    },
+    "/rpc/sync_finish_job_operation": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_finish_job_operation"],
+      },
+    },
+    "/rpc/sync_update_employee_type_membership": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_employee_type_membership"],
+      },
+    },
     "/rpc/uuid_to_base58": {
       post: {
         parameters: [
@@ -67943,11 +68879,11 @@ export default {
                   type: "string",
                 },
                 p_limit: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_offset: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_operation: {
@@ -67982,6 +68918,96 @@ export default {
           },
         },
         tags: ["(rpc) get_audit_log"],
+      },
+    },
+    "/rpc/sync_verify_integration": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_verify_integration"],
+      },
+    },
+    "/rpc/sync_insert_job_make_method": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_insert_job_make_method"],
       },
     },
     "/rpc/get_assigned_job_operations": {
@@ -68061,6 +69087,51 @@ export default {
         tags: ["(rpc) xid_encode"],
       },
     },
+    "/rpc/sync_create_supplier_org_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_supplier_org_group"],
+      },
+    },
     "/rpc/populate_sales_search_results": {
       post: {
         parameters: [
@@ -68096,6 +69167,51 @@ export default {
         tags: ["(rpc) populate_sales_search_results"],
       },
     },
+    "/rpc/sync_add_customer_account_to_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_add_customer_account_to_group"],
+      },
+    },
     "/rpc/get_direct_descendants_of_tracked_entity": {
       post: {
         parameters: [
@@ -68129,6 +69245,51 @@ export default {
           },
         },
         tags: ["(rpc) get_direct_descendants_of_tracked_entity"],
+      },
+    },
+    "/rpc/sync_add_supplier_account_to_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_add_supplier_account_to_group"],
       },
     },
     "/rpc/prevent_posted_purchase_invoice_deletion": {
@@ -68371,6 +69532,13 @@ export default {
             required: true,
             schema: {
               properties: {
+                after_sync_functions: {
+                  format: "text[]",
+                  items: {
+                    type: "string",
+                  },
+                  type: "array",
+                },
                 sync_functions: {
                   format: "text[]",
                   items: {
@@ -68513,6 +69681,96 @@ export default {
         tags: ["(rpc) get_audit_logs_for_archive"],
       },
     },
+    "/rpc/sync_update_employee_type_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_employee_type_group"],
+      },
+    },
+    "/rpc/sync_set_job_operation_in_progress": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_set_job_operation_in_progress"],
+      },
+    },
     "/rpc/journalLinesByAccountNumber": {
       post: {
         parameters: [
@@ -68586,6 +69844,141 @@ export default {
         tags: ["(rpc) xid_machine"],
       },
     },
+    "/rpc/sync_delete_tracked_entity_on_job_make_method": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_delete_tracked_entity_on_job_make_method"],
+      },
+    },
+    "/rpc/sync_job_complete_or_canceled": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_job_complete_or_canceled"],
+      },
+    },
+    "/rpc/sync_create_posting_groups_for_supplier_type": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_posting_groups_for_supplier_type"],
+      },
+    },
     "/rpc/get_my_claim": {
       post: {
         parameters: [
@@ -68619,6 +70012,51 @@ export default {
           },
         },
         tags: ["(rpc) get_my_claim"],
+      },
+    },
+    "/rpc/sync_create_posting_groups_for_item_posting_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_posting_groups_for_item_posting_group"],
       },
     },
     "/rpc/delete_old_audit_logs": {
@@ -68701,6 +70139,51 @@ export default {
           },
         },
         tags: ["(rpc) get_job_quantity_on_hand"],
+      },
+    },
+    "/rpc/sync_archive_other_procedures": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_archive_other_procedures"],
       },
     },
     "/rpc/get_material_naming_details": {
@@ -68821,6 +70304,96 @@ export default {
           },
         },
         tags: ["(rpc) drop_audit_log_table"],
+      },
+    },
+    "/rpc/sync_insert_company_related_records": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_insert_company_related_records"],
+      },
+    },
+    "/rpc/sync_add_employee_to_type_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_add_employee_to_type_group"],
       },
     },
     "/rpc/get_job_method": {
@@ -68954,6 +70527,51 @@ export default {
           },
         },
         tags: ["(rpc) uuid_generate_v4"],
+      },
+    },
+    "/rpc/sync_update_tracked_entity_on_job_make_method": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_tracked_entity_on_job_make_method"],
       },
     },
     "/rpc/is_last_job_operation": {
@@ -69144,7 +70762,7 @@ export default {
                   type: "string",
                 },
                 size: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
               },
@@ -69207,6 +70825,141 @@ export default {
         tags: ["(rpc) has_role"],
       },
     },
+    "/rpc/sync_create_supplier_type_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_supplier_type_group"],
+      },
+    },
+    "/rpc/sync_upload_document_transaction": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_upload_document_transaction"],
+      },
+    },
+    "/rpc/sync_archive_other_quality_documents": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_archive_other_quality_documents"],
+      },
+    },
     "/rpc/delete_event_system_subscription": {
       post: {
         parameters: [
@@ -69240,6 +70993,51 @@ export default {
           },
         },
         tags: ["(rpc) delete_event_system_subscription"],
+      },
+    },
+    "/rpc/sync_update_user_identity_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_user_identity_group"],
       },
     },
     "/rpc/sync_address_to_parent": {
@@ -69343,7 +71141,7 @@ export default {
                   type: "array",
                 },
                 p_limit: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 p_query: {
@@ -69500,6 +71298,96 @@ export default {
           },
         },
         tags: ["(rpc) groups_query"],
+      },
+    },
+    "/rpc/sync_update_customer_type_group_name": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_customer_type_group_name"],
+      },
+    },
+    "/rpc/sync_set_initial_dependency_status": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_set_initial_dependency_status"],
       },
     },
     "/rpc/get_audit_log_count": {
@@ -69680,6 +71568,96 @@ export default {
           },
         },
         tags: ["(rpc) get_active_job_operations_by_employee"],
+      },
+    },
+    "/rpc/sync_create_user_identity_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_user_identity_group"],
+      },
+    },
+    "/rpc/sync_create_customer_org_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_customer_org_group"],
       },
     },
     "/rpc/create_company_search_index": {
@@ -69890,6 +71868,51 @@ export default {
         tags: ["(rpc) drop_company_search_index"],
       },
     },
+    "/rpc/sync_update_quote_line_make_method_item_id": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_quote_line_make_method_item_id"],
+      },
+    },
     "/rpc/update_receipt_line_batch_tracking": {
       post: {
         parameters: [
@@ -69947,6 +71970,51 @@ export default {
           },
         },
         tags: ["(rpc) update_receipt_line_batch_tracking"],
+      },
+    },
+    "/rpc/sync_update_stock_transfer_status": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_update_stock_transfer_status"],
       },
     },
     "/rpc/insert_audit_log": {
@@ -70172,6 +72240,51 @@ export default {
         tags: ["(rpc) get_maintenance_dispatches_by_location"],
       },
     },
+    "/rpc/sync_on_maintenance_dispatch_complete": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_on_maintenance_dispatch_complete"],
+      },
+    },
     "/rpc/id": {
       post: {
         parameters: [
@@ -70284,6 +72397,51 @@ export default {
         tags: ["(rpc) get_custom_field_unique_values"],
       },
     },
+    "/rpc/sync_create_customer_entries": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_customer_entries"],
+      },
+    },
     "/rpc/get_claims": {
       post: {
         parameters: [
@@ -70358,6 +72516,141 @@ export default {
         tags: ["(rpc) get_opportunity_with_related_records"],
       },
     },
+    "/rpc/sync_insert_job_material_make_method": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_insert_job_material_make_method"],
+      },
+    },
+    "/rpc/sync_create_customer_type_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_customer_type_group"],
+      },
+    },
+    "/rpc/sync_create_employee_type_group": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb",
+                },
+                p_old: {
+                  format: "jsonb",
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string",
+                },
+                p_table: {
+                  format: "text",
+                  type: "string",
+                },
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object",
+            },
+          },
+          {
+            $ref: "#/parameters/preferParams",
+          },
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json",
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+          },
+        },
+        tags: ["(rpc) sync_create_employee_type_group"],
+      },
+    },
     "/rpc/items_search": {
       get: {
         parameters: [
@@ -70376,7 +72669,7 @@ export default {
             type: "number",
           },
           {
-            format: "integer",
+            format: "int32",
             in: "query",
             name: "match_count",
             required: true,
@@ -70411,7 +72704,7 @@ export default {
             schema: {
               properties: {
                 match_count: {
-                  format: "integer",
+                  format: "int32",
                   type: "integer",
                 },
                 match_threshold: {
@@ -71083,7 +73376,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         supplierIds: {
@@ -71169,7 +73462,7 @@ export default {
         },
         quoteRevisionId: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -71285,7 +73578,7 @@ export default {
         },
         unitPricePrecision: {
           default: 2,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         externalNotes: {
@@ -71444,7 +73737,7 @@ export default {
         },
         quantity: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -71801,7 +74094,7 @@ export default {
           format: "json",
         },
         sortOrder: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         tags: {
@@ -72202,17 +74495,17 @@ export default {
         },
         users: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         tasks: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         aiTokens: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         nextResetDatetime: {
@@ -73088,7 +75381,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         description: {
@@ -73168,7 +75461,7 @@ export default {
         },
         sortOrder: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         columnOrder: {
@@ -73277,7 +75570,7 @@ export default {
           type: "string",
         },
         quantity: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         setupProductionEventId: {
@@ -73370,11 +75663,11 @@ export default {
           type: "string",
         },
         rowCount: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         sizeBytes: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         createdAt: {
@@ -73434,7 +75727,7 @@ export default {
         },
         sortOrder: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         tags: {
@@ -73717,7 +76010,7 @@ export default {
         },
         supplierQuoteRevisionId: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         quantity: {
@@ -74366,7 +76659,7 @@ export default {
           type: "string",
         },
         hoursPerWeek: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         abilityId: {
@@ -74761,7 +77054,7 @@ export default {
           type: "string",
         },
         calibrationIntervalInMonths: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         lastCalibrationDate: {
@@ -75412,7 +77705,7 @@ export default {
     holidayYears: {
       properties: {
         year: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -75664,7 +77957,7 @@ export default {
           type: "string",
         },
         leadTime: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
       },
@@ -75710,7 +78003,7 @@ export default {
         },
         minimumOrderQuantity: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         conversionFactor: {
@@ -75787,7 +78080,7 @@ export default {
         },
         hoursPerWeek: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         abilityId: {
@@ -76028,7 +78321,7 @@ export default {
         },
         index: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
       },
@@ -76447,7 +78740,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         salesOrderReadableId: {
@@ -76746,7 +79039,7 @@ export default {
           type: "string",
         },
         entryNumber: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         postingDate: {
@@ -76971,7 +79264,7 @@ export default {
         },
         sortOrder: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         tags: {
@@ -77198,7 +79491,7 @@ export default {
           type: "string",
         },
         orderCount: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         phone: {
@@ -77744,17 +80037,17 @@ export default {
         },
         tasksLimit: {
           default: 10000,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         aiTokensLimit: {
           default: 1000000,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         stripeTrialPeriodDays: {
           default: 7,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         public: {
@@ -77890,7 +80183,7 @@ export default {
           type: "string",
         },
         quantity: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         locationId: {
@@ -78010,7 +80303,7 @@ export default {
         },
         requestCount: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
       },
@@ -78440,7 +80733,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -78669,7 +80962,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         trainingAssignmentId: {
@@ -78944,7 +81237,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -79123,7 +81416,7 @@ export default {
         },
         quantity: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -79532,7 +81825,7 @@ export default {
           type: "string",
         },
         revisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -80266,7 +82559,7 @@ export default {
           type: "string",
         },
         leadTime: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         locationId: {
@@ -80383,17 +82676,17 @@ export default {
         },
         next: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         size: {
           default: 5,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         step: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -82223,7 +84516,7 @@ export default {
           type: "string",
         },
         revisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -82298,7 +84591,7 @@ export default {
           type: "string",
         },
         supplierCount: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         supplierIds: {
@@ -82435,7 +84728,7 @@ export default {
           format: "jsonb",
         },
         subCategoriesCount: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
       },
@@ -82594,7 +84887,7 @@ export default {
           type: "string",
         },
         duration: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         nonConformanceId: {
@@ -82713,7 +85006,7 @@ export default {
           type: "string",
         },
         leadTime: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         locationId: {
@@ -83627,7 +85920,7 @@ export default {
           type: "number",
         },
         decimalPlaces: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         active: {
@@ -83859,7 +86152,7 @@ export default {
           type: "string",
         },
         size: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         extension: {
@@ -83975,7 +86268,7 @@ export default {
           type: "string",
         },
         supplierQuoteRevisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         quantity: {
@@ -84116,7 +86409,7 @@ export default {
         },
         hoursPerWeek: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         active: {
@@ -84195,7 +86488,7 @@ export default {
           type: "string",
         },
         quantity: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         unitOfMeasureCode: {
@@ -84456,7 +86749,7 @@ export default {
         },
         sortOrder: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         userAttributeCategoryId: {
@@ -84468,7 +86761,7 @@ export default {
         attributeDataTypeId: {
           description:
             "Note:\nThis is a Foreign Key to `attributeDataType.id`.<fk table='attributeDataType' column='id'/>",
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         listOptions: {
@@ -85241,11 +87534,11 @@ export default {
           type: "string",
         },
         orderCount: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         partCount: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         phone: {
@@ -85840,7 +88133,7 @@ export default {
           type: "string",
         },
         rn: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
       },
@@ -86240,7 +88533,7 @@ export default {
           type: "string",
         },
         duration: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -86285,7 +88578,7 @@ export default {
           type: "string",
         },
         revisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         quotedDate: {
@@ -86814,7 +89107,7 @@ export default {
           type: "boolean",
         },
         hoursPerWeek: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -86873,7 +89166,7 @@ export default {
           type: "string",
         },
         revisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         dueDate: {
@@ -87058,11 +89351,11 @@ export default {
           type: "string",
         },
         lines: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         completedLines: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         shippingCost: {
@@ -87121,11 +89414,11 @@ export default {
           type: "string",
         },
         severity: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         likelihood: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         itemId: {
@@ -87342,7 +89635,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         name: {
@@ -87494,7 +89787,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         groupId: {
@@ -88094,7 +90387,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         quotedDate: {
@@ -88585,7 +90878,7 @@ export default {
           type: "string",
         },
         duration: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         nonConformanceId: {
@@ -89082,7 +91375,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -89498,7 +91791,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         unitCost: {
@@ -89655,17 +91948,17 @@ export default {
         },
         tasksLimit: {
           default: 10000,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         aiTokensLimit: {
           default: 1000000,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         usersLimit: {
           default: 10,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         subscriptionStartDate: {
@@ -89907,7 +92200,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         thumbnailPath: {
@@ -89957,7 +92250,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -90166,7 +92459,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         supplierIds: {
@@ -90253,7 +92546,7 @@ export default {
         },
         decimalPlaces: {
           default: 2,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         active: {
@@ -90435,7 +92728,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         supplierIds: {
@@ -90541,7 +92834,7 @@ export default {
           type: "string",
         },
         size: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         modelPath: {
@@ -90609,7 +92902,7 @@ export default {
           type: "string",
         },
         entryNumber: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         postingDate: {
@@ -90844,7 +93137,7 @@ export default {
           type: "string",
         },
         journalId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         accountNumber: {
@@ -91031,7 +93324,7 @@ export default {
         },
         lotSize: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -91078,7 +93371,7 @@ export default {
         },
         leadTime: {
           default: 7,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
       },
@@ -91215,7 +93508,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         supplierIds: {
@@ -91524,7 +93817,7 @@ export default {
         },
         quantity: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -91611,7 +93904,7 @@ export default {
           type: "string",
         },
         estimatedDuration: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         active: {
@@ -91723,7 +94016,7 @@ export default {
           type: "string",
         },
         quoteRevisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -91834,7 +94127,7 @@ export default {
           type: "array",
         },
         unitPricePrecision: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         externalNotes: {
@@ -91868,7 +94161,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         unitCost: {
@@ -92277,7 +94570,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         label: {
@@ -92908,7 +95201,7 @@ export default {
           type: "string",
         },
         quantity: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         unitOfMeasureCode: {
@@ -94536,7 +96829,7 @@ export default {
           type: "string",
         },
         size: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         extension: {
@@ -94820,12 +97113,12 @@ export default {
         },
         daysDue: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         daysDiscount: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         discountPercentage: {
@@ -94934,7 +97227,7 @@ export default {
         },
         demandAccumulationPeriod: {
           default: 4,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         demandAccumulationIncludesInventory: {
@@ -94944,27 +97237,27 @@ export default {
         },
         reorderPoint: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         reorderQuantity: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         minimumOrderQuantity: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         maximumOrderQuantity: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         orderMultiple: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -95136,7 +97429,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         userId: {
@@ -95275,7 +97568,7 @@ export default {
           type: "string",
         },
         revisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -96085,7 +98378,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         unitCost: {
@@ -96508,7 +98801,7 @@ export default {
         },
         rateLimit: {
           default: 60,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         rateLimitWindow: {
@@ -96958,7 +99251,7 @@ export default {
           type: "string",
         },
         revisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -97240,7 +99533,7 @@ export default {
           type: "string",
         },
         leadTime: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
       },
@@ -97781,7 +100074,7 @@ export default {
           type: "string",
         },
         entryNumber: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         postingDate: {
@@ -98244,7 +100537,7 @@ export default {
           type: "string",
         },
         estimatedDuration: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         active: {
@@ -98389,7 +100682,7 @@ export default {
           type: "string",
         },
         quoteRevisionId: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         status: {
@@ -98500,7 +100793,7 @@ export default {
           type: "array",
         },
         unitPricePrecision: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         externalNotes: {
@@ -98534,7 +100827,7 @@ export default {
           type: "string",
         },
         modelSize: {
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         unitCost: {
@@ -98602,7 +100895,7 @@ export default {
           type: "string",
         },
         year: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -98682,7 +100975,7 @@ export default {
           type: "string",
         },
         duration: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         employeeId: {
@@ -98904,7 +101197,7 @@ export default {
         },
         successCount: {
           default: 0,
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         lastSuccess: {
@@ -98913,7 +101206,7 @@ export default {
         },
         errorCount: {
           default: 0,
-          format: "bigint",
+          format: "int64",
           type: "integer",
         },
         lastError: {
@@ -99242,7 +101535,7 @@ export default {
         },
         calibrationIntervalInMonths: {
           default: 6,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         lastCalibrationDate: {
@@ -99343,11 +101636,11 @@ export default {
           type: "string",
         },
         severity: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         likelihood: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         itemId: {
@@ -99699,7 +101992,7 @@ export default {
           type: "string",
         },
         quantity: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         unitOfMeasureCode: {
@@ -99994,7 +102287,7 @@ export default {
         },
         sortOrder: {
           default: 1,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         table: {
@@ -100006,7 +102299,7 @@ export default {
         dataTypeId: {
           description:
             "Note:\nThis is a Foreign Key to `attributeDataType.id`.<fk table='attributeDataType' column='id'/>",
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         listOptions: {
@@ -100135,7 +102428,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         dueDate: {
@@ -100712,7 +103005,7 @@ export default {
         },
         maintenanceAdvanceDays: {
           default: 3,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         maintenanceDispatchNotificationGroup: {
@@ -100800,7 +103093,7 @@ export default {
         },
         qualityIssueTarget: {
           default: 20,
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         consoleEnabled: {
@@ -100812,9 +103105,6 @@ export default {
           default: false,
           format: "boolean",
           type: "boolean",
-        },
-        printing: {
-          format: "jsonb",
         },
         updateLeadTimesOnReceipt: {
           default: false,
@@ -100938,7 +103228,7 @@ export default {
           type: "number",
         },
         escalationDays: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         companyId: {
@@ -101099,7 +103389,7 @@ export default {
           type: "string",
         },
         quantity: {
-          format: "integer",
+          format: "int32",
           type: "integer",
         },
         locationId: {
@@ -135597,12 +137887,6 @@ export default {
     },
     "rowFilter.companySettings.timeCardEnabled": {
       name: "timeCardEnabled",
-      required: false,
-      in: "query",
-      type: "string",
-    },
-    "rowFilter.companySettings.printing": {
-      name: "printing",
       required: false,
       in: "query",
       type: "string",

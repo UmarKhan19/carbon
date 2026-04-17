@@ -56,6 +56,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { cva } from "class-variance-authority";
 import { useEffect, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
@@ -96,6 +97,7 @@ export default function ConfigurationParametersForm({
   parameters: ConfigurationParameter[];
   groups: ConfigurationParameterGroup[];
 }) {
+  const { t } = useLingui();
   const {
     isList,
     isMaterial,
@@ -114,9 +116,9 @@ export default function ConfigurationParametersForm({
 
   useEffect(() => {
     if (fetcher.data?.success === false) {
-      toast.error("Failed to update configuration parameter");
+      toast.error(t`Failed to update configuration parameter`);
     }
-  }, [fetcher.data]);
+  }, [fetcher.data, t]);
 
   const groupDisclosure = useDisclosure();
   const deleteGroupDisclosure = useDisclosure();
@@ -179,7 +181,9 @@ export default function ConfigurationParametersForm({
     <>
       <Card isCollapsible>
         <CardHeader>
-          <CardTitle>Configuration Parameters</CardTitle>
+          <CardTitle>
+            <Trans>Configuration Parameters</Trans>
+          </CardTitle>
         </CardHeader>
 
         <CardContent>
@@ -213,7 +217,11 @@ export default function ConfigurationParametersForm({
                 <VStack spacing={4}>
                   <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
                     <VStack>
-                      <Input name="label" label="Label" onChange={updateKey} />
+                      <Input
+                        name="label"
+                        label={t`Label`}
+                        onChange={updateKey}
+                      />
                       {key && (
                         <HStack spacing={1}>
                           <LuKeySquare className="w-3 h-3 text-muted-foreground" />
@@ -226,7 +234,7 @@ export default function ConfigurationParametersForm({
 
                     <Select
                       name="dataType"
-                      label="Data Type"
+                      label={t`Data Type`}
                       options={configurationParameterDataTypes.map((type) => ({
                         label: (
                           <HStack className="w-full">
@@ -242,12 +250,15 @@ export default function ConfigurationParametersForm({
                       onChange={onChangeCheckForListType}
                     />
                     {isList && (
-                      <ArrayInput name="listOptions" label="List Parameters" />
+                      <ArrayInput
+                        name="listOptions"
+                        label={t`List Parameters`}
+                      />
                     )}
                     {isMaterial && (
                       <Combobox
                         name="materialFormFilterId"
-                        label="Material Shape"
+                        label={t`Material Shape`}
                         isClearable
                         isOptional
                         options={materialShapeOptions.map((shape) => ({
@@ -267,7 +278,7 @@ export default function ConfigurationParametersForm({
                           path.to.configurationParameter(itemId)
                       }
                     >
-                      Add Parameter
+                      <Trans>Add Parameter</Trans>
                     </Submit>
                   </HStack>
                 </VStack>
@@ -280,7 +291,7 @@ export default function ConfigurationParametersForm({
                 leftIcon={<LuFolderOpen />}
                 onClick={groupDisclosure.onOpen}
               >
-                Add Group
+                <Trans>Add Group</Trans>
               </Button>
             </div>
 
@@ -362,7 +373,7 @@ export default function ConfigurationParametersForm({
           )}
           isOpen
           name={selectedGroup.name ?? ""}
-          text={`Are you sure you want to delete ${selectedGroup.name}?`}
+          text={t`Are you sure you want to delete ${selectedGroup.name}?`}
           onCancel={() => {
             deleteGroupDisclosure.onClose();
             setSelectedGroup(null);
@@ -399,11 +410,17 @@ export default function ConfigurationParametersForm({
               }}
             >
               <ModalHeader>
-                <ModalTitle>{selectedGroup ? "Edit" : "Add"} Group</ModalTitle>
+                <ModalTitle>
+                  {selectedGroup ? (
+                    <Trans>Edit Group</Trans>
+                  ) : (
+                    <Trans>Add Group</Trans>
+                  )}
+                </ModalTitle>
               </ModalHeader>
               <ModalBody>
                 <Hidden name="id" />
-                <Input name="name" label="Name" />
+                <Input name="name" label={t`Name`} />
               </ModalBody>
               <ModalFooter>
                 <Button
@@ -411,7 +428,7 @@ export default function ConfigurationParametersForm({
                   type="button"
                   onClick={groupDisclosure.onClose}
                 >
-                  Cancel
+                  <Trans>Cancel</Trans>
                 </Button>
                 <Submit
                   isDisabled={
@@ -425,7 +442,7 @@ export default function ConfigurationParametersForm({
                       path.to.configurationParameterGroup(itemId)
                   }
                 >
-                  Save
+                  <Trans>Save</Trans>
                 </Submit>
               </ModalFooter>
             </ValidatedForm>
@@ -697,6 +714,7 @@ function ParameterGroup({
   groupDisclosure: ReturnType<typeof useDisclosure>;
   setSelectedGroup: (group: ConfigurationParameterGroup) => void;
 }) {
+  const { t } = useLingui();
   const {
     setNodeRef,
     attributes,
@@ -732,7 +750,7 @@ function ParameterGroup({
         <HStack className="w-full justify-between">
           <HStack>
             <IconButton
-              aria-label="Reorder Group"
+              aria-label={t`Reorder Group`}
               icon={<LuGripVertical />}
               variant="ghost"
               isDisabled={group.id === "null"}
@@ -745,7 +763,7 @@ function ParameterGroup({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <IconButton
-                aria-label="Open menu"
+                aria-label={t`Open menu`}
                 icon={<LuEllipsisVertical />}
                 variant="ghost"
               />
@@ -759,7 +777,7 @@ function ParameterGroup({
                   groupDisclosure.onOpen();
                 }}
               >
-                Edit
+                <Trans>Edit</Trans>
               </DropdownMenuItem>
               <DropdownMenuItem
                 destructive
@@ -771,7 +789,7 @@ function ParameterGroup({
                   deleteGroupDisclosure.onOpen();
                 }}
               >
-                Delete
+                <Trans>Delete</Trans>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -797,6 +815,7 @@ function ConfigurableParameter({
   parameter: ConfigurationParameter;
   isOverlay?: boolean;
 }) {
+  const { t } = useLingui();
   const { isList, isMaterial, key, onChangeCheckForListType, updateKey } =
     useConfigurationParameters(parameter);
 
@@ -879,7 +898,7 @@ function ConfigurableParameter({
               <VStack>
                 <Input
                   name="label"
-                  label="Label"
+                  label={t`Label`}
                   onChange={updateKey}
                   autoFocus
                 />
@@ -893,7 +912,7 @@ function ConfigurableParameter({
 
               <Select
                 name="dataType"
-                label="Data Type"
+                label={t`Data Type`}
                 options={configurationParameterDataTypes.map((type) => ({
                   label: (
                     <HStack className="w-full">
@@ -906,12 +925,12 @@ function ConfigurableParameter({
                 onChange={onChangeCheckForListType}
               />
               {isList && (
-                <ArrayInput name="listOptions" label="List Parameters" />
+                <ArrayInput name="listOptions" label={t`List Parameters`} />
               )}
               {isMaterial && (
                 <Combobox
                   name="materialFormFilterId"
-                  label="Material Shape"
+                  label={t`Material Shape`}
                   isOptional
                   isClearable
                   options={materialShapeOptions.map((shape) => ({
@@ -923,7 +942,7 @@ function ConfigurableParameter({
             </div>
             <HStack className="w-full justify-end" spacing={2}>
               <Button variant="secondary" onClick={disclosure.onClose}>
-                Cancel
+                <Trans>Cancel</Trans>
               </Button>
               <Submit
                 isDisabled={fetcher.state !== "idle"}
@@ -933,7 +952,7 @@ function ConfigurableParameter({
                     path.to.configurationParameter(parameter.itemId)
                 }
               >
-                Save
+                <Trans>Save</Trans>
               </Submit>
             </HStack>
           </VStack>
@@ -943,7 +962,7 @@ function ConfigurableParameter({
           <div className="flex flex-1 justify-between items-center w-full">
             <HStack spacing={2} className="w-1/2">
               <IconButton
-                aria-label="Reorder"
+                aria-label={t`Reorder`}
                 icon={<LuGripVertical />}
                 variant="ghost"
                 {...attributes}
@@ -968,27 +987,28 @@ function ConfigurableParameter({
             <div className="flex items-center justify-end gap-2">
               <HStack spacing={2}>
                 <span className="text-xs text-muted-foreground">
-                  {isUpdated ? "Updated" : "Created"} {formatRelativeTime(date)}
+                  {isUpdated ? t`Updated` : t`Created`}{" "}
+                  {formatRelativeTime(date)}
                 </span>
                 <EmployeeAvatar employeeId={person} withName={false} />
               </HStack>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <IconButton
-                    aria-label="Open menu"
+                    aria-label={t`Open menu`}
                     icon={<LuEllipsisVertical />}
                     variant="ghost"
                   />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={disclosure.onOpen}>
-                    Edit
+                    <Trans>Edit</Trans>
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     destructive
                     onClick={deleteParameterDisclosure.onOpen}
                   >
-                    Delete
+                    <Trans>Delete</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -998,43 +1018,57 @@ function ConfigurableParameter({
             <div className="py-4 px-8 bg-muted/30 rounded-md">
               <div className="grid grid-cols-1 gap-2">
                 <div>
-                  <span className="text-sm">ID</span>
+                  <span className="text-sm">
+                    <Trans>ID</Trans>
+                  </span>
                   <div className="text-xs font-mono text-muted-foreground">
                     {parameter.key}.id
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm">Material Form</span>
+                  <span className="text-sm">
+                    <Trans>Material Form</Trans>
+                  </span>
                   <div className="text-xs font-mono text-muted-foreground">
                     {parameter.key}.materialFormId
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm">Substance</span>
+                  <span className="text-sm">
+                    <Trans>Substance</Trans>
+                  </span>
                   <div className="text-xs font-mono text-muted-foreground">
                     {parameter.key}.materialSubstanceId
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm">Dimension</span>
+                  <span className="text-sm">
+                    <Trans>Dimension</Trans>
+                  </span>
                   <div className="text-xs font-mono text-muted-foreground">
                     {parameter.key}.dimensionId
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm">Grade</span>
+                  <span className="text-sm">
+                    <Trans>Grade</Trans>
+                  </span>
                   <div className="text-xs font-mono text-muted-foreground">
                     {parameter.key}.gradeId
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm">Finish</span>
+                  <span className="text-sm">
+                    <Trans>Finish</Trans>
+                  </span>
                   <div className="text-xs font-mono text-muted-foreground">
                     {parameter.key}.finishId
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm">Material Type</span>
+                  <span className="text-sm">
+                    <Trans>Material Type</Trans>
+                  </span>
                   <div className="text-xs font-mono text-muted-foreground">
                     {parameter.key}.materialTypeId
                   </div>
@@ -1052,7 +1086,7 @@ function ConfigurableParameter({
           )}
           isOpen={deleteParameterDisclosure.isOpen}
           name={parameter.label}
-          text={`Are you sure you want to delete the ${parameter.label} parameter? This will not update any formulas that are using this parameter.`}
+          text={t`Are you sure you want to delete the ${parameter.label} parameter? This will not update any formulas that are using this parameter.`}
           onCancel={() => {
             deleteParameterDisclosure.onClose();
           }}

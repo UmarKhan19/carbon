@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@carbon/react";
+import { useLingui } from "@lingui/react/macro";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef } from "react";
 import { LuX } from "react-icons/lu";
@@ -41,6 +42,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>(
     },
     ref
   ) => {
+    const { t } = useLingui();
     return (
       <HStack spacing={1}>
         <SelectBase
@@ -68,7 +70,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>(
         {isClearable && !isReadOnly && value && (
           <IconButton
             variant="ghost"
-            aria-label="Clear"
+            aria-label={t`Clear`}
             icon={<LuX />}
             onClick={() => onChange("")}
             size={size === "sm" ? "md" : size}

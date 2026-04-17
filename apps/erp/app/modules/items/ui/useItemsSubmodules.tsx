@@ -1,3 +1,4 @@
+import { useLingui } from "@lingui/react/macro";
 import { AiOutlinePartition } from "react-icons/ai";
 import {
   LuAtom,
@@ -17,119 +18,99 @@ import { useSavedViews } from "~/hooks/useSavedViews";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
-const itemsRoutes: AuthenticatedRouteGroup[] = [
-  {
-    name: "Manage",
-    routes: [
-      {
-        name: "Parts",
-        to: path.to.parts,
-        icon: <AiOutlinePartition />,
-        table: "part"
-      },
-      {
-        name: "Materials",
-        to: path.to.materials,
-        icon: <LuAtom />,
-        table: "material"
-      },
-      {
-        name: "Tools",
-        to: path.to.tools,
-        icon: <LuHammer />,
-        table: "tool"
-      },
-      {
-        name: "Consumables",
-        to: path.to.consumables,
-        icon: <LuPizza />,
-        table: "consumable"
-      }
-      // {
-      //   name: "Services",
-      //   to: path.to.services,
-      //   icon: <LuHeadphones />,
-      // },
-    ]
-  },
-  // {
-  //   name: "Methods",
-  //   routes: [
-  //     {
-  //       name: "Materials",
-  //       to: path.to.methodMaterials,
-  //       icon: <LuPackage />,
-  //     },
-  //     {
-  //       name: "Operations",
-  //       to: path.to.methodOperations,
-  //       icon: <LuClock />,
-  //     },
-  //   ],
-  // },
-  {
-    name: "Configure Materials",
-    routes: [
-      {
-        name: "Dimensions",
-        to: path.to.materialDimensions,
-        icon: <LuAxis3D />,
-        role: "employee"
-      },
-      {
-        name: "Finishes",
-        to: path.to.materialFinishes,
-        icon: <LuDessert />,
-        role: "employee"
-      },
-      {
-        name: "Grades",
-        to: path.to.materialGrades,
-        icon: <LuBeef />,
-        role: "employee"
-      },
-      {
-        name: "Shapes",
-        to: path.to.materialForms,
-        icon: <LuShapes />,
-        role: "employee"
-      },
-      {
-        name: "Substances",
-        to: path.to.materialSubstances,
-        icon: <LuGlassWater />,
-        role: "employee"
-      },
-      {
-        name: "Types",
-        to: path.to.materialTypes,
-        icon: <LuPuzzle />,
-        role: "employee"
-      }
-    ]
-  },
-  {
-    name: "Configure",
-    routes: [
-      {
-        name: "Item Groups",
-        to: path.to.itemPostingGroups,
-        role: "employee",
-        icon: <LuGroup />
-      },
-      {
-        name: "Units",
-        to: path.to.uoms,
-        role: "employee",
-        icon: <LuRuler />
-      }
-    ]
-  }
-];
-
 export default function useItemsSubmodules() {
+  const { t } = useLingui();
   const permissions = usePermissions();
   const { addSavedViewsToRoutes } = useSavedViews();
+  const itemsRoutes: AuthenticatedRouteGroup[] = [
+    {
+      name: t`Manage`,
+      routes: [
+        {
+          name: t`Parts`,
+          to: path.to.parts,
+          icon: <AiOutlinePartition />,
+          table: "part"
+        },
+        {
+          name: t`Materials`,
+          to: path.to.materials,
+          icon: <LuAtom />,
+          table: "material"
+        },
+        {
+          name: t`Tools`,
+          to: path.to.tools,
+          icon: <LuHammer />,
+          table: "tool"
+        },
+        {
+          name: t`Consumables`,
+          to: path.to.consumables,
+          icon: <LuPizza />,
+          table: "consumable"
+        }
+      ]
+    },
+    {
+      name: t`Configure Materials`,
+      routes: [
+        {
+          name: t`Dimensions`,
+          to: path.to.materialDimensions,
+          icon: <LuAxis3D />,
+          role: "employee"
+        },
+        {
+          name: t`Finishes`,
+          to: path.to.materialFinishes,
+          icon: <LuDessert />,
+          role: "employee"
+        },
+        {
+          name: t`Grades`,
+          to: path.to.materialGrades,
+          icon: <LuBeef />,
+          role: "employee"
+        },
+        {
+          name: t`Shapes`,
+          to: path.to.materialForms,
+          icon: <LuShapes />,
+          role: "employee"
+        },
+        {
+          name: t`Substances`,
+          to: path.to.materialSubstances,
+          icon: <LuGlassWater />,
+          role: "employee"
+        },
+        {
+          name: t`Types`,
+          to: path.to.materialTypes,
+          icon: <LuPuzzle />,
+          role: "employee"
+        }
+      ]
+    },
+    {
+      name: t`Configure`,
+      routes: [
+        {
+          name: t`Item Groups`,
+          to: path.to.itemPostingGroups,
+          role: "employee",
+          icon: <LuGroup />
+        },
+        {
+          name: t`Units`,
+          to: path.to.uoms,
+          role: "employee",
+          icon: <LuRuler />
+        }
+      ]
+    }
+  ];
 
   return {
     groups: itemsRoutes

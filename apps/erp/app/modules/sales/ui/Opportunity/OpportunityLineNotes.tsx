@@ -18,6 +18,7 @@ import {
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
 import { getLocalTimeZone, today } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { usePermissions, useUser } from "~/hooks";
@@ -47,6 +48,7 @@ const OpportunityLineNotes = ({
   const { carbon } = useCarbon();
   const permissions = usePermissions();
   const isEmployee = permissions.is("employee");
+  const { t } = useLingui();
   const canEdit = !isReadOnlyProp && permissions.can("update", "sales");
   const [tab, setTab] = useState(isEmployee ? "internal" : "external");
   const [internalNotes, setInternalNotes] = useState(
@@ -63,7 +65,7 @@ const OpportunityLineNotes = ({
     const result = await carbon?.storage.from("private").upload(fileName, file);
 
     if (result?.error) {
-      toast.error("Failed to upload image");
+      toast.error(t`Failed to upload image`);
       throw new Error(result.error.message);
     }
 
@@ -112,17 +114,23 @@ const OpportunityLineNotes = ({
         <Tabs value={tab} onValueChange={setTab}>
           <HStack className="w-full justify-between">
             <CardHeader>
-              <CardTitle>Notes</CardTitle>
+              <CardTitle>
+                <Trans>Notes</Trans>
+              </CardTitle>
               <CardDescription>
                 {subTitle} -{" "}
-                {tab === "internal" ? "Internal Notes" : "External Notes"}
+                {tab === "internal" ? t`Internal Notes` : t`External Notes`}
               </CardDescription>
             </CardHeader>
             <CardAction>
               {isEmployee && (
                 <TabsList>
-                  <TabsTrigger value="internal">Internal</TabsTrigger>
-                  <TabsTrigger value="external">External</TabsTrigger>
+                  <TabsTrigger value="internal">
+                    <Trans>Internal</Trans>
+                  </TabsTrigger>
+                  <TabsTrigger value="external">
+                    <Trans>External</Trans>
+                  </TabsTrigger>
                 </TabsList>
               )}
             </CardAction>

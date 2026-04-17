@@ -10,6 +10,7 @@ import {
   cn
 } from "@carbon/react";
 import { useRouteData } from "@carbon/remix";
+import { Trans } from "@lingui/react/macro";
 import { Link, useFetcher, useNavigate } from "react-router";
 import { path } from "~/utils/path";
 
@@ -75,12 +76,12 @@ export function IntegrationCard({
         {integration.active ? (
           installed ? (
             <Badge className="flex-shrink-0" variant="green">
-              Installed
+              <Trans>Installed</Trans>
             </Badge>
           ) : null
         ) : (
           <Badge className="flex-shrink-0" variant="secondary">
-            Coming soon
+            <Trans>Coming soon</Trans>
           </Badge>
         )}
       </div>
@@ -97,7 +98,7 @@ export function IntegrationCard({
       <CardFooter className="flex flex-end flex-row-reverse gap-2">
         <Button isDisabled={!installed} variant="secondary" asChild>
           <Link to={integration.active && installed ? integration.id : "#"}>
-            Details
+            <Trans>Details</Trans>
           </Link>
         </Button>
         {installed ? (
@@ -112,7 +113,7 @@ export function IntegrationCard({
               isDisabled={fetcher.state !== "idle"}
               isLoading={fetcher.state !== "idle"}
             >
-              Uninstall
+              <Trans>Uninstall</Trans>
             </Button>
           </fetcher.Form>
         ) : (
@@ -121,7 +122,7 @@ export function IntegrationCard({
             isLoading={fetcher.state !== "idle"}
             onClick={handleInstall}
           >
-            Install
+            <Trans>Install</Trans>
           </Button>
         )}
         {installed && integration.active && (

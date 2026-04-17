@@ -6,6 +6,7 @@ import {
   MenuItem,
   Status
 } from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
@@ -41,6 +42,7 @@ type MaintenanceSchedulesTableProps = {
 
 const MaintenanceSchedulesTable = memo(
   ({ data, count, locations, locationId }: MaintenanceSchedulesTableProps) => {
+    const { t } = useLingui();
     const [params] = useUrlParams();
     const navigate = useNavigate();
     const permissions = usePermissions();
@@ -93,7 +95,7 @@ const MaintenanceSchedulesTable = memo(
       return [
         {
           accessorKey: "name",
-          header: "Schedule Name",
+          header: t`Schedule Name`,
           cell: ({ row }) => (
             <Hyperlink to={row.original.id!}>
               <Enumerable value={row.original.name} />
@@ -102,7 +104,7 @@ const MaintenanceSchedulesTable = memo(
         },
         {
           accessorKey: "workCenter",
-          header: "Work Center",
+          header: t`Work Center`,
           cell: ({ row }) => <Enumerable value={row.original.workCenterName} />,
           meta: {
             icon: <LuBuilding />
@@ -110,7 +112,7 @@ const MaintenanceSchedulesTable = memo(
         },
         {
           accessorKey: "locationId",
-          header: "Location",
+          header: t`Location`,
           cell: ({ row }) => <Enumerable value={row.original.locationName} />,
           meta: {
             icon: <LuMapPin />,
@@ -125,7 +127,7 @@ const MaintenanceSchedulesTable = memo(
         },
         {
           accessorKey: "frequency",
-          header: "Frequency",
+          header: t`Frequency`,
           cell: ({ row }) => {
             const frequency = row.original.frequency;
             const showDays =
@@ -149,12 +151,12 @@ const MaintenanceSchedulesTable = memo(
                 label: freq
               }))
             },
-            pluralHeader: "Frequencies"
+            pluralHeader: t`Frequencies`
           }
         },
         {
           accessorKey: "priority",
-          header: "Priority",
+          header: t`Priority`,
           cell: (item) => {
             const priority =
               item.getValue<(typeof maintenanceDispatchPriority)[number]>();
@@ -169,12 +171,12 @@ const MaintenanceSchedulesTable = memo(
                 label: <MaintenancePriority priority={priority} />
               }))
             },
-            pluralHeader: "Priorities"
+            pluralHeader: t`Priorities`
           }
         },
         {
           accessorKey: "estimatedDuration",
-          header: "Est. Duration",
+          header: t`Est. Duration`,
           cell: ({ row }) =>
             row.original.estimatedDuration
               ? `${row.original.estimatedDuration} min`
@@ -185,7 +187,7 @@ const MaintenanceSchedulesTable = memo(
         },
         {
           accessorKey: "active",
-          header: "Status",
+          header: t`Status`,
           cell: ({ row }) =>
             row.original.active ? (
               <Status color="green">Active</Status>
@@ -198,7 +200,7 @@ const MaintenanceSchedulesTable = memo(
         },
         {
           accessorKey: "nextDueAt",
-          header: "Next Due",
+          header: t`Next Due`,
           cell: ({ row }) =>
             row.original.nextDueAt
               ? new Date(row.original.nextDueAt).toLocaleDateString()
@@ -208,7 +210,7 @@ const MaintenanceSchedulesTable = memo(
           }
         }
       ];
-    }, [allDaysSelected, allLocations, renderDays]);
+    }, [allDaysSelected, allLocations, renderDays, t]);
 
     const renderContextMenu = useCallback(
       (row: MaintenanceSchedule) => {
@@ -222,7 +224,7 @@ const MaintenanceSchedulesTable = memo(
               }}
             >
               <MenuIcon icon={<LuPencil />} />
-              Edit Schedule
+              <Trans>Edit Schedule</Trans>
             </MenuItem>
             <MenuItem
               destructive
@@ -234,7 +236,7 @@ const MaintenanceSchedulesTable = memo(
               }}
             >
               <MenuIcon icon={<LuTrash />} />
-              Delete Schedule
+              <Trans>Delete Schedule</Trans>
             </MenuItem>
           </>
         );
@@ -263,14 +265,14 @@ const MaintenanceSchedulesTable = memo(
             )}
             {permissions.can("create", "production") && (
               <New
-                label="Scheduled Maintenance"
+                label={t`Scheduled Maintenance`}
                 to={`${path.to.newMaintenanceSchedule}?${params.toString()}`}
               />
             )}
           </div>
         }
         renderContextMenu={renderContextMenu}
-        title="Scheduled Maintenances"
+        title={t`Scheduled Maintenances`}
       />
     );
   }
