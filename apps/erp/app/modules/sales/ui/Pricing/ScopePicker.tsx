@@ -13,12 +13,14 @@ import {
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
-import { LuCheck, LuSquareUser, LuUsers } from "react-icons/lu";
+import { LuCheck, LuGlobe, LuSquareUser, LuUsers } from "react-icons/lu";
+
+export const ALL_CUSTOMERS_SCOPE = "all";
 
 export type ScopeOption = {
   value: string;
   label: string;
-  helper: "Type" | "Customer";
+  helper: "Type" | "Customer" | "All";
 };
 
 type ScopePickerProps = {
@@ -27,6 +29,18 @@ type ScopePickerProps = {
   onChange: (value: string) => void;
   size?: "sm" | "md";
   placeholder?: string;
+};
+
+const ScopeIcon = ({
+  helper,
+  className
+}: {
+  helper: ScopeOption["helper"];
+  className?: string;
+}) => {
+  if (helper === "All") return <LuGlobe className={className} />;
+  if (helper === "Type") return <LuUsers className={className} />;
+  return <LuSquareUser className={className} />;
 };
 
 export function ScopePicker({
@@ -39,16 +53,23 @@ export function ScopePicker({
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
 
-  const { types, customers, selected } = useMemo(() => {
+  const { allOption, types, customers, selected } = useMemo(() => {
+    const allOption: ScopeOption = {
+      value: ALL_CUSTOMERS_SCOPE,
+      label: t`All Customers`,
+      helper: "All"
+    };
     const types: ScopeOption[] = [];
     const customers: ScopeOption[] = [];
-    let selected: ScopeOption | undefined;
+    let selected: ScopeOption | undefined =
+      value === ALL_CUSTOMERS_SCOPE ? allOption : undefined;
     for (const o of options) {
       if (o.value === value) selected = o;
-      (o.helper === "Type" ? types : customers).push(o);
+      if (o.helper === "Type") types.push(o);
+      else if (o.helper === "Customer") customers.push(o);
     }
-    return { types, customers, selected };
-  }, [options, value]);
+    return { allOption, types, customers, selected };
+  }, [options, value, t]);
 
   const select = (next: string) => {
     onChange(next);
@@ -71,11 +92,10 @@ export function ScopePicker({
         >
           {selected ? (
             <span className="!flex items-center gap-2 truncate">
-              {selected.helper === "Type" ? (
-                <LuUsers className="size-3.5 shrink-0 text-muted-foreground" />
-              ) : (
-                <LuSquareUser className="size-3.5 shrink-0 text-muted-foreground" />
-              )}
+              <ScopeIcon
+                helper={selected.helper}
+                className="size-3.5 shrink-0 text-muted-foreground"
+              />
               <span className="truncate">{selected.label}</span>
             </span>
           ) : (
@@ -95,6 +115,16 @@ export function ScopePicker({
             className="h-9"
           />
           <CommandList className="max-h-[320px]">
+            <CommandGroup>
+              <ScopeItem
+                option={allOption}
+                selected={value === ALL_CUSTOMERS_SCOPE}
+                onSelect={select}
+              />
+            </CommandGroup>
+
+            {types.length > 0 && <CommandSeparator className="my-1" />}
+
             {types.length > 0 && (
               <CommandGroup
                 heading={
@@ -159,6 +189,12 @@ function ScopeItem({
       value={`${option.label} ${option.helper} ${option.value}`}
       onSelect={() => onSelect(option.value)}
     >
+      {option.helper === "All" && (
+        <ScopeIcon
+          helper="All"
+          className="mr-2 size-3.5 shrink-0 text-muted-foreground"
+        />
+      )}
       <span className="flex-1 truncate">{option.label}</span>
       <LuCheck
         className={cn("ml-2 size-4", selected ? "opacity-100" : "opacity-0")}

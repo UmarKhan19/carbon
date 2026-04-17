@@ -59,6 +59,7 @@ import type {
   OverrideEntry,
   PriceListResult,
   PriceListRow,
+  PriceOverrideBreak,
   PriceResolutionInput,
   PriceResolutionResult,
   PriceSource,
@@ -541,9 +542,11 @@ export async function getCustomerItemPriceOverride(
   client: SupabaseClient<Database>,
   customerId: string,
   itemId: string,
-  companyId: string
+  companyId: string,
+  quantity: number = 1,
+  date?: string
 ) {
-  return client
+  const { data, error } = await client
     .from("customerItemPriceOverride")
     .select("*")
     .eq("customerId", customerId)
@@ -551,26 +554,9 @@ export async function getCustomerItemPriceOverride(
     .eq("companyId", companyId)
     .eq("active", true)
     .maybeSingle();
-}
 
-export async function getCustomerItemPriceOverrides(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  opts: { customerId?: string; customerTypeId?: string }
-) {
-  let query = client
-    .from("customerItemPriceOverride")
-    .select("*")
-    .eq("companyId", companyId)
-    .eq("active", true);
-
-  if (opts.customerId) {
-    query = query.eq("customerId", opts.customerId);
-  } else if (opts.customerTypeId) {
-    query = query.eq("customerTypeId", opts.customerTypeId);
-  }
-
-  return query;
+  if (error || !data) return { data: null, error };
+  return { data: applyBreakToParent(data, quantity, date), error: null };
 }
 
 export async function getCustomerLocation(
@@ -624,9 +610,11 @@ export async function getCustomerTypeItemPriceOverride(
   client: SupabaseClient<Database>,
   customerTypeId: string,
   itemId: string,
-  companyId: string
+  companyId: string,
+  quantity: number = 1,
+  date?: string
 ) {
-  return client
+  const { data, error } = await client
     .from("customerItemPriceOverride")
     .select("*")
     .eq("customerTypeId", customerTypeId)
@@ -634,6 +622,95 @@ export async function getCustomerTypeItemPriceOverride(
     .eq("companyId", companyId)
     .eq("active", true)
     .maybeSingle();
+
+  if (error || !data) return { data: null, error };
+  return { data: applyBreakToParent(data, quantity, date), error: null };
+}
+
+export async function getAllCustomersItemPriceOverride(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string,
+  quantity: number = 1,
+  date?: string
+) {
+  const { data, error } = await client
+    .from("customerItemPriceOverride")
+    .select("*")
+    .is("customerId", null)
+    .is("customerTypeId", null)
+    .eq("itemId", itemId)
+    .eq("companyId", companyId)
+    .eq("active", true)
+    .maybeSingle();
+
+  if (error || !data) return { data: null, error };
+  return { data: applyBreakToParent(data, quantity, date), error: null };
+}
+
+type AppliedOverride = {
+  id: string;
+  quantity: number;
+  overridePrice: number;
+  notes: string | null;
+  validFrom: string | null;
+  validTo: string | null;
+  applyRulesOnTop: boolean;
+};
+
+// ignoreDateWindow=true is used by the catalog view; resolvePrice always
+// enforces the date window.
+function applyBreakToParent(
+  parent: {
+    id: string;
+    notes: string | null;
+    validFrom: string | null;
+    validTo: string | null;
+    applyRulesOnTop: boolean;
+    breaks: unknown;
+  },
+  quantity: number,
+  date?: string,
+  ignoreDateWindow = false
+): AppliedOverride | null {
+  if (!ignoreDateWindow) {
+    const today = date ?? new Date().toISOString().split("T")[0]!;
+    if (parent.validFrom && parent.validFrom > today) return null;
+    if (parent.validTo && parent.validTo < today) return null;
+  }
+
+  const breaks = Array.isArray(parent.breaks)
+    ? (parent.breaks as PriceOverrideBreak[])
+    : [];
+  const best = pickBestBreak(breaks, quantity);
+  if (!best) return null;
+
+  return {
+    id: parent.id,
+    quantity: best.quantity,
+    overridePrice: best.overridePrice,
+    notes: parent.notes,
+    validFrom: parent.validFrom,
+    validTo: parent.validTo,
+    applyRulesOnTop: parent.applyRulesOnTop
+  };
+}
+
+// Picks MAX(quantity) <= input, falling back to MIN(quantity) so an
+// override with any breaks always applies (smallest break acts as floor).
+function pickBestBreak(
+  breaks: PriceOverrideBreak[],
+  quantity: number
+): PriceOverrideBreak | null {
+  if (breaks.length === 0) return null;
+  let best: PriceOverrideBreak | null = null;
+  let smallest: PriceOverrideBreak | null = null;
+  for (const b of breaks) {
+    if (!smallest || b.quantity < smallest.quantity) smallest = b;
+    if (b.quantity > quantity) continue;
+    if (!best || b.quantity > best.quantity) best = b;
+  }
+  return best ?? smallest;
 }
 
 export async function getCustomers(
@@ -1007,6 +1084,7 @@ export const priceSourceTypes = [
   "Base",
   "Override",
   "Type Override",
+  "All Override",
   "Rule"
 ] as const;
 
@@ -1869,15 +1947,6 @@ export async function resolvePrice(
   const date = input.date ?? new Date().toISOString().split("T")[0]!;
   const trace: PriceTraceStep[] = [];
 
-  console.log("[pricing][resolvePrice] start", {
-    itemId: input.itemId,
-    quantity: input.quantity,
-    customerId: input.customerId,
-    customerTypeId: input.customerTypeId,
-    existingBasePrice: input.existingBasePrice,
-    date
-  });
-
   let resolvedCustomerTypeId = input.customerTypeId ?? null;
 
   if (input.customerId && !resolvedCustomerTypeId) {
@@ -1889,12 +1958,9 @@ export async function resolvePrice(
     resolvedCustomerTypeId = cust?.customerTypeId ?? null;
   }
 
-  // Step 1: Base price from item unit sale price
   let basePrice: number;
-  let basePriceSource: "existingBasePrice" | "itemUnitSalePrice";
   if (input.existingBasePrice !== undefined) {
     basePrice = input.existingBasePrice;
-    basePriceSource = "existingBasePrice";
   } else {
     const { data: salePrice } = await client
       .from("itemUnitSalePrice")
@@ -1902,13 +1968,7 @@ export async function resolvePrice(
       .eq("itemId", input.itemId)
       .maybeSingle();
     basePrice = salePrice?.unitSalePrice ?? 0;
-    basePriceSource = "itemUnitSalePrice";
   }
-  console.log("[pricing][resolvePrice] basePrice", {
-    itemId: input.itemId,
-    source: basePriceSource,
-    basePrice
-  });
 
   trace.push({
     step: "Base Price",
@@ -1916,7 +1976,8 @@ export async function resolvePrice(
     amount: basePrice
   });
 
-  // Step 2: Determine starting price (override > type override > base)
+  // Precedence: customer > type > all-customers > base. We commit to the
+  // first scope that yields any rung and do not cross-shop.
   let startingPrice = basePrice;
   let overrideApplied = false;
   let skipRules = false;
@@ -1926,39 +1987,23 @@ export async function resolvePrice(
       client,
       input.customerId,
       input.itemId,
-      companyId
+      companyId,
+      input.quantity,
+      date
     );
 
     if (override) {
-      const withinRange =
-        (!override.validFrom || override.validFrom <= date) &&
-        (!override.validTo || override.validTo >= date);
-
-      console.log("[pricing][resolvePrice] customerOverride", {
-        found: true,
-        overridePrice: override.overridePrice,
-        validFrom: override.validFrom,
-        validTo: override.validTo,
-        withinRange,
-        applyRulesOnTop: override.applyRulesOnTop,
-        applied: withinRange
+      startingPrice = override.overridePrice;
+      overrideApplied = true;
+      skipRules = override.applyRulesOnTop === false;
+      trace.push({
+        step: "Override",
+        source: override.notes
+          ? `Customer Price Override: ${override.notes}`
+          : "Customer Price Override",
+        amount: override.overridePrice,
+        adjustment: override.overridePrice - basePrice
       });
-
-      if (withinRange) {
-        startingPrice = override.overridePrice;
-        overrideApplied = true;
-        skipRules = override.applyRulesOnTop === false;
-        trace.push({
-          step: "Override",
-          source: override.notes
-            ? `Customer Price Override: ${override.notes}`
-            : "Customer Price Override",
-          amount: override.overridePrice,
-          adjustment: override.overridePrice - basePrice
-        });
-      }
-    } else {
-      console.log("[pricing][resolvePrice] customerOverride", { found: false });
     }
   }
 
@@ -1967,48 +2012,50 @@ export async function resolvePrice(
       client,
       resolvedCustomerTypeId,
       input.itemId,
-      companyId
+      companyId,
+      input.quantity,
+      date
     );
 
     if (typeOverride) {
-      const withinRange =
-        (!typeOverride.validFrom || typeOverride.validFrom <= date) &&
-        (!typeOverride.validTo || typeOverride.validTo >= date);
-
-      console.log("[pricing][resolvePrice] typeOverride", {
-        found: true,
-        customerTypeId: resolvedCustomerTypeId,
-        overridePrice: typeOverride.overridePrice,
-        validFrom: typeOverride.validFrom,
-        validTo: typeOverride.validTo,
-        withinRange,
-        applyRulesOnTop: typeOverride.applyRulesOnTop,
-        applied: withinRange
-      });
-
-      if (withinRange) {
-        startingPrice = typeOverride.overridePrice;
-        overrideApplied = true;
-        skipRules = typeOverride.applyRulesOnTop === false;
-        trace.push({
-          step: "Type Override",
-          source: typeOverride.notes
-            ? `Customer Type Override: ${typeOverride.notes}`
-            : "Customer Type Override",
-          amount: typeOverride.overridePrice,
-          adjustment: typeOverride.overridePrice - basePrice
-        });
-      }
-    } else {
-      console.log("[pricing][resolvePrice] typeOverride", {
-        found: false,
-        customerTypeId: resolvedCustomerTypeId
+      startingPrice = typeOverride.overridePrice;
+      overrideApplied = true;
+      skipRules = typeOverride.applyRulesOnTop === false;
+      trace.push({
+        step: "Type Override",
+        source: typeOverride.notes
+          ? `Customer Type Override: ${typeOverride.notes}`
+          : "Customer Type Override",
+        amount: typeOverride.overridePrice,
+        adjustment: typeOverride.overridePrice - basePrice
       });
     }
   }
 
-  // Step 3: Find applicable pricing rules (apply on top of starting price)
-  // unless an override is in force with applyRulesOnTop=false.
+  if (!overrideApplied) {
+    const { data: allOverride } = await getAllCustomersItemPriceOverride(
+      client,
+      input.itemId,
+      companyId,
+      input.quantity,
+      date
+    );
+
+    if (allOverride) {
+      startingPrice = allOverride.overridePrice;
+      overrideApplied = true;
+      skipRules = allOverride.applyRulesOnTop === false;
+      trace.push({
+        step: "All Override",
+        source: allOverride.notes
+          ? `All Customers Override: ${allOverride.notes}`
+          : "All Customers Override",
+        amount: allOverride.overridePrice,
+        adjustment: allOverride.overridePrice - basePrice
+      });
+    }
+  }
+
   let finalPrice = startingPrice;
   if (!skipRules) {
     let rulesQuery = client
@@ -2058,42 +2105,12 @@ export async function resolvePrice(
     const ruleResult = applyPriceRules(startingPrice, matchedRules);
     finalPrice = ruleResult.finalPrice;
     trace.push(...ruleResult.appendedTrace);
-
-    console.log("[pricing][resolvePrice] rules", {
-      activeRulesFetched: allRules?.length ?? 0,
-      matchedCount: matchedRules.length,
-      matched: matchedRules.map((r) => ({
-        id: r.id,
-        name: r.name,
-        ruleType: r.ruleType,
-        amountType: r.amountType,
-        amount: r.amount,
-        priority: r.priority
-      })),
-      startingPrice,
-      finalPriceAfterRules: finalPrice
-    });
-  } else {
-    console.log("[pricing][resolvePrice] rules", {
-      skipped: true,
-      reason: "override has applyRulesOnTop=false"
-    });
   }
 
   trace.push({
     step: "Final Price",
     source: "Resolved",
     amount: finalPrice
-  });
-
-  console.log("[pricing][resolvePrice] done", {
-    itemId: input.itemId,
-    quantity: input.quantity,
-    basePrice,
-    overrideApplied,
-    skipRules,
-    startingPrice,
-    finalPrice
   });
 
   return { finalPrice, basePrice, trace };
@@ -2107,11 +2124,13 @@ export async function resolvePriceList(
     customerTypeId?: string;
     search?: string;
     onlyOverrides?: boolean;
+    quantity?: number;
+    allCustomers?: boolean;
   }
 ): Promise<PriceListResult> {
   const date = new Date().toISOString().split("T")[0]!;
+  const previewQuantity = Math.max(args.quantity ?? 1, 0);
 
-  // 1. Fetch paginated items with base prices and posting-group classification
   let itemQuery = client
     .from("item")
     .select(
@@ -2135,9 +2154,10 @@ export async function resolvePriceList(
 
   const itemIds = items.map((i) => i.id);
 
-  // 2. Resolve customer type if needed
-  let resolvedCustomerTypeId = args.customerTypeId ?? null;
-  if (args.customerId && !resolvedCustomerTypeId) {
+  let resolvedCustomerTypeId = args.allCustomers
+    ? null
+    : (args.customerTypeId ?? null);
+  if (!args.allCustomers && args.customerId && !resolvedCustomerTypeId) {
     const { data: cust } = await client
       .from("customer")
       .select("customerTypeId")
@@ -2146,67 +2166,78 @@ export async function resolvePriceList(
     resolvedCustomerTypeId = cust?.customerTypeId ?? null;
   }
 
-  // 3. Batch-fetch overrides for this customer
+  const overrideSelect =
+    "id, itemId, notes, validFrom, validTo, applyRulesOnTop, breaks";
+
+  type ParentRow = {
+    id: string;
+    itemId: string;
+    notes: string | null;
+    validFrom: string | null;
+    validTo: string | null;
+    applyRulesOnTop: boolean;
+    breaks: unknown;
+  };
+
+  const fillMap = (
+    rows: ParentRow[] | null | undefined,
+    target: Map<string, OverrideEntry>
+  ) => {
+    for (const row of rows ?? []) {
+      // Catalog view bypasses the date window; resolvePrice still enforces it.
+      const applied = applyBreakToParent(row, previewQuantity, date, true);
+      if (applied) target.set(row.itemId, applied);
+    }
+  };
+
   const overrideMap = new Map<string, OverrideEntry>();
-  if (args.customerId) {
-    const { data: overrides } = await client
-      .from("customerItemPriceOverride")
-      .select(
-        "id, itemId, overridePrice, notes, validFrom, validTo, applyRulesOnTop"
-      )
-      .eq("companyId", companyId)
-      .eq("customerId", args.customerId)
-      .eq("active", true)
-      .in("itemId", itemIds);
-
-    for (const ov of overrides ?? []) {
-      const withinRange =
-        (!ov.validFrom || ov.validFrom <= date) &&
-        (!ov.validTo || ov.validTo >= date);
-      if (withinRange) {
-        overrideMap.set(ov.itemId, {
-          id: ov.id,
-          overridePrice: ov.overridePrice,
-          notes: ov.notes,
-          validFrom: ov.validFrom,
-          validTo: ov.validTo,
-          applyRulesOnTop: ov.applyRulesOnTop
-        });
-      }
-    }
-  }
-
-  // 3b. Batch-fetch customer-type overrides
   const typeOverrideMap = new Map<string, OverrideEntry>();
-  if (resolvedCustomerTypeId) {
-    const { data: typeOverrides } = await client
+  const allOverrideMap = new Map<string, OverrideEntry>();
+
+  if (args.allCustomers) {
+    const { data: allRows } = await client
       .from("customerItemPriceOverride")
-      .select(
-        "id, itemId, overridePrice, notes, validFrom, validTo, applyRulesOnTop"
-      )
+      .select(overrideSelect)
       .eq("companyId", companyId)
-      .eq("customerTypeId", resolvedCustomerTypeId)
+      .is("customerId", null)
+      .is("customerTypeId", null)
       .eq("active", true)
       .in("itemId", itemIds);
-
-    for (const ov of typeOverrides ?? []) {
-      const withinRange =
-        (!ov.validFrom || ov.validFrom <= date) &&
-        (!ov.validTo || ov.validTo >= date);
-      if (withinRange) {
-        typeOverrideMap.set(ov.itemId, {
-          id: ov.id,
-          overridePrice: ov.overridePrice,
-          notes: ov.notes,
-          validFrom: ov.validFrom,
-          validTo: ov.validTo,
-          applyRulesOnTop: ov.applyRulesOnTop
-        });
-      }
+    fillMap(allRows as unknown as ParentRow[] | null, allOverrideMap);
+  } else {
+    if (args.customerId) {
+      const { data: rows } = await client
+        .from("customerItemPriceOverride")
+        .select(overrideSelect)
+        .eq("companyId", companyId)
+        .eq("customerId", args.customerId)
+        .eq("active", true)
+        .in("itemId", itemIds);
+      fillMap(rows as unknown as ParentRow[] | null, overrideMap);
     }
+
+    if (resolvedCustomerTypeId) {
+      const { data: rows } = await client
+        .from("customerItemPriceOverride")
+        .select(overrideSelect)
+        .eq("companyId", companyId)
+        .eq("customerTypeId", resolvedCustomerTypeId)
+        .eq("active", true)
+        .in("itemId", itemIds);
+      fillMap(rows as unknown as ParentRow[] | null, typeOverrideMap);
+    }
+
+    const { data: allRows } = await client
+      .from("customerItemPriceOverride")
+      .select(overrideSelect)
+      .eq("companyId", companyId)
+      .is("customerId", null)
+      .is("customerTypeId", null)
+      .eq("active", true)
+      .in("itemId", itemIds);
+    fillMap(allRows as unknown as ParentRow[] | null, allOverrideMap);
   }
 
-  // 4. Fetch all active pricing rules once
   let rulesQuery = client
     .from("pricingRule")
     .select("*")
@@ -2218,7 +2249,6 @@ export async function resolvePriceList(
 
   const { data: allRules } = await rulesQuery;
 
-  // 5. Resolve each item
   const rows: PriceListRow[] = items.map((item) => {
     const salePriceRow = Array.isArray(item.itemUnitSalePrice)
       ? item.itemUnitSalePrice[0]
@@ -2230,14 +2260,15 @@ export async function resolvePriceList(
     const itemPostingGroupId = itemCostRow?.itemPostingGroupId ?? null;
     const trace: PriceTraceStep[] = [];
 
-    // Step A: Determine starting price (override > type override > base)
     let startingPrice = basePrice;
     let isOverridden = false;
     let overrideId: string | null = null;
+    let overrideQuantity: number | null = null;
     let overrideNotes: string | null = null;
     let overrideValidFrom: string | null = null;
     let overrideValidTo: string | null = null;
-    let overrideSource: "Override" | "Type Override" | null = null;
+    let overrideSource: "Override" | "Type Override" | "All Override" | null =
+      null;
     let skipRules = false;
 
     trace.push({
@@ -2248,51 +2279,60 @@ export async function resolvePriceList(
 
     const override = overrideMap.get(item.id);
     const typeOverride = typeOverrideMap.get(item.id);
+    const allOverride = allOverrideMap.get(item.id);
+    const appliedOverride = override ?? typeOverride ?? allOverride;
 
-    if (override) {
-      startingPrice = override.overridePrice;
+    if (appliedOverride) {
+      startingPrice = appliedOverride.overridePrice;
       isOverridden = true;
-      overrideId = override.id;
-      overrideSource = "Override";
-      overrideNotes = override.notes;
-      overrideValidFrom = override.validFrom;
-      overrideValidTo = override.validTo;
-      skipRules = override.applyRulesOnTop === false;
-      trace.push({
-        step: "Override",
-        source: override.notes
-          ? `Customer Price Override: ${override.notes}`
-          : "Customer Price Override",
-        amount: override.overridePrice,
-        adjustment: override.overridePrice - basePrice
-      });
-    } else if (typeOverride) {
-      startingPrice = typeOverride.overridePrice;
-      isOverridden = true;
-      overrideId = typeOverride.id;
-      overrideSource = "Type Override";
-      overrideNotes = typeOverride.notes;
-      overrideValidFrom = typeOverride.validFrom;
-      overrideValidTo = typeOverride.validTo;
-      skipRules = typeOverride.applyRulesOnTop === false;
-      trace.push({
-        step: "Type Override",
-        source: typeOverride.notes
-          ? `Customer Type Override: ${typeOverride.notes}`
-          : "Customer Type Override",
-        amount: typeOverride.overridePrice,
-        adjustment: typeOverride.overridePrice - basePrice
-      });
+      overrideId = appliedOverride.id;
+      overrideQuantity = appliedOverride.quantity;
+      overrideNotes = appliedOverride.notes;
+      overrideValidFrom = appliedOverride.validFrom;
+      overrideValidTo = appliedOverride.validTo;
+      skipRules = appliedOverride.applyRulesOnTop === false;
+
+      if (override) {
+        overrideSource = "Override";
+        trace.push({
+          step: "Override",
+          source: override.notes
+            ? `Customer Price Override: ${override.notes}`
+            : "Customer Price Override",
+          amount: override.overridePrice,
+          adjustment: override.overridePrice - basePrice
+        });
+      } else if (typeOverride) {
+        overrideSource = "Type Override";
+        trace.push({
+          step: "Type Override",
+          source: typeOverride.notes
+            ? `Customer Type Override: ${typeOverride.notes}`
+            : "Customer Type Override",
+          amount: typeOverride.overridePrice,
+          adjustment: typeOverride.overridePrice - basePrice
+        });
+      } else if (allOverride) {
+        overrideSource = "All Override";
+        trace.push({
+          step: "All Override",
+          source: allOverride.notes
+            ? `All Customers Override: ${allOverride.notes}`
+            : "All Customers Override",
+          amount: allOverride.overridePrice,
+          adjustment: allOverride.overridePrice - basePrice
+        });
+      }
     }
 
-    // Step B: Apply rules on top of starting price (override or base)
     let finalPrice = startingPrice;
     let hasRuleAdjustment = false;
 
     if (!skipRules) {
       const matchedRules: MatchedRule[] = (allRules ?? []).filter((rule) => {
-        // Catalog view has no quantity context; only apply rules without quantity bands.
-        if (rule.minQuantity !== null || rule.maxQuantity !== null)
+        if (rule.minQuantity !== null && previewQuantity < rule.minQuantity)
+          return false;
+        if (rule.maxQuantity !== null && previewQuantity > rule.maxQuantity)
           return false;
 
         const ruleItemIds = rule.itemIds as string[] | null;
@@ -2356,6 +2396,7 @@ export async function resolvePriceList(
       source,
       trace,
       overrideId,
+      overrideQuantity,
       overrideNotes,
       overrideValidFrom,
       overrideValidTo
@@ -2415,6 +2456,7 @@ export async function getBaseCatalog(
       source: "Base" as PriceSource,
       trace: [],
       overrideId: null,
+      overrideQuantity: null,
       overrideNotes: null,
       overrideValidFrom: null,
       overrideValidTo: null
@@ -2465,7 +2507,7 @@ export async function upsertCustomerItemPriceOverride(
     customerId?: string;
     customerTypeId?: string;
     itemId: string;
-    overridePrice: number;
+    breaks: PriceOverrideBreak[];
     active: boolean;
     applyRulesOnTop: boolean;
     notes?: string;
@@ -2473,15 +2515,17 @@ export async function upsertCustomerItemPriceOverride(
     validTo?: string;
   }
 ) {
-  if (!data.customerId && !data.customerTypeId) {
+  if (data.customerId && data.customerTypeId) {
     return {
       data: null,
-      error: { message: "Either customerId or customerTypeId is required" }
+      error: { message: "Cannot set both customerId and customerTypeId" }
     };
   }
 
+  const sortedBreaks = [...data.breaks].sort((a, b) => a.quantity - b.quantity);
+
   const sharedFields = {
-    overridePrice: data.overridePrice,
+    breaks: sortedBreaks,
     notes: data.notes ?? null,
     validFrom: data.validFrom ?? null,
     validTo: data.validTo ?? null,
@@ -2489,8 +2533,6 @@ export async function upsertCustomerItemPriceOverride(
     applyRulesOnTop: data.applyRulesOnTop
   };
 
-  // If editing an existing row, update by id so a scope switch (customer ↔ type)
-  // mutates the same row instead of orphaning it.
   if (data.id) {
     return client
       .from("customerItemPriceOverride")
@@ -2508,18 +2550,20 @@ export async function upsertCustomerItemPriceOverride(
       .single();
   }
 
-  // Creating a new row — collapse onto an existing same-scope row if one exists,
-  // since the partial unique indexes would reject a duplicate insert anyway.
+  // Collapse onto an existing (scope, item) row if one exists — the partial
+  // unique indexes would reject a duplicate insert anyway.
   const lookup = client
     .from("customerItemPriceOverride")
     .select("id")
     .eq("itemId", data.itemId)
     .eq("companyId", companyId);
 
-  const { data: existing } = await (data.customerId
+  const scopedLookup = data.customerId
     ? lookup.eq("customerId", data.customerId)
-    : lookup.eq("customerTypeId", data.customerTypeId!)
-  ).maybeSingle();
+    : data.customerTypeId
+      ? lookup.eq("customerTypeId", data.customerTypeId)
+      : lookup.is("customerId", null).is("customerTypeId", null);
+  const { data: existing } = await scopedLookup.maybeSingle();
 
   if (existing) {
     return client
@@ -2626,75 +2670,6 @@ export async function getCustomerItemPriceOverridesList(
   ]);
 
   return query;
-}
-
-export async function updateCustomerItemPriceOverride(
-  client: SupabaseClient<Database>,
-  id: string,
-  companyId: string,
-  userId: string,
-  data: {
-    customerId?: string;
-    customerTypeId?: string;
-    itemId: string;
-    overridePrice: number;
-    active: boolean;
-    notes?: string;
-    validFrom?: string;
-    validTo?: string;
-  }
-) {
-  return client
-    .from("customerItemPriceOverride")
-    .update({
-      customerId: data.customerId ?? null,
-      customerTypeId: data.customerTypeId ?? null,
-      itemId: data.itemId,
-      overridePrice: data.overridePrice,
-      active: data.active,
-      notes: data.notes ?? null,
-      validFrom: data.validFrom ?? null,
-      validTo: data.validTo ?? null,
-      updatedBy: userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", id)
-    .eq("companyId", companyId)
-    .select("id")
-    .single();
-}
-
-export async function createCustomerItemPriceOverride(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  userId: string,
-  data: {
-    customerId?: string;
-    customerTypeId?: string;
-    itemId: string;
-    overridePrice: number;
-    active: boolean;
-    notes?: string;
-    validFrom?: string;
-    validTo?: string;
-  }
-) {
-  return client
-    .from("customerItemPriceOverride")
-    .insert({
-      companyId,
-      customerId: data.customerId ?? null,
-      customerTypeId: data.customerTypeId ?? null,
-      itemId: data.itemId,
-      overridePrice: data.overridePrice,
-      active: data.active,
-      notes: data.notes ?? null,
-      validFrom: data.validFrom ?? null,
-      validTo: data.validTo ?? null,
-      createdBy: userId
-    })
-    .select("id")
-    .single();
 }
 
 export async function updateCustomerAccounting(
@@ -3747,17 +3722,6 @@ export async function calculatePricesForQuantities(
 
   const { effects } = result;
 
-  console.log("[pricing][MtO calc] start", {
-    quoteId,
-    quoteLineId,
-    itemId,
-    customerId,
-    quantities,
-    defaultMarkups
-  });
-
-  // 3. Compute rollup price per quantity, then pipe through pricing engine
-  //    so customer overrides and rules apply on top of the cost rollup.
   const priceRows = [];
   for (const qty of quantities) {
     const categoryCosts: Record<string, number> = {};
@@ -3765,11 +3729,6 @@ export async function calculatePricesForQuantities(
       const total = effects[key].reduce((acc, fn) => acc + fn(qty), 0);
       categoryCosts[key] = qty > 0 ? total / qty : 0;
     }
-
-    const unitCost = costCategoryKeys.reduce(
-      (sum, key) => sum + (categoryCosts[key] ?? 0),
-      0
-    );
 
     const rollupPrice = costCategoryKeys.reduce((sum, key) => {
       const cost = categoryCosts[key] ?? 0;
@@ -3788,15 +3747,6 @@ export async function calculatePricesForQuantities(
         ).finalPrice
       : rollupPrice;
 
-    console.log("[pricing][MtO calc] perQty", {
-      quoteLineId,
-      qty,
-      unitCost,
-      categoryCosts,
-      rollupPrice,
-      finalPrice
-    });
-
     priceRows.push({
       quoteId,
       quoteLineId,
@@ -3810,13 +3760,13 @@ export async function calculatePricesForQuantities(
     });
   }
 
-  console.log("[pricing][MtO calc] inserting", {
-    quoteLineId,
-    rows: priceRows.map((r) => ({ qty: r.quantity, unitPrice: r.unitPrice }))
-  });
-
-  // 4. Insert price rows
-  await client.from("quoteLinePrice").insert(priceRows);
+  const insertResult = await client.from("quoteLinePrice").insert(priceRows);
+  if (insertResult.error) {
+    console.error("[qpricing][MtO calc] INSERT ERROR", {
+      quoteLineId,
+      error: insertResult.error
+    });
+  }
 }
 
 export async function resolveQuoteLinePrices(
@@ -3851,27 +3801,12 @@ export async function resolveQuoteLinePrices(
   const precision = lineResult.data.unitPricePrecision ?? 2;
   const customerId = quoteResult.data.customerId ?? undefined;
 
-  console.log("[pricing][Pull] start", {
-    quoteId,
-    quoteLineId,
-    itemId,
-    customerId,
-    quantities
-  });
-
   const priceRows = [];
   for (const qty of quantities) {
     const resolved = await resolvePrice(client, companyId, {
       itemId,
       quantity: qty,
       customerId
-    });
-
-    console.log("[pricing][Pull] perQty", {
-      quoteLineId,
-      qty,
-      basePrice: resolved.basePrice,
-      finalPrice: resolved.finalPrice
     });
 
     priceRows.push({
@@ -3886,12 +3821,13 @@ export async function resolveQuoteLinePrices(
     });
   }
 
-  console.log("[pricing][Pull] inserting", {
-    quoteLineId,
-    rows: priceRows.map((r) => ({ qty: r.quantity, unitPrice: r.unitPrice }))
-  });
-
-  await client.from("quoteLinePrice").insert(priceRows);
+  const insertResult = await client.from("quoteLinePrice").insert(priceRows);
+  if (insertResult.error) {
+    console.error("[qpricing][Pull] INSERT ERROR", {
+      quoteLineId,
+      error: insertResult.error
+    });
+  }
 }
 
 export async function resolvePurchaseToOrderPrices(
@@ -3928,16 +3864,6 @@ export async function resolvePurchaseToOrderPrices(
 
   const priceMap = await getSupplierPriceBreaksForItems(client, [itemId]);
 
-  console.log("[pricing][P2O] start", {
-    quoteId,
-    quoteLineId,
-    itemId,
-    customerId,
-    quantities,
-    supplierBreaks: priceMap[itemId]?.priceBreaks ?? null,
-    supplierFallback: priceMap[itemId]?.fallbackUnitPrice ?? null
-  });
-
   const priceRows = [];
   for (const qty of quantities) {
     const supplierPrice = lookupBuyPriceFromMap(itemId, qty, priceMap, 0);
@@ -3946,13 +3872,6 @@ export async function resolvePurchaseToOrderPrices(
       quantity: qty,
       customerId,
       existingBasePrice: supplierPrice
-    });
-
-    console.log("[pricing][P2O] perQty", {
-      quoteLineId,
-      qty,
-      supplierPrice,
-      finalPrice: resolved.finalPrice
     });
 
     priceRows.push({
@@ -3967,12 +3886,13 @@ export async function resolvePurchaseToOrderPrices(
     });
   }
 
-  console.log("[pricing][P2O] inserting", {
-    quoteLineId,
-    rows: priceRows.map((r) => ({ qty: r.quantity, unitPrice: r.unitPrice }))
-  });
-
-  await client.from("quoteLinePrice").insert(priceRows);
+  const insertResult = await client.from("quoteLinePrice").insert(priceRows);
+  if (insertResult.error) {
+    console.error("[qpricing][P2O] INSERT ERROR", {
+      quoteLineId,
+      error: insertResult.error
+    });
+  }
 }
 
 export async function recalculateQuoteLinePrices(
@@ -4033,16 +3953,6 @@ export async function recalculateQuoteLinePrices(
 
   const { effects } = result;
 
-  console.log("[pricing][MtO recalc] start", {
-    quoteId,
-    quoteLineId,
-    itemId,
-    customerId,
-    existingRowCount: existingPrices.data.length
-  });
-
-  // 4. Recompute prices using each row's stored categoryMarkups, then pipe
-  //    through pricing engine so overrides/rules still apply after BOM edits.
   const updatedRows = [];
   for (const row of existingPrices.data) {
     const qty = row.quantity;
@@ -4055,11 +3965,6 @@ export async function recalculateQuoteLinePrices(
       const total = effects[key].reduce((acc, fn) => acc + fn(qty), 0);
       categoryCosts[key] = qty > 0 ? total / qty : 0;
     }
-
-    const unitCost = costCategoryKeys.reduce(
-      (sum, key) => sum + (categoryCosts[key] ?? 0),
-      0
-    );
 
     const rollupPrice = costCategoryKeys.reduce((sum, key) => {
       const cost = categoryCosts[key] ?? 0;
@@ -4078,16 +3983,6 @@ export async function recalculateQuoteLinePrices(
             })
           ).finalPrice
         : rollupPrice;
-
-    console.log("[pricing][MtO recalc] perQty", {
-      quoteLineId,
-      qty,
-      previousUnitPrice: row.unitPrice,
-      unitCost,
-      rollupPrice,
-      finalPrice,
-      delta: finalPrice - (row.unitPrice ?? 0)
-    });
 
     updatedRows.push({
       quoteId: row.quoteId,

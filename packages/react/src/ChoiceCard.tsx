@@ -1,5 +1,6 @@
-import { cn, RadioGroup, RadioGroupItem } from "@carbon/react";
 import { type ReactNode, useId } from "react";
+import { RadioGroup, RadioGroupItem } from "./Radio";
+import { cn } from "./utils/cn";
 
 /**
  * A single option in a {@link ChoiceCardGroup}.

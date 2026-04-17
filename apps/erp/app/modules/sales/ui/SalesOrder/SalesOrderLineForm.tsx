@@ -478,9 +478,7 @@ const SalesOrderLineForm = ({
                               Unit Price
                             </span>
                             <PriceTracePopover
-                              priceListId={itemData.priceListId}
-                              priceListName={itemData.priceListName}
-                              priceTrace={itemData.priceTrace}
+                              trace={itemData.priceTrace}
                               currencyCode={baseCurrency}
                             />
                           </div>

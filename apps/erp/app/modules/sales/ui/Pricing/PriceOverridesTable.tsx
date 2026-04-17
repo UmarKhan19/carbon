@@ -1,4 +1,12 @@
-import { Badge, HStack, MenuIcon, MenuItem, VStack } from "@carbon/react";
+import {
+  Badge,
+  HStack,
+  MenuIcon,
+  MenuItem,
+  NumberField,
+  NumberInput,
+  VStack
+} from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -14,11 +22,16 @@ import {
 } from "react-icons/lu";
 import { useNavigate, useSearchParams } from "react-router";
 import { Hyperlink, ItemThumbnail, New, Table } from "~/components";
-import { useCurrencyFormatter, usePermissions } from "~/hooks";
+import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
 import type { PriceListRow } from "~/modules/sales";
 import { path } from "~/utils/path";
 import { PriceListScopeEmpty } from "./PriceListScopeEmpty";
-import { type ScopeOption, ScopePicker } from "./ScopePicker";
+import { PriceTracePopover } from "./PriceTracePopover";
+import {
+  ALL_CUSTOMERS_SCOPE,
+  type ScopeOption,
+  ScopePicker
+} from "./ScopePicker";
 
 type PriceListTableProps = {
   data: PriceListRow[];
@@ -32,8 +45,8 @@ const sourceVariant: Record<
   "default" | "secondary" | "outline" | "destructive"
 > = {
   Override: "default",
-  Customer: "secondary",
-  CustomerType: "secondary",
+  "Type Override": "secondary",
+  "All Override": "outline",
   Rule: "outline",
   Base: "outline"
 };
@@ -43,13 +56,18 @@ const PriceListTable = memo(
     const { t } = useLingui();
     const permissions = usePermissions();
     const currencyFormatter = useCurrencyFormatter();
+    const { company } = useUser();
+    const baseCurrency = company?.baseCurrencyCode ?? "USD";
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
+    const previewQuantity = searchParams.get("quantity") ?? "1";
 
     const scopeId =
       searchParams.get("customerId") ??
       searchParams.get("customerTypeId") ??
-      "";
+      (searchParams.get("customerScope") === ALL_CUSTOMERS_SCOPE
+        ? ALL_CUSTOMERS_SCOPE
+        : "");
 
     const buildOverrideHref = useCallback(
       (row: PriceListRow) => {
@@ -65,17 +83,20 @@ const PriceListTable = memo(
 
     const handleScopeChange = useCallback(
       (selectedId: string) => {
-        const picked = selectedId
-          ? scopeOptions.find((o) => o.value === selectedId)
-          : undefined;
         const next = new URLSearchParams(searchParams);
         next.delete("customerId");
         next.delete("customerTypeId");
-        if (picked) {
-          next.set(
-            picked.helper === "Type" ? "customerTypeId" : "customerId",
-            selectedId
-          );
+        next.delete("customerScope");
+        if (selectedId === ALL_CUSTOMERS_SCOPE) {
+          next.set("customerScope", ALL_CUSTOMERS_SCOPE);
+        } else if (selectedId) {
+          const picked = scopeOptions.find((o) => o.value === selectedId);
+          if (picked) {
+            next.set(
+              picked.helper === "Type" ? "customerTypeId" : "customerId",
+              selectedId
+            );
+          }
         }
         setSearchParams(next);
       },
@@ -130,13 +151,19 @@ const PriceListTable = memo(
             accessorKey: "resolvedPrice",
             header: t`Resolved Price`,
             cell: ({ row }) => (
-              <span
-                className={`tabular-nums font-medium ${
-                  row.original.isOverridden ? "text-emerald-600" : ""
-                }`}
-              >
-                {currencyFormatter.format(row.original.resolvedPrice)}
-              </span>
+              <HStack spacing={2} className="items-center">
+                <span
+                  className={`tabular-nums font-medium ${
+                    row.original.isOverridden ? "text-emerald-600" : ""
+                  }`}
+                >
+                  {currencyFormatter.format(row.original.resolvedPrice)}
+                </span>
+                <PriceTracePopover
+                  trace={row.original.trace}
+                  currencyCode={baseCurrency}
+                />
+              </HStack>
             ),
             meta: { icon: <LuCircleDollarSign /> }
           },
@@ -176,7 +203,21 @@ const PriceListTable = memo(
       }
 
       return cols;
-    }, [buildOverrideHref, currencyFormatter, hasScope, t]);
+    }, [baseCurrency, buildOverrideHref, currencyFormatter, hasScope, t]);
+
+    const handleQuantityCommit = useCallback(
+      (raw: string) => {
+        const parsed = Number(raw);
+        const next = new URLSearchParams(searchParams);
+        if (Number.isFinite(parsed) && parsed > 1) {
+          next.set("quantity", String(parsed));
+        } else {
+          next.delete("quantity");
+        }
+        setSearchParams(next);
+      },
+      [searchParams, setSearchParams]
+    );
 
     const renderContextMenu = useCallback(
       (row: PriceListRow) => {
@@ -240,6 +281,25 @@ const PriceListTable = memo(
               options={scopeOptions}
               onChange={handleScopeChange}
             />
+            <HStack
+              spacing={1}
+              className="items-center text-xs text-muted-foreground"
+            >
+              <span>{t`Qty`}</span>
+              <NumberField
+                value={Number(previewQuantity) || 1}
+                minValue={1}
+                onChange={(value) => {
+                  if (Number.isFinite(value) && value >= 1) {
+                    handleQuantityCommit(String(value));
+                  }
+                }}
+                aria-label={t`Preview Quantity`}
+                className="w-20"
+              >
+                <NumberInput size="sm" min={1} />
+              </NumberField>
+            </HStack>
             {permissions.can("create", "sales") && (
               <New
                 label={t`Override`}

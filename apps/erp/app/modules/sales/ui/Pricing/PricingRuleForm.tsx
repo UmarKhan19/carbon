@@ -1,6 +1,7 @@
 import { useControlField, ValidatedForm } from "@carbon/form";
 import {
   Button,
+  ChoiceCardGroup,
   HStack,
   ModalDrawer,
   ModalDrawerBody,
@@ -24,7 +25,6 @@ import {
 import type { z } from "zod";
 import {
   Boolean as BooleanField,
-  ChoiceCardGroup,
   Customers,
   CustomerTypes,
   DatePicker,

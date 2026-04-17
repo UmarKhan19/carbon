@@ -6,6 +6,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
   getCustomerItemPriceOverrideById,
+  priceOverrideBreaksValidator,
   priceOverrideValidator,
   upsertCustomerItemPriceOverride
 } from "~/modules/sales";
@@ -46,11 +47,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
+  const breaksRaw = formData.get("breaks");
+  let breaksParsed: unknown;
+  try {
+    breaksParsed = breaksRaw ? JSON.parse(String(breaksRaw)) : [];
+  } catch {
+    return validationError({
+      fieldErrors: { breaks: "Breaks must be valid JSON" }
+    });
+  }
+  const breaksResult = priceOverrideBreaksValidator.safeParse(breaksParsed);
+  if (!breaksResult.success) {
+    return validationError({
+      fieldErrors: {
+        breaks:
+          breaksResult.error.issues[0]?.message ?? "Invalid breaks payload"
+      }
+    });
+  }
+  const breaks = breaksResult.data;
+
   const {
     customerId,
     customerTypeId,
     itemId,
-    overridePrice,
     active,
     applyRulesOnTop,
     notes,
@@ -67,7 +87,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       customerId: customerId || undefined,
       customerTypeId: customerTypeId || undefined,
       itemId,
-      overridePrice,
+      breaks,
       active,
       applyRulesOnTop,
       notes,
@@ -106,13 +126,17 @@ export default function EditPriceOverrideRoute() {
         itemId: override.itemId,
         customerId: override.customerId ?? undefined,
         customerTypeId: override.customerTypeId ?? undefined,
-        overridePrice: override.overridePrice,
         active: override.active,
         applyRulesOnTop: override.applyRulesOnTop ?? true,
         validFrom: override.validFrom ?? undefined,
         validTo: override.validTo ?? undefined,
         notes: override.notes ?? undefined
       }}
+      initialBreaks={
+        Array.isArray(override.breaks)
+          ? (override.breaks as { quantity: number; overridePrice: number }[])
+          : []
+      }
       onClose={() => navigate(-1)}
     />
   );

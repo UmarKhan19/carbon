@@ -265,6 +265,13 @@ export const auditConfig = {
       tables: {
         pricingRule: { role: "root" }
       }
+    },
+
+    priceOverride: {
+      label: "Price Override",
+      tables: {
+        customerItemPriceOverride: { role: "root" }
+      }
     }
   } satisfies Record<string, EntityConfig>,
 
@@ -333,7 +340,8 @@ export const auditConfig = {
     maintenanceDispatch: "Dispatch",
     maintenanceDispatchEvent: "Dispatch Event",
     maintenanceDispatchComment: "Dispatch Comment",
-    pricingRule: "Pricing Rule"
+    pricingRule: "Pricing Rule",
+    customerItemPriceOverride: "Price Override"
   } as Record<string, string>,
 
   /** Fields to skip in diff computation */

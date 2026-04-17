@@ -9,6 +9,7 @@ import {
   getQuote,
   isQuoteLocked,
   quoteLineValidator,
+  recalculateQuoteLinePrices,
   resolvePurchaseToOrderPrices,
   resolveQuoteLinePrices,
   upsertQuoteLine,
@@ -123,6 +124,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         )
       );
     }
+    await recalculateQuoteLinePrices(serviceRole, quoteId, quoteLineId, userId);
   }
 
   throw redirect(path.to.quoteLine(quoteId, quoteLineId));

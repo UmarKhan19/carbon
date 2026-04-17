@@ -41,8 +41,14 @@ export type MatchedRule = {
   priority: number;
 };
 
+export type PriceOverrideBreak = {
+  quantity: number;
+  overridePrice: number;
+};
+
 export type OverrideEntry = {
   id: string;
+  quantity: number;
   overridePrice: number;
   notes: string | null;
   validFrom: string | null;
@@ -61,6 +67,7 @@ export type PriceListRow = {
   source: PriceSource;
   trace: PriceTraceStep[];
   overrideId: string | null;
+  overrideQuantity: number | null;
   overrideNotes: string | null;
   overrideValidFrom: string | null;
   overrideValidTo: string | null;

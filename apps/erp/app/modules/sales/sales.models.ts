@@ -146,28 +146,34 @@ export const customerPortalValidator = z.object({
   customerId: z.string().min(1, { message: "Customer is required" })
 });
 
+export const priceOverrideBreakValidator = z.object({
+  quantity: z.number().nonnegative(),
+  overridePrice: z.number().nonnegative()
+});
+
+export const priceOverrideBreaksValidator = z
+  .array(priceOverrideBreakValidator)
+  .min(1, { message: "At least one break is required" })
+  .refine((b) => new Set(b.map((x) => x.quantity)).size === b.length, {
+    message: "Duplicate quantity across breaks"
+  });
+
 export const priceOverrideValidator = z
   .object({
     id: z.string().optional(),
     itemId: z.string().min(1),
     customerId: z.string().optional(),
     customerTypeId: z.string().optional(),
-    overridePrice: zfd.numeric(z.number().min(0)),
     active: zfd.checkbox(),
     applyRulesOnTop: zfd.checkbox(),
     validFrom: zfd.text(z.string().optional()),
     validTo: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional())
   })
-  .refine(
-    (d) =>
-      (d.customerId && !d.customerTypeId) ||
-      (!d.customerId && d.customerTypeId),
-    {
-      message: "Either Customer or Customer Type must be selected",
-      path: ["customerId"]
-    }
-  )
+  .refine((d) => !(d.customerId && d.customerTypeId), {
+    message: "Cannot set both Customer and Customer Type",
+    path: ["customerId"]
+  })
   .refine((d) => !d.validFrom || !d.validTo || d.validFrom <= d.validTo, {
     message: "Valid From must be on or before Valid To",
     path: ["validTo"]

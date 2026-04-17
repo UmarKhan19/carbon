@@ -11,61 +11,57 @@ import {
   Tr
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
+import type { ReactNode } from "react";
 import { LuChevronRight, LuExternalLink } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
 import type { PriceTraceStep } from "../../types";
 
 type PriceTracePopoverProps = {
-  priceListId: string | null;
-  priceListName: string | null;
-  priceTrace: unknown;
+  trace: PriceTraceStep[] | null | undefined;
   currencyCode: string;
+  /** Optional trigger content. If omitted, renders a "View calc" text button. */
+  children?: ReactNode;
 };
 
 export function PriceTracePopover({
-  priceListId,
-  priceListName,
-  priceTrace,
-  currencyCode
+  trace,
+  currencyCode,
+  children
 }: PriceTracePopoverProps) {
   const { t } = useLingui();
 
-  if (!priceListName) return null;
-
-  const steps = Array.isArray(priceTrace)
-    ? (priceTrace as PriceTraceStep[])
-    : [];
-
+  const steps = Array.isArray(trace) ? trace : [];
   if (steps.length === 0) {
-    return (
-      <PriceListSourceLink
-        priceListId={priceListId}
-        priceListName={priceListName}
-        className="text-xxs truncate max-w-[160px]"
-      />
-    );
+    return children ? <>{children}</> : null;
   }
+
+  const trigger = children ? (
+    <button
+      type="button"
+      className="cursor-help decoration-dotted underline-offset-2 hover:underline"
+    >
+      {children}
+    </button>
+  ) : (
+    <button
+      type="button"
+      className="text-xxs text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 underline decoration-dotted underline-offset-2"
+    >
+      {t`View calc`}
+      <LuChevronRight className="size-3" />
+    </button>
+  );
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className="text-xxs text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 underline decoration-dotted underline-offset-2"
-        >
-          {t`View calc`}
-          <LuChevronRight className="size-3" />
-        </button>
-      </PopoverTrigger>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent align="end" sideOffset={8} className="w-[720px] p-0">
-        <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-3">
+        <div className="px-4 py-3 border-b border-border">
           <p className="text-sm font-semibold">{t`Pricing trace`}</p>
-          <PriceListSourceLink
-            priceListId={priceListId}
-            priceListName={priceListName}
-            className="text-xs truncate max-w-[320px]"
-          />
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {t`How the resolved price was calculated.`}
+          </p>
         </div>
         <div className="overflow-x-auto">
           <Table>
@@ -105,7 +101,7 @@ export function PriceTracePopover({
                       <StepTypeBadge step={step} />
                     </Td>
                     <Td
-                      className="text-sm text-muted-foreground max-w-[200px]"
+                      className="text-sm text-muted-foreground max-w-[240px]"
                       title={step.source}
                     >
                       {step.ruleId ? (
@@ -140,59 +136,16 @@ export function PriceTracePopover({
 }
 
 function StepTypeBadge({ step }: { step: PriceTraceStep }) {
-  if (step.step === "Base Price") {
-    return <Badge variant="gray">Base</Badge>;
-  }
-  if (step.step === "Override") {
-    return <Badge variant="yellow">Override</Badge>;
-  }
-  if (step.step === "Type Override") {
+  if (step.step === "Base Price") return <Badge variant="gray">Base</Badge>;
+  if (step.step === "Override") return <Badge variant="yellow">Override</Badge>;
+  if (step.step === "Type Override")
     return <Badge variant="blue">Type Override</Badge>;
-  }
-  if (step.step === "Discount") {
-    return <Badge variant="green">Discount</Badge>;
-  }
-  if (step.step === "Markup") {
-    return <Badge variant="secondary">Markup</Badge>;
-  }
-  if (step.step === "Final Price") {
-    return null;
-  }
+  if (step.step === "All Override")
+    return <Badge variant="gray">All Override</Badge>;
+  if (step.step === "Discount") return <Badge variant="green">Discount</Badge>;
+  if (step.step === "Markup") return <Badge variant="secondary">Markup</Badge>;
+  if (step.step === "Final Price") return null;
   return <Badge variant="gray">{step.step}</Badge>;
-}
-
-function PriceListSourceLink({
-  priceListId,
-  priceListName,
-  className
-}: {
-  priceListId: string | null;
-  priceListName: string;
-  className?: string;
-}) {
-  const baseClasses = "text-muted-foreground inline-flex items-center gap-1";
-  if (!priceListId) {
-    return (
-      <span
-        className={`${baseClasses} ${className ?? ""}`}
-        title={priceListName}
-      >
-        From: {priceListName}
-      </span>
-    );
-  }
-  return (
-    <Link
-      to={path.to.pricingRule(priceListId)}
-      target="_blank"
-      rel="noreferrer"
-      className={`${baseClasses} ${className ?? ""} hover:text-foreground hover:underline decoration-dotted underline-offset-2`}
-      title={`Open ${priceListName}`}
-    >
-      From: {priceListName}
-      <LuExternalLink className="size-3 shrink-0" />
-    </Link>
-  );
 }
 
 function ChangeCell({
