@@ -63,6 +63,7 @@ import {
   salesOrderLineValidator
 } from "../../sales.models";
 import type {
+  PriceTraceStep,
   SalesOrder,
   SalesOrderLine,
   SalesOrderLineType
@@ -113,7 +114,7 @@ const SalesOrderLineForm = ({
     modelUploadId: string | null;
     priceListId: string | null;
     priceListName: string | null;
-    priceTrace: unknown;
+    priceTrace: PriceTraceStep[] | null;
   }>({
     itemId: initialValues.itemId ?? "",
     description: initialValues.description ?? "",
@@ -125,7 +126,9 @@ const SalesOrderLineForm = ({
     priceListId:
       (initialValues as { priceListId?: string | null }).priceListId ?? null,
     priceListName: null,
-    priceTrace: (initialValues as { priceTrace?: unknown }).priceTrace ?? null
+    priceTrace:
+      (initialValues as { priceTrace?: PriceTraceStep[] | null }).priceTrace ??
+      null
   });
 
   const isEditing = initialValues.id !== undefined;

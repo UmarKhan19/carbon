@@ -124,7 +124,7 @@ export default function NewPriceOverrideRoute() {
         applyRulesOnTop: true,
         validFrom: initial.validFrom
       }}
-      initialBreaks={[{ quantity: 1, overridePrice: 0 }]}
+      initialBreaks={[{ quantity: 1, overridePrice: 0, active: true }]}
       initialScope={initialScope}
       onClose={() => navigate(-1)}
     />

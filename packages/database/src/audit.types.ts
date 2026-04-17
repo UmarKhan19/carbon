@@ -38,6 +38,13 @@ export interface AuditLogEntry {
   tableName: AuditableTable;
   entityType: AuditEntityType;
   entityId: string;
+  /**
+   * The raw PK of the row that triggered this entry.
+   * For root tables, recordId == entityId. For child tables they differ
+   * (e.g. entityId = parent id, recordId = child row id). Nullable to
+   * tolerate legacy rows inserted before the column was added.
+   */
+  recordId: string | null;
   operation: AuditOperation;
   actorId: string | null;
   diff: AuditDiff | null;
@@ -53,6 +60,7 @@ export interface CreateAuditLogEntry {
   tableName: AuditableTable;
   entityType: AuditEntityType;
   entityId: string;
+  recordId: string;
   operation: AuditOperation;
   actorId: string | null;
   diff?: AuditDiff | null;

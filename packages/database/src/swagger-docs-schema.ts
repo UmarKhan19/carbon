@@ -68458,6 +68458,10 @@ export default {
                   format: "int32",
                   type: "integer",
                 },
+                p_record_id: {
+                  format: "text",
+                  type: "string",
+                },
               },
               required: ["p_company_id", "p_entity_type", "p_entity_id"],
               type: "object",

@@ -57319,6 +57319,7 @@ export type Database = {
           p_entity_type: string
           p_limit?: number
           p_offset?: number
+          p_record_id?: string
         }
         Returns: {
           actorId: string
@@ -57329,6 +57330,7 @@ export type Database = {
           id: string
           metadata: Json
           operation: string
+          recordId: string
           tableName: string
         }[]
       }

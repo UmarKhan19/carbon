@@ -1,7 +1,13 @@
+import type { AuditLogEntry } from "@carbon/database/audit.types";
 import { ValidatedForm } from "@carbon/form";
 import {
   Button,
   ChoiceCardGroup,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -16,13 +22,17 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
+  Skeleton,
   Switch,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LuEllipsisVertical,
   LuGlobe,
@@ -31,8 +41,12 @@ import {
   LuTrash,
   LuUsers
 } from "react-icons/lu";
+import { useFetcher } from "react-router";
 import type { z } from "zod";
-import AuditLogDrawer from "~/components/AuditLog/AuditLogDrawer";
+import { Empty } from "~/components";
+import AuditLogDrawer, {
+  AuditLogEntryCard
+} from "~/components/AuditLog/AuditLogDrawer";
 import { EditableNumber } from "~/components/Editable";
 import {
   Boolean as BooleanField,
@@ -171,11 +185,7 @@ const PriceOverrideForm = ({
 
                 {scope === "customer" && (
                   <>
-                    <Customer
-                      name="customerId"
-                      label={t`Customer`}
-                      isRequired
-                    />
+                    <Customer name="customerId" label={t`Customer`} />
                     <Hidden name="customerTypeId" value="" />
                   </>
                 )}
@@ -185,7 +195,6 @@ const PriceOverrideForm = ({
                     <CustomerType
                       name="customerTypeId"
                       label={t`Customer Type`}
-                      isRequired
                     />
                     <Hidden name="customerId" value="" />
                   </>
@@ -203,6 +212,8 @@ const PriceOverrideForm = ({
                   onChange={setBreaks}
                   baseCurrency={baseCurrency}
                   isDisabled={isDisabled}
+                  overrideId={initialValues.id}
+                  companyId={company?.id}
                 />
 
                 <div className="grid grid-cols-2 gap-3 w-full">
@@ -258,15 +269,49 @@ function PriceBreaks({
   breaks,
   onChange,
   baseCurrency,
-  isDisabled
+  isDisabled,
+  overrideId,
+  companyId
 }: {
   breaks: PriceOverrideBreak[];
   onChange: React.Dispatch<React.SetStateAction<PriceOverrideBreak[]>>;
   baseCurrency: string;
   isDisabled: boolean;
+  overrideId?: string;
+  companyId?: string;
 }) {
   const { t } = useLingui();
   const formatter = useCurrencyFormatter();
+
+  const [historyBreakId, setHistoryBreakId] = useState<string | null>(null);
+  const fetcher = useFetcher<{ entries: AuditLogEntry[] }>();
+  const lastFetchedRef = useRef<string | null>(null);
+
+  // Per-break history: the server filters by recordId so the drawer shows
+  // just this rung's timeline (add → price changes → toggle → delete).
+  useEffect(() => {
+    if (!historyBreakId) {
+      lastFetchedRef.current = null;
+      return;
+    }
+    if (!overrideId || !companyId) return;
+    const key = `${overrideId}:${historyBreakId}`;
+    if (lastFetchedRef.current === key) return;
+    lastFetchedRef.current = key;
+    const params = new URLSearchParams({
+      entityType: "priceOverride",
+      entityId: overrideId,
+      companyId,
+      recordId: historyBreakId
+    });
+    fetcher.load(`/api/audit-log?${params.toString()}`);
+  }, [historyBreakId, overrideId, companyId, fetcher]);
+
+  const breakHistoryEntries = fetcher.data?.entries ?? [];
+  const isHistoryLoading = fetcher.state === "loading";
+  const canShowHistory = Boolean(overrideId && companyId);
+
+  const activeCount = breaks.filter((b) => b.active !== false).length;
 
   const removeRow = useCallback(
     (index: number) => {
@@ -343,6 +388,16 @@ function PriceBreaks({
                     />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
+                    {canShowHistory && row.original.id ? (
+                      <DropdownMenuItem
+                        onClick={() =>
+                          setHistoryBreakId(row.original.id ?? null)
+                        }
+                      >
+                        <DropdownMenuIcon icon={<LuHistory />} />
+                        {t`View History`}
+                      </DropdownMenuItem>
+                    ) : null}
                     <DropdownMenuItem
                       onClick={() => removeRow(row.index)}
                       destructive
@@ -365,18 +420,45 @@ function PriceBreaks({
       {
         accessorKey: "active",
         header: t`Active`,
-        cell: ({ row }) => (
-          <Switch
-            variant="small"
-            checked={row.original.active !== false}
-            disabled={isDisabled}
-            onCheckedChange={(next) => toggleActive(row.index, next === true)}
-            aria-label={t`Toggle break active`}
-          />
-        )
+        cell: ({ row }) => {
+          // Guard against disabling the last active break — it would leave
+          // the override with zero applicable rungs and silently fall through
+          // to the base price, which is never what the user wants. Suggest
+          // the parent-level Active toggle instead.
+          const isLastActive =
+            row.original.active !== false && activeCount <= 1;
+          const switchEl = (
+            <Switch
+              variant="small"
+              checked={row.original.active !== false}
+              disabled={isDisabled || isLastActive}
+              onCheckedChange={(next) => toggleActive(row.index, next === true)}
+              aria-label={t`Toggle break active`}
+            />
+          );
+          if (!isLastActive) return switchEl;
+          return (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex">{switchEl}</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {t`Can't disable the only active break. Add another break or toggle the override's Active instead.`}
+              </TooltipContent>
+            </Tooltip>
+          );
+        }
       }
     ],
-    [isDisabled, removeRow, formatter, t, toggleActive]
+    [
+      isDisabled,
+      removeRow,
+      formatter,
+      t,
+      toggleActive,
+      activeCount,
+      canShowHistory
+    ]
   );
 
   return (
@@ -391,6 +473,39 @@ function PriceBreaks({
         onNewRow={!isDisabled ? addRow : undefined}
         contained={false}
       />
+      {canShowHistory && (
+        <Drawer
+          open={historyBreakId !== null}
+          onOpenChange={(open) => {
+            if (!open) setHistoryBreakId(null);
+          }}
+        >
+          <DrawerContent size="lg" position="left">
+            <DrawerHeader>
+              <DrawerTitle className="flex items-center gap-2">
+                <LuHistory className="size-5" />
+                <Trans>Price Break History</Trans>
+              </DrawerTitle>
+            </DrawerHeader>
+            <DrawerBody>
+              {isHistoryLoading ? (
+                <VStack spacing={3}>
+                  <Skeleton className="w-full h-[151px]" />
+                  <Skeleton className="w-full h-[151px]" />
+                </VStack>
+              ) : breakHistoryEntries.length === 0 ? (
+                <Empty />
+              ) : (
+                <VStack spacing={3}>
+                  {breakHistoryEntries.map((entry) => (
+                    <AuditLogEntryCard key={entry.id} entry={entry} />
+                  ))}
+                </VStack>
+              )}
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      )}
     </div>
   );
 }
