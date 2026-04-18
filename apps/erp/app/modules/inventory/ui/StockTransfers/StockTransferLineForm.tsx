@@ -156,6 +156,7 @@ const StockTransferLineForm = ({
                   label={itemType}
                   // @ts-ignore
                   type={itemType}
+                  locationId={locationId}
                   onTypeChange={onTypeChange}
                   onChange={(value) => {
                     onItemChange(value?.value as string);

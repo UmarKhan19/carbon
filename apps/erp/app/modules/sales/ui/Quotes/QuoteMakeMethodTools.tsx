@@ -337,6 +337,7 @@ const QuoteMakeMethodTools = () => {
                           type={(line?.itemType ?? "Part") as "Part"}
                           blacklist={configurableItemIds}
                           includeInactive={includeInactive === true}
+                          locationId={routeData?.quote?.locationId ?? undefined}
                           replenishmentSystem="Make"
                         />
                         <div className="flex items-center space-x-2">
@@ -383,6 +384,7 @@ const QuoteMakeMethodTools = () => {
                         type={(line?.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
+                        locationId={routeData?.quote?.locationId ?? undefined}
                         replenishmentSystem="Make"
                       />
                       <div className="flex items-center space-x-2">
@@ -484,6 +486,7 @@ const QuoteMakeMethodTools = () => {
                     label={t`Target Method`}
                     type={(line?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
+                    locationId={routeData?.quote?.locationId ?? undefined}
                     onChange={(value) => {
                       if (value) {
                         getMakeMethods(value?.value);
@@ -570,6 +573,7 @@ const QuoteMakeMethodTools = () => {
                   type={(line?.itemType ?? "Part") as "Part"}
                   includeInactive={includeInactive === true}
                   whitelist={configurableItemIds}
+                  locationId={routeData?.quote?.locationId ?? undefined}
                   replenishmentSystem="Make"
                   onChange={(value) => {
                     if (value) {

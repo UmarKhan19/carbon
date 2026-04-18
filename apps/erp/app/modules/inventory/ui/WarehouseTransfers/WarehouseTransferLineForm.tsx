@@ -142,6 +142,7 @@ const WarehouseTransferLineForm = ({
                 name="itemId"
                 label={t`Item`}
                 type={itemType}
+                locationId={warehouseTransfer.fromLocationId}
                 onTypeChange={(t) => setItemType(t as MethodItemType)}
                 value={itemId}
                 onChange={(value) => {

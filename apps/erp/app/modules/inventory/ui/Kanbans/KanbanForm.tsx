@@ -204,6 +204,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
                   name="itemId"
                   label={t`Item`}
                   type={itemType}
+                  locationId={locationId || undefined}
                   onTypeChange={(t) => setItemType(t as MethodItemType)}
                   onChange={onItemChange}
                   isReadOnly={isEditing}

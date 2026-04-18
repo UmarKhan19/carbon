@@ -396,6 +396,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                         type={(routeData?.job.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
+                        locationId={routeData?.job?.locationId ?? undefined}
                         replenishmentSystem="Make"
                       />
                       <div className="flex items-center space-x-2">
@@ -499,6 +500,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                     label={t`Target Method`}
                     type={(routeData?.job?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
+                    locationId={routeData?.job?.locationId ?? undefined}
                     onChange={(value) => {
                       if (value) {
                         getMakeMethods(value?.value);
@@ -590,6 +592,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                   type={(routeData?.job?.itemType ?? "Part") as "Part"}
                   includeInactive={includeInactive === true}
                   whitelist={configurableItemIds}
+                  locationId={routeData?.job?.locationId ?? undefined}
                   replenishmentSystem="Make"
                   onChange={(value) => {
                     if (value) {

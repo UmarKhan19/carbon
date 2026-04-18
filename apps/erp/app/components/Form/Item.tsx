@@ -45,6 +45,7 @@ type ItemSelectProps = Omit<ComboboxProps, "options" | "type" | "inline"> & {
   includeInactive?: boolean;
   inline?: boolean;
   isConfigured?: boolean;
+  locationId?: string;
   replenishmentSystem?: "Buy" | "Make";
   type: MethodItemType | "Item";
   typeFieldName?: string;
@@ -126,15 +127,20 @@ const Item = ({
 
         return true;
       })
-      .map((item) => ({
-        value: item.id,
-        label: item.readableIdWithRevision,
-        helper: item.name,
-        helperRight:
-          item.quantityOnHand !== undefined
-            ? `${item.quantityOnHand} ${item.unitOfMeasureCode}`
-            : undefined
-      }));
+      .map((item) => {
+        const scopedQuantity = props.locationId
+          ? item.quantityByLocation?.[props.locationId]
+          : item.quantityOnHand;
+        return {
+          value: item.id,
+          label: item.readableIdWithRevision,
+          helper: item.name,
+          helperRight:
+            scopedQuantity !== undefined
+              ? `${scopedQuantity} ${item.unitOfMeasureCode}`
+              : undefined
+        };
+      });
 
     if (props.whitelist) {
       results = results.filter((item) => props.whitelist?.includes(item.value));
@@ -149,6 +155,7 @@ const Item = ({
     items,
     props?.includeInactive,
     props.blacklist,
+    props.locationId,
     props.replenishmentSystem,
     props.whitelist,
     type

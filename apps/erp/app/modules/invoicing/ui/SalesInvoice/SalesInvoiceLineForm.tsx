@@ -366,6 +366,7 @@ const SalesInvoiceLineForm = ({
                     label={itemType}
                     // @ts-ignore
                     type={itemType}
+                    locationId={locationId}
                     onChange={(value) => {
                       onItemChange(value?.value as string);
                     }}

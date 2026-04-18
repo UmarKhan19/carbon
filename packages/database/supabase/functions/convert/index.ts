@@ -484,46 +484,70 @@ serve(async (req: Request) => {
             })
             .execute();
 
+          const selectedQuoteLines = quoteLines.data.filter(
+            (line) =>
+              line.id &&
+              selectedLines &&
+              line.id in selectedLines &&
+              selectedLines[line.id].quantity > 0
+          );
+
+          const pickMethodDefaultsByLineId = new Map<string, string | null>();
+          await Promise.all(
+            selectedQuoteLines.map(async (line) => {
+              if (!line.id || !line.itemId) return;
+              if (line.methodType === "Make to Order") return;
+              const lineLocationId = line.locationId ?? quote.data.locationId;
+              if (!lineLocationId) return;
+              const pickMethod = await trx
+                .selectFrom("pickMethod")
+                .where("itemId", "=", line.itemId)
+                .where("locationId", "=", lineLocationId)
+                .where("companyId", "=", companyId)
+                .select("defaultStorageUnitId")
+                .executeTakeFirst();
+              if (pickMethod?.defaultStorageUnitId) {
+                pickMethodDefaultsByLineId.set(
+                  line.id,
+                  pickMethod.defaultStorageUnitId
+                );
+              }
+            })
+          );
+
           const salesOrderLineInserts: Database["public"]["Tables"]["salesOrderLine"]["Insert"][] =
-            quoteLines.data
-              .filter(
-                (line) =>
-                  line.id &&
-                  selectedLines &&
-                  line.id in selectedLines &&
-                  selectedLines[line.id].quantity > 0
-              )
-              .map((line) => {
-                return {
-                  id: line.id,
-                  salesOrderId: insertedSalesOrderId,
-                  salesOrderLineType: line.itemType as "Part",
-                  addOnCost: selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn,
-                  nonTaxableAddOnCost: (selectedLines![line.id!].addOn ?? 0) - (selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn ?? 0),
-                  description: line.description,
-                  itemId: line.itemId,
-                  locationId: line.locationId ?? quote.data.locationId,
-                  methodType: line.methodType,
-                  internalNotes: line.internalNotes,
-                  externalNotes: line.externalNotes,
-                  saleQuantity: selectedLines![line.id!].quantity,
-                  status: "Ordered",
-                  unitOfMeasureCode: line.unitOfMeasureCode,
-                  unitPrice: selectedLines![line.id!].netUnitPrice,
-                  promisedDate: format(
-                    new Date(
-                      Date.now() +
-                        selectedLines![line.id!].leadTime * 24 * 60 * 60 * 1000
-                    ),
-                    "yyyy-MM-dd"
+            selectedQuoteLines.map((line) => {
+              return {
+                id: line.id,
+                salesOrderId: insertedSalesOrderId,
+                salesOrderLineType: line.itemType as "Part",
+                addOnCost: selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn,
+                nonTaxableAddOnCost: (selectedLines![line.id!].addOn ?? 0) - (selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn ?? 0),
+                description: line.description,
+                itemId: line.itemId,
+                locationId: line.locationId ?? quote.data.locationId,
+                methodType: line.methodType,
+                storageUnitId: pickMethodDefaultsByLineId.get(line.id!) ?? null,
+                internalNotes: line.internalNotes,
+                externalNotes: line.externalNotes,
+                saleQuantity: selectedLines![line.id!].quantity,
+                status: "Ordered",
+                unitOfMeasureCode: line.unitOfMeasureCode,
+                unitPrice: selectedLines![line.id!].netUnitPrice,
+                promisedDate: format(
+                  new Date(
+                    Date.now() +
+                      selectedLines![line.id!].leadTime * 24 * 60 * 60 * 1000
                   ),
-                  createdBy: userId,
-                  companyId,
-                  exchangeRate: quote.data.exchangeRate ?? 1,
-                  taxPercent: line.taxPercent,
-                  shippingCost: selectedLines![line.id!].shippingCost,
-                };
-              });
+                  "yyyy-MM-dd"
+                ),
+                createdBy: userId,
+                companyId,
+                exchangeRate: quote.data.exchangeRate ?? 1,
+                taxPercent: line.taxPercent,
+                shippingCost: selectedLines![line.id!].shippingCost,
+              };
+            });
 
           if (salesOrderLineInserts.length > 0) {
             await trx

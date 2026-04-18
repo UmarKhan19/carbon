@@ -845,6 +845,7 @@ function MaterialForm({
           name="itemId"
           label={itemType}
           includeInactive
+          locationId={locationId}
           validItemTypes={["Consumable", "Material", "Part"]}
           type={itemType}
           onChange={(value) => {

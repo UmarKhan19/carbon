@@ -346,6 +346,7 @@ const JobProperties = () => {
           inline
           isReadOnly={isDisabled}
           type={type}
+          locationId={routeData?.job?.locationId ?? undefined}
           validItemTypes={["Part", "Tool"]}
           onChange={(value) => {
             onUpdate("itemId", value?.value ?? null);

@@ -426,6 +426,7 @@ const SalesOrderLineForm = ({
                       type={lineType as "Part"}
                       typeFieldName="salesOrderLineType"
                       value={itemData.itemId}
+                      locationId={locationId}
                       onChange={(value) => {
                         onChange(value?.value as string);
                       }}

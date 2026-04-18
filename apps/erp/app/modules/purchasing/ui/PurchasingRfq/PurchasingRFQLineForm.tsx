@@ -216,6 +216,9 @@ const PurchasingRFQLineForm = ({
                         type={itemType}
                         value={itemData.itemId}
                         includeInactive
+                        locationId={
+                          routeData?.rfqSummary?.locationId ?? undefined
+                        }
                         onChange={(value) => {
                           onItemChange(value?.value as string);
                         }}

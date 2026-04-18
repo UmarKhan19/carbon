@@ -406,6 +406,7 @@ const PurchaseOrderLineForm = ({
                       name="itemId"
                       label={itemType}
                       type={itemType}
+                      locationId={locationId}
                       replenishmentSystem={
                         isOutsideProcessing ? undefined : "Buy"
                       }
