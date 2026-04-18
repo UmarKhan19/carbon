@@ -5,11 +5,9 @@ import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
   LuCheck,
-  LuCornerDownRight,
-  LuLayers,
   LuMapPin,
-  LuPackage,
   LuPencil,
+  LuPlus,
   LuTrash
 } from "react-icons/lu";
 import { useNavigate } from "react-router";
@@ -95,31 +93,18 @@ const StorageUnitsTable = memo(
           cell: ({ row }) => {
             // depth is 1-based (roots = 1) per storageUnits_recursive view
             const depth = Math.max(0, (row.original.depth ?? 1) - 1);
-            const ancestorLines = Math.max(0, depth - 1);
+            const ancestorLines = Math.max(0, depth);
             return (
               <div className="flex items-stretch self-stretch">
                 {Array.from({ length: ancestorLines }).map((_, i) => (
                   <div
                     key={i}
                     aria-hidden
-                    className="w-5 shrink-0 border-l border-border/40"
+                    className="w-5 shrink-0 border-l border-border -my-2"
                   />
                 ))}
-                {depth > 0 && (
-                  <div
-                    aria-hidden
-                    className="flex w-5 shrink-0 items-center justify-center"
-                  >
-                    <LuCornerDownRight className="size-4 text-muted-foreground/60" />
-                  </div>
-                )}
+
                 <div className="flex items-center gap-2 py-1 pl-1">
-                  {depth === 0 && (
-                    <LuPackage
-                      aria-hidden
-                      className="size-4 shrink-0 text-muted-foreground/80"
-                    />
-                  )}
                   <Hyperlink
                     to={`${path.to.storageUnit(row.original.id!)}?${params}`}
                   >
@@ -156,18 +141,7 @@ const StorageUnitsTable = memo(
             icon: <LuMapPin />
           }
         },
-        {
-          accessorKey: "depth",
-          header: t`Children`,
-          cell: ({ row }) => (
-            <span className="tabular-nums text-muted-foreground">
-              {subtreeDepthById.get(row.original.id) ?? 0}
-            </span>
-          ),
-          meta: {
-            icon: <LuLayers />
-          }
-        },
+
         {
           accessorKey: "active",
           header: t`Active`,
@@ -229,6 +203,18 @@ const StorageUnitsTable = memo(
             >
               <MenuIcon icon={<LuPencil />} />
               <Trans>Edit Storage Unit</Trans>
+            </MenuItem>
+            <MenuItem
+              disabled={!permissions.can("create", "inventory")}
+              onClick={() => {
+                const newParams = new URLSearchParams(params);
+                newParams.set("parentId", row.id);
+                if (row.locationId) newParams.set("location", row.locationId);
+                navigate(`${path.to.newStorageUnit}?${newParams.toString()}`);
+              }}
+            >
+              <MenuIcon icon={<LuPlus />} />
+              <Trans>Add Child Storage Unit</Trans>
             </MenuItem>
             <MenuItem
               disabled={!permissions.can("delete", "inventory")}

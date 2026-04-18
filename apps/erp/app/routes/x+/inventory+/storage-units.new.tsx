@@ -96,10 +96,12 @@ export default function NewStorageUnitRoute() {
   const { defaults } = useUser();
   const locationId =
     (searchParams.get("location") || defaults.locationId) ?? "";
+  const parentId = searchParams.get("parentId") ?? undefined;
 
   const initialValues = {
     name: "",
-    locationId
+    locationId,
+    parentId
   };
 
   return (
