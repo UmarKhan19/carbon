@@ -42506,7 +42506,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "warehouseTransferLine_fromShelfId_fkey"
+            foreignKeyName: "warehouseTransferLine_fromStorageUnitId_fkey"
             columns: ["fromStorageUnitId"]
             isOneToOne: false
             referencedRelation: "storageUnit"
@@ -42562,7 +42562,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "warehouseTransferLine_toShelfId_fkey"
+            foreignKeyName: "warehouseTransferLine_toStorageUnitId_fkey"
             columns: ["toStorageUnitId"]
             isOneToOne: false
             referencedRelation: "storageUnit"
@@ -48711,14 +48711,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -49827,8 +49827,8 @@ export type Database = {
           requestedDate: string | null
           requiresInspection: boolean | null
           setupPrice: number | null
-          storageUnitId: string | null
           shippingCost: number | null
+          storageUnitId: string | null
           supplierExtendedPrice: number | null
           supplierPartId: string | null
           supplierShippingCost: number | null
@@ -50115,14 +50115,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -53513,13 +53513,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
             columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -53528,6 +53521,13 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["shipmentCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -53838,6 +53838,8 @@ export type Database = {
           modelUploadId: string | null
           nonTaxableAddOnCost: number | null
           orderDate: string | null
+          priceTrace: Json | null
+          pricingRuleId: string | null
           promisedDate: string | null
           quantityInvoiced: number | null
           quantitySent: number | null
@@ -53975,6 +53977,13 @@ export type Database = {
             columns: ["itemId"]
             isOneToOne: false
             referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderLine_pricingRuleId_fkey"
+            columns: ["pricingRuleId"]
+            isOneToOne: false
+            referencedRelation: "pricingRule"
             referencedColumns: ["id"]
           },
           {

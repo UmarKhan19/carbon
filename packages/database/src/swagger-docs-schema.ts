@@ -8296,7 +8296,7 @@ export default {
             $ref: "#/parameters/rowFilter.receiptLines.locationId",
           },
           {
-            $ref: "#/parameters/rowFilter.receiptLines.shelfId",
+            $ref: "#/parameters/rowFilter.receiptLines.storageUnitId",
           },
           {
             $ref: "#/parameters/rowFilter.receiptLines.unitOfMeasure",
@@ -41608,6 +41608,12 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLines.convertedNonTaxableAddOnCost",
           },
           {
+            $ref: "#/parameters/rowFilter.salesOrderLines.pricingRuleId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.salesOrderLines.priceTrace",
+          },
+          {
             $ref: "#/parameters/rowFilter.salesOrderLines.itemReadableId",
           },
           {
@@ -54610,7 +54616,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.locationId",
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLines.shelfId",
+            $ref: "#/parameters/rowFilter.purchaseOrderLines.storageUnitId",
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.setupPrice",
@@ -77320,7 +77326,7 @@ export default {
           format: "text",
           type: "string",
         },
-        shelfId: {
+        storageUnitId: {
           description:
             "Note:\nThis is a Foreign Key to `storageUnit.id`.<fk table='storageUnit' column='id'/>",
           format: "text",
@@ -77575,7 +77581,7 @@ export default {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -77624,7 +77630,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string",
         },
@@ -92962,6 +92968,15 @@ export default {
           format: "numeric",
           type: "number",
         },
+        pricingRuleId: {
+          description:
+            "Note:\nThis is a Foreign Key to `pricingRule.id`.<fk table='pricingRule' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        priceTrace: {
+          format: "jsonb",
+        },
         itemReadableId: {
           format: "text",
           type: "string",
@@ -99305,7 +99320,7 @@ export default {
           format: "text",
           type: "string",
         },
-        shelfId: {
+        storageUnitId: {
           description:
             "Note:\nThis is a Foreign Key to `storageUnit.id`.<fk table='storageUnit' column='id'/>",
           format: "text",
@@ -109041,8 +109056,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.receiptLines.shelfId": {
-      name: "shelfId",
+    "rowFilter.receiptLines.storageUnitId": {
+      name: "storageUnitId",
       required: false,
       in: "query",
       type: "string",
@@ -126756,6 +126771,18 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.salesOrderLines.pricingRuleId": {
+      name: "pricingRuleId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.salesOrderLines.priceTrace": {
+      name: "priceTrace",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "rowFilter.salesOrderLines.itemReadableId": {
       name: "itemReadableId",
       required: false,
@@ -133925,8 +133952,8 @@ export default {
       in: "query",
       type: "string",
     },
-    "rowFilter.purchaseOrderLines.shelfId": {
-      name: "shelfId",
+    "rowFilter.purchaseOrderLines.storageUnitId": {
+      name: "storageUnitId",
       required: false,
       in: "query",
       type: "string",
