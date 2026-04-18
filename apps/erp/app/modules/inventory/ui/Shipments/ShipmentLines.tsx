@@ -639,7 +639,7 @@ function BatchForm({
     }
   }, [line.shippedQuantity]);
 
-  const getShelfFromBatchNumber = async (trackedEntityId: string) => {
+  const getStorageUnitFromBatchNumber = async (trackedEntityId: string) => {
     if (!carbon) return;
 
     const response = await carbon
@@ -667,7 +667,7 @@ function BatchForm({
         batchNumbers?.data ?? []
       );
       if (resolved) {
-        getShelfFromBatchNumber(resolved.id);
+        getStorageUnitFromBatchNumber(resolved.id);
       }
     }
   }, [values.number]);
@@ -1194,7 +1194,9 @@ function StorageUnit({
 
   return (
     <VStack spacing={1} className="min-w-[140px] text-sm">
-      <label className="text-xs text-muted-foreground">Storage Unit</label>
+      <label className="text-xs text-muted-foreground">
+        <Trans>Storage Unit</Trans>
+      </label>
       <div className="py-1">
         <Combobox
           value={storageUnitId ?? undefined}

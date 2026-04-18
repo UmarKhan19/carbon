@@ -1035,7 +1035,7 @@ function StorageUnit({
   onChange: (storageUnit: string) => void;
 }) {
   const { options } = useStorageUnits(locationId ?? undefined);
-  const newShelfModal = useDisclosure();
+  const newStorageUnitModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -1062,17 +1062,17 @@ function StorageUnit({
         isReadOnly={isReadOnly}
         inline={StorageUnitPreview}
         onCreateOption={(option) => {
-          newShelfModal.onOpen();
+          newStorageUnitModal.onOpen();
           setCreated(option);
         }}
       />
-      {newShelfModal.isOpen && (
+      {newStorageUnitModal.isOpen && (
         <StorageUnitForm
           locationId={locationId}
           type="modal"
           onClose={() => {
             setCreated("");
-            newShelfModal.onClose();
+            newStorageUnitModal.onClose();
             triggerRef.current?.click();
           }}
           initialValues={{ name: created, locationId: locationId }}

@@ -50,7 +50,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
 
   const isEditing = !!initialValues.id;
 
-  const [storageUnitId, setShelfId] = useState<string | null>(
+  const [storageUnitId, setStorageUnitId] = useState<string | null>(
     initialValues.storageUnitId || null
   );
   const [itemType, setItemType] = useState<MethodItemType | "Item">("Item");
@@ -95,7 +95,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
     }
     setSelectedReplenishmentSystem(item.data?.replenishmentSystem || "Buy");
     if (storageUnit.data?.defaultStorageUnitId) {
-      setShelfId(storageUnit.data.defaultStorageUnitId);
+      setStorageUnitId(storageUnit.data.defaultStorageUnitId);
     }
 
     // Set inventory unit of measure from item
@@ -168,7 +168,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
 
   const onLocationChange = (value: { value: string } | null) => {
     setLocationId(value?.value || "");
-    setShelfId(null);
+    setStorageUnitId(null);
   };
 
   return (
@@ -285,7 +285,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
                   locationId={locationId}
                   value={storageUnitId ?? undefined}
                   onChange={(value) => {
-                    if (value) setShelfId(value?.id ?? null);
+                    if (value) setStorageUnitId(value?.id ?? null);
                   }}
                 />
 

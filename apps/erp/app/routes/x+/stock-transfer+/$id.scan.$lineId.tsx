@@ -92,19 +92,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return data(
       {
         success: false,
-        message: "Failed to load stock transfer line or item shelf quantities"
+        message:
+          "Failed to load stock transfer line or item storage unit quantities"
       },
       await flash(
         request,
         error(
           stockTransferLine.error || itemStorageUnitQuantities.error,
-          "Failed to load stock transfer line or item shelf quantities"
+          "Failed to load stock transfer line or item storage unit quantities"
         )
       )
     );
   }
 
-  const currentShelfId =
+  const currentStorageUnitId =
     itemStorageUnitQuantities.data
       ?.sort((a, b) => b.quantity - a.quantity)
       .find((q) => q.trackedEntityId === trackedEntityId)?.storageUnitId ??
@@ -123,7 +124,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     trackedEntityId,
     quantity:
       transferType === "batch" ? (stockTransferLine.data?.quantity ?? 1) : 1,
-    fromStorageUnitId: currentShelfId,
+    fromStorageUnitId: currentStorageUnitId,
     locationId: locationId,
     userId,
     companyId

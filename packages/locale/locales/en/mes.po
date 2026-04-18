@@ -316,8 +316,8 @@ msgid "Deadline"
 msgstr "Deadline"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1119
-msgid "Default Shelf"
-msgstr "Default Shelf"
+msgid "Default Storage Unit"
+msgstr "Default Storage Unit"
 
 #: apps/mes/app/components/JobOperation/components/Step.tsx:613
 #: apps/mes/app/routes/x+/timecard.tsx:457

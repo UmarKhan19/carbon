@@ -11,14 +11,14 @@ import { LuMoveDown, LuMoveUp } from "react-icons/lu";
 import type { z } from "zod";
 import type {
   ItemQuantities,
-  ItemShelfQuantities,
+  ItemStorageUnitQuantities,
   itemTrackingTypes,
   pickMethodValidator
 } from "~/modules/items";
 import InventoryStorageUnits from "./InventoryStorageUnits";
 
 type InventoryDetailsProps = {
-  itemStorageUnitQuantities: ItemShelfQuantities[];
+  itemStorageUnitQuantities: ItemStorageUnitQuantities[];
   itemUnitOfMeasureCode: string;
   itemTrackingType: (typeof itemTrackingTypes)[number];
   pickMethod: z.infer<typeof pickMethodValidator>;

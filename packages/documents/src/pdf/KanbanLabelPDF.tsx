@@ -180,7 +180,7 @@ const KanbanLabelPDF = ({
                           {label.itemReadableId}
                         </Text>
 
-                        {/* Location and Shelf */}
+                        {/* Location and Storage Unit */}
                         <View
                           style={tw(
                             "border-t border-gray-300 pt-2 mt-2 flex flex-col items-center text-center text-[14pt]"

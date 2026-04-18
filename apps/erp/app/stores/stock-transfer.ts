@@ -108,12 +108,12 @@ export type StockTransferWizardLine = {
 };
 
 export type StockTransferWizardState = {
-  selectedToItemShelfIds: Set<string>; // Set of "itemId:storageUnitId" composite keys selected in the "to" table
+  selectedToItemStorageUnitIds: Set<string>; // Set of "itemId:storageUnitId" composite keys selected in the "to" table
   lines: StockTransferWizardLine[];
 };
 
 const $wizardStore = atom<StockTransferWizardState>({
-  selectedToItemShelfIds: new Set(),
+  selectedToItemStorageUnitIds: new Set(),
   lines: []
 });
 
@@ -128,43 +128,43 @@ export const useStockTransferWizardLinesCount = () =>
   useValue($wizardLinesCount);
 
 // Stock Transfer Wizard actions
-export const toggleToItemShelfSelection = (
+export const toggleToItemStorageUnitSelection = (
   itemId: string,
   storageUnitId: string
 ) => {
   const currentWizard = $wizardStore.get();
   const compositeKey = `${itemId}:${storageUnitId}`;
-  const newSelectedToItemShelfIds = new Set(
-    currentWizard.selectedToItemShelfIds
+  const newSelectedToItemStorageUnitIds = new Set(
+    currentWizard.selectedToItemStorageUnitIds
   );
 
-  if (newSelectedToItemShelfIds.has(compositeKey)) {
-    newSelectedToItemShelfIds.delete(compositeKey);
+  if (newSelectedToItemStorageUnitIds.has(compositeKey)) {
+    newSelectedToItemStorageUnitIds.delete(compositeKey);
     // Remove all lines that have this itemId and toStorageUnitId
     const updatedLines = currentWizard.lines.filter(
       (line) =>
         !(line.itemId === itemId && line.toStorageUnitId === storageUnitId)
     );
     $wizardStore.set({
-      selectedToItemShelfIds: newSelectedToItemShelfIds,
+      selectedToItemStorageUnitIds: newSelectedToItemStorageUnitIds,
       lines: updatedLines
     });
   } else {
-    newSelectedToItemShelfIds.add(compositeKey);
+    newSelectedToItemStorageUnitIds.add(compositeKey);
     $wizardStore.set({
       ...currentWizard,
-      selectedToItemShelfIds: newSelectedToItemShelfIds
+      selectedToItemStorageUnitIds: newSelectedToItemStorageUnitIds
     });
   }
 };
 
-export const isToItemShelfSelected = (
+export const isToItemStorageUnitSelected = (
   itemId: string,
   storageUnitId: string
 ) => {
   const currentWizard = $wizardStore.get();
   const compositeKey = `${itemId}:${storageUnitId}`;
-  return currentWizard.selectedToItemShelfIds.has(compositeKey);
+  return currentWizard.selectedToItemStorageUnitIds.has(compositeKey);
 };
 
 export const addTransferLine = (line: StockTransferWizardLine) => {
@@ -226,7 +226,7 @@ export const hasTransferLine = (
   );
 };
 
-export const hasTransferLinesToItemShelf = (
+export const hasTransferLinesToItemStorageUnit = (
   itemId: string,
   storageUnitId: string
 ) => {
@@ -265,15 +265,15 @@ export const updateTransferLineQuantity = (
 
 export const clearStockTransferWizard = () => {
   $wizardStore.set({
-    selectedToItemShelfIds: new Set(),
+    selectedToItemStorageUnitIds: new Set(),
     lines: []
   });
 };
 
-export const clearSelectedToItemShelves = () => {
+export const clearSelectedToItemStorageUnits = () => {
   const currentWizard = $wizardStore.get();
   $wizardStore.set({
     ...currentWizard,
-    selectedToItemShelfIds: new Set()
+    selectedToItemStorageUnitIds: new Set()
   });
 };

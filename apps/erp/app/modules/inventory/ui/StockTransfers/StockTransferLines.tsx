@@ -259,10 +259,10 @@ export default function StockTransferLines() {
     if (itemComparison !== 0) return itemComparison;
 
     // Then sort by toStorageUnitName
-    const toShelfComparison = (a.toStorageUnitName ?? "").localeCompare(
+    const toStorageUnitComparison = (a.toStorageUnitName ?? "").localeCompare(
       b.toStorageUnitName ?? ""
     );
-    if (toShelfComparison !== 0) return toShelfComparison;
+    if (toStorageUnitComparison !== 0) return toStorageUnitComparison;
 
     // Finally sort by fromStorageUnitName
     return (a.fromStorageUnitName ?? "").localeCompare(

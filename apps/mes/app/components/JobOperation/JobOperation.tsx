@@ -1116,7 +1116,7 @@ export const JobOperation = ({
                                                 (material.methodType ===
                                                 "Make to Order"
                                                   ? t`WIP`
-                                                  : t`Default Shelf`)}
+                                                  : t`Default Storage Unit`)}
                                             </Badge>
                                           </div>
                                         </Td>

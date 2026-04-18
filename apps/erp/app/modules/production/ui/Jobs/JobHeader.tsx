@@ -153,7 +153,7 @@ const JobHeader = () => {
 
   return (
     <>
-      <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px] overflow-x-auto scrollbar-hide ">
+      <div className="flex flex-shrink-0 items-center justify-between p-2 bg-background border-b h-[50px] overflow-x-auto scrollbar-hide ">
         <HStack>
           <IconButton
             aria-label={t`Toggle Explorer`}
@@ -887,7 +887,7 @@ function JobCompleteModal({
   const { carbon } = useCarbon();
   const [loading, setLoading] = useState(true);
   const { t } = useLingui();
-  const [defaultStorageUnitId, setDefaultShelfId] = useState<
+  const [defaultStorageUnitId, setDefaultStorageUnitId] = useState<
     string | undefined
   >(undefined);
 
@@ -950,7 +950,9 @@ function JobCompleteModal({
     }
 
     flushSync(() => {
-      setDefaultShelfId(pickMethod.data?.defaultStorageUnitId ?? undefined);
+      setDefaultStorageUnitId(
+        pickMethod.data?.defaultStorageUnitId ?? undefined
+      );
     });
 
     setLoading(false);

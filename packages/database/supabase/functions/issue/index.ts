@@ -106,9 +106,9 @@ async function issueJobOperationMaterials(
 
     const quantityToIssue = Number(material.quantity) * quantity;
 
-    let proposedShelfId = material.storageUnitId;
+    let proposedStorageUnitId = material.storageUnitId;
 
-    if (!proposedShelfId) {
+    if (!proposedStorageUnitId) {
       if (material.defaultStorageUnit) {
         const pickMethod = await trx
           .selectFrom("pickMethod")
@@ -118,17 +118,17 @@ async function issueJobOperationMaterials(
           .select("defaultStorageUnitId")
           .executeTakeFirst();
 
-        proposedShelfId = pickMethod?.defaultStorageUnitId;
+        proposedStorageUnitId = pickMethod?.defaultStorageUnitId;
 
-        if (!proposedShelfId) {
-          proposedShelfId = await getStorageUnitWithHighestQuantity(
+        if (!proposedStorageUnitId) {
+          proposedStorageUnitId = await getStorageUnitWithHighestQuantity(
             trx,
             material.itemId,
             job.locationId!
           );
         }
       } else {
-        proposedShelfId = await getStorageUnitWithHighestQuantity(
+        proposedStorageUnitId = await getStorageUnitWithHighestQuantity(
           trx,
           material.itemId,
           job.locationId!
@@ -136,15 +136,15 @@ async function issueJobOperationMaterials(
       }
     }
 
-    const currentShelfQuantity = await trx
+    const currentStorageUnitQuantity = await trx
       .selectFrom("itemLedger")
       .select((eb) => eb.fn.sum("quantity").as("quantity"))
       .where("itemId", "=", material.itemId)
       .where("locationId", "=", job.locationId!)
-      .where("storageUnitId", "=", proposedShelfId ?? "")
+      .where("storageUnitId", "=", proposedStorageUnitId ?? "")
       .executeTakeFirst();
 
-    const allShelfQuantities = await trx
+    const allStorageUnitQuantities = await trx
       .selectFrom("itemLedger")
       .select([
         "storageUnitId",
@@ -156,17 +156,17 @@ async function issueJobOperationMaterials(
       .having((eb) => eb.fn.sum("quantity"), ">", 0)
       .execute();
 
-    let finalShelfId = proposedShelfId;
-    const currentQuantity = Number(currentShelfQuantity?.quantity ?? 0);
+    let finalStorageUnitId = proposedStorageUnitId;
+    const currentQuantity = Number(currentStorageUnitQuantity?.quantity ?? 0);
 
     if (
       currentQuantity < quantityToIssue &&
-      allShelfQuantities.length > 0
+      allStorageUnitQuantities.length > 0
     ) {
-      const bestShelf = allShelfQuantities.reduce((best, current) =>
+      const bestStorageUnit = allStorageUnitQuantities.reduce((best, current) =>
         Number(current.quantity) > Number(best.quantity) ? current : best
       );
-      finalShelfId = bestShelf.storageUnitId ?? null;
+      finalStorageUnitId = bestStorageUnit.storageUnitId ?? null;
     }
 
     const isTracked = itemIdIsTracked.get(material.itemId);
@@ -181,7 +181,7 @@ async function issueJobOperationMaterials(
         itemId: material.itemId,
         quantity: -quantityToIssue,
         locationId: job.locationId,
-        storageUnitId: finalShelfId,
+        storageUnitId: finalStorageUnitId,
         createdBy: userId,
       });
     }

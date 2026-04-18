@@ -57,16 +57,16 @@ import {
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions } from "~/hooks";
 import type {
-  ItemShelfQuantities,
+  ItemStorageUnitQuantities,
   itemTrackingTypes,
   pickMethodValidator
 } from "~/modules/items";
 import { path } from "~/utils/path";
 import { inventoryAdjustmentValidator } from "../../inventory.models";
 
-type InventoryShelvesProps = {
+type InventoryStorageUnitsProps = {
   pickMethod: z.infer<typeof pickMethodValidator>;
-  itemStorageUnitQuantities: ItemShelfQuantities[];
+  itemStorageUnitQuantities: ItemStorageUnitQuantities[];
   itemUnitOfMeasureCode: string;
   itemTrackingType: (typeof itemTrackingTypes)[number];
   storageUnits: { value: string; label: string }[];
@@ -78,7 +78,7 @@ const InventoryStorageUnits = ({
   itemTrackingType,
   pickMethod,
   storageUnits
-}: InventoryShelvesProps) => {
+}: InventoryStorageUnitsProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
   const adjustmentModal = useDisclosure();
@@ -94,7 +94,9 @@ const InventoryStorageUnits = ({
   const isBatch = itemTrackingType === "Batch";
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedShelfId, setSelectedShelfId] = useState<string | null>(null);
+  const [selectedStorageUnitId, setSelectedStorageUnitId] = useState<
+    string | null
+  >(null);
   const [selectedTrackedEntityId, setSelectedTrackedEntityId] = useState<
     string | null
   >(null);
@@ -111,7 +113,7 @@ const InventoryStorageUnits = ({
     readableId?: string,
     currentQuantity?: number
   ) => {
-    setSelectedShelfId(storageUnitId || null);
+    setSelectedStorageUnitId(storageUnitId || null);
     setSelectedTrackedEntityId(trackedEntityId || null);
     setSelectedReadableId(readableId || null);
     setIsEditingRow(storageUnitId !== undefined);
@@ -284,9 +286,9 @@ const InventoryStorageUnits = ({
                 itemId: pickMethod.itemId,
                 quantity: isSerial && !isEditing ? 1 : quantity,
                 locationId: pickMethod.locationId,
-                storageUnitId: selectedShelfId || undefined,
+                storageUnitId: selectedStorageUnitId || undefined,
                 originalStorageUnitId: isEditing
-                  ? selectedShelfId || undefined
+                  ? selectedStorageUnitId || undefined
                   : undefined,
                 adjustmentType: "Set Quantity",
                 trackedEntityId: selectedTrackedEntityId || nanoid(),

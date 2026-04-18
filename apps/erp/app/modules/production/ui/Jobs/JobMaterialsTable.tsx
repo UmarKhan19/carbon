@@ -107,11 +107,11 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
       const quantityOnHandInStorageUnit = material.quantityOnHandInStorageUnit;
       const quantityInTransitToStorageUnit =
         material.quantityInTransitToStorageUnit;
-      const hasShelfQuantityFlag =
+      const hasStorageUnitQuantityFlag =
         quantityOnHandInStorageUnit + quantityInTransitToStorageUnit <
         quantityRequiredByStorageUnit;
 
-      if (hasShelfQuantityFlag) {
+      if (hasStorageUnitQuantityFlag) {
         itemsToAdd.push({
           id: material.id, // Job material ID
           itemId: material.jobMaterialItemId, // Actual item ID
@@ -257,13 +257,13 @@ const JobMaterialsTable = memo(({ data, count }: JobMaterialsTableProps) => {
             row.original.quantityOnHandInStorageUnit;
           const quantityInTransitToStorageUnit =
             row.original.quantityInTransitToStorageUnit;
-          const hasShelfQuantityFlag =
+          const hasStorageUnitQuantityFlag =
             quantityOnHandInStorageUnit + quantityInTransitToStorageUnit <
             quantityRequiredByStorageUnit;
 
           return (
             <HStack>
-              {hasShelfQuantityFlag ? (
+              {hasStorageUnitQuantityFlag ? (
                 <>
                   <span className="text-red-500">
                     {formatter.format(quantityOnHandInStorageUnit)}

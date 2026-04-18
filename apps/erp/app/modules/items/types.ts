@@ -101,7 +101,7 @@ export type ItemQuantities = NonNullable<
   Awaited<ReturnType<typeof getItemQuantities>>["data"]
 >;
 
-export type ItemShelfQuantities = NonNullable<
+export type ItemStorageUnitQuantities = NonNullable<
   Awaited<ReturnType<typeof getItemStorageUnitQuantities>>["data"]
 >[number];
 
