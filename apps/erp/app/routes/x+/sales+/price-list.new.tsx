@@ -1,0 +1,132 @@
+import { assertIsPost, error, success } from "@carbon/auth";
+import { requirePermissions } from "@carbon/auth/auth.server";
+import { flash } from "@carbon/auth/session.server";
+import { validationError, validator } from "@carbon/form";
+import { getLocalTimeZone, today } from "@internationalized/date";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
+import {
+  priceOverrideBreaksValidator,
+  priceOverrideValidator,
+  upsertCustomerItemPriceOverride
+} from "~/modules/sales";
+import PriceOverrideForm from "~/modules/sales/ui/Pricing/PriceOverrideForm";
+import { ALL_CUSTOMERS_SCOPE } from "~/modules/sales/ui/Pricing/ScopePicker";
+import { getParams, path } from "~/utils/path";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requirePermissions(request, { create: "sales" });
+
+  const url = new URL(request.url);
+  const customerScope = url.searchParams.get("customerScope");
+  const initialScope: "customer" | "customerType" | "all" | undefined =
+    customerScope === ALL_CUSTOMERS_SCOPE ? "all" : undefined;
+  return {
+    initial: {
+      customerId: url.searchParams.get("customerId") ?? undefined,
+      customerTypeId: url.searchParams.get("customerTypeId") ?? undefined,
+      itemId: url.searchParams.get("itemId") ?? "",
+      validFrom:
+        url.searchParams.get("validFrom") ??
+        today(getLocalTimeZone()).toString()
+    },
+    initialScope
+  };
+}
+
+export async function action({ request }: ActionFunctionArgs) {
+  assertIsPost(request);
+  const { client, companyId, userId } = await requirePermissions(request, {
+    create: "sales"
+  });
+
+  const formData = await request.formData();
+  const validation = await validator(priceOverrideValidator).validate(formData);
+
+  if (validation.error) {
+    return validationError(validation.error);
+  }
+  const breaksRaw = formData.get("breaks");
+  let breaksParsed: unknown;
+  try {
+    breaksParsed = breaksRaw ? JSON.parse(String(breaksRaw)) : [];
+  } catch {
+    return validationError({
+      fieldErrors: { breaks: "Breaks must be valid JSON" }
+    });
+  }
+  const breaksResult = priceOverrideBreaksValidator.safeParse(breaksParsed);
+  if (!breaksResult.success) {
+    return validationError({
+      fieldErrors: {
+        breaks:
+          breaksResult.error.issues[0]?.message ?? "Invalid breaks payload"
+      }
+    });
+  }
+  const breaks = breaksResult.data;
+
+  const {
+    customerId,
+    customerTypeId,
+    itemId,
+    active,
+    applyRulesOnTop,
+    notes,
+    validFrom,
+    validTo
+  } = validation.data;
+
+  const result = await upsertCustomerItemPriceOverride(
+    client,
+    companyId,
+    userId,
+    {
+      customerId: customerId || undefined,
+      customerTypeId: customerTypeId || undefined,
+      itemId,
+      breaks,
+      active,
+      applyRulesOnTop,
+      notes,
+      validFrom,
+      validTo
+    }
+  );
+
+  if (result.error) {
+    throw redirect(
+      `${path.to.salesPriceList}?${getParams(request)}`,
+      await flash(
+        request,
+        error(result.error, "Failed to create price override")
+      )
+    );
+  }
+
+  throw redirect(
+    `${path.to.salesPriceList}?${getParams(request)}`,
+    await flash(request, success("Price override created"))
+  );
+}
+
+export default function NewPriceOverrideRoute() {
+  const { initial, initialScope } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+
+  return (
+    <PriceOverrideForm
+      initialValues={{
+        itemId: initial.itemId,
+        customerId: initial.customerId,
+        customerTypeId: initial.customerTypeId,
+        active: true,
+        applyRulesOnTop: true,
+        validFrom: initial.validFrom
+      }}
+      initialBreaks={[{ quantity: 1, overridePrice: 0, active: true }]}
+      initialScope={initialScope}
+      onClose={() => navigate(-1)}
+    />
+  );
+}

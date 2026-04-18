@@ -21,12 +21,13 @@ import {
   ModalCardHeader,
   ModalCardProvider,
   ModalCardTitle,
+  useDebounce,
   useDisclosure,
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { LuChevronRight, LuPlus, LuTrash, LuTruck } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -62,10 +63,12 @@ import {
   salesOrderLineValidator
 } from "../../sales.models";
 import type {
+  PriceTraceStep,
   SalesOrder,
   SalesOrderLine,
   SalesOrderLineType
 } from "../../types";
+import { PriceTracePopover } from "../Pricing/PriceTracePopover";
 import DeleteSalesOrderLine from "./DeleteSalesOrderLine";
 
 type SalesOrderLineFormProps = {
@@ -98,6 +101,9 @@ const SalesOrderLineForm = ({
 
   const [lineType, setLineType] = useState(initialValues.salesOrderLineType);
   const [locationId, setLocationId] = useState(initialValues.locationId ?? "");
+  const [saleQuantity, setSaleQuantity] = useState(
+    initialValues.saleQuantity ?? 1
+  );
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: string;
@@ -106,6 +112,9 @@ const SalesOrderLineForm = ({
     uom: string;
     storageUnitId: string;
     modelUploadId: string | null;
+    priceListId: string | null;
+    priceListName: string | null;
+    priceTrace: PriceTraceStep[] | null;
   }>({
     itemId: initialValues.itemId ?? "",
     description: initialValues.description ?? "",
@@ -113,10 +122,33 @@ const SalesOrderLineForm = ({
     unitPrice: initialValues.unitPrice ?? 0,
     uom: initialValues.unitOfMeasureCode ?? "",
     storageUnitId: initialValues.storageUnitId ?? "",
-    modelUploadId: initialValues.modelUploadId ?? null
+    modelUploadId: initialValues.modelUploadId ?? null,
+    priceListId:
+      (initialValues as { priceListId?: string | null }).priceListId ?? null,
+    priceListName: null,
+    priceTrace:
+      (initialValues as { priceTrace?: PriceTraceStep[] | null }).priceTrace ??
+      null
   });
 
   const isEditing = initialValues.id !== undefined;
+
+  const pricingRuleId = (initialValues as { priceListId?: string | null })
+    .priceListId;
+
+  useEffect(() => {
+    if (!pricingRuleId || !carbon) return;
+    carbon
+      .from("pricingRule")
+      .select("name")
+      .eq("id", pricingRuleId)
+      .single()
+      .then(({ data }) => {
+        if (data?.name) {
+          setItemData((d) => ({ ...d, priceListName: data.name }));
+        }
+      });
+  }, [pricingRuleId, carbon]);
 
   const onTypeChange = (t: SalesOrderLineType) => {
     // @ts-ignore
@@ -128,12 +160,62 @@ const SalesOrderLineForm = ({
       methodType: "",
       uom: "EA",
       storageUnitId: "",
-      modelUploadId: null
+      modelUploadId: null,
+      priceListId: null,
+      priceListName: null,
+      priceTrace: null
     });
   };
 
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
+
+  const resolvePrice = useCallback(
+    async (itemId: string, quantity: number) => {
+      const customerId = routeData?.salesOrder?.customerId;
+      if (!customerId) return null;
+
+      try {
+        const response = await fetch(path.to.api.salesResolvePrice, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customerId, itemId, quantity })
+        });
+        if (response.ok) {
+          const result = await response.json();
+          return {
+            finalPrice: result.finalPrice as number,
+            priceListId: null as string | null,
+            priceListName: "Pricing Rules" as string | null,
+            trace: result.trace ?? null
+          };
+        }
+      } catch {
+        // Fall back to itemUnitSalePrice on any error
+      }
+      return null;
+    },
+    [routeData?.salesOrder?.customerId]
+  );
+
+  const debouncedQuantityResolve = useDebounce(async (qty: number) => {
+    if (!itemData.itemId) return;
+    const result = await resolvePrice(itemData.itemId, qty);
+    if (result) {
+      setItemData((d) => ({
+        ...d,
+        unitPrice: result.finalPrice,
+        priceListId: result.priceListId,
+        priceListName: result.priceListName,
+        priceTrace: result.trace
+      }));
+    }
+  }, 400);
+
+  const onQuantityChange = (qty: number) => {
+    setSaleQuantity(qty);
+    debouncedQuantityResolve(qty);
+  };
 
   const onChange = async (itemId: string) => {
     if (!itemId) return;
@@ -165,14 +247,26 @@ const SalesOrderLineForm = ({
         )
       : null;
 
+    let resolvedPrice = price.data?.unitSalePrice ?? 0;
+    let priceListId: string | null = null;
+
+    const result = await resolvePrice(itemId, saleQuantity);
+    if (result) {
+      resolvedPrice = result.finalPrice;
+      priceListId = result.priceListId;
+    }
+
     setItemData({
       itemId,
       description: item.data?.name ?? "",
       methodType: item.data?.defaultMethodType ?? "",
-      unitPrice: price.data?.unitSalePrice ?? 0,
+      unitPrice: resolvedPrice,
       uom: item.data?.unitOfMeasureCode ?? "EA",
       storageUnitId: defaultStorageUnitId ?? "",
-      modelUploadId: item.data?.modelUploadId ?? null
+      modelUploadId: item.data?.modelUploadId ?? null,
+      priceListId,
+      priceListName: result?.priceListName ?? null,
+      priceTrace: result?.trace ?? null
     });
   };
 
@@ -233,11 +327,9 @@ const SalesOrderLineForm = ({
                       isEditing && !itemData?.itemId && "text-muted-foreground"
                     )}
                   >
-                    {isEditing ? (
-                      getItemReadableId(items, itemData?.itemId) || "..."
-                    ) : (
-                      <Trans>New Sales Order Line</Trans>
-                    )}
+                    {isEditing
+                      ? getItemReadableId(items, itemData?.itemId) || "..."
+                      : t`New Sales Order Line`}
                   </ModalCardTitle>
                   <ModalCardDescription>
                     {isEditing ? (
@@ -314,6 +406,18 @@ const SalesOrderLineForm = ({
                   name="modelUploadId"
                   value={itemData?.modelUploadId ?? undefined}
                 />
+                <Hidden
+                  name="priceListId"
+                  value={itemData?.priceListId ?? undefined}
+                />
+                <Hidden
+                  name="priceTrace"
+                  value={
+                    itemData?.priceTrace
+                      ? JSON.stringify(itemData.priceTrace)
+                      : undefined
+                  }
+                />
                 <VStack>
                   <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                     <Item
@@ -367,27 +471,42 @@ const SalesOrderLineForm = ({
                               }));
                           }}
                         />
-                        <Number name="saleQuantity" label={t`Quantity`} />
+                        <NumberControlled
+                          name="saleQuantity"
+                          label={t`Quantity`}
+                          value={saleQuantity}
+                          onChange={onQuantityChange}
+                        />
                         <UnitOfMeasure
                           name="unitOfMeasureCode"
                           label={t`Unit of Measure`}
                           value={itemData.uom}
                         />
-                        <NumberControlled
-                          name="unitPrice"
-                          label={t`Unit Price`}
-                          value={itemData.unitPrice}
-                          formatOptions={{
-                            style: "currency",
-                            currency: baseCurrency
-                          }}
-                          onChange={(value) =>
-                            setItemData((d) => ({
-                              ...d,
-                              unitPrice: value
-                            }))
-                          }
-                        />
+                        <div className="flex flex-col gap-y-2 w-full">
+                          <div className="flex items-center justify-between min-h-[16px]">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              Unit Price
+                            </span>
+                            <PriceTracePopover
+                              trace={itemData.priceTrace}
+                              currencyCode={baseCurrency}
+                            />
+                          </div>
+                          <NumberControlled
+                            name="unitPrice"
+                            value={itemData.unitPrice}
+                            formatOptions={{
+                              style: "currency",
+                              currency: baseCurrency
+                            }}
+                            onChange={(value) =>
+                              setItemData((d) => ({
+                                ...d,
+                                unitPrice: value
+                              }))
+                            }
+                          />
+                        </div>
                         <DatePicker
                           name="promisedDate"
                           label={t`Promised Date`}
@@ -441,7 +560,7 @@ const SalesOrderLineForm = ({
                           onClick={costsDisclosure.onToggle}
                         >
                           <Label>
-                            <Trans>Tax & Additional Costs</Trans>
+                            <Trans>Tax &amp; Additional Costs</Trans>
                           </Label>
                           <HStack>
                             {(initialValues?.taxPercent ?? 0) > 0 && (

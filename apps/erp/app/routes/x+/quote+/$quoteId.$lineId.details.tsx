@@ -39,6 +39,8 @@ import {
   getRootQuoteMakeMethod,
   isQuoteLocked,
   quoteLineValidator,
+  resolvePurchaseToOrderPrices,
+  resolveQuoteLinePrices,
   upsertQuoteLine
 } from "~/modules/sales";
 import {
@@ -148,7 +150,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     create: "sales"
   });
 
@@ -195,7 +197,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  if (d.methodType === "Make to Order" && d.quantity?.length) {
+  // The pricing-seeding branches share the same shape: find quantities the
+  // user newly added to the row and invoke the method-specific resolver for
+  // just those. Surface any resolver failure via flash so the user knows the
+  // line saved but pricing didn't land.
+  const methodType = d.methodType;
+  const needsSeed =
+    (methodType === "Make to Order" ||
+      methodType === "Pull from Inventory" ||
+      methodType === "Purchase to Order") &&
+    !!d.quantity?.length;
+
+  if (needsSeed) {
     const serviceRole = getCarbonServiceRole();
     const existingPrices = await serviceRole
       .from("quoteLinePrice")
@@ -206,18 +219,50 @@ export async function action({ request, params }: ActionFunctionArgs) {
       (existingPrices.data ?? []).map((p) => p.quantity)
     );
 
-    const addedQuantities = d.quantity.filter(
+    const addedQuantities = (d.quantity ?? []).filter(
       (q) => !existingQuantities.has(q)
     );
 
     if (addedQuantities.length > 0) {
-      await calculatePricesForQuantities(
-        serviceRole,
-        quoteId,
-        lineId,
-        addedQuantities,
-        userId
-      );
+      const priceResult =
+        methodType === "Make to Order"
+          ? await calculatePricesForQuantities(
+              serviceRole,
+              quoteId,
+              lineId,
+              addedQuantities,
+              userId
+            )
+          : methodType === "Pull from Inventory"
+            ? await resolveQuoteLinePrices(
+                serviceRole,
+                companyId,
+                quoteId,
+                lineId,
+                addedQuantities,
+                userId
+              )
+            : await resolvePurchaseToOrderPrices(
+                serviceRole,
+                companyId,
+                quoteId,
+                lineId,
+                addedQuantities,
+                userId
+              );
+
+      if (priceResult?.error) {
+        throw redirect(
+          path.to.quoteLine(quoteId, lineId),
+          await flash(
+            request,
+            error(
+              priceResult.error,
+              `Failed to seed ${methodType} prices for new quantities`
+            )
+          )
+        );
+      }
     }
   }
 

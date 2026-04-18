@@ -34,6 +34,7 @@ type AuditRpcClient = {
       p_entity_id: string;
       p_limit?: number;
       p_offset?: number;
+      p_record_id?: string | null;
     }
   ): Promise<{ data: AuditLogEntry[] | null; error: any }>;
   rpc(
@@ -82,7 +83,7 @@ export async function getEntityAuditLog(
   companyId: string,
   entityType: string,
   entityId: string,
-  options?: { limit?: number; offset?: number }
+  options?: { limit?: number; offset?: number; recordId?: string }
 ): Promise<AuditLogEntry[]> {
   const limit = options?.limit ?? 50;
   const offset = options?.offset ?? 0;
@@ -94,7 +95,8 @@ export async function getEntityAuditLog(
       p_entity_type: entityType,
       p_entity_id: entityId,
       p_limit: limit,
-      p_offset: offset
+      p_offset: offset,
+      p_record_id: options?.recordId ?? null
     }
   );
 

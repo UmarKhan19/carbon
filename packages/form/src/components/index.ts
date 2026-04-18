@@ -1,6 +1,8 @@
 import Array from "./Array";
 import ArrayNumeric from "./ArrayNumeric";
 import Boolean from "./Boolean";
+import type { ChoiceCardOption } from "./Choice";
+import { ChoiceCardGroup } from "./Choice";
 import type { ComboboxProps } from "./Combobox";
 import Combobox from "./Combobox";
 import type { CreatableComboboxProps } from "./CreatableCombobox";
@@ -33,6 +35,7 @@ export {
   Array,
   ArrayNumeric,
   Boolean,
+  ChoiceCardGroup,
   Combobox,
   CreatableCombobox,
   CreatableMultiSelect,
@@ -59,6 +62,7 @@ export {
 };
 
 export type {
+  ChoiceCardOption,
   ComboboxProps,
   CreatableComboboxProps,
   CreatableMultiSelectProps,

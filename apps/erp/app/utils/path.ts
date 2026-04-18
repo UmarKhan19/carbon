@@ -154,7 +154,9 @@ export const path = {
         ),
       resourcesKpi: (key: string) =>
         generatePath(`${api}/resources/kpi/${key}`),
+      salesCustomerOverride: `${api}/sales/customer-override`,
       salesKpi: (key: string) => generatePath(`${api}/sales/kpi/${key}`),
+      salesResolvePrice: `${api}/sales/resolve-price`,
       salesOrders: `${api}/sales/orders`,
       scrapReasons: `${api}/production/scrap-reasons`,
       search: `${api}/search`,
@@ -1424,6 +1426,16 @@ export const path = {
     salesOrderStatus: (id: string) =>
       generatePath(`${x}/sales-order/${id}/status`),
     salesOrders: `${x}/sales/orders`,
+    salesPriceList: `${x}/sales/price-list`,
+    deletePriceOverride: (id: string) =>
+      generatePath(`${x}/sales/price-list/delete/${id}`),
+    newPriceOverride: `${x}/sales/price-list/new`,
+    priceOverride: (id: string) => generatePath(`${x}/sales/price-list/${id}`),
+    salesPricingRules: `${x}/sales/pricing-rules`,
+    pricingRule: (id: string) => generatePath(`${x}/sales/pricing-rules/${id}`),
+    newPricingRule: `${x}/sales/pricing-rules/new`,
+    deletePricingRule: (id: string) =>
+      generatePath(`${x}/sales/pricing-rules/delete/${id}`),
     salesRfq: (id: string) => generatePath(`${x}/sales-rfq/${id}`),
     salesRfqConvert: (id: string) =>
       generatePath(`${x}/sales-rfq/${id}/convert`),

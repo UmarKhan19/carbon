@@ -291,9 +291,10 @@ msgstr "コンソール"
 msgid "Console Mode"
 msgstr "コンソールモード"
 
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableMultiSelect.tsx:344
 msgid "Create {0}"
 msgstr "{0}を作成"
 
@@ -687,7 +688,7 @@ msgid "Name"
 msgstr "名前"
 
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableMultiSelect.tsx:266
 msgid "New"
 msgstr "新規"
 
@@ -748,7 +749,7 @@ msgstr "材料なし"
 msgid "No operators"
 msgstr "オペレーターなし"
 
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:296
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "オプションが見つかりません。"
@@ -1016,8 +1017,8 @@ msgstr "オペレーターを検索..."
 #: apps/mes/app/components/Filter/Filter.tsx:163
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/CreateableMultiSelect.tsx:165
+#: packages/react/src/CreateableMultiSelect.tsx:286
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "検索..."
@@ -1115,6 +1116,10 @@ msgstr "退勤時間を設定"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2130
 msgid "Setup"
 msgstr "段取り"
+
+#: apps/mes/app/components/AdjustInventory.tsx:170
+msgid "Shelf"
+msgstr "棚"
 
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"

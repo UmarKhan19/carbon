@@ -80,7 +80,7 @@ const SalesOrderConfirmModal = ({
   if (!orderId) throw new Error("orderId not found");
 
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
 
   const [notificationType, setNotificationType] = useState<"Email" | "None">(
     canEmail ? "Email" : "None"

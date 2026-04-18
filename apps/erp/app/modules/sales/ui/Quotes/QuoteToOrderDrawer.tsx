@@ -1027,7 +1027,7 @@ function NotificationOptionsForm({ quote }: { quote: Quotation }) {
   const { t } = useLingui();
   const [isExpanded, setIsExpanded] = useState(true);
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
   const [notificationType, setNotificationType] = useState(
     canEmail ? "Email" : "None"
   );

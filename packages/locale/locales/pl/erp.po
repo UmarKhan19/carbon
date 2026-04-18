@@ -23,36 +23,37 @@ msgstr ""
 
 #. placeholder {0}: rule.escalationDays
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
+#. placeholder {0}: rule.escalationDays
 msgid "{0} days"
 msgstr "{0} dni"
 
-#. placeholder {0}: attachment.name
-#. placeholder {0}: file.name
 #: apps/erp/app/components/Documents.tsx:110
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:87
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:275
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:322
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:96
+#. placeholder {0}: attachment.name
+#. placeholder {0}: file.name
 msgid "{0} deleted successfully"
 msgstr "{0} usunięty pomyślnie"
 
-#. placeholder {0}: history.length
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:259
+#. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} zamówień"
 
-#. placeholder {0}: selectedProcesses.length
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:844
+#. placeholder {0}: selectedProcesses.length
 msgid "{0} Processes"
 msgstr "{0} Procesy"
 
-#. placeholder {0}: row.original.subCategoriesCount ?? 0
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoriesTable.tsx:100
+#. placeholder {0}: row.original.subCategoriesCount ?? 0
 msgid "{0} Subcategories"
 msgstr "{0} Podkategorii"
 
-#. placeholder {0}: file.name
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:229
+#. placeholder {0}: file.name
 msgid "{0} uploaded successfully"
 msgstr "{0} przesłano pomyślnie"
 
@@ -340,6 +341,12 @@ msgstr "Aktywuj Centrum Pracy"
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:196
 #: apps/erp/app/modules/resources/ui/Processes/ProcessesTable.tsx:187
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:177
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:222
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:422
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:155
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:330
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:333
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:340
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:130
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:163
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:172
@@ -628,6 +635,8 @@ msgid "AI Tokens"
 msgstr "Tokeny AI"
 
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:476
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:243
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:270
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:282
 msgid "All"
 msgstr "Wszystko"
@@ -640,6 +649,9 @@ msgstr "Wszystkie dzienniki audytu"
 msgid "All changes to auditable entities are being recorded."
 msgstr "Wszystkie zmiany w jednostkach podlegających audytowi są rejestrowane."
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:179
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:168
+#: apps/erp/app/modules/sales/ui/Pricing/ScopePicker.tsx:65
 #: apps/erp/app/routes/x+/sales+/_index.tsx:220
 msgid "All Customers"
 msgstr "Wszyscy Klienci"
@@ -649,6 +661,7 @@ msgid "All Documents"
 msgstr "Wszystkie dokumenty"
 
 #: apps/erp/app/components/Form/Item.tsx:288
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:218
 msgid "All Items"
 msgstr "Wszystkie elementy"
 
@@ -671,6 +684,20 @@ msgstr "Wszystkie typy"
 #: apps/erp/app/routes/x+/resources+/_index.tsx:162
 msgid "All Work Centers"
 msgstr "Wszystkie Centra Pracy"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:235
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:317
+msgid "Always"
+msgstr "Zawsze"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:133
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:146
+msgid "Amount"
+msgstr "Kwota"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:117
+msgid "Amount Type"
+msgstr "Typ kwoty"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:697
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:742
@@ -704,6 +731,14 @@ msgstr "Klucz API"
 #: apps/erp/app/routes/x+/settings+/api-keys.tsx:13
 msgid "API Keys"
 msgstr "Klucze API"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:227
+msgid "Apply pricing rules"
+msgstr "Zastosuj reguły cenowe"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:161
+msgid "Apply To"
+msgstr "Zastosuj do"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:284
 msgid "Approval Date"
@@ -750,6 +785,7 @@ msgstr "Zarchiwizowane"
 msgid "Archived Logs"
 msgstr "Zarchiwizowane dzienniki"
 
+#: apps/erp/app/routes/share+/quote.$id.tsx:1349
 #. placeholder {0}: quote.quoteId
 #. placeholder {1}: formatter.format(total)
 #: apps/erp/app/routes/share+/quote.$id.tsx:1349
@@ -764,8 +800,8 @@ msgstr "Czy na pewno chcesz aktywować proces: {name}? Pojawi się ponownie w li
 msgid "Are you sure you want to activate this gauge?."
 msgstr "Czy na pewno chcesz aktywować ten miernik?."
 
-#. placeholder {0}: routeData?.rfqSummary ?.rfqId!
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:325
+#. placeholder {0}: routeData?.rfqSummary ?.rfqId!
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "Czy na pewno chcesz anulować {0}? Spowoduje to również anulowanie wszystkich powiązanych ofert dostawców."
 
@@ -794,28 +830,28 @@ msgstr "Czy na pewno chcesz przekonwertować RFQ na ofertę?"
 msgid "Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs."
 msgstr "Czy na pewno chcesz utworzyć zadania dla tego zamówienia sprzedaży? Spowoduje to utworzenie zadań dla wszystkich linii, które jeszcze ich nie mają."
 
-#. placeholder {0}: routeData?.supplier?.name
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:366
+#. placeholder {0}: routeData?.supplier?.name
 msgid "Are you sure you want to deactivate {0}?"
 msgstr "Czy na pewno chcesz dezaktywować {0}?"
 
-#. placeholder {0}: selectedCategory?.category
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoriesTable.tsx:196
+#. placeholder {0}: selectedCategory?.category
 msgid "Are you sure you want to deactivate the {0} account category?"
 msgstr "Czy na pewno chcesz dezaktywować kategorię konta {0}?"
 
-#. placeholder {0}: selectedCategory?.name
 #: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:186
+#. placeholder {0}: selectedCategory?.name
 msgid "Are you sure you want to deactivate the {0} attribute category?"
 msgstr "Czy na pewno chcesz dezaktywować kategorię atrybutów {0}?"
 
-#. placeholder {0}: selectedAttribute?.name
 #: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:227
+#. placeholder {0}: selectedAttribute?.name
 msgid "Are you sure you want to deactivate the {0} attribute?"
 msgstr "Czy na pewno chcesz dezaktywować atrybut {0}?"
 
-#. placeholder {0}: selectedAccountSubcategory?.name
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoryDetail.tsx:110
+#. placeholder {0}: selectedAccountSubcategory?.name
 msgid "Are you sure you want to deactivate the {0} subcategory?"
 msgstr "Czy na pewno chcesz dezaktywować podkategorię {0}?"
 
@@ -840,19 +876,17 @@ msgstr "Czy na pewno chcesz dezaktywować ten miernik?."
 msgid "Are you sure you want to deactivate this user?"
 msgstr "Czy na pewno chcesz dezaktywować tego użytkownika?"
 
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2624
 #. placeholder {0}: tool.readableIdWithRevision
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2624
 msgid "Are you sure you want to delete {0} from this operation? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć {0} z tej operacji? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: selectedGroup.name
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:376
+#. placeholder {0}: selectedGroup.name
 msgid "Are you sure you want to delete {0}?"
 msgstr "Czy na pewno chcesz usunąć {0}?"
 
-#. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
-#. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:160
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:395
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:226
@@ -882,16 +916,19 @@ msgstr "Czy na pewno chcesz usunąć {0}?"
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:617
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:297
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:272
+#. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
+#. placeholder {0}: routeData?.customer?.name!
+#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć {0}? Tej operacji nie można cofnąć."
 
-#. placeholder {0}: selectedCustomField?.name
 #: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTableDetail.tsx:231
+#. placeholder {0}: selectedCustomField?.name
 msgid "Are you sure you want to delete the {0} field?"
 msgstr "Czy na pewno chcesz usunąć pole {0}?"
 
-#. placeholder {0}: parameter.label
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:1089
+#. placeholder {0}: parameter.label
 msgid "Are you sure you want to delete the {0} parameter? This will not update any formulas that are using this parameter."
 msgstr "Czy na pewno chcesz usunąć parametr {0}? To nie spowoduje aktualizacji żadnych formuł, które używają tego parametru."
 
@@ -903,14 +940,14 @@ msgstr "Czy na pewno chcesz usunąć parametr {key} z tej operacji? Tej czynnoś
 msgid "Are you sure you want to delete the {name} attribute from this operation? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć atrybut {name} z tej operacji? Tej czynności nie można cofnąć."
 
+#: apps/erp/app/routes/x+/accounting+/charts.delete.$accountId.tsx:70
 #. placeholder {0}: account.name
 #. placeholder {1}: account.number
-#: apps/erp/app/routes/x+/accounting+/charts.delete.$accountId.tsx:70
 msgid "Are you sure you want to delete the account: {0} ({1})? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć konto: {0} ({1})? Tej operacji nie można cofnąć."
 
-#. placeholder {0}: apiKey.name
 #: apps/erp/app/routes/x+/settings+/api-keys.delete.$id.tsx:56
+#. placeholder {0}: apiKey.name
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć klucz API: {0}? Tej czynności nie można cofnąć."
 
@@ -918,8 +955,8 @@ msgstr "Czy na pewno chcesz usunąć klucz API: {0}? Tej czynności nie można c
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć wykonawcę: {name}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: customerPart?.customer?.name ?? ""
 #: apps/erp/app/routes/x+/part+/$itemId.sales.customer-parts.delete.$customerPartToItemId.tsx:85
+#. placeholder {0}: customerPart?.customer?.name ?? ""
 msgid "Are you sure you want to delete the customer part for {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć część klienta dla {0}? Tej czynności nie można cofnąć."
 
@@ -927,13 +964,13 @@ msgstr "Czy na pewno chcesz usunąć część klienta dla {0}? Tej czynności ni
 msgid "Are you sure you want to delete the customer portal for: {customerName}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć portal klienta dla: {customerName}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: customerStatus.name
 #: apps/erp/app/routes/x+/sales+/customer-statuses.delete.$customerStatusId.tsx:80
+#. placeholder {0}: customerStatus.name
 msgid "Are you sure you want to delete the customer status: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć status klienta: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: customerType.name
 #: apps/erp/app/routes/x+/sales+/customer-types.delete.$customerTypeId.tsx:92
+#. placeholder {0}: customerType.name
 msgid "Are you sure you want to delete the customer type: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć typ klienta: {0}? Tej czynności nie można cofnąć."
 
@@ -941,8 +978,8 @@ msgstr "Czy na pewno chcesz usunąć typ klienta: {0}? Tej czynności nie można
 msgid "Are you sure you want to delete the department: {name}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć dział: {name}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: employeeType.name
 #: apps/erp/app/routes/x+/users+/employee-types.delete.$employeeTypeId.tsx:85
+#. placeholder {0}: employeeType.name
 msgid "Are you sure you want to delete the employee type: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć typ pracownika: {0}? Tej czynności nie można cofnąć."
 
@@ -950,13 +987,13 @@ msgstr "Czy na pewno chcesz usunąć typ pracownika: {0}? Tej czynności nie mo�
 msgid "Are you sure you want to delete the failure mode: {name}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć tryb awarii: {name}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: gaugeType.name
 #: apps/erp/app/routes/x+/quality+/gauge-types.delete.$id.tsx:76
+#. placeholder {0}: gaugeType.name
 msgid "Are you sure you want to delete the gauge type: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć typ miernika: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: group.name
 #: apps/erp/app/routes/x+/users+/groups.delete.$groupId.tsx:73
+#. placeholder {0}: group.name
 msgid "Are you sure you want to delete the group: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć grupę: {0}? Tej czynności nie można cofnąć."
 
@@ -964,23 +1001,23 @@ msgstr "Czy na pewno chcesz usunąć grupę: {0}? Tej czynności nie można cofn
 msgid "Are you sure you want to delete the holiday: {name}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć święto: {name}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: nonConformanceType.name
 #: apps/erp/app/routes/x+/quality+/issue-types.delete.$id.tsx:79
+#. placeholder {0}: nonConformanceType.name
 msgid "Are you sure you want to delete the issue type: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć typ problemu: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: itemPostingGroup.name
 #: apps/erp/app/routes/x+/items+/groups.delete.$groupId.tsx:94
+#. placeholder {0}: itemPostingGroup.name
 msgid "Are you sure you want to delete the item group: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć grupę pozycji: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: line.customerPartId
-#. placeholder {0}: line.description
-#. placeholder {0}: line.itemReadableId
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/DeletePurchaseInvoiceLine.tsx:23
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/DeletePurchasingRFQLine.tsx:23
 #: apps/erp/app/modules/sales/ui/SalesOrder/DeleteSalesOrderLine.tsx:23
 #: apps/erp/app/modules/sales/ui/SalesRFQ/DeleteSalesRFQLine.tsx:23
+#. placeholder {0}: line.customerPartId
+#. placeholder {0}: line.description
+#. placeholder {0}: line.itemReadableId
 msgid "Are you sure you want to delete the line: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć linię: {0}? Tej operacji nie można cofnąć."
 
@@ -999,38 +1036,38 @@ msgstr "Czy na pewno chcesz usunąć lokalizację: {name}? Tej czynności nie mo
 msgid "Are you sure you want to delete the maintenance schedule: {name}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć harmonogram konserwacji: {name}? Tej operacji nie można cofnąć."
 
-#. placeholder {0}: materialDimension.name
 #: apps/erp/app/routes/x+/items+/dimensions.delete.$id.tsx:81
+#. placeholder {0}: materialDimension.name
 msgid "Are you sure you want to delete the material dimension: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć wymiar materiału: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: materialFinish.name
 #: apps/erp/app/routes/x+/items+/finishes.delete.$id.tsx:78
+#. placeholder {0}: materialFinish.name
 msgid "Are you sure you want to delete the material finish: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć wykończenie materiału: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: materialForm.name
 #: apps/erp/app/routes/x+/items+/forms.delete.$formId.tsx:78
+#. placeholder {0}: materialForm.name
 msgid "Are you sure you want to delete the material form: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć formularz materiału: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: materialGrade.name
 #: apps/erp/app/routes/x+/items+/grades.delete.$id.tsx:78
+#. placeholder {0}: materialGrade.name
 msgid "Are you sure you want to delete the material grade: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć klasę materiału: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: materialSubstance.name
 #: apps/erp/app/routes/x+/items+/substances.delete.$substanceId.tsx:84
+#. placeholder {0}: materialSubstance.name
 msgid "Are you sure you want to delete the material substance: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć substancję materiałową: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: materialType.name
 #: apps/erp/app/routes/x+/items+/types.delete.$id.tsx:78
+#. placeholder {0}: materialType.name
 msgid "Are you sure you want to delete the material type: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć typ materiału: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: noQuoteReason.name
 #: apps/erp/app/routes/x+/sales+/no-quote-reasons.delete.$id.tsx:82
+#. placeholder {0}: noQuoteReason.name
 msgid "Are you sure you want to delete the no quote reason: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć powód braku oferty: {0}? Tej czynności nie można cofnąć."
 
@@ -1038,40 +1075,50 @@ msgstr "Czy na pewno chcesz usunąć powód braku oferty: {0}? Tej czynności ni
 msgid "Are you sure you want to delete the partner: {name}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć partnera: {name}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: paymentTerm.name
 #: apps/erp/app/routes/x+/accounting+/payment-terms.delete.$paymentTermId.tsx:92
+#. placeholder {0}: paymentTerm.name
 msgid "Are you sure you want to delete the payment term: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć termin płatności: {0}? Tej czynności nie można cofnąć."
 
+#: apps/erp/app/routes/x+/sales+/pricing-rules.delete.$ruleId.tsx:74
+#. placeholder {0}: pricingRule.name
+msgid "Are you sure you want to delete the pricing rule: {0}? This cannot be undone."
+msgstr "Czy na pewno chcesz usunąć regułę cenową: {0}? Tej czynności nie można cofnąć."
+
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.delete.tsx:100
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
-#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.delete.tsx:100
 msgid "Are you sure you want to delete the purchase invoice line for {0} {1}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć wiersz faktury zakupu dla {0} {1}? Tej operacji nie można cofnąć."
 
+#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.delete.tsx:100
 #. placeholder {0}: salesInvoiceLine.quantity ?? 0
 #. placeholder {1}: salesInvoiceLine.description ?? ""
-#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.delete.tsx:100
 msgid "Are you sure you want to delete the sales invoice line for {0} {1}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć wiersz faktury sprzedaży dla {0} {1}? Tej operacji nie można cofnąć."
 
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.delete.tsx:93
 #. placeholder {0}: salesOrderLine.saleQuantity ?? 0
 #. placeholder {1}: salesOrderLine.description ?? ""
-#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.delete.tsx:93
 msgid "Are you sure you want to delete the sales order line for {0} {1}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć linię zamówienia sprzedaży dla {0} {1}? Tej operacji nie można cofnąć."
 
-#. placeholder {0}: scrapReason.name
 #: apps/erp/app/routes/x+/production+/scrap-reasons.delete.$scrapReasonId.tsx:82
+#. placeholder {0}: scrapReason.name
 msgid "Are you sure you want to delete the scrap reason: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć przyczynę braku: {0}? Tej czynności nie można cofnąć."
+
+#: apps/erp/app/routes/x+/inventory+/shelves.delete.$shelfId.tsx:106
+#. placeholder {0}: shelf.name
+msgid "Are you sure you want to delete the shelf: {0}? This cannot be undone."
+msgstr "Czy na pewno chcesz usunąć półkę: {0}? Tej czynności nie można cofnąć."
 
 #: apps/erp/app/routes/x+/people+/shifts.delete.$shiftId.tsx:76
 msgid "Are you sure you want to delete the shift: {name} from {locationName}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć zmianę: {name} z {locationName}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: shippingMethod.name
 #: apps/erp/app/routes/x+/inventory+/shipping-methods.delete.$shippingMethodId.tsx:94
+#. placeholder {0}: shippingMethod.name
 msgid "Are you sure you want to delete the shipping method: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć metodę wysyłki: {0}? Tej czynności nie można cofnąć."
 
@@ -1087,21 +1134,22 @@ msgstr ""
 
 #. placeholder {0}: supplierType.name
 #: apps/erp/app/routes/x+/purchasing+/supplier-types.delete.$supplierTypeId.tsx:93
+#. placeholder {0}: supplierType.name
 msgid "Are you sure you want to delete the supplier type: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć typ dostawcy: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: unitOfMeasure.name
 #: apps/erp/app/routes/x+/items+/uom.delete.$uomId.tsx:88
+#. placeholder {0}: unitOfMeasure.name
 msgid "Are you sure you want to delete the unit of measure: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć jednostkę miary: {0}? Tej czynności nie można cofnąć."
 
-#. placeholder {0}: selectedView.name
 #: apps/erp/app/components/Layout/Navigation/GroupedContentSidebar.tsx:162
+#. placeholder {0}: selectedView.name
 msgid "Are you sure you want to delete the view \"{0}\"?"
 msgstr "Czy na pewno chcesz usunąć widok \"{0}\"?"
 
-#. placeholder {0}: webhook.name
 #: apps/erp/app/routes/x+/settings+/webhooks.delete.$id.tsx:76
+#. placeholder {0}: webhook.name
 msgid "Are you sure you want to delete the webhook: {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć webhook: {0}? Tej czynności nie można cofnąć."
 
@@ -1130,6 +1178,10 @@ msgstr "Czy na pewno chcesz usunąć tę kartę kanban? Tej operacji nie można 
 #: apps/erp/app/routes/x+/resources+/maintenance.delete.$dispatchId.tsx:85
 msgid "Are you sure you want to delete this maintenance dispatch? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć tę dyspozycję konserwacji? Tej operacji nie można cofnąć."
+
+#: apps/erp/app/routes/x+/sales+/price-list.delete.$overrideId.tsx:94
+msgid "Are you sure you want to delete this price override? This cannot be undone."
+msgstr "Czy na pewno chcesz usunąć to zastąpienie ceny? Tej operacji nie można cofnąć."
 
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentsTable.tsx:261
 msgid "Are you sure you want to delete this quality document?"
@@ -1168,10 +1220,10 @@ msgstr "Czy na pewno chcesz sfinalizować ofertę?"
 msgid "Are you sure you want to finalize the supplier quote?"
 msgstr "Czy na pewno chcesz sfinalizować ofertę dostawcy?"
 
-#. placeholder {0}: selectedPurchaseInvoice.invoiceId!
-#. placeholder {0}: selectedSalesInvoice.invoiceId!
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:336
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:327
+#. placeholder {0}: selectedPurchaseInvoice.invoiceId!
+#. placeholder {0}: selectedSalesInvoice.invoiceId!
 msgid "Are you sure you want to permanently delete {0}?"
 msgstr "Czy na pewno chcesz trwale usunąć {0}?"
 
@@ -1231,8 +1283,8 @@ msgstr "Jako właściciel firmy możesz przenieść własność na innego pracow
 msgid "Ascending"
 msgstr "Rosnąco"
 
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Chat/ChatInput.tsx:189
+#. js-lingui-explicit-id
 msgid "Ask anything"
 msgstr "Zapytaj o cokolwiek"
 
@@ -1339,7 +1391,7 @@ msgstr "Rejestrowanie audytu jest wyłączone"
 msgid "Audit logging is enabled"
 msgstr "Rejestrowanie audytu jest włączone"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:154
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:162
 msgid "Audit logging is not enabled"
 msgstr "Rejestrowanie audytu nie jest włączone"
 
@@ -1413,15 +1465,14 @@ msgstr "Saldo"
 msgid "Balance at Date"
 msgstr "Saldo na dzień"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:34
-#: apps/erp/app/routes/onboarding+/company.tsx:217
-msgid "Base Currency"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:244
+#. js-lingui-explicit-id
 msgid "Base Currency"
 msgstr "Waluta bazowa"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:178
+msgid "Base Price"
+msgstr "Cena bazowa"
 
 #: apps/erp/app/routes/x+/settings+/company.tsx:96
 msgid "Basic Information"
@@ -1510,8 +1561,8 @@ msgstr "Rozliczenia"
 msgid "Billing Address"
 msgstr "Adres rozliczeniowy"
 
-#. placeholder {0}: workCenter.blockingDispatchReadableId
 #: apps/erp/app/routes/x+/production+/_index.tsx:863
+#. placeholder {0}: workCenter.blockingDispatchReadableId
 msgid "Blocked by {0}"
 msgstr "Zablokowane przez {0}"
 
@@ -1592,7 +1643,7 @@ msgstr "Logując się, wyrażasz zgodę na <0>Warunki korzystania z usługi</0> 
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:333
 #: apps/erp/app/routes/x+/part+/$itemId.details.tsx:342
 #: apps/erp/app/routes/x+/part+/$itemId.make.$makeMethodId.tsx:204
-#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:402
+#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:447
 #: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.make.$methodId.tsx:137
 #: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:287
 #: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:190
@@ -1632,8 +1683,13 @@ msgstr "Dostawca kalibracji"
 msgid "Calibrations"
 msgstr "Kalibracje"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:446
+msgid "Can't disable the only active break. Add another break or toggle the override's Active instead."
+msgstr "Nie można wyłączyć jedynego aktywnego przedziału. Dodaj inny przedział lub przełącz opcję Aktywne dla przesłonięcia."
+
 #: apps/erp/app/components/Form/ConversionFactor.tsx:321
 #: apps/erp/app/components/Form/Item.tsx:362
+#: apps/erp/app/components/Form/Items.tsx:115
 #: apps/erp/app/components/Layout/Topbar/Feedback.tsx:135
 #: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:200
 #: apps/erp/app/components/Modals/ConfirmDelete/ConfirmDelete.tsx:62
@@ -1915,6 +1971,7 @@ msgstr "Nazwa kategorii"
 msgid "CC"
 msgstr "DW"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:99
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
 #: apps/erp/app/routes/share+/quote.$id.tsx:1386
@@ -1939,7 +1996,7 @@ msgstr "Zmień typ"
 msgid "Changed By"
 msgstr "Zmienione przez"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:264
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:272
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:257
 msgid "Changes"
 msgstr "Zmiany"
@@ -1971,6 +2028,10 @@ msgstr ""
 #: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:287
 msgid "Choose another file"
 msgstr "Wybierz inny plik"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:35
+msgid "Choose scope to continue"
+msgstr "Wybierz zakres, aby kontynuować"
 
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:35
 msgid "Choose your preferred language for the interface."
@@ -2031,8 +2092,8 @@ msgstr "Zarejestruj wejście"
 msgid "Clock Out"
 msgstr "Wyloguj się"
 
-#. placeholder {0}: formatTime(openEntry.clockIn)
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:472
+#. placeholder {0}: formatTime(openEntry.clockIn)
 msgid "Clocked in since {0}"
 msgstr "Zalogowany od {0}"
 
@@ -2143,13 +2204,8 @@ msgstr "Firmy"
 msgid "Company"
 msgstr "Firma"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:28
-#: apps/erp/app/routes/onboarding+/company.tsx:214
-msgid "Company Name"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:236
+#. js-lingui-explicit-id
 msgid "Company Name"
 msgstr "Nazwa firmy"
 
@@ -2244,7 +2300,7 @@ msgstr "Konfigurator"
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:70
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:76
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:506
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:68
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:81
 #: apps/erp/app/modules/users/ui/useUsersSubmodules.tsx:44
 msgid "Configure"
 msgstr "Konfiguruj"
@@ -2321,8 +2377,8 @@ msgstr "Skonfigurowane"
 msgid "Confirm"
 msgstr "Potwierdź"
 
-#. placeholder {0}: salesOrder?.salesOrderId
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:121
+#. placeholder {0}: salesOrder?.salesOrderId
 msgid "Confirm {0}"
 msgstr "Potwierdź {0}"
 
@@ -2372,6 +2428,7 @@ msgstr "Skonsolidowana stawka"
 
 #: apps/erp/app/components/Form/Item.tsx:79
 #: apps/erp/app/components/Form/Item.tsx:232
+#: apps/erp/app/components/Form/Items.tsx:37
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:481
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1297
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:208
@@ -2680,6 +2737,7 @@ msgstr "Kraj"
 
 #: apps/erp/app/components/Chat/ChatWidgets.tsx:44
 #: apps/erp/app/components/Form/Item.tsx:372
+#: apps/erp/app/components/Form/Items.tsx:123
 #: apps/erp/app/components/Layout/Topbar/Topbar.tsx:37
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:596
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:227
@@ -2688,9 +2746,10 @@ msgstr "Kraj"
 msgid "Create"
 msgstr "Utwórz"
 
-#. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableMultiSelect.tsx:344
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
+#. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Utwórz {0}"
 
@@ -2737,6 +2796,10 @@ msgstr "Utwórz zadania"
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:337
 msgid "Create Kanban"
 msgstr "Utwórz Kanban"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:288
+msgid "Create Override"
+msgstr "Utwórz Zastąpienie"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:159
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:460
@@ -2862,8 +2925,8 @@ msgstr "Utworzony status klienta"
 msgid "Created customer type"
 msgstr "Utworzono typ klienta"
 
-#. placeholder {0}: createdCustomer?.name ?? t`Customer`
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:61
+#. placeholder {0}: createdCustomer?.name ?? t`Customer`
 msgid "Created customer: {0}"
 msgstr "Utworzony klient: {0}"
 
@@ -3064,6 +3127,7 @@ msgstr "Pola niestandardowe"
 #: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:91
 #: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:36
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:326
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:188
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:164
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:97
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:939
@@ -3174,6 +3238,10 @@ msgstr "Wersja klienta"
 msgid "Customer RFQ"
 msgstr "RFQ klienta"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:162
+msgid "Customer Scope"
+msgstr "Zakres Klientów"
+
 #: apps/erp/app/components/Form/CustomerStatus.tsx:37
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:119
 #: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusesTable.tsx:37
@@ -3193,6 +3261,10 @@ msgstr "Statusy klientów"
 #: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:84
 #: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:91
 #: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:31
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:173
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:197
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:180
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:143
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:145
 msgid "Customer Type"
 msgstr "Typ Klienta"
@@ -3200,13 +3272,19 @@ msgstr "Typ Klienta"
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:323
 #: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:94
 #: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypesTable.tsx:100
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:206
+#: apps/erp/app/modules/sales/ui/Pricing/ScopePicker.tsx:127
 #: apps/erp/app/routes/x+/sales+/customer-types.tsx:13
 msgid "Customer Types"
 msgstr "Typy klientów"
 
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:306
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:332
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:29
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:199
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:118
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:223
+#: apps/erp/app/modules/sales/ui/Pricing/ScopePicker.tsx:148
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:31
 #: apps/erp/app/routes/x+/customer+/$customerId.tsx:20
 #: apps/erp/app/routes/x+/customer+/new.tsx:16
 #: apps/erp/app/routes/x+/issue+/$id.tsx:154
@@ -3289,6 +3367,10 @@ msgstr "Data zapłaty"
 msgid "Date Range"
 msgstr "Zakres dat"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:312
+msgid "Dates"
+msgstr "Daty"
+
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:146
 #: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:78
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:99
@@ -3325,8 +3407,8 @@ msgstr "Dni pozostałe"
 msgid "Deactivate"
 msgstr "Dezaktywuj"
 
-#. placeholder {0}: workCenter.name
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:435
+#. placeholder {0}: workCenter.name
 msgid "Deactivate {0}"
 msgstr "Dezaktywuj {0}"
 
@@ -3480,7 +3562,7 @@ msgstr "Zdefiniuj warunki i zasady dla ofert i zamówień sprzedaży"
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:169
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:527
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:649
-#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricing.tsx:1137
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricing.tsx:1141
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:295
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:575
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:237
@@ -3637,6 +3719,10 @@ msgstr "Usuń kształt materiału"
 msgid "Delete Material Type"
 msgstr "Usuń typ materiału"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:303
+msgid "Delete Override"
+msgstr "Usuń Override"
+
 #: apps/erp/app/modules/items/ui/Parts/PartHeader.tsx:79
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:519
 msgid "Delete Part"
@@ -3653,6 +3739,14 @@ msgstr "Usuń Warunki Płatności"
 #: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:105
 msgid "Delete Portal"
 msgstr "Usuń Portal"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:406
+msgid "Delete Price Break"
+msgstr "Usuń przerwę cenową"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:398
+msgid "Delete Pricing Rule"
+msgstr "Usuń regułę cenową"
 
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:96
 msgid "Delete Procedure"
@@ -3893,6 +3987,7 @@ msgstr "Działy"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:147
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:114
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:193
+#: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:96
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:874
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2007
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMaterialForm.tsx:229
@@ -4110,8 +4205,8 @@ msgstr "Statusy wysyłki bezpośredniej"
 msgid "Drop your file here, or click to browse."
 msgstr "Upuść plik tutaj lub kliknij, aby przeglądać."
 
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 #: apps/erp/app/routes/x+/production+/_index.tsx:958
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 msgid "Due {0}"
 msgstr "Termin {0}"
 
@@ -4152,6 +4247,10 @@ msgstr "Data ukończenia ostatniego zadania"
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermForm.tsx:124
 msgid "Due Days after {selectedCalculationMethod}"
 msgstr "Dni płatności po {selectedCalculationMethod}"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:386
+msgid "Duplicate Pricing Rule"
+msgstr "Duplikuj regułę cenową"
 
 #: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:127
 #: apps/erp/app/modules/production/ui/Jobs/ProductionEventsTable.tsx:123
@@ -4380,6 +4479,10 @@ msgstr "Edytuj Typ Materiału"
 msgid "Edit Non Conformance Type"
 msgstr "Edytuj typ niezgodności"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:288
+msgid "Edit Override"
+msgstr "Edytuj Zastąpienie"
+
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:489
 msgid "Edit Part"
 msgstr "Edytuj Część"
@@ -4403,6 +4506,15 @@ msgstr "Uprawnienia do edycji"
 #: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:93
 msgid "Edit Portal"
 msgstr "Edytuj Portal"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:135
+msgid "Edit Price Override"
+msgstr "Edytuj Przesłonięcie Ceny"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:100
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:371
+msgid "Edit Pricing Rule"
+msgstr "Edytuj regułę cenową"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierProcesses.tsx:96
 #: apps/erp/app/modules/resources/ui/Processes/ProcessesTable.tsx:253
@@ -4643,7 +4755,7 @@ msgstr "Typy pracowników"
 msgid "Employees"
 msgstr "Pracownicy"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:157
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:165
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Włącz rejestrowanie audytu w ustawieniach, aby rozpocząć śledzenie zmian w Twoich danych."
 
@@ -4651,7 +4763,7 @@ msgstr "Włącz rejestrowanie audytu w ustawieniach, aby rozpocząć śledzenie 
 msgid "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 msgstr "Włącz cyfrowe oferty dla swojej firmy. Umożliwi to wysyłanie cyfrowych ofert do klientów i pozwoli im zaakceptować je online."
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:166
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:174
 msgid "Enable in Settings"
 msgstr "Włącz w Ustawieniach"
 
@@ -4914,8 +5026,8 @@ msgstr "Kurs wymiany"
 msgid "Expand"
 msgstr "Rozwiń"
 
-#. placeholder {0}: item.label
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:89
+#. placeholder {0}: item.label
 msgid "Expand {0}"
 msgstr "Rozwiń {0}"
 
@@ -5026,123 +5138,123 @@ msgstr "Ref. zewnętrzna"
 msgid "External Reference"
 msgstr "Odniesienie zewnętrzne"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:66
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create consumable: {0}"
 msgstr "Nie udało się utworzyć materiału eksploatacyjnego: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create customer portal: {0}"
 msgstr "Nie udało się utworzyć portalu klienta: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create customer status: {0}"
 msgstr "Nie udało się utworzyć statusu klienta: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create customer type: {0}"
 msgstr "Nie udało się utworzyć typu klienta: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:64
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create customer: {0}"
 msgstr "Nie udało się utworzyć klienta: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create department: {0}"
 msgstr "Nie udało się utworzyć departamentu: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModeForm.tsx:60
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create failure mode: {0}"
 msgstr "Nie udało się utworzyć trybu awarii: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/quality/ui/GaugeTypes/GaugeTypeForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create gauge type: {0}"
 msgstr "Nie udało się utworzyć typu miernika: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:61
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create item group: {0}"
 msgstr "Nie udało się utworzyć grupy pozycji: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/Locations/LocationForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create location: {0}"
 msgstr "Nie udało się utworzyć lokalizacji: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:122
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create maintenance schedule: {0}"
 msgstr "Nie udało się utworzyć harmonogramu konserwacji: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material dimension: {0}"
 msgstr "Nie udało się utworzyć wymiaru materiału: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material finish: {0}"
 msgstr "Nie udało się utworzyć wykończenia materiału: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:62
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material form: {0}"
 msgstr "Nie udało się utworzyć formularza materiału: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material grade: {0}"
 msgstr "Nie udało się utworzyć klasy materiału: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:62
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material substance: {0}"
 msgstr "Nie udało się utworzyć substancji materiałowej: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:58
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material type: {0}"
 msgstr "Nie udało się utworzyć typu materiału: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:103
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material: {0}"
 msgstr "Nie udało się utworzyć materiału: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create no quote reason: {0}"
 msgstr "Nie udało się utworzyć przyczyny braku oferty: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:160
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create part: {0}"
 msgstr "Nie udało się utworzyć części: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermForm.tsx:62
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create payment term: {0}"
 msgstr "Nie udało się utworzyć warunku płatności: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/Processes/ProcessForm.tsx:76
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create process: {0}"
 msgstr "Nie udało się utworzyć procesu: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:58
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create shipping method: {0}"
 msgstr "Nie udało się utworzyć metody wysyłki: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:103
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create stock transfer line: {0}"
 msgstr "Nie udało się utworzyć linii transferu zapasów: {0}"
 
@@ -5153,16 +5265,17 @@ msgstr ""
 
 #. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:159
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create tool: {0}"
 msgstr "Nie udało się utworzyć narzędzia: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:53
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create webhook: {0}"
 msgstr "Nie udało się utworzyć webhook: {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:66
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create work center: {0}"
 msgstr "Nie udało się utworzyć centrum pracy: {0}"
 
@@ -5374,8 +5487,6 @@ msgstr "Nie udało się przesłać pliku"
 msgid "Failed to upload file to new location"
 msgstr "Nie udało się przesłać pliku do nowej lokalizacji"
 
-#. placeholder {0}: file.name
-#. placeholder {0}: fileUpload.name
 #: apps/erp/app/components/Documents.tsx:208
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:772
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:427
@@ -5383,6 +5494,8 @@ msgstr "Nie udało się przesłać pliku do nowej lokalizacji"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:227
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:396
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:273
+#. placeholder {0}: file.name
+#. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
 msgstr "Nie udało się przesłać pliku: {0}"
 
@@ -5438,6 +5551,10 @@ msgstr "Tryb Awarii"
 msgid "Failure Modes"
 msgstr "Tryby awarii"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:180
+msgid "Fallback price when no other override matches"
+msgstr "Cena rezerwowa, gdy żaden inny override nie pasuje"
+
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:423
 msgid "Favorite"
 msgstr "Ulubione"
@@ -5489,8 +5606,8 @@ msgstr "Rozszerzenie pliku"
 msgid "File is already in the selected bucket"
 msgstr "Plik znajduje się już w wybranym zasobniku"
 
-#. placeholder {0}: ( logo.size / 1024 / 1024 ).toFixed(2)
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:80
+#. placeholder {0}: ( logo.size / 1024 / 1024 ).toFixed(2)
 msgid "File size exceeds {maxSizeMB}MB limit. Current size: {0}MB"
 msgstr "Rozmiar pliku przekracza limit {maxSizeMB}MB. Obecny rozmiar: {0}MB"
 
@@ -5499,11 +5616,11 @@ msgstr "Rozmiar pliku przekracza limit {maxSizeMB}MB. Obecny rozmiar: {0}MB"
 msgid "File size exceeds 10MB limit"
 msgstr "Rozmiar pliku przekracza limit 10MB"
 
-#. placeholder {0}: SIZE_LIMIT.format()
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:133
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:143
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:132
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:142
+#. placeholder {0}: SIZE_LIMIT.format()
 msgid "File size too big (max. {0})"
 msgstr "Rozmiar pliku zbyt duży (maks. {0})"
 
@@ -5614,6 +5731,10 @@ msgstr "Stałe"
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
 msgstr "Stałe Zamówienie"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:281
+msgid "Floor: price won't drop below this margin over cost"
+msgstr "Minimum: cena nie spadnie poniżej tej marży w stosunku do kosztu"
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:44
 msgid "For growing businesses that need support"
@@ -5731,18 +5852,18 @@ msgstr "Pobierz metodę"
 msgid "Get Started"
 msgstr "Rozpocznij"
 
-#. placeholder {0}: user.firstName
 #: apps/erp/app/components/Greeting.tsx:24
+#. placeholder {0}: user.firstName
 msgid "Good afternoon, {0}"
 msgstr "Dobry wieczór, {0}"
 
-#. placeholder {0}: user.firstName
 #: apps/erp/app/components/Greeting.tsx:26
+#. placeholder {0}: user.firstName
 msgid "Good evening, {0}"
 msgstr "Dobry wieczór, {0}"
 
-#. placeholder {0}: user.firstName
 #: apps/erp/app/components/Greeting.tsx:22
+#. placeholder {0}: user.firstName
 msgid "Good morning, {0}"
 msgstr "Dzień dobry, {0}"
 
@@ -5793,7 +5914,12 @@ msgstr "Pomoc"
 msgid "Hide, pin and reorder columns"
 msgstr "Ukryj, przypnij i zmień kolejność kolumn"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:203
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:273
+msgid "Higher priority wins ties and applies first for markups"
+msgstr "Wyższy priorytet wygrywa remisy i jest stosowany jako pierwszy dla marż"
+
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:211
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:144
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:73
 msgid "History"
 msgstr "Historia"
@@ -5840,6 +5966,10 @@ msgstr "Godziny/Sztuka"
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:416
 msgid "How it works"
 msgstr "Jak to działa"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:82
+msgid "How the resolved price was calculated."
+msgstr "Jak została obliczona ostateczna cena."
 
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:314
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordsTable.tsx:245
@@ -5923,6 +6053,8 @@ msgstr "w wybranym okresie"
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:277
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:276
 #: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:166
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:333
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:341
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:176
 #: apps/erp/app/modules/users/ui/Employees/EmployeesTable.tsx:166
 #: apps/erp/app/modules/users/ui/Suppliers/SupplierAccountsTable/SuppliersAccountsTable.tsx:172
@@ -6215,7 +6347,7 @@ msgstr "Statusy Zafakturowane"
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:50
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:92
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:523
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:53
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:55
 #: apps/erp/app/routes/x+/purchasing+/invoices.tsx:17
 #: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.tsx:28
 #: apps/erp/app/routes/x+/sales+/invoices.tsx:15
@@ -6308,6 +6440,7 @@ msgstr "Problemy"
 
 #: apps/erp/app/components/Form/Item.tsx:71
 #: apps/erp/app/components/Form/Item.tsx:224
+#: apps/erp/app/components/Form/Items.tsx:74
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:205
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:95
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:143
@@ -6323,6 +6456,8 @@ msgstr "Problemy"
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:528
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegistersTable.tsx:110
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:638
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:155
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:130
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:569
 #: apps/erp/app/routes/x+/issue+/$id.tsx:104
 msgid "Item"
@@ -6349,6 +6484,10 @@ msgstr "Pozycja {scannedItem} nie jest taka sama jak pozycja {expectedItem}"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:292
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:144
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:397
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:158
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:230
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:249
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:201
 msgid "Item Group"
 msgstr "Grupa Pozycji"
 
@@ -6375,6 +6514,10 @@ msgstr "ID Przedmiotu"
 msgid "Item Master"
 msgstr "Główny element"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:212
+msgid "Item Scope"
+msgstr "Zakres Pozycji"
+
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:416
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:587
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:445
@@ -6385,6 +6528,10 @@ msgstr "Typ przedmiotu"
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:116
 #: apps/erp/app/modules/quality/ui/Issue/IssueForm.tsx:157
 #: apps/erp/app/modules/quality/ui/Issue/IssuesTable.tsx:225
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:242
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:170
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:195
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:254
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:77
 #: apps/erp/app/routes/x+/consumable+/_layout.tsx:15
 #: apps/erp/app/routes/x+/issue+/$id.tsx:105
@@ -6472,8 +6619,8 @@ msgstr "Zadania w toku"
 msgid "Jobs Required"
 msgstr "Wymagane zadania"
 
-#. placeholder {0}: company?.name ?? "Company"
 #: apps/erp/app/routes/_public+/invite.$code.tsx:168
+#. placeholder {0}: company?.name ?? "Company"
 msgid "Join {0}"
 msgstr "Dołącz do {0}"
 
@@ -6591,8 +6738,8 @@ msgstr "Data ostatniej kalibracji"
 msgid "Last Name"
 msgstr "Nazwisko"
 
-#. placeholder {0}: formatDateTime(lastSyncedAt)
 #: apps/erp/app/components/OnshapeSync.tsx:353
+#. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
 msgstr "Ostatnia synchronizacja: {0}"
 
@@ -6654,8 +6801,8 @@ msgstr "Wykryte nadmiarowe części"
 msgid "Let's build something"
 msgstr "Zbudujmy coś"
 
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:225
+#. js-lingui-explicit-id
 msgid "Let's set up your new company"
 msgstr "Skonfigurujmy twoja nowa firme"
 
@@ -6877,8 +7024,8 @@ msgstr "Logo został pomyślnie przesłany"
 msgid "Logos"
 msgstr "Logotypy"
 
-#. placeholder {0}: auditConfig.retentionDays
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:108
+#. placeholder {0}: auditConfig.retentionDays
 msgid "Logs older than {0} days are automatically archived."
 msgstr "Dzienniki starsze niż {0} dni są automatycznie archiwizowane."
 
@@ -6994,13 +7141,13 @@ msgstr "Artykuły Make nie mogą być fakturowane bezpośrednio. Zmień metodę 
 msgid "Make Method Version"
 msgstr "Wersja metody produkcji"
 
-#. placeholder {0}: selectedRevision.revision
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:339
+#. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "Uczynić wersję {0} domyślną?"
 
-#. placeholder {0}: selectedRevision.revision
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:338
+#. placeholder {0}: selectedRevision.revision
 msgid "Make size {0} default?"
 msgstr "Ustawić rozmiar {0} jako domyślny?"
 
@@ -7040,7 +7187,7 @@ msgstr "Sprawia, że dokument jest aktywny i widoczny."
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:27
 #: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:20
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:23
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:26
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:28
 #: apps/erp/app/modules/users/ui/useUsersSubmodules.tsx:13
 msgid "Manage"
 msgstr "Zarządzaj"
@@ -7206,6 +7353,10 @@ msgstr "Odchylenie Materiałów"
 msgid "Materials"
 msgstr "Materiały"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:267
+msgid "Max Qty"
+msgstr "Maks. Ilość"
+
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:46
 msgid "Max Quantity"
 msgstr "Maks. Ilość"
@@ -7311,6 +7462,14 @@ msgstr "Jednostki metryczne są wyłączone"
 #: apps/erp/app/routes/x+/settings+/items.tsx:189
 msgid "Metric units are enabled"
 msgstr "Jednostki metryczne są włączone"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:280
+msgid "Min Margin %"
+msgstr "Min Marża %"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:266
+msgid "Min Qty"
+msgstr "Min Ilość"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:1932
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2215
@@ -7504,9 +7663,9 @@ msgstr "Przenieś do"
 msgid "Move to Trash"
 msgstr "Przenieś do kosza"
 
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:348
 #. placeholder {0}: file.name
 #. placeholder {1}: targetBucket === "parts" ? "Parts" : "Opportunity"
-#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:348
 msgid "Moved {0} to {1} bucket"
 msgstr "Przeniesiono {0} do zasobnika {1}"
 
@@ -7584,6 +7743,8 @@ msgstr "Mój zapisany widok"
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:74
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:117
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:460
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:106
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:74
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1051
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1317
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:122
@@ -7624,7 +7785,7 @@ msgid "Never"
 msgstr "Nigdy"
 
 #: apps/erp/app/components/Documents.tsx:269
-#: apps/erp/app/components/Grid/Grid.tsx:408
+#: apps/erp/app/components/Grid/Grid.tsx:426
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:354
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:379
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterForm.tsx:140
@@ -7637,7 +7798,7 @@ msgstr "Nigdy"
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:440
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:711
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableMultiSelect.tsx:266
 msgid "New"
 msgstr "Nowy"
 
@@ -7828,6 +7989,14 @@ msgstr "Nowy PIN"
 msgid "New PO"
 msgstr "Nowe ZO"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:135
+msgid "New Price Override"
+msgstr "Nowe Zastąpienie Ceny"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:100
+msgid "New Pricing Rule"
+msgstr "Nowa Reguła Cenowa"
+
 #: apps/erp/app/modules/resources/ui/Processes/ProcessForm.tsx:113
 msgid "New Process"
 msgstr "Nowy proces"
@@ -7846,7 +8015,7 @@ msgstr "Nowa linia oferty"
 msgid "New Receipt"
 msgstr "Nowy Paragon"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:298
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:306
 msgid "New record created"
 msgstr "Nowy rekord utworzony"
 
@@ -8001,9 +8170,9 @@ msgstr "Następna Sekwencja"
 msgid "No"
 msgstr "Nie"
 
-#. placeholder {0}: node.name.toLowerCase()
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:250
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:427
+#. placeholder {0}: node.name.toLowerCase()
 msgid "No {0} found"
 msgstr "Nie znaleziono {0}"
 
@@ -8031,8 +8200,8 @@ msgstr "Brak aktywnych ofert"
 msgid "No addresses found"
 msgstr "Nie znaleziono adresów"
 
-#. placeholder {0}: auditConfig.retentionDays
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:146
+#. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Brak zarchiwizowanych dzienników. Dzienniki starsze niż {0} dni będą automatycznie archiwizowane i dostępne do pobrania tutaj."
 
@@ -8044,7 +8213,7 @@ msgstr "Brak dostępnych filtrów"
 msgid "No calibration records found"
 msgstr "Nie znaleziono rekordów kalibracji"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:302
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:310
 msgid "No changes recorded"
 msgstr "Brak zarejestrowanych zmian"
 
@@ -8073,7 +8242,7 @@ msgstr "Konwersja nie jest wymagana"
 msgid "No cost history found"
 msgstr "Nie znaleziono historii kosztów"
 
-#: apps/erp/app/components/Grid/Grid.tsx:394
+#: apps/erp/app/components/Grid/Grid.tsx:412
 msgid "No Data"
 msgstr "Brak danych"
 
@@ -8090,6 +8259,7 @@ msgstr "Brak zaplanowanych dni wolnych"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:512
 msgid "No draft versions available"
 msgstr ""
+msgstr "Brak dostępnych wersji roboczych"
 
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:640
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:732
@@ -8147,7 +8317,7 @@ msgid "No notes"
 msgstr "Brak notek"
 
 #: apps/erp/app/components/Assignee.tsx:169
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:296
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "Nie znaleziono opcji."
@@ -8202,7 +8372,7 @@ msgstr "Brak powodu oferty"
 msgid "No Quote Reasons"
 msgstr "Brak powodów oferty"
 
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:71
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:90
 msgid "No Quotes"
 msgstr "Brak ofert"
 
@@ -8315,11 +8485,12 @@ msgstr "Notatka"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:100
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:111
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:118
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:240
 #: apps/erp/app/routes/share+/quote.$id.tsx:1183
 #: apps/erp/app/routes/x+/person+/$personId.notes.tsx:46
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.details.tsx:192
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.details.tsx:188
-#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:295
+#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:340
 #: apps/erp/app/routes/x+/quote+/$quoteId.details.tsx:182
 #: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.details.tsx:186
 #: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.details.tsx:179
@@ -8407,9 +8578,9 @@ msgstr "Na zamówieniu sprzedaży"
 msgid "On Storage Unit"
 msgstr ""
 
+#: apps/erp/app/modules/accounting/ui/Currencies/CurrencyForm.tsx:46
 #. placeholder {0}: company?.baseCurrencyCode
 #. placeholder {1}: initialValues.code
-#: apps/erp/app/modules/accounting/ui/Currencies/CurrencyForm.tsx:46
 msgid "One {0} is equal to how many {1}?"
 msgstr "Jeden {0} równa się ilu {1}?"
 
@@ -8570,6 +8741,7 @@ msgid "Opportunity"
 msgstr "Okazja"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:257
 #: packages/react/src/Form/FormLabel.tsx:44
 msgid "Optional"
 msgstr "Opcjonalnie"
@@ -8627,7 +8799,7 @@ msgstr "Zamawianie"
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:44
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:86
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:97
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:47
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:49
 #: apps/erp/app/routes/x+/purchase-order+/$orderId.tsx:51
 #: apps/erp/app/routes/x+/purchase-order+/new.tsx:27
 #: apps/erp/app/routes/x+/purchasing+/orders.tsx:15
@@ -8678,6 +8850,22 @@ msgstr "Stawka narzutu"
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:135
 msgid "Overhead Rate (Hourly)"
 msgstr "Stawka kosztów ogólnych (godzinowo)"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:372
+msgid "Override"
+msgstr "Zastąpienie"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:417
+msgid "Override Price"
+msgstr "Cena zastępująca"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:168
+msgid "Override price for a single customer"
+msgstr "Zastąp cenę dla jednego klienta"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:174
+msgid "Override price for all customers of a type"
+msgstr "Zastosuj cenę dla wszystkich klientów danego typu"
 
 #: apps/erp/app/modules/people/ui/Person/PersonOvertime.tsx:11
 msgid "Overtime"
@@ -8735,6 +8923,7 @@ msgstr "Pareto wg typu"
 
 #: apps/erp/app/components/Form/Item.tsx:73
 #: apps/erp/app/components/Form/Item.tsx:226
+#: apps/erp/app/components/Form/Items.tsx:31
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:38
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:776
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1301
@@ -8920,6 +9109,10 @@ msgstr "Wybierz"
 msgid "Pick a column to sort by"
 msgstr "Wybierz kolumnę do sortowania"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:27
+msgid "Pick a scope to view resolved prices and create price overrides."
+msgstr "Wybierz zakres, aby wyświetlić rozliczone ceny i utworzyć zastąpienia cen."
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:142
 msgid "Pick List"
 msgstr "Lista pobrania"
@@ -8973,7 +9166,7 @@ msgstr "Planowany czas rozpoczęcia"
 msgid "Planning"
 msgstr "Planowanie"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:171
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:179
 msgid "Please contact your administrator to enable audit logging."
 msgstr "Skontaktuj się z administratorem, aby włączyć rejestrowanie audytu."
 
@@ -9031,7 +9224,7 @@ msgstr "Polski"
 msgid "Portal Link"
 msgstr "Link do portalu"
 
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:60
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:62
 msgid "Portals"
 msgstr "Portale"
 
@@ -9128,6 +9321,10 @@ msgstr "Poprz"
 msgid "Preview"
 msgstr "Podgląd"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:353
+msgid "Preview Quantity"
+msgstr "Ilość podglądu"
+
 #: apps/erp/app/components/Configurator/ConfiguratorForm/ConfiguratorForm.ee.tsx:425
 #: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:293
 #: apps/erp/app/components/Table/components/Pagination/Pagination.tsx:136
@@ -9143,8 +9340,25 @@ msgid "Previous Date"
 msgstr "Poprzednia data"
 
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:388
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:382
 msgid "Price break actions"
 msgstr "Akcje podziału ceny"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:487
+msgid "Price Break History"
+msgstr "Historia podziału ceny"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:466
+msgid "Price Breaks"
+msgstr "Progi cenowe"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:379
+msgid "Price List"
+msgstr "Lista cen"
+
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:73
+msgid "Price Lists"
+msgstr "Cenniki"
 
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLinePricing.tsx:154
 msgid "Prices"
@@ -9155,6 +9369,18 @@ msgid "Pricing"
 msgstr "Wycena"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:238
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:415
+msgid "Pricing Rule"
+msgstr "Reguła cenowa"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:421
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:84
+msgid "Pricing Rules"
+msgstr "Reguły cenowe"
+#: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:79
+msgid "Pricing Trace"
+msgstr "Śledzenie cen"
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:230
 msgid "Print Label"
 msgstr "Drukuj etykietę"
 
@@ -9172,6 +9398,7 @@ msgstr "Priorytety"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:283
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:179
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:159
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:272
 #: apps/erp/app/routes/x+/quality+/_index.tsx:976
 msgid "Priority"
 msgstr "Priorytet"
@@ -9648,6 +9875,8 @@ msgstr "Ilości"
 #: apps/erp/app/modules/quality/ui/Issue/AssociatedItemsList.tsx:110
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:341
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:358
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:373
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:343
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:858
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2554
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2686
@@ -9777,7 +10006,7 @@ msgstr "Data wyceny"
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:80
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:100
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:323
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:41
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:43
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:295
 #: apps/erp/app/routes/x+/quote+/$quoteId.tsx:45
 #: apps/erp/app/routes/x+/quote+/new.tsx:19
@@ -9922,7 +10151,7 @@ msgstr "Niedawno utworzone"
 msgid "Record"
 msgstr "Nagrywaj"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:300
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:308
 msgid "Record deleted"
 msgstr "Rekord usunięty"
 
@@ -10005,8 +10234,8 @@ msgstr "Zapamiętaj ten PIN. Będziesz go potrzebować, aby wyjść z trybu kons
 msgid "Remove"
 msgstr "Usuń"
 
-#. placeholder {0}: item.label
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:107
+#. placeholder {0}: item.label
 msgid "Remove {0}"
 msgstr "Usuń {0}"
 
@@ -10133,6 +10362,7 @@ msgid "Report"
 msgstr "Raport"
 
 #: apps/erp/app/modules/quality/ui/Issue/IssueHeader.tsx:99
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:70
 msgid "Reports"
 msgstr "Raporty"
 
@@ -10232,11 +10462,15 @@ msgstr "Resetuj"
 msgid "Reset PIN"
 msgstr "Resetuj PIN"
 
+#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:109
 #. placeholder {0}: operator.firstName
 #. placeholder {1}: operator.lastName
-#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:109
 msgid "Reset PIN for {0} {1}"
 msgstr "Resetuj PIN dla {0} {1}"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:192
+msgid "Resolved Price"
+msgstr "Cena rozliczona"
 
 #: apps/erp/app/hooks/useModules.tsx:88
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:113
@@ -10282,10 +10516,10 @@ msgstr "Odwróć wszystkie korekty zapasów"
 msgid "Revision"
 msgstr "Wersja"
 
-#. placeholder {0}: revision.revision
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:586
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:504
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:493
+#. placeholder {0}: revision.revision
 msgid "Revision {0}"
 msgstr "Wersja {0}"
 
@@ -10356,7 +10590,7 @@ msgstr "Numer RFQ"
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:32
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:74
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:263
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:35
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:37
 #: apps/erp/app/routes/x+/purchasing-rfq+/$rfqId.tsx:27
 #: apps/erp/app/routes/x+/purchasing-rfq+/new.tsx:23
 #: apps/erp/app/routes/x+/purchasing+/rfqs.tsx:15
@@ -10398,9 +10632,25 @@ msgstr "Rola:"
 msgid "rows"
 msgstr "wiersze"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:169
+msgid "Rule applies to every customer."
+msgstr "Reguła dotyczy każdego klienta."
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:219
+msgid "Rule applies to every item."
+msgstr "Reguła dotyczy każdego artykułu."
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:109
+msgid "Rule Type"
+msgstr "Typ reguły"
+
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:405
 msgid "Run Test"
 msgstr "Uruchom Test"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:102
+msgid "Running Total"
+msgstr "Suma bieżąca"
 
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:121
 msgid "Safety Stock"
@@ -10766,6 +11016,10 @@ msgstr "Zaplanowane konserwacje"
 msgid "Schedules"
 msgstr "Harmonogramy"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:158
+msgid "Scope"
+msgstr "Zakres"
+
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:79
 msgid "Scopes"
 msgstr "Zakresy"
@@ -10823,6 +11077,10 @@ msgstr "Szukaj po tytule problemu Jira..."
 msgid "Search by linear issue title..."
 msgstr "Szukaj po tytule problemu Linear..."
 
+#: apps/erp/app/modules/sales/ui/Pricing/ScopePicker.tsx:110
+msgid "Search customers and types..."
+msgstr "Wyszukaj klientów i typy..."
+
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:206
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:263
 msgid "Search employees..."
@@ -10853,8 +11111,8 @@ msgstr "Szukaj powiązanych elementów..."
 msgid "Search suppliers..."
 msgstr "Szukaj dostawców..."
 
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Chat/ChatInput.tsx:185
+#. js-lingui-explicit-id
 msgid "Search the web"
 msgstr "Przeszukaj internet"
 
@@ -10874,8 +11132,8 @@ msgstr "Przeszukaj internet"
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:357
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/CreateableMultiSelect.tsx:165
+#: packages/react/src/CreateableMultiSelect.tsx:286
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "Szukaj..."
@@ -10900,6 +11158,10 @@ msgstr "Wybierz"
 msgid "Select a assignee"
 msgstr "Wybierz osobę przydzieloną"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:24
+msgid "Select a customer or customer type"
+msgstr "Wybierz klienta lub typ klienta"
+
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:127
 msgid "Select a default approver"
 msgstr "Wybierz domyślnego zatwierdzającego"
@@ -10912,8 +11174,8 @@ msgstr "Wybierz nowego właściciela"
 msgid "Select a plan"
 msgstr "Wybierz plan"
 
-#. placeholder {0}: plans[0].stripeTrialPeriodDays
 #: apps/erp/app/routes/onboarding+/plan.tsx:155
+#. placeholder {0}: plans[0].stripeTrialPeriodDays
 msgid "Select a plan to get started. You won't be charged for the first {0} days. Switch or cancel anytime."
 msgstr "Wybierz plan, aby rozpocząć. Nie będziesz obciążony opłatą przez pierwsze {0} dni. Możesz zmienić lub anulować w dowolnym momencie."
 
@@ -10952,6 +11214,7 @@ msgstr "Wybierz element i określ ilość do wydania"
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:411
 msgid "Select an item first"
 msgstr ""
+msgstr "Najpierw wybierz element"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:583
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:563
@@ -10976,6 +11239,14 @@ msgstr "Wybierz status klienta"
 msgid "Select Customer Type"
 msgstr "Wybierz typ klienta"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:207
+msgid "Select customer types"
+msgstr "Wybierz typy klientów"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:200
+msgid "Select customers"
+msgstr "Wybierz klientów"
+
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:53
 msgid "Select date range to filter net change and balance at date"
 msgstr "Wybierz zakres dat, aby filtrować zmianę netto i saldo na dzień"
@@ -10999,8 +11270,13 @@ msgid "Select groups or individuals"
 msgstr "Wybierz grupy lub osoby"
 
 #: apps/erp/app/components/Form/Item.tsx:331
+#: apps/erp/app/components/Form/Items.tsx:91
 msgid "Select Item Type"
 msgstr "Wybierz typ elementu"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:243
+msgid "Select items"
+msgstr "Wybierz artykuły"
 
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:67
 msgid "Select Quantities"
@@ -11009,6 +11285,10 @@ msgstr "Wybierz ilości"
 #: apps/erp/app/components/Table/components/IndeterminateCheckbox.tsx:33
 msgid "Select Row"
 msgstr "Wybierz wiersz"
+
+#: apps/erp/app/modules/sales/ui/Pricing/ScopePicker.tsx:99
+msgid "Select scope"
+msgstr "Wybierz zakres"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:118
 msgid "Select Supplier Status"
@@ -11138,6 +11418,7 @@ msgstr "Ustaw domyślne procenty marż dla każdej kategorii kosztów w nowych w
 msgid "Set Quantity"
 msgstr "Ustaw ilość"
 
+#: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:615
 #. placeholder {0}: selectedVersion.version
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:615
 msgid "Set Version {0} as Active Version?"
@@ -11218,6 +11499,32 @@ msgstr "Udostępnij Link"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:558
 msgid "Share Quote"
 msgstr "Udostępnij Ofertę"
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:166
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:303
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:283
+#: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:430
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:126
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:374
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:704
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:519
+#: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:457
+#: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1008
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:964
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1053
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:591
+#: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:439
+#: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:976
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:529
+msgid "Shelf"
+msgstr "Półka"
+
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryShelves.tsx:143
+#: apps/erp/app/modules/inventory/ui/Shelves/ShelvesTable.tsx:173
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:86
+#: apps/erp/app/routes/x+/inventory+/shelves.tsx:17
+msgid "Shelves"
+msgstr "Półki"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58
@@ -11501,6 +11808,7 @@ msgstr "Sortuj malejąco"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:121
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:173
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:347
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:216
 #: apps/erp/app/routes/x+/resources+/_index.tsx:736
 msgid "Source"
 msgstr "Źródło"
@@ -11528,6 +11836,7 @@ msgstr "Identyfikator dokumentu źródłowego"
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:383
 msgid "Source Item"
 msgstr ""
+msgstr "Element źródłowy"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:395
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:336
@@ -11538,6 +11847,7 @@ msgstr "Metoda źródłowa"
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:400
 msgid "Source Version"
 msgstr ""
+msgstr "Wersja źródłowa"
 
 #: apps/erp/app/components/Chat/WebSearch.tsx:97
 msgid "Sources"
@@ -11556,6 +11866,17 @@ msgid "Spare Part Cost"
 msgstr "Koszt części zamiennych"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1129
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:167
+msgid "Specific Customer"
+msgstr "Konkretny klient"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:174
+msgid "Specific Customers"
+msgstr "Konkretni klienci"
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:224
+msgid "Specific Items"
+msgstr "Określone artykuły"
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1128
 msgid "Split"
 msgstr "Podziel"
 
@@ -11592,8 +11913,8 @@ msgstr "Standardowy czas realizacji"
 msgid "Start"
 msgstr "Rozpocznij"
 
-#. placeholder {0}: plan.stripeTrialPeriodDays
 #: apps/erp/app/routes/onboarding+/plan.tsx:221
+#. placeholder {0}: plan.stripeTrialPeriodDays
 msgid "Start {0} Day Free Trial"
 msgstr "Rozpocznij {0}-dniowy bezpłatny okres próbny"
 
@@ -11709,11 +12030,12 @@ msgstr "Rozkład statusu"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:137
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:193
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:103
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:78
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:97
 msgid "Statuses"
 msgstr "Statusy"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationStepRecordsTable.tsx:77
+#: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:90
 #: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:95
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:69
 msgid "Step"
@@ -12104,9 +12426,9 @@ msgstr "Dostawa"
 msgid "Supply & Demand"
 msgstr "Podaż i Popyt"
 
-#. placeholder {0}: supportedModelTypes.join(", ")
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:373
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:365
+#. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
 msgstr "Obsługuje pliki {0}"
 
@@ -12124,7 +12446,7 @@ msgstr "Przełącz"
 msgid "Sync"
 msgstr "Synchronizuj"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:237
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:245
 #: apps/erp/app/components/EmployeeAvatar.tsx:29
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:121
 msgid "System"
@@ -12178,6 +12500,14 @@ msgstr "Cel"
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:480
 msgid "Target Item"
 msgstr ""
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:231
+msgid "Target an item group."
+msgstr "Kieruj na grupę artykułów."
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:181
+msgid "Target customers by type."
+msgstr "Kieruj do klientów według typu."
+msgstr "Element docelowy"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:499
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:484
@@ -12191,6 +12521,14 @@ msgstr "Docelowa liczba otwartych problemów wyświetlana jako linia odniesienia
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:497
 msgid "Target Version"
 msgstr ""
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:175
+msgid "Target one or more customers."
+msgstr "Kieruj do jednego lub więcej klientów."
+
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:225
+msgid "Target one or more items."
+msgstr "Wybierz jeden lub więcej artykułów."
+msgstr "Wersja docelowa"
 
 #: apps/erp/app/routes/x+/settings+/billing.tsx:242
 msgid "Tasks"
@@ -12533,6 +12871,10 @@ msgstr "Przełącz"
 msgid "Toggle Assignee"
 msgstr "Przełącz przypisanego"
 
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:436
+msgid "Toggle break active"
+msgstr "Przełącz aktywność podziału"
+
 #: apps/erp/app/components/Table/components/Columns.tsx:129
 #: apps/erp/app/components/Table/components/Columns.tsx:173
 msgid "Toggle column"
@@ -12590,6 +12932,7 @@ msgstr "Tolerancja (+/-)"
 
 #: apps/erp/app/components/Form/Item.tsx:77
 #: apps/erp/app/components/Form/Item.tsx:230
+#: apps/erp/app/components/Form/Items.tsx:35
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2801
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2901
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:546
@@ -12675,7 +13018,7 @@ msgstr "Śledź"
 msgid "Track changes to key business entities including invoices, orders, customers, suppliers, and more."
 msgstr "Śledź zmiany w kluczowych jednostkach biznesowych, w tym fakturach, zamówieniach, klientach, dostawcach i nie tylko."
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:136
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:144
 msgid "Track every change to your orders, invoices, customers, and more."
 msgstr "Śledź każdą zmianę w swoich zamówieniach, fakturach, klientach i nie tylko."
 
@@ -12844,6 +13187,8 @@ msgstr "Wtorek"
 #: apps/erp/app/modules/resources/ui/Training/TrainingsTable.tsx:81
 #: apps/erp/app/modules/sales/ui/Customer/CustomerHeader.tsx:140
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:106
+#: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:93
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:88
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1042
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1309
 msgid "Type"
@@ -12867,7 +13212,7 @@ msgstr "Typ:"
 
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:89
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:73
-#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:84
+#: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:103
 #: apps/erp/app/routes/x+/items+/types.tsx:15
 msgid "Types"
 msgstr "Typy"
@@ -13137,12 +13482,12 @@ msgstr "Zaktualizowano przez"
 msgid "Updated successfully"
 msgstr "Pomyślnie zaktualizowano"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:143
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:151
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:100
 msgid "Upgrade to Business"
 msgstr "Uaktualnij do Business"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:133
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:141
 msgid "Upgrade to unlock audit history"
 msgstr "Uaktualnij, aby odblokować historię audytu"
 
@@ -13167,18 +13512,15 @@ msgstr "Prześlij CSV"
 msgid "Uploaded model"
 msgstr "Model przesłany"
 
-#. placeholder {0}: file.name
-#. placeholder {0}: fileUpload.name
 #: apps/erp/app/components/Documents.tsx:214
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:774
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:429
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:398
+#. placeholder {0}: file.name
+#. placeholder {0}: fileUpload.name
 msgid "Uploaded: {0}"
 msgstr "Przesłano: {0}"
 
-#. placeholder {0}: avatarFile.name
-#. placeholder {0}: file.name
-#. placeholder {0}: fileUpload.name
 #: apps/erp/app/components/Documents.tsx:199
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:77
 #: apps/erp/app/components/ItemThumnailUpload.tsx:78
@@ -13187,6 +13529,9 @@ msgstr "Przesłano: {0}"
 #: apps/erp/app/modules/documents/ui/Documents/DocumentCreateForm.tsx:22
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:416
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:386
+#. placeholder {0}: avatarFile.name
+#. placeholder {0}: file.name
+#. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "Przesyłanie {0}"
 
@@ -13276,6 +13621,20 @@ msgstr "Użytkownicy mogą aktualizować tę wartość dla siebie"
 #: apps/erp/app/modules/users/ui/Employees/BulkEditPermissionsForm.tsx:129
 msgid "Users to Update"
 msgstr "Użytkownicy do aktualizacji"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:232
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:261
+msgid "Valid From"
+msgstr "Ważne od"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:226
+msgid "Valid Period"
+msgstr "Okres ważności"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:235
+#: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:262
+msgid "Valid To"
+msgstr "Ważne do"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:679
 msgid "Validating job..."
@@ -13380,6 +13739,10 @@ msgstr "Wyświetl Klientów"
 #: apps/erp/app/modules/users/ui/EmployeeTypes/EmployeeTypesTable.tsx:55
 msgid "View Employees"
 msgstr "Wyświetl pracowników"
+
+#: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:398
+msgid "View History"
+msgstr "Wyświetl historię"
 
 #: apps/erp/app/components/TrainingPanel.tsx:73
 msgid "View in Academy"
@@ -13792,11 +14155,12 @@ msgstr "Możesz zmienić styl interfejsu użytkownika w dowolnym momencie za po�
 msgid "You can only see this key once. Store it safely."
 msgstr "Możesz zobaczyć ten klucz tylko raz. Przechowuj go bezpiecznie."
 
-#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
 #: apps/erp/app/components/TimeCardWarning.tsx:119
+#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
 msgstr "Zalogowałeś się o {0}. Możesz edytować czas wylogowania poniżej lub potwierdzić, że nadal pracujesz."
 
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1073
 #. placeholder {0}: leftoverQuantity === 1 ? "part" : "parts"
 #. placeholder {1}: job.quantity
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1074

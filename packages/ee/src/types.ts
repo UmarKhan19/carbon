@@ -16,6 +16,7 @@ export type IntegrationSettingOption =
   | {
       value: string;
       label: string;
+      icon?: React.ReactNode;
       description?: string;
     };
 
@@ -32,13 +33,26 @@ export type IntegrationSetting = {
   /** Optional group name for organizing settings into collapsible sections */
   group?: string;
   /** Field input type */
-  type: "text" | "switch" | "processes" | "options" | "array";
+  type:
+    | "text"
+    | "number"
+    | "password"
+    | "switch"
+    | "processes"
+    | "options"
+    | "cards"
+    | "array";
   /** Options for 'options' type fields */
   listOptions?: IntegrationSettingOption[];
   /** Whether the field is required */
   required: boolean;
   /** Default value for the field */
   value: unknown;
+  /**
+   * Conditionally render this field only when another field's value matches.
+   * Used for provider-based form branching (e.g. show SMTP fields only when provider === "smtp").
+   */
+  visibleWhen?: { field: string; equals: string | string[] };
 };
 
 /**

@@ -36,6 +36,7 @@ export type CreatableMultiSelectProps = Omit<
   isClearable?: boolean;
   isReadOnly?: boolean;
   label?: string;
+  createLabel?: string;
   placeholder?: string;
   maxPreview?: number;
   itemHeight?: number;
@@ -64,6 +65,7 @@ const CreatableMultiSelect = forwardRef<
       isReadOnly,
       placeholder,
       label,
+      createLabel,
       className,
       itemHeight = 40,
       maxPreview,
@@ -181,6 +183,7 @@ const CreatableMultiSelect = forwardRef<
               itemHeight={itemHeight}
               setOpen={setOpen}
               label={label}
+              createLabel={createLabel}
               search={search}
               setSearch={setSearch}
               showCreateOptionOnEmpty={showCreateOptionOnEmpty}
@@ -212,6 +215,7 @@ type VirtualizedCommandProps = {
   itemHeight: number;
   setOpen: (open: boolean) => void;
   label?: string;
+  createLabel?: string;
   search: string;
   setSearch: (search: string) => void;
   showCreateOptionOnEmpty?: boolean;
@@ -225,6 +229,7 @@ function VirtualizedCommand({
   itemHeight,
   setOpen,
   label,
+  createLabel,
   search,
   setSearch,
   showCreateOptionOnEmpty = false
@@ -336,7 +341,7 @@ function VirtualizedCommand({
                   {isCreateOption ? (
                     <>
                       <LuCirclePlus className="mr-1.5" />
-                      <span>{t`Create ${search.trim() === "" ? label : search}`}</span>
+                      <span>{t`Create ${search.trim() === "" ? (createLabel ?? label) : search}`}</span>
                     </>
                   ) : (
                     <>

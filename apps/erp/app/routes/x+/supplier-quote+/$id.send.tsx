@@ -177,7 +177,7 @@ export async function action(args: ActionFunctionArgs) {
         },\n\nPlease provide pricing and lead time(s) for the linked quote:`;
         const emailSignature = `Thanks,\n${user.data.firstName} ${user.data.lastName}\n${company.data.name}`;
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [user.data.email, supplierContact.data.contact?.email].filter(
             Boolean
           ) as string[],

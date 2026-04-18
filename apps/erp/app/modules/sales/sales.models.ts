@@ -146,6 +146,82 @@ export const customerPortalValidator = z.object({
   customerId: z.string().min(1, { message: "Customer is required" })
 });
 
+export const priceOverrideBreakValidator = z.object({
+  id: z.string().optional(),
+  quantity: z.number().nonnegative(),
+  overridePrice: z.number().nonnegative(),
+  active: z.boolean().default(true)
+});
+
+export const priceOverrideBreaksValidator = z
+  .array(priceOverrideBreakValidator)
+  .min(1, { message: "At least one break is required" })
+  .refine((b) => new Set(b.map((x) => x.quantity)).size === b.length, {
+    message: "Duplicate quantity across breaks"
+  });
+
+export const priceOverrideValidator = z
+  .object({
+    id: z.string().optional(),
+    itemId: z.string().min(1),
+    customerId: z.string().optional(),
+    customerTypeId: z.string().optional(),
+    active: zfd.checkbox(),
+    applyRulesOnTop: zfd.checkbox(),
+    validFrom: zfd.text(z.string().optional()),
+    validTo: zfd.text(z.string().optional()),
+    notes: zfd.text(z.string().optional())
+  })
+  .refine((d) => !(d.customerId && d.customerTypeId), {
+    message: "Cannot set both Customer and Customer Type",
+    path: ["customerId"]
+  })
+  .refine((d) => !d.validFrom || !d.validTo || d.validFrom <= d.validTo, {
+    message: "Valid From must be on or before Valid To",
+    path: ["validTo"]
+  });
+
+export const priceResolutionInputValidator = z.object({
+  itemId: z.string().min(1),
+  quantity: z.number().nonnegative(),
+  customerId: z.string().optional(),
+  customerTypeId: z.string().optional(),
+  itemPostingGroupId: z.string().optional(),
+  date: z.string().optional(),
+  existingBasePrice: z.number().optional()
+});
+
+export const pricingRuleTypes = ["Discount", "Markup"] as const;
+export const pricingRuleAmountTypes = ["Percentage", "Fixed"] as const;
+
+export const pricingRuleValidator = z
+  .object({
+    id: zfd.text(z.string().optional()),
+    name: z.string().min(1, { message: "Name is required" }),
+    ruleType: z.enum(pricingRuleTypes),
+    amountType: z.enum(pricingRuleAmountTypes),
+    amount: zfd.numeric(z.number().min(0)),
+    minQuantity: zfd.numeric(z.number().min(0).optional()),
+    maxQuantity: zfd.numeric(z.number().min(0).optional()),
+    customerIds: z.array(z.string()).optional().default([]),
+    customerTypeIds: z.array(z.string()).optional().default([]),
+    itemIds: z.array(z.string()).optional().nullable().default([]),
+    itemPostingGroupId: zfd.text(z.string().optional()),
+    validFrom: zfd.text(z.string().optional()),
+    validTo: zfd.text(z.string().optional()),
+    priority: zfd.numeric(z.number().int().min(0).optional().default(0)),
+    minMarginPercent: zfd.numeric(z.number().min(0).max(1).optional()),
+    active: zfd.checkbox()
+  })
+  .refine((d) => d.amountType !== "Percentage" || d.amount <= 1, {
+    message: "Percentage must be between 0% and 100%",
+    path: ["amount"]
+  })
+  .refine((d) => !d.validFrom || !d.validTo || d.validFrom <= d.validTo, {
+    message: "Valid From must be on or before Valid To",
+    path: ["validTo"]
+  });
+
 export const quoteLineStatusType = [
   "Not Started",
   "In Progress",

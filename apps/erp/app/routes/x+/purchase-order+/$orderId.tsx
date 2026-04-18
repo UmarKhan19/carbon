@@ -265,7 +265,7 @@ export async function action(args: ActionFunctionArgs) {
               .from("private")
               .createSignedUrl(documentFilePath!, 3600);
 
-            await trigger("send-email-resend", {
+            await trigger("send-email", {
               to: [buyer.data.email, supplierEmail],
               cc: ccSelections?.length ? ccSelections : undefined,
               from: buyer.data.email,

@@ -191,12 +191,11 @@ export async function action(args: ActionFunctionArgs) {
 
         const html = await renderAsync(emailTemplate);
         const text = await renderAsync(emailTemplate, { plainText: true });
-
         const { data: signedUrlData } = await client.storage
           .from("private")
           .createSignedUrl(documentFilePath, 3600);
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [user.data.email, customerContact.data.contact!.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: user.data.email,

@@ -291,9 +291,10 @@ msgstr "控制台"
 msgid "Console Mode"
 msgstr "控制台模式"
 
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableMultiSelect.tsx:344
 msgid "Create {0}"
 msgstr "创建 {0}"
 
@@ -687,7 +688,7 @@ msgid "Name"
 msgstr "名称"
 
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableMultiSelect.tsx:266
 msgid "New"
 msgstr "新建"
 
@@ -748,7 +749,7 @@ msgstr "无物料"
 msgid "No operators"
 msgstr "无操作员"
 
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:296
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "未找到选项。"
@@ -1016,8 +1017,8 @@ msgstr "搜索操作员..."
 #: apps/mes/app/components/Filter/Filter.tsx:163
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/CreateableMultiSelect.tsx:165
+#: packages/react/src/CreateableMultiSelect.tsx:286
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "搜索..."
@@ -1115,6 +1116,10 @@ msgstr "设置下班打卡时间"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2130
 msgid "Setup"
 msgstr "设置"
+
+#: apps/mes/app/components/AdjustInventory.tsx:170
+msgid "Shelf"
+msgstr "货架"
 
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"

@@ -1,3 +1,4 @@
+import { emailHealthcheck } from "./email/hooks.server";
 import { jiraHealthcheck } from "./jira/hooks.server";
 import { linearHealthcheck } from "./linear/hooks.server";
 import type { IntegrationServerHooks } from "./types";
@@ -16,6 +17,9 @@ import {
  * their server-only lifecycle hooks.
  */
 const serverHooks: Record<string, IntegrationServerHooks> = {
+  email: {
+    onHealthcheck: emailHealthcheck
+  },
   jira: {
     onHealthcheck: jiraHealthcheck
   },

@@ -291,9 +291,10 @@ msgstr "कंसोल"
 msgid "Console Mode"
 msgstr "कंसोल मोड"
 
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableMultiSelect.tsx:344
 msgid "Create {0}"
 msgstr "{0} बनाएं"
 
@@ -687,7 +688,7 @@ msgid "Name"
 msgstr "नाम"
 
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableMultiSelect.tsx:266
 msgid "New"
 msgstr "नया"
 
@@ -748,7 +749,7 @@ msgstr "कोई सामग्री नहीं"
 msgid "No operators"
 msgstr "कोई ऑपरेटर नहीं"
 
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:296
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "कोई विकल्प नहीं मिला।"
@@ -1016,8 +1017,8 @@ msgstr "ऑपरेटर खोजें..."
 #: apps/mes/app/components/Filter/Filter.tsx:163
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/CreateableMultiSelect.tsx:165
+#: packages/react/src/CreateableMultiSelect.tsx:286
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "खोजें..."
@@ -1115,6 +1116,10 @@ msgstr "घड़ी बंद करने का समय सेट करे
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2130
 msgid "Setup"
 msgstr "सेटअप"
+
+#: apps/mes/app/components/AdjustInventory.tsx:170
+msgid "Shelf"
+msgstr "शेल्फ"
 
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"

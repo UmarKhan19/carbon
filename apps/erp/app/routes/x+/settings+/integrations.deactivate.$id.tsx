@@ -5,7 +5,10 @@ import { integrations as availableIntegrations } from "@carbon/ee";
 import { getIntegrationServerHooks } from "@carbon/ee/hooks.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { deactivateIntegration } from "~/modules/settings/settings.server";
+import {
+  deactivateIntegration,
+  invalidateIntegrationHealthCache
+} from "~/modules/settings/settings.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -42,6 +45,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (hooks?.onUninstall) {
     await hooks.onUninstall(companyId);
   }
+
+  await invalidateIntegrationHealthCache(integrationId, companyId);
 
   throw redirect(
     path.to.integrations,

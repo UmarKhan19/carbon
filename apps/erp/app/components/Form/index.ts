@@ -38,7 +38,9 @@ import Customer from "./Customer";
 import CustomerContact from "./CustomerContact";
 import CustomerLocation from "./CustomerLocation";
 import CustomerStatus from "./CustomerStatus";
+import Customers from "./Customers";
 import CustomerType from "./CustomerType";
+import CustomerTypes from "./CustomerTypes";
 import CustomFormFields from "./CustomFormFields";
 import DefaultMethodType from "./DefaultMethodType";
 import Department from "./Department";
@@ -48,6 +50,7 @@ import Employee from "./Employee";
 import Employees from "./Employees";
 import Item, { useConfigurableItems } from "./Item";
 import ItemPostingGroup from "./ItemPostingGroup";
+import Items from "./Items";
 import Location from "./Location";
 import MaterialType from "./MaterialType";
 import Part from "./Part";
@@ -99,7 +102,9 @@ export {
   CustomerContact,
   CustomerLocation,
   CustomerStatus,
+  Customers,
   CustomerType,
+  CustomerTypes,
   CustomFormFields,
   DatePicker,
   DateTimePicker,
@@ -115,6 +120,7 @@ export {
   InputControlled,
   Item,
   ItemPostingGroup,
+  Items,
   useConfigurableItems,
   Location,
   MaterialType,
