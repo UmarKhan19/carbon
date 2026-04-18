@@ -1117,10 +1117,6 @@ msgstr "Définir l'heure de sortie"
 msgid "Setup"
 msgstr "Réglage"
 
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "Emplacement"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "Se connecter avec l'e-mail"

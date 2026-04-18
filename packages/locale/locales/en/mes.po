@@ -1117,10 +1117,6 @@ msgstr "Set clock-out time"
 msgid "Setup"
 msgstr "Setup"
 
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "Shelf"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "Sign in with Email"

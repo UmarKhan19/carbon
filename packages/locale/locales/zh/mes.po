@@ -1117,10 +1117,6 @@ msgstr "设置下班打卡时间"
 msgid "Setup"
 msgstr "设置"
 
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "货架"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "使用邮箱登录"

@@ -1117,10 +1117,6 @@ msgstr "退勤時間を設定"
 msgid "Setup"
 msgstr "段取り"
 
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "棚"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "メールでサインイン"

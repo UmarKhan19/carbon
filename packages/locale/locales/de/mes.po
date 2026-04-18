@@ -1117,10 +1117,6 @@ msgstr "Ausstempelzeit festlegen"
 msgid "Setup"
 msgstr "Rüsten"
 
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "Regal"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "Mit E-Mail anmelden"

@@ -1117,10 +1117,6 @@ msgstr "घड़ी बंद करने का समय सेट करे
 msgid "Setup"
 msgstr "सेटअप"
 
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "शेल्फ"
-
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "ईमेल के साथ साइन इन करें"
