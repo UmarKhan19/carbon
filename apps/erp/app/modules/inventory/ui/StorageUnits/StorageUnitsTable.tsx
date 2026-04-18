@@ -1,10 +1,18 @@
-import { Checkbox, Combobox, MenuIcon, MenuItem, VStack } from "@carbon/react";
+import {
+  Checkbox,
+  Combobox,
+  HStack,
+  MenuIcon,
+  MenuItem,
+  VStack
+} from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
   LuCheck,
+  LuLayers,
   LuMapPin,
   LuPencil,
   LuPlus,
@@ -14,6 +22,7 @@ import { useNavigate } from "react-router";
 import { Hyperlink, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
+import { useStorageTypes } from "~/components/Form/StorageTypes";
 import { usePermissions, useUrlParams } from "~/hooks";
 import { path } from "~/utils/path";
 
@@ -25,6 +34,7 @@ type StorageUnit = {
   parentId: string | null;
   depth: number | null;
   ancestorPath: string[] | null;
+  storageTypeIds: string[] | null;
 };
 
 type StorageUnitsTableProps = {
@@ -57,33 +67,7 @@ const StorageUnitsTable = memo(
       return clientLocations;
     }, [serverLocations, clientLocations]);
 
-    // Subtree depth = the longest chain of descendants below a node.
-    // Leaf = 0, parent-of-leaves = 1, has-grandchildren = 2, etc. We
-    // compute it from the rows already in the table - every descendant's
-    // ancestorPath lists each of its ancestors, so each descendant
-    // contributes (descendant.depth - ancestor.depth) to that ancestor's
-    // subtree depth. We keep the max.
-    const subtreeDepthById = useMemo(() => {
-      const ownDepth = new Map<string, number>();
-      for (const row of data) ownDepth.set(row.id, row.depth ?? 1);
-
-      const result = new Map<string, number>();
-      for (const row of data) result.set(row.id, 0);
-
-      for (const row of data) {
-        const path = row.ancestorPath ?? [];
-        // Strict ancestors only — drop the last element (which is self).
-        for (let i = 0; i < path.length - 1; i++) {
-          const ancestorId = path[i];
-          const ancestorDepth = ownDepth.get(ancestorId);
-          if (ancestorDepth === undefined) continue;
-          const candidate = (row.depth ?? 1) - ancestorDepth;
-          const current = result.get(ancestorId) ?? 0;
-          if (candidate > current) result.set(ancestorId, candidate);
-        }
-      }
-      return result;
-    }, [data]);
+    const storageTypes = useStorageTypes();
 
     const columns = useMemo<ColumnDef<StorageUnit>[]>(() => {
       return [
@@ -141,6 +125,34 @@ const StorageUnitsTable = memo(
             icon: <LuMapPin />
           }
         },
+        {
+          accessorKey: "storageTypeIds",
+          header: t`Storage Types`,
+          cell: ({ row }) => {
+            if (!row.original.storageTypeIds?.length) return null;
+            return (
+              <HStack spacing={1}>
+                {row.original.storageTypeIds.map((id) => {
+                  const label =
+                    storageTypes?.find((st) => st.value === id)?.label ?? id;
+                  return <Enumerable key={id} value={label} />;
+                })}
+              </HStack>
+            );
+          },
+          meta: {
+            filter: {
+              type: "static",
+              options: storageTypes?.map((st) => ({
+                value: st.value,
+                label: <Enumerable value={st.label} />
+              })),
+              isArray: true
+            },
+            pluralHeader: t`Storage Types`,
+            icon: <LuLayers />
+          }
+        },
 
         {
           accessorKey: "active",
@@ -159,7 +171,7 @@ const StorageUnitsTable = memo(
           }
         }
       ];
-    }, [locations, params, subtreeDepthById, t]);
+    }, [locations, params, storageTypes, t]);
 
     const defaultColumnVisibility = {
       active: false
