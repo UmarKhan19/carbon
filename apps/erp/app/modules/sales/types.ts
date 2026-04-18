@@ -39,6 +39,7 @@ export type MatchedRule = {
   amountType: string;
   amount: number;
   priority: number;
+  minMarginPercent: number | null;
 };
 
 export type PriceOverrideBreak = {
@@ -62,6 +63,7 @@ export type PriceListRow = {
   itemId: string;
   partId: string;
   itemName: string;
+  itemPostingGroupId: string | null;
   thumbnailPath: string | null;
   basePrice: number;
   resolvedPrice: number;

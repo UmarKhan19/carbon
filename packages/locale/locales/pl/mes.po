@@ -90,15 +90,6 @@ msgstr "Dodaj i wydaj"
 msgid "Add Inventory"
 msgstr "Dodaj zapasy"
 
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "Dodaj nowego operatora"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "Dodaj operatora"
-
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
 msgstr "Dodaj część zamienną"
@@ -189,7 +180,6 @@ msgstr "Logując się, akceptujesz <0>Regulamin</0> i <1>Politykę prywatności.
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -301,13 +291,10 @@ msgstr "Konsola"
 msgid "Console Mode"
 msgstr "Tryb konsoli"
 
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "Kopiuj PIN"
-
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableMultiSelect.tsx:344
 msgid "Create {0}"
 msgstr "Utwórz {0}"
 
@@ -427,16 +414,8 @@ msgstr "Adres e-mail"
 msgid "End Operations"
 msgstr "Zakończ operacje"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "Wprowadź imię"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "Wprowadź nazwisko"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "Wprowadź PIN dla {0}"
 
@@ -447,10 +426,6 @@ msgstr "Błąd"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1014
 msgid "Estimated"
 msgstr "Szacowane"
-
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "Nie udało się dodać operatora"
 
 #: apps/mes/app/components/AdjustInventory.tsx:94
 msgid "Failed to complete inventory adjustment"
@@ -499,17 +474,9 @@ msgstr "Pliki powiązane ze zleceniem i pozycją zapytania."
 msgid "Filter"
 msgstr "Filtr"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "Imię"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "Zapomniałeś zakończyć zmianę?"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "Wygeneruj nowy PIN"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -599,10 +566,6 @@ msgstr "Zestaw"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2163
 msgid "Labor"
 msgstr "Robocizna"
-
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "Nazwisko"
 
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
@@ -725,7 +688,7 @@ msgid "Name"
 msgstr "Nazwa"
 
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableMultiSelect.tsx:266
 msgid "New"
 msgstr "Nowy"
 
@@ -782,11 +745,11 @@ msgstr "Brak zaplanowanego utrzymania ruchu na dziś"
 msgid "No materials"
 msgstr "Brak materiałów"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "Brak operatorów"
 
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:296
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "Nie znaleziono opcji."
@@ -799,7 +762,7 @@ msgstr "Nie znaleziono opcji."
 msgid "No recent operations"
 msgstr "Brak ostatnich operacji"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "Brak wyników"
@@ -905,11 +868,7 @@ msgstr "Pauza"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Podniesiono kolumnę {0} na pozycji: {1} z {2}"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "PIN"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "Wyloguj PIN"
 
@@ -972,7 +931,7 @@ msgid "Quantity must be greater than 0"
 msgstr "Ilość musi być większa od 0"
 
 #: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "Ostatnie"
@@ -1050,7 +1009,7 @@ msgstr "Odrzucone"
 msgid "Search"
 msgstr "Szukaj"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "Szukaj operatorów..."
 
@@ -1058,8 +1017,8 @@ msgstr "Szukaj operatorów..."
 #: apps/mes/app/components/Filter/Filter.tsx:163
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/CreateableMultiSelect.tsx:165
+#: packages/react/src/CreateableMultiSelect.tsx:286
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "Szukaj..."
@@ -1158,10 +1117,6 @@ msgstr "Ustaw czas zakończenia zmiany"
 msgid "Setup"
 msgstr "Ustawienie"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "Udostępnij ten PIN operatorowi, aby mógł się zalogować na terminalu."
-
 #: apps/mes/app/components/AdjustInventory.tsx:170
 msgid "Shelf"
 msgstr "Półka"
@@ -1206,7 +1161,7 @@ msgstr "Użyte części zamienne"
 msgid "Start"
 msgstr "Start"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "Użytkownik stacji"
 

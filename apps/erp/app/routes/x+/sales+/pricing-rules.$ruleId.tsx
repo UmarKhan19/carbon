@@ -107,7 +107,7 @@ export default function EditPricingRuleRoute() {
     itemPostingGroupId: pricingRule.itemPostingGroupId ?? undefined,
     validFrom: pricingRule.validFrom ?? undefined,
     validTo: pricingRule.validTo ?? undefined,
-    formulaBase: pricingRule.formulaBase ?? undefined,
+    priority: pricingRule.priority ?? 0,
     minMarginPercent: pricingRule.minMarginPercent ?? undefined,
     active: pricingRule.active
   };

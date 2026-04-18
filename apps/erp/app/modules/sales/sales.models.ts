@@ -209,7 +209,7 @@ export const pricingRuleValidator = z
     itemPostingGroupId: zfd.text(z.string().optional()),
     validFrom: zfd.text(z.string().optional()),
     validTo: zfd.text(z.string().optional()),
-    formulaBase: zfd.text(z.string().optional()),
+    priority: zfd.numeric(z.number().int().min(0).optional().default(0)),
     minMarginPercent: zfd.numeric(z.number().min(0).max(1).optional()),
     active: zfd.checkbox()
   })

@@ -263,7 +263,7 @@ const CommandShortcut = ({
 CommandShortcut.displayName = "CommandShortcut";
 
 const commandTriggerVariants = cva(
-  "items-center justify-between [&>span]:line-clamp-1 overflow-hidden",
+  "items-center justify-between [&>span]:line-clamp-1 overflow-hidden hover:scale-100 focus-visible:scale-100 transition-all duration-150 ease-in-out",
   {
     variants: {
       size: {

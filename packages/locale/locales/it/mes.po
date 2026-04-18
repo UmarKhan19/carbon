@@ -90,15 +90,6 @@ msgstr "Aggiungi e Preleva"
 msgid "Add Inventory"
 msgstr "Aggiungi Inventario"
 
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "Aggiungi Nuovo Operatore"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "Aggiungi Operatore"
-
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
 msgstr "Aggiungi Ricambio"
@@ -189,7 +180,6 @@ msgstr "Effettuando l'accesso, accetti i <0>Termini di Servizio</0> e l'<1>Infor
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -301,13 +291,10 @@ msgstr "Console"
 msgid "Console Mode"
 msgstr "Modalità Console"
 
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "Copia PIN"
-
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableMultiSelect.tsx:344
 msgid "Create {0}"
 msgstr "Crea {0}"
 
@@ -427,16 +414,8 @@ msgstr "Indirizzo Email"
 msgid "End Operations"
 msgstr "Termina Operazioni"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "Inserisci il nome"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "Inserisci il cognome"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "Inserisci il PIN per {0}"
 
@@ -447,10 +426,6 @@ msgstr "Errore"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1014
 msgid "Estimated"
 msgstr "Stimato"
-
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "Impossibile aggiungere l'operatore"
 
 #: apps/mes/app/components/AdjustInventory.tsx:94
 msgid "Failed to complete inventory adjustment"
@@ -499,17 +474,9 @@ msgstr "File relativi al lavoro e alla riga dell'opportunità."
 msgid "Filter"
 msgstr "Filtro"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "Nome"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "Hai dimenticato di timbrare l'uscita?"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "Genera nuovo PIN"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -599,10 +566,6 @@ msgstr "Kit"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2163
 msgid "Labor"
 msgstr "Manodopera"
-
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "Cognome"
 
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
@@ -725,7 +688,7 @@ msgid "Name"
 msgstr "Nome"
 
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableMultiSelect.tsx:266
 msgid "New"
 msgstr "Nuovo"
 
@@ -782,11 +745,11 @@ msgstr "Nessuna manutenzione programmata per oggi"
 msgid "No materials"
 msgstr "Nessun materiale"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "Nessun operatore"
 
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:296
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "Nessuna opzione trovata."
@@ -799,7 +762,7 @@ msgstr "Nessuna opzione trovata."
 msgid "No recent operations"
 msgstr "Nessuna operazione recente"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "Nessun risultato"
@@ -905,11 +868,7 @@ msgstr "Pausa"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Colonna {0} presa dalla posizione: {1} di {2}"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "PIN"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "Disconnetti"
 
@@ -972,7 +931,7 @@ msgid "Quantity must be greater than 0"
 msgstr "La quantità deve essere maggiore di 0"
 
 #: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "Recenti"
@@ -1050,7 +1009,7 @@ msgstr "Scartato"
 msgid "Search"
 msgstr "Cerca"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "Cerca operatori..."
 
@@ -1058,8 +1017,8 @@ msgstr "Cerca operatori..."
 #: apps/mes/app/components/Filter/Filter.tsx:163
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/CreateableMultiSelect.tsx:165
+#: packages/react/src/CreateableMultiSelect.tsx:286
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "Cerca..."
@@ -1158,10 +1117,6 @@ msgstr "Imposta orario di uscita"
 msgid "Setup"
 msgstr "Attrezzaggio"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "Condividi questo PIN con l'operatore per consentirgli l'accesso al terminale."
-
 #: apps/mes/app/components/AdjustInventory.tsx:170
 msgid "Shelf"
 msgstr "Scaffale"
@@ -1206,7 +1161,7 @@ msgstr "Ricambi Utilizzati"
 msgid "Start"
 msgstr "Avvia"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "Utente Stazione"
 

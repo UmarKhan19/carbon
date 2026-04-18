@@ -70,23 +70,25 @@ import type {
 } from "./types";
 
 export function applyPriceRules(
-  basePrice: number,
-  matchedRules: MatchedRule[]
+  startingPrice: number,
+  matchedRules: MatchedRule[],
+  unitCost: number | null = null
 ): { finalPrice: number; appendedTrace: PriceTraceStep[] } {
   const appendedTrace: PriceTraceStep[] = [];
-  let finalPrice = basePrice;
+  let finalPrice = startingPrice;
 
   const markupRules = matchedRules.filter((r) => r.ruleType === "Markup");
   const discountRules = matchedRules.filter((r) => r.ruleType === "Discount");
 
-  // Discounts: highest priority wins (non-stacking); ties broken by best effective amount
+  // Discounts: highest priority wins (non-stacking); ties broken by best
+  // effective amount against the current running price.
   if (discountRules.length > 0) {
     const ranked = discountRules
       .map((rule) => ({
         rule,
         effective:
           rule.amountType === "Percentage"
-            ? basePrice * rule.amount
+            ? finalPrice * rule.amount
             : rule.amount
       }))
       .sort((a, b) => {
@@ -98,36 +100,83 @@ export function applyPriceRules(
 
     const winner = ranked[0];
     if (winner && winner.effective > 0) {
-      finalPrice -= winner.effective;
-      appendedTrace.push({
-        step: "Discount",
-        source: `Rule: ${winner.rule.name}`,
-        amount: finalPrice,
-        adjustment: -winner.effective,
-        ruleId: winner.rule.id
-      });
+      finalPrice = clampAndTrace(
+        finalPrice - winner.effective,
+        unitCost,
+        winner.rule,
+        appendedTrace,
+        {
+          step: "Discount",
+          source: `Rule: ${winner.rule.name}`,
+          adjustment: -winner.effective,
+          ruleId: winner.rule.id
+        }
+      );
     }
   }
 
-  // Markups: stack in priority order (highest first) for deterministic output
+  // Markups: stack in priority order (highest first), compounding on the
+  // running price so ordering + basis are both deterministic.
   const sortedMarkups = [...markupRules].sort(
     (a, b) => b.priority - a.priority
   );
   for (const rule of sortedMarkups) {
     const adjustment =
-      rule.amountType === "Percentage" ? basePrice * rule.amount : rule.amount;
+      rule.amountType === "Percentage" ? finalPrice * rule.amount : rule.amount;
 
-    finalPrice += adjustment;
-    appendedTrace.push({
-      step: "Markup",
-      source: `Rule: ${rule.name}`,
-      amount: finalPrice,
-      adjustment,
-      ruleId: rule.id
-    });
+    finalPrice = clampAndTrace(
+      finalPrice + adjustment,
+      unitCost,
+      rule,
+      appendedTrace,
+      {
+        step: "Markup",
+        source: `Rule: ${rule.name}`,
+        adjustment,
+        ruleId: rule.id
+      }
+    );
   }
 
-  return { finalPrice: Math.max(0, finalPrice), appendedTrace };
+  if (finalPrice < 0) {
+    appendedTrace.push({
+      step: "Floor",
+      source: "Clamped to 0 (rules drove price negative)",
+      amount: 0,
+      adjustment: -finalPrice
+    });
+    finalPrice = 0;
+  }
+
+  return { finalPrice, appendedTrace };
+}
+
+// If the rule carries a minMarginPercent and cost is known, enforce the floor
+// (price >= cost / (1 - margin)) and log a trace entry on clamp.
+function clampAndTrace(
+  proposedPrice: number,
+  unitCost: number | null,
+  rule: MatchedRule,
+  trace: PriceTraceStep[],
+  baseEntry: Omit<PriceTraceStep, "amount">
+): number {
+  const margin = rule.minMarginPercent;
+  if (margin !== null && margin < 1 && unitCost !== null && unitCost > 0) {
+    const floor = unitCost / (1 - margin);
+    if (proposedPrice < floor) {
+      trace.push({ ...baseEntry, amount: floor });
+      trace.push({
+        step: "Min Margin",
+        source: `Rule: ${rule.name} (floor ${(margin * 100).toFixed(1)}%)`,
+        amount: floor,
+        adjustment: floor - proposedPrice,
+        ruleId: rule.id
+      });
+      return floor;
+    }
+  }
+  trace.push({ ...baseEntry, amount: proposedPrice });
+  return proposedPrice;
 }
 
 export async function closeSalesOrder(
@@ -247,7 +296,7 @@ export async function createPricingRule(
         itemPostingGroupId: data.itemPostingGroupId ?? null,
         validFrom: data.validFrom || null,
         validTo: data.validTo || null,
-        formulaBase: data.formulaBase ?? null,
+        priority: data.priority ?? 0,
         minMarginPercent: data.minMarginPercent ?? null,
         active: data.active ?? true,
         companyId,
@@ -454,7 +503,7 @@ export async function duplicatePricingRule(
         itemPostingGroupId: original.itemPostingGroupId,
         validFrom: original.validFrom,
         validTo: original.validTo,
-        formulaBase: original.formulaBase,
+        priority: original.priority,
         minMarginPercent: original.minMarginPercent,
         active: false,
         companyId,
@@ -705,21 +754,18 @@ function applyBreakToParent(
   };
 }
 
-// Picks MAX(quantity) <= input, falling back to MIN(quantity) so an
-// override with any breaks always applies (smallest break acts as floor).
+// Picks MAX(quantity) <= input. A break at quantity N only applies once the
+// requested quantity reaches N; below the smallest rung, no override applies.
 function pickBestBreak(
   breaks: PriceOverrideBreak[],
   quantity: number
 ): PriceOverrideBreak | null {
-  if (breaks.length === 0) return null;
   let best: PriceOverrideBreak | null = null;
-  let smallest: PriceOverrideBreak | null = null;
   for (const b of breaks) {
-    if (!smallest || b.quantity < smallest.quantity) smallest = b;
     if (b.quantity > quantity) continue;
     if (!best || b.quantity > best.quantity) best = b;
   }
-  return best ?? smallest;
+  return best;
 }
 
 export async function getCustomers(
@@ -1967,6 +2013,24 @@ export async function resolvePrice(
     resolvedCustomerTypeId = cust?.customerTypeId ?? null;
   }
 
+  // Pull posting group + unit cost from itemCost. The posting group is needed
+  // to match rules scoped to itemPostingGroupId; the unit cost feeds
+  // rule-level minMarginPercent clamps.
+  let resolvedItemPostingGroupId = input.itemPostingGroupId ?? null;
+  let unitCost: number | null = null;
+  const { data: costRow } = await client
+    .from("itemCost")
+    .select("itemPostingGroupId, unitCost")
+    .eq("itemId", input.itemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+  if (costRow) {
+    if (!resolvedItemPostingGroupId) {
+      resolvedItemPostingGroupId = costRow.itemPostingGroupId ?? null;
+    }
+    unitCost = costRow.unitCost ?? null;
+  }
+
   let basePrice: number;
   if (input.existingBasePrice !== undefined) {
     basePrice = input.existingBasePrice;
@@ -2092,7 +2156,7 @@ export async function resolvePrice(
         return false;
       if (
         rule.itemPostingGroupId !== null &&
-        rule.itemPostingGroupId !== (input.itemPostingGroupId ?? null)
+        rule.itemPostingGroupId !== resolvedItemPostingGroupId
       )
         return false;
       const ruleCustomerIds = rule.customerIds as string[] | null;
@@ -2111,7 +2175,7 @@ export async function resolvePrice(
       return true;
     }) as MatchedRule[];
 
-    const ruleResult = applyPriceRules(startingPrice, matchedRules);
+    const ruleResult = applyPriceRules(startingPrice, matchedRules, unitCost);
     finalPrice = ruleResult.finalPrice;
     trace.push(...ruleResult.appendedTrace);
   }
@@ -2123,6 +2187,42 @@ export async function resolvePrice(
   });
 
   return { finalPrice, basePrice, trace };
+}
+
+// itemPostingGroupId is stored on itemCost, not item. The generic filter
+// helper assumes the column exists on the primary table, so we lift the
+// posting-group filter out, pre-resolve matching item IDs from itemCost, and
+// return the remaining filters to apply normally. Returns { itemIds: null }
+// when no posting-group filter is present.
+async function resolvePostingGroupFilter(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  filters: GenericQueryFilters["filters"]
+): Promise<{
+  itemIds: string[] | null;
+  filters: GenericQueryFilters["filters"];
+}> {
+  if (!filters || filters.length === 0) {
+    return { itemIds: null, filters };
+  }
+  const postingGroupFilters = filters.filter(
+    (f): f is { column: string; operator: string; value: string } =>
+      f.column === "itemPostingGroupId" && Boolean(f.value)
+  );
+  if (postingGroupFilters.length === 0) {
+    return { itemIds: null, filters };
+  }
+  const remaining = filters.filter((f) => f.column !== "itemPostingGroupId");
+  const groupIds = postingGroupFilters.flatMap((f) =>
+    f.operator === "in" ? f.value.split(",") : [f.value]
+  );
+  const { data } = await client
+    .from("itemCost")
+    .select("itemId")
+    .eq("companyId", companyId)
+    .in("itemPostingGroupId", groupIds);
+  const itemIds = (data ?? []).map((r) => r.itemId);
+  return { itemIds, filters: remaining };
 }
 
 export async function resolvePriceList(
@@ -2143,7 +2243,7 @@ export async function resolvePriceList(
   let itemQuery = client
     .from("item")
     .select(
-      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice), itemCost(itemPostingGroupId)",
+      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice), itemCost(itemPostingGroupId, unitCost)",
       { count: "exact" }
     )
     .eq("active", true);
@@ -2154,7 +2254,21 @@ export async function resolvePriceList(
     );
   }
 
-  itemQuery = setGenericQueryFilters(itemQuery, args);
+  // itemPostingGroupId lives on itemCost, not item — pre-resolve into itemIds
+  // and keep the rest of the filters on the item query.
+  const { itemIds: postingGroupItemIds, filters: filtersWithoutPostingGroup } =
+    await resolvePostingGroupFilter(client, companyId, args.filters);
+  if (postingGroupItemIds !== null) {
+    if (postingGroupItemIds.length === 0) {
+      return { data: [], count: 0 };
+    }
+    itemQuery = itemQuery.in("id", postingGroupItemIds);
+  }
+
+  itemQuery = setGenericQueryFilters(itemQuery, {
+    ...args,
+    filters: filtersWithoutPostingGroup
+  });
 
   const { data: items, count } = await itemQuery;
   if (!items || items.length === 0) {
@@ -2267,6 +2381,7 @@ export async function resolvePriceList(
       ? item.itemCost[0]
       : item.itemCost;
     const itemPostingGroupId = itemCostRow?.itemPostingGroupId ?? null;
+    const unitCost = itemCostRow?.unitCost ?? null;
     const trace: PriceTraceStep[] = [];
 
     let startingPrice = basePrice;
@@ -2376,7 +2491,7 @@ export async function resolvePriceList(
         return true;
       });
 
-      const ruleResult = applyPriceRules(startingPrice, matchedRules);
+      const ruleResult = applyPriceRules(startingPrice, matchedRules, unitCost);
       finalPrice = ruleResult.finalPrice;
       trace.push(...ruleResult.appendedTrace);
       hasRuleAdjustment = ruleResult.appendedTrace.length > 0;
@@ -2398,6 +2513,7 @@ export async function resolvePriceList(
       itemId: item.id,
       partId: item.readableId,
       itemName: item.name,
+      itemPostingGroupId,
       thumbnailPath: item.thumbnailPath ?? null,
       basePrice,
       resolvedPrice: finalPrice,
@@ -2430,7 +2546,7 @@ export async function getBaseCatalog(
   let query = client
     .from("item")
     .select(
-      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice)",
+      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice), itemCost(itemPostingGroupId)",
       { count: "exact" }
     )
     .eq("companyId", companyId)
@@ -2442,7 +2558,19 @@ export async function getBaseCatalog(
     );
   }
 
-  query = setGenericQueryFilters(query, args);
+  const { itemIds: postingGroupItemIds, filters: filtersWithoutPostingGroup } =
+    await resolvePostingGroupFilter(client, companyId, args.filters);
+  if (postingGroupItemIds !== null) {
+    if (postingGroupItemIds.length === 0) {
+      return { data: [], count: 0 };
+    }
+    query = query.in("id", postingGroupItemIds);
+  }
+
+  query = setGenericQueryFilters(query, {
+    ...args,
+    filters: filtersWithoutPostingGroup
+  });
 
   const { data: items, count } = await query;
   if (!items || items.length === 0) {
@@ -2454,10 +2582,14 @@ export async function getBaseCatalog(
       ? item.itemUnitSalePrice[0]
       : item.itemUnitSalePrice;
     const basePrice = salePriceRow?.unitSalePrice ?? 0;
+    const itemCostRow = Array.isArray(item.itemCost)
+      ? item.itemCost[0]
+      : item.itemCost;
     return {
       itemId: item.id,
       partId: item.readableId,
       itemName: item.name,
+      itemPostingGroupId: itemCostRow?.itemPostingGroupId ?? null,
       thumbnailPath: item.thumbnailPath ?? null,
       basePrice,
       resolvedPrice: basePrice,

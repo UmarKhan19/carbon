@@ -90,15 +90,6 @@ msgstr "添加并发放"
 msgid "Add Inventory"
 msgstr "添加库存"
 
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "添加新操作员"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "添加操作员"
-
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
 msgstr "添加备件"
@@ -189,7 +180,6 @@ msgstr "登录即表示您同意<0>服务条款</0>和<1>隐私政策。</1>"
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -301,13 +291,10 @@ msgstr "控制台"
 msgid "Console Mode"
 msgstr "控制台模式"
 
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "复制 PIN 码"
-
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableMultiSelect.tsx:344
 msgid "Create {0}"
 msgstr "创建 {0}"
 
@@ -427,16 +414,8 @@ msgstr "电子邮箱"
 msgid "End Operations"
 msgstr "结束工序"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "输入名字"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "输入姓氏"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "输入 {0} 的 PIN 码"
 
@@ -447,10 +426,6 @@ msgstr "错误"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1014
 msgid "Estimated"
 msgstr "估计"
-
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "添加操作员失败"
 
 #: apps/mes/app/components/AdjustInventory.tsx:94
 msgid "Failed to complete inventory adjustment"
@@ -499,17 +474,9 @@ msgstr "与工单和商机行相关的文件。"
 msgid "Filter"
 msgstr "筛选"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "名字"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "忘记打卡下班了？"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "生成新 PIN 码"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -599,10 +566,6 @@ msgstr "套件"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2163
 msgid "Labor"
 msgstr "人工"
-
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "姓氏"
 
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
@@ -725,7 +688,7 @@ msgid "Name"
 msgstr "名称"
 
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableMultiSelect.tsx:266
 msgid "New"
 msgstr "新建"
 
@@ -782,11 +745,11 @@ msgstr "今天没有计划的维护"
 msgid "No materials"
 msgstr "无物料"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "无操作员"
 
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:296
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "未找到选项。"
@@ -799,7 +762,7 @@ msgstr "未找到选项。"
 msgid "No recent operations"
 msgstr "无近期工序"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "无结果"
@@ -905,11 +868,7 @@ msgstr "暂停"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "已拾取列 {0}，位于第 {1} 个位置（共 {2} 个）"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "PIN 码"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "退出登录"
 
@@ -972,7 +931,7 @@ msgid "Quantity must be greater than 0"
 msgstr "数量必须大于 0"
 
 #: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "最近"
@@ -1050,7 +1009,7 @@ msgstr "已报废"
 msgid "Search"
 msgstr "搜索"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "搜索操作员..."
 
@@ -1058,8 +1017,8 @@ msgstr "搜索操作员..."
 #: apps/mes/app/components/Filter/Filter.tsx:163
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/CreateableMultiSelect.tsx:165
+#: packages/react/src/CreateableMultiSelect.tsx:286
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "搜索..."
@@ -1158,10 +1117,6 @@ msgstr "设置下班打卡时间"
 msgid "Setup"
 msgstr "设置"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "将此 PIN 码分享给操作员，以便他们在终端登录。"
-
 #: apps/mes/app/components/AdjustInventory.tsx:170
 msgid "Shelf"
 msgstr "货架"
@@ -1206,7 +1161,7 @@ msgstr "已使用备件"
 msgid "Start"
 msgstr "开始"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "工位用户"
 

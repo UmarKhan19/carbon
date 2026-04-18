@@ -56,9 +56,6 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
   const permissions = usePermissions();
   const { company } = useUser();
 
-  const [ruleType, setRuleType] = useState<(typeof pricingRuleTypes)[number]>(
-    initialValues.ruleType ?? "Discount"
-  );
   const [amountType, setAmountType] = useState<
     (typeof pricingRuleAmountTypes)[number]
   >(initialValues.amountType ?? "Percentage");
@@ -114,10 +111,6 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                     label: rt,
                     value: rt
                   }))}
-                  onChange={(v) => {
-                    if (v)
-                      setRuleType(v.value as (typeof pricingRuleTypes)[number]);
-                  }}
                 />
                 <Select
                   name="amountType"
@@ -274,38 +267,27 @@ const PricingRuleForm = ({ initialValues, onClose }: PricingRuleFormProps) => {
                   <Number name="maxQuantity" label={t`Max Qty`} />
                 </div>
 
-                {ruleType === "Markup" && (
-                  <>
-                    <Select
-                      name="formulaBase"
-                      label={t`Compute From`}
-                      placeholder={t`Base price (default)`}
-                      options={[
-                        { label: t`Item Cost`, value: "cost" },
-                        { label: t`Item Sale Price`, value: "salePrice" }
-                      ]}
-                    />
-                    <Number
-                      name="minMarginPercent"
-                      label={t`Min Margin %`}
-                      helperText={t`Floor: price won't drop below this margin over cost`}
-                      minValue={0}
-                      maxValue={1}
-                      step={0.01}
-                      formatOptions={{
-                        style: "percent",
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
-                      }}
-                    />
-                  </>
-                )}
-                {ruleType !== "Markup" && (
-                  <>
-                    <Hidden name="formulaBase" value="" />
-                    <Hidden name="minMarginPercent" value="" />
-                  </>
-                )}
+                <Number
+                  name="priority"
+                  label={t`Priority`}
+                  helperText={t`Higher priority wins ties and applies first for markups`}
+                  minValue={0}
+                  step={1}
+                />
+
+                <Number
+                  name="minMarginPercent"
+                  label={t`Min Margin %`}
+                  helperText={t`Floor: price won't drop below this margin over cost`}
+                  minValue={0}
+                  maxValue={1}
+                  step={0.01}
+                  formatOptions={{
+                    style: "percent",
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                  }}
+                />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

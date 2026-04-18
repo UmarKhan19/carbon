@@ -1,20 +1,37 @@
 import {
   Badge,
+  Button,
   HStack,
+  Label,
   MenuIcon,
   MenuItem,
+  NumberDecrementStepper,
   NumberField,
+  NumberIncrementStepper,
   NumberInput,
+  NumberInputGroup,
+  NumberInputStepper,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   VStack
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
   LuCalendar,
+  LuChevronDown,
+  LuChevronsUpDown,
+  LuChevronUp,
   LuCircleDollarSign,
+  LuCircleOff,
+  LuGroup,
   LuPencil,
   LuPlus,
   LuTag,
@@ -22,6 +39,8 @@ import {
 } from "react-icons/lu";
 import { useNavigate, useSearchParams } from "react-router";
 import { Hyperlink, ItemThumbnail, New, Table } from "~/components";
+import { Enumerable } from "~/components/Enumerable";
+import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
 import type { PriceListRow } from "~/modules/sales";
 import { path } from "~/utils/path";
@@ -61,6 +80,7 @@ const PriceListTable = memo(
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const previewQuantity = searchParams.get("quantity") ?? "1";
+    const itemPostingGroups = useItemPostingGroups();
 
     const scopeId =
       searchParams.get("customerId") ??
@@ -134,6 +154,26 @@ const PriceListTable = memo(
           meta: { icon: <LuBookMarked /> }
         },
         {
+          accessorKey: "itemPostingGroupId",
+          header: t`Item Group`,
+          cell: ({ row }) => {
+            const id = row.original.itemPostingGroupId;
+            if (!id) return null;
+            const group = itemPostingGroups.find((g) => g.value === id);
+            return group ? <Enumerable value={group.label} /> : null;
+          },
+          meta: {
+            filter: {
+              type: "static",
+              options: itemPostingGroups.map((group) => ({
+                value: group.value,
+                label: <Enumerable value={group.label} />
+              }))
+            },
+            icon: <LuGroup />
+          }
+        },
+        {
           accessorKey: "basePrice",
           header: t`Base Price`,
           cell: ({ row }) => (
@@ -152,13 +192,17 @@ const PriceListTable = memo(
             header: t`Resolved Price`,
             cell: ({ row }) => (
               <HStack spacing={2} className="items-center">
-                <span
-                  className={`tabular-nums font-medium ${
-                    row.original.isOverridden ? "text-emerald-600" : ""
-                  }`}
-                >
+                <span>
                   {currencyFormatter.format(row.original.resolvedPrice)}
                 </span>
+                {row.original.isOverridden && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <LuCircleOff className="size-3 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>This price is overridden.</TooltipContent>
+                  </Tooltip>
+                )}
                 <PriceTracePopover
                   trace={row.original.trace}
                   currencyCode={baseCurrency}
@@ -203,7 +247,14 @@ const PriceListTable = memo(
       }
 
       return cols;
-    }, [baseCurrency, buildOverrideHref, currencyFormatter, hasScope, t]);
+    }, [
+      baseCurrency,
+      buildOverrideHref,
+      currencyFormatter,
+      hasScope,
+      itemPostingGroups,
+      t
+    ]);
 
     const handleQuantityCommit = useCallback(
       (raw: string) => {
@@ -281,25 +332,41 @@ const PriceListTable = memo(
               options={scopeOptions}
               onChange={handleScopeChange}
             />
-            <HStack
-              spacing={1}
-              className="items-center text-xs text-muted-foreground"
-            >
-              <span>{t`Qty`}</span>
-              <NumberField
-                value={Number(previewQuantity) || 1}
-                minValue={1}
-                onChange={(value) => {
-                  if (Number.isFinite(value) && value >= 1) {
-                    handleQuantityCommit(String(value));
-                  }
-                }}
-                aria-label={t`Preview Quantity`}
-                className="w-20"
-              >
-                <NumberInput size="sm" min={1} />
-              </NumberField>
-            </HStack>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="secondary" rightIcon={<LuChevronsUpDown />}>
+                  {Number(previewQuantity) || 1}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-2" align="end">
+                <Label>
+                  <Trans>Quantity</Trans>
+                </Label>
+                <NumberField
+                  value={Number(previewQuantity) || 1}
+                  minValue={1}
+                  onChange={(value) => {
+                    if (Number.isFinite(value) && value >= 1) {
+                      handleQuantityCommit(String(value));
+                    }
+                  }}
+                  aria-label={t`Preview Quantity`}
+                  className="w-24"
+                >
+                  <NumberInputGroup className="relative">
+                    <NumberInput size="sm" min={1} />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper>
+                        <LuChevronUp size="1em" strokeWidth="3" />
+                      </NumberIncrementStepper>
+                      <NumberDecrementStepper>
+                        <LuChevronDown size="1em" strokeWidth="3" />
+                      </NumberDecrementStepper>
+                    </NumberInputStepper>
+                  </NumberInputGroup>
+                </NumberField>
+              </PopoverContent>
+            </Popover>
             {permissions.can("create", "sales") && (
               <New
                 label={t`Override`}

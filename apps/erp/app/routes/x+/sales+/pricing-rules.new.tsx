@@ -56,6 +56,7 @@ export default function NewPricingRuleRoute() {
         ruleType: "Discount",
         amountType: "Percentage",
         amount: 0,
+        priority: 0,
         active: true,
         customerIds: [],
         customerTypeIds: [],

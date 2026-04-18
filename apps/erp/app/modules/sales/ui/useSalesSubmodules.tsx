@@ -67,14 +67,19 @@ export default function useSalesSubmodules() {
       ]
     },
     {
-      name: t`Configure`,
+      name: t`Reports`,
       routes: [
         {
           name: t`Price Lists`,
           to: path.to.salesPriceList,
           role: "employee",
           icon: <LuList />
-        },
+        }
+      ]
+    },
+    {
+      name: t`Configure`,
+      routes: [
         {
           name: t`Pricing Rules`,
           to: path.to.salesPricingRules,

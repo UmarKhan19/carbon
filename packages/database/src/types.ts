@@ -22919,7 +22919,6 @@ export type Database = {
           createdBy: string
           customerIds: string[] | null
           customerTypeIds: string[] | null
-          formulaBase: string | null
           id: string
           itemIds: string[] | null
           itemPostingGroupId: string | null
@@ -22943,7 +22942,6 @@ export type Database = {
           createdBy: string
           customerIds?: string[] | null
           customerTypeIds?: string[] | null
-          formulaBase?: string | null
           id?: string
           itemIds?: string[] | null
           itemPostingGroupId?: string | null
@@ -22967,7 +22965,6 @@ export type Database = {
           createdBy?: string
           customerIds?: string[] | null
           customerTypeIds?: string[] | null
-          formulaBase?: string | null
           id?: string
           itemIds?: string[] | null
           itemPostingGroupId?: string | null

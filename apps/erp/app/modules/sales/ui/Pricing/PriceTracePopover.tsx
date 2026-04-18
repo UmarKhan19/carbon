@@ -10,9 +10,9 @@ import {
   Thead,
   Tr
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans } from "@lingui/react/macro";
 import type { ComponentProps, ReactNode } from "react";
-import { LuChevronRight, LuExternalLink } from "react-icons/lu";
+import { LuCalculator, LuExternalLink } from "react-icons/lu";
 import { Link } from "react-router";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import { path } from "~/utils/path";
@@ -28,8 +28,8 @@ const STEP_BADGE: Record<
   Override: { label: "Override", variant: "yellow" },
   "Type Override": { label: "Type Override", variant: "blue" },
   "All Override": { label: "All Override", variant: "gray" },
-  Discount: { label: "Discount", variant: "green" },
-  Markup: { label: "Markup", variant: "secondary" },
+  Discount: { label: "Discount", variant: "red" },
+  Markup: { label: "Markup", variant: "green" },
   "Final Price": null
 };
 
@@ -45,7 +45,6 @@ export function PriceTracePopover({
   currencyCode,
   children
 }: PriceTracePopoverProps) {
-  const { t } = useLingui();
   const currencyFormatter = useCurrencyFormatter({ currency: currencyCode });
   const format = (value: number) => currencyFormatter.format(value);
 
@@ -64,21 +63,22 @@ export function PriceTracePopover({
   ) : (
     <button
       type="button"
-      className="text-xxs text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5 underline decoration-dotted underline-offset-2"
+      className="text-xxs text-muted-foreground hover:text-foreground inline-flex items-center gap-0.5"
     >
-      {t`View calc`}
-      <LuChevronRight className="size-3" />
+      <LuCalculator className="size-3" />
     </button>
   );
 
   return (
     <Popover>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-      <PopoverContent align="end" sideOffset={8} className="w-[720px] p-0">
+      <PopoverContent align="end" sideOffset={8} className="max-w-[800px] p-0">
         <div className="px-4 py-3 border-b border-border">
-          <p className="text-sm font-semibold">{t`Pricing trace`}</p>
+          <p className="text-sm font-semibold">
+            <Trans>Pricing Trace</Trans>
+          </p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {t`How the resolved price was calculated.`}
+            <Trans>How the resolved price was calculated.</Trans>
           </p>
         </div>
         <div className="overflow-x-auto">
@@ -86,19 +86,19 @@ export function PriceTracePopover({
             <Thead>
               <Tr>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                  {t`Step`}
+                  <Trans>Step</Trans>
                 </Th>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                  {t`Type`}
+                  <Trans>Type</Trans>
                 </Th>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground whitespace-nowrap">
-                  {t`Description`}
+                  <Trans>Description</Trans>
                 </Th>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground text-right whitespace-nowrap">
-                  {t`Change`}
+                  <Trans>Change</Trans>
                 </Th>
                 <Th className="text-xs uppercase tracking-wide text-muted-foreground text-right whitespace-nowrap">
-                  {t`Running Total`}
+                  <Trans>Running Total</Trans>
                 </Th>
               </Tr>
             </Thead>
@@ -170,17 +170,13 @@ export function DeltaPill({
   if (value === undefined || value === 0) {
     return <span className="text-sm text-muted-foreground">—</span>;
   }
-  const isDiscount = value < 0;
-  const classes = isDiscount
-    ? "bg-green-500/10 text-green-600 dark:text-green-400"
-    : "bg-red-500/10 text-red-600 dark:text-red-400";
-  const sign = isDiscount ? "" : "+";
+  const isNegative = value < 0;
+  const variant = isNegative ? "red" : "green";
+  const sign = isNegative ? "" : "+";
   return (
-    <span
-      className={`px-2 py-0.5 rounded text-sm font-mono tabular-nums ${classes}`}
-    >
+    <Badge variant={variant} className={`font-mono tabular-nums`}>
       {sign}
       {format(value)}
-    </span>
+    </Badge>
   );
 }

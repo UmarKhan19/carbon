@@ -90,15 +90,6 @@ msgstr "Добавить и выдать"
 msgid "Add Inventory"
 msgstr "Добавить запас"
 
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "Добавить нового оператора"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "Добавить оператора"
-
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
 msgid "Add Spare Part"
 msgstr "Добавить запасную часть"
@@ -189,7 +180,6 @@ msgstr "Выполняя вход, вы соглашаетесь с <0>Усло�
 #: apps/mes/app/components/JobOperation/components/Step.tsx:556
 #: apps/mes/app/components/JobOperation/components/Step.tsx:604
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/timecard.tsx:408
 #: apps/mes/app/routes/x+/timecard.tsx:505
@@ -301,13 +291,10 @@ msgstr "Консоль"
 msgid "Console Mode"
 msgstr "Режим консоли"
 
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "Копировать PIN"
-
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableMultiSelect.tsx:344
 msgid "Create {0}"
 msgstr "Создать {0}"
 
@@ -427,16 +414,8 @@ msgstr "Электронная почта"
 msgid "End Operations"
 msgstr "Завершить операции"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "Введите имя"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "Введите фамилию"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "Введите PIN для {0}"
 
@@ -447,10 +426,6 @@ msgstr "Ошибка"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1014
 msgid "Estimated"
 msgstr "План"
-
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "Не удалось добавить оператора"
 
 #: apps/mes/app/components/AdjustInventory.tsx:94
 msgid "Failed to complete inventory adjustment"
@@ -499,17 +474,9 @@ msgstr "Файлы, связанные с заданием и позицией �
 msgid "Filter"
 msgstr "Фильтр"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "Имя"
-
 #: apps/mes/app/components/TimeCardWarning.tsx:107
 msgid "Forgot to Clock Out?"
 msgstr "Забыли отметить уход?"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "Сгенерировать новый PIN"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -599,10 +566,6 @@ msgstr "Комплект"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2163
 msgid "Labor"
 msgstr "Трудозатраты"
-
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "Фамилия"
 
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
@@ -725,7 +688,7 @@ msgid "Name"
 msgstr "Имя"
 
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableMultiSelect.tsx:266
 msgid "New"
 msgstr "Новое"
 
@@ -782,11 +745,11 @@ msgstr "На сегодня обслуживание не запланирова
 msgid "No materials"
 msgstr "Нет материалов"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "Нет операторов"
 
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:296
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "Опция не найдена."
@@ -799,7 +762,7 @@ msgstr "Варианты не найдены."
 msgid "No recent operations"
 msgstr "Нет недавних операций"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 #: apps/mes/app/routes/x+/operations.tsx:477
 msgid "No results"
 msgstr "Нет результатов"
@@ -905,11 +868,7 @@ msgstr "Пауза"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Столбец {0} взят с позиции: {1} из {2}"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "PIN"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "Выход по PIN"
 
@@ -972,7 +931,7 @@ msgid "Quantity must be greater than 0"
 msgstr "Количество должно быть больше 0"
 
 #: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "Недавние"
@@ -1050,7 +1009,7 @@ msgstr "Списано в брак"
 msgid "Search"
 msgstr "Поиск"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "Поиск операторов..."
 
@@ -1058,8 +1017,8 @@ msgstr "Поиск операторов..."
 #: apps/mes/app/components/Filter/Filter.tsx:163
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/CreateableMultiSelect.tsx:165
+#: packages/react/src/CreateableMultiSelect.tsx:286
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "Поиск..."
@@ -1158,10 +1117,6 @@ msgstr "Установить время ухода"
 msgid "Setup"
 msgstr "Наладка"
 
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "Сообщите этот PIN оператору, чтобы он мог войти на терминале."
-
 #: apps/mes/app/components/AdjustInventory.tsx:170
 msgid "Shelf"
 msgstr "Полка"
@@ -1206,7 +1161,7 @@ msgstr "Использованные запасные части"
 msgid "Start"
 msgstr "Старт"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "Пользователь станции"
 
