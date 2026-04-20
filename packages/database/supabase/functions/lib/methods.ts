@@ -1,4 +1,4 @@
-import SupabaseClient from "@supabase/supabase-js/dist/module/SupabaseClient.d.ts";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "./types.ts";
 
 export type JobMethod = NonNullable<
