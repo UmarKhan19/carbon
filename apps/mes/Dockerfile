@@ -14,7 +14,6 @@ FROM deps AS build
 ARG NODE_OPTIONS
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 # Build only MES and its deps
-RUN npx lingui compile --namespace es
 RUN npm run build:mes
 
 FROM node:22-slim
