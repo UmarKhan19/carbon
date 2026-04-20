@@ -14,6 +14,7 @@ import type {
   gaugeCalibrationStatus,
   gaugeTypeValidator,
   gaugeValidator,
+  inboundInspectionValidator,
   issueTypeValidator,
   issueValidator,
   issueWorkflowValidator,
@@ -1767,4 +1768,139 @@ export async function upsertRisk(
       .select("id")
       .single();
   }
+}
+
+export async function getInboundInspections(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: GenericQueryFilters & {
+    search: string | null;
+    status: string | null;
+  }
+) {
+  let query = client
+    .from("inboundInspection")
+    .select(
+      "*, item(readableId, name), receipt(receiptId, supplierId), trackedEntity(attributes, readableId, status)",
+      { count: "exact" }
+    )
+    .eq("companyId", companyId);
+
+  if (args?.search) {
+    query = query.or(
+      `itemReadableId.ilike.%${args.search}%,notes.ilike.%${args.search}%`
+    );
+  }
+
+  if (args?.status) {
+    // @ts-ignore - status is a valid enum value
+    query = query.eq("status", args.status);
+  }
+
+  if (args) {
+    query = setGenericQueryFilters(query, args, [
+      { column: "createdAt", ascending: false }
+    ]);
+  }
+
+  return query;
+}
+
+export async function getInboundInspection(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client
+    .from("inboundInspection")
+    .select(
+      "*, item(readableId, name, type), receipt(receiptId, supplierId, createdBy), trackedEntity(id, attributes, status, sourceDocumentReadableId)"
+    )
+    .eq("id", id)
+    .single();
+}
+
+export async function updateInboundInspection(
+  client: SupabaseClient<Database>,
+  inspection: z.infer<typeof inboundInspectionValidator> & {
+    companyId: string;
+    trackedEntityId: string;
+    receiptId: string;
+    receiptReadableId: string | null;
+    inspectedBy: string;
+  }
+) {
+  const nowIso = new Date().toISOString();
+  const nextTrackedEntityStatus =
+    inspection.status === "Passed" ? "Available" : "Rejected";
+
+  const inspectionUpdate = await client
+    .from("inboundInspection")
+    .update({
+      status: inspection.status,
+      notes: inspection.notes ?? null,
+      inspectedBy: inspection.inspectedBy,
+      inspectedAt: nowIso,
+      updatedBy: inspection.inspectedBy,
+      updatedAt: nowIso
+    })
+    .eq("id", inspection.id)
+    .eq("companyId", inspection.companyId);
+
+  if (inspectionUpdate.error) {
+    return inspectionUpdate;
+  }
+
+  const trackedEntityUpdate = await client
+    .from("trackedEntity")
+    .update({ status: nextTrackedEntityStatus })
+    .eq("id", inspection.trackedEntityId)
+    .eq("companyId", inspection.companyId);
+
+  if (trackedEntityUpdate.error) {
+    return trackedEntityUpdate;
+  }
+
+  const activityInsert = await client
+    .from("trackedActivity")
+    .insert({
+      type: "Inspect",
+      sourceDocument: "Inbound Inspection",
+      sourceDocumentId: inspection.id,
+      sourceDocumentReadableId: inspection.receiptReadableId ?? null,
+      attributes: {
+        Result: inspection.status,
+        Receipt: inspection.receiptId,
+        Inspector: inspection.inspectedBy,
+        ...(inspection.notes ? { Notes: inspection.notes } : {})
+      },
+      companyId: inspection.companyId,
+      createdBy: inspection.inspectedBy
+    })
+    .select("id")
+    .single();
+
+  if (activityInsert.error || !activityInsert.data) {
+    return activityInsert;
+  }
+
+  const activityId = activityInsert.data.id;
+
+  const [inputInsert, outputInsert] = await Promise.all([
+    client.from("trackedActivityInput").insert({
+      trackedActivityId: activityId,
+      trackedEntityId: inspection.trackedEntityId,
+      quantity: 0,
+      companyId: inspection.companyId,
+      createdBy: inspection.inspectedBy
+    }),
+    client.from("trackedActivityOutput").insert({
+      trackedActivityId: activityId,
+      trackedEntityId: inspection.trackedEntityId,
+      quantity: 0,
+      companyId: inspection.companyId,
+      createdBy: inspection.inspectedBy
+    })
+  ]);
+
+  return inputInsert.error ? inputInsert : outputInsert;
 }

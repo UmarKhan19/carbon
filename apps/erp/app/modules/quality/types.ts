@@ -4,6 +4,8 @@ import type {
   getGaugeCalibrationRecords,
   getGauges,
   getGaugeTypes,
+  getInboundInspection,
+  getInboundInspections,
   getIssueActionTasks,
   getIssueApprovalTasks,
   getIssueAssociations,
@@ -116,3 +118,14 @@ export type QualityDocumentStep = NonNullable<
 export type Risk = NonNullable<
   Awaited<ReturnType<typeof getRisks>>["data"]
 >[number];
+
+export type InboundInspection = NonNullable<
+  Awaited<ReturnType<typeof getInboundInspections>>["data"]
+>[number];
+
+export type InboundInspectionDetail = NonNullable<
+  Awaited<ReturnType<typeof getInboundInspection>>["data"]
+>;
+
+export type InboundInspectionStatus =
+  Database["public"]["Enums"]["inboundInspectionStatus"];

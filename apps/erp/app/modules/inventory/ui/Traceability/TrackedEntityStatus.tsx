@@ -22,8 +22,14 @@ function TrackedEntityStatus({ status }: TrackedEntityStatusProps) {
       );
     case "On Hold":
       return (
-        <Status color="red">
+        <Status color="orange">
           <Trans>On Hold</Trans>
+        </Status>
+      );
+    case "Rejected":
+      return (
+        <Status color="red">
+          <Trans>Rejected</Trans>
         </Status>
       );
     case "Consumed":

@@ -356,3 +356,13 @@ export const riskRegisterValidator = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   type: z.enum(riskRegisterType)
 });
+
+export const inboundInspectionStatus = ["Pending", "Passed", "Failed"] as const;
+
+export const inboundInspectionValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  status: z.enum(["Passed", "Failed"], {
+    errorMap: () => ({ message: "Status is required" })
+  }),
+  notes: zfd.text(z.string().optional())
+});

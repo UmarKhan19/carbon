@@ -10,14 +10,16 @@ import {
   CardHeader,
   CardTitle,
   Heading,
+  HStack,
   Label,
   ScrollArea,
+  Switch,
   toast,
   VStack
 } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { z } from "zod";
@@ -67,6 +69,21 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
+  if (intent === "enforceInspectionFourEyes") {
+    const enabled = formData.get("enabled") === "true";
+    const update = await client
+      .from("companySettings")
+      .update({ enforceInspectionFourEyes: enabled })
+      .eq("id", companyId);
+
+    if (update.error) return { success: false, message: update.error.message };
+
+    return {
+      success: true,
+      message: `Four-eyes enforcement ${enabled ? "enabled" : "disabled"}`
+    };
+  }
+
   if (intent === "dashboard") {
     const validation = await validator(dashboardValidator).validate(formData);
     if (validation.error) {
@@ -111,6 +128,26 @@ export default function QualitySettingsRoute() {
   const { t } = useLingui();
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  const toggleFetcher = useFetcher<typeof action>();
+
+  const [fourEyesEnabled, setFourEyesEnabled] = useState(
+    (companySettings as { enforceInspectionFourEyes?: boolean })
+      .enforceInspectionFourEyes ?? false
+  );
+
+  const handleFourEyesToggle = useCallback(
+    (checked: boolean) => {
+      setFourEyesEnabled(checked);
+      toggleFetcher.submit(
+        {
+          intent: "enforceInspectionFourEyes",
+          enabled: checked.toString()
+        },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
 
   useEffect(() => {
     if (fetcher.data?.success === true && fetcher?.data?.message) {
@@ -121,6 +158,15 @@ export default function QualitySettingsRoute() {
       toast.error(fetcher.data.message);
     }
   }, [fetcher.data?.message, fetcher.data?.success]);
+
+  useEffect(() => {
+    if (toggleFetcher.data?.success === true && toggleFetcher.data?.message) {
+      toast.success(toggleFetcher.data.message);
+    }
+    if (toggleFetcher.data?.success === false && toggleFetcher.data?.message) {
+      toast.error(toggleFetcher.data.message);
+    }
+  }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
 
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
@@ -222,6 +268,30 @@ export default function QualitySettingsRoute() {
               </Submit>
             </CardFooter>
           </ValidatedForm>
+        </Card>
+        <Card>
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>
+                  <Trans>
+                    Inbound Inspections: Require Different Inspector
+                  </Trans>
+                </CardTitle>
+                <CardDescription>
+                  <Trans>
+                    Warn when the person inspecting an inbound item is the same
+                    person who received it.
+                  </Trans>
+                </CardDescription>
+              </div>
+              <Switch
+                checked={fourEyesEnabled}
+                onCheckedChange={handleFourEyesToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
         </Card>
       </VStack>
     </ScrollArea>

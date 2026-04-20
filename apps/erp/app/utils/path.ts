@@ -1297,6 +1297,9 @@ export const path = {
     purchasingSettings: `${x}/settings/purchasing`,
     quality: `${x}/quality`,
     qualityActions: `${x}/quality/actions`,
+    inboundInspections: `${x}/quality/inbound-inspections`,
+    inboundInspection: (id: string) =>
+      generatePath(`${x}/quality/inbound-inspections/${id}`),
     qualityDocument: (id: string) =>
       generatePath(`${x}/quality-document/${id}`),
     qualityDocuments: `${x}/quality/documents`,

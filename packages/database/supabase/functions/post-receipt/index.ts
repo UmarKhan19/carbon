@@ -69,7 +69,7 @@ serve(async (req: Request) => {
     const [items, itemCosts] = await Promise.all([
       client
         .from("item")
-        .select("id, itemTrackingType")
+        .select("id, itemTrackingType, requiresInspection")
         .in("id", itemIds)
         .eq("companyId", companyId),
       client
@@ -158,6 +158,9 @@ serve(async (req: Request) => {
           return acc;
         }, {});
 
+        const inboundInspectionInserts: Database["public"]["Tables"]["inboundInspection"]["Insert"][] =
+          [];
+
         const trackedEntityUpdates =
           receiptLineTracking.data?.reduce<
             Record<
@@ -183,10 +186,27 @@ serve(async (req: Request) => {
               ? 1
               : safeReceivedQuantity || itemTracking.quantity;
 
+            const item = items.data?.find(
+              (item) => item.id === receiptLine?.itemId
+            );
+            const requiresInspection = item?.requiresInspection === true;
+
             acc[itemTracking.id] = {
-              status: "Available",
+              status: requiresInspection ? "On Hold" : "Available",
               quantity: quantity,
             };
+
+            if (requiresInspection && receiptLine?.itemId && receiptLine.id) {
+              inboundInspectionInserts.push({
+                trackedEntityId: itemTracking.id,
+                receiptLineId: receiptLine.id,
+                receiptId,
+                itemId: receiptLine.itemId,
+                itemReadableId: receiptLine.itemReadableId,
+                companyId,
+                createdBy: userId,
+              });
+            }
 
             return acc;
           }, {}) ?? {};
@@ -946,6 +966,13 @@ serve(async (req: Request) => {
                   .execute();
               }
             }
+          }
+
+          if (inboundInspectionInserts.length > 0) {
+            await trx
+              .insertInto("inboundInspection")
+              .values(inboundInspectionInserts)
+              .execute();
           }
         });
         break;

@@ -36678,6 +36678,231 @@ export default {
         tags: ["fixture"],
       },
     },
+    "/inboundInspection": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.trackedEntityId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.receiptLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.receiptId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.itemReadableId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.inspectedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.inspectedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.updatedBy",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/order",
+          },
+          {
+            $ref: "#/parameters/range",
+          },
+          {
+            $ref: "#/parameters/rangeUnit",
+          },
+          {
+            $ref: "#/parameters/offset",
+          },
+          {
+            $ref: "#/parameters/limit",
+          },
+          {
+            $ref: "#/parameters/preferCount",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/inboundInspection",
+              },
+              type: "array",
+            },
+          },
+          "206": {
+            description: "Partial Content",
+          },
+        },
+        tags: ["inboundInspection"],
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.inboundInspection",
+          },
+          {
+            $ref: "#/parameters/select",
+          },
+          {
+            $ref: "#/parameters/preferPost",
+          },
+        ],
+        responses: {
+          "201": {
+            description: "Created",
+          },
+        },
+        tags: ["inboundInspection"],
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.trackedEntityId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.receiptLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.receiptId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.itemReadableId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.inspectedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.inspectedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.updatedBy",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["inboundInspection"],
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.id",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.trackedEntityId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.receiptLineId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.receiptId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.itemId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.itemReadableId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.status",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.notes",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.inspectedBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.inspectedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.companyId",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.createdAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.createdBy",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.updatedAt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.inboundInspection.updatedBy",
+          },
+          {
+            $ref: "#/parameters/body.inboundInspection",
+          },
+          {
+            $ref: "#/parameters/preferReturn",
+          },
+        ],
+        responses: {
+          "204": {
+            description: "No Content",
+          },
+        },
+        tags: ["inboundInspection"],
+      },
+    },
     "/userPermission": {
       get: {
         parameters: [
@@ -58489,6 +58714,9 @@ export default {
             $ref: "#/parameters/rowFilter.item.readableIdWithRevision",
           },
           {
+            $ref: "#/parameters/rowFilter.item.requiresInspection",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -58617,6 +58845,9 @@ export default {
             $ref: "#/parameters/rowFilter.item.readableIdWithRevision",
           },
           {
+            $ref: "#/parameters/rowFilter.item.requiresInspection",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -58697,6 +58928,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.item.readableIdWithRevision",
+          },
+          {
+            $ref: "#/parameters/rowFilter.item.requiresInspection",
           },
           {
             $ref: "#/parameters/body.item",
@@ -64075,6 +64309,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.enforceInspectionFourEyes",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -64242,6 +64479,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.enforceInspectionFourEyes",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -64361,6 +64601,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt",
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.enforceInspectionFourEyes",
           },
           {
             $ref: "#/parameters/body.companySettings",
@@ -90882,6 +91125,103 @@ export default {
       },
       type: "object",
     },
+    inboundInspection: {
+      required: [
+        "id",
+        "trackedEntityId",
+        "receiptLineId",
+        "receiptId",
+        "itemId",
+        "status",
+        "companyId",
+        "createdAt",
+        "createdBy",
+      ],
+      properties: {
+        id: {
+          default: "public.xid()",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string",
+        },
+        trackedEntityId: {
+          description:
+            "Note:\nThis is a Foreign Key to `trackedEntity.id`.<fk table='trackedEntity' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        receiptLineId: {
+          description:
+            "Note:\nThis is a Foreign Key to `receiptLine.id`.<fk table='receiptLine' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        receiptId: {
+          description:
+            "Note:\nThis is a Foreign Key to `receipt.id`.<fk table='receipt' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        itemId: {
+          description:
+            "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        itemReadableId: {
+          format: "text",
+          type: "string",
+        },
+        status: {
+          default: "Pending",
+          enum: ["Pending", "Passed", "Failed"],
+          format: 'public."inboundInspectionStatus"',
+          type: "string",
+        },
+        notes: {
+          format: "text",
+          type: "string",
+        },
+        inspectedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        inspectedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string",
+        },
+        updatedBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string",
+        },
+      },
+      type: "object",
+    },
     userPermission: {
       required: ["id"],
       properties: {
@@ -93088,7 +93428,7 @@ export default {
         },
         status: {
           default: "Available",
-          enum: ["Available", "Reserved", "On Hold", "Consumed"],
+          enum: ["Available", "Reserved", "On Hold", "Consumed", "Rejected"],
           format: 'public."trackedEntityStatus"',
           type: "string",
         },
@@ -101320,6 +101660,7 @@ export default {
         "active",
         "createdBy",
         "createdAt",
+        "requiresInspection",
       ],
       properties: {
         id: {
@@ -101440,6 +101781,11 @@ export default {
         readableIdWithRevision: {
           format: "text",
           type: "string",
+        },
+        requiresInspection: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
         },
       },
       type: "object",
@@ -104029,6 +104375,7 @@ export default {
         "consoleEnabled",
         "timeCardEnabled",
         "updateLeadTimesOnReceipt",
+        "enforceInspectionFourEyes",
       ],
       properties: {
         id: {
@@ -104230,6 +104577,11 @@ export default {
           type: "boolean",
         },
         updateLeadTimesOnReceipt: {
+          default: false,
+          format: "boolean",
+          type: "boolean",
+        },
+        enforceInspectionFourEyes: {
           default: false,
           format: "boolean",
           type: "boolean",
@@ -124475,6 +124827,105 @@ export default {
       in: "query",
       type: "string",
     },
+    "body.inboundInspection": {
+      name: "inboundInspection",
+      description: "inboundInspection",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/inboundInspection",
+      },
+    },
+    "rowFilter.inboundInspection.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.trackedEntityId": {
+      name: "trackedEntityId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.receiptLineId": {
+      name: "receiptLineId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.receiptId": {
+      name: "receiptId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.itemId": {
+      name: "itemId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.itemReadableId": {
+      name: "itemReadableId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.status": {
+      name: "status",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.notes": {
+      name: "notes",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.inspectedBy": {
+      name: "inspectedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.inspectedAt": {
+      name: "inspectedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.inboundInspection.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.userPermission": {
       name: "userPermission",
       description: "userPermission",
@@ -136355,6 +136806,12 @@ export default {
       in: "query",
       type: "string",
     },
+    "rowFilter.item.requiresInspection": {
+      name: "requiresInspection",
+      required: false,
+      in: "query",
+      type: "string",
+    },
     "body.purchaseInvoices": {
       name: "purchaseInvoices",
       description: "purchaseInvoices",
@@ -139435,6 +139892,12 @@ export default {
     },
     "rowFilter.companySettings.updateLeadTimesOnReceipt": {
       name: "updateLeadTimesOnReceipt",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.companySettings.enforceInspectionFourEyes": {
+      name: "enforceInspectionFourEyes",
       required: false,
       in: "query",
       type: "string",
