@@ -32,8 +32,8 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "build:app": "turbo run build --filter=!www",
-    "build:packages": "turbo run build --filter=./packages/*",
+    "build:erp": "turbo run build --filter=erp",
+    "build:mes": "turbo run build --filter=mes",
     "ci:migrations": "npm run -w ci ci:migrations",
     "ci:deploy": "npm run -w ci ci:deploy",
     "clean": "turbo run clean && rimraf ./node_modules && rimraf ./package-lock.json",
