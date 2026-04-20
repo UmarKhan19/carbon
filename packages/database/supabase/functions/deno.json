@@ -2,6 +2,7 @@
   "imports": {
     "kysely": "npm:kysely@0.26.3",
     "kysely-supabase": "npm:kysely-supabase",
-    "pg": "https://deno.land/x/postgres@v0.17.0/mod.ts"
+    "pg": "https://deno.land/x/postgres@v0.17.0/mod.ts",
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2.33.1"
   }
 }
