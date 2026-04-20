@@ -44,6 +44,7 @@ import {
   materialValidator,
   materialValidatorWithGeneratedIds
 } from "../../items.models";
+import ItemStorageAndShelfLifeFields from "../Item/ItemStorageAndShelfLifeFields";
 
 type MaterialFormProps = {
   initialValues: z.infer<typeof materialValidator> & { tags?: string[] };
@@ -320,6 +321,11 @@ const MaterialForm = ({
                   isClearable
                 />
                 <Array name="sizes" label={t`Sizes`} />
+
+                <ItemStorageAndShelfLifeFields
+                  initialLocationId={initialValues.defaultLocationId}
+                  inventoryTracked
+                />
 
                 <CustomFormFields table="material" tags={initialValues.tags} />
               </div>

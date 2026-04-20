@@ -52,6 +52,12 @@ export const itemReplenishmentSystems = [
   "Buy and Make"
 ] as const;
 
+export const shelfLifeModes = [
+  "NotManaged",
+  "ItemSpecific",
+  "Calculated"
+] as const;
+
 export const partManufacturingPolicies = [
   "Make to Stock",
   "Make to Order"
@@ -92,8 +98,75 @@ export const itemValidator = z.object({
   unitOfMeasureCode: z
     .string()
     .min(1, { message: "Unit of Measure is required" }),
-  unitCost: zfd.numeric(z.number().nonnegative().optional())
+  unitCost: zfd.numeric(z.number().nonnegative().optional()),
+  // Default storage (free on the base object; each downstream validator
+  // enforces required-ness via the storage / shelf-life refines below).
+  defaultLocationId: zfd.text(z.string().optional()),
+  defaultStorageUnitId: zfd.text(z.string().optional()),
+  defaultNestedStorageUnitId: zfd.text(z.string().optional()),
+  // Shelf life. Leaving shelfLifeMode undefined means "form doesn't opine" -
+  // the server treats that as a no-op so partial forms (e.g. the
+  // manufacturing sub-form) can share an action without wiping the
+  // itemShelfLife row. An explicit "NotManaged" selection in the form
+  // still clears the row.
+  shelfLifeMode: z.enum(shelfLifeModes).optional(),
+  shelfLifeDays: zfd.numeric(z.number().positive().optional()),
+  shelfLifeTriggerProcessId: zfd.text(z.string().optional())
 });
+
+// Common storage / shelf-life refines. `inventoryTracked` gates the
+// "required defaults" rule so we can reuse the same chain across the three
+// inventory-tracked types (Part, Material, Consumable) without touching
+// Service / Tool / Fixture.
+const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
+  schema: T,
+  { inventoryTracked }: { inventoryTracked: boolean }
+) => {
+  let refined: z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>> = schema
+    .refine(
+      (data: z.infer<T>) =>
+        data.shelfLifeDays === undefined ||
+        data.shelfLifeMode === "ItemSpecific",
+      {
+        message:
+          "Shelf-life days can only be set when shelf-life management is Item-specific",
+        path: ["shelfLifeDays"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        !data.shelfLifeTriggerProcessId ||
+        data.shelfLifeMode === "ItemSpecific",
+      {
+        message:
+          "Trigger process can only be set when shelf-life management is Item-specific",
+        path: ["shelfLifeTriggerProcessId"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        !data.defaultNestedStorageUnitId || !!data.defaultStorageUnitId,
+      {
+        message:
+          "A default storage unit must be selected before picking a nested one",
+        path: ["defaultNestedStorageUnitId"]
+      }
+    ) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
+
+  if (inventoryTracked) {
+    refined = refined
+      .refine((data: z.infer<T>) => !!data.defaultLocationId, {
+        message: "Default location is required",
+        path: ["defaultLocationId"]
+      })
+      .refine((data: z.infer<T>) => !!data.defaultStorageUnitId, {
+        message: "Default storage unit is required",
+        path: ["defaultStorageUnitId"]
+      }) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
+  }
+
+  return refined;
+};
 
 export const configurationParameterGroupValidator = z.object({
   id: zfd.text(z.string().optional()),
@@ -144,13 +217,16 @@ export const configurationRuleValidator = z.object({
   code: z.string().min(1, { message: "Code is required" })
 });
 
-export const consumableValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Consumable ID is required" }).max(255),
-    unitOfMeasureCode: z
-      .string()
-      .min(1, { message: "Unit of Measure is required" })
-  })
+export const consumableValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Consumable ID is required" }).max(255),
+      unitOfMeasureCode: z
+        .string()
+        .min(1, { message: "Unit of Measure is required" })
+    })
+  ),
+  { inventoryTracked: true }
 );
 
 export const customerPartValidator = z.object({
@@ -178,17 +254,20 @@ export const makeMethodVersionValidator = z.object({
   version: zfd.numeric(z.number().min(0, { message: "Please enter a version" }))
 });
 
-export const materialValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Material ID is required" }).max(255),
-    materialSubstanceId: zfd.text(z.string().optional()),
-    materialFormId: zfd.text(z.string().optional()),
-    materialTypeId: zfd.text(z.string().optional()),
-    finishId: zfd.text(z.string().optional()),
-    gradeId: zfd.text(z.string().optional()),
-    dimensionId: zfd.text(z.string().optional()),
-    sizes: z.array(z.string()).optional()
-  })
+export const materialValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Material ID is required" }).max(255),
+      materialSubstanceId: zfd.text(z.string().optional()),
+      materialFormId: zfd.text(z.string().optional()),
+      materialTypeId: zfd.text(z.string().optional()),
+      finishId: zfd.text(z.string().optional()),
+      gradeId: zfd.text(z.string().optional()),
+      dimensionId: zfd.text(z.string().optional()),
+      sizes: z.array(z.string()).optional()
+    })
+  ),
+  { inventoryTracked: true }
 );
 
 export const materialValidatorWithGeneratedIds = z.object({
@@ -490,13 +569,16 @@ export const materialTypeValidator = z.object({
   code: z.string().min(1, { message: "Code is required" }).max(10)
 });
 
-export const partValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Part ID is required" }).max(255),
-    revision: z.string().min(1, { message: "Revision is required" }),
-    modelUploadId: zfd.text(z.string().optional()),
-    lotSize: zfd.numeric(z.number().min(0).optional())
-  })
+export const partValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Part ID is required" }).max(255),
+      revision: z.string().min(1, { message: "Revision is required" }),
+      modelUploadId: zfd.text(z.string().optional()),
+      lotSize: zfd.numeric(z.number().min(0).optional())
+    })
+  ),
+  { inventoryTracked: true }
 );
 
 export const pickMethodValidator = z.object({
@@ -519,15 +601,18 @@ export const revisionValidator = z
     { message: "Revision or copy from is required" }
   );
 
-export const serviceValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Service ID is required" }).max(255),
-    serviceType: z.enum(serviceType, {
-      errorMap: (issue, ctx) => ({
-        message: "Service type is required"
+export const serviceValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Service ID is required" }).max(255),
+      serviceType: z.enum(serviceType, {
+        errorMap: (issue, ctx) => ({
+          message: "Service type is required"
+        })
       })
     })
-  })
+  ),
+  { inventoryTracked: false }
 );
 
 export const supplierPartValidator = z.object({
@@ -541,16 +626,19 @@ export const supplierPartValidator = z.object({
   unitPrice: zfd.numeric(z.number().min(0).optional())
 });
 
-export const toolValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Tool ID is required" }).max(255),
-    revision: z.string().min(1, { message: "Revision is required" }),
-    modelUploadId: zfd.text(z.string().optional()),
-    unitOfMeasureCode: z
-      .string()
-      .min(1, { message: "Unit of Measure is required" }),
-    lotSize: zfd.numeric(z.number().min(0).optional())
-  })
+export const toolValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Tool ID is required" }).max(255),
+      revision: z.string().min(1, { message: "Revision is required" }),
+      modelUploadId: zfd.text(z.string().optional()),
+      unitOfMeasureCode: z
+        .string()
+        .min(1, { message: "Unit of Measure is required" }),
+      lotSize: zfd.numeric(z.number().min(0).optional())
+    })
+  ),
+  { inventoryTracked: false }
 );
 
 export const unitOfMeasureValidator = z.object({

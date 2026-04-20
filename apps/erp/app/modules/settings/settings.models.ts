@@ -125,6 +125,11 @@ export const purchasePriceUpdateTimingValidator = z.object({
   purchasePriceUpdateTiming: z.enum(purchasePriceUpdateTimingTypes)
 });
 
+export const shelfLifeSettingsValidator = z.object({
+  nearExpiryWarningDays: zfd.numeric(z.number().int().min(0).max(365)),
+  expiredBadgeEnabled: zfd.checkbox()
+});
+
 export const updateLeadTimesOnReceiptValidator = z.object({
   updateLeadTimesOnReceipt: zfd.checkbox()
 });

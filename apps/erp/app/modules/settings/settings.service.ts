@@ -479,6 +479,25 @@ export async function updateKanbanOutputSetting(
     .eq("id", companyId);
 }
 
+export async function updateShelfLifeSettings(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  settings: {
+    nearExpiryWarningDays: number;
+    expiredBadgeEnabled: boolean;
+  }
+) {
+  return client
+    .from("companySettings")
+    .update(
+      sanitize({
+        nearExpiryWarningDays: settings.nearExpiryWarningDays,
+        expiredBadgeEnabled: settings.expiredBadgeEnabled
+      })
+    )
+    .eq("id", companyId);
+}
+
 export async function updateMetricSettings(
   client: SupabaseClient<Database>,
   companyId: string,

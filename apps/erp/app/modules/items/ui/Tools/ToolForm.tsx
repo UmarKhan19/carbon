@@ -50,6 +50,7 @@ import {
   itemTrackingTypes,
   toolValidator
 } from "../../items.models";
+import ItemStorageAndShelfLifeFields from "../Item/ItemStorageAndShelfLifeFields";
 
 type ToolFormProps = {
   initialValues: z.infer<typeof toolValidator> & { tags: string[] };
@@ -322,6 +323,10 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                     isReadOnly={replenishmentSystem === "Make"}
                   />
                 )}
+
+                <ItemStorageAndShelfLifeFields
+                  initialLocationId={initialValues.defaultLocationId}
+                />
 
                 <CustomFormFields table="tool" tags={initialValues.tags} />
               </div>

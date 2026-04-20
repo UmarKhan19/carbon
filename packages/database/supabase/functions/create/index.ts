@@ -806,7 +806,9 @@ serve(async (req: Request) => {
 
         const items = await client
           .from("item")
-          .select("id, itemTrackingType")
+          .select(
+            "id, itemTrackingType, defaultLocationId, defaultStorageUnitId, defaultNestedStorageUnitId",
+          )
           .in(
             "id",
             purchaseOrderLines.data
@@ -823,6 +825,26 @@ serve(async (req: Request) => {
             ?.filter((d) => d.itemTrackingType === "Batch")
             .map((d) => d.id)
         );
+        // Map itemId -> item master default storage. Receipt lines fall back
+        // to these when the purchase order line doesn't pin an explicit
+        // location / storage unit. Prefer the nested default when set - it IS
+        // the intended bin per the customer's mental model.
+        const itemDefaultsById = new Map<
+          string,
+          {
+            locationId: string | null;
+            storageUnitId: string | null;
+          }
+        >();
+        for (const row of items.data ?? []) {
+          itemDefaultsById.set(row.id, {
+            locationId: row.defaultLocationId ?? null,
+            storageUnitId:
+              row.defaultNestedStorageUnitId ??
+              row.defaultStorageUnitId ??
+              null,
+          });
+        }
 
         const hasReceipt = !!receipt.data?.id;
         const isOutsideOperation =
@@ -872,8 +894,12 @@ serve(async (req: Request) => {
             unitPrice:
               d.unitPrice / (d.conversionFactor ?? 1) + shippingAndTaxUnitCost,
             unitOfMeasure: d.inventoryUnitOfMeasureCode ?? "EA",
-            locationId: d.locationId,
-            storageUnitId: d.storageUnitId,
+            locationId:
+              d.locationId ?? itemDefaultsById.get(d.itemId!)?.locationId ?? null,
+            storageUnitId:
+              d.storageUnitId ??
+              itemDefaultsById.get(d.itemId!)?.storageUnitId ??
+              null,
             createdBy: userId ?? "",
           });
 

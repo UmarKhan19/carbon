@@ -1,7 +1,15 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Hidden, Select, Submit, ValidatedForm, validator } from "@carbon/form";
+import {
+  Boolean,
+  Hidden,
+  Number,
+  Select,
+  Submit,
+  ValidatedForm,
+  validator
+} from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -23,7 +31,9 @@ import {
   getCompanySettings,
   kanbanOutputTypes,
   kanbanOutputValidator,
-  updateKanbanOutputSetting
+  shelfLifeSettingsValidator,
+  updateKanbanOutputSetting,
+  updateShelfLifeSettings
 } from "~/modules/settings";
 
 import type { Handle } from "~/utils/handle";
@@ -83,6 +93,30 @@ export async function action({ request }: ActionFunctionArgs) {
         };
 
       return { success: true, message: "Kanban output setting updated" };
+
+    case "shelfLife":
+      const shelfLifeValidation = await validator(
+        shelfLifeSettingsValidator
+      ).validate(formData);
+
+      if (shelfLifeValidation.error) {
+        return { success: false, message: "Invalid form data" };
+      }
+
+      const shelfLifeResult = await updateShelfLifeSettings(client, companyId, {
+        nearExpiryWarningDays: shelfLifeValidation.data.nearExpiryWarningDays,
+        expiredBadgeEnabled: shelfLifeValidation.data.expiredBadgeEnabled
+      });
+      if (shelfLifeResult.error)
+        return {
+          success: false,
+          message: shelfLifeResult.error.message
+        };
+
+      return {
+        success: true,
+        message: "Shelf life & expiry settings updated"
+      };
   }
 
   return { success: false, message: "Invalid form data" };
@@ -150,6 +184,54 @@ export default function InventorySettingsRoute() {
                     }))}
                   />
                 </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={shelfLifeSettingsValidator}
+            defaultValues={{
+              nearExpiryWarningDays:
+                companySettings.nearExpiryWarningDays ?? 14,
+              expiredBadgeEnabled: companySettings.expiredBadgeEnabled ?? true
+            }}
+            fetcher={fetcher}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trans>Shelf life & expiry</Trans>
+              </CardTitle>
+              <CardDescription>
+                <Trans>
+                  Controls how near-expiry and expired batches are surfaced
+                  throughout the app. Warn-only — these settings do not block
+                  consumption or receipt.
+                </Trans>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Hidden name="intent" value="shelfLife" />
+              <div className="flex flex-col gap-4 max-w-[400px]">
+                <Number
+                  name="nearExpiryWarningDays"
+                  label={t`"Expiring soon" threshold (days)`}
+                  minValue={0}
+                  maxValue={365}
+                  helperText={t`Batches whose expiry falls within this many days from today get the amber badge.`}
+                />
+                <Boolean
+                  name="expiredBadgeEnabled"
+                  label={t`Show expired badge`}
+                  description={t`When off, batches past their expiry date will no longer display a red "Expired" badge.`}
+                />
               </div>
             </CardContent>
             <CardFooter>

@@ -2019,6 +2019,89 @@ export async function upsertConfigurationRule(
   });
 }
 
+/**
+ * Persist (or clear) the per-item shelf-life policy. Shelf life lives on the
+ * "itemShelfLife" table, keyed by itemId. Absence of a row = not managed.
+ *
+ * Three-way mode handling so this helper can be called from any upsert path
+ * safely, including forms that don't surface the shelf-life fields:
+ *   - mode undefined         -> no-op. The caller's form didn't opine on
+ *                               shelf life; leave whatever row exists alone.
+ *   - mode 'NotManaged'      -> explicit opt-out. DELETE any existing row.
+ *   - mode 'ItemSpecific' or
+ *     'Calculated'           -> UPSERT, clearing fields that don't apply to
+ *                               the selected mode so stale values never leak
+ *                               between modes.
+ *
+ * Callers on an item INSERT path should pass companyId so the helper can
+ * seed a fresh row without a round-trip; on an UPDATE path where we know
+ * the row already exists, companyId is optional.
+ */
+export async function upsertItemShelfLife(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId: string;
+    userId: string;
+    companyId?: string;
+    mode?: "NotManaged" | "ItemSpecific" | "Calculated";
+    days?: number;
+    triggerProcessId?: string;
+  }
+) {
+  if (args.mode === undefined) {
+    return { data: null, error: null };
+  }
+
+  if (args.mode === "NotManaged") {
+    return client.from("itemShelfLife").delete().eq("itemId", args.itemId);
+  }
+
+  const days = args.mode === "ItemSpecific" ? (args.days ?? null) : null;
+  const triggerProcessId =
+    args.mode === "ItemSpecific" ? (args.triggerProcessId ?? null) : null;
+
+  const existing = await client
+    .from("itemShelfLife")
+    .select("itemId")
+    .eq("itemId", args.itemId)
+    .maybeSingle();
+
+  if (existing.error) return existing;
+
+  if (existing.data) {
+    return client
+      .from("itemShelfLife")
+      .update({
+        mode: args.mode,
+        days,
+        triggerProcessId,
+        updatedBy: args.userId,
+        updatedAt: today(getLocalTimeZone()).toString()
+      })
+      .eq("itemId", args.itemId);
+  }
+
+  let companyId = args.companyId;
+  if (!companyId) {
+    const itemRow = await client
+      .from("item")
+      .select("companyId")
+      .eq("id", args.itemId)
+      .single();
+    if (itemRow.error || !itemRow.data) return itemRow;
+    companyId = itemRow.data.companyId;
+  }
+
+  return client.from("itemShelfLife").insert({
+    itemId: args.itemId,
+    mode: args.mode,
+    days,
+    triggerProcessId,
+    companyId,
+    createdBy: args.userId
+  });
+}
+
 export async function upsertConsumable(
   client: SupabaseClient<Database>,
   consumable:
@@ -2044,6 +2127,9 @@ export async function upsertConsumable(
         itemTrackingType: consumable.itemTrackingType,
         unitOfMeasureCode: consumable.unitOfMeasureCode,
         active: true,
+        defaultLocationId: consumable.defaultLocationId,
+        defaultStorageUnitId: consumable.defaultStorageUnitId,
+        defaultNestedStorageUnitId: consumable.defaultNestedStorageUnitId,
         companyId: consumable.companyId,
         createdBy: consumable.createdBy
       })
@@ -2073,6 +2159,18 @@ export async function upsertConsumable(
     if (consumableInsert.error) return consumableInsert;
     if (itemCostUpdate.error) return itemCostUpdate;
 
+    if (itemId) {
+      const shelfLife = await upsertItemShelfLife(client, {
+        itemId,
+        userId: consumable.createdBy,
+        companyId: consumable.companyId,
+        mode: consumable.shelfLifeMode,
+        days: consumable.shelfLifeDays,
+        triggerProcessId: consumable.shelfLifeTriggerProcessId
+      });
+      if (shelfLife.error) return shelfLife;
+    }
+
     const newConsumable = await client
       .from("consumables")
       .select("id")
@@ -2091,6 +2189,9 @@ export async function upsertConsumable(
     defaultMethodType: consumable.defaultMethodType,
     itemTrackingType: consumable.itemTrackingType,
     unitOfMeasureCode: consumable.unitOfMeasureCode,
+    defaultLocationId: consumable.defaultLocationId,
+    defaultStorageUnitId: consumable.defaultStorageUnitId,
+    defaultNestedStorageUnitId: consumable.defaultNestedStorageUnitId,
     active: true
   };
 
@@ -2116,6 +2217,16 @@ export async function upsertConsumable(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const shelfLife = await upsertItemShelfLife(client, {
+    itemId: consumable.id,
+    userId: consumable.updatedBy,
+    mode: consumable.shelfLifeMode,
+    days: consumable.shelfLifeDays,
+    triggerProcessId: consumable.shelfLifeTriggerProcessId
+  });
+  if (shelfLife.error) return shelfLife;
+
   return updateConsumable;
 }
 
@@ -2146,6 +2257,9 @@ export async function upsertPart(
         unitOfMeasureCode: part.unitOfMeasureCode,
         active: true,
         modelUploadId: part.modelUploadId,
+        defaultLocationId: part.defaultLocationId,
+        defaultStorageUnitId: part.defaultStorageUnitId,
+        defaultNestedStorageUnitId: part.defaultNestedStorageUnitId,
         companyId: part.companyId,
         createdBy: part.createdBy
       })
@@ -2187,6 +2301,18 @@ export async function upsertPart(
       if (itemReplenishmentInsert.error) return itemReplenishmentInsert;
     }
 
+    if (itemId) {
+      const shelfLife = await upsertItemShelfLife(client, {
+        itemId,
+        userId: part.createdBy,
+        companyId: part.companyId,
+        mode: part.shelfLifeMode,
+        days: part.shelfLifeDays,
+        triggerProcessId: part.shelfLifeTriggerProcessId
+      });
+      if (shelfLife.error) return shelfLife;
+    }
+
     const newPart = await client
       .from("parts")
       .select("id")
@@ -2205,6 +2331,9 @@ export async function upsertPart(
     defaultMethodType: part.defaultMethodType,
     itemTrackingType: part.itemTrackingType,
     unitOfMeasureCode: part.unitOfMeasureCode,
+    defaultLocationId: part.defaultLocationId,
+    defaultStorageUnitId: part.defaultStorageUnitId,
+    defaultNestedStorageUnitId: part.defaultNestedStorageUnitId,
     active: true
   };
 
@@ -2230,6 +2359,16 @@ export async function upsertPart(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const shelfLife = await upsertItemShelfLife(client, {
+    itemId: part.id,
+    userId: part.updatedBy,
+    mode: part.shelfLifeMode,
+    days: part.shelfLifeDays,
+    triggerProcessId: part.shelfLifeTriggerProcessId
+  });
+  if (shelfLife.error) return shelfLife;
+
   return updatePart;
 }
 
@@ -2476,6 +2615,47 @@ export async function upsertMakeMethodVersion(
   return insert;
 }
 
+/**
+ * On BoM material add, seed `methodMaterial.storageUnitIds` with the child
+ * item's default location -> storage unit when the caller didn't already
+ * pin a storage unit for that location. Values set by the caller win so
+ * downstream BoMs that were constructed with explicit picks are untouched.
+ *
+ * The JSONB is modelled as Record<locationId, storageUnitId>; the nested
+ * default wins over the top-level default because the nested one IS the
+ * intended bin.
+ */
+async function resolveMethodMaterialStorageUnitIds(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId?: string | null;
+    current?: Record<string, string>;
+  }
+): Promise<Record<string, string>> {
+  const current = { ...(args.current ?? {}) };
+  if (!args.itemId) return current;
+
+  const item = await client
+    .from("item")
+    .select(
+      "defaultLocationId, defaultStorageUnitId, defaultNestedStorageUnitId"
+    )
+    .eq("id", args.itemId)
+    .maybeSingle();
+
+  const locationId = item.data?.defaultLocationId;
+  const storageUnitId =
+    item.data?.defaultNestedStorageUnitId ??
+    item.data?.defaultStorageUnitId ??
+    null;
+
+  if (locationId && storageUnitId && !current[locationId]) {
+    current[locationId] = storageUnitId;
+  }
+
+  return current;
+}
+
 export async function upsertMethodMaterial(
   client: SupabaseClient<Database>,
 
@@ -2504,12 +2684,25 @@ export async function upsertMethodMaterial(
   }
 
   if ("createdBy" in methodMaterial) {
+    // Seed storageUnitIds from the child item's default location/storage-unit
+    // if the caller didn't already provide one for that location. Respects
+    // the form value when supplied, adds a sensible default otherwise.
+    const seededStorageUnitIds = await resolveMethodMaterialStorageUnitIds(
+      client,
+      {
+        itemId: methodMaterial.itemId,
+        current: methodMaterial.storageUnitIds as
+          | Record<string, string>
+          | undefined
+      }
+    );
     return client
       .from("methodMaterial")
       .insert([
         {
           ...methodMaterial,
           itemId: methodMaterial.itemId!,
+          storageUnitIds: seededStorageUnitIds,
           materialMakeMethodId
         }
       ])
@@ -2666,6 +2859,10 @@ export async function upsertMaterial(
       })
 ) {
   if ("createdBy" in material) {
+    // Collect every newly-created item id across the sizes / no-sizes
+    // branches so the shelf-life policy can be applied uniformly.
+    const newItemIds: string[] = [];
+
     if (material.sizes) {
       const itemInserts = await Promise.all(
         material.sizes.map((size) =>
@@ -2680,6 +2877,9 @@ export async function upsertMaterial(
               itemTrackingType: material.itemTrackingType,
               unitOfMeasureCode: material.unitOfMeasureCode,
               active: true,
+              defaultLocationId: material.defaultLocationId,
+              defaultStorageUnitId: material.defaultStorageUnitId,
+              defaultNestedStorageUnitId: material.defaultNestedStorageUnitId,
               revision: size,
               companyId: material.companyId,
               createdBy: material.createdBy
@@ -2693,6 +2893,9 @@ export async function upsertMaterial(
       if (hasErrors) {
         const firstError = itemInserts.find((insert) => insert.error);
         return firstError!;
+      }
+      for (const insert of itemInserts) {
+        if (insert.data?.id) newItemIds.push(insert.data.id);
       }
       const itemCostUpdate = await Promise.all(
         itemInserts.map((insert) =>
@@ -2722,6 +2925,9 @@ export async function upsertMaterial(
           itemTrackingType: material.itemTrackingType,
           unitOfMeasureCode: material.unitOfMeasureCode,
           active: true,
+          defaultLocationId: material.defaultLocationId,
+          defaultStorageUnitId: material.defaultStorageUnitId,
+          defaultNestedStorageUnitId: material.defaultNestedStorageUnitId,
           companyId: material.companyId,
           createdBy: material.createdBy
         })
@@ -2729,6 +2935,7 @@ export async function upsertMaterial(
         .single();
       if (itemInsert.error) return itemInsert;
       const itemId = itemInsert.data?.id;
+      if (itemId) newItemIds.push(itemId);
       const itemCostUpdate = await client
         .from("itemCost")
         .update(
@@ -2741,6 +2948,18 @@ export async function upsertMaterial(
       if (itemCostUpdate.error) {
         console.error(itemCostUpdate.error);
       }
+    }
+
+    for (const itemId of newItemIds) {
+      const shelfLife = await upsertItemShelfLife(client, {
+        itemId,
+        userId: material.createdBy,
+        companyId: material.companyId,
+        mode: material.shelfLifeMode,
+        days: material.shelfLifeDays,
+        triggerProcessId: material.shelfLifeTriggerProcessId
+      });
+      if (shelfLife.error) return shelfLife;
     }
 
     const materialInsert = await client.from("material").upsert({
@@ -2778,6 +2997,9 @@ export async function upsertMaterial(
     defaultMethodType: material.defaultMethodType,
     itemTrackingType: material.itemTrackingType,
     unitOfMeasureCode: material.unitOfMeasureCode,
+    defaultLocationId: material.defaultLocationId,
+    defaultStorageUnitId: material.defaultStorageUnitId,
+    defaultNestedStorageUnitId: material.defaultNestedStorageUnitId,
     active: true
   };
 
@@ -2809,6 +3031,16 @@ export async function upsertMaterial(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const shelfLife = await upsertItemShelfLife(client, {
+    itemId: material.id,
+    userId: material.updatedBy,
+    mode: material.shelfLifeMode,
+    days: material.shelfLifeDays,
+    triggerProcessId: material.shelfLifeTriggerProcessId
+  });
+  if (shelfLife.error) return shelfLife;
+
   return updateMaterial;
 }
 
@@ -3202,6 +3434,9 @@ export async function upsertTool(
         unitOfMeasureCode: tool.unitOfMeasureCode,
         active: true,
         modelUploadId: tool.modelUploadId,
+        defaultLocationId: tool.defaultLocationId,
+        defaultStorageUnitId: tool.defaultStorageUnitId,
+        defaultNestedStorageUnitId: tool.defaultNestedStorageUnitId,
         companyId: tool.companyId,
         createdBy: tool.createdBy
       })
@@ -3231,6 +3466,18 @@ export async function upsertTool(
     if (toolInsert.error) return toolInsert;
     if (itemCostUpdate.error) return itemCostUpdate;
 
+    if (itemId) {
+      const shelfLife = await upsertItemShelfLife(client, {
+        itemId,
+        userId: tool.createdBy,
+        companyId: tool.companyId,
+        mode: tool.shelfLifeMode,
+        days: tool.shelfLifeDays,
+        triggerProcessId: tool.shelfLifeTriggerProcessId
+      });
+      if (shelfLife.error) return shelfLife;
+    }
+
     const newTool = await client
       .from("tools")
       .select("*")
@@ -3249,6 +3496,9 @@ export async function upsertTool(
     defaultMethodType: tool.defaultMethodType,
     itemTrackingType: tool.itemTrackingType,
     unitOfMeasureCode: tool.unitOfMeasureCode,
+    defaultLocationId: tool.defaultLocationId,
+    defaultStorageUnitId: tool.defaultStorageUnitId,
+    defaultNestedStorageUnitId: tool.defaultNestedStorageUnitId,
     active: true
   };
 
@@ -3274,6 +3524,16 @@ export async function upsertTool(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const shelfLife = await upsertItemShelfLife(client, {
+    itemId: tool.id,
+    userId: tool.updatedBy,
+    mode: tool.shelfLifeMode,
+    days: tool.shelfLifeDays,
+    triggerProcessId: tool.shelfLifeTriggerProcessId
+  });
+  if (shelfLife.error) return shelfLife;
+
   return updateTool;
 }
 

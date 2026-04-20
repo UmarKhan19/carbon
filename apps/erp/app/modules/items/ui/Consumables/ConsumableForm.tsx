@@ -33,6 +33,7 @@ import { TrackingTypeIcon } from "~/components/Icons";
 import { useNextItemId, usePermissions, useUser } from "~/hooks";
 import { path } from "~/utils/path";
 import { consumableValidator, itemTrackingTypes } from "../../items.models";
+import ItemStorageAndShelfLifeFields from "../Item/ItemStorageAndShelfLifeFields";
 
 type ConsumableFormProps = {
   initialValues: z.infer<typeof consumableValidator> & { tags: string[] };
@@ -187,6 +188,11 @@ const ConsumableForm = ({
                     minValue={0}
                   />
                 )}
+
+                <ItemStorageAndShelfLifeFields
+                  initialLocationId={initialValues.defaultLocationId}
+                  inventoryTracked
+                />
 
                 <CustomFormFields
                   table="consumable"
