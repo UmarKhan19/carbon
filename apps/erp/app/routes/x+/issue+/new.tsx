@@ -104,6 +104,24 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
+  // Pre-associate tracked entities passed via query string (used by the
+  // "Create Issue from Inspection" button on inbound inspection lots).
+  const url = new URL(request.url);
+  const trackedEntityIdsParam = url.searchParams.get("trackedEntityIds");
+  const trackedEntityIds = trackedEntityIdsParam
+    ? trackedEntityIdsParam.split(",").filter(Boolean)
+    : [];
+  if (trackedEntityIds.length > 0) {
+    await serviceRole.from("nonConformanceTrackedEntity").insert(
+      trackedEntityIds.map((trackedEntityId) => ({
+        nonConformanceId: ncrId,
+        trackedEntityId,
+        companyId,
+        createdBy: userId
+      }))
+    );
+  }
+
   const tasks = await serviceRole.functions.invoke("create", {
     body: {
       type: "nonConformanceTasks",

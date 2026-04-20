@@ -17,7 +17,7 @@ ALTER TABLE "companySettings"
 CREATE TYPE "inboundInspectionStatus" AS ENUM ('Pending', 'Passed', 'Failed');
 
 CREATE TABLE "inboundInspection" (
-  "id" TEXT NOT NULL DEFAULT xid(),
+  "id" TEXT NOT NULL DEFAULT id(),
   "trackedEntityId" TEXT NOT NULL,
   "receiptLineId" TEXT NOT NULL,
   "receiptId" TEXT NOT NULL,

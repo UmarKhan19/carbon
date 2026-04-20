@@ -1,5 +1,5 @@
 import { Badge } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
+import { formatDate, getItemReadableId } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useMemo } from "react";
@@ -7,15 +7,15 @@ import {
   LuBookMarked,
   LuCalendar,
   LuClipboardCheck,
+  LuHash,
   LuPackage,
-  LuSquareStack,
-  LuTruck,
-  LuUser
+  LuTruck
 } from "react-icons/lu";
 import { EmployeeAvatar, Hyperlink, Table } from "~/components";
 import { useUrlParams } from "~/hooks";
 import { inboundInspectionStatus } from "~/modules/quality/quality.models";
 import type { InboundInspection } from "~/modules/quality/types";
+import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
 
 type InboundInspectionsTableProps = {
@@ -23,27 +23,36 @@ type InboundInspectionsTableProps = {
   count: number;
 };
 
-const defaultColumnVisibility = {
-  inspectedAt: false,
-  inspectedBy: false,
-  createdAt: true
-};
-
 function getStatusVariant(status: string) {
   if (status === "Passed") return "green";
   if (status === "Failed") return "red";
+  if (status === "Partial") return "yellow";
+  if (status === "In Progress") return "blue";
   return "secondary";
+}
+
+function computeProgress(row: InboundInspection): {
+  inspected: number;
+  total: number;
+} {
+  // The list loader selects `inboundInspectionSample(status)` as an array of
+  // child rows; count the non-Pending ones.
+  const samples: { status: string }[] =
+    ((row as any).inboundInspectionSample as { status: string }[]) ?? [];
+  const inspected = samples.filter((s) => s.status !== "Pending").length;
+  return { inspected, total: (row as any).sampleSize ?? 0 };
 }
 
 const InboundInspectionsTable = memo(
   ({ data, count }: InboundInspectionsTableProps) => {
     const { t } = useLingui();
     const [params] = useUrlParams();
+    const [items] = useItems();
 
     const columns = useMemo<ColumnDef<InboundInspection>[]>(() => {
       return [
         {
-          accessorKey: "itemReadableId",
+          accessorKey: "itemId",
           header: t`Item`,
           cell: ({ row }) => (
             <Hyperlink
@@ -51,30 +60,62 @@ const InboundInspectionsTable = memo(
             >
               <div className="flex flex-col gap-0">
                 <span className="text-sm font-medium">
-                  {row.original.itemReadableId ??
-                    // @ts-ignore - relation
-                    row.original.item?.readableId}
+                  {getItemReadableId(items, (row.original as any).itemId) ??
+                    (row.original as any).itemReadableId ??
+                    ""}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {
-                    // @ts-ignore - relation
-                    row.original.item?.name
-                  }
+                  {(row.original as any).item?.name}
                 </span>
               </div>
             </Hyperlink>
           ),
-          meta: { icon: <LuBookMarked /> }
+          meta: {
+            icon: <LuBookMarked />,
+            filter: {
+              type: "static",
+              options: items.map((item) => ({
+                value: item.id,
+                label: item.readableIdWithRevision
+              }))
+            }
+          }
         },
         {
-          id: "serialOrBatch",
-          header: t`Serial / Batch`,
+          id: "receipt",
+          header: t`Receipt`,
+          cell: ({ row }) => (
+            <div className="flex flex-col gap-0 text-sm">
+              <span>{(row.original as any).receipt?.receiptId}</span>
+              <span className="text-xs text-muted-foreground">
+                {(row.original as any).supplier?.name}
+              </span>
+            </div>
+          ),
+          meta: { icon: <LuTruck /> }
+        },
+        {
+          accessorKey: "lotSize",
+          header: t`Lot Size`,
+          cell: ({ row }) => (
+            <span className="text-sm">
+              {(row.original as any).lotSize ?? 0}
+            </span>
+          ),
+          meta: { icon: <LuPackage /> }
+        },
+        {
+          accessorKey: "sampleSize",
+          header: t`Sample`,
           cell: ({ row }) => {
-            // @ts-ignore - attributes
-            const value = row.original.trackedEntity?.readableId ?? "";
-            return <span className="text-sm">{value}</span>;
+            const p = computeProgress(row.original);
+            return (
+              <span className="text-sm">
+                {p.inspected} / {p.total}
+              </span>
+            );
           },
-          meta: { icon: <LuSquareStack /> }
+          meta: { icon: <LuHash /> }
         },
         {
           accessorKey: "status",
@@ -96,19 +137,6 @@ const InboundInspectionsTable = memo(
           }
         },
         {
-          id: "receipt",
-          header: t`Receipt`,
-          cell: ({ row }) => (
-            <span className="text-sm">
-              {
-                // @ts-ignore - relation
-                row.original.receipt?.receiptId
-              }
-            </span>
-          ),
-          meta: { icon: <LuTruck /> }
-        },
-        {
           accessorKey: "createdBy",
           header: t`Received By`,
           cell: ({ row }) => (
@@ -122,34 +150,15 @@ const InboundInspectionsTable = memo(
           cell: ({ row }) =>
             row.original.createdAt ? formatDate(row.original.createdAt) : "",
           meta: { icon: <LuCalendar /> }
-        },
-        {
-          accessorKey: "inspectedBy",
-          header: t`Inspected By`,
-          cell: ({ row }) =>
-            row.original.inspectedBy ? (
-              <EmployeeAvatar employeeId={row.original.inspectedBy} />
-            ) : null,
-          meta: { icon: <LuUser /> }
-        },
-        {
-          accessorKey: "inspectedAt",
-          header: t`Inspected At`,
-          cell: ({ row }) =>
-            row.original.inspectedAt
-              ? formatDate(row.original.inspectedAt)
-              : "",
-          meta: { icon: <LuCalendar /> }
         }
       ];
-    }, [t, params]);
+    }, [items, t, params]);
 
     return (
       <Table<InboundInspection>
         data={data}
         columns={columns}
         count={count ?? 0}
-        defaultColumnVisibility={defaultColumnVisibility}
         title={t`Inbound Inspections`}
         table="inboundInspection"
         withSavedView

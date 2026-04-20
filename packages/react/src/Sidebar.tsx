@@ -680,7 +680,7 @@ const SidebarMenuBadge = React.forwardRef<
     data-sidebar="menu-badge"
     className={cn(
       // Muted by default, brightens with parent (Vercel style)
-      "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground/50 select-none pointer-events-none transition-colors duration-100 ease-out",
+      "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium text-sidebar-foreground/50 select-none pointer-events-none transition-colors duration-100 ease-out",
       "peer-hover/menu-button:text-sidebar-foreground peer-data-[active=true]/menu-button:text-sidebar-foreground",
       "peer-data-[size=sm]/menu-button:top-0.5",
       "peer-data-[size=default]/menu-button:top-1",

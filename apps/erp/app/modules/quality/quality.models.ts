@@ -1,6 +1,21 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { procedureStepType } from "../shared/shared.models";
+import {
+  inspectionLevels,
+  inspectionSeverities,
+  samplingPlanTypes,
+  samplingStandards,
+  standardAqlValues
+} from "./samplingStandards";
+
+export {
+  inspectionLevels,
+  inspectionSeverities,
+  samplingPlanTypes,
+  samplingStandards,
+  standardAqlValues
+};
 
 export const disposition = [
   // "Conditional Acceptance",
@@ -357,12 +372,67 @@ export const riskRegisterValidator = z.object({
   type: z.enum(riskRegisterType)
 });
 
-export const inboundInspectionStatus = ["Pending", "Passed", "Failed"] as const;
+export const inboundInspectionStatus = [
+  "Pending",
+  "In Progress",
+  "Passed",
+  "Failed",
+  "Partial"
+] as const;
 
-export const inboundInspectionValidator = z.object({
-  id: z.string().min(1, { message: "Id is required" }),
+export const inboundInspectionSampleStatus = [
+  "Pending",
+  "Passed",
+  "Failed"
+] as const;
+
+export const itemSamplingPlanValidator = z
+  .object({
+    itemId: z.string().min(1, { message: "Item is required" }),
+    type: z.enum(samplingPlanTypes),
+    sampleSize: zfd.numeric(z.number().int().positive().optional()),
+    percentage: zfd.numeric(z.number().positive().max(100).optional()),
+    aql: zfd.numeric(z.number().positive().optional()),
+    inspectionLevel: z.enum(inspectionLevels).default("II"),
+    severity: z.enum(inspectionSeverities).default("Normal")
+  })
+  .superRefine((value, ctx) => {
+    if (value.type === "First" && !value.sampleSize) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["sampleSize"],
+        message: "Sample size is required for 'First N' plans"
+      });
+    }
+    if (value.type === "Percentage" && !value.percentage) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["percentage"],
+        message: "Percentage is required for percentage plans"
+      });
+    }
+    if (value.type === "AQL" && !value.aql) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["aql"],
+        message: "AQL is required for AQL plans"
+      });
+    }
+  });
+
+export const inboundInspectionSampleValidator = z.object({
+  inspectionId: z.string().min(1, { message: "Inspection is required" }),
+  trackedEntityId: z.string().min(1, { message: "Tracked entity is required" }),
   status: z.enum(["Passed", "Failed"], {
     errorMap: () => ({ message: "Status is required" })
+  }),
+  notes: zfd.text(z.string().optional())
+});
+
+export const inboundInspectionDispositionValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  decision: z.enum(["Accept", "Reject", "Partial"], {
+    errorMap: () => ({ message: "Decision is required" })
   }),
   notes: zfd.text(z.string().optional())
 });

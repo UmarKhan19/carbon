@@ -85,9 +85,7 @@ const Group = ({ group }: { group: OptionGroup }) => {
       >
         <ExpandIcon isExpanded={isExpanded} />
         <span className="flex-1 truncate">{group.name}</span>
-        <span className="text-[10px] font-normal tabular-nums">
-          {group.items.length}
-        </span>
+        <span className="text-[10px] font-normal">{group.items.length}</span>
       </div>
 
       {/* Group Items */}

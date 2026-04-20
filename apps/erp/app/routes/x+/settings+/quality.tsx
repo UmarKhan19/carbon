@@ -1,7 +1,14 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
+import {
+  Hidden,
+  Input,
+  Select,
+  Submit,
+  ValidatedForm,
+  validator
+} from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -43,6 +50,11 @@ const dashboardValidator = z.object({
   qualityIssueTarget: z.coerce.number().int().min(0)
 });
 
+const samplingStandardValidator = z.object({
+  intent: z.literal("samplingStandard"),
+  samplingStandard: z.enum(["ANSI_Z1_4", "ISO_2859_1"])
+});
+
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
     view: "settings"
@@ -82,6 +94,22 @@ export async function action({ request }: ActionFunctionArgs) {
       success: true,
       message: `Four-eyes enforcement ${enabled ? "enabled" : "disabled"}`
     };
+  }
+
+  if (intent === "samplingStandard") {
+    const validation = await validator(samplingStandardValidator).validate(
+      formData
+    );
+    if (validation.error) {
+      return { success: false, message: "Invalid form data" };
+    }
+    const update = await client
+      .from("companySettings")
+      // @ts-ignore - samplingStandard column added in migration 20260419100000
+      .update({ samplingStandard: validation.data.samplingStandard })
+      .eq("id", companyId);
+    if (update.error) return { success: false, message: update.error.message };
+    return { success: true, message: "Sampling standard updated" };
   }
 
   if (intent === "dashboard") {
@@ -293,7 +321,73 @@ export default function QualitySettingsRoute() {
             </HStack>
           </CardHeader>
         </Card>
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={samplingStandardValidator}
+            defaultValues={{
+              intent: "samplingStandard" as const,
+              samplingStandard:
+                ((companySettings as any).samplingStandard as
+                  | "ANSI_Z1_4"
+                  | "ISO_2859_1") ?? "ANSI_Z1_4"
+            }}
+            fetcher={fetcher}
+          >
+            <Hidden name="intent" />
+            <CardHeader>
+              <CardTitle>
+                <Trans>Sampling Standard</Trans>
+              </CardTitle>
+              <CardDescription>
+                <Trans>
+                  Attribute sampling standard used to compute lot sample sizes
+                  and accept/reject numbers on inbound inspections.
+                </Trans>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-2 max-w-[400px]">
+                <Label htmlFor="samplingStandard">
+                  <Trans>Standard</Trans>
+                </Label>
+                <SamplingStandardSelect
+                  value={
+                    ((companySettings as any).samplingStandard as
+                      | "ANSI_Z1_4"
+                      | "ISO_2859_1") ?? "ANSI_Z1_4"
+                  }
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={fetcher.state !== "idle"}
+              >
+                <Trans>Save</Trans>
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
       </VStack>
     </ScrollArea>
+  );
+}
+
+function SamplingStandardSelect({
+  value
+}: {
+  value: "ANSI_Z1_4" | "ISO_2859_1";
+}) {
+  return (
+    <Select
+      name="samplingStandard"
+      options={[
+        { value: "ANSI_Z1_4", label: "ANSI/ASQ Z1.4" },
+        { value: "ISO_2859_1", label: "ISO 2859-1" }
+      ]}
+      value={value}
+    />
   );
 }

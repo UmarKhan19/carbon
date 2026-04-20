@@ -157,7 +157,7 @@ The system evolved from serial/batch tracking to a more flexible tracked entity 
 
 ```sql
 CREATE TABLE "trackedEntity" (
-  "id" TEXT NOT NULL DEFAULT xid(),
+  "id" TEXT NOT NULL DEFAULT id('te'),
   "quantity" NUMERIC NOT NULL,
   "status" "trackedEntityStatus" NOT NULL DEFAULT 'Available',
   "sourceDocument" TEXT NOT NULL,
@@ -204,7 +204,7 @@ When tracked entities need to be converted between revisions (e.g., raw material
 
 ```sql
 CREATE TABLE "trackedActivity" (
-  "id" TEXT NOT NULL DEFAULT xid(),
+  "id" TEXT NOT NULL DEFAULT id('ta'),
   "type" TEXT NOT NULL,
   "sourceDocument" TEXT,
   "sourceDocumentId" TEXT,

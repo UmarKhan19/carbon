@@ -14,10 +14,12 @@ import type {
   gaugeCalibrationStatus,
   gaugeTypeValidator,
   gaugeValidator,
-  inboundInspectionValidator,
+  inboundInspectionDispositionValidator,
+  inboundInspectionSampleValidator,
   issueTypeValidator,
   issueValidator,
   issueWorkflowValidator,
+  itemSamplingPlanValidator,
   nonConformanceReviewerValidator,
   nonConformanceStatus,
   qualityDocumentStepValidator,
@@ -1770,6 +1772,66 @@ export async function upsertRisk(
   }
 }
 
+// -------------------------------------------------------------
+// Inbound Inspections (lot-based)
+// -------------------------------------------------------------
+
+export async function getItemSamplingPlan(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  return (client as any)
+    .from("itemSamplingPlan")
+    .select("*")
+    .eq("itemId", itemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function upsertItemSamplingPlan(
+  client: SupabaseClient<Database>,
+  plan: z.infer<typeof itemSamplingPlanValidator> & {
+    companyId: string;
+    updatedBy: string;
+  }
+) {
+  const existing = await (client as any)
+    .from("itemSamplingPlan")
+    .select("itemId")
+    .eq("itemId", plan.itemId)
+    .eq("companyId", plan.companyId)
+    .maybeSingle();
+
+  const payload = {
+    itemId: plan.itemId,
+    type: plan.type,
+    sampleSize: plan.sampleSize ?? null,
+    percentage: plan.percentage ?? null,
+    aql: plan.aql ?? null,
+    inspectionLevel: plan.inspectionLevel,
+    severity: plan.severity,
+    companyId: plan.companyId
+  };
+
+  if (existing.data) {
+    return (client as any)
+      .from("itemSamplingPlan")
+      .update({
+        ...payload,
+        updatedBy: plan.updatedBy,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("itemId", plan.itemId)
+      .eq("companyId", plan.companyId);
+  }
+
+  return (client as any).from("itemSamplingPlan").insert({
+    ...payload,
+    createdBy: plan.updatedBy
+  });
+}
+
 export async function getInboundInspections(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -1778,10 +1840,10 @@ export async function getInboundInspections(
     status: string | null;
   }
 ) {
-  let query = client
+  let query = (client as any)
     .from("inboundInspection")
     .select(
-      "*, item(readableId, name), receipt(receiptId, supplierId), trackedEntity(attributes, readableId, status)",
+      "*, item(readableId, name), receipt(receiptId, supplierId), supplier(name), inboundInspectionSample(status)",
       { count: "exact" }
     )
     .eq("companyId", companyId);
@@ -1810,97 +1872,287 @@ export async function getInboundInspection(
   client: SupabaseClient<Database>,
   id: string
 ) {
-  return client
+  return (client as any)
     .from("inboundInspection")
     .select(
-      "*, item(readableId, name, type), receipt(receiptId, supplierId, createdBy), trackedEntity(id, attributes, status, sourceDocumentReadableId)"
+      "*, item(readableId, name, type), receipt(receiptId, supplierId, createdBy), supplier(name), inboundInspectionSample(*, trackedEntity(id, attributes, status, sourceDocumentReadableId))"
     )
     .eq("id", id)
     .single();
 }
 
-export async function updateInboundInspection(
+export async function getInboundInspectionLotTrackedEntities(
   client: SupabaseClient<Database>,
-  inspection: z.infer<typeof inboundInspectionValidator> & {
+  receiptLineId: string,
+  companyId: string
+) {
+  return client
+    .from("trackedEntity")
+    .select("*")
+    .eq("attributes ->> Receipt Line", receiptLineId)
+    .eq("companyId", companyId);
+}
+
+// Auto-computed status reflects only "has the inspector started sampling?".
+// Terminal states (Passed / Failed / Partial) are ONLY set by the lot-level
+// disposition action — the per-sample recompute never transitions into them,
+// because doing so would make the lot look terminal before the inspector has
+// cascaded a decision to the un-sampled entities.
+function computeLotStatus(
+  samples: { status: string }[]
+): "Pending" | "In Progress" {
+  const inspected = samples.filter((s) => s.status !== "Pending").length;
+  return inspected > 0 ? "In Progress" : "Pending";
+}
+
+export async function upsertInboundInspectionSample(
+  client: SupabaseClient<Database>,
+  sample: z.infer<typeof inboundInspectionSampleValidator> & {
     companyId: string;
-    trackedEntityId: string;
-    receiptId: string;
-    receiptReadableId: string | null;
     inspectedBy: string;
   }
 ) {
   const nowIso = new Date().toISOString();
-  const nextTrackedEntityStatus =
-    inspection.status === "Passed" ? "Available" : "Rejected";
 
-  const inspectionUpdate = await client
-    .from("inboundInspection")
-    .update({
-      status: inspection.status,
-      notes: inspection.notes ?? null,
-      inspectedBy: inspection.inspectedBy,
-      inspectedAt: nowIso,
-      updatedBy: inspection.inspectedBy,
-      updatedAt: nowIso
-    })
-    .eq("id", inspection.id)
-    .eq("companyId", inspection.companyId);
+  const [inspection, existing] = await Promise.all([
+    (client as any)
+      .from("inboundInspection")
+      .select("id, sampleSize, acceptanceNumber, status, receiptId")
+      .eq("id", sample.inspectionId)
+      .eq("companyId", sample.companyId)
+      .single(),
+    (client as any)
+      .from("inboundInspectionSample")
+      .select("id")
+      .eq("trackedEntityId", sample.trackedEntityId)
+      .maybeSingle()
+  ]);
 
-  if (inspectionUpdate.error) {
-    return inspectionUpdate;
+  if (inspection.error || !inspection.data) {
+    return inspection;
   }
 
-  const trackedEntityUpdate = await client
+  const samplePayload = {
+    inboundInspectionId: sample.inspectionId,
+    trackedEntityId: sample.trackedEntityId,
+    status: sample.status,
+    notes: sample.notes ?? null,
+    inspectedBy: sample.inspectedBy,
+    inspectedAt: nowIso,
+    companyId: sample.companyId
+  };
+
+  const sampleWrite = existing.data
+    ? await (client as any)
+        .from("inboundInspectionSample")
+        .update({
+          ...samplePayload,
+          updatedBy: sample.inspectedBy,
+          updatedAt: nowIso
+        })
+        .eq("id", existing.data.id)
+    : await (client as any)
+        .from("inboundInspectionSample")
+        .insert({ ...samplePayload, createdBy: sample.inspectedBy });
+
+  if (sampleWrite.error) return sampleWrite;
+
+  // Flip the tracked entity's own status so downstream consumers see the result.
+  const trackedEntityStatus =
+    sample.status === "Passed" ? "Available" : "Rejected";
+  const trackedEntityFlip = await client
     .from("trackedEntity")
-    .update({ status: nextTrackedEntityStatus })
-    .eq("id", inspection.trackedEntityId)
-    .eq("companyId", inspection.companyId);
+    .update({ status: trackedEntityStatus })
+    .eq("id", sample.trackedEntityId)
+    .eq("companyId", sample.companyId);
+  if (trackedEntityFlip.error) return trackedEntityFlip;
 
-  if (trackedEntityUpdate.error) {
-    return trackedEntityUpdate;
-  }
-
+  // Write a tracked activity for traceability
   const activityInsert = await client
     .from("trackedActivity")
     .insert({
       type: "Inspect",
       sourceDocument: "Inbound Inspection",
-      sourceDocumentId: inspection.id,
-      sourceDocumentReadableId: inspection.receiptReadableId ?? null,
+      sourceDocumentId: sample.inspectionId,
       attributes: {
-        Result: inspection.status,
-        Receipt: inspection.receiptId,
-        Inspector: inspection.inspectedBy,
-        ...(inspection.notes ? { Notes: inspection.notes } : {})
+        Result: sample.status,
+        Receipt: inspection.data.receiptId,
+        Inspector: sample.inspectedBy,
+        ...(sample.notes ? { Notes: sample.notes } : {})
       },
-      companyId: inspection.companyId,
-      createdBy: inspection.inspectedBy
+      companyId: sample.companyId,
+      createdBy: sample.inspectedBy
     })
     .select("id")
     .single();
-
-  if (activityInsert.error || !activityInsert.data) {
-    return activityInsert;
+  if (activityInsert.data?.id) {
+    await Promise.all([
+      client.from("trackedActivityInput").insert({
+        trackedActivityId: activityInsert.data.id,
+        trackedEntityId: sample.trackedEntityId,
+        quantity: 0,
+        companyId: sample.companyId,
+        createdBy: sample.inspectedBy
+      }),
+      client.from("trackedActivityOutput").insert({
+        trackedActivityId: activityInsert.data.id,
+        trackedEntityId: sample.trackedEntityId,
+        quantity: 0,
+        companyId: sample.companyId,
+        createdBy: sample.inspectedBy
+      })
+    ]);
   }
 
-  const activityId = activityInsert.data.id;
+  // Recompute lot status
+  const samples = await (client as any)
+    .from("inboundInspectionSample")
+    .select("status")
+    .eq("inboundInspectionId", sample.inspectionId);
+  if (!samples.error && samples.data) {
+    const nextStatus = computeLotStatus(samples.data);
+    // Only replace non-terminal statuses — Passed / Failed / Partial are
+    // owned by the disposition action.
+    const isTerminal =
+      inspection.data.status === "Passed" ||
+      inspection.data.status === "Failed" ||
+      inspection.data.status === "Partial";
+    if (!isTerminal && nextStatus !== inspection.data.status) {
+      await (client as any)
+        .from("inboundInspection")
+        .update({
+          status: nextStatus,
+          updatedBy: sample.inspectedBy,
+          updatedAt: nowIso
+        })
+        .eq("id", sample.inspectionId);
+    }
+  }
 
-  const [inputInsert, outputInsert] = await Promise.all([
-    client.from("trackedActivityInput").insert({
-      trackedActivityId: activityId,
-      trackedEntityId: inspection.trackedEntityId,
-      quantity: 0,
-      companyId: inspection.companyId,
-      createdBy: inspection.inspectedBy
-    }),
-    client.from("trackedActivityOutput").insert({
-      trackedActivityId: activityId,
-      trackedEntityId: inspection.trackedEntityId,
-      quantity: 0,
-      companyId: inspection.companyId,
-      createdBy: inspection.inspectedBy
-    })
+  return sampleWrite;
+}
+
+export async function dispositionInboundInspection(
+  client: SupabaseClient<Database>,
+  args: z.infer<typeof inboundInspectionDispositionValidator> & {
+    companyId: string;
+    dispositionedBy: string;
+  }
+) {
+  const nowIso = new Date().toISOString();
+
+  const inspection = await (client as any)
+    .from("inboundInspection")
+    .select(
+      "id, receiptLineId, receiptId, itemId, supplierId, samplingStandard, severity, inspectionLevel, aql, lotSize, sampleSize"
+    )
+    .eq("id", args.id)
+    .eq("companyId", args.companyId)
+    .single();
+  if (inspection.error || !inspection.data) return inspection;
+
+  // Pull the lot's tracked entities (by receipt line attribute)
+  const [lotEntities, existingSamples] = await Promise.all([
+    client
+      .from("trackedEntity")
+      .select("id, status")
+      .eq("attributes ->> Receipt Line", inspection.data.receiptLineId)
+      .eq("companyId", args.companyId),
+    (client as any)
+      .from("inboundInspectionSample")
+      .select("trackedEntityId, status")
+      .eq("inboundInspectionId", args.id)
   ]);
+  if (lotEntities.error) return lotEntities;
+  if (existingSamples.error) return existingSamples;
 
-  return inputInsert.error ? inputInsert : outputInsert;
+  const existingSampleRows = (existingSamples.data ?? []) as Array<{
+    trackedEntityId: string;
+    status: string;
+  }>;
+
+  const sampledIds = new Set(existingSampleRows.map((s) => s.trackedEntityId));
+
+  const allLotIds = (lotEntities.data ?? []).map((e) => e.id);
+  const unsampledIds = allLotIds.filter((id) => !sampledIds.has(id));
+
+  const failures = existingSampleRows.filter(
+    (s) => s.status === "Failed"
+  ).length;
+
+  // Reject = the entire lot is non-conforming (ISO 9001:2015 §8.7 /
+  // IATF 16949 / FDA). No portion may be released, including any units the
+  // inspector personally marked Passed — statistical acceptance of the lot
+  // failed, so the whole shipment is suspect until an NCR / MRB dispositions
+  // it. Accept only releases the un-sampled entities (sampled outcomes
+  // already flipped per-sample). Partial leaves un-sampled entities
+  // On Hold for further inspection.
+  let lotStatus: "Passed" | "Failed" | "Partial";
+  let idsToFlip: string[] = [];
+  let flipStatus: "Available" | "Rejected" | null = null;
+
+  switch (args.decision) {
+    case "Accept":
+      lotStatus = "Passed";
+      idsToFlip = unsampledIds;
+      flipStatus = "Available";
+      break;
+    case "Reject":
+      lotStatus = "Failed";
+      idsToFlip = allLotIds;
+      flipStatus = "Rejected";
+      break;
+    case "Partial":
+      lotStatus = "Partial";
+      idsToFlip = [];
+      flipStatus = null;
+      break;
+  }
+
+  if (flipStatus && idsToFlip.length > 0) {
+    const flip = await client
+      .from("trackedEntity")
+      .update({ status: flipStatus })
+      .in("id", idsToFlip)
+      .eq("companyId", args.companyId);
+    if (flip.error) return flip;
+  }
+
+  const update = await (client as any)
+    .from("inboundInspection")
+    .update({
+      status: lotStatus,
+      notes: args.notes ?? null,
+      dispositionedBy: args.dispositionedBy,
+      dispositionedAt: nowIso,
+      updatedBy: args.dispositionedBy,
+      updatedAt: nowIso
+    })
+    .eq("id", args.id)
+    .eq("companyId", args.companyId);
+  if (update.error) return update;
+
+  // History row for future auto-switching
+  await (client as any).from("inboundInspectionHistory").insert({
+    inboundInspectionId: args.id,
+    itemId: inspection.data.itemId,
+    supplierId: inspection.data.supplierId ?? null,
+    samplingStandard: inspection.data.samplingStandard,
+    severity: inspection.data.severity ?? "Normal",
+    inspectionLevel: inspection.data.inspectionLevel ?? null,
+    aql: inspection.data.aql ?? null,
+    lotSize: inspection.data.lotSize,
+    sampleSize: inspection.data.sampleSize,
+    defectsFound: failures,
+    outcome:
+      args.decision === "Accept"
+        ? "Accepted"
+        : args.decision === "Reject"
+          ? "Rejected"
+          : "Partial",
+    companyId: args.companyId,
+    createdBy: args.dispositionedBy
+  });
+
+  return update;
 }

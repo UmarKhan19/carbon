@@ -1,18 +1,16 @@
-import { assertIsPost, error, success } from "@carbon/auth";
+import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { data, redirect, useLoaderData, useNavigate } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
+import { data, redirect, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 import {
   getInboundInspection,
-  inboundInspectionValidator,
-  updateInboundInspection
+  getInboundInspectionLotTrackedEntities
 } from "~/modules/quality";
-import InboundInspectionForm from "~/modules/quality/ui/InboundInspections/InboundInspectionForm";
+import InboundInspectionLotView from "~/modules/quality/ui/InboundInspections/InboundInspectionLotView";
 import { getCompanySettings } from "~/modules/settings";
-import { getParams, path } from "~/utils/path";
+import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -34,106 +32,64 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  if (inspection.data.companyId !== companyId) {
+  if ((inspection.data as any).companyId !== companyId) {
     throw redirect(path.to.inboundInspections);
   }
 
+  const lotEntities = await getInboundInspectionLotTrackedEntities(
+    client,
+    (inspection.data as any).receiptLineId,
+    companyId
+  );
+
   return data({
     inspection: inspection.data,
-    enforceFourEyes: settings.data?.enforceInspectionFourEyes ?? false,
+    lotEntities: lotEntities.data ?? [],
+    enforceFourEyes:
+      ((settings.data as any)?.enforceInspectionFourEyes as boolean) ?? false,
     currentUserId: userId
   });
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
-  assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    update: "quality",
-    role: "employee"
-  });
-  const { id } = params;
-  invariant(id, "id is required");
-
-  const formData = await request.formData();
-  const validation = await validator(inboundInspectionValidator).validate(
-    formData
-  );
-
-  if (validation.error) {
-    return validationError(validation.error);
-  }
-
-  const existing = await getInboundInspection(client, id);
-  if (existing.error || !existing.data) {
-    throw redirect(
-      path.to.inboundInspections,
-      await flash(request, error(existing.error, "Failed to load inspection"))
-    );
-  }
-  if (existing.data.companyId !== companyId) {
-    throw redirect(path.to.inboundInspections);
-  }
-
-  const result = await updateInboundInspection(client, {
-    ...validation.data,
-    companyId,
-    trackedEntityId: existing.data.trackedEntityId,
-    receiptId: existing.data.receiptId,
-    // @ts-ignore - relation
-    receiptReadableId: existing.data.receipt?.receiptId ?? null,
-    inspectedBy: userId
-  });
-
-  if (result.error) {
-    throw redirect(
-      path.to.inboundInspection(id),
-      await flash(request, error(result.error, "Failed to update inspection"))
-    );
-  }
-
-  throw redirect(
-    `${path.to.inboundInspections}?${getParams(request)}`,
-    await flash(request, success("Inspection submitted"))
-  );
-}
-
 export default function InboundInspectionRoute() {
-  const { inspection, enforceFourEyes, currentUserId } =
+  const { inspection, lotEntities, enforceFourEyes, currentUserId } =
     useLoaderData<typeof loader>();
-  const navigate = useNavigate();
 
-  // @ts-ignore - relation data
-  const itemName = inspection.item?.name ?? "";
-  // @ts-ignore - relation data
-  const itemReadableId =
-    inspection.item?.readableId ?? inspection.itemReadableId ?? "";
-  // @ts-ignore - relation data
-  const receiptReadableId = inspection.receipt?.receiptId ?? "";
-  // @ts-ignore - relation data
-  const receiverId = inspection.receipt?.createdBy ?? null;
-  // @ts-ignore - relation data
-  const attributes = (inspection.trackedEntity?.attributes ?? {}) as Record<
-    string,
-    string
-  >;
-  const serialOrBatch =
-    attributes["Serial Number"] ?? attributes["Batch Number"] ?? "";
-
-  const alreadyInspected = inspection.status !== "Pending";
+  const insp = inspection as any;
+  const receiptReadableId = insp.receipt?.receiptId ?? null;
+  const receiverId = insp.receipt?.createdBy ?? null;
+  const itemName = insp.item?.name ?? "";
+  const supplierName = insp.supplier?.name ?? null;
+  const samples = (insp.inboundInspectionSample ?? []) as any[];
 
   return (
-    <InboundInspectionForm
-      inspectionId={inspection.id}
-      itemReadableId={itemReadableId}
-      itemName={itemName}
-      serialOrBatch={serialOrBatch}
+    <InboundInspectionLotView
+      inspection={{
+        id: insp.id,
+        itemId: insp.itemId,
+        itemReadableId: insp.itemReadableId,
+        lotSize: Number(insp.lotSize ?? 0),
+        sampleSize: Number(insp.sampleSize ?? 0),
+        acceptanceNumber: Number(insp.acceptanceNumber ?? 0),
+        rejectionNumber: Number(insp.rejectionNumber ?? 1),
+        samplingStandard: insp.samplingStandard,
+        samplingPlanType: insp.samplingPlanType,
+        aql: insp.aql,
+        inspectionLevel: insp.inspectionLevel,
+        severity: insp.severity,
+        codeLetter: insp.codeLetter,
+        status: insp.status,
+        dispositionedAt: insp.dispositionedAt ?? null,
+        receiptId: insp.receiptId
+      }}
       receiptReadableId={receiptReadableId}
       receiverId={receiverId}
+      itemName={itemName}
+      supplierName={supplierName}
+      samples={samples}
+      lotEntities={lotEntities as any[]}
       currentUserId={currentUserId}
       enforceFourEyes={enforceFourEyes}
-      disabled={alreadyInspected}
-      action={path.to.inboundInspection(inspection.id)}
-      onClose={() => navigate(-1)}
     />
   );
 }
