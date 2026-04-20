@@ -13444,6 +13444,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemLedger.comment",
           },
           {
+            $ref: "#/parameters/rowFilter.itemLedger.trackedEntityStatus",
+          },
+          {
             $ref: "#/parameters/select",
           },
           {
@@ -13554,6 +13557,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemLedger.comment",
           },
           {
+            $ref: "#/parameters/rowFilter.itemLedger.trackedEntityStatus",
+          },
+          {
             $ref: "#/parameters/preferReturn",
           },
         ],
@@ -13616,6 +13622,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemLedger.comment",
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemLedger.trackedEntityStatus",
           },
           {
             $ref: "#/parameters/body.itemLedger",
@@ -81123,6 +81132,11 @@ export default {
           format: "text",
           type: "string",
         },
+        trackedEntityStatus: {
+          enum: ["Available", "Reserved", "On Hold", "Consumed", "Rejected"],
+          format: 'public."trackedEntityStatus"',
+          type: "string",
+        },
       },
       type: "object",
     },
@@ -113713,6 +113727,12 @@ export default {
     },
     "rowFilter.itemLedger.comment": {
       name: "comment",
+      required: false,
+      in: "query",
+      type: "string",
+    },
+    "rowFilter.itemLedger.trackedEntityStatus": {
+      name: "trackedEntityStatus",
       required: false,
       in: "query",
       type: "string",

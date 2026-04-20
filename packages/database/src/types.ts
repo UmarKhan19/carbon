@@ -10664,6 +10664,9 @@ export type Database = {
           quantity: number
           storageUnitId: string | null
           trackedEntityId: string | null
+          trackedEntityStatus:
+            | Database["public"]["Enums"]["trackedEntityStatus"]
+            | null
         }
         Insert: {
           comment?: string | null
@@ -10685,6 +10688,9 @@ export type Database = {
           quantity: number
           storageUnitId?: string | null
           trackedEntityId?: string | null
+          trackedEntityStatus?:
+            | Database["public"]["Enums"]["trackedEntityStatus"]
+            | null
         }
         Update: {
           comment?: string | null
@@ -10706,6 +10712,9 @@ export type Database = {
           quantity?: number
           storageUnitId?: string | null
           trackedEntityId?: string | null
+          trackedEntityStatus?:
+            | Database["public"]["Enums"]["trackedEntityStatus"]
+            | null
         }
         Relationships: [
           {
@@ -51036,14 +51045,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -54434,7 +54443,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -54448,7 +54457,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -58720,10 +58729,12 @@ export type Database = {
           name: string
           orderMultiple: number
           quantityOnHand: number
+          quantityOnHold: number
           quantityOnProductionDemand: number
           quantityOnProductionOrder: number
           quantityOnPurchaseOrder: number
           quantityOnSalesOrder: number
+          quantityRejected: number
           readableId: string
           readableIdWithRevision: string
           reorderingPolicy: Database["public"]["Enums"]["itemReorderingPolicy"]
