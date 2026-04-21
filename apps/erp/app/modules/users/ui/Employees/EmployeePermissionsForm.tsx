@@ -12,8 +12,8 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useFetcher, useNavigate } from "react-router";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import type { z } from "zod";
 import { Hidden, Select, Submit } from "~/components/Form";
 import PermissionMatrix from "~/components/PermissionMatrix";
@@ -30,6 +30,7 @@ import { path } from "~/utils/path";
 type EmployeePermissionsFormProps = {
   name: string;
   employeeTypes: ListItem[];
+  employeeTypePermissions: Record<string, Record<string, CompanyPermission>>;
   initialValues: z.infer<typeof employeeValidator> & {
     permissions: Record<string, CompanyPermission>;
   };
@@ -38,6 +39,7 @@ type EmployeePermissionsFormProps = {
 const EmployeePermissionsForm = ({
   name,
   employeeTypes,
+  employeeTypePermissions,
   initialValues
 }: EmployeePermissionsFormProps) => {
   const { t } = useLingui();
@@ -61,63 +63,36 @@ const EmployeePermissionsForm = ({
     initialState
   });
 
-  // State for employee type change confirmation dialog
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const pendingEmployeeTypeId = useRef<string | null>(null);
-  const permissionsFetcher = useFetcher<{
-    permissions: Record<string, CompanyPermission> | null;
-  }>();
-
-  // Handle permissions fetch result
-  useEffect(() => {
-    if (
-      permissionsFetcher.state === "idle" &&
-      permissionsFetcher.data?.permissions &&
-      pendingEmployeeTypeId.current
-    ) {
-      setShowConfirmDialog(true);
-    }
-  }, [permissionsFetcher.state, permissionsFetcher.data]);
+  const [pendingEmployeeTypeId, setPendingEmployeeTypeId] = useState<
+    string | null
+  >(null);
 
   const handleEmployeeTypeChange = (
     newValue: { value: string; label: string | JSX.Element } | null
   ) => {
     if (!newValue) return;
-
-    const newEmployeeTypeId = newValue.value;
-    if (newEmployeeTypeId && newEmployeeTypeId !== initialValues.employeeType) {
-      pendingEmployeeTypeId.current = newEmployeeTypeId;
-      permissionsFetcher.load(
-        `/api/users/employee-type-permissions?employeeTypeId=${newEmployeeTypeId}`
-      );
+    const newId = newValue.value;
+    if (newId && newId !== initialValues.employeeType) {
+      setPendingEmployeeTypeId(newId);
     }
   };
 
   const handleConfirmOverwrite = () => {
-    const fetched = permissionsFetcher.data?.permissions;
-    if (fetched) {
-      // Preserve the matrix's existing module keys, defaulting any modules
-      // not returned by the employee type to all-false.
+    if (pendingEmployeeTypeId) {
+      const perms = employeeTypePermissions[pendingEmployeeTypeId] ?? {};
       const nextState: Record<string, boolean> = {};
       for (const [mod] of matrix.modules) {
-        const perm = fetched[mod];
-        nextState[`${mod}_view`] = perm?.view ?? false;
-        nextState[`${mod}_create`] = perm?.create ?? false;
-        nextState[`${mod}_update`] = perm?.update ?? false;
-        nextState[`${mod}_delete`] = perm?.delete ?? false;
+        const p = perms[mod];
+        nextState[`${mod}_view`] = p?.view ?? false;
+        nextState[`${mod}_create`] = p?.create ?? false;
+        nextState[`${mod}_update`] = p?.update ?? false;
+        nextState[`${mod}_delete`] = p?.delete ?? false;
       }
       matrix.setPermissions(nextState);
     }
-    setShowConfirmDialog(false);
-    pendingEmployeeTypeId.current = null;
+    setPendingEmployeeTypeId(null);
   };
 
-  const handleCancelOverwrite = () => {
-    setShowConfirmDialog(false);
-    pendingEmployeeTypeId.current = null;
-  };
-
-  // Serialize permissions to the format expected by the action
   const permissionsData = JSON.stringify(
     toCompanyPermissions(matrix.permissions)
   );
@@ -169,7 +144,12 @@ const EmployeePermissionsForm = ({
         </ModalContent>
       </Modal>
 
-      <Modal open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+      <Modal
+        open={pendingEmployeeTypeId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingEmployeeTypeId(null);
+        }}
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>
@@ -186,7 +166,10 @@ const EmployeePermissionsForm = ({
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button variant="secondary" onClick={handleCancelOverwrite}>
+            <Button
+              variant="secondary"
+              onClick={() => setPendingEmployeeTypeId(null)}
+            >
               <Trans>Keep Current</Trans>
             </Button>
             <Button variant="primary" onClick={handleConfirmOverwrite}>
