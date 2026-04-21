@@ -19,7 +19,6 @@ import { Hidden, Select, Submit } from "~/components/Form";
 import PermissionMatrix from "~/components/PermissionMatrix";
 import {
   fromCompanyPermissions,
-  fromEmployeeTypePermissions,
   toCompanyPermissions,
   usePermissionMatrix
 } from "~/hooks/usePermissionMatrix";
@@ -66,7 +65,7 @@ const EmployeePermissionsForm = ({
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const pendingEmployeeTypeId = useRef<string | null>(null);
   const permissionsFetcher = useFetcher<{
-    permissions: Record<string, { name: string; permission: CompanyPermission }>;
+    permissions: Record<string, CompanyPermission> | null;
   }>();
 
   // Handle permissions fetch result
@@ -95,11 +94,19 @@ const EmployeePermissionsForm = ({
   };
 
   const handleConfirmOverwrite = () => {
-    if (permissionsFetcher.data?.permissions) {
-      const { state: newState } = fromEmployeeTypePermissions(
-        permissionsFetcher.data.permissions
-      );
-      matrix.setPermissions(newState);
+    const fetched = permissionsFetcher.data?.permissions;
+    if (fetched) {
+      // Preserve the matrix's existing module keys, defaulting any modules
+      // not returned by the employee type to all-false.
+      const nextState: Record<string, boolean> = {};
+      for (const [mod] of matrix.modules) {
+        const perm = fetched[mod];
+        nextState[`${mod}_view`] = perm?.view ?? false;
+        nextState[`${mod}_create`] = perm?.create ?? false;
+        nextState[`${mod}_update`] = perm?.update ?? false;
+        nextState[`${mod}_delete`] = perm?.delete ?? false;
+      }
+      matrix.setPermissions(nextState);
     }
     setShowConfirmDialog(false);
     pendingEmployeeTypeId.current = null;
