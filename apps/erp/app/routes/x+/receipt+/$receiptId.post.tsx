@@ -86,7 +86,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             companyId,
             updatePrices: false,
             updateLeadTimes: true
-          },
+          }
         }
       );
 

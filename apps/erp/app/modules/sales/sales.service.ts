@@ -4304,7 +4304,7 @@ export async function upsertQuoteLineMethod(
   }
 
   return client.functions.invoke("get-method", {
-    body,
+    body
   });
 }
 
@@ -4394,7 +4394,7 @@ export async function upsertQuoteMaterialMakeMethod(
   }
 
   const { error } = await client.functions.invoke("get-method", {
-    body,
+    body
   });
 
   if (error) {

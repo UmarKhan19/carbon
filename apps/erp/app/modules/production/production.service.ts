@@ -2422,7 +2422,7 @@ export async function upsertJobMethod(
   }
 
   const getMethodResult = await client.functions.invoke("get-method", {
-    body,
+    body
   });
   if (getMethodResult.error) {
     return getMethodResult;
@@ -2486,7 +2486,7 @@ export async function upsertJobMaterialMakeMethod(
   }
 
   const { error } = await client.functions.invoke("get-method", {
-    body,
+    body
   });
 
   if (error) {

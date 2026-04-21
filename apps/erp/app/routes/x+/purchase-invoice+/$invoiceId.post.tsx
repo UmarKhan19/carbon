@@ -74,7 +74,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             source: "purchaseInvoice",
             updatePrices: true,
             updateLeadTimes: false
-          },
+          }
         }
       );
 

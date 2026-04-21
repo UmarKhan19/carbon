@@ -908,7 +908,7 @@ export async function importCsv(
   }
 ) {
   return client.functions.invoke("import-csv", {
-    body: args,
+    body: args
   });
 }
 
