@@ -70302,20 +70302,20 @@ export default {
             in: "query",
             name: "",
             required: true,
-            type: "string",
-          },
+            type: "string"
+          }
         ],
         produces: [
           "application/json",
           "application/vnd.pgrst.object+json;nulls=stripped",
-          "application/vnd.pgrst.object+json",
+          "application/vnd.pgrst.object+json"
         ],
         responses: {
           "200": {
-            description: "OK",
-          },
+            description: "OK"
+          }
         },
-        tags: ["(rpc) show_trgm"],
+        tags: ["(rpc) show_trgm"]
       },
       post: {
         parameters: [
@@ -70327,29 +70327,29 @@ export default {
               properties: {
                 "": {
                   format: "text",
-                  type: "string",
-                },
+                  type: "string"
+                }
               },
               required: [""],
-              type: "object",
-            },
+              type: "object"
+            }
           },
           {
-            $ref: "#/parameters/preferParams",
-          },
+            $ref: "#/parameters/preferParams"
+          }
         ],
         produces: [
           "application/json",
           "application/vnd.pgrst.object+json;nulls=stripped",
-          "application/vnd.pgrst.object+json",
+          "application/vnd.pgrst.object+json"
         ],
         responses: {
           "200": {
-            description: "OK",
-          },
+            description: "OK"
+          }
         },
-        tags: ["(rpc) show_trgm"],
-      },
+        tags: ["(rpc) show_trgm"]
+      }
     },
     "/rpc/create_rfq_from_model_v1": {
       post: {
@@ -73061,14 +73061,14 @@ export default {
         produces: [
           "application/json",
           "application/vnd.pgrst.object+json;nulls=stripped",
-          "application/vnd.pgrst.object+json",
+          "application/vnd.pgrst.object+json"
         ],
         responses: {
           "200": {
-            description: "OK",
-          },
+            description: "OK"
+          }
         },
-        tags: ["(rpc) show_limit"],
+        tags: ["(rpc) show_limit"]
       },
       post: {
         parameters: [
@@ -73077,25 +73077,25 @@ export default {
             name: "args",
             required: true,
             schema: {
-              type: "object",
-            },
+              type: "object"
+            }
           },
           {
-            $ref: "#/parameters/preferParams",
-          },
+            $ref: "#/parameters/preferParams"
+          }
         ],
         produces: [
           "application/json",
           "application/vnd.pgrst.object+json;nulls=stripped",
-          "application/vnd.pgrst.object+json",
+          "application/vnd.pgrst.object+json"
         ],
         responses: {
           "200": {
-            description: "OK",
-          },
+            description: "OK"
+          }
         },
-        tags: ["(rpc) show_limit"],
-      },
+        tags: ["(rpc) show_limit"]
+      }
     },
     "/rpc/search_company_index": {
       post: {
