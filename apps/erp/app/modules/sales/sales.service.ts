@@ -207,7 +207,7 @@ export async function convertSalesRfqToQuote(
     body: {
       type: "salesRfqToQuote",
       ...payload
-    },
+    }
   });
 }
 
@@ -227,7 +227,7 @@ export async function convertQuoteToOrder(
     body: {
       type: "quoteToSalesOrder",
       ...payload
-    },
+    }
   });
 }
 
@@ -250,7 +250,7 @@ export async function copyQuoteLine(
         steps: payload.steps,
         workInstructions: payload.workInstructions
       }
-    },
+    }
   });
 }
 
@@ -265,7 +265,7 @@ export async function copyQuote(
     body: {
       ...payload,
       type: "quoteToQuote"
-    },
+    }
   });
 }
 
@@ -3288,7 +3288,7 @@ export async function upsertMakeMethodFromQuoteLine(
       companyId: lineMethod.companyId,
       userId: lineMethod.userId,
       parts: lineMethod.parts
-    },
+    }
   });
 }
 
@@ -3317,7 +3317,7 @@ export async function upsertMakeMethodFromQuoteMethod(
       companyId: quoteMethod.companyId,
       userId: quoteMethod.userId,
       parts: quoteMethod.parts
-    },
+    }
   });
 
   if (error) {

@@ -302,7 +302,7 @@ export async function action(args: ActionFunctionArgs) {
               source: "purchaseOrder",
               updatePrices: true,
               updateLeadTimes: false
-            },
+            }
           }
         );
 

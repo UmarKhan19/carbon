@@ -124,7 +124,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           quantityComplete: quantityToReceiveToInventory,
           storageUnitId,
           locationId
-        },
+        }
       });
 
       if (issue.error) {
@@ -149,7 +149,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         quantityComplete,
         storageUnitId,
         locationId
-      },
+      }
     });
 
     if (issue.error) {

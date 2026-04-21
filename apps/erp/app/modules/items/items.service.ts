@@ -63,7 +63,7 @@ export async function activateMethodVersion(
     body: {
       type: "methodVersionToActive",
       ...payload
-    },
+    }
   });
 }
 
@@ -89,7 +89,7 @@ export async function copyItem(
         steps: args.steps,
         workInstructions: args.workInstructions
       }
-    },
+    }
   });
 }
 
@@ -107,7 +107,7 @@ export async function copyMakeMethod(
       targetId: args.targetId,
       companyId: args.companyId,
       userId: args.userId
-    },
+    }
   });
 }
 
@@ -151,7 +151,7 @@ export async function createRevision(
         targetId: itemInsert.data.id,
         companyId: item.companyId,
         userId: createdBy
-      },
+      }
     });
   }
 

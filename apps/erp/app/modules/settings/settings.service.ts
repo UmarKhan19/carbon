@@ -452,7 +452,7 @@ export async function seedCompany(
     body: {
       companyId,
       userId
-    },
+    }
   });
 }
 

@@ -43,7 +43,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         shipmentId: shipmentId,
         userId: userId,
         companyId: companyId
-      },
+      }
     });
 
     if (voidShipment.error) {

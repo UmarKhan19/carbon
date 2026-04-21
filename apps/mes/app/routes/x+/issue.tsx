@@ -33,7 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
       adjustmentType,
       companyId,
       userId
-    },
+    }
   });
 
   if (issue.error) {

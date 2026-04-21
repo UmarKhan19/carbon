@@ -45,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
       quantity: validation.data.quantity,
       companyId,
       userId
-    },
+    }
   });
 
   if (issue.error) {

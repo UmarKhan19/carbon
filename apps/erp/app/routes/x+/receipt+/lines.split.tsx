@@ -53,7 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
       receiptLineId: documentLineId,
       quantity,
       userId: userId
-    },
+    }
   });
 
   if (salesOrderShipment.error) {

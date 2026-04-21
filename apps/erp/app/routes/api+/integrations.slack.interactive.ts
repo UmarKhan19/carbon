@@ -462,7 +462,7 @@ async function handleViewSubmission(
           id: ncrId,
           companyId,
           userId: employee.data?.id ?? "system"
-        },
+        }
       })
     ]);
 

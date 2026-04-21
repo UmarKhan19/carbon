@@ -44,7 +44,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       quantity: newQuantity,
       companyId,
       userId
-    },
+    }
   });
 
   if (convert.error) {

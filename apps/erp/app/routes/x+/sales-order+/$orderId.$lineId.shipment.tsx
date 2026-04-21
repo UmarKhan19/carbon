@@ -51,7 +51,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       salesOrderLineId: lineId,
       companyId,
       userId
-    },
+    }
   });
 
   if (!salesOrderShipment.data || salesOrderShipment.error) {

@@ -39,7 +39,7 @@ export async function createPurchaseInvoiceFromPurchaseOrder(
       id: purchaseOrderId,
       companyId,
       userId
-    },
+    }
   });
 }
 
@@ -55,7 +55,7 @@ export async function createSalesInvoiceFromSalesOrder(
       id: salesOrderId,
       companyId,
       userId
-    },
+    }
   });
 }
 
@@ -71,7 +71,7 @@ export async function createSalesInvoiceFromShipment(
       id: shipmentId,
       companyId,
       userId
-    },
+    }
   });
 }
 

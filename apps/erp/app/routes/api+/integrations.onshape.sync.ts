@@ -48,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
         data: parsed,
         companyId,
         userId
-      },
+      }
     });
 
     if (sync.error) {

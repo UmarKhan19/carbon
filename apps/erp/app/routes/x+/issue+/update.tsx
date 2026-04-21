@@ -64,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
               id,
               companyId,
               userId
-            },
+            }
           });
         })
       );

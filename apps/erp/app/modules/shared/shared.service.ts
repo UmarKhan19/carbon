@@ -348,7 +348,7 @@ export async function generateEmbedding(
   text: string
 ): Promise<number[]> {
   const response = await client.functions.invoke("embedding", {
-    body: { text },
+    body: { text }
   });
 
   if (response.error) {

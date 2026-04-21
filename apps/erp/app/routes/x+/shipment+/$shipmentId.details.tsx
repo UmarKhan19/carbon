@@ -68,7 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
             salesOrderId: d.sourceDocumentId,
             shipmentId: id,
             userId: userId
-          },
+          }
         });
         if (!salesOrderShipment.data || salesOrderShipment.error) {
           console.error(salesOrderShipment.error);
@@ -92,7 +92,7 @@ export async function action({ request }: ActionFunctionArgs) {
             purchaseOrderId: d.sourceDocumentId,
             shipmentId: id,
             userId: userId
-          },
+          }
         });
         if (!purchaseOrderShipment.data || purchaseOrderShipment.error) {
           console.error(purchaseOrderShipment.error);
@@ -115,7 +115,7 @@ export async function action({ request }: ActionFunctionArgs) {
             warehouseTransferId: d.sourceDocumentId,
             shipmentId: id,
             userId: userId
-          },
+          }
         });
         if (
           !warehouseTransferShipment.data ||

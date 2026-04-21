@@ -69,7 +69,7 @@ export async function convertSupplierQuoteToOrder(
     body: {
       type: "supplierQuoteToPurchaseOrder",
       ...payload
-    },
+    }
   });
 }
 

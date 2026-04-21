@@ -68,7 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
         ...validation.data,
         companyId,
         userId
-      },
+      }
     });
 
     const trackedEntityId = response.data?.newTrackedEntityId;
@@ -115,7 +115,7 @@ export async function action({ request }: ActionFunctionArgs) {
         ...validation.data,
         companyId,
         userId
-      },
+      }
     });
 
     if (response.error) {
@@ -183,7 +183,7 @@ export async function action({ request }: ActionFunctionArgs) {
         quantity: validation.data.quantity,
         companyId,
         userId
-      },
+      }
     });
 
     if (issue.error) {

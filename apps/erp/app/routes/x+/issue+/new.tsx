@@ -109,7 +109,7 @@ export async function action({ request }: ActionFunctionArgs) {
       id: ncrId,
       companyId,
       userId
-    },
+    }
   });
 
   if (tasks.error) {

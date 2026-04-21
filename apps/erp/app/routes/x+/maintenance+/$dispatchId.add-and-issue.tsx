@@ -87,7 +87,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         children,
         companyId,
         userId
-      },
+      }
     });
 
     if (issue.error) {
@@ -108,7 +108,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         quantity: totalQuantity,
         companyId,
         userId
-      },
+      }
     });
 
     if (issue.error) {

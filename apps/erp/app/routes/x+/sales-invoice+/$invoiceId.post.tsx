@@ -66,7 +66,7 @@ export async function action(args: ActionFunctionArgs) {
           invoiceId: invoiceId,
           userId: userId,
           companyId: companyId
-        },
+        }
       }
     );
 

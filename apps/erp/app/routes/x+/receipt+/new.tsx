@@ -41,7 +41,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           purchaseOrderId: sourceDocumentId,
           receiptId: undefined,
           userId: userId
-        },
+        }
       });
       if (!purchaseOrderReceipt.data || purchaseOrderReceipt.error) {
         throw redirect(
@@ -64,7 +64,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           warehouseTransferId: sourceDocumentId,
           receiptId: undefined,
           userId: userId
-        },
+        }
       });
       if (!warehouseTransferReceipt.data || warehouseTransferReceipt.error) {
         throw redirect(
@@ -86,7 +86,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           companyId,
           locationId: defaults.data?.locationId,
           userId: userId
-        },
+        }
       });
 
       if (!defaultReceipt.data || defaultReceipt.error) {

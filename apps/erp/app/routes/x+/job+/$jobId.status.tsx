@@ -82,7 +82,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             userId,
             mode: "initial",
             direction: "backward"
-          },
+          }
         }),
         serviceRole.functions.invoke("create", {
           body: {
@@ -91,7 +91,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             purchaseOrdersBySupplierId,
             companyId,
             userId
-          },
+          }
         })
       ]);
 

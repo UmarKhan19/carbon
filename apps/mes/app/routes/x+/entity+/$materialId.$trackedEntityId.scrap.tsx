@@ -32,7 +32,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       type: "scrapTrackedEntity",
       companyId,
       userId
-    },
+    }
   });
 
   if (issue.error) {

@@ -181,7 +181,7 @@ async function handleKanban({
             userId,
             mode: "initial",
             direction: "backward"
-          },
+          }
         }),
         serviceRole
           .from("job")

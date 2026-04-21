@@ -71,7 +71,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         maintenanceDispatchItemId: itemId,
         companyId,
         userId
-      },
+      }
     });
 
     if (result.error) {

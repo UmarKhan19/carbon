@@ -41,7 +41,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           salesOrderId: sourceDocumentId,
           shipmentId: undefined,
           userId: userId
-        },
+        }
       });
       if (!salesOrderShipment.data || salesOrderShipment.error) {
         console.error(salesOrderShipment.error);
@@ -66,7 +66,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           purchaseOrderId: sourceDocumentId,
           shipmentId: undefined,
           userId: userId
-        },
+        }
       });
       if (!purchaseOrderShipment.data || purchaseOrderShipment.error) {
         console.error(purchaseOrderShipment.error);
@@ -90,7 +90,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           warehouseTransferId: sourceDocumentId,
           shipmentId: undefined,
           userId: userId
-        },
+        }
       });
       if (!warehouseTransferShipment.data || warehouseTransferShipment.error) {
         console.error(warehouseTransferShipment.error);
@@ -115,7 +115,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           companyId,
           locationId: defaults.data?.locationId,
           userId: userId
-        },
+        }
       });
 
       if (!defaultShipment.data || defaultShipment.error) {

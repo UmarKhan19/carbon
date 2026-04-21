@@ -40,7 +40,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         userId: userId,
         companyId: companyId,
         skipReceiptPost: skipReceiptPost
-      },
+      }
     });
 
     if (postPurchaseInvoice.error) {

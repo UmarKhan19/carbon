@@ -1810,7 +1810,7 @@ export async function recalculateJobOperationDependencies(
       userId: params.userId,
       mode: "reschedule",
       direction: "backward"
-    },
+    }
   });
 }
 export async function recalculateJobRequirements(
@@ -1825,7 +1825,7 @@ export async function recalculateJobRequirements(
     body: {
       type: "jobRequirements",
       ...params
-    },
+    }
   });
 }
 
@@ -1841,7 +1841,7 @@ export async function recalculateJobMakeMethodRequirements(
     body: {
       type: "jobMakeMethodRequirements",
       ...params
-    },
+    }
   });
 }
 
@@ -1863,7 +1863,7 @@ export async function runMRP(
   return client.functions.invoke("mrp", {
     body: {
       ...params
-    },
+    }
   });
 }
 
@@ -2265,7 +2265,7 @@ export async function upsertJobOperation(
         targetId: operationId,
         companyId: jobOperation.companyId,
         userId: jobOperation.createdBy
-      },
+      }
     });
     if (error) {
       return {
@@ -2524,7 +2524,7 @@ export async function upsertMakeMethodFromJob(
       companyId: jobMethod.companyId,
       userId: jobMethod.userId,
       parts: jobMethod.parts
-    },
+    }
   });
 }
 
@@ -2553,7 +2553,7 @@ export async function upsertMakeMethodFromJobMethod(
       companyId: jobMethod.companyId,
       userId: jobMethod.userId,
       parts: jobMethod.parts
-    },
+    }
   });
 
   if (error) {

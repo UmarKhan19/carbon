@@ -42,7 +42,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           invoiceId: invoiceId,
           userId: userId,
           companyId: companyId
-        },
+        }
       }
     );
 

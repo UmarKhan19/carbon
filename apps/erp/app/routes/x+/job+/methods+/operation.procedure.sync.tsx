@@ -31,7 +31,7 @@ export async function action({ request }: ActionFunctionArgs) {
       targetId: validation.data.operationId,
       companyId,
       userId
-    },
+    }
   });
 
   if (sync.error) {

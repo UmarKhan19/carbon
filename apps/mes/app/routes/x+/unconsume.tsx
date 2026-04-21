@@ -30,7 +30,7 @@ export async function action({ request }: ActionFunctionArgs) {
       children,
       companyId,
       userId
-    },
+    }
   });
 
   if (issue.error) {

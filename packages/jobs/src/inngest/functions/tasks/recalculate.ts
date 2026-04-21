@@ -97,6 +97,6 @@ async function recalculateJobMakeMethodRequirements(
       jobId: params.id,
       companyId: params.companyId,
       userId: params.userId
-    },
+    }
   });
 }

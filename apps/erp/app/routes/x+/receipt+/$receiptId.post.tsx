@@ -50,7 +50,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         receiptId: receiptId,
         userId: userId,
         companyId: companyId
-      },
+      }
     });
 
     if (postReceipt.error) {
