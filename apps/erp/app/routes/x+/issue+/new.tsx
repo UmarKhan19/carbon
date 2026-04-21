@@ -6,7 +6,6 @@ import { notifyIssueCreated } from "@carbon/ee/notifications";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { msg } from "@lingui/core/macro";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { useUrlParams, useUser } from "~/hooks";
@@ -110,8 +109,7 @@ export async function action({ request }: ActionFunctionArgs) {
       id: ncrId,
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 
   if (tasks.error) {

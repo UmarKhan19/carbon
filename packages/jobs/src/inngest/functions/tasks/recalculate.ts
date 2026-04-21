@@ -1,6 +1,5 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { FunctionsResponse } from "@supabase/functions-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { inngest } from "../../client";
 
 export const recalculateFunction = inngest.createFunction(
@@ -98,7 +97,6 @@ async function recalculateJobMakeMethodRequirements(
       jobId: params.id,
       companyId: params.companyId,
       userId: params.userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }

@@ -6,7 +6,6 @@ import { trigger } from "@carbon/jobs";
 import { Loading } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, useLoaderData } from "react-router";
@@ -182,8 +181,7 @@ async function handleKanban({
             userId,
             mode: "initial",
             direction: "backward"
-          },
-          region: FunctionRegion.UsEast1
+          }
         }),
         serviceRole
           .from("job")

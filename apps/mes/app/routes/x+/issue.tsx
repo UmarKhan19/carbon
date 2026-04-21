@@ -3,7 +3,6 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { issueValidator } from "~/services/models";
@@ -34,8 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
       adjustmentType,
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 
   if (issue.error) {

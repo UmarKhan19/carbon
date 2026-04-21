@@ -3,7 +3,6 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { nonScrapQuantityValidator } from "~/services/models";
@@ -69,8 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
         ...validation.data,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     const trackedEntityId = response.data?.newTrackedEntityId;
@@ -117,8 +115,7 @@ export async function action({ request }: ActionFunctionArgs) {
         ...validation.data,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (response.error) {
@@ -186,8 +183,7 @@ export async function action({ request }: ActionFunctionArgs) {
         quantity: validation.data.quantity,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (issue.error) {

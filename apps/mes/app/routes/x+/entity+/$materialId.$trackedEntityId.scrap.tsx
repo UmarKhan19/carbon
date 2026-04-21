@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { getTrackedEntity } from "~/services/operations.service";
@@ -33,8 +32,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       type: "scrapTrackedEntity",
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 
   if (issue.error) {

@@ -1,7 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { onShapeDataValidator } from "@carbon/ee/onshape";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 
@@ -49,8 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
         data: parsed,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (sync.error) {
