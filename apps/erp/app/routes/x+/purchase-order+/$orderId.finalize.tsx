@@ -7,7 +7,6 @@ import { validationError, validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import { renderAsync } from "@react-email/components";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -190,7 +189,6 @@ export async function action(args: ActionFunctionArgs) {
           updatePrices: true,
           updateLeadTimes: false
         },
-        region: FunctionRegion.UsEast1
       }
     );
 

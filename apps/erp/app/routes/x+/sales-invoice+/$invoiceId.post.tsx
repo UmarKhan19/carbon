@@ -5,7 +5,6 @@ import { SalesInvoiceEmail } from "@carbon/documents/email";
 import { validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import { renderAsync } from "@react-email/components";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { getPaymentTermsList } from "~/modules/accounting";
@@ -68,7 +67,6 @@ export async function action(args: ActionFunctionArgs) {
           userId: userId,
           companyId: companyId
         },
-        region: FunctionRegion.UsEast1
       }
     );
 

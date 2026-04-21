@@ -7,7 +7,6 @@ import type {
   PostgrestSingleResponse,
   SupabaseClient
 } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import { getSupplierPriceBreaksForItems } from "~/modules/items/items.service";
 import { getEmployeeJob } from "~/modules/people";
@@ -209,7 +208,6 @@ export async function convertSalesRfqToQuote(
       type: "salesRfqToQuote",
       ...payload
     },
-    region: FunctionRegion.UsEast1
   });
 }
 
@@ -230,7 +228,6 @@ export async function convertQuoteToOrder(
       type: "quoteToSalesOrder",
       ...payload
     },
-    region: FunctionRegion.UsEast1
   });
 }
 
@@ -254,7 +251,6 @@ export async function copyQuoteLine(
         workInstructions: payload.workInstructions
       }
     },
-    region: FunctionRegion.UsEast1
   });
 }
 
@@ -270,7 +266,6 @@ export async function copyQuote(
       ...payload,
       type: "quoteToQuote"
     },
-    region: FunctionRegion.UsEast1
   });
 }
 
@@ -3294,7 +3289,6 @@ export async function upsertMakeMethodFromQuoteLine(
       userId: lineMethod.userId,
       parts: lineMethod.parts
     },
-    region: FunctionRegion.UsEast1
   });
 }
 
@@ -3324,7 +3318,6 @@ export async function upsertMakeMethodFromQuoteMethod(
       userId: quoteMethod.userId,
       parts: quoteMethod.parts
     },
-    region: FunctionRegion.UsEast1
   });
 
   if (error) {
@@ -4312,7 +4305,6 @@ export async function upsertQuoteLineMethod(
 
   return client.functions.invoke("get-method", {
     body,
-    region: FunctionRegion.UsEast1
   });
 }
 
@@ -4403,7 +4395,6 @@ export async function upsertQuoteMaterialMakeMethod(
 
   const { error } = await client.functions.invoke("get-method", {
     body,
-    region: FunctionRegion.UsEast1
   });
 
   if (error) {

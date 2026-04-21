@@ -2,7 +2,6 @@ import type { Database } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { getPurchaseOrderStatus, supportedModelTypes } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
@@ -350,7 +349,6 @@ export async function generateEmbedding(
 ): Promise<number[]> {
   const response = await client.functions.invoke("embedding", {
     body: { text },
-    region: FunctionRegion.UsEast1
   });
 
   if (response.error) {
@@ -911,7 +909,6 @@ export async function importCsv(
 ) {
   return client.functions.invoke("import-csv", {
     body: args,
-    region: FunctionRegion.UsEast1
   });
 }
 

@@ -3,7 +3,6 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { procedureSyncValidator } from "~/modules/production";
@@ -33,7 +32,6 @@ export async function action({ request }: ActionFunctionArgs) {
       companyId,
       userId
     },
-    region: FunctionRegion.UsEast1
   });
 
   if (sync.error) {

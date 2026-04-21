@@ -2,7 +2,6 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
@@ -84,7 +83,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             mode: "initial",
             direction: "backward"
           },
-          region: FunctionRegion.UsEast1
         }),
         serviceRole.functions.invoke("create", {
           body: {
@@ -94,7 +92,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
             companyId,
             userId
           },
-          region: FunctionRegion.UsEast1
         })
       ]);
 

@@ -3,7 +3,6 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { msg } from "@lingui/core/macro";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import type { ShipmentSourceDocument } from "~/modules/inventory";
@@ -43,7 +42,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
           shipmentId: undefined,
           userId: userId
         },
-        region: FunctionRegion.UsEast1
       });
       if (!salesOrderShipment.data || salesOrderShipment.error) {
         console.error(salesOrderShipment.error);
@@ -69,7 +67,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
           shipmentId: undefined,
           userId: userId
         },
-        region: FunctionRegion.UsEast1
       });
       if (!purchaseOrderShipment.data || purchaseOrderShipment.error) {
         console.error(purchaseOrderShipment.error);
@@ -94,7 +91,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
           shipmentId: undefined,
           userId: userId
         },
-        region: FunctionRegion.UsEast1
       });
       if (!warehouseTransferShipment.data || warehouseTransferShipment.error) {
         console.error(warehouseTransferShipment.error);
@@ -120,7 +116,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
           locationId: defaults.data?.locationId,
           userId: userId
         },
-        region: FunctionRegion.UsEast1
       });
 
       if (!defaultShipment.data || defaultShipment.error) {

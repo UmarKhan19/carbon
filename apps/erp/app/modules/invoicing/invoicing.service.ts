@@ -1,7 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import {
   getSupplierPayment,
@@ -41,7 +40,6 @@ export async function createPurchaseInvoiceFromPurchaseOrder(
       companyId,
       userId
     },
-    region: FunctionRegion.UsEast1
   });
 }
 
@@ -58,7 +56,6 @@ export async function createSalesInvoiceFromSalesOrder(
       companyId,
       userId
     },
-    region: FunctionRegion.UsEast1
   });
 }
 
@@ -75,7 +72,6 @@ export async function createSalesInvoiceFromShipment(
       companyId,
       userId
     },
-    region: FunctionRegion.UsEast1
   });
 }
 

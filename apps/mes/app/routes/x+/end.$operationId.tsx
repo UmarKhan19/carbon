@@ -2,7 +2,6 @@ import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
@@ -125,7 +124,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             companyId,
             userId
           },
-          region: FunctionRegion.UsEast1
         });
 
         const newTrackedEntityId = response.data?.newTrackedEntityId;
@@ -174,7 +172,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             companyId,
             userId
           },
-          region: FunctionRegion.UsEast1
         });
 
         if (response.error) {
@@ -217,7 +214,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           companyId,
           userId
         },
-        region: FunctionRegion.UsEast1
       });
 
       if (issue.error) {

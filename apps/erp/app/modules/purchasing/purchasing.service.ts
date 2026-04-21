@@ -6,7 +6,6 @@ import type {
   PostgrestSingleResponse,
   SupabaseClient
 } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import { getEmployeeJob } from "~/modules/people";
 import type { GenericQueryFilters } from "~/utils/query";
@@ -71,7 +70,6 @@ export async function convertSupplierQuoteToOrder(
       type: "supplierQuoteToPurchaseOrder",
       ...payload
     },
-    region: FunctionRegion.UsEast1
   });
 }
 
