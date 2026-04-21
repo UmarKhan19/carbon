@@ -1,4 +1,4 @@
-import SupabaseClient from "@supabase/supabase-js/dist/module/SupabaseClient.d.ts";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
 import { experimental_transcribe as transcribe } from "npm:ai@5.0.87";
 import { z } from "npm:zod@^3.24.1";
