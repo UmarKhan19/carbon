@@ -52,22 +52,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const [supplier, interaction] = await Promise.all([
+  const [supplier, interaction, files] = await Promise.all([
     purchaseInvoice.data?.supplierId
       ? getSupplier(client, purchaseInvoice.data.supplierId)
       : null,
-    getSupplierInteraction(client, purchaseInvoice.data.supplierInteractionId!)
+    getSupplierInteraction(client, purchaseInvoice.data.supplierInteractionId!),
+    getSupplierInteractionDocuments(
+      client,
+      companyId,
+      purchaseInvoice.data.supplierInteractionId!
+    )
   ]);
 
   return {
     purchaseInvoice: purchaseInvoice.data,
     purchaseInvoiceLines: purchaseInvoiceLines.data ?? [],
     purchaseInvoiceDelivery: purchaseInvoiceDelivery.data,
-    files: getSupplierInteractionDocuments(
-      client,
-      companyId,
-      purchaseInvoice.data.supplierInteractionId!
-    ),
+    files,
     interaction: interaction.data,
     supplier: supplier?.data ?? null
   };
