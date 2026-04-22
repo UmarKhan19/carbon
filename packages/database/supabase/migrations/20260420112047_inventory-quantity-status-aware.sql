@@ -67,6 +67,11 @@ CREATE TRIGGER set_item_ledger_tracked_entity_status_trigger
 
 -- ---------------------------------------------------------------------------
 -- 3. Trigger: on trackedEntity.status change, cascade to itemLedger rows
+--
+-- SECURITY DEFINER is required: itemLedger has no UPDATE RLS policy
+-- (see 20240912181702_item-ledger-rls-update.sql), so a non-definer trigger
+-- would be silently no-op'd by RLS when the calling user is e.g. quality
+-- staff dispositioning a tracked entity.
 -- ---------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION sync_item_ledger_on_tracked_entity_status_change()
@@ -77,7 +82,7 @@ BEGIN
   WHERE "trackedEntityId" = NEW."id";
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 DROP TRIGGER IF EXISTS sync_item_ledger_on_tracked_entity_status_change_trigger
   ON "trackedEntity";
