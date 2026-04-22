@@ -88,7 +88,7 @@ export type JobMakeMethod = NonNullable<
 
 export type JobMaterial = NonNullable<
   Awaited<ReturnType<typeof getJobMaterialsWithQuantityOnHand>>["data"]
->[number];
+>[number] & { hasExpiredBatch?: boolean };
 
 export type JobMethod = NonNullable<
   Awaited<ReturnType<typeof getJobMethodTree>>["data"]

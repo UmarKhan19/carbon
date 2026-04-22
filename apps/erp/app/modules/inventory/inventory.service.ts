@@ -1670,3 +1670,14 @@ export async function upsertStorageType(
     .select("id")
     .single();
 }
+
+export async function getShelfLifeForItems(
+  client: SupabaseClient<Database>,
+  itemIds: string[]
+) {
+  if (itemIds.length === 0) return { data: [], error: null };
+  return client
+    .from("itemShelfLife")
+    .select("itemId, mode, days")
+    .in("itemId", itemIds);
+}

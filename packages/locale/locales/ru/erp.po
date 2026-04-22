@@ -1910,7 +1910,7 @@ msgstr "Клиент Carbon недоступен"
 #: apps/erp/app/components/Documents.tsx:193
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1131
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1218
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:411
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -2113,7 +2113,7 @@ msgstr "Зарегистрирован с {0}"
 #: apps/erp/app/components/Layout/Topbar/Search.tsx:395
 #: apps/erp/app/components/TrainingPanel.tsx:45
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1300
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:584
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:619
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:760
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:550
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:87
@@ -3552,9 +3552,9 @@ msgstr "Приоритет по умолчанию"
 msgid "Default Source"
 msgstr "Источник по умолчанию"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:115
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:117
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:227
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
 msgid "Default Storage Unit"
 msgstr "Хранилище по умолчанию"
 
@@ -3698,7 +3698,7 @@ msgstr "Удалить тип сотрудника"
 msgid "Delete Failure Mode"
 msgstr "Удалить режим отказа"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:518
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:533
 msgid "Delete file"
 msgstr "Удалить файл"
 
@@ -3824,7 +3824,7 @@ msgstr "Удалить причину"
 msgid "Delete Receipt"
 msgstr "Удалить квитанцию"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:350
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:363
 msgid "Delete receipt line"
 msgstr "Удалить строку приходной накладной"
 
@@ -6165,7 +6165,7 @@ msgstr "Доход/Баланс"
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:497
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:859
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:509
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:342
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:364
 msgid "Incoming"
 msgstr "Входящие"
 
@@ -6248,7 +6248,7 @@ msgstr "Неверный номер отслеживания"
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:78
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:61
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:62
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:87
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:89
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:126
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:70
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:90
@@ -6510,7 +6510,7 @@ msgstr "Проблемы"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:121
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:119
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:591
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:170
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:175
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationsTable.tsx:129
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:200
 #: apps/erp/app/modules/production/ui/Jobs/ProductionEventsTable.tsx:59
@@ -6903,7 +6903,7 @@ msgstr "Вероятность"
 msgid "Line Item Comparison"
 msgstr "Сравнение позиций"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:330
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:343
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
 msgid "Line options"
@@ -7423,7 +7423,7 @@ msgstr "Дисперсия материала"
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:645
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:36
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:91
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:479
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:513
 #: apps/erp/app/routes/x+/items+/materials.tsx:16
 #: apps/erp/app/routes/x+/material+/$itemId.tsx:36
 #: apps/erp/app/routes/x+/material+/new.tsx:15
@@ -7489,7 +7489,7 @@ msgstr "Участники"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:398
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:578
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:436
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:216
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:237
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:392
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:454
 msgid "Method"
@@ -8625,7 +8625,7 @@ msgid "OK"
 msgstr "ОК"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:130
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:285
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:306
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:325
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:402
 msgid "On Hand"
@@ -8650,7 +8650,7 @@ msgstr "На заказе продажи"
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:417
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:757
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:235
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:256
 msgid "On Storage Unit"
 msgstr "На складском отделении"
 
@@ -9920,7 +9920,7 @@ msgstr "Количества"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:180
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:353
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1009
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1096
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -10157,7 +10157,7 @@ msgstr "ID квитанции"
 msgid "Receipt Line"
 msgstr "Строка квитанции"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:223
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:229
 msgid "Receipt Lines"
 msgstr "Строки квитанции"
 
@@ -10177,7 +10177,7 @@ msgstr "Запрошенная дата получения"
 #: apps/erp/app/routes/x+/inventory+/receipts.tsx:14
 #: apps/erp/app/routes/x+/issue+/$id.tsx:140
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:286
-#: apps/erp/app/routes/x+/receipt+/$receiptId.tsx:23
+#: apps/erp/app/routes/x+/receipt+/$receiptId.tsx:24
 #: apps/erp/app/routes/x+/receipt+/new.tsx:14
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:282
 msgid "Receipts"
@@ -10338,8 +10338,8 @@ msgid "Remove from Price List"
 msgstr "Удалить из прайс-листа"
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1350
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:637
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:677
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:672
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:712
 msgid "Remove item"
 msgstr "Удалить товар"
 
@@ -10485,8 +10485,8 @@ msgstr "Требуется одобрение для документов кач
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:422
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:854
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:208
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:329
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:229
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:351
 msgid "Required"
 msgstr "Обязательно"
 
@@ -10940,7 +10940,7 @@ msgstr "Суббота"
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:166
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:102
 #: apps/erp/app/modules/items/ui/Item/ItemSalePriceForm.tsx:72
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:127
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:129
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:122
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:104
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:102
@@ -11971,7 +11971,7 @@ msgstr "Конкретные товары"
 msgid "Split"
 msgstr "Разделить"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:342
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:355
 msgid "Split receipt line"
 msgstr "Разделить строку приемки"
 
@@ -13202,7 +13202,7 @@ msgstr "Назначения обучения"
 msgid "Trainings"
 msgstr "Обучение"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:354
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:376
 msgid "Transfer"
 msgstr "Передача"
 
@@ -14164,7 +14164,7 @@ msgstr "Кто должен получать уведомления при за�
 
 #: apps/erp/app/modules/accounting/ui/PostingGroups/InventoryPostingGroupsTable.tsx:122
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:928
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:226
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:247
 msgid "WIP"
 msgstr "НЗП"
 

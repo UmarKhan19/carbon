@@ -22,17 +22,19 @@
 -- Shelf-life semantics (from the customer doc "Shelf Life Starting Logic"):
 --   - ItemSpecific, no triggerProcess  = clock starts when any operation
 --     on the make method that produces this item completes (e.g. a
---     subassembly with a defined lifetime). For raw materials received from
---     suppliers, the trigger is the Receipt flow, handled in the receipt
---     tracking UI - independent of this interceptor.
+--     subassembly with a defined lifetime).
 --   - ItemSpecific, with triggerProcess = clock starts only when an
 --     operation using the named process completes (Harvest, Packaging,
 --     Pasteurisation, etc.). The same batch is stamped in place - no new
 --     batch is created per the "treatment does not create a new article"
 --     rule.
 --   - Calculated                       = Component Minimum. The output
---     batch inherits the earliest expiry among the consumed component
---     batches for that make method. Uses no shelfLifeDays.
+--     batch inherits the earliest expiry among consumed sub-assembly
+--     batches (ItemSpecific or Calculated mode). SetAtReceipt inputs are
+--     excluded since raw-material supplier dates don't govern the finished
+--     product's shelf life.
+--   - SetAtReceipt                     = Expiry entered by the user during
+--     receiving. The stamp interceptor is a no-op for this mode.
 --
 -- Adds one per-company config column to "companySettings":
 --   - "nearExpiryWarningDays"        : threshold driving the "Expiring soon"
@@ -60,18 +62,21 @@
 
 
 -- ----------------------------------------------------------------------------
--- 1. Per-item shelf-life policy. No row = not managed. Mode is constrained
---    to the two "actively managed" values.
+-- 1. Per-item shelf-life policy. No row = not managed. Three modes:
 --
 --    - ItemSpecific: days required; triggerProcessId optional (null = any
 --      operation on the item's make method stamps on completion).
 --    - Calculated (Component Minimum): days and triggerProcessId must both
---      be null; expiry is inherited from the consumed component batches.
+--      be null; expiry is inherited from sub-assembly component batches only
+--      (SetAtReceipt inputs are excluded from the computation).
+--    - SetAtReceipt: expiry is entered by the user at receipt time (supplier-
+--      stated date). days and triggerProcessId must both be null. The stamp
+--      interceptor is a no-op for this mode.
 -- ----------------------------------------------------------------------------
 CREATE TABLE "itemShelfLife" (
   "itemId"            TEXT NOT NULL,
   "mode"              TEXT NOT NULL
-    CHECK ("mode" IN ('ItemSpecific', 'Calculated')),
+    CHECK ("mode" IN ('ItemSpecific', 'Calculated', 'SetAtReceipt')),
   "days"              NUMERIC,
   "triggerProcessId"  TEXT,
   "companyId"         TEXT NOT NULL,
@@ -247,21 +252,29 @@ BEGIN
     v_computed_expiry := (CURRENT_DATE + (v_shelf_life_days || ' days')::INTERVAL)::DATE;
 
   ELSIF v_shelf_life_mode = 'Calculated' THEN
-    -- MIN expiry across components consumed by THIS make method.
-    -- Component consumption is recorded as trackedActivity rows whose
-    -- attributes->>'Job Make Method' = v_job_make_method_id. Input
-    -- trackedEntity rows carry their own expirationDate in attributes.
+    -- MIN expiry across sub-assembly inputs consumed by THIS make method.
+    -- Only inputs whose source item has ItemSpecific or Calculated shelf-life
+    -- count. SetAtReceipt items are raw materials; their supplier-stated expiry
+    -- must not propagate to the finished product's shelf life.
     SELECT MIN((te.attributes->>'expirationDate')::DATE)
     INTO v_computed_expiry
     FROM "trackedActivityInput" tai
-    JOIN "trackedActivity" ta ON ta."id" = tai."trackedActivityId"
-    JOIN "trackedEntity" te ON te."id" = tai."trackedEntityId"
+    JOIN "trackedActivity" ta  ON ta."id"      = tai."trackedActivityId"
+    JOIN "trackedEntity"   te  ON te."id"      = tai."trackedEntityId"
+    JOIN "itemShelfLife"   isl ON isl."itemId" = te."sourceDocumentId"
     WHERE ta.attributes->>'Job Make Method' = v_job_make_method_id
+      AND isl."mode" IN ('ItemSpecific', 'Calculated')
       AND (te.attributes->>'expirationDate') IS NOT NULL;
 
     IF v_computed_expiry IS NULL THEN
       RETURN;
     END IF;
+
+  ELSIF v_shelf_life_mode = 'SetAtReceipt' THEN
+    -- Expiry was entered by the user at receipt time. Nothing to compute
+    -- on operation completion; return silently.
+    RETURN;
+
   ELSE
     RETURN;
   END IF;
@@ -328,3 +341,95 @@ SELECT attach_event_trigger(
   ARRAY['sync_finish_job_operation']::TEXT[],
   ARRAY['stamp_shelf_life_on_operation_done']::TEXT[]
 );
+
+
+-- ----------------------------------------------------------------------------
+-- 6. Extend update_receipt_line_serial_tracking with an optional expiry date.
+--    When p_expiry_date is provided and non-empty, expirationDate is merged
+--    into the trackedEntity attributes alongside the Receipt/Serial fields.
+--    Batch tracking already supports this via p_properties — no change there.
+-- ----------------------------------------------------------------------------
+DROP FUNCTION IF EXISTS update_receipt_line_serial_tracking;
+CREATE OR REPLACE FUNCTION update_receipt_line_serial_tracking(
+  p_receipt_line_id TEXT,
+  p_receipt_id TEXT,
+  p_serial_number TEXT,
+  p_index INTEGER,
+  p_tracked_entity_id TEXT DEFAULT NULL,
+  p_expiry_date TEXT DEFAULT NULL
+) RETURNS void AS $$
+DECLARE
+  v_item_id TEXT;
+  v_item_readable_id TEXT;
+  v_serial_id TEXT;
+  v_company_id TEXT;
+  v_created_by TEXT;
+  v_supplier_id TEXT;
+  v_attributes JSONB;
+BEGIN
+  -- Get receipt line details
+  SELECT
+    rl."itemId",
+    rl."itemReadableId",
+    rl."companyId",
+    rl."createdBy",
+    r."supplierId"
+  INTO
+    v_item_id,
+    v_item_readable_id,
+    v_company_id,
+    v_created_by,
+    v_supplier_id
+  FROM "receiptLine" rl
+  JOIN "receipt" r ON r.id = rl."receiptId"
+  WHERE rl.id = p_receipt_line_id;
+
+  -- First create the tracked entity for this serial number
+  v_serial_id := COALESCE(p_tracked_entity_id, xid());
+
+  -- Build attributes JSONB
+  v_attributes := jsonb_build_object(
+    'Serial Number', p_serial_number,
+    'Receipt Line', p_receipt_line_id,
+    'Receipt', p_receipt_id,
+    'Receipt Line Index', p_index
+  );
+
+  -- Add supplier if available
+  IF v_supplier_id IS NOT NULL THEN
+    v_attributes := v_attributes || jsonb_build_object('Supplier', v_supplier_id);
+  END IF;
+
+  -- Merge expiry date when provided
+  IF p_expiry_date IS NOT NULL AND p_expiry_date <> '' THEN
+    v_attributes := v_attributes || jsonb_build_object('expirationDate', p_expiry_date);
+  END IF;
+
+  INSERT INTO "trackedEntity" (
+    "id",
+    "quantity",
+    "status",
+    "sourceDocument",
+    "sourceDocumentId",
+    "sourceDocumentReadableId",
+    "attributes",
+    "companyId",
+    "createdBy"
+  )
+  VALUES (
+    v_serial_id,
+    1,
+    'On Hold',
+    'Item',
+    v_item_id,
+    v_item_readable_id,
+    v_attributes,
+    v_company_id,
+    v_created_by
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    "quantity" = EXCLUDED."quantity",
+    "attributes" = EXCLUDED."attributes";
+
+END;
+$$ LANGUAGE plpgsql;

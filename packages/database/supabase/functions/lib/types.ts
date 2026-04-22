@@ -59444,6 +59444,7 @@ export type Database = {
       }
       update_receipt_line_serial_tracking: {
         Args: {
+          p_expiry_date?: string
           p_index: number
           p_receipt_id: string
           p_receipt_line_id: string

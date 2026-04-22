@@ -55,7 +55,8 @@ export const itemReplenishmentSystems = [
 export const shelfLifeModes = [
   "NotManaged",
   "ItemSpecific",
-  "Calculated"
+  "Calculated",
+  "SetAtReceipt"
 ] as const;
 
 export const partManufacturingPolicies = [

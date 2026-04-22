@@ -61,6 +61,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   } else if (trackingType === "serial") {
     const serialNumber = formData.get("serialNumber") as string;
     const index = Number(formData.get("index"));
+    const expiryDate = formData.get("expiryDate") as string | null;
 
     // Check if the serial number is already used for a different receipt line or index
     const { data: existingEntityWithIndex, error: indexQueryError } =
@@ -120,7 +121,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
         p_receipt_line_id: receiptLineId,
         p_receipt_id: receiptId,
         p_serial_number: serialNumber,
-        p_index: index
+        p_index: index,
+        p_expiry_date: expiryDate || undefined
       }
     );
 

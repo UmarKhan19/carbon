@@ -40,6 +40,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
+  LuCalendar,
   LuCircleAlert,
   LuEllipsisVertical,
   LuGroup,
@@ -93,6 +94,11 @@ const ReceiptLines = () => {
     receiptFiles: PostgrestResponse<StorageItem>;
     receiptLineTracking: ItemTracking[];
     batchProperties: PostgrestResponse<BatchProperty>;
+    itemShelfLife: PostgrestResponse<{
+      itemId: string;
+      mode: string;
+      days: number | null;
+    }>;
   }>(path.to.receipt(receiptId));
 
   const receiptsById = new Map<string, ReceiptLine>(
@@ -254,6 +260,7 @@ const ReceiptLines = () => {
                       }));
                     }}
                     batchProperties={routeData?.batchProperties}
+                    itemShelfLife={routeData?.itemShelfLife}
                     tracking={tracking}
                     upload={(files) => upload(files, line.id!)}
                     deleteFile={(file) => deleteFile(file, line.id!)}
@@ -277,6 +284,7 @@ function ReceiptLineItem({
   onUpdate,
   files,
   batchProperties,
+  itemShelfLife,
   tracking,
   serialNumbers,
   getPath,
@@ -290,6 +298,11 @@ function ReceiptLineItem({
   isReadOnly: boolean;
   files?: PostgrestResponse<StorageItem>;
   batchProperties?: PostgrestResponse<BatchProperty>;
+  itemShelfLife?: PostgrestResponse<{
+    itemId: string;
+    mode: string;
+    days: number | null;
+  }>;
   tracking: ItemTracking | undefined;
   serialNumbers: { index: number; number: string }[];
   getPath: (file: StorageItem) => string;
@@ -468,6 +481,7 @@ function ReceiptLineItem({
             isReadOnly={isReadOnly}
             tracking={tracking}
             batchProperties={batchProperties}
+            itemShelfLife={itemShelfLife}
           />
         </>
       )}
@@ -478,6 +492,7 @@ function ReceiptLineItem({
           serialNumbers={serialNumbers}
           isReadOnly={isReadOnly}
           onSerialNumbersChange={onSerialNumbersChange}
+          itemShelfLife={itemShelfLife}
         />
       )}
       {(line.requiresBatchTracking || line.requiresSerialTracking) && (
@@ -553,6 +568,7 @@ function BatchForm({
   line,
   receipt,
   batchProperties,
+  itemShelfLife,
   tracking,
   isReadOnly
 }: {
@@ -560,17 +576,28 @@ function BatchForm({
   receipt?: Receipt;
   isReadOnly: boolean;
   batchProperties?: PostgrestResponse<BatchProperty>;
+  itemShelfLife?: PostgrestResponse<{
+    itemId: string;
+    mode: string;
+    days: number | null;
+  }>;
   tracking: ItemTracking | undefined;
 }) {
   const submit = useSubmit();
+  const shelfLife = itemShelfLife?.data?.find(
+    (sl) => sl.itemId === line.itemId
+  );
+  const showExpiryField = shelfLife?.mode === "SetAtReceipt";
   const [values, setValues] = useState<{
     number: string;
     properties: any;
+    expirationDate: string;
   }>(() => {
     if (tracking) {
       const attributes = tracking.attributes as TrackedEntityAttributes;
       return {
         number: tracking.readableId || "",
+        expirationDate: attributes.expirationDate ?? "",
         properties: Object.entries(attributes)
           .filter(
             ([key]) =>
@@ -579,7 +606,8 @@ function BatchForm({
                 "Shipment",
                 "Shipment Line Index",
                 "Receipt Line",
-                "Receipt"
+                "Receipt",
+                "expirationDate"
               ].includes(key)
           )
           .reduce((acc, [key, value]) => ({ ...acc, [key]: value || "" }), {})
@@ -587,7 +615,8 @@ function BatchForm({
     }
     return {
       number: "",
-      properties: {}
+      properties: {},
+      expirationDate: ""
     };
   });
 
@@ -620,7 +649,13 @@ function BatchForm({
     formData.append("receiptLineId", line.id!);
     formData.append("trackingType", "batch");
     formData.append("batchNumber", valuesToSubmit.number.trim());
-    formData.append("properties", JSON.stringify(valuesToSubmit.properties));
+    const propertiesWithExpiry = valuesToSubmit.expirationDate
+      ? {
+          ...valuesToSubmit.properties,
+          expirationDate: valuesToSubmit.expirationDate
+        }
+      : valuesToSubmit.properties;
+    formData.append("properties", JSON.stringify(propertiesWithExpiry));
     formData.append("quantity", (line.receivedQuantity ?? 0).toString());
 
     submit(formData, {
@@ -712,6 +747,30 @@ function BatchForm({
           />
         </div>
 
+        {showExpiryField && (
+          <div className="flex flex-col gap-2 w-full">
+            <label className="text-xs text-muted-foreground flex items-center gap-2">
+              <LuCalendar /> Expiration Date
+            </label>
+            <Input
+              type="date"
+              isDisabled={isReadOnly}
+              value={values.expirationDate}
+              onChange={(e) => {
+                setValues((prev) => ({
+                  ...prev,
+                  expirationDate: e.target.value
+                }));
+              }}
+              onBlur={() => {
+                if (values.number.trim()) {
+                  updateBatchNumber(values, true);
+                }
+              }}
+            />
+          </div>
+        )}
+
         <Suspense fallback={null}>
           <Await resolve={batchProperties}>
             {(resolvedBatchProperties) => {
@@ -758,6 +817,7 @@ function SerialForm({
   line,
   receipt,
   batchProperties,
+  itemShelfLife,
   serialNumbers,
   isReadOnly,
   onSerialNumbersChange
@@ -765,12 +825,22 @@ function SerialForm({
   line: ReceiptLine;
   receipt?: Receipt;
   batchProperties?: PostgrestResponse<BatchProperty>;
+  itemShelfLife?: PostgrestResponse<{
+    itemId: string;
+    mode: string;
+    days: number | null;
+  }>;
   serialNumbers: { index: number; number: string }[];
   isReadOnly: boolean;
   onSerialNumbersChange: (
     serialNumbers: { index: number; number: string }[]
   ) => void;
 }) {
+  const shelfLife = itemShelfLife?.data?.find(
+    (sl) => sl.itemId === line.itemId
+  );
+  const showExpiryField = shelfLife?.mode === "SetAtReceipt";
+  const [expiryDate, setExpiryDate] = useState("");
   const [errors, setErrors] = useState<Record<number, string>>({});
 
   // Check for duplicates within the current form
@@ -808,6 +878,9 @@ function SerialForm({
       formData.append("trackingType", "serial");
       formData.append("index", serialNumber.index.toString());
       formData.append("serialNumber", serialNumber.number.trim());
+      if (expiryDate) {
+        formData.append("expiryDate", expiryDate);
+      }
 
       try {
         const response = await fetch(path.to.receiptLinesTracking(receipt.id), {
@@ -837,7 +910,7 @@ function SerialForm({
         }
       }
     },
-    [line.id, line.itemId, receipt?.id, validateSerialNumber]
+    [line.id, line.itemId, receipt?.id, validateSerialNumber, expiryDate]
   );
 
   const navigateToLineTrackingLabels = (zpl?: boolean, labelSize?: string) => {
@@ -882,6 +955,20 @@ function SerialForm({
           </SplitButton>
         </div>
       </div>
+
+      {showExpiryField && (
+        <div className="flex flex-col gap-2 max-w-xs">
+          <label className="text-xs text-muted-foreground flex items-center gap-2">
+            <LuCalendar /> Expiration Date (applies to all serials on this line)
+          </label>
+          <Input
+            type="date"
+            isDisabled={isReadOnly}
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-4 gap-y-3">
         {serialNumbers.map((serialNumber, index) => (

@@ -67568,6 +67568,10 @@ export default {
             required: true,
             schema: {
               properties: {
+                p_expiry_date: {
+                  format: "text",
+                  type: "string"
+                },
                 p_index: {
                   format: "int32",
                   type: "integer"

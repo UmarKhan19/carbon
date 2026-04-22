@@ -19,6 +19,8 @@ const shelfLifeLabel = (mode: ShelfLifeMode) => {
       return "Item specific";
     case "Calculated":
       return "Calculated from BoM";
+    case "SetAtReceipt":
+      return "Set at receipt";
   }
 };
 

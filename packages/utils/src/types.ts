@@ -43,6 +43,7 @@ export interface TrackedEntityAttributes {
   "Split Entity ID"?: string;
   "Stock Transfer Line"?: string;
   "Stock Transfer"?: string;
+  expirationDate?: string;
 }
 
 export interface TrackedActivityAttributes {
