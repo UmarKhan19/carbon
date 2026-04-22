@@ -11,7 +11,7 @@
     "./worker": "./src/inngest/worker.ts"
   },
   "scripts": {
-    "dev:jobs": "npx inngest-cli@latest dev -u http://localhost:3000/api/inngest",
+    "dev:jobs": "npx inngest-cli@latest dev --no-discovery -u http://localhost:3000/api/inngest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
