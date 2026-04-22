@@ -29923,9 +29923,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoice.invoiceId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoice.status"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoice.supplierId"
           },
           {
@@ -30011,6 +30008,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoice.status"
           },
           {
             $ref: "#/parameters/select"
@@ -30078,9 +30078,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoice.invoiceId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoice.status"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoice.supplierId"
           },
           {
@@ -30166,6 +30163,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoice.status"
           },
           {
             $ref: "#/parameters/preferReturn"
@@ -30187,9 +30187,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoice.invoiceId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoice.status"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoice.supplierId"
           },
           {
@@ -30275,6 +30272,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoice.status"
           },
           {
             $ref: "#/parameters/body.purchaseInvoice"
@@ -40417,10 +40417,10 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.invoiceId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.status"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.createdAt"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.createdAt"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.status"
           },
           {
             $ref: "#/parameters/select"
@@ -40488,10 +40488,10 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.invoiceId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.status"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.createdAt"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.createdAt"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.status"
           },
           {
             $ref: "#/parameters/preferReturn"
@@ -40513,10 +40513,10 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.invoiceId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.status"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.createdAt"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.createdAt"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceStatusHistory.status"
           },
           {
             $ref: "#/parameters/body.purchaseInvoiceStatusHistory"
@@ -76456,7 +76456,7 @@ export default {
           type: "string"
         },
         status: {
-          enum: ["Draft", "Pending", "Posted"],
+          enum: ["Draft", "Pending", "Posted", "Voided"],
           format: 'public."receiptStatus"',
           type: "string"
         },
@@ -77159,7 +77159,7 @@ export default {
         },
         status: {
           default: "Draft",
-          enum: ["Draft", "Pending", "Posted"],
+          enum: ["Draft", "Pending", "Posted", "Voided"],
           format: 'public."receiptStatus"',
           type: "string"
         },
@@ -87937,7 +87937,6 @@ export default {
       required: [
         "id",
         "invoiceId",
-        "status",
         "currencyCode",
         "exchangeRate",
         "subtotal",
@@ -87948,7 +87947,8 @@ export default {
         "companyId",
         "createdBy",
         "createdAt",
-        "supplierInteractionId"
+        "supplierInteractionId",
+        "status"
       ],
       properties: {
         id: {
@@ -87959,22 +87959,6 @@ export default {
         },
         invoiceId: {
           format: "text",
-          type: "string"
-        },
-        status: {
-          default: "Draft",
-          enum: [
-            "Draft",
-            "Pending",
-            "Submitted",
-            "Return",
-            "Debit Note Issued",
-            "Paid",
-            "Partially Paid",
-            "Overdue",
-            "Voided"
-          ],
-          format: 'public."purchaseInvoiceStatus"',
           type: "string"
         },
         supplierId: {
@@ -88121,6 +88105,22 @@ export default {
           description:
             "Note:\nThis is a Foreign Key to `location.id`.<fk table='location' column='id'/>",
           format: "text",
+          type: "string"
+        },
+        status: {
+          default: "Draft",
+          enum: [
+            "Draft",
+            "Pending",
+            "Open",
+            "Return",
+            "Debit Note Issued",
+            "Paid",
+            "Partially Paid",
+            "Overdue",
+            "Voided"
+          ],
+          format: 'public."purchaseInvoiceStatus"',
           type: "string"
         }
       },
@@ -92708,7 +92708,7 @@ export default {
       type: "object"
     },
     purchaseInvoiceStatusHistory: {
-      required: ["id", "invoiceId", "status", "createdAt"],
+      required: ["id", "invoiceId", "createdAt", "status"],
       properties: {
         id: {
           default: "public.id()",
@@ -92722,11 +92722,16 @@ export default {
           format: "text",
           type: "string"
         },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string"
+        },
         status: {
           enum: [
             "Draft",
             "Pending",
-            "Submitted",
+            "Open",
             "Return",
             "Debit Note Issued",
             "Paid",
@@ -92735,11 +92740,6 @@ export default {
             "Voided"
           ],
           format: 'public."purchaseInvoiceStatus"',
-          type: "string"
-        },
-        createdAt: {
-          default: "now()",
-          format: "timestamp with time zone",
           type: "string"
         }
       },
@@ -102034,7 +102034,7 @@ export default {
           enum: [
             "Draft",
             "Pending",
-            "Submitted",
+            "Open",
             "Return",
             "Debit Note Issued",
             "Paid",
@@ -121180,12 +121180,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseInvoice.status": {
-      name: "status",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.purchaseInvoice.supplierId": {
       name: "supplierId",
       required: false,
@@ -121356,6 +121350,12 @@ export default {
     },
     "rowFilter.purchaseInvoice.locationId": {
       name: "locationId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseInvoice.status": {
+      name: "status",
       required: false,
       in: "query",
       type: "string"
@@ -126499,14 +126499,14 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseInvoiceStatusHistory.status": {
-      name: "status",
+    "rowFilter.purchaseInvoiceStatusHistory.createdAt": {
+      name: "createdAt",
       required: false,
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseInvoiceStatusHistory.createdAt": {
-      name: "createdAt",
+    "rowFilter.purchaseInvoiceStatusHistory.status": {
+      name: "status",
       required: false,
       in: "query",
       type: "string"

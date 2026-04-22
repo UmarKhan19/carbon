@@ -23,7 +23,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: msg`Purchase Invoices`,
+  breadcrumb: msg`Invoices`,
   to: path.to.purchaseInvoices
 };
 

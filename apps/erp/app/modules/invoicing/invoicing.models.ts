@@ -18,7 +18,7 @@ export const purchaseInvoiceStatusType = [
   // "Return",
   "Pending",
   "Partially Paid",
-  "Submitted",
+  "Open",
   "Debit Note Issued",
   "Paid",
   "Voided",

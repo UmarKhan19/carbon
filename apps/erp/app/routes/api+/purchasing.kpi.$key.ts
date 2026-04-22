@@ -370,7 +370,7 @@ async function getPurchaseInvoicesQuery(
       count: "exact"
     })
     .eq("companyId", companyId)
-    .in("status", ["Pending", "Partially Paid", "Paid", "Submitted", "Overdue"])
+    .in("status", ["Pending", "Partially Paid", "Paid", "Open", "Overdue"])
     .gte("dateIssued", start)
     .lte("dateIssued", end);
 

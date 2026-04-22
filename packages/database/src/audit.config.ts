@@ -275,6 +275,13 @@ export const auditConfig = {
           entityIdColumn: "customerItemPriceOverrideId"
         }
       }
+    },
+
+    priceOverrideBreak: {
+      label: "Price Override Break",
+      tables: {
+        customerItemPriceOverrideBreak: { role: "root" }
+      }
     }
   } satisfies Record<string, EntityConfig>,
 

@@ -21,6 +21,7 @@ import {
   LuEllipsisVertical,
   LuQrCode,
   LuShoppingCart,
+  LuTicketX,
   LuTrash,
   LuTruck
 } from "react-icons/lu";
@@ -29,7 +30,11 @@ import { useAuditLog } from "~/components/AuditLog";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useRouteData, useUser } from "~/hooks";
 import type { ItemTracking, Receipt, ReceiptLine } from "~/modules/inventory";
-import { ReceiptPostModal, ReceiptStatus } from "~/modules/inventory";
+import {
+  ReceiptPostModal,
+  ReceiptStatus,
+  ReceiptVoidModal
+} from "~/modules/inventory";
 import { path } from "~/utils/path";
 
 const ReceiptHeader = () => {
@@ -48,6 +53,7 @@ const ReceiptHeader = () => {
   const { company } = useUser();
   const permissions = usePermissions();
   const postModal = useDisclosure();
+  const voidModal = useDisclosure();
   const deleteModal = useDisclosure();
   const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
     entityType: "receipt",
@@ -61,6 +67,8 @@ const ReceiptHeader = () => {
     routeData.receiptLines.some((line) => (line.receivedQuantity ?? 0) !== 0);
 
   const isPosted = routeData.receipt.status === "Posted";
+  const isVoided = routeData.receipt.status === "Voided";
+  const isInvoiced = routeData.receipt.invoiced === true;
 
   const navigateToTrackingLabels = (zpl?: boolean, labelSize?: string) => {
     if (!window) return;
@@ -147,11 +155,26 @@ const ReceiptHeader = () => {
             >
               <Trans>Post</Trans>
             </Button>
+            {isPosted && (
+              <Button
+                leftIcon={<LuTicketX />}
+                variant="destructive"
+                onClick={voidModal.onOpen}
+                isDisabled={
+                  isVoided ||
+                  isInvoiced ||
+                  !permissions.can("update", "inventory")
+                }
+              >
+                <Trans>Void</Trans>
+              </Button>
+            )}
           </HStack>
         </HStack>
       </div>
 
       {postModal.isOpen && <ReceiptPostModal onClose={postModal.onClose} />}
+      {voidModal.isOpen && <ReceiptVoidModal onClose={voidModal.onClose} />}
       {deleteModal.isOpen && (
         <ConfirmDelete
           action={path.to.deleteReceipt(receiptId)}

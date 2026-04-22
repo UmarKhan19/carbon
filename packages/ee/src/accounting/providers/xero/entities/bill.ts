@@ -18,7 +18,7 @@ type BillRow = {
   status:
     | "Draft"
     | "Pending"
-    | "Submitted"
+    | "Open"
     | "Return"
     | "Debit Note Issued"
     | "Paid"
@@ -61,7 +61,7 @@ const CARBON_TO_XERO_STATUS: Record<BillRow["status"], Xero.Invoice["Status"]> =
   {
     Draft: "DRAFT",
     Pending: "SUBMITTED",
-    Submitted: "AUTHORISED",
+    Open: "AUTHORISED",
     Return: "DRAFT", // No direct equivalent, map to DRAFT
     "Debit Note Issued": "AUTHORISED",
     Paid: "PAID",
@@ -76,7 +76,7 @@ const XERO_TO_CARBON_STATUS: Record<
 > = {
   DRAFT: "Draft",
   SUBMITTED: "Pending",
-  AUTHORISED: "Submitted",
+  AUTHORISED: "Open",
   PAID: "Paid",
   VOIDED: "Voided",
   DELETED: "Voided"

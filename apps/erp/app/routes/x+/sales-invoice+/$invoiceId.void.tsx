@@ -22,9 +22,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .from("salesInvoice")
       .select("status, postingDate")
       .eq("id", invoiceId)
+      .eq("companyId", companyId)
       .single();
 
-    if (!salesInvoice?.postingDate) {
+    if (!salesInvoice) {
+      throw redirect(
+        path.to.salesInvoices,
+        await flash(
+          request,
+          error(new Error("Sales invoice not found"), "Invalid operation")
+        )
+      );
+    }
+
+    if (!salesInvoice.postingDate) {
       throw redirect(
         path.to.salesInvoiceDetails(invoiceId),
         await flash(
