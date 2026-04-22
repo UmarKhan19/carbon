@@ -17,6 +17,9 @@ vite.config.ts.timestamp*
 .mcp.json
 opencode.json
 
+# Lingui compiled catalogs
+packages/locale/locales/**/*.mjs
+
 scripts/migrations/data
 scripts/paperless-test.ts
 scripts/test-get-stripe-customer.ts

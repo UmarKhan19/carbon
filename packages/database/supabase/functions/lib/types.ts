@@ -60809,7 +60809,7 @@ export type Database = {
       purchaseInvoiceStatus:
         | "Draft"
         | "Pending"
-        | "Submitted"
+        | "Open"
         | "Return"
         | "Debit Note Issued"
         | "Paid"
@@ -60870,7 +60870,7 @@ export type Database = {
         | "Outbound Transfer"
         | "Manufacturing Consumption"
         | "Manufacturing Output"
-      receiptStatus: "Draft" | "Pending" | "Posted"
+      receiptStatus: "Draft" | "Pending" | "Posted" | "Voided"
       riskRegisterType: "Risk" | "Opportunity"
       riskSource:
         | "Customer"
@@ -62014,7 +62014,7 @@ export const Constants = {
       purchaseInvoiceStatus: [
         "Draft",
         "Pending",
-        "Submitted",
+        "Open",
         "Return",
         "Debit Note Issued",
         "Paid",
@@ -62082,7 +62082,7 @@ export const Constants = {
         "Manufacturing Consumption",
         "Manufacturing Output",
       ],
-      receiptStatus: ["Draft", "Pending", "Posted"],
+      receiptStatus: ["Draft", "Pending", "Posted", "Voided"],
       riskRegisterType: ["Risk", "Opportunity"],
       riskSource: [
         "Customer",

@@ -72,7 +72,12 @@ export const receiptSourceDocumentType = [
   // "Manufacturing Output",
 ] as const;
 
-export const receiptStatusType = ["Draft", "Pending", "Posted"] as const;
+export const receiptStatusType = [
+  "Draft",
+  "Pending",
+  "Posted",
+  "Voided"
+] as const;
 
 export const batchPropertyValidator = z
   .object({

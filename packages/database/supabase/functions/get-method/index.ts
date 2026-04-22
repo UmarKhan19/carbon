@@ -5,7 +5,7 @@ import { z } from "npm:zod@^3.24.1";
 import type {
     PostgrestError,
     SupabaseClient,
-} from "https://esm.sh/@supabase/supabase-js@2.33.1";
+} from "@supabase/supabase-js";
 
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
@@ -29,13 +29,13 @@ import {
     traverseJobMethod,
     traverseQuoteMethod,
 } from "../lib/methods.ts";
+import { KyselyDatabase } from "../lib/postgres/index.ts";
 import { importTypeScript } from "../lib/sandbox.ee.ts";
 import { getStorageUnitId } from "../lib/storage-units.ts";
 import {
     getNextRevisionSequence,
     getNextSequence,
 } from "../shared/get-next-sequence.ts";
-import { KyselyDatabase } from "../lib/postgres/index.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);

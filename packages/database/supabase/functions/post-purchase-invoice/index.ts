@@ -15,6 +15,7 @@ const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
 
 const payloadValidator = z.object({
+  type: z.enum(["post", "void"]).default("post"),
   invoiceId: z.string(),
   userId: z.string(),
   companyId: z.string(),
@@ -30,11 +31,12 @@ serve(async (req: Request) => {
   const today = format(new Date(), "yyyy-MM-dd");
 
   try {
-    const { invoiceId, userId, companyId, skipReceiptPost } =
+    const { type, invoiceId, userId, companyId, skipReceiptPost } =
       payloadValidator.parse(payload);
 
     console.log({
       function: "post-purchase-invoice",
+      type,
       invoiceId,
       userId,
       skipReceiptPost,
@@ -44,6 +46,334 @@ serve(async (req: Request) => {
       req.headers.get("carbon-key") ?? "",
       companyId
     );
+
+    if (type === "void") {
+      const invoice = await client
+        .from("purchaseInvoice")
+        .select("*")
+        .eq("id", invoiceId)
+        .single();
+      if (invoice.error) throw new Error("Failed to fetch purchaseInvoice");
+
+      if (!invoice.data.postingDate) {
+        throw new Error("Can only void posted purchase invoices");
+      }
+
+      if (invoice.data.status === "Voided") {
+        throw new Error("Purchase invoice is already voided");
+      }
+
+      if (
+        invoice.data.status === "Paid" ||
+        invoice.data.status === "Partially Paid"
+      ) {
+        throw new Error(
+          "Cannot void a purchase invoice with payments applied. Reverse the payment first."
+        );
+      }
+
+      const [originalItemLedger, originalJournalLines, originalCostLedger] =
+        await Promise.all([
+          client
+            .from("itemLedger")
+            .select("*")
+            .eq("documentId", invoiceId)
+            .eq("companyId", companyId),
+          client
+            .from("journalLine")
+            .select("*")
+            .eq("documentId", invoiceId)
+            .eq("documentType", "Invoice")
+            .eq("companyId", companyId),
+          client
+            .from("costLedger")
+            .select("*")
+            .eq("documentId", invoiceId)
+            .eq("documentType", "Purchase Invoice")
+            .eq("companyId", companyId),
+        ]);
+
+      if (originalItemLedger.error)
+        throw new Error("Failed to fetch item ledger entries");
+      if (originalJournalLines.error)
+        throw new Error("Failed to fetch journal lines");
+      if (originalCostLedger.error)
+        throw new Error("Failed to fetch cost ledger entries");
+
+      const invoiceLinesVoid = await client
+        .from("purchaseInvoiceLine")
+        .select("*")
+        .eq("invoiceId", invoiceId);
+      if (invoiceLinesVoid.error)
+        throw new Error("Failed to fetch purchase invoice lines");
+
+      const purchaseOrderLineIdsVoid = invoiceLinesVoid.data.reduce<string[]>(
+        (acc, invoiceLine) => {
+          if (
+            invoiceLine.purchaseOrderLineId &&
+            !acc.includes(invoiceLine.purchaseOrderLineId)
+          ) {
+            acc.push(invoiceLine.purchaseOrderLineId);
+          }
+          return acc;
+        },
+        []
+      );
+
+      const affectedPurchaseOrderIdsVoid: string[] = [];
+
+      if (purchaseOrderLineIdsVoid.length > 0) {
+        const touchedLines = await client
+          .from("purchaseOrderLine")
+          .select("purchaseOrderId")
+          .in("id", purchaseOrderLineIdsVoid);
+        if (touchedLines.error)
+          throw new Error("Failed to fetch purchase order lines");
+        for (const { purchaseOrderId } of touchedLines.data) {
+          if (
+            purchaseOrderId &&
+            !affectedPurchaseOrderIdsVoid.includes(purchaseOrderId)
+          ) {
+            affectedPurchaseOrderIdsVoid.push(purchaseOrderId);
+          }
+        }
+      }
+
+      const purchaseOrderLinesVoid =
+        affectedPurchaseOrderIdsVoid.length > 0
+          ? await client
+              .from("purchaseOrderLine")
+              .select("*")
+              .in("purchaseOrderId", affectedPurchaseOrderIdsVoid)
+          : { data: [] as Database["public"]["Tables"]["purchaseOrderLine"]["Row"][], error: null };
+
+      if (purchaseOrderLinesVoid.error)
+        throw new Error("Failed to fetch purchase order lines");
+
+      const purchaseOrderLinesByIdVoid = purchaseOrderLinesVoid.data.reduce<
+        Record<string, Database["public"]["Tables"]["purchaseOrderLine"]["Row"]>
+      >((acc, purchaseOrderLine) => {
+        acc[purchaseOrderLine.id] = purchaseOrderLine;
+        return acc;
+      }, {});
+
+      const purchaseOrderLineUpdatesVoid = invoiceLinesVoid.data.reduce<
+        Record<
+          string,
+          Database["public"]["Tables"]["purchaseOrderLine"]["Update"] & {
+            purchaseOrderId: string;
+          }
+        >
+      >((acc, invoiceLine) => {
+        const purchaseOrderLine =
+          purchaseOrderLinesByIdVoid[invoiceLine.purchaseOrderLineId ?? ""];
+        if (
+          invoiceLine.purchaseOrderLineId &&
+          purchaseOrderLine &&
+          invoiceLine.quantity &&
+          purchaseOrderLine.purchaseQuantity &&
+          purchaseOrderLine.purchaseQuantity > 0
+        ) {
+          const invoicedQuantityInPurchaseUnit =
+            invoiceLine.quantity / (invoiceLine.conversionFactor ?? 1);
+
+          const newQuantityInvoiced = Math.max(
+            0,
+            (purchaseOrderLine.quantityInvoiced ?? 0) -
+              invoicedQuantityInPurchaseUnit
+          );
+
+          const invoicedComplete =
+            newQuantityInvoiced >= purchaseOrderLine.purchaseQuantity;
+
+          acc[invoiceLine.purchaseOrderLineId] = {
+            quantityInvoiced: newQuantityInvoiced,
+            invoicedComplete,
+            purchaseOrderId: purchaseOrderLine.purchaseOrderId,
+          };
+        }
+        return acc;
+      }, {});
+
+      const purchaseOrderStatusUpdatesVoid: Record<
+        string,
+        Database["public"]["Tables"]["purchaseOrder"]["Row"]["status"]
+      > = {};
+      for (const purchaseOrderId of affectedPurchaseOrderIdsVoid) {
+        const projectedLines = purchaseOrderLinesVoid.data
+          .filter((line) => line.purchaseOrderId === purchaseOrderId)
+          .map((line) => {
+            const update = purchaseOrderLineUpdatesVoid[line.id];
+            if (update && update.quantityInvoiced !== undefined) {
+              return { ...line, quantityInvoiced: update.quantityInvoiced };
+            }
+            return line;
+          });
+
+        const areAllLinesInvoicedProjected = projectedLines.every((line) => {
+          if (line.purchaseOrderLineType === "Comment") return true;
+          const target = line.purchaseQuantity ?? 0;
+          if (target <= 0) return true;
+          return (line.quantityInvoiced ?? 0) >= target;
+        });
+
+        const areAllLinesReceivedProjected = projectedLines.every((line) => {
+          if (line.purchaseOrderLineType === "Comment") return true;
+          const target = line.purchaseQuantity ?? 0;
+          if (target <= 0) return true;
+          return (line.quantityReceived ?? 0) >= target;
+        });
+
+        let status: Database["public"]["Tables"]["purchaseOrder"]["Row"]["status"] =
+          "To Receive and Invoice";
+        if (areAllLinesInvoicedProjected && areAllLinesReceivedProjected) {
+          status = "Completed";
+        } else if (areAllLinesInvoicedProjected) {
+          status = "To Receive";
+        } else if (areAllLinesReceivedProjected) {
+          status = "To Invoice";
+        }
+
+        purchaseOrderStatusUpdatesVoid[purchaseOrderId] = status;
+      }
+
+      const reversingJournalLines: Omit<
+        Database["public"]["Tables"]["journalLine"]["Insert"],
+        "journalId"
+      >[] = originalJournalLines.data.map((entry) => ({
+        accountNumber: entry.accountNumber!,
+        accrual: entry.accrual,
+        description: `VOID: ${entry.description}`,
+        amount: -entry.amount,
+        quantity: -entry.quantity,
+        documentType: entry.documentType,
+        documentId: entry.documentId,
+        externalDocumentId: entry.externalDocumentId,
+        documentLineReference: entry.documentLineReference,
+        journalLineReference: entry.journalLineReference,
+        companyId,
+      }));
+
+      const reversingItemLedger: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
+        originalItemLedger.data.map((entry) => ({
+          postingDate: today,
+          itemId: entry.itemId,
+          quantity: -entry.quantity,
+          locationId: entry.locationId,
+          storageUnitId: entry.storageUnitId,
+          trackedEntityId: entry.trackedEntityId,
+          entryType:
+            entry.entryType === "Positive Adjmt."
+              ? "Negative Adjmt."
+              : entry.entryType === "Negative Adjmt."
+              ? "Positive Adjmt."
+              : entry.entryType,
+          documentType: entry.documentType,
+          documentId: entry.documentId,
+          externalDocumentId: entry.externalDocumentId,
+          createdBy: userId,
+          companyId,
+        }));
+
+      const reversingCostLedger: Database["public"]["Tables"]["costLedger"]["Insert"][] =
+        originalCostLedger.data.map((entry) => ({
+          itemLedgerType: entry.itemLedgerType,
+          costLedgerType: entry.costLedgerType,
+          adjustment: entry.adjustment,
+          documentType: entry.documentType,
+          documentId: entry.documentId,
+          externalDocumentId: entry.externalDocumentId,
+          itemId: entry.itemId,
+          quantity: -entry.quantity,
+          nominalCost: -entry.nominalCost,
+          cost: -entry.cost,
+          supplierId: entry.supplierId,
+          companyId,
+        }));
+
+      const accountingPeriodIdVoid = await getCurrentAccountingPeriod(
+        client,
+        companyId,
+        db
+      );
+
+      await db.transaction().execute(async (trx) => {
+        for await (const [purchaseOrderLineId, update] of Object.entries(
+          purchaseOrderLineUpdatesVoid
+        )) {
+          const { purchaseOrderId: _purchaseOrderId, ...lineUpdate } = update;
+          await trx
+            .updateTable("purchaseOrderLine")
+            .set(lineUpdate)
+            .where("id", "=", purchaseOrderLineId)
+            .execute();
+        }
+
+        for await (const [purchaseOrderId, status] of Object.entries(
+          purchaseOrderStatusUpdatesVoid
+        )) {
+          await trx
+            .updateTable("purchaseOrder")
+            .set({ status })
+            .where("id", "=", purchaseOrderId)
+            .execute();
+        }
+
+        if (reversingJournalLines.length > 0) {
+          const journal = await trx
+            .insertInto("journal")
+            .values({
+              accountingPeriodId: accountingPeriodIdVoid,
+              description: `VOID Purchase Invoice ${invoice.data.invoiceId}`,
+              postingDate: today,
+              companyId,
+            })
+            .returning(["id"])
+            .execute();
+
+          const journalId = journal[0].id;
+          if (!journalId) throw new Error("Failed to insert journal");
+
+          await trx
+            .insertInto("journalLine")
+            .values(
+              reversingJournalLines.map((journalLine) => ({
+                ...journalLine,
+                journalId,
+              }))
+            )
+            .execute();
+        }
+
+        if (reversingItemLedger.length > 0) {
+          await trx
+            .insertInto("itemLedger")
+            .values(reversingItemLedger)
+            .execute();
+        }
+
+        if (reversingCostLedger.length > 0) {
+          await trx
+            .insertInto("costLedger")
+            .values(reversingCostLedger)
+            .execute();
+        }
+
+        await trx
+          .updateTable("purchaseInvoice")
+          .set({
+            status: "Voided",
+            updatedAt: today,
+            updatedBy: userId,
+          })
+          .where("id", "=", invoiceId)
+          .execute();
+      });
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const [purchaseInvoice, purchaseInvoiceLines, purchaseInvoiceDelivery] =
       await Promise.all([
@@ -1089,7 +1419,7 @@ serve(async (req: Request) => {
         .set({
           datePaid: today, // TODO: remove this once we have payments working
           postingDate: today,
-          status: "Submitted",
+          status: "Open",
         })
         .where("id", "=", invoiceId)
         .execute();
@@ -1106,7 +1436,7 @@ serve(async (req: Request) => {
     );
   } catch (err) {
     console.error(err);
-    if ("invoiceId" in payload) {
+    if (payload.type !== "void" && "invoiceId" in payload) {
       const client = await getSupabaseServiceRole(
         req.headers.get("Authorization"),
         req.headers.get("carbon-key") ?? "",

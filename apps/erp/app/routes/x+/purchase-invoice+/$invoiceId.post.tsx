@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { getCompanySettings } from "~/modules/settings";
 
@@ -41,8 +40,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         userId: userId,
         companyId: companyId,
         skipReceiptPost: skipReceiptPost
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (postPurchaseInvoice.error) {
@@ -76,8 +74,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             source: "purchaseInvoice",
             updatePrices: true,
             updateLeadTimes: false
-          },
-          region: FunctionRegion.UsEast1
+          }
         }
       );
 

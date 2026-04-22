@@ -2,7 +2,6 @@ import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -23,9 +22,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .from("salesInvoice")
       .select("status, postingDate")
       .eq("id", invoiceId)
+      .eq("companyId", companyId)
       .single();
 
-    if (!salesInvoice?.postingDate) {
+    if (!salesInvoice) {
+      throw redirect(
+        path.to.salesInvoices,
+        await flash(
+          request,
+          error(new Error("Sales invoice not found"), "Invalid operation")
+        )
+      );
+    }
+
+    if (!salesInvoice.postingDate) {
       throw redirect(
         path.to.salesInvoiceDetails(invoiceId),
         await flash(
@@ -43,8 +53,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           invoiceId: invoiceId,
           userId: userId,
           companyId: companyId
-        },
-        region: FunctionRegion.UsEast1
+        }
       }
     );
 
