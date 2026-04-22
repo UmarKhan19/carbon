@@ -15,6 +15,7 @@ import {
   getItemStorageUnitQuantities,
   getPickMethod,
   pickMethodWithShelfLifeValidator,
+  type shelfLifeModes,
   upsertItemShelfLife,
   upsertPickMethod
 } from "~/modules/items";
@@ -230,7 +231,9 @@ export default function ToolInventoryRoute() {
   const initialValues = {
     ...toolInventory,
     defaultStorageUnitId: toolInventory.defaultStorageUnitId ?? undefined,
-    shelfLifeMode: shelfLife?.mode,
+    shelfLifeMode: shelfLife?.mode as
+      | (typeof shelfLifeModes)[number]
+      | undefined,
     shelfLifeDays: shelfLife?.days ?? undefined,
     shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
     ...getCustomFields(toolInventory.customFields ?? {})

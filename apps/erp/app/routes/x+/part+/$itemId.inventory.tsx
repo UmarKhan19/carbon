@@ -15,6 +15,7 @@ import {
   getItemStorageUnitQuantities,
   getPickMethod,
   pickMethodWithShelfLifeValidator,
+  type shelfLifeModes,
   upsertItemShelfLife,
   upsertPickMethod
 } from "~/modules/items";
@@ -221,7 +222,9 @@ export default function PartInventoryRoute() {
   const initialValues = {
     ...partInventory,
     defaultStorageUnitId: partInventory.defaultStorageUnitId ?? undefined,
-    shelfLifeMode: shelfLife?.mode,
+    shelfLifeMode: shelfLife?.mode as
+      | (typeof shelfLifeModes)[number]
+      | undefined,
     shelfLifeDays: shelfLife?.days ?? undefined,
     shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
     ...getCustomFields(partInventory.customFields ?? {})

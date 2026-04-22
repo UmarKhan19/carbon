@@ -46,6 +46,7 @@ import type {
   partValidator,
   pickMethodValidator,
   serviceValidator,
+  shelfLifeModes,
   supplierPartValidator,
   toolValidator,
   unitOfMeasureValidator
@@ -2109,7 +2110,7 @@ export async function upsertItemShelfLife(
     itemId: string;
     userId: string;
     companyId?: string;
-    mode?: "NotManaged" | "ItemSpecific" | "Calculated";
+    mode?: (typeof shelfLifeModes)[number];
     days?: number;
     triggerProcessId?: string;
   }
@@ -2155,15 +2156,15 @@ export async function upsertItemShelfLife(
       .eq("id", args.itemId)
       .single();
     if (itemRow.error || !itemRow.data) return itemRow;
-    companyId = itemRow.data.companyId;
+    companyId = itemRow.data.companyId ?? undefined;
   }
 
   return client.from("itemShelfLife").insert({
     itemId: args.itemId,
-    mode: args.mode,
+    mode: args.mode!,
     days,
     triggerProcessId,
-    companyId,
+    companyId: companyId!,
     createdBy: args.userId
   });
 }

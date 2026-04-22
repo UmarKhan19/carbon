@@ -16,6 +16,7 @@ import {
   getItemStorageUnitQuantities,
   getPickMethod,
   pickMethodWithShelfLifeValidator,
+  type shelfLifeModes,
   upsertItemShelfLife,
   upsertPickMethod
 } from "~/modules/items";
@@ -243,7 +244,9 @@ export default function ConsumableInventoryRoute() {
   const initialValues = {
     ...consumableInventory,
     defaultStorageUnitId: consumableInventory.defaultStorageUnitId ?? undefined,
-    shelfLifeMode: shelfLife?.mode,
+    shelfLifeMode: shelfLife?.mode as
+      | (typeof shelfLifeModes)[number]
+      | undefined,
     shelfLifeDays: shelfLife?.days ?? undefined,
     shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
     ...getCustomFields(consumableInventory.customFields ?? {})
