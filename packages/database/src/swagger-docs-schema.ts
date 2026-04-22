@@ -77278,7 +77278,7 @@ export default {
           type: "string"
         },
         status: {
-          enum: ["Draft", "Pending", "Posted"],
+          enum: ["Draft", "Pending", "Posted", "Voided"],
           format: 'public."receiptStatus"',
           type: "string"
         },
@@ -78036,7 +78036,7 @@ export default {
         },
         status: {
           default: "Draft",
-          enum: ["Draft", "Pending", "Posted"],
+          enum: ["Draft", "Pending", "Posted", "Voided"],
           format: 'public."receiptStatus"',
           type: "string"
         },
@@ -88842,7 +88842,7 @@ export default {
           enum: [
             "Draft",
             "Pending",
-            "Submitted",
+            "Open",
             "Return",
             "Debit Note Issued",
             "Paid",
@@ -93657,7 +93657,7 @@ export default {
           enum: [
             "Draft",
             "Pending",
-            "Submitted",
+            "Open",
             "Return",
             "Debit Note Issued",
             "Paid",
@@ -103075,7 +103075,7 @@ export default {
           enum: [
             "Draft",
             "Pending",
-            "Submitted",
+            "Open",
             "Return",
             "Debit Note Issued",
             "Paid",

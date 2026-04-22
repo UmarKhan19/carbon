@@ -420,7 +420,7 @@ export const BillSchema = z.object({
   status: z.enum([
     "Draft",
     "Pending",
-    "Submitted",
+    "Open",
     "Return",
     "Debit Note Issued",
     "Paid",

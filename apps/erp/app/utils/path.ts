@@ -1271,6 +1271,8 @@ export const path = {
     purchaseInvoiceRoot: `${x}/purchase-invoice`,
     purchaseInvoiceStatus: (id: string) =>
       generatePath(`${x}/purchase-invoice/${id}/status`),
+    purchaseInvoiceVoid: (id: string) =>
+      generatePath(`${x}/purchase-invoice/${id}/void`),
     purchaseInvoices: `${x}/purchasing/invoices`,
     purchaseOrder: (id: string) => generatePath(`${x}/purchase-order/${id}`),
     purchaseOrderDelivery: (id: string) =>
@@ -1369,6 +1371,7 @@ export const path = {
     receipts: `${x}/inventory/receipts`,
     receiptPost: (id: string) => generatePath(`${x}/receipt/${id}/post`),
     receiptRoot: `${x}/receipt`,
+    receiptVoid: (id: string) => generatePath(`${x}/receipt/${id}/void`),
     refreshSession: "/refresh-session",
     requiredAction: (id: string) =>
       generatePath(`${x}/quality/required-actions/${id}`),

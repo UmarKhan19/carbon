@@ -19,6 +19,7 @@ const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
 
 const payloadValidator = z.object({
+  type: z.enum(["post", "void"]).default("post"),
   receiptId: z.string(),
   userId: z.string(),
   companyId: z.string(),
@@ -33,10 +34,12 @@ serve(async (req: Request) => {
   const today = format(new Date(), "yyyy-MM-dd");
 
   try {
-    const { receiptId, userId, companyId } = payloadValidator.parse(payload);
+    const { type, receiptId, userId, companyId } =
+      payloadValidator.parse(payload);
 
     console.log({
       function: "post-receipt",
+      type,
       receiptId,
       userId,
       companyId,
@@ -82,6 +85,319 @@ serve(async (req: Request) => {
     }
     if (itemCosts.error) {
       throw new Error("Failed to fetch item costs");
+    }
+
+    if (type === "void") {
+      if (receipt.data?.status !== "Posted") {
+        throw new Error("Can only void posted receipts");
+      }
+
+      if (receipt.data.invoiced) {
+        throw new Error(
+          "Cannot void a receipt created by a purchase invoice. Void the invoice instead."
+        );
+      }
+
+      if (receipt.data.sourceDocument !== "Purchase Order") {
+        throw new Error(
+          `Void is only supported for receipts with source document "Purchase Order"`
+        );
+      }
+
+      if (!receipt.data.sourceDocumentId) {
+        throw new Error("Receipt has no sourceDocumentId");
+      }
+
+      const [originalItemLedger, originalJournalLines, purchaseOrderLinesVoid] =
+        await Promise.all([
+          client
+            .from("itemLedger")
+            .select("*")
+            .eq("documentId", receiptId)
+            .eq("documentType", "Purchase Receipt")
+            .eq("companyId", companyId),
+          client
+            .from("journalLine")
+            .select("*")
+            .eq("documentId", receiptId)
+            .eq("documentType", "Receipt")
+            .eq("companyId", companyId),
+          client
+            .from("purchaseOrderLine")
+            .select("*")
+            .eq("purchaseOrderId", receipt.data.sourceDocumentId),
+        ]);
+
+      if (originalItemLedger.error)
+        throw new Error("Failed to fetch item ledger entries");
+      if (originalJournalLines.error)
+        throw new Error("Failed to fetch journal lines");
+      if (purchaseOrderLinesVoid.error)
+        throw new Error("Failed to fetch purchase order lines");
+
+      const reversingItemLedger: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
+        originalItemLedger.data.map((entry) => ({
+          postingDate: today,
+          itemId: entry.itemId,
+          quantity: -entry.quantity,
+          locationId: entry.locationId,
+          storageUnitId: entry.storageUnitId,
+          trackedEntityId: entry.trackedEntityId,
+          entryType:
+            entry.entryType === "Positive Adjmt."
+              ? "Negative Adjmt."
+              : entry.entryType === "Negative Adjmt."
+              ? "Positive Adjmt."
+              : entry.entryType,
+          documentType: entry.documentType,
+          documentId: entry.documentId,
+          externalDocumentId: entry.externalDocumentId,
+          createdBy: userId,
+          companyId,
+        }));
+
+      const reversingJournalLines: Omit<
+        Database["public"]["Tables"]["journalLine"]["Insert"],
+        "journalId"
+      >[] = originalJournalLines.data.map((entry) => ({
+        accountNumber: entry.accountNumber!,
+        accrual: entry.accrual,
+        description: `VOID: ${entry.description}`,
+        amount: -entry.amount,
+        quantity: -entry.quantity,
+        documentType: entry.documentType,
+        documentId: entry.documentId,
+        externalDocumentId: entry.externalDocumentId,
+        documentLineReference: entry.documentLineReference,
+        journalLineReference: entry.journalLineReference,
+        companyId,
+      }));
+
+      const receiptLinesByPurchaseOrderLineId = receiptLines.data.reduce<
+        Record<string, Database["public"]["Tables"]["receiptLine"]["Row"][]>
+      >((acc, receiptLine) => {
+        if (receiptLine.lineId) {
+          acc[receiptLine.lineId] = [
+            ...(acc[receiptLine.lineId] ?? []),
+            receiptLine,
+          ];
+        }
+        return acc;
+      }, {});
+
+      const purchaseOrderLineUpdatesVoid = purchaseOrderLinesVoid.data.reduce<
+        Record<
+          string,
+          Database["public"]["Tables"]["purchaseOrderLine"]["Update"]
+        >
+      >((acc, purchaseOrderLine) => {
+        const receiptLinesForPoLine =
+          receiptLinesByPurchaseOrderLineId[purchaseOrderLine.id];
+        if (
+          receiptLinesForPoLine &&
+          receiptLinesForPoLine.length > 0 &&
+          purchaseOrderLine.purchaseQuantity &&
+          purchaseOrderLine.purchaseQuantity > 0
+        ) {
+          const receivedQuantityInPurchaseUnit =
+            receiptLinesForPoLine.reduce((sum, receiptLine) => {
+              const safe =
+                isNaN(receiptLine.receivedQuantity) ||
+                receiptLine.receivedQuantity == null
+                  ? 0
+                  : receiptLine.receivedQuantity;
+              return sum + safe;
+            }, 0) / (receiptLinesForPoLine[0].conversionFactor ?? 1);
+
+          const newQuantityReceived = Math.max(
+            0,
+            (purchaseOrderLine.quantityReceived ?? 0) -
+              receivedQuantityInPurchaseUnit
+          );
+
+          const receivedComplete =
+            newQuantityReceived >= purchaseOrderLine.purchaseQuantity;
+
+          acc[purchaseOrderLine.id] = {
+            quantityReceived: newQuantityReceived,
+            receivedComplete,
+          };
+        }
+        return acc;
+      }, {});
+
+      const projectedPurchaseOrderLines = purchaseOrderLinesVoid.data.map(
+        (line) => {
+          const update = purchaseOrderLineUpdatesVoid[line.id];
+          if (update && update.quantityReceived !== undefined) {
+            return {
+              ...line,
+              quantityReceived: update.quantityReceived,
+            };
+          }
+          return line;
+        }
+      );
+
+      const areAllLinesInvoicedProjected = projectedPurchaseOrderLines.every(
+        (line) => {
+          if (line.purchaseOrderLineType === "Comment") return true;
+          const target = line.purchaseQuantity ?? 0;
+          if (target <= 0) return true;
+          return (line.quantityInvoiced ?? 0) >= target;
+        }
+      );
+
+      const areAllLinesReceivedProjected = projectedPurchaseOrderLines.every(
+        (line) => {
+          if (line.purchaseOrderLineType === "Comment") return true;
+          const target = line.purchaseQuantity ?? 0;
+          if (target <= 0) return true;
+          return (line.quantityReceived ?? 0) >= target;
+        }
+      );
+
+      let purchaseOrderStatusVoid: Database["public"]["Tables"]["purchaseOrder"]["Row"]["status"] =
+        "To Receive and Invoice";
+      if (areAllLinesInvoicedProjected && areAllLinesReceivedProjected) {
+        purchaseOrderStatusVoid = "Completed";
+      } else if (areAllLinesInvoicedProjected) {
+        purchaseOrderStatusVoid = "To Receive";
+      } else if (areAllLinesReceivedProjected) {
+        purchaseOrderStatusVoid = "To Invoice";
+      }
+
+      const trackedEntityUpdatesVoid =
+        receiptLineTracking.data?.reduce<
+          Record<
+            string,
+            Database["public"]["Tables"]["trackedEntity"]["Update"]
+          >
+        >((acc, trackedEntity) => {
+          acc[trackedEntity.id] = {
+            status: "Available",
+            quantity: trackedEntity.quantity,
+          };
+          return acc;
+        }, {}) ?? {};
+
+      const accountingPeriodId = await getCurrentAccountingPeriod(
+        client,
+        companyId,
+        db
+      );
+
+      await db.transaction().execute(async (trx) => {
+        for await (const [purchaseOrderLineId, update] of Object.entries(
+          purchaseOrderLineUpdatesVoid
+        )) {
+          await trx
+            .updateTable("purchaseOrderLine")
+            .set(update)
+            .where("id", "=", purchaseOrderLineId)
+            .execute();
+        }
+
+        await trx
+          .updateTable("purchaseOrder")
+          .set({ status: purchaseOrderStatusVoid })
+          .where("id", "=", receipt.data.sourceDocumentId!)
+          .execute();
+
+        if (reversingJournalLines.length > 0) {
+          const journal = await trx
+            .insertInto("journal")
+            .values({
+              accountingPeriodId,
+              description: `VOID Purchase Receipt ${receipt.data.receiptId}`,
+              postingDate: today,
+              companyId,
+            })
+            .returning(["id"])
+            .execute();
+
+          const journalId = journal[0].id;
+          if (!journalId) throw new Error("Failed to insert journal");
+
+          await trx
+            .insertInto("journalLine")
+            .values(
+              reversingJournalLines.map((journalLine) => ({
+                ...journalLine,
+                journalId,
+              }))
+            )
+            .execute();
+        }
+
+        if (reversingItemLedger.length > 0) {
+          await trx
+            .insertInto("itemLedger")
+            .values(reversingItemLedger)
+            .execute();
+        }
+
+        if (Object.keys(trackedEntityUpdatesVoid).length > 0) {
+          const voidActivity = await trx
+            .insertInto("trackedActivity")
+            .values({
+              type: "Void Receipt",
+              sourceDocument: "Receipt",
+              sourceDocumentId: receiptId,
+              sourceDocumentReadableId: receipt.data.receiptId,
+              attributes: {
+                "Purchase Order": receipt.data.sourceDocumentId,
+                Receipt: receiptId,
+                Employee: userId,
+              },
+              companyId,
+              createdBy: userId,
+              createdAt: today,
+            })
+            .returning(["id"])
+            .execute();
+
+          const voidActivityId = voidActivity[0].id;
+
+          for await (const [id, update] of Object.entries(
+            trackedEntityUpdatesVoid
+          )) {
+            await trx
+              .updateTable("trackedEntity")
+              .set(update)
+              .where("id", "=", id)
+              .execute();
+
+            if (voidActivityId) {
+              await trx
+                .insertInto("trackedActivityInput")
+                .values({
+                  trackedActivityId: voidActivityId,
+                  trackedEntityId: id,
+                  quantity: update.quantity ?? 0,
+                  companyId,
+                  createdBy: userId,
+                  createdAt: today,
+                })
+                .execute();
+            }
+          }
+        }
+
+        await trx
+          .updateTable("receipt")
+          .set({
+            status: "Voided",
+            updatedAt: today,
+            updatedBy: userId,
+          })
+          .where("id", "=", receiptId)
+          .execute();
+      });
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     switch (receipt.data?.sourceDocument) {
@@ -1204,7 +1520,7 @@ serve(async (req: Request) => {
     );
   } catch (err) {
     console.error(err);
-    if ("receiptId" in payload) {
+    if (payload.type !== "void" && "receiptId" in payload) {
       const client = await getSupabaseServiceRole(
         req.headers.get("Authorization"),
         req.headers.get("carbon-key") ?? "",

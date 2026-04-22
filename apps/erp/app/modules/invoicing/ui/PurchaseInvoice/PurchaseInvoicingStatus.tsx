@@ -17,8 +17,9 @@ const PurchaseInvoicingStatus = ({ status }: PurchaseInvoicingStatusProps) => {
       return <Status color="orange">{status}</Status>;
     case "Overdue":
       return <Status color="red">{status}</Status>;
-    case "Debit Note Issued":
     case "Voided":
+      return <Status color="red">{status}</Status>;
+    case "Debit Note Issued":
     case "Paid":
       return <Status color="green">{status}</Status>;
     default:

@@ -28,6 +28,7 @@ import {
   LuPanelLeft,
   LuPanelRight,
   LuShoppingCart,
+  LuTicketX,
   LuTrash
 } from "react-icons/lu";
 import { Link, useFetcher, useParams } from "react-router";
@@ -43,6 +44,7 @@ import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
 import { isPurchaseInvoiceLocked } from "../../invoicing.models";
 import PurchaseInvoicePostModal from "./PurchaseInvoicePostModal";
+import PurchaseInvoiceVoidModal from "./PurchaseInvoiceVoidModal";
 
 const PurchaseInvoiceHeader = () => {
   const { t } = useLingui();
@@ -51,6 +53,7 @@ const PurchaseInvoiceHeader = () => {
   const { invoiceId } = useParams();
   const { company } = useUser();
   const postingModal = useDisclosure();
+  const voidModal = useDisclosure();
   const deleteModal = useDisclosure();
   const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
     entityType: "purchaseInvoice",
@@ -97,6 +100,11 @@ const PurchaseInvoiceHeader = () => {
   const { purchaseInvoice } = routeData;
   const { toggleExplorer, toggleProperties } = usePanels();
   const isPosted = purchaseInvoice.postingDate !== null;
+  const isVoided = purchaseInvoice.status === "Voided";
+  const hasPayment =
+    purchaseInvoice.status === "Paid" ||
+    purchaseInvoice.status === "Partially Paid";
+  const canVoid = isPosted && !isVoided && !hasPayment;
 
   const [relatedDocs, setRelatedDocs] = useState<{
     purchaseOrders: { id: string; readableId: string }[];
@@ -305,6 +313,17 @@ const PurchaseInvoiceHeader = () => {
               <Trans>Post</Trans>
             </Button>
 
+            {isPosted && (
+              <Button
+                leftIcon={<LuTicketX />}
+                variant="destructive"
+                onClick={voidModal.onOpen}
+                isDisabled={!canVoid || !permissions.can("update", "invoicing")}
+              >
+                <Trans>Void</Trans>
+              </Button>
+            )}
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -312,6 +331,7 @@ const PurchaseInvoiceHeader = () => {
                   isDisabled={
                     purchaseInvoice.status === "Draft" ||
                     purchaseInvoice.status === "Pending" ||
+                    isVoided ||
                     !permissions.can("update", "invoicing")
                   }
                   leftIcon={<LuHandCoins />}
@@ -365,6 +385,9 @@ const PurchaseInvoiceHeader = () => {
           onClose={postingModal.onClose}
           linesToReceive={linesNotAssociatedWithPO}
         />
+      )}
+      {voidModal.isOpen && (
+        <PurchaseInvoiceVoidModal onClose={voidModal.onClose} />
       )}
       {deleteModal.isOpen && (
         <ConfirmDelete
