@@ -149,6 +149,7 @@ export default function IssueDetailsRoute() {
           {(resolvedAssociations) => (
             <AssociatedItemsList
               associatedItems={resolvedAssociations?.items ?? []}
+              isDisabled={isIssueLocked(nonConformance?.status)}
             />
           )}
         </Await>

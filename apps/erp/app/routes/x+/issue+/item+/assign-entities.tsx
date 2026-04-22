@@ -6,8 +6,10 @@ import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
   assignEntitiesToIssueItem,
-  assignIssueItemEntitiesValidator
+  assignIssueItemEntitiesValidator,
+  isIssueLocked
 } from "~/modules/quality";
+import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -23,6 +25,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { nonConformanceItemId, targetItemId, entityAssignments } =
     validation.data;
+
+  const parent = await client
+    .from("nonConformanceItem")
+    .select("nonConformance(status)")
+    .eq("id", nonConformanceItemId)
+    .eq("companyId", companyId)
+    .single();
+  const lockedError = requireUnlockedBulk({
+    statuses: [(parent.data as any)?.nonConformance?.status ?? null],
+    checkFn: isIssueLocked,
+    message: "Cannot modify a closed issue. Reopen it first."
+  });
+  if (lockedError) return lockedError;
 
   const result = await assignEntitiesToIssueItem(client, {
     nonConformanceItemId,

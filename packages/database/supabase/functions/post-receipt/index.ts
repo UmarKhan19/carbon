@@ -13,6 +13,7 @@ import {
   TrackedEntityAttributes,
 } from "../lib/utils.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
+import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
 import {
   resolveSamplingPlan,
@@ -1034,6 +1035,13 @@ serve(async (req: Request) => {
           }
 
           if (inboundInspectionInserts.length > 0) {
+            for (const row of inboundInspectionInserts) {
+              row.inboundInspectionId = await getNextSequence(
+                trx,
+                "inboundInspection",
+                companyId
+              );
+            }
             await trx
               .insertInto("inboundInspection")
               .values(inboundInspectionInserts)

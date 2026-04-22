@@ -6,6 +6,10 @@ import {
   BarProgress,
   Button,
   HStack,
+  Label,
+  Modal,
+  ModalBody,
+  ModalContent,
   ModalDrawer,
   ModalDrawerBody,
   ModalDrawerContent,
@@ -13,10 +17,19 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   LuCircleCheck,
   LuCircleX,
@@ -24,9 +37,9 @@ import {
   LuShieldAlert,
   LuTriangleAlert
 } from "react-icons/lu";
-import { useNavigate } from "react-router";
+import { useFetcher, useNavigate } from "react-router";
 import { EmployeeAvatar } from "~/components";
-import { Confirm, ConfirmDelete } from "~/components/Modals";
+import { Confirm } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
 import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
@@ -75,6 +88,7 @@ export type InboundInspectionLotViewProps = {
   supplierName: string | null;
   samples: LotSample[];
   lotEntities: LotTrackedEntity[];
+  issueTypes: { id: string; name: string }[];
   currentUserId: string;
   enforceFourEyes: boolean;
   open?: boolean;
@@ -93,6 +107,7 @@ export default function InboundInspectionLotView({
   supplierName,
   samples,
   lotEntities,
+  issueTypes,
   currentUserId,
   enforceFourEyes,
   open = true
@@ -402,16 +417,126 @@ export default function InboundInspectionLotView({
       )}
 
       {rejectConfirmOpen && (
-        <ConfirmDelete
+        <RejectLotModal
           action={rejectUrl}
-          name={t`Lot`}
-          text={t`Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All ${lotEntities.length} entities — ${passes} sampled pass(es), ${fails} failure(s), and ${Math.max(0, lotEntities.length - inspected)} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition.`}
-          deleteText={t`Reject Lot`}
+          issueTypes={issueTypes}
+          summary={t`Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All ${lotEntities.length} entities — ${passes} sampled pass(es), ${fails} failure(s), and ${Math.max(0, lotEntities.length - inspected)} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition.`}
           onCancel={() => setRejectConfirmOpen(false)}
           onSubmit={() => setRejectConfirmOpen(false)}
         />
       )}
     </ModalDrawerProvider>
+  );
+}
+
+function RejectLotModal({
+  action,
+  issueTypes,
+  summary,
+  onCancel,
+  onSubmit
+}: {
+  action: string;
+  issueTypes: { id: string; name: string }[];
+  summary: string;
+  onCancel: () => void;
+  onSubmit: () => void;
+}) {
+  const { t } = useLingui();
+  const fetcher = useFetcher<{}>();
+  const submitted = useRef(false);
+  const [issueTypeId, setIssueTypeId] = useState<string>(
+    issueTypes[0]?.id ?? ""
+  );
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && submitted.current) {
+      onSubmit();
+      submitted.current = false;
+    }
+  }, [fetcher.state, onSubmit]);
+
+  const hasIssueTypes = issueTypes.length > 0;
+
+  return (
+    <Modal
+      open
+      onOpenChange={(open) => {
+        if (!open) onCancel();
+      }}
+    >
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>
+          <ModalTitle>
+            <Trans>Reject Lot</Trans>
+          </ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+          <VStack spacing={4}>
+            <p className="text-sm text-muted-foreground">{summary}</p>
+            {hasIssueTypes ? (
+              <div className="flex flex-col gap-2 w-full">
+                <Label htmlFor="nonConformanceTypeId">
+                  <Trans>Issue Type</Trans>
+                </Label>
+                <Select value={issueTypeId} onValueChange={setIssueTypeId}>
+                  <SelectTrigger id="nonConformanceTypeId">
+                    <SelectValue placeholder={t`Select an issue type`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {issueTypes.map((type) => (
+                      <SelectItem key={type.id} value={type.id}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <Alert variant="warning">
+                <LuTriangleAlert className="size-4" />
+                <AlertTitle>
+                  <Trans>No issue types configured</Trans>
+                </AlertTitle>
+                <AlertDescription>
+                  <Trans>
+                    The lot will still be rejected, but an NCR cannot be
+                    auto-created until at least one Issue Type is configured.
+                  </Trans>
+                </AlertDescription>
+              </Alert>
+            )}
+          </VStack>
+        </ModalBody>
+        <ModalFooter>
+          <Button variant="secondary" onClick={onCancel}>
+            <Trans>Cancel</Trans>
+          </Button>
+          <fetcher.Form
+            method="post"
+            action={action}
+            onSubmit={() => (submitted.current = true)}
+          >
+            <input
+              type="hidden"
+              name="nonConformanceTypeId"
+              value={issueTypeId}
+            />
+            <Button
+              variant="destructive"
+              type="submit"
+              isLoading={fetcher.state !== "idle"}
+              isDisabled={
+                fetcher.state !== "idle" || (hasIssueTypes && !issueTypeId)
+              }
+            >
+              <Trans>Reject Lot</Trans>
+            </Button>
+          </fetcher.Form>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

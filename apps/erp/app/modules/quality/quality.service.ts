@@ -526,6 +526,7 @@ export async function getIssueAssociations(
         trackedEntityId,
         trackedEntity(
           id,
+          readableId,
           status,
           quantity,
           attributes
@@ -693,6 +694,7 @@ export async function getIssueAssociations(
         inboundInspectionId,
         inboundInspection:inboundInspection (
           id,
+          inboundInspectionId,
           itemReadableId,
           lotSize,
           status,
@@ -715,7 +717,8 @@ export async function getIssueAssociations(
         documentLineId: "",
         disposition: item.disposition,
         quantity: item.quantity,
-        createdAt: item.createdAt
+        createdAt: item.createdAt,
+        links: item.links ?? []
       })) || [],
     jobOperations: [
       // Manually-associated job operations
@@ -802,10 +805,7 @@ export async function getIssueAssociations(
         type: "inboundInspections",
         documentId: link.inboundInspectionId ?? "",
         documentLineId: "",
-        documentReadableId:
-          link.inboundInspection?.itemReadableId ??
-          link.inboundInspectionId ??
-          "",
+        documentReadableId: link.inboundInspection?.inboundInspectionId ?? "",
         quantity: link.inboundInspection?.lotSize ?? 0,
         status: link.inboundInspection?.status ?? null
       })
@@ -2295,14 +2295,13 @@ export async function validateIssueForClosure(
   const errors: IssueClosureBlocker[] = [];
   const plan = planResult.data;
 
-  if (plan.length === 0) {
-    errors.push({
-      nonConformanceItemId: "",
-      reason: "No disposition rows to close"
-    });
-  }
-
   for (const row of plan) {
+    const links = row.links ?? [];
+    // Disposition only routes physical tracked entities — closeIssue's ledger
+    // and status side effects iterate over links, so a link-less row is a
+    // no-op regardless of disposition.
+    if (links.length === 0) continue;
+
     if (!row.disposition || row.disposition === "Pending") {
       errors.push({
         nonConformanceItemId: row.id,
@@ -2311,7 +2310,6 @@ export async function validateIssueForClosure(
       continue;
     }
 
-    const links = row.links ?? [];
     const sum = links.reduce(
       (acc, link) => acc + Number(link.quantity ?? 0),
       0
@@ -2486,6 +2484,47 @@ export async function closeIssue(
 
   for (const row of validation.plan) {
     const links = row.links ?? [];
+    if (links.length === 0) continue;
+
+    // Log the disposition decision against each tracked entity so the
+    // traceability timeline shows what the MRB did. One activity per
+    // disposition row (each row carries a single disposition value); each
+    // affected entity is recorded as an input.
+    const activityResult = await (client as any)
+      .from("trackedActivity")
+      .insert({
+        type: "Disposition",
+        sourceDocument: "Non-Conformance",
+        sourceDocumentId: nonConformanceId,
+        sourceDocumentReadableId: readableNc,
+        attributes: {
+          "Non-Conformance": nonConformanceId,
+          Disposition: row.disposition,
+          Employee: userId
+        },
+        companyId,
+        createdBy: userId
+      })
+      .select("id")
+      .single();
+    if (activityResult.error || !activityResult.data) return activityResult;
+    const activityId = activityResult.data.id as string;
+
+    const inputRows = links
+      .filter((link) => link.trackedEntity)
+      .map((link) => ({
+        trackedActivityId: activityId,
+        trackedEntityId: link.trackedEntityId,
+        quantity: Number(link.quantity ?? 0),
+        companyId,
+        createdBy: userId
+      }));
+    if (inputRows.length > 0) {
+      const inputInsert = await (client as any)
+        .from("trackedActivityInput")
+        .insert(inputRows);
+      if (inputInsert.error) return inputInsert;
+    }
 
     if (row.disposition === "Use As Is" || row.disposition === "Rework") {
       for (const link of links) {

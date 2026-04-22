@@ -29,6 +29,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id } = params;
   invariant(id, "id is required");
 
+  const formData = await request.formData();
+  const selectedIssueTypeId =
+    (formData.get("nonConformanceTypeId") as string | null)?.trim() || null;
+
   // 1. Cascade reject — mark every tracked entity in the lot as Rejected
   //    and flip the lot's status to Failed (ISO 9001:2015 §8.7).
   const dispositionResult = await dispositionInboundInspection(client, {
@@ -68,7 +72,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
   const insp = inspection.data as any;
 
-  const issueType = issueTypes.data?.[0];
+  const issueType =
+    issueTypes.data?.find((t) => t.id === selectedIssueTypeId) ??
+    issueTypes.data?.[0];
   const locationId = userDefaults.data?.locationId ?? null;
 
   if (!issueType || !locationId) {
@@ -103,11 +109,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const receiptReadableId = insp.receipt?.receiptId ?? "";
   const itemReadableId =
     insp.item?.readableId ?? insp.itemReadableId ?? insp.itemId;
+  const inspectionReadableId = insp.inboundInspectionId ?? "";
+
+  const issueTitle = [
+    "Rejected lot",
+    inspectionReadableId,
+    itemReadableId && `— ${itemReadableId}`,
+    receiptReadableId && `on ${receiptReadableId}`
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const createIssue = await upsertIssue(serviceRole, {
     nonConformanceId: nextSequence.data,
-    name: `Rejected lot ${itemReadableId} on ${receiptReadableId}`.trim(),
-    description: `Auto-created from inbound inspection. Lot size ${insp.lotSize}, sample ${insp.sampleSize}, Ac ${insp.acceptanceNumber} / Re ${insp.rejectionNumber}. Supplier: ${supplierName}.`,
+    name: issueTitle,
+    description: `Auto-created from inbound inspection ${inspectionReadableId}. Lot size ${insp.lotSize}, sample ${insp.sampleSize}, Ac ${insp.acceptanceNumber} / Re ${insp.rejectionNumber}. Supplier: ${supplierName}.`,
     priority: "Medium",
     source: "Internal",
     locationId,
@@ -263,8 +279,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
       issue: {
         id: ncrId,
         nonConformanceId: nextSequence.data,
-        title: `Rejected lot ${itemReadableId} on ${receiptReadableId}`.trim(),
-        description: `Auto-created from inbound inspection ${id}`,
+        title: issueTitle,
+        description: `Auto-created from inbound inspection ${inspectionReadableId || id}`,
         severity: "Medium"
       }
     });

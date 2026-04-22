@@ -468,6 +468,8 @@ export function TraceabilitySidebar({
                 return <CustomerAttribute key={key} value={value} />;
               case "Employee":
                 return <EmployeeAttribute key={key} value={value} />;
+              case "Inspector":
+                return <InspectorAttribute key={key} value={value} />;
               case "Job":
                 return <JobAttribute key={key} jobId={value} />;
               case "Job Material":
@@ -555,6 +557,15 @@ function EmployeeAttribute({ value }: { value: string }) {
   return (
     <VStack spacing={1}>
       <span className="text-xs text-muted-foreground">Employee</span>
+      <EmployeeAvatar employeeId={value} />
+    </VStack>
+  );
+}
+
+function InspectorAttribute({ value }: { value: string }) {
+  return (
+    <VStack spacing={1}>
+      <span className="text-xs text-muted-foreground">Inspector</span>
       <EmployeeAvatar employeeId={value} />
     </VStack>
   );

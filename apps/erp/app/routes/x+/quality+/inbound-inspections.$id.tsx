@@ -6,7 +6,8 @@ import { data, redirect, useLoaderData } from "react-router";
 import invariant from "tiny-invariant";
 import {
   getInboundInspection,
-  getInboundInspectionLotTrackedEntities
+  getInboundInspectionLotTrackedEntities,
+  getIssueTypesList
 } from "~/modules/quality";
 import InboundInspectionLotView from "~/modules/quality/ui/InboundInspections/InboundInspectionLotView";
 import { getCompanySettings } from "~/modules/settings";
@@ -20,9 +21,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   invariant(id, "id is required");
 
-  const [inspection, settings] = await Promise.all([
+  const [inspection, settings, issueTypes] = await Promise.all([
     getInboundInspection(client, id),
-    getCompanySettings(client, companyId)
+    getCompanySettings(client, companyId),
+    getIssueTypesList(client, companyId)
   ]);
 
   if (inspection.error || !inspection.data) {
@@ -45,6 +47,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return data({
     inspection: inspection.data,
     lotEntities: lotEntities.data ?? [],
+    issueTypes: issueTypes.data ?? [],
     enforceFourEyes:
       ((settings.data as any)?.enforceInspectionFourEyes as boolean) ?? false,
     currentUserId: userId
@@ -52,8 +55,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function InboundInspectionRoute() {
-  const { inspection, lotEntities, enforceFourEyes, currentUserId } =
-    useLoaderData<typeof loader>();
+  const {
+    inspection,
+    lotEntities,
+    issueTypes,
+    enforceFourEyes,
+    currentUserId
+  } = useLoaderData<typeof loader>();
 
   const insp = inspection as any;
   const receiptReadableId = insp.receipt?.receiptId ?? null;
@@ -88,6 +96,7 @@ export default function InboundInspectionRoute() {
       supplierName={supplierName}
       samples={samples}
       lotEntities={lotEntities as any[]}
+      issueTypes={issueTypes as { id: string; name: string }[]}
       currentUserId={currentUserId}
       enforceFourEyes={enforceFourEyes}
     />

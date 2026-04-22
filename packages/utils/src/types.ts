@@ -55,6 +55,7 @@ export interface TrackedActivityAttributes {
   "Receipt Line"?: string;
   "Remaining Quantity"?: number;
   Employee?: string;
+  Inspector?: string;
   Job?: string;
   Receipt?: string;
   "Work Center"?: string;

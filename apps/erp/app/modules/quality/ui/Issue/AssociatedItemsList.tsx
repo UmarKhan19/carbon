@@ -59,6 +59,7 @@ import { DispositionStatus } from "./DispositionStatus";
 
 type AssociatedItemsListProps = {
   associatedItems: IssueAssociationNode["children"];
+  isDisabled?: boolean;
 };
 
 type EntityLink = {
@@ -67,19 +68,25 @@ type EntityLink = {
   trackedEntityId: string;
   trackedEntity: {
     id: string;
+    readableId: string | null;
     status: string;
     quantity: number;
     attributes: Record<string, string> | null;
   } | null;
 };
 
-function getEntityLabel(link: EntityLink): string {
-  const attrs = link.trackedEntity?.attributes ?? {};
-  const name =
-    (attrs["Serial Number"] as string | undefined) ??
-    (attrs["Batch Number"] as string | undefined);
-  if (name) return name;
-  return link.trackedEntityId.slice(-8);
+function EntityLabel({ link }: { link: EntityLink }) {
+  const readableId = link.trackedEntity?.readableId;
+  const idSlice = link.trackedEntityId.slice(-8);
+  if (readableId) {
+    return (
+      <span className="font-mono truncate">
+        {readableId}
+        <span className="text-muted-foreground"> / {idSlice}</span>
+      </span>
+    );
+  }
+  return <span className="font-mono truncate">{idSlice}</span>;
 }
 
 type SplitTarget = {
@@ -97,7 +104,8 @@ type MoveTarget = {
 };
 
 export function AssociatedItemsList({
-  associatedItems
+  associatedItems,
+  isDisabled = false
 }: AssociatedItemsListProps) {
   const [items] = useItems();
   const { t } = useLingui();
@@ -107,6 +115,7 @@ export function AssociatedItemsList({
   const assignFetcher = useFetcher<typeof assignAction>();
   const [splitTarget, setSplitTarget] = useState<SplitTarget | null>(null);
   const [moveTarget, setMoveTarget] = useState<MoveTarget | null>(null);
+  const [dragOverRowId, setDragOverRowId] = useState<string | null>(null);
 
   useEffect(() => {
     if (fetcher.data?.error) {
@@ -173,6 +182,25 @@ export function AssociatedItemsList({
     [fetcher]
   );
 
+  const onMoveEntity = useCallback(
+    (
+      sourceRowId: string,
+      targetRowId: string,
+      assignment: { trackedEntityId: string; quantity: number }
+    ) => {
+      const formData = new FormData();
+      formData.append("nonConformanceItemId", sourceRowId);
+      formData.append("targetItemId", targetRowId);
+      formData.append("entityAssignments", JSON.stringify([assignment]));
+
+      assignFetcher.submit(formData, {
+        method: "post",
+        action: path.to.assignIssueItemEntities
+      });
+    },
+    [assignFetcher]
+  );
+
   const rows = useMemo(() => {
     if (!associatedItems) return [];
     return associatedItems.map((child) => {
@@ -201,21 +229,26 @@ export function AssociatedItemsList({
     return null;
   }
 
-  const totalQuantity = rows.reduce((acc, r) => acc + r.quantity, 0);
-  const canUpdate = permissions.can("update", "quality");
-  const blockingRows = rows.filter((r) => r.pending || r.sumMismatch);
+  // Disposition only applies to rows that route physical tracked entities.
+  // Hide the entire card when nothing here is dispositionable (e.g. an NCR
+  // from a non-tracked job-operation part), matching the closure validator's
+  // skip-on-no-links rule.
+  const dispositionableRows = rows.filter((r) => r.links.length > 0);
+  if (dispositionableRows.length === 0) {
+    return null;
+  }
+
+  const canEdit = permissions.can("update", "quality") && !isDisabled;
+  const blockingRows = dispositionableRows.filter(
+    (r) => r.pending || r.sumMismatch
+  );
 
   return (
     <Card>
       <CardHeader>
-        <HStack className="w-full justify-between">
-          <CardTitle>
-            {associatedItems.length > 1 ? t`Dispositions` : t`Disposition`}
-          </CardTitle>
-          <span className="text-sm text-muted-foreground tabular-nums">
-            <Trans>Total</Trans>: {totalQuantity}
-          </span>
-        </HStack>
+        <CardTitle>
+          {dispositionableRows.length > 1 ? t`Dispositions` : t`Disposition`}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {blockingRows.length > 0 && (
@@ -233,47 +266,96 @@ export function AssociatedItemsList({
             </AlertDescription>
           </Alert>
         )}
-        <ul className="flex flex-col gap-3">
-          {rows.map((r) => {
+        <ul role="list" className="flex flex-col divide-y divide-border">
+          {dispositionableRows.map((r) => {
             const item = items.find((i) => i.id === r.child.documentId);
             if (!item) return null;
 
-            const siblings = rows
+            const sameItemSiblings = dispositionableRows.filter(
+              (s) =>
+                s.child.id !== r.child.id &&
+                s.child.documentId === r.child.documentId
+            );
+            const siblings = dispositionableRows
               .filter((s) => s.child.id !== r.child.id)
               .map((s) => ({
                 id: s.child.id as string,
                 disposition: (s.disposition ?? "Pending") as string,
                 itemReadableId: item.readableIdWithRevision
               }));
+            const isDropTarget =
+              canEdit &&
+              sameItemSiblings.length > 0 &&
+              dragOverRowId === r.child.id;
 
             return (
               <li
                 key={r.child.id}
-                className="bg-muted/30 border border-border rounded-lg w-full px-6 py-4"
+                className={`py-4 first:pt-0 last:pb-0 transition-colors rounded-md ${
+                  isDropTarget ? "bg-accent/40 ring-2 ring-accent" : ""
+                }`}
                 data-blocked={r.pending || r.sumMismatch ? "true" : undefined}
+                onDragOver={(e) => {
+                  if (!canEdit) return;
+                  const marker =
+                    `application/x-issue-item:${item.id}`.toLowerCase();
+                  const matches = Array.from(e.dataTransfer.types).some(
+                    (t) => t.toLowerCase() === marker
+                  );
+                  if (!matches) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  setDragOverRowId(r.child.id);
+                }}
+                onDragLeave={(e) => {
+                  if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                  setDragOverRowId((id) => (id === r.child.id ? null : id));
+                }}
+                onDrop={(e) => {
+                  if (!canEdit) return;
+                  setDragOverRowId(null);
+                  const payload = e.dataTransfer.getData("application/json");
+                  if (!payload) return;
+                  try {
+                    const data = JSON.parse(payload) as {
+                      sourceRowId: string;
+                      itemId: string;
+                      trackedEntityId: string;
+                      quantity: number;
+                    };
+                    if (data.itemId !== item.id) return;
+                    if (data.sourceRowId === r.child.id) return;
+                    e.preventDefault();
+                    onMoveEntity(data.sourceRowId, r.child.id, {
+                      trackedEntityId: data.trackedEntityId,
+                      quantity: data.quantity
+                    });
+                  } catch {
+                    // ignore malformed drag payload
+                  }
+                }}
               >
                 <div className="flex items-center w-full gap-4">
                   <div className="flex flex-col min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold truncate">
-                        {item.readableIdWithRevision}
-                      </h3>
-                    </div>
-                    <span className="text-xs text-muted-foreground truncate">
+                    <h3 className="font-semibold truncate">
+                      {item.readableIdWithRevision}
+                    </h3>
+                    <p className="text-xs text-muted-foreground truncate">
                       {item.name}
-                    </span>
+                    </p>
                   </div>
                   <ValidatedForm
+                    key={`${r.child.id}-${r.quantity}`}
                     defaultValues={{
                       quantity: r.quantity
                     }}
                     validator={itemQuantityValidator}
-                    className="w-24 flex-shrink-0"
+                    className="w-24 shrink-0"
                   >
                     <NumberInput
                       label={t`Quantity`}
                       name="quantity"
-                      isReadOnly={!canUpdate}
+                      isReadOnly={!canEdit || r.links.length > 0}
                       minValue={0}
                       size="sm"
                       onBlur={(e) => {
@@ -290,14 +372,14 @@ export function AssociatedItemsList({
                     validator={z.object({
                       disposition: z.string()
                     })}
-                    className="w-[120px] flex-shrink-0 items-center"
+                    className="w-[120px] shrink-0 items-center"
                   >
                     <Select
                       options={disposition.map((d) => ({
                         value: d,
                         label: <DispositionStatus disposition={d} />
                       }))}
-                      isReadOnly={!canUpdate}
+                      isReadOnly={!canEdit}
                       label={t`Status`}
                       name="disposition"
                       inline={(value) => {
@@ -314,8 +396,8 @@ export function AssociatedItemsList({
                       }}
                     />
                   </ValidatedForm>
-                  <div className="w-10 flex-shrink-0 flex items-end justify-end">
-                    {canUpdate && r.links.length > 0 && (
+                  <div className="w-10 shrink-0 flex items-end justify-end">
+                    {canEdit && r.links.length > 0 && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <IconButton
@@ -363,23 +445,46 @@ export function AssociatedItemsList({
                 </div>
 
                 {r.links.length > 0 && (
-                  <ul className="mt-3 flex flex-col gap-1 pl-3 border-l border-border">
-                    {r.links.map((link) => (
-                      <li
-                        key={link.id}
-                        className="flex items-center gap-3 text-sm"
-                      >
-                        <span className="font-mono text-xs truncate flex-1">
-                          {getEntityLabel(link)}
-                        </span>
-                        <TrackedEntityStatus
-                          status={link.trackedEntity?.status as any}
-                        />
-                        <span className="tabular-nums text-muted-foreground w-12 text-right">
-                          {Number(link.quantity).toLocaleString()}
-                        </span>
-                      </li>
-                    ))}
+                  <ul
+                    role="list"
+                    className="mt-3 flex flex-wrap gap-1.5 pl-0.5"
+                  >
+                    {r.links.map((link) => {
+                      const draggable = canEdit && sameItemSiblings.length > 0;
+                      return (
+                        <li
+                          key={link.id}
+                          draggable={draggable}
+                          onDragStart={(e) => {
+                            if (!draggable) return;
+                            e.dataTransfer.effectAllowed = "move";
+                            e.dataTransfer.setData(
+                              "application/json",
+                              JSON.stringify({
+                                sourceRowId: r.child.id,
+                                itemId: item.id,
+                                trackedEntityId: link.trackedEntityId,
+                                quantity: Number(link.quantity)
+                              })
+                            );
+                            e.dataTransfer.setData(
+                              `application/x-issue-item:${item.id}`,
+                              "1"
+                            );
+                          }}
+                          className={`inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 py-1 pl-2.5 pr-1.5 text-xs ${
+                            draggable
+                              ? "cursor-grab active:cursor-grabbing hover:bg-muted/70"
+                              : ""
+                          }`}
+                        >
+                          <EntityLabel link={link} />
+                          <TrackedEntityStatus
+                            status={link.trackedEntity?.status as any}
+                          />
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
 
@@ -500,11 +605,14 @@ function SplitLineModal({
                   <label className="text-sm font-medium">
                     <Trans>Entities to split off</Trans>
                   </label>
-                  <ul className="flex flex-col gap-1 border border-border rounded-md p-2 max-h-64 overflow-y-auto">
+                  <ul
+                    role="list"
+                    className="flex flex-col divide-y divide-border border border-border rounded-md max-h-64 overflow-y-auto"
+                  >
                     {target.links.map((link) => (
                       <li
                         key={link.id}
-                        className="flex items-center gap-2 text-sm"
+                        className="flex items-center gap-2 text-sm px-3 py-2"
                       >
                         <Checkbox
                           checked={!!selected[link.trackedEntityId]}
@@ -515,15 +623,12 @@ function SplitLineModal({
                             }))
                           }
                         />
-                        <span className="font-mono text-xs truncate flex-1">
-                          {getEntityLabel(link)}
-                        </span>
+                        <div className="text-xs flex-1 min-w-0">
+                          <EntityLabel link={link} />
+                        </div>
                         <TrackedEntityStatus
                           status={link.trackedEntity?.status as any}
                         />
-                        <span className="tabular-nums text-muted-foreground w-12 text-right">
-                          {Number(link.quantity).toLocaleString()}
-                        </span>
                       </li>
                     ))}
                   </ul>
@@ -646,11 +751,14 @@ function MoveEntitiesModal({
                 <label className="text-sm font-medium">
                   <Trans>Entities to move</Trans>
                 </label>
-                <ul className="flex flex-col gap-1 border border-border rounded-md p-2 max-h-64 overflow-y-auto">
+                <ul
+                  role="list"
+                  className="flex flex-col divide-y divide-border border border-border rounded-md max-h-64 overflow-y-auto"
+                >
                   {target.links.map((link) => (
                     <li
                       key={link.id}
-                      className="flex items-center gap-2 text-sm"
+                      className="flex items-center gap-2 text-sm px-3 py-2"
                     >
                       <Checkbox
                         checked={!!selected[link.trackedEntityId]}
@@ -661,15 +769,12 @@ function MoveEntitiesModal({
                           }))
                         }
                       />
-                      <span className="font-mono text-xs truncate flex-1">
-                        {getEntityLabel(link)}
-                      </span>
+                      <div className="text-xs flex-1 min-w-0">
+                        <EntityLabel link={link} />
+                      </div>
                       <TrackedEntityStatus
                         status={link.trackedEntity?.status as any}
                       />
-                      <span className="tabular-nums text-muted-foreground w-12 text-right">
-                        {Number(link.quantity).toLocaleString()}
-                      </span>
                     </li>
                   ))}
                 </ul>

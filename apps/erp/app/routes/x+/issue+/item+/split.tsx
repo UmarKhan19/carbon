@@ -4,7 +4,8 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
-import { splitIssueItemValidator } from "~/modules/quality";
+import { isIssueLocked, splitIssueItemValidator } from "~/modules/quality";
+import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -22,7 +23,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const existing = await client
     .from("nonConformanceItem")
-    .select("*")
+    .select("*, nonConformance(status)")
     .eq("id", id)
     .eq("companyId", companyId)
     .single();
@@ -33,6 +34,13 @@ export async function action({ request }: ActionFunctionArgs) {
       await flash(request, error(existing.error, "Item association not found"))
     );
   }
+
+  const lockedError = requireUnlockedBulk({
+    statuses: [(existing.data as any).nonConformance?.status ?? null],
+    checkFn: isIssueLocked,
+    message: "Cannot modify a closed issue. Reopen it first."
+  });
+  if (lockedError) return lockedError;
 
   const current = Number(existing.data.quantity ?? 0);
   const nowIso = new Date().toISOString();

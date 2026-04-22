@@ -79,6 +79,7 @@ CREATE TYPE "inboundInspectionSampleStatus" AS ENUM (
 
 CREATE TABLE "inboundInspection" (
   "id" TEXT NOT NULL DEFAULT id(),
+  "inboundInspectionId" TEXT NOT NULL,
   "receiptLineId" TEXT NOT NULL,
   "receiptId" TEXT NOT NULL,
   "itemId" TEXT NOT NULL,
@@ -105,6 +106,7 @@ CREATE TABLE "inboundInspection" (
   "updatedBy" TEXT,
 
   CONSTRAINT "inboundInspection_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "inboundInspection_inboundInspectionId_unique" UNIQUE ("inboundInspectionId", "companyId"),
   CONSTRAINT "inboundInspection_receiptLineId_unique" UNIQUE ("receiptLineId"),
   CONSTRAINT "inboundInspection_receiptLineId_fkey"
     FOREIGN KEY ("receiptLineId") REFERENCES "receiptLine"("id") ON DELETE CASCADE,
@@ -121,6 +123,7 @@ CREATE TABLE "inboundInspection" (
   CONSTRAINT "inboundInspection_dispositionedBy_fkey" FOREIGN KEY ("dispositionedBy") REFERENCES "user"("id") ON UPDATE CASCADE
 );
 
+CREATE INDEX "inboundInspection_inboundInspectionId_idx" ON "inboundInspection"("inboundInspectionId");
 CREATE INDEX "inboundInspection_status_idx" ON "inboundInspection"("status");
 CREATE INDEX "inboundInspection_companyId_idx" ON "inboundInspection"("companyId");
 CREATE INDEX "inboundInspection_receiptId_idx" ON "inboundInspection"("receiptId");
@@ -262,3 +265,16 @@ FOR INSERT WITH CHECK (
     (SELECT get_companies_with_employee_permission('quality_create'))::text[]
   )
 );
+
+-- 8. Seed inbound inspection sequence for existing companies
+INSERT INTO "sequence" ("table", "name", "prefix", "suffix", "next", "size", "step", "companyId")
+SELECT
+  'inboundInspection',
+  'Inbound Inspection',
+  'II',
+  NULL,
+  0,
+  6,
+  1,
+  "id"
+FROM "company";

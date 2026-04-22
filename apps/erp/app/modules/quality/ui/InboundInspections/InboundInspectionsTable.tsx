@@ -52,23 +52,33 @@ const InboundInspectionsTable = memo(
     const columns = useMemo<ColumnDef<InboundInspection>[]>(() => {
       return [
         {
-          accessorKey: "itemId",
-          header: t`Item`,
+          accessorKey: "inboundInspectionId",
+          header: t`Inspection`,
           cell: ({ row }) => (
             <Hyperlink
               to={`${path.to.inboundInspection(row.original.id!)}?${params.toString()}`}
             >
-              <div className="flex flex-col gap-0">
-                <span className="text-sm font-medium">
-                  {getItemReadableId(items, (row.original as any).itemId) ??
-                    (row.original as any).itemReadableId ??
-                    ""}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {(row.original as any).item?.name}
-                </span>
-              </div>
+              {(row.original as any).inboundInspectionId}
             </Hyperlink>
+          ),
+          meta: {
+            icon: <LuBookMarked />
+          }
+        },
+        {
+          accessorKey: "itemId",
+          header: t`Item`,
+          cell: ({ row }) => (
+            <div className="flex flex-col gap-0">
+              <span className="text-sm font-medium">
+                {getItemReadableId(items, (row.original as any).itemId) ??
+                  (row.original as any).itemReadableId ??
+                  ""}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {(row.original as any).item?.name}
+              </span>
+            </div>
           ),
           meta: {
             icon: <LuBookMarked />,

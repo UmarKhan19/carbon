@@ -50,6 +50,19 @@ export type IssueAssociationNode = {
     documentLineId: string;
     type: string;
     quantity?: number;
+    disposition?: string | null;
+    links?: {
+      id: string;
+      quantity: number;
+      trackedEntityId: string;
+      trackedEntity: {
+        id: string;
+        readableId: string | null;
+        status: string;
+        quantity: number;
+        attributes: Record<string, unknown> | null;
+      } | null;
+    }[];
   }[];
 };
 
