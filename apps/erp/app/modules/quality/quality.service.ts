@@ -130,6 +130,11 @@ export async function deleteIssueAssociation(
         .from("nonConformanceTrackedEntity")
         .delete()
         .eq("id", associationId);
+    case "inboundInspections":
+      return await (client as any)
+        .from("nonConformanceInboundInspection")
+        .delete()
+        .eq("id", associationId);
     default:
       throw new Error(`Invalid type: ${type}`);
   }
@@ -499,10 +504,11 @@ export async function getIssueAssociations(
     receiptLines,
     trackedEntities,
     customers,
-    suppliers
+    suppliers,
+    inboundInspections
   ] = await Promise.all([
     // Items
-    client
+    (client as any)
       .from("nonConformanceItem")
       .select(
         `
@@ -513,11 +519,23 @@ export async function getIssueAssociations(
       createdAt,
       ...item(
         readableIdWithRevision
+      ),
+      links:nonConformanceItemTrackedEntity(
+        id,
+        quantity,
+        trackedEntityId,
+        trackedEntity(
+          id,
+          status,
+          quantity,
+          attributes
+        )
       )
       `
       )
       .eq("nonConformanceId", nonConformanceId)
-      .eq("companyId", companyId),
+      .eq("companyId", companyId)
+      .order("createdAt", { ascending: true }),
     // Job Operations
     client
       .from("nonConformanceJobOperation")
@@ -664,6 +682,26 @@ export async function getIssueAssociations(
       `
       )
       .eq("nonConformanceId", nonConformanceId)
+      .eq("companyId", companyId),
+
+    // Inbound Inspections
+    (client as any)
+      .from("nonConformanceInboundInspection")
+      .select(
+        `
+        id,
+        inboundInspectionId,
+        inboundInspection:inboundInspection (
+          id,
+          itemReadableId,
+          lotSize,
+          status,
+          sampleSize,
+          acceptanceNumber
+        )
+      `
+      )
+      .eq("nonConformanceId", nonConformanceId)
       .eq("companyId", companyId)
   ]);
 
@@ -757,7 +795,21 @@ export async function getIssueAssociations(
         documentId: item.supplierId ?? "",
         documentLineId: "",
         documentReadableId: item.supplier.name
-      })) || []
+      })) || [],
+    inboundInspections: ((inboundInspections as any)?.data ?? []).map(
+      (link: any) => ({
+        id: link.id,
+        type: "inboundInspections",
+        documentId: link.inboundInspectionId ?? "",
+        documentLineId: "",
+        documentReadableId:
+          link.inboundInspection?.itemReadableId ??
+          link.inboundInspectionId ??
+          "",
+        quantity: link.inboundInspection?.lotSize ?? 0,
+        status: link.inboundInspection?.status ?? null
+      })
+    )
   };
 }
 
@@ -2155,4 +2207,344 @@ export async function dispositionInboundInspection(
   });
 
   return update;
+}
+
+type DispositionPlanEntityLink = {
+  id: string;
+  quantity: number;
+  trackedEntityId: string;
+  trackedEntity: {
+    id: string;
+    status: string;
+    quantity: number;
+    attributes: Record<string, unknown> | null;
+  } | null;
+};
+
+type DispositionPlanRow = {
+  id: string;
+  itemId: string;
+  disposition: string;
+  quantity: number;
+  links: DispositionPlanEntityLink[];
+};
+
+export async function getIssueDispositionPlan(
+  client: SupabaseClient<Database>,
+  nonConformanceId: string,
+  companyId: string
+): Promise<{ data: DispositionPlanRow[] | null; error: any }> {
+  const result = await (client as any)
+    .from("nonConformanceItem")
+    .select(
+      `
+        id,
+        itemId,
+        disposition,
+        quantity,
+        links:nonConformanceItemTrackedEntity(
+          id,
+          quantity,
+          trackedEntityId,
+          trackedEntity(
+            id,
+            status,
+            quantity,
+            attributes
+          )
+        )
+      `
+    )
+    .eq("nonConformanceId", nonConformanceId)
+    .eq("companyId", companyId)
+    .order("createdAt", { ascending: true });
+
+  return result as { data: DispositionPlanRow[] | null; error: any };
+}
+
+export type IssueClosureBlocker = {
+  nonConformanceItemId: string;
+  reason: string;
+};
+
+export async function validateIssueForClosure(
+  client: SupabaseClient<Database>,
+  nonConformanceId: string,
+  companyId: string
+): Promise<
+  | { ok: true; plan: DispositionPlanRow[] }
+  | { ok: false; errors: IssueClosureBlocker[] }
+> {
+  const planResult = await getIssueDispositionPlan(
+    client,
+    nonConformanceId,
+    companyId
+  );
+  if (planResult.error || !planResult.data) {
+    return {
+      ok: false,
+      errors: [
+        {
+          nonConformanceItemId: "",
+          reason: "Failed to load disposition plan"
+        }
+      ]
+    };
+  }
+
+  const errors: IssueClosureBlocker[] = [];
+  const plan = planResult.data;
+
+  if (plan.length === 0) {
+    errors.push({
+      nonConformanceItemId: "",
+      reason: "No disposition rows to close"
+    });
+  }
+
+  for (const row of plan) {
+    if (!row.disposition || row.disposition === "Pending") {
+      errors.push({
+        nonConformanceItemId: row.id,
+        reason: "Disposition is still Pending"
+      });
+      continue;
+    }
+
+    const links = row.links ?? [];
+    const sum = links.reduce(
+      (acc, link) => acc + Number(link.quantity ?? 0),
+      0
+    );
+    const rowQty = Number(row.quantity ?? 0);
+    if (Math.abs(sum - rowQty) > 1e-6) {
+      errors.push({
+        nonConformanceItemId: row.id,
+        reason: `Linked entity quantity (${sum}) does not match row quantity (${rowQty})`
+      });
+    }
+
+    for (const link of links) {
+      if (!link.trackedEntity) {
+        errors.push({
+          nonConformanceItemId: row.id,
+          reason: "Linked tracked entity is missing"
+        });
+      } else if (link.trackedEntity.status === "Consumed") {
+        errors.push({
+          nonConformanceItemId: row.id,
+          reason: `Tracked entity ${link.trackedEntityId} is already Consumed`
+        });
+      }
+    }
+  }
+
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, plan };
+}
+
+export async function assignEntitiesToIssueItem(
+  client: SupabaseClient<Database>,
+  args: {
+    nonConformanceItemId: string;
+    targetItemId: string;
+    assignments: { trackedEntityId: string; quantity: number }[];
+    companyId: string;
+    userId: string;
+  }
+) {
+  const { nonConformanceItemId, targetItemId, assignments, companyId, userId } =
+    args;
+
+  if (assignments.length === 0) {
+    return { data: null, error: { message: "No assignments provided" } };
+  }
+
+  const entityIds = assignments.map((a) => a.trackedEntityId);
+
+  const source = await client
+    .from("nonConformanceItem")
+    .select("id, nonConformanceId, quantity")
+    .eq("id", nonConformanceItemId)
+    .eq("companyId", companyId)
+    .single();
+  if (source.error || !source.data) return source;
+
+  const target = await client
+    .from("nonConformanceItem")
+    .select("id, nonConformanceId, quantity")
+    .eq("id", targetItemId)
+    .eq("companyId", companyId)
+    .single();
+  if (target.error || !target.data) return target;
+
+  if (source.data.nonConformanceId !== target.data.nonConformanceId) {
+    return {
+      data: null,
+      error: { message: "Cannot move entities between different NCRs" }
+    };
+  }
+
+  const existingLinks = await (client as any)
+    .from("nonConformanceItemTrackedEntity")
+    .select("trackedEntityId, quantity")
+    .eq("nonConformanceItemId", nonConformanceItemId)
+    .in("trackedEntityId", entityIds)
+    .eq("companyId", companyId);
+  if (existingLinks.error) return existingLinks;
+
+  const existingQty = (existingLinks.data ?? []).reduce(
+    (acc: number, l: any) => acc + Number(l.quantity ?? 0),
+    0
+  );
+  const movingQty = assignments.reduce((acc, a) => acc + Number(a.quantity), 0);
+
+  const del = await (client as any)
+    .from("nonConformanceItemTrackedEntity")
+    .delete()
+    .eq("nonConformanceItemId", nonConformanceItemId)
+    .in("trackedEntityId", entityIds)
+    .eq("companyId", companyId);
+  if (del.error) return del;
+
+  const ins = await (client as any)
+    .from("nonConformanceItemTrackedEntity")
+    .insert(
+      assignments.map((a) => ({
+        nonConformanceItemId: targetItemId,
+        trackedEntityId: a.trackedEntityId,
+        quantity: Number(a.quantity),
+        companyId,
+        createdBy: userId
+      }))
+    );
+  if (ins.error) return ins;
+
+  const nowIso = new Date().toISOString();
+  const sourceUpdate = await client
+    .from("nonConformanceItem")
+    .update({
+      quantity: Math.max(0, Number(source.data.quantity ?? 0) - existingQty),
+      updatedBy: userId,
+      updatedAt: nowIso
+    })
+    .eq("id", nonConformanceItemId)
+    .eq("companyId", companyId);
+  if (sourceUpdate.error) return sourceUpdate;
+
+  const targetUpdate = await client
+    .from("nonConformanceItem")
+    .update({
+      quantity: Number(target.data.quantity ?? 0) + movingQty,
+      updatedBy: userId,
+      updatedAt: nowIso
+    })
+    .eq("id", targetItemId)
+    .eq("companyId", companyId);
+  return targetUpdate;
+}
+
+export async function closeIssue(
+  client: SupabaseClient<Database>,
+  args: { nonConformanceId: string; companyId: string; userId: string }
+) {
+  const { nonConformanceId, companyId, userId } = args;
+
+  const issue = await client
+    .from("nonConformance")
+    .select("id, nonConformanceId, status, locationId")
+    .eq("id", nonConformanceId)
+    .eq("companyId", companyId)
+    .single();
+  if (issue.error || !issue.data) return issue;
+
+  if (issue.data.status === "Closed") {
+    return { data: issue.data, error: null };
+  }
+
+  const validation = await validateIssueForClosure(
+    client,
+    nonConformanceId,
+    companyId
+  );
+  if (!validation.ok) {
+    return {
+      data: null,
+      error: {
+        message: `Cannot close: ${validation.errors
+          .map((e) => e.reason)
+          .join("; ")}`,
+        blockers: validation.errors
+      }
+    };
+  }
+
+  const nowIso = new Date().toISOString();
+  const today = nowIso.slice(0, 10);
+  const readableNc = issue.data.nonConformanceId ?? nonConformanceId;
+  const locationId = issue.data.locationId;
+
+  for (const row of validation.plan) {
+    const links = row.links ?? [];
+
+    if (row.disposition === "Use As Is" || row.disposition === "Rework") {
+      for (const link of links) {
+        if (!link.trackedEntity) continue;
+        if (link.trackedEntity.status !== "Available") {
+          const flip = await client
+            .from("trackedEntity")
+            .update({ status: "Available" })
+            .eq("id", link.trackedEntityId)
+            .eq("companyId", companyId);
+          if (flip.error) return flip;
+        }
+      }
+      continue;
+    }
+
+    if (
+      row.disposition === "Scrap" ||
+      row.disposition === "Return to Supplier"
+    ) {
+      const commentSuffix =
+        row.disposition === "Scrap" ? "scrap" : "return to supplier";
+
+      for (const link of links) {
+        if (!link.trackedEntity) continue;
+        const ledger = await (client as any).from("itemLedger").insert({
+          itemId: row.itemId,
+          locationId,
+          entryType: "Negative Adjmt.",
+          documentType: "Non-Conformance",
+          documentId: nonConformanceId,
+          quantity: -Number(link.quantity),
+          trackedEntityId: link.trackedEntityId,
+          companyId,
+          createdBy: userId,
+          comment: `NC ${readableNc} ${commentSuffix}`
+        });
+        if (ledger.error) return ledger;
+
+        if (link.trackedEntity.status !== "Rejected") {
+          const flip = await client
+            .from("trackedEntity")
+            .update({ status: "Rejected" })
+            .eq("id", link.trackedEntityId)
+            .eq("companyId", companyId);
+          if (flip.error) return flip;
+        }
+      }
+    }
+  }
+
+  return client
+    .from("nonConformance")
+    .update({
+      status: "Closed",
+      closeDate: today,
+      updatedBy: userId,
+      updatedAt: nowIso
+    })
+    .eq("id", nonConformanceId)
+    .eq("companyId", companyId);
 }

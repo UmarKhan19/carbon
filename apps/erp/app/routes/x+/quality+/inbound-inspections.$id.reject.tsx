@@ -134,6 +134,55 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const ncrId = createIssue.data.id;
 
+  // upsertIssue inserted nonConformanceItem rows with default qty 0 and
+  // disposition 'Pending'. Now that we know the lot context, overwrite with
+  // the actual lot quantity and default the MRB's starting disposition to
+  // 'Scrap' (the most conservative outcome — they can downgrade to Rework /
+  // Use As Is / split later).
+  let scrapRowId: string | null = null;
+  if (insp.itemId) {
+    await serviceRole
+      .from("nonConformanceItem")
+      .update({
+        quantity: Number(insp.lotSize ?? 0),
+        disposition: "Scrap",
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("nonConformanceId", ncrId)
+      .eq("itemId", insp.itemId);
+
+    const scrapRow = await serviceRole
+      .from("nonConformanceItem")
+      .select("id")
+      .eq("nonConformanceId", ncrId)
+      .eq("itemId", insp.itemId)
+      .single();
+    scrapRowId = scrapRow.data?.id ?? null;
+  }
+
+  // Link the source inspection to the NCR so the issue explorer can surface
+  // the origin and deep-link back to the inspection lot.
+  await serviceRole.from("nonConformanceInboundInspection").insert({
+    nonConformanceId: ncrId,
+    inboundInspectionId: insp.id,
+    companyId,
+    createdBy: userId
+  });
+
+  // Also link the receipt line — gives the explorer the supplier / receipt
+  // context through the existing "Receipt Lines" association branch.
+  if (insp.receiptLineId && insp.receiptId) {
+    await serviceRole.from("nonConformanceReceiptLine").insert({
+      nonConformanceId: ncrId,
+      receiptLineId: insp.receiptLineId,
+      receiptId: insp.receiptId,
+      receiptReadableId: insp.receipt?.receiptId ?? null,
+      companyId,
+      createdBy: userId
+    });
+  }
+
   // Link every tracked entity in the lot to the NCR.
   const trackedEntityIds = ((insp.inboundInspectionSample as any[]) ?? [])
     .map((s) => s.trackedEntityId as string)
@@ -160,6 +209,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
         createdBy: userId
       }))
     );
+
+    // Seed the per-row entity links on the default Scrap row so the MRB can
+    // split / reassign specific entities to other dispositions. Each entity
+    // contributes its own quantity to the row.
+    if (scrapRowId) {
+      const entityQuantities = await serviceRole
+        .from("trackedEntity")
+        .select("id, quantity")
+        .in("id", allLotEntityIds)
+        .eq("companyId", companyId);
+      const rows = (entityQuantities.data ?? []).map((e: any) => ({
+        nonConformanceItemId: scrapRowId!,
+        trackedEntityId: e.id as string,
+        quantity: Number(e.quantity ?? 1),
+        companyId,
+        createdBy: userId
+      }));
+      if (rows.length > 0) {
+        await (serviceRole as any)
+          .from("nonConformanceItemTrackedEntity")
+          .insert(rows);
+      }
+    }
   }
 
   const tasks = await serviceRole.functions.invoke("create", {

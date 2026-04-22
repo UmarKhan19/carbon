@@ -437,6 +437,8 @@ export const path = {
     bulkUpdateJob: `${x}/job/update`,
     bulkUpdateIssue: `${x}/issue/update`,
     updateIssueItem: `${x}/issue/item/update`,
+    splitIssueItem: `${x}/issue/item/split`,
+    assignIssueItemEntities: `${x}/issue/item/assign-entities`,
     issueActionTasksOrder: `${x}/issue/action-tasks/order`,
     bulkUpdateIssueWorkflow: `${x}/issue-workflow/update`,
     bulkUpdatePurchaseOrder: `${x}/purchase-order/update`,
@@ -851,6 +853,7 @@ export const path = {
     issue: (id: string) => generatePath(`${x}/issue/${id}`),
     issueDetails: (id: string) => generatePath(`${x}/issue/${id}/details`),
     issueStatus: (id: string) => generatePath(`${x}/issue/${id}/status`),
+    closeIssue: (id: string) => generatePath(`${x}/issue/${id}/close`),
     issueActions: (id: string) => generatePath(`${x}/issue/${id}`),
     issueDispositions: (id: string) =>
       generatePath(`${x}/issue/${id}/dispositions`),

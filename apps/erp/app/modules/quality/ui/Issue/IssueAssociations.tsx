@@ -1011,6 +1011,8 @@ function getAssociationLink(
       return path.to.customer(child.documentId);
     case "suppliers":
       return path.to.supplier(child.documentId);
+    case "inboundInspections":
+      return path.to.inboundInspection(child.documentId);
     default:
       return "#";
   }

@@ -161,6 +161,15 @@ export default function IssueRoute() {
                           pluralName: t`Suppliers`,
                           module: "purchasing",
                           children: resolvedAssociations.suppliers
+                        },
+                        {
+                          key: "inboundInspections",
+                          name: t`Inbound Inspection`,
+                          pluralName: t`Inbound Inspections`,
+                          module: "quality",
+                          children:
+                            (resolvedAssociations as any).inboundInspections ??
+                            []
                         }
                       ];
                       return (

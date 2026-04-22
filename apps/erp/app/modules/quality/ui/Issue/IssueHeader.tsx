@@ -146,8 +146,7 @@ const IssueHeader = () => {
             </Button>
           </statusFetcher.Form>
 
-          <statusFetcher.Form method="post" action={path.to.issueStatus(id)}>
-            <input type="hidden" name="status" value="Closed" />
+          <statusFetcher.Form method="post" action={path.to.closeIssue(id)}>
             <Button
               type="submit"
               leftIcon={<LuCircleCheck />}
@@ -159,7 +158,7 @@ const IssueHeader = () => {
               }
               isLoading={
                 statusFetcher.state !== "idle" &&
-                statusFetcher.formData?.get("status") === "Closed"
+                statusFetcher.formAction === path.to.closeIssue(id)
               }
             >
               <Trans>Complete</Trans>

@@ -1,9 +1,21 @@
--- Inventory quantity accuracy for held / rejected lots
+-- Inventory quantity accuracy for rejected lots
 --
 -- Context: planning (purchasing + production) treats quantityOnHand as
 -- quantity-available. Today quantityOnHand is `SUM(itemLedger.quantity)`,
--- which still counts ledger rows whose tracked entity is On Hold or
--- Rejected. Result: held/rejected lots inflate available supply.
+-- which still counts ledger rows whose tracked entity is Rejected. Those
+-- units cannot be used, so they artificially inflate available supply.
+--
+-- On-hand semantics (as of this migration):
+--   * `Available`, `Reserved`, `Consumed` — count toward quantityOnHand
+--     as before. (Consumed has an offsetting negative ledger row from
+--     consumption; Reserved is physically present; reservations are
+--     tracked separately via SO/PO/job quantities.)
+--   * `On Hold` — counts toward quantityOnHand. Held units are physically
+--     in the warehouse pending inspection; planners still want to see the
+--     supply. A companion `quantityOnHold` column surfaces the subset for
+--     UI display.
+--   * `Rejected` — excluded from quantityOnHand. A companion
+--     `quantityRejected` column surfaces the excluded total.
 --
 -- Strategy: mirror trackedEntity.status onto itemLedger so reads don't
 -- need a JOIN. Extend get_inventory_quantities to filter on the column.
@@ -211,11 +223,12 @@ WITH
   item_ledgers AS (
     SELECT
       "itemId",
-      -- quantityOnHand excludes ledger rows whose tracked entity is
-      -- quarantined or rejected. Rows with no tracked entity always count.
+      -- quantityOnHand excludes only Rejected tracked entities. On Hold
+      -- units are still physically in the warehouse and count toward
+      -- on-hand. Rows with no tracked entity always count.
       SUM("quantity") FILTER (
         WHERE "trackedEntityStatus" IS NULL
-           OR "trackedEntityStatus" NOT IN ('On Hold', 'Rejected')
+           OR "trackedEntityStatus" != 'Rejected'
       ) AS "quantityOnHand",
       SUM("quantity") FILTER (WHERE "trackedEntityStatus" = 'On Hold')
         AS "quantityOnHold",
@@ -345,7 +358,7 @@ SELECT
   COALESCE("locationId", '') AS "locationId",
   SUM("quantity") FILTER (
     WHERE "trackedEntityStatus" IS NULL
-       OR "trackedEntityStatus" NOT IN ('On Hold', 'Rejected')
+       OR "trackedEntityStatus" != 'Rejected'
   ) AS "quantityOnHand"
 FROM "itemLedger"
 GROUP BY "itemId", "companyId", COALESCE("locationId", '');
@@ -369,8 +382,8 @@ SELECT
 -- 6. Recreate get_job_quantity_on_hand so production planning
 --    (JobMaterialsTable) sees the same status-aware on-hand. Body copied
 --    verbatim from 20260417000300_storage-unit-recreate-dependents.sql with
---    one change: the `item_ledgers` CTE now excludes On Hold / Rejected
---    tracked entities from the `quantityOnHand` sum.
+--    one change: the `item_ledgers` CTE now excludes Rejected tracked
+--    entities from the `quantityOnHand` sum.
 -- ---------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION get_job_quantity_on_hand(job_id TEXT, company_id TEXT, location_id TEXT)
@@ -549,11 +562,12 @@ WITH
     SELECT
       il."itemId" AS "ledgerItemId",
       il."storageUnitId",
-      -- Only usable tracked entities count toward on-hand. Rows with no
-      -- tracked entity always count (plain inventory items).
+      -- quantityOnHand excludes only Rejected tracked entities. On Hold
+      -- units are still physically in the warehouse and count toward
+      -- on-hand. Rows with no tracked entity always count.
       SUM(il."quantity") FILTER (
         WHERE il."trackedEntityStatus" IS NULL
-           OR il."trackedEntityStatus" NOT IN ('On Hold', 'Rejected')
+           OR il."trackedEntityStatus" != 'Rejected'
       ) AS "quantityOnHand"
     FROM "itemLedger" il
     INNER JOIN job_materials jm
