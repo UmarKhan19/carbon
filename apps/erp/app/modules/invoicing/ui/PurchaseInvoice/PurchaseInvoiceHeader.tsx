@@ -331,7 +331,7 @@ const PurchaseInvoiceHeader = () => {
                         disabled={
                           !permissions.can("update", "invoicing") ||
                           ![
-                            "Submitted",
+                            "Open",
                             "Paid",
                             "Partially Paid",
                             "Voided"
