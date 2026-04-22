@@ -332,10 +332,7 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                   <Number name="lotSize" label={t`Batch Size`} minValue={0} />
                 )}
 
-                <ItemStorageAndShelfLifeFields
-                  initialLocationId={initialValues.defaultLocationId}
-                  inventoryTracked
-                />
+                <ItemStorageAndShelfLifeFields />
 
                 <CustomFormFields table="part" tags={initialValues.tags} />
               </div>

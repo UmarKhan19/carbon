@@ -99,30 +99,33 @@ export const itemValidator = z.object({
     .string()
     .min(1, { message: "Unit of Measure is required" }),
   unitCost: zfd.numeric(z.number().nonnegative().optional()),
-  // Default storage (free on the base object; each downstream validator
-  // enforces required-ness via the storage / shelf-life refines below).
-  defaultLocationId: zfd.text(z.string().optional()),
+  // Default storage unit (form-only; persisted to pickMethod via
+  // upsertItemDefaultPickMethod). Can point at any level of the
+  // storageUnit hierarchy since storageUnit nests via parentId. The
+  // locationId is derived server-side from storageUnit.locationId -
+  // the form itself does not capture a location.
   defaultStorageUnitId: zfd.text(z.string().optional()),
-  defaultNestedStorageUnitId: zfd.text(z.string().optional()),
-  // Shelf life. Leaving shelfLifeMode undefined means "form doesn't opine" -
-  // the server treats that as a no-op so partial forms (e.g. the
-  // manufacturing sub-form) can share an action without wiping the
-  // itemShelfLife row. An explicit "NotManaged" selection in the form
-  // still clears the row.
-  shelfLifeMode: z.enum(shelfLifeModes).optional(),
+  // Shelf life. The UI Select only surfaces "ItemSpecific" / "Calculated";
+  // clearing it (X button) submits an empty string, which we preprocess to
+  // the sentinel "NotManaged" so the server deletes any existing
+  // itemShelfLife row. Truly absent fields (non-form callers like MCP that
+  // don't set shelfLifeMode at all) remain undefined, which the upsert
+  // helper treats as a no-op.
+  shelfLifeMode: z.preprocess(
+    (v) => (v === "" ? "NotManaged" : v),
+    z.enum(shelfLifeModes).optional()
+  ),
   shelfLifeDays: zfd.numeric(z.number().positive().optional()),
   shelfLifeTriggerProcessId: zfd.text(z.string().optional())
 });
 
-// Common storage / shelf-life refines. `inventoryTracked` gates the
-// "required defaults" rule so we can reuse the same chain across the three
-// inventory-tracked types (Part, Material, Consumable) without touching
-// Service / Tool / Fixture.
+// Common storage / shelf-life refines. Shared across all item-type
+// validators. Default Storage Unit is optional for every type - users can
+// set it later via the pickMethod UI once they know where the item lives.
 const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
-  schema: T,
-  { inventoryTracked }: { inventoryTracked: boolean }
+  schema: T
 ) => {
-  let refined: z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>> = schema
+  const refined: z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>> = schema
     .refine(
       (data: z.infer<T>) =>
         data.shelfLifeDays === undefined ||
@@ -130,6 +133,16 @@ const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
       {
         message:
           "Shelf-life days can only be set when shelf-life management is Item-specific",
+        path: ["shelfLifeDays"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        data.shelfLifeMode !== "ItemSpecific" ||
+        data.shelfLifeDays !== undefined,
+      {
+        message:
+          "Shelf-life days is required when shelf-life management is Item-specific",
         path: ["shelfLifeDays"]
       }
     )
@@ -145,25 +158,16 @@ const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
     )
     .refine(
       (data: z.infer<T>) =>
-        !data.defaultNestedStorageUnitId || !!data.defaultStorageUnitId,
+        !data.shelfLifeMode ||
+        data.shelfLifeMode === "NotManaged" ||
+        data.itemTrackingType === "Serial" ||
+        data.itemTrackingType === "Batch",
       {
         message:
-          "A default storage unit must be selected before picking a nested one",
-        path: ["defaultNestedStorageUnitId"]
+          "Shelf-life can only be managed on items tracked by Serial or Batch - there's no per-unit record to stamp otherwise",
+        path: ["shelfLifeMode"]
       }
     ) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
-
-  if (inventoryTracked) {
-    refined = refined
-      .refine((data: z.infer<T>) => !!data.defaultLocationId, {
-        message: "Default location is required",
-        path: ["defaultLocationId"]
-      })
-      .refine((data: z.infer<T>) => !!data.defaultStorageUnitId, {
-        message: "Default storage unit is required",
-        path: ["defaultStorageUnitId"]
-      }) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
-  }
 
   return refined;
 };
@@ -225,8 +229,7 @@ export const consumableValidator = applyStorageAndShelfLifeRefines(
         .string()
         .min(1, { message: "Unit of Measure is required" })
     })
-  ),
-  { inventoryTracked: true }
+  )
 );
 
 export const customerPartValidator = z.object({
@@ -266,8 +269,7 @@ export const materialValidator = applyStorageAndShelfLifeRefines(
       dimensionId: zfd.text(z.string().optional()),
       sizes: z.array(z.string()).optional()
     })
-  ),
-  { inventoryTracked: true }
+  )
 );
 
 export const materialValidatorWithGeneratedIds = z.object({
@@ -577,8 +579,7 @@ export const partValidator = applyStorageAndShelfLifeRefines(
       modelUploadId: zfd.text(z.string().optional()),
       lotSize: zfd.numeric(z.number().min(0).optional())
     })
-  ),
-  { inventoryTracked: true }
+  )
 );
 
 export const pickMethodValidator = z.object({
@@ -586,6 +587,59 @@ export const pickMethodValidator = z.object({
   locationId: z.string().min(1, { message: "Location is required" }),
   defaultStorageUnitId: zfd.text(z.string().optional())
 });
+
+// pickMethod form + shelf-life policy in one submit. Shelf-life itself is
+// item-level (stored on itemShelfLife keyed by itemId), not per-location,
+// but we surface the controls on the per-location "Inventory" card so
+// users editing the item's stocking defaults can also manage its shelf-
+// life policy without navigating elsewhere. The server-side action is
+// responsible for routing each subset of fields to its own upsert helper.
+//
+// Note: this validator does NOT reference itemTrackingType (pickMethod
+// doesn't carry it). The UI gates visibility of the shelf-life fields on
+// tracking type via a prop, and the itemValidator chain already enforces
+// the Serial-or-Batch prerequisite at item creation. If a caller somehow
+// posts shelfLifeMode on an item without Serial/Batch tracking, the
+// itemShelfLife table's CHECK constraints still stand - but it's easier
+// UX to not render the fields at all in that case.
+export const pickMethodWithShelfLifeValidator = pickMethodValidator
+  .merge(
+    z.object({
+      shelfLifeMode: z.preprocess(
+        (v) => (v === "" ? "NotManaged" : v),
+        z.enum(shelfLifeModes).optional()
+      ),
+      shelfLifeDays: zfd.numeric(z.number().positive().optional()),
+      shelfLifeTriggerProcessId: zfd.text(z.string().optional())
+    })
+  )
+  .refine(
+    (data) =>
+      data.shelfLifeDays === undefined || data.shelfLifeMode === "ItemSpecific",
+    {
+      message:
+        "Shelf-life days can only be set when shelf-life management is Item-specific",
+      path: ["shelfLifeDays"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.shelfLifeMode !== "ItemSpecific" || data.shelfLifeDays !== undefined,
+    {
+      message:
+        "Shelf-life days is required when shelf-life management is Item-specific",
+      path: ["shelfLifeDays"]
+    }
+  )
+  .refine(
+    (data) =>
+      !data.shelfLifeTriggerProcessId || data.shelfLifeMode === "ItemSpecific",
+    {
+      message:
+        "Trigger process can only be set when shelf-life management is Item-specific",
+      path: ["shelfLifeTriggerProcessId"]
+    }
+  );
 
 export const revisionValidator = z
   .object({
@@ -611,8 +665,7 @@ export const serviceValidator = applyStorageAndShelfLifeRefines(
         })
       })
     })
-  ),
-  { inventoryTracked: false }
+  )
 );
 
 export const supplierPartValidator = z.object({
@@ -637,8 +690,7 @@ export const toolValidator = applyStorageAndShelfLifeRefines(
         .min(1, { message: "Unit of Measure is required" }),
       lotSize: zfd.numeric(z.number().min(0).optional())
     })
-  ),
-  { inventoryTracked: false }
+  )
 );
 
 export const unitOfMeasureValidator = z.object({

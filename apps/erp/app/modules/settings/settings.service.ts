@@ -481,18 +481,15 @@ export async function updateShelfLifeSettings(
   client: SupabaseClient<Database>,
   companyId: string,
   settings: {
-    nearExpiryWarningDays: number;
-    expiredBadgeEnabled: boolean;
+    /** undefined clears the threshold (NULL in DB), disabling expiry badges. */
+    nearExpiryWarningDays: number | undefined;
   }
 ) {
   return client
     .from("companySettings")
-    .update(
-      sanitize({
-        nearExpiryWarningDays: settings.nearExpiryWarningDays,
-        expiredBadgeEnabled: settings.expiredBadgeEnabled
-      })
-    )
+    .update({
+      nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null
+    })
     .eq("id", companyId);
 }
 

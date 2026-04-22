@@ -12,9 +12,11 @@ import { InventoryDetails } from "~/modules/inventory";
 import type { Consumable, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getItemQuantities,
+  getItemShelfLife,
   getItemStorageUnitQuantities,
   getPickMethod,
-  pickMethodValidator,
+  pickMethodWithShelfLifeValidator,
+  upsertItemShelfLife,
   upsertPickMethod
 } from "~/modules/items";
 import { PickMethodForm } from "~/modules/items/ui/Item";
@@ -141,10 +143,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  const shelfLife = await getItemShelfLife(client, itemId);
+
   return {
     consumableInventory: consumableInventory.data,
     itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
+    shelfLife: shelfLife.data,
     itemId,
     locationId
   };
@@ -160,17 +165,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
 
   const formData = await request.formData();
-  // validate with consumablesValidator
-  const validation = await validator(pickMethodValidator).validate(formData);
+  const validation = await validator(pickMethodWithShelfLifeValidator).validate(
+    formData
+  );
 
   if (validation.error) {
     return validationError(validation.error);
   }
 
-  const { ...update } = validation.data;
+  const {
+    shelfLifeMode,
+    shelfLifeDays,
+    shelfLifeTriggerProcessId,
+    ...pickMethodFields
+  } = validation.data;
 
   const updatePickMethod = await upsertPickMethod(client, {
-    ...update,
+    ...pickMethodFields,
     itemId,
     customFields: setCustomFields(formData),
     updatedBy: userId
@@ -185,8 +196,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  const updateShelfLife = await upsertItemShelfLife(client, {
+    itemId,
+    userId,
+    mode: shelfLifeMode,
+    days: shelfLifeDays,
+    triggerProcessId: shelfLifeTriggerProcessId
+  });
+  if (updateShelfLife.error) {
+    throw redirect(
+      path.to.consumable(itemId),
+      await flash(
+        request,
+        error(updateShelfLife.error, "Failed to update consumable shelf life")
+      )
+    );
+  }
+
   throw redirect(
-    path.to.consumableInventoryLocation(itemId, update.locationId),
+    path.to.consumableInventoryLocation(itemId, pickMethodFields.locationId),
     await flash(request, success("Updated consumable inventory"))
   );
 }
@@ -197,8 +225,13 @@ export default function ConsumableInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.consumableRoot);
 
-  const { consumableInventory, itemStorageUnitQuantities, quantities, itemId } =
-    useLoaderData<typeof loader>();
+  const {
+    consumableInventory,
+    itemStorageUnitQuantities,
+    quantities,
+    shelfLife,
+    itemId
+  } = useLoaderData<typeof loader>();
 
   const consumableData = useRouteData<{
     consumableSummary: Consumable;
@@ -210,6 +243,9 @@ export default function ConsumableInventoryRoute() {
   const initialValues = {
     ...consumableInventory,
     defaultStorageUnitId: consumableInventory.defaultStorageUnitId ?? undefined,
+    shelfLifeMode: shelfLife?.mode,
+    shelfLifeDays: shelfLife?.days ?? undefined,
+    shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
     ...getCustomFields(consumableInventory.customFields ?? {})
   };
 
@@ -226,6 +262,7 @@ export default function ConsumableInventoryRoute() {
         locations={sharedConsumablesData?.locations ?? []}
         storageUnits={storageUnits.options}
         type="Part"
+        itemTrackingType={itemTrackingType ?? "Inventory"}
       />
       <InventoryDetails
         itemStorageUnitQuantities={itemStorageUnitQuantities}

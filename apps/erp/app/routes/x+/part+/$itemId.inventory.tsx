@@ -11,9 +11,11 @@ import { InventoryDetails } from "~/modules/inventory";
 import type { PartSummary, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getItemQuantities,
+  getItemShelfLife,
   getItemStorageUnitQuantities,
   getPickMethod,
-  pickMethodValidator,
+  pickMethodWithShelfLifeValidator,
+  upsertItemShelfLife,
   upsertPickMethod
 } from "~/modules/items";
 import { PickMethodForm } from "~/modules/items/ui/Item";
@@ -100,9 +102,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
   }
 
-  const [quantities, itemStorageUnitQuantities] = await Promise.all([
+  const [quantities, itemStorageUnitQuantities, shelfLife] = await Promise.all([
     getItemQuantities(client, itemId, companyId, locationId),
-    getItemStorageUnitQuantities(client, itemId, companyId, locationId)
+    getItemStorageUnitQuantities(client, itemId, companyId, locationId),
+    getItemShelfLife(client, itemId)
   ]);
   if (quantities.error) {
     throw redirect(
@@ -125,6 +128,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     partInventory: partInventory.data,
     itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
+    shelfLife: shelfLife.data,
     itemId,
     locationId
   };
@@ -140,17 +144,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
 
   const formData = await request.formData();
-  // validate with partsValidator
-  const validation = await validator(pickMethodValidator).validate(formData);
+  const validation = await validator(pickMethodWithShelfLifeValidator).validate(
+    formData
+  );
 
   if (validation.error) {
     return validationError(validation.error);
   }
 
-  const { ...update } = validation.data;
+  const {
+    shelfLifeMode,
+    shelfLifeDays,
+    shelfLifeTriggerProcessId,
+    ...pickMethodFields
+  } = validation.data;
 
   const updatePickMethod = await upsertPickMethod(client, {
-    ...update,
+    ...pickMethodFields,
     itemId,
     customFields: setCustomFields(formData),
     updatedBy: userId
@@ -165,8 +175,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  const updateShelfLife = await upsertItemShelfLife(client, {
+    itemId,
+    userId,
+    mode: shelfLifeMode,
+    days: shelfLifeDays,
+    triggerProcessId: shelfLifeTriggerProcessId
+  });
+  if (updateShelfLife.error) {
+    throw redirect(
+      path.to.part(itemId),
+      await flash(
+        request,
+        error(updateShelfLife.error, "Failed to update part shelf life")
+      )
+    );
+  }
+
   throw redirect(
-    path.to.partInventoryLocation(itemId, update.locationId),
+    path.to.partInventoryLocation(itemId, pickMethodFields.locationId),
     await flash(request, success("Updated part inventory"))
   );
 }
@@ -177,8 +204,13 @@ export default function PartInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.partRoot);
 
-  const { partInventory, itemStorageUnitQuantities, quantities, itemId } =
-    useLoaderData<typeof loader>();
+  const {
+    partInventory,
+    itemStorageUnitQuantities,
+    quantities,
+    shelfLife,
+    itemId
+  } = useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
@@ -189,6 +221,9 @@ export default function PartInventoryRoute() {
   const initialValues = {
     ...partInventory,
     defaultStorageUnitId: partInventory.defaultStorageUnitId ?? undefined,
+    shelfLifeMode: shelfLife?.mode,
+    shelfLifeDays: shelfLife?.days ?? undefined,
+    shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
     ...getCustomFields(partInventory.customFields ?? {})
   };
 
@@ -205,6 +240,7 @@ export default function PartInventoryRoute() {
         locations={sharedPartsData?.locations ?? []}
         storageUnits={storageUnits.options}
         type="Part"
+        itemTrackingType={itemTrackingType ?? "Inventory"}
       />
       <InventoryDetails
         itemStorageUnitQuantities={itemStorageUnitQuantities}

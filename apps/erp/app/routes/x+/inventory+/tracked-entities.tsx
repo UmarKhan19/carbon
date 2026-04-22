@@ -7,6 +7,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { getTrackedEntities } from "~/modules/inventory";
 import TrackedEntitiesTable from "~/modules/inventory/ui/Traceability/TrackedEntitiesTable";
+import { getCompanySettings } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
@@ -28,13 +29,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  const trackedEntities = await getTrackedEntities(client, companyId, {
-    search,
-    limit,
-    offset,
-    sorts,
-    filters
-  });
+  const [trackedEntities, companySettings] = await Promise.all([
+    getTrackedEntities(client, companyId, {
+      search,
+      limit,
+      offset,
+      sorts,
+      filters
+    }),
+    getCompanySettings(client, companyId)
+  ]);
 
   if (trackedEntities.error) {
     throw redirect(
@@ -45,16 +49,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     trackedEntities: trackedEntities.data ?? [],
-    count: trackedEntities.count ?? 0
+    count: trackedEntities.count ?? 0,
+    nearExpiryWarningDays: companySettings.data?.nearExpiryWarningDays ?? null
   };
 }
 
 export default function TraceabilityRoute() {
-  const { trackedEntities, count } = useLoaderData<typeof loader>();
+  const { trackedEntities, count, nearExpiryWarningDays } =
+    useLoaderData<typeof loader>();
 
   return (
     <VStack spacing={0} className="h-full">
-      <TrackedEntitiesTable data={trackedEntities ?? []} count={count ?? 0} />
+      <TrackedEntitiesTable
+        data={trackedEntities ?? []}
+        count={count ?? 0}
+        nearExpiryWarningDays={nearExpiryWarningDays ?? null}
+      />
     </VStack>
   );
 }

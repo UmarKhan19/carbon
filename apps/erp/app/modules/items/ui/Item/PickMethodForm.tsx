@@ -1,4 +1,4 @@
-import { ValidatedForm } from "@carbon/form";
+import { useControlField, ValidatedForm } from "@carbon/form";
 import {
   Card,
   CardAction,
@@ -10,30 +10,58 @@ import {
   HStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { useEffect } from "react";
 import type { z } from "zod";
 import {
   Combobox as ComboboxFormField,
   CustomFormFields,
   Hidden,
+  NumberControlled,
+  Process,
+  Select,
   Submit
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
-import { pickMethodValidator } from "../../items.models";
+import {
+  pickMethodWithShelfLifeValidator,
+  shelfLifeModes
+} from "../../items.models";
+
+type ShelfLifeMode = (typeof shelfLifeModes)[number];
 
 type PickMethodFormProps = {
-  initialValues: z.infer<typeof pickMethodValidator>;
+  initialValues: z.infer<typeof pickMethodWithShelfLifeValidator>;
   locations: ListItem[];
   type: "Part" | "Material" | "Tool" | "Consumable";
   storageUnits: { value: string; label: string }[];
+  /**
+   * Used to decide whether to render the shelf-life controls. Shelf life
+   * only makes sense for items with per-unit records (Serial / Batch)
+   * since batchNumber / serialNumber are where the expiry date is stamped.
+   * Fungible tracking types have no per-unit row, so the fields are hidden.
+   */
+  itemTrackingType: string;
+};
+
+const shelfLifeLabel = (mode: ShelfLifeMode) => {
+  switch (mode) {
+    case "NotManaged":
+      return "Not managed";
+    case "ItemSpecific":
+      return "Item specific";
+    case "Calculated":
+      return "Calculated from BoM";
+  }
 };
 
 const PickMethodForm = ({
   initialValues,
   locations,
   storageUnits,
-  type
+  type,
+  itemTrackingType
 }: PickMethodFormProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
@@ -43,11 +71,14 @@ const PickMethodForm = ({
     value: location.id
   }));
 
+  const shelfLifeApplicable =
+    itemTrackingType === "Serial" || itemTrackingType === "Batch";
+
   return (
     <Card>
       <ValidatedForm
         method="post"
-        validator={pickMethodValidator}
+        validator={pickMethodWithShelfLifeValidator}
         defaultValues={initialValues}
       >
         <HStack className="w-full justify-between items-start">
@@ -86,6 +117,8 @@ const PickMethodForm = ({
               className="w-full"
             />
 
+            {shelfLifeApplicable && <ShelfLifeFields />}
+
             <CustomFormFields table="partInventory" />
           </div>
         </CardContent>
@@ -100,6 +133,59 @@ const PickMethodForm = ({
 };
 
 export default PickMethodForm;
+
+// Inline shelf-life controls for the Inventory card. Renders the mode
+// Select, and on ItemSpecific, the days (defaulted to 7) + trigger process
+// inputs. Clearing the Select submits as "NotManaged" which tells the
+// server to delete any existing itemShelfLife row (see the route action).
+function ShelfLifeFields() {
+  const [shelfLifeMode] = useControlField<ShelfLifeMode | undefined>(
+    "shelfLifeMode"
+  );
+  const [shelfLifeDays, setShelfLifeDays] = useControlField<number | undefined>(
+    "shelfLifeDays"
+  );
+
+  // Keep the days value consistent with the mode: clear it when the user
+  // switches away from ItemSpecific so the validator doesn't reject a
+  // stale value on submit.
+  useEffect(() => {
+    if (shelfLifeMode !== "ItemSpecific" && shelfLifeDays !== undefined) {
+      setShelfLifeDays(undefined);
+    }
+  }, [shelfLifeMode, shelfLifeDays, setShelfLifeDays]);
+
+  return (
+    <>
+      <Select
+        name="shelfLifeMode"
+        label="Shelf-life management"
+        options={shelfLifeModes
+          .filter((mode) => mode !== "NotManaged")
+          .map((mode) => ({
+            label: shelfLifeLabel(mode),
+            value: mode
+          }))}
+        placeholder="Not managed"
+      />
+      {shelfLifeMode === "ItemSpecific" && (
+        <>
+          <NumberControlled
+            name="shelfLifeDays"
+            label="Shelf-life (days)"
+            minValue={1}
+            value={shelfLifeDays ?? 7}
+          />
+          <Process
+            name="shelfLifeTriggerProcessId"
+            label="Shelf-life trigger process"
+            helperText="Defaults to any operation that produces this item."
+          />
+        </>
+      )}
+    </>
+  );
+}
 
 function getLocationPath(
   itemId: string,

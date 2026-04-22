@@ -806,9 +806,7 @@ serve(async (req: Request) => {
 
         const items = await client
           .from("item")
-          .select(
-            "id, itemTrackingType, defaultLocationId, defaultStorageUnitId, defaultNestedStorageUnitId",
-          )
+          .select("id, itemTrackingType")
           .in(
             "id",
             purchaseOrderLines.data
@@ -825,25 +823,30 @@ serve(async (req: Request) => {
             ?.filter((d) => d.itemTrackingType === "Batch")
             .map((d) => d.id)
         );
-        // Map itemId -> item master default storage. Receipt lines fall back
-        // to these when the purchase order line doesn't pin an explicit
-        // location / storage unit. Prefer the nested default when set - it IS
-        // the intended bin per the customer's mental model.
-        const itemDefaultsById = new Map<
-          string,
-          {
-            locationId: string | null;
-            storageUnitId: string | null;
+
+        // Map (itemId, locationId) -> defaultStorageUnitId. Receipt lines
+        // fall back to the pickMethod-configured storage unit for their
+        // destination location when the purchase order line doesn't pin
+        // one explicitly. Scoped by locationId because a single item can
+        // be stocked across multiple locations with different defaults
+        // per location (that's why pickMethod exists).
+        const receiptItemIds = purchaseOrderLines.data
+          .filter((d): d is typeof d & { itemId: string } => !!d.itemId)
+          .map((d) => d.itemId);
+        const pickMethods = await client
+          .from("pickMethod")
+          .select("itemId, locationId, defaultStorageUnitId")
+          .in("itemId", receiptItemIds);
+        const pickMethodKey = (itemId: string, loc: string | null) =>
+          `${itemId}::${loc ?? ""}`;
+        const defaultStorageUnitByItemLocation = new Map<string, string>();
+        for (const row of pickMethods.data ?? []) {
+          if (row.defaultStorageUnitId) {
+            defaultStorageUnitByItemLocation.set(
+              pickMethodKey(row.itemId, row.locationId),
+              row.defaultStorageUnitId
+            );
           }
-        >();
-        for (const row of items.data ?? []) {
-          itemDefaultsById.set(row.id, {
-            locationId: row.defaultLocationId ?? null,
-            storageUnitId:
-              row.defaultNestedStorageUnitId ??
-              row.defaultStorageUnitId ??
-              null,
-          });
         }
 
         const hasReceipt = !!receipt.data?.id;
@@ -894,11 +897,12 @@ serve(async (req: Request) => {
             unitPrice:
               d.unitPrice / (d.conversionFactor ?? 1) + shippingAndTaxUnitCost,
             unitOfMeasure: d.inventoryUnitOfMeasureCode ?? "EA",
-            locationId:
-              d.locationId ?? itemDefaultsById.get(d.itemId!)?.locationId ?? null,
+            locationId: d.locationId ?? null,
             storageUnitId:
               d.storageUnitId ??
-              itemDefaultsById.get(d.itemId!)?.storageUnitId ??
+              defaultStorageUnitByItemLocation.get(
+                pickMethodKey(d.itemId!, d.locationId ?? null)
+              ) ??
               null,
             createdBy: userId ?? "",
           });

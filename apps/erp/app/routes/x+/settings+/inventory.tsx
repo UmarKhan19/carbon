@@ -2,7 +2,6 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
-  Boolean,
   Hidden,
   Number,
   Select,
@@ -102,8 +101,7 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
       const shelfLifeResult = await updateShelfLifeSettings(client, companyId, {
-        nearExpiryWarningDays: shelfLifeValidation.data.nearExpiryWarningDays,
-        expiredBadgeEnabled: shelfLifeValidation.data.expiredBadgeEnabled
+        nearExpiryWarningDays: shelfLifeValidation.data.nearExpiryWarningDays
       });
       if (shelfLifeResult.error)
         return {
@@ -198,8 +196,7 @@ export default function InventorySettingsRoute() {
             validator={shelfLifeSettingsValidator}
             defaultValues={{
               nearExpiryWarningDays:
-                companySettings.nearExpiryWarningDays ?? 14,
-              expiredBadgeEnabled: companySettings.expiredBadgeEnabled ?? true
+                companySettings.nearExpiryWarningDays ?? undefined
             }}
             fetcher={fetcher}
           >
@@ -210,8 +207,9 @@ export default function InventorySettingsRoute() {
               <CardDescription>
                 <Trans>
                   Controls how near-expiry and expired batches are surfaced
-                  throughout the app. Warn-only — these settings do not block
-                  consumption or receipt.
+                  throughout the app. Leave blank to turn off expiry badges
+                  entirely. Warn-only — this setting does not block consumption
+                  or receipt.
                 </Trans>
               </CardDescription>
             </CardHeader>
@@ -223,12 +221,7 @@ export default function InventorySettingsRoute() {
                   label={t`"Expiring soon" threshold (days)`}
                   minValue={0}
                   maxValue={365}
-                  helperText={t`Batches whose expiry falls within this many days from today get the amber badge.`}
-                />
-                <Boolean
-                  name="expiredBadgeEnabled"
-                  label={t`Show expired badge`}
-                  description={t`When off, batches past their expiry date will no longer display a red "Expired" badge.`}
+                  helperText={t`Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges.`}
                 />
               </div>
             </CardContent>

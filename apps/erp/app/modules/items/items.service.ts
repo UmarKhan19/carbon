@@ -2032,6 +2032,77 @@ export async function upsertConfigurationRule(
  * seed a fresh row without a round-trip; on an UPDATE path where we know
  * the row already exists, companyId is optional.
  */
+/**
+ * Persist the user's "default storage unit" pick from the item form as a
+ * row in the "pickMethod" table. Items are company-wide in Carbon;
+ * per-location stocking facts live on pickMethod keyed by
+ * (itemId, locationId). Writing the form pick here (rather than as
+ * columns on "item") respects that boundary and lets a single item
+ * accumulate multiple location defaults over time.
+ *
+ * The locationId for the pickMethod row is derived from the chosen
+ * storageUnit (every storageUnit belongs to exactly one location), so
+ * the caller only needs to pass the storageUnitId. This keeps the item
+ * form to a single "Default Storage Unit" field - the location is
+ * implicit.
+ *
+ * Semantics:
+ *   - storageUnitId undefined -> no-op. Forms that don't surface this
+ *     field (e.g. the manufacturing sub-form) can share an action
+ *     without accidentally creating or clobbering a pickMethod row.
+ *   - storageUnitId set -> UPSERT on (itemId, storageUnit.locationId).
+ *     Existing defaultStorageUnit for that location is overwritten with
+ *     the new pick.
+ */
+export async function upsertItemDefaultPickMethod(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId: string;
+    userId: string;
+    storageUnitId?: string;
+  }
+) {
+  if (!args.storageUnitId) {
+    return { data: null, error: null };
+  }
+
+  const storageUnit = await client
+    .from("storageUnit")
+    .select("locationId, companyId")
+    .eq("id", args.storageUnitId)
+    .single();
+  if (storageUnit.error || !storageUnit.data) return storageUnit;
+
+  return client.from("pickMethod").upsert(
+    {
+      itemId: args.itemId,
+      locationId: storageUnit.data.locationId,
+      defaultStorageUnitId: args.storageUnitId,
+      companyId: storageUnit.data.companyId,
+      createdBy: args.userId,
+      updatedBy: args.userId,
+      updatedAt: today(getLocalTimeZone()).toString()
+    },
+    { onConflict: "itemId,locationId" }
+  );
+}
+
+/**
+ * Fetch the shelf-life policy for an item. Returns `data: null` (without
+ * an error) when the item has no row, since absence = "not managed" and
+ * that's a valid state we don't want to treat as an error path.
+ */
+export async function getItemShelfLife(
+  client: SupabaseClient<Database>,
+  itemId: string
+) {
+  return client
+    .from("itemShelfLife")
+    .select("mode, days, triggerProcessId")
+    .eq("itemId", itemId)
+    .maybeSingle();
+}
+
 export async function upsertItemShelfLife(
   client: SupabaseClient<Database>,
   args: {
@@ -2071,7 +2142,7 @@ export async function upsertItemShelfLife(
         days,
         triggerProcessId,
         updatedBy: args.userId,
-        updatedAt: today(getLocalTimeZone()).toString()
+        updatedAt: new Date().toISOString()
       })
       .eq("itemId", args.itemId);
   }
@@ -2122,9 +2193,6 @@ export async function upsertConsumable(
         itemTrackingType: consumable.itemTrackingType,
         unitOfMeasureCode: consumable.unitOfMeasureCode,
         active: true,
-        defaultLocationId: consumable.defaultLocationId,
-        defaultStorageUnitId: consumable.defaultStorageUnitId,
-        defaultNestedStorageUnitId: consumable.defaultNestedStorageUnitId,
         companyId: consumable.companyId,
         createdBy: consumable.createdBy
       })
@@ -2155,6 +2223,13 @@ export async function upsertConsumable(
     if (itemCostUpdate.error) return itemCostUpdate;
 
     if (itemId) {
+      const pickMethod = await upsertItemDefaultPickMethod(client, {
+        itemId,
+        userId: consumable.createdBy,
+        storageUnitId: consumable.defaultStorageUnitId
+      });
+      if (pickMethod.error) return pickMethod;
+
       const shelfLife = await upsertItemShelfLife(client, {
         itemId,
         userId: consumable.createdBy,
@@ -2184,9 +2259,6 @@ export async function upsertConsumable(
     defaultMethodType: consumable.defaultMethodType,
     itemTrackingType: consumable.itemTrackingType,
     unitOfMeasureCode: consumable.unitOfMeasureCode,
-    defaultLocationId: consumable.defaultLocationId,
-    defaultStorageUnitId: consumable.defaultStorageUnitId,
-    defaultNestedStorageUnitId: consumable.defaultNestedStorageUnitId,
     active: true
   };
 
@@ -2212,6 +2284,13 @@ export async function upsertConsumable(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const pickMethod = await upsertItemDefaultPickMethod(client, {
+    itemId: consumable.id,
+    userId: consumable.updatedBy,
+    storageUnitId: consumable.defaultStorageUnitId
+  });
+  if (pickMethod.error) return pickMethod;
 
   const shelfLife = await upsertItemShelfLife(client, {
     itemId: consumable.id,
@@ -2252,9 +2331,6 @@ export async function upsertPart(
         unitOfMeasureCode: part.unitOfMeasureCode,
         active: true,
         modelUploadId: part.modelUploadId,
-        defaultLocationId: part.defaultLocationId,
-        defaultStorageUnitId: part.defaultStorageUnitId,
-        defaultNestedStorageUnitId: part.defaultNestedStorageUnitId,
         companyId: part.companyId,
         createdBy: part.createdBy
       })
@@ -2297,6 +2373,13 @@ export async function upsertPart(
     }
 
     if (itemId) {
+      const pickMethod = await upsertItemDefaultPickMethod(client, {
+        itemId,
+        userId: part.createdBy,
+        storageUnitId: part.defaultStorageUnitId
+      });
+      if (pickMethod.error) return pickMethod;
+
       const shelfLife = await upsertItemShelfLife(client, {
         itemId,
         userId: part.createdBy,
@@ -2326,9 +2409,6 @@ export async function upsertPart(
     defaultMethodType: part.defaultMethodType,
     itemTrackingType: part.itemTrackingType,
     unitOfMeasureCode: part.unitOfMeasureCode,
-    defaultLocationId: part.defaultLocationId,
-    defaultStorageUnitId: part.defaultStorageUnitId,
-    defaultNestedStorageUnitId: part.defaultNestedStorageUnitId,
     active: true
   };
 
@@ -2354,6 +2434,13 @@ export async function upsertPart(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const pickMethod = await upsertItemDefaultPickMethod(client, {
+    itemId: part.id,
+    userId: part.updatedBy,
+    storageUnitId: part.defaultStorageUnitId
+  });
+  if (pickMethod.error) return pickMethod;
 
   const shelfLife = await upsertItemShelfLife(client, {
     itemId: part.id,
@@ -2611,14 +2698,15 @@ export async function upsertMakeMethodVersion(
 }
 
 /**
- * On BoM material add, seed `methodMaterial.storageUnitIds` with the child
- * item's default location -> storage unit when the caller didn't already
- * pin a storage unit for that location. Values set by the caller win so
- * downstream BoMs that were constructed with explicit picks are untouched.
+ * On BoM material add, seed `methodMaterial.storageUnitIds` with every
+ * (locationId -> defaultStorageUnitId) pair configured for the child item
+ * in "pickMethod". Values set by the caller win so downstream BoMs
+ * constructed with explicit picks are untouched.
  *
- * The JSONB is modelled as Record<locationId, storageUnitId>; the nested
- * default wins over the top-level default because the nested one IS the
- * intended bin.
+ * The JSONB is modelled as Record<locationId, storageUnitId>. Reading all
+ * pickMethods (rather than a single "default") matches Carbon's model
+ * where an item can be stocked across multiple locations, each with its
+ * own preferred bin.
  */
 async function resolveMethodMaterialStorageUnitIds(
   client: SupabaseClient<Database>,
@@ -2630,22 +2718,19 @@ async function resolveMethodMaterialStorageUnitIds(
   const current = { ...(args.current ?? {}) };
   if (!args.itemId) return current;
 
-  const item = await client
-    .from("item")
-    .select(
-      "defaultLocationId, defaultStorageUnitId, defaultNestedStorageUnitId"
-    )
-    .eq("id", args.itemId)
-    .maybeSingle();
+  const pickMethods = await client
+    .from("pickMethod")
+    .select("locationId, defaultStorageUnitId")
+    .eq("itemId", args.itemId);
 
-  const locationId = item.data?.defaultLocationId;
-  const storageUnitId =
-    item.data?.defaultNestedStorageUnitId ??
-    item.data?.defaultStorageUnitId ??
-    null;
-
-  if (locationId && storageUnitId && !current[locationId]) {
-    current[locationId] = storageUnitId;
+  for (const row of pickMethods.data ?? []) {
+    if (
+      row.locationId &&
+      row.defaultStorageUnitId &&
+      !current[row.locationId]
+    ) {
+      current[row.locationId] = row.defaultStorageUnitId;
+    }
   }
 
   return current;
@@ -2872,9 +2957,6 @@ export async function upsertMaterial(
               itemTrackingType: material.itemTrackingType,
               unitOfMeasureCode: material.unitOfMeasureCode,
               active: true,
-              defaultLocationId: material.defaultLocationId,
-              defaultStorageUnitId: material.defaultStorageUnitId,
-              defaultNestedStorageUnitId: material.defaultNestedStorageUnitId,
               revision: size,
               companyId: material.companyId,
               createdBy: material.createdBy
@@ -2920,9 +3002,6 @@ export async function upsertMaterial(
           itemTrackingType: material.itemTrackingType,
           unitOfMeasureCode: material.unitOfMeasureCode,
           active: true,
-          defaultLocationId: material.defaultLocationId,
-          defaultStorageUnitId: material.defaultStorageUnitId,
-          defaultNestedStorageUnitId: material.defaultNestedStorageUnitId,
           companyId: material.companyId,
           createdBy: material.createdBy
         })
@@ -2946,6 +3025,13 @@ export async function upsertMaterial(
     }
 
     for (const itemId of newItemIds) {
+      const pickMethod = await upsertItemDefaultPickMethod(client, {
+        itemId,
+        userId: material.createdBy,
+        storageUnitId: material.defaultStorageUnitId
+      });
+      if (pickMethod.error) return pickMethod;
+
       const shelfLife = await upsertItemShelfLife(client, {
         itemId,
         userId: material.createdBy,
@@ -2992,9 +3078,6 @@ export async function upsertMaterial(
     defaultMethodType: material.defaultMethodType,
     itemTrackingType: material.itemTrackingType,
     unitOfMeasureCode: material.unitOfMeasureCode,
-    defaultLocationId: material.defaultLocationId,
-    defaultStorageUnitId: material.defaultStorageUnitId,
-    defaultNestedStorageUnitId: material.defaultNestedStorageUnitId,
     active: true
   };
 
@@ -3026,6 +3109,13 @@ export async function upsertMaterial(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const pickMethod = await upsertItemDefaultPickMethod(client, {
+    itemId: material.id,
+    userId: material.updatedBy,
+    storageUnitId: material.defaultStorageUnitId
+  });
+  if (pickMethod.error) return pickMethod;
 
   const shelfLife = await upsertItemShelfLife(client, {
     itemId: material.id,
@@ -3429,9 +3519,6 @@ export async function upsertTool(
         unitOfMeasureCode: tool.unitOfMeasureCode,
         active: true,
         modelUploadId: tool.modelUploadId,
-        defaultLocationId: tool.defaultLocationId,
-        defaultStorageUnitId: tool.defaultStorageUnitId,
-        defaultNestedStorageUnitId: tool.defaultNestedStorageUnitId,
         companyId: tool.companyId,
         createdBy: tool.createdBy
       })
@@ -3462,6 +3549,13 @@ export async function upsertTool(
     if (itemCostUpdate.error) return itemCostUpdate;
 
     if (itemId) {
+      const pickMethod = await upsertItemDefaultPickMethod(client, {
+        itemId,
+        userId: tool.createdBy,
+        storageUnitId: tool.defaultStorageUnitId
+      });
+      if (pickMethod.error) return pickMethod;
+
       const shelfLife = await upsertItemShelfLife(client, {
         itemId,
         userId: tool.createdBy,
@@ -3491,9 +3585,6 @@ export async function upsertTool(
     defaultMethodType: tool.defaultMethodType,
     itemTrackingType: tool.itemTrackingType,
     unitOfMeasureCode: tool.unitOfMeasureCode,
-    defaultLocationId: tool.defaultLocationId,
-    defaultStorageUnitId: tool.defaultStorageUnitId,
-    defaultNestedStorageUnitId: tool.defaultNestedStorageUnitId,
     active: true
   };
 
@@ -3519,6 +3610,13 @@ export async function upsertTool(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const pickMethod = await upsertItemDefaultPickMethod(client, {
+    itemId: tool.id,
+    userId: tool.updatedBy,
+    storageUnitId: tool.defaultStorageUnitId
+  });
+  if (pickMethod.error) return pickMethod;
 
   const shelfLife = await upsertItemShelfLife(client, {
     itemId: tool.id,

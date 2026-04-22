@@ -324,9 +324,7 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                   />
                 )}
 
-                <ItemStorageAndShelfLifeFields
-                  initialLocationId={initialValues.defaultLocationId}
-                />
+                <ItemStorageAndShelfLifeFields />
 
                 <CustomFormFields table="tool" tags={initialValues.tags} />
               </div>

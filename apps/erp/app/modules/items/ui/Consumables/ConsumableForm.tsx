@@ -189,10 +189,7 @@ const ConsumableForm = ({
                   />
                 )}
 
-                <ItemStorageAndShelfLifeFields
-                  initialLocationId={initialValues.defaultLocationId}
-                  inventoryTracked
-                />
+                <ItemStorageAndShelfLifeFields />
 
                 <CustomFormFields
                   table="consumable"

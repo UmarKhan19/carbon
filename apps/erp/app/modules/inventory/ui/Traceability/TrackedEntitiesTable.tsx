@@ -5,6 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
+  LuCalendarClock,
   LuCheck,
   LuFile,
   LuHash,
@@ -26,10 +27,11 @@ import TrackedEntityStatus from "./TrackedEntityStatus";
 type TrackedEntitiesTableProps = {
   data: TrackedEntity[];
   count: number;
+  nearExpiryWarningDays: number | null;
 };
 
 const TrackedEntitiesTable = memo(
-  ({ data, count }: TrackedEntitiesTableProps) => {
+  ({ data, count, nearExpiryWarningDays }: TrackedEntitiesTableProps) => {
     const navigate = useNavigate();
     const { t } = useLingui();
     const permissions = usePermissions();
@@ -110,6 +112,44 @@ const TrackedEntitiesTable = memo(
           }
         },
         {
+          id: "expirationDate",
+          header: t`Expiry`,
+          cell: ({ row }) => {
+            const expiry = (
+              row.original.attributes as Record<string, unknown> | null
+            )?.expirationDate as string | undefined;
+            if (!expiry || nearExpiryWarningDays === null) return null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const expiryDate = new Date(expiry);
+            const daysLeft = Math.floor(
+              (expiryDate.getTime() - today.getTime()) / 86_400_000
+            );
+            if (daysLeft < 0) {
+              return (
+                <Badge variant="destructive" className="gap-1">
+                  <LuCalendarClock className="size-3" />
+                  {t`Expired`}
+                </Badge>
+              );
+            }
+            if (daysLeft <= nearExpiryWarningDays) {
+              return (
+                <Badge variant="orange" className="gap-1">
+                  <LuCalendarClock className="size-3" />
+                  {expiry}
+                </Badge>
+              );
+            }
+            return (
+              <span className="text-sm text-muted-foreground">{expiry}</span>
+            );
+          },
+          meta: {
+            icon: <LuCalendarClock />
+          }
+        },
+        {
           accessorKey: "sourceDocument",
           header: t`Source Document`,
           cell: ({ row }) => (
@@ -120,7 +160,7 @@ const TrackedEntitiesTable = memo(
           }
         }
       ],
-      [numberFormatter, items, t]
+      [numberFormatter, items, t, nearExpiryWarningDays]
     );
 
     const renderContextMenu = useCallback(

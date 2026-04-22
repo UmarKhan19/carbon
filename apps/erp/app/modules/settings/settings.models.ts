@@ -126,8 +126,12 @@ export const purchasePriceUpdateTimingValidator = z.object({
 });
 
 export const shelfLifeSettingsValidator = z.object({
-  nearExpiryWarningDays: zfd.numeric(z.number().int().min(0).max(365)),
-  expiredBadgeEnabled: zfd.checkbox()
+  // Empty input -> undefined -> stored as NULL in companySettings, which
+  // disables expiry badges company-wide. Any value 0..365 enables both
+  // "expiring soon" (amber, within this many days) and "expired" (red).
+  nearExpiryWarningDays: zfd.numeric(
+    z.number().int().min(0).max(365).optional()
+  )
 });
 
 export const updateLeadTimesOnReceiptValidator = z.object({

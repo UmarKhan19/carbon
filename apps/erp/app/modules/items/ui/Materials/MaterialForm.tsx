@@ -322,10 +322,7 @@ const MaterialForm = ({
                 />
                 <Array name="sizes" label={t`Sizes`} />
 
-                <ItemStorageAndShelfLifeFields
-                  initialLocationId={initialValues.defaultLocationId}
-                  inventoryTracked
-                />
+                <ItemStorageAndShelfLifeFields />
 
                 <CustomFormFields table="material" tags={initialValues.tags} />
               </div>
