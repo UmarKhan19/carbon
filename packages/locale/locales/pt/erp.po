@@ -23,7 +23,7 @@ msgstr "\"{storageUnitName}\" tem 1 unidade de armazenamento aninhada direta. De
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:221
 msgid "\"Expiring soon\" threshold (days)"
-msgstr ""
+msgstr "\"Limite de expiração próxima\" (dias)"
 
 #. placeholder {0}: rule.escalationDays
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
@@ -1535,7 +1535,7 @@ msgstr "Rastreamento em Lote"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:224
 msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
-msgstr ""
+msgstr "Lotes dentro deste número de dias do vencimento recebem um crachá âmbar; lotes vencidos recebem um vermelho. Deixe em branco para ocultar ambos os crachás."
 
 #: apps/erp/app/routes/x+/settings+/people.tsx:201
 #: apps/erp/app/routes/x+/settings+/people.tsx:242
@@ -2519,7 +2519,7 @@ msgstr "Contratantes"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:208
 msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
-msgstr ""
+msgstr "Controla como lotes próximos do vencimento e vencidos são exibidos em todo o aplicativo. Deixe em branco para desativar completamente os emblemas de vencimento. Apenas aviso — esta configuração não bloqueia o consumo ou recebimento."
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
 msgid "Conversion"
@@ -5155,7 +5155,7 @@ msgstr "Expira em (opcional)"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:116
 msgid "Expiry"
-msgstr ""
+msgstr "Validade"
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:184
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:416
@@ -11611,7 +11611,7 @@ msgstr "Compartilhar Cotação"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
-msgstr ""
+msgstr "Vida útil e expiração"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58

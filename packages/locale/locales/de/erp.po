@@ -23,7 +23,7 @@ msgstr "„${storageUnitName}\" hat 1 direkt verschachtelte Speichereinheit. Das
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:221
 msgid "\"Expiring soon\" threshold (days)"
-msgstr ""
+msgstr "\"Bald ablaufend\" – Schwellenwert (Tage)"
 
 #. placeholder {0}: rule.escalationDays
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
@@ -1535,7 +1535,7 @@ msgstr "Chargenverfolgung"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:224
 msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
-msgstr ""
+msgstr "Chargen innerhalb dieser Anzahl von Tagen vor ihrem Verfallsdatum erhalten ein oranges Abzeichen; Chargen nach dem Verfallsdatum erhalten ein rotes. Lassen Sie das Feld leer, um beide Abzeichen auszublenden."
 
 #: apps/erp/app/routes/x+/settings+/people.tsx:201
 #: apps/erp/app/routes/x+/settings+/people.tsx:242
@@ -2519,7 +2519,7 @@ msgstr "Auftragnehmer"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:208
 msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
-msgstr ""
+msgstr "Steuert, wie bald ablaufende und abgelaufene Chargen in der gesamten App angezeigt werden. Lassen Sie das Feld leer, um Ablaufdatum-Badges vollständig auszuschalten. Nur Warnung — diese Einstellung blockiert den Verbrauch oder Empfang nicht."
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
 msgid "Conversion"
@@ -5155,7 +5155,7 @@ msgstr "Verfällt am (optional)"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:116
 msgid "Expiry"
-msgstr ""
+msgstr "Ablaufdatum"
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:184
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:416
@@ -11611,7 +11611,7 @@ msgstr "Angebot teilen"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
-msgstr ""
+msgstr "Haltbarkeit & Verfallsdatum"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58

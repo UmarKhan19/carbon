@@ -23,7 +23,7 @@ msgstr "\"{storageUnitName}\" ha 1 unità di archiviazione nidificata diretta. L
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:221
 msgid "\"Expiring soon\" threshold (days)"
-msgstr ""
+msgstr "\"Soglia di scadenza imminente\" (giorni)"
 
 #. placeholder {0}: rule.escalationDays
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
@@ -1535,7 +1535,7 @@ msgstr "Tracciamento Batch"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:224
 msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
-msgstr ""
+msgstr "I lotti entro questo numero di giorni dalla loro scadenza ricevono un badge ambra; i lotti scaduti ricevono uno rosso. Lascia vuoto per nascondere entrambi i badge."
 
 #: apps/erp/app/routes/x+/settings+/people.tsx:201
 #: apps/erp/app/routes/x+/settings+/people.tsx:242
@@ -2519,7 +2519,7 @@ msgstr "Appaltatori"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:208
 msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
-msgstr ""
+msgstr "Controlla come i lotti prossimi alla scadenza e scaduti vengono visualizzati in tutta l'app. Lascia vuoto per disattivare completamente i badge di scadenza. Solo avviso — questa impostazione non blocca il consumo o la ricezione."
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
 msgid "Conversion"
@@ -5155,7 +5155,7 @@ msgstr "Scade il (facoltativo)"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:116
 msgid "Expiry"
-msgstr ""
+msgstr "Scadenza"
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:184
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:416
@@ -11611,7 +11611,7 @@ msgstr "Condividi Preventivo"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
-msgstr ""
+msgstr "Durata di conservazione e scadenza"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58

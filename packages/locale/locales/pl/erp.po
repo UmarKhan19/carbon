@@ -23,7 +23,7 @@ msgstr "„${storageUnitName}\" ma 1 bezpośrednią zagnieżdżoną jednostkę m
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:221
 msgid "\"Expiring soon\" threshold (days)"
-msgstr ""
+msgstr "\"Próg wkrótce wygasającego\" (dni)"
 
 #. placeholder {0}: rule.escalationDays
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
@@ -1535,7 +1535,7 @@ msgstr "Śledzenie partii"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:224
 msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
-msgstr ""
+msgstr "Partie w ciągu tylu dni od daty wygaśnięcia otrzymuje złotą etykietę; partie po dacie wygaśnięcia otrzymują czerwoną. Pozostaw puste, aby ukryć obie etykiety."
 
 #: apps/erp/app/routes/x+/settings+/people.tsx:201
 #: apps/erp/app/routes/x+/settings+/people.tsx:242
@@ -2519,7 +2519,7 @@ msgstr "Kontrahenci"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:208
 msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
-msgstr ""
+msgstr "Kontroluje sposób wyświetlania partii zbliżających się do wygaśnięcia i wygasłych w całej aplikacji. Pozostaw puste, aby całkowicie wyłączyć odznaki wygaśnięcia. Tylko ostrzeżenie — to ustawienie nie blokuje konsumpcji ani przyjęcia."
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
 msgid "Conversion"
@@ -5155,7 +5155,7 @@ msgstr "Wygasa (opcjonalnie)"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:116
 msgid "Expiry"
-msgstr ""
+msgstr "Wygaśnięcie"
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:184
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:416
@@ -11611,7 +11611,7 @@ msgstr "Udostępnij Ofertę"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
-msgstr ""
+msgstr "Okres przydatności i wygaśnięcie"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58

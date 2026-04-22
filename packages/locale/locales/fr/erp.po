@@ -23,7 +23,7 @@ msgstr "« ${storageUnitName} » possède 1 unité de stockage imbriquée direct
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:221
 msgid "\"Expiring soon\" threshold (days)"
-msgstr ""
+msgstr "« Expiration imminente » seuil (jours)"
 
 #. placeholder {0}: rule.escalationDays
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
@@ -1535,7 +1535,7 @@ msgstr "Suivi par lot"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:224
 msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
-msgstr ""
+msgstr "Les lots arrivant à expiration dans ce nombre de jours reçoivent un badge ambre ; les lots expirés reçoivent un badge rouge. Laissez vide pour masquer les deux badges."
 
 #: apps/erp/app/routes/x+/settings+/people.tsx:201
 #: apps/erp/app/routes/x+/settings+/people.tsx:242
@@ -2519,7 +2519,7 @@ msgstr "Entrepreneurs"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:208
 msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
-msgstr ""
+msgstr "Contrôle la façon dont les lots proches de l'expiration et expirés sont affichés dans toute l'application. Laissez vide pour désactiver complètement les badges d'expiration. Avertissement uniquement — ce paramètre ne bloque pas la consommation ou la réception."
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
 msgid "Conversion"
@@ -5155,7 +5155,7 @@ msgstr "Expire le (optionnel)"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:116
 msgid "Expiry"
-msgstr ""
+msgstr "Expiration"
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:184
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:416
@@ -11611,7 +11611,7 @@ msgstr "Partager le devis"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
-msgstr ""
+msgstr "Durée de conservation et expiration"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58

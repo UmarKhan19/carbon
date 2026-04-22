@@ -23,7 +23,7 @@ msgstr "\"{storageUnitName}\" के पास 1 सीधी नेस्टे
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:221
 msgid "\"Expiring soon\" threshold (days)"
-msgstr ""
+msgstr "\"जल्द ही समाप्त होने वाली\" सीमा (दिन)"
 
 #. placeholder {0}: rule.escalationDays
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
@@ -1535,7 +1535,7 @@ msgstr "बैच ट्रैकिंग"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:224
 msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
-msgstr ""
+msgstr "इस कई दिनों के भीतर समाप्त होने वाले बैच को एक एम्बर बैज मिलता है; समाप्त हो चुके बैच को एक लाल बैज मिलता है। दोनों बैज को छिपाने के लिए खाली छोड़ें।"
 
 #: apps/erp/app/routes/x+/settings+/people.tsx:201
 #: apps/erp/app/routes/x+/settings+/people.tsx:242
@@ -2519,7 +2519,7 @@ msgstr "ठेकेदार"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:208
 msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
-msgstr ""
+msgstr "नियंत्रित करता है कि निकट-समाप्ति और समाप्त बैच पूरे ऐप में कैसे सामने आते हैं। समाप्ति बैज को पूरी तरह बंद करने के लिए खाली छोड़ें। केवल चेतावनी — यह सेटिंग खपत या रसीद को ब्लॉक नहीं करती है।"
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
 msgid "Conversion"
@@ -5155,7 +5155,7 @@ msgstr "समाप्त होता है (वैकल्पिक)"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:116
 msgid "Expiry"
-msgstr ""
+msgstr "समाप्ति"
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:184
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:416
@@ -11611,7 +11611,7 @@ msgstr "उद्धरण साझा करें"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
-msgstr ""
+msgstr "शेल्फ लाइफ और एक्सपायरी"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58
