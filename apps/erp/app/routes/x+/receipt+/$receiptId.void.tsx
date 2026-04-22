@@ -21,9 +21,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .from("receipt")
       .select("status, invoiced")
       .eq("id", receiptId)
+      .eq("companyId", companyId)
       .single();
 
-    if (receipt?.status !== "Posted") {
+    if (!receipt) {
+      throw redirect(
+        path.to.receipts,
+        await flash(
+          request,
+          error(new Error("Receipt not found"), "Invalid operation")
+        )
+      );
+    }
+
+    if (receipt.status !== "Posted") {
       throw redirect(
         path.to.receiptDetails(receiptId),
         await flash(
@@ -33,7 +44,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       );
     }
 
-    if (receipt?.invoiced) {
+    if (receipt.invoiced) {
       throw redirect(
         path.to.receiptDetails(receiptId),
         await flash(

@@ -21,38 +21,38 @@ msgstr "« ${storageUnitName} » possède ${childCount} unités de stockage imbr
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "« ${storageUnitName} » possède 1 unité de stockage imbriquée directe. La supprimer supprimera également cette unité et tout ce qui se trouve en dessous. Cette action ne peut pas être annulée."
 
-#. placeholder {0}: rule.escalationDays
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:96
+#. placeholder {0}: rule.escalationDays
 msgid "{0} days"
 msgstr "{0} jours"
 
-#. placeholder {0}: attachment.name
-#. placeholder {0}: file.name
 #: apps/erp/app/components/Documents.tsx:110
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:87
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:275
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:322
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:96
+#. placeholder {0}: attachment.name
+#. placeholder {0}: file.name
 msgid "{0} deleted successfully"
 msgstr "{0} supprimé avec succès"
 
-#. placeholder {0}: history.length
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:259
+#. placeholder {0}: history.length
 msgid "{0} orders"
 msgstr "{0} commandes"
 
-#. placeholder {0}: selectedProcesses.length
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:844
+#. placeholder {0}: selectedProcesses.length
 msgid "{0} Processes"
 msgstr "{0} Processus"
 
-#. placeholder {0}: row.original.subCategoriesCount ?? 0
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoriesTable.tsx:100
+#. placeholder {0}: row.original.subCategoriesCount ?? 0
 msgid "{0} Subcategories"
 msgstr "{0} Sous-catégories"
 
-#. placeholder {0}: file.name
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:229
+#. placeholder {0}: file.name
 msgid "{0} uploaded successfully"
 msgstr "{0} téléchargé avec succès"
 
@@ -788,9 +788,9 @@ msgstr "Archivé"
 msgid "Archived Logs"
 msgstr "Journaux archivés"
 
+#: apps/erp/app/routes/share+/quote.$id.tsx:1349
 #. placeholder {0}: quote.quoteId
 #. placeholder {1}: formatter.format(total)
-#: apps/erp/app/routes/share+/quote.$id.tsx:1349
 msgid "Are you sure you want to accept quote {0} for {1}?"
 msgstr "Êtes-vous sûr de vouloir accepter le devis {0} pour {1} ?"
 
@@ -802,8 +802,8 @@ msgstr "Êtes-vous sûr de vouloir activer le processus : {name} ? Il réappara�
 msgid "Are you sure you want to activate this gauge?."
 msgstr "Êtes-vous sûr de vouloir activer cette jauge ?."
 
-#. placeholder {0}: routeData?.rfqSummary ?.rfqId!
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:325
+#. placeholder {0}: routeData?.rfqSummary ?.rfqId!
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "Êtes-vous sûr de vouloir annuler {0} ? Cela annulera également tous les devis fournisseurs associés."
 
@@ -832,28 +832,28 @@ msgstr "Êtes-vous sûr de vouloir convertir la demande de devis en devis ?"
 msgid "Are you sure you want to create jobs for this sales order? This will create jobs for all lines that don't already have jobs."
 msgstr "Êtes-vous sûr de vouloir créer des tâches pour cette commande client ? Cela créera des tâches pour toutes les lignes qui n'en ont pas déjà."
 
-#. placeholder {0}: routeData?.supplier?.name
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierHeader.tsx:366
+#. placeholder {0}: routeData?.supplier?.name
 msgid "Are you sure you want to deactivate {0}?"
 msgstr "Êtes-vous sûr de vouloir désactiver {0} ?"
 
-#. placeholder {0}: selectedCategory?.category
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoriesTable.tsx:196
+#. placeholder {0}: selectedCategory?.category
 msgid "Are you sure you want to deactivate the {0} account category?"
 msgstr "Êtes-vous sûr de vouloir désactiver la catégorie de compte {0} ?"
 
-#. placeholder {0}: selectedCategory?.name
 #: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:186
+#. placeholder {0}: selectedCategory?.name
 msgid "Are you sure you want to deactivate the {0} attribute category?"
 msgstr "Êtes-vous sûr de vouloir désactiver la catégorie d'attribut {0} ?"
 
-#. placeholder {0}: selectedAttribute?.name
 #: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryDetail.tsx:227
+#. placeholder {0}: selectedAttribute?.name
 msgid "Are you sure you want to deactivate the {0} attribute?"
 msgstr "Êtes-vous sûr de vouloir désactiver l'attribut {0} ?"
 
-#. placeholder {0}: selectedAccountSubcategory?.name
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoryDetail.tsx:110
+#. placeholder {0}: selectedAccountSubcategory?.name
 msgid "Are you sure you want to deactivate the {0} subcategory?"
 msgstr "Êtes-vous sûr de vouloir désactiver la sous-catégorie {0} ?"
 
@@ -878,24 +878,21 @@ msgstr "Êtes-vous sûr de vouloir désactiver cette jauge ?."
 msgid "Are you sure you want to deactivate this user?"
 msgstr "Êtes-vous sûr de vouloir désactiver cet utilisateur ?"
 
-#. placeholder {0}: tool.readableIdWithRevision
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2624
+#. placeholder {0}: tool.readableIdWithRevision
 msgid "Are you sure you want to delete {0} from this operation? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer {0} de cette opération ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: selectedGroup.name
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:376
+#. placeholder {0}: selectedGroup.name
 msgid "Are you sure you want to delete {0}?"
 msgstr "Êtes-vous sûr de vouloir supprimer {0} ?"
 
-#. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
-#. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:160
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:183
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:395
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:226
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:315
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:374
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:397
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableHeader.tsx:97
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:497
 #: apps/erp/app/modules/items/ui/Materials/MaterialHeader.tsx:99
@@ -920,16 +917,19 @@ msgstr "Êtes-vous sûr de vouloir supprimer {0} ?"
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:617
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:297
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:272
+#. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
+#. placeholder {0}: routeData?.customer?.name!
+#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: selectedCustomField?.name
 #: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTableDetail.tsx:231
+#. placeholder {0}: selectedCustomField?.name
 msgid "Are you sure you want to delete the {0} field?"
 msgstr "Êtes-vous sûr de vouloir supprimer le champ {0} ?"
 
-#. placeholder {0}: parameter.label
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:1089
+#. placeholder {0}: parameter.label
 msgid "Are you sure you want to delete the {0} parameter? This will not update any formulas that are using this parameter."
 msgstr "Êtes-vous sûr de vouloir supprimer le paramètre {0} ? Cela ne mettra pas à jour les formules qui utilisent ce paramètre."
 
@@ -941,14 +941,14 @@ msgstr "Êtes-vous sûr de vouloir supprimer le paramètre {key} de cette opéra
 msgid "Are you sure you want to delete the {name} attribute from this operation? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer l'attribut {name} de cette opération ? Cette action ne peut pas être annulée."
 
+#: apps/erp/app/routes/x+/accounting+/charts.delete.$accountId.tsx:70
 #. placeholder {0}: account.name
 #. placeholder {1}: account.number
-#: apps/erp/app/routes/x+/accounting+/charts.delete.$accountId.tsx:70
 msgid "Are you sure you want to delete the account: {0} ({1})? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le compte : {0} ({1}) ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: apiKey.name
 #: apps/erp/app/routes/x+/settings+/api-keys.delete.$id.tsx:56
+#. placeholder {0}: apiKey.name
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la clé API : {0}? Cette action ne peut pas être annulée."
 
@@ -956,8 +956,8 @@ msgstr "Êtes-vous sûr de vouloir supprimer la clé API : {0}? Cette action ne 
 msgid "Are you sure you want to delete the contractor: {name}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer l'entrepreneur : {name} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: customerPart?.customer?.name ?? ""
 #: apps/erp/app/routes/x+/part+/$itemId.sales.customer-parts.delete.$customerPartToItemId.tsx:85
+#. placeholder {0}: customerPart?.customer?.name ?? ""
 msgid "Are you sure you want to delete the customer part for {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la pièce client pour {0} ? Cette action ne peut pas être annulée."
 
@@ -965,13 +965,13 @@ msgstr "Êtes-vous sûr de vouloir supprimer la pièce client pour {0} ? Cette a
 msgid "Are you sure you want to delete the customer portal for: {customerName}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le portail client pour : {customerName}? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: customerStatus.name
 #: apps/erp/app/routes/x+/sales+/customer-statuses.delete.$customerStatusId.tsx:80
+#. placeholder {0}: customerStatus.name
 msgid "Are you sure you want to delete the customer status: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le statut client : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: customerType.name
 #: apps/erp/app/routes/x+/sales+/customer-types.delete.$customerTypeId.tsx:92
+#. placeholder {0}: customerType.name
 msgid "Are you sure you want to delete the customer type: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le type de client : {0} ? Cette action ne peut pas être annulée."
 
@@ -979,8 +979,8 @@ msgstr "Êtes-vous sûr de vouloir supprimer le type de client : {0} ? Cette act
 msgid "Are you sure you want to delete the department: {name}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le département : {name} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: employeeType.name
 #: apps/erp/app/routes/x+/users+/employee-types.delete.$employeeTypeId.tsx:85
+#. placeholder {0}: employeeType.name
 msgid "Are you sure you want to delete the employee type: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le type d'employé : {0} ? Cette action ne peut pas être annulée."
 
@@ -988,13 +988,13 @@ msgstr "Êtes-vous sûr de vouloir supprimer le type d'employé : {0} ? Cette ac
 msgid "Are you sure you want to delete the failure mode: {name}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le mode de défaillance : {name} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: gaugeType.name
 #: apps/erp/app/routes/x+/quality+/gauge-types.delete.$id.tsx:76
+#. placeholder {0}: gaugeType.name
 msgid "Are you sure you want to delete the gauge type: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le type de jauge : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: group.name
 #: apps/erp/app/routes/x+/users+/groups.delete.$groupId.tsx:73
+#. placeholder {0}: group.name
 msgid "Are you sure you want to delete the group: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le groupe : {0}? Cette action ne peut pas être annulée."
 
@@ -1002,23 +1002,23 @@ msgstr "Êtes-vous sûr de vouloir supprimer le groupe : {0}? Cette action ne pe
 msgid "Are you sure you want to delete the holiday: {name}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le jour férié : {name} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: nonConformanceType.name
 #: apps/erp/app/routes/x+/quality+/issue-types.delete.$id.tsx:79
+#. placeholder {0}: nonConformanceType.name
 msgid "Are you sure you want to delete the issue type: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le type de problème : {0}? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: itemPostingGroup.name
 #: apps/erp/app/routes/x+/items+/groups.delete.$groupId.tsx:94
+#. placeholder {0}: itemPostingGroup.name
 msgid "Are you sure you want to delete the item group: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le groupe d'articles : {0}? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: line.customerPartId
-#. placeholder {0}: line.description
-#. placeholder {0}: line.itemReadableId
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/DeletePurchaseInvoiceLine.tsx:23
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/DeletePurchasingRFQLine.tsx:23
 #: apps/erp/app/modules/sales/ui/SalesOrder/DeleteSalesOrderLine.tsx:23
 #: apps/erp/app/modules/sales/ui/SalesRFQ/DeleteSalesRFQLine.tsx:23
+#. placeholder {0}: line.customerPartId
+#. placeholder {0}: line.description
+#. placeholder {0}: line.itemReadableId
 msgid "Are you sure you want to delete the line: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la ligne : {0}? Cette action ne peut pas être annulée."
 
@@ -1037,38 +1037,38 @@ msgstr "Êtes-vous sûr de vouloir supprimer le lieu : {name} ? Cette action ne 
 msgid "Are you sure you want to delete the maintenance schedule: {name}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le calendrier de maintenance : {name} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: materialDimension.name
 #: apps/erp/app/routes/x+/items+/dimensions.delete.$id.tsx:81
+#. placeholder {0}: materialDimension.name
 msgid "Are you sure you want to delete the material dimension: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la dimension de matériau : {0}? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: materialFinish.name
 #: apps/erp/app/routes/x+/items+/finishes.delete.$id.tsx:78
+#. placeholder {0}: materialFinish.name
 msgid "Are you sure you want to delete the material finish: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la finition matérielle : {0}? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: materialForm.name
 #: apps/erp/app/routes/x+/items+/forms.delete.$formId.tsx:78
+#. placeholder {0}: materialForm.name
 msgid "Are you sure you want to delete the material form: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le formulaire de matériau : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: materialGrade.name
 #: apps/erp/app/routes/x+/items+/grades.delete.$id.tsx:78
+#. placeholder {0}: materialGrade.name
 msgid "Are you sure you want to delete the material grade: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la classe de matériau : {0}? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: materialSubstance.name
 #: apps/erp/app/routes/x+/items+/substances.delete.$substanceId.tsx:84
+#. placeholder {0}: materialSubstance.name
 msgid "Are you sure you want to delete the material substance: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la substance matérielle : {0}? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: materialType.name
 #: apps/erp/app/routes/x+/items+/types.delete.$id.tsx:78
+#. placeholder {0}: materialType.name
 msgid "Are you sure you want to delete the material type: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le type de matériau : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: noQuoteReason.name
 #: apps/erp/app/routes/x+/sales+/no-quote-reasons.delete.$id.tsx:82
+#. placeholder {0}: noQuoteReason.name
 msgid "Are you sure you want to delete the no quote reason: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la raison sans devis : {0}? Cette action ne peut pas être annulée."
 
@@ -1076,36 +1076,36 @@ msgstr "Êtes-vous sûr de vouloir supprimer la raison sans devis : {0}? Cette a
 msgid "Are you sure you want to delete the partner: {name}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le partenaire : {name} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: paymentTerm.name
 #: apps/erp/app/routes/x+/accounting+/payment-terms.delete.$paymentTermId.tsx:92
+#. placeholder {0}: paymentTerm.name
 msgid "Are you sure you want to delete the payment term: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le délai de paiement : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: pricingRule.name
 #: apps/erp/app/routes/x+/sales+/pricing-rules.delete.$ruleId.tsx:74
+#. placeholder {0}: pricingRule.name
 msgid "Are you sure you want to delete the pricing rule: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la règle de tarification : {0}? Cette action ne peut pas être annulée."
 
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.delete.tsx:100
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
-#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.delete.tsx:100
 msgid "Are you sure you want to delete the purchase invoice line for {0} {1}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la ligne de facture d'achat pour {0} {1} ? Cette action ne peut pas être annulée."
 
+#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.delete.tsx:100
 #. placeholder {0}: salesInvoiceLine.quantity ?? 0
 #. placeholder {1}: salesInvoiceLine.description ?? ""
-#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.delete.tsx:100
 msgid "Are you sure you want to delete the sales invoice line for {0} {1}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la ligne de facture de vente pour {0} {1} ? Cette action ne peut pas être annulée."
 
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.delete.tsx:93
 #. placeholder {0}: salesOrderLine.saleQuantity ?? 0
 #. placeholder {1}: salesOrderLine.description ?? ""
-#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.delete.tsx:93
 msgid "Are you sure you want to delete the sales order line for {0} {1}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la ligne de commande client pour {0} {1} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: scrapReason.name
 #: apps/erp/app/routes/x+/production+/scrap-reasons.delete.$scrapReasonId.tsx:82
+#. placeholder {0}: scrapReason.name
 msgid "Are you sure you want to delete the scrap reason: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la raison de rebut : {0}? Cette action ne peut pas être annulée."
 
@@ -1113,38 +1113,38 @@ msgstr "Êtes-vous sûr de vouloir supprimer la raison de rebut : {0}? Cette act
 msgid "Are you sure you want to delete the shift: {name} from {locationName}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le quart : {name} de {locationName} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: shippingMethod.name
 #: apps/erp/app/routes/x+/inventory+/shipping-methods.delete.$shippingMethodId.tsx:94
+#. placeholder {0}: shippingMethod.name
 msgid "Are you sure you want to delete the shipping method: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer la méthode d'expédition : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: storageType.name
 #: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:74
+#. placeholder {0}: storageType.name
 msgid "Are you sure you want to delete the storage type: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le type de stockage : {0}? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: storageUnit.name
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:145
+#. placeholder {0}: storageUnit.name
 msgid "Are you sure you want to delete the storage unit: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer l'unité de stockage : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: supplierType.name
 #: apps/erp/app/routes/x+/purchasing+/supplier-types.delete.$supplierTypeId.tsx:93
+#. placeholder {0}: supplierType.name
 msgid "Are you sure you want to delete the supplier type: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le type de fournisseur : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: unitOfMeasure.name
 #: apps/erp/app/routes/x+/items+/uom.delete.$uomId.tsx:88
+#. placeholder {0}: unitOfMeasure.name
 msgid "Are you sure you want to delete the unit of measure: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer l'unité de mesure : {0} ? Cette action ne peut pas être annulée."
 
-#. placeholder {0}: selectedView.name
 #: apps/erp/app/components/Layout/Navigation/GroupedContentSidebar.tsx:162
+#. placeholder {0}: selectedView.name
 msgid "Are you sure you want to delete the view \"{0}\"?"
 msgstr "Êtes-vous sûr de vouloir supprimer la vue « {0} » ?"
 
-#. placeholder {0}: webhook.name
 #: apps/erp/app/routes/x+/settings+/webhooks.delete.$id.tsx:76
+#. placeholder {0}: webhook.name
 msgid "Are you sure you want to delete the webhook: {0}? This cannot be undone."
 msgstr "Êtes-vous sûr de vouloir supprimer le webhook : {0} ? Cette action ne peut pas être annulée."
 
@@ -1215,10 +1215,10 @@ msgstr "Êtes-vous sûr de vouloir finaliser le devis ?"
 msgid "Are you sure you want to finalize the supplier quote?"
 msgstr "Êtes-vous sûr de vouloir finaliser le devis fournisseur ?"
 
-#. placeholder {0}: selectedPurchaseInvoice.invoiceId!
-#. placeholder {0}: selectedSalesInvoice.invoiceId!
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:336
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:327
+#. placeholder {0}: selectedPurchaseInvoice.invoiceId!
+#. placeholder {0}: selectedSalesInvoice.invoiceId!
 msgid "Are you sure you want to permanently delete {0}?"
 msgstr "Êtes-vous sûr de vouloir supprimer définitivement {0} ?"
 
@@ -1258,6 +1258,14 @@ msgstr "Êtes-vous sûr de vouloir révoquer l'invitation pour cet utilisateur ?
 msgid "Are you sure you want to revoke the invitations for these users?"
 msgstr "Êtes-vous sûr de vouloir révoquer les invitations pour ces utilisateurs ?"
 
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:51
+msgid "Are you sure you want to void this purchase invoice? This action will reverse all financial transactions and cannot be undone."
+msgstr "Êtes-vous sûr de vouloir annuler cette facture d'achat ? Cette action inversera toutes les transactions financières et ne peut pas être annulée."
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:51
+msgid "Are you sure you want to void this receipt? This action will reverse all inventory transactions and cannot be undone."
+msgstr "Êtes-vous sûr de vouloir annuler ce reçu ? Cette action inversera toutes les transactions d'inventaire et ne peut pas être annulée."
+
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:52
 msgid "Are you sure you want to void this sales invoice? This action will reverse all financial transactions and cannot be undone."
 msgstr "Êtes-vous sûr de vouloir annuler cette facture de vente ? Cette action inversera toutes les transactions financières et ne peut pas être annulée."
@@ -1278,8 +1286,8 @@ msgstr "En tant que propriétaire de l'entreprise, vous pouvez transférer la pr
 msgid "Ascending"
 msgstr "Croissant"
 
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Chat/ChatInput.tsx:189
+#. js-lingui-explicit-id
 msgid "Ask anything"
 msgstr "Demandez n'importe quoi"
 
@@ -1460,13 +1468,8 @@ msgstr "Solde"
 msgid "Balance at Date"
 msgstr "Solde à la date"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:34
-#: apps/erp/app/routes/onboarding+/company.tsx:217
-msgid "Base Currency"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:244
+#. js-lingui-explicit-id
 msgid "Base Currency"
 msgstr "Devise de base"
 
@@ -1561,8 +1564,8 @@ msgstr "Facturation"
 msgid "Billing Address"
 msgstr "Adresse de facturation"
 
-#. placeholder {0}: workCenter.blockingDispatchReadableId
 #: apps/erp/app/routes/x+/production+/_index.tsx:863
+#. placeholder {0}: workCenter.blockingDispatchReadableId
 msgid "Blocked by {0}"
 msgstr "Bloqué par {0}"
 
@@ -1706,6 +1709,7 @@ msgstr "Impossible de désactiver le seul palier actif. Ajoutez un autre palier 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:372
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:332
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:195
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:85
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:191
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:85
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:165
@@ -1715,6 +1719,7 @@ msgstr "Impossible de désactiver le seul palier actif. Ajoutez un autre palier 
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:184
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:283
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:154
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:87
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:180
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:78
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:105
@@ -2088,8 +2093,8 @@ msgstr "Pointage d'entrée"
 msgid "Clock Out"
 msgstr "Pointage de sortie"
 
-#. placeholder {0}: formatTime(openEntry.clockIn)
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:472
+#. placeholder {0}: formatTime(openEntry.clockIn)
 msgid "Clocked in since {0}"
 msgstr "Connecté depuis {0}"
 
@@ -2200,13 +2205,8 @@ msgstr "Entreprises"
 msgid "Company"
 msgstr "Entreprise"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:28
-#: apps/erp/app/routes/onboarding+/company.tsx:214
-msgid "Company Name"
-msgstr ""
-
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:236
+#. js-lingui-explicit-id
 msgid "Company Name"
 msgstr "Nom de l'entreprise"
 
@@ -2378,8 +2378,8 @@ msgstr "Configuré"
 msgid "Confirm"
 msgstr "Confirmer"
 
-#. placeholder {0}: salesOrder?.salesOrderId
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:121
+#. placeholder {0}: salesOrder?.salesOrderId
 msgid "Confirm {0}"
 msgstr "Confirmer {0}"
 
@@ -2751,10 +2751,10 @@ msgstr "Pays"
 msgid "Create"
 msgstr "Créer"
 
-#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
-#. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
 #: packages/react/src/CreateableMultiSelect.tsx:344
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
+#. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Créer {0}"
 
@@ -2930,8 +2930,8 @@ msgstr "Statut client créé"
 msgid "Created customer type"
 msgstr "Type de client créé"
 
-#. placeholder {0}: createdCustomer?.name ?? t`Customer`
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:61
+#. placeholder {0}: createdCustomer?.name ?? t`Customer`
 msgid "Created customer: {0}"
 msgstr "Client créé : {0}"
 
@@ -3412,8 +3412,8 @@ msgstr "Jours restants"
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#. placeholder {0}: workCenter.name
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:435
+#. placeholder {0}: workCenter.name
 msgid "Deactivate {0}"
 msgstr "Désactiver {0}"
 
@@ -3533,7 +3533,7 @@ msgstr "Unité par défaut"
 msgid "Defaults"
 msgstr "Paramètres par défaut"
 
-#: apps/erp/app/routes/x+/settings+/labels.tsx:126
+#: apps/erp/app/routes/x+/settings+/labels.tsx:124
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "Définissez la taille par défaut de l'étiquette produit. Utilisé pour le suivi des articles en inventaire."
 
@@ -3763,7 +3763,7 @@ msgstr "Supprimer la procédure"
 msgid "Delete Process"
 msgstr "Supprimer le processus"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:218
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:226
 msgid "Delete Purchase Invoice"
 msgstr "Supprimer la facture d'achat"
 
@@ -3787,7 +3787,7 @@ msgstr "Supprimer le devis"
 msgid "Delete Reason"
 msgstr "Supprimer la raison"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:114
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:122
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:317
 msgid "Delete Receipt"
 msgstr "Supprimer le reçu"
@@ -4214,8 +4214,8 @@ msgstr "Statuts de livraison directe"
 msgid "Drop your file here, or click to browse."
 msgstr "Déposez votre fichier ici, ou cliquez pour parcourir."
 
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 #: apps/erp/app/routes/x+/production+/_index.tsx:958
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 msgid "Due {0}"
 msgstr "Échéance {0}"
 
@@ -4796,7 +4796,7 @@ msgstr "Activer le suivi des feuilles de temps pour les quarts de travail."
 msgid "Enable to allow shared workstation mode."
 msgstr "Activez pour autoriser le mode poste de travail partagé."
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:161
+#: apps/erp/app/routes/x+/settings+/items.tsx:159
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Activez pour générer des identifiants et des descriptions pour les matières premières."
 
@@ -4820,7 +4820,7 @@ msgstr "Activez pour commencer à suivre les modifications de vos données."
 msgid "Enable to start tracking work shifts."
 msgstr "Activez pour commencer à suivre les quarts de travail."
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:198
+#: apps/erp/app/routes/x+/settings+/items.tsx:196
 msgid "Enable to use metric units for material dimensions."
 msgstr "Activez pour utiliser les unités métriques pour les dimensions des matériaux."
 
@@ -5035,8 +5035,8 @@ msgstr "Taux de change"
 msgid "Expand"
 msgstr "Développer"
 
-#. placeholder {0}: item.label
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:89
+#. placeholder {0}: item.label
 msgid "Expand {0}"
 msgstr "Développer {0}"
 
@@ -5147,143 +5147,143 @@ msgstr "Réf. externe"
 msgid "External Reference"
 msgstr "Référence externe"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:66
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create consumable: {0}"
 msgstr "Impossible de créer le consommable : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create customer portal: {0}"
 msgstr "Impossible de créer le portail client : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/CustomerStatuses/CustomerStatusForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create customer status: {0}"
 msgstr "Échec de la création du statut client : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/CustomerTypes/CustomerTypeForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create customer type: {0}"
 msgstr "Échec de la création du type de client : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:64
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create customer: {0}"
 msgstr "Impossible de créer le client : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/people/ui/Departments/DepartmentForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create department: {0}"
 msgstr "Impossible de créer le département : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModeForm.tsx:60
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create failure mode: {0}"
 msgstr "Échec de la création du mode de défaillance : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/quality/ui/GaugeTypes/GaugeTypeForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create gauge type: {0}"
 msgstr "Impossible de créer le type de jauge : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:61
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create item group: {0}"
 msgstr "Échec de la création du groupe d'articles : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/Locations/LocationForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create location: {0}"
 msgstr "Échec de la création de l'emplacement : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:122
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create maintenance schedule: {0}"
 msgstr "Échec de la création du calendrier de maintenance : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material dimension: {0}"
 msgstr "Échec de la création de la dimension matérielle : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material finish: {0}"
 msgstr "Échec de la création de la finition matérielle : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialShapes/MaterialShapeForm.tsx:62
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material form: {0}"
 msgstr "Échec de la création du formulaire de matériau : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:56
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material grade: {0}"
 msgstr "Échec de la création de la classe de matériau : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialSubstances/MaterialSubstanceForm.tsx:62
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material substance: {0}"
 msgstr "Échec de la création de la substance matérielle : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:58
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material type: {0}"
 msgstr "Échec de la création du type de matériau : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:103
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create material: {0}"
 msgstr "Échec de la création du matériau : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonForm.tsx:50
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create no quote reason: {0}"
 msgstr "Échec de la création de la raison sans devis : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:160
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create part: {0}"
 msgstr "Impossible de créer la pièce : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermForm.tsx:62
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create payment term: {0}"
 msgstr "Échec de la création du délai de paiement : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/Processes/ProcessForm.tsx:76
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create process: {0}"
 msgstr "Échec de la création du processus : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodForm.tsx:58
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create shipping method: {0}"
 msgstr "Échec de la création de la méthode d'expédition : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:103
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create stock transfer line: {0}"
 msgstr "Échec de la création de la ligne de transfert de stock : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypeForm.tsx:55
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create storage type: {0}"
 msgstr "Échec de la création du type de stockage : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:159
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create tool: {0}"
 msgstr "Échec de la création de l'outil : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:53
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create webhook: {0}"
 msgstr "Échec de la création du webhook : {0}"
 
-#. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:66
+#. placeholder {0}: fetcher.data.error.message
 msgid "Failed to create work center: {0}"
 msgstr "Échec de la création du centre de travail : {0}"
 
@@ -5495,8 +5495,6 @@ msgstr "Échec du téléchargement du fichier"
 msgid "Failed to upload file to new location"
 msgstr "Échec du téléchargement du fichier vers le nouvel emplacement"
 
-#. placeholder {0}: file.name
-#. placeholder {0}: fileUpload.name
 #: apps/erp/app/components/Documents.tsx:208
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:772
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:427
@@ -5504,6 +5502,8 @@ msgstr "Échec du téléchargement du fichier vers le nouvel emplacement"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:227
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:396
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:273
+#. placeholder {0}: file.name
+#. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
 msgstr "Échec du téléchargement du fichier : {0}"
 
@@ -5614,8 +5614,8 @@ msgstr "Extension de fichier"
 msgid "File is already in the selected bucket"
 msgstr "Le fichier est déjà dans le compartiment sélectionné"
 
-#. placeholder {0}: ( logo.size / 1024 / 1024 ).toFixed(2)
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:80
+#. placeholder {0}: ( logo.size / 1024 / 1024 ).toFixed(2)
 msgid "File size exceeds {maxSizeMB}MB limit. Current size: {0}MB"
 msgstr "La taille du fichier dépasse la limite de {maxSizeMB}MB. Taille actuelle : {0}MB"
 
@@ -5624,11 +5624,11 @@ msgstr "La taille du fichier dépasse la limite de {maxSizeMB}MB. Taille actuell
 msgid "File size exceeds 10MB limit"
 msgstr "La taille du fichier dépasse la limite de 10 Mo"
 
-#. placeholder {0}: SIZE_LIMIT.format()
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:133
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:143
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:132
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:142
+#. placeholder {0}: SIZE_LIMIT.format()
 msgid "File size too big (max. {0})"
 msgstr "La taille du fichier est trop grande (max. {0})"
 
@@ -5832,7 +5832,7 @@ msgstr "Jauges"
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "Générez un nouveau PIN à 4 chiffres. Partagez-le avec l'opérateur pour qu'il puisse se connecter aux terminaux MES."
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:139
+#: apps/erp/app/routes/x+/settings+/items.tsx:137
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "Générer les IDs de matériaux et les descriptions en fonction des propriétés du matériau."
 
@@ -5841,11 +5841,11 @@ msgstr "Générer les IDs de matériaux et les descriptions en fonction des prop
 msgid "Generate new PIN"
 msgstr "Générer un nouveau PIN"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:152
+#: apps/erp/app/routes/x+/settings+/items.tsx:150
 msgid "Generated IDs are disabled"
 msgstr "Les IDs générés sont désactivés"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:150
+#: apps/erp/app/routes/x+/settings+/items.tsx:148
 msgid "Generated IDs are enabled"
 msgstr "Les IDs générés sont activés"
 
@@ -5860,18 +5860,18 @@ msgstr "Obtenir la méthode"
 msgid "Get Started"
 msgstr "Commencer"
 
-#. placeholder {0}: user.firstName
 #: apps/erp/app/components/Greeting.tsx:24
+#. placeholder {0}: user.firstName
 msgid "Good afternoon, {0}"
 msgstr "Bon après-midi, {0}"
 
-#. placeholder {0}: user.firstName
 #: apps/erp/app/components/Greeting.tsx:26
+#. placeholder {0}: user.firstName
 msgid "Good evening, {0}"
 msgstr "Bonsoir, {0}"
 
-#. placeholder {0}: user.firstName
 #: apps/erp/app/components/Greeting.tsx:22
+#. placeholder {0}: user.firstName
 msgid "Good morning, {0}"
 msgstr "Bonjour, {0}"
 
@@ -6004,7 +6004,7 @@ msgstr "Des idées, des suggestions ou des problèmes avec cette page ?"
 msgid "Ideas, suggestions or problems?"
 msgstr "Des idées, des suggestions ou des problèmes ?"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:157
+#: apps/erp/app/routes/x+/settings+/items.tsx:155
 msgid "IDs and descriptions are generated for raw materials."
 msgstr "Les IDs et descriptions sont générés pour les matières premières."
 
@@ -6209,7 +6209,7 @@ msgstr "Numéro de suivi invalide"
 #: apps/erp/app/routes/x+/inventory+/_layout.tsx:19
 #: apps/erp/app/routes/x+/receipt+/_layout.tsx:12
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:33
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:119
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:117
 #: apps/erp/app/routes/x+/shipment+/_layout.tsx:12
 #: apps/erp/app/routes/x+/stock-transfer+/_layout.tsx:12
 #: apps/erp/app/routes/x+/traceability+/_layout.tsx:12
@@ -6352,6 +6352,7 @@ msgstr "Statuts facturés"
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:92
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:523
 #: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:55
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.tsx:26
 #: apps/erp/app/routes/x+/purchasing+/invoices.tsx:17
 #: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.tsx:28
 #: apps/erp/app/routes/x+/sales+/invoices.tsx:15
@@ -6435,7 +6436,7 @@ msgstr "Date d'émission"
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:26
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:36
 #: apps/erp/app/routes/x+/issue+/$id.tsx:37
-#: apps/erp/app/routes/x+/issue+/new.tsx:29
+#: apps/erp/app/routes/x+/issue+/new.tsx:28
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:243
 #: apps/erp/app/routes/x+/quality+/issues.tsx:15
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:239
@@ -6543,7 +6544,7 @@ msgstr "Type d'article"
 #: apps/erp/app/routes/x+/material+/_layout.tsx:19
 #: apps/erp/app/routes/x+/part+/_layout.tsx:15
 #: apps/erp/app/routes/x+/settings+/items.tsx:32
-#: apps/erp/app/routes/x+/settings+/items.tsx:131
+#: apps/erp/app/routes/x+/settings+/items.tsx:129
 #: apps/erp/app/routes/x+/tool+/_layout.tsx:15
 msgid "Items"
 msgstr "Articles"
@@ -6601,7 +6602,7 @@ msgstr "Les PDF de bon de travail incluent les instructions de travail."
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:199
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:289
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:483
-#: apps/erp/app/routes/x+/job+/$jobId.complete.tsx:15
+#: apps/erp/app/routes/x+/job+/$jobId.complete.tsx:14
 #: apps/erp/app/routes/x+/job+/$jobId.tsx:36
 #: apps/erp/app/routes/x+/job+/new.tsx:28
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:249
@@ -6623,8 +6624,8 @@ msgstr "Travaux en cours"
 msgid "Jobs Required"
 msgstr "Emplois requis"
 
-#. placeholder {0}: company?.name ?? "Company"
 #: apps/erp/app/routes/_public+/invite.$code.tsx:168
+#. placeholder {0}: company?.name ?? "Company"
 msgid "Join {0}"
 msgstr "Rejoindre {0}"
 
@@ -6636,7 +6637,7 @@ msgstr "Kanban"
 msgid "Kanban for {kanbanName}"
 msgstr "Kanban pour {kanbanName}"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:132
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:130
 msgid "Kanban Output"
 msgstr "Sortie Kanban"
 
@@ -6680,7 +6681,7 @@ msgstr "Étiquette"
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:236
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:54
 #: apps/erp/app/routes/x+/settings+/labels.tsx:31
-#: apps/erp/app/routes/x+/settings+/labels.tsx:109
+#: apps/erp/app/routes/x+/settings+/labels.tsx:107
 msgid "Labels"
 msgstr "Étiquettes"
 
@@ -6746,8 +6747,8 @@ msgstr "Dernière date d'étalonnage"
 msgid "Last Name"
 msgstr "Nom de famille"
 
-#. placeholder {0}: formatDateTime(lastSyncedAt)
 #: apps/erp/app/components/OnshapeSync.tsx:353
+#. placeholder {0}: formatDateTime(lastSyncedAt)
 msgid "Last synced: {0}"
 msgstr "Dernière synchronisation : {0}"
 
@@ -6792,6 +6793,10 @@ msgstr "Délai de livraison :"
 msgid "Learn more"
 msgstr "En savoir plus"
 
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:78
+msgid "Leave any related receipts untouched"
+msgstr "Laisser les reçus connexes intacts"
+
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:683
 msgid "Leave empty for exact match"
 msgstr "Laisser vide pour une correspondance exacte"
@@ -6809,8 +6814,8 @@ msgstr "Pièces excédentaires détectées"
 msgid "Let's build something"
 msgstr "Construisons quelque chose"
 
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:225
+#. js-lingui-explicit-id
 msgid "Let's set up your new company"
 msgstr "Configurons votre nouvelle entreprise"
 
@@ -7032,8 +7037,8 @@ msgstr "Logo téléchargé avec succès"
 msgid "Logos"
 msgstr "Logos"
 
-#. placeholder {0}: auditConfig.retentionDays
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:108
+#. placeholder {0}: auditConfig.retentionDays
 msgid "Logs older than {0} days are automatically archived."
 msgstr "Les journaux antérieurs à {0} jours sont automatiquement archivés."
 
@@ -7149,13 +7154,13 @@ msgstr "Les articles de fabrication ne peuvent pas être facturés directement. 
 msgid "Make Method Version"
 msgstr "Version de la méthode de fabrication"
 
-#. placeholder {0}: selectedRevision.revision
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:339
+#. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "Rendre la révision {0} par défaut ?"
 
-#. placeholder {0}: selectedRevision.revision
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:338
+#. placeholder {0}: selectedRevision.revision
 msgid "Make size {0} default?"
 msgstr "Rendre la taille {0} par défaut ?"
 
@@ -7286,7 +7291,7 @@ msgstr "Dimension de matériau"
 msgid "Material Dimensions"
 msgstr "Dimensions de matériaux"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:196
+#: apps/erp/app/routes/x+/settings+/items.tsx:194
 msgid "Material dimensions use metric units."
 msgstr "Les dimensions des matériaux utilisent des unités métriques."
 
@@ -7316,7 +7321,7 @@ msgstr "Grades de matériaux"
 msgid "Material ID"
 msgstr "ID Matériau"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:136
+#: apps/erp/app/routes/x+/settings+/items.tsx:134
 msgid "Material IDs"
 msgstr "IDs de matériau"
 
@@ -7460,15 +7465,15 @@ msgstr "Type de méthode"
 msgid "Methods"
 msgstr "Méthodes"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:178
+#: apps/erp/app/routes/x+/settings+/items.tsx:176
 msgid "Metric"
 msgstr "Métrique"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:191
+#: apps/erp/app/routes/x+/settings+/items.tsx:189
 msgid "Metric units are disabled"
 msgstr "Les unités métriques sont désactivées"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:189
+#: apps/erp/app/routes/x+/settings+/items.tsx:187
 msgid "Metric units are enabled"
 msgstr "Les unités métriques sont activées"
 
@@ -7628,11 +7633,11 @@ msgstr "Lundi"
 msgid "More"
 msgstr "Plus"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:96
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:104
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:127
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:101
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:80
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:197
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:205
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:194
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableHeader.tsx:62
 #: apps/erp/app/modules/items/ui/Materials/MaterialHeader.tsx:65
@@ -7672,9 +7677,9 @@ msgstr "Déplacer vers"
 msgid "Move to Trash"
 msgstr "Déplacer vers la corbeille"
 
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:348
 #. placeholder {0}: file.name
 #. placeholder {1}: targetBucket === "parts" ? "Parts" : "Opportunity"
-#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:348
 msgid "Moved {0} to {1} bucket"
 msgstr "Déplacé {0} vers le bucket {1}"
 
@@ -8179,9 +8184,9 @@ msgstr "Séquence suivante"
 msgid "No"
 msgstr "Non"
 
-#. placeholder {0}: node.name.toLowerCase()
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:250
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:427
+#. placeholder {0}: node.name.toLowerCase()
 msgid "No {0} found"
 msgstr "Aucun {0} trouvé"
 
@@ -8209,8 +8214,8 @@ msgstr "Aucun devis actif"
 msgid "No addresses found"
 msgstr "Aucune adresse trouvée"
 
-#. placeholder {0}: auditConfig.retentionDays
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogSettings.tsx:146
+#. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Aucun journal archivé pour le moment. Les journaux antérieurs à {0} jours seront automatiquement archivés et disponibles au téléchargement ici."
 
@@ -8586,9 +8591,9 @@ msgstr "Sur commande client"
 msgid "On Storage Unit"
 msgstr "Sur l'unité de stockage"
 
+#: apps/erp/app/modules/accounting/ui/Currencies/CurrencyForm.tsx:46
 #. placeholder {0}: company?.baseCurrencyCode
 #. placeholder {1}: initialValues.code
-#: apps/erp/app/modules/accounting/ui/Currencies/CurrencyForm.tsx:46
 msgid "One {0} is equal to how many {1}?"
 msgstr "Un {0} équivaut à combien de {1} ?"
 
@@ -8808,7 +8813,7 @@ msgstr "Commande"
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:86
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:97
 #: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:49
-#: apps/erp/app/routes/x+/purchase-order+/$orderId.tsx:51
+#: apps/erp/app/routes/x+/purchase-order+/$orderId.tsx:50
 #: apps/erp/app/routes/x+/purchase-order+/new.tsx:27
 #: apps/erp/app/routes/x+/purchasing+/orders.tsx:15
 #: apps/erp/app/routes/x+/sales-order+/$orderId.tsx:31
@@ -8831,7 +8836,7 @@ msgstr "Autre Type"
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:146
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:144
 msgid "Output"
 msgstr "Sortie"
 
@@ -8997,7 +9002,7 @@ msgstr "Chemin"
 msgid "Payables"
 msgstr "Comptes créditeurs"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:320
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:340
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:336
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:69
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:52
@@ -9249,9 +9254,9 @@ msgstr "Ajustement positif"
 msgid "Positive feedback"
 msgstr "Retour positif"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:148
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:156
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:372
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:305
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:313
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:313
 msgid "Post"
 msgstr "Publier"
@@ -9477,8 +9482,8 @@ msgstr "Type de processus"
 msgid "Processes"
 msgstr "Processus"
 
-#: apps/erp/app/routes/x+/settings+/labels.tsx:123
-#: apps/erp/app/routes/x+/settings+/labels.tsx:137
+#: apps/erp/app/routes/x+/settings+/labels.tsx:121
+#: apps/erp/app/routes/x+/settings+/labels.tsx:135
 msgid "Product Label Size"
 msgstr "Taille de l'étiquette produit"
 
@@ -9629,7 +9634,7 @@ msgstr "Remise d'achat"
 msgid "Purchase History"
 msgstr "Historique des achats"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:202
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:225
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:320
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:417
 msgid "Purchase Invoice"
@@ -9644,15 +9649,14 @@ msgid "Purchase Invoice Line"
 msgstr "Ligne de facture d'achat"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:326
-#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.tsx:26
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:300
 msgid "Purchase Invoices"
 msgstr "Factures d'achat"
 
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:70
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:193
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:216
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:437
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:240
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:248
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:452
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderSummary.tsx:411
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:526
@@ -9684,7 +9688,7 @@ msgstr "Localisation de la commande d'achat"
 msgid "Purchase order removed successfully"
 msgstr "Bon de commande supprimé avec succès"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:257
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:265
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:457
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:51
 #: apps/erp/app/routes/x+/issue+/$id.tsx:119
@@ -10074,7 +10078,7 @@ msgstr "Recalculer le coût unitaire"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:70
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:342
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:248
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:256
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:823
 #: apps/erp/app/routes/x+/issue+/$id.tsx:139
 msgid "Receipt"
@@ -10104,13 +10108,13 @@ msgstr "Date de réception demandée"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:346
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:28
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:232
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:276
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:284
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:357
 #: apps/erp/app/routes/x+/inventory+/receipts.tsx:14
 #: apps/erp/app/routes/x+/issue+/$id.tsx:140
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:286
 #: apps/erp/app/routes/x+/receipt+/$receiptId.tsx:23
-#: apps/erp/app/routes/x+/receipt+/new.tsx:15
+#: apps/erp/app/routes/x+/receipt+/new.tsx:14
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:282
 msgid "Receipts"
 msgstr "Reçus"
@@ -10125,8 +10129,8 @@ msgstr "Créances"
 msgid "Receive"
 msgstr "Recevoir"
 
-#. placeholder {0}: job.jobId
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1019
+#. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Recevoir {0} à l'inventaire"
 
@@ -10247,8 +10251,8 @@ msgstr "Mémorisez ce code PIN. Vous en aurez besoin pour quitter le mode consol
 msgid "Remove"
 msgstr "Supprimer"
 
-#. placeholder {0}: item.label
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:107
+#. placeholder {0}: item.label
 msgid "Remove {0}"
 msgstr "Supprimer {0}"
 
@@ -10475,9 +10479,9 @@ msgstr "Réinitialiser"
 msgid "Reset PIN"
 msgstr "Réinitialiser le PIN"
 
+#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:109
 #. placeholder {0}: operator.firstName
 #. placeholder {1}: operator.lastName
-#: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:109
 msgid "Reset PIN for {0} {1}"
 msgstr "Réinitialiser le PIN pour {0} {1}"
 
@@ -10499,6 +10503,10 @@ msgstr "Ressources"
 msgid "Restore from Trash"
 msgstr "Restaurer à partir de la corbeille"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:73
+msgid "Restore tracked entities to available"
+msgstr "Restaurer les entités suivies en disponibles"
+
 #: apps/erp/app/components/Layout/Topbar/Search.tsx:285
 msgid "Results"
 msgstr "Résultats"
@@ -10519,9 +10527,22 @@ msgstr "Retour à l'accueil"
 msgid "Rev {revision}"
 msgstr "Rév {revision}"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:67
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:67
 msgid "Reverse all inventory adjustments"
 msgstr "Inverser tous les ajustements d'inventaire"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:67
+msgid "Reverse all journal and cost ledger entries"
+msgstr "Inverser tous les écritures de journal et de grand livre des coûts"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:70
+msgid "Reverse any item ledger entries from this invoice"
+msgstr "Inverser les écritures de registre d'articles de cette facture"
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:70
+msgid "Reverse the related journal entries"
+msgstr "Inverser les écritures comptables associées"
 
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:107
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:272
@@ -10529,10 +10550,10 @@ msgstr "Inverser tous les ajustements d'inventaire"
 msgid "Revision"
 msgstr "Révision"
 
-#. placeholder {0}: revision.revision
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:586
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:504
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:493
+#. placeholder {0}: revision.revision
 msgid "Revision {0}"
 msgstr "Révision {0}"
 
@@ -10948,8 +10969,8 @@ msgstr "Samedi"
 #: apps/erp/app/modules/users/ui/Groups/GroupsForm.tsx:74
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:606
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:688
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:157
-#: apps/erp/app/routes/x+/settings+/labels.tsx:148
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:155
+#: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:560
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:615
@@ -11124,8 +11145,8 @@ msgstr "Rechercher les articles associés..."
 msgid "Search suppliers..."
 msgstr "Rechercher des fournisseurs..."
 
-#. js-lingui-explicit-id
 #: apps/erp/app/components/Chat/ChatInput.tsx:185
+#. js-lingui-explicit-id
 msgid "Search the web"
 msgstr "Rechercher sur le web"
 
@@ -11187,8 +11208,8 @@ msgstr "Sélectionner un nouveau propriétaire"
 msgid "Select a plan"
 msgstr "Sélectionner un plan"
 
-#. placeholder {0}: plans[0].stripeTrialPeriodDays
 #: apps/erp/app/routes/onboarding+/plan.tsx:155
+#. placeholder {0}: plans[0].stripeTrialPeriodDays
 msgid "Select a plan to get started. You won't be charged for the first {0} days. Switch or cancel anytime."
 msgstr "Sélectionnez un plan pour commencer. Vous ne serez pas facturé pendant les {0} premiers jours. Changez ou annulez à tout moment."
 
@@ -11430,8 +11451,8 @@ msgstr "Définir les pourcentages de majoration par défaut pour chaque catégor
 msgid "Set Quantity"
 msgstr "Définir la quantité"
 
-#. placeholder {0}: selectedVersion.version
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:615
+#. placeholder {0}: selectedVersion.version
 msgid "Set Version {0} as Active Version?"
 msgstr "Définir la version {0} comme version active ?"
 
@@ -11585,7 +11606,7 @@ msgstr "Lieu d'expédition"
 #: apps/erp/app/routes/x+/issue+/$id.tsx:133
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:317
 #: apps/erp/app/routes/x+/shipment+/$shipmentId.tsx:20
-#: apps/erp/app/routes/x+/shipment+/new.tsx:15
+#: apps/erp/app/routes/x+/shipment+/new.tsx:14
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:313
 msgid "Shipments"
 msgstr "Expéditions"
@@ -11897,8 +11918,8 @@ msgstr "Délai de livraison standard"
 msgid "Start"
 msgstr "Démarrer"
 
-#. placeholder {0}: plan.stripeTrialPeriodDays
 #: apps/erp/app/routes/onboarding+/plan.tsx:221
+#. placeholder {0}: plan.stripeTrialPeriodDays
 msgid "Start {0} Day Free Trial"
 msgstr "Commencer l'essai gratuit de {0} jours"
 
@@ -12102,7 +12123,7 @@ msgstr "Unité de stockage"
 msgid "Storage Units"
 msgstr "Unités de stockage"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:135
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:133
 msgid "Style of kanban output to show in the Kanban table"
 msgstr "Style de sortie kanban à afficher dans le tableau Kanban"
 
@@ -12413,9 +12434,9 @@ msgstr "Approvisionnement"
 msgid "Supply & Demand"
 msgstr "Offre et demande"
 
-#. placeholder {0}: supportedModelTypes.join(", ")
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:373
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:365
+#. placeholder {0}: supportedModelTypes.join(", ")
 msgid "Supports {0} files"
 msgstr "Supporte les fichiers {0}"
 
@@ -12875,7 +12896,7 @@ msgstr "Basculer le mode sombre/clair"
 msgid "Toggle durations"
 msgstr "Basculer les durées"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:183
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:191
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:180
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:159
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:66
@@ -12894,7 +12915,7 @@ msgstr "Basculer l'explorateur"
 msgid "Toggle level"
 msgstr "Basculer le niveau"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:352
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:372
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:358
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:403
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:165
@@ -13045,7 +13066,7 @@ msgstr "Suivi"
 msgid "Tracking ID"
 msgstr "ID de suivi"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:132
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:140
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:166
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:324
 msgid "Tracking Labels"
@@ -13204,7 +13225,7 @@ msgstr "Type :"
 msgid "Types"
 msgstr "Types"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:228
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:236
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:185
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:176
 msgid "Unapproved Supplier"
@@ -13401,6 +13422,11 @@ msgstr "Mettre à jour les quantités du document source"
 msgid "Update the kanban information for scan-based replenishment."
 msgstr "Mettez à jour les informations du kanban pour le réapprovisionnement basé sur le scan."
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:76
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:75
+msgid "Update the purchase order quantities"
+msgstr "Mettre à jour les quantités de la commande d'achat"
+
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:431
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:990
@@ -13499,18 +13525,15 @@ msgstr "Télécharger CSV"
 msgid "Uploaded model"
 msgstr "Modèle téléchargé"
 
-#. placeholder {0}: file.name
-#. placeholder {0}: fileUpload.name
 #: apps/erp/app/components/Documents.tsx:214
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:774
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:429
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:398
+#. placeholder {0}: file.name
+#. placeholder {0}: fileUpload.name
 msgid "Uploaded: {0}"
 msgstr "Téléchargé : {0}"
 
-#. placeholder {0}: avatarFile.name
-#. placeholder {0}: file.name
-#. placeholder {0}: fileUpload.name
 #: apps/erp/app/components/Documents.tsx:199
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:77
 #: apps/erp/app/components/ItemThumnailUpload.tsx:78
@@ -13519,6 +13542,9 @@ msgstr "Téléchargé : {0}"
 #: apps/erp/app/modules/documents/ui/Documents/DocumentCreateForm.tsx:22
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:416
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:386
+#. placeholder {0}: avatarFile.name
+#. placeholder {0}: file.name
+#. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "Téléchargement de {0}"
 
@@ -13559,7 +13585,7 @@ msgstr "Utilisez ... pour obtenir l'ID d'outil suivant"
 msgid "Use a different email"
 msgstr "Utiliser une adresse e-mail différente"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:181
+#: apps/erp/app/routes/x+/settings+/items.tsx:179
 msgid "Use metric system for default material dimensions."
 msgstr "Utiliser le système métrique pour les dimensions de matériau par défaut."
 
@@ -13855,10 +13881,25 @@ msgstr "Visible sur le profil public d'un utilisateur"
 msgid "Voice"
 msgstr "Voix"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:169
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:381
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:323
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:322
 msgid "Void"
 msgstr "Annuler"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:104
+msgid "Void Invoice"
+msgstr "Annuler la facture"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:48
+msgid "Void Purchase Invoice"
+msgstr "Annuler la facture d'achat"
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:48
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:102
+msgid "Void Receipt"
+msgstr "Annuler le reçu"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:49
 msgid "Void Sales Invoice"
@@ -13868,15 +13909,24 @@ msgstr "Annuler la facture de vente"
 msgid "Void Shipment"
 msgstr "Annuler l'expédition"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptStatus.tsx:32
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentStatus.tsx:41
 msgid "Voided"
 msgstr "Annulé"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:64
+msgid "Voiding this purchase invoice will:"
+msgstr "L'annulation de cette facture d'achat aura pour effet :"
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:64
+msgid "Voiding this receipt will:"
+msgstr "L'annulation de ce reçu va :"
 
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:64
 msgid "Voiding this shipment will:"
 msgstr "Annuler cet envoi va :"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:211
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:234
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:446
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:53
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:243
@@ -13890,7 +13940,9 @@ msgstr "Transfert d'entrepôt"
 msgid "Warehouse Transfers"
 msgstr "Transferts entre entrepôts"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:61
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:61
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:61
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:62
 msgid "Warning"
 msgstr "Avertissement"
@@ -14142,14 +14194,14 @@ msgstr "Vous pouvez modifier le style de l'interface utilisateur à tout moment 
 msgid "You can only see this key once. Store it safely."
 msgstr "Vous ne pouvez voir cette clé qu'une seule fois. Conservez-la en sécurité."
 
-#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
 #: apps/erp/app/components/TimeCardWarning.tsx:119
+#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
 msgstr "Vous avez pointé à {0}. Vous pouvez modifier votre heure de départ ci-dessous ou confirmer que vous travaillez toujours."
 
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1076
 #. placeholder {0}: leftoverQuantity === 1 ? "part" : "parts"
 #. placeholder {1}: job.quantity
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1076
 msgid ""
 "You completed {leftoverQuantity} more \n"
 "                        {0} than the\n"

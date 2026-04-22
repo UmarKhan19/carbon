@@ -99,7 +99,7 @@ const ReceiptVoidModal = ({ onClose }: { onClose: () => void }) => {
                 }
                 type="submit"
               >
-                Void Receipt
+                <Trans>Void Receipt</Trans>
               </Button>
             </fetcher.Form>
           </HStack>

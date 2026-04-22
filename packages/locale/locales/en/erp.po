@@ -891,11 +891,11 @@ msgstr "Are you sure you want to delete {0}?"
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 #. placeholder {0}: routeData?.customer?.name!
 #. placeholder {0}: routeData?.document?.name
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:160
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:183
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:395
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:226
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:315
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:374
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:397
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableHeader.tsx:97
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:497
 #: apps/erp/app/modules/items/ui/Materials/MaterialHeader.tsx:99
@@ -1257,6 +1257,14 @@ msgstr "Are you sure you want to revoke the invitation for this user?"
 #: apps/erp/app/modules/users/ui/components/RevokeInviteModal.tsx:57
 msgid "Are you sure you want to revoke the invitations for these users?"
 msgstr "Are you sure you want to revoke the invitations for these users?"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:51
+msgid "Are you sure you want to void this purchase invoice? This action will reverse all financial transactions and cannot be undone."
+msgstr "Are you sure you want to void this purchase invoice? This action will reverse all financial transactions and cannot be undone."
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:51
+msgid "Are you sure you want to void this receipt? This action will reverse all inventory transactions and cannot be undone."
+msgstr "Are you sure you want to void this receipt? This action will reverse all inventory transactions and cannot be undone."
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:52
 msgid "Are you sure you want to void this sales invoice? This action will reverse all financial transactions and cannot be undone."
@@ -1706,6 +1714,7 @@ msgstr "Can't disable the only active break. Add another break or toggle the ove
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:372
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:332
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:195
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:85
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:191
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:85
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:165
@@ -1715,6 +1724,7 @@ msgstr "Can't disable the only active break. Add another break or toggle the ove
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:184
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:283
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:154
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:87
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:180
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:78
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:105
@@ -3533,7 +3543,7 @@ msgstr "Default Unit"
 msgid "Defaults"
 msgstr "Defaults"
 
-#: apps/erp/app/routes/x+/settings+/labels.tsx:126
+#: apps/erp/app/routes/x+/settings+/labels.tsx:124
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "Define the default size of the product label. Used for tracking items in inventory."
 
@@ -3763,7 +3773,7 @@ msgstr "Delete Procedure"
 msgid "Delete Process"
 msgstr "Delete Process"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:218
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:226
 msgid "Delete Purchase Invoice"
 msgstr "Delete Purchase Invoice"
 
@@ -3787,7 +3797,7 @@ msgstr "Delete Quote"
 msgid "Delete Reason"
 msgstr "Delete Reason"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:114
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:122
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:317
 msgid "Delete Receipt"
 msgstr "Delete Receipt"
@@ -4796,7 +4806,7 @@ msgstr "Enable timecard tracking for work shifts."
 msgid "Enable to allow shared workstation mode."
 msgstr "Enable to allow shared workstation mode."
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:161
+#: apps/erp/app/routes/x+/settings+/items.tsx:159
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Enable to generate IDs and descriptions for raw materials."
 
@@ -4820,7 +4830,7 @@ msgstr "Enable to start tracking changes to your data."
 msgid "Enable to start tracking work shifts."
 msgstr "Enable to start tracking work shifts."
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:198
+#: apps/erp/app/routes/x+/settings+/items.tsx:196
 msgid "Enable to use metric units for material dimensions."
 msgstr "Enable to use metric units for material dimensions."
 
@@ -5832,7 +5842,7 @@ msgstr "Gauges"
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:139
+#: apps/erp/app/routes/x+/settings+/items.tsx:137
 msgid "Generate material IDs and descriptions based on the properties of the material."
 msgstr "Generate material IDs and descriptions based on the properties of the material."
 
@@ -5841,11 +5851,11 @@ msgstr "Generate material IDs and descriptions based on the properties of the ma
 msgid "Generate new PIN"
 msgstr "Generate new PIN"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:152
+#: apps/erp/app/routes/x+/settings+/items.tsx:150
 msgid "Generated IDs are disabled"
 msgstr "Generated IDs are disabled"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:150
+#: apps/erp/app/routes/x+/settings+/items.tsx:148
 msgid "Generated IDs are enabled"
 msgstr "Generated IDs are enabled"
 
@@ -6004,7 +6014,7 @@ msgstr "Ideas, suggestions or problems with this page?"
 msgid "Ideas, suggestions or problems?"
 msgstr "Ideas, suggestions or problems?"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:157
+#: apps/erp/app/routes/x+/settings+/items.tsx:155
 msgid "IDs and descriptions are generated for raw materials."
 msgstr "IDs and descriptions are generated for raw materials."
 
@@ -6209,7 +6219,7 @@ msgstr "Invalid tracking number"
 #: apps/erp/app/routes/x+/inventory+/_layout.tsx:19
 #: apps/erp/app/routes/x+/receipt+/_layout.tsx:12
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:33
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:119
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:117
 #: apps/erp/app/routes/x+/shipment+/_layout.tsx:12
 #: apps/erp/app/routes/x+/stock-transfer+/_layout.tsx:12
 #: apps/erp/app/routes/x+/traceability+/_layout.tsx:12
@@ -6352,6 +6362,7 @@ msgstr "Invoiced Statuses"
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:92
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:523
 #: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:55
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.tsx:26
 #: apps/erp/app/routes/x+/purchasing+/invoices.tsx:17
 #: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.tsx:28
 #: apps/erp/app/routes/x+/sales+/invoices.tsx:15
@@ -6435,7 +6446,7 @@ msgstr "Issued Date"
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:26
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:36
 #: apps/erp/app/routes/x+/issue+/$id.tsx:37
-#: apps/erp/app/routes/x+/issue+/new.tsx:29
+#: apps/erp/app/routes/x+/issue+/new.tsx:28
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:243
 #: apps/erp/app/routes/x+/quality+/issues.tsx:15
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:239
@@ -6543,7 +6554,7 @@ msgstr "Item Type"
 #: apps/erp/app/routes/x+/material+/_layout.tsx:19
 #: apps/erp/app/routes/x+/part+/_layout.tsx:15
 #: apps/erp/app/routes/x+/settings+/items.tsx:32
-#: apps/erp/app/routes/x+/settings+/items.tsx:131
+#: apps/erp/app/routes/x+/settings+/items.tsx:129
 #: apps/erp/app/routes/x+/tool+/_layout.tsx:15
 msgid "Items"
 msgstr "Items"
@@ -6601,7 +6612,7 @@ msgstr "Job traveler PDFs include work instructions."
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:199
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:289
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:483
-#: apps/erp/app/routes/x+/job+/$jobId.complete.tsx:15
+#: apps/erp/app/routes/x+/job+/$jobId.complete.tsx:14
 #: apps/erp/app/routes/x+/job+/$jobId.tsx:36
 #: apps/erp/app/routes/x+/job+/new.tsx:28
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:249
@@ -6636,7 +6647,7 @@ msgstr "Kanban"
 msgid "Kanban for {kanbanName}"
 msgstr "Kanban for {kanbanName}"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:132
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:130
 msgid "Kanban Output"
 msgstr "Kanban Output"
 
@@ -6680,7 +6691,7 @@ msgstr "Label"
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:236
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:54
 #: apps/erp/app/routes/x+/settings+/labels.tsx:31
-#: apps/erp/app/routes/x+/settings+/labels.tsx:109
+#: apps/erp/app/routes/x+/settings+/labels.tsx:107
 msgid "Labels"
 msgstr "Labels"
 
@@ -6791,6 +6802,10 @@ msgstr "Lead Time:"
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:342
 msgid "Learn more"
 msgstr "Learn more"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:78
+msgid "Leave any related receipts untouched"
+msgstr "Leave any related receipts untouched"
 
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:683
 msgid "Leave empty for exact match"
@@ -7286,7 +7301,7 @@ msgstr "Material Dimension"
 msgid "Material Dimensions"
 msgstr "Material Dimensions"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:196
+#: apps/erp/app/routes/x+/settings+/items.tsx:194
 msgid "Material dimensions use metric units."
 msgstr "Material dimensions use metric units."
 
@@ -7316,7 +7331,7 @@ msgstr "Material Grades"
 msgid "Material ID"
 msgstr "Material ID"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:136
+#: apps/erp/app/routes/x+/settings+/items.tsx:134
 msgid "Material IDs"
 msgstr "Material IDs"
 
@@ -7460,15 +7475,15 @@ msgstr "Method Type"
 msgid "Methods"
 msgstr "Methods"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:178
+#: apps/erp/app/routes/x+/settings+/items.tsx:176
 msgid "Metric"
 msgstr "Metric"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:191
+#: apps/erp/app/routes/x+/settings+/items.tsx:189
 msgid "Metric units are disabled"
 msgstr "Metric units are disabled"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:189
+#: apps/erp/app/routes/x+/settings+/items.tsx:187
 msgid "Metric units are enabled"
 msgstr "Metric units are enabled"
 
@@ -7628,11 +7643,11 @@ msgstr "Monday"
 msgid "More"
 msgstr "More"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:96
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:104
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:127
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:101
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:80
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:197
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:205
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:194
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableHeader.tsx:62
 #: apps/erp/app/modules/items/ui/Materials/MaterialHeader.tsx:65
@@ -8808,7 +8823,7 @@ msgstr "Ordering"
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:86
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:97
 #: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:49
-#: apps/erp/app/routes/x+/purchase-order+/$orderId.tsx:51
+#: apps/erp/app/routes/x+/purchase-order+/$orderId.tsx:50
 #: apps/erp/app/routes/x+/purchase-order+/new.tsx:27
 #: apps/erp/app/routes/x+/purchasing+/orders.tsx:15
 #: apps/erp/app/routes/x+/sales-order+/$orderId.tsx:31
@@ -8831,7 +8846,7 @@ msgstr "Other Type"
 msgid "Outgoing"
 msgstr "Outgoing"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:146
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:144
 msgid "Output"
 msgstr "Output"
 
@@ -8997,7 +9012,7 @@ msgstr "Path"
 msgid "Payables"
 msgstr "Payables"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:320
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:340
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:336
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:69
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:52
@@ -9249,9 +9264,9 @@ msgstr "Positive Adjustment"
 msgid "Positive feedback"
 msgstr "Positive feedback"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:148
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:156
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:372
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:305
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:313
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:313
 msgid "Post"
 msgstr "Post"
@@ -9477,8 +9492,8 @@ msgstr "Process Type"
 msgid "Processes"
 msgstr "Processes"
 
-#: apps/erp/app/routes/x+/settings+/labels.tsx:123
-#: apps/erp/app/routes/x+/settings+/labels.tsx:137
+#: apps/erp/app/routes/x+/settings+/labels.tsx:121
+#: apps/erp/app/routes/x+/settings+/labels.tsx:135
 msgid "Product Label Size"
 msgstr "Product Label Size"
 
@@ -9629,7 +9644,7 @@ msgstr "Purchase Discount"
 msgid "Purchase History"
 msgstr "Purchase History"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:202
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:225
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:320
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:417
 msgid "Purchase Invoice"
@@ -9644,15 +9659,14 @@ msgid "Purchase Invoice Line"
 msgstr "Purchase Invoice Line"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:326
-#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.tsx:26
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:300
 msgid "Purchase Invoices"
 msgstr "Purchase Invoices"
 
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:70
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:193
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:216
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:437
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:240
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:248
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:452
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderSummary.tsx:411
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:526
@@ -9684,7 +9698,7 @@ msgstr "Purchase Order Location"
 msgid "Purchase order removed successfully"
 msgstr "Purchase order removed successfully"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:257
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:265
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:457
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:51
 #: apps/erp/app/routes/x+/issue+/$id.tsx:119
@@ -10074,7 +10088,7 @@ msgstr "Recalculate Unit Cost"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:70
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:342
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:248
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:256
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:823
 #: apps/erp/app/routes/x+/issue+/$id.tsx:139
 msgid "Receipt"
@@ -10104,13 +10118,13 @@ msgstr "Receipt Requested Date"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:346
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:28
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:232
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:276
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:284
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:357
 #: apps/erp/app/routes/x+/inventory+/receipts.tsx:14
 #: apps/erp/app/routes/x+/issue+/$id.tsx:140
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:286
 #: apps/erp/app/routes/x+/receipt+/$receiptId.tsx:23
-#: apps/erp/app/routes/x+/receipt+/new.tsx:15
+#: apps/erp/app/routes/x+/receipt+/new.tsx:14
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:282
 msgid "Receipts"
 msgstr "Receipts"
@@ -10499,6 +10513,10 @@ msgstr "Resources"
 msgid "Restore from Trash"
 msgstr "Restore from Trash"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:73
+msgid "Restore tracked entities to available"
+msgstr "Restore tracked entities to available"
+
 #: apps/erp/app/components/Layout/Topbar/Search.tsx:285
 msgid "Results"
 msgstr "Results"
@@ -10519,9 +10537,22 @@ msgstr "Return Home"
 msgid "Rev {revision}"
 msgstr "Rev {revision}"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:67
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:67
 msgid "Reverse all inventory adjustments"
 msgstr "Reverse all inventory adjustments"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:67
+msgid "Reverse all journal and cost ledger entries"
+msgstr "Reverse all journal and cost ledger entries"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:70
+msgid "Reverse any item ledger entries from this invoice"
+msgstr "Reverse any item ledger entries from this invoice"
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:70
+msgid "Reverse the related journal entries"
+msgstr "Reverse the related journal entries"
 
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:107
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:272
@@ -10948,8 +10979,8 @@ msgstr "Saturday"
 #: apps/erp/app/modules/users/ui/Groups/GroupsForm.tsx:74
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:606
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:688
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:157
-#: apps/erp/app/routes/x+/settings+/labels.tsx:148
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:155
+#: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:560
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:615
@@ -11585,7 +11616,7 @@ msgstr "Shipment Location"
 #: apps/erp/app/routes/x+/issue+/$id.tsx:133
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:317
 #: apps/erp/app/routes/x+/shipment+/$shipmentId.tsx:20
-#: apps/erp/app/routes/x+/shipment+/new.tsx:15
+#: apps/erp/app/routes/x+/shipment+/new.tsx:14
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:313
 msgid "Shipments"
 msgstr "Shipments"
@@ -12102,7 +12133,7 @@ msgstr "Storage Unit"
 msgid "Storage Units"
 msgstr "Storage Units"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:135
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:133
 msgid "Style of kanban output to show in the Kanban table"
 msgstr "Style of kanban output to show in the Kanban table"
 
@@ -12875,7 +12906,7 @@ msgstr "Toggle dark/light mode"
 msgid "Toggle durations"
 msgstr "Toggle durations"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:183
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:191
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:180
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:159
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:66
@@ -12894,7 +12925,7 @@ msgstr "Toggle Explorer"
 msgid "Toggle level"
 msgstr "Toggle level"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:352
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:372
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:358
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:403
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:165
@@ -13045,7 +13076,7 @@ msgstr "Tracking"
 msgid "Tracking ID"
 msgstr "Tracking ID"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:132
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:140
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:166
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:324
 msgid "Tracking Labels"
@@ -13204,7 +13235,7 @@ msgstr "Type:"
 msgid "Types"
 msgstr "Types"
 
-#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:228
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:236
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:185
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:176
 msgid "Unapproved Supplier"
@@ -13401,6 +13432,11 @@ msgstr "Update source document quantities"
 msgid "Update the kanban information for scan-based replenishment."
 msgstr "Update the kanban information for scan-based replenishment."
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:76
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:75
+msgid "Update the purchase order quantities"
+msgstr "Update the purchase order quantities"
+
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:431
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:990
@@ -13559,7 +13595,7 @@ msgstr "Use ... to get the next tool ID"
 msgid "Use a different email"
 msgstr "Use a different email"
 
-#: apps/erp/app/routes/x+/settings+/items.tsx:181
+#: apps/erp/app/routes/x+/settings+/items.tsx:179
 msgid "Use metric system for default material dimensions."
 msgstr "Use metric system for default material dimensions."
 
@@ -13855,10 +13891,25 @@ msgstr "Visible on a user's public profile"
 msgid "Voice"
 msgstr "Voice"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:169
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:381
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:323
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:322
 msgid "Void"
 msgstr "Void"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:104
+msgid "Void Invoice"
+msgstr "Void Invoice"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:48
+msgid "Void Purchase Invoice"
+msgstr "Void Purchase Invoice"
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:48
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:102
+msgid "Void Receipt"
+msgstr "Void Receipt"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:49
 msgid "Void Sales Invoice"
@@ -13868,15 +13919,24 @@ msgstr "Void Sales Invoice"
 msgid "Void Shipment"
 msgstr "Void Shipment"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptStatus.tsx:32
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentStatus.tsx:41
 msgid "Voided"
 msgstr "Voided"
+
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:64
+msgid "Voiding this purchase invoice will:"
+msgstr "Voiding this purchase invoice will:"
+
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:64
+msgid "Voiding this receipt will:"
+msgstr "Voiding this receipt will:"
 
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:64
 msgid "Voiding this shipment will:"
 msgstr "Voiding this shipment will:"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:211
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptHeader.tsx:234
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentHeader.tsx:446
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:53
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:243
@@ -13890,7 +13950,9 @@ msgstr "Warehouse Transfer"
 msgid "Warehouse Transfers"
 msgstr "Warehouse Transfers"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:61
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:61
+#: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:61
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:62
 msgid "Warning"
 msgstr "Warning"

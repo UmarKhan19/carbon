@@ -324,49 +324,52 @@ const PurchaseInvoiceHeader = () => {
               </Button>
             )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="secondary"
-                  isDisabled={
-                    purchaseInvoice.status === "Draft" ||
-                    purchaseInvoice.status === "Pending" ||
-                    isVoided ||
-                    !permissions.can("update", "invoicing")
-                  }
-                  leftIcon={<LuHandCoins />}
-                  rightIcon={<LuChevronDown />}
-                >
-                  <Trans>Payment</Trans>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuRadioGroup
-                  value={purchaseInvoice.status ?? "Draft"}
-                  onValueChange={handleStatusChange}
-                >
-                  {(["Paid", "Partially Paid", "Voided"] as const).map(
-                    (status) => (
-                      <DropdownMenuRadioItem
-                        disabled={
-                          !permissions.can("update", "invoicing") ||
-                          ![
-                            "Open",
-                            "Paid",
-                            "Partially Paid",
-                            "Voided"
-                          ].includes(purchaseInvoice.status ?? "")
-                        }
-                        key={status}
-                        value={status}
-                      >
-                        <PurchaseInvoicingStatus status={status} />
-                      </DropdownMenuRadioItem>
-                    )
-                  )}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {(() => {
+              const isPaymentDisabled =
+                purchaseInvoice.status === "Draft" ||
+                purchaseInvoice.status === "Pending" ||
+                isVoided ||
+                !permissions.can("update", "invoicing");
+
+              if (isPaymentDisabled) {
+                return (
+                  <Button
+                    variant="secondary"
+                    isDisabled
+                    leftIcon={<LuHandCoins />}
+                    rightIcon={<LuChevronDown />}
+                  >
+                    <Trans>Payment</Trans>
+                  </Button>
+                );
+              }
+
+              return (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      leftIcon={<LuHandCoins />}
+                      rightIcon={<LuChevronDown />}
+                    >
+                      <Trans>Payment</Trans>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuRadioGroup
+                      value={purchaseInvoice.status ?? "Draft"}
+                      onValueChange={handleStatusChange}
+                    >
+                      {(["Paid", "Partially Paid"] as const).map((status) => (
+                        <DropdownMenuRadioItem key={status} value={status}>
+                          <PurchaseInvoicingStatus status={status} />
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              );
+            })()}
 
             <IconButton
               aria-label={t`Toggle Properties`}

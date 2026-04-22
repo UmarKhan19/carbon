@@ -22,9 +22,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .from("shipment")
       .select("status")
       .eq("id", shipmentId)
+      .eq("companyId", companyId)
       .single();
 
-    if (shipment?.status !== "Posted") {
+    if (!shipment) {
+      throw redirect(
+        path.to.shipments,
+        await flash(
+          request,
+          error(new Error("Shipment not found"), "Invalid operation")
+        )
+      );
+    }
+
+    if (shipment.status !== "Posted") {
       throw redirect(
         path.to.shipmentDetails(shipmentId),
         await flash(

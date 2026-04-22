@@ -101,7 +101,7 @@ const PurchaseInvoiceVoidModal = ({ onClose }: { onClose: () => void }) => {
                 }
                 type="submit"
               >
-                Void Invoice
+                <Trans>Void Invoice</Trans>
               </Button>
             </fetcher.Form>
           </HStack>
