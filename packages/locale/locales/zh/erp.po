@@ -2305,7 +2305,7 @@ msgstr "完成时间"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
 msgid "Component minimum"
-msgstr ""
+msgstr "组件最小值"
 
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:185
 msgid "Configuration Parameters"
@@ -3558,7 +3558,7 @@ msgstr "默认优先级"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:230
 msgid "Default shelf life (days)"
-msgstr ""
+msgstr "默认保质期（天）"
 
 #: apps/erp/app/modules/quality/ui/IssueWorkflows/IssueWorkflowsTable.tsx:53
 msgid "Default Source"
@@ -5822,7 +5822,7 @@ msgstr "固定"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
 msgid "Fixed duration"
-msgstr ""
+msgstr "固定期限"
 
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
@@ -11569,7 +11569,7 @@ msgstr "为新报价行中的每个成本类别设置默认加价百分比"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
 msgid "Set on receipt"
-msgstr ""
+msgstr "收货时设置"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:289
 msgid "Set Pricing"
@@ -13847,7 +13847,7 @@ msgstr "值"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:233
 msgid "Value pre-filled in the \"Shelf-life (days)\" input when a user first enables Fixed Duration on an item."
-msgstr ""
+msgstr "在用户首次为项目启用固定期限时，预填充在\"保质期（天数）\"输入框中的值。"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156

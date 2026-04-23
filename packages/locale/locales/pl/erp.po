@@ -2305,7 +2305,7 @@ msgstr "Czas ukończenia"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
 msgid "Component minimum"
-msgstr ""
+msgstr "Minimum składnika"
 
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:185
 msgid "Configuration Parameters"
@@ -3558,7 +3558,7 @@ msgstr "Priorytet domyślny"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:230
 msgid "Default shelf life (days)"
-msgstr ""
+msgstr "Domyślny okres przydatności (dni)"
 
 #: apps/erp/app/modules/quality/ui/IssueWorkflows/IssueWorkflowsTable.tsx:53
 msgid "Default Source"
@@ -5822,7 +5822,7 @@ msgstr "Stałe"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
 msgid "Fixed duration"
-msgstr ""
+msgstr "Stały czas trwałości"
 
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
@@ -11569,7 +11569,7 @@ msgstr "Ustaw domyślne procenty marż dla każdej kategorii kosztów w nowych w
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
 msgid "Set on receipt"
-msgstr ""
+msgstr "Ustaw przy odbiorze"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:289
 msgid "Set Pricing"
@@ -13847,7 +13847,7 @@ msgstr "Wartość"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:233
 msgid "Value pre-filled in the \"Shelf-life (days)\" input when a user first enables Fixed Duration on an item."
-msgstr ""
+msgstr "Wartość wstępnie wypełniona w polu \"Okres przydatności (dni)\" gdy użytkownik po raz pierwszy włączy Stały czas trwania dla artykułu."
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156

@@ -2305,7 +2305,7 @@ msgstr "पूर्ण होने का समय"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
 msgid "Component minimum"
-msgstr ""
+msgstr "घटक न्यूनतम"
 
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:185
 msgid "Configuration Parameters"
@@ -3558,7 +3558,7 @@ msgstr "डिफ़ॉल्ट प्राथमिकता"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:230
 msgid "Default shelf life (days)"
-msgstr ""
+msgstr "डिफ़ॉल्ट शेल्फ लाइफ (दिन)"
 
 #: apps/erp/app/modules/quality/ui/IssueWorkflows/IssueWorkflowsTable.tsx:53
 msgid "Default Source"
@@ -5822,7 +5822,7 @@ msgstr "निश्चित"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
 msgid "Fixed duration"
-msgstr ""
+msgstr "निश्चित अवधि"
 
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
@@ -11569,7 +11569,7 @@ msgstr "प्रत्येक लागत श्रेणी के लि�
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
 msgid "Set on receipt"
-msgstr ""
+msgstr "रसीद पर सेट करें"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:289
 msgid "Set Pricing"
@@ -13847,7 +13847,7 @@ msgstr "मान"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:233
 msgid "Value pre-filled in the \"Shelf-life (days)\" input when a user first enables Fixed Duration on an item."
-msgstr ""
+msgstr "मान \"शेल्फ-लाइफ (दिन)\" इनपुट में पूर्व-भरा जाता है जब कोई उपयोगकर्ता किसी आइटम पर फिक्स्ड अवधि को पहली बार सक्षम करता है।"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156

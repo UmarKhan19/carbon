@@ -2305,7 +2305,7 @@ msgstr "Temps d'exécution"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
 msgid "Component minimum"
-msgstr ""
+msgstr "Minimum du composant"
 
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:185
 msgid "Configuration Parameters"
@@ -3558,7 +3558,7 @@ msgstr "Priorité par défaut"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:230
 msgid "Default shelf life (days)"
-msgstr ""
+msgstr "Durée de vie par défaut (jours)"
 
 #: apps/erp/app/modules/quality/ui/IssueWorkflows/IssueWorkflowsTable.tsx:53
 msgid "Default Source"
@@ -5822,7 +5822,7 @@ msgstr "Fixe"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
 msgid "Fixed duration"
-msgstr ""
+msgstr "Durée fixe"
 
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
@@ -11569,7 +11569,7 @@ msgstr "Définir les pourcentages de majoration par défaut pour chaque catégor
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
 msgid "Set on receipt"
-msgstr ""
+msgstr "Défini à la réception"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:289
 msgid "Set Pricing"
@@ -13847,7 +13847,7 @@ msgstr "Valeur"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:233
 msgid "Value pre-filled in the \"Shelf-life (days)\" input when a user first enables Fixed Duration on an item."
-msgstr ""
+msgstr "Valeur pré-remplie dans l'entrée « Durée de conservation (jours) » lorsqu'un utilisateur active pour la première fois la durée fixe sur un article."
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156

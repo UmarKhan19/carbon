@@ -2305,7 +2305,7 @@ msgstr "Время завершения"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
 msgid "Component minimum"
-msgstr ""
+msgstr "Минимум компонента"
 
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:185
 msgid "Configuration Parameters"
@@ -3558,7 +3558,7 @@ msgstr "Приоритет по умолчанию"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:230
 msgid "Default shelf life (days)"
-msgstr ""
+msgstr "Срок хранения по умолчанию (дни)"
 
 #: apps/erp/app/modules/quality/ui/IssueWorkflows/IssueWorkflowsTable.tsx:53
 msgid "Default Source"
@@ -5822,7 +5822,7 @@ msgstr "Фиксированный"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
 msgid "Fixed duration"
-msgstr ""
+msgstr "Фиксированная продолжительность"
 
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
@@ -11569,7 +11569,7 @@ msgstr "Установите процентные надбавки по умол
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
 msgid "Set on receipt"
-msgstr ""
+msgstr "Установить при получении"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:289
 msgid "Set Pricing"
@@ -13847,7 +13847,7 @@ msgstr "Значение"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:233
 msgid "Value pre-filled in the \"Shelf-life (days)\" input when a user first enables Fixed Duration on an item."
-msgstr ""
+msgstr "Значение, предварительно заполненное в поле \"Срок хранения (дни)\" при первом включении пользователем опции \"Фиксированная длительность\" для товара."
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156
