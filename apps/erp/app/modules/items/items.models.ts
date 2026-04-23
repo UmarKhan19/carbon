@@ -54,9 +54,9 @@ export const itemReplenishmentSystems = [
 
 export const shelfLifeModes = [
   "NotManaged",
-  "ItemSpecific",
+  "Fixed Duration",
   "Calculated",
-  "SetAtReceipt"
+  "Set on Receipt"
 ] as const;
 
 export const partManufacturingPolicies = [
@@ -106,7 +106,7 @@ export const itemValidator = z.object({
   // locationId is derived server-side from storageUnit.locationId -
   // the form itself does not capture a location.
   defaultStorageUnitId: zfd.text(z.string().optional()),
-  // Shelf life. The UI Select only surfaces "ItemSpecific" / "Calculated";
+  // Shelf life. The UI Select only surfaces "Fixed Duration" / "Calculated";
   // clearing it (X button) submits an empty string, which we preprocess to
   // the sentinel "NotManaged" so the server deletes any existing
   // itemShelfLife row. Truly absent fields (non-form callers like MCP that
@@ -130,30 +130,30 @@ const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
     .refine(
       (data: z.infer<T>) =>
         data.shelfLifeDays === undefined ||
-        data.shelfLifeMode === "ItemSpecific",
+        data.shelfLifeMode === "Fixed Duration",
       {
         message:
-          "Shelf-life days can only be set when shelf-life management is Item-specific",
+          "Shelf-life days can only be set when shelf-life management is Fixed Duration",
         path: ["shelfLifeDays"]
       }
     )
     .refine(
       (data: z.infer<T>) =>
-        data.shelfLifeMode !== "ItemSpecific" ||
+        data.shelfLifeMode !== "Fixed Duration" ||
         data.shelfLifeDays !== undefined,
       {
         message:
-          "Shelf-life days is required when shelf-life management is Item-specific",
+          "Shelf-life days is required when shelf-life management is Fixed Duration",
         path: ["shelfLifeDays"]
       }
     )
     .refine(
       (data: z.infer<T>) =>
         !data.shelfLifeTriggerProcessId ||
-        data.shelfLifeMode === "ItemSpecific",
+        data.shelfLifeMode === "Fixed Duration",
       {
         message:
-          "Trigger process can only be set when shelf-life management is Item-specific",
+          "Trigger process can only be set when shelf-life management is Fixed Duration",
         path: ["shelfLifeTriggerProcessId"]
       }
     )
@@ -616,28 +616,31 @@ export const pickMethodWithShelfLifeValidator = pickMethodValidator
   )
   .refine(
     (data) =>
-      data.shelfLifeDays === undefined || data.shelfLifeMode === "ItemSpecific",
+      data.shelfLifeDays === undefined ||
+      data.shelfLifeMode === "Fixed Duration",
     {
       message:
-        "Shelf-life days can only be set when shelf-life management is Item-specific",
+        "Shelf-life days can only be set when shelf-life management is Fixed Duration",
       path: ["shelfLifeDays"]
     }
   )
   .refine(
     (data) =>
-      data.shelfLifeMode !== "ItemSpecific" || data.shelfLifeDays !== undefined,
+      data.shelfLifeMode !== "Fixed Duration" ||
+      data.shelfLifeDays !== undefined,
     {
       message:
-        "Shelf-life days is required when shelf-life management is Item-specific",
+        "Shelf-life days is required when shelf-life management is Fixed Duration",
       path: ["shelfLifeDays"]
     }
   )
   .refine(
     (data) =>
-      !data.shelfLifeTriggerProcessId || data.shelfLifeMode === "ItemSpecific",
+      !data.shelfLifeTriggerProcessId ||
+      data.shelfLifeMode === "Fixed Duration",
     {
       message:
-        "Trigger process can only be set when shelf-life management is Item-specific",
+        "Trigger process can only be set when shelf-life management is Fixed Duration",
       path: ["shelfLifeTriggerProcessId"]
     }
   );

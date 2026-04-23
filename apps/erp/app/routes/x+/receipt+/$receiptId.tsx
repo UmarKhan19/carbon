@@ -81,7 +81,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       getBatchProperties(serviceRole, itemsWithBatchProperties, companyId) ??
       [],
     companySettings: getCompanySettings(serviceRole, companyId),
-    itemShelfLife: getShelfLifeForItems(serviceRole, trackedItemIds)
+    itemShelfLife: await getShelfLifeForItems(serviceRole, trackedItemIds)
   };
 }
 

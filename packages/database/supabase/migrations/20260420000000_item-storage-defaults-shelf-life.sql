@@ -20,20 +20,20 @@
 -- row (the third option is "no row").
 --
 -- Shelf-life semantics (from the customer doc "Shelf Life Starting Logic"):
---   - ItemSpecific, no triggerProcess  = clock starts when any operation
+--   - Fixed Duration, no triggerProcess  = clock starts when any operation
 --     on the make method that produces this item completes (e.g. a
 --     subassembly with a defined lifetime).
---   - ItemSpecific, with triggerProcess = clock starts only when an
+--   - Fixed Duration, with triggerProcess = clock starts only when an
 --     operation using the named process completes (Harvest, Packaging,
 --     Pasteurisation, etc.). The same batch is stamped in place - no new
 --     batch is created per the "treatment does not create a new article"
 --     rule.
---   - Calculated                       = Component Minimum. The output
+--   - Calculated                        = Component Minimum. The output
 --     batch inherits the earliest expiry among consumed sub-assembly
---     batches (ItemSpecific or Calculated mode). SetAtReceipt inputs are
+--     batches (Fixed Duration or Calculated mode). Set on Receipt inputs are
 --     excluded since raw-material supplier dates don't govern the finished
 --     product's shelf life.
---   - SetAtReceipt                     = Expiry entered by the user during
+--   - Set on Receipt                    = Expiry entered by the user during
 --     receiving. The stamp interceptor is a no-op for this mode.
 --
 -- Adds one per-company config column to "companySettings":
@@ -64,19 +64,24 @@
 -- ----------------------------------------------------------------------------
 -- 1. Per-item shelf-life policy. No row = not managed. Three modes:
 --
---    - ItemSpecific: days required; triggerProcessId optional (null = any
+--    - Fixed Duration: days required; triggerProcessId optional (null = any
 --      operation on the item's make method stamps on completion).
 --    - Calculated (Component Minimum): days and triggerProcessId must both
 --      be null; expiry is inherited from sub-assembly component batches only
---      (SetAtReceipt inputs are excluded from the computation).
---    - SetAtReceipt: expiry is entered by the user at receipt time (supplier-
+--      (Set on Receipt inputs are excluded from the computation).
+--    - Set on Receipt: expiry is entered by the user at receipt time (supplier-
 --      stated date). days and triggerProcessId must both be null. The stamp
 --      interceptor is a no-op for this mode.
 -- ----------------------------------------------------------------------------
+CREATE TYPE "shelfLifeMode" AS ENUM (
+  'Fixed Duration',
+  'Calculated',
+  'Set on Receipt'
+);
+
 CREATE TABLE "itemShelfLife" (
   "itemId"            TEXT NOT NULL,
-  "mode"              TEXT NOT NULL
-    CHECK ("mode" IN ('ItemSpecific', 'Calculated', 'SetAtReceipt')),
+  "mode"              "shelfLifeMode" NOT NULL,
   "days"              NUMERIC,
   "triggerProcessId"  TEXT,
   "companyId"         TEXT NOT NULL,
@@ -102,12 +107,12 @@ CREATE TABLE "itemShelfLife" (
     FOREIGN KEY ("updatedBy") REFERENCES "user"("id"),
   CONSTRAINT "itemShelfLife_days_positive"
     CHECK ("days" IS NULL OR "days" > 0),
-  CONSTRAINT "itemShelfLife_days_only_itemSpecific"
-    CHECK ("days" IS NULL OR "mode" = 'ItemSpecific'),
-  CONSTRAINT "itemShelfLife_triggerProcessId_only_itemSpecific"
-    CHECK ("triggerProcessId" IS NULL OR "mode" = 'ItemSpecific'),
-  CONSTRAINT "itemShelfLife_itemSpecific_requires_days"
-    CHECK ("mode" <> 'ItemSpecific' OR "days" IS NOT NULL)
+  CONSTRAINT "itemShelfLife_days_only_fixed_duration"
+    CHECK ("days" IS NULL OR "mode" = 'Fixed Duration'),
+  CONSTRAINT "itemShelfLife_triggerProcessId_only_fixed_duration"
+    CHECK ("triggerProcessId" IS NULL OR "mode" = 'Fixed Duration'),
+  CONSTRAINT "itemShelfLife_fixed_duration_requires_days"
+    CHECK ("mode" <> 'Fixed Duration' OR "days" IS NOT NULL)
 );
 
 CREATE INDEX "itemShelfLife_companyId_idx"
@@ -117,36 +122,33 @@ CREATE INDEX "itemShelfLife_triggerProcessId_idx"
 
 ALTER TABLE "itemShelfLife" ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Employees with parts_view can view item shelf life" ON "itemShelfLife"
-  FOR SELECT
-  USING (
-    has_role('employee', "companyId")
-    AND has_company_permission('parts_view', "companyId")
-  );
+CREATE POLICY "SELECT" ON "public"."itemShelfLife"
+FOR SELECT USING (
+  "companyId" = ANY (
+    (SELECT get_companies_with_employee_permission('parts_view'))::text[]
+  )
+);
 
-CREATE POLICY "Employees with parts_create can insert item shelf life" ON "itemShelfLife"
-  FOR INSERT
-  WITH CHECK (
-    has_role('employee', "companyId")
-    AND has_company_permission('parts_create', "companyId")
-  );
+CREATE POLICY "INSERT" ON "public"."itemShelfLife"
+FOR INSERT WITH CHECK (
+  "companyId" = ANY (
+    (SELECT get_companies_with_employee_permission('parts_create'))::text[]
+  )
+);
 
-CREATE POLICY "Employees with parts_update can update item shelf life" ON "itemShelfLife"
-  FOR UPDATE
-  USING (
-    has_role('employee', "companyId")
-    AND has_company_permission('parts_update', "companyId")
-  );
+CREATE POLICY "UPDATE" ON "public"."itemShelfLife"
+FOR UPDATE USING (
+  "companyId" = ANY (
+    (SELECT get_companies_with_employee_permission('parts_update'))::text[]
+  )
+);
 
-CREATE POLICY "Employees with parts_delete can delete item shelf life" ON "itemShelfLife"
-  FOR DELETE
-  USING (
-    has_role('employee', "companyId")
-    AND has_company_permission('parts_delete', "companyId")
-  );
-
-CREATE POLICY "Requests with an API key can access item shelf life" ON "itemShelfLife"
-  FOR ALL USING (has_valid_api_key_for_company("companyId"));
+CREATE POLICY "DELETE" ON "public"."itemShelfLife"
+FOR DELETE USING (
+  "companyId" = ANY (
+    (SELECT get_companies_with_employee_permission('parts_delete'))::text[]
+  )
+);
 
 
 -- ----------------------------------------------------------------------------
@@ -157,7 +159,9 @@ ALTER TABLE "companySettings"
     CHECK (
       "nearExpiryWarningDays" IS NULL
       OR "nearExpiryWarningDays" BETWEEN 0 AND 365
-    );
+    ),
+  ADD COLUMN "defaultShelfLifeDays" INTEGER NOT NULL DEFAULT 7
+    CHECK ("defaultShelfLifeDays" BETWEEN 1 AND 3650);
 
 
 -- ----------------------------------------------------------------------------
@@ -171,7 +175,7 @@ ALTER TABLE "companySettings"
 --    stamp their own tracked entities on their own operation completions.
 --
 --    Two modes:
---      - ItemSpecific: expiry = CURRENT_DATE + itemShelfLife.days. Fires only
+--      - Fixed Duration: expiry = CURRENT_DATE + itemShelfLife.days. Fires only
 --        when (a) triggerProcessId is NULL (any operation on the make method
 --        stamps), or (b) the completed operation's processId equals
 --        triggerProcessId. FK equality - no string matching.
@@ -203,7 +207,7 @@ DECLARE
   v_job_make_method_id         TEXT;
   v_operation_process_id       TEXT;
   v_item_id                    TEXT;
-  v_shelf_life_mode            TEXT;
+  v_shelf_life_mode            "shelfLifeMode";
   v_shelf_life_days            NUMERIC;
   v_shelf_life_trigger_process TEXT;
   v_computed_expiry            DATE;
@@ -237,8 +241,8 @@ BEGIN
     RETURN;
   END IF;
 
-  IF v_shelf_life_mode = 'ItemSpecific' THEN
-    -- days is NOT NULL on ItemSpecific per the table CHECK, but keep the
+  IF v_shelf_life_mode = 'Fixed Duration' THEN
+    -- days is NOT NULL on Fixed Duration per the table CHECK, but keep the
     -- guard for safety.
     IF v_shelf_life_days IS NULL THEN
       RETURN;
@@ -253,8 +257,8 @@ BEGIN
 
   ELSIF v_shelf_life_mode = 'Calculated' THEN
     -- MIN expiry across sub-assembly inputs consumed by THIS make method.
-    -- Only inputs whose source item has ItemSpecific or Calculated shelf-life
-    -- count. SetAtReceipt items are raw materials; their supplier-stated expiry
+    -- Only inputs whose source item has Fixed Duration or Calculated shelf-life
+    -- count. Set on Receipt items are raw materials; their supplier-stated expiry
     -- must not propagate to the finished product's shelf life.
     SELECT MIN((te.attributes->>'expirationDate')::DATE)
     INTO v_computed_expiry
@@ -263,14 +267,14 @@ BEGIN
     JOIN "trackedEntity"   te  ON te."id"      = tai."trackedEntityId"
     JOIN "itemShelfLife"   isl ON isl."itemId" = te."sourceDocumentId"
     WHERE ta.attributes->>'Job Make Method' = v_job_make_method_id
-      AND isl."mode" IN ('ItemSpecific', 'Calculated')
+      AND isl."mode" IN ('Fixed Duration', 'Calculated')
       AND (te.attributes->>'expirationDate') IS NOT NULL;
 
     IF v_computed_expiry IS NULL THEN
       RETURN;
     END IF;
 
-  ELSIF v_shelf_life_mode = 'SetAtReceipt' THEN
+  ELSIF v_shelf_life_mode = 'Set on Receipt' THEN
     -- Expiry was entered by the user at receipt time. Nothing to compute
     -- on operation completion; return silently.
     RETURN;
@@ -412,6 +416,7 @@ BEGIN
     "sourceDocument",
     "sourceDocumentId",
     "sourceDocumentReadableId",
+    "readableId",
     "attributes",
     "companyId",
     "createdBy"
@@ -423,12 +428,14 @@ BEGIN
     'Item',
     v_item_id,
     v_item_readable_id,
+    p_serial_number,
     v_attributes,
     v_company_id,
     v_created_by
   )
   ON CONFLICT (id) DO UPDATE SET
     "quantity" = EXCLUDED."quantity",
+    "readableId" = EXCLUDED."readableId",
     "attributes" = EXCLUDED."attributes";
 
 END;

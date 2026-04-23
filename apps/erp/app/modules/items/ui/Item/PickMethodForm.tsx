@@ -22,7 +22,7 @@ import {
   Process,
   Submit
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useSettings } from "~/hooks";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import {
@@ -46,7 +46,7 @@ type PickMethodFormProps = {
    */
   itemTrackingType: string;
   /**
-   * Filters the shelf-life mode options. `Make` items hide `SetAtReceipt`
+   * Filters the shelf-life mode options. `Make` items hide `Set on Receipt`
    * (nothing is received), `Buy` items hide `Calculated` (no BoM is
    * consumed). `Buy and Make` / null keeps every mode.
    */
@@ -134,10 +134,12 @@ const PickMethodForm = ({
 
 export default PickMethodForm;
 
-const ALL_SHELF_LIFE_MODES: ShelfLifeMode[] = [
-  "ItemSpecific",
+type ManagedShelfLifeMode = Exclude<ShelfLifeMode, "NotManaged">;
+
+const ALL_SHELF_LIFE_MODES: ManagedShelfLifeMode[] = [
+  "Fixed Duration",
   "Calculated",
-  "SetAtReceipt"
+  "Set on Receipt"
 ];
 
 // The "has shelf life" checkbox is local state. When unchecked, the
@@ -150,11 +152,12 @@ function ShelfLifeFields({
   replenishmentSystem: ReplenishmentSystem | null;
 }) {
   const { t } = useLingui();
+  const { defaultShelfLifeDays } = useSettings();
   const shelfLifeOptionCopy: Record<
     Exclude<ShelfLifeMode, "NotManaged">,
     { title: string; description: string }
   > = {
-    ItemSpecific: {
+    "Fixed Duration": {
       title: t`Fixed Shelf Life`,
       description:
         replenishmentSystem === "Buy"
@@ -167,7 +170,7 @@ function ShelfLifeFields({
       title: t`Inherit From Materials`,
       description: t`Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients.`
     },
-    SetAtReceipt: {
+    "Set on Receipt": {
       title: t`Entered At Receipt`,
       description: t`A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates.`
     }
@@ -182,9 +185,9 @@ function ShelfLifeFields({
     "shelfLifeTriggerProcessId"
   );
 
-  const availableModes = useMemo<ShelfLifeMode[]>(() => {
+  const availableModes = useMemo<ManagedShelfLifeMode[]>(() => {
     return ALL_SHELF_LIFE_MODES.filter((mode) => {
-      if (replenishmentSystem === "Make" && mode === "SetAtReceipt")
+      if (replenishmentSystem === "Make" && mode === "Set on Receipt")
         return false;
       if (replenishmentSystem === "Buy" && mode === "Calculated") return false;
       return true;
@@ -202,14 +205,17 @@ function ShelfLifeFields({
       hasShelfLife &&
       shelfLifeMode &&
       shelfLifeMode !== "NotManaged" &&
-      !availableModes.includes(shelfLifeMode as ShelfLifeMode)
+      !availableModes.includes(shelfLifeMode as ManagedShelfLifeMode)
     ) {
       setShelfLifeMode(availableModes[0]);
     }
   }, [availableModes, hasShelfLife, shelfLifeMode, setShelfLifeMode]);
 
+  // Keep the days value consistent with the mode: clear it when the user
+  // switches away from Fixed Duration so the validator doesn't reject a
+  // stale value on submit.
   useEffect(() => {
-    if (shelfLifeMode !== "ItemSpecific" && shelfLifeDays !== undefined) {
+    if (shelfLifeMode !== "Fixed Duration" && shelfLifeDays !== undefined) {
       setShelfLifeDays(undefined);
     }
   }, [shelfLifeMode, shelfLifeDays, setShelfLifeDays]);
@@ -229,7 +235,7 @@ function ShelfLifeFields({
       if (
         !current ||
         current === "NotManaged" ||
-        !availableModes.includes(current as ShelfLifeMode)
+        !availableModes.includes(current as ManagedShelfLifeMode)
       ) {
         setShelfLifeMode(availableModes[0]);
       }
@@ -283,13 +289,13 @@ function ShelfLifeFields({
         </div>
       )}
 
-      {hasShelfLife && choiceValue === "ItemSpecific" && (
+      {hasShelfLife && choiceValue === "Fixed Duration" && (
         <>
           <NumberControlled
             name="shelfLifeDays"
             label={t`Shelf Life (Days)`}
             minValue={1}
-            value={shelfLifeDays ?? 7}
+            value={shelfLifeDays ?? defaultShelfLifeDays}
           />
           {replenishmentSystem !== "Buy" && (
             <Process

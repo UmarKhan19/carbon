@@ -101,7 +101,8 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
       const shelfLifeResult = await updateShelfLifeSettings(client, companyId, {
-        nearExpiryWarningDays: shelfLifeValidation.data.nearExpiryWarningDays
+        nearExpiryWarningDays: shelfLifeValidation.data.nearExpiryWarningDays,
+        defaultShelfLifeDays: shelfLifeValidation.data.defaultShelfLifeDays
       });
       if (shelfLifeResult.error)
         return {
@@ -196,7 +197,8 @@ export default function InventorySettingsRoute() {
             validator={shelfLifeSettingsValidator}
             defaultValues={{
               nearExpiryWarningDays:
-                companySettings.nearExpiryWarningDays ?? undefined
+                companySettings.nearExpiryWarningDays ?? undefined,
+              defaultShelfLifeDays: companySettings.defaultShelfLifeDays
             }}
             fetcher={fetcher}
           >
@@ -222,6 +224,13 @@ export default function InventorySettingsRoute() {
                   minValue={0}
                   maxValue={365}
                   helperText={t`Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges.`}
+                />
+                <Number
+                  name="defaultShelfLifeDays"
+                  label={t`Default shelf life (days)`}
+                  minValue={1}
+                  maxValue={365}
+                  helperText={t`Value pre-filled in the "Shelf-life (days)" input when a user first enables Fixed Duration on an item.`}
                 />
               </div>
             </CardContent>

@@ -2940,6 +2940,7 @@ export type Database = {
           maintenanceDispatchNotificationGroup: string[] | null
           maintenanceGenerateInAdvance: boolean
           materialGeneratedIds: boolean
+          defaultShelfLifeDays: number
           nearExpiryWarningDays: number | null
           operationsDispatchNotificationGroup: string[] | null
           otherDispatchNotificationGroup: string[] | null
@@ -2979,6 +2980,7 @@ export type Database = {
           maintenanceDispatchNotificationGroup?: string[] | null
           maintenanceGenerateInAdvance?: boolean
           materialGeneratedIds?: boolean
+          defaultShelfLifeDays?: number
           nearExpiryWarningDays?: number | null
           operationsDispatchNotificationGroup?: string[] | null
           otherDispatchNotificationGroup?: string[] | null
@@ -3018,6 +3020,7 @@ export type Database = {
           maintenanceDispatchNotificationGroup?: string[] | null
           maintenanceGenerateInAdvance?: boolean
           materialGeneratedIds?: boolean
+          defaultShelfLifeDays?: number
           nearExpiryWarningDays?: number | null
           operationsDispatchNotificationGroup?: string[] | null
           otherDispatchNotificationGroup?: string[] | null

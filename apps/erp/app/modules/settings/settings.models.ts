@@ -131,6 +131,11 @@ export const shelfLifeSettingsValidator = z.object({
   // "expiring soon" (amber, within this many days) and "expired" (red).
   nearExpiryWarningDays: zfd.numeric(
     z.number().int().min(0).max(365).optional()
+  ),
+  // Seed value for the "Shelf-life (days)" input when an item is first
+  // configured for Fixed Duration. DB has DEFAULT 7 NOT NULL.
+  defaultShelfLifeDays: zfd.numeric(
+    z.number().int().min(1).max(3650).default(7)
   )
 });
 

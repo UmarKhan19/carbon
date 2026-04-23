@@ -483,12 +483,15 @@ export async function updateShelfLifeSettings(
   settings: {
     /** undefined clears the threshold (NULL in DB), disabling expiry badges. */
     nearExpiryWarningDays: number | undefined;
+    /** Seed for the "Shelf-life (days)" input. DB default is 7. */
+    defaultShelfLifeDays: number;
   }
 ) {
   return client
     .from("companySettings")
     .update({
-      nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null
+      nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null,
+      defaultShelfLifeDays: settings.defaultShelfLifeDays
     })
     .eq("id", companyId);
 }

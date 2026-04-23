@@ -2024,7 +2024,7 @@ export async function upsertConfigurationRule(
  *   - mode undefined         -> no-op. The caller's form didn't opine on
  *                               shelf life; leave whatever row exists alone.
  *   - mode 'NotManaged'      -> explicit opt-out. DELETE any existing row.
- *   - mode 'ItemSpecific' or
+ *   - mode 'Fixed Duration' or
  *     'Calculated'           -> UPSERT, clearing fields that don't apply to
  *                               the selected mode so stale values never leak
  *                               between modes.
@@ -2123,9 +2123,9 @@ export async function upsertItemShelfLife(
     return client.from("itemShelfLife").delete().eq("itemId", args.itemId);
   }
 
-  const days = args.mode === "ItemSpecific" ? (args.days ?? null) : null;
+  const days = args.mode === "Fixed Duration" ? (args.days ?? null) : null;
   const triggerProcessId =
-    args.mode === "ItemSpecific" ? (args.triggerProcessId ?? null) : null;
+    args.mode === "Fixed Duration" ? (args.triggerProcessId ?? null) : null;
 
   const existing = await client
     .from("itemShelfLife")

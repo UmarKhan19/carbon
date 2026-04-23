@@ -21,7 +21,7 @@ msgstr "\"{storageUnitName}\"有{childCount}个直接嵌套的存储单元。删
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"${storageUnitName}\"有1个直接嵌套的存储单元。删除它也会删除该单元及其下的所有内容。此操作无法撤销。"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:221
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:223
 msgid "\"Expiring soon\" threshold (days)"
 msgstr "\"即将过期\"阈值（天数）"
 
@@ -189,7 +189,7 @@ msgstr "发货是指向客户发送零件或转移到另一个地点的记录。
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "工具是用于制造零件的物理项目，可以在多个工作中使用"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:172
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:175
 msgid "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
 msgstr "用户在收到货物时在每个批次或序列号上记录过期日期。当供应商发货的批次具有不同的过期日期时使用。"
 
@@ -1537,7 +1537,7 @@ msgstr "批量大小"
 msgid "Batch Tracking"
 msgstr "批次追踪"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:224
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:226
 msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
 msgstr "在到期前这么多天内的批次会获得琥珀色徽章；已过期的批次会获得红色徽章。留空以隐藏两个徽章。"
 
@@ -1669,10 +1669,6 @@ msgstr "通过登录，您同意<0>服务条款</0>和<1>隐私政策。</1>"
 #: apps/erp/app/routes/x+/tool+/$itemId.make.$makeMethodId.tsx:161
 msgid "CAD Model"
 msgstr "CAD 模型"
-
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
-msgid "Calculated from BoM"
-msgstr "从物料清单计算"
 
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermsTable.tsx:74
 msgid "Calculation Method"
@@ -2307,6 +2303,10 @@ msgstr "完成条码"
 msgid "Completion Time"
 msgstr "完成时间"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
+msgid "Component minimum"
+msgstr ""
+
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:185
 msgid "Configuration Parameters"
 msgstr "配置参数"
@@ -2525,7 +2525,7 @@ msgstr "承包商"
 msgid "Contractors"
 msgstr "承包商"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:208
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:210
 msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
 msgstr "控制应用程序中如何显示即将过期和已过期的批次。留空以完全关闭过期徽章。仅警告 — 此设置不会阻止消费或收据。"
 
@@ -3556,11 +3556,15 @@ msgstr "默认权限"
 msgid "Default Priority"
 msgstr "默认优先级"
 
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:230
+msgid "Default shelf life (days)"
+msgstr ""
+
 #: apps/erp/app/modules/quality/ui/IssueWorkflows/IssueWorkflowsTable.tsx:53
 msgid "Default Source"
 msgstr "默认来源"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:81
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:85
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:113
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
@@ -3578,7 +3582,7 @@ msgstr "默认单位"
 msgid "Defaults"
 msgstr "默认值"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:119
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:123
 msgid "Defaults to any operation that produces this item."
 msgstr "默认为生成此项目的任何操作。"
 
@@ -4930,7 +4934,7 @@ msgstr "输入或扫描序列号"
 msgid "Enter PO number"
 msgstr "输入采购订单号"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:171
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:174
 msgid "Entered At Receipt"
 msgstr "在收货时输入"
 
@@ -5816,11 +5820,15 @@ msgstr "财政年度"
 msgid "Fixed"
 msgstr "固定"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
+msgid "Fixed duration"
+msgstr ""
+
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
 msgstr "固定重新订购"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:158
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:161
 msgid "Fixed Shelf Life"
 msgstr "固定保质期"
 
@@ -6203,7 +6211,7 @@ msgstr "传入"
 msgid "Infrastructure"
 msgstr "基础设施"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:167
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:170
 msgid "Inherit From Materials"
 msgstr "从材料继承"
 
@@ -6301,7 +6309,7 @@ msgstr "无效的追踪号码"
 #: apps/erp/app/routes/x+/inventory+/_layout.tsx:19
 #: apps/erp/app/routes/x+/receipt+/_layout.tsx:12
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:42
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:149
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:150
 #: apps/erp/app/routes/x+/shipment+/_layout.tsx:12
 #: apps/erp/app/routes/x+/stock-transfer+/_layout.tsx:12
 #: apps/erp/app/routes/x+/traceability+/_layout.tsx:12
@@ -6616,10 +6624,6 @@ msgstr "物料主数据"
 msgid "Item Scope"
 msgstr "物品范围"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
-msgid "Item specific"
-msgstr "特定项目"
-
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:416
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:587
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:445
@@ -6734,7 +6738,7 @@ msgstr "看板"
 msgid "Kanban for {kanbanName}"
 msgstr "看板 {kanbanName}"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:162
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:163
 msgid "Kanban Output"
 msgstr "看板输出"
 
@@ -8564,7 +8568,7 @@ msgid "Not enough jobs to cover quantity"
 msgstr "工作数量不足以覆盖数量"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:20
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:106
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:110
 msgid "Not managed"
 msgstr "未管理"
 
@@ -8942,7 +8946,7 @@ msgstr "其他类型"
 msgid "Outgoing"
 msgstr "出库"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:176
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:177
 msgid "Output"
 msgstr "输出"
 
@@ -11084,8 +11088,8 @@ msgstr "星期六"
 #: apps/erp/app/modules/users/ui/Groups/GroupsForm.tsx:74
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:606
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:688
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:187
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:230
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:188
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:239
 #: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:560
@@ -11547,10 +11551,6 @@ msgstr "序列追踪"
 msgid "Serial/Batch #"
 msgstr "序列号/批次 #"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
-msgid "Set at receipt"
-msgstr "收货时设置"
-
 #: apps/erp/app/components/TimeCardWarning.tsx:147
 msgid "Set Clock Out"
 msgstr "设置打卡下班时间"
@@ -11567,6 +11567,10 @@ msgstr "设置控制台PIN"
 msgid "Set default markup percentages for each cost category on new quote lines"
 msgstr "为新报价行中的每个成本类别设置默认加价百分比"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
+msgid "Set on receipt"
+msgstr ""
+
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:289
 msgid "Set Pricing"
 msgstr "设置定价"
@@ -11580,7 +11584,7 @@ msgstr "设置数量"
 msgid "Set Version {0} as Active Version?"
 msgstr "将版本 {0} 设置为活跃版本？"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:87
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:91
 msgid "Set your default location in profile settings to pick a storage unit."
 msgstr "在个人资料设置中设置您的默认位置以选择存储单位。"
 
@@ -11660,31 +11664,31 @@ msgstr "分享链接"
 msgid "Share Quote"
 msgstr "分享报价"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:94
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:98
 msgid "Shelf Life"
 msgstr "保质期"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:290
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:296
 msgid "Shelf Life (Days)"
 msgstr "保质期（天）"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:205
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:207
 msgid "Shelf life & expiry"
 msgstr "保质期和过期"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:297
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:303
 msgid "Shelf Life Trigger Process"
 msgstr "保质期触发流程"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:263
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:269
 msgid "Shelf-Life"
 msgstr "保质期"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:112
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:116
 msgid "Shelf-life (days)"
 msgstr "保质期（天）"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:118
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:122
 msgid "Shelf-life trigger process"
 msgstr "保质期触发流程"
 
@@ -12284,19 +12288,19 @@ msgstr "存储单位"
 msgid "Storage Units"
 msgstr "存储单位"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:163
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:166
 msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
 msgstr "在此项目上存储固定的天数。过期日期在创建每个批次或序列号时标记（或在触发流程运行时标记，如果已设置）。"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:164
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:167
 msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set)."
 msgstr "在此项目上存储固定的天数。过期日期在接收或创建每个批次或序列号时被标记（或在触发流程运行时，如果已设置）。"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:161
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:164
 msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received."
 msgstr "在此项目上存储固定的天数。过期日期在收到时会标记在每个批次或序列号上。"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:165
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:166
 msgid "Style of kanban output to show in the Kanban table"
 msgstr "看板输出在看板表中显示的样式"
 
@@ -12670,7 +12674,7 @@ msgstr "表格操作"
 msgid "Tags"
 msgstr "标签"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:168
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:171
 msgid "Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients."
 msgstr "取用制造此物品所消耗材料中最短的剩余保质期。当产品的有效期取决于其成分时使用。"
 
@@ -13840,6 +13844,10 @@ msgstr "正在验证工作..."
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1665
 msgid "Value"
 msgstr "值"
+
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:233
+msgid "Value pre-filled in the \"Shelf-life (days)\" input when a user first enables Fixed Duration on an item."
+msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156

@@ -587,7 +587,7 @@ function BatchForm({
   const shelfLife = itemShelfLife?.data?.find(
     (sl) => sl.itemId === line.itemId
   );
-  const showExpiryField = shelfLife?.mode === "SetAtReceipt";
+  const showExpiryField = shelfLife?.mode === "Set on Receipt";
   const [values, setValues] = useState<{
     number: string;
     properties: any;
@@ -839,7 +839,7 @@ function SerialForm({
   const shelfLife = itemShelfLife?.data?.find(
     (sl) => sl.itemId === line.itemId
   );
-  const showExpiryField = shelfLife?.mode === "SetAtReceipt";
+  const showExpiryField = shelfLife?.mode === "Set on Receipt";
   const [expiryDate, setExpiryDate] = useState("");
   const [errors, setErrors] = useState<Record<number, string>>({});
 
