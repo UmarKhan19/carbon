@@ -80,12 +80,12 @@ const jobHeaderStyles = StyleSheet.create({
     marginBottom: 4
   },
   label: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 600,
     color: "#374151"
   },
   value: {
-    fontSize: 9,
+    fontSize: 11,
     fontWeight: 400,
     color: "#111827"
   },
@@ -287,13 +287,12 @@ export const JobTravelerPageContent = ({
       <View style={tw("mb-6 text-xs")}>
         <View
           style={tw(
-            "flex flex-row justify-between items-center py-3 px-[6px] border-t border-b border-gray-300 font-bold uppercase page-break-inside-avoid"
+            "flex flex-row justify-between items-center py-3 px-[6px] border-t border-b border-gray-300 font-bold uppercase page-break-inside-avoid gap-x-6"
           )}
         >
           <Text style={tw("w-1/12 text-left")}>Seq</Text>
-          <Text style={tw("w-2/12 text-left")}>Operation</Text>
+          <Text style={tw("w-8/12 text-left")}>Operation</Text>
           <Text style={tw("w-3/12 text-left")}>Expected Times</Text>
-          <Text style={tw("w-6/12 text-right pr-4")}>Actions</Text>
         </View>
 
         {jobOperations
@@ -366,43 +365,58 @@ export const JobTravelerPageContent = ({
                 key={operation.id}
                 wrap={includeWorkInstructions ? true : false}
               >
-                <View
-                  style={tw("flex flex-row justify-between items-start")}
-                  wrap={false}
-                >
-                  <Text style={tw("w-1/12 text-left")}>
-                    {getParallelizedOrder(index, operation, jobOperations)}
-                  </Text>
-                  <View style={tw("w-2/12 text-left")}>
-                    <Text style={tw("font-bold")}>{operation.description}</Text>
-                  </View>
-                  <View style={tw("w-3/12 text-left")}>
-                    {hasExpectedTimes && (
-                      <View style={tw("flex flex-col gap-1")}>
-                        {setupTimeFormatted && (
-                          <Text style={tw("text-[8px]")}>
-                            Setup: {setupTimeFormatted}
-                          </Text>
-                        )}
-                        {laborTimeFormatted && (
-                          <Text style={tw("text-[8px]")}>
-                            Labor: {laborTimeFormatted}
-                          </Text>
-                        )}
-                        {machineTimeFormatted && (
-                          <Text style={tw("text-[8px]")}>
-                            Machine: {machineTimeFormatted}
-                          </Text>
-                        )}
-                      </View>
+                <View style={tw("flex flex-col gap-y-4")} wrap={false}>
+                  <View
+                    style={tw(
+                      "flex flex-row justify-between items-start gap-x-6"
                     )}
+                    wrap={false}
+                  >
+                    <Text style={tw("w-1/12 font-bold text-left")}>
+                      {getParallelizedOrder(index, operation, jobOperations)}
+                    </Text>
+                    <View style={tw("w-8/12 text-left text-[12px]")}>
+                      <Text style={tw("font-bold")}>
+                        {operation.description}
+                      </Text>
+                    </View>
+                    <View style={tw("w-3/12 text-left")}>
+                      {hasExpectedTimes && (
+                        <View style={tw("flex flex-col gap-1")}>
+                          {setupTimeFormatted && (
+                            <Text style={tw("text-[10px]")}>
+                              Setup: {setupTimeFormatted}
+                            </Text>
+                          )}
+                          {laborTimeFormatted && (
+                            <Text style={tw("text-[10px]")}>
+                              Labor: {laborTimeFormatted}
+                            </Text>
+                          )}
+                          {machineTimeFormatted && (
+                            <Text style={tw("text-[10px]")}>
+                              Machine: {machineTimeFormatted}
+                            </Text>
+                          )}
+                        </View>
+                      )}
+                    </View>
                   </View>
-                  <View style={tw("w-6/12 flex flex-row justify-end gap-2")}>
+
+                  <View
+                    style={tw(
+                      "flex flex-row justify-between items-center py-3 px-[6px] border-gray-300 font-bold uppercase page-break-inside-avoid"
+                    )}
+                  >
+                    <Text style={tw("text-left pr-4")}>Actions</Text>
+                  </View>
+
+                  <View style={tw("w-full flex flex-row justify-start gap-2")}>
                     {isInside && setupQrCode && (
                       <View style={tw("flex flex-col items-center w-1/4")}>
                         <>
                           <Image src={setupQrCode} style={tw("w-16 h-16")} />
-                          <Text style={tw("text-[8px] mt-1")}>Setup</Text>
+                          <Text style={tw("text-[10px] mt-1")}>Setup</Text>
                         </>
                       </View>
                     )}
@@ -411,7 +425,7 @@ export const JobTravelerPageContent = ({
                       <View style={tw("flex flex-col items-center w-1/4")}>
                         <>
                           <Image src={laborQrCode} style={tw("w-16 h-16")} />
-                          <Text style={tw("text-[8px] mt-1")}>Labor</Text>
+                          <Text style={tw("text-[10px] mt-1")}>Labor</Text>
                         </>
                       </View>
                     )}
@@ -422,16 +436,17 @@ export const JobTravelerPageContent = ({
                             src={machiningQrCode}
                             style={tw("w-16 h-16")}
                           />
-                          <Text style={tw("text-[8px] mt-1")}>Machine</Text>
+                          <Text style={tw("text-[10px] mt-1")}>Machine</Text>
                         </>
                       </View>
                     )}
                     <View style={tw("flex flex-col items-center w-1/4")}>
                       <Image src={completeQrCode} style={tw("w-16 h-16")} />
-                      <Text style={tw("text-[8px] mt-1")}>Complete</Text>
+                      <Text style={tw("text-[10px] mt-1")}>Complete</Text>
                     </View>
                   </View>
                 </View>
+
                 {(hasWorkInstruction || hasProcedureSteps) && (
                   <View style={tw("mt-2 ml-8")}>
                     {hasProcedureSteps && (
