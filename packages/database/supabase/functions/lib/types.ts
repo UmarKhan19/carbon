@@ -59376,6 +59376,10 @@ export type Database = {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
       }
+      sync_stamp_shelf_life_on_job_operation: {
+        Args: { p_job_operation_id: string; p_timing: string }
+        Returns: undefined
+      }
       sync_update_customer_type_group: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined

@@ -68434,6 +68434,45 @@ export default {
         tags: ["(rpc) populate_company_search_index"]
       }
     },
+    "/rpc/sync_stamp_shelf_life_on_job_operation": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_job_operation_id: {
+                  format: "text",
+                  type: "string"
+                },
+                p_timing: {
+                  format: "text",
+                  type: "string"
+                }
+              },
+              required: ["p_job_operation_id", "p_timing"],
+              type: "object"
+            }
+          },
+          {
+            $ref: "#/parameters/preferParams"
+          }
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        responses: {
+          "200": {
+            description: "OK"
+          }
+        },
+        tags: ["(rpc) sync_stamp_shelf_life_on_job_operation"]
+      }
+    },
     "/rpc/get_next_numeric_sequence": {
       post: {
         parameters: [
