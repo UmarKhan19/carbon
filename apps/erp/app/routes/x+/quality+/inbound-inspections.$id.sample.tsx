@@ -5,14 +5,12 @@ import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import invariant from "tiny-invariant";
-import {
-  inboundInspectionSampleValidator,
-  upsertInboundInspectionSample
-} from "~/modules/quality";
+import { inboundInspectionSampleValidator } from "~/modules/quality";
+import { upsertInboundInspectionSample } from "~/modules/quality/quality.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { companyId, userId } = await requirePermissions(request, {
     update: "quality",
     role: "employee"
   });
@@ -32,7 +30,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const result = await upsertInboundInspectionSample(client, {
+  const result = await upsertInboundInspectionSample({
     ...validation.data,
     companyId,
     inspectedBy: userId

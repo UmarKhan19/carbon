@@ -10,11 +10,11 @@ import { redirect } from "react-router";
 import invariant from "tiny-invariant";
 import {
   deleteIssue,
-  dispositionInboundInspection,
   getInboundInspection,
   getIssueTypesList,
   upsertIssue
 } from "~/modules/quality";
+import { dispositionInboundInspection } from "~/modules/quality/quality.server";
 import { getNextSequence } from "~/modules/settings";
 import { getCompanyIntegrations } from "~/modules/settings/settings.server";
 import { getUserDefaults } from "~/modules/users/users.server";
@@ -35,7 +35,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   // 1. Cascade reject — mark every tracked entity in the lot as Rejected
   //    and flip the lot's status to Failed (ISO 9001:2015 §8.7).
-  const dispositionResult = await dispositionInboundInspection(client, {
+  const dispositionResult = await dispositionInboundInspection({
     id,
     decision: "Reject",
     companyId,

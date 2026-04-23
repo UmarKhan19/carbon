@@ -5,7 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import { notifyIssueStatusChanged } from "@carbon/ee/notifications";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { closeIssue } from "~/modules/quality";
+import { closeIssue } from "~/modules/quality/quality.server";
 import { getCompanyIntegrations } from "~/modules/settings/settings.server";
 import { path, requestReferrer } from "~/utils/path";
 

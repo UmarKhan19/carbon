@@ -26,6 +26,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  useDisclosure,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -48,6 +49,7 @@ import ScanInspectionSample from "./ScanInspectionSample";
 
 type LotTrackedEntity = {
   id: string;
+  readableId: string | null;
   attributes: Record<string, unknown>;
   sourceDocumentReadableId: string | null;
   status: string | null;
@@ -94,11 +96,6 @@ export type InboundInspectionLotViewProps = {
   open?: boolean;
 };
 
-function getSerialOrBatch(e: LotTrackedEntity): string | null {
-  const attrs = (e.attributes ?? {}) as Record<string, string>;
-  return attrs["Serial Number"] ?? attrs["Batch Number"] ?? null;
-}
-
 export default function InboundInspectionLotView({
   inspection,
   receiptReadableId,
@@ -118,10 +115,10 @@ export default function InboundInspectionLotView({
   const canUpdate = permissions.can("update", "quality");
   const [items] = useItems();
 
-  const [scannerOpen, setScannerOpen] = useState(false);
-  const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
-  const [acceptConfirmOpen, setAcceptConfirmOpen] = useState(false);
-  const [partialConfirmOpen, setPartialConfirmOpen] = useState(false);
+  const scannerDisclosure = useDisclosure();
+  const rejectConfirmDisclosure = useDisclosure();
+  const acceptConfirmDisclosure = useDisclosure();
+  const partialConfirmDisclosure = useDisclosure();
 
   // Look up the item in the live items store so we show the current
   // readable id (and revision) even if the snapshot stored on the
@@ -261,7 +258,7 @@ export default function InboundInspectionLotView({
               {!lotClosed && canUpdate && (
                 <Button
                   leftIcon={<LuScan />}
-                  onClick={() => setScannerOpen(true)}
+                  onClick={scannerDisclosure.onOpen}
                   className="self-start"
                 >
                   <Trans>Inspect Next Item</Trans>
@@ -299,19 +296,17 @@ export default function InboundInspectionLotView({
                       </tr>
                     )}
                     {samples.map((s) => {
-                      const sob = s.trackedEntity
-                        ? getSerialOrBatch(s.trackedEntity)
-                        : null;
+                      const readable = s.trackedEntity?.readableId ?? null;
                       return (
                         <tr key={s.id} className="border-t">
                           <td className="px-3 py-2">
                             <div className="flex flex-col">
                               <span className="font-mono text-sm">
-                                {s.trackedEntityId}
+                                {readable ?? s.trackedEntityId}
                               </span>
-                              {sob && (
+                              {readable && (
                                 <span className="text-xs text-muted-foreground">
-                                  {sob}
+                                  {s.trackedEntityId}
                                 </span>
                               )}
                             </div>
@@ -362,20 +357,20 @@ export default function InboundInspectionLotView({
               <HStack spacing={2}>
                 <Button
                   variant="secondary"
-                  onClick={() => setPartialConfirmOpen(true)}
+                  onClick={partialConfirmDisclosure.onOpen}
                   isDisabled={!canUpdate || !canPartial}
                 >
                   <Trans>Partial</Trans>
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={() => setRejectConfirmOpen(true)}
+                  onClick={rejectConfirmDisclosure.onOpen}
                   isDisabled={!canUpdate || !canReject}
                 >
                   <Trans>Reject Lot</Trans>
                 </Button>
                 <Button
-                  onClick={() => setAcceptConfirmOpen(true)}
+                  onClick={acceptConfirmDisclosure.onOpen}
                   isDisabled={!canUpdate || !canAccept}
                 >
                   <Trans>Accept Lot</Trans>
@@ -386,43 +381,43 @@ export default function InboundInspectionLotView({
         </ModalDrawerContent>
       </ModalDrawer>
 
-      {scannerOpen && (
+      {scannerDisclosure.isOpen && (
         <ScanInspectionSample
           inspectionId={inspection.id}
           remaining={remaining}
-          onClose={() => setScannerOpen(false)}
+          onClose={scannerDisclosure.onClose}
         />
       )}
 
-      {acceptConfirmOpen && (
+      {acceptConfirmDisclosure.isOpen && (
         <Confirm
           action={acceptUrl}
           title={t`Accept lot?`}
           text={t`${lotEntities.length - inspected} un-sampled entities will be released to Available. Sampled passes stay Available and sampled failures stay Rejected.`}
           confirmText={t`Accept Lot`}
-          onCancel={() => setAcceptConfirmOpen(false)}
-          onSubmit={() => setAcceptConfirmOpen(false)}
+          onCancel={acceptConfirmDisclosure.onClose}
+          onSubmit={acceptConfirmDisclosure.onClose}
         />
       )}
 
-      {partialConfirmOpen && (
+      {partialConfirmDisclosure.isOpen && (
         <Confirm
           action={partialUrl}
           title={t`Mark lot as partial?`}
           text={t`Un-sampled entities will remain On Hold so you can keep inspecting and disposition later. Sampled outcomes are preserved.`}
           confirmText={t`Mark Partial`}
-          onCancel={() => setPartialConfirmOpen(false)}
-          onSubmit={() => setPartialConfirmOpen(false)}
+          onCancel={partialConfirmDisclosure.onClose}
+          onSubmit={partialConfirmDisclosure.onClose}
         />
       )}
 
-      {rejectConfirmOpen && (
+      {rejectConfirmDisclosure.isOpen && (
         <RejectLotModal
           action={rejectUrl}
           issueTypes={issueTypes}
           summary={t`Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All ${lotEntities.length} entities — ${passes} sampled pass(es), ${fails} failure(s), and ${Math.max(0, lotEntities.length - inspected)} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition.`}
-          onCancel={() => setRejectConfirmOpen(false)}
-          onSubmit={() => setRejectConfirmOpen(false)}
+          onCancel={rejectConfirmDisclosure.onClose}
+          onSubmit={rejectConfirmDisclosure.onClose}
         />
       )}
     </ModalDrawerProvider>

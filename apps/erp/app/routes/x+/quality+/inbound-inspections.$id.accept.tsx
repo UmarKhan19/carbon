@@ -4,19 +4,19 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import invariant from "tiny-invariant";
-import { dispositionInboundInspection } from "~/modules/quality";
+import { dispositionInboundInspection } from "~/modules/quality/quality.server";
 import { getParams, path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { companyId, userId } = await requirePermissions(request, {
     update: "quality",
     role: "employee"
   });
   const { id } = params;
   invariant(id, "id is required");
 
-  const result = await dispositionInboundInspection(client, {
+  const result = await dispositionInboundInspection({
     id,
     decision: "Accept",
     companyId,

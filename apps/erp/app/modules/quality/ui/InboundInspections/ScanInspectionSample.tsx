@@ -36,6 +36,7 @@ import { path } from "~/utils/path";
 
 type LotTrackedEntity = {
   id: string;
+  readableId: string | null;
   attributes: Record<string, unknown>;
   sourceDocumentReadableId: string | null;
 };
@@ -45,11 +46,6 @@ type Props = {
   remaining: LotTrackedEntity[];
   onClose: () => void;
 };
-
-function serialOrBatchOf(e: LotTrackedEntity): string | null {
-  const attrs = (e.attributes ?? {}) as Record<string, string>;
-  return attrs["Serial Number"] ?? attrs["Batch Number"] ?? null;
-}
 
 export default function ScanInspectionSample({
   inspectionId,
@@ -71,11 +67,8 @@ export default function ScanInspectionSample({
     return (
       remaining.find((e) => {
         if (e.id === value) return true;
-        const sob = serialOrBatchOf(e);
-        if (sob && sob.toLowerCase() === needle) return true;
-        return Object.values(e.attributes ?? {}).some(
-          (v) => String(v).toLowerCase() === needle
-        );
+        if (e.readableId && e.readableId.toLowerCase() === needle) return true;
+        return false;
       }) ?? null
     );
   };
@@ -164,10 +157,12 @@ export default function ScanInspectionSample({
                         <div className="text-xs text-muted-foreground">
                           <Trans>Tracked Entity</Trans>
                         </div>
-                        <div className="font-mono text-sm">{selected.id}</div>
-                        {serialOrBatchOf(selected) && (
+                        <div className="font-mono text-sm">
+                          {selected.readableId ?? selected.id}
+                        </div>
+                        {selected.readableId && (
                           <div className="text-xs text-muted-foreground mt-1">
-                            {serialOrBatchOf(selected)}
+                            {selected.id}
                           </div>
                         )}
                       </div>
@@ -183,7 +178,6 @@ export default function ScanInspectionSample({
                         </p>
                       ) : (
                         remaining.map((e) => {
-                          const sob = serialOrBatchOf(e);
                           const isSelected = selected?.id === e.id;
                           return (
                             <HStack
@@ -195,11 +189,11 @@ export default function ScanInspectionSample({
                                 className="w-full items-start min-w-0"
                               >
                                 <p className="font-mono text-sm truncate w-full">
-                                  {e.id}
+                                  {e.readableId ?? e.id}
                                 </p>
-                                {sob && (
+                                {e.readableId && (
                                   <p className="text-xs text-muted-foreground truncate w-full">
-                                    {sob}
+                                    {e.id}
                                   </p>
                                 )}
                               </VStack>

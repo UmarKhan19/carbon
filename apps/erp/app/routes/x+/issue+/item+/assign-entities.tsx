@@ -5,10 +5,10 @@ import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import {
-  assignEntitiesToIssueItem,
   assignIssueItemEntitiesValidator,
   isIssueLocked
 } from "~/modules/quality";
+import { assignEntitiesToIssueItem } from "~/modules/quality/quality.server";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -39,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
   });
   if (lockedError) return lockedError;
 
-  const result = await assignEntitiesToIssueItem(client, {
+  const result = await assignEntitiesToIssueItem({
     nonConformanceItemId,
     targetItemId,
     assignments: entityAssignments,
