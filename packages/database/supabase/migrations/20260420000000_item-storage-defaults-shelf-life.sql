@@ -439,10 +439,11 @@ DECLARE
   v_supplier_id TEXT;
   v_attributes JSONB;
 BEGIN
-  -- Get receipt line details
+  -- Get receipt line + item details. The readable id lives on the item
+  -- (not the receiptLine) since 41c0a6f26 dropped receiptLine.itemReadableId.
   SELECT
     rl."itemId",
-    rl."itemReadableId",
+    i."readableIdWithRevision",
     rl."companyId",
     rl."createdBy",
     r."supplierId"
@@ -454,29 +455,28 @@ BEGIN
     v_supplier_id
   FROM "receiptLine" rl
   JOIN "receipt" r ON r.id = rl."receiptId"
+  JOIN "item" i ON i.id = rl."itemId"
   WHERE rl.id = p_receipt_line_id;
 
-  -- Build attributes JSONB
+  -- Build attributes JSONB. Serial number lives in the dedicated readableId
+  -- column, not as a duplicate attribute.
   v_attributes := jsonb_build_object(
-    'Serial Number', p_serial_number,
     'Receipt Line', p_receipt_line_id,
     'Receipt', p_receipt_id,
     'Receipt Line Index', p_index
   );
 
-  -- Add supplier if available
   IF v_supplier_id IS NOT NULL THEN
     v_attributes := v_attributes || jsonb_build_object('Supplier', v_supplier_id);
   END IF;
 
-  -- Merge expiry date when provided
   IF p_expiry_date IS NOT NULL AND p_expiry_date <> '' THEN
     v_attributes := v_attributes || jsonb_build_object('expirationDate', p_expiry_date);
   END IF;
 
-  -- Two paths: when p_tracked_entity_id is provided, upsert on that id
-  -- (supports retries / updates). Otherwise insert a fresh row and let the
-  -- "id" column's DEFAULT xid() fire — no need to call xid() ourselves.
+  -- Two paths: when p_tracked_entity_id is provided, update that row
+  -- (caller already inserted it). Otherwise insert a fresh row and let
+  -- the "id" column's DEFAULT xid() fire.
   IF p_tracked_entity_id IS NULL THEN
     INSERT INTO "trackedEntity" (
       "quantity",
@@ -501,35 +501,12 @@ BEGIN
       v_created_by
     );
   ELSE
-    INSERT INTO "trackedEntity" (
-      "id",
-      "quantity",
-      "status",
-      "sourceDocument",
-      "sourceDocumentId",
-      "sourceDocumentReadableId",
-      "readableId",
-      "attributes",
-      "companyId",
-      "createdBy"
-    )
-    VALUES (
-      p_tracked_entity_id,
-      1,
-      'On Hold',
-      'Item',
-      v_item_id,
-      v_item_readable_id,
-      p_serial_number,
-      v_attributes,
-      v_company_id,
-      v_created_by
-    )
-    ON CONFLICT (id) DO UPDATE SET
-      "quantity" = EXCLUDED."quantity",
-      "readableId" = EXCLUDED."readableId",
-      "attributes" = EXCLUDED."attributes";
+    UPDATE "trackedEntity"
+    SET
+      "readableId" = p_serial_number,
+      "attributes" = v_attributes,
+      "sourceDocumentReadableId" = v_item_readable_id
+    WHERE id = p_tracked_entity_id;
   END IF;
-
 END;
 $$ LANGUAGE plpgsql;
