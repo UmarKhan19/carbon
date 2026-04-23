@@ -21,7 +21,7 @@ msgstr "\"{storageUnitName}\" tem {childCount} unidades de armazenamento aninhad
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" tem 1 unidade de armazenamento aninhada direta. Deletá-la também excluirá essa unidade e tudo abaixo dela. Isso não pode ser desfeito."
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:223
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:221
 msgid "\"Expiring soon\" threshold (days)"
 msgstr "\"Limite de expiração próxima\" (dias)"
 
@@ -67,6 +67,11 @@ msgstr "{scopeCount} permissões"
 #: apps/erp/app/routes/onboarding+/plan.tsx:192
 msgid "/month/user"
 msgstr "/mês/utilizador"
+
+#. placeholder {0}: allItems.length - 3
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:785
+msgid "+{0} more"
+msgstr ""
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:294
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
@@ -278,6 +283,10 @@ msgstr "Período de Acumulação (Semanas)"
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:543
 msgid "Accumulation Period:"
 msgstr "Período de Acumulação:"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
+msgid "Action Items"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:84
 msgid "Action Status"
@@ -1537,10 +1546,6 @@ msgstr "Tamanho do Lote"
 msgid "Batch Tracking"
 msgstr "Rastreamento em Lote"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:226
-msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
-msgstr "Lotes dentro deste número de dias do vencimento recebem um crachá âmbar; lotes vencidos recebem um vermelho. Deixe em branco para ocultar ambos os crachás."
-
 #: apps/erp/app/routes/x+/settings+/people.tsx:201
 #: apps/erp/app/routes/x+/settings+/people.tsx:242
 msgid "Beta"
@@ -1578,6 +1583,10 @@ msgstr "Faturação"
 #: apps/erp/app/routes/x+/settings+/sales.tsx:438
 msgid "Billing Address"
 msgstr "Endereço de Cobrança"
+
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:224
+msgid "Blank to hide expiry badges."
+msgstr ""
 
 #. placeholder {0}: workCenter.blockingDispatchReadableId
 #: apps/erp/app/routes/x+/production+/_index.tsx:863
@@ -2077,6 +2086,10 @@ msgstr "Classe"
 msgid "Clear"
 msgstr "Limpar"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:759
+msgid "Clear All"
+msgstr ""
+
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:762
 msgid "Clear due date"
 msgstr "Limpar data de vencimento"
@@ -2526,8 +2539,8 @@ msgid "Contractors"
 msgstr "Contratantes"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:210
-msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
-msgstr "Controla como lotes próximos do vencimento e vencidos são exibidos em todo o aplicativo. Deixe em branco para desativar completamente os emblemas de vencimento. Apenas aviso — esta configuração não bloqueia o consumo ou recebimento."
+msgid "Controls expiry badges and the default shelf life for new items. Warn-only — does not block receipt or consumption."
+msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
 msgid "Conversion"
@@ -2791,6 +2804,7 @@ msgstr "País"
 #: apps/erp/app/components/Layout/Topbar/Topbar.tsx:37
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:596
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:227
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:755
 #: apps/erp/app/modules/quality/ui/Issue/Jira/CreateIssue.tsx:121
 #: apps/erp/app/modules/quality/ui/Issue/Linear/CreateIssue.tsx:100
 msgid "Create"
@@ -3556,7 +3570,7 @@ msgstr "Permissões Padrão"
 msgid "Default Priority"
 msgstr "Prioridade Padrão"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:230
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:228
 msgid "Default shelf life (days)"
 msgstr "Vida útil padrão (dias)"
 
@@ -5106,6 +5120,7 @@ msgid "Exchange Rate"
 msgstr "Taxa de Câmbio"
 
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:97
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:606
 msgid "Expand"
 msgstr "Expandir"
 
@@ -6543,6 +6558,10 @@ msgstr "Data de Emissão"
 msgid "Issues"
 msgstr "Problemas"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:598
+msgid "item"
+msgstr ""
+
 #: apps/erp/app/components/Form/Item.tsx:72
 #: apps/erp/app/components/Form/Item.tsx:231
 #: apps/erp/app/components/Form/Items.tsx:74
@@ -6629,6 +6648,10 @@ msgstr "Escopo do Item"
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:445
 msgid "Item Type"
 msgstr "Tipo de Item"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:598
+msgid "items"
+msgstr ""
 
 #: apps/erp/app/hooks/useModules.tsx:46
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:116
@@ -7590,6 +7613,10 @@ msgstr "Margem Mín %"
 msgid "Min Qty"
 msgstr "Qtd Mín"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:606
+msgid "Minimize"
+msgstr ""
+
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:1932
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2215
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2227
@@ -8460,6 +8487,11 @@ msgstr "Nenhuma hora extra agendada"
 msgid "No part ID"
 msgstr "Sem ID de peça"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:636
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:768
+msgid "No parts added yet"
+msgstr ""
+
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:347
 msgid "No planning data"
 msgstr "Sem dados de planejamento"
@@ -8876,6 +8908,8 @@ msgstr "Opcional"
 msgid "Options"
 msgstr "Opções"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:478
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:666
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:776
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionState.tsx:81
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:256
@@ -8918,6 +8952,7 @@ msgstr "Encomendado"
 msgid "Ordering"
 msgstr "Encomenda"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:649
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:78
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:44
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:86
@@ -9426,6 +9461,10 @@ msgstr "Grupos de Lançamento"
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2910
 msgid "Potential Data Loss"
 msgstr "Possível Perda de Dados"
+
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:231
+msgid "Pre-fills the input on Fixed Duration."
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:80
 msgid "Preferred Supplier"
@@ -10178,6 +10217,7 @@ msgstr "Razões"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:543
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:107
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:117
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:507
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:486
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:568
 msgid "Recalculate"
@@ -10385,8 +10425,8 @@ msgid "Remove from Price List"
 msgstr "Remover da Lista de Preços"
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1350
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:672
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:712
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:675
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:718
 msgid "Remove item"
 msgstr "Remover item"
 
@@ -10399,6 +10439,10 @@ msgstr "Remover feedback negativo"
 msgid "Remove order"
 msgstr "Remover pedido"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:478
+msgid "Remove Order"
+msgstr ""
+
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:659
 msgid "Remove pair"
 msgstr "Remover par"
@@ -10410,6 +10454,10 @@ msgstr "Remover feedback positivo"
 #: apps/erp/app/components/Table/components/Sort/Sort.tsx:103
 msgid "Remove sort by column"
 msgstr "Remover ordenação por coluna"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:453
+msgid "Remove Transfer"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:211
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:304
@@ -11089,7 +11137,7 @@ msgstr "Sábado"
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:606
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:688
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:188
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:239
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:237
 #: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:560
@@ -12087,6 +12135,10 @@ msgstr "Iniciar"
 #: apps/erp/app/routes/onboarding+/plan.tsx:221
 msgid "Start {0} Day Free Trial"
 msgstr "Iniciar Teste Gratuito de {0} Dias"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:639
+msgid "Start adding parts to your stock transfer"
+msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:61
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:42
@@ -13298,6 +13350,8 @@ msgid "Trainings"
 msgstr "Treinamentos"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:376
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:453
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:709
 msgid "Transfer"
 msgstr "Transferência"
 
@@ -13331,6 +13385,10 @@ msgstr "Transferir a propriedade desta empresa para outro usuário"
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:877
 msgid "Transfer To"
 msgstr "Transferir Para"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:692
+msgid "Transfers"
+msgstr ""
 
 #: apps/erp/app/modules/documents/ui/useDocumentsSubmodules.tsx:40
 msgid "Trash"
@@ -13844,10 +13902,6 @@ msgstr "Validando trabalho..."
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1665
 msgid "Value"
 msgstr "Valor"
-
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:233
-msgid "Value pre-filled in the \"Shelf-life (days)\" input when a user first enables Fixed Duration on an item."
-msgstr "Valor pré-preenchido na entrada \"Vida útil (dias)\" quando um usuário ativa pela primeira vez Duração Fixa em um item."
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156

@@ -21,7 +21,7 @@ msgstr "\"{storageUnitName}\" के {childCount} सीधे नेस्ट�
 msgid "\"{storageUnitName}\" has 1 direct nested storage unit. Deleting it will also delete that unit and anything underneath it. This cannot be undone."
 msgstr "\"{storageUnitName}\" के पास 1 सीधी नेस्टेड स्टोरेज यूनिट है। इसे हटाने से वह यूनिट और इसके अंदर की कोई भी चीज़ भी हटा दी जाएगी। यह पूर्ववत नहीं किया जा सकता।"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:223
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:221
 msgid "\"Expiring soon\" threshold (days)"
 msgstr "\"जल्द ही समाप्त होने वाली\" सीमा (दिन)"
 
@@ -67,6 +67,11 @@ msgstr "{scopeCount} अनुमतियाँ"
 #: apps/erp/app/routes/onboarding+/plan.tsx:192
 msgid "/month/user"
 msgstr "/माह/उपयोगकर्ता"
+
+#. placeholder {0}: allItems.length - 3
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:785
+msgid "+{0} more"
+msgstr ""
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:294
 msgid "<0>delete</0> lets you delete rows. <1>delete</1> will match all rows by default, so remember to specify your filters!"
@@ -278,6 +283,10 @@ msgstr "संचय अवधि (सप्ताह)"
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:543
 msgid "Accumulation Period:"
 msgstr "संचय अवधि:"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
+msgid "Action Items"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:84
 msgid "Action Status"
@@ -1537,10 +1546,6 @@ msgstr "बैच आकार"
 msgid "Batch Tracking"
 msgstr "बैच ट्रैकिंग"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:226
-msgid "Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges."
-msgstr "इस कई दिनों के भीतर समाप्त होने वाले बैच को एक एम्बर बैज मिलता है; समाप्त हो चुके बैच को एक लाल बैज मिलता है। दोनों बैज को छिपाने के लिए खाली छोड़ें।"
-
 #: apps/erp/app/routes/x+/settings+/people.tsx:201
 #: apps/erp/app/routes/x+/settings+/people.tsx:242
 msgid "Beta"
@@ -1578,6 +1583,10 @@ msgstr "बिलिंग"
 #: apps/erp/app/routes/x+/settings+/sales.tsx:438
 msgid "Billing Address"
 msgstr "बिलिंग पता"
+
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:224
+msgid "Blank to hide expiry badges."
+msgstr ""
 
 #. placeholder {0}: workCenter.blockingDispatchReadableId
 #: apps/erp/app/routes/x+/production+/_index.tsx:863
@@ -2077,6 +2086,10 @@ msgstr "वर्ग"
 msgid "Clear"
 msgstr "साफ़ करें"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:759
+msgid "Clear All"
+msgstr ""
+
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:762
 msgid "Clear due date"
 msgstr "देय तारीख साफ़ करें"
@@ -2526,8 +2539,8 @@ msgid "Contractors"
 msgstr "ठेकेदार"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:210
-msgid "Controls how near-expiry and expired batches are surfaced throughout the app. Leave blank to turn off expiry badges entirely. Warn-only — this setting does not block consumption or receipt."
-msgstr "नियंत्रित करता है कि निकट-समाप्ति और समाप्त बैच पूरे ऐप में कैसे सामने आते हैं। समाप्ति बैज को पूरी तरह बंद करने के लिए खाली छोड़ें। केवल चेतावनी — यह सेटिंग खपत या रसीद को ब्लॉक नहीं करती है।"
+msgid "Controls expiry badges and the default shelf life for new items. Warn-only — does not block receipt or consumption."
+msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
 msgid "Conversion"
@@ -2791,6 +2804,7 @@ msgstr "देश"
 #: apps/erp/app/components/Layout/Topbar/Topbar.tsx:37
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:596
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:227
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:755
 #: apps/erp/app/modules/quality/ui/Issue/Jira/CreateIssue.tsx:121
 #: apps/erp/app/modules/quality/ui/Issue/Linear/CreateIssue.tsx:100
 msgid "Create"
@@ -3556,7 +3570,7 @@ msgstr "डिफ़ॉल्ट अनुमतियाँ"
 msgid "Default Priority"
 msgstr "डिफ़ॉल्ट प्राथमिकता"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:230
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:228
 msgid "Default shelf life (days)"
 msgstr "डिफ़ॉल्ट शेल्फ लाइफ (दिन)"
 
@@ -5106,6 +5120,7 @@ msgid "Exchange Rate"
 msgstr "विनिमय दर"
 
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:97
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:606
 msgid "Expand"
 msgstr "विस्तार करें"
 
@@ -6543,6 +6558,10 @@ msgstr "जारी तारीख"
 msgid "Issues"
 msgstr "समस्याएं"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:598
+msgid "item"
+msgstr ""
+
 #: apps/erp/app/components/Form/Item.tsx:72
 #: apps/erp/app/components/Form/Item.tsx:231
 #: apps/erp/app/components/Form/Items.tsx:74
@@ -6629,6 +6648,10 @@ msgstr "आइटम स्कोप"
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:445
 msgid "Item Type"
 msgstr "आइटम प्रकार"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:598
+msgid "items"
+msgstr ""
 
 #: apps/erp/app/hooks/useModules.tsx:46
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:116
@@ -7590,6 +7613,10 @@ msgstr "न्यूनतम मार्जिन %"
 msgid "Min Qty"
 msgstr "न्यूनतम मात्रा"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:606
+msgid "Minimize"
+msgstr ""
+
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:1932
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2215
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2227
@@ -8460,6 +8487,11 @@ msgstr "कोई ओवरटाइम शेड्यूल नहीं ह�
 msgid "No part ID"
 msgstr "कोई भाग ID नहीं"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:636
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:768
+msgid "No parts added yet"
+msgstr ""
+
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:347
 msgid "No planning data"
 msgstr "कोई योजना डेटा नहीं"
@@ -8876,6 +8908,8 @@ msgstr "वैकल्पिक"
 msgid "Options"
 msgstr "विकल्प"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:478
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:666
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:776
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionState.tsx:81
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:256
@@ -8918,6 +8952,7 @@ msgstr "ऑर्डर किया गया"
 msgid "Ordering"
 msgstr "ऑर्डरिंग"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:649
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:78
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:44
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:86
@@ -9426,6 +9461,10 @@ msgstr "पोस्टिंग समूह"
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2910
 msgid "Potential Data Loss"
 msgstr "संभावित डेटा हानि"
+
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:231
+msgid "Pre-fills the input on Fixed Duration."
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:80
 msgid "Preferred Supplier"
@@ -10178,6 +10217,7 @@ msgstr "कारणें"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:543
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:107
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:117
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:507
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:486
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:568
 msgid "Recalculate"
@@ -10385,8 +10425,8 @@ msgid "Remove from Price List"
 msgstr "मूल्य सूची से हटाएं"
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1350
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:672
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:712
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:675
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:718
 msgid "Remove item"
 msgstr "आइटम हटाएं"
 
@@ -10399,6 +10439,10 @@ msgstr "नकारात्मक प्रतिक्रिया हटा�
 msgid "Remove order"
 msgstr "ऑर्डर हटाएं"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:478
+msgid "Remove Order"
+msgstr ""
+
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:659
 msgid "Remove pair"
 msgstr "जोड़ी हटाएं"
@@ -10410,6 +10454,10 @@ msgstr "सकारात्मक प्रतिक्रिया हटा�
 #: apps/erp/app/components/Table/components/Sort/Sort.tsx:103
 msgid "Remove sort by column"
 msgstr "कॉलम द्वारा सॉर्ट हटाएं"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:453
+msgid "Remove Transfer"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:211
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:304
@@ -11089,7 +11137,7 @@ msgstr "शनिवार"
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:606
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:688
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:188
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:239
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:237
 #: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:560
@@ -12087,6 +12135,10 @@ msgstr "शुरू करें"
 #: apps/erp/app/routes/onboarding+/plan.tsx:221
 msgid "Start {0} Day Free Trial"
 msgstr "{0} दिन की निःशुल्क परीक्षण शुरू करें"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:639
+msgid "Start adding parts to your stock transfer"
+msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:61
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:42
@@ -13298,6 +13350,8 @@ msgid "Trainings"
 msgstr "प्रशिक्षण"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:376
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:453
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:709
 msgid "Transfer"
 msgstr "स्थानांतरण"
 
@@ -13331,6 +13385,10 @@ msgstr "इस कंपनी की स्वामित्व किसी �
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:877
 msgid "Transfer To"
 msgstr "को स्थानांतरित करें"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:692
+msgid "Transfers"
+msgstr ""
 
 #: apps/erp/app/modules/documents/ui/useDocumentsSubmodules.tsx:40
 msgid "Trash"
@@ -13844,10 +13902,6 @@ msgstr "नौकरी को मान्य कर रहे हैं..."
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1665
 msgid "Value"
 msgstr "मान"
-
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:233
-msgid "Value pre-filled in the \"Shelf-life (days)\" input when a user first enables Fixed Duration on an item."
-msgstr "मान \"शेल्फ-लाइफ (दिन)\" इनपुट में पूर्व-भरा जाता है जब कोई उपयोगकर्ता किसी आइटम पर फिक्स्ड अवधि को पहली बार सक्षम करता है।"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:156

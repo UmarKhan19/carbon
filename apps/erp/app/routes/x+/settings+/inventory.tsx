@@ -208,29 +208,27 @@ export default function InventorySettingsRoute() {
               </CardTitle>
               <CardDescription>
                 <Trans>
-                  Controls how near-expiry and expired batches are surfaced
-                  throughout the app. Leave blank to turn off expiry badges
-                  entirely. Warn-only — this setting does not block consumption
-                  or receipt.
+                  Controls expiry badges and the default shelf life for new
+                  items. Warn-only — does not block receipt or consumption.
                 </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Hidden name="intent" value="shelfLife" />
-              <div className="flex flex-col gap-4 max-w-[400px]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-[600px]">
                 <Number
                   name="nearExpiryWarningDays"
                   label={t`"Expiring soon" threshold (days)`}
                   minValue={0}
                   maxValue={365}
-                  helperText={t`Batches within this many days of their expiry get an amber badge; batches past expiry get a red one. Leave blank to hide both badges.`}
+                  helperText={t`Blank to hide expiry badges.`}
                 />
                 <Number
                   name="defaultShelfLifeDays"
                   label={t`Default shelf life (days)`}
                   minValue={1}
                   maxValue={365}
-                  helperText={t`Value pre-filled in the "Shelf-life (days)" input when a user first enables Fixed Duration on an item.`}
+                  helperText={t`Pre-fills the input on Fixed Duration.`}
                 />
               </div>
             </CardContent>

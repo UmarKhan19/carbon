@@ -450,7 +450,7 @@ const JobMaterialsTable = memo(
               }}
             >
               <MenuIcon icon={<LuTruck />} />
-              {isInSessionForTransfer ? "Remove Transfer" : "Transfer"}
+              {isInSessionForTransfer ? t`Remove Transfer` : t`Transfer`}
             </MenuItem>
             <MenuItem
               destructive={isInSessionForOrder}
@@ -475,12 +475,12 @@ const JobMaterialsTable = memo(
               }}
             >
               <MenuIcon icon={<LuShoppingCart />} />
-              {isInSessionForOrder ? "Remove Order" : "Order"}
+              {isInSessionForOrder ? t`Remove Order` : t`Order`}
             </MenuItem>
           </>
         );
       };
-    }, [isRequired, session.items]);
+    }, [isRequired, session.items, t]);
 
     const permissions = usePermissions();
 
@@ -504,7 +504,7 @@ const JobMaterialsTable = memo(
                   type="submit"
                   variant="secondary"
                 >
-                  Recalculate
+                  <Trans>Recalculate</Trans>
                 </Button>
               </fetcher.Form>
             ) : undefined
@@ -592,10 +592,10 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
             </div>
             <div>
               <h3 className="font-semibold text-card-foreground text-base">
-                Action Items
+                <Trans>Action Items</Trans>
               </h3>
               <p className="text-xs text-muted-foreground">
-                {allItems.length} {allItems.length === 1 ? "item" : "items"}
+                {allItems.length} {allItems.length === 1 ? t`item` : t`items`}
               </p>
             </div>
           </div>
@@ -603,7 +603,7 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
             <IconButton
               variant="ghost"
               size="sm"
-              aria-label={isExpanded ? "Minimize" : "Expand"}
+              aria-label={isExpanded ? t`Minimize` : t`Expand`}
               icon={
                 isExpanded ? (
                   <LuMinus className="size-4" />
@@ -633,10 +633,10 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
                     <LuShoppingCart className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    No parts added yet
+                    <Trans>No parts added yet</Trans>
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Start adding parts to your stock transfer
+                    <Trans>Start adding parts to your stock transfer</Trans>
                   </p>
                 </div>
               ) : (
@@ -646,7 +646,8 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
                       <HStack className="mb-2">
                         <LuShoppingCart className="h-3 w-3" />
                         <span className="text-sm font-medium">
-                          Orders <Count count={orderItems.length} />
+                          <Trans>Orders</Trans>{" "}
+                          <Count count={orderItems.length} />
                         </span>
                       </HStack>
                       <div className="space-y-2">
@@ -661,7 +662,9 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
                                   <span className="font-mono text-xs font-semibold">
                                     {item.itemReadableId}
                                   </span>
-                                  <Badge variant="outline">Order</Badge>
+                                  <Badge variant="outline">
+                                    <Trans>Order</Trans>
+                                  </Badge>
                                 </div>
                                 <p className="text-sm text-card-foreground font-medium truncate">
                                   {item.description}
@@ -686,7 +689,8 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
                       <HStack className="mb-2">
                         <LuTruck className="h-3 w-3" />
                         <span className="text-sm font-medium">
-                          Transfers <Count count={transferItems.length} />
+                          <Trans>Transfers</Trans>{" "}
+                          <Count count={transferItems.length} />
                         </span>
                       </HStack>
                       <div className="space-y-2">
@@ -701,7 +705,9 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
                                   <span className="font-mono text-xs font-semibold">
                                     {item.itemReadableId}
                                   </span>
-                                  <Badge variant="outline">Transfer</Badge>
+                                  <Badge variant="outline">
+                                    <Trans>Transfer</Trans>
+                                  </Badge>
                                 </div>
                                 <p className="text-sm text-card-foreground font-medium truncate">
                                   {item.description}
@@ -746,11 +752,11 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
                     className="w-full"
                     type="submit"
                   >
-                    Create
+                    <Trans>Create</Trans>
                   </Button>
                 </fetcher.Form>
                 <Button variant="ghost" className="w-full" onClick={onClearAll}>
-                  Clear All
+                  <Trans>Clear All</Trans>
                 </Button>
               </div>
             )}
@@ -759,7 +765,7 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
           <div className="p-4 space-y-4">
             {allItems.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-2">
-                No parts added yet
+                <Trans>No parts added yet</Trans>
               </p>
             ) : (
               <div className="space-y-2">
@@ -776,7 +782,7 @@ const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
                 ))}
                 {allItems.length > 3 && (
                   <p className="text-xs text-muted-foreground text-center pt-1">
-                    +{allItems.length - 3} more
+                    <Trans>+{allItems.length - 3} more</Trans>
                   </p>
                 )}
               </div>
