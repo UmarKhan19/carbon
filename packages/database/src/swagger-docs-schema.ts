@@ -64258,6 +64258,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.nearExpiryWarningDays"
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.defaultShelfLifeDays"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -64428,6 +64431,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.nearExpiryWarningDays"
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.defaultShelfLifeDays"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -64550,6 +64556,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.nearExpiryWarningDays"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.defaultShelfLifeDays"
           },
           {
             $ref: "#/parameters/body.companySettings"
@@ -86236,7 +86245,8 @@ export default {
           type: "string"
         },
         mode: {
-          format: "text",
+          enum: ["Fixed Duration", "Calculated", "Set on Receipt"],
+          format: 'public."shelfLifeMode"',
           type: "string"
         },
         days: {
@@ -104455,7 +104465,8 @@ export default {
         "qualityIssueTarget",
         "consoleEnabled",
         "timeCardEnabled",
-        "updateLeadTimesOnReceipt"
+        "updateLeadTimesOnReceipt",
+        "defaultShelfLifeDays"
       ],
       properties: {
         id: {
@@ -104662,6 +104673,11 @@ export default {
           type: "boolean"
         },
         nearExpiryWarningDays: {
+          format: "int32",
+          type: "integer"
+        },
+        defaultShelfLifeDays: {
+          default: 7,
           format: "int32",
           type: "integer"
         }
@@ -139941,6 +139957,12 @@ export default {
     },
     "rowFilter.companySettings.nearExpiryWarningDays": {
       name: "nearExpiryWarningDays",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.companySettings.defaultShelfLifeDays": {
+      name: "defaultShelfLifeDays",
       required: false,
       in: "query",
       type: "string"
