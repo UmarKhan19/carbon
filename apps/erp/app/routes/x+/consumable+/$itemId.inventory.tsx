@@ -255,17 +255,20 @@ export default function ConsumableInventoryRoute() {
   const storageUnits = useStorageUnits(consumableInventory?.locationId);
 
   const [items] = useItems();
-  const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
+  const item = items.find((i) => i.id === itemId);
+  const itemTrackingType = item?.itemTrackingType;
+  const replenishmentSystem = item?.replenishmentSystem ?? null;
 
   return (
     <VStack spacing={2} className="p-2">
       <PickMethodForm
-        key={initialValues.itemId}
+        key={`${initialValues.itemId}-${itemTrackingType ?? "Inventory"}`}
         initialValues={initialValues}
         locations={sharedConsumablesData?.locations ?? []}
         storageUnits={storageUnits.options}
         type="Part"
         itemTrackingType={itemTrackingType ?? "Inventory"}
+        replenishmentSystem={replenishmentSystem}
       />
       <InventoryDetails
         itemStorageUnitQuantities={itemStorageUnitQuantities}

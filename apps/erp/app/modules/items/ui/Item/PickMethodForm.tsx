@@ -6,11 +6,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  Checkbox,
+  ChoiceCardGroup,
   Combobox,
   HStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { z } from "zod";
 import {
   Combobox as ComboboxFormField,
@@ -18,7 +20,6 @@ import {
   Hidden,
   NumberControlled,
   Process,
-  Select,
   Submit
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
@@ -26,10 +27,11 @@ import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import {
   pickMethodWithShelfLifeValidator,
-  shelfLifeModes
+  type shelfLifeModes
 } from "../../items.models";
 
 type ShelfLifeMode = (typeof shelfLifeModes)[number];
+type ReplenishmentSystem = "Buy" | "Make" | "Buy and Make";
 
 type PickMethodFormProps = {
   initialValues: z.infer<typeof pickMethodWithShelfLifeValidator>;
@@ -43,19 +45,12 @@ type PickMethodFormProps = {
    * Fungible tracking types have no per-unit row, so the fields are hidden.
    */
   itemTrackingType: string;
-};
-
-const shelfLifeLabel = (mode: ShelfLifeMode) => {
-  switch (mode) {
-    case "NotManaged":
-      return "Not managed";
-    case "ItemSpecific":
-      return "Item specific";
-    case "Calculated":
-      return "Calculated from BoM";
-    case "SetAtReceipt":
-      return "Set at receipt";
-  }
+  /**
+   * Filters the shelf-life mode options. `Make` items hide `SetAtReceipt`
+   * (nothing is received), `Buy` items hide `Calculated` (no BoM is
+   * consumed). `Buy and Make` / null keeps every mode.
+   */
+  replenishmentSystem: ReplenishmentSystem | null;
 };
 
 const PickMethodForm = ({
@@ -63,7 +58,8 @@ const PickMethodForm = ({
   locations,
   storageUnits,
   type,
-  itemTrackingType
+  itemTrackingType,
+  replenishmentSystem
 }: PickMethodFormProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
@@ -119,7 +115,9 @@ const PickMethodForm = ({
               className="w-full"
             />
 
-            {shelfLifeApplicable && <ShelfLifeFields />}
+            {shelfLifeApplicable && (
+              <ShelfLifeFields replenishmentSystem={replenishmentSystem} />
+            )}
 
             <CustomFormFields table="partInventory" />
           </div>
@@ -136,53 +134,167 @@ const PickMethodForm = ({
 
 export default PickMethodForm;
 
-// Inline shelf-life controls for the Inventory card. Renders the mode
-// Select, and on ItemSpecific, the days (defaulted to 7) + trigger process
-// inputs. Clearing the Select submits as "NotManaged" which tells the
-// server to delete any existing itemShelfLife row (see the route action).
-function ShelfLifeFields() {
-  const [shelfLifeMode] = useControlField<ShelfLifeMode | undefined>(
-    "shelfLifeMode"
-  );
+const ALL_SHELF_LIFE_MODES: ShelfLifeMode[] = [
+  "ItemSpecific",
+  "Calculated",
+  "SetAtReceipt"
+];
+
+const shelfLifeOptionCopy: Record<
+  Exclude<ShelfLifeMode, "NotManaged">,
+  { title: string; description: string }
+> = {
+  ItemSpecific: {
+    title: "Fixed Shelf Life",
+    description:
+      "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
+  },
+  Calculated: {
+    title: "Inherit From Materials",
+    description:
+      "Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients."
+  },
+  SetAtReceipt: {
+    title: "Entered At Receipt",
+    description:
+      "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
+  }
+};
+
+// The "has shelf life" checkbox is local state. When unchecked, the
+// hidden input submits "", which the validator coerces to "NotManaged"
+// (items.models.ts) so the service deletes the itemShelfLife row
+// (items.service.ts upsertItemShelfLife).
+function ShelfLifeFields({
+  replenishmentSystem
+}: {
+  replenishmentSystem: ReplenishmentSystem | null;
+}) {
+  const [shelfLifeMode, setShelfLifeMode] = useControlField<
+    ShelfLifeMode | "" | undefined
+  >("shelfLifeMode");
   const [shelfLifeDays, setShelfLifeDays] = useControlField<number | undefined>(
     "shelfLifeDays"
   );
+  const [, setShelfLifeTriggerProcessId] = useControlField<string | undefined>(
+    "shelfLifeTriggerProcessId"
+  );
 
-  // Keep the days value consistent with the mode: clear it when the user
-  // switches away from ItemSpecific so the validator doesn't reject a
-  // stale value on submit.
+  const availableModes = useMemo<ShelfLifeMode[]>(() => {
+    return ALL_SHELF_LIFE_MODES.filter((mode) => {
+      if (replenishmentSystem === "Make" && mode === "SetAtReceipt")
+        return false;
+      if (replenishmentSystem === "Buy" && mode === "Calculated") return false;
+      return true;
+    });
+  }, [replenishmentSystem]);
+
+  const initialHasShelfLife = !!shelfLifeMode && shelfLifeMode !== "NotManaged";
+  const [hasShelfLife, setHasShelfLife] = useState(initialHasShelfLife);
+
+  // If the current mode isn't allowed by the replenishment system, fall
+  // back to the first allowed option so the ChoiceCardGroup's controlled
+  // value stays valid.
+  useEffect(() => {
+    if (
+      hasShelfLife &&
+      shelfLifeMode &&
+      shelfLifeMode !== "NotManaged" &&
+      !availableModes.includes(shelfLifeMode as ShelfLifeMode)
+    ) {
+      setShelfLifeMode(availableModes[0]);
+    }
+  }, [availableModes, hasShelfLife, shelfLifeMode, setShelfLifeMode]);
+
   useEffect(() => {
     if (shelfLifeMode !== "ItemSpecific" && shelfLifeDays !== undefined) {
       setShelfLifeDays(undefined);
     }
   }, [shelfLifeMode, shelfLifeDays, setShelfLifeDays]);
 
+  // Buy-only items can't have a manufacturing trigger process — null it
+  // out so a stale value from a prior replenishment setting doesn't persist.
+  useEffect(() => {
+    if (replenishmentSystem === "Buy") {
+      setShelfLifeTriggerProcessId(undefined);
+    }
+  }, [replenishmentSystem, setShelfLifeTriggerProcessId]);
+
+  const handleToggle = (next: boolean) => {
+    setHasShelfLife(next);
+    if (next) {
+      const current = shelfLifeMode;
+      if (
+        !current ||
+        current === "NotManaged" ||
+        !availableModes.includes(current as ShelfLifeMode)
+      ) {
+        setShelfLifeMode(availableModes[0]);
+      }
+    } else {
+      setShelfLifeMode("");
+      setShelfLifeDays(undefined);
+      setShelfLifeTriggerProcessId(undefined);
+    }
+  };
+
+  const choiceValue: ShelfLifeMode =
+    hasShelfLife && shelfLifeMode && shelfLifeMode !== "NotManaged"
+      ? (shelfLifeMode as ShelfLifeMode)
+      : availableModes[0];
+
   return (
     <>
-      <Select
-        name="shelfLifeMode"
-        label="Shelf-life management"
-        options={shelfLifeModes
-          .filter((mode) => mode !== "NotManaged")
-          .map((mode) => ({
-            label: shelfLifeLabel(mode),
-            value: mode
-          }))}
-        placeholder="Not managed"
-      />
-      {shelfLifeMode === "ItemSpecific" && (
+      {/* Fills cols 2-3 of row 1 so the checkbox lands under Default Storage Unit. */}
+      <div className="max-lg:hidden lg:col-span-2" aria-hidden="true" />
+
+      <label
+        htmlFor="hasShelfLife"
+        className="flex items-center gap-2 cursor-pointer text-sm"
+      >
+        <Checkbox
+          id="hasShelfLife"
+          isChecked={hasShelfLife}
+          onCheckedChange={(checked) => handleToggle(checked === true)}
+        />
+        <span>
+          <Trans>Shelf-Life</Trans>
+        </span>
+        <input
+          type="hidden"
+          name="shelfLifeMode"
+          value={hasShelfLife ? choiceValue : ""}
+        />
+      </label>
+
+      {hasShelfLife && (
+        <div className="lg:col-span-3">
+          <ChoiceCardGroup<ShelfLifeMode>
+            value={choiceValue}
+            onChange={setShelfLifeMode}
+            options={availableModes.map((mode) => ({
+              value: mode,
+              title: shelfLifeOptionCopy[mode].title,
+              description: shelfLifeOptionCopy[mode].description
+            }))}
+          />
+        </div>
+      )}
+
+      {hasShelfLife && choiceValue === "ItemSpecific" && (
         <>
           <NumberControlled
             name="shelfLifeDays"
-            label="Shelf-life (days)"
+            label="Shelf Life (Days)"
             minValue={1}
             value={shelfLifeDays ?? 7}
           />
-          <Process
-            name="shelfLifeTriggerProcessId"
-            label="Shelf-life trigger process"
-            helperText="Defaults to any operation that produces this item."
-          />
+          {replenishmentSystem !== "Buy" && (
+            <Process
+              name="shelfLifeTriggerProcessId"
+              label="Shelf Life Trigger Process"
+            />
+          )}
         </>
       )}
     </>

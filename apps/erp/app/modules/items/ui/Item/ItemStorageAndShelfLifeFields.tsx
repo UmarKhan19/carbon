@@ -90,7 +90,7 @@ const ItemStorageAndShelfLifeFields = () => {
         <>
           <Select
             name="shelfLifeMode"
-            label="Shelf-life management"
+            label="Shelf Life"
             // Only the two "actively managed" modes appear in the dropdown.
             // Clearing the Select (via its X button) sends an empty value
             // which the server validator maps to "NotManaged", deleting any

@@ -249,19 +249,22 @@ export default function MaterialInventoryRoute() {
   };
 
   const [items] = useItems();
-  const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
+  const item = items.find((i) => i.id === itemId);
+  const itemTrackingType = item?.itemTrackingType;
+  const replenishmentSystem = item?.replenishmentSystem ?? null;
 
   const storageUnits = useStorageUnits(materialInventory?.locationId);
 
   return (
     <VStack spacing={2} className="p-2">
       <PickMethodForm
-        key={initialValues.itemId}
+        key={`${initialValues.itemId}-${itemTrackingType ?? "Inventory"}`}
         initialValues={initialValues}
         locations={sharedMaterialsData?.locations ?? []}
         storageUnits={storageUnits.options}
         type="Material"
         itemTrackingType={itemTrackingType ?? "Inventory"}
+        replenishmentSystem={replenishmentSystem}
       />
       <InventoryDetails
         itemStorageUnitQuantities={itemStorageUnitQuantities}

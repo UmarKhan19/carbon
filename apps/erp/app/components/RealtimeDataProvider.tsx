@@ -232,6 +232,7 @@ const RealtimeDataProvider = ({ children }: { children: React.ReactNode }) => {
                             updated.readableIdWithRevision,
                           name: updated.name,
                           replenishmentSystem: updated.replenishmentSystem,
+                          itemTrackingType: updated.itemTrackingType,
                           unitOfMeasureCode: updated.unitOfMeasureCode,
                           type: updated.type,
                           active: updated.active
