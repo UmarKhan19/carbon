@@ -6,13 +6,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-  Checkbox,
   ChoiceCardGroup,
   Combobox,
-  HStack
+  HStack,
+  Label,
+  Switch,
+  VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { LuCalendarClock, LuClipboardCheck, LuLayers } from "react-icons/lu";
 import type { z } from "zod";
 import {
   Combobox as ComboboxFormField,
@@ -155,23 +159,26 @@ function ShelfLifeFields({
   const { defaultShelfLifeDays } = useSettings();
   const shelfLifeOptionCopy: Record<
     Exclude<ShelfLifeMode, "NotManaged">,
-    { title: string; description: string }
+    { title: string; description: string; icon: ReactNode }
   > = {
     "Fixed Duration": {
       title: t`Fixed Shelf Life`,
+      icon: <LuCalendarClock />,
       description:
         replenishmentSystem === "Buy"
-          ? t`Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received.`
+          ? t`Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received.`
           : replenishmentSystem === "Make"
-            ? t`Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set).`
-            : t`Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set).`
+            ? t`Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's created (or when the trigger process runs, if set).`
+            : t`Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set).`
     },
     Calculated: {
       title: t`Inherit From Materials`,
+      icon: <LuLayers />,
       description: t`Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients.`
     },
     "Set on Receipt": {
       title: t`Entered At Receipt`,
+      icon: <LuClipboardCheck />,
       description: t`A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates.`
     }
   };
@@ -253,27 +260,26 @@ function ShelfLifeFields({
 
   return (
     <>
-      {/* Fills cols 2-3 of row 1 so the checkbox lands under Default Storage Unit. */}
-      <div className="max-lg:hidden lg:col-span-2" aria-hidden="true" />
-
-      <label
-        htmlFor="hasShelfLife"
-        className="flex items-center gap-2 cursor-pointer text-sm"
-      >
-        <Checkbox
+      <HStack className="lg:col-span-3 justify-between items-center gap-4 border-t border-border pt-4">
+        <VStack spacing={1}>
+          <Label htmlFor="hasShelfLife" className="text-sm cursor-pointer">
+            <Trans>Shelf-Life</Trans>
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            <Trans>Track when batches or serials of this item expire.</Trans>
+          </p>
+        </VStack>
+        <Switch
           id="hasShelfLife"
-          isChecked={hasShelfLife}
-          onCheckedChange={(checked) => handleToggle(checked === true)}
+          checked={hasShelfLife}
+          onCheckedChange={handleToggle}
         />
-        <span>
-          <Trans>Shelf-Life</Trans>
-        </span>
         <input
           type="hidden"
           name="shelfLifeMode"
           value={hasShelfLife ? choiceValue : ""}
         />
-      </label>
+      </HStack>
 
       {hasShelfLife && (
         <div className="lg:col-span-3">
@@ -283,7 +289,8 @@ function ShelfLifeFields({
             options={availableModes.map((mode) => ({
               value: mode,
               title: shelfLifeOptionCopy[mode].title,
-              description: shelfLifeOptionCopy[mode].description
+              description: shelfLifeOptionCopy[mode].description,
+              icon: shelfLifeOptionCopy[mode].icon
             }))}
           />
         </div>

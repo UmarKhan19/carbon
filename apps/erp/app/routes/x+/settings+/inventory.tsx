@@ -209,7 +209,7 @@ export default function InventorySettingsRoute() {
               <CardDescription>
                 <Trans>
                   Controls expiry badges and the default shelf life for new
-                  items. Warn-only — does not block receipt or consumption.
+                  items.
                 </Trans>
               </CardDescription>
             </CardHeader>
@@ -228,7 +228,6 @@ export default function InventorySettingsRoute() {
                   label={t`Default shelf life (days)`}
                   minValue={1}
                   maxValue={365}
-                  helperText={t`Pre-fills the input on Fixed Duration.`}
                 />
               </div>
             </CardContent>

@@ -194,7 +194,7 @@ msgstr "配送は、顧客に出荷された部品または別の場所に転送
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "ツールは、複数のジョブで使用できるパーツを作成するために使用される物理的なアイテムです"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:175
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:182
 msgid "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
 msgstr "ユーザーが商品を受け取る際に、各バッチまたはシリアルの有効期限を記録します。サプライヤーが異なる有効期限のロットを出荷する場合に使用します。"
 
@@ -2539,7 +2539,7 @@ msgid "Contractors"
 msgstr "請負業者"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:210
-msgid "Controls expiry badges and the default shelf life for new items. Warn-only — does not block receipt or consumption."
+msgid "Controls expiry badges and the default shelf life for new items."
 msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:344
@@ -3579,7 +3579,7 @@ msgid "Default Source"
 msgstr "デフォルトソース"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:85
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:113
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:117
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
 msgid "Default Storage Unit"
@@ -4948,7 +4948,7 @@ msgstr "シリアル番号を入力またはスキャンしてください"
 msgid "Enter PO number"
 msgstr "PO番号を入力"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:174
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:180
 msgid "Entered At Receipt"
 msgstr "受領時に入力"
 
@@ -5843,7 +5843,7 @@ msgstr "固定期間"
 msgid "Fixed Reorder"
 msgstr "固定再注文"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:161
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:165
 msgid "Fixed Shelf Life"
 msgstr "固定棚卸し期限"
 
@@ -6226,7 +6226,7 @@ msgstr "入荷予定"
 msgid "Infrastructure"
 msgstr "インフラストラクチャ"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:170
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:175
 msgid "Inherit From Materials"
 msgstr "材料から継承"
 
@@ -6305,7 +6305,7 @@ msgstr "無効な追跡番号"
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:82
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:61
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:62
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:85
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:89
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:126
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:70
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:94
@@ -9462,10 +9462,6 @@ msgstr "転記グループ"
 msgid "Potential Data Loss"
 msgstr "潜在的データ損失"
 
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:231
-msgid "Pre-fills the input on Fixed Duration."
-msgstr ""
-
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:80
 msgid "Preferred Supplier"
 msgstr "優先仕入先"
@@ -11035,7 +11031,7 @@ msgstr "土曜日"
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:166
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:102
 #: apps/erp/app/modules/items/ui/Item/ItemSalePriceForm.tsx:72
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:127
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:131
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:122
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:104
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:102
@@ -11137,7 +11133,7 @@ msgstr "土曜日"
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:606
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:688
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:188
-#: apps/erp/app/routes/x+/settings+/inventory.tsx:237
+#: apps/erp/app/routes/x+/settings+/inventory.tsx:236
 #: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:560
@@ -11716,7 +11712,7 @@ msgstr "見積もりを共有"
 msgid "Shelf Life"
 msgstr "棚卸し期間"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:296
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:303
 msgid "Shelf Life (Days)"
 msgstr "棚卸し期間（日数）"
 
@@ -11724,11 +11720,11 @@ msgstr "棚卸し期間（日数）"
 msgid "Shelf life & expiry"
 msgstr "賞味期限と有効期限"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:303
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:310
 msgid "Shelf Life Trigger Process"
 msgstr "棚卸有効期限トリガープロセス"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:269
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:266
 msgid "Shelf-Life"
 msgstr "棚卸し寿命"
 
@@ -12340,17 +12336,17 @@ msgstr "保管単位"
 msgid "Storage Units"
 msgstr "保管単位"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:166
-msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
-msgstr "このアイテムに固定の日数を保存します。有効期限は、バッチまたはシリアルが作成されるとき（またはトリガープロセスが実行されるとき、設定されている場合）に刻印されます。"
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:171
+msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
+msgstr ""
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:167
-msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set)."
-msgstr "このアイテムに固定された日数を保存します。有効期限は、バッチまたはシリアルが受け取られたか作成されたとき（またはトリガープロセスが実行されたとき、設定されている場合）に刻印されます。"
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:172
+msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set)."
+msgstr ""
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:164
-msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received."
-msgstr "このアイテムに固定の日数を保存します。有効期限は受け取られたときに各バッチまたはシリアルに刻印されます。"
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:169
+msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received."
+msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:166
 msgid "Style of kanban output to show in the Kanban table"
@@ -12726,7 +12722,7 @@ msgstr "テーブルアクション"
 msgid "Tags"
 msgstr "タグ"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:171
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:177
 msgid "Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients."
 msgstr "このアイテムを製造するために消費される材料全体で最も短い残り有効期限を取得します。製品の有効期限が原材料に依存する場合に使用します。"
 
@@ -13266,6 +13262,10 @@ msgstr "ご注文、請求書、顧客情報など、すべての変更を追跡
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:92
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr "ご注文、請求書、顧客、仕入先など、すべての変更を追跡します。"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:269
+msgid "Track when batches or serials of this item expire."
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:193
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:70
