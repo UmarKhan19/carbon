@@ -189,6 +189,10 @@ msgstr "एक शिपमेंट एक भाग का रिकॉर्�
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "एक उपकरण एक भौतिक वस्तु है जिसका उपयोग एक भाग बनाने के लिए किया जाता है जिसे कई कार्यों में उपयोग किया जा सकता है"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:172
+msgid "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
+msgstr "एक उपयोगकर्ता प्रत्येक बैच या सीरीज पर समाप्ति तिथि दर्ज करता है जब सामान प्राप्त होता है। जब आपूर्तिकर्ता विभिन्न समाप्ति तिथियों के साथ लॉट भेजते हैं तो इसका उपयोग करें।"
+
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:57
 msgid "A warehouse transfer is an inter-company movement of inventory between two locations"
 msgstr "एक गोदाम स्थानांतरण दो स्थानों के बीच इन्वेंटरी की एक अंतर-कंपनी आंदोलन है"
@@ -1666,6 +1670,10 @@ msgstr "साइन इन करके, आप <0>सेवा की शर�
 msgid "CAD Model"
 msgstr "CAD मॉडल"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
+msgid "Calculated from BoM"
+msgstr "BoM से गणना की गई"
+
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermsTable.tsx:74
 msgid "Calculation Method"
 msgstr "गणना विधि"
@@ -1910,7 +1918,7 @@ msgstr "Carbon क्लाइंट उपलब्ध नहीं है"
 #: apps/erp/app/components/Documents.tsx:193
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1218
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1219
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:411
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -3552,6 +3560,7 @@ msgstr "डिफ़ॉल्ट प्राथमिकता"
 msgid "Default Source"
 msgstr "डिफ़ॉल्ट स्रोत"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:81
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:113
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
@@ -3568,6 +3577,10 @@ msgstr "डिफ़ॉल्ट यूनिट"
 #: apps/erp/app/routes/x+/accounting+/defaults.tsx:24
 msgid "Defaults"
 msgstr "डिफ़ॉल्ट"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:119
+msgid "Defaults to any operation that produces this item."
+msgstr "इस आइटम को बनाने वाली किसी भी ऑपरेशन के लिए डिफ़ॉल्ट।"
 
 #: apps/erp/app/routes/x+/settings+/labels.tsx:124
 msgid "Define the default size of the product label. Used for tracking items in inventory."
@@ -4917,6 +4930,10 @@ msgstr "सीरियल नंबर दर्ज करें या स्�
 msgid "Enter PO number"
 msgstr "PO नंबर दर्ज करें"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:171
+msgid "Entered At Receipt"
+msgstr "रसीद पर दर्ज"
+
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:207
 msgid "Entities"
 msgstr "संस्थाएं"
@@ -5128,6 +5145,7 @@ msgstr "अपेक्षित रसीद"
 msgid "Expected Receipt Date"
 msgstr "अपेक्षित प्राप्ति तारीख"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:753
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5139,10 +5157,18 @@ msgstr "अपेक्षित प्राप्ति तारीख"
 msgid "Expiration Date"
 msgstr "समाप्ति तारीख"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:963
+msgid "Expiration Date (applies to all serials on this line)"
+msgstr "समाप्ति तारीख (इस लाइन पर सभी सीरीज़ पर लागू होता है)"
+
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:132
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
 msgid "Expired"
 msgstr "समाप्त"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:206
+msgid "Expired batch"
+msgstr "समाप्त बैच"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:131
 #: apps/erp/app/routes/share+/quote.$id.tsx:238
@@ -5794,6 +5820,10 @@ msgstr "निश्चित"
 msgid "Fixed Reorder"
 msgstr "निश्चित पुनः ऑर्डर"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:158
+msgid "Fixed Shelf Life"
+msgstr "निश्चित शेल्फ जीवन"
+
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:281
 msgid "Floor: price won't drop below this margin over cost"
 msgstr "फ़्लोर: कीमत इस मार्जिन से लागत के ऊपर नहीं गिरेगी"
@@ -6172,6 +6202,10 @@ msgstr "आने वाली"
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
 msgstr "बुनियादी ढांचा"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:167
+msgid "Inherit From Materials"
+msgstr "सामग्री से विरासत में प्राप्त करें"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:203
 msgid "Insert rows"
@@ -6581,6 +6615,10 @@ msgstr "आइटम मास्टर"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:212
 msgid "Item Scope"
 msgstr "आइटम स्कोप"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
+msgid "Item specific"
+msgstr "आइटम विशिष्ट"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:416
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:587
@@ -8525,6 +8563,11 @@ msgstr "कोई नहीं"
 msgid "Not enough jobs to cover quantity"
 msgstr "पर्याप्त नौकरियां नहीं हैं मात्रा को कवर करने के लिए"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:20
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:106
+msgid "Not managed"
+msgstr "प्रबंधित नहीं"
+
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:120
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:319
 msgid "Not Required"
@@ -9920,7 +9963,7 @@ msgstr "मात्रा"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:180
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:353
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1096
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1097
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -11504,6 +11547,10 @@ msgstr "सीरियल ट्रैकिंग"
 msgid "Serial/Batch #"
 msgstr "सीरीज़/बैच #"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
+msgid "Set at receipt"
+msgstr "रसीद पर सेट करें"
+
 #: apps/erp/app/components/TimeCardWarning.tsx:147
 msgid "Set Clock Out"
 msgstr "क्लॉक आउट सेट करें"
@@ -11532,6 +11579,10 @@ msgstr "मात्रा निर्धारित करें"
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:615
 msgid "Set Version {0} as Active Version?"
 msgstr "संस्करण {0} को सक्रिय संस्करण के रूप में सेट करें?"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:87
+msgid "Set your default location in profile settings to pick a storage unit."
+msgstr "अपनी डिफ़ॉल्ट स्थान को प्रोफ़ाइल सेटिंग्स में सेट करें एक स्टोरेज यूनिट चुनने के लिए।"
 
 #: apps/erp/app/hooks/useModules.tsx:106
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:757
@@ -11609,13 +11660,33 @@ msgstr "लिंक साझा करें"
 msgid "Share Quote"
 msgstr "उद्धरण साझा करें"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:94
+msgid "Shelf Life"
+msgstr "शेल्फ लाइफ"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:290
+msgid "Shelf Life (Days)"
+msgstr "शेल्फ लाइफ (दिन)"
+
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
 msgstr "शेल्फ लाइफ और एक्सपायरी"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:261
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:297
+msgid "Shelf Life Trigger Process"
+msgstr "शेल्फ लाइफ ट्रिगर प्रक्रिया"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:263
 msgid "Shelf-Life"
-msgstr ""
+msgstr "शेल्फ-लाइफ"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:112
+msgid "Shelf-life (days)"
+msgstr "शेल्फ-लाइफ (दिन)"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:118
+msgid "Shelf-life trigger process"
+msgstr "शेल्फ-लाइफ ट्रिगर प्रक्रिया"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58
@@ -12213,6 +12284,18 @@ msgstr "भंडारण इकाई"
 msgid "Storage Units"
 msgstr "भंडारण इकाइयाँ"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:163
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
+msgstr "इस आइटम पर दिनों की एक निश्चित संख्या स्टोर करें। समाप्ति तिथि प्रत्येक बैच या सीरियल पर तब स्टैम्प की जाती है जब इसे बनाया जाता है (या जब ट्रिगर प्रक्रिया चलती है, यदि सेट है)।"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:164
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set)."
+msgstr "इस आइटम पर दिनों की एक निश्चित संख्या स्टोर करें। समाप्ति तिथि प्रत्येक बैच या सीरियल पर तब स्टैम्प की जाती है जब इसे प्राप्त किया जाता है या बनाया जाता है (या जब ट्रिगर प्रक्रिया चलती है, यदि सेट है)।"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:161
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received."
+msgstr "इस आइटम पर दिनों की एक निश्चित संख्या स्टोर करें। प्रत्येक बैच या सीरियल पर प्राप्त होने पर समाप्ति तारीख मुहर लगाई जाती है।"
+
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:165
 msgid "Style of kanban output to show in the Kanban table"
 msgstr "Kanban तालिका में दिखाने के लिए kanban आउटपुट की शैली"
@@ -12586,6 +12669,10 @@ msgstr "तालिका क्रियाएं"
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:144
 msgid "Tags"
 msgstr "टैग"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:168
+msgid "Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients."
+msgstr "इस आइटम को बनाने के लिए उपयोग की जाने वाली सामग्रियों में सबसे कम शेष शेल्फ लाइफ लें। जब उत्पाद की समाप्ति तारीख इसकी सामग्री पर निर्भर करती है तो उपयोग करें।"
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:238
 msgid "Talk to Sales"

@@ -1,4 +1,5 @@
 import { useControlField } from "@carbon/form";
+import { useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import {
   NumberControlled,
@@ -11,20 +12,20 @@ import { shelfLifeModes } from "../../items.models";
 
 type ShelfLifeMode = (typeof shelfLifeModes)[number];
 
-const shelfLifeLabel = (mode: ShelfLifeMode) => {
-  switch (mode) {
-    case "NotManaged":
-      return "Not managed";
-    case "ItemSpecific":
-      return "Item specific";
-    case "Calculated":
-      return "Calculated from BoM";
-    case "SetAtReceipt":
-      return "Set at receipt";
-  }
-};
-
 const ItemStorageAndShelfLifeFields = () => {
+  const { t } = useLingui();
+  const shelfLifeLabel = (mode: ShelfLifeMode) => {
+    switch (mode) {
+      case "NotManaged":
+        return t`Not managed`;
+      case "ItemSpecific":
+        return t`Item specific`;
+      case "Calculated":
+        return t`Calculated from BoM`;
+      case "SetAtReceipt":
+        return t`Set at receipt`;
+    }
+  };
   // The storage-unit picker is scoped to the signed-in user's default
   // location. Items are company-wide - there's no item.locationId - so we
   // use the user's working warehouse as the context for the pick. The
@@ -77,20 +78,20 @@ const ItemStorageAndShelfLifeFields = () => {
     <>
       <StorageUnit
         name="defaultStorageUnitId"
-        label="Default Storage Unit"
+        label={t`Default Storage Unit`}
         locationId={userLocationId}
         disabled={!userLocationId}
         helperText={
           userLocationId
             ? undefined
-            : "Set your default location in profile settings to pick a storage unit."
+            : t`Set your default location in profile settings to pick a storage unit.`
         }
       />
       {shelfLifeApplicable && (
         <>
           <Select
             name="shelfLifeMode"
-            label="Shelf Life"
+            label={t`Shelf Life`}
             // Only the two "actively managed" modes appear in the dropdown.
             // Clearing the Select (via its X button) sends an empty value
             // which the server validator maps to "NotManaged", deleting any
@@ -102,20 +103,20 @@ const ItemStorageAndShelfLifeFields = () => {
                 label: shelfLifeLabel(mode),
                 value: mode
               }))}
-            placeholder="Not managed"
+            placeholder={t`Not managed`}
           />
           {shelfLifeMode === "ItemSpecific" && (
             <>
               <NumberControlled
                 name="shelfLifeDays"
-                label="Shelf-life (days)"
+                label={t`Shelf-life (days)`}
                 minValue={1}
                 value={shelfLifeDays ?? 7}
               />
               <Process
                 name="shelfLifeTriggerProcessId"
-                label="Shelf-life trigger process"
-                helperText="Defaults to any operation that produces this item."
+                label={t`Shelf-life trigger process`}
+                helperText={t`Defaults to any operation that produces this item.`}
               />
             </>
           )}

@@ -11,7 +11,7 @@ import {
   useMount,
   VStack
 } from "@carbon/react";
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useEffect, useMemo, useState } from "react";
@@ -203,7 +203,7 @@ const JobMaterialsTable = memo(
                         className="gap-1 text-xs shrink-0"
                       >
                         <LuCalendarX className="size-3" />
-                        Expired batch
+                        <Trans>Expired batch</Trans>
                       </Badge>
                     )}
                 </HStack>

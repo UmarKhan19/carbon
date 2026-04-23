@@ -189,6 +189,10 @@ msgstr "发货是指向客户发送零件或转移到另一个地点的记录。
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "工具是用于制造零件的物理项目，可以在多个工作中使用"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:172
+msgid "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
+msgstr "用户在收到货物时在每个批次或序列号上记录过期日期。当供应商发货的批次具有不同的过期日期时使用。"
+
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:57
 msgid "A warehouse transfer is an inter-company movement of inventory between two locations"
 msgstr "仓库转移是公司间库存在两个地点之间的流动"
@@ -1666,6 +1670,10 @@ msgstr "通过登录，您同意<0>服务条款</0>和<1>隐私政策。</1>"
 msgid "CAD Model"
 msgstr "CAD 模型"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
+msgid "Calculated from BoM"
+msgstr "从物料清单计算"
+
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermsTable.tsx:74
 msgid "Calculation Method"
 msgstr "计算方法"
@@ -1910,7 +1918,7 @@ msgstr "Carbon 客户端不可用"
 #: apps/erp/app/components/Documents.tsx:193
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1218
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1219
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:411
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -3552,6 +3560,7 @@ msgstr "默认优先级"
 msgid "Default Source"
 msgstr "默认来源"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:81
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:113
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
@@ -3568,6 +3577,10 @@ msgstr "默认单位"
 #: apps/erp/app/routes/x+/accounting+/defaults.tsx:24
 msgid "Defaults"
 msgstr "默认值"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:119
+msgid "Defaults to any operation that produces this item."
+msgstr "默认为生成此项目的任何操作。"
 
 #: apps/erp/app/routes/x+/settings+/labels.tsx:124
 msgid "Define the default size of the product label. Used for tracking items in inventory."
@@ -4917,6 +4930,10 @@ msgstr "输入或扫描序列号"
 msgid "Enter PO number"
 msgstr "输入采购订单号"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:171
+msgid "Entered At Receipt"
+msgstr "在收货时输入"
+
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:207
 msgid "Entities"
 msgstr "实体"
@@ -5128,6 +5145,7 @@ msgstr "预期收货"
 msgid "Expected Receipt Date"
 msgstr "预期收货日期"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:753
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5139,10 +5157,18 @@ msgstr "预期收货日期"
 msgid "Expiration Date"
 msgstr "到期日期"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:963
+msgid "Expiration Date (applies to all serials on this line)"
+msgstr "过期日期（适用于此行上的所有序列号）"
+
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:132
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
 msgid "Expired"
 msgstr "已过期"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:206
+msgid "Expired batch"
+msgstr "过期批次"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:131
 #: apps/erp/app/routes/share+/quote.$id.tsx:238
@@ -5794,6 +5820,10 @@ msgstr "固定"
 msgid "Fixed Reorder"
 msgstr "固定重新订购"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:158
+msgid "Fixed Shelf Life"
+msgstr "固定保质期"
+
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:281
 msgid "Floor: price won't drop below this margin over cost"
 msgstr "底价：价格不会低于成本之上的此利润率"
@@ -6172,6 +6202,10 @@ msgstr "传入"
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
 msgstr "基础设施"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:167
+msgid "Inherit From Materials"
+msgstr "从材料继承"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:203
 msgid "Insert rows"
@@ -6581,6 +6615,10 @@ msgstr "物料主数据"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:212
 msgid "Item Scope"
 msgstr "物品范围"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
+msgid "Item specific"
+msgstr "特定项目"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:416
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:587
@@ -8525,6 +8563,11 @@ msgstr "无"
 msgid "Not enough jobs to cover quantity"
 msgstr "工作数量不足以覆盖数量"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:20
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:106
+msgid "Not managed"
+msgstr "未管理"
+
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:120
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:319
 msgid "Not Required"
@@ -9920,7 +9963,7 @@ msgstr "数量"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:180
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:353
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1096
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1097
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -11504,6 +11547,10 @@ msgstr "序列追踪"
 msgid "Serial/Batch #"
 msgstr "序列号/批次 #"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
+msgid "Set at receipt"
+msgstr "收货时设置"
+
 #: apps/erp/app/components/TimeCardWarning.tsx:147
 msgid "Set Clock Out"
 msgstr "设置打卡下班时间"
@@ -11532,6 +11579,10 @@ msgstr "设置数量"
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:615
 msgid "Set Version {0} as Active Version?"
 msgstr "将版本 {0} 设置为活跃版本？"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:87
+msgid "Set your default location in profile settings to pick a storage unit."
+msgstr "在个人资料设置中设置您的默认位置以选择存储单位。"
 
 #: apps/erp/app/hooks/useModules.tsx:106
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:757
@@ -11609,13 +11660,33 @@ msgstr "分享链接"
 msgid "Share Quote"
 msgstr "分享报价"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:94
+msgid "Shelf Life"
+msgstr "保质期"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:290
+msgid "Shelf Life (Days)"
+msgstr "保质期（天）"
+
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
 msgstr "保质期和过期"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:261
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:297
+msgid "Shelf Life Trigger Process"
+msgstr "保质期触发流程"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:263
 msgid "Shelf-Life"
-msgstr ""
+msgstr "保质期"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:112
+msgid "Shelf-life (days)"
+msgstr "保质期（天）"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:118
+msgid "Shelf-life trigger process"
+msgstr "保质期触发流程"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58
@@ -12213,6 +12284,18 @@ msgstr "存储单位"
 msgid "Storage Units"
 msgstr "存储单位"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:163
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
+msgstr "在此项目上存储固定的天数。过期日期在创建每个批次或序列号时标记（或在触发流程运行时标记，如果已设置）。"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:164
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set)."
+msgstr "在此项目上存储固定的天数。过期日期在接收或创建每个批次或序列号时被标记（或在触发流程运行时，如果已设置）。"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:161
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received."
+msgstr "在此项目上存储固定的天数。过期日期在收到时会标记在每个批次或序列号上。"
+
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:165
 msgid "Style of kanban output to show in the Kanban table"
 msgstr "看板输出在看板表中显示的样式"
@@ -12586,6 +12669,10 @@ msgstr "表格操作"
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:144
 msgid "Tags"
 msgstr "标签"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:168
+msgid "Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients."
+msgstr "取用制造此物品所消耗材料中最短的剩余保质期。当产品的有效期取决于其成分时使用。"
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:238
 msgid "Talk to Sales"

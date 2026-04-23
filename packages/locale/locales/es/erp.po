@@ -189,6 +189,10 @@ msgstr "Un envío es un registro de una pieza enviada a un cliente o transferida
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "Una herramienta es un artículo físico utilizado para fabricar una pieza que se puede usar en múltiples trabajos"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:172
+msgid "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
+msgstr "Un usuario registra la fecha de vencimiento en cada lote o número de serie cuando se reciben los bienes. Úsalo cuando los proveedores envían lotes con diferentes fechas de vencimiento."
+
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:57
 msgid "A warehouse transfer is an inter-company movement of inventory between two locations"
 msgstr "Una transferencia de almacén es un movimiento de inventario entre empresas entre dos ubicaciones"
@@ -1666,6 +1670,10 @@ msgstr "Al iniciar sesión, aceptas los <0>Términos de Servicio</0> y la <1>Pol
 msgid "CAD Model"
 msgstr "Modelo CAD"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:24
+msgid "Calculated from BoM"
+msgstr "Calculado desde BoM"
+
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermsTable.tsx:74
 msgid "Calculation Method"
 msgstr "Método de Cálculo"
@@ -1910,7 +1918,7 @@ msgstr "El cliente de Carbon no está disponible"
 #: apps/erp/app/components/Documents.tsx:193
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1218
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1219
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:411
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -3552,6 +3560,7 @@ msgstr "Prioridad Predeterminada"
 msgid "Default Source"
 msgstr "Fuente Predeterminada"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:81
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:113
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
@@ -3568,6 +3577,10 @@ msgstr "Unidad Predeterminada"
 #: apps/erp/app/routes/x+/accounting+/defaults.tsx:24
 msgid "Defaults"
 msgstr "Valores predeterminados"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:119
+msgid "Defaults to any operation that produces this item."
+msgstr "Por defecto, cualquier operación que produzca este artículo."
 
 #: apps/erp/app/routes/x+/settings+/labels.tsx:124
 msgid "Define the default size of the product label. Used for tracking items in inventory."
@@ -4917,6 +4930,10 @@ msgstr "Ingrese o escanee el número de serie"
 msgid "Enter PO number"
 msgstr "Ingrese el número de PO"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:171
+msgid "Entered At Receipt"
+msgstr "Ingresado en la Recepción"
+
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:207
 msgid "Entities"
 msgstr "Entidades"
@@ -5128,6 +5145,7 @@ msgstr "Recepción Esperada"
 msgid "Expected Receipt Date"
 msgstr "Fecha de Recepción Esperada"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:753
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5139,10 +5157,18 @@ msgstr "Fecha de Recepción Esperada"
 msgid "Expiration Date"
 msgstr "Fecha de Vencimiento"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:963
+msgid "Expiration Date (applies to all serials on this line)"
+msgstr "Fecha de vencimiento (se aplica a todos los números de serie en esta línea)"
+
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:132
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
 msgid "Expired"
 msgstr "Expirado"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:206
+msgid "Expired batch"
+msgstr "Lote expirado"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:131
 #: apps/erp/app/routes/share+/quote.$id.tsx:238
@@ -5794,6 +5820,10 @@ msgstr "Fijo"
 msgid "Fixed Reorder"
 msgstr "Reorden Fijo"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:158
+msgid "Fixed Shelf Life"
+msgstr "Vida Útil Fija"
+
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:281
 msgid "Floor: price won't drop below this margin over cost"
 msgstr "Piso: el precio no caerá por debajo de este margen sobre el costo"
@@ -6172,6 +6202,10 @@ msgstr "Entrante"
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
 msgstr "Infraestructura"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:167
+msgid "Inherit From Materials"
+msgstr "Heredar de Materiales"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:203
 msgid "Insert rows"
@@ -6581,6 +6615,10 @@ msgstr "Maestro de Artículos"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:212
 msgid "Item Scope"
 msgstr "Alcance de Artículos"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:22
+msgid "Item specific"
+msgstr "Específico del artículo"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:416
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:587
@@ -8525,6 +8563,11 @@ msgstr "Ninguno"
 msgid "Not enough jobs to cover quantity"
 msgstr "No hay suficientes trabajos para cubrir la cantidad"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:20
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:106
+msgid "Not managed"
+msgstr "No administrado"
+
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:120
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:319
 msgid "Not Required"
@@ -9920,7 +9963,7 @@ msgstr "Cantidades"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:180
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:353
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1096
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1097
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -11504,6 +11547,10 @@ msgstr "Seguimiento en Serie"
 msgid "Serial/Batch #"
 msgstr "Serial/Lote #"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:26
+msgid "Set at receipt"
+msgstr "Establecer al recibir"
+
 #: apps/erp/app/components/TimeCardWarning.tsx:147
 msgid "Set Clock Out"
 msgstr "Establecer Salida"
@@ -11532,6 +11579,10 @@ msgstr "Establecer Cantidad"
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:615
 msgid "Set Version {0} as Active Version?"
 msgstr "¿Establecer la versión {0} como versión activa?"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:87
+msgid "Set your default location in profile settings to pick a storage unit."
+msgstr "Establece tu ubicación predeterminada en la configuración del perfil para seleccionar una unidad de almacenamiento."
 
 #: apps/erp/app/hooks/useModules.tsx:106
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:757
@@ -11609,13 +11660,33 @@ msgstr "Enlace compartido"
 msgid "Share Quote"
 msgstr "Compartir Cotización"
 
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:94
+msgid "Shelf Life"
+msgstr "Vida útil"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:290
+msgid "Shelf Life (Days)"
+msgstr "Vida Útil (Días)"
+
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:205
 msgid "Shelf life & expiry"
 msgstr "Vida útil y vencimiento"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:261
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:297
+msgid "Shelf Life Trigger Process"
+msgstr "Proceso de Activación de Vida Útil"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:263
 msgid "Shelf-Life"
-msgstr ""
+msgstr "Vida Útil"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:112
+msgid "Shelf-life (days)"
+msgstr "Vida útil (días)"
+
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:118
+msgid "Shelf-life trigger process"
+msgstr "Proceso de activación de vida útil"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58
@@ -12213,6 +12284,18 @@ msgstr "Unidad de Almacenamiento"
 msgid "Storage Units"
 msgstr "Unidades de Almacenamiento"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:163
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
+msgstr "Almacena un número fijo de días en este artículo. La fecha de vencimiento se estampa en cada lote o número de serie cuando se crea (o cuando se ejecuta el proceso de activación, si está configurado)."
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:164
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set)."
+msgstr "Almacena un número fijo de días en este artículo. La fecha de vencimiento se estampa en cada lote o número de serie cuando se recibe o se crea (o cuando se ejecuta el proceso de activación, si está configurado)."
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:161
+msgid "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received."
+msgstr "Almacena un número fijo de días en este artículo. La fecha de vencimiento se estampa en cada lote o serie cuando se recibe."
+
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:165
 msgid "Style of kanban output to show in the Kanban table"
 msgstr "Estilo de salida de kanban para mostrar en la tabla Kanban"
@@ -12586,6 +12669,10 @@ msgstr "Acciones de tabla"
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:144
 msgid "Tags"
 msgstr "Etiquetas"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:168
+msgid "Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients."
+msgstr "Toma la vida útil restante más corta entre los materiales consumidos para fabricar este artículo. Úsalo cuando la caducidad del producto depende de sus ingredientes."
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:238
 msgid "Talk to Sales"

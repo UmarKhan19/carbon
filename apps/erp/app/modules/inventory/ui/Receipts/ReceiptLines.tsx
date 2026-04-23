@@ -750,7 +750,7 @@ function BatchForm({
         {showExpiryField && (
           <div className="flex flex-col gap-2 w-full">
             <label className="text-xs text-muted-foreground flex items-center gap-2">
-              <LuCalendar /> Expiration Date
+              <LuCalendar /> <Trans>Expiration Date</Trans>
             </label>
             <Input
               type="date"
@@ -959,7 +959,8 @@ function SerialForm({
       {showExpiryField && (
         <div className="flex flex-col gap-2 max-w-xs">
           <label className="text-xs text-muted-foreground flex items-center gap-2">
-            <LuCalendar /> Expiration Date (applies to all serials on this line)
+            <LuCalendar />{" "}
+            <Trans>Expiration Date (applies to all serials on this line)</Trans>
           </label>
           <Input
             type="date"

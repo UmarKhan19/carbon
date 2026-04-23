@@ -140,27 +140,6 @@ const ALL_SHELF_LIFE_MODES: ShelfLifeMode[] = [
   "SetAtReceipt"
 ];
 
-const shelfLifeOptionCopy: Record<
-  Exclude<ShelfLifeMode, "NotManaged">,
-  { title: string; description: string }
-> = {
-  ItemSpecific: {
-    title: "Fixed Shelf Life",
-    description:
-      "Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
-  },
-  Calculated: {
-    title: "Inherit From Materials",
-    description:
-      "Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients."
-  },
-  SetAtReceipt: {
-    title: "Entered At Receipt",
-    description:
-      "A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates."
-  }
-};
-
 // The "has shelf life" checkbox is local state. When unchecked, the
 // hidden input submits "", which the validator coerces to "NotManaged"
 // (items.models.ts) so the service deletes the itemShelfLife row
@@ -170,6 +149,29 @@ function ShelfLifeFields({
 }: {
   replenishmentSystem: ReplenishmentSystem | null;
 }) {
+  const { t } = useLingui();
+  const shelfLifeOptionCopy: Record<
+    Exclude<ShelfLifeMode, "NotManaged">,
+    { title: string; description: string }
+  > = {
+    ItemSpecific: {
+      title: t`Fixed Shelf Life`,
+      description:
+        replenishmentSystem === "Buy"
+          ? t`Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received.`
+          : replenishmentSystem === "Make"
+            ? t`Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's created (or when the trigger process runs, if set).`
+            : t`Store a fixed number of days on this item. The expiry date is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set).`
+    },
+    Calculated: {
+      title: t`Inherit From Materials`,
+      description: t`Take the shortest remaining shelf life across the materials consumed to make this item. Use when the product's expiry depends on its ingredients.`
+    },
+    SetAtReceipt: {
+      title: t`Entered At Receipt`,
+      description: t`A user records the expiry date on each batch or serial when the goods are received. Use when suppliers ship lots with different expiry dates.`
+    }
+  };
   const [shelfLifeMode, setShelfLifeMode] = useControlField<
     ShelfLifeMode | "" | undefined
   >("shelfLifeMode");
@@ -285,14 +287,14 @@ function ShelfLifeFields({
         <>
           <NumberControlled
             name="shelfLifeDays"
-            label="Shelf Life (Days)"
+            label={t`Shelf Life (Days)`}
             minValue={1}
             value={shelfLifeDays ?? 7}
           />
           {replenishmentSystem !== "Buy" && (
             <Process
               name="shelfLifeTriggerProcessId"
-              label="Shelf Life Trigger Process"
+              label={t`Shelf Life Trigger Process`}
             />
           )}
         </>
