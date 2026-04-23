@@ -16,12 +16,13 @@ import {
   getPickMethod,
   pickMethodWithShelfLifeValidator,
   type shelfLifeModes,
-  upsertItemShelfLife,
-  upsertPickMethod
+  upsertPickMethod,
+  upsertPickMethodWithShelfLife
 } from "~/modules/items";
 import { PickMethodForm } from "~/modules/items/ui/Item";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
+import { getDatabaseClient } from "~/services/database.server";
 import { useItems } from "~/stores";
 import type { ListItem } from "~/types";
 import { getCustomFields, setCustomFields } from "~/utils/form";
@@ -137,7 +138,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { userId } = await requirePermissions(request, {
     update: "parts"
   });
 
@@ -157,39 +158,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
     shelfLifeMode,
     shelfLifeDays,
     shelfLifeTriggerProcessId,
+    shelfLifeTriggerTiming,
     ...pickMethodFields
   } = validation.data;
 
-  const updatePickMethod = await upsertPickMethod(client, {
-    ...pickMethodFields,
-    itemId,
-    customFields: setCustomFields(formData),
-    updatedBy: userId
-  });
-  if (updatePickMethod.error) {
+  try {
+    await upsertPickMethodWithShelfLife(getDatabaseClient(), {
+      itemId,
+      locationId: pickMethodFields.locationId,
+      defaultStorageUnitId: pickMethodFields.defaultStorageUnitId,
+      customFields: setCustomFields(formData),
+      userId,
+      shelfLife: {
+        mode: shelfLifeMode,
+        days: shelfLifeDays,
+        triggerProcessId: shelfLifeTriggerProcessId,
+        triggerTiming: shelfLifeTriggerTiming
+      }
+    });
+  } catch (err) {
     throw redirect(
       path.to.part(itemId),
-      await flash(
-        request,
-        error(updatePickMethod.error, "Failed to update part inventory")
-      )
-    );
-  }
-
-  const updateShelfLife = await upsertItemShelfLife(client, {
-    itemId,
-    userId,
-    mode: shelfLifeMode,
-    days: shelfLifeDays,
-    triggerProcessId: shelfLifeTriggerProcessId
-  });
-  if (updateShelfLife.error) {
-    throw redirect(
-      path.to.part(itemId),
-      await flash(
-        request,
-        error(updateShelfLife.error, "Failed to update part shelf life")
-      )
+      await flash(request, error(err, "Failed to update part inventory"))
     );
   }
 
@@ -227,6 +217,7 @@ export default function PartInventoryRoute() {
       | undefined,
     shelfLifeDays: shelfLife?.days ?? undefined,
     shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
+    shelfLifeTriggerTiming: shelfLife?.triggerTiming ?? undefined,
     ...getCustomFields(partInventory.customFields ?? {})
   };
 

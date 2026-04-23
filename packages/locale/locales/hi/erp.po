@@ -3578,7 +3578,7 @@ msgstr "डिफ़ॉल्ट शेल्फ लाइफ (दिन)"
 msgid "Default Source"
 msgstr "डिफ़ॉल्ट स्रोत"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:85
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:109
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:117
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
@@ -3595,10 +3595,6 @@ msgstr "डिफ़ॉल्ट यूनिट"
 #: apps/erp/app/routes/x+/accounting+/defaults.tsx:24
 msgid "Defaults"
 msgstr "डिफ़ॉल्ट"
-
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:123
-msgid "Defaults to any operation that produces this item."
-msgstr "इस आइटम को बनाने वाली किसी भी ऑपरेशन के लिए डिफ़ॉल्ट।"
 
 #: apps/erp/app/routes/x+/settings+/labels.tsx:124
 msgid "Define the default size of the product label. Used for tracking items in inventory."
@@ -8600,7 +8596,7 @@ msgid "Not enough jobs to cover quantity"
 msgstr "पर्याप्त नौकरियां नहीं हैं मात्रा को कवर करने के लिए"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:20
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:110
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:134
 msgid "Not managed"
 msgstr "प्रबंधित नहीं"
 
@@ -11628,7 +11624,7 @@ msgstr "मात्रा निर्धारित करें"
 msgid "Set Version {0} as Active Version?"
 msgstr "संस्करण {0} को सक्रिय संस्करण के रूप में सेट करें?"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:91
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:115
 msgid "Set your default location in profile settings to pick a storage unit."
 msgstr "अपनी डिफ़ॉल्ट स्थान को प्रोफ़ाइल सेटिंग्स में सेट करें एक स्टोरेज यूनिट चुनने के लिए।"
 
@@ -11708,7 +11704,7 @@ msgstr "लिंक साझा करें"
 msgid "Share Quote"
 msgstr "उद्धरण साझा करें"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:98
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:122
 msgid "Shelf Life"
 msgstr "शेल्फ लाइफ"
 
@@ -11720,21 +11716,18 @@ msgstr "शेल्फ लाइफ (दिन)"
 msgid "Shelf life & expiry"
 msgstr "शेल्फ लाइफ और एक्सपायरी"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:310
-msgid "Shelf Life Trigger Process"
-msgstr "शेल्फ लाइफ ट्रिगर प्रक्रिया"
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:147
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:311
+msgid "Shelf Life Start Event"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:266
 msgid "Shelf-Life"
 msgstr "शेल्फ-लाइफ"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:116
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:140
 msgid "Shelf-life (days)"
 msgstr "शेल्फ-लाइफ (दिन)"
-
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:122
-msgid "Shelf-life trigger process"
-msgstr "शेल्फ-लाइफ ट्रिगर प्रक्रिया"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58
@@ -12101,6 +12094,16 @@ msgstr "रसीद लाइन को विभाजित करें"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:366
 msgid "Split shipment line"
 msgstr "शिपमेंट लाइन को विभाजित करें"
+
+#: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:57
+#: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:67
+msgid "Stamp expiry after process completes"
+msgstr ""
+
+#: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:56
+#: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:66
+msgid "Stamp expiry before process starts"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:87
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:91

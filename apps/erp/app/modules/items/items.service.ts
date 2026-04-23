@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -47,6 +48,7 @@ import type {
   pickMethodValidator,
   serviceValidator,
   shelfLifeModes,
+  shelfLifeTriggerTimings,
   supplierPartValidator,
   toolValidator,
   unitOfMeasureValidator
@@ -2099,7 +2101,7 @@ export async function getItemShelfLife(
 ) {
   return client
     .from("itemShelfLife")
-    .select("mode, days, triggerProcessId")
+    .select("mode, days, triggerProcessId, triggerTiming")
     .eq("itemId", itemId)
     .maybeSingle();
 }
@@ -2113,6 +2115,7 @@ export async function upsertItemShelfLife(
     mode?: (typeof shelfLifeModes)[number];
     days?: number;
     triggerProcessId?: string;
+    triggerTiming?: (typeof shelfLifeTriggerTimings)[number];
   }
 ) {
   if (args.mode === undefined) {
@@ -2126,6 +2129,12 @@ export async function upsertItemShelfLife(
   const days = args.mode === "Fixed Duration" ? (args.days ?? null) : null;
   const triggerProcessId =
     args.mode === "Fixed Duration" ? (args.triggerProcessId ?? null) : null;
+  // triggerTiming only matters when there's a trigger process. Reset to the
+  // default 'After' otherwise so the column never carries a stale value
+  // from a prior config.
+  const triggerTiming = triggerProcessId
+    ? (args.triggerTiming ?? "After")
+    : "After";
 
   const existing = await client
     .from("itemShelfLife")
@@ -2142,6 +2151,7 @@ export async function upsertItemShelfLife(
         mode: args.mode,
         days,
         triggerProcessId,
+        triggerTiming,
         updatedBy: args.userId,
         updatedAt: new Date().toISOString()
       })
@@ -2164,8 +2174,117 @@ export async function upsertItemShelfLife(
     mode: args.mode!,
     days,
     triggerProcessId,
+    triggerTiming,
     companyId: companyId!,
     createdBy: args.userId
+  });
+}
+
+/**
+ * Atomic counterpart to {@link upsertPickMethod} + {@link upsertItemShelfLife}.
+ *
+ * The inventory form card submits pickMethod fields and shelf-life fields in
+ * the same POST (see pickMethodWithShelfLifeValidator). Writing them through
+ * two independent Supabase calls means a failure between the two leaves a
+ * partial update committed. This helper runs both writes inside a single
+ * Postgres transaction via Kysely.
+ */
+export async function upsertPickMethodWithShelfLife(
+  db: Kysely<KyselyDatabase>,
+  args: {
+    itemId: string;
+    locationId: string;
+    defaultStorageUnitId?: string | null;
+    customFields?: Json;
+    userId: string;
+    shelfLife: {
+      mode?: (typeof shelfLifeModes)[number];
+      days?: number;
+      triggerProcessId?: string;
+      triggerTiming?: (typeof shelfLifeTriggerTimings)[number];
+    };
+  }
+) {
+  const now = new Date().toISOString();
+
+  return db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("pickMethod")
+      .set({
+        defaultStorageUnitId: args.defaultStorageUnitId ?? null,
+        customFields: args.customFields ?? null,
+        updatedBy: args.userId,
+        updatedAt: now
+      })
+      .where("itemId", "=", args.itemId)
+      .where("locationId", "=", args.locationId)
+      .execute();
+
+    const { mode, days, triggerProcessId, triggerTiming } = args.shelfLife;
+
+    // mode undefined = caller didn't surface the field; leave any existing
+    // row alone (matches upsertItemShelfLife semantics).
+    if (mode === undefined) return;
+
+    if (mode === "NotManaged") {
+      await trx
+        .deleteFrom("itemShelfLife")
+        .where("itemId", "=", args.itemId)
+        .execute();
+      return;
+    }
+
+    const normalizedDays = mode === "Fixed Duration" ? (days ?? null) : null;
+    const normalizedTriggerProcess =
+      mode === "Fixed Duration" ? (triggerProcessId ?? null) : null;
+    const normalizedTriggerTiming = normalizedTriggerProcess
+      ? (triggerTiming ?? "After")
+      : "After";
+
+    const existing = await trx
+      .selectFrom("itemShelfLife")
+      .select("itemId")
+      .where("itemId", "=", args.itemId)
+      .executeTakeFirst();
+
+    if (existing) {
+      await trx
+        .updateTable("itemShelfLife")
+        .set({
+          mode,
+          days: normalizedDays,
+          triggerProcessId: normalizedTriggerProcess,
+          triggerTiming: normalizedTriggerTiming,
+          updatedBy: args.userId,
+          updatedAt: now
+        })
+        .where("itemId", "=", args.itemId)
+        .execute();
+      return;
+    }
+
+    const itemRow = await trx
+      .selectFrom("item")
+      .select("companyId")
+      .where("id", "=", args.itemId)
+      .executeTakeFirstOrThrow();
+
+    if (!itemRow.companyId) {
+      throw new Error(`Item ${args.itemId} has no companyId`);
+    }
+
+    await trx
+      .insertInto("itemShelfLife")
+      .values({
+        itemId: args.itemId,
+        mode,
+        days: normalizedDays,
+        triggerProcessId: normalizedTriggerProcess,
+        triggerTiming: normalizedTriggerTiming,
+        companyId: itemRow.companyId,
+        createdBy: args.userId
+      })
+      .execute();
   });
 }
 
@@ -2237,7 +2356,8 @@ export async function upsertConsumable(
         companyId: consumable.companyId,
         mode: consumable.shelfLifeMode,
         days: consumable.shelfLifeDays,
-        triggerProcessId: consumable.shelfLifeTriggerProcessId
+        triggerProcessId: consumable.shelfLifeTriggerProcessId,
+        triggerTiming: consumable.shelfLifeTriggerTiming
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -2298,7 +2418,8 @@ export async function upsertConsumable(
     userId: consumable.updatedBy,
     mode: consumable.shelfLifeMode,
     days: consumable.shelfLifeDays,
-    triggerProcessId: consumable.shelfLifeTriggerProcessId
+    triggerProcessId: consumable.shelfLifeTriggerProcessId,
+    triggerTiming: consumable.shelfLifeTriggerTiming
   });
   if (shelfLife.error) return shelfLife;
 
@@ -2387,7 +2508,8 @@ export async function upsertPart(
         companyId: part.companyId,
         mode: part.shelfLifeMode,
         days: part.shelfLifeDays,
-        triggerProcessId: part.shelfLifeTriggerProcessId
+        triggerProcessId: part.shelfLifeTriggerProcessId,
+        triggerTiming: part.shelfLifeTriggerTiming
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -2448,7 +2570,8 @@ export async function upsertPart(
     userId: part.updatedBy,
     mode: part.shelfLifeMode,
     days: part.shelfLifeDays,
-    triggerProcessId: part.shelfLifeTriggerProcessId
+    triggerProcessId: part.shelfLifeTriggerProcessId,
+    triggerTiming: part.shelfLifeTriggerTiming
   });
   if (shelfLife.error) return shelfLife;
 
@@ -3039,7 +3162,8 @@ export async function upsertMaterial(
         companyId: material.companyId,
         mode: material.shelfLifeMode,
         days: material.shelfLifeDays,
-        triggerProcessId: material.shelfLifeTriggerProcessId
+        triggerProcessId: material.shelfLifeTriggerProcessId,
+        triggerTiming: material.shelfLifeTriggerTiming
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -3123,7 +3247,8 @@ export async function upsertMaterial(
     userId: material.updatedBy,
     mode: material.shelfLifeMode,
     days: material.shelfLifeDays,
-    triggerProcessId: material.shelfLifeTriggerProcessId
+    triggerProcessId: material.shelfLifeTriggerProcessId,
+    triggerTiming: material.shelfLifeTriggerTiming
   });
   if (shelfLife.error) return shelfLife;
 
@@ -3563,7 +3688,8 @@ export async function upsertTool(
         companyId: tool.companyId,
         mode: tool.shelfLifeMode,
         days: tool.shelfLifeDays,
-        triggerProcessId: tool.shelfLifeTriggerProcessId
+        triggerProcessId: tool.shelfLifeTriggerProcessId,
+        triggerTiming: tool.shelfLifeTriggerTiming
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -3624,7 +3750,8 @@ export async function upsertTool(
     userId: tool.updatedBy,
     mode: tool.shelfLifeMode,
     days: tool.shelfLifeDays,
-    triggerProcessId: tool.shelfLifeTriggerProcessId
+    triggerProcessId: tool.shelfLifeTriggerProcessId,
+    triggerTiming: tool.shelfLifeTriggerTiming
   });
   if (shelfLife.error) return shelfLife;
 

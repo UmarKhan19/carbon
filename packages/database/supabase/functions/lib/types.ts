@@ -10718,6 +10718,7 @@ export type Database = {
           itemId: string
           mode: Database["public"]["Enums"]["shelfLifeMode"]
           triggerProcessId: string | null
+          triggerTiming: Database["public"]["Enums"]["shelfLifeTriggerTiming"]
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -10730,6 +10731,7 @@ export type Database = {
           itemId: string
           mode: Database["public"]["Enums"]["shelfLifeMode"]
           triggerProcessId?: string | null
+          triggerTiming?: Database["public"]["Enums"]["shelfLifeTriggerTiming"]
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -10742,6 +10744,7 @@ export type Database = {
           itemId?: string
           mode?: Database["public"]["Enums"]["shelfLifeMode"]
           triggerProcessId?: string | null
+          triggerTiming?: Database["public"]["Enums"]["shelfLifeTriggerTiming"]
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -59179,11 +59182,18 @@ export type Database = {
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
-      stamp_shelf_life_for_completed_operation: {
-        Args: { p_job_operation_id: string }
+      stamp_shelf_life_for_operation: {
+        Args: {
+          p_event: Database["public"]["Enums"]["shelfLifeTriggerTiming"]
+          p_job_operation_id: string
+        }
         Returns: undefined
       }
       stamp_shelf_life_on_operation_done: {
+        Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
+        Returns: undefined
+      }
+      stamp_shelf_life_on_operation_started: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
       }
@@ -59917,6 +59927,7 @@ export type Database = {
       salesRfqStatus: "Draft" | "Ready for Quote" | "Closed" | "Quoted"
       serviceType: "Internal" | "External"
       shelfLifeMode: "Fixed Duration" | "Calculated" | "Set on Receipt"
+      shelfLifeTriggerTiming: "Before" | "After"
       shipmentSourceDocument:
         | "Sales Order"
         | "Sales Invoice"
@@ -61118,6 +61129,7 @@ export const Constants = {
       salesRfqStatus: ["Draft", "Ready for Quote", "Closed", "Quoted"],
       serviceType: ["Internal", "External"],
       shelfLifeMode: ["Fixed Duration", "Calculated", "Set on Receipt"],
+      shelfLifeTriggerTiming: ["Before", "After"],
       shipmentSourceDocument: [
         "Sales Order",
         "Sales Invoice",

@@ -3,8 +3,8 @@ import { useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
 import {
   NumberControlled,
-  Process,
   Select,
+  ShelfLifeStartEvent,
   StorageUnit
 } from "~/components/Form";
 import { useSettings, useUser } from "~/hooks";
@@ -58,6 +58,20 @@ const ItemStorageAndShelfLifeFields = () => {
     "shelfLifeDays"
   );
 
+  // Calculated needs a BoM (Make-capable), Set on Receipt needs an incoming
+  // goods flow (Buy-capable). Mirror the filter applied on the inventory
+  // card's PickMethodForm so users can't configure a combination that will
+  // later be unreachable in the edit UI.
+  const [replenishmentSystem] = useControlField<string | undefined>(
+    "replenishmentSystem"
+  );
+  const isModeAvailable = (mode: ShelfLifeMode) => {
+    if (mode === "Calculated" && replenishmentSystem === "Buy") return false;
+    if (mode === "Set on Receipt" && replenishmentSystem === "Make")
+      return false;
+    return true;
+  };
+
   // Clear the days value when the user switches away from Fixed Duration.
   // The validator rejects days in any other mode, and leaving a stale
   // value in form state would silently fail validation on submit. The
@@ -77,6 +91,16 @@ const ItemStorageAndShelfLifeFields = () => {
       setShelfLifeMode(undefined);
     }
   }, [shelfLifeApplicable, shelfLifeMode, setShelfLifeMode]);
+
+  // If the user flips replenishment in a way that makes the selected mode
+  // invalid (e.g. picked Calculated, then switched to Buy), drop the mode.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    if (shelfLifeMode && !isModeAvailable(shelfLifeMode)) {
+      setShelfLifeMode(undefined);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [replenishmentSystem]);
 
   return (
     <>
@@ -102,7 +126,7 @@ const ItemStorageAndShelfLifeFields = () => {
             // existing itemShelfLife row. One control: pick a mode to
             // enable, clear to disable.
             options={shelfLifeModes
-              .filter((mode) => mode !== "NotManaged")
+              .filter((mode) => mode !== "NotManaged" && isModeAvailable(mode))
               .map((mode) => ({
                 label: shelfLifeLabel(mode),
                 value: mode
@@ -117,10 +141,10 @@ const ItemStorageAndShelfLifeFields = () => {
                 minValue={1}
                 value={shelfLifeDays ?? defaultShelfLifeDays}
               />
-              <Process
-                name="shelfLifeTriggerProcessId"
-                label={t`Shelf-life trigger process`}
-                helperText={t`Defaults to any operation that produces this item.`}
+              <ShelfLifeStartEvent
+                processName="shelfLifeTriggerProcessId"
+                timingName="shelfLifeTriggerTiming"
+                label={t`Shelf Life Start Event`}
               />
             </>
           )}

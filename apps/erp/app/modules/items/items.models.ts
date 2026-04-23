@@ -59,6 +59,8 @@ export const shelfLifeModes = [
   "Set on Receipt"
 ] as const;
 
+export const shelfLifeTriggerTimings = ["Before", "After"] as const;
+
 export const partManufacturingPolicies = [
   "Make to Stock",
   "Make to Order"
@@ -117,7 +119,12 @@ export const itemValidator = z.object({
     z.enum(shelfLifeModes).optional()
   ),
   shelfLifeDays: zfd.numeric(z.number().positive().optional()),
-  shelfLifeTriggerProcessId: zfd.text(z.string().optional())
+  shelfLifeTriggerProcessId: zfd.text(z.string().optional()),
+  // Whether the clock starts when the trigger process begins ('Before') or
+  // completes ('After'). Only meaningful with Fixed Duration + a trigger
+  // process; ignored otherwise. Defaults to 'After' to preserve legacy
+  // behavior on items that pre-date this column.
+  shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional()
 });
 
 // Common storage / shelf-life refines. Shared across all item-type
@@ -166,6 +173,26 @@ const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
       {
         message:
           "Shelf-life can only be managed on items tracked by Serial or Batch - there's no per-unit record to stamp otherwise",
+        path: ["shelfLifeMode"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        data.shelfLifeMode !== "Calculated" ||
+        data.replenishmentSystem !== "Buy",
+      {
+        message:
+          "Component minimum shelf-life requires a BoM - only Make or Buy and Make items qualify",
+        path: ["shelfLifeMode"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        data.shelfLifeMode !== "Set on Receipt" ||
+        data.replenishmentSystem !== "Make",
+      {
+        message:
+          "Set on receipt applies at goods-in - only Buy or Buy and Make items qualify",
         path: ["shelfLifeMode"]
       }
     ) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
@@ -611,7 +638,8 @@ export const pickMethodWithShelfLifeValidator = pickMethodValidator
         z.enum(shelfLifeModes).optional()
       ),
       shelfLifeDays: zfd.numeric(z.number().positive().optional()),
-      shelfLifeTriggerProcessId: zfd.text(z.string().optional())
+      shelfLifeTriggerProcessId: zfd.text(z.string().optional()),
+      shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional()
     })
   )
   .refine(

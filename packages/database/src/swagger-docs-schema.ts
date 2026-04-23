@@ -26434,6 +26434,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemShelfLife.triggerProcessId"
           },
           {
+            $ref: "#/parameters/rowFilter.itemShelfLife.triggerTiming"
+          },
+          {
             $ref: "#/parameters/rowFilter.itemShelfLife.companyId"
           },
           {
@@ -26523,6 +26526,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemShelfLife.triggerProcessId"
           },
           {
+            $ref: "#/parameters/rowFilter.itemShelfLife.triggerTiming"
+          },
+          {
             $ref: "#/parameters/rowFilter.itemShelfLife.companyId"
           },
           {
@@ -26564,6 +26570,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemShelfLife.triggerProcessId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.triggerTiming"
           },
           {
             $ref: "#/parameters/rowFilter.itemShelfLife.companyId"
@@ -67407,41 +67416,6 @@ export default {
         tags: ["(rpc) is_claims_admin"]
       }
     },
-    "/rpc/stamp_shelf_life_for_completed_operation": {
-      post: {
-        parameters: [
-          {
-            in: "body",
-            name: "args",
-            required: true,
-            schema: {
-              properties: {
-                p_job_operation_id: {
-                  format: "text",
-                  type: "string"
-                }
-              },
-              required: ["p_job_operation_id"],
-              type: "object"
-            }
-          },
-          {
-            $ref: "#/parameters/preferParams"
-          }
-        ],
-        produces: [
-          "application/json",
-          "application/vnd.pgrst.object+json;nulls=stripped",
-          "application/vnd.pgrst.object+json"
-        ],
-        responses: {
-          "200": {
-            description: "OK"
-          }
-        },
-        tags: ["(rpc) stamp_shelf_life_for_completed_operation"]
-      }
-    },
     "/rpc/xid": {
       post: {
         parameters: [
@@ -69045,6 +69019,45 @@ export default {
           }
         },
         tags: ["(rpc) sync_create_item_related_records"]
+      }
+    },
+    "/rpc/stamp_shelf_life_for_operation": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_event: {
+                  format: '"shelfLifeTriggerTiming"',
+                  type: "string"
+                },
+                p_job_operation_id: {
+                  format: "text",
+                  type: "string"
+                }
+              },
+              required: ["p_job_operation_id", "p_event"],
+              type: "object"
+            }
+          },
+          {
+            $ref: "#/parameters/preferParams"
+          }
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        responses: {
+          "200": {
+            description: "OK"
+          }
+        },
+        tags: ["(rpc) stamp_shelf_life_for_operation"]
       }
     },
     "/rpc/get_active_job_count": {
@@ -72077,6 +72090,51 @@ export default {
           }
         },
         tags: ["(rpc) delete_event_system_subscription"]
+      }
+    },
+    "/rpc/stamp_shelf_life_on_operation_started": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb"
+                },
+                p_old: {
+                  format: "jsonb"
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string"
+                },
+                p_table: {
+                  format: "text",
+                  type: "string"
+                }
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object"
+            }
+          },
+          {
+            $ref: "#/parameters/preferParams"
+          }
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        responses: {
+          "200": {
+            description: "OK"
+          }
+        },
+        tags: ["(rpc) stamp_shelf_life_on_operation_started"]
       }
     },
     "/rpc/sync_update_user_identity_group": {
@@ -86236,7 +86294,14 @@ export default {
       type: "object"
     },
     itemShelfLife: {
-      required: ["itemId", "mode", "companyId", "createdBy", "createdAt"],
+      required: [
+        "itemId",
+        "mode",
+        "triggerTiming",
+        "companyId",
+        "createdBy",
+        "createdAt"
+      ],
       properties: {
         itemId: {
           description:
@@ -86257,6 +86322,12 @@ export default {
           description:
             "Note:\nThis is a Foreign Key to `process.id`.<fk table='process' column='id'/>",
           format: "text",
+          type: "string"
+        },
+        triggerTiming: {
+          default: "After",
+          enum: ["Before", "After"],
+          format: 'public."shelfLifeTriggerTiming"',
           type: "string"
         },
         companyId: {
@@ -119264,6 +119335,12 @@ export default {
     },
     "rowFilter.itemShelfLife.triggerProcessId": {
       name: "triggerProcessId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.itemShelfLife.triggerTiming": {
+      name: "triggerTiming",
       required: false,
       in: "query",
       type: "string"

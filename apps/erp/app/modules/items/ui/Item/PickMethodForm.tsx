@@ -23,7 +23,7 @@ import {
   CustomFormFields,
   Hidden,
   NumberControlled,
-  Process,
+  ShelfLifeStartEvent,
   Submit
 } from "~/components/Form";
 import { usePermissions, useSettings } from "~/hooks";
@@ -305,9 +305,10 @@ function ShelfLifeFields({
             value={shelfLifeDays ?? defaultShelfLifeDays}
           />
           {replenishmentSystem !== "Buy" && (
-            <Process
-              name="shelfLifeTriggerProcessId"
-              label={t`Shelf Life Trigger Process`}
+            <ShelfLifeStartEvent
+              processName="shelfLifeTriggerProcessId"
+              timingName="shelfLifeTriggerTiming"
+              label={t`Shelf Life Start Event`}
             />
           )}
         </>

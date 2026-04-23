@@ -61,6 +61,7 @@ import Processes from "./Processes";
 import Sequence from "./Sequence";
 import SequenceOrCustomId from "./SequenceOrCustomId";
 import Service from "./Service";
+import ShelfLifeStartEvent from "./ShelfLifeStartEvent";
 import Shift from "./Shift";
 import ShippingMethod from "./ShippingMethod";
 import StandardFactor from "./StandardFactor";
@@ -134,6 +135,7 @@ export {
   Procedure,
   Process,
   Processes,
+  ShelfLifeStartEvent,
   Radios,
   Select,
   SelectControlled,

@@ -3578,7 +3578,7 @@ msgstr "Vida útil predeterminada (días)"
 msgid "Default Source"
 msgstr "Fuente Predeterminada"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:85
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:109
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:117
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
@@ -3595,10 +3595,6 @@ msgstr "Unidad Predeterminada"
 #: apps/erp/app/routes/x+/accounting+/defaults.tsx:24
 msgid "Defaults"
 msgstr "Valores predeterminados"
-
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:123
-msgid "Defaults to any operation that produces this item."
-msgstr "Por defecto, cualquier operación que produzca este artículo."
 
 #: apps/erp/app/routes/x+/settings+/labels.tsx:124
 msgid "Define the default size of the product label. Used for tracking items in inventory."
@@ -8600,7 +8596,7 @@ msgid "Not enough jobs to cover quantity"
 msgstr "No hay suficientes trabajos para cubrir la cantidad"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:20
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:110
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:134
 msgid "Not managed"
 msgstr "No administrado"
 
@@ -11628,7 +11624,7 @@ msgstr "Establecer Cantidad"
 msgid "Set Version {0} as Active Version?"
 msgstr "¿Establecer la versión {0} como versión activa?"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:91
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:115
 msgid "Set your default location in profile settings to pick a storage unit."
 msgstr "Establece tu ubicación predeterminada en la configuración del perfil para seleccionar una unidad de almacenamiento."
 
@@ -11708,7 +11704,7 @@ msgstr "Enlace compartido"
 msgid "Share Quote"
 msgstr "Compartir Cotización"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:98
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:122
 msgid "Shelf Life"
 msgstr "Vida útil"
 
@@ -11720,21 +11716,18 @@ msgstr "Vida Útil (Días)"
 msgid "Shelf life & expiry"
 msgstr "Vida útil y vencimiento"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:310
-msgid "Shelf Life Trigger Process"
-msgstr "Proceso de Activación de Vida Útil"
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:147
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:311
+msgid "Shelf Life Start Event"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:266
 msgid "Shelf-Life"
 msgstr "Vida Útil"
 
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:116
+#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:140
 msgid "Shelf-life (days)"
 msgstr "Vida útil (días)"
-
-#: apps/erp/app/modules/items/ui/Item/ItemStorageAndShelfLifeFields.tsx:122
-msgid "Shelf-life trigger process"
-msgstr "Proceso de activación de vida útil"
 
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:51
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:58
@@ -12101,6 +12094,16 @@ msgstr "Dividir línea de recepción"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:366
 msgid "Split shipment line"
 msgstr "Dividir línea de envío"
+
+#: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:57
+#: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:67
+msgid "Stamp expiry after process completes"
+msgstr ""
+
+#: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:56
+#: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:66
+msgid "Stamp expiry before process starts"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:87
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:91

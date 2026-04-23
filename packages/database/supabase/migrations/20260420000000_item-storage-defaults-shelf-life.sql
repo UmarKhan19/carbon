@@ -79,11 +79,14 @@ CREATE TYPE "shelfLifeMode" AS ENUM (
   'Set on Receipt'
 );
 
+CREATE TYPE "shelfLifeTriggerTiming" AS ENUM ('Before', 'After');
+
 CREATE TABLE "itemShelfLife" (
   "itemId"            TEXT NOT NULL,
   "mode"              "shelfLifeMode" NOT NULL,
   "days"              NUMERIC,
   "triggerProcessId"  TEXT,
+  "triggerTiming"     "shelfLifeTriggerTiming" NOT NULL DEFAULT 'After',
   "companyId"         TEXT NOT NULL,
   "createdBy"         TEXT NOT NULL,
   "createdAt"         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -174,18 +177,24 @@ ALTER TABLE "companySettings"
 --    it is the top-level job item or a sub-assembly, so sub-assemblies
 --    stamp their own tracked entities on their own operation completions.
 --
+--    Called from two interceptors with `p_event` = 'Before' (operation
+--    started, status -> In Progress) or 'After' (operation completed,
+--    status -> Done). The helper itself decides whether the configured
+--    triggerTiming matches the event before stamping.
+--
 --    Two modes:
 --      - Fixed Duration: expiry = CURRENT_DATE + itemShelfLife.days. Fires only
 --        when (a) triggerProcessId is NULL (any operation on the make method
---        stamps), or (b) the completed operation's processId equals
---        triggerProcessId. FK equality - no string matching.
+--        stamps, 'After' only), or (b) the operation's processId equals
+--        triggerProcessId AND the event matches itemShelfLife.triggerTiming.
+--        FK equality - no string matching.
 --        Sets attributes->>'expirationDate' on the seed trackedEntity created
 --        when the job was inserted. Only stamps when expirationDate is still
 --        absent from attributes, so replays don't silently shift dates.
 --      - Calculated (Component Minimum): expiry = MIN(expirationDate) across
 --        the expirationDate attributes of trackedEntity inputs consumed by
---        trackedActivity rows linked to this make method. Also only stamps
---        when not already set.
+--        trackedActivity rows linked to this make method. Only stamps on
+--        the 'After' event - sub-batch expiries aren't known at start.
 --
 --    Only items with itemTrackingType Serial or Batch have a seed
 --    trackedEntity to stamp. Fungible (Inventory / Non-Inventory) items
@@ -195,8 +204,9 @@ ALTER TABLE "companySettings"
 --
 --    Safe to re-run on the same row: idempotent via IS NULL guards.
 -- ----------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION stamp_shelf_life_for_completed_operation(
-  p_job_operation_id TEXT
+CREATE OR REPLACE FUNCTION stamp_shelf_life_for_operation(
+  p_job_operation_id TEXT,
+  p_event            "shelfLifeTriggerTiming"
 )
 RETURNS VOID
 LANGUAGE plpgsql
@@ -210,6 +220,7 @@ DECLARE
   v_shelf_life_mode            "shelfLifeMode";
   v_shelf_life_days            NUMERIC;
   v_shelf_life_trigger_process TEXT;
+  v_shelf_life_trigger_timing  "shelfLifeTriggerTiming";
   v_computed_expiry            DATE;
 BEGIN
   SELECT
@@ -232,8 +243,9 @@ BEGIN
 
   -- Absence of a row in "itemShelfLife" means shelf life is not managed
   -- for this item. The helper returns early in that case.
-  SELECT "mode", "days", "triggerProcessId"
-  INTO v_shelf_life_mode, v_shelf_life_days, v_shelf_life_trigger_process
+  SELECT "mode", "days", "triggerProcessId", "triggerTiming"
+  INTO v_shelf_life_mode, v_shelf_life_days, v_shelf_life_trigger_process,
+       v_shelf_life_trigger_timing
   FROM "itemShelfLife"
   WHERE "itemId" = v_item_id;
 
@@ -248,14 +260,34 @@ BEGIN
       RETURN;
     END IF;
 
-    IF v_shelf_life_trigger_process IS NOT NULL
-       AND v_operation_process_id IS DISTINCT FROM v_shelf_life_trigger_process THEN
-      RETURN;
+    -- Per-process gate: only fire when the completed operation matches the
+    -- chosen trigger process. When triggerProcessId is NULL ("any operation"),
+    -- only the 'After' event is meaningful — there's no sensible "before any
+    -- operation" semantic.
+    IF v_shelf_life_trigger_process IS NULL THEN
+      IF p_event <> 'After' THEN
+        RETURN;
+      END IF;
+    ELSE
+      IF v_operation_process_id IS DISTINCT FROM v_shelf_life_trigger_process THEN
+        RETURN;
+      END IF;
+      -- triggerTiming controls whether expiry stamps when the operation
+      -- starts ('Before') or completes ('After').
+      IF p_event <> v_shelf_life_trigger_timing THEN
+        RETURN;
+      END IF;
     END IF;
 
     v_computed_expiry := (CURRENT_DATE + (v_shelf_life_days || ' days')::INTERVAL)::DATE;
 
   ELSIF v_shelf_life_mode = 'Calculated' THEN
+    -- Calculated only makes sense once sub-batch expiries are known, i.e.
+    -- on operation completion. The 'Before' event is a no-op here.
+    IF p_event <> 'After' THEN
+      RETURN;
+    END IF;
+
     -- MIN expiry across sub-assembly inputs consumed by THIS make method.
     -- Only inputs whose source item has Fixed Duration or Calculated shelf-life
     -- count. Set on Receipt items are raw materials; their supplier-stated expiry
@@ -298,9 +330,11 @@ $$;
 
 
 -- ----------------------------------------------------------------------------
--- 4. AFTER-sync interceptor: fires when jobOperation.status flips to 'Done'.
---    Delegates to the shared helper above. Runs in the background via the
---    event-system - no UI path invokes it explicitly.
+-- 4. AFTER-sync interceptors: fire when jobOperation.status flips to
+--    'In Progress' (start) or 'Done' (completion). Both delegate to the
+--    shared helper, which decides whether the configured triggerTiming
+--    matches the event before stamping. Runs in the background via the
+--    event-system - no UI path invokes them explicitly.
 -- ----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION stamp_shelf_life_on_operation_done(
   p_table TEXT,
@@ -330,7 +364,39 @@ BEGIN
     RETURN;
   END IF;
 
-  PERFORM stamp_shelf_life_for_completed_operation(p_new->>'id');
+  PERFORM stamp_shelf_life_for_operation(p_new->>'id', 'After');
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION stamp_shelf_life_on_operation_started(
+  p_table TEXT,
+  p_operation TEXT,
+  p_new JSONB,
+  p_old JSONB
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_old_status TEXT;
+  v_new_status TEXT;
+BEGIN
+  IF p_operation <> 'UPDATE' THEN
+    RETURN;
+  END IF;
+
+  v_new_status := p_new->>'status';
+  IF v_new_status <> 'In Progress' THEN
+    RETURN;
+  END IF;
+
+  v_old_status := p_old->>'status';
+  IF v_old_status = 'In Progress' THEN
+    RETURN;
+  END IF;
+
+  PERFORM stamp_shelf_life_for_operation(p_new->>'id', 'Before');
 END;
 $$;
 
@@ -338,12 +404,15 @@ $$;
 -- ----------------------------------------------------------------------------
 -- 5. Re-register the "jobOperation" event trigger. Preserves the existing
 --    BEFORE interceptor sync_finish_job_operation (registered in
---    20260410031809_production-interceptors.sql) and adds our AFTER one.
+--    20260410031809_production-interceptors.sql) and adds our AFTER ones.
 -- ----------------------------------------------------------------------------
 SELECT attach_event_trigger(
   'jobOperation',
   ARRAY['sync_finish_job_operation']::TEXT[],
-  ARRAY['stamp_shelf_life_on_operation_done']::TEXT[]
+  ARRAY[
+    'stamp_shelf_life_on_operation_done',
+    'stamp_shelf_life_on_operation_started'
+  ]::TEXT[]
 );
 
 
@@ -365,7 +434,6 @@ CREATE OR REPLACE FUNCTION update_receipt_line_serial_tracking(
 DECLARE
   v_item_id TEXT;
   v_item_readable_id TEXT;
-  v_serial_id TEXT;
   v_company_id TEXT;
   v_created_by TEXT;
   v_supplier_id TEXT;
@@ -388,9 +456,6 @@ BEGIN
   JOIN "receipt" r ON r.id = rl."receiptId"
   WHERE rl.id = p_receipt_line_id;
 
-  -- First create the tracked entity for this serial number
-  v_serial_id := COALESCE(p_tracked_entity_id, xid());
-
   -- Build attributes JSONB
   v_attributes := jsonb_build_object(
     'Serial Number', p_serial_number,
@@ -409,34 +474,62 @@ BEGIN
     v_attributes := v_attributes || jsonb_build_object('expirationDate', p_expiry_date);
   END IF;
 
-  INSERT INTO "trackedEntity" (
-    "id",
-    "quantity",
-    "status",
-    "sourceDocument",
-    "sourceDocumentId",
-    "sourceDocumentReadableId",
-    "readableId",
-    "attributes",
-    "companyId",
-    "createdBy"
-  )
-  VALUES (
-    v_serial_id,
-    1,
-    'On Hold',
-    'Item',
-    v_item_id,
-    v_item_readable_id,
-    p_serial_number,
-    v_attributes,
-    v_company_id,
-    v_created_by
-  )
-  ON CONFLICT (id) DO UPDATE SET
-    "quantity" = EXCLUDED."quantity",
-    "readableId" = EXCLUDED."readableId",
-    "attributes" = EXCLUDED."attributes";
+  -- Two paths: when p_tracked_entity_id is provided, upsert on that id
+  -- (supports retries / updates). Otherwise insert a fresh row and let the
+  -- "id" column's DEFAULT xid() fire — no need to call xid() ourselves.
+  IF p_tracked_entity_id IS NULL THEN
+    INSERT INTO "trackedEntity" (
+      "quantity",
+      "status",
+      "sourceDocument",
+      "sourceDocumentId",
+      "sourceDocumentReadableId",
+      "readableId",
+      "attributes",
+      "companyId",
+      "createdBy"
+    )
+    VALUES (
+      1,
+      'On Hold',
+      'Item',
+      v_item_id,
+      v_item_readable_id,
+      p_serial_number,
+      v_attributes,
+      v_company_id,
+      v_created_by
+    );
+  ELSE
+    INSERT INTO "trackedEntity" (
+      "id",
+      "quantity",
+      "status",
+      "sourceDocument",
+      "sourceDocumentId",
+      "sourceDocumentReadableId",
+      "readableId",
+      "attributes",
+      "companyId",
+      "createdBy"
+    )
+    VALUES (
+      p_tracked_entity_id,
+      1,
+      'On Hold',
+      'Item',
+      v_item_id,
+      v_item_readable_id,
+      p_serial_number,
+      v_attributes,
+      v_company_id,
+      v_created_by
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      "quantity" = EXCLUDED."quantity",
+      "readableId" = EXCLUDED."readableId",
+      "attributes" = EXCLUDED."attributes";
+  END IF;
 
 END;
 $$ LANGUAGE plpgsql;
