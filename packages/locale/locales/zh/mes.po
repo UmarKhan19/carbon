@@ -124,7 +124,7 @@ msgstr "已分配"
 msgid "Assigned to Me"
 msgstr "分配给我"
 
-#: apps/mes/app/routes/x+/operations.tsx:386
+#: apps/mes/app/routes/x+/operations.tsx:405
 msgid "Assignee"
 msgstr "负责人"
 
@@ -190,6 +190,10 @@ msgstr "取消"
 msgid "Carbon Logo"
 msgstr "Carbon 标志"
 
+#: apps/mes/app/routes/x+/operations.tsx:470
+msgid "Cards"
+msgstr ""
+
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:473
 msgid "Chat"
 msgstr "聊天"
@@ -204,7 +208,7 @@ msgid "Clear"
 msgstr "清除"
 
 #: apps/mes/app/components/Filter/Filter.tsx:121
-#: apps/mes/app/routes/x+/operations.tsx:480
+#: apps/mes/app/routes/x+/operations.tsx:528
 msgid "Clear Filters"
 msgstr "清除筛选"
 
@@ -271,6 +275,10 @@ msgstr "列 {0} 已移动到 {1} 上方，位于第 {2} 个位置（共 {3} 个�
 msgid "Column: {0}"
 msgstr "列：{0}"
 
+#: apps/mes/app/routes/x+/operations.tsx:447
+msgid "Columns"
+msgstr ""
+
 #: apps/mes/app/components/AppSidebar.tsx:420
 msgid "Company"
 msgstr "公司"
@@ -299,7 +307,7 @@ msgid "Create {0}"
 msgstr "创建 {0}"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1985
-#: apps/mes/app/routes/x+/operations.tsx:428
+#: apps/mes/app/routes/x+/operations.tsx:473
 msgid "Customer"
 msgstr "客户"
 
@@ -336,7 +344,7 @@ msgstr "删除考勤记录 ({0})"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1999
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:284
-#: apps/mes/app/routes/x+/operations.tsx:429
+#: apps/mes/app/routes/x+/operations.tsx:474
 msgid "Description"
 msgstr "描述"
 
@@ -348,7 +356,7 @@ msgstr "详情"
 msgid "Dispatch not found"
 msgstr "未找到工单"
 
-#: apps/mes/app/routes/x+/operations.tsx:422
+#: apps/mes/app/routes/x+/operations.tsx:441
 msgid "Display"
 msgstr "显示"
 
@@ -382,7 +390,7 @@ msgid "Due {0}"
 msgstr "截止 {0}"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:658
-#: apps/mes/app/routes/x+/operations.tsx:430
+#: apps/mes/app/routes/x+/operations.tsx:475
 msgid "Due Date"
 msgstr "截止日期"
 
@@ -394,7 +402,7 @@ msgstr "重复的批次号"
 msgid "Duplicate serial number"
 msgstr "重复的序列号"
 
-#: apps/mes/app/routes/x+/operations.tsx:431
+#: apps/mes/app/routes/x+/operations.tsx:476
 #: apps/mes/app/routes/x+/timecard.tsx:325
 msgid "Duration"
 msgstr "时长"
@@ -406,6 +414,10 @@ msgstr "编辑"
 #: apps/mes/app/routes/_public+/login.tsx:229
 msgid "Email Address"
 msgstr "电子邮箱"
+
+#: apps/mes/app/routes/x+/operations.tsx:450
+msgid "Empty work centers"
+msgstr ""
 
 #: apps/mes/app/components/EndShift.tsx:72
 #: apps/mes/app/components/EndShift.tsx:75
@@ -763,7 +775,7 @@ msgid "No recent operations"
 msgstr "无近期工序"
 
 #: apps/mes/app/components/PinInOverlay.tsx:223
-#: apps/mes/app/routes/x+/operations.tsx:477
+#: apps/mes/app/routes/x+/operations.tsx:525
 msgid "No results"
 msgstr "无结果"
 
@@ -800,7 +812,7 @@ msgstr "本周无考勤记录"
 msgid "No work centers are blocked"
 msgstr "无工作中心被阻塞"
 
-#: apps/mes/app/routes/x+/operations.tsx:489
+#: apps/mes/app/routes/x+/operations.tsx:537
 msgid "No work centers exist"
 msgstr "无工作中心"
 
@@ -902,7 +914,7 @@ msgstr "优先级"
 msgid "Procedure"
 msgstr "程序"
 
-#: apps/mes/app/routes/x+/operations.tsx:358
+#: apps/mes/app/routes/x+/operations.tsx:377
 msgid "Process"
 msgstr "工艺"
 
@@ -910,11 +922,11 @@ msgstr "工艺"
 msgid "Process Parameters"
 msgstr "工艺参数"
 
-#: apps/mes/app/routes/x+/operations.tsx:359
+#: apps/mes/app/routes/x+/operations.tsx:378
 msgid "Processes"
 msgstr "工艺"
 
-#: apps/mes/app/routes/x+/operations.tsx:432
+#: apps/mes/app/routes/x+/operations.tsx:477
 msgid "Progress"
 msgstr "进度"
 
@@ -967,7 +979,7 @@ msgstr "移除库存"
 msgid "Remove part"
 msgstr "移除零件"
 
-#: apps/mes/app/routes/x+/operations.tsx:434
+#: apps/mes/app/routes/x+/operations.tsx:479
 msgid "Sales Order"
 msgstr "销售订单"
 
@@ -988,7 +1000,7 @@ msgstr "扫描或输入序列号"
 
 #: apps/mes/app/components/AppSidebar.tsx:189
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:449
-#: apps/mes/app/routes/x+/operations.tsx:404
+#: apps/mes/app/routes/x+/operations.tsx:423
 msgid "Schedule"
 msgstr "排程"
 
@@ -1004,7 +1016,7 @@ msgstr "已报废"
 #: apps/mes/app/routes/x+/active.tsx:83
 #: apps/mes/app/routes/x+/assigned.tsx:103
 #: apps/mes/app/routes/x+/maintenance.tsx:453
-#: apps/mes/app/routes/x+/operations.tsx:411
+#: apps/mes/app/routes/x+/operations.tsx:430
 #: apps/mes/app/routes/x+/recent.tsx:83
 msgid "Search"
 msgstr "搜索"
@@ -1166,7 +1178,7 @@ msgid "Station: {stationName}"
 msgstr "工位：{stationName}"
 
 #: apps/mes/app/routes/x+/maintenance.tsx:356
-#: apps/mes/app/routes/x+/operations.tsx:433
+#: apps/mes/app/routes/x+/operations.tsx:478
 msgid "Status"
 msgstr "状态"
 
@@ -1206,7 +1218,7 @@ msgstr "需要支持"
 msgid "Switch Operator"
 msgstr "切换操作员"
 
-#: apps/mes/app/routes/x+/operations.tsx:375
+#: apps/mes/app/routes/x+/operations.tsx:394
 msgid "Tag"
 msgstr "标签"
 
@@ -1219,7 +1231,7 @@ msgstr "此工序的完成数量小于所需数量 {0}。"
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "物料清单中有序列号或批次追踪的物料尚未完全发放。不发放即完成可能导致追溯记录不正确。"
 
-#: apps/mes/app/routes/x+/operations.tsx:435
+#: apps/mes/app/routes/x+/operations.tsx:480
 msgid "Thumbnail"
 msgstr "缩略图"
 
@@ -1303,7 +1315,7 @@ msgstr "在制品"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1935
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:258
 #: apps/mes/app/routes/x+/maintenance.tsx:332
-#: apps/mes/app/routes/x+/operations.tsx:347
+#: apps/mes/app/routes/x+/operations.tsx:366
 msgid "Work Center"
 msgstr "工作中心"
 

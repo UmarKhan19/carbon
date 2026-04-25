@@ -9,6 +9,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Separator,
   SidebarTrigger,
   Spinner,
   Switch,
@@ -293,7 +294,7 @@ export default function ScheduleRoute() {
 }
 
 const defaultDisplaySettings: DisplaySettings = {
-  hideEmptyWorkCenters: false,
+  emptyWorkCenters: true,
   showDuration: true,
   showCustomer: true,
   showDescription: true,
@@ -336,7 +337,7 @@ function KanbanSchedule() {
   }, []);
 
   const visibleColumns = useMemo(() => {
-    if (!mergedDisplaySettings.hideEmptyWorkCenters) {
+    if (mergedDisplaySettings.emptyWorkCenters) {
       return columns;
     }
 
@@ -346,7 +347,7 @@ function KanbanSchedule() {
     return columns.filter((column) =>
       workCenterIdsWithOperations.has(column.id)
     );
-  }, [columns, items, mergedDisplaySettings.hideEmptyWorkCenters]);
+  }, [columns, items, mergedDisplaySettings.emptyWorkCenters]);
 
   const { progressByOperation } = useProgressByOperation(
     items,
@@ -440,13 +441,35 @@ function KanbanSchedule() {
                 <Trans>Display</Trans>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-48">
+            <PopoverContent className="w-56">
               <VStack>
+                <span className="text-xs font-medium text-muted-foreground">
+                  <Trans>Columns</Trans>
+                </span>
                 {[
-                  {
-                    key: "hideEmptyWorkCenters",
-                    label: t`Hide empty work centers`
-                  },
+                  { key: "emptyWorkCenters", label: t`Empty work centers` }
+                ].map(({ key, label }) => (
+                  <Switch
+                    key={key}
+                    variant="small"
+                    label={label}
+                    checked={
+                      mergedDisplaySettings[key as keyof DisplaySettings]
+                    }
+                    onCheckedChange={(checked) =>
+                      setDisplaySettings((prev) => ({
+                        ...defaultDisplaySettings,
+                        ...prev,
+                        [key]: checked
+                      }))
+                    }
+                  />
+                ))}
+                <Separator />
+                <span className="text-xs font-medium text-muted-foreground">
+                  <Trans>Cards</Trans>
+                </span>
+                {[
                   { key: "showCustomer", label: t`Customer` },
                   { key: "showDescription", label: t`Description` },
                   { key: "showDueDate", label: t`Due Date` },

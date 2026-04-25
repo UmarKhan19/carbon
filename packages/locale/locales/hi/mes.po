@@ -124,7 +124,7 @@ msgstr "निर्दिष्ट"
 msgid "Assigned to Me"
 msgstr "मुझे असाइन किया गया"
 
-#: apps/mes/app/routes/x+/operations.tsx:386
+#: apps/mes/app/routes/x+/operations.tsx:405
 msgid "Assignee"
 msgstr "असाइनी"
 
@@ -190,6 +190,10 @@ msgstr "रद्द करें"
 msgid "Carbon Logo"
 msgstr "कार्बन लोगो"
 
+#: apps/mes/app/routes/x+/operations.tsx:470
+msgid "Cards"
+msgstr ""
+
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:473
 msgid "Chat"
 msgstr "चैट"
@@ -204,7 +208,7 @@ msgid "Clear"
 msgstr "साफ़ करें"
 
 #: apps/mes/app/components/Filter/Filter.tsx:121
-#: apps/mes/app/routes/x+/operations.tsx:480
+#: apps/mes/app/routes/x+/operations.tsx:528
 msgid "Clear Filters"
 msgstr "फ़िल्टर साफ़ करें"
 
@@ -271,6 +275,10 @@ msgstr "कॉलम {0} को {1} के ऊपर स्थिति {2} म�
 msgid "Column: {0}"
 msgstr "कॉलम: {0}"
 
+#: apps/mes/app/routes/x+/operations.tsx:447
+msgid "Columns"
+msgstr ""
+
 #: apps/mes/app/components/AppSidebar.tsx:420
 msgid "Company"
 msgstr "कंपनी"
@@ -299,7 +307,7 @@ msgid "Create {0}"
 msgstr "{0} बनाएं"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1985
-#: apps/mes/app/routes/x+/operations.tsx:428
+#: apps/mes/app/routes/x+/operations.tsx:473
 msgid "Customer"
 msgstr "ग्राहक"
 
@@ -336,7 +344,7 @@ msgstr "टाइमकार्ड हटाएं ({0})"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1999
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:284
-#: apps/mes/app/routes/x+/operations.tsx:429
+#: apps/mes/app/routes/x+/operations.tsx:474
 msgid "Description"
 msgstr "विवरण"
 
@@ -348,7 +356,7 @@ msgstr "विवरण"
 msgid "Dispatch not found"
 msgstr "डिस्पैच नहीं मिला"
 
-#: apps/mes/app/routes/x+/operations.tsx:422
+#: apps/mes/app/routes/x+/operations.tsx:441
 msgid "Display"
 msgstr "प्रदर्शन"
 
@@ -382,7 +390,7 @@ msgid "Due {0}"
 msgstr "Due {0} के लिए"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:658
-#: apps/mes/app/routes/x+/operations.tsx:430
+#: apps/mes/app/routes/x+/operations.tsx:475
 msgid "Due Date"
 msgstr "देय तारीख"
 
@@ -394,7 +402,7 @@ msgstr "डुप्लिकेट बैच नंबर"
 msgid "Duplicate serial number"
 msgstr "डुप्लिकेट सीरियल नंबर"
 
-#: apps/mes/app/routes/x+/operations.tsx:431
+#: apps/mes/app/routes/x+/operations.tsx:476
 #: apps/mes/app/routes/x+/timecard.tsx:325
 msgid "Duration"
 msgstr "अवधि"
@@ -406,6 +414,10 @@ msgstr "संपादित करें"
 #: apps/mes/app/routes/_public+/login.tsx:229
 msgid "Email Address"
 msgstr "ईमेल पता"
+
+#: apps/mes/app/routes/x+/operations.tsx:450
+msgid "Empty work centers"
+msgstr ""
 
 #: apps/mes/app/components/EndShift.tsx:72
 #: apps/mes/app/components/EndShift.tsx:75
@@ -763,7 +775,7 @@ msgid "No recent operations"
 msgstr "कोई हाल के संचालन नहीं"
 
 #: apps/mes/app/components/PinInOverlay.tsx:223
-#: apps/mes/app/routes/x+/operations.tsx:477
+#: apps/mes/app/routes/x+/operations.tsx:525
 msgid "No results"
 msgstr "कोई परिणाम नहीं"
 
@@ -800,7 +812,7 @@ msgstr "इस सप्ताह के लिए कोई समय प्र
 msgid "No work centers are blocked"
 msgstr "कोई कार्य केंद्र अवरुद्ध नहीं हैं"
 
-#: apps/mes/app/routes/x+/operations.tsx:489
+#: apps/mes/app/routes/x+/operations.tsx:537
 msgid "No work centers exist"
 msgstr "कोई कार्य केंद्र मौजूद नहीं है"
 
@@ -902,7 +914,7 @@ msgstr "प्राथमिकता"
 msgid "Procedure"
 msgstr "प्रक्रिया"
 
-#: apps/mes/app/routes/x+/operations.tsx:358
+#: apps/mes/app/routes/x+/operations.tsx:377
 msgid "Process"
 msgstr "प्रक्रिया"
 
@@ -910,11 +922,11 @@ msgstr "प्रक्रिया"
 msgid "Process Parameters"
 msgstr "प्रक्रिया पैरामीटर"
 
-#: apps/mes/app/routes/x+/operations.tsx:359
+#: apps/mes/app/routes/x+/operations.tsx:378
 msgid "Processes"
 msgstr "प्रक्रियाएं"
 
-#: apps/mes/app/routes/x+/operations.tsx:432
+#: apps/mes/app/routes/x+/operations.tsx:477
 msgid "Progress"
 msgstr "प्रगति"
 
@@ -967,7 +979,7 @@ msgstr "इन्वेंटरी हटाएं"
 msgid "Remove part"
 msgstr "भाग हटाएं"
 
-#: apps/mes/app/routes/x+/operations.tsx:434
+#: apps/mes/app/routes/x+/operations.tsx:479
 msgid "Sales Order"
 msgstr "बिक्रय आदेश"
 
@@ -988,7 +1000,7 @@ msgstr "स्कैन करें या सीरियल नंबर द�
 
 #: apps/mes/app/components/AppSidebar.tsx:189
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:449
-#: apps/mes/app/routes/x+/operations.tsx:404
+#: apps/mes/app/routes/x+/operations.tsx:423
 msgid "Schedule"
 msgstr "शेड्यूल"
 
@@ -1004,7 +1016,7 @@ msgstr "स्क्रैप किया गया"
 #: apps/mes/app/routes/x+/active.tsx:83
 #: apps/mes/app/routes/x+/assigned.tsx:103
 #: apps/mes/app/routes/x+/maintenance.tsx:453
-#: apps/mes/app/routes/x+/operations.tsx:411
+#: apps/mes/app/routes/x+/operations.tsx:430
 #: apps/mes/app/routes/x+/recent.tsx:83
 msgid "Search"
 msgstr "खोजें"
@@ -1166,7 +1178,7 @@ msgid "Station: {stationName}"
 msgstr "स्टेशन: {stationName}"
 
 #: apps/mes/app/routes/x+/maintenance.tsx:356
-#: apps/mes/app/routes/x+/operations.tsx:433
+#: apps/mes/app/routes/x+/operations.tsx:478
 msgid "Status"
 msgstr "स्थिति"
 
@@ -1206,7 +1218,7 @@ msgstr "समर्थन आवश्यक"
 msgid "Switch Operator"
 msgstr "ऑपरेटर स्विच करें"
 
-#: apps/mes/app/routes/x+/operations.tsx:375
+#: apps/mes/app/routes/x+/operations.tsx:394
 msgid "Tag"
 msgstr "टैग"
 
@@ -1219,7 +1231,7 @@ msgstr "इस ऑपरेशन के लिए पूर्ण मात्�
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "बिल ऑफ मेटेरियल पर सीरियल या बैच ट्रैक किए गए मेटेरियल हैं जो पूरी तरह से जारी नहीं किए गए हैं। जारी किए बिना पूरा करने से गलत ट्रेसेबिलिटी रिकॉर्ड हो सकते हैं।"
 
-#: apps/mes/app/routes/x+/operations.tsx:435
+#: apps/mes/app/routes/x+/operations.tsx:480
 msgid "Thumbnail"
 msgstr "थंबनेल"
 
@@ -1303,7 +1315,7 @@ msgstr "WIP"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1935
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:258
 #: apps/mes/app/routes/x+/maintenance.tsx:332
-#: apps/mes/app/routes/x+/operations.tsx:347
+#: apps/mes/app/routes/x+/operations.tsx:366
 msgid "Work Center"
 msgstr "कार्य केंद्र"
 

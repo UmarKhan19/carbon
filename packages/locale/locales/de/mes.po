@@ -124,7 +124,7 @@ msgstr "Zugewiesen"
 msgid "Assigned to Me"
 msgstr "Mir zugewiesen"
 
-#: apps/mes/app/routes/x+/operations.tsx:386
+#: apps/mes/app/routes/x+/operations.tsx:405
 msgid "Assignee"
 msgstr "Zugewiesener"
 
@@ -190,6 +190,10 @@ msgstr "Abbrechen"
 msgid "Carbon Logo"
 msgstr "Carbon Logo"
 
+#: apps/mes/app/routes/x+/operations.tsx:470
+msgid "Cards"
+msgstr ""
+
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:473
 msgid "Chat"
 msgstr "Chat"
@@ -204,7 +208,7 @@ msgid "Clear"
 msgstr "Löschen"
 
 #: apps/mes/app/components/Filter/Filter.tsx:121
-#: apps/mes/app/routes/x+/operations.tsx:480
+#: apps/mes/app/routes/x+/operations.tsx:528
 msgid "Clear Filters"
 msgstr "Filter zurücksetzen"
 
@@ -271,6 +275,10 @@ msgstr "Spalte {0} wurde über {1} an Position {2} von {3} verschoben"
 msgid "Column: {0}"
 msgstr "Spalte: {0}"
 
+#: apps/mes/app/routes/x+/operations.tsx:447
+msgid "Columns"
+msgstr ""
+
 #: apps/mes/app/components/AppSidebar.tsx:420
 msgid "Company"
 msgstr "Unternehmen"
@@ -299,7 +307,7 @@ msgid "Create {0}"
 msgstr "Erstelle {0}"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1985
-#: apps/mes/app/routes/x+/operations.tsx:428
+#: apps/mes/app/routes/x+/operations.tsx:473
 msgid "Customer"
 msgstr "Kunde"
 
@@ -336,7 +344,7 @@ msgstr "Zeitkarte löschen ({0})"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1999
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:284
-#: apps/mes/app/routes/x+/operations.tsx:429
+#: apps/mes/app/routes/x+/operations.tsx:474
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -348,7 +356,7 @@ msgstr "Details"
 msgid "Dispatch not found"
 msgstr "Einsatz nicht gefunden"
 
-#: apps/mes/app/routes/x+/operations.tsx:422
+#: apps/mes/app/routes/x+/operations.tsx:441
 msgid "Display"
 msgstr "Anzeige"
 
@@ -382,7 +390,7 @@ msgid "Due {0}"
 msgstr "Fällig {0}"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:658
-#: apps/mes/app/routes/x+/operations.tsx:430
+#: apps/mes/app/routes/x+/operations.tsx:475
 msgid "Due Date"
 msgstr "Fälligkeitsdatum"
 
@@ -394,7 +402,7 @@ msgstr "Doppelte Chargennummer"
 msgid "Duplicate serial number"
 msgstr "Doppelte Seriennummer"
 
-#: apps/mes/app/routes/x+/operations.tsx:431
+#: apps/mes/app/routes/x+/operations.tsx:476
 #: apps/mes/app/routes/x+/timecard.tsx:325
 msgid "Duration"
 msgstr "Dauer"
@@ -406,6 +414,10 @@ msgstr "Bearbeiten"
 #: apps/mes/app/routes/_public+/login.tsx:229
 msgid "Email Address"
 msgstr "E-Mail-Adresse"
+
+#: apps/mes/app/routes/x+/operations.tsx:450
+msgid "Empty work centers"
+msgstr ""
 
 #: apps/mes/app/components/EndShift.tsx:72
 #: apps/mes/app/components/EndShift.tsx:75
@@ -763,7 +775,7 @@ msgid "No recent operations"
 msgstr "Keine kürzlichen Arbeitsgänge"
 
 #: apps/mes/app/components/PinInOverlay.tsx:223
-#: apps/mes/app/routes/x+/operations.tsx:477
+#: apps/mes/app/routes/x+/operations.tsx:525
 msgid "No results"
 msgstr "Keine Ergebnisse"
 
@@ -800,7 +812,7 @@ msgstr "Keine Zeiteinträge für diese Woche"
 msgid "No work centers are blocked"
 msgstr "Keine Arbeitsplätze sind blockiert"
 
-#: apps/mes/app/routes/x+/operations.tsx:489
+#: apps/mes/app/routes/x+/operations.tsx:537
 msgid "No work centers exist"
 msgstr "Keine Arbeitsplätze vorhanden"
 
@@ -902,7 +914,7 @@ msgstr "Priorität"
 msgid "Procedure"
 msgstr "Verfahren"
 
-#: apps/mes/app/routes/x+/operations.tsx:358
+#: apps/mes/app/routes/x+/operations.tsx:377
 msgid "Process"
 msgstr "Prozess"
 
@@ -910,11 +922,11 @@ msgstr "Prozess"
 msgid "Process Parameters"
 msgstr "Prozessparameter"
 
-#: apps/mes/app/routes/x+/operations.tsx:359
+#: apps/mes/app/routes/x+/operations.tsx:378
 msgid "Processes"
 msgstr "Prozesse"
 
-#: apps/mes/app/routes/x+/operations.tsx:432
+#: apps/mes/app/routes/x+/operations.tsx:477
 msgid "Progress"
 msgstr "Fortschritt"
 
@@ -967,7 +979,7 @@ msgstr "Bestand entfernen"
 msgid "Remove part"
 msgstr "Teil entfernen"
 
-#: apps/mes/app/routes/x+/operations.tsx:434
+#: apps/mes/app/routes/x+/operations.tsx:479
 msgid "Sales Order"
 msgstr "Kundenauftrag"
 
@@ -988,7 +1000,7 @@ msgstr "Seriennummer scannen oder eingeben"
 
 #: apps/mes/app/components/AppSidebar.tsx:189
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:449
-#: apps/mes/app/routes/x+/operations.tsx:404
+#: apps/mes/app/routes/x+/operations.tsx:423
 msgid "Schedule"
 msgstr "Zeitplan"
 
@@ -1004,7 +1016,7 @@ msgstr "Ausschuss"
 #: apps/mes/app/routes/x+/active.tsx:83
 #: apps/mes/app/routes/x+/assigned.tsx:103
 #: apps/mes/app/routes/x+/maintenance.tsx:453
-#: apps/mes/app/routes/x+/operations.tsx:411
+#: apps/mes/app/routes/x+/operations.tsx:430
 #: apps/mes/app/routes/x+/recent.tsx:83
 msgid "Search"
 msgstr "Suchen"
@@ -1166,7 +1178,7 @@ msgid "Station: {stationName}"
 msgstr "Station: {stationName}"
 
 #: apps/mes/app/routes/x+/maintenance.tsx:356
-#: apps/mes/app/routes/x+/operations.tsx:433
+#: apps/mes/app/routes/x+/operations.tsx:478
 msgid "Status"
 msgstr "Status"
 
@@ -1206,7 +1218,7 @@ msgstr "Unterstützung erforderlich"
 msgid "Switch Operator"
 msgstr "Bediener wechseln"
 
-#: apps/mes/app/routes/x+/operations.tsx:375
+#: apps/mes/app/routes/x+/operations.tsx:394
 msgid "Tag"
 msgstr "Tag"
 
@@ -1219,7 +1231,7 @@ msgstr "Die abgeschlossene Menge für diesen Arbeitsgang ist geringer als die er
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Es gibt serien- oder chargenverfolgte Materialien in der Stückliste, die noch nicht vollständig ausgegeben wurden. Ein Abschluss ohne Ausgabe kann zu fehlerhaften Rückverfolgbarkeitsdaten führen."
 
-#: apps/mes/app/routes/x+/operations.tsx:435
+#: apps/mes/app/routes/x+/operations.tsx:480
 msgid "Thumbnail"
 msgstr "Vorschaubild"
 
@@ -1303,7 +1315,7 @@ msgstr "WIP"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1935
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:258
 #: apps/mes/app/routes/x+/maintenance.tsx:332
-#: apps/mes/app/routes/x+/operations.tsx:347
+#: apps/mes/app/routes/x+/operations.tsx:366
 msgid "Work Center"
 msgstr "Arbeitsplatz"
 
