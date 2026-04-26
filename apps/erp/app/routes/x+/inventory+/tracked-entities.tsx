@@ -51,15 +51,58 @@ export async function loader({ request }: LoaderFunctionArgs) {
     nearExpiryWarningDays?: number | null;
   } | null;
 
+  // Pull the shelf-life policy for every item that shows up in the table so
+  // the Expiry trace popover can render the Policy step without an extra
+  // round-trip per row. Keyed by itemId.
+  const itemIds = Array.from(
+    new Set(
+      (trackedEntities.data ?? [])
+        .map((te) => te.itemId)
+        .filter((id): id is string => !!id)
+    )
+  );
+  const shelfLifeRows =
+    itemIds.length > 0
+      ? await client
+          .from("itemShelfLife")
+          .select("itemId, mode, days, inheritEarliestInputExpiry")
+          .in("itemId", itemIds)
+      : {
+          data: [] as {
+            itemId: string;
+            mode: string;
+            days: number | null;
+            inheritEarliestInputExpiry: boolean | null;
+          }[]
+        };
+  const shelfLifePolicies: Record<
+    string,
+    {
+      mode: string;
+      days: number | null;
+      inheritEarliestInputExpiry: boolean | null;
+    }
+  > = {};
+  for (const row of shelfLifeRows.data ?? []) {
+    if (row.itemId) {
+      shelfLifePolicies[row.itemId] = {
+        mode: row.mode,
+        days: row.days ?? null,
+        inheritEarliestInputExpiry: row.inheritEarliestInputExpiry ?? false
+      };
+    }
+  }
+
   return {
     trackedEntities: trackedEntities.data ?? [],
     count: trackedEntities.count ?? 0,
-    nearExpiryWarningDays: inventoryShelfLife?.nearExpiryWarningDays ?? null
+    nearExpiryWarningDays: inventoryShelfLife?.nearExpiryWarningDays ?? null,
+    shelfLifePolicies
   };
 }
 
 export default function TraceabilityRoute() {
-  const { trackedEntities, count, nearExpiryWarningDays } =
+  const { trackedEntities, count, nearExpiryWarningDays, shelfLifePolicies } =
     useLoaderData<typeof loader>();
 
   return (
@@ -68,6 +111,7 @@ export default function TraceabilityRoute() {
         data={trackedEntities ?? []}
         count={count ?? 0}
         nearExpiryWarningDays={nearExpiryWarningDays ?? null}
+        shelfLifePolicies={shelfLifePolicies ?? {}}
       />
     </VStack>
   );

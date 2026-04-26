@@ -47,11 +47,23 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (issue.error) {
     console.error(issue.error);
-    // Surface the edge-fn error message so the client can show the actual
-    // reason (e.g. "Cannot consume expired tracked entity: <id>").
-    const message =
-      (issue.error as { message?: string })?.message ??
-      "Failed to issue material";
+    // Supabase wraps non-2xx edge-fn responses in FunctionsHttpError where
+    // the actual body lives on `context`. Try to pull our { message } out;
+    // fall back to the wrapper's own message if parsing fails.
+    let message = "Failed to issue material";
+    const ctx = (issue.error as { context?: Response })?.context;
+    if (ctx && typeof ctx.json === "function") {
+      try {
+        const body = await ctx.clone().json();
+        if (body && typeof body.message === "string") {
+          message = body.message;
+        }
+      } catch {
+        /* fall through to default */
+      }
+    } else if ((issue.error as { message?: string }).message) {
+      message = (issue.error as { message: string }).message;
+    }
     return data({ success: false, message }, { status: 400 });
   }
 

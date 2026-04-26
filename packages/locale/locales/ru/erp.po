@@ -1747,6 +1747,7 @@ msgstr "Невозможно отключить единственный акт�
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:165
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypeForm.tsx:104
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:116
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:90
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:153
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:184
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:283
@@ -4488,6 +4489,14 @@ msgstr "Редактировать сотрудника"
 msgid "Edit Employee Type"
 msgstr "Редактировать тип сотрудника"
 
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:64
+msgid "Edit expiration date"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:230
+msgid "Edit Expiry"
+msgstr ""
+
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModeForm.tsx:94
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModesTable.tsx:68
 msgid "Edit Failure Mode"
@@ -4956,7 +4965,7 @@ msgstr "Введено при получении"
 msgid "Entities"
 msgstr "Сущности"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:47
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:69
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:173
 msgid "Entity"
 msgstr "Сущность"
@@ -5180,7 +5189,7 @@ msgstr "Дата истечения"
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "Дата истечения (применяется ко всем серийным номерам в этой строке)"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:134
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:156
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
 msgid "Expired"
 msgstr "Истекло"
@@ -5198,7 +5207,7 @@ msgstr "Истекает"
 msgid "Expires At (optional)"
 msgstr "Истекает (опционально)"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:119
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:141
 msgid "Expiry"
 msgstr "Срок действия"
 
@@ -5208,6 +5217,10 @@ msgstr ""
 
 #: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:99
 msgid "Expiry begins when the selected process starts."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/ExpiryTracePopover.tsx:109
+msgid "Expiry trace"
 msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:184
@@ -6229,6 +6242,10 @@ msgstr "Входящие"
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
 msgstr "Инфраструктура"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:358
+msgid "Inherit earliest input expiry"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:184
 msgid "Inherit From Materials"
@@ -8030,6 +8047,10 @@ msgstr "Новый отдел"
 msgid "New Employee Type"
 msgstr "Новый тип сотрудника"
 
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:77
+msgid "New expiration date"
+msgstr ""
+
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModeForm.tsx:96
 msgid "New Failure Mode"
 msgstr "Новый режим отказа"
@@ -9000,6 +9021,10 @@ msgstr "Исходящие"
 msgid "Output"
 msgstr "Выход"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:359
+msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
+msgstr ""
+
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:114
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:310
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:182
@@ -9039,6 +9064,10 @@ msgstr "Переопределить цену для одного клиента
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:166
 msgid "Override price for all customers of a type"
 msgstr "Переопределить цену для всех клиентов этого типа"
+
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:68
+msgid "Override the expiration on {label}."
+msgstr ""
 
 #: apps/erp/app/modules/people/ui/Person/PersonOvertime.tsx:11
 msgid "Overtime"
@@ -9290,6 +9319,10 @@ msgstr "Выбрать"
 #: apps/erp/app/components/Table/components/Sort/Sort.tsx:119
 msgid "Pick a column to sort by"
 msgstr "Выберите столбец для сортировки"
+
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:78
+msgid "Pick a date or leave blank to clear it."
+msgstr ""
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:27
 msgid "Pick a scope to view resolved prices and create price overrides."
@@ -10029,7 +10062,7 @@ msgstr "Количества"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:88
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:110
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:154
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:410
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:215
@@ -10224,6 +10257,7 @@ msgstr "Читать строки"
 msgid "Ready for Quote"
 msgstr "Готово к предложению"
 
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:82
 #: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:31
 #: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:85
 msgid "Reason"
@@ -10345,6 +10379,10 @@ msgstr "Записать"
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:308
 msgid "Record deleted"
 msgstr "Запись удалена"
+
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:84
+msgid "Recorded on the entity for traceability."
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:58
 msgid "Records"
@@ -11043,6 +11081,7 @@ msgstr "Суббота"
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:190
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypeForm.tsx:101
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:113
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:93
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:96
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceDeliveryForm.tsx:126
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:283
@@ -11618,7 +11657,7 @@ msgstr "Требуется отслеживание по серийному но
 msgid "Serial Tracking"
 msgstr "Отслеживание по серийным номерам"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:74
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:96
 msgid "Serial/Batch #"
 msgstr "Серийный номер/Партия №"
 
@@ -11735,15 +11774,15 @@ msgstr "Поделиться предложением"
 msgid "Shelf life"
 msgstr ""
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:311
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:333
 msgid "Shelf Life (Days)"
 msgstr "Срок годности (дни)"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:319
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:341
 msgid "Shelf Life Start Process"
 msgstr ""
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:274
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:296
 msgid "Shelf-Life"
 msgstr "Срок годности"
 
@@ -12055,7 +12094,7 @@ msgstr "Анализ источников"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:72
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:131
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:72
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:159
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:198
 msgid "Source Document"
 msgstr "Исходный документ"
 
@@ -12163,7 +12202,7 @@ msgstr ""
 msgid "Start Date"
 msgstr "Дата начала"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:326
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:348
 msgid "Start Expiration"
 msgstr ""
 
@@ -12215,7 +12254,7 @@ msgstr "Штат / Провинция"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:130
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:140
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:95
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:99
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:121
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:65
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:130
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:124
@@ -12368,15 +12407,15 @@ msgid "Storage Units"
 msgstr "Единицы хранения"
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:180
-msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
+msgid "Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's created (or when the trigger process runs, if set)."
 msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:181
-msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set)."
+msgid "Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's received or created (or when the trigger process runs, if set)."
 msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:178
-msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received."
+msgid "Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's received."
 msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:180
@@ -13298,11 +13337,11 @@ msgstr "Отслеживайте каждое изменение ваших за
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr "Отслеживайте каждое изменение ваших заказов, счетов, клиентов, поставщиков и многого другого."
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:277
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:299
 msgid "Track when batches or serials of this item expire."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:198
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:245
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:70
 #: apps/erp/app/routes/x+/inventory+/tracked-entities.tsx:16
 #: apps/erp/app/routes/x+/issue+/$id.tsx:147
@@ -14131,7 +14170,7 @@ msgstr "Просмотр предложения"
 msgid "View Suppliers"
 msgstr "Просмотр поставщиков"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:184
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:223
 msgid "View Traceability Graph"
 msgstr "Просмотр графика отслеживания"
 
@@ -14365,6 +14404,10 @@ msgstr "Кто должен получать уведомления при от�
 #: apps/erp/app/routes/x+/settings+/production.tsx:181
 msgid "Who should receive notifications when an inventory job is completed?"
 msgstr "Кто должен получать уведомления при завершении работы инвентаризации?"
+
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:83
+msgid "Why is the expiration being changed?"
+msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/PostingGroups/InventoryPostingGroupsTable.tsx:122
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:928

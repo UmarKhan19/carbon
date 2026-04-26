@@ -102,6 +102,19 @@ export const batchPropertyOrderValidator = z.object({
   sortOrder: zfd.numeric(z.number().min(0))
 });
 
+// Manual override of a tracked entity's expirationDate. Reason is required
+// because the override is recorded on the entity's attributes JSONB so the
+// trace popover can surface it later.
+export const trackedEntityExpiryValidator = z.object({
+  trackedEntityId: z.string().min(1),
+  // ISO date (YYYY-MM-DD). Empty clears the column entirely.
+  expirationDate: zfd.text(z.string().optional()),
+  reason: z
+    .string()
+    .min(3, { message: "Reason must be at least 3 characters" })
+    .max(500)
+});
+
 export const inventoryAdjustmentValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   locationId: z.string().min(1, { message: "Location is required" }),

@@ -1,4 +1,4 @@
-import { useControlField, ValidatedForm } from "@carbon/form";
+import { Boolean, useControlField, ValidatedForm } from "@carbon/form";
 import {
   Card,
   CardAction,
@@ -46,7 +46,7 @@ type PickMethodFormProps = {
   /**
    * Used to decide whether to render the shelf-life controls. Shelf life
    * only makes sense for items with per-unit records (Serial / Batch)
-   * since batchNumber / serialNumber are where the expiry date is stamped.
+   * since batchNumber / serialNumber are where the expiry date is set.
    * Fungible tracking types have no per-unit row, so the fields are hidden.
    */
   itemTrackingType: string;
@@ -175,10 +175,10 @@ function ShelfLifeFields({
       icon: <LuCalendarClock />,
       description:
         replenishmentSystem === "Buy"
-          ? t`Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received.`
+          ? t`Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's received.`
           : replenishmentSystem === "Make"
-            ? t`Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's created (or when the trigger process runs, if set).`
-            : t`Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set).`
+            ? t`Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's created (or when the trigger process runs, if set).`
+            : t`Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's received or created (or when the trigger process runs, if set).`
     },
     Calculated: {
       title: t`Inherit From Materials`,
@@ -199,6 +199,12 @@ function ShelfLifeFields({
   );
   const [shelfLifeTriggerProcessId, setShelfLifeTriggerProcessId] =
     useControlField<string | undefined>("shelfLifeTriggerProcessId");
+  const [
+    shelfLifeInheritEarliestInputExpiry,
+    setShelfLifeInheritEarliestInputExpiry
+  ] = useControlField<boolean | undefined>(
+    "shelfLifeInheritEarliestInputExpiry"
+  );
 
   const availableModes = useMemo<ManagedShelfLifeMode[]>(() => {
     return ALL_SHELF_LIFE_MODES.filter((mode) => {
@@ -240,8 +246,23 @@ function ShelfLifeFields({
   useEffect(() => {
     if (replenishmentSystem === "Buy") {
       setShelfLifeTriggerProcessId(undefined);
+      setShelfLifeInheritEarliestInputExpiry(false);
     }
-  }, [replenishmentSystem, setShelfLifeTriggerProcessId]);
+  }, [
+    replenishmentSystem,
+    setShelfLifeTriggerProcessId,
+    setShelfLifeInheritEarliestInputExpiry
+  ]);
+
+  // Inherit-from-inputs only applies when mode is Fixed Duration. Coerce
+  // back to false on a mode swap so the row never carries a stale flag
+  // (the table CHECK enforces this server-side, but client-side reset
+  // keeps the form submission clean).
+  useEffect(() => {
+    if (shelfLifeMode !== "Fixed Duration") {
+      setShelfLifeInheritEarliestInputExpiry(false);
+    }
+  }, [shelfLifeMode, setShelfLifeInheritEarliestInputExpiry]);
 
   const handleToggle = (next: boolean) => {
     setHasShelfLife(next);
@@ -258,6 +279,7 @@ function ShelfLifeFields({
       setShelfLifeMode("");
       setShelfLifeDays(undefined);
       setShelfLifeTriggerProcessId(undefined);
+      setShelfLifeInheritEarliestInputExpiry(false);
     }
   };
 
@@ -327,6 +349,18 @@ function ShelfLifeFields({
                   />
                 </div>
               )}
+              {/* Make-only: optional input cap. Output expiry never outlasts
+                  the earliest input expiry; falls back to the fixed clock
+                  when no input has a date. */}
+              <div className="lg:col-span-3">
+                <Boolean
+                  name="shelfLifeInheritEarliestInputExpiry"
+                  label={t`Inherit earliest input expiry`}
+                  description={t`Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date.`}
+                  value={!!shelfLifeInheritEarliestInputExpiry}
+                  onChange={(v) => setShelfLifeInheritEarliestInputExpiry(v)}
+                />
+              </div>
             </>
           )}
         </>

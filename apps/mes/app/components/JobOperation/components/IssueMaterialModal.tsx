@@ -9,6 +9,7 @@ import {
   Alert,
   AlertDescription,
   AlertTitle,
+  Badge,
   Button,
   Checkbox,
   Combobox as ComboboxBase,
@@ -80,8 +81,11 @@ interface ItemDetails {
   itemTrackingType: TrackingType;
 }
 
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
+
 export function IssueMaterialModal({
   operationId,
+  expiredEntityPolicy = "Block",
   material,
   parentId,
   parentIdIsSerialized,
@@ -89,6 +93,7 @@ export function IssueMaterialModal({
   onClose
 }: {
   operationId: string;
+  expiredEntityPolicy?: ExpiredEntityPolicy;
   material?: JobMaterial;
   parentId?: string;
   parentIdIsSerialized?: boolean;
@@ -129,15 +134,80 @@ export function IssueMaterialModal({
   const { data: serialNumbers } = useSerialNumbers(
     trackingType === "Serial" ? selectedItemId : undefined
   );
+  // Today @ UTC midnight — used for "is this entity expired" comparisons
+  // throughout the modal. Memoized so we re-derive option lists once a day
+  // rather than every render.
+  const todayUtc = useMemo(() => {
+    const d = new Date();
+    d.setUTCHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const isExpiryPast = useCallback(
+    (date: string | null | undefined) => {
+      if (!date) return false;
+      return new Date(date) < todayUtc;
+    },
+    [todayUtc]
+  );
+
+  // Format an expiration date as `MMM d, yyyy` for the option helper text.
+  // Browsers all support this through Intl.DateTimeFormat, no extra deps.
+  const formatExpiry = useCallback((date: string | null | undefined) => {
+    if (!date) return "";
+    try {
+      return new Intl.DateTimeFormat(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric"
+      }).format(new Date(date));
+    } catch {
+      return date;
+    }
+  }, []);
+
   const serialOptions = useMemo(() => {
     return (
-      serialNumbers?.data?.map((sn) => ({
-        label: sn.id ?? "",
-        value: sn.id,
-        helper: sn.readableId ? `Serial ${sn.readableId}` : undefined
-      })) ?? []
+      serialNumbers?.data
+        ?.filter((sn) =>
+          // When policy = Block, expired stock is not a valid choice — drop
+          // it from the picker entirely so operators can't even pick it.
+          // Warn / BlockWithOverride keep it visible (overridable downstream).
+          expiredEntityPolicy === "Block"
+            ? !isExpiryPast(sn.expirationDate)
+            : true
+        )
+        .map((sn) => {
+          const expired = isExpiryPast(sn.expirationDate);
+          const labelText = sn.id ?? "";
+          // ComboboxBase.label accepts JSX, so render the readableId next to a
+          // small destructive Badge for expired stock — pops in the dropdown
+          // far better than a plain "EXPIRED" prefix in the helper line.
+          const label = expired ? (
+            <span className="flex items-center gap-2">
+              <span className="truncate">{labelText}</span>
+              <Badge variant="destructive">Expired</Badge>
+            </span>
+          ) : (
+            labelText
+          );
+          const helperParts = [
+            sn.readableId ? `Serial ${sn.readableId}` : null,
+            sn.expirationDate
+              ? `${expired ? "Expired" : "Expires"} ${formatExpiry(sn.expirationDate)}`
+              : null
+          ].filter(Boolean) as string[];
+          return {
+            label,
+            value: sn.id,
+            helper:
+              helperParts.length > 0 ? helperParts.join(" · ") : undefined,
+            expirationDate: sn.expirationDate ?? null,
+            isExpired: expired
+          };
+        }) ?? []
     );
-  }, [serialNumbers]);
+  }, [serialNumbers, isExpiryPast, formatExpiry, expiredEntityPolicy]);
 
   // Batch number state and options
   const { data: batchNumbers } = useBatchNumbers(
@@ -147,18 +217,32 @@ export function IssueMaterialModal({
     return (
       batchNumbers?.data
         ?.filter((bn) => bn.status === "Available")
+        .filter((bn) =>
+          expiredEntityPolicy === "Block"
+            ? !isExpiryPast(bn.expirationDate)
+            : true
+        )
         .map((bn) => {
+          const expired = isExpiryPast(bn.expirationDate);
+          const expiryNote = bn.expirationDate
+            ? expired
+              ? `EXPIRED ${formatExpiry(bn.expirationDate)}`
+              : `Expires ${formatExpiry(bn.expirationDate)}`
+            : null;
+          const stockHelper = bn.readableId
+            ? `${bn.id.slice(0, 10)} - ${bn.quantity} Available of Batch ${bn.readableId}`
+            : `${bn.id.slice(0, 10)} - ${bn.quantity} Available`;
           return {
             label: bn.sourceDocumentReadableId ?? "",
             value: bn.id,
-            helper: bn.readableId
-              ? `${bn.id.slice(0, 10)} - ${bn.quantity} Available of Batch ${bn.readableId}`
-              : `${bn.id.slice(0, 10)} - ${bn.quantity} Available`,
-            availableQuantity: bn.quantity
+            helper: [expiryNote, stockHelper].filter(Boolean).join(" · "),
+            availableQuantity: bn.quantity,
+            expirationDate: bn.expirationDate ?? null,
+            isExpired: expired
           };
         }) ?? []
     );
-  }, [batchNumbers]);
+  }, [batchNumbers, isExpiryPast, formatExpiry, expiredEntityPolicy]);
 
   // Unconsume options for batch
   const unconsumeOptions = useMemo(() => {
@@ -209,28 +293,22 @@ export function IssueMaterialModal({
   // this UI lets the operator type a reason that the server records when the
   // policy is BlockWithOverride and ignores otherwise.
   const [expiryOverrideReason, setExpiryOverrideReason] = useState("");
-  const isExpired = useCallback((date: string | null | undefined) => {
-    if (!date) return false;
-    const today = new Date();
-    today.setUTCHours(0, 0, 0, 0);
-    return new Date(date) < today;
-  }, []);
   const expiredSerialIds = useMemo(() => {
     const byId = new Map(
       (serialNumbers?.data ?? []).map((s) => [s.id, s.expirationDate])
     );
     return selectedSerialNumbers
-      .filter((s) => s.id && isExpired(byId.get(s.id)))
+      .filter((s) => s.id && isExpiryPast(byId.get(s.id)))
       .map((s) => s.id);
-  }, [selectedSerialNumbers, serialNumbers, isExpired]);
+  }, [selectedSerialNumbers, serialNumbers, isExpiryPast]);
   const expiredBatchIds = useMemo(() => {
     const byId = new Map(
       (batchNumbers?.data ?? []).map((b) => [b.id, b.expirationDate])
     );
     return selectedBatchNumbers
-      .filter((b) => b.id && isExpired(byId.get(b.id)))
+      .filter((b) => b.id && isExpiryPast(byId.get(b.id)))
       .map((b) => b.id);
-  }, [selectedBatchNumbers, batchNumbers, isExpired]);
+  }, [selectedBatchNumbers, batchNumbers, isExpiryPast]);
   const hasExpiredSelection =
     expiredSerialIds.length > 0 || expiredBatchIds.length > 0;
 
@@ -1471,27 +1549,40 @@ export function IssueMaterialModal({
                     </Tabs>
                   )}
                   {hasExpiredSelection && activeTab !== "unconsume" && (
-                    <Alert variant="destructive">
-                      <AlertTitle>Expired stock selected</AlertTitle>
+                    <Alert
+                      variant={
+                        expiredEntityPolicy === "Warn"
+                          ? "warning"
+                          : "destructive"
+                      }
+                    >
+                      <AlertTitle>
+                        {expiredEntityPolicy === "Warn"
+                          ? "Expired stock selected"
+                          : "Override required"}
+                      </AlertTitle>
                       <AlertDescription>
                         <div className="flex flex-col gap-2">
                           <p>
                             {expiredSerialIds.length + expiredBatchIds.length}{" "}
                             of the selected{" "}
                             {trackingType === "Serial" ? "serials" : "batches"}{" "}
-                            are past their expiration date. The system may block
-                            this issue. If your company allows manager override,
-                            enter a reason below to record it.
+                            are past their expiration date.
+                            {expiredEntityPolicy === "Warn"
+                              ? " The issue will go through with a warning."
+                              : " Enter a reason below to record the override."}
                           </p>
-                          <textarea
-                            className="border rounded-md p-2 text-sm bg-background"
-                            placeholder="Reason for issuing expired stock"
-                            value={expiryOverrideReason}
-                            onChange={(e) =>
-                              setExpiryOverrideReason(e.target.value)
-                            }
-                            rows={2}
-                          />
+                          {expiredEntityPolicy === "BlockWithOverride" && (
+                            <textarea
+                              className="border rounded-md p-2 text-sm bg-background"
+                              placeholder="Reason for issuing expired stock"
+                              value={expiryOverrideReason}
+                              onChange={(e) =>
+                                setExpiryOverrideReason(e.target.value)
+                              }
+                              rows={2}
+                            />
+                          )}
                         </div>
                       </AlertDescription>
                     </Alert>

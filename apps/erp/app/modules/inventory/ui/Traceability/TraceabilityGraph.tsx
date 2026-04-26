@@ -528,13 +528,32 @@ export function TraceabilitySidebar({
               case "Receipt Line Index":
               case "Shipment Line Index":
               // Special cases can be handled here in the future
-              default:
+              default: {
+                // Manual expiry-override history surfaces in the
+                // ExpiryTracePopover, not the graph sidebar. Render
+                // primitives only here — anything object-like would crash
+                // React's "objects are not valid as a child" guard.
+                if (key === "expiryOverrides") return null;
+                if (value === null || value === undefined) return null;
+                if (typeof value === "object") {
+                  return (
+                    <VStack spacing={0} key={key}>
+                      <span className="text-xs text-muted-foreground">
+                        {key}
+                      </span>
+                      <span className="text-sm font-mono break-all">
+                        {JSON.stringify(value)}
+                      </span>
+                    </VStack>
+                  );
+                }
                 return (
                   <VStack spacing={0} key={key}>
                     <span className="text-xs text-muted-foreground">{key}</span>
-                    <span className="text-sm">{value}</span>
+                    <span className="text-sm">{String(value)}</span>
                   </VStack>
                 );
+              }
             }
           })}
       </VStack>

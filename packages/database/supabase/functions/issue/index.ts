@@ -3159,9 +3159,22 @@ serve(async (req: Request) => {
     );
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify(err), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    // Error.prototype properties (message, name, stack) aren't enumerable,
+    // so a plain JSON.stringify(err) produces "{}" and clients lose the
+    // actual reason (e.g. "Cannot consume expired tracked entity ...").
+    // Pull the message out explicitly.
+    const message =
+      err instanceof Error
+        ? err.message
+        : typeof err === "string"
+          ? err
+          : "Unexpected error";
+    return new Response(
+      JSON.stringify({ success: false, message }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      }
+    );
   }
 });

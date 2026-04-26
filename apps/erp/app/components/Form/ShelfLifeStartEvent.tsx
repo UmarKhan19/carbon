@@ -25,7 +25,7 @@ type ProcessProps = {
    * Item whose recipe scopes the picker. When provided, options are filtered
    * to processes referenced by methodOperation rows on the item's active
    * makeMethod. Picking a process outside that set is rejected server-side
-   * because the stamp helper gates on processId equality - a non-recipe
+   * because the set-shelf-life helper gates on processId equality - a non-recipe
    * process would silently never match.
    */
   itemId?: string;

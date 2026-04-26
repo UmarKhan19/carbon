@@ -137,6 +137,7 @@ import { useOperation } from "./hooks/useOperation";
 
 type JobOperationProps = {
   events: ProductionEvent[];
+  expiredEntityPolicy?: "Warn" | "Block" | "BlockWithOverride";
   files: Promise<StorageItem[]>;
   kanban: Kanban | null;
   materials: Promise<{
@@ -174,6 +175,7 @@ type JobOperationProps = {
 
 export const JobOperation = ({
   events,
+  expiredEntityPolicy = "Block",
   files,
   job,
   kanban,
@@ -1087,6 +1089,20 @@ export const JobOperation = ({
                                                 />
                                               </Badge>
                                             ) : null}
+                                            {(
+                                              material as {
+                                                hasExpiredConsumed?: boolean;
+                                              }
+                                            ).hasExpiredConsumed && (
+                                              <Badge
+                                                variant="destructive"
+                                                className="gap-1 shrink-0"
+                                                title="A consumed batch or serial is now past its expiry date."
+                                              >
+                                                <LuTriangleAlert className="size-3" />
+                                                <Trans>Consumed expired</Trans>
+                                              </Badge>
+                                            )}
                                           </HStack>
                                         </Td>
                                         <Td className="hidden lg:table-cell">
@@ -1364,6 +1380,7 @@ export const JobOperation = ({
                           {issueModal.isOpen && (
                             <IssueMaterialModal
                               operationId={operation.id}
+                              expiredEntityPolicy={expiredEntityPolicy}
                               material={selectedMaterial ?? undefined}
                               parentId={trackedEntityId ?? ""}
                               parentIdIsSerialized={

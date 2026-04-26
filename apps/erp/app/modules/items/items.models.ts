@@ -124,7 +124,11 @@ export const itemValidator = z.object({
   // completes ('After'). Only meaningful with Fixed Duration + a trigger
   // process; ignored otherwise. Defaults to 'After' to preserve legacy
   // behavior on items that pre-date this column.
-  shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional()
+  shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional(),
+  // Fixed Duration + Make items only: when true, the produced expiry is
+  // capped by the earliest input expiry — the output cannot outlast its
+  // raw materials. Falls back to today + days when no input has a date.
+  shelfLifeInheritEarliestInputExpiry: zfd.checkbox()
 });
 
 // Common storage / shelf-life refines. Shared across all item-type
@@ -172,7 +176,7 @@ const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
         data.itemTrackingType === "Batch",
       {
         message:
-          "Shelf-life can only be managed on items tracked by Serial or Batch - there's no per-unit record to stamp otherwise",
+          "Shelf-life can only be managed on items tracked by Serial or Batch - there's no per-unit record to set the expiry on otherwise",
         path: ["shelfLifeMode"]
       }
     )
@@ -194,6 +198,26 @@ const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
         message:
           "Set on receipt applies at goods-in - only Buy or Buy and Make items qualify",
         path: ["shelfLifeMode"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        !data.shelfLifeInheritEarliestInputExpiry ||
+        data.shelfLifeMode === "Fixed Duration",
+      {
+        message:
+          "Inheriting the earliest input expiry only applies to Fixed Duration shelf life",
+        path: ["shelfLifeInheritEarliestInputExpiry"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        !data.shelfLifeInheritEarliestInputExpiry ||
+        data.replenishmentSystem !== "Buy",
+      {
+        message:
+          "Inheriting input expiry requires a BoM - only Make or Buy and Make items qualify",
+        path: ["shelfLifeInheritEarliestInputExpiry"]
       }
     ) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
 
@@ -639,7 +663,8 @@ export const pickMethodWithShelfLifeValidator = pickMethodValidator
       ),
       shelfLifeDays: zfd.numeric(z.number().positive().optional()),
       shelfLifeTriggerProcessId: zfd.text(z.string().optional()),
-      shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional()
+      shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional(),
+      shelfLifeInheritEarliestInputExpiry: zfd.checkbox()
     })
   )
   .refine(
@@ -670,6 +695,16 @@ export const pickMethodWithShelfLifeValidator = pickMethodValidator
       message:
         "Trigger process can only be set when shelf-life management is Fixed Duration",
       path: ["shelfLifeTriggerProcessId"]
+    }
+  )
+  .refine(
+    (data) =>
+      !data.shelfLifeInheritEarliestInputExpiry ||
+      data.shelfLifeMode === "Fixed Duration",
+    {
+      message:
+        "Inheriting the earliest input expiry only applies to Fixed Duration shelf life",
+      path: ["shelfLifeInheritEarliestInputExpiry"]
     }
   );
 

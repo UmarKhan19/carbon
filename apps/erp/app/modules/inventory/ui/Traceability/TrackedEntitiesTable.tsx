@@ -3,10 +3,11 @@ import { formatDate } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   LuBookMarked,
   LuCalendarClock,
+  LuCalendarCog,
   LuCheck,
   LuFile,
   LuHash,
@@ -24,21 +25,42 @@ import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
 import type { Item } from "~/stores/items";
 import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
+import { EditExpiryModal } from "./EditExpiryModal";
+import { ExpiryTracePopover } from "./ExpiryTracePopover";
 import TrackedEntityStatus from "./TrackedEntityStatus";
+
+type ShelfLifePolicy = {
+  mode: string;
+  days: number | null;
+  inheritEarliestInputExpiry?: boolean | null;
+};
 
 type TrackedEntitiesTableProps = {
   data: TrackedEntity[];
   count: number;
   nearExpiryWarningDays: number | null;
+  shelfLifePolicies?: Record<string, ShelfLifePolicy>;
 };
 
 const TrackedEntitiesTable = memo(
-  ({ data, count, nearExpiryWarningDays }: TrackedEntitiesTableProps) => {
+  ({
+    data,
+    count,
+    nearExpiryWarningDays,
+    shelfLifePolicies
+  }: TrackedEntitiesTableProps) => {
     const navigate = useNavigate();
     const { t } = useLingui();
     const permissions = usePermissions();
     const numberFormatter = useNumberFormatter();
     const [items] = useItems();
+
+    // Edit-expiry modal state. Holds the entity being edited so the modal
+    // can pre-fill its form. Lives at table level so the row context-menu
+    // action can open it.
+    const [editingExpiry, setEditingExpiry] = useState<TrackedEntity | null>(
+      null
+    );
 
     const columns = useMemo<ColumnDef<(typeof data)[number]>[]>(
       () => [
@@ -127,27 +149,44 @@ const TrackedEntitiesTable = memo(
             const daysLeft = Math.floor(
               (expiryDate.getTime() - today.getTime()) / 86_400_000
             );
-            if (daysLeft < 0) {
-              return (
+            const inner =
+              daysLeft < 0 ? (
                 <Badge variant="destructive" className="gap-1">
                   <LuTriangleAlert className="size-3" />
                   {t`Expired`} · {formatted}
                 </Badge>
-              );
-            }
-            if (
-              nearExpiryWarningDays !== null &&
-              daysLeft <= nearExpiryWarningDays
-            ) {
-              return (
+              ) : nearExpiryWarningDays !== null &&
+                daysLeft <= nearExpiryWarningDays ? (
                 <Badge variant="yellow" className="gap-1">
                   <LuTriangleAlert className="size-3" />
                   {formatted}
                 </Badge>
+              ) : (
+                <span className="text-sm text-muted-foreground">
+                  {formatted}
+                </span>
               );
-            }
+            const itemId = (row.original as { itemId?: string | null }).itemId;
+            const policy = itemId ? shelfLifePolicies?.[itemId] : undefined;
             return (
-              <span className="text-sm text-muted-foreground">{formatted}</span>
+              <ExpiryTracePopover
+                entity={row.original}
+                policy={
+                  policy
+                    ? {
+                        mode: policy.mode as
+                          | "Fixed Duration"
+                          | "Calculated"
+                          | "Set on Receipt",
+                        days: policy.days,
+                        inheritEarliestInputExpiry:
+                          policy.inheritEarliestInputExpiry ?? false
+                      }
+                    : null
+                }
+              >
+                {inner}
+              </ExpiryTracePopover>
             );
           },
           meta: {
@@ -183,6 +222,13 @@ const TrackedEntitiesTable = memo(
               <MenuIcon icon={<LuNetwork />} />
               <Trans>View Traceability Graph</Trans>
             </MenuItem>
+            <MenuItem
+              disabled={!permissions.can("update", "inventory")}
+              onClick={() => setEditingExpiry(row)}
+            >
+              <MenuIcon icon={<LuCalendarCog />} />
+              <Trans>Edit Expiry</Trans>
+            </MenuItem>
           </>
         );
       },
@@ -190,13 +236,24 @@ const TrackedEntitiesTable = memo(
     );
 
     return (
-      <Table<(typeof data)[number]>
-        data={data}
-        columns={columns}
-        count={count}
-        renderContextMenu={renderContextMenu}
-        title={t`Tracked Entities`}
-      />
+      <>
+        <Table<(typeof data)[number]>
+          data={data}
+          columns={columns}
+          count={count}
+          renderContextMenu={renderContextMenu}
+          title={t`Tracked Entities`}
+        />
+        {editingExpiry && (
+          <EditExpiryModal
+            open={!!editingExpiry}
+            onClose={() => setEditingExpiry(null)}
+            trackedEntityId={editingExpiry.id}
+            expirationDate={editingExpiry.expirationDate ?? null}
+            label={editingExpiry.sourceDocumentReadableId ?? editingExpiry.id}
+          />
+        )}
+      </>
     );
   }
 );

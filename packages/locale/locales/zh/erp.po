@@ -1747,6 +1747,7 @@ msgstr "无法禁用唯一的活跃价格段。请添加另一个价格段或改
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:165
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypeForm.tsx:104
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:116
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:90
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:153
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:184
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:283
@@ -4488,6 +4489,14 @@ msgstr "编辑员工"
 msgid "Edit Employee Type"
 msgstr "编辑员工类型"
 
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:64
+msgid "Edit expiration date"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:230
+msgid "Edit Expiry"
+msgstr ""
+
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModeForm.tsx:94
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModesTable.tsx:68
 msgid "Edit Failure Mode"
@@ -4956,7 +4965,7 @@ msgstr "在收货时输入"
 msgid "Entities"
 msgstr "实体"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:47
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:69
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:173
 msgid "Entity"
 msgstr "实体"
@@ -5180,7 +5189,7 @@ msgstr "到期日期"
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "过期日期（适用于此行上的所有序列号）"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:134
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:156
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
 msgid "Expired"
 msgstr "已过期"
@@ -5198,7 +5207,7 @@ msgstr "过期"
 msgid "Expires At (optional)"
 msgstr "过期时间（可选）"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:119
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:141
 msgid "Expiry"
 msgstr "过期"
 
@@ -5208,6 +5217,10 @@ msgstr ""
 
 #: apps/erp/app/components/Form/ShelfLifeStartEvent.tsx:99
 msgid "Expiry begins when the selected process starts."
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/Traceability/ExpiryTracePopover.tsx:109
+msgid "Expiry trace"
 msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:184
@@ -6229,6 +6242,10 @@ msgstr "传入"
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
 msgstr "基础设施"
+
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:358
+msgid "Inherit earliest input expiry"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:184
 msgid "Inherit From Materials"
@@ -8030,6 +8047,10 @@ msgstr "新部门"
 msgid "New Employee Type"
 msgstr "新员工类型"
 
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:77
+msgid "New expiration date"
+msgstr ""
+
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModeForm.tsx:96
 msgid "New Failure Mode"
 msgstr "新故障模式"
@@ -9000,6 +9021,10 @@ msgstr "出库"
 msgid "Output"
 msgstr "输出"
 
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:359
+msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
+msgstr ""
+
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:114
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:310
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:182
@@ -9039,6 +9064,10 @@ msgstr "为单个客户覆盖价格"
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:166
 msgid "Override price for all customers of a type"
 msgstr "为所有该类型的客户覆盖价格"
+
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:68
+msgid "Override the expiration on {label}."
+msgstr ""
 
 #: apps/erp/app/modules/people/ui/Person/PersonOvertime.tsx:11
 msgid "Overtime"
@@ -9290,6 +9319,10 @@ msgstr "拣选"
 #: apps/erp/app/components/Table/components/Sort/Sort.tsx:119
 msgid "Pick a column to sort by"
 msgstr "选择要排序的列"
+
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:78
+msgid "Pick a date or leave blank to clear it."
+msgstr ""
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:27
 msgid "Pick a scope to view resolved prices and create price overrides."
@@ -10029,7 +10062,7 @@ msgstr "数量"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:88
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:110
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:154
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:410
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:215
@@ -10224,6 +10257,7 @@ msgstr "读取行"
 msgid "Ready for Quote"
 msgstr "准备报价"
 
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:82
 #: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:31
 #: apps/erp/app/modules/sales/ui/NoQuoteReasons/NoQuoteReasonsTable.tsx:85
 msgid "Reason"
@@ -10345,6 +10379,10 @@ msgstr "录音"
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:308
 msgid "Record deleted"
 msgstr "记录已删除"
+
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:84
+msgid "Recorded on the entity for traceability."
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:58
 msgid "Records"
@@ -11043,6 +11081,7 @@ msgstr "星期六"
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:190
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypeForm.tsx:101
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:113
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:93
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:96
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceDeliveryForm.tsx:126
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:283
@@ -11618,7 +11657,7 @@ msgstr "序列号或批次跟踪必需"
 msgid "Serial Tracking"
 msgstr "序列追踪"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:74
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:96
 msgid "Serial/Batch #"
 msgstr "序列号/批次 #"
 
@@ -11735,15 +11774,15 @@ msgstr "分享报价"
 msgid "Shelf life"
 msgstr ""
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:311
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:333
 msgid "Shelf Life (Days)"
 msgstr "保质期（天）"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:319
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:341
 msgid "Shelf Life Start Process"
 msgstr ""
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:274
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:296
 msgid "Shelf-Life"
 msgstr "保质期"
 
@@ -12055,7 +12094,7 @@ msgstr "来源分析"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:72
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:131
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:72
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:159
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:198
 msgid "Source Document"
 msgstr "源文档"
 
@@ -12163,7 +12202,7 @@ msgstr ""
 msgid "Start Date"
 msgstr "开始日期"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:326
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:348
 msgid "Start Expiration"
 msgstr ""
 
@@ -12215,7 +12254,7 @@ msgstr "州/省"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:130
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:140
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:95
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:99
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:121
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:65
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:130
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:124
@@ -12368,15 +12407,15 @@ msgid "Storage Units"
 msgstr "存储单位"
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:180
-msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's created (or when the trigger process runs, if set)."
+msgid "Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's created (or when the trigger process runs, if set)."
 msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:181
-msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received or created (or when the trigger process runs, if set)."
+msgid "Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's received or created (or when the trigger process runs, if set)."
 msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:178
-msgid "Store a fixed number of days on this item. Expiry is stamped on each batch or serial when it's received."
+msgid "Store a fixed number of days on this item. Expiry start date is set on each batch or serial when it's received."
 msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:180
@@ -13298,11 +13337,11 @@ msgstr "跟踪对您的订单、发票、客户等的每一项更改。"
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr "跟踪对您的订单、发票、客户、供应商等的每项更改。"
 
-#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:277
+#: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:299
 msgid "Track when batches or serials of this item expire."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:198
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:245
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:70
 #: apps/erp/app/routes/x+/inventory+/tracked-entities.tsx:16
 #: apps/erp/app/routes/x+/issue+/$id.tsx:147
@@ -14131,7 +14170,7 @@ msgstr "查看建议"
 msgid "View Suppliers"
 msgstr "查看供应商"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:184
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:223
 msgid "View Traceability Graph"
 msgstr "查看可追溯性图表"
 
@@ -14365,6 +14404,10 @@ msgstr "供应商报价提交时，谁应该收到通知？"
 #: apps/erp/app/routes/x+/settings+/production.tsx:181
 msgid "Who should receive notifications when an inventory job is completed?"
 msgstr "当库存工作完成时，谁应该收到通知？"
+
+#: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:83
+msgid "Why is the expiration being changed?"
+msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/PostingGroups/InventoryPostingGroupsTable.tsx:122
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:928

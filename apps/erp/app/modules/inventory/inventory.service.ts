@@ -858,6 +858,68 @@ export async function getTrackedEntity(
     .single();
 }
 
+/**
+ * Manual override of a tracked entity's expirationDate. Records the prior
+ * value, the new value, and a reason on the entity's `attributes` JSONB
+ * under the "expiryOverrides" array so the trace popover can show the
+ * provenance later.
+ *
+ *   attributes.expiryOverrides = [
+ *     {
+ *       previous: "2026-04-25" | null,
+ *       next:     "2026-05-10",
+ *       reason:   "Re-tested and re-certified by QC",
+ *       userId,
+ *       at:       "2026-04-26T10:11:12Z"
+ *     },
+ *     ...
+ *   ]
+ */
+export async function updateTrackedEntityExpiry(
+  client: SupabaseClient<Database>,
+  args: {
+    trackedEntityId: string;
+    expirationDate: string | null;
+    reason: string;
+    userId: string;
+  }
+) {
+  const existing = await client
+    .from("trackedEntity")
+    .select("expirationDate, attributes")
+    .eq("id", args.trackedEntityId)
+    .single();
+  if (existing.error) return existing;
+
+  const prevAttrs =
+    (existing.data?.attributes as Record<string, unknown> | null) ?? {};
+  const prevHistory = Array.isArray(prevAttrs.expiryOverrides)
+    ? (prevAttrs.expiryOverrides as Record<string, unknown>[])
+    : [];
+
+  const nextAttrs = {
+    ...prevAttrs,
+    expiryOverrides: [
+      ...prevHistory,
+      {
+        previous: existing.data?.expirationDate ?? null,
+        next: args.expirationDate,
+        reason: args.reason,
+        userId: args.userId,
+        at: new Date().toISOString()
+      }
+    ]
+  };
+
+  return client
+    .from("trackedEntity")
+    .update({
+      expirationDate: args.expirationDate,
+      attributes: nextAttrs
+    })
+    .eq("id", args.trackedEntityId);
+}
+
 export async function getTrackedEntitiesByOperationId(
   client: SupabaseClient<Database>,
   operationId: string

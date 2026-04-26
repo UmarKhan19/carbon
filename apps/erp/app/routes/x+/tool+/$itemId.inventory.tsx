@@ -168,6 +168,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     shelfLifeDays,
     shelfLifeTriggerProcessId,
     shelfLifeTriggerTiming,
+    shelfLifeInheritEarliestInputExpiry,
     ...pickMethodFields
   } = validation.data;
 
@@ -182,7 +183,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
         mode: shelfLifeMode,
         days: shelfLifeDays,
         triggerProcessId: shelfLifeTriggerProcessId,
-        triggerTiming: shelfLifeTriggerTiming
+        triggerTiming: shelfLifeTriggerTiming,
+        inheritEarliestInputExpiry: shelfLifeInheritEarliestInputExpiry
       }
     });
   } catch (err) {
@@ -227,6 +229,8 @@ export default function ToolInventoryRoute() {
     shelfLifeDays: shelfLife?.days ?? undefined,
     shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
     shelfLifeTriggerTiming: shelfLife?.triggerTiming ?? undefined,
+    shelfLifeInheritEarliestInputExpiry:
+      shelfLife?.inheritEarliestInputExpiry ?? false,
     ...getCustomFields(toolInventory.customFields ?? {})
   };
 

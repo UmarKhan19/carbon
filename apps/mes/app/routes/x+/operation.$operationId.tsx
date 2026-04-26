@@ -5,6 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useParams } from "react-router";
 import { JobOperation } from "~/components/JobOperation";
+import { getCompanySettings } from "~/services/inventory.service";
 import {
   getJobByOperationId,
   getJobFiles,
@@ -22,6 +23,9 @@ import {
   getWorkCenter
 } from "~/services/operations.service";
 import type { OperationWithDetails } from "~/services/types";
+
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
+
 import { makeDurations } from "~/utils/durations";
 import { path } from "~/utils/path";
 
@@ -67,17 +71,29 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const [thumbnailPath, trackedEntities, jobMakeMethod, kanban, bomIdMap] =
-    await Promise.all([
-      getThumbnailPathByItemId(serviceRole, operation.data?.[0].itemId),
-      getTrackedEntitiesByMakeMethodId(
-        serviceRole,
-        operation.data?.[0].jobMakeMethodId
-      ),
-      getJobMakeMethod(serviceRole, operation.data?.[0].jobMakeMethodId),
-      getKanbanByJobId(serviceRole, job.data.id),
-      getJobMethodBomIdMap(serviceRole, job.data.id!)
-    ]);
+  const [
+    thumbnailPath,
+    trackedEntities,
+    jobMakeMethod,
+    kanban,
+    bomIdMap,
+    companySettings
+  ] = await Promise.all([
+    getThumbnailPathByItemId(serviceRole, operation.data?.[0].itemId),
+    getTrackedEntitiesByMakeMethodId(
+      serviceRole,
+      operation.data?.[0].jobMakeMethodId
+    ),
+    getJobMakeMethod(serviceRole, operation.data?.[0].jobMakeMethodId),
+    getKanbanByJobId(serviceRole, job.data.id),
+    getJobMethodBomIdMap(serviceRole, job.data.id!),
+    getCompanySettings(serviceRole, companyId)
+  ]);
+
+  const inventoryShelfLife = (companySettings.data?.inventoryShelfLife ??
+    null) as { expiredEntityPolicy?: ExpiredEntityPolicy } | null;
+  const expiredEntityPolicy: ExpiredEntityPolicy =
+    inventoryShelfLife?.expiredEntityPolicy ?? "Block";
 
   // If no trackedEntityId is provided in the URL but trackedEntities exist,
   // redirect to the same URL with the last trackedEntityId as a search param
@@ -131,6 +147,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       companyId
     }),
     operation: makeDurations(operation.data?.[0]) as OperationWithDetails,
+    expiredEntityPolicy,
     procedure: getJobOperationProcedure(serviceRole, operation.data?.[0].id),
     workCenter: getWorkCenter(
       serviceRole,
@@ -154,6 +171,7 @@ export default function OperationRoute() {
 
   const {
     events,
+    expiredEntityPolicy,
     files,
     job,
     jobMakeMethod,
@@ -171,6 +189,7 @@ export default function OperationRoute() {
     <JobOperation
       key={`job-operation-${operationId}`}
       events={events}
+      expiredEntityPolicy={expiredEntityPolicy}
       files={files}
       kanban={kanban}
       materials={materials}

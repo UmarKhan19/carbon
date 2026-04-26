@@ -1622,6 +1622,7 @@ export const path = {
     traceability: `${x}/traceability`,
     traceabilityGraph: `${x}/traceability/graph`,
     trackedEntities: `${x}/inventory/tracked-entities`,
+    trackedEntityExpiry: `${x}/inventory/tracked-entity/expiry`,
     training: (id: string) => generatePath(`${x}/training/${id}`),
     trainings: `${x}/resources/training`,
     trainingQuestion: (id: string, questionId: string) =>

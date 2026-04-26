@@ -154,7 +154,7 @@ export const shelfLifeSettingsValidator = z.object({
   // Calculated-mode MIN expiry scope. 'AllInputs' = MIN over every input
   // carrying an expiry (food/perishable default). 'ManagedInputsOnly' =
   // only inputs whose own item has a Fixed Duration / Calculated policy
-  // (excludes supplier-stamped Set-on-Receipt expiries).
+  // (excludes supplier-set Set-on-Receipt expiries).
   calculatedInputScope: z
     .enum(calculatedShelfLifeInputScopes)
     .default("AllInputs"),

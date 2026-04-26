@@ -2094,7 +2094,7 @@ export async function upsertItemDefaultPickMethod(
  * Return the distinct processIds referenced by methodOperation rows on the
  * item's active makeMethod. Used to scope the shelf-life trigger-process
  * picker to processes the recipe will actually run, so users can't pick a
- * process the trigger never matches against (the stamp helper short-circuits
+ * process the trigger never matches against (the set-shelf-life helper short-circuits
  * on processId mismatch). Empty array when the item has no active recipe.
  */
 export async function getRecipeProcessIdsForItem(
@@ -2137,7 +2137,9 @@ export async function getItemShelfLife(
 ) {
   return client
     .from("itemShelfLife")
-    .select("mode, days, triggerProcessId, triggerTiming")
+    .select(
+      "mode, days, triggerProcessId, triggerTiming, inheritEarliestInputExpiry"
+    )
     .eq("itemId", itemId)
     .maybeSingle();
 }
@@ -2152,6 +2154,7 @@ export async function upsertItemShelfLife(
     days?: number;
     triggerProcessId?: string;
     triggerTiming?: (typeof shelfLifeTriggerTimings)[number];
+    inheritEarliestInputExpiry?: boolean;
   }
 ) {
   if (args.mode === undefined) {
@@ -2171,11 +2174,19 @@ export async function upsertItemShelfLife(
   const triggerTiming = triggerProcessId
     ? (args.triggerTiming ?? "After")
     : "After";
+  // Inherit-earliest-input is meaningful only on Fixed Duration; the table
+  // CHECK enforces the same rule. Coerce any stale flag back to false on
+  // mode switches so the row never carries an inconsistent combo.
+  const inheritEarliestInputExpiry =
+    args.mode === "Fixed Duration"
+      ? (args.inheritEarliestInputExpiry ?? false)
+      : false;
 
   // Reject trigger processes that aren't on the item's active recipe.
-  // The shelf-life stamp helper gates on processId equality, so a process
-  // outside the recipe would never match and expiry would silently never
-  // stamp. Mirrors the guard inside upsertPickMethodWithShelfLife.
+  // The set-shelf-life helper gates on processId equality, so a process
+  // outside the recipe would never match and the expiry start date would
+  // silently never get set. Mirrors the guard inside
+  // upsertPickMethodWithShelfLife.
   if (triggerProcessId) {
     const recipe = await getRecipeProcessIdsForItem(client, args.itemId);
     if (recipe.error) {
@@ -2211,6 +2222,7 @@ export async function upsertItemShelfLife(
         days,
         triggerProcessId,
         triggerTiming,
+        inheritEarliestInputExpiry,
         updatedBy: args.userId,
         updatedAt: new Date().toISOString()
       })
@@ -2234,6 +2246,7 @@ export async function upsertItemShelfLife(
     days,
     triggerProcessId,
     triggerTiming,
+    inheritEarliestInputExpiry,
     companyId: companyId!,
     createdBy: args.userId
   });
@@ -2261,6 +2274,7 @@ export async function upsertPickMethodWithShelfLife(
       days?: number;
       triggerProcessId?: string;
       triggerTiming?: (typeof shelfLifeTriggerTimings)[number];
+      inheritEarliestInputExpiry?: boolean;
     };
   }
 ) {
@@ -2279,7 +2293,13 @@ export async function upsertPickMethodWithShelfLife(
       .where("locationId", "=", args.locationId)
       .execute();
 
-    const { mode, days, triggerProcessId, triggerTiming } = args.shelfLife;
+    const {
+      mode,
+      days,
+      triggerProcessId,
+      triggerTiming,
+      inheritEarliestInputExpiry
+    } = args.shelfLife;
 
     // mode undefined = caller didn't surface the field; leave any existing
     // row alone (matches upsertItemShelfLife semantics).
@@ -2299,10 +2319,12 @@ export async function upsertPickMethodWithShelfLife(
     const normalizedTriggerTiming = normalizedTriggerProcess
       ? (triggerTiming ?? "After")
       : "After";
+    const normalizedInherit =
+      mode === "Fixed Duration" ? (inheritEarliestInputExpiry ?? false) : false;
 
     // Reject trigger processes that aren't on the item's active recipe.
-    // The shelf-life stamp helper gates on processId equality, so picking
-    // a process the recipe never runs would silently never stamp expiry.
+    // The set-shelf-life helper gates on processId equality, so picking a
+    // process the recipe never runs would silently never set the expiry.
     if (normalizedTriggerProcess) {
       const recipeProcessIds = await trx
         .selectFrom("methodOperation as mo")
@@ -2337,6 +2359,7 @@ export async function upsertPickMethodWithShelfLife(
           days: normalizedDays,
           triggerProcessId: normalizedTriggerProcess,
           triggerTiming: normalizedTriggerTiming,
+          inheritEarliestInputExpiry: normalizedInherit,
           updatedBy: args.userId,
           updatedAt: now
         })
@@ -2363,6 +2386,7 @@ export async function upsertPickMethodWithShelfLife(
         days: normalizedDays,
         triggerProcessId: normalizedTriggerProcess,
         triggerTiming: normalizedTriggerTiming,
+        inheritEarliestInputExpiry: normalizedInherit,
         companyId: itemRow.companyId,
         createdBy: args.userId
       })
@@ -2439,7 +2463,9 @@ export async function upsertConsumable(
         mode: consumable.shelfLifeMode,
         days: consumable.shelfLifeDays,
         triggerProcessId: consumable.shelfLifeTriggerProcessId,
-        triggerTiming: consumable.shelfLifeTriggerTiming
+        triggerTiming: consumable.shelfLifeTriggerTiming,
+        inheritEarliestInputExpiry:
+          consumable.shelfLifeInheritEarliestInputExpiry
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -2501,7 +2527,8 @@ export async function upsertConsumable(
     mode: consumable.shelfLifeMode,
     days: consumable.shelfLifeDays,
     triggerProcessId: consumable.shelfLifeTriggerProcessId,
-    triggerTiming: consumable.shelfLifeTriggerTiming
+    triggerTiming: consumable.shelfLifeTriggerTiming,
+    inheritEarliestInputExpiry: consumable.shelfLifeInheritEarliestInputExpiry
   });
   if (shelfLife.error) return shelfLife;
 
@@ -2591,7 +2618,8 @@ export async function upsertPart(
         mode: part.shelfLifeMode,
         days: part.shelfLifeDays,
         triggerProcessId: part.shelfLifeTriggerProcessId,
-        triggerTiming: part.shelfLifeTriggerTiming
+        triggerTiming: part.shelfLifeTriggerTiming,
+        inheritEarliestInputExpiry: part.shelfLifeInheritEarliestInputExpiry
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -2653,7 +2681,8 @@ export async function upsertPart(
     mode: part.shelfLifeMode,
     days: part.shelfLifeDays,
     triggerProcessId: part.shelfLifeTriggerProcessId,
-    triggerTiming: part.shelfLifeTriggerTiming
+    triggerTiming: part.shelfLifeTriggerTiming,
+    inheritEarliestInputExpiry: part.shelfLifeInheritEarliestInputExpiry
   });
   if (shelfLife.error) return shelfLife;
 
@@ -3245,7 +3274,8 @@ export async function upsertMaterial(
         mode: material.shelfLifeMode,
         days: material.shelfLifeDays,
         triggerProcessId: material.shelfLifeTriggerProcessId,
-        triggerTiming: material.shelfLifeTriggerTiming
+        triggerTiming: material.shelfLifeTriggerTiming,
+        inheritEarliestInputExpiry: material.shelfLifeInheritEarliestInputExpiry
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -3330,7 +3360,8 @@ export async function upsertMaterial(
     mode: material.shelfLifeMode,
     days: material.shelfLifeDays,
     triggerProcessId: material.shelfLifeTriggerProcessId,
-    triggerTiming: material.shelfLifeTriggerTiming
+    triggerTiming: material.shelfLifeTriggerTiming,
+    inheritEarliestInputExpiry: material.shelfLifeInheritEarliestInputExpiry
   });
   if (shelfLife.error) return shelfLife;
 
@@ -3771,7 +3802,8 @@ export async function upsertTool(
         mode: tool.shelfLifeMode,
         days: tool.shelfLifeDays,
         triggerProcessId: tool.shelfLifeTriggerProcessId,
-        triggerTiming: tool.shelfLifeTriggerTiming
+        triggerTiming: tool.shelfLifeTriggerTiming,
+        inheritEarliestInputExpiry: tool.shelfLifeInheritEarliestInputExpiry
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -3833,7 +3865,8 @@ export async function upsertTool(
     mode: tool.shelfLifeMode,
     days: tool.shelfLifeDays,
     triggerProcessId: tool.shelfLifeTriggerProcessId,
-    triggerTiming: tool.shelfLifeTriggerTiming
+    triggerTiming: tool.shelfLifeTriggerTiming,
+    inheritEarliestInputExpiry: tool.shelfLifeInheritEarliestInputExpiry
   });
   if (shelfLife.error) return shelfLife;
 
