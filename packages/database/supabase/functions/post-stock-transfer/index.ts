@@ -9,6 +9,52 @@ import type { Database } from "../lib/types.ts";
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
 
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
+
+async function getExpiredEntityPolicy(companyId: string): Promise<ExpiredEntityPolicy> {
+  const row = await db
+    .selectFrom("companySettings")
+    .select("inventoryShelfLife")
+    .where("id", "=", companyId)
+    .executeTakeFirst();
+  const blob = row?.inventoryShelfLife as
+    | { expiredEntityPolicy?: ExpiredEntityPolicy }
+    | null;
+  return blob?.expiredEntityPolicy ?? "Block";
+}
+
+/**
+ * Reject expiry-violating consumption based on the company's policy.
+ * Returns the warning message when policy is 'Warn' so callers can echo
+ * it back in the response. Throws an Error in all reject cases so the
+ * outer try/catch surfaces it as a 400.
+ */
+function checkExpiredEntity(
+  entity: { id: string; expirationDate: string | null },
+  policy: ExpiredEntityPolicy,
+  override: { allowed: boolean; reason: string | null }
+): { warning?: string } {
+  if (!entity.expirationDate) return {};
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  if (new Date(entity.expirationDate) >= today) return {};
+
+  if (policy === "Warn") {
+    return { warning: `Transferred expired tracked entity: ${entity.id}` };
+  }
+
+  if (
+    policy === "BlockWithOverride" &&
+    override.allowed &&
+    override.reason &&
+    override.reason.trim().length > 0
+  ) {
+    return {};
+  }
+
+  throw new Error(`Cannot transfer expired tracked entity: ${entity.id}`);
+}
+
 const payloadValidator = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("inventory"),
@@ -44,6 +90,8 @@ const payloadValidator = z.discriminatedUnion("type", [
     trackedEntityId: z.string(),
     fromStorageUnitId: z.string().nullable(),
     quantity: z.number().positive(),
+    overrideExpired: z.boolean().optional(),
+    overrideReason: z.string().optional(),
     locationId: z.string(),
     userId: z.string(),
     companyId: z.string(),
@@ -78,6 +126,7 @@ serve(async (req: Request) => {
 
   try {
     const validatedPayload = payloadValidator.parse(payload);
+    let expiredWarning: string | undefined;
 
     console.log({
       function: "post-stock-transfer",
@@ -355,10 +404,14 @@ serve(async (req: Request) => {
           stockTransferLineId,
           trackedEntityId,
           quantity,
+          overrideExpired,
+          overrideReason,
           locationId,
           userId,
           companyId,
         } = validatedPayload;
+
+        const policy = await getExpiredEntityPolicy(companyId);
 
         await db.transaction().execute(async (trx) => {
           // Get stock transfer line details
@@ -376,6 +429,16 @@ serve(async (req: Request) => {
             .where("companyId", "=", companyId)
             .selectAll()
             .executeTakeFirstOrThrow();
+
+          // Expiry policy gate (throws on hard reject; returns warning for 'Warn').
+          const expiredCheck = checkExpiredEntity(
+            { id: trackedEntity.id, expirationDate: trackedEntity.expirationDate },
+            policy,
+            { allowed: !!overrideExpired, reason: overrideReason ?? null }
+          );
+          if (expiredCheck.warning) {
+            expiredWarning = expiredCheck.warning;
+          }
 
           const entityQuantity = Number(trackedEntity.quantity);
           const transferQuantity = quantity;
@@ -432,6 +495,8 @@ serve(async (req: Request) => {
                 quantity: remainingQuantity,
                 status: "Available",
                 attributes: trackedEntity.attributes,
+                itemId: trackedEntity.itemId ?? null,
+                expirationDate: trackedEntity.expirationDate ?? null,
                 companyId,
                 createdBy: userId,
               })
@@ -992,6 +1057,7 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
+        warning: expiredWarning,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

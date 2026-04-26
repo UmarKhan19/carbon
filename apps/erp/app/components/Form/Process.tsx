@@ -12,6 +12,13 @@ type ProcessSelectProps = Omit<ComboboxProps, "options" | "inline"> & {
   isConfigured?: boolean;
   onConfigure?: () => void;
   inline?: boolean;
+  /**
+   * Optional override for the option list. When omitted the picker shows
+   * every process in the company. Pass a scoped subset (e.g. processes used
+   * by an item's recipe) to constrain selection. `undefined` means "still
+   * loading" — picker stays empty until data arrives.
+   */
+  options?: { value: string; label: string }[];
 };
 
 const ProcessPreview = (
@@ -22,18 +29,22 @@ const ProcessPreview = (
   return process?.label ?? null;
 };
 
-const Process = (props: ProcessSelectProps) => {
+const Process = ({
+  options: optionsOverride,
+  ...props
+}: ProcessSelectProps) => {
   const newProcessModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const options = useProcesses();
+  const fetched = useProcesses();
+  const sourceOptions = optionsOverride ?? fetched;
 
   return (
     <>
       <CreatableCombobox
         ref={triggerRef}
-        options={options.map((o) => ({
+        options={sourceOptions.map((o) => ({
           value: o.value,
           label: <Enumerable value={o.label} />
         }))}

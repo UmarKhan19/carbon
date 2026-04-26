@@ -1,81 +1,123 @@
 import { useControlField } from "@carbon/form";
 import {
-  cn,
+  ChoiceCardGroup,
   FormControl,
+  FormHelperText,
   FormLabel,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
+  useMount
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
-import Process from "./Process";
+import { useMemo } from "react";
+import { LuCalendarArrowDown, LuCalendarArrowUp } from "react-icons/lu";
+import { useFetcher } from "react-router";
+import { path } from "~/utils/path";
+import Process, { useProcesses } from "./Process";
 
-// Single composite control for configuring when shelf life starts stamping.
-// Visually one field with a shared label across both segments: a PRE/POST
-// pill toggle on the left + the Process combobox on the right, rendered
-// as a single segmented control. The pill is always visible (defaulting
-// to PRE); timing is only semantically meaningful when a process is also
-// chosen, but the DB carries 'After' as its default so submitting PRE
-// without a process is a harmless no-op at the interceptor layer.
-type Props = {
+type Timing = "Before" | "After";
+
+// Process picker rendered inline with a FormLabel. Sits in a single grid
+// column beside the Shelf Life (Days) input.
+type ProcessProps = {
   /** Form field name for the trigger process id (TEXT). */
   processName: string;
+  label: string;
+  /**
+   * Item whose recipe scopes the picker. When provided, options are filtered
+   * to processes referenced by methodOperation rows on the item's active
+   * makeMethod. Picking a process outside that set is rejected server-side
+   * because the stamp helper gates on processId equality - a non-recipe
+   * process would silently never match.
+   */
+  itemId?: string;
+};
+
+export const ShelfLifeStartProcess = ({
+  processName,
+  label,
+  itemId
+}: ProcessProps) => {
+  const allowed = useItemRecipeProcessIds(itemId);
+  const allProcesses = useProcesses();
+
+  const filteredOptions = useMemo(() => {
+    if (!itemId || allowed === undefined) return undefined;
+    const set = new Set(allowed);
+    return allProcesses.filter((p) => set.has(p.value));
+  }, [itemId, allowed, allProcesses]);
+
+  const recipeEmpty = !!itemId && allowed !== undefined && allowed.length === 0;
+
+  return (
+    <FormControl>
+      <FormLabel isOptional>{label}</FormLabel>
+      <Process
+        name={processName}
+        label=""
+        options={filteredOptions}
+        isReadOnly={recipeEmpty}
+      />
+      {recipeEmpty && (
+        <FormHelperText>Define a manufacturing operation first.</FormHelperText>
+      )}
+    </FormControl>
+  );
+};
+
+// Timing cards stacked vertically. Label "Start Expiration" sits above.
+// Renders only when a process is selected — picking start vs. end is
+// meaningless without a process to anchor on.
+type TimingProps = {
   /** Form field name for the trigger timing ('Before' | 'After'). */
   timingName: string;
   label: string;
 };
 
-type Timing = "Before" | "After";
-
-const ShelfLifeStartEvent = ({ processName, timingName, label }: Props) => {
+export const ShelfLifeStartTiming = ({ timingName, label }: TimingProps) => {
   const { t } = useLingui();
   const [timing, setTiming] = useControlField<Timing | undefined>(timingName);
 
-  const current: Timing = timing ?? "Before";
-  const flip = () => setTiming(current === "Before" ? "After" : "Before");
+  // Default the cards to "After" (process end) — the more common case.
+  const current: Timing = timing ?? "After";
 
   return (
     <FormControl>
-      <FormLabel isOptional>{label}</FormLabel>
-
-      <div
-        className={cn(
-          "flex items-stretch",
-          // Strip the combobox trigger's left rounding + left border so
-          // the pill and combobox read as a single segmented control.
-          "[&_[role=combobox]]:rounded-l-none [&_[role=combobox]]:border-l-0"
-        )}
-      >
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              type="button"
-              onClick={flip}
-              aria-label={
-                current === "Before"
-                  ? t`Stamp expiry before process starts`
-                  : t`Stamp expiry after process completes`
-              }
-              className="shrink-0 h-10 px-3 rounded-l-md border border-r-0 border-input bg-muted/60 text-xs font-semibold tracking-wider text-muted-foreground hover:bg-accent hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {current === "Before" ? "PRE" : "POST"}
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            {current === "Before"
-              ? t`Stamp expiry before process starts`
-              : t`Stamp expiry after process completes`}
-          </TooltipContent>
-        </Tooltip>
-
-        <div className="flex-1 min-w-0">
-          <Process name={processName} label="" />
-        </div>
-      </div>
-
+      <FormLabel>{label}</FormLabel>
+      <ChoiceCardGroup<Timing>
+        value={current}
+        onChange={setTiming}
+        direction="row"
+        options={[
+          {
+            value: "After",
+            title: t`Start expiration on process end`,
+            description: t`Expiry begins when the selected process completes.`,
+            icon: <LuCalendarArrowDown />
+          },
+          {
+            value: "Before",
+            title: t`Start expiration on process start`,
+            description: t`Expiry begins when the selected process starts.`,
+            icon: <LuCalendarArrowUp />
+          }
+        ]}
+      />
       <input type="hidden" name={timingName} value={current} />
     </FormControl>
   );
 };
 
-export default ShelfLifeStartEvent;
+// Returns the processIds referenced by the item's active recipe, or
+// `undefined` while loading. Empty array = item has no recipe operations.
+function useItemRecipeProcessIds(itemId: string | undefined) {
+  const fetcher = useFetcher<{ data: string[]; error: unknown }>();
+
+  useMount(() => {
+    if (itemId) {
+      fetcher.load(path.to.api.itemRecipeProcesses(itemId));
+    }
+  });
+
+  if (!itemId) return [] as string[];
+  if (fetcher.state !== "idle" || !fetcher.data) return undefined;
+  return fetcher.data.data ?? [];
+}

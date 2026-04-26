@@ -2091,6 +2091,42 @@ export async function upsertItemDefaultPickMethod(
 }
 
 /**
+ * Return the distinct processIds referenced by methodOperation rows on the
+ * item's active makeMethod. Used to scope the shelf-life trigger-process
+ * picker to processes the recipe will actually run, so users can't pick a
+ * process the trigger never matches against (the stamp helper short-circuits
+ * on processId mismatch). Empty array when the item has no active recipe.
+ */
+export async function getRecipeProcessIdsForItem(
+  client: SupabaseClient<Database>,
+  itemId: string
+) {
+  const makeMethod = await client
+    .from("activeMakeMethods")
+    .select("id")
+    .eq("itemId", itemId)
+    .maybeSingle();
+  if (makeMethod.error || !makeMethod.data?.id) {
+    return { data: [] as string[], error: makeMethod.error ?? null };
+  }
+  const operations = await client
+    .from("methodOperation")
+    .select("processId")
+    .eq("makeMethodId", makeMethod.data.id);
+  if (operations.error) {
+    return { data: [] as string[], error: operations.error };
+  }
+  const ids = Array.from(
+    new Set(
+      (operations.data ?? [])
+        .map((o) => o.processId)
+        .filter((id): id is string => !!id)
+    )
+  );
+  return { data: ids, error: null };
+}
+
+/**
  * Fetch the shelf-life policy for an item. Returns `data: null` (without
  * an error) when the item has no row, since absence = "not managed" and
  * that's a valid state we don't want to treat as an error path.
@@ -2135,6 +2171,29 @@ export async function upsertItemShelfLife(
   const triggerTiming = triggerProcessId
     ? (args.triggerTiming ?? "After")
     : "After";
+
+  // Reject trigger processes that aren't on the item's active recipe.
+  // The shelf-life stamp helper gates on processId equality, so a process
+  // outside the recipe would never match and expiry would silently never
+  // stamp. Mirrors the guard inside upsertPickMethodWithShelfLife.
+  if (triggerProcessId) {
+    const recipe = await getRecipeProcessIdsForItem(client, args.itemId);
+    if (recipe.error) {
+      return { data: null, error: recipe.error } as any;
+    }
+    if (!recipe.data.includes(triggerProcessId)) {
+      return {
+        data: null,
+        error: {
+          message:
+            "Shelf-life trigger process must be one of the operations on this item's recipe",
+          details: "",
+          hint: "",
+          code: "shelf_life_trigger_process_not_in_recipe"
+        }
+      } as any;
+    }
+  }
 
   const existing = await client
     .from("itemShelfLife")
@@ -2240,6 +2299,29 @@ export async function upsertPickMethodWithShelfLife(
     const normalizedTriggerTiming = normalizedTriggerProcess
       ? (triggerTiming ?? "After")
       : "After";
+
+    // Reject trigger processes that aren't on the item's active recipe.
+    // The shelf-life stamp helper gates on processId equality, so picking
+    // a process the recipe never runs would silently never stamp expiry.
+    if (normalizedTriggerProcess) {
+      const recipeProcessIds = await trx
+        .selectFrom("methodOperation as mo")
+        .innerJoin("activeMakeMethods as amm", "amm.id", "mo.makeMethodId")
+        .select("mo.processId")
+        .where("amm.itemId", "=", args.itemId)
+        .where("mo.processId", "is not", null)
+        .execute();
+      const allowed = new Set(
+        recipeProcessIds
+          .map((r) => r.processId)
+          .filter((id): id is string => !!id)
+      );
+      if (!allowed.has(normalizedTriggerProcess)) {
+        throw new Error(
+          "Shelf-life trigger process must be one of the operations on this item's recipe"
+        );
+      }
+    }
 
     const existing = await trx
       .selectFrom("itemShelfLife")

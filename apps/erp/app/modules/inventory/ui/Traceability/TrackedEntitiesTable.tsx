@@ -1,4 +1,5 @@
 import { Badge, MenuIcon, MenuItem } from "@carbon/react";
+import { formatDate } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -10,7 +11,8 @@ import {
   LuFile,
   LuHash,
   LuNetwork,
-  LuQrCode
+  LuQrCode,
+  LuTriangleAlert
 } from "react-icons/lu";
 import { useNavigate } from "react-router";
 import { Hyperlink, Table } from "~/components";
@@ -113,12 +115,12 @@ const TrackedEntitiesTable = memo(
         },
         {
           id: "expirationDate",
+          accessorKey: "expirationDate",
           header: t`Expiry`,
           cell: ({ row }) => {
-            const expiry = (
-              row.original.attributes as Record<string, unknown> | null
-            )?.expirationDate as string | undefined;
-            if (!expiry || nearExpiryWarningDays === null) return null;
+            const expiry = row.original.expirationDate ?? undefined;
+            if (!expiry) return null;
+            const formatted = formatDate(expiry);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const expiryDate = new Date(expiry);
@@ -128,21 +130,24 @@ const TrackedEntitiesTable = memo(
             if (daysLeft < 0) {
               return (
                 <Badge variant="destructive" className="gap-1">
-                  <LuCalendarClock className="size-3" />
-                  {t`Expired`}
+                  <LuTriangleAlert className="size-3" />
+                  {t`Expired`} · {formatted}
                 </Badge>
               );
             }
-            if (daysLeft <= nearExpiryWarningDays) {
+            if (
+              nearExpiryWarningDays !== null &&
+              daysLeft <= nearExpiryWarningDays
+            ) {
               return (
-                <Badge variant="orange" className="gap-1">
-                  <LuCalendarClock className="size-3" />
-                  {expiry}
+                <Badge variant="yellow" className="gap-1">
+                  <LuTriangleAlert className="size-3" />
+                  {formatted}
                 </Badge>
               );
             }
             return (
-              <span className="text-sm text-muted-foreground">{expiry}</span>
+              <span className="text-sm text-muted-foreground">{formatted}</span>
             );
           },
           meta: {

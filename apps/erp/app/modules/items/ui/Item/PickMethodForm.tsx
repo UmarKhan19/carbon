@@ -23,7 +23,8 @@ import {
   CustomFormFields,
   Hidden,
   NumberControlled,
-  ShelfLifeStartEvent,
+  ShelfLifeStartProcess,
+  ShelfLifeStartTiming,
   Submit
 } from "~/components/Form";
 import { usePermissions, useSettings } from "~/hooks";
@@ -120,7 +121,10 @@ const PickMethodForm = ({
             />
 
             {shelfLifeApplicable && (
-              <ShelfLifeFields replenishmentSystem={replenishmentSystem} />
+              <ShelfLifeFields
+                replenishmentSystem={replenishmentSystem}
+                itemId={initialValues.itemId}
+              />
             )}
 
             <CustomFormFields table="partInventory" />
@@ -151,12 +155,17 @@ const ALL_SHELF_LIFE_MODES: ManagedShelfLifeMode[] = [
 // (items.models.ts) so the service deletes the itemShelfLife row
 // (items.service.ts upsertItemShelfLife).
 function ShelfLifeFields({
-  replenishmentSystem
+  replenishmentSystem,
+  itemId
 }: {
   replenishmentSystem: ReplenishmentSystem | null;
+  itemId: string;
 }) {
   const { t } = useLingui();
-  const { defaultShelfLifeDays } = useSettings();
+  const { inventoryShelfLife } = useSettings();
+  const defaultShelfLifeDays =
+    (inventoryShelfLife as { defaultShelfLifeDays?: number } | null)
+      ?.defaultShelfLifeDays ?? 7;
   const shelfLifeOptionCopy: Record<
     Exclude<ShelfLifeMode, "NotManaged">,
     { title: string; description: string; icon: ReactNode }
@@ -188,9 +197,8 @@ function ShelfLifeFields({
   const [shelfLifeDays, setShelfLifeDays] = useControlField<number | undefined>(
     "shelfLifeDays"
   );
-  const [, setShelfLifeTriggerProcessId] = useControlField<string | undefined>(
-    "shelfLifeTriggerProcessId"
-  );
+  const [shelfLifeTriggerProcessId, setShelfLifeTriggerProcessId] =
+    useControlField<string | undefined>("shelfLifeTriggerProcessId");
 
   const availableModes = useMemo<ManagedShelfLifeMode[]>(() => {
     return ALL_SHELF_LIFE_MODES.filter((mode) => {
@@ -305,11 +313,21 @@ function ShelfLifeFields({
             value={shelfLifeDays ?? defaultShelfLifeDays}
           />
           {replenishmentSystem !== "Buy" && (
-            <ShelfLifeStartEvent
-              processName="shelfLifeTriggerProcessId"
-              timingName="shelfLifeTriggerTiming"
-              label={t`Shelf Life Start Event`}
-            />
+            <>
+              <ShelfLifeStartProcess
+                processName="shelfLifeTriggerProcessId"
+                label={t`Shelf Life Start Process`}
+                itemId={itemId}
+              />
+              {shelfLifeTriggerProcessId && (
+                <div className="lg:col-span-3">
+                  <ShelfLifeStartTiming
+                    timingName="shelfLifeTriggerTiming"
+                    label={t`Start Expiration`}
+                  />
+                </div>
+              )}
+            </>
           )}
         </>
       )}

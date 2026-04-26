@@ -38,6 +38,8 @@ import {
 import { Checkbox } from "./Checkbox";
 import type { ChoiceCardOption } from "./ChoiceCard";
 import { ChoiceCardGroup } from "./ChoiceCard";
+import type { ChoiceSelectOption } from "./ChoiceSelect";
+import { ChoiceSelect } from "./ChoiceSelect";
 import { ClientOnly } from "./ClientOnly";
 import { CodeBlock } from "./CodeBlock";
 import {
@@ -344,6 +346,7 @@ export {
   CardTitle,
   Checkbox,
   ChoiceCardGroup,
+  ChoiceSelect,
   ClientOnly,
   CodeBlock,
   Collapsible,
@@ -588,6 +591,7 @@ export type {
   BadgeProps,
   ButtonProps,
   ChoiceCardOption,
+  ChoiceSelectOption,
   ComboboxProps,
   CreatableComboboxProps,
   CreatableMultiSelectProps,

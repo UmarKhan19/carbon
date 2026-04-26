@@ -24,7 +24,9 @@ export async function action({ request }: ActionFunctionArgs) {
     jobOperationId,
     itemId,
     parentTrackedEntityId,
-    children
+    children,
+    overrideExpired,
+    overrideReason
   } = validation.data;
 
   const serviceRole = await getCarbonServiceRole();
@@ -36,6 +38,8 @@ export async function action({ request }: ActionFunctionArgs) {
       itemId,
       parentTrackedEntityId,
       children,
+      overrideExpired,
+      overrideReason,
       companyId,
       userId
     }
@@ -43,17 +47,21 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (issue.error) {
     console.error(issue.error);
-    return data(
-      { success: false, message: "Failed to issue material" },
-      { status: 400 }
-    );
+    // Surface the edge-fn error message so the client can show the actual
+    // reason (e.g. "Cannot consume expired tracked entity: <id>").
+    const message =
+      (issue.error as { message?: string })?.message ??
+      "Failed to issue material";
+    return data({ success: false, message }, { status: 400 });
   }
 
   const splitEntities = issue.data?.splitEntities || [];
+  const warning = issue.data?.warning as string | undefined;
 
   return {
     success: true,
     message: "Material issued successfully",
-    splitEntities
+    splitEntities,
+    warning
   };
 }

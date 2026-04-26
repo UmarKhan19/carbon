@@ -129,6 +129,8 @@ export const path = {
       qualityKpi: (key: string) => generatePath(`${api}/quality/kpi/${key}`),
       procedures: `${api}/production/procedures`,
       processes: `${api}/resources/processes`,
+      itemRecipeProcesses: (itemId: string) =>
+        generatePath(`${api}/items/${itemId}/recipe-processes`),
       productionKpi: (key: string) =>
         generatePath(`${api}/production/kpi/${key}`),
       quoteBillOfMaterials: (

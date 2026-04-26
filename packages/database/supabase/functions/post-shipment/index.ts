@@ -424,6 +424,8 @@ serve(async (req: Request) => {
                 sourceDocumentId: string;
                 sourceDocumentReadableId: string | null;
                 companyId: string;
+                itemId: string | null;
+                expirationDate: string | null;
               }
             > = {};
 
@@ -461,6 +463,8 @@ serve(async (req: Request) => {
                     sourceDocumentReadableId:
                       trackedEntity.sourceDocumentReadableId,
                     companyId: trackedEntity.companyId,
+                    itemId: trackedEntity.itemId ?? null,
+                    expirationDate: trackedEntity.expirationDate ?? null,
                   };
                 }
 
@@ -604,6 +608,8 @@ serve(async (req: Request) => {
                       sourceDocumentReadableId:
                         splitInfo.sourceDocumentReadableId,
                       attributes: splitInfo.attributes as unknown as Json,
+                      itemId: splitInfo.itemId,
+                      expirationDate: splitInfo.expirationDate,
                       companyId: splitInfo.companyId,
                       createdBy: userId,
                       createdAt: today,
@@ -932,6 +938,8 @@ serve(async (req: Request) => {
                 sourceDocumentId: string;
                 sourceDocumentReadableId: string | null;
                 companyId: string;
+                itemId: string | null;
+                expirationDate: string | null;
               }
             > = {};
 
@@ -969,6 +977,8 @@ serve(async (req: Request) => {
                     sourceDocumentReadableId:
                       trackedEntity.sourceDocumentReadableId,
                     companyId: trackedEntity.companyId,
+                    itemId: trackedEntity.itemId ?? null,
+                    expirationDate: trackedEntity.expirationDate ?? null,
                   };
                 }
 
@@ -1072,6 +1082,8 @@ serve(async (req: Request) => {
                       sourceDocumentReadableId:
                         splitInfo.sourceDocumentReadableId,
                       attributes: splitInfo.attributes as unknown as Json,
+                      itemId: splitInfo.itemId,
+                      expirationDate: splitInfo.expirationDate,
                       companyId: splitInfo.companyId,
                       createdBy: userId,
                       createdAt: today,

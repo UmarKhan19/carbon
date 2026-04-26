@@ -62,7 +62,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const settings = await getCompanySettings(client, companyId);
-  const nearExpiryWarningDays = settings.data?.nearExpiryWarningDays ?? null;
+  const inventoryShelfLife = settings.data?.inventoryShelfLife as {
+    nearExpiryWarningDays?: number | null;
+  } | null;
+  const nearExpiryWarningDays =
+    inventoryShelfLife?.nearExpiryWarningDays ?? null;
 
   let expiredItemIds = new Set<string>();
   if (nearExpiryWarningDays !== null && materials.data) {
@@ -76,8 +80,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
         .select("sourceDocumentId")
         .in("sourceDocumentId", itemIds)
         .eq("companyId", companyId)
-        .not("attributes ->> expirationDate", "is", null)
-        .lt("attributes ->> expirationDate", today);
+        .not("expirationDate", "is", null)
+        .lt("expirationDate", today);
       expiredItemIds = new Set(
         (expired ?? [])
           .map((e) => e.sourceDocumentId)

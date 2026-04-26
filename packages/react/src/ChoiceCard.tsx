@@ -26,8 +26,13 @@ type ChoiceCardGroupProps<V extends string = string> = {
   value: V;
   /** Called with the new value when the user picks a different card. */
   onChange: (value: V) => void;
-  /** Choices to render. Rendered as a vertical stack. */
+  /** Choices to render. */
   options: ChoiceCardOption<V>[];
+  /**
+   * Layout direction for the cards. `"column"` (default) stacks vertically;
+   * `"row"` lays them out horizontally with equal-width columns.
+   */
+  direction?: "row" | "column";
   /** Extra classes for the wrapping `<div>`. */
   className?: string;
 };
@@ -55,6 +60,7 @@ export function ChoiceCardGroup<V extends string = string>({
   value,
   onChange,
   options,
+  direction = "column",
   className
 }: ChoiceCardGroupProps<V>) {
   const groupId = useId();
@@ -69,7 +75,10 @@ export function ChoiceCardGroup<V extends string = string>({
       <RadioGroup
         value={value}
         onValueChange={(v) => onChange(v as V)}
-        className="flex flex-col gap-2"
+        className={cn(
+          "gap-2",
+          direction === "row" ? "grid grid-cols-2" : "flex flex-col"
+        )}
       >
         {options.map((opt) => {
           const inputId = `${groupId}-${opt.value}`;

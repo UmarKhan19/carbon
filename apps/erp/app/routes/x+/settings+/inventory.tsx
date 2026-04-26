@@ -6,6 +6,7 @@ import {
   Number,
   Select,
   Submit,
+  useControlField,
   ValidatedForm,
   validator
 } from "@carbon/form";
@@ -16,6 +17,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
+  ChoiceSelect,
   Heading,
   ScrollArea,
   toast,
@@ -24,6 +26,13 @@ import {
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect } from "react";
+import {
+  LuLayers,
+  LuShield,
+  LuShieldCheck,
+  LuTimerReset,
+  LuTriangleAlert
+} from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import {
@@ -37,6 +46,9 @@ import {
 
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
+
+type CalculatedInputScope = "AllInputs" | "ManagedInputsOnly";
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
 
 export const handle: Handle = {
   breadcrumb: msg`Inventory`,
@@ -102,7 +114,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
       const shelfLifeResult = await updateShelfLifeSettings(client, companyId, {
         nearExpiryWarningDays: shelfLifeValidation.data.nearExpiryWarningDays,
-        defaultShelfLifeDays: shelfLifeValidation.data.defaultShelfLifeDays
+        defaultShelfLifeDays: shelfLifeValidation.data.defaultShelfLifeDays,
+        calculatedInputScope: shelfLifeValidation.data.calculatedInputScope,
+        expiredEntityPolicy: shelfLifeValidation.data.expiredEntityPolicy
       });
       if (shelfLifeResult.error)
         return {
@@ -195,40 +209,52 @@ export default function InventorySettingsRoute() {
           <ValidatedForm
             method="post"
             validator={shelfLifeSettingsValidator}
-            defaultValues={{
-              nearExpiryWarningDays:
-                companySettings.nearExpiryWarningDays ?? undefined,
-              defaultShelfLifeDays: companySettings.defaultShelfLifeDays
-            }}
+            defaultValues={(() => {
+              const blob =
+                (companySettings.inventoryShelfLife as {
+                  nearExpiryWarningDays?: number | null;
+                  defaultShelfLifeDays?: number;
+                  calculatedInputScope?: "AllInputs" | "ManagedInputsOnly";
+                  expiredEntityPolicy?: "Warn" | "Block" | "BlockWithOverride";
+                } | null) ?? {};
+              return {
+                nearExpiryWarningDays: blob.nearExpiryWarningDays ?? undefined,
+                defaultShelfLifeDays: blob.defaultShelfLifeDays ?? 7,
+                calculatedInputScope: blob.calculatedInputScope ?? "AllInputs",
+                expiredEntityPolicy: blob.expiredEntityPolicy ?? "Block"
+              };
+            })()}
             fetcher={fetcher}
           >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Trans>Shelf life & expiry</Trans>
+                <Trans>Shelf life</Trans>
               </CardTitle>
               <CardDescription>
                 <Trans>
-                  Controls expiry badges and the default shelf life for new
-                  items.
+                  Manage how shelf life is tracked, computed, and enforced
+                  across inventory.
                 </Trans>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Hidden name="intent" value="shelfLife" />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-[600px]">
-                <Number
-                  name="nearExpiryWarningDays"
-                  label={t`"Expiring soon" threshold (days)`}
-                  minValue={0}
-                  maxValue={365}
-                  helperText={t`Blank to hide expiry badges.`}
-                />
-                <Number
-                  name="defaultShelfLifeDays"
-                  label={t`Default shelf life (days)`}
-                  minValue={1}
-                  maxValue={365}
-                />
+              <div className="flex flex-col gap-8 max-w-[640px]">
+                <ShelfLifeNumbers />
+                <div className="flex flex-col gap-3">
+                  <ShelfLifeSectionLabel
+                    title={t`Calculated finished-good expiry`}
+                    description={t`When a finished product's shelf life is set to Calculated, pick which consumed inputs feed the calculation.`}
+                  />
+                  <CalculatedInputScopeChoice />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <ShelfLifeSectionLabel
+                    title={t`When expired stock is used`}
+                    description={t`Decide what an operator sees if they try to issue a batch or serial that's already expired.`}
+                  />
+                  <ExpiredEntityPolicyChoice />
+                </div>
               </div>
             </CardContent>
             <CardFooter>
@@ -240,5 +266,120 @@ export default function InventorySettingsRoute() {
         </Card>
       </VStack>
     </ScrollArea>
+  );
+}
+
+// Inline section label used inside a Card. Title + helper copy without a
+// border line — keeps the visual hierarchy quiet so the cards underneath
+// carry the weight.
+function ShelfLifeSectionLabel({
+  title,
+  description
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-sm font-medium">{title}</span>
+      <span className="text-xs text-muted-foreground">{description}</span>
+    </div>
+  );
+}
+
+// Numeric pair (badge threshold + default shelf life). Pulled out so the
+// parent CardContent can compose the form as a sequence of sections.
+function ShelfLifeNumbers() {
+  const { t } = useLingui();
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 w-full max-w-[640px]">
+      <Number
+        name="nearExpiryWarningDays"
+        label={t`Warn this many days before expiry`}
+        minValue={0}
+        maxValue={365}
+        helperText={t`Items inside this window get a yellow badge. Leave blank to turn warnings off.`}
+      />
+      <Number
+        name="defaultShelfLifeDays"
+        label={t`Default shelf-life duration (days)`}
+        minValue={1}
+        maxValue={365}
+        helperText={t`Pre-filled when you configure a new item for Fixed Duration.`}
+      />
+    </div>
+  );
+}
+
+// ChoiceSelect for the Calculated-mode input scope. Compact trigger plus
+// a rich dropdown — keeps the form scannable while still surfacing the
+// trade-off when the user opens the picker.
+function CalculatedInputScopeChoice() {
+  const { t } = useLingui();
+  const [value, setValue] = useControlField<CalculatedInputScope>(
+    "calculatedInputScope"
+  );
+  const current: CalculatedInputScope = value ?? "AllInputs";
+  return (
+    <>
+      <ChoiceSelect<CalculatedInputScope>
+        value={current}
+        onChange={setValue}
+        options={[
+          {
+            value: "AllInputs",
+            title: t`Calculate from BOM`,
+            description: t`Soonest expiry across every material sets the finished good.`,
+            icon: <LuLayers />
+          },
+          {
+            value: "ManagedInputsOnly",
+            title: t`Sub-assembly expiries only`,
+            description: t`Skip raw-material dates set at receipt. Only inputs with their own shelf-life policy count.`,
+            icon: <LuShieldCheck />
+          }
+        ]}
+      />
+      <input type="hidden" name="calculatedInputScope" value={current} />
+    </>
+  );
+}
+
+// ChoiceSelect for the expired-entity enforcement policy. Three options
+// without flooding the layout — descriptions only show in the open menu.
+function ExpiredEntityPolicyChoice() {
+  const { t } = useLingui();
+  const [value, setValue] = useControlField<ExpiredEntityPolicy>(
+    "expiredEntityPolicy"
+  );
+  const current: ExpiredEntityPolicy = value ?? "Block";
+  return (
+    <>
+      <ChoiceSelect<ExpiredEntityPolicy>
+        value={current}
+        onChange={setValue}
+        options={[
+          {
+            value: "Warn",
+            title: t`Warn but allow`,
+            description: t`Operator gets a warning. Issue still goes through.`,
+            icon: <LuTriangleAlert />
+          },
+          {
+            value: "Block",
+            title: t`Block with an error`,
+            description: t`Operator must pick a different lot.`,
+            icon: <LuShield />
+          },
+          {
+            value: "BlockWithOverride",
+            title: t`Block, allow override`,
+            description: t`Override needs the inventory:update permission and a reason.`,
+            icon: <LuTimerReset />
+          }
+        ]}
+      />
+      <input type="hidden" name="expiredEntityPolicy" value={current} />
+    </>
   );
 }

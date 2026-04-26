@@ -50,7 +50,7 @@ import {
   itemTrackingTypes,
   partValidator
 } from "../../items.models";
-import ItemStorageAndShelfLifeFields from "../Item/ItemStorageAndShelfLifeFields";
+import ItemStorageFields from "../Item/ItemStorageFields";
 
 type PartFormProps = {
   initialValues: z.infer<typeof partValidator> & { tags?: string[] };
@@ -332,7 +332,7 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                   <Number name="lotSize" label={t`Batch Size`} minValue={0} />
                 )}
 
-                <ItemStorageAndShelfLifeFields />
+                <ItemStorageFields />
 
                 <CustomFormFields table="part" tags={initialValues.tags} />
               </div>

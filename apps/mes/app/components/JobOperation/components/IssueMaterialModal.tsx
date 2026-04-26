@@ -204,6 +204,36 @@ export function IssueMaterialModal({
   // Tab state
   const [activeTab, setActiveTab] = useState("scan");
 
+  // Expiry override state. Surfaced when a selected serial/batch is expired.
+  // Server enforces the actual company policy (Warn / Block / BlockWithOverride);
+  // this UI lets the operator type a reason that the server records when the
+  // policy is BlockWithOverride and ignores otherwise.
+  const [expiryOverrideReason, setExpiryOverrideReason] = useState("");
+  const isExpired = useCallback((date: string | null | undefined) => {
+    if (!date) return false;
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    return new Date(date) < today;
+  }, []);
+  const expiredSerialIds = useMemo(() => {
+    const byId = new Map(
+      (serialNumbers?.data ?? []).map((s) => [s.id, s.expirationDate])
+    );
+    return selectedSerialNumbers
+      .filter((s) => s.id && isExpired(byId.get(s.id)))
+      .map((s) => s.id);
+  }, [selectedSerialNumbers, serialNumbers, isExpired]);
+  const expiredBatchIds = useMemo(() => {
+    const byId = new Map(
+      (batchNumbers?.data ?? []).map((b) => [b.id, b.expirationDate])
+    );
+    return selectedBatchNumbers
+      .filter((b) => b.id && isExpired(byId.get(b.id)))
+      .map((b) => b.id);
+  }, [selectedBatchNumbers, batchNumbers, isExpired]);
+  const hasExpiredSelection =
+    expiredSerialIds.length > 0 || expiredBatchIds.length > 0;
+
   // Split entities result state (for batch splitting)
   const [splitEntitiesResult, setSplitEntitiesResult] = useState<
     {
@@ -478,6 +508,13 @@ export function IssueMaterialModal({
     setSerialErrors(newErrors);
 
     if (!hasErrors) {
+      const overrideFields =
+        hasExpiredSelection && expiryOverrideReason.trim().length > 0
+          ? {
+              overrideExpired: true,
+              overrideReason: expiryOverrideReason.trim()
+            }
+          : {};
       const payload = material?.id
         ? {
             materialId: material.id,
@@ -485,7 +522,8 @@ export function IssueMaterialModal({
             children: selectedSerialNumbers.map((sn) => ({
               trackedEntityId: sn.id,
               quantity: 1
-            }))
+            })),
+            ...overrideFields
           }
         : {
             jobOperationId: operationId,
@@ -494,7 +532,8 @@ export function IssueMaterialModal({
             children: selectedSerialNumbers.map((sn) => ({
               trackedEntityId: sn.id,
               quantity: 1
-            }))
+            })),
+            ...overrideFields
           };
 
       fetcher.submit(JSON.stringify(payload), {
@@ -510,7 +549,9 @@ export function IssueMaterialModal({
     material?.id,
     operationId,
     selectedItemId,
-    fetcher
+    fetcher,
+    hasExpiredSelection,
+    expiryOverrideReason
   ]);
 
   const handleSubmitBatch = useCallback(() => {
@@ -539,6 +580,13 @@ export function IssueMaterialModal({
     setBatchErrors(newErrors);
 
     if (!hasErrors) {
+      const overrideFields =
+        hasExpiredSelection && expiryOverrideReason.trim().length > 0
+          ? {
+              overrideExpired: true,
+              overrideReason: expiryOverrideReason.trim()
+            }
+          : {};
       const payload = material?.id
         ? {
             materialId: material.id,
@@ -546,7 +594,8 @@ export function IssueMaterialModal({
             children: selectedBatchNumbers.map((bn) => ({
               trackedEntityId: bn.id,
               quantity: bn.quantity
-            }))
+            })),
+            ...overrideFields
           }
         : {
             jobOperationId: operationId,
@@ -555,7 +604,8 @@ export function IssueMaterialModal({
             children: selectedBatchNumbers.map((bn) => ({
               trackedEntityId: bn.id,
               quantity: bn.quantity
-            }))
+            })),
+            ...overrideFields
           };
 
       fetcher.submit(JSON.stringify(payload), {
@@ -650,6 +700,8 @@ export function IssueMaterialModal({
       processedFetcherData.current = fetcher.data;
 
       if (fetcher.data.success) {
+        const warning = (fetcher.data as { warning?: string }).warning;
+        if (warning) toast.warning(warning);
         if (
           fetcher.data.splitEntities &&
           fetcher.data.splitEntities.length > 0
@@ -1417,6 +1469,32 @@ export function IssueMaterialModal({
                         </TabsContent>
                       )}
                     </Tabs>
+                  )}
+                  {hasExpiredSelection && activeTab !== "unconsume" && (
+                    <Alert variant="destructive">
+                      <AlertTitle>Expired stock selected</AlertTitle>
+                      <AlertDescription>
+                        <div className="flex flex-col gap-2">
+                          <p>
+                            {expiredSerialIds.length + expiredBatchIds.length}{" "}
+                            of the selected{" "}
+                            {trackingType === "Serial" ? "serials" : "batches"}{" "}
+                            are past their expiration date. The system may block
+                            this issue. If your company allows manager override,
+                            enter a reason below to record it.
+                          </p>
+                          <textarea
+                            className="border rounded-md p-2 text-sm bg-background"
+                            placeholder="Reason for issuing expired stock"
+                            value={expiryOverrideReason}
+                            onChange={(e) =>
+                              setExpiryOverrideReason(e.target.value)
+                            }
+                            rows={2}
+                          />
+                        </div>
+                      </AlertDescription>
+                    </Alert>
                   )}
                 </div>
               </ModalBody>

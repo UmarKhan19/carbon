@@ -47,10 +47,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
+  const inventoryShelfLife = companySettings.data?.inventoryShelfLife as {
+    nearExpiryWarningDays?: number | null;
+  } | null;
+
   return {
     trackedEntities: trackedEntities.data ?? [],
     count: trackedEntities.count ?? 0,
-    nearExpiryWarningDays: companySettings.data?.nearExpiryWarningDays ?? null
+    nearExpiryWarningDays: inventoryShelfLife?.nearExpiryWarningDays ?? null
   };
 }
 

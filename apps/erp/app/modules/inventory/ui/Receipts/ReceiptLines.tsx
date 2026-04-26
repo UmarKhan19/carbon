@@ -8,6 +8,7 @@ import {
   CardTitle,
   CreatableCombobox,
   cn,
+  DatePicker,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -36,6 +37,7 @@ import {
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
+import { parseDate } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -597,7 +599,7 @@ function BatchForm({
       const attributes = tracking.attributes as TrackedEntityAttributes;
       return {
         number: tracking.readableId || "",
-        expirationDate: attributes.expirationDate ?? "",
+        expirationDate: tracking.expirationDate ?? "",
         properties: Object.entries(attributes)
           .filter(
             ([key]) =>
@@ -648,6 +650,9 @@ function BatchForm({
     formData.append("receiptId", receipt.id);
     formData.append("receiptLineId", line.id!);
     formData.append("trackingType", "batch");
+    if (tracking?.id) {
+      formData.append("trackedEntityId", tracking.id);
+    }
     formData.append("batchNumber", valuesToSubmit.number.trim());
     const propertiesWithExpiry = valuesToSubmit.expirationDate
       ? {
@@ -752,19 +757,17 @@ function BatchForm({
             <label className="text-xs text-muted-foreground flex items-center gap-2">
               <LuCalendar /> <Trans>Expiration Date</Trans>
             </label>
-            <Input
-              type="date"
+            <DatePicker
               isDisabled={isReadOnly}
-              value={values.expirationDate}
-              onChange={(e) => {
-                setValues((prev) => ({
-                  ...prev,
-                  expirationDate: e.target.value
-                }));
-              }}
-              onBlur={() => {
-                if (values.number.trim()) {
-                  updateBatchNumber(values, true);
+              value={
+                values.expirationDate ? parseDate(values.expirationDate) : null
+              }
+              onChange={(date) => {
+                const next = date?.toString() ?? "";
+                const newValues = { ...values, expirationDate: next };
+                setValues(newValues);
+                if (newValues.number.trim()) {
+                  updateBatchNumber(newValues, true);
                 }
               }}
             />
@@ -962,11 +965,10 @@ function SerialForm({
             <LuCalendar />{" "}
             <Trans>Expiration Date (applies to all serials on this line)</Trans>
           </label>
-          <Input
-            type="date"
+          <DatePicker
             isDisabled={isReadOnly}
-            value={expiryDate}
-            onChange={(e) => setExpiryDate(e.target.value)}
+            value={expiryDate ? parseDate(expiryDate) : null}
+            onChange={(date) => setExpiryDate(date?.toString() ?? "")}
           />
         </div>
       )}

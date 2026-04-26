@@ -143,7 +143,10 @@ export const issueTrackedEntityValidator = z.object({
       trackedEntityId: z.string(),
       quantity: z.number()
     })
-  )
+  ),
+  // Set when policy is BlockWithOverride and operator typed a reason.
+  overrideExpired: z.boolean().optional(),
+  overrideReason: z.string().optional()
 });
 
 export const baseQuantityValidator = finishValidator.extend({

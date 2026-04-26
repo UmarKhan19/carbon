@@ -154,7 +154,7 @@ const Number = forwardRef<HTMLInputElement, FormNumberProps>(
           }}
         >
           <NumberInputGroup className="relative">
-            <NumberInput isReadOnly={isReadOnly} />
+            <NumberInput isReadOnly={isReadOnly} isDisabled={isDisabled} />
             {!isReadOnly && (
               <NumberInputStepper>
                 <NumberIncrementStepper>

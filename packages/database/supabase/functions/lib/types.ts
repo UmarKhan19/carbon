@@ -2935,6 +2935,7 @@ export type Database = {
           includeThumbnailsOnPurchasingPdfs: boolean
           includeThumbnailsOnSalesPdfs: boolean
           inventoryJobCompletedNotificationGroup: string[]
+          inventoryShelfLife: Json
           jobTravelerIncludeWorkInstructions: boolean
           kanbanOutput: Database["public"]["Enums"]["kanbanOutput"]
           maintenanceAdvanceDays: number
@@ -2975,6 +2976,7 @@ export type Database = {
           includeThumbnailsOnPurchasingPdfs?: boolean
           includeThumbnailsOnSalesPdfs?: boolean
           inventoryJobCompletedNotificationGroup?: string[]
+          inventoryShelfLife?: Json
           jobTravelerIncludeWorkInstructions?: boolean
           kanbanOutput?: Database["public"]["Enums"]["kanbanOutput"]
           maintenanceAdvanceDays?: number
@@ -3015,6 +3017,7 @@ export type Database = {
           includeThumbnailsOnPurchasingPdfs?: boolean
           includeThumbnailsOnSalesPdfs?: boolean
           inventoryJobCompletedNotificationGroup?: string[]
+          inventoryShelfLife?: Json
           jobTravelerIncludeWorkInstructions?: boolean
           kanbanOutput?: Database["public"]["Enums"]["kanbanOutput"]
           maintenanceAdvanceDays?: number
@@ -40644,7 +40647,9 @@ export type Database = {
           companyId: string
           createdAt: string
           createdBy: string
+          expirationDate: string | null
           id: string
+          itemId: string | null
           quantity: number
           readableId: string | null
           sourceDocument: string
@@ -40657,7 +40662,9 @@ export type Database = {
           companyId: string
           createdAt?: string
           createdBy: string
+          expirationDate?: string | null
           id?: string
+          itemId?: string | null
           quantity: number
           readableId?: string | null
           sourceDocument: string
@@ -40670,7 +40677,9 @@ export type Database = {
           companyId?: string
           createdAt?: string
           createdBy?: string
+          expirationDate?: string | null
           id?: string
+          itemId?: string | null
           quantity?: number
           readableId?: string | null
           sourceDocument?: string
@@ -40741,6 +40750,48 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "trackedEntity_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trackedEntity_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -59162,6 +59213,10 @@ export type Database = {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
       }
+      resolve_shelf_life_start_for_receipt: {
+        Args: { p_item_id: string; p_receipt_id: string }
+        Returns: string
+      }
       search_company_index: {
         Args: {
           p_company_id: string
@@ -59180,23 +59235,23 @@ export type Database = {
           title: string
         }[]
       }
-      show_limit: { Args: never; Returns: number }
-      show_trgm: { Args: { "": string }; Returns: string[] }
-      stamp_shelf_life_for_operation: {
+      set_shelf_life_for_operation: {
         Args: {
           p_event: Database["public"]["Enums"]["shelfLifeTriggerTiming"]
           p_job_operation_id: string
         }
         Returns: undefined
       }
-      stamp_shelf_life_on_operation_done: {
+      set_shelf_life_on_operation_done: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
       }
-      stamp_shelf_life_on_operation_started: {
+      set_shelf_life_on_operation_started: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       storage_unit_block_location_change_with_children: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
@@ -59374,10 +59429,6 @@ export type Database = {
       }
       sync_set_job_operation_in_progress: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
-        Returns: undefined
-      }
-      sync_stamp_shelf_life_on_job_operation: {
-        Args: { p_job_operation_id: string; p_timing: string }
         Returns: undefined
       }
       sync_update_customer_type_group: {

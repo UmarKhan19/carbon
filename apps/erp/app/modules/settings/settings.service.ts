@@ -481,17 +481,25 @@ export async function updateShelfLifeSettings(
   client: SupabaseClient<Database>,
   companyId: string,
   settings: {
-    /** undefined clears the threshold (NULL in DB), disabling expiry badges. */
+    /** undefined disables expiry badges company-wide. */
     nearExpiryWarningDays: number | undefined;
-    /** Seed for the "Shelf-life (days)" input. DB default is 7. */
+    /** Seed for the "Shelf-life (days)" input on new items. */
     defaultShelfLifeDays: number;
+    /** MIN expiry scope for Calculated-mode finished products. */
+    calculatedInputScope: "AllInputs" | "ManagedInputsOnly";
+    /** Policy enforced when an operator consumes an expired entity. */
+    expiredEntityPolicy: "Warn" | "Block" | "BlockWithOverride";
   }
 ) {
   return client
     .from("companySettings")
     .update({
-      nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null,
-      defaultShelfLifeDays: settings.defaultShelfLifeDays
+      inventoryShelfLife: {
+        nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null,
+        defaultShelfLifeDays: settings.defaultShelfLifeDays,
+        calculatedInputScope: settings.calculatedInputScope,
+        expiredEntityPolicy: settings.expiredEntityPolicy
+      }
     })
     .eq("id", companyId);
 }

@@ -1062,7 +1062,12 @@ function JobCompleteModal({
                   label={t`Quantity Completed`}
                   value={quantityComplete}
                   onChange={(value) => setQuantityComplete(value)}
-                  isReadOnly={hasTrackedQuantity}
+                  isDisabled={hasTrackedQuantity}
+                  helperText={
+                    hasTrackedQuantity
+                      ? t`Quantity is derived from completed serials/batches in MES and cannot be edited.`
+                      : undefined
+                  }
                 />
 
                 {hasLeftover && (
