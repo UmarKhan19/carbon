@@ -84,7 +84,11 @@ const StorageUnit = (props: StorageUnitSelectProps) => {
             newStorageUnitModal.onClose();
             triggerRef.current?.click();
           }}
-          initialValues={{ name: created, locationId: props?.locationId ?? "" }}
+          initialValues={{
+            name: created,
+            locationId: props?.locationId ?? "",
+            storageTypeIds: []
+          }}
         />
       )}
     </>

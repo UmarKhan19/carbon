@@ -1165,7 +1165,11 @@ function StorageUnit({
             newStorageUnitModal.onClose();
             triggerRef.current?.click();
           }}
-          initialValues={{ name: created, locationId: locationId }}
+          initialValues={{
+            name: created,
+            locationId: locationId,
+            storageTypeIds: []
+          }}
         />
       )}
     </div>

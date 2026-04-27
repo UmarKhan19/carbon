@@ -65578,13 +65578,13 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
-          },
-          {
             $ref: "#/parameters/rowFilter.companySettings.enforceInspectionFourEyes"
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.samplingStandard"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
           },
           {
             $ref: "#/parameters/select"
@@ -65754,13 +65754,13 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
-          },
-          {
             $ref: "#/parameters/rowFilter.companySettings.enforceInspectionFourEyes"
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.samplingStandard"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
           },
           {
             $ref: "#/parameters/preferReturn"
@@ -65884,13 +65884,13 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
-          },
-          {
             $ref: "#/parameters/rowFilter.companySettings.enforceInspectionFourEyes"
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.samplingStandard"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
           },
           {
             $ref: "#/parameters/body.companySettings"
@@ -71306,6 +71306,51 @@ export default {
           }
         },
         tags: ["(rpc) storage_unit_block_location_change_with_children"]
+      }
+    },
+    "/rpc/sync_propagate_item_readable_id_to_tracked_entity": {
+      post: {
+        parameters: [
+          {
+            in: "body",
+            name: "args",
+            required: true,
+            schema: {
+              properties: {
+                p_new: {
+                  format: "jsonb"
+                },
+                p_old: {
+                  format: "jsonb"
+                },
+                p_operation: {
+                  format: "text",
+                  type: "string"
+                },
+                p_table: {
+                  format: "text",
+                  type: "string"
+                }
+              },
+              required: ["p_table", "p_operation", "p_new", "p_old"],
+              type: "object"
+            }
+          },
+          {
+            $ref: "#/parameters/preferParams"
+          }
+        ],
+        produces: [
+          "application/json",
+          "application/vnd.pgrst.object+json;nulls=stripped",
+          "application/vnd.pgrst.object+json"
+        ],
+        responses: {
+          "200": {
+            description: "OK"
+          }
+        },
+        tags: ["(rpc) sync_propagate_item_readable_id_to_tracked_entity"]
       }
     },
     "/rpc/get_audit_log": {
@@ -106449,9 +106494,9 @@ export default {
         "consoleEnabled",
         "timeCardEnabled",
         "updateLeadTimesOnReceipt",
-        "inventoryShelfLife",
         "enforceInspectionFourEyes",
-        "samplingStandard"
+        "samplingStandard",
+        "inventoryShelfLife"
       ],
       properties: {
         id: {
@@ -106657,9 +106702,6 @@ export default {
           format: "boolean",
           type: "boolean"
         },
-        inventoryShelfLife: {
-          format: "jsonb"
-        },
         enforceInspectionFourEyes: {
           default: false,
           format: "boolean",
@@ -106670,6 +106712,9 @@ export default {
           enum: ["ANSI_Z1_4", "ISO_2859_1"],
           format: 'public."samplingStandard"',
           type: "string"
+        },
+        inventoryShelfLife: {
+          format: "jsonb"
         }
       },
       type: "object"
@@ -142521,12 +142566,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.companySettings.inventoryShelfLife": {
-      name: "inventoryShelfLife",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.companySettings.enforceInspectionFourEyes": {
       name: "enforceInspectionFourEyes",
       required: false,
@@ -142535,6 +142574,12 @@ export default {
     },
     "rowFilter.companySettings.samplingStandard": {
       name: "samplingStandard",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.companySettings.inventoryShelfLife": {
+      name: "inventoryShelfLife",
       required: false,
       in: "query",
       type: "string"

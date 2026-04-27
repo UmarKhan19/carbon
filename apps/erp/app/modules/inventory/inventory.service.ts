@@ -1031,7 +1031,7 @@ export async function updateTrackedEntityExpiry(
     .from("trackedEntity")
     .update({
       expirationDate: args.expirationDate,
-      attributes: nextAttrs
+      attributes: nextAttrs as unknown as Json
     })
     .eq("id", args.trackedEntityId);
 }

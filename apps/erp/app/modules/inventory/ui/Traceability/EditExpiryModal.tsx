@@ -81,7 +81,6 @@ export function EditExpiryModal({
                 name="reason"
                 label={t`Reason`}
                 placeholder={t`Why is the expiration being changed?`}
-                helperText={t`Recorded on the entity for traceability.`}
               />
             </div>
           </ModalBody>

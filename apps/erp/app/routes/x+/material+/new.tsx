@@ -76,7 +76,8 @@ export default function MaterialsNewRoute() {
     itemTrackingType: "Inventory" as "Inventory",
     unitOfMeasureCode: "EA",
     unitCost: 0,
-    active: true
+    active: true,
+    shelfLifeInheritEarliestInputExpiry: false
   };
 
   return (

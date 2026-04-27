@@ -78,7 +78,8 @@ export default function PartsNewRoute() {
     unitOfMeasureCode: "EA",
     unitCost: 0,
     lotSize: 0,
-    active: true
+    active: true,
+    shelfLifeInheritEarliestInputExpiry: false
   };
 
   return (

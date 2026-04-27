@@ -405,6 +405,7 @@ const Item = ({
                 : "Make to Order",
             unitCost: 0,
             lotSize: 0,
+            shelfLifeInheritEarliestInputExpiry: false,
             tags: []
           }}
         />
@@ -426,6 +427,7 @@ const Item = ({
             replenishmentSystem: "Buy",
             defaultMethodType: "Pull from Inventory",
             unitCost: 0,
+            shelfLifeInheritEarliestInputExpiry: false,
             tags: []
           }}
         />
@@ -449,6 +451,7 @@ const Item = ({
             replenishmentSystem: "Buy",
             defaultMethodType: "Pull from Inventory",
             unitCost: 0,
+            shelfLifeInheritEarliestInputExpiry: false,
             tags: []
           }}
         />
@@ -475,6 +478,7 @@ const Item = ({
                 ? "Pull from Inventory"
                 : "Make to Order",
             unitCost: 0,
+            shelfLifeInheritEarliestInputExpiry: false,
             tags: []
           }}
         />

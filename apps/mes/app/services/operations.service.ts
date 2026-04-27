@@ -340,7 +340,7 @@ export async function getJobMaterialsByOperationId(
   const expiredConsumedIds = new Set(
     (expiredConsumed.data ?? []).map((r) => r.id)
   );
-  const consumedExpiredFor = (materialId: string) =>
+  const consumedExpiredFor = (materialId: string | null) =>
     (trackedInputs.data ?? []).some(
       (input) =>
         (input.activityAttributes as TrackedActivityAttributes)?.[
