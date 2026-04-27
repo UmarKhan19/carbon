@@ -257,7 +257,8 @@ function buildSteps(
     out.push({
       step: "Policy",
       label: policy.mode,
-      detail: detailParts.join(" · ")
+      detail: detailParts.join(" · "),
+      date: computePolicyDate(policy, entity, inputs, attrs, sourceDate)
     });
   }
 
@@ -301,4 +302,42 @@ function buildSteps(
   });
 
   return out;
+}
+
+/**
+ * Date the policy *originally produced*, before any manual overrides.
+ * Falls back to the current expirationDate when there are no overrides
+ * (since the resolved value is the policy output in that case).
+ */
+function computePolicyDate(
+  policy: NonNullable<ExpiryTracePopoverProps["policy"]>,
+  entity: ExpiryTracePopoverProps["entity"],
+  inputs: ExpiryTracePopoverProps["inputs"],
+  attrs: Record<string, unknown>,
+  sourceDate: string | null
+): string | null {
+  const overrides = Array.isArray(attrs.expiryOverrides)
+    ? (attrs.expiryOverrides as Array<{ previous?: string | null }>)
+    : [];
+  if (overrides.length > 0 && typeof overrides[0].previous === "string") {
+    return overrides[0].previous;
+  }
+
+  if (policy.mode === "Fixed Duration" && policy.days && sourceDate) {
+    const d = new Date(sourceDate);
+    if (!Number.isNaN(d.getTime())) {
+      d.setUTCDate(d.getUTCDate() + policy.days);
+      return d.toISOString().slice(0, 10);
+    }
+  }
+
+  if (policy.mode === "Calculated" && inputs && inputs.length > 0) {
+    const dates = inputs
+      .map((i) => i.expirationDate)
+      .filter((d): d is string => typeof d === "string" && d.length > 0)
+      .sort();
+    if (dates.length > 0) return dates[0];
+  }
+
+  return entity.expirationDate ?? null;
 }

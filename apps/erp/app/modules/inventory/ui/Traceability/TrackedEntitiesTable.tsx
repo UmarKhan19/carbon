@@ -143,6 +143,7 @@ const TrackedEntitiesTable = memo(
           cell: ({ row }) => {
             const expiry = row.original.expirationDate ?? undefined;
             if (!expiry) return null;
+            const status = row.original.status;
             const formatted = formatDate(expiry);
             // Use @internationalized/date so the comparison runs in the
             // operator's local calendar, not UTC. Avoids the off-by-one
@@ -151,8 +152,12 @@ const TrackedEntitiesTable = memo(
             const expiryDate = parseDate(expiry);
             const daysLeft = expiryDate.compare(todayLocal);
             const inner =
-              daysLeft < 0 ? (
-                <Badge variant="destructive" className="gap-1">
+              status === "Consumed" ? (
+                <Badge variant="secondary" className="gap-1">
+                  {daysLeft < 0 ? `${t`Expired`} · ${formatted}` : formatted}
+                </Badge>
+              ) : daysLeft < 0 ? (
+                <Badge variant="red" className="gap-1">
                   <LuTriangleAlert className="size-3" />
                   {t`Expired`} · {formatted}
                 </Badge>

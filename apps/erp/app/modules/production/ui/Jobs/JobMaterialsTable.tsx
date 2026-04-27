@@ -198,10 +198,7 @@ const JobMaterialsTable = memo(
                   {nearExpiryWarningDays !== null &&
                     nearExpiryWarningDays !== undefined &&
                     row.original.hasExpiredBatch && (
-                      <Badge
-                        variant="destructive"
-                        className="gap-1 text-xs shrink-0"
-                      >
+                      <Badge variant="red" className="gap-1 text-xs shrink-0">
                         <LuCalendarX className="size-3" />
                         <Trans>Expired batch</Trans>
                       </Badge>

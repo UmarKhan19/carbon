@@ -5,7 +5,12 @@ import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
-import { getStorageTypesList, getStorageUnits } from "~/modules/inventory";
+import {
+  getStorageTypesList,
+  getStorageUnitParentIdsWithChildren,
+  getStorageUnitRoots,
+  searchStorageUnitsWithAncestors
+} from "~/modules/inventory";
 import StorageUnitsTable from "~/modules/inventory/ui/StorageUnits/StorageUnitsTable";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
@@ -67,33 +72,62 @@ export async function loader({ request }: LoaderFunctionArgs) {
     locationId = locationsList.data[0].id as string;
   }
 
-  const [storageUnits, storageTypesList] = await Promise.all([
-    getStorageUnits(client, locationId, companyId, {
-      search,
-      limit,
-      offset,
-      sorts,
-      filters
-    }),
+  const [parentIdsWithChildren, storageTypesList] = await Promise.all([
+    getStorageUnitParentIdsWithChildren(client, companyId, locationId),
     // Fetch storage types server-side so the Storage Types column can render
     // resolved names on first paint instead of flashing raw ids while the
     // client-side useStorageTypes() fetcher catches up.
     getStorageTypesList(client, companyId)
   ]);
 
-  if (storageUnits.error) {
-    throw redirect(
-      path.to.authenticatedRoot,
-      await flash(
-        request,
-        error(storageUnits.error, "Failed to fetch storageUnits")
-      )
+  let rows: any[];
+  let count: number;
+  let initialExpanded: string[] = [];
+
+  if (search) {
+    const searchResult = await searchStorageUnitsWithAncestors(
+      client,
+      companyId,
+      locationId,
+      search
     );
+    if (searchResult.error) {
+      throw redirect(
+        path.to.authenticatedRoot,
+        await flash(
+          request,
+          error(searchResult.error, "Failed to fetch storageUnits")
+        )
+      );
+    }
+    rows = searchResult.rows;
+    count = searchResult.rows.length;
+    initialExpanded = searchResult.expandedParentIds;
+  } else {
+    const rootsResult = await getStorageUnitRoots(
+      client,
+      companyId,
+      locationId,
+      { search, limit, offset, sorts, filters }
+    );
+    if (rootsResult.error) {
+      throw redirect(
+        path.to.authenticatedRoot,
+        await flash(
+          request,
+          error(rootsResult.error, "Failed to fetch storageUnits")
+        )
+      );
+    }
+    rows = rootsResult.data ?? [];
+    count = rootsResult.count ?? 0;
   }
 
   return {
-    count: storageUnits.count ?? 0,
-    storageUnits: storageUnits.data ?? [],
+    count,
+    storageUnits: rows,
+    parentIdsWithChildren: parentIdsWithChildren.data,
+    initialExpanded,
     locations: locationsList.data,
     locationId,
     storageTypes: storageTypesList.data ?? []
@@ -101,8 +135,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export default function StorageUnitsRoute() {
-  const { count, storageUnits, locations, locationId, storageTypes } =
-    useLoaderData<typeof loader>();
+  const {
+    count,
+    storageUnits,
+    parentIdsWithChildren,
+    initialExpanded,
+    locations,
+    locationId,
+    storageTypes
+  } = useLoaderData<typeof loader>();
 
   // storageUnits comes from storageUnits_recursive (a view) so every column
   // is nominally nullable in the generated types. In practice only roots have
@@ -126,6 +167,8 @@ export default function StorageUnitsRoute() {
         locations={locations}
         locationId={locationId}
         storageTypes={storageTypes}
+        parentIdsWithChildren={parentIdsWithChildren}
+        initialExpanded={initialExpanded}
       />
       <Outlet />
     </VStack>

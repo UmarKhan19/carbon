@@ -238,7 +238,7 @@ const JobProperties = () => {
                     const trackingNumber: string = entity?.readableId ?? "";
 
                     const label =
-                      trackingType === "Serial" && trackedEntities.length > 1
+                      trackedEntities.length > 1
                         ? `${trackingType} ${index + 1}`
                         : `${trackingType} Number`;
 
@@ -260,7 +260,9 @@ const JobProperties = () => {
                           size="sm"
                           inline
                           onBlur={(e) => {
-                            onUpdateBatchNumber(entity.id, e.target.value);
+                            const next = e.target.value.trim();
+                            if (next === (trackingNumber ?? "").trim()) return;
+                            onUpdateBatchNumber(entity.id, next);
                           }}
                         />
                       </ValidatedForm>

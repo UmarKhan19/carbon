@@ -4,7 +4,7 @@ import { CommandEmpty } from "cmdk";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef, useId, useMemo, useRef, useState } from "react";
 import { FaRegSquare, FaSquareCheck } from "react-icons/fa6";
-import { LuCirclePlus, LuSettings2, LuX } from "react-icons/lu";
+import { LuCirclePlus, LuSettings2 } from "react-icons/lu";
 import { RxMagnifyingGlass } from "react-icons/rx";
 import { Badge, BadgeCloseButton } from "./Badge";
 import { Button } from "./Button";
@@ -33,7 +33,6 @@ export type CreatableMultiSelectProps = Omit<
     helper?: string;
   }[];
   selected?: string[];
-  isClearable?: boolean;
   isReadOnly?: boolean;
   label?: string;
   createLabel?: string;
@@ -61,7 +60,6 @@ const CreatableMultiSelect = forwardRef<
       value,
       options,
       selected,
-      isClearable,
       isReadOnly,
       placeholder,
       label,
@@ -190,15 +188,6 @@ const CreatableMultiSelect = forwardRef<
             />
           </PopoverContent>
         </Popover>
-        {isClearable && !isReadOnly && value && (
-          <IconButton
-            variant={isInlinePreview ? "secondary" : "ghost"}
-            aria-label="Clear"
-            icon={<LuX />}
-            onClick={() => onChange?.([])}
-            size={isInlinePreview ? "sm" : size}
-          />
-        )}
       </HStack>
     );
   }

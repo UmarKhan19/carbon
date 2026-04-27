@@ -101,7 +101,8 @@ export default function NewStorageUnitRoute() {
   const initialValues = {
     name: "",
     locationId,
-    parentId
+    parentId,
+    storageTypeIds: []
   };
 
   return (

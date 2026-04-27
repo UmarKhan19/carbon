@@ -26455,6 +26455,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemShelfLife.customFields"
           },
           {
+            $ref: "#/parameters/rowFilter.itemShelfLife.inheritEarliestInputExpiry"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -26547,6 +26550,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemShelfLife.customFields"
           },
           {
+            $ref: "#/parameters/rowFilter.itemShelfLife.inheritEarliestInputExpiry"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -26591,6 +26597,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemShelfLife.customFields"
+          },
+          {
+            $ref: "#/parameters/rowFilter.itemShelfLife.inheritEarliestInputExpiry"
           },
           {
             $ref: "#/parameters/body.itemShelfLife"
@@ -64282,12 +64291,6 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.nearExpiryWarningDays"
-          },
-          {
-            $ref: "#/parameters/rowFilter.companySettings.defaultShelfLifeDays"
-          },
-          {
             $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
           },
           {
@@ -64458,12 +64461,6 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
           },
           {
-            $ref: "#/parameters/rowFilter.companySettings.nearExpiryWarningDays"
-          },
-          {
-            $ref: "#/parameters/rowFilter.companySettings.defaultShelfLifeDays"
-          },
-          {
             $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
           },
           {
@@ -64586,12 +64583,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
-          },
-          {
-            $ref: "#/parameters/rowFilter.companySettings.nearExpiryWarningDays"
-          },
-          {
-            $ref: "#/parameters/rowFilter.companySettings.defaultShelfLifeDays"
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.inventoryShelfLife"
@@ -86366,7 +86357,8 @@ export default {
         "triggerTiming",
         "companyId",
         "createdBy",
-        "createdAt"
+        "createdAt",
+        "inheritEarliestInputExpiry"
       ],
       properties: {
         itemId: {
@@ -86425,6 +86417,11 @@ export default {
         },
         customFields: {
           format: "jsonb"
+        },
+        inheritEarliestInputExpiry: {
+          default: false,
+          format: "boolean",
+          type: "boolean"
         }
       },
       type: "object"
@@ -104613,7 +104610,6 @@ export default {
         "consoleEnabled",
         "timeCardEnabled",
         "updateLeadTimesOnReceipt",
-        "defaultShelfLifeDays",
         "inventoryShelfLife"
       ],
       properties: {
@@ -104819,15 +104815,6 @@ export default {
           default: false,
           format: "boolean",
           type: "boolean"
-        },
-        nearExpiryWarningDays: {
-          format: "int32",
-          type: "integer"
-        },
-        defaultShelfLifeDays: {
-          default: 7,
-          format: "int32",
-          type: "integer"
         },
         inventoryShelfLife: {
           format: "jsonb"
@@ -119457,6 +119444,12 @@ export default {
     },
     "rowFilter.itemShelfLife.customFields": {
       name: "customFields",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.itemShelfLife.inheritEarliestInputExpiry": {
+      name: "inheritEarliestInputExpiry",
       required: false,
       in: "query",
       type: "string"
@@ -140120,18 +140113,6 @@ export default {
     },
     "rowFilter.companySettings.updateLeadTimesOnReceipt": {
       name: "updateLeadTimesOnReceipt",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.companySettings.nearExpiryWarningDays": {
-      name: "nearExpiryWarningDays",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.companySettings.defaultShelfLifeDays": {
-      name: "defaultShelfLifeDays",
       required: false,
       in: "query",
       type: "string"

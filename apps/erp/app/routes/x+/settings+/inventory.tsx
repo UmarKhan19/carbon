@@ -298,14 +298,14 @@ function ShelfLifeNumbers() {
         label={t`Warn this many days before expiry`}
         minValue={0}
         maxValue={365}
-        helperText={t`Items inside this window get a yellow badge. Leave blank to turn warnings off.`}
+        helperText={t`Items inside this window get a yellow badge.`}
       />
       <Number
         name="defaultShelfLifeDays"
         label={t`Default shelf-life duration (days)`}
         minValue={1}
         maxValue={365}
-        helperText={t`Pre-filled when you configure a new item for Fixed Duration.`}
+        helperText={t`Pre-filled for a new item when expiry is Fixed Duration.`}
       />
     </div>
   );

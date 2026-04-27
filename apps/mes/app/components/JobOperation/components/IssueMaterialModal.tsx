@@ -186,7 +186,7 @@ export function IssueMaterialModal({
           const label = expired ? (
             <span className="flex items-center gap-2">
               <span className="truncate">{labelText}</span>
-              <Badge variant="destructive">Expired</Badge>
+              <Badge variant="red">Expired</Badge>
             </span>
           ) : (
             labelText
@@ -699,7 +699,9 @@ export function IssueMaterialModal({
     material?.id,
     operationId,
     selectedItemId,
-    fetcher
+    fetcher,
+    hasExpiredSelection,
+    expiryOverrideReason
   ]);
 
   const handleUnconsumeSerial = useCallback(() => {

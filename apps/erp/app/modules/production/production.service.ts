@@ -1759,6 +1759,7 @@ export async function getTrackedEntityByJobId(
     .select("*")
     .eq("attributes ->> Job Make Method", jobMakeMethod.data.id)
     .eq("companyId", jobMakeMethod.data.companyId)
+    .is("attributes ->> Split Entity ID", null)
     .limit(1);
 
   return {
@@ -1788,7 +1789,8 @@ export async function getTrackedEntitiesByJobId(
     .from("trackedEntity")
     .select("*")
     .eq("attributes ->> Job Make Method", jobMakeMethod.data.id)
-    .eq("companyId", jobMakeMethod.data.companyId);
+    .eq("companyId", jobMakeMethod.data.companyId)
+    .is("attributes ->> Split Entity ID", null);
 }
 
 /**
@@ -1870,7 +1872,7 @@ export async function runMRP(
 export async function updateJobBatchNumber(
   client: SupabaseClient<Database>,
   trackedEntityId: string,
-  value: string
+  value: string | null
 ) {
   return client
     .from("trackedEntity")

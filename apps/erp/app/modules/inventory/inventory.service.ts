@@ -609,6 +609,122 @@ export async function getStorageUnit(
     .single();
 }
 
+// Roots only (depth = 1). Honors search/filter/pagination so the table can
+// paginate top-level storage units while children load lazily on demand.
+export async function getStorageUnitRoots(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  locationId: string,
+  args: GenericQueryFilters & { search: string | null }
+) {
+  let query = client
+    .from("storageUnits_recursive")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId)
+    .eq("locationId", locationId)
+    .eq("depth", 1);
+
+  if (args?.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+
+  query = setGenericQueryFilters(query, args, [
+    { column: "name", ascending: true }
+  ]);
+
+  return query;
+}
+
+// Immediate children of a single parent (one level deep). Used by the lazy
+// expand handler in the StorageUnits table.
+export async function getStorageUnitChildren(
+  client: SupabaseClient<Database>,
+  parentId: string
+) {
+  return client
+    .from("storageUnits_recursive")
+    .select("*")
+    .eq("parentId", parentId)
+    .order("name");
+}
+
+// Set of storageUnit ids that have at least one child in the given location.
+// Drives whether the table renders an expand chevron on a row.
+export async function getStorageUnitParentIdsWithChildren(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  locationId: string
+) {
+  const { data, error } = await client
+    .from("storageUnit")
+    .select("parentId")
+    .eq("companyId", companyId)
+    .eq("locationId", locationId)
+    .not("parentId", "is", null);
+
+  if (error) return { data: [] as string[], error };
+
+  const ids = new Set<string>();
+  for (const row of data ?? []) {
+    if (row.parentId) ids.add(row.parentId);
+  }
+  return { data: Array.from(ids), error: null };
+}
+
+// Search-mode payload: every storage unit whose name matches `search` PLUS
+// every ancestor of each match, so the tree path renders intact. Returns the
+// flat ordered row set + the parentIds that should be pre-expanded so that
+// matches are visible to the user.
+export async function searchStorageUnitsWithAncestors(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  locationId: string,
+  search: string
+) {
+  const matches = await client
+    .from("storageUnits_recursive")
+    .select("id, parentId, ancestorPath")
+    .eq("companyId", companyId)
+    .eq("locationId", locationId)
+    .ilike("name", `%${search}%`);
+
+  if (matches.error)
+    return { rows: [], expandedParentIds: [], error: matches.error };
+
+  const idsToFetch = new Set<string>();
+  const expanded = new Set<string>();
+  for (const row of matches.data ?? []) {
+    for (const ancestorId of row.ancestorPath ?? []) {
+      idsToFetch.add(ancestorId);
+    }
+    // Pre-expand every node on the chain except the match itself, so the
+    // match becomes visible. ancestorPath includes the node itself at the end.
+    for (const ancestorId of (row.ancestorPath ?? []).slice(0, -1)) {
+      expanded.add(ancestorId);
+    }
+  }
+
+  if (idsToFetch.size === 0) {
+    return { rows: [], expandedParentIds: [], error: null };
+  }
+
+  const rows = await client
+    .from("storageUnits_recursive")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("locationId", locationId)
+    .in("id", Array.from(idsToFetch))
+    .order("ancestorPath");
+
+  if (rows.error) return { rows: [], expandedParentIds: [], error: rows.error };
+
+  return {
+    rows: rows.data ?? [],
+    expandedParentIds: Array.from(expanded),
+    error: null
+  };
+}
+
 export async function getShipments(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -1655,10 +1771,41 @@ export async function getStorageUnitDescendants(
 // storageType CRUD (mirrors materialType in items.service.ts)
 // ----------------------------------------------------------------------------
 
-export async function deleteStorageType(
+export async function getStorageTypeUsage(
   client: SupabaseClient<Database>,
-  id: string
+  id: string,
+  companyId: string
 ) {
+  return client
+    .from("storageUnit")
+    .select("id, name", { count: "exact" })
+    .eq("companyId", companyId)
+    .contains("storageTypeIds", [id])
+    .limit(5);
+}
+
+export async function deleteStorageTypeWithCascade(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  const { data: units, error: fetchError } = await client
+    .from("storageUnit")
+    .select("id, storageTypeIds")
+    .eq("companyId", companyId)
+    .contains("storageTypeIds", [id]);
+
+  if (fetchError) return { error: fetchError };
+
+  for (const unit of units ?? []) {
+    const next = (unit.storageTypeIds ?? []).filter((x) => x !== id);
+    const { error: updateError } = await client
+      .from("storageUnit")
+      .update({ storageTypeIds: next })
+      .eq("id", unit.id);
+    if (updateError) return { error: updateError };
+  }
+
   return client.from("storageType").delete().eq("id", id);
 }
 

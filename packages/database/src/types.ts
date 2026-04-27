@@ -2925,7 +2925,6 @@ export type Database = {
           accountsReceivableEmail: string | null
           consoleEnabled: boolean
           defaultCustomerCc: string[] | null
-          defaultShelfLifeDays: number
           defaultSupplierCc: string[] | null
           digitalQuoteEnabled: boolean
           digitalQuoteIncludesPurchaseOrders: boolean
@@ -2942,7 +2941,6 @@ export type Database = {
           maintenanceDispatchNotificationGroup: string[] | null
           maintenanceGenerateInAdvance: boolean
           materialGeneratedIds: boolean
-          nearExpiryWarningDays: number | null
           operationsDispatchNotificationGroup: string[] | null
           otherDispatchNotificationGroup: string[] | null
           productLabelSize: string | null
@@ -2966,7 +2964,6 @@ export type Database = {
           accountsReceivableEmail?: string | null
           consoleEnabled?: boolean
           defaultCustomerCc?: string[] | null
-          defaultShelfLifeDays?: number
           defaultSupplierCc?: string[] | null
           digitalQuoteEnabled?: boolean
           digitalQuoteIncludesPurchaseOrders?: boolean
@@ -2983,7 +2980,6 @@ export type Database = {
           maintenanceDispatchNotificationGroup?: string[] | null
           maintenanceGenerateInAdvance?: boolean
           materialGeneratedIds?: boolean
-          nearExpiryWarningDays?: number | null
           operationsDispatchNotificationGroup?: string[] | null
           otherDispatchNotificationGroup?: string[] | null
           productLabelSize?: string | null
@@ -3007,7 +3003,6 @@ export type Database = {
           accountsReceivableEmail?: string | null
           consoleEnabled?: boolean
           defaultCustomerCc?: string[] | null
-          defaultShelfLifeDays?: number
           defaultSupplierCc?: string[] | null
           digitalQuoteEnabled?: boolean
           digitalQuoteIncludesPurchaseOrders?: boolean
@@ -3024,7 +3019,6 @@ export type Database = {
           maintenanceDispatchNotificationGroup?: string[] | null
           maintenanceGenerateInAdvance?: boolean
           materialGeneratedIds?: boolean
-          nearExpiryWarningDays?: number | null
           operationsDispatchNotificationGroup?: string[] | null
           otherDispatchNotificationGroup?: string[] | null
           productLabelSize?: string | null
@@ -10718,6 +10712,7 @@ export type Database = {
           createdBy: string
           customFields: Json | null
           days: number | null
+          inheritEarliestInputExpiry: boolean
           itemId: string
           mode: Database["public"]["Enums"]["shelfLifeMode"]
           triggerProcessId: string | null
@@ -10731,6 +10726,7 @@ export type Database = {
           createdBy: string
           customFields?: Json | null
           days?: number | null
+          inheritEarliestInputExpiry?: boolean
           itemId: string
           mode: Database["public"]["Enums"]["shelfLifeMode"]
           triggerProcessId?: string | null
@@ -10744,6 +10740,7 @@ export type Database = {
           createdBy?: string
           customFields?: Json | null
           days?: number | null
+          inheritEarliestInputExpiry?: boolean
           itemId?: string
           mode?: Database["public"]["Enums"]["shelfLifeMode"]
           triggerProcessId?: string | null

@@ -182,6 +182,10 @@ export const path = {
       storageTypes: `${api}/inventory/storage-types`,
       storageUnitDescendants: (id: string) =>
         generatePath(`${api}/inventory/storage-unit-descendants?id=${id}`),
+      storageUnitChildren: (parentId: string) =>
+        generatePath(
+          `${api}/inventory/storage-unit-children?parentId=${parentId}`
+        ),
       supplierContacts: (id: string) =>
         generatePath(`${api}/purchasing/supplier-contacts/${id}`),
       supplierLocations: (id: string) =>

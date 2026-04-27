@@ -65,7 +65,7 @@ msgid "/month/user"
 msgstr "/month/user"
 
 #. placeholder {0}: allItems.length - 3
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:785
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:782
 msgid "+{0} more"
 msgstr "+{0} more"
 
@@ -280,7 +280,7 @@ msgstr "Accumulation Period (Weeks)"
 msgid "Accumulation Period:"
 msgstr "Accumulation Period:"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:592
 msgid "Action Items"
 msgstr "Action Items"
 
@@ -331,7 +331,7 @@ msgstr "Activate Work Center"
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:338
 #: apps/erp/app/components/Contact.tsx:57
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:470
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:173
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:287
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:417
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:237
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:243
@@ -376,7 +376,7 @@ msgid "Active Jobs"
 msgstr "Active Jobs"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:480
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:183
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:297
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:247
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:384
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:289
@@ -460,7 +460,7 @@ msgstr "Add attachments"
 msgid "Add Calibration Record"
 msgstr "Add Calibration Record"
 
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:243
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:365
 msgid "Add Child Storage Unit"
 msgstr "Add Child Storage Unit"
 
@@ -718,6 +718,10 @@ msgstr "Amount Type"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:738
 msgid "An item cannot be added to itself."
 msgstr "An item cannot be added to itself."
+
+#: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:196
+msgid "and {remaining} more"
+msgstr "and {remaining} more"
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:48
 #: apps/erp/app/routes/onboarding+/plan.tsx:62
@@ -1130,7 +1134,7 @@ msgid "Are you sure you want to delete the shipping method: {0}? This cannot be 
 msgstr "Are you sure you want to delete the shipping method: {0}? This cannot be undone."
 
 #. placeholder {0}: storageType.name
-#: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:74
+#: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:131
 msgid "Are you sure you want to delete the storage type: {0}? This cannot be undone."
 msgstr "Are you sure you want to delete the storage type: {0}? This cannot be undone."
 
@@ -1859,6 +1863,7 @@ msgstr "Can't disable the only active break. Add another break or toggle the ove
 #: apps/erp/app/modules/users/ui/Groups/GroupsForm.tsx:77
 #: apps/erp/app/routes/share+/quote.$id.tsx:1406
 #: apps/erp/app/routes/share+/quote.$id.tsx:1468
+#: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:227
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:220
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:613
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:695
@@ -2095,7 +2100,7 @@ msgstr "Class"
 msgid "Clear"
 msgstr "Clear"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:759
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:756
 msgid "Clear All"
 msgstr "Clear All"
 
@@ -2139,7 +2144,7 @@ msgstr "Clocked in since {0}"
 #: apps/erp/app/components/Layout/Topbar/Search.tsx:395
 #: apps/erp/app/components/TrainingPanel.tsx:45
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1300
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:619
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:616
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:760
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:550
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:87
@@ -2205,6 +2210,10 @@ msgstr "Collapse Machine"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2111
 msgid "Collapse Setup"
 msgstr "Collapse Setup"
+
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:193
+msgid "Collapse subtree"
+msgstr "Collapse subtree"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:417
 msgid "Column"
@@ -2805,7 +2814,7 @@ msgstr "Country"
 #: apps/erp/app/components/Layout/Topbar/Topbar.tsx:37
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:596
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:227
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:755
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:752
 #: apps/erp/app/modules/quality/ui/Issue/Jira/CreateIssue.tsx:121
 #: apps/erp/app/modules/quality/ui/Issue/Linear/CreateIssue.tsx:100
 msgid "Create"
@@ -2814,7 +2823,7 @@ msgstr "Create"
 #. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:344
+#: packages/react/src/CreateableMultiSelect.tsx:333
 msgid "Create {0}"
 msgstr "Create {0}"
 
@@ -3515,7 +3524,7 @@ msgstr "Deactivate Work Center"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:352
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:520
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:455
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:457
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:379
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:250
 msgid "Deadline Type"
@@ -3586,7 +3595,7 @@ msgstr "Default Source"
 #: apps/erp/app/modules/items/ui/Item/ItemStorageFields.tsx:18
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:118
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:248
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:245
 msgid "Default Storage Unit"
 msgstr "Default Storage Unit"
 
@@ -3639,12 +3648,14 @@ msgstr "Define the terms and conditions for quotes and sales orders"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:295
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:575
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:237
+#: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:236
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:234
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:742
 msgid "Delete"
 msgstr "Delete"
 
 #: apps/erp/app/components/Modals/ConfirmDelete/ConfirmDelete.tsx:53
+#: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:178
 msgid "Delete {name}"
 msgstr "Delete {name}"
 
@@ -3917,7 +3928,7 @@ msgstr "Delete Stock Transfer"
 msgid "Delete Storage Type"
 msgstr "Delete Storage Type"
 
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:258
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:377
 msgid "Delete Storage Unit"
 msgstr "Delete Storage Unit"
 
@@ -4288,7 +4299,7 @@ msgstr "Due {0}"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:241
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:179
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:347
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:433
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:435
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:371
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningOrderDrawer.tsx:390
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:637
@@ -4493,7 +4504,7 @@ msgstr "Edit Employee Type"
 msgid "Edit expiration date"
 msgstr "Edit expiration date"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:231
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:236
 msgid "Edit Expiry"
 msgstr "Edit Expiry"
 
@@ -4703,7 +4714,7 @@ msgid "Edit Storage Type"
 msgstr "Edit Storage Type"
 
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:81
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:231
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:353
 msgid "Edit Storage Unit"
 msgstr "Edit Storage Unit"
 
@@ -5091,7 +5102,7 @@ msgid "Estimated Duration (minutes)"
 msgstr "Estimated Duration (minutes)"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:318
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:391
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:393
 msgid "Estimated Scrap Quantity"
 msgstr "Estimated Scrap Quantity"
 
@@ -5129,7 +5140,7 @@ msgid "Exchange Rate"
 msgstr "Exchange Rate"
 
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:97
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:606
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:603
 msgid "Expand"
 msgstr "Expand"
 
@@ -5165,6 +5176,10 @@ msgstr "Expand Machine"
 msgid "Expand Setup"
 msgstr "Expand Setup"
 
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:193
+msgid "Expand subtree"
+msgstr "Expand subtree"
+
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:120
 msgid "Expected Receipt"
 msgstr "Expected Receipt"
@@ -5190,11 +5205,12 @@ msgid "Expiration Date (applies to all serials on this line)"
 msgstr "Expiration Date (applies to all serials on this line)"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:157
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:162
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
 msgid "Expired"
 msgstr "Expired"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:206
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:203
 msgid "Expired batch"
 msgstr "Expired batch"
 
@@ -6235,7 +6251,7 @@ msgstr "Income/Balance Sheet"
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:497
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:859
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:509
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:364
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:361
 msgid "Incoming"
 msgstr "Incoming"
 
@@ -6579,7 +6595,7 @@ msgstr "Issued Date"
 msgid "Issues"
 msgstr "Issues"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:598
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
 msgid "item"
 msgstr "item"
 
@@ -6670,7 +6686,7 @@ msgstr "Item Scope"
 msgid "Item Type"
 msgstr "Item Type"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:598
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
 msgid "items"
 msgstr "items"
 
@@ -6695,8 +6711,8 @@ msgid "Items"
 msgstr "Items"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:301
-msgid "Items inside this window get a yellow badge. Leave blank to turn warnings off."
-msgstr "Items inside this window get a yellow badge. Leave blank to turn warnings off."
+msgid "Items inside this window get a yellow badge."
+msgstr "Items inside this window get a yellow badge."
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
@@ -6718,7 +6734,7 @@ msgstr "Job"
 msgid "Job ID"
 msgstr "Job ID"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:524
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:526
 msgid "Job Location"
 msgstr "Job Location"
 
@@ -7099,7 +7115,7 @@ msgstr "Loading..."
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:122
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:73
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:93
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:129
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:243
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:270
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:514
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:364
@@ -7517,7 +7533,7 @@ msgstr "Material Variance"
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:658
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:36
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:91
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:513
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:510
 #: apps/erp/app/routes/x+/items+/materials.tsx:16
 #: apps/erp/app/routes/x+/material+/$itemId.tsx:36
 #: apps/erp/app/routes/x+/material+/new.tsx:15
@@ -7583,7 +7599,7 @@ msgstr "Members"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:398
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:578
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:436
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:237
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:234
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:392
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:454
 msgid "Method"
@@ -7642,7 +7658,7 @@ msgstr "Min Margin %"
 msgid "Min Qty"
 msgstr "Min Qty"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:606
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:603
 msgid "Minimize"
 msgstr "Minimize"
 
@@ -7877,7 +7893,7 @@ msgstr "My Saved View"
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypeForm.tsx:94
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypesTable.tsx:39
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:89
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:90
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:180
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:1890
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2173
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:106
@@ -7973,7 +7989,7 @@ msgstr "Never"
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:440
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:711
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:266
+#: packages/react/src/CreateableMultiSelect.tsx:255
 msgid "New"
 msgstr "New"
 
@@ -8495,7 +8511,7 @@ msgid "No notes"
 msgstr "No notes"
 
 #: apps/erp/app/components/Assignee.tsx:169
-#: packages/react/src/CreateableMultiSelect.tsx:296
+#: packages/react/src/CreateableMultiSelect.tsx:285
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "No option found."
@@ -8520,8 +8536,8 @@ msgstr "No overtime scheduled"
 msgid "No part ID"
 msgstr "No part ID"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:636
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:768
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:633
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:765
 msgid "No parts added yet"
 msgstr "No parts added yet"
 
@@ -8732,7 +8748,7 @@ msgid "OK"
 msgstr "OK"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:133
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:306
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:303
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:325
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:402
 msgid "On Hand"
@@ -8757,7 +8773,7 @@ msgstr "On Sales Order"
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:417
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:757
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:256
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:253
 msgid "On Storage Unit"
 msgstr "On Storage Unit"
 
@@ -8944,8 +8960,8 @@ msgstr "Optional"
 msgid "Options"
 msgstr "Options"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:478
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:666
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:475
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:663
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:776
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionState.tsx:81
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:256
@@ -8988,7 +9004,7 @@ msgstr "Ordered"
 msgid "Ordering"
 msgstr "Ordering"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:649
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:646
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:78
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:44
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:86
@@ -9515,8 +9531,8 @@ msgid "Potential Data Loss"
 msgstr "Potential Data Loss"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:308
-msgid "Pre-filled when you configure a new item for Fixed Duration."
-msgstr "Pre-filled when you configure a new item for Fixed Duration."
+msgid "Pre-filled for a new item when expiry is Fixed Duration."
+msgstr "Pre-filled for a new item when expiry is Fixed Duration."
 
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:80
 msgid "Preferred Supplier"
@@ -10081,7 +10097,7 @@ msgstr "Quantities"
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:428
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:303
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationsTable.tsx:155
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:369
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:371
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:239
 #: apps/erp/app/modules/production/ui/Jobs/ProductionQuantitiesTable.tsx:119
 #: apps/erp/app/modules/production/ui/Jobs/ProductionQuantityForm.tsx:89
@@ -10274,7 +10290,7 @@ msgstr "Reasons"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:543
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:107
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:117
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:507
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:504
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:486
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:568
 msgid "Recalculate"
@@ -10486,8 +10502,8 @@ msgid "Remove from Price List"
 msgstr "Remove from Price List"
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1350
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:675
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:718
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:672
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:715
 msgid "Remove item"
 msgstr "Remove item"
 
@@ -10500,7 +10516,7 @@ msgstr "Remove negative feedback"
 msgid "Remove order"
 msgstr "Remove order"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:478
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:475
 msgid "Remove Order"
 msgstr "Remove Order"
 
@@ -10516,7 +10532,11 @@ msgstr "Remove positive feedback"
 msgid "Remove sort by column"
 msgstr "Remove sort by column"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:453
+#: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:215
+msgid "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
+msgstr "Remove this storage type from all referencing storage units and delete it. This cannot be undone."
+
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:450
 msgid "Remove Transfer"
 msgstr "Remove Transfer"
 
@@ -10641,8 +10661,8 @@ msgstr "Require approval for quality documents in your workflow"
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:422
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:854
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:229
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:351
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:226
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:348
 msgid "Required"
 msgstr "Required"
 
@@ -11396,8 +11416,8 @@ msgstr "Search the web"
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:357
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:165
-#: packages/react/src/CreateableMultiSelect.tsx:286
+#: packages/react/src/CreateableMultiSelect.tsx:163
+#: packages/react/src/CreateableMultiSelect.tsx:275
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "Search..."
@@ -12094,7 +12114,7 @@ msgstr "Source Analysis"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:72
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:131
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:72
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:199
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:204
 msgid "Source Document"
 msgstr "Source Document"
 
@@ -12190,14 +12210,14 @@ msgstr "Start"
 msgid "Start {0} Day Free Trial"
 msgstr "Start {0} Day Free Trial"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:639
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:636
 msgid "Start adding parts to your stock transfer"
 msgstr "Start adding parts to your stock transfer"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:61
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:42
 #: apps/erp/app/modules/people/ui/Person/PersonPreview.tsx:79
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:413
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:415
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:363
 msgid "Start Date"
 msgstr "Start Date"
@@ -12372,8 +12392,8 @@ msgstr "Storage Type"
 
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypesTable.tsx:98
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:105
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:144
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:166
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:258
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:280
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:94
 #: apps/erp/app/routes/x+/inventory+/storage-types.tsx:15
 msgid "Storage Types"
@@ -12386,7 +12406,7 @@ msgstr "Storage Types"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1198
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:378
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:710
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:213
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:335
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:520
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:458
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1011
@@ -12400,9 +12420,9 @@ msgid "Storage Unit"
 msgstr "Storage Unit"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:153
-#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:275
+#: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:394
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:87
-#: apps/erp/app/routes/x+/inventory+/storage-units.tsx:17
+#: apps/erp/app/routes/x+/inventory+/storage-units.tsx:22
 msgid "Storage Units"
 msgstr "Storage Units"
 
@@ -12778,7 +12798,7 @@ msgstr "Table actions"
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:255
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:530
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:254
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:547
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:549
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:417
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:223
 #: apps/erp/app/modules/production/ui/Procedures/ProceduresTable.tsx:110
@@ -12804,7 +12824,7 @@ msgstr "Take the shortest remaining shelf life across the materials consumed to 
 msgid "Talk to Sales"
 msgstr "Talk to Sales"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:276
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:278
 msgid "Target"
 msgstr "Target"
 
@@ -13046,6 +13066,11 @@ msgstr "This job will no longer be available on the shop floor."
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:140
 msgid "This sales order has lines that require jobs to be created"
 msgstr "This sales order has lines that require jobs to be created"
+
+#. placeholder {0}: usageCount === 1 ? "" : "s"
+#: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:184
+msgid "This storage type is currently used by {usageCount} storage unit{0}."
+msgstr "This storage type is currently used by {usageCount} storage unit{0}."
 
 #: apps/erp/app/modules/settings/ui/Theme/ThemeForm.tsx:48
 msgid "This updates the theme for all users of the application"
@@ -13341,7 +13366,7 @@ msgstr "Track every change to your orders, invoices, customers, suppliers, and m
 msgid "Track when batches or serials of this item expire."
 msgstr "Track when batches or serials of this item expire."
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:246
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:251
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:70
 #: apps/erp/app/routes/x+/inventory+/tracked-entities.tsx:16
 #: apps/erp/app/routes/x+/issue+/$id.tsx:147
@@ -13423,9 +13448,9 @@ msgstr "Training Assignments"
 msgid "Trainings"
 msgstr "Trainings"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:376
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:453
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:709
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:373
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:450
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:706
 msgid "Transfer"
 msgstr "Transfer"
 
@@ -13460,7 +13485,7 @@ msgstr "Transfer ownership of this company to another user"
 msgid "Transfer To"
 msgstr "Transfer To"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:692
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:689
 msgid "Transfers"
 msgstr "Transfers"
 
@@ -13604,7 +13629,7 @@ msgstr "Unit Cost"
 #: apps/erp/app/modules/items/ui/UnitOfMeasure/UnitOfMeasuresTable.tsx:90
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1260
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1540
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:506
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:508
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureExplorer.tsx:829
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:481
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentExplorer.tsx:606
@@ -14170,7 +14195,7 @@ msgstr "View Suggestion"
 msgid "View Suppliers"
 msgstr "View Suppliers"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:224
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:229
 msgid "View Traceability Graph"
 msgstr "View Traceability Graph"
 
@@ -14411,7 +14436,7 @@ msgstr "Why is the expiration being changed?"
 
 #: apps/erp/app/modules/accounting/ui/PostingGroups/InventoryPostingGroupsTable.tsx:122
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:928
-#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:247
+#: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:244
 msgid "WIP"
 msgstr "WIP"
 

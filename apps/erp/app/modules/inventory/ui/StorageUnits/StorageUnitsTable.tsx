@@ -2,16 +2,19 @@ import {
   Checkbox,
   Combobox,
   HStack,
+  IconButton,
   MenuIcon,
   MenuItem,
-  VStack
+  Spinner
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuBookMarked,
   LuCheck,
+  LuChevronDown,
+  LuChevronRight,
   LuLayers,
   LuMapPin,
   LuPencil,
@@ -43,6 +46,8 @@ type StorageUnitsTableProps = {
   locations: { id: string; name: string }[];
   locationId: string;
   storageTypes: { id: string; name: string }[];
+  parentIdsWithChildren: string[];
+  initialExpanded: string[];
 };
 
 const StorageUnitsTable = memo(
@@ -51,7 +56,9 @@ const StorageUnitsTable = memo(
     count,
     locations: serverLocations,
     locationId,
-    storageTypes: serverStorageTypes
+    storageTypes: serverStorageTypes,
+    parentIdsWithChildren,
+    initialExpanded
   }: StorageUnitsTableProps) => {
     const [params] = useUrlParams();
     const { t } = useLingui();
@@ -83,38 +90,145 @@ const StorageUnitsTable = memo(
       return clientStorageTypes;
     }, [serverStorageTypes, clientStorageTypes]);
 
+    const hasChildrenSet = useMemo(
+      () => new Set(parentIdsWithChildren),
+      [parentIdsWithChildren]
+    );
+
+    // Partition `data` into children-by-parentId. In root-mode (no search)
+    // every row is a root and this map is empty. In search-mode it contains
+    // the ancestor chains for each match so the tree can render without
+    // additional fetches.
+    const initialChildrenCache = useMemo(() => {
+      const map: Record<string, StorageUnit[]> = {};
+      for (const row of data) {
+        if (row.parentId) {
+          (map[row.parentId] ??= []).push(row);
+        }
+      }
+      return map;
+    }, [data]);
+
+    const [childrenCache, setChildrenCache] =
+      useState<Record<string, StorageUnit[]>>(initialChildrenCache);
+    const [expandedIds, setExpandedIds] = useState<Set<string>>(
+      () => new Set(initialExpanded)
+    );
+    const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set());
+
+    // Reset state when the loader payload changes (location switch, search,
+    // pagination) so stale expand state doesn't leak across navigations.
+    useEffect(() => {
+      setChildrenCache(initialChildrenCache);
+      setExpandedIds(new Set(initialExpanded));
+      setLoadingIds(new Set());
+    }, [initialChildrenCache, initialExpanded]);
+
+    const toggleExpand = useCallback(
+      async (id: string) => {
+        setExpandedIds((prev) => {
+          const next = new Set(prev);
+          if (next.has(id)) next.delete(id);
+          else next.add(id);
+          return next;
+        });
+
+        // Only fetch if not collapsing and we don't already have children.
+        const isExpanding = !expandedIds.has(id);
+        if (!isExpanding) return;
+        if (childrenCache[id]) return;
+
+        setLoadingIds((prev) => new Set(prev).add(id));
+        try {
+          const res = await fetch(path.to.api.storageUnitChildren(id));
+          const body = (await res.json()) as { data: StorageUnit[] };
+          setChildrenCache((prev) => ({ ...prev, [id]: body.data ?? [] }));
+        } finally {
+          setLoadingIds((prev) => {
+            const next = new Set(prev);
+            next.delete(id);
+            return next;
+          });
+        }
+      },
+      [expandedIds, childrenCache]
+    );
+
+    // Build the displayed flat-row list by walking roots and recursing into
+    // expanded subtrees. Roots = depth-1 rows in `data` (true for both
+    // root-mode and search-mode payloads).
+    const displayRows = useMemo(() => {
+      const out: StorageUnit[] = [];
+      const roots = data.filter((r) => (r.depth ?? 1) === 1);
+
+      const walk = (node: StorageUnit) => {
+        out.push(node);
+        if (!expandedIds.has(node.id)) return;
+        const kids = childrenCache[node.id];
+        if (!kids) return;
+        for (const kid of kids) walk(kid);
+      };
+
+      for (const root of roots) walk(root);
+      return out;
+    }, [data, expandedIds, childrenCache]);
+
     const columns = useMemo<ColumnDef<StorageUnit>[]>(() => {
       return [
         {
           accessorKey: "name",
           header: t`Name`,
           cell: ({ row }) => {
-            // depth is 1-based (roots = 1) per storageUnits_recursive view
             const depth = Math.max(0, (row.original.depth ?? 1) - 1);
-            const ancestorLines = Math.max(0, depth);
+            const isExpanded = expandedIds.has(row.original.id);
+            const isLoading = loadingIds.has(row.original.id);
+            const hasChildren = hasChildrenSet.has(row.original.id);
+
             return (
-              <div className="flex items-stretch self-stretch">
-                {Array.from({ length: ancestorLines }).map((_, i) => (
+              <div className="flex items-stretch self-stretch gap-1">
+                <div className="size-7 shrink-0 flex items-center justify-center self-center">
+                  {hasChildren ? (
+                    <IconButton
+                      aria-label={
+                        isExpanded ? t`Collapse subtree` : t`Expand subtree`
+                      }
+                      icon={
+                        isLoading ? (
+                          <Spinner className="size-3" />
+                        ) : isExpanded ? (
+                          <LuChevronDown />
+                        ) : (
+                          <LuChevronRight />
+                        )
+                      }
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        toggleExpand(row.original.id);
+                      }}
+                    />
+                  ) : null}
+                </div>
+                {Array.from({ length: depth }).map((_, i) => (
                   <div
                     key={i}
                     aria-hidden
                     className="w-5 shrink-0 border-l border-border -my-2"
                   />
                 ))}
-
-                <div className="flex items-center gap-2 py-1 pl-1">
+                <div className="flex items-center py-1">
                   <Hyperlink
-                    to={`${path.to.storageUnit(row.original.id!)}?${params}`}
+                    to={`${path.to.storageUnit(row.original.id)}?${params}`}
                   >
-                    <VStack spacing={0}>
-                      <span
-                        className={
-                          depth === 0 ? "font-medium" : "text-foreground/90"
-                        }
-                      >
-                        {row.original.name}
-                      </span>
-                    </VStack>
+                    <span
+                      className={
+                        depth === 0 ? "font-medium" : "text-foreground/90"
+                      }
+                    >
+                      {row.original.name}
+                    </span>
                   </Hyperlink>
                 </div>
               </div>
@@ -185,7 +299,16 @@ const StorageUnitsTable = memo(
           }
         }
       ];
-    }, [locations, params, storageTypes, t]);
+    }, [
+      locations,
+      params,
+      storageTypes,
+      t,
+      expandedIds,
+      loadingIds,
+      hasChildrenSet,
+      toggleExpand
+    ]);
 
     const defaultColumnVisibility = {
       active: false
@@ -204,7 +327,6 @@ const StorageUnitsTable = memo(
             value={locationId}
             options={locations}
             onChange={(selected) => {
-              // hard refresh because initialValues update has no effect otherwise
               window.location.href = getLocationPath(selected);
             }}
           />
@@ -246,9 +368,6 @@ const StorageUnitsTable = memo(
               disabled={!permissions.can("delete", "inventory")}
               destructive
               onClick={() => {
-                // Navigate to the delete route so its loader runs and its
-                // cascade-aware modal renders inside the Outlet. Rendering
-                // ConfirmDelete inline here would bypass that flow.
                 navigate(
                   `${path.to.deleteStorageUnit(row.id)}?${params.toString()}`
                 );
@@ -267,7 +386,7 @@ const StorageUnitsTable = memo(
       <Table<StorageUnit>
         count={count}
         columns={columns}
-        data={data}
+        data={displayRows}
         defaultColumnVisibility={defaultColumnVisibility}
         defaultColumnPinning={defaultColumnPinning}
         primaryAction={actions}

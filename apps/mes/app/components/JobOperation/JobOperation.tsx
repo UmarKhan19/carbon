@@ -1095,7 +1095,7 @@ export const JobOperation = ({
                                               }
                                             ).hasExpiredConsumed && (
                                               <Badge
-                                                variant="destructive"
+                                                variant="red"
                                                 className="gap-1 shrink-0"
                                                 title="A consumed batch or serial is now past its expiry date."
                                               >

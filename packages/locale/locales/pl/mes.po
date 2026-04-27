@@ -298,7 +298,7 @@ msgstr ""
 #. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 #: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:344
+#: packages/react/src/CreateableMultiSelect.tsx:333
 msgid "Create {0}"
 msgstr "Utwórz {0}"
 
@@ -692,7 +692,7 @@ msgid "Name"
 msgstr "Nazwa"
 
 #: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:266
+#: packages/react/src/CreateableMultiSelect.tsx:255
 msgid "New"
 msgstr "Nowy"
 
@@ -753,7 +753,7 @@ msgstr "Brak materiałów"
 msgid "No operators"
 msgstr "Brak operatorów"
 
-#: packages/react/src/CreateableMultiSelect.tsx:296
+#: packages/react/src/CreateableMultiSelect.tsx:285
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "Nie znaleziono opcji."
@@ -1021,8 +1021,8 @@ msgstr "Szukaj operatorów..."
 #: apps/mes/app/components/Filter/Filter.tsx:163
 #: packages/react/src/Combobox.tsx:193
 #: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:165
-#: packages/react/src/CreateableMultiSelect.tsx:286
+#: packages/react/src/CreateableMultiSelect.tsx:163
+#: packages/react/src/CreateableMultiSelect.tsx:275
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "Szukaj..."
