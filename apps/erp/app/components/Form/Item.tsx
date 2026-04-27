@@ -41,6 +41,7 @@ import { path } from "~/utils/path";
 import { MethodItemTypeIcon } from "../Icons";
 
 type ItemSelectProps = Omit<ComboboxProps, "options" | "type" | "inline"> & {
+  isReadOnly?: boolean;
   blacklist?: string[];
   includeInactive?: boolean;
   inline?: boolean;
@@ -95,6 +96,7 @@ const Item = ({
   validItemTypes,
   onConfigure,
   onTypeChange,
+  isReadOnly = false,
   ...props
 }: ItemSelectProps) => {
   const { t } = useLingui();
@@ -261,7 +263,6 @@ const Item = ({
                       className={cn(
                         "absolute right-0 top-0 bg-card dark:bg-card flex-shrink-0 h-10 w-10 px-3 rounded-l-none before:rounded-l-none border -ml-px shadow-none hover:shadow-button-base"
                       )}
-                      disabled={props.isReadOnly}
                       variant="secondary"
                       size={props.inline ? "sm" : "md"}
                       icon={

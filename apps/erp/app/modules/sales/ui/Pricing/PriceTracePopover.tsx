@@ -139,7 +139,7 @@ export function PriceTracePopover({
                     <Td className="text-right whitespace-nowrap">
                       <DeltaPill value={step.adjustment} format={format} />
                     </Td>
-                    <Td className="text-right text-sm font-mono tabular-nums whitespace-nowrap">
+                    <Td className="text-right text-sm whitespace-nowrap">
                       {format(step.amount)}
                     </Td>
                   </Tr>
@@ -174,7 +174,7 @@ export function DeltaPill({
   const variant = isNegative ? "red" : "green";
   const sign = isNegative ? "" : "+";
   return (
-    <Badge variant={variant} className={`font-mono tabular-nums`}>
+    <Badge variant={variant}>
       {sign}
       {format(value)}
     </Badge>

@@ -36,6 +36,7 @@ import {
   LuChevronRight,
   LuCirclePlay,
   LuCirclePlus,
+  LuClipboardCheck,
   LuContainer,
   LuEllipsisVertical,
   LuFileText,
@@ -315,6 +316,8 @@ function getAssociationIcon(key: IssueAssociationKey) {
       return <LuHandCoins className="text-red-600" />;
     case "trackedEntities":
       return <LuQrCode />;
+    case "inboundInspections":
+      return <LuClipboardCheck className="text-teal-600" />;
     default:
       return <LuFileText />;
   }
@@ -893,6 +896,57 @@ function NewTrackedEntityAssociation({ items }: { items?: string[] }) {
   );
 }
 
+function NewInboundInspectionAssociation() {
+  const { t } = useLingui();
+  const { carbon } = useCarbon();
+  const [storedItems] = useItems();
+  const [inspections, setInspections] = useState<
+    { label: string; value: string; helper?: string }[]
+  >([]);
+  const [inspectionsAreLoading, setInspectionsAreLoading] = useState(true);
+
+  async function fetchInspections() {
+    if (!carbon) {
+      toast.error(t`Failed to load data`);
+      return;
+    }
+    const { data, error } = await carbon
+      .from("inboundInspection")
+      .select("id, inboundInspectionId, itemId, status");
+
+    if (error) {
+      toast.error(t`Failed to load inbound inspections`);
+    }
+
+    setInspections(
+      data?.map((inspection) => ({
+        label: (inspection as any).inboundInspectionId ?? inspection.id,
+        value: inspection.id,
+        helper: [
+          getItemReadableId(storedItems, inspection.itemId),
+          inspection.status
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      })) ?? []
+    );
+    setInspectionsAreLoading(false);
+  }
+
+  useMount(() => {
+    fetchInspections();
+  });
+
+  return (
+    <Combobox
+      name="id"
+      label={t`Inbound Inspection`}
+      options={inspections}
+      isLoading={inspectionsAreLoading}
+    />
+  );
+}
+
 function NewAssociationModal({
   open,
   onClose,
@@ -941,6 +995,8 @@ function NewAssociationModal({
         return <NewReceiptLineAssociation items={items} />;
       case "trackedEntities":
         return <NewTrackedEntityAssociation items={items} />;
+      case "inboundInspections":
+        return <NewInboundInspectionAssociation />;
       default:
         return null;
     }
@@ -1011,6 +1067,8 @@ function getAssociationLink(
       return path.to.customer(child.documentId);
     case "suppliers":
       return path.to.supplier(child.documentId);
+    case "inboundInspections":
+      return path.to.inboundInspection(child.documentId);
     default:
       return "#";
   }

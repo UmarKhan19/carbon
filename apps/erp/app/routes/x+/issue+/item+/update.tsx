@@ -1,9 +1,11 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
+import { isIssueLocked } from "~/modules/quality";
 import { disposition } from "~/modules/quality/quality.models";
+import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     update: "quality"
   });
 
@@ -25,6 +27,19 @@ export async function action({ request }: ActionFunctionArgs) {
   ) {
     return { error: { message: "Invalid form data" }, data: null };
   }
+
+  const parent = await client
+    .from("nonConformanceItem")
+    .select("nonConformance(status)")
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .single();
+  const lockedError = requireUnlockedBulk({
+    statuses: [(parent.data as any)?.nonConformance?.status ?? null],
+    checkFn: isIssueLocked,
+    message: "Cannot modify a closed issue. Reopen it first."
+  });
+  if (lockedError) return lockedError;
 
   switch (field) {
     case "disposition":

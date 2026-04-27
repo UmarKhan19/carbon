@@ -12,6 +12,7 @@
       "!**/mcp*/lib/tools/**",
       "!**/mcp*/lib/server.ts",
       "**/*.json",
+      "!**/mcp*/lib/tool-metadata.json",
       "examples/**/*"
     ]
   },

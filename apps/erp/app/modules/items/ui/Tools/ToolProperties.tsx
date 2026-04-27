@@ -89,7 +89,8 @@ const ToolProperties = () => {
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "toolId"
-        | "active",
+        | "active"
+        | "requiresInspection",
       value: string | null
     ) => {
       const formData = new FormData();
@@ -517,6 +518,28 @@ const ToolProperties = () => {
           }}
         />
       </ValidatedForm>
+      {(routeData?.toolSummary?.itemTrackingType === "Serial" ||
+        routeData?.toolSummary?.itemTrackingType === "Batch") && (
+        <ValidatedForm
+          defaultValues={{
+            requiresInspection:
+              (routeData?.toolSummary as any)?.requiresInspection ?? false
+          }}
+          validator={z.object({
+            requiresInspection: zfd.checkbox()
+          })}
+          className="w-full"
+        >
+          <Boolean
+            label={t`Requires Inspection`}
+            name="requiresInspection"
+            variant="small"
+            onChange={(value) => {
+              onUpdate("requiresInspection", value ? "on" : "off");
+            }}
+          />
+        </ValidatedForm>
+      )}
       <ValidatedForm
         defaultValues={{
           tags: routeData?.toolSummary?.tags ?? []

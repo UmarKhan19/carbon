@@ -162,7 +162,7 @@ FOR SELECT USING (
 
 ### Standard Columns
 
-- `"id" TEXT NOT NULL DEFAULT xid()` - Primary key
+- `"id" TEXT NOT NULL DEFAULT id('prefix')` - Primary key
 - `"name" TEXT NOT NULL` - Common for most entities
 - `"description" TEXT` - Optional descriptions
 - `"active" BOOLEAN DEFAULT TRUE` - Soft delete pattern
@@ -264,5 +264,5 @@ CONSTRAINT "tableName_approvedBy_fkey" FOREIGN KEY ("approvedBy") REFERENCES "us
 
 - Timestamps: `DEFAULT NOW()`
 - Booleans: `DEFAULT TRUE` or `DEFAULT FALSE`
-- IDs: `DEFAULT xid()`
+- IDs: `DEFAULT id('prefix')`
 - Arrays: `DEFAULT ARRAY[]::text[]`

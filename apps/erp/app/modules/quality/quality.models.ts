@@ -1,6 +1,21 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { procedureStepType } from "../shared/shared.models";
+import {
+  inspectionLevels,
+  inspectionSeverities,
+  samplingPlanTypes,
+  samplingStandards,
+  standardAqlValues
+} from "./samplingStandards";
+
+export {
+  inspectionLevels,
+  inspectionSeverities,
+  samplingPlanTypes,
+  samplingStandards,
+  standardAqlValues
+};
 
 export const disposition = [
   // "Conditional Acceptance",
@@ -10,7 +25,7 @@ export const disposition = [
   "Pending",
   // "Quarantine",
   // "Repair",
-  // "Return to Supplier",
+  "Return to Supplier",
   "Rework",
   "Scrap",
   "Use As Is"
@@ -62,7 +77,8 @@ export const nonConformanceAssociationType = [
   "salesOrderLines",
   "shipmentLines",
   "receiptLines",
-  "trackedEntities"
+  "trackedEntities",
+  "inboundInspections"
 ] as const;
 
 export const qualityDocumentStatus = ["Draft", "Active", "Archived"] as const;
@@ -155,11 +171,16 @@ export const issueAssociationValidator = z
   })
   .refine(
     (data) => {
-      // For types other than items, customer, supplier, or trackedEntity, lineId is required
+      // For types other than items, customer, supplier, trackedEntity, or
+      // inboundInspection, lineId is required
       if (
-        !["items", "customers", "suppliers", "trackedEntities"].includes(
-          data.type
-        ) &&
+        ![
+          "items",
+          "customers",
+          "suppliers",
+          "trackedEntities",
+          "inboundInspections"
+        ].includes(data.type) &&
         !data.lineId
       ) {
         return false;
@@ -240,6 +261,60 @@ export const issueWorkflowValidator = z.object({
 
 export const itemQuantityValidator = z.object({
   quantity: zfd.numeric(z.number().min(0))
+});
+
+const entityAssignmentItem = z.object({
+  trackedEntityId: z.string().min(1, { message: "Tracked entity is required" }),
+  quantity: z
+    .number({ invalid_type_error: "Quantity is required" })
+    .positive({ message: "Quantity must be greater than zero" })
+});
+
+const entityAssignmentsFromForm = z
+  .string()
+  .optional()
+  .transform((val) => {
+    if (!val) return undefined;
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed : undefined;
+      // biome-ignore lint/correctness/noUnusedVariables: required by try/catch
+    } catch (e) {
+      return undefined;
+    }
+  })
+  .pipe(z.array(entityAssignmentItem).optional());
+
+export const splitIssueItemValidator = z
+  .object({
+    id: z.string().min(1, { message: "Id is required" }),
+    itemId: z.string().min(1, { message: "Item is required" }),
+    splitQuantity: zfd.numeric(
+      z
+        .number({ invalid_type_error: "Split quantity is required" })
+        .positive({ message: "Split quantity must be greater than zero" })
+        .optional()
+    ),
+    entityAssignments: entityAssignmentsFromForm
+  })
+  .refine(
+    (data) =>
+      (data.entityAssignments && data.entityAssignments.length > 0) ||
+      (typeof data.splitQuantity === "number" && data.splitQuantity > 0),
+    {
+      message: "Either splitQuantity or entityAssignments is required",
+      path: ["splitQuantity"]
+    }
+  );
+
+export const assignIssueItemEntitiesValidator = z.object({
+  nonConformanceItemId: z.string().min(1, { message: "Id is required" }),
+  targetItemId: z.string().min(1, { message: "Target row is required" }),
+  entityAssignments: entityAssignmentsFromForm.pipe(
+    z
+      .array(entityAssignmentItem)
+      .min(1, { message: "Select at least one tracked entity" })
+  )
 });
 
 export const qualityDocumentValidator = z.object({
@@ -355,4 +430,77 @@ export const riskRegisterValidator = z.object({
   status: z.enum(riskStatus),
   title: z.string().min(1, { message: "Title is required" }),
   type: z.enum(riskRegisterType)
+});
+
+export const inboundInspectionStatus = [
+  "Pending",
+  "In Progress",
+  "Passed",
+  "Failed",
+  "Partial"
+] as const;
+
+export const inboundInspectionSampleStatus = [
+  "Pending",
+  "Passed",
+  "Failed"
+] as const;
+
+export const itemSamplingPlanValidator = z
+  .object({
+    itemId: z.string().min(1, { message: "Item is required" }),
+    type: z.enum(samplingPlanTypes),
+    sampleSize: zfd.numeric(z.number().int().positive().optional()),
+    percentage: zfd.numeric(z.number().positive().max(100).optional()),
+    aql: zfd.numeric(z.number().positive().optional()),
+    inspectionLevel: z.enum(inspectionLevels).default("II"),
+    severity: z.enum(inspectionSeverities).default("Normal")
+  })
+  .superRefine((value, ctx) => {
+    if (value.type === "First" && !value.sampleSize) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["sampleSize"],
+        message: "Sample size is required for 'First N' plans"
+      });
+    }
+    if (value.type === "Percentage" && !value.percentage) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["percentage"],
+        message: "Percentage is required for percentage plans"
+      });
+    }
+    if (value.type === "AQL" && !value.aql) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["aql"],
+        message: "AQL is required for AQL plans"
+      });
+    }
+  });
+
+export const inboundInspectionValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  status: z.enum(["Passed", "Failed"], {
+    errorMap: () => ({ message: "Status is required" })
+  }),
+  notes: zfd.text(z.string().optional())
+});
+
+export const inboundInspectionSampleValidator = z.object({
+  inspectionId: z.string().min(1, { message: "Inspection is required" }),
+  trackedEntityId: z.string().min(1, { message: "Tracked entity is required" }),
+  status: z.enum(["Passed", "Failed"], {
+    errorMap: () => ({ message: "Status is required" })
+  }),
+  notes: zfd.text(z.string().optional())
+});
+
+export const inboundInspectionDispositionValidator = z.object({
+  id: z.string().min(1, { message: "Id is required" }),
+  decision: z.enum(["Accept", "Reject", "Partial"], {
+    errorMap: () => ({ message: "Decision is required" })
+  }),
+  notes: zfd.text(z.string().optional())
 });

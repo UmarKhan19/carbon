@@ -1,7 +1,14 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
+import {
+  Hidden,
+  Input,
+  Select,
+  Submit,
+  ValidatedForm,
+  validator
+} from "@carbon/form";
 import {
   Card,
   CardContent,
@@ -10,14 +17,16 @@ import {
   CardHeader,
   CardTitle,
   Heading,
+  HStack,
   Label,
   ScrollArea,
+  Switch,
   toast,
   VStack
 } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import { z } from "zod";
@@ -39,6 +48,11 @@ const gaugeCalibrationValidator = z.object({
 const dashboardValidator = z.object({
   intent: z.literal("dashboard"),
   qualityIssueTarget: z.coerce.number().int().min(0)
+});
+
+const samplingStandardValidator = z.object({
+  intent: z.literal("samplingStandard"),
+  samplingStandard: z.enum(["ANSI_Z1_4", "ISO_2859_1"])
 });
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -66,6 +80,37 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const intent = formData.get("intent");
+
+  if (intent === "enforceInspectionFourEyes") {
+    const enabled = formData.get("enabled") === "true";
+    const update = await client
+      .from("companySettings")
+      .update({ enforceInspectionFourEyes: enabled })
+      .eq("id", companyId);
+
+    if (update.error) return { success: false, message: update.error.message };
+
+    return {
+      success: true,
+      message: `Four-eyes enforcement ${enabled ? "enabled" : "disabled"}`
+    };
+  }
+
+  if (intent === "samplingStandard") {
+    const validation = await validator(samplingStandardValidator).validate(
+      formData
+    );
+    if (validation.error) {
+      return { success: false, message: "Invalid form data" };
+    }
+    const update = await client
+      .from("companySettings")
+      // @ts-ignore - samplingStandard column added in migration 20260419100000
+      .update({ samplingStandard: validation.data.samplingStandard })
+      .eq("id", companyId);
+    if (update.error) return { success: false, message: update.error.message };
+    return { success: true, message: "Sampling standard updated" };
+  }
 
   if (intent === "dashboard") {
     const validation = await validator(dashboardValidator).validate(formData);
@@ -111,6 +156,26 @@ export default function QualitySettingsRoute() {
   const { t } = useLingui();
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  const toggleFetcher = useFetcher<typeof action>();
+
+  const [fourEyesEnabled, setFourEyesEnabled] = useState(
+    (companySettings as { enforceInspectionFourEyes?: boolean })
+      .enforceInspectionFourEyes ?? false
+  );
+
+  const handleFourEyesToggle = useCallback(
+    (checked: boolean) => {
+      setFourEyesEnabled(checked);
+      toggleFetcher.submit(
+        {
+          intent: "enforceInspectionFourEyes",
+          enabled: checked.toString()
+        },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
+  );
 
   useEffect(() => {
     if (fetcher.data?.success === true && fetcher?.data?.message) {
@@ -121,6 +186,15 @@ export default function QualitySettingsRoute() {
       toast.error(fetcher.data.message);
     }
   }, [fetcher.data?.message, fetcher.data?.success]);
+
+  useEffect(() => {
+    if (toggleFetcher.data?.success === true && toggleFetcher.data?.message) {
+      toast.success(toggleFetcher.data.message);
+    }
+    if (toggleFetcher.data?.success === false && toggleFetcher.data?.message) {
+      toast.error(toggleFetcher.data.message);
+    }
+  }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
 
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
@@ -223,7 +297,97 @@ export default function QualitySettingsRoute() {
             </CardFooter>
           </ValidatedForm>
         </Card>
+        <Card>
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>
+                  <Trans>
+                    Inbound Inspections: Require Different Inspector
+                  </Trans>
+                </CardTitle>
+                <CardDescription>
+                  <Trans>
+                    Warn when the person inspecting an inbound item is the same
+                    person who received it.
+                  </Trans>
+                </CardDescription>
+              </div>
+              <Switch
+                checked={fourEyesEnabled}
+                onCheckedChange={handleFourEyesToggle}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
+        </Card>
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={samplingStandardValidator}
+            defaultValues={{
+              intent: "samplingStandard" as const,
+              samplingStandard:
+                ((companySettings as any).samplingStandard as
+                  | "ANSI_Z1_4"
+                  | "ISO_2859_1") ?? "ANSI_Z1_4"
+            }}
+            fetcher={fetcher}
+          >
+            <Hidden name="intent" />
+            <CardHeader>
+              <CardTitle>
+                <Trans>Sampling Standard</Trans>
+              </CardTitle>
+              <CardDescription>
+                <Trans>
+                  Attribute sampling standard used to compute lot sample sizes
+                  and accept/reject numbers on inbound inspections.
+                </Trans>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-2 max-w-[400px]">
+                <Label htmlFor="samplingStandard">
+                  <Trans>Standard</Trans>
+                </Label>
+                <SamplingStandardSelect
+                  value={
+                    ((companySettings as any).samplingStandard as
+                      | "ANSI_Z1_4"
+                      | "ISO_2859_1") ?? "ANSI_Z1_4"
+                  }
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={fetcher.state !== "idle"}
+              >
+                <Trans>Save</Trans>
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
       </VStack>
     </ScrollArea>
+  );
+}
+
+function SamplingStandardSelect({
+  value
+}: {
+  value: "ANSI_Z1_4" | "ISO_2859_1";
+}) {
+  return (
+    <Select
+      name="samplingStandard"
+      options={[
+        { value: "ANSI_Z1_4", label: "ANSI/ASQ Z1.4" },
+        { value: "ISO_2859_1", label: "ISO 2859-1" }
+      ]}
+      value={value}
+    />
   );
 }

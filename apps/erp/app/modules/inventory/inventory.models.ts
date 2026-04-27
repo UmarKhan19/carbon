@@ -49,7 +49,8 @@ export const trackedEntityStatus = [
   "Available",
   "Consumed",
   "On Hold",
-  "Reserved"
+  "Reserved",
+  "Rejected"
 ] as const;
 
 export const replenishmentSystemTypes = [

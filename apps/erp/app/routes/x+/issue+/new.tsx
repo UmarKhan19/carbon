@@ -103,6 +103,36 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
+  // Pre-associate tracked entities passed via query string (used by the
+  // "Create Issue from Inspection" button on inbound inspection lots).
+  const url = new URL(request.url);
+  const trackedEntityIdsParam = url.searchParams.get("trackedEntityIds");
+  const trackedEntityIds = trackedEntityIdsParam
+    ? trackedEntityIdsParam.split(",").filter(Boolean)
+    : [];
+  if (trackedEntityIds.length > 0) {
+    await serviceRole.from("nonConformanceTrackedEntity").insert(
+      trackedEntityIds.map((trackedEntityId) => ({
+        nonConformanceId: ncrId,
+        trackedEntityId,
+        companyId,
+        createdBy: userId
+      }))
+    );
+  }
+
+  // When the NCR is filed against a specific job operation, surface the
+  // tracked entity produced by that operation's make method onto a
+  // disposition row so the MRB can immediately scrap/rework/use-as-is it.
+  if (validation.data.jobOperationId) {
+    await autoLinkJobOperationDisposition(serviceRole, {
+      nonConformanceId: ncrId,
+      companyId,
+      userId,
+      jobOperationId: validation.data.jobOperationId
+    });
+  }
+
   const tasks = await serviceRole.functions.invoke("create", {
     body: {
       type: "nonConformanceTasks",
@@ -198,4 +228,149 @@ export default function IssueNewRoute() {
       />
     </div>
   );
+}
+
+async function autoLinkJobOperationDisposition(
+  client: Awaited<ReturnType<typeof getCarbonServiceRole>>,
+  args: {
+    nonConformanceId: string;
+    companyId: string;
+    userId: string;
+    jobOperationId: string;
+  }
+) {
+  const { nonConformanceId, companyId, userId, jobOperationId } = args;
+
+  const operation = await client
+    .from("jobOperation")
+    .select("jobMakeMethodId")
+    .eq("id", jobOperationId)
+    .single();
+  const jobMakeMethodId = operation.data?.jobMakeMethodId ?? null;
+  if (!jobMakeMethodId) return;
+
+  const makeMethod = await client
+    .from("jobMakeMethod")
+    .select("itemId")
+    .eq("id", jobMakeMethodId)
+    .single();
+  const itemId = makeMethod.data?.itemId ?? null;
+  if (!itemId) return;
+
+  const entities = await client
+    .from("trackedEntity")
+    .select("id, quantity")
+    .eq("attributes->>Job Make Method", jobMakeMethodId)
+    .eq("companyId", companyId);
+  const lotEntities = (entities.data ?? []) as {
+    id: string;
+    quantity: number | null;
+  }[];
+  if (lotEntities.length === 0) return;
+
+  const entityIds = lotEntities.map((e) => e.id);
+
+  // NCR-level link (mirrors the explorer's autoLinkJobOperationContext so the
+  // entities show up under "Tracked Entities" in the issue explorer).
+  const existingNcrLinks = await client
+    .from("nonConformanceTrackedEntity")
+    .select("trackedEntityId")
+    .eq("nonConformanceId", nonConformanceId)
+    .in("trackedEntityId", entityIds);
+  const alreadyOnNcr = new Set(
+    (existingNcrLinks.data ?? []).map((r) => r.trackedEntityId as string)
+  );
+  const ncrLinkRows = entityIds
+    .filter((id) => !alreadyOnNcr.has(id))
+    .map((trackedEntityId) => ({
+      nonConformanceId,
+      trackedEntityId,
+      companyId,
+      createdBy: userId
+    }));
+  if (ncrLinkRows.length > 0) {
+    const ncrInsert = await client
+      .from("nonConformanceTrackedEntity")
+      .insert(ncrLinkRows);
+    if (ncrInsert.error) {
+      console.error(ncrInsert.error);
+      return;
+    }
+  }
+
+  // Disposition row: find or create. upsertIssue may have already inserted
+  // one for this item via the form's `items` array.
+  const existingItem = await client
+    .from("nonConformanceItem")
+    .select("id, quantity")
+    .eq("nonConformanceId", nonConformanceId)
+    .eq("itemId", itemId)
+    .maybeSingle();
+
+  let itemRowId: string;
+  let currentQty: number;
+  if (existingItem.data) {
+    itemRowId = existingItem.data.id as string;
+    currentQty = Number(existingItem.data.quantity ?? 0);
+  } else {
+    const insert = await (client as any)
+      .from("nonConformanceItem")
+      .insert({
+        itemId,
+        nonConformanceId,
+        createdBy: userId,
+        companyId,
+        quantity: 0
+      })
+      .select("id, quantity")
+      .single();
+    if (insert.error || !insert.data) {
+      console.error(insert.error);
+      return;
+    }
+    itemRowId = insert.data.id as string;
+    currentQty = Number(insert.data.quantity ?? 0);
+  }
+
+  // ncUnique: an entity may sit on at most one disposition row per NCR.
+  const alreadyLinked = await (client as any)
+    .from("nonConformanceItemTrackedEntity")
+    .select("trackedEntityId")
+    .eq("nonConformanceId", nonConformanceId)
+    .in("trackedEntityId", entityIds);
+  const alreadyLinkedSet = new Set(
+    ((alreadyLinked.data ?? []) as { trackedEntityId: string }[]).map(
+      (r) => r.trackedEntityId
+    )
+  );
+
+  const linkRows = lotEntities
+    .filter((e) => !alreadyLinkedSet.has(e.id))
+    .map((e) => ({
+      nonConformanceItemId: itemRowId,
+      trackedEntityId: e.id,
+      quantity: Number(e.quantity ?? 1),
+      companyId,
+      createdBy: userId
+    }));
+  if (linkRows.length === 0) return;
+
+  const linkInsert = await (client as any)
+    .from("nonConformanceItemTrackedEntity")
+    .insert(linkRows);
+  if (linkInsert.error) {
+    console.error(linkInsert.error);
+    return;
+  }
+
+  const addedQty = linkRows.reduce((acc, r) => acc + r.quantity, 0);
+  await client
+    .from("nonConformanceItem")
+    .update({
+      quantity: currentQty + addedQty,
+      updatedBy: userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", itemRowId)
+    .eq("companyId", companyId);
 }

@@ -17,6 +17,7 @@ type FormTextAreaControlledProps = Omit<TextareaProps, "value" | "onChange"> & {
   characterLimit?: number;
   isOptional?: boolean;
   isRequired?: boolean;
+  isDisabled?: boolean;
   helperText?: string;
   value: string;
   onChange?: (newValue: string) => void;
@@ -33,6 +34,7 @@ const TextAreaControlled = forwardRef<
       characterLimit,
       isOptional,
       isRequired,
+      isDisabled: isDisabledProp,
       helperText,
       value,
       className,
@@ -48,7 +50,7 @@ const TextAreaControlled = forwardRef<
     } = useField(name);
     const [controlValue, setControlValue] = useControlField<string>(name);
     const formState = useFormStateContext();
-    const disabled = formState.isDisabled || rest.disabled;
+    const disabled = formState.isDisabled || isDisabledProp || rest.disabled;
     const readOnly = formState.isReadOnly || rest.readOnly;
 
     useEffect(() => {

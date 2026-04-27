@@ -9,6 +9,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  Separator,
   SidebarTrigger,
   Spinner,
   Switch,
@@ -293,6 +294,7 @@ export default function ScheduleRoute() {
 }
 
 const defaultDisplaySettings: DisplaySettings = {
+  emptyWorkCenters: true,
   showDuration: true,
   showCustomer: true,
   showDescription: true,
@@ -325,10 +327,27 @@ function KanbanSchedule() {
     DISPLAY_SETTINGS_KEY,
     defaultDisplaySettings
   );
+  const mergedDisplaySettings = useMemo(
+    () => ({ ...defaultDisplaySettings, ...displaySettings }),
+    [displaySettings]
+  );
 
   const sortItems = useCallback((items: Item[]) => {
     return items.sort((a, b) => a.priority - b.priority);
   }, []);
+
+  const visibleColumns = useMemo(() => {
+    if (mergedDisplaySettings.emptyWorkCenters) {
+      return columns;
+    }
+
+    const workCenterIdsWithOperations = new Set(
+      items.map((item) => item.columnId)
+    );
+    return columns.filter((column) =>
+      workCenterIdsWithOperations.has(column.id)
+    );
+  }, [columns, items, mergedDisplaySettings.emptyWorkCenters]);
 
   const { progressByOperation } = useProgressByOperation(
     items,
@@ -422,8 +441,34 @@ function KanbanSchedule() {
                 <Trans>Display</Trans>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-48">
+            <PopoverContent className="w-56">
               <VStack>
+                <span className="text-xs font-medium text-muted-foreground">
+                  <Trans>Columns</Trans>
+                </span>
+                {[
+                  { key: "emptyWorkCenters", label: t`Empty work centers` }
+                ].map(({ key, label }) => (
+                  <Switch
+                    key={key}
+                    variant="small"
+                    label={label}
+                    checked={
+                      mergedDisplaySettings[key as keyof DisplaySettings]
+                    }
+                    onCheckedChange={(checked) =>
+                      setDisplaySettings((prev) => ({
+                        ...defaultDisplaySettings,
+                        ...prev,
+                        [key]: checked
+                      }))
+                    }
+                  />
+                ))}
+                <Separator />
+                <span className="text-xs font-medium text-muted-foreground">
+                  <Trans>Cards</Trans>
+                </span>
                 {[
                   { key: "showCustomer", label: t`Customer` },
                   { key: "showDescription", label: t`Description` },
@@ -438,9 +483,12 @@ function KanbanSchedule() {
                     key={key}
                     variant="small"
                     label={label}
-                    checked={displaySettings[key as keyof DisplaySettings]}
+                    checked={
+                      mergedDisplaySettings[key as keyof DisplaySettings]
+                    }
                     onCheckedChange={(checked) =>
                       setDisplaySettings((prev) => ({
+                        ...defaultDisplaySettings,
                         ...prev,
                         [key]: checked
                       }))
@@ -462,9 +510,9 @@ function KanbanSchedule() {
           <div className="flex flex-1 min-h-full w-full relative">
             {columns.length > 0 ? (
               <Kanban
-                columns={columns}
+                columns={visibleColumns}
                 items={items}
-                {...displaySettings}
+                {...mergedDisplaySettings}
                 showEmployee={false}
                 progressByItemId={progressByOperation}
               />

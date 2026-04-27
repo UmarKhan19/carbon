@@ -128,7 +128,8 @@ export const itemValidator = z.object({
   // Fixed Duration + Make items only: when true, the produced expiry is
   // capped by the earliest input expiry — the output cannot outlast its
   // raw materials. Falls back to today + days when no input has a date.
-  shelfLifeInheritEarliestInputExpiry: zfd.checkbox()
+  shelfLifeInheritEarliestInputExpiry: zfd.checkbox(),
+  requiresInspection: zfd.checkbox().optional()
 });
 
 // Common storage / shelf-life refines. Shared across all item-type

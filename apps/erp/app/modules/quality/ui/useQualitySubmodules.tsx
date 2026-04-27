@@ -1,6 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import {
   LuCircleGauge,
+  LuClipboardCheck,
   LuDraftingCompass,
   LuFileText,
   LuListChecks,
@@ -43,6 +44,17 @@ export default function useQualitySubmodules() {
           to: path.to.risks,
           icon: <LuShieldAlert />,
           table: "riskRegister"
+        }
+      ]
+    },
+    {
+      name: t`Inspections`,
+      routes: [
+        {
+          name: t`Inbound Inspections`,
+          to: path.to.inboundInspections,
+          icon: <LuClipboardCheck />,
+          table: "inboundInspection"
         }
       ]
     },

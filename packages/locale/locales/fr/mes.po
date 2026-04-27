@@ -124,7 +124,7 @@ msgstr "Assigné"
 msgid "Assigned to Me"
 msgstr "Assigné à moi"
 
-#: apps/mes/app/routes/x+/operations.tsx:386
+#: apps/mes/app/routes/x+/operations.tsx:405
 msgid "Assignee"
 msgstr "Assigné à"
 
@@ -144,7 +144,7 @@ msgstr "Lot {0} ({1} disponible(s))"
 
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:182
 msgid "Batch is not available"
-msgstr "Le lot n'est pas disponible"
+msgstr "Le lot n'est pas disponible<<<<<<< Updated upstream"
 
 #. placeholder {0}: index + 1
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:502
@@ -190,6 +190,10 @@ msgstr "Annuler"
 msgid "Carbon Logo"
 msgstr "Logo Carbon"
 
+#: apps/mes/app/routes/x+/operations.tsx:470
+msgid "Cards"
+msgstr "Cartes"
+
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:475
 msgid "Chat"
 msgstr "Discussion"
@@ -204,7 +208,7 @@ msgid "Clear"
 msgstr "Effacer"
 
 #: apps/mes/app/components/Filter/Filter.tsx:121
-#: apps/mes/app/routes/x+/operations.tsx:480
+#: apps/mes/app/routes/x+/operations.tsx:528
 msgid "Clear Filters"
 msgstr "Effacer les filtres"
 
@@ -271,6 +275,10 @@ msgstr "La colonne {0} a été déplacée au-dessus de {1} à la position {2} su
 msgid "Column: {0}"
 msgstr "Colonne : {0}"
 
+#: apps/mes/app/routes/x+/operations.tsx:447
+msgid "Columns"
+msgstr "Colonnes"
+
 #: apps/mes/app/components/AppSidebar.tsx:420
 msgid "Company"
 msgstr "Entreprise"
@@ -303,7 +311,7 @@ msgid "Create {0}"
 msgstr "Créer {0}"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2002
-#: apps/mes/app/routes/x+/operations.tsx:428
+#: apps/mes/app/routes/x+/operations.tsx:473
 msgid "Customer"
 msgstr "Client"
 
@@ -340,7 +348,7 @@ msgstr "Supprimer la fiche de temps ({0})"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:2016
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:284
-#: apps/mes/app/routes/x+/operations.tsx:429
+#: apps/mes/app/routes/x+/operations.tsx:474
 msgid "Description"
 msgstr "Description"
 
@@ -352,7 +360,7 @@ msgstr "Détails"
 msgid "Dispatch not found"
 msgstr "Intervention non trouvée"
 
-#: apps/mes/app/routes/x+/operations.tsx:422
+#: apps/mes/app/routes/x+/operations.tsx:441
 msgid "Display"
 msgstr "Affichage"
 
@@ -386,7 +394,7 @@ msgid "Due {0}"
 msgstr "Échéance {0}"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:660
-#: apps/mes/app/routes/x+/operations.tsx:430
+#: apps/mes/app/routes/x+/operations.tsx:475
 msgid "Due Date"
 msgstr "Date d'échéance"
 
@@ -398,7 +406,7 @@ msgstr "Numéro de lot en double"
 msgid "Duplicate serial number"
 msgstr "Numéro de série en double"
 
-#: apps/mes/app/routes/x+/operations.tsx:431
+#: apps/mes/app/routes/x+/operations.tsx:476
 #: apps/mes/app/routes/x+/timecard.tsx:325
 msgid "Duration"
 msgstr "Durée"
@@ -410,6 +418,10 @@ msgstr "Modifier"
 #: apps/mes/app/routes/_public+/login.tsx:229
 msgid "Email Address"
 msgstr "Adresse e-mail"
+
+#: apps/mes/app/routes/x+/operations.tsx:450
+msgid "Empty work centers"
+msgstr "Centres de travail vides"
 
 #: apps/mes/app/components/EndShift.tsx:72
 #: apps/mes/app/components/EndShift.tsx:75
@@ -767,7 +779,7 @@ msgid "No recent operations"
 msgstr "Aucune opération récente"
 
 #: apps/mes/app/components/PinInOverlay.tsx:223
-#: apps/mes/app/routes/x+/operations.tsx:477
+#: apps/mes/app/routes/x+/operations.tsx:525
 msgid "No results"
 msgstr "Aucun résultat"
 
@@ -804,7 +816,7 @@ msgstr "Aucune saisie de temps pour cette semaine"
 msgid "No work centers are blocked"
 msgstr "Aucun poste de travail n'est bloqué"
 
-#: apps/mes/app/routes/x+/operations.tsx:489
+#: apps/mes/app/routes/x+/operations.tsx:537
 msgid "No work centers exist"
 msgstr "Aucun poste de travail n'existe"
 
@@ -906,7 +918,7 @@ msgstr "Priorité"
 msgid "Procedure"
 msgstr "Procédure"
 
-#: apps/mes/app/routes/x+/operations.tsx:358
+#: apps/mes/app/routes/x+/operations.tsx:377
 msgid "Process"
 msgstr "Processus"
 
@@ -914,11 +926,11 @@ msgstr "Processus"
 msgid "Process Parameters"
 msgstr "Paramètres de processus"
 
-#: apps/mes/app/routes/x+/operations.tsx:359
+#: apps/mes/app/routes/x+/operations.tsx:378
 msgid "Processes"
 msgstr "Processus"
 
-#: apps/mes/app/routes/x+/operations.tsx:432
+#: apps/mes/app/routes/x+/operations.tsx:477
 msgid "Progress"
 msgstr "Progression"
 
@@ -971,7 +983,7 @@ msgstr "Retirer du stock"
 msgid "Remove part"
 msgstr "Retirer la pièce"
 
-#: apps/mes/app/routes/x+/operations.tsx:434
+#: apps/mes/app/routes/x+/operations.tsx:479
 msgid "Sales Order"
 msgstr "Commande client"
 
@@ -992,7 +1004,7 @@ msgstr "Scanner ou saisir le numéro de série"
 
 #: apps/mes/app/components/AppSidebar.tsx:189
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:451
-#: apps/mes/app/routes/x+/operations.tsx:404
+#: apps/mes/app/routes/x+/operations.tsx:423
 msgid "Schedule"
 msgstr "Planification"
 
@@ -1008,7 +1020,7 @@ msgstr "Rebuté"
 #: apps/mes/app/routes/x+/active.tsx:83
 #: apps/mes/app/routes/x+/assigned.tsx:103
 #: apps/mes/app/routes/x+/maintenance.tsx:453
-#: apps/mes/app/routes/x+/operations.tsx:411
+#: apps/mes/app/routes/x+/operations.tsx:430
 #: apps/mes/app/routes/x+/recent.tsx:83
 msgid "Search"
 msgstr "Rechercher"
@@ -1060,7 +1072,7 @@ msgstr "Sélectionner un article et préciser la quantité à distribuer"
 
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:317
 msgid "Select an item..."
-msgstr "Sélectionner un article..."
+msgstr "Sélectionner un article...<<<<<<< Updated upstream"
 
 #. placeholder {0}: index + 1
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:592
@@ -1089,7 +1101,7 @@ msgstr "Série"
 #. placeholder {0}: sn.readableId
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:128
 msgid "Serial {0}"
-msgstr "Série {0}"
+msgstr "Série {0}<<<<<<< Updated upstream"
 
 #. placeholder {0}: index + 1
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:382
@@ -1170,7 +1182,7 @@ msgid "Station: {stationName}"
 msgstr "Poste : {stationName}"
 
 #: apps/mes/app/routes/x+/maintenance.tsx:356
-#: apps/mes/app/routes/x+/operations.tsx:433
+#: apps/mes/app/routes/x+/operations.tsx:478
 msgid "Status"
 msgstr "Statut"
 
@@ -1210,7 +1222,7 @@ msgstr "Support requis"
 msgid "Switch Operator"
 msgstr "Changer d'opérateur"
 
-#: apps/mes/app/routes/x+/operations.tsx:375
+#: apps/mes/app/routes/x+/operations.tsx:394
 msgid "Tag"
 msgstr "Étiquette"
 
@@ -1223,7 +1235,7 @@ msgstr "La quantité produite pour cette opération est inférieure à la quanti
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Il existe des matériaux suivis par numéro de série ou par lot dans la nomenclature qui n'ont pas été entièrement distribués. Terminer sans distribuer peut entraîner des enregistrements de traçabilité incorrects."
 
-#: apps/mes/app/routes/x+/operations.tsx:435
+#: apps/mes/app/routes/x+/operations.tsx:480
 msgid "Thumbnail"
 msgstr "Miniature"
 
@@ -1307,7 +1319,7 @@ msgstr "En-cours"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1952
 #: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:258
 #: apps/mes/app/routes/x+/maintenance.tsx:332
-#: apps/mes/app/routes/x+/operations.tsx:347
+#: apps/mes/app/routes/x+/operations.tsx:366
 msgid "Work Center"
 msgstr "Poste de travail"
 

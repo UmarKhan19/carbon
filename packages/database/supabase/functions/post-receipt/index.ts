@@ -13,7 +13,12 @@ import {
   TrackedEntityAttributes,
 } from "../lib/utils.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
+import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
+import {
+  resolveSamplingPlan,
+  type SamplingStandard,
+} from "../shared/sampling-engine.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -69,17 +74,30 @@ serve(async (req: Request) => {
       }
       return acc;
     }, []);
-    const [items, itemCosts] = await Promise.all([
-      client
-        .from("item")
-        .select("id, itemTrackingType")
-        .in("id", itemIds)
-        .eq("companyId", companyId),
-      client
-        .from("itemCost")
-        .select("itemId, itemPostingGroupId")
-        .in("itemId", itemIds),
-    ]);
+    const [items, itemCosts, companySettings, itemSamplingPlans] =
+      await Promise.all([
+        client
+          .from("item")
+          .select("id, itemTrackingType, requiresInspection")
+          .in("id", itemIds)
+          .eq("companyId", companyId),
+        client
+          .from("itemCost")
+          .select("itemId, itemPostingGroupId")
+          .in("itemId", itemIds),
+        client
+          .from("companySettings")
+          .select("samplingStandard")
+          .eq("id", companyId)
+          .single(),
+        (client as any)
+          .from("itemSamplingPlan")
+          .select(
+            "itemId, type, sampleSize, percentage, aql, inspectionLevel, severity"
+          )
+          .in("itemId", itemIds)
+          .eq("companyId", companyId),
+      ]);
     if (items.error) {
       throw new Error("Failed to fetch items");
     }
@@ -87,6 +105,12 @@ serve(async (req: Request) => {
       throw new Error("Failed to fetch item costs");
     }
 
+    const samplingStandard: SamplingStandard =
+      (companySettings.data as any)?.samplingStandard ?? "ANSI_Z1_4";
+    const samplingPlansByItemId = new Map<string, any>(
+      ((itemSamplingPlans.data as any[]) ?? []).map((p) => [p.itemId, p])
+    );
+    
     if (type === "void") {
       if (receipt.data?.status !== "Posted") {
         throw new Error("Can only void posted receipts");
@@ -474,6 +498,63 @@ serve(async (req: Request) => {
           return acc;
         }, {});
 
+        // Build one inspection lot per receiptLine that belongs to an item
+        // with requiresInspection = true. Compute the sampling plan snapshot
+        // from the company's chosen standard and the item's plan (or default
+        // to "Inspect All" if no plan is configured).
+        const inboundInspectionInserts: Array<Record<string, any>> = [];
+        for (const receiptLine of receiptLines.data ?? []) {
+          const item = items.data?.find((i) => i.id === receiptLine.itemId);
+          if (!item?.requiresInspection) continue;
+          if (!receiptLine.itemId) continue;
+
+          const safeReceivedQuantity =
+            isNaN(receiptLine.receivedQuantity as any) ||
+            receiptLine.receivedQuantity == null
+              ? 0
+              : receiptLine.receivedQuantity;
+          if (safeReceivedQuantity <= 0) continue;
+
+          const plan = samplingPlansByItemId.get(receiptLine.itemId) ?? {
+            type: "All",
+            sampleSize: null,
+            percentage: null,
+            aql: null,
+            inspectionLevel: "II",
+            severity: "Normal",
+          };
+
+          const snapshot = resolveSamplingPlan(
+            plan,
+            safeReceivedQuantity,
+            samplingStandard
+          );
+
+          inboundInspectionInserts.push({
+            receiptLineId: receiptLine.id,
+            receiptId,
+            itemId: receiptLine.itemId,
+            itemReadableId: receiptLine.itemReadableId,
+            supplierId: purchaseOrder.data.supplierId ?? null,
+            lotSize: safeReceivedQuantity,
+            samplingStandard,
+            samplingPlanType: plan.type,
+            sampleSize: snapshot.sampleSize,
+            acceptanceNumber: snapshot.acceptance,
+            rejectionNumber: snapshot.rejection,
+            aql: plan.aql ?? null,
+            inspectionLevel: plan.inspectionLevel ?? null,
+            severity: plan.severity ?? null,
+            codeLetter: snapshot.codeLetter,
+            status: "Pending",
+            companyId,
+            createdBy: userId,
+          });
+        }
+
+        // Tracked entities for items requiring inspection stay On Hold after
+        // posting (they are released individually by the sample inspection or
+        // en masse by lot disposition). Everything else flips to Available.
         const trackedEntityUpdates =
           receiptLineTracking.data?.reduce<
             Record<
@@ -499,8 +580,13 @@ serve(async (req: Request) => {
               ? 1
               : safeReceivedQuantity || itemTracking.quantity;
 
+            const item = items.data?.find(
+              (item) => item.id === receiptLine?.itemId
+            );
+            const requiresInspection = item?.requiresInspection === true;
+
             acc[itemTracking.id] = {
-              status: "Available",
+              status: requiresInspection ? "On Hold" : "Available",
               quantity: quantity,
             };
 
@@ -1262,6 +1348,20 @@ serve(async (req: Request) => {
                   .execute();
               }
             }
+          }
+
+          if (inboundInspectionInserts.length > 0) {
+            for (const row of inboundInspectionInserts) {
+              row.inboundInspectionId = await getNextSequence(
+                trx,
+                "inboundInspection",
+                companyId
+              );
+            }
+            await trx
+              .insertInto("inboundInspection")
+              .values(inboundInspectionInserts)
+              .execute();
           }
         });
         break;

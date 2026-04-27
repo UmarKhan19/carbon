@@ -68,7 +68,7 @@ export const LinkSelector = ({ open, onOpenChange }: LinkSelectorProps) => {
               icon={<LuTrash className="h-4 w-4" />}
               variant="secondary"
               type="button"
-              className="flex h-8 items-center rounded-sm p-1 text-red-600 transition-all hover:bg-red-100 dark:hover:bg-red-800"
+              className="flex h-8 items-center rounded-sm p-1 text-red-600 transition-colors hover:bg-red-100 dark:hover:bg-red-800"
               onClick={() => {
                 editor.chain().focus().unsetLink().run();
               }}

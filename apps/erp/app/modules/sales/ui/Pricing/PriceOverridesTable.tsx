@@ -181,7 +181,7 @@ const PriceListTable = memo(
           accessorKey: "basePrice",
           header: t`Base Price`,
           cell: ({ row }) => (
-            <span className="text-muted-foreground tabular-nums">
+            <span className="text-muted-foreground">
               {currencyFormatter.format(row.original.basePrice)}
             </span>
           ),
