@@ -1,30 +1,43 @@
 -- ============================================================================
--- Migration: 20260426020000_drop-tracked-entity-expiration-attribute
+-- Migration: 20260426020000_tracked-entity-expiration-date-column
 --
 -- Goal:
---   Finish the column promotion. The previous migration
---   (20260426010000_tracked-entity-expiration-date-column) introduced
---   the first-class "expirationDate" DATE column, backfilled it from the
---   "expirationDate" JSONB key, and updated DB functions to write both
---   representations during the transition.
+--   Promote "expirationDate" from a JSONB attributes key to a first-class
+--   DATE column on "trackedEntity".
 --
---   Now that all read paths are off the JSONB key, drop the duplication:
---     1. Strip "expirationDate" from every "trackedEntity"."attributes" row.
---     2. Re-define the DB functions that own trackedEntity creation so
---        they stop populating the JSONB key. The DATE column stays the
---        single source of truth.
+--   Per Brad's review on PR #692: JSON attributes are fine for descriptive
+--   pass-through data, but anything we sort by, filter on, or run business
+--   logic against should be its own column. Same pattern as the earlier
+--   Serial Number / Batch Number -> readableId promotion.
 --
---   No FK / index changes needed - the partial index from the previous
---   migration already covers the canonical column.
+-- Steps:
+--   1. ADD COLUMN "expirationDate" DATE NULL on "trackedEntity".
+--   2. Partial index on rows where the date is set, for fast near-expiry
+--      report queries.
+--   3. Define the three DB functions that own trackedEntity creation /
+--      stamping so they write the column directly (no JSONB key written).
 -- ============================================================================
 
--- 1. Strip "expirationDate" from every attributes blob.
-UPDATE "trackedEntity"
-SET "attributes" = "attributes" - 'expirationDate'
-WHERE "attributes" ? 'expirationDate';
+-- 1. Add the column.
+ALTER TABLE "trackedEntity"
+  ADD COLUMN "expirationDate" DATE NULL;
 
+-- 2. Partial index. Predominantly used by near-expiry reports / sort.
+CREATE INDEX "trackedEntity_expirationDate_idx"
+  ON "trackedEntity" ("expirationDate")
+  WHERE "expirationDate" IS NOT NULL;
 
--- 2a. Receipt batch tracking. Column-only.
+-- ============================================================================
+-- 3. DB functions that write trackedEntity.expirationDate.
+--    Column-only — the JSONB attributes blob carries descriptive context
+--    (Receipt Line, Supplier, etc) but never the expirationDate key.
+--    Functions:
+--      a. update_receipt_line_batch_tracking
+--      b. update_receipt_line_serial_tracking
+--      c. set_shelf_life_for_operation
+-- ============================================================================
+
+-- 3a. Receipt batch tracking. Column-only.
 CREATE OR REPLACE FUNCTION update_receipt_line_batch_tracking(
   p_receipt_line_id TEXT,
   p_receipt_id TEXT,
@@ -131,7 +144,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- 2b. Receipt serial tracking. Column-only.
+-- 3b. Receipt serial tracking. Column-only.
 DROP FUNCTION IF EXISTS update_receipt_line_serial_tracking;
 CREATE OR REPLACE FUNCTION update_receipt_line_serial_tracking(
   p_receipt_line_id TEXT,
@@ -232,7 +245,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- 2c. Shelf-life stamp helper. Column-only.
+-- 3c. Shelf-life stamp helper. Column-only.
 CREATE OR REPLACE FUNCTION set_shelf_life_for_operation(
   p_job_operation_id TEXT,
   p_event            "shelfLifeTriggerTiming"
@@ -326,7 +339,6 @@ BEGIN
     RETURN;
   END IF;
 
-  -- Stamp the seed entity. Column-only; no JSONB write.
   UPDATE "trackedEntity"
   SET "expirationDate" = v_computed_expiry
   WHERE "sourceDocument" = 'Item'

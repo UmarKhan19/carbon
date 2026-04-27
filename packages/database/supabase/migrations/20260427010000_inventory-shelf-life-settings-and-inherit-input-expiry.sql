@@ -1,29 +1,69 @@
 -- ============================================================================
--- Migration: 20260427010000_inherit-earliest-input-expiry
+-- Migration: 20260427010000_inventory-shelf-life-settings-and-inherit-input-expiry
 --
 -- Goal:
---   Let Fixed Duration items optionally cap by the earliest input expiry.
+--   Two related shelf-life changes bundled together:
 --
---   Until now, Fixed Duration produced a flat clock (today + N days) and
---   ignored input expiries. Customers in food / pharma need the output to
---   inherit the earliest input expiry when it's sooner — flour shouldn't
---   outlive its rice. Calculated mode already does this implicitly, but
---   that mode has no fixed clock at all, so it isn't always the right
---   answer when you want a default of "N days" with a stale-input cap.
+--   1. Consolidate every company-level shelf-life knob into the existing
+--      companySettings.inventoryShelfLife JSONB blob, dropping the
+--      now-redundant flat columns. Final blob shape:
 --
---   New flag on itemShelfLife: "inheritEarliestInputExpiry" BOOLEAN.
---   Only meaningful when mode = 'Fixed Duration'. Default false (preserves
---   existing behavior on every existing row).
+--        {
+--          "calculatedInputScope":  "AllInputs" | "ManagedInputsOnly",
+--          "expiredEntityPolicy":   "Warn" | "Block" | "BlockWithOverride",
+--          "nearExpiryWarningDays": number | null,
+--          "defaultShelfLifeDays":  number
+--        }
 --
---   When true:
---     expiry = LEAST(today + days, MIN(input expirationDate))
---     - inputs without expirationDate are skipped (ignored)
---     - if all inputs lack expirationDate, falls back to today + days
---     - the same companySettings.inventoryShelfLife.calculatedInputScope
---       knob (AllInputs vs ManagedInputsOnly) decides which inputs feed
---       MIN — keeps the rule uniform with Calculated mode.
+--      Adds the new "expiredEntityPolicy" knob in the same pass — controls
+--      what happens when an operator tries to consume a tracked entity past
+--      its expirationDate. Default 'Block' so the safe behavior is the
+--      default.
+--
+--   2. Let Fixed Duration items optionally cap by the earliest input
+--      expiry. Until now Fixed Duration produced a flat clock (today + N
+--      days) and ignored input expiries. Customers in food / pharma need
+--      the output to inherit the earliest input expiry when it's sooner —
+--      flour shouldn't outlive its rice. Calculated mode already does this
+--      implicitly, but that mode has no fixed clock at all, so it isn't
+--      always the right answer when you want a default of "N days" with a
+--      stale-input cap.
+--
+--      New flag on itemShelfLife: "inheritEarliestInputExpiry" BOOLEAN.
+--      Only meaningful when mode = 'Fixed Duration'. Default false
+--      (preserves existing behavior on every existing row).
+--
+--      When true:
+--        expiry = LEAST(today + days, MIN(input expirationDate))
+--        - inputs without expirationDate are skipped (ignored)
+--        - if all inputs lack expirationDate, falls back to today + days
+--        - the same companySettings.inventoryShelfLife.calculatedInputScope
+--          knob (AllInputs vs ManagedInputsOnly) decides which inputs feed
+--          MIN — keeps the rule uniform with Calculated mode.
 -- ============================================================================
 
+-- 1. Backfill the JSONB blob with values from the existing flat columns
+--    plus the new expiredEntityPolicy default. `||` keeps any keys already
+--    present (idempotent).
+UPDATE "companySettings"
+SET "inventoryShelfLife" = COALESCE("inventoryShelfLife", '{}'::JSONB)
+  || jsonb_build_object(
+       'nearExpiryWarningDays', "nearExpiryWarningDays",
+       'defaultShelfLifeDays',  "defaultShelfLifeDays",
+       'expiredEntityPolicy',   COALESCE(
+         "inventoryShelfLife"->>'expiredEntityPolicy',
+         'Block'
+       )
+     );
+
+
+-- 2. Drop the now-redundant flat columns.
+ALTER TABLE "companySettings"
+  DROP COLUMN IF EXISTS "nearExpiryWarningDays",
+  DROP COLUMN IF EXISTS "defaultShelfLifeDays";
+
+
+-- 3. Inherit-earliest-input-expiry flag on itemShelfLife.
 ALTER TABLE "itemShelfLife"
   ADD COLUMN "inheritEarliestInputExpiry" BOOLEAN NOT NULL DEFAULT false;
 
@@ -35,8 +75,8 @@ ALTER TABLE "itemShelfLife"
     );
 
 
--- Re-define the stamp helper to honor the new flag inside the Fixed
--- Duration branch. Other branches unchanged.
+-- 4. Re-define the stamp helper to honor the new flag inside the Fixed
+--    Duration branch. Other branches unchanged.
 CREATE OR REPLACE FUNCTION set_shelf_life_for_operation(
   p_job_operation_id TEXT,
   p_event            "shelfLifeTriggerTiming"
