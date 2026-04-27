@@ -14,6 +14,7 @@ import type {
   getIssueReviewers,
   getIssues,
   getIssueTypes,
+  getIssueTypesList,
   getIssueWorkflow,
   getQualityActions,
   getQualityDocument,
@@ -142,3 +143,25 @@ export type InboundInspectionDetail = NonNullable<
 
 export type InboundInspectionStatus =
   Database["public"]["Enums"]["inboundInspectionStatus"];
+
+export type InboundInspectionSampleStatus =
+  Database["public"]["Enums"]["inboundInspectionSampleStatus"];
+
+export type InboundInspectionRow =
+  Database["public"]["Tables"]["inboundInspection"]["Row"];
+
+export type InboundInspectionSampleRow =
+  Database["public"]["Tables"]["inboundInspectionSample"]["Row"];
+
+export type InspectionTrackedEntity = Pick<
+  Database["public"]["Tables"]["trackedEntity"]["Row"],
+  "id" | "readableId" | "attributes" | "status" | "sourceDocumentReadableId"
+>;
+
+export type InboundInspectionSample = InboundInspectionSampleRow & {
+  trackedEntity: InspectionTrackedEntity | null;
+};
+
+export type IssueTypeListItem = NonNullable<
+  Awaited<ReturnType<typeof getIssueTypesList>>["data"]
+>[number];

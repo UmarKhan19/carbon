@@ -42,55 +42,26 @@ import { useFetcher, useNavigate } from "react-router";
 import { EmployeeAvatar } from "~/components";
 import { Confirm } from "~/components/Modals";
 import { usePermissions } from "~/hooks";
+import type {
+  InboundInspectionRow,
+  InboundInspectionSample,
+  InspectionTrackedEntity,
+  IssueTypeListItem
+} from "~/modules/quality/types";
 import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
 import { getReadableIdWithRevision } from "~/utils/string";
 import ScanInspectionSample from "./ScanInspectionSample";
 
-type LotTrackedEntity = {
-  id: string;
-  readableId: string | null;
-  attributes: Record<string, unknown>;
-  sourceDocumentReadableId: string | null;
-  status: string | null;
-};
-
-type LotSample = {
-  id: string;
-  trackedEntityId: string;
-  status: "Pending" | "Passed" | "Failed";
-  notes: string | null;
-  inspectedBy: string | null;
-  inspectedAt: string | null;
-  trackedEntity: LotTrackedEntity | null;
-};
-
 export type InboundInspectionLotViewProps = {
-  inspection: {
-    id: string;
-    itemId: string;
-    itemReadableId: string | null;
-    lotSize: number;
-    sampleSize: number;
-    acceptanceNumber: number;
-    rejectionNumber: number;
-    samplingStandard: "ANSI_Z1_4" | "ISO_2859_1";
-    samplingPlanType: "All" | "First" | "Percentage" | "AQL";
-    aql: number | null;
-    inspectionLevel: string | null;
-    severity: string | null;
-    codeLetter: string | null;
-    status: string;
-    dispositionedAt: string | null;
-    receiptId: string;
-  };
+  inspection: InboundInspectionRow;
   receiptReadableId: string | null;
   receiverId: string | null;
   itemName: string;
   supplierName: string | null;
-  samples: LotSample[];
-  lotEntities: LotTrackedEntity[];
-  issueTypes: { id: string; name: string }[];
+  samples: InboundInspectionSample[];
+  lotEntities: InspectionTrackedEntity[];
+  issueTypes: IssueTypeListItem[];
   currentUserId: string;
   enforceFourEyes: boolean;
   open?: boolean;
@@ -432,7 +403,7 @@ function RejectLotModal({
   onSubmit
 }: {
   action: string;
-  issueTypes: { id: string; name: string }[];
+  issueTypes: IssueTypeListItem[];
   summary: string;
   onCancel: () => void;
   onSubmit: () => void;

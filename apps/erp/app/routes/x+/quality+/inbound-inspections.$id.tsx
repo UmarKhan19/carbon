@@ -9,6 +9,12 @@ import {
   getInboundInspectionLotTrackedEntities,
   getIssueTypesList
 } from "~/modules/quality";
+import type {
+  InboundInspectionRow,
+  InboundInspectionSample,
+  InspectionTrackedEntity,
+  IssueTypeListItem
+} from "~/modules/quality/types";
 import InboundInspectionLotView from "~/modules/quality/ui/InboundInspections/InboundInspectionLotView";
 import { getCompanySettings } from "~/modules/settings";
 import { path } from "~/utils/path";
@@ -34,20 +40,36 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  if ((inspection.data as any).companyId !== companyId) {
+  const insp = inspection.data as InboundInspectionRow & {
+    item: { readableId: string | null; name: string; type: string } | null;
+    receipt: {
+      receiptId: string;
+      supplierId: string | null;
+      createdBy: string;
+    } | null;
+    supplier: { name: string } | null;
+    inboundInspectionSample: InboundInspectionSample[];
+  };
+
+  if (insp.companyId !== companyId) {
     throw redirect(path.to.inboundInspections);
   }
 
   const lotEntities = await getInboundInspectionLotTrackedEntities(
     client,
-    (inspection.data as any).receiptLineId,
+    insp.receiptLineId,
     companyId
   );
 
   return data({
-    inspection: inspection.data,
-    lotEntities: lotEntities.data ?? [],
-    issueTypes: issueTypes.data ?? [],
+    inspection: insp,
+    receiptReadableId: insp.receipt?.receiptId ?? null,
+    receiverId: insp.receipt?.createdBy ?? null,
+    itemName: insp.item?.name ?? "",
+    supplierName: insp.supplier?.name ?? null,
+    samples: insp.inboundInspectionSample ?? [],
+    lotEntities: (lotEntities.data ?? []) as InspectionTrackedEntity[],
+    issueTypes: (issueTypes.data ?? []) as IssueTypeListItem[],
     enforceFourEyes:
       ((settings.data as any)?.enforceInspectionFourEyes as boolean) ?? false,
     currentUserId: userId
@@ -57,46 +79,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 export default function InboundInspectionRoute() {
   const {
     inspection,
+    receiptReadableId,
+    receiverId,
+    itemName,
+    supplierName,
+    samples,
     lotEntities,
     issueTypes,
     enforceFourEyes,
     currentUserId
   } = useLoaderData<typeof loader>();
 
-  const insp = inspection as any;
-  const receiptReadableId = insp.receipt?.receiptId ?? null;
-  const receiverId = insp.receipt?.createdBy ?? null;
-  const itemName = insp.item?.name ?? "";
-  const supplierName = insp.supplier?.name ?? null;
-  const samples = (insp.inboundInspectionSample ?? []) as any[];
-
   return (
     <InboundInspectionLotView
-      inspection={{
-        id: insp.id,
-        itemId: insp.itemId,
-        itemReadableId: insp.itemReadableId,
-        lotSize: Number(insp.lotSize ?? 0),
-        sampleSize: Number(insp.sampleSize ?? 0),
-        acceptanceNumber: Number(insp.acceptanceNumber ?? 0),
-        rejectionNumber: Number(insp.rejectionNumber ?? 1),
-        samplingStandard: insp.samplingStandard,
-        samplingPlanType: insp.samplingPlanType,
-        aql: insp.aql,
-        inspectionLevel: insp.inspectionLevel,
-        severity: insp.severity,
-        codeLetter: insp.codeLetter,
-        status: insp.status,
-        dispositionedAt: insp.dispositionedAt ?? null,
-        receiptId: insp.receiptId
-      }}
+      inspection={inspection as InboundInspectionRow}
       receiptReadableId={receiptReadableId}
       receiverId={receiverId}
       itemName={itemName}
       supplierName={supplierName}
-      samples={samples}
-      lotEntities={lotEntities as any[]}
-      issueTypes={issueTypes as { id: string; name: string }[]}
+      samples={samples as InboundInspectionSample[]}
+      lotEntities={lotEntities as InspectionTrackedEntity[]}
+      issueTypes={issueTypes as IssueTypeListItem[]}
       currentUserId={currentUserId}
       enforceFourEyes={enforceFourEyes}
     />

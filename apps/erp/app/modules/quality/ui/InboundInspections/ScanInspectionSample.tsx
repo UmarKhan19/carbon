@@ -32,18 +32,12 @@ import {
 import { useFetcher } from "react-router";
 import { Hidden, Submit, TextArea } from "~/components/Form";
 import { inboundInspectionSampleValidator } from "~/modules/quality/quality.models";
+import type { InspectionTrackedEntity } from "~/modules/quality/types";
 import { path } from "~/utils/path";
-
-type LotTrackedEntity = {
-  id: string;
-  readableId: string | null;
-  attributes: Record<string, unknown>;
-  sourceDocumentReadableId: string | null;
-};
 
 type Props = {
   inspectionId: string;
-  remaining: LotTrackedEntity[];
+  remaining: InspectionTrackedEntity[];
   onClose: () => void;
 };
 
