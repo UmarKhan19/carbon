@@ -4493,7 +4493,7 @@ msgstr "编辑员工类型"
 msgid "Edit expiration date"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:230
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:231
 msgid "Edit Expiry"
 msgstr ""
 
@@ -4965,7 +4965,7 @@ msgstr "在收货时输入"
 msgid "Entities"
 msgstr "实体"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:69
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:70
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:173
 msgid "Entity"
 msgstr "实体"
@@ -5189,7 +5189,7 @@ msgstr "到期日期"
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "过期日期（适用于此行上的所有序列号）"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:156
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:157
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
 msgid "Expired"
 msgstr "已过期"
@@ -5207,7 +5207,7 @@ msgstr "过期"
 msgid "Expires At (optional)"
 msgstr "过期时间（可选）"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:141
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:142
 msgid "Expiry"
 msgstr "过期"
 
@@ -10062,7 +10062,7 @@ msgstr "数量"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:110
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:111
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:154
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:410
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:215
@@ -11657,7 +11657,7 @@ msgstr "序列号或批次跟踪必需"
 msgid "Serial Tracking"
 msgstr "序列追踪"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:96
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:97
 msgid "Serial/Batch #"
 msgstr "序列号/批次 #"
 
@@ -12094,7 +12094,7 @@ msgstr "来源分析"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:72
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:131
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:72
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:198
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:199
 msgid "Source Document"
 msgstr "源文档"
 
@@ -12254,7 +12254,7 @@ msgstr "州/省"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:130
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:140
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:95
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:121
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:122
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:65
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:130
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:124
@@ -13341,7 +13341,7 @@ msgstr "跟踪对您的订单、发票、客户、供应商等的每项更改。
 msgid "Track when batches or serials of this item expire."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:245
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:246
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:70
 #: apps/erp/app/routes/x+/inventory+/tracked-entities.tsx:16
 #: apps/erp/app/routes/x+/issue+/$id.tsx:147
@@ -14170,7 +14170,7 @@ msgstr "查看建议"
 msgid "View Suppliers"
 msgstr "查看供应商"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:223
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:224
 msgid "View Traceability Graph"
 msgstr "查看可追溯性图表"
 

@@ -4493,7 +4493,7 @@ msgstr "Modifica Tipo di Dipendente"
 msgid "Edit expiration date"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:230
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:231
 msgid "Edit Expiry"
 msgstr ""
 
@@ -4965,7 +4965,7 @@ msgstr "Inserito al Ricevimento"
 msgid "Entities"
 msgstr "Entità"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:69
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:70
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:173
 msgid "Entity"
 msgstr "Entità"
@@ -5189,7 +5189,7 @@ msgstr "Data di scadenza"
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "Data di scadenza (si applica a tutti i numeri seriali su questa riga)"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:156
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:157
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:143
 msgid "Expired"
 msgstr "Scaduto"
@@ -5207,7 +5207,7 @@ msgstr "Scade"
 msgid "Expires At (optional)"
 msgstr "Scade il (facoltativo)"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:141
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:142
 msgid "Expiry"
 msgstr "Scadenza"
 
@@ -10062,7 +10062,7 @@ msgstr "Quantità"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:110
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:111
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:154
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:410
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:215
@@ -11657,7 +11657,7 @@ msgstr "Tracciamento Seriale o Batch Richiesto"
 msgid "Serial Tracking"
 msgstr "Tracciamento Seriale"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:96
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:97
 msgid "Serial/Batch #"
 msgstr "Seriale/Lotto #"
 
@@ -12094,7 +12094,7 @@ msgstr "Analisi della Fonte"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:72
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:131
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:72
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:198
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:199
 msgid "Source Document"
 msgstr "Documento di Origine"
 
@@ -12254,7 +12254,7 @@ msgstr "Stato / Provincia"
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:130
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:140
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:95
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:121
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:122
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:65
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:130
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:124
@@ -13341,7 +13341,7 @@ msgstr "Traccia ogni modifica ai tuoi ordini, fatture, clienti, fornitori e altr
 msgid "Track when batches or serials of this item expire."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:245
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:246
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:70
 #: apps/erp/app/routes/x+/inventory+/tracked-entities.tsx:16
 #: apps/erp/app/routes/x+/issue+/$id.tsx:147
@@ -14170,7 +14170,7 @@ msgstr "Visualizza Suggerimento"
 msgid "View Suppliers"
 msgstr "Visualizza Fornitori"
 
-#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:223
+#: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:224
 msgid "View Traceability Graph"
 msgstr "Visualizza Grafico di Tracciabilità"
 

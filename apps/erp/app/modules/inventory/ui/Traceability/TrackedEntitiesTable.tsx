@@ -1,5 +1,6 @@
 import { Badge, MenuIcon, MenuItem } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -143,12 +144,12 @@ const TrackedEntitiesTable = memo(
             const expiry = row.original.expirationDate ?? undefined;
             if (!expiry) return null;
             const formatted = formatDate(expiry);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const expiryDate = new Date(expiry);
-            const daysLeft = Math.floor(
-              (expiryDate.getTime() - today.getTime()) / 86_400_000
-            );
+            // Use @internationalized/date so the comparison runs in the
+            // operator's local calendar, not UTC. Avoids the off-by-one
+            // around midnight that pure UTC `Date` arithmetic causes.
+            const todayLocal = today(getLocalTimeZone());
+            const expiryDate = parseDate(expiry);
+            const daysLeft = expiryDate.compare(todayLocal);
             const inner =
               daysLeft < 0 ? (
                 <Badge variant="destructive" className="gap-1">
