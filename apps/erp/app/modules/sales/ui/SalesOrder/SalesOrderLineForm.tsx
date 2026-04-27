@@ -104,6 +104,7 @@ const SalesOrderLineForm = ({
   const [saleQuantity, setSaleQuantity] = useState(
     initialValues.saleQuantity ?? 1
   );
+  const [isPriceResolving, setIsPriceResolving] = useState(false);
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: string;
@@ -199,7 +200,10 @@ const SalesOrderLineForm = ({
   );
 
   const debouncedQuantityResolve = useDebounce(async (qty: number) => {
-    if (!itemData.itemId) return;
+    if (!itemData.itemId) {
+      setIsPriceResolving(false);
+      return;
+    }
     const result = await resolvePrice(itemData.itemId, qty);
     if (result) {
       setItemData((d) => ({
@@ -210,16 +214,19 @@ const SalesOrderLineForm = ({
         priceTrace: result.trace
       }));
     }
+    setIsPriceResolving(false);
   }, 400);
 
   const onQuantityChange = (qty: number) => {
     setSaleQuantity(qty);
+    setIsPriceResolving(true);
     debouncedQuantityResolve(qty);
   };
 
   const onChange = async (itemId: string) => {
     if (!itemId) return;
     if (!carbon || !company.id) return;
+    setIsPriceResolving(true);
     const [item, price] = await Promise.all([
       carbon
         .from("item")
@@ -268,6 +275,7 @@ const SalesOrderLineForm = ({
       priceListName: result?.priceListName ?? null,
       priceTrace: result?.trace ?? null
     });
+    setIsPriceResolving(false);
   };
 
   const onLocationChange = async (newLocation: { value: string } | null) => {
@@ -674,6 +682,7 @@ const SalesOrderLineForm = ({
               <ModalCardFooter>
                 <Submit
                   isDisabled={
+                    isPriceResolving ||
                     !isEditable ||
                     (isEditing
                       ? !permissions.can("update", "sales")

@@ -174,7 +174,7 @@ msgstr "Uma linha de fatura de vendas contém detalhes da fatura para um item es
 msgid "A sales order contains information about the agreement between the company and a specific customer for parts and services."
 msgstr "Uma ordem de venda contém informações sobre o acordo entre a empresa e um cliente específico para peças e serviços."
 
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:363
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:371
 msgid "A sales order line contains order details for a particular item"
 msgstr "Uma linha de pedido de venda contém detalhes do pedido para um item específico"
 
@@ -605,12 +605,12 @@ msgid "Add to stock for future use"
 msgstr "Adicionar ao estoque para uso futuro"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:521
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:602
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:610
 msgid "Add-On"
 msgstr "Complemento"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:614
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:654
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:662
 msgid "Add-On Cost"
 msgstr "Custo Adicional"
 
@@ -2181,7 +2181,7 @@ msgid "Collapse all"
 msgstr "Recolher tudo"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:530
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:611
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:619
 msgid "Collapse Costs"
 msgstr "Recolher Custos"
 
@@ -3765,7 +3765,7 @@ msgstr "Eliminar Problema"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:569
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:336
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:346
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:388
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:396
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQExplorer.tsx:324
 msgid "Delete Line"
 msgstr "Eliminar Linha"
@@ -5148,7 +5148,7 @@ msgid "Expand all"
 msgstr "Expandir tudo"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:531
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:612
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:620
 msgid "Expand Costs"
 msgstr "Expandir Custos"
 
@@ -7161,7 +7161,7 @@ msgstr "Carregando..."
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:108
 #: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:81
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:209
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:524
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:532
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:221
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:149
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:420
@@ -7620,7 +7620,7 @@ msgstr "Membros"
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:436
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:216
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:392
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:454
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:462
 msgid "Method"
 msgstr "Método"
 
@@ -7816,7 +7816,7 @@ msgstr "Segunda-feira"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:364
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:416
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:325
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:378
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:386
 #: apps/erp/app/routes/x+/production+/_index.tsx:409
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:533
 #: apps/erp/app/routes/x+/quality+/_index.tsx:520
@@ -8272,7 +8272,7 @@ msgstr "Nova Linha de Fatura de Vendas"
 msgid "New Sales Order"
 msgstr "Novo Pedido de Venda"
 
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:332
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:340
 msgid "New Sales Order Line"
 msgstr "Nova Linha de Pedido de Venda"
 
@@ -8673,7 +8673,7 @@ msgid "Non-Inventory Tracking"
 msgstr "Rastreamento Não-Inventário"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:624
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:662
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:670
 msgid "Non-Taxable Add-On Cost"
 msgstr "Custo de Complemento Não Tributável"
 
@@ -9803,7 +9803,7 @@ msgstr "Projeções"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:132
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:168
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:220
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:513
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:521
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderProperties.tsx:351
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:131
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:397
@@ -10158,7 +10158,7 @@ msgstr "Quantidades"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:478
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:417
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:611
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:477
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:485
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:224
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQLineForm.tsx:324
 #: apps/erp/app/routes/share+/quote.$id.tsx:654
@@ -11285,7 +11285,7 @@ msgstr "Sábado"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:89
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:122
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:284
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:683
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:692
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:91
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:159
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:202
@@ -12017,7 +12017,7 @@ msgstr "Contato de Envio"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:100
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:112
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:96
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:645
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:653
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:109
 msgid "Shipping Cost"
 msgstr "Custo de Envio"
@@ -12077,7 +12077,7 @@ msgstr "Chão de Fábrica"
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:296
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:275
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:386
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:439
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:447
 msgid "Short Description"
 msgstr "Descrição Breve"
 
@@ -12503,7 +12503,7 @@ msgstr "Tipos de Armazenamento"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:592
 #: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:439
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:978
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:537
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:545
 msgid "Storage Unit"
 msgstr "Unidade de Armazenamento"
 
@@ -12948,15 +12948,15 @@ msgstr "Tarefas"
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:787
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:318
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:306
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:357
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:572
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:365
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:580
 #: apps/erp/app/routes/share+/quote.$id.tsx:859
 #: apps/erp/app/routes/share+/quote.$id.tsx:1251
 msgid "Tax"
 msgstr "Imposto"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:485
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:564
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:572
 msgid "Tax & Additional Costs"
 msgstr "Imposto e Custos Adicionais"
 
@@ -12975,7 +12975,7 @@ msgstr "ID Fiscal"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:607
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:144
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:456
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:633
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:641
 msgid "Tax Percent"
 msgstr "Percentual de Imposto"
 
@@ -13710,7 +13710,7 @@ msgstr "Custo Unitário"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:365
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1071
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1337
-#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:483
+#: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:491
 msgid "Unit of Measure"
 msgstr "Unidade de Medida"
 
