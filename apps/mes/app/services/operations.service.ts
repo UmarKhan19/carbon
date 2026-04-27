@@ -6,6 +6,7 @@ import {
   generateBomIds,
   type TrackedActivityAttributes
 } from "@carbon/utils";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
@@ -327,7 +328,7 @@ export async function getJobMaterialsByOperationId(
   const consumedEntityIds = Array.from(
     new Set((trackedInputs.data ?? []).map((i) => i.id).filter(Boolean))
   );
-  const today = new Date().toISOString().split("T")[0];
+  const todayStr = today(getLocalTimeZone()).toString();
   const expiredConsumed =
     consumedEntityIds.length > 0
       ? await client
@@ -335,7 +336,7 @@ export async function getJobMaterialsByOperationId(
           .select("id")
           .in("id", consumedEntityIds)
           .not("expirationDate", "is", null)
-          .lt("expirationDate", today)
+          .lt("expirationDate", todayStr)
       : { data: [] as { id: string }[] };
   const expiredConsumedIds = new Set(
     (expiredConsumed.data ?? []).map((r) => r.id)

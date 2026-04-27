@@ -5297,7 +5297,7 @@ msgstr ""
 msgid "Expiry begins when the selected process starts."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/Traceability/ExpiryTracePopover.tsx:109
+#: apps/erp/app/modules/inventory/ui/Traceability/ExpiryTracePopover.tsx:115
 msgid "Expiry trace"
 msgstr ""
 

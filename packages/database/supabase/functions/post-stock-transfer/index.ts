@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
 import { format } from "https://deno.land/std@0.205.0/datetime/mod.ts";
+import { getLocalTimeZone, parseDate, today } from "npm:@internationalized/date";
 import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/nanoid.ts";
 import { z } from "https://deno.land/x/zod@v3.21.4/mod.ts";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
@@ -35,9 +36,12 @@ function checkExpiredEntity(
   override: { allowed: boolean; reason: string | null }
 ): { warning?: string } {
   if (!entity.expirationDate) return {};
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
-  if (new Date(entity.expirationDate) >= today) return {};
+  const todayLocal = today(getLocalTimeZone());
+  try {
+    if (parseDate(entity.expirationDate).compare(todayLocal) >= 0) return {};
+  } catch {
+    return {};
+  }
 
   if (policy === "Warn") {
     return { warning: `Transferred expired tracked entity: ${entity.id}` };

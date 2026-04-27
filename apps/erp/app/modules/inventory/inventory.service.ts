@@ -1,6 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
@@ -1022,7 +1022,7 @@ export async function updateTrackedEntityExpiry(
         next: args.expirationDate,
         reason: args.reason,
         userId: args.userId,
-        at: new Date().toISOString()
+        at: now(getLocalTimeZone()).toAbsoluteString()
       }
     ]
   };

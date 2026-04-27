@@ -1,7 +1,7 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
@@ -1919,7 +1919,7 @@ export async function upsertConfigurationParameter(
         sanitize({
           ...data,
           updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: now(getLocalTimeZone()).toAbsoluteString()
         })
       )
       .eq("id", configurationParameter.id);
@@ -2278,7 +2278,7 @@ export async function upsertPickMethodWithShelfLife(
     };
   }
 ) {
-  const now = new Date().toISOString();
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
 
   return db.transaction().execute(async (trx) => {
     await trx
@@ -2287,7 +2287,7 @@ export async function upsertPickMethodWithShelfLife(
         defaultStorageUnitId: args.defaultStorageUnitId ?? null,
         customFields: args.customFields ?? null,
         updatedBy: args.userId,
-        updatedAt: now
+        updatedAt
       })
       .where("itemId", "=", args.itemId)
       .where("locationId", "=", args.locationId)
@@ -2361,7 +2361,7 @@ export async function upsertPickMethodWithShelfLife(
           triggerTiming: normalizedTriggerTiming,
           inheritEarliestInputExpiry: normalizedInherit,
           updatedBy: args.userId,
-          updatedAt: now
+          updatedAt
         })
         .where("itemId", "=", args.itemId)
         .execute();

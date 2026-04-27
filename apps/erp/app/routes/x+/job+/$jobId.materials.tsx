@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { useMount, VStack } from "@carbon/react";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { usePanels } from "~/components/Layout";
@@ -74,14 +75,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       .map((m) => m.jobMaterialItemId)
       .filter(Boolean) as string[];
     if (itemIds.length > 0) {
-      const today = new Date().toISOString().split("T")[0];
+      const todayStr = today(getLocalTimeZone()).toString();
       const { data: expired } = await client
         .from("trackedEntity")
         .select("sourceDocumentId")
         .in("sourceDocumentId", itemIds)
         .eq("companyId", companyId)
         .not("expirationDate", "is", null)
-        .lt("expirationDate", today);
+        .lt("expirationDate", todayStr);
       expiredItemIds = new Set(
         (expired ?? [])
           .map((e) => e.sourceDocumentId)

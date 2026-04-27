@@ -1,5 +1,11 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
+import {
+  getLocalTimeZone,
+  parseAbsolute,
+  parseDate,
+  toCalendarDate
+} from "@internationalized/date";
 import { Trans } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import {
@@ -324,10 +330,13 @@ function computePolicyDate(
   }
 
   if (policy.mode === "Fixed Duration" && policy.days && sourceDate) {
-    const d = new Date(sourceDate);
-    if (!Number.isNaN(d.getTime())) {
-      d.setUTCDate(d.getUTCDate() + policy.days);
-      return d.toISOString().slice(0, 10);
+    try {
+      const calendarDate = sourceDate.includes("T")
+        ? toCalendarDate(parseAbsolute(sourceDate, getLocalTimeZone()))
+        : parseDate(sourceDate);
+      return calendarDate.add({ days: policy.days }).toString();
+    } catch {
+      // fall through to default
     }
   }
 

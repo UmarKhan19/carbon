@@ -45,6 +45,7 @@ import {
 } from "@carbon/react";
 
 import { getItemReadableId } from "@carbon/utils";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { useNumberFormatter } from "@react-aria/i18n";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -134,21 +135,21 @@ export function IssueMaterialModal({
   const { data: serialNumbers } = useSerialNumbers(
     trackingType === "Serial" ? selectedItemId : undefined
   );
-  // Today @ UTC midnight — used for "is this entity expired" comparisons
-  // throughout the modal. Memoized so we re-derive option lists once a day
-  // rather than every render.
-  const todayUtc = useMemo(() => {
-    const d = new Date();
-    d.setUTCHours(0, 0, 0, 0);
-    return d;
-  }, []);
+  // Today in the local timezone — used for "is this entity expired"
+  // comparisons throughout the modal. Memoized so we re-derive option
+  // lists once a day rather than every render.
+  const todayLocal = useMemo(() => today(getLocalTimeZone()), []);
 
   const isExpiryPast = useCallback(
     (date: string | null | undefined) => {
       if (!date) return false;
-      return new Date(date) < todayUtc;
+      try {
+        return parseDate(date).compare(todayLocal) < 0;
+      } catch {
+        return false;
+      }
     },
-    [todayUtc]
+    [todayLocal]
   );
 
   // Format an expiration date as `MMM d, yyyy` for the option helper text.
@@ -156,11 +157,12 @@ export function IssueMaterialModal({
   const formatExpiry = useCallback((date: string | null | undefined) => {
     if (!date) return "";
     try {
+      const cd = parseDate(date);
       return new Intl.DateTimeFormat(undefined, {
         month: "short",
         day: "numeric",
         year: "numeric"
-      }).format(new Date(date));
+      }).format(cd.toDate(getLocalTimeZone()));
     } catch {
       return date;
     }

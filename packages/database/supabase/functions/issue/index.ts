@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
+import { getLocalTimeZone, parseDate, today } from "npm:@internationalized/date";
 import { Transaction } from "kysely";
 import { z } from "npm:zod@^3.24.1";
 
@@ -57,11 +58,14 @@ function checkExpiredEntities(
   policy: ExpiredEntityPolicy,
   override: { allowed: boolean; reason: string | null }
 ): { ok: true; warning?: string } | { ok: false; reason: string } {
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
+  const todayLocal = today(getLocalTimeZone());
   const expired = entities.filter((e) => {
     if (!e.expirationDate) return false;
-    return new Date(e.expirationDate) < today;
+    try {
+      return parseDate(e.expirationDate).compare(todayLocal) < 0;
+    } catch {
+      return false;
+    }
   });
   if (expired.length === 0) return { ok: true };
 
