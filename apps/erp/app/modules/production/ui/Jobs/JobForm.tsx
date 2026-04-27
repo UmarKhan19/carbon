@@ -283,6 +283,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                         value={itemData.itemId}
                         locationId={initialValues.locationId ?? undefined}
                         validItemTypes={["Part", "Tool"]}
+                        replenishmentSystem="Make"
                         onChange={(value) => {
                           onItemChange(value?.value as string);
                         }}

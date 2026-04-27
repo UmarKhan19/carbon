@@ -91,7 +91,7 @@ export default function DeletePriceOverrideRoute() {
     <ConfirmDelete
       action={path.to.deletePriceOverride(overrideId)}
       name={name}
-      text={t`Are you sure you want to delete this price override? This cannot be undone.`}
+      text={t`Are you sure you want to remove this item from the price list? This cannot be undone.`}
       onCancel={() => navigate(path.to.salesPriceList)}
     />
   );

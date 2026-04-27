@@ -318,7 +318,13 @@ const InventoryStorageUnits = ({
                     label={t`Adjustment Type`}
                     options={
                       isEditing && (isSerial || isBatch)
-                        ? [{ label: t`Set Quantity`, value: "Set Quantity" }]
+                        ? [
+                            { label: t`Set Quantity`, value: "Set Quantity" },
+                            {
+                              label: t`Negative Adjustment`,
+                              value: "Negative Adjmt."
+                            }
+                          ]
                         : [
                             ...(isSerial
                               ? []

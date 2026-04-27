@@ -22,7 +22,7 @@ import {
 import { formatDate } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   LuBookMarked,
   LuCalendar,
@@ -31,6 +31,7 @@ import {
   LuChevronUp,
   LuCircleDollarSign,
   LuCircleOff,
+  LuCopy,
   LuGroup,
   LuPencil,
   LuPlus,
@@ -44,13 +45,10 @@ import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
 import type { PriceListRow } from "~/modules/sales";
 import { path } from "~/utils/path";
+import { DuplicatePriceListModal } from "./DuplicatePriceListModal";
 import { PriceListScopeEmpty } from "./PriceListScopeEmpty";
 import { PriceTracePopover } from "./PriceTracePopover";
-import {
-  ALL_CUSTOMERS_SCOPE,
-  type ScopeOption,
-  ScopePicker
-} from "./ScopePicker";
+import { type ScopeOption, ScopePicker } from "./ScopePicker";
 
 type PriceListTableProps = {
   data: PriceListRow[];
@@ -81,14 +79,23 @@ const PriceListTable = memo(
     const [searchParams, setSearchParams] = useSearchParams();
     const previewQuantity = searchParams.get("quantity") ?? "1";
     const itemPostingGroups = useItemPostingGroups();
+    const [duplicateState, setDuplicateState] = useState<{
+      overrideIds?: string[];
+    } | null>(null);
 
-    const scopeId =
-      searchParams.get("customerId") ??
-      searchParams.get("customerTypeId") ??
-      (searchParams.get("customerScope") === ALL_CUSTOMERS_SCOPE
-        ? ALL_CUSTOMERS_SCOPE
-        : "");
+    const canCreate = permissions.can("create", "sales");
+    const canDelete = permissions.can("delete", "sales");
 
+    const currentCustomerId = searchParams.get("customerId") ?? undefined;
+    const currentCustomerTypeId =
+      searchParams.get("customerTypeId") ?? undefined;
+
+    const scopeId = currentCustomerId ?? currentCustomerTypeId ?? "";
+
+    const sourceScope = {
+      customerId: currentCustomerId,
+      customerTypeId: currentCustomerTypeId
+    };
     const buildOverrideHref = useCallback(
       (row: PriceListRow) => {
         const next = new URLSearchParams(searchParams);
@@ -106,10 +113,7 @@ const PriceListTable = memo(
         const next = new URLSearchParams(searchParams);
         next.delete("customerId");
         next.delete("customerTypeId");
-        next.delete("customerScope");
-        if (selectedId === ALL_CUSTOMERS_SCOPE) {
-          next.set("customerScope", ALL_CUSTOMERS_SCOPE);
-        } else if (selectedId) {
+        if (selectedId) {
           const picked = scopeOptions.find((o) => o.value === selectedId);
           if (picked) {
             next.set(
@@ -272,25 +276,33 @@ const PriceListTable = memo(
 
     const renderContextMenu = useCallback(
       (row: PriceListRow) => {
-        const canEdit = permissions.can(
-          row.overrideId ? "update" : "create",
-          "sales"
-        );
+        const canUpdate = permissions.can("update", "sales");
         return (
           <>
             <MenuItem
-              disabled={!canEdit || !hasScope}
+              disabled={!(row.overrideId ? canUpdate : canCreate) || !hasScope}
               onClick={() => {
                 navigate(buildOverrideHref(row));
               }}
             >
               <MenuIcon icon={row.overrideId ? <LuPencil /> : <LuPlus />} />
-              {row.overrideId ? t`Edit Override` : t`Create Override`}
+              {row.overrideId ? t`Edit Pricing` : t`Set Pricing`}
             </MenuItem>
             {row.overrideId && (
               <MenuItem
+                disabled={!canCreate}
+                onClick={() => {
+                  setDuplicateState({ overrideIds: [row.overrideId!] });
+                }}
+              >
+                <MenuIcon icon={<LuCopy />} />
+                {t`Duplicate to...`}
+              </MenuItem>
+            )}
+            {row.overrideId && (
+              <MenuItem
                 destructive
-                disabled={!permissions.can("delete", "sales")}
+                disabled={!canDelete}
                 onClick={() => {
                   navigate(
                     `${path.to.deletePriceOverride(
@@ -300,13 +312,22 @@ const PriceListTable = memo(
                 }}
               >
                 <MenuIcon icon={<LuTrash />} />
-                {t`Delete Override`}
+                {t`Remove from Price List`}
               </MenuItem>
             )}
           </>
         );
       },
-      [buildOverrideHref, hasScope, navigate, permissions, searchParams, t]
+      [
+        buildOverrideHref,
+        canCreate,
+        canDelete,
+        hasScope,
+        navigate,
+        searchParams,
+        t,
+        permissions.can
+      ]
     );
 
     if (!hasScope) {
@@ -320,64 +341,82 @@ const PriceListTable = memo(
     }
 
     return (
-      <Table<PriceListRow>
-        data={data}
-        columns={columns}
-        count={count}
-        primaryAction={
-          <div className="flex items-center gap-2">
-            <ScopePicker
-              size="sm"
-              value={scopeId}
-              options={scopeOptions}
-              onChange={handleScopeChange}
-            />
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="secondary" rightIcon={<LuChevronsUpDown />}>
-                  {Number(previewQuantity) || 1}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-2" align="end">
-                <Label>
-                  <Trans>Quantity</Trans>
-                </Label>
-                <NumberField
-                  value={Number(previewQuantity) || 1}
-                  minValue={1}
-                  onChange={(value) => {
-                    if (Number.isFinite(value) && value >= 1) {
-                      handleQuantityCommit(String(value));
-                    }
-                  }}
-                  aria-label={t`Preview Quantity`}
-                  className="w-24"
-                >
-                  <NumberInputGroup className="relative">
-                    <NumberInput size="sm" min={1} />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper>
-                        <LuChevronUp size="1em" strokeWidth="3" />
-                      </NumberIncrementStepper>
-                      <NumberDecrementStepper>
-                        <LuChevronDown size="1em" strokeWidth="3" />
-                      </NumberDecrementStepper>
-                    </NumberInputStepper>
-                  </NumberInputGroup>
-                </NumberField>
-              </PopoverContent>
-            </Popover>
-            {permissions.can("create", "sales") && (
-              <New
-                label={t`Override`}
-                to={`${path.to.newPriceOverride}?${searchParams.toString()}`}
+      <>
+        <Table<PriceListRow>
+          data={data}
+          columns={columns}
+          count={count}
+          primaryAction={
+            <div className="flex items-center gap-2">
+              <ScopePicker
+                size="sm"
+                value={scopeId}
+                options={scopeOptions}
+                onChange={handleScopeChange}
               />
-            )}
-          </div>
-        }
-        renderContextMenu={renderContextMenu}
-        title={t`Price List`}
-      />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="secondary" rightIcon={<LuChevronsUpDown />}>
+                    {Number(previewQuantity) || 1}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-2" align="end">
+                  <Label>
+                    <Trans>Quantity</Trans>
+                  </Label>
+                  <NumberField
+                    value={Number(previewQuantity) || 1}
+                    minValue={1}
+                    onChange={(value) => {
+                      if (Number.isFinite(value) && value >= 1) {
+                        handleQuantityCommit(String(value));
+                      }
+                    }}
+                    aria-label={t`Preview Quantity`}
+                    className="w-24"
+                  >
+                    <NumberInputGroup className="relative">
+                      <NumberInput size="sm" min={1} />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper>
+                          <LuChevronUp size="1em" strokeWidth="3" />
+                        </NumberIncrementStepper>
+                        <NumberDecrementStepper>
+                          <LuChevronDown size="1em" strokeWidth="3" />
+                        </NumberDecrementStepper>
+                      </NumberInputStepper>
+                    </NumberInputGroup>
+                  </NumberField>
+                </PopoverContent>
+              </Popover>
+              {data.length > 0 && canCreate && (
+                <Button
+                  variant="secondary"
+                  leftIcon={<LuCopy />}
+                  onClick={() => setDuplicateState({})}
+                >
+                  <Trans>Duplicate</Trans>
+                </Button>
+              )}
+              {canCreate && (
+                <New
+                  label={t`Item`}
+                  to={`${path.to.newPriceOverride}?${searchParams.toString()}`}
+                />
+              )}
+            </div>
+          }
+          renderContextMenu={renderContextMenu}
+          title={t`Price List`}
+        />
+        {duplicateState !== null && (
+          <DuplicatePriceListModal
+            sourceScope={sourceScope}
+            overrideIds={duplicateState.overrideIds}
+            onClose={() => setDuplicateState(null)}
+          />
+        )}
+      </>
     );
   }
 );

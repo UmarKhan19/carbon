@@ -1,40 +1,28 @@
-# Shelf → StorageUnit leftover rename sweep
+# MRP Refactoring — Level-by-Level Processing with Inventory Netting
 
-Scope: red + yellow audit items except activity-log strings in `post-stock-transfer/index.ts` (kept for historical consistency) and `companySettings.shelfLabelSize` (kept as physical label concept).
+Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-Note: Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+## Phase 1: Bulk Data Pre-loading
+- [x] 1.1 Bulk-load item metadata (replenishmentSystem, leadTime) — replace per-item fetchItemMetadata
+- [x] 1.2 Bulk-load inventory (itemLedger SUM by itemId+locationId)
+- [x] 1.3 Bulk-load all BOMs (activeMakeMethods view + methodMaterial filtered to active methods)
+- [x] 1.4 Build supply maps from already-fetched production/purchase order data
 
-## Plan
+## Phase 2: Level-by-Level Processing with Inventory Netting
+- [x] 2.1 Compute Low Level Codes from pre-loaded BOM structure
+- [x] 2.2 Collect all independent demands into grossDemand map (no BOM explosion yet)
+- [x] 2.3 Implement level-by-level processor: aggregate → net against on-hand → propagate net requirement to children
+- [x] 2.4 Track BOM-derived demand separately; write only BOM-derived to demandForecast
+- [x] 2.5 Keep demandActual and supplyActual writes unchanged
 
-- [x] 1. `apps/erp/app/modules/items/types.ts` — renamed `ItemShelfQuantities` → `ItemStorageUnitQuantities`
-- [x] 2. `apps/erp/app/stores/stock-transfer.ts` — renamed store exports (selectedToItemStorageUnitIds, toggleToItemStorageUnitSelection, isToItemStorageUnitSelected, hasTransferLinesToItemStorageUnit, clearSelectedToItemStorageUnits)
-- [x] 3. `StockTransferWizard.tsx` — imports + `transferLinesToThisItemStorageUnit`
-- [x] 4. `StockTransferLines.tsx` — `toStorageUnitComparison`
-- [x] 5. `InventoryStorageUnits.tsx` — `selectedStorageUnitId` / `setSelectedStorageUnitId` + type import + `InventoryStorageUnitsProps`
-- [x] 6. `InventoryDetails.tsx` — type import
-- [x] 7. `KanbanForm.tsx` — `setStorageUnitId`
-- [x] 8. `ShipmentLines.tsx` — `getStorageUnitFromBatchNumber`
-- [x] 9. `ReceiptLines.tsx` — `newStorageUnitModal`
-- [x] 10. `JobHeader.tsx` — `setDefaultStorageUnitId`
-- [x] 11. `JobMaterialsTable.tsx` — `hasStorageUnitQuantityFlag`
-- [x] 12. `stock-transfer+/$id.scan.$lineId.tsx` — error strings + `currentStorageUnitId`
-- [x] 13. `supabase/functions/issue/index.ts` — `proposedStorageUnitId`, `currentStorageUnitQuantity`, `allStorageUnitQuantities`, `finalStorageUnitId`, `bestStorageUnit`
-- [x] 14. `JobOperation.tsx:1119` — `Default Storage Unit`
-- [x] 15. `KanbanLabelPDF.tsx:183` — comment updated
+## Phase 3: Performance
+- [x] 3.1 Chunked batch writes (500 rows per batch)
+- [x] 3.2 Removed per-item RPC calls (get_method_tree), per-item metadata fetches
+
+## Phase 4: Cleanup
+- [x] 4.1 Removed dead code (fetchItemMetadata, fetchBomRequirements, processRequirement, traverseBomTree, BomNode, ItemRequirement types)
+- [x] 4.2 Removed unused variables (parentItemByMethodId, productionSupplyByLocationItem, purchaseSupplyByLocationItem)
+- [ ] 4.3 Verify planning views still produce correct results (requires deployment)
 
 ## Review
-
-All 13 red/yellow action items landed mechanically. Kept out of scope per user decision:
-- Activity-log strings `"From Shelf"` / `"To Shelf"` / `"Shelf"` in `post-stock-transfer/index.ts` (kept for historical audit-trail consistency)
-- `companySettings.shelfLabelSize` column (kept as physical label concept)
-
-Follow-ups for the user:
-1. Run `lingui:extract` + `lingui:compile` to pick up the `Default Shelf` → `Default Storage Unit` msgid change in MES.
-2. After DB migrations fully apply, regenerate Supabase types (`types.ts` / `swagger-docs-schema.ts` / `functions/lib/types.ts`) — stale references to `purchaseInvoiceLine.shelfId` and `warehouseTransferLine_*ShelfId_fkey` will drop out.
-
-Verified with grep: no remaining `shelf`/`Shelf`/`shelves` identifiers in `apps/` or `packages/` outside of:
-- `apps/erp/app/routes/api+/data/quality.ts` (legit "shelf-life" material domain)
-- `packages/database/supabase/functions/post-stock-transfer/index.ts` (audit-log strings — intentionally kept)
-- Historical SQL migrations (immutable)
-- Generated `types.ts` / `swagger-docs-schema.ts` (regeneration pending)
-- `llm/cache/*` and `llm/recommendations/*` (stale doc cache)
+(to be filled after verification)

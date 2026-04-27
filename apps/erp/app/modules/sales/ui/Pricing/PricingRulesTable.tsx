@@ -59,6 +59,9 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
   const navigate = useNavigate();
   const { t } = useLingui();
   const permissions = usePermissions();
+  const canCreate = permissions.can("create", "sales");
+  const canUpdate = permissions.can("update", "sales");
+  const canDelete = permissions.can("delete", "sales");
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
   const fetcher = useFetcher();
@@ -362,7 +365,7 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
       return (
         <>
           <MenuItem
-            disabled={!permissions.can("update", "sales")}
+            disabled={!canUpdate}
             onClick={() => {
               navigate(`${path.to.pricingRule(row.id)}?${params.toString()}`);
             }}
@@ -371,7 +374,7 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
             {t`Edit Pricing Rule`}
           </MenuItem>
           <MenuItem
-            disabled={!permissions.can("create", "sales")}
+            disabled={!canCreate}
             onClick={() => {
               fetcher.submit(
                 { intent: "duplicate" },
@@ -387,7 +390,7 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
           </MenuItem>
           <MenuItem
             destructive
-            disabled={!permissions.can("delete", "sales")}
+            disabled={!canDelete}
             onClick={() => {
               navigate(
                 `${path.to.deletePricingRule(row.id)}?${params.toString()}`
@@ -400,7 +403,7 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
         </>
       );
     },
-    [fetcher, navigate, params, permissions, t]
+    [canCreate, canDelete, canUpdate, fetcher, navigate, params, t]
   );
 
   return (
@@ -410,7 +413,7 @@ const PricingRulesTable = memo(({ data, count }: PricingRulesTableProps) => {
       count={count}
       defaultColumnVisibility={defaultColumnVisibility}
       primaryAction={
-        permissions.can("create", "sales") && (
+        canCreate && (
           <New
             label={t`Pricing Rule`}
             to={`${path.to.newPricingRule}?${params.toString()}`}

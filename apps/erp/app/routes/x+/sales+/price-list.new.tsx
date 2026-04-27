@@ -11,20 +11,23 @@ import {
   upsertCustomerItemPriceOverride
 } from "~/modules/sales";
 import PriceOverrideForm from "~/modules/sales/ui/Pricing/PriceOverrideForm";
-import { ALL_CUSTOMERS_SCOPE } from "~/modules/sales/ui/Pricing/ScopePicker";
 import { getParams, path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermissions(request, { create: "sales" });
 
   const url = new URL(request.url);
-  const customerScope = url.searchParams.get("customerScope");
-  const initialScope: "customer" | "customerType" | "all" | undefined =
-    customerScope === ALL_CUSTOMERS_SCOPE ? "all" : undefined;
+  const customerId = url.searchParams.get("customerId") ?? undefined;
+  const customerTypeId = url.searchParams.get("customerTypeId") ?? undefined;
+  const initialScope: "customer" | "customerType" | undefined = customerId
+    ? "customer"
+    : customerTypeId
+      ? "customerType"
+      : undefined;
   return {
     initial: {
-      customerId: url.searchParams.get("customerId") ?? undefined,
-      customerTypeId: url.searchParams.get("customerTypeId") ?? undefined,
+      customerId,
+      customerTypeId,
       itemId: url.searchParams.get("itemId") ?? "",
       validFrom:
         url.searchParams.get("validFrom") ??

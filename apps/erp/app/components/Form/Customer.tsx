@@ -13,6 +13,7 @@ type CustomerSelectProps = Omit<
   "options" | "inline"
 > & {
   inline?: boolean;
+  exclude?: string[];
 };
 
 const CustomerPreview = (
@@ -29,14 +30,12 @@ const Customer = (props: CustomerSelectProps) => {
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const options = useMemo(
-    () =>
-      customers.map((c) => ({
-        value: c.id,
-        label: c.name
-      })) ?? [],
-    [customers]
-  );
+  const options = useMemo(() => {
+    const all = customers.map((c) => ({ value: c.id, label: c.name }));
+    return props.exclude?.length
+      ? all.filter((o) => !props.exclude!.includes(o.value))
+      : all;
+  }, [customers, props.exclude]);
 
   const { company } = useUser();
 

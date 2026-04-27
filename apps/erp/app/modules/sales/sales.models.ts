@@ -181,6 +181,20 @@ export const priceOverrideValidator = z
     path: ["validTo"]
   });
 
+export const duplicatePriceListValidator = z
+  .object({
+    sourceCustomerId: zfd.text(z.string().optional()),
+    sourceCustomerTypeId: zfd.text(z.string().optional()),
+    targetCustomerId: zfd.text(z.string().optional()),
+    targetCustomerTypeId: zfd.text(z.string().optional()),
+    conflictStrategy: z.enum(["skip", "overwrite"]),
+    overrideIds: zfd.text(z.string().optional())
+  })
+  .refine((d) => d.targetCustomerId || d.targetCustomerTypeId, {
+    message: "Please select a target scope",
+    path: ["targetCustomerId"]
+  });
+
 export const priceResolutionInputValidator = z.object({
   itemId: z.string().min(1),
   quantity: z.number().nonnegative(),

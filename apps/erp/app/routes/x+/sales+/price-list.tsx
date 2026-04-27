@@ -4,7 +4,6 @@ import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, useLoaderData } from "react-router";
 import { getBaseCatalog, resolvePriceList } from "~/modules/sales";
 import PriceListTable from "~/modules/sales/ui/Pricing/PriceOverridesTable";
-import { ALL_CUSTOMERS_SCOPE } from "~/modules/sales/ui/Pricing/ScopePicker";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
@@ -25,9 +24,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const search = searchParams.get("search");
   const customerId = searchParams.get("customerId");
   const customerTypeId = searchParams.get("customerTypeId");
-  const customerScope = searchParams.get("customerScope");
-  const allCustomers = customerScope === ALL_CUSTOMERS_SCOPE;
-  const onlyOverrides = searchParams.get("onlyOverrides") === "true";
   const rawQuantity = Number(searchParams.get("quantity") ?? "1");
   const quantity =
     Number.isFinite(rawQuantity) && rawQuantity >= 0 ? rawQuantity : 1;
@@ -42,35 +38,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
     .order("isCustomerTypeGroup", { ascending: false })
     .order("name");
 
-  const hasSpecificScope = Boolean(customerId || customerTypeId);
-  const listPromise =
-    hasSpecificScope || allCustomers
-      ? resolvePriceList(client, companyId, {
-          customerId: customerId ?? undefined,
-          customerTypeId: customerTypeId ?? undefined,
-          allCustomers,
-          quantity,
-          onlyOverrides,
-          search: search ?? undefined,
-          limit,
-          offset,
-          sorts,
-          filters
-        })
-      : getBaseCatalog(client, companyId, {
-          search: search ?? undefined,
-          limit,
-          offset,
-          sorts,
-          filters
-        });
+  const hasScope = Boolean(customerId || customerTypeId);
+  const listPromise = hasScope
+    ? resolvePriceList(client, companyId, {
+        customerId: customerId ?? undefined,
+        customerTypeId: customerTypeId ?? undefined,
+        quantity,
+        search: search ?? undefined,
+        limit,
+        offset,
+        sorts,
+        filters
+      })
+    : getBaseCatalog(client, companyId, {
+        search: search ?? undefined,
+        limit,
+        offset,
+        sorts,
+        filters
+      });
 
   const [list, groupsResult] = await Promise.all([
     listPromise,
     groupOptionsQuery
   ]);
 
-  // Drop the seed "All Customers" group — ScopePicker adds its own sentinel.
   const scopeOptions = (groupsResult.data ?? [])
     .filter((g) => !g.id.startsWith("11111111-1111"))
     .map((g) => ({
@@ -85,7 +77,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     data: list.data ?? [],
     count: list.count ?? 0,
     scopeOptions,
-    hasScope: hasSpecificScope || allCustomers
+    hasScope
   };
 }
 

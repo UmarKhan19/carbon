@@ -8,7 +8,7 @@ import {
 } from "npm:@internationalized/date";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 
-import { Kysely } from "kysely";
+import { Kysely, sql } from "npm:kysely";
 import z from "npm:zod@^3.24.1";
 import { corsHeaders } from "../lib/headers.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
@@ -23,6 +23,15 @@ type DemandPeriod = Omit<
   Database["public"]["Tables"]["period"]["Row"],
   "createdAt"
 >;
+
+type MethodType = Database["public"]["Enums"]["methodType"];
+type ReplenishmentSystem = Database["public"]["Enums"]["itemReplenishmentSystem"];
+
+type BomChild = {
+  itemId: string;
+  quantity: number;
+  methodType: MethodType;
+};
 
 const payloadValidator = z.discriminatedUnion("type", [
   z.object({
@@ -62,8 +71,6 @@ const payloadValidator = z.discriminatedUnion("type", [
   }),
 ]);
 
-// TODO: we can do a reduced version based on the type of the payload, but for now, we're just running full MRP any time it's called
-
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -73,12 +80,7 @@ serve(async (req: Request) => {
   const parsedPayload = payloadValidator.parse(payload);
   const { type, companyId, userId } = parsedPayload;
 
-  console.log({
-    function: "mrp",
-    type,
-    companyId,
-    userId,
-  });
+  console.log({ function: "mrp", type, companyId, userId });
 
   const today = getToday(getLocalTimeZone());
   const ranges = getStartAndEndDates(today, "Week");
@@ -96,116 +98,11 @@ serve(async (req: Request) => {
     .eq("companyId", companyId);
   if (locations.error) throw locations.error;
 
-  // Create map to store demand by location, period and item
-  const demandProjectionByLocationAndPeriod = new Map<
-    string,
-    Map<string, Map<string, number>>
-  >();
-
-  const requirementsByProjectedItem = new Map<
-    string,
-    {
-      estimatedQuantity: number;
-      leadTimeOffset: number;
-      replenishmentSystem: "Buy" | "Make";
-      methodType: "Make to Order" | "Pull from Inventory" | "Purchase to Order";
-    }
-  >();
-
-  const salesDemandByLocationAndPeriod = new Map<
-    string,
-    Map<string, Map<string, number>>
-  >();
-
-  const jobMaterialDemandByLocationAndPeriod = new Map<
-    string,
-    Map<string, Map<string, number>>
-  >();
-
-  const jobSupplyByLocationAndPeriod = new Map<
-    string,
-    Map<string, Map<string, number>>
-  >();
-
-  const purchaseOrderSupplyByLocationAndPeriod = new Map<
-    string,
-    Map<string, Map<string, number>>
-  >();
-
-  // Initialize locations in map
-  for (const location of locations.data) {
-    demandProjectionByLocationAndPeriod.set(
-      location.id,
-      new Map<string, Map<string, number>>()
-    );
-
-    salesDemandByLocationAndPeriod.set(
-      location.id,
-      new Map<string, Map<string, number>>()
-    );
-
-    jobMaterialDemandByLocationAndPeriod.set(
-      location.id,
-      new Map<string, Map<string, number>>()
-    );
-
-    jobSupplyByLocationAndPeriod.set(
-      location.id,
-      new Map<string, Map<string, number>>()
-    );
-
-    purchaseOrderSupplyByLocationAndPeriod.set(
-      location.id,
-      new Map<string, Map<string, number>>()
-    );
-
-    // Initialize periods for each location
-    const salesLocationPeriods = salesDemandByLocationAndPeriod.get(
-      location.id
-    );
-    if (salesLocationPeriods) {
-      for (const period of periods) {
-        salesLocationPeriods.set(period.id ?? "", new Map<string, number>());
-      }
-    }
-
-    const jobMaterialLocationPeriods = jobMaterialDemandByLocationAndPeriod.get(
-      location.id
-    );
-    if (jobMaterialLocationPeriods) {
-      for (const period of periods) {
-        jobMaterialLocationPeriods.set(
-          period.id ?? "",
-          new Map<string, number>()
-        );
-      }
-    }
-
-    const jobSupplyLocationPeriods = jobSupplyByLocationAndPeriod.get(
-      location.id
-    );
-    if (jobSupplyLocationPeriods) {
-      for (const period of periods) {
-        jobSupplyLocationPeriods.set(
-          period.id ?? "",
-          new Map<string, number>()
-        );
-      }
-    }
-
-    const purchaseOrderSupplyLocationPeriods =
-      purchaseOrderSupplyByLocationAndPeriod.get(location.id);
-    if (purchaseOrderSupplyLocationPeriods) {
-      for (const period of periods) {
-        purchaseOrderSupplyLocationPeriods.set(
-          period.id ?? "",
-          new Map<string, number>()
-        );
-      }
-    }
-  }
-
   try {
+    // ──────────────────────────────────────────────────────────────
+    // PHASE 1: Bulk data pre-loading
+    // ──────────────────────────────────────────────────────────────
+
     const [
       salesOrderLines,
       jobMaterialLines,
@@ -232,472 +129,365 @@ serve(async (req: Request) => {
         .eq("companyId", companyId)
         .in(
           "periodId",
-          periods.map((p) => p.id ?? "")
+          periods.map((p: DemandPeriod) => p.id ?? "").filter(Boolean)
         ),
     ]);
 
-    if (salesOrderLines.error) {
-      throw new Error("No sales order lines found");
+    if (salesOrderLines.error) throw new Error("Failed to load sales order lines");
+    if (jobMaterialLines.error) throw new Error("Failed to load job material lines");
+    if (productionLines.error) throw new Error("Failed to load production orders");
+    if (purchaseOrderLines.error) throw new Error("Failed to load purchase order lines");
+    if (demandProjections.error) throw new Error("Failed to load demand projections");
+
+    // Bulk-load item metadata
+    const [allItems, allReplenishments] = await Promise.all([
+      db
+        .selectFrom("item")
+        .select(["id", "replenishmentSystem"])
+        .where("companyId", "=", companyId)
+        .execute(),
+      db
+        .selectFrom("itemReplenishment")
+        .select(["itemId", "leadTime"])
+        .where("companyId", "=", companyId)
+        .execute(),
+    ]);
+
+    const replenishmentSystemByItem = new Map<string, ReplenishmentSystem>();
+    for (const item of allItems) {
+      replenishmentSystemByItem.set(
+        item.id,
+        item.replenishmentSystem as ReplenishmentSystem
+      );
     }
 
-    if (jobMaterialLines.error) {
-      throw new Error("No job material lines found");
-    }
-
-    if (productionLines.error) {
-      throw new Error("No job lines found");
-    }
-
-    if (purchaseOrderLines.error) {
-      throw new Error("No purchase order lines found");
-    }
-
-    if (demandProjections.error) {
-      throw new Error("No demand projections found");
-    }
-
-    // Expand demand projections through BOM tree with on-demand fetching
-    // Caches for BOM requirements and metadata
     const leadTimeByItem = new Map<string, number>();
-    const replenishmentSystemByItem = new Map<
-      string,
-      "Buy" | "Make" | "Buy and Make"
-    >();
+    for (const rep of allReplenishments) {
+      leadTimeByItem.set(rep.itemId, rep.leadTime ?? 7);
+    }
 
-    // Cache for base requirements by item
-    const baseRequirementsByItem = new Map<string, ItemRequirement[]>();
+    // Bulk-load inventory by location+item
+    const inventoryRows = await db
+      .selectFrom("itemLedger")
+      .select(["itemId", "locationId"])
+      .select(sql<number>`SUM("quantity")`.as("quantityOnHand"))
+      .where("companyId", "=", companyId)
+      .groupBy(["itemId", "locationId"])
+      .execute();
 
-    // Helper to fetch item metadata (lead time and replenishment system)
-    const fetchItemMetadata = async (itemId: string) => {
-      if (leadTimeByItem.has(itemId) && replenishmentSystemByItem.has(itemId)) {
-        return; // Already cached
-      }
-
-      const [itemReplenishment, item] = await Promise.all([
-        client
-          .from("itemReplenishment")
-          .select("itemId, leadTime")
-          .eq("itemId", itemId)
-          .eq("companyId", companyId)
-          .maybeSingle(),
-        client
-          .from("item")
-          .select("id, replenishmentSystem")
-          .eq("id", itemId)
-          .eq("companyId", companyId)
-          .single(),
-      ]);
-
-      if (!itemReplenishment.error && itemReplenishment.data) {
-        leadTimeByItem.set(itemId, itemReplenishment.data.leadTime ?? 7);
-      } else {
-        leadTimeByItem.set(itemId, 7); // Default
-      }
-
-      if (!item.error && item.data) {
-        replenishmentSystemByItem.set(
-          itemId,
-          item.data.replenishmentSystem as "Buy" | "Make" | "Buy and Make"
-        );
-      } else {
-        replenishmentSystemByItem.set(itemId, "Buy"); // Default
-      }
-    };
-
-    // Traverse tree to accumulate quantities and lead times
-    const traverseBomTree = (
-      node: BomNode,
-      parentQuantity: number,
-      parentLeadTime: number
-    ) => {
-      const itemLeadTime = leadTimeByItem.get(node.itemId) ?? 7;
-      node.accumulatedQuantity = node.quantity * parentQuantity;
-      node.accumulatedLeadTime = parentLeadTime + itemLeadTime;
-
-      // Process children
-      for (const child of node.children) {
-        traverseBomTree(
-          child,
-          node.accumulatedQuantity,
-          node.accumulatedLeadTime
+    const baseInventoryByLocationItem = new Map<string, number>();
+    for (const row of inventoryRows) {
+      if (row.itemId && row.locationId) {
+        baseInventoryByLocationItem.set(
+          `${row.locationId}-${row.itemId}`,
+          Number(row.quantityOnHand) || 0
         );
       }
-    };
+    }
 
-    // Async function to fetch and process BOM for an item
-    const fetchBomRequirements = async (
-      itemId: string
-    ): Promise<ItemRequirement[]> => {
-      // Check cache first
-      if (baseRequirementsByItem.has(itemId)) {
-        return baseRequirementsByItem.get(itemId)!;
+    // Bulk-load all BOMs: use activeMakeMethods view (returns one method per item,
+    // prioritizing 'Active' status then highest version — same logic as get_method_tree)
+    const activeMethodsResult = await client
+      .from("activeMakeMethods")
+      .select("id, itemId")
+      .eq("companyId", companyId);
+    if (activeMethodsResult.error) throw activeMethodsResult.error;
+
+    const methodIdByItem = new Map<string, string>();
+    for (const m of activeMethodsResult.data) {
+      if (m.id && m.itemId) {
+        methodIdByItem.set(m.itemId, m.id);
       }
+    }
 
-      // Get active make method
-      const makeMethod = await client
-        .from("activeMakeMethods")
-        .select("id")
-        .eq("itemId", itemId)
-        .eq("companyId", companyId)
-        .maybeSingle();
+    const allMethodIds = Array.from(methodIdByItem.values());
+    let allMaterials: {
+      id: string;
+      makeMethodId: string;
+      materialMakeMethodId: string | null;
+      itemId: string;
+      quantity: number;
+      methodType: MethodType;
+    }[] = [];
 
-      if (makeMethod.error || !makeMethod.data) {
-        baseRequirementsByItem.set(itemId, []);
-        return [];
-      }
+    if (allMethodIds.length > 0) {
+      allMaterials = (await db
+        .selectFrom("methodMaterial")
+        .select([
+          "id",
+          "makeMethodId",
+          "materialMakeMethodId",
+          "itemId",
+          "quantity",
+          "methodType",
+        ])
+        .where("companyId", "=", companyId)
+        .where("makeMethodId", "in", allMethodIds)
+        .execute()) as typeof allMaterials;
+    }
 
-      // Get BOM tree using RPC
-      const tree = await client.rpc("get_method_tree", {
-        uid: makeMethod.data.id!,
-      });
+    // Build BOM structure: itemId -> direct children
+    // Map makeMethodId -> its direct material children
+    const materialsByMethodId = new Map<string, typeof allMaterials>();
+    for (const mat of allMaterials) {
+      const existing = materialsByMethodId.get(mat.makeMethodId) ?? [];
+      existing.push(mat);
+      materialsByMethodId.set(mat.makeMethodId, existing);
+    }
 
-      if (tree.error || !tree.data) {
-        console.error(`Failed to get BOM tree for ${itemId}:`, tree.error);
-        baseRequirementsByItem.set(itemId, []);
-        return [];
-      }
-
-      // Fetch metadata for all items in this BOM
-      const itemsInBom = new Set<string>();
-      for (const node of tree.data) {
-        if (node.itemId) {
-          itemsInBom.add(node.itemId);
-        }
-      }
-      await Promise.all(Array.from(itemsInBom).map(fetchItemMetadata));
-
-      // Build tree structure
-      const nodeMap = new Map<string, BomNode>();
-
-      for (const treeNode of tree.data) {
-        const node: BomNode = {
-          methodMaterialId: treeNode.methodMaterialId,
-          itemId: treeNode.itemId,
-          quantity: Number(treeNode.quantity ?? 1),
-          parentMaterialId: treeNode.parentMaterialId,
-          isRoot: treeNode.isRoot ?? false,
-          children: [],
-          accumulatedQuantity: 0,
-          accumulatedLeadTime: 0,
-        };
-        nodeMap.set(treeNode.methodMaterialId, node);
-      }
-
-      // Build tree relationships
-      const roots: BomNode[] = [];
-      for (const node of nodeMap.values()) {
-        if (node.isRoot || !node.parentMaterialId) {
-          roots.push(node);
-        } else {
-          const parent = nodeMap.get(node.parentMaterialId);
-          if (parent) {
-            parent.children.push(node);
-          }
-        }
-      }
-
-      // Traverse tree with base quantity of 1
-      for (const root of roots) {
-        traverseBomTree(root, 1, 0);
-      }
-
-      // Collect requirements
-      const requirements: ItemRequirement[] = [];
-      for (const node of nodeMap.values()) {
-        if (node.isRoot) continue;
-
-        const replenishmentSystem =
-          replenishmentSystemByItem.get(node.itemId) ?? "Buy";
-
-        const treeNode = tree.data.find(
-          (t: { methodMaterialId: string }) =>
-            t.methodMaterialId === node.methodMaterialId
-        );
-
-        requirements.push({
-          itemId: node.itemId,
-          baseQuantity: node.accumulatedQuantity,
-          leadTimeOffset: node.accumulatedLeadTime,
-          replenishmentSystem:
-            replenishmentSystem === "Buy and Make"
-              ? "Buy"
-              : (replenishmentSystem as "Buy" | "Make"),
-          methodType: (treeNode?.methodType ?? "Purchase to Order") as
-            | "Make to Order"
-            | "Pull from Inventory"
-            | "Purchase to Order"
-           ,
+    // Build itemId -> direct BOM children (one level only)
+    const bomByItem = new Map<string, BomChild[]>();
+    for (const [itemId, methodId] of methodIdByItem) {
+      const materials = materialsByMethodId.get(methodId) ?? [];
+      const children: BomChild[] = [];
+      for (const mat of materials) {
+        children.push({
+          itemId: mat.itemId,
+          quantity: Number(mat.quantity) || 1,
+          methodType: mat.methodType as MethodType,
         });
       }
-
-      baseRequirementsByItem.set(itemId, requirements);
-      return requirements;
-    };
-
-    // Recursively process requirements to expand Pick+Make items
-    const processRequirement = async (
-      locationId: string,
-      periodId: string,
-      itemId: string,
-      quantity: number,
-      accumulatedLeadTime: number
-    ): Promise<void> => {
-      // Fetch BOM requirements for this item (uses cache if available)
-      const baseRequirements = await fetchBomRequirements(itemId);
-
-      if (baseRequirements.length === 0) {
-        return;
+      if (children.length > 0) {
+        bomByItem.set(itemId, children);
       }
+    }
 
-      for (const req of baseRequirements) {
-        const requiredQuantity = req.baseQuantity * quantity;
-        const totalLeadTime = accumulatedLeadTime + req.leadTimeOffset;
+    // ──────────────────────────────────────────────────────────────
+    // PHASE 2: Compute Low Level Codes
+    // ──────────────────────────────────────────────────────────────
 
-        // Skip Make+Make items - they will be produced, not procured
-        if (req.methodType === "Make to Order" && req.replenishmentSystem === "Make") {
-          continue;
-        }
+    const llc = computeLowLevelCodes(bomByItem, replenishmentSystemByItem);
+    const maxLevel = llc.size > 0 ? Math.max(...llc.values()) : 0;
 
-        // Add this item to requirements (unless it's Make+Make)
-        const key = `${locationId}-${periodId}-${req.itemId}`;
-        const existing = requirementsByProjectedItem.get(key);
+    // ──────────────────────────────────────────────────────────────
+    // PHASE 3: Collect supply from open orders
+    // ──────────────────────────────────────────────────────────────
 
-        if (existing) {
-          existing.estimatedQuantity += requiredQuantity;
-        } else {
-          requirementsByProjectedItem.set(key, {
-            estimatedQuantity: requiredQuantity,
-            leadTimeOffset: totalLeadTime,
-            replenishmentSystem: req.replenishmentSystem,
-            methodType: req.methodType,
-          });
-        }
+    // Supply bucketed by location+period+item (for demand projection netting + supplyActual output)
+    const jobSupplyByLocationPeriodItem = new Map<string, number>();
 
-        // If this is a Pick item with Make replenishment, recursively expand its BOM
-        if (req.methodType === "Pull from Inventory" && req.replenishmentSystem === "Make") {
-          await processRequirement(
-            locationId,
-            periodId,
-            req.itemId,
-            requiredQuantity,
-            totalLeadTime
-          );
-        }
-      }
-    };
-
-    // First, group production orders by location/period/item to offset demand projections
-    // This prevents double-counting of planned production
     for (const line of productionLines.data) {
       if (!line.itemId || !line.quantityToReceive) continue;
 
       const dueDate = line.dueDate
         ? parseDate(line.dueDate)
         : line.deadlineType === "No Deadline"
-        ? today.add({ days: 30 })
-        : today;
+          ? today.add({ days: 30 })
+          : today;
 
-      // If required date is before today, use first period
-      let period;
-      if (dueDate.compare(today) < 0) {
-        period = periods[0];
-      } else {
-        // Find matching period for required date
-        period = periods.find((p) => {
-          return (
-            p.startDate?.compare(dueDate) <= 0 &&
-            p.endDate?.compare(dueDate) >= 0
-          );
-        });
-      }
+      const period = findPeriod(dueDate, today, periods);
+      if (!period) continue;
 
-      if (period) {
-        const locationDemand = jobSupplyByLocationAndPeriod.get(
-          line.locationId ?? ""
-        );
-        if (locationDemand) {
-          const periodDemand = locationDemand.get(period.id ?? "");
-          if (periodDemand) {
-            const currentDemand = periodDemand.get(line.itemId) ?? 0;
-            periodDemand.set(
-              line.itemId,
-              currentDemand + line.quantityToReceive
-            );
-          }
-        }
-      }
-    }
-
-    // Now apply demand projections by multiplying base requirements
-    // Subtract planned production orders to avoid double-counting
-    for (const projection of demandProjections.data) {
-      if (!projection.itemId || !projection.forecastQuantity) {
-        continue;
-      }
-
-      // Calculate net demand after subtracting planned production orders
-      let netDemand = projection.forecastQuantity;
-      const locationSupply = jobSupplyByLocationAndPeriod.get(
-        projection.locationId ?? ""
+      const periodKey = `${line.locationId ?? ""}-${period.id ?? ""}-${line.itemId}`;
+      jobSupplyByLocationPeriodItem.set(
+        periodKey,
+        (jobSupplyByLocationPeriodItem.get(periodKey) ?? 0) + line.quantityToReceive
       );
-      if (locationSupply) {
-        const periodSupply = locationSupply.get(projection.periodId);
-        if (periodSupply) {
-          const plannedProduction = periodSupply.get(projection.itemId) ?? 0;
-          netDemand = Math.max(
-            0,
-            projection.forecastQuantity - plannedProduction
-          );
-        }
-      }
+    }
 
-      // Only process if there's net demand after offsetting
+    const poSupplyByLocationPeriodItem = new Map<string, number>();
+
+    for (const line of purchaseOrderLines.data) {
+      if (!line.itemId || !line.quantityToReceive) continue;
+
+      const dueDate = line.promisedDate
+        ? parseDate(line.promisedDate)
+        : line.orderDate
+          ? parseDate(line.orderDate).add({ days: line.leadTime ?? 7 })
+          : today.add({ days: line.leadTime ?? 7 });
+
+      const period = findPeriod(dueDate, today, periods);
+      if (!period) continue;
+
+      const periodKey = `${line.locationId ?? ""}-${period.id ?? ""}-${line.itemId}`;
+      poSupplyByLocationPeriodItem.set(
+        periodKey,
+        (poSupplyByLocationPeriodItem.get(periodKey) ?? 0) + line.quantityToReceive
+      );
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // PHASE 4: Collect independent demands (no BOM explosion yet)
+    // ──────────────────────────────────────────────────────────────
+
+    // grossDemand: Map<"locationId-periodId-itemId", quantity>
+    const grossDemand = new Map<string, number>();
+
+    // Track actual demands separately for demandActual output
+    const salesDemandByKey = new Map<string, number>();
+    const jobMaterialDemandByKey = new Map<string, number>();
+
+    // Demand projections (netted against production supply)
+    for (const projection of demandProjections.data) {
+      if (!projection.itemId || !projection.forecastQuantity) continue;
+
+      let netDemand = projection.forecastQuantity;
+      const periodKey = `${projection.locationId ?? ""}-${projection.periodId}-${projection.itemId}`;
+      const plannedProduction = jobSupplyByLocationPeriodItem.get(periodKey) ?? 0;
+      netDemand = Math.max(0, projection.forecastQuantity - plannedProduction);
+
       if (netDemand > 0) {
-        await processRequirement(
-          projection.locationId!,
-          projection.periodId,
-          projection.itemId,
-          netDemand,
-          0
-        );
+        const key = `${projection.locationId ?? ""}-${projection.periodId}-${projection.itemId}`;
+        grossDemand.set(key, (grossDemand.get(key) ?? 0) + netDemand);
       }
     }
 
-    // Group sales order lines into demand periods AND process their BOM requirements
+    // Sales order lines
     for (const line of salesOrderLines.data) {
       if (!line.itemId || !line.quantityToSend) continue;
 
       const promiseDate = line.promisedDate
         ? parseDate(line.promisedDate)
         : today;
-      const requiredDate = promiseDate;
+      const period = findPeriod(promiseDate, today, periods);
+      if (!period) continue;
 
-      // If promised date is before today, use first period
-      let period;
-      if (requiredDate.compare(today) < 0) {
-        period = periods[0];
-      } else {
-        // Find matching period for promised date
-        period = periods.find((p) => {
-          return (
-            p.startDate?.compare(requiredDate) <= 0 &&
-            p.endDate?.compare(requiredDate) >= 0
-          );
-        });
-      }
+      const key = `${line.locationId ?? ""}-${period.id ?? ""}-${line.itemId}`;
+      grossDemand.set(key, (grossDemand.get(key) ?? 0) + line.quantityToSend);
 
-      if (period) {
-        const locationDemand = salesDemandByLocationAndPeriod.get(
-          line.locationId ?? ""
-        );
-        if (locationDemand) {
-          const periodDemand = locationDemand.get(period.id ?? "");
-          if (periodDemand) {
-            const currentDemand = periodDemand.get(line.itemId) ?? 0;
-            periodDemand.set(line.itemId, currentDemand + line.quantityToSend);
-          }
-        }
-
-        // Process BOM requirements for this sales order line
-        await processRequirement(
-          line.locationId ?? "",
-          period.id ?? "",
-          line.itemId,
-          line.quantityToSend,
-          0
-        );
-      }
+      const actualKey = `${line.itemId}-${line.locationId ?? ""}-${period.id ?? ""}-Sales Order`;
+      salesDemandByKey.set(
+        actualKey,
+        (salesDemandByKey.get(actualKey) ?? 0) + line.quantityToSend
+      );
     }
 
-    // Group job material lines into demand periods AND process their BOM requirements
+    // Job material lines
     for (const line of jobMaterialLines.data) {
       if (!line.itemId || !line.quantityToIssue) continue;
 
       const dueDate = line.dueDate ? parseDate(line.dueDate) : today;
       const requiredDate = dueDate.add({ days: -(line.leadTime ?? 7) });
+      const period = findPeriod(requiredDate, today, periods);
+      if (!period) continue;
 
-      // If required date is before today, use first period
-      let period;
-      if (requiredDate.compare(today) < 0) {
-        period = periods[0];
-      } else {
-        // Find matching period for required date
-        period = periods.find((p) => {
-          return (
-            p.startDate?.compare(requiredDate) <= 0 &&
-            p.endDate?.compare(requiredDate) >= 0
-          );
-        });
-      }
+      const key = `${line.locationId ?? ""}-${period.id ?? ""}-${line.itemId}`;
+      grossDemand.set(key, (grossDemand.get(key) ?? 0) + line.quantityToIssue);
 
-      if (period) {
-        const locationDemand = jobMaterialDemandByLocationAndPeriod.get(
-          line.locationId ?? ""
-        );
-        if (locationDemand) {
-          const periodDemand = locationDemand.get(period.id ?? "");
-          if (periodDemand) {
-            const currentDemand = periodDemand.get(line.itemId) ?? 0;
-            periodDemand.set(line.itemId, currentDemand + line.quantityToIssue);
-          }
-        }
-
-        // Process BOM requirements for this job material line
-        await processRequirement(
-          line.locationId ?? "",
-          period.id ?? "",
-          line.itemId,
-          line.quantityToIssue,
-          0
-        );
-      }
+      const actualKey = `${line.itemId}-${line.locationId ?? ""}-${period.id ?? ""}-Job Material`;
+      jobMaterialDemandByKey.set(
+        actualKey,
+        (jobMaterialDemandByKey.get(actualKey) ?? 0) + line.quantityToIssue
+      );
     }
 
-    // Convert requirements to demandForecast records with period offsetting
-    // Use a Map to aggregate by (itemId, locationId, periodId) to avoid duplicates
+    // ──────────────────────────────────────────────────────────────
+    // PHASE 5: Level-by-level processing with inventory netting
+    // ──────────────────────────────────────────────────────────────
+
+    // On-hand inventory only (no scheduled supply — planning views
+    // handle time-phased supply/demand projection). Mutable: consumed
+    // as demands are netted to prevent the same stock from covering
+    // multiple items.
+    const onHandByLocationItem = new Map(baseInventoryByLocationItem);
+
+    // BOM-derived demand only — this is what gets written to demandForecast.
+    // Independent demand (sales orders, job materials) is already in demandActual
+    // and must NOT be duplicated here.
+    const bomDerivedDemand = new Map<string, number>();
+
+    // demandForecast output: Map<"itemId-locationId-periodId", record>
     const demandForecastMap = new Map<
       string,
       Database["public"]["Tables"]["demandForecast"]["Insert"]
     >();
 
-    for (const [key, requirement] of requirementsByProjectedItem) {
-      const [locationId, sourcePeriodId, itemId] = key.split("-");
-
-      // Find the source period
-      const sourcePeriod = periods.find((p) => p.id === sourcePeriodId);
-      if (!sourcePeriod) {
-        continue;
+    for (let level = 0; level <= maxLevel; level++) {
+      // Collect all demand keys at this level
+      const keysAtLevel: string[] = [];
+      for (const [key, qty] of grossDemand) {
+        if (qty <= 0) continue;
+        const [, , itemId] = splitKey(key);
+        if ((llc.get(itemId) ?? 0) === level) {
+          keysAtLevel.push(key);
+        }
       }
 
-      // Calculate how many days to offset backwards based on lead time
-      const leadTimeDays = requirement.leadTimeOffset;
-      const leadTimeWeeks = Math.ceil(leadTimeDays / 7); // Round up to nearest week
+      for (const key of keysAtLevel) {
+        const grossQty = grossDemand.get(key) ?? 0;
+        if (grossQty <= 0) continue;
 
-      // Find the target period by going backwards leadTimeWeeks from source period
-      const sourcePeriodIndex = periods.findIndex(
-        (p) => p.id === sourcePeriodId
-      );
-      const targetPeriodIndex = Math.max(0, sourcePeriodIndex - leadTimeWeeks);
-      const targetPeriod = periods[targetPeriodIndex];
+        const [locationId, periodId, itemId] = splitKey(key);
+        const repSys = replenishmentSystemByItem.get(itemId);
+        const effectiveRepSys =
+          repSys === "Buy and Make" ? "Buy" : (repSys as "Buy" | "Make" | undefined);
 
-      if (!targetPeriod) {
-        continue;
+        // ── Inventory Netting ──
+        const invKey = `${locationId}-${itemId}`;
+        const onHand = onHandByLocationItem.get(invKey) ?? 0;
+        const netRequirement = Math.max(0, grossQty - Math.max(0, onHand));
+
+        // Consume on-hand inventory
+        if (onHand > 0) {
+          onHandByLocationItem.set(invKey, Math.max(0, onHand - grossQty));
+        }
+
+        // ── Dependent Demand Propagation ──
+        // Only explode BOM if there's a net requirement AND item is Make type
+        if (netRequirement > 0 && effectiveRepSys === "Make") {
+          const children = bomByItem.get(itemId) ?? [];
+          for (const child of children) {
+            const childRepSys = replenishmentSystemByItem.get(child.itemId);
+            const childEffRepSys =
+              childRepSys === "Buy and Make"
+                ? "Buy"
+                : (childRepSys as "Buy" | "Make" | undefined);
+
+            // Skip Make+Make (produced in-line, not independently planned)
+            if (
+              child.methodType === "Make to Order" &&
+              childEffRepSys === "Make"
+            ) {
+              continue;
+            }
+
+            const childQty = child.quantity * netRequirement;
+            const childLeadTimeDays = leadTimeByItem.get(child.itemId) ?? 7;
+            const childLeadTimeWeeks = Math.ceil(childLeadTimeDays / 7);
+
+            // Offset to earlier period based on child's lead time
+            const currentPeriodIndex = periods.findIndex(
+              (p: DemandPeriod) => p.id ?? "" === periodId
+            );
+            const targetPeriodIndex = Math.max(
+              0,
+              currentPeriodIndex - childLeadTimeWeeks
+            );
+            const targetPeriod = periods[targetPeriodIndex];
+
+            if (targetPeriod) {
+              const childKey = `${locationId}-${targetPeriod.id}-${child.itemId}`;
+              grossDemand.set(
+                childKey,
+                (grossDemand.get(childKey) ?? 0) + childQty
+              );
+              bomDerivedDemand.set(
+                childKey,
+                (bomDerivedDemand.get(childKey) ?? 0) + childQty
+              );
+            }
+          }
+        }
       }
+    }
 
-      // Create unique key for aggregation
-      const forecastKey = `${itemId}-${locationId}-${targetPeriod.id}`;
+    // Write BOM-derived demand to demandForecast.
+    // The demand is already at the correct period (lead-time-offset
+    // was applied during propagation), so no further offset needed.
+    for (const [key, qty] of bomDerivedDemand) {
+      if (qty <= 0) continue;
+      const [locationId, periodId, itemId] = splitKey(key);
+
+      const forecastKey = `${itemId}-${locationId}-${periodId}`;
       const existing = demandForecastMap.get(forecastKey);
-
       if (existing) {
-        // Aggregate quantities for same item/location/period
-        existing.forecastQuantity =
-          Number(existing.forecastQuantity) + requirement.estimatedQuantity;
+        existing.forecastQuantity = Number(existing.forecastQuantity) + qty;
       } else {
         demandForecastMap.set(forecastKey, {
           itemId,
           locationId,
-          periodId: targetPeriod.id!,
-          forecastQuantity: requirement.estimatedQuantity,
+          periodId,
+          forecastQuantity: qty,
           forecastMethod: "mrp",
           companyId,
           createdBy: userId,
@@ -706,59 +496,14 @@ serve(async (req: Request) => {
       }
     }
 
-    const demandForecastUpserts = Array.from(demandForecastMap.values());
+    // ──────────────────────────────────────────────────────────────
+    // PHASE 6: Build demandActual and supplyActual records
+    // ──────────────────────────────────────────────────────────────
 
-    // Group purchase order lines into supply periods
-    for (const line of purchaseOrderLines.data) {
-      if (!line.itemId || !line.quantityToReceive) continue;
-
-      const dueDate = line.promisedDate
-        ? parseDate(line.promisedDate)
-        : line.orderDate
-        ? parseDate(line.orderDate).add({ days: line.leadTime ?? 7 })
-        : today.add({ days: line.leadTime ?? 7 });
-
-      // If required date is before today, use first period
-      let period;
-      if (dueDate.compare(today) < 0) {
-        period = periods[0];
-      } else {
-        // Find matching period for required date
-        period = periods.find((p) => {
-          return (
-            p.startDate?.compare(dueDate) <= 0 &&
-            p.endDate?.compare(dueDate) >= 0
-          );
-        });
-      }
-
-      if (period) {
-        const locationDemand = purchaseOrderSupplyByLocationAndPeriod.get(
-          line.locationId ?? ""
-        );
-        if (locationDemand) {
-          const periodDemand = locationDemand.get(period.id ?? "");
-          if (periodDemand) {
-            const currentDemand = periodDemand.get(line.itemId) ?? 0;
-            periodDemand.set(
-              line.itemId,
-              currentDemand + line.quantityToReceive
-            );
-          }
-        }
-      }
-    }
-
-    const demandActualUpserts: Database["public"]["Tables"]["demandActual"]["Insert"][] =
-      [];
-    // Create a Map to store unique demand actuals by composite key
     const demandActualsMap = new Map<
       string,
       Database["public"]["Tables"]["demandActual"]["Insert"]
     >();
-
-    const supplyActualUpserts: Database["public"]["Tables"]["supplyActual"]["Insert"][] =
-      [];
     const supplyActualsMap = new Map<
       string,
       Database["public"]["Tables"]["supplyActual"]["Insert"]
@@ -782,14 +527,14 @@ serve(async (req: Request) => {
         .eq("companyId", companyId)
         .in(
           "periodId",
-          periods.map((p) => p.id ?? "")
+          periods.map((p: DemandPeriod) => p.id ?? "").filter(Boolean)
         ),
     ]);
 
     if (demandActualsError) throw demandActualsError;
     if (supplyActualsError) throw supplyActualsError;
 
-    // First add all existing records with quantity 0
+    // Zero out existing demand actuals (they'll be overwritten if still relevant)
     if (existingDemandActuals) {
       for (const existing of existingDemandActuals) {
         const key = `${existing.itemId}-${existing.locationId}-${existing.periodId}-${existing.sourceType}`;
@@ -806,51 +551,39 @@ serve(async (req: Request) => {
       }
     }
 
-    // Then add/update current demand for sales order lines
-    for (const [locationId, periodMap] of salesDemandByLocationAndPeriod) {
-      for (const [periodId, itemMap] of periodMap) {
-        for (const [itemId, quantity] of itemMap) {
-          if (quantity > 0) {
-            const key = `${itemId}-${locationId}-${periodId}-Sales Order`;
-            demandActualsMap.set(key, {
-              itemId,
-              locationId,
-              periodId: periodId,
-              actualQuantity: quantity,
-              sourceType: "Sales Order",
-              companyId,
-              createdBy: userId,
-              updatedBy: userId,
-            });
-          }
-        }
+    // Sales order demand actuals
+    for (const [key, quantity] of salesDemandByKey) {
+      if (quantity > 0) {
+        demandActualsMap.set(key, {
+          itemId: key.split("-")[0],
+          locationId: key.split("-")[1],
+          periodId: key.split("-")[2],
+          actualQuantity: quantity,
+          sourceType: "Sales Order",
+          companyId,
+          createdBy: userId,
+          updatedBy: userId,
+        });
       }
     }
 
-    // Then add/update current demand for job material lines
-    for (const [
-      locationId,
-      periodMap,
-    ] of jobMaterialDemandByLocationAndPeriod) {
-      for (const [periodId, itemMap] of periodMap) {
-        for (const [itemId, quantity] of itemMap) {
-          if (quantity > 0) {
-            const key = `${itemId}-${locationId}-${periodId}-Job Material`;
-            demandActualsMap.set(key, {
-              itemId,
-              locationId,
-              periodId: periodId,
-              actualQuantity: quantity,
-              sourceType: "Job Material",
-              companyId,
-              createdBy: userId,
-              updatedBy: userId,
-            });
-          }
-        }
+    // Job material demand actuals
+    for (const [key, quantity] of jobMaterialDemandByKey) {
+      if (quantity > 0) {
+        demandActualsMap.set(key, {
+          itemId: key.split("-")[0],
+          locationId: key.split("-")[1],
+          periodId: key.split("-")[2],
+          actualQuantity: quantity,
+          sourceType: "Job Material",
+          companyId,
+          createdBy: userId,
+          updatedBy: userId,
+        });
       }
     }
 
+    // Zero out existing supply actuals
     if (existingSupplyActuals) {
       for (const existing of existingSupplyActuals) {
         const key = `${existing.itemId}-${existing.locationId}-${existing.periodId}-${existing.sourceType}`;
@@ -867,121 +600,122 @@ serve(async (req: Request) => {
       }
     }
 
-    // Then add/update current demand for sales order lines
-    for (const [locationId, periodMap] of jobSupplyByLocationAndPeriod) {
-      for (const [periodId, itemMap] of periodMap) {
-        for (const [itemId, quantity] of itemMap) {
-          if (quantity > 0) {
-            const key = `${itemId}-${locationId}-${periodId}-Production Order`;
-            supplyActualsMap.set(key, {
-              itemId,
-              locationId,
-              periodId: periodId,
-              actualQuantity: quantity,
-              sourceType: "Production Order",
-              companyId,
-              createdBy: userId,
-              updatedBy: userId,
-            });
-          }
-        }
+    // Production order supply actuals
+    for (const [key, quantity] of jobSupplyByLocationPeriodItem) {
+      if (quantity > 0) {
+        const [locationId, periodId, itemId] = key.split("-");
+        const actualKey = `${itemId}-${locationId}-${periodId}-Production Order`;
+        supplyActualsMap.set(actualKey, {
+          itemId,
+          locationId,
+          periodId,
+          actualQuantity: quantity,
+          sourceType: "Production Order",
+          companyId,
+          createdBy: userId,
+          updatedBy: userId,
+        });
       }
     }
 
-    // Then add/update current demand for job material lines
-    for (const [
-      locationId,
-      periodMap,
-    ] of purchaseOrderSupplyByLocationAndPeriod) {
-      for (const [periodId, itemMap] of periodMap) {
-        for (const [itemId, quantity] of itemMap) {
-          if (quantity > 0) {
-            const key = `${itemId}-${locationId}-${periodId}-Purchase Order`;
-            supplyActualsMap.set(key, {
-              itemId,
-              locationId,
-              periodId: periodId,
-              actualQuantity: quantity,
-              sourceType: "Purchase Order",
-              companyId,
-              createdBy: userId,
-              updatedBy: userId,
-            });
-          }
-        }
+    // Purchase order supply actuals
+    for (const [key, quantity] of poSupplyByLocationPeriodItem) {
+      if (quantity > 0) {
+        const [locationId, periodId, itemId] = key.split("-");
+        const actualKey = `${itemId}-${locationId}-${periodId}-Purchase Order`;
+        supplyActualsMap.set(actualKey, {
+          itemId,
+          locationId,
+          periodId,
+          actualQuantity: quantity,
+          sourceType: "Purchase Order",
+          companyId,
+          createdBy: userId,
+          updatedBy: userId,
+        });
       }
     }
 
-    demandActualUpserts.push(...demandActualsMap.values());
-    supplyActualUpserts.push(...supplyActualsMap.values());
+    // ──────────────────────────────────────────────────────────────
+    // PHASE 7: Persist results (chunked batch writes)
+    // ──────────────────────────────────────────────────────────────
+
+    const demandForecastUpserts = Array.from(demandForecastMap.values());
+    const demandActualUpserts = Array.from(demandActualsMap.values());
+    const supplyActualUpserts = Array.from(supplyActualsMap.values());
+
+    const BATCH_SIZE = 500;
 
     try {
-      await db.transaction().execute(async (trx) => {
-        // Delete existing demandForecast for this company
-        await trx
-          .deleteFrom("demandForecast")
-          .where("companyId", "=", companyId)
-          .where("forecastMethod", "=", "mrp")
-          .execute();
+      // Delete existing MRP forecasts
+      await db
+        .deleteFrom("demandForecast")
+        .where("companyId", "=", companyId)
+        .where("forecastMethod", "=", "mrp")
+        .execute();
 
-        await trx
-          .deleteFrom("supplyForecast")
-          .where(
-            "locationId",
-            "in",
-            locations.data.map((l) => l.id)
+      await db
+        .deleteFrom("supplyForecast")
+        .where(
+          "locationId",
+          "in",
+          locations.data.map((l) => l.id)
+        )
+        .where("companyId", "=", companyId)
+        .execute();
+
+      // Insert demand forecasts in batches
+      for (let i = 0; i < demandForecastUpserts.length; i += BATCH_SIZE) {
+        const batch = demandForecastUpserts.slice(i, i + BATCH_SIZE);
+        await db
+          .insertInto("demandForecast")
+          .values(batch)
+          .onConflict((oc) =>
+            oc.columns(["itemId", "locationId", "periodId"]).doUpdateSet({
+              forecastQuantity: (eb) => eb.ref("excluded.forecastQuantity"),
+              forecastMethod: (eb) => eb.ref("excluded.forecastMethod"),
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId,
+            })
           )
-          .where("companyId", "=", companyId)
           .execute();
+      }
 
-        // Insert new demandForecast records
-        if (demandForecastUpserts.length > 0) {
-          await trx
-            .insertInto("demandForecast")
-            .values(demandForecastUpserts)
-            .onConflict((oc) =>
-              oc.columns(["itemId", "locationId", "periodId"]).doUpdateSet({
-                forecastQuantity: (eb) => eb.ref("excluded.forecastQuantity"),
-                forecastMethod: (eb) => eb.ref("excluded.forecastMethod"),
+      // Insert demand actuals in batches
+      for (let i = 0; i < demandActualUpserts.length; i += BATCH_SIZE) {
+        const batch = demandActualUpserts.slice(i, i + BATCH_SIZE);
+        await db
+          .insertInto("demandActual")
+          .values(batch)
+          .onConflict((oc) =>
+            oc
+              .columns(["itemId", "locationId", "periodId", "sourceType"])
+              .doUpdateSet({
+                actualQuantity: (eb) => eb.ref("excluded.actualQuantity"),
                 updatedAt: new Date().toISOString(),
                 updatedBy: userId,
               })
-            )
-            .execute();
-        }
+          )
+          .execute();
+      }
 
-        if (demandActualUpserts.length > 0) {
-          await trx
-            .insertInto("demandActual")
-            .values(demandActualUpserts)
-            .onConflict((oc) =>
-              oc
-                .columns(["itemId", "locationId", "periodId", "sourceType"])
-                .doUpdateSet({
-                  actualQuantity: (eb) => eb.ref("excluded.actualQuantity"),
-                  updatedAt: new Date().toISOString(),
-                  updatedBy: userId,
-                })
-            )
-            .execute();
-        }
-
-        if (supplyActualUpserts.length > 0) {
-          await trx
-            .insertInto("supplyActual")
-            .values(supplyActualUpserts)
-            .onConflict((oc) =>
-              oc
-                .columns(["itemId", "locationId", "periodId", "sourceType"])
-                .doUpdateSet({
-                  actualQuantity: (eb) => eb.ref("excluded.actualQuantity"),
-                  updatedAt: new Date().toISOString(),
-                  updatedBy: userId,
-                })
-            )
-            .execute();
-        }
-      });
+      // Insert supply actuals in batches
+      for (let i = 0; i < supplyActualUpserts.length; i += BATCH_SIZE) {
+        const batch = supplyActualUpserts.slice(i, i + BATCH_SIZE);
+        await db
+          .insertInto("supplyActual")
+          .values(batch)
+          .onConflict((oc) =>
+            oc
+              .columns(["itemId", "locationId", "periodId", "sourceType"])
+              .doUpdateSet({
+                actualQuantity: (eb) => eb.ref("excluded.actualQuantity"),
+                updatedAt: new Date().toISOString(),
+                updatedBy: userId,
+              })
+          )
+          .execute();
+      }
 
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -1003,6 +737,70 @@ serve(async (req: Request) => {
   }
 });
 
+// ──────────────────────────────────────────────────────────────
+// Helper functions
+// ──────────────────────────────────────────────────────────────
+
+function splitKey(key: string): [string, string, string] {
+  const parts = key.split("-");
+  // Keys are "locationId-periodId-itemId" where each ID contains no hyphens (xid format)
+  return [parts[0], parts[1], parts.slice(2).join("-")];
+}
+
+function findPeriod(
+  date: CalendarDate,
+  today: CalendarDate,
+  periods: DemandPeriod[]
+): DemandPeriod | undefined {
+  if (date.compare(today) < 0) {
+    return periods[0];
+  }
+  return periods.find(
+    (p) => p.startDate?.compare(date) <= 0 && p.endDate?.compare(date) >= 0
+  );
+}
+
+function computeLowLevelCodes(
+  bomByItem: Map<string, BomChild[]>,
+  replenishmentSystemByItem: Map<string, ReplenishmentSystem>
+): Map<string, number> {
+  const llc = new Map<string, number>();
+
+  function assignLevel(
+    itemId: string,
+    level: number,
+    visited: Set<string>
+  ): void {
+    if (visited.has(itemId)) return;
+    visited.add(itemId);
+
+    const currentLLC = llc.get(itemId) ?? -1;
+    if (level > currentLLC) {
+      llc.set(itemId, level);
+    }
+
+    const children = bomByItem.get(itemId) ?? [];
+    for (const child of children) {
+      const childRepSys = replenishmentSystemByItem.get(child.itemId);
+      const childEffRepSys =
+        childRepSys === "Buy and Make" ? "Buy" : childRepSys;
+
+      // Skip Make+Make (produced in-line)
+      if (child.methodType === "Make to Order" && childEffRepSys === "Make") {
+        continue;
+      }
+
+      assignLevel(child.itemId, level + 1, new Set(visited));
+    }
+  }
+
+  for (const itemId of bomByItem.keys()) {
+    assignLevel(itemId, 0, new Set());
+  }
+
+  return llc;
+}
+
 function getStartAndEndDates(
   today: CalendarDate,
   groupBy: "Week" | "Day" | "Month"
@@ -1022,18 +820,14 @@ function getStartAndEndDates(
         });
         currentStart = periodEnd.add({ days: 1 });
       }
-
       return periods;
     }
-    case "Month": {
+    case "Month":
       throw new Error("Not implemented");
-    }
-    case "Day": {
+    case "Day":
       throw new Error("Not implemented");
-    }
-    default: {
+    default:
       throw new Error("Invalid groupBy");
-    }
   }
 }
 
@@ -1042,7 +836,6 @@ async function getOrCreateDemandPeriods(
   periods: { startDate: string; endDate: string }[],
   periodType: "Week" | "Day" | "Month"
 ) {
-  // Get all existing periods for these dates
   const existingPeriods = await db
     .selectFrom("period")
     .selectAll()
@@ -1054,33 +847,27 @@ async function getOrCreateDemandPeriods(
     .where("periodType", "=", periodType)
     .execute();
 
-  // If we found all periods, return them
   if (existingPeriods.length === periods.length) {
-    return existingPeriods.map((p) => {
-      return {
-        id: p.id,
-        // @ts-ignore - we are getting Date objects here
-        startDate: parseDate(p.startDate.toISOString().split("T")[0]),
-        // @ts-ignore - we are getting Date objects here
-        endDate: parseDate(p.endDate.toISOString().split("T")[0]),
-        periodType: p.periodType,
-        createdAt: p.createdAt,
-      };
-    });
+    return existingPeriods.map((p) => ({
+      id: p.id,
+      // @ts-ignore - we are getting Date objects here
+      startDate: parseDate(p.startDate.toISOString().split("T")[0]),
+      // @ts-ignore - we are getting Date objects here
+      endDate: parseDate(p.endDate.toISOString().split("T")[0]),
+      periodType: p.periodType,
+      createdAt: p.createdAt,
+    }));
   }
 
-  // Create map of existing periods by start date
   const existingPeriodMap = new Map(
     // @ts-ignore - we are getting Date objects here
     existingPeriods.map((p) => [p.startDate.toISOString().split("T")[0], p])
   );
 
-  // Find which periods need to be created
   const periodsToCreate = periods.filter(
     (period) => !existingPeriodMap.has(period.startDate)
   );
 
-  // Create missing periods in a transaction
   const created = await db.transaction().execute(async (trx) => {
     return await trx
       .insertInto("period")
@@ -1096,7 +883,6 @@ async function getOrCreateDemandPeriods(
       .execute();
   });
 
-  // Return all periods (existing + newly created)
   return [...existingPeriods, ...created].map((p) => ({
     id: p.id,
     // @ts-ignore - we are getting Date objects here
@@ -1107,23 +893,3 @@ async function getOrCreateDemandPeriods(
     createdAt: p.createdAt,
   }));
 }
-
-type BomNode = {
-  methodMaterialId: string;
-  itemId: string;
-  quantity: number;
-  parentMaterialId: string | null;
-  isRoot: boolean;
-  children: BomNode[];
-  accumulatedQuantity: number;
-  accumulatedLeadTime: number;
-};
-
-// Type for item requirements
-type ItemRequirement = {
-  itemId: string;
-  baseQuantity: number; // Quantity required per unit of parent
-  leadTimeOffset: number;
-  replenishmentSystem: "Buy" | "Make";
-  methodType: "Make to Order" | "Pull from Inventory" | "Purchase to Order";
-};

@@ -35,7 +35,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LuEllipsisVertical,
-  LuGlobe,
   LuHistory,
   LuSquareUser,
   LuTrash,
@@ -63,7 +62,7 @@ import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
 import { priceOverrideValidator } from "../../sales.models";
 import type { PriceOverrideBreak } from "../../types";
 
-type ScopeType = "customer" | "customerType" | "all";
+type ScopeType = "customer" | "customerType";
 
 type PriceOverrideFormProps = {
   initialValues: z.infer<typeof priceOverrideValidator>;
@@ -87,8 +86,6 @@ const PriceOverrideForm = ({
   const [scope, setScope] = useState<ScopeType>(() => {
     if (initialValues.customerId) return "customer";
     if (initialValues.customerTypeId) return "customerType";
-    // Edit with no IDs = All Customers. Create honors URL-provided scope hint.
-    if (initialValues.id) return "all";
     return initialScope ?? "customer";
   });
 
@@ -150,12 +147,7 @@ const PriceOverrideForm = ({
               <Hidden name="id" />
               <Hidden name="breaks" value={JSON.stringify(breaks)} />
               <VStack spacing={4}>
-                <Item
-                  name="itemId"
-                  label={t`Item`}
-                  type="Part"
-                  isReadOnly={isEditing}
-                />
+                <Item name="itemId" label={t`Item`} type="Part" />
 
                 <ChoiceCardGroup<ScopeType>
                   label={t`Apply To`}
@@ -173,12 +165,6 @@ const PriceOverrideForm = ({
                       title: t`Customer Type`,
                       description: t`Override price for all customers of a type`,
                       icon: <LuUsers />
-                    },
-                    {
-                      value: "all",
-                      title: t`All Customers`,
-                      description: t`Fallback price when no other override matches`,
-                      icon: <LuGlobe />
                     }
                   ]}
                 />
@@ -197,13 +183,6 @@ const PriceOverrideForm = ({
                       label={t`Customer Type`}
                     />
                     <Hidden name="customerId" value="" />
-                  </>
-                )}
-
-                {scope === "all" && (
-                  <>
-                    <Hidden name="customerId" value="" />
-                    <Hidden name="customerTypeId" value="" />
                   </>
                 )}
 
@@ -294,18 +273,17 @@ function PriceBreaks({
       lastFetchedRef.current = null;
       return;
     }
-    if (!overrideId || !companyId) return;
-    const key = `${overrideId}:${historyBreakId}`;
+    if (!companyId) return;
+    const key = historyBreakId;
     if (lastFetchedRef.current === key) return;
     lastFetchedRef.current = key;
     const params = new URLSearchParams({
-      entityType: "priceOverride",
-      entityId: overrideId,
-      companyId,
-      recordId: historyBreakId
+      entityType: "priceOverrideBreak",
+      entityId: historyBreakId,
+      companyId
     });
     fetcher.load(`/api/audit-log?${params.toString()}`);
-  }, [historyBreakId, overrideId, companyId, fetcher]);
+  }, [historyBreakId, companyId, fetcher]);
 
   const breakHistoryEntries = fetcher.data?.entries ?? [];
   const isHistoryLoading = fetcher.state === "loading";
