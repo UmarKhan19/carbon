@@ -170,7 +170,7 @@ export const storageUnitValidator = z.object({
   locationId: z.string().min(1, { message: "Location ID is required" }),
   warehouseId: zfd.text(z.string().optional()),
   parentId: zfd.text(z.string().optional()),
-  storageTypeIds: zfd.repeatableOfType(z.string()).optional()
+  storageTypeIds: zfd.repeatableOfType(z.string()).default([])
 });
 
 export const storageTypeValidator = z.object({
