@@ -301,7 +301,7 @@ msgstr "Режим консоли"
 
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1103
 msgid "Consumed expired"
-msgstr ""
+msgstr "Потреблено истекшее"
 
 #. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
