@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
+import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/mod.ts";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 
 import z from "npm:zod@^3.24.1";
@@ -1409,7 +1410,7 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          await trx
+          const newReceiptLineRows = await trx
             .insertInto("receiptLine")
             .values({
               ...data,
@@ -1418,7 +1419,10 @@ serve(async (req: Request) => {
               receivedQuantity: quantity,
               createdBy: userId,
             })
+            .returning(["id"])
             .execute();
+
+          const newReceiptLineId = newReceiptLineRows[0]?.id;
 
           await trx
             .updateTable("receiptLine")
@@ -1431,6 +1435,50 @@ serve(async (req: Request) => {
             })
             .where("id", "=", receiptLineId)
             .execute();
+
+          // Carry batch tracking onto the new line: clone each existing
+          // trackedEntity (batch number + expirationDate + attributes) and
+          // shrink the original entity's quantity by the split amount.
+          if (
+            !receiptLine.data.requiresSerialTracking &&
+            newReceiptLineId &&
+            trackedEntities.data?.length
+          ) {
+            for (const entity of trackedEntities.data) {
+              const attrs = (entity.attributes ?? {}) as Record<string, unknown>;
+              const { ["Receipt Line Index"]: _ignored, ...rest } = attrs;
+              const newAttributes = {
+                ...rest,
+                "Receipt Line": newReceiptLineId,
+              };
+
+              await trx
+                .insertInto("trackedEntity")
+                .values({
+                  id: nanoid(),
+                  quantity: quantity,
+                  status: entity.status,
+                  sourceDocument: entity.sourceDocument,
+                  sourceDocumentId: entity.sourceDocumentId,
+                  sourceDocumentReadableId: entity.sourceDocumentReadableId,
+                  readableId: entity.readableId,
+                  attributes: newAttributes,
+                  companyId: entity.companyId,
+                  createdBy: userId,
+                  itemId: entity.itemId,
+                  expirationDate: entity.expirationDate,
+                })
+                .execute();
+
+              await trx
+                .updateTable("trackedEntity")
+                .set({
+                  quantity: Math.max(0, (entity.quantity ?? 0) - quantity),
+                })
+                .where("id", "=", entity.id)
+                .execute();
+            }
+          }
         });
 
         return new Response(

@@ -592,6 +592,7 @@ function BatchForm({
   }>;
   tracking: ItemTracking | undefined;
 }) {
+  const { t } = useLingui();
   const submit = useSubmit();
   const shelfLife = itemShelfLife?.data?.find(
     (sl) => sl.itemId === line.itemId
@@ -768,7 +769,10 @@ function BatchForm({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
         <div className="flex flex-col gap-2 w-full">
           <label className="text-xs text-muted-foreground flex items-center gap-2">
-            <LuGroup /> Batch Number
+            <LuGroup /> <Trans>Batch Number</Trans>
+            {showExpiryField && (
+              <span className="text-destructive-foreground">*</span>
+            )}
           </label>
 
           <Input
@@ -803,6 +807,10 @@ function BatchForm({
                 setValues(newValues);
                 if (newValues.number.trim()) {
                   updateBatchNumber(newValues, true);
+                } else if (next) {
+                  toast.error(
+                    t`Enter a batch number before setting the expiration date`
+                  );
                 }
               }}
             />

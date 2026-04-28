@@ -1554,6 +1554,7 @@ msgid "Batch number"
 msgstr "Número de lote"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:353
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:772
 msgid "Batch Number"
 msgstr "Número do Lote"
 
@@ -1967,7 +1968,7 @@ msgstr "Cliente Carbon não está disponível"
 #: apps/erp/app/components/Documents.tsx:193
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1270
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1278
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:411
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -5022,6 +5023,10 @@ msgstr "Contacto de Engenharia"
 msgid "English"
 msgstr "Inglês"
 
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:812
+msgid "Enter a batch number before setting the expiration date"
+msgstr ""
+
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:341
 msgid "Enter or scan serial number"
 msgstr "Insira ou digitalize o número de série"
@@ -5259,7 +5264,7 @@ msgstr "Recebimento Esperado"
 msgid "Expected Receipt Date"
 msgstr "Data de Recebimento Esperada"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:793
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:797
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5271,7 +5276,7 @@ msgstr "Data de Recebimento Esperada"
 msgid "Expiration Date"
 msgstr "Data de Expiração"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1011
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1019
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "Data de Expiração (aplica-se a todos os seriais nesta linha)"
 
@@ -10318,7 +10323,7 @@ msgstr "Quantidades"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:180
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:359
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1144
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1152
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
