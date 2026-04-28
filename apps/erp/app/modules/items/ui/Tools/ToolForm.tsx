@@ -39,7 +39,6 @@ import {
   Number,
   Select,
   Submit,
-  TextArea,
   UnitOfMeasure
 } from "~/components/Form";
 import { ReplenishmentSystemIcon, TrackingTypeIcon } from "~/components/Icons";
@@ -269,14 +268,7 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                 />
 
                 <Input name="name" label={t`Short Description`} />
-                <Select
-                  name="itemTrackingType"
-                  label={t`Tracking Type`}
-                  options={itemTrackingTypeOptions}
-                />
-                {isEditing && (
-                  <TextArea name="description" label={t`Long Description`} />
-                )}
+
                 <Select
                   name="replenishmentSystem"
                   label={t`Replenishment System`}
@@ -289,6 +281,11 @@ const ToolForm = ({ initialValues, type = "card", onClose }: ToolFormProps) => {
                       setDefaultMethodType("Make to Order");
                     }
                   }}
+                />
+                <Select
+                  name="itemTrackingType"
+                  label={t`Tracking Type`}
+                  options={itemTrackingTypeOptions}
                 />
                 <DefaultMethodType
                   name="defaultMethodType"

@@ -65,7 +65,7 @@ const SplitButton = forwardRef<HTMLButtonElement, SplitButtonProps>(
             <Button
               variant={variant}
               size={size}
-              isDisabled={isDisabled}
+              isDisabled={isDisabled || isLoading}
               className={cn(
                 "rounded-l-none border-l px-1 before:rounded-l-none border-none shadow-none",
                 variant === "primary" &&

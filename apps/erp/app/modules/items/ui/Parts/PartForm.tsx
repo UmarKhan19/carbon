@@ -277,12 +277,6 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                 <Input name="name" label={t`Short Description`} />
 
                 <Select
-                  name="itemTrackingType"
-                  label={t`Tracking Type`}
-                  options={itemTrackingTypeOptions}
-                />
-
-                <Select
                   name="replenishmentSystem"
                   label={t`Replenishment System`}
                   options={itemReplenishmentSystemOptions}
@@ -294,6 +288,11 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                       setDefaultMethodType("Make to Order");
                     }
                   }}
+                />
+                <Select
+                  name="itemTrackingType"
+                  label={t`Tracking Type`}
+                  options={itemTrackingTypeOptions}
                 />
                 <DefaultMethodType
                   name="defaultMethodType"

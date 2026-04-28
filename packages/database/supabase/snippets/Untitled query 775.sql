@@ -341,8 +341,6 @@ DECLARE
   v_resolved_expiry    DATE;
   v_expiration_date    DATE;
 BEGIN
-  PERFORM pg_advisory_xact_lock(hashtext(p_receipt_line_id));
-
   SELECT
     rl."itemId",
     i."readableIdWithRevision",
@@ -536,7 +534,7 @@ BEGIN
       "attributes" = v_attributes,
       "sourceDocumentReadableId" = v_item_readable_id,
       "itemId" = v_item_id,
-      "expirationDate" = COALESCE(v_expiration_date, "expirationDate")
+      "expirationDate" = v_expiration_date
     WHERE id = p_tracked_entity_id;
   END IF;
 END;

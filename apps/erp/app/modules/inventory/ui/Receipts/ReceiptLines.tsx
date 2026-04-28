@@ -221,7 +221,9 @@ const ReceiptLines = () => {
     []
   );
 
-  const isPosted = routeData?.receipt.status === "Posted";
+  const isPosted =
+    routeData?.receipt.status === "Posted" ||
+    routeData?.receipt.status === "Voided";
 
   return (
     <>
@@ -238,10 +240,14 @@ const ReceiptLines = () => {
               <Empty className="py-6" />
             ) : (
               receiptLines.map((line, index) => {
-                const tracking = routeData?.receiptLineTracking?.find((t) => {
-                  const attributes = t.attributes as TrackedEntityAttributes;
-                  return attributes["Receipt Line"] === line.id;
-                });
+                const trackingCandidates =
+                  routeData?.receiptLineTracking?.filter((t) => {
+                    const attributes = t.attributes as TrackedEntityAttributes;
+                    return attributes["Receipt Line"] === line.id;
+                  }) ?? [];
+                const tracking =
+                  trackingCandidates.find((t) => t.expirationDate) ??
+                  trackingCandidates[0];
                 return (
                   <ReceiptLineItem
                     key={line.id}
@@ -495,6 +501,7 @@ function ReceiptLineItem({
           isReadOnly={isReadOnly}
           onSerialNumbersChange={onSerialNumbersChange}
           itemShelfLife={itemShelfLife}
+          tracking={tracking}
         />
       )}
       {(line.requiresBatchTracking || line.requiresSerialTracking) && (
@@ -621,6 +628,34 @@ function BatchForm({
       expirationDate: ""
     };
   });
+
+  useEffect(() => {
+    if (!tracking) return;
+    setValues((prev) => {
+      const attributes = tracking.attributes as TrackedEntityAttributes;
+      const newExpiration = tracking.expirationDate ?? "";
+      const newNumber = tracking.readableId || "";
+      if (prev.expirationDate === newExpiration && prev.number === newNumber)
+        return prev;
+      return {
+        number: newNumber || prev.number,
+        expirationDate: newExpiration || prev.expirationDate,
+        properties: Object.entries(attributes)
+          .filter(
+            ([key]) =>
+              ![
+                "Shipment Line",
+                "Shipment",
+                "Shipment Line Index",
+                "Receipt Line",
+                "Receipt",
+                "expirationDate"
+              ].includes(key)
+          )
+          .reduce((acc, [key, value]) => ({ ...acc, [key]: value || "" }), {})
+      };
+    });
+  }, [tracking?.id, tracking?.expirationDate, tracking?.readableId]);
 
   const updateBatchNumber = async (newValues: typeof values, isNew = false) => {
     if (!receipt?.id || !newValues.number.trim()) return;
@@ -823,7 +858,8 @@ function SerialForm({
   itemShelfLife,
   serialNumbers,
   isReadOnly,
-  onSerialNumbersChange
+  onSerialNumbersChange,
+  tracking
 }: {
   line: ReceiptLine;
   receipt?: Receipt;
@@ -838,12 +874,20 @@ function SerialForm({
   onSerialNumbersChange: (
     serialNumbers: { index: number; number: string }[]
   ) => void;
+  tracking: ItemTracking | undefined;
 }) {
   const shelfLife = itemShelfLife?.data?.find(
     (sl) => sl.itemId === line.itemId
   );
   const showExpiryField = shelfLife?.mode === "Set on Receipt";
-  const [expiryDate, setExpiryDate] = useState("");
+  const [expiryDate, setExpiryDate] = useState(tracking?.expirationDate ?? "");
+
+  useEffect(() => {
+    if (tracking?.expirationDate) {
+      setExpiryDate((prev) => prev || tracking.expirationDate || "");
+    }
+  }, [tracking?.expirationDate]);
+
   const [errors, setErrors] = useState<Record<number, string>>({});
 
   // Check for duplicates within the current form
@@ -939,6 +983,7 @@ function SerialForm({
     }
   };
   const propertiesDisclosure = useDisclosure();
+  console.log({ serialNumbers, expiryDate });
   return (
     <div className="flex flex-col gap-6 p-6 border rounded-lg">
       <div className="flex justify-between items-center gap-6">

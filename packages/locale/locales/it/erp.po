@@ -191,7 +191,7 @@ msgstr "Una richiesta di preventivo (RFQ) è un'inchiesta del cliente per i prez
 msgid "A shipment is a record of a part shipped to a customer or transferred to another location."
 msgstr "Una spedizione è un record di una parte spedita a un cliente o trasferita in un'altra ubicazione."
 
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:229
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:228
 msgid "A tool is a physical item used to make a part that can be used across multiple jobs"
 msgstr "Uno strumento è un articolo fisico utilizzato per realizzare una parte che può essere utilizzata in più lavori"
 
@@ -1534,7 +1534,7 @@ msgstr "Informazioni di base"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:392
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:407
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:102
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:175
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:174
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:370
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:385
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:102
@@ -1558,7 +1558,7 @@ msgid "Batch Properties"
 msgstr "Proprietà Batch"
 
 #: apps/erp/app/modules/items/ui/Item/ItemManufacturingForm.tsx:57
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:332
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:331
 msgid "Batch Size"
 msgstr "Dimensione lotto"
 
@@ -1655,7 +1655,7 @@ msgstr "Lavori in Blocco"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:343
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:356
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:82
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:199
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:198
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:321
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:334
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:82
@@ -1668,7 +1668,7 @@ msgstr "Acquista"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:346
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:359
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:82
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:202
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:201
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:324
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:337
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:82
@@ -1692,8 +1692,8 @@ msgstr "Accettando l'invito, accetti i <0>Termini di Servizio</0> e l'<1>Informa
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "Accedendo, accetti i <0>Termini di Servizio</0> e l'<1>Informativa sulla Privacy.</1>"
 
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:344
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:336
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:343
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:333
 #: apps/erp/app/routes/x+/part+/$itemId.details.tsx:334
 #: apps/erp/app/routes/x+/part+/$itemId.make.$makeMethodId.tsx:204
 #: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:439
@@ -1963,7 +1963,7 @@ msgstr "Il client Carbon non è disponibile"
 #: apps/erp/app/components/Documents.tsx:193
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1225
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1270
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:411
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -3136,7 +3136,7 @@ msgstr "Linea di trasferimento stock creata"
 msgid "Created storage type"
 msgstr "Tipo di archiviazione creato"
 
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:158
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:157
 msgid "Created tool"
 msgstr "Strumento creato"
 
@@ -3615,10 +3615,10 @@ msgstr "Metodo Predefinito"
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:296
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:472
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:521
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:300
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:299
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:429
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:449
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:295
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:292
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:407
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:438
 msgid "Default Method Type"
@@ -3793,7 +3793,7 @@ msgstr "Elimina Tipo di Dipendente"
 msgid "Delete Failure Mode"
 msgstr "Elimina Modalità di Guasto"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:535
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:542
 msgid "Delete file"
 msgstr "Elimina file"
 
@@ -3919,7 +3919,7 @@ msgstr "Elimina Motivo"
 msgid "Delete Receipt"
 msgstr "Elimina Ricevuta"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:365
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:371
 msgid "Delete receipt line"
 msgstr "Elimina riga ricevuta"
 
@@ -5250,7 +5250,7 @@ msgstr "Ricevimento Previsto"
 msgid "Expected Receipt Date"
 msgstr "Data di Ricezione Prevista"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:758
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:793
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5262,7 +5262,7 @@ msgstr "Data di Ricezione Prevista"
 msgid "Expiration Date"
 msgstr "Data di scadenza"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:966
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1011
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr ""
 
@@ -5479,7 +5479,7 @@ msgid "Failed to create storage type: {0}"
 msgstr "Impossibile creare il tipo di archiviazione: {0}"
 
 #. placeholder {0}: fetcher.data.error.message
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:160
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:159
 msgid "Failed to create tool: {0}"
 msgstr "Impossibile creare lo strumento: {0}"
 
@@ -5750,7 +5750,7 @@ msgid "Failed to upload logo: {errorMessage}"
 msgstr "Caricamento del logo non riuscito: {errorMessage}"
 
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:105
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:105
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:104
 msgid "Failed to upload model"
 msgstr "Caricamento del modello non riuscito"
 
@@ -5834,15 +5834,15 @@ msgstr "La dimensione del file supera il limite di 10MB"
 #. placeholder {0}: SIZE_LIMIT.format()
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:134
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:144
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:133
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:143
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:132
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:142
 msgid "File size too big (max. {0})"
 msgstr "Dimensione file troppo grande (max. {0})"
 
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:128
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:146
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:128
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:145
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:127
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:144
 msgid "File type not supported"
 msgstr "Tipo di file non supportato"
 
@@ -6468,7 +6468,7 @@ msgstr "Numero di tracciamento non valido"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:402
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:97
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:67
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:170
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:169
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:365
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:380
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:97
@@ -6758,11 +6758,11 @@ msgstr "L'articolo {scannedItem} non è lo stesso dell'articolo {expectedItem}"
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:416
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:264
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:498
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:316
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:315
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:315
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:153
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:400
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:310
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:307
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:293
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:153
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:415
@@ -7133,7 +7133,7 @@ msgstr "Probabilità"
 msgid "Line Item Comparison"
 msgstr "Confronto Articoli di Riga"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:345
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:351
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
 msgid "Line options"
@@ -7342,7 +7342,6 @@ msgid "Logs older than {0} days are automatically archived."
 msgstr "I log più vecchi di {0} giorni vengono archiviati automaticamente."
 
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:157
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:278
 msgid "Long Description"
 msgstr "Descrizione Lunga"
 
@@ -7433,7 +7432,7 @@ msgstr "Tipo di Manutenzione"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:345
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:358
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:82
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:201
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:200
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:323
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:336
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:82
@@ -8455,7 +8454,7 @@ msgstr "Nuovo Fornitore Parte"
 msgid "New Timecard"
 msgstr "Nuovo Foglio Presenze"
 
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:224
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:223
 msgid "New Tool"
 msgstr "Nuovo Strumento"
 
@@ -8800,7 +8799,7 @@ msgstr "Tipo di Non Conformità"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:389
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:404
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:99
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:172
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:171
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:367
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:382
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:99
@@ -10285,7 +10284,7 @@ msgstr "Quantità"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:180
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:359
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1099
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1144
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -10535,7 +10534,7 @@ msgstr "ID Ricevuta"
 msgid "Receipt Line"
 msgstr "Riga di Ricevimento"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:231
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:233
 msgid "Receipt Lines"
 msgstr "Righe di ricezione"
 
@@ -10706,8 +10705,8 @@ msgstr "Ricorda questo PIN. Ne avrai bisogno per uscire dalla modalità console 
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:115
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:150
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:871
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:369
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:361
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:368
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:358
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:211
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:247
@@ -10853,8 +10852,8 @@ msgstr "Rifornimento"
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:223
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:158
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:287
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:282
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:281
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:274
 msgid "Replenishment System"
 msgstr "Sistema di Rifornimento"
 
@@ -11049,7 +11048,7 @@ msgstr "Storna le relative registrazioni contabili"
 
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:107
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:273
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:267
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:266
 msgid "Revision"
 msgstr "Revisione"
 
@@ -11402,8 +11401,8 @@ msgstr "Sabato"
 #: apps/erp/app/modules/items/ui/MaterialTypes/MaterialTypeForm.tsx:114
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:445
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:955
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:392
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:384
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:391
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:381
 #: apps/erp/app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:109
 #: apps/erp/app/modules/people/ui/Attributes/AttributeCategoryForm.tsx:82
 #: apps/erp/app/modules/people/ui/Attributes/AttributeForm.tsx:136
@@ -11938,7 +11937,7 @@ msgstr "Sequenze"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:391
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:406
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:101
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:174
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:173
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:369
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:384
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:101
@@ -12284,7 +12283,7 @@ msgstr "Reparto Produzione"
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:147
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:203
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:277
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:271
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:270
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:296
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:275
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:386
@@ -12487,7 +12486,7 @@ msgstr "Dividi riga"
 msgid "Split off quantity"
 msgstr "Quantità da dividere"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:357
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:363
 msgid "Split receipt line"
 msgstr "Dividi riga ricevuta"
 
@@ -13081,8 +13080,8 @@ msgid "Supply & Demand"
 msgstr "Offerta e Domanda"
 
 #. placeholder {0}: supportedModelTypes.join(", ")
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:376
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:368
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:375
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:365
 msgid "Supports {0} files"
 msgstr "Supporta file {0}"
 
@@ -13618,12 +13617,12 @@ msgstr "Tolleranza (+/-)"
 msgid "Tool"
 msgstr "Attrezzo"
 
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:222
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:221
 msgid "Tool Details"
 msgstr "Dettagli Strumento"
 
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:248
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:252
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:247
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:251
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:117
 msgid "Tool ID"
 msgstr "ID Strumento"
@@ -13757,10 +13756,10 @@ msgstr "Numero di tracciamento"
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:290
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:438
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:541
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:281
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:294
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:381
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:469
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:274
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:287
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:359
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:458
 msgid "Tracking Type"
@@ -13941,8 +13940,8 @@ msgstr "Unità"
 #: apps/erp/app/modules/items/ui/Item/ItemCostHistoryChart.tsx:69
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:85
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:310
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:323
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:317
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:322
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:314
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:873
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2379
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:231
@@ -13965,9 +13964,9 @@ msgstr "Costo Unitario"
 #: apps/erp/app/modules/items/ui/Item/SupplierParts/SupplierParts.tsx:68
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:633
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:310
-#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:311
+#: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:310
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:481
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:305
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:302
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:448
 #: apps/erp/app/modules/items/ui/UnitOfMeasure/UnitOfMeasureForm.tsx:93
 #: apps/erp/app/modules/items/ui/UnitOfMeasure/UnitOfMeasuresTable.tsx:90
@@ -14203,7 +14202,7 @@ msgid "Upload CSV"
 msgstr "Carica CSV"
 
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:109
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:109
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:108
 msgid "Uploaded model"
 msgstr "Modello caricato"
 
@@ -14258,7 +14257,7 @@ msgstr "Usa ... per ottenere il prossimo ID materiale"
 msgid "Use ... to get the next part ID"
 msgstr "Usa ... per ottenere l'ID parte successivo"
 
-#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:255
+#: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:254
 msgid "Use ... to get the next tool ID"
 msgstr "Usa ... per ottenere il prossimo ID strumento"
 
