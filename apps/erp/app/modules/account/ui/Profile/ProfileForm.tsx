@@ -11,13 +11,13 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher, useParams } from "react-router";
 import { Hidden, Input, Submit, TextArea } from "~/components/Form";
-import type { User } from "~/modules/users/types";
 import { path } from "~/utils/path";
 import { accountProfileValidator } from "../../account.models";
+import type { Account } from "../../types";
 import ProfilePhotoForm from "./ProfilePhotoForm";
 
 type ProfileFormProps = {
-  user: User;
+  user: Account;
 };
 
 const ProfileForm = ({ user }: ProfileFormProps) => {
