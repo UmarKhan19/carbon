@@ -61,6 +61,10 @@ msgstr "{0}個の未サンプリングエンティティが利用可能にリリ
 msgid "{0} uploaded successfully"
 msgstr "{0}が正常にアップロードされました"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:153
+msgid "{maxSizeMB}MB limit"
+msgstr "{maxSizeMB}MB制限"
+
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:88
 msgid "{scopeCount} permissions"
 msgstr "{scopeCount} 個の権限"
@@ -208,7 +212,7 @@ msgid "Abilities"
 msgstr "能力"
 
 #: apps/erp/app/components/AvatarMenu.tsx:210
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:37
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:60
 msgid "About"
 msgstr "について"
 
@@ -2041,6 +2045,7 @@ msgstr "カテゴリー名"
 msgid "CC"
 msgstr "CC"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:98
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
@@ -2091,6 +2096,10 @@ msgstr "チャット"
 msgid "Check your email"
 msgstr "メールを確認してください"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:31
+msgid "Chinese"
+msgstr "中国語"
+
 #: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:287
 msgid "Choose another file"
 msgstr "別のファイルを選択"
@@ -2099,7 +2108,7 @@ msgstr "別のファイルを選択"
 msgid "Choose scope to continue"
 msgstr "スコープを選択して続行"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:35
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:53
 msgid "Choose your preferred language for the interface."
 msgstr "インターフェースの言語を選択してください。"
 
@@ -4839,7 +4848,7 @@ msgstr "Webhookを編集"
 msgid "Edit Work Center"
 msgstr "ワークセンターを編集"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:30
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:53
 #: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:35
 #: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:129
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:106
@@ -5009,7 +5018,7 @@ msgstr "終了時刻"
 msgid "Engineering Contact"
 msgstr "エンジニアリング担当者"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:28
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:22
 msgid "English"
 msgstr "英語"
 
@@ -5911,7 +5920,7 @@ msgstr "完成先"
 msgid "Finishes"
 msgstr "仕上げ"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:32
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:55
 #: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:19
 #: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:113
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:98
@@ -5970,6 +5979,10 @@ msgstr "時刻記録を忘れましたか？"
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:461
 msgid "Format"
 msgstr "フォーマット"
+
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:23
+msgid "French"
+msgstr "フランス語"
 
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:154
 msgid "Frequencies"
@@ -6060,6 +6073,10 @@ msgstr "生成されたIDは無効です"
 msgid "Generated IDs are enabled"
 msgstr "生成されたIDが有効です"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:24
+msgid "German"
+msgstr "ドイツ語"
+
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:226
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:279
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:361
@@ -6136,6 +6153,10 @@ msgstr "列を非表示、ピン留め、並び替え"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:273
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "優先度が高いほど同点を制し、マークアップに最初に適用されます"
+
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:32
+msgid "Hindi"
+msgstr "ヒンディー語"
 
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:211
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:141
@@ -6712,6 +6733,10 @@ msgstr "発行日"
 msgid "Issues"
 msgstr "問題"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:26
+msgid "Italian"
+msgstr "イタリア語"
+
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
 msgid "item"
 msgstr ""
@@ -6833,6 +6858,10 @@ msgstr "アイテム"
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:301
 msgid "Items inside this window get a yellow badge."
 msgstr ""
+
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:27
+msgid "Japanese"
+msgstr "日本語"
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
@@ -7008,7 +7037,8 @@ msgstr "労働時間"
 msgid "Labor Unit"
 msgstr "労働単位"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:25
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:50
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:57
 msgid "Language"
 msgstr "言語"
 
@@ -7020,7 +7050,7 @@ msgstr "最後のキャリブレーション"
 msgid "Last Calibration Date"
 msgstr "最後のキャリブレーション日"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:33
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:56
 #: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:27
 #: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:121
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:99
@@ -9651,7 +9681,7 @@ msgstr "発注番号"
 msgid "Policy & Procedure"
 msgstr "ポリシーと手順"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:31
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:28
 msgid "Polish"
 msgstr "ポーランド語"
 
@@ -9662,6 +9692,10 @@ msgstr "ポータルリンク"
 #: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:62
 msgid "Portals"
 msgstr "ポータル"
+
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:29
+msgid "Portuguese"
+msgstr "ポルトガル語"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:338
 msgid "Positive Adjustment"
@@ -9944,10 +9978,10 @@ msgstr "生産数量"
 msgid "Production Quantity"
 msgstr "生産数量"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:41
 #: apps/erp/app/modules/account/ui/useAccountSubmodules.tsx:10
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:18
-#: apps/erp/app/routes/x+/account+/profile.tsx:35
-#: apps/erp/app/routes/x+/account+/profile.tsx:151
+#: apps/erp/app/routes/x+/account+/profile.tsx:23
 #: apps/erp/app/routes/x+/person+/$personId.details.tsx:40
 msgid "Profile"
 msgstr "プロフィール"
@@ -11188,6 +11222,10 @@ msgstr "テストを実行"
 msgid "Running Total"
 msgstr "実行中の合計"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:30
+msgid "Russian"
+msgstr "ロシア語"
+
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:121
 msgid "Safety Stock"
 msgstr "安全在庫"
@@ -11356,8 +11394,8 @@ msgstr "土曜日"
 #: apps/erp/app/components/OnshapeSync.tsx:406
 #: apps/erp/app/components/Table/components/TableHeader.tsx:212
 #: apps/erp/app/modules/account/ui/Personal/PersonalDataForm.tsx:24
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:43
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:39
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:71
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:62
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:192
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:824
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoryForm.tsx:101
@@ -12451,6 +12489,10 @@ msgstr "ソース"
 msgid "Sourcing Type"
 msgstr "調達タイプ"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:25
+msgid "Spanish"
+msgstr "スペイン語"
+
 #: apps/erp/app/routes/x+/resources+/_index.tsx:187
 msgid "Spare Part Consumption"
 msgstr "予備部品消費"
@@ -13373,7 +13415,7 @@ msgstr "これらのジョブにはこのワークセンターに割り当てら
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"
 
-#: apps/erp/app/routes/x+/account+/profile.tsx:154
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:44
 msgid "This information will be visible to all users, so be careful what you share."
 msgstr "この情報はすべてのユーザーに表示されるため、共有する内容に注意してください。"
 
@@ -14186,6 +14228,7 @@ msgid "Upgrade to unlock audit history"
 msgstr "監査履歴のロックを解除するにはアップグレードしてください"
 
 #: apps/erp/app/components/ItemThumnailUpload.tsx:189
+#: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/documents/ui/Documents/DocumentCreateForm.tsx:70
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:300
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206

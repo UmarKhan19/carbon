@@ -61,6 +61,10 @@ msgstr "{0} entidades não amostradas serão liberadas para Disponível. Passes 
 msgid "{0} uploaded successfully"
 msgstr "{0} enviado com sucesso"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:153
+msgid "{maxSizeMB}MB limit"
+msgstr "{maxSizeMB}MB limit"
+
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:88
 msgid "{scopeCount} permissions"
 msgstr "{scopeCount} permissões"
@@ -208,7 +212,7 @@ msgid "Abilities"
 msgstr "Habilidades"
 
 #: apps/erp/app/components/AvatarMenu.tsx:210
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:37
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:60
 msgid "About"
 msgstr "Sobre"
 
@@ -2041,6 +2045,7 @@ msgstr "Nome da Categoria"
 msgid "CC"
 msgstr "CC"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:98
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
@@ -2091,6 +2096,10 @@ msgstr "Chat"
 msgid "Check your email"
 msgstr "Verifique seu email"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:31
+msgid "Chinese"
+msgstr "Chinês"
+
 #: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:287
 msgid "Choose another file"
 msgstr "Escolher outro arquivo"
@@ -2099,7 +2108,7 @@ msgstr "Escolher outro arquivo"
 msgid "Choose scope to continue"
 msgstr "Escolha um escopo para continuar"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:35
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:53
 msgid "Choose your preferred language for the interface."
 msgstr "Escolha seu idioma preferido para a interface."
 
@@ -4839,7 +4848,7 @@ msgstr "Editar Webhook"
 msgid "Edit Work Center"
 msgstr "Editar Centro de Trabalho"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:30
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:53
 #: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:35
 #: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:129
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:106
@@ -5009,7 +5018,7 @@ msgstr "Hora de Término"
 msgid "Engineering Contact"
 msgstr "Contacto de Engenharia"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:28
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:22
 msgid "English"
 msgstr "Inglês"
 
@@ -5911,7 +5920,7 @@ msgstr "Terminar Em"
 msgid "Finishes"
 msgstr "Acabamentos"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:32
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:55
 #: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:19
 #: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:113
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:98
@@ -5970,6 +5979,10 @@ msgstr "Esqueceu de Registrar a Saída?"
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:461
 msgid "Format"
 msgstr "Formato"
+
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:23
+msgid "French"
+msgstr "Francês"
 
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:154
 msgid "Frequencies"
@@ -6060,6 +6073,10 @@ msgstr "IDs gerados estão desativados"
 msgid "Generated IDs are enabled"
 msgstr "IDs gerados estão ativados"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:24
+msgid "German"
+msgstr "Alemão"
+
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:226
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:279
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:361
@@ -6136,6 +6153,10 @@ msgstr "Ocultar, fixar e reordenar colunas"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:273
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Prioridade mais alta vence empates e se aplica primeiro para margens"
+
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:32
+msgid "Hindi"
+msgstr "Hindi"
 
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:211
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:141
@@ -6712,6 +6733,10 @@ msgstr "Data de Emissão"
 msgid "Issues"
 msgstr "Problemas"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:26
+msgid "Italian"
+msgstr "Italiano"
+
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
 msgid "item"
 msgstr ""
@@ -6833,6 +6858,10 @@ msgstr "Itens"
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:301
 msgid "Items inside this window get a yellow badge."
 msgstr ""
+
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:27
+msgid "Japanese"
+msgstr "Japonês"
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
@@ -7008,7 +7037,8 @@ msgstr "Tempo de Trabalho"
 msgid "Labor Unit"
 msgstr "Unidade de Trabalho"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:25
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:50
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:57
 msgid "Language"
 msgstr "Idioma"
 
@@ -7020,7 +7050,7 @@ msgstr "Última Calibração"
 msgid "Last Calibration Date"
 msgstr "Data da Última Calibração"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:33
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:56
 #: apps/erp/app/modules/people/ui/Contact/ContactTable.tsx:27
 #: apps/erp/app/modules/people/ui/People/PeopleTable.tsx:121
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierContactForm.tsx:99
@@ -9651,7 +9681,7 @@ msgstr "Número da PO"
 msgid "Policy & Procedure"
 msgstr "Política e Procedimento"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:31
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:28
 msgid "Polish"
 msgstr "Polonês"
 
@@ -9662,6 +9692,10 @@ msgstr "Link do Portal"
 #: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:62
 msgid "Portals"
 msgstr "Portais"
+
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:29
+msgid "Portuguese"
+msgstr "Português"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:338
 msgid "Positive Adjustment"
@@ -9944,10 +9978,10 @@ msgstr "Quantidades de Produção"
 msgid "Production Quantity"
 msgstr "Quantidade de Produção"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:41
 #: apps/erp/app/modules/account/ui/useAccountSubmodules.tsx:10
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:18
-#: apps/erp/app/routes/x+/account+/profile.tsx:35
-#: apps/erp/app/routes/x+/account+/profile.tsx:151
+#: apps/erp/app/routes/x+/account+/profile.tsx:23
 #: apps/erp/app/routes/x+/person+/$personId.details.tsx:40
 msgid "Profile"
 msgstr "Perfil"
@@ -11188,6 +11222,10 @@ msgstr "Executar Teste"
 msgid "Running Total"
 msgstr "Total em Execução"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:30
+msgid "Russian"
+msgstr "Russo"
+
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:121
 msgid "Safety Stock"
 msgstr "Stock de Segurança"
@@ -11356,8 +11394,8 @@ msgstr "Sábado"
 #: apps/erp/app/components/OnshapeSync.tsx:406
 #: apps/erp/app/components/Table/components/TableHeader.tsx:212
 #: apps/erp/app/modules/account/ui/Personal/PersonalDataForm.tsx:24
-#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:43
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:39
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:71
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:62
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:192
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:824
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoryForm.tsx:101
@@ -12451,6 +12489,10 @@ msgstr "Fontes"
 msgid "Sourcing Type"
 msgstr "Tipo de Fornecimento"
 
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:25
+msgid "Spanish"
+msgstr "Espanhol"
+
 #: apps/erp/app/routes/x+/resources+/_index.tsx:187
 msgid "Spare Part Consumption"
 msgstr "Consumo de Peças de Reposição"
@@ -13373,7 +13415,7 @@ msgstr "Estes trabalhos têm operações atribuídas a este centro de trabalho:"
 msgid "This information will be used on document headers"
 msgstr "Esta informação será usada nos cabeçalhos de documentos"
 
-#: apps/erp/app/routes/x+/account+/profile.tsx:154
+#: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:44
 msgid "This information will be visible to all users, so be careful what you share."
 msgstr "Esta informação será visível para todos os usuários, portanto, tenha cuidado com o que você compartilha."
 
@@ -14186,6 +14228,7 @@ msgid "Upgrade to unlock audit history"
 msgstr "Atualize para desbloquear histórico de auditoria"
 
 #: apps/erp/app/components/ItemThumnailUpload.tsx:189
+#: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/documents/ui/Documents/DocumentCreateForm.tsx:70
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:300
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
