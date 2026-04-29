@@ -118,11 +118,9 @@ export async function executeFunction(
       if (paramName === "client") {
         functionArgs.push(context.client);
       } else if (paramName === "userId") {
-        const userIdValue = normalizedArgs?.userId || context.userId;
-        functionArgs.push(userIdValue);
+        functionArgs.push(context.userId);
       } else if (paramName === "companyId") {
-        const companyIdValue = normalizedArgs?.companyId || context.companyId;
-        functionArgs.push(companyIdValue);
+        functionArgs.push(context.companyId);
       } else if (paramName === "args") {
         // For 'args' parameter, pass the entire args object or a default
         // This is the parameter that most service functions expect
