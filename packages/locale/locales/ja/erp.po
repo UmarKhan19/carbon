@@ -5025,7 +5025,7 @@ msgstr "英語"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:812
 msgid "Enter a batch number before setting the expiration date"
-msgstr ""
+msgstr "有効期限を設定する前にバッチ番号を入力してください"
 
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:341
 msgid "Enter or scan serial number"
@@ -6376,7 +6376,7 @@ msgstr "入荷予定"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:122
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:136
 msgid "Incoterm"
-msgstr ""
+msgstr "インコターム"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceDeliveryForm.tsx:135
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:132
@@ -6386,7 +6386,7 @@ msgstr ""
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:128
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:142
 msgid "Incoterm Location"
-msgstr ""
+msgstr "インコタームズの場所"
 
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
@@ -9166,11 +9166,11 @@ msgstr "オペレーター"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:365
 msgid "Operator gets a warning. Stock still goes through."
-msgstr ""
+msgstr "オペレーターに警告が表示されます。在庫はそのまま処理されます。"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:371
 msgid "Operator must pick a different batch/serial."
-msgstr ""
+msgstr "オペレーターは別のバッチ/シリアルを選択する必要があります。"
 
 #: apps/erp/app/modules/users/ui/useUsersSubmodules.tsx:21
 #: apps/erp/app/routes/x+/users+/operators.tsx:31

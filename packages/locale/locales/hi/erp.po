@@ -5025,7 +5025,7 @@ msgstr "अंग्रेजी"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:812
 msgid "Enter a batch number before setting the expiration date"
-msgstr ""
+msgstr "समाप्ति तारीख सेट करने से पहले एक बैच नंबर दर्ज करें"
 
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:341
 msgid "Enter or scan serial number"
@@ -6376,7 +6376,7 @@ msgstr "आने वाली"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:122
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:136
 msgid "Incoterm"
-msgstr ""
+msgstr "Incoterm"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceDeliveryForm.tsx:135
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:132
@@ -6386,7 +6386,7 @@ msgstr ""
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:128
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:142
 msgid "Incoterm Location"
-msgstr ""
+msgstr "इनकोटर्म स्थान"
 
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
@@ -9166,11 +9166,11 @@ msgstr "ऑपरेटर"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:365
 msgid "Operator gets a warning. Stock still goes through."
-msgstr ""
+msgstr "ऑपरेटर को एक चेतावनी मिलती है। स्टॉक अभी भी आगे बढ़ता है।"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:371
 msgid "Operator must pick a different batch/serial."
-msgstr ""
+msgstr "ऑपरेटर को एक अलग बैच/सीरीज़ चुननी होगी।"
 
 #: apps/erp/app/modules/users/ui/useUsersSubmodules.tsx:21
 #: apps/erp/app/routes/x+/users+/operators.tsx:31

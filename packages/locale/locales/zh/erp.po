@@ -5025,7 +5025,7 @@ msgstr "英文"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:812
 msgid "Enter a batch number before setting the expiration date"
-msgstr ""
+msgstr "在设置过期日期前请输入批号"
 
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:341
 msgid "Enter or scan serial number"
@@ -6376,7 +6376,7 @@ msgstr "传入"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:122
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:136
 msgid "Incoterm"
-msgstr ""
+msgstr "贸易术语"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceDeliveryForm.tsx:135
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceShipmentForm.tsx:132
@@ -6386,7 +6386,7 @@ msgstr ""
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteShipmentForm.tsx:128
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:142
 msgid "Incoterm Location"
-msgstr ""
+msgstr "贸易术语地点"
 
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
@@ -9166,11 +9166,11 @@ msgstr "操作员"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:365
 msgid "Operator gets a warning. Stock still goes through."
-msgstr ""
+msgstr "操作员收到警告。库存仍然可以通过。"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:371
 msgid "Operator must pick a different batch/serial."
-msgstr ""
+msgstr "操作员必须选择不同的批次/序列号。"
 
 #: apps/erp/app/modules/users/ui/useUsersSubmodules.tsx:21
 #: apps/erp/app/routes/x+/users+/operators.tsx:31

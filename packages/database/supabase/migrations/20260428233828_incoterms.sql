@@ -40,6 +40,7 @@ ALTER TABLE "supplierShipping"
   ADD COLUMN "incoterm" "incoterm",
   ADD COLUMN "incotermLocation" TEXT;
 
+DROP VIEW IF EXISTS "salesOrders";
 CREATE OR REPLACE VIEW "salesOrders" WITH(SECURITY_INVOKER=true) AS
   SELECT
     s.*,
@@ -119,6 +120,7 @@ CREATE OR REPLACE VIEW "salesOrders" WITH(SECURITY_INVOKER=true) AS
   LEFT JOIN "shippingTerm" st ON st."id" = ss."shippingTermId"
   LEFT JOIN "salesOrderPayment" sp ON sp."id" = s."id";
 
+DROP VIEW IF EXISTS "purchaseOrders";
 CREATE OR REPLACE VIEW "purchaseOrders" WITH(SECURITY_INVOKER=true) AS
   SELECT
     p.*,
