@@ -1,5 +1,8 @@
 import { hashOAuthSecret, requirePermissions } from "@carbon/auth/auth.server";
-import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import {
+  getCarbonServiceRole,
+  getUserScopedClient
+} from "@carbon/auth/client.server";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { ActionFunctionArgs } from "react-router";
 import { createMcpServer } from "./lib/server";
@@ -42,16 +45,16 @@ export async function action({ request }: ActionFunctionArgs) {
   if (authHeader?.startsWith("Bearer ") && !hasCarbonKey) {
     const token = authHeader.slice(7);
 
-    // Check if this is an OAuth access token
-    const oauthAuth = await authenticateOAuthToken(token);
+    const oauthAuth = token.startsWith("crbn_")
+      ? null
+      : await authenticateOAuthToken(token);
     if (oauthAuth) {
       console.log("[MCP] OAuth auth successful:", {
         companyId: oauthAuth.companyId,
         userId: oauthAuth.userId
       });
 
-      // Use service role client for OAuth-authenticated requests
-      const client = getCarbonServiceRole();
+      const client = await getUserScopedClient(oauthAuth.userId);
       const server = createMcpServer({
         client,
         companyId: oauthAuth.companyId,
