@@ -2,7 +2,7 @@ import { getLocalTimeZone, today } from "@internationalized/date";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { address, contact } from "~/types/validators";
-import { methodItemType } from "../shared";
+import { incoterms, methodItemType } from "../shared";
 
 export const KPIs = [
   {
@@ -157,7 +157,7 @@ export const purchaseOrderDeliveryValidator = z
     customerLocationId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     notes: zfd.text(z.string().optional()),
-    incoterm: zfd.text(z.string().optional()),
+    incoterm: zfd.text(z.enum(incoterms).optional()),
     incotermLocation: zfd.text(z.string().optional())
   })
   .refine(
@@ -381,7 +381,7 @@ export const supplierShippingValidator = z.object({
   shippingSupplierContactId: zfd.text(z.string().optional()),
   // shippingTermId: zfd.text(z.string().optional()),
   shippingMethodId: zfd.text(z.string().optional()),
-  incoterm: zfd.text(z.string().optional()),
+  incoterm: zfd.text(z.enum(incoterms).optional()),
   incotermLocation: zfd.text(z.string().optional())
 });
 

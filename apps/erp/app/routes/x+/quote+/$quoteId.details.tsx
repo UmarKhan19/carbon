@@ -158,7 +158,7 @@ export default function QuoteDetailsRoute() {
     shippingTermId: quoteData?.shipment?.shippingTermId ?? "",
     receiptRequestedDate: quoteData?.shipment?.receiptRequestedDate ?? "",
     shippingCost: quoteData?.shipment?.shippingCost ?? 0,
-    incoterm: quoteData?.shipment?.incoterm ?? "",
+    incoterm: quoteData?.shipment?.incoterm ?? undefined,
     incotermLocation: quoteData?.shipment?.incotermLocation ?? ""
   };
 

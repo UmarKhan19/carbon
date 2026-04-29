@@ -3,6 +3,7 @@ import { zfd } from "zod-form-data";
 import { address, contact } from "~/types/validators";
 import { currencyCodes } from "../accounting";
 import {
+  incoterms,
   methodItemType,
   methodOperationOrders,
   methodType,
@@ -95,7 +96,7 @@ export const customerShippingValidator = z.object({
   shippingCustomerContactId: zfd.text(z.string().optional()),
   // shippingTermId: zfd.text(z.string().optional()),
   shippingMethodId: zfd.text(z.string().optional()),
-  incoterm: zfd.text(z.string().optional()),
+  incoterm: zfd.text(z.enum(incoterms).optional()),
   incotermLocation: zfd.text(z.string().optional())
 });
 
@@ -630,7 +631,7 @@ export const quoteShipmentValidator = z.object({
   shippingMethodId: zfd.text(z.string().optional()),
   receiptRequestedDate: zfd.text(z.string().optional()),
   shippingCost: zfd.numeric(z.number().optional()),
-  incoterm: zfd.text(z.string().optional()),
+  incoterm: zfd.text(z.enum(incoterms).optional()),
   incotermLocation: zfd.text(z.string().optional())
 });
 
@@ -709,7 +710,7 @@ export const salesOrderShipmentValidator = z
     supplierLocationId: zfd.text(z.string().optional()),
     shippingCost: zfd.numeric(z.number().optional()),
     notes: zfd.text(z.string().optional()),
-    incoterm: zfd.text(z.string().optional()),
+    incoterm: zfd.text(z.enum(incoterms).optional()),
     incotermLocation: zfd.text(z.string().optional())
   })
   .refine(

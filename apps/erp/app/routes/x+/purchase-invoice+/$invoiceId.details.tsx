@@ -172,7 +172,7 @@ export default function PurchaseInvoiceBasicRoute() {
     supplierShippingCost: purchaseInvoiceDelivery.supplierShippingCost ?? 0,
     shippingMethodId: purchaseInvoiceDelivery.shippingMethodId ?? "",
     shippingTermId: purchaseInvoiceDelivery.shippingTermId ?? "",
-    incoterm: purchaseInvoiceDelivery.incoterm ?? "",
+    incoterm: purchaseInvoiceDelivery.incoterm ?? undefined,
     incotermLocation: purchaseInvoiceDelivery.incotermLocation ?? "",
     ...getCustomFields(purchaseInvoiceDelivery.customFields)
   };
