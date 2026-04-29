@@ -1,17 +1,60 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validator } from "@carbon/form";
-import type { ActionFunctionArgs } from "react-router";
-import { data } from "react-router";
+import { createHash } from "crypto";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Content-Type": "application/json"
+};
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
+  return new Response(
+    JSON.stringify({ error: "method_not_allowed", error_description: "Use POST" }),
+    { status: 405, headers: corsHeaders }
+  );
+}
 
 const oauthTokenValidator = z.object({
   grant_type: z.enum(["authorization_code", "refresh_token"]),
   client_id: z.string(),
-  client_secret: z.string(),
+  client_secret: z.string().optional(),
   code: z.string().optional(),
   redirect_uri: z.string().url().optional(),
-  refresh_token: z.string().optional()
+  refresh_token: z.string().optional(),
+  code_verifier: z.string().optional()
 });
+
+function verifyCodeChallenge(
+  codeVerifier: string,
+  codeChallenge: string,
+  method: string
+): boolean {
+  if (method === "plain") {
+    return codeVerifier === codeChallenge;
+  }
+  // S256: BASE64URL(SHA256(code_verifier))
+  const hash = createHash("sha256").update(codeVerifier).digest();
+  const base64url = hash
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  return base64url === codeChallenge;
+}
+
+function jsonResponse(body: unknown, status: number = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: corsHeaders
+  });
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const client = getCarbonServiceRole();
@@ -20,7 +63,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return data({ data: null, error: "Invalid request" }, { status: 400 });
+    return jsonResponse({ error: "invalid_request", error_description: "Invalid request parameters" }, 400);
   }
 
   const {
@@ -29,152 +72,144 @@ export async function action({ request }: ActionFunctionArgs) {
     client_secret,
     code,
     redirect_uri,
-    refresh_token
+    refresh_token,
+    code_verifier
   } = validation.data;
 
-  const [oauthClient] = await Promise.all([
-    client.from("oauthClient").select("*").eq("clientId", client_id).single()
+  // Check both static and dynamic clients
+  const [staticClient, dynamicClient] = await Promise.all([
+    client.from("oauthClient").select("*").eq("clientId", client_id).single(),
+    client.from("oauthDynamicClient").select("*").eq("clientId", client_id).single()
   ]);
 
-  if (!oauthClient.data || oauthClient.data.clientSecret !== client_secret) {
-    return data(
-      {
-        data: null,
-        error: "Invalid client credentials"
-      },
-      { status: 401 }
-    );
+  const oauthClient = staticClient.data || dynamicClient.data;
+
+  if (!oauthClient) {
+    return jsonResponse({ error: "invalid_client", error_description: "Unknown client" }, 401);
+  }
+
+  // For static clients or confidential dynamic clients, verify client_secret
+  const isDynamicClient = !!dynamicClient.data;
+  const isPublicClient = isDynamicClient && dynamicClient.data.tokenEndpointAuthMethod === "none";
+
+  if (!isPublicClient) {
+    const expectedSecret = staticClient.data?.clientSecret || dynamicClient.data?.clientSecret;
+    if (!client_secret || expectedSecret !== client_secret) {
+      return jsonResponse({ error: "invalid_client", error_description: "Invalid client credentials" }, 401);
+    }
   }
 
   if (grant_type === "authorization_code") {
     if (!code || !redirect_uri) {
-      return data(
-        {
-          data: null,
-          error: "Invalid request"
-        },
-        { status: 400 }
-      );
+      return jsonResponse({ error: "invalid_request", error_description: "Missing code or redirect_uri" }, 400);
     }
 
     // Verify the authorization code
-    const [oauthCode] = await Promise.all([
-      client.from("oauthCode").select("*").eq("code", code).single()
-    ]);
+    const oauthCode = await client.from("oauthCode").select("*").eq("code", code).single();
 
-    if (
-      !oauthCode.data ||
-      oauthCode.data.clientId !== client_id ||
-      oauthCode.data.redirectUri !== redirect_uri
-    ) {
-      return data(
-        {
-          data: null,
-          error: "Invalid authorization code"
-        },
-        { status: 400 }
-      );
+    if (!oauthCode.data) {
+      return jsonResponse({ error: "invalid_grant", error_description: "Invalid authorization code" }, 400);
+    }
+
+    if (oauthCode.data.clientId !== client_id) {
+      return jsonResponse({ error: "invalid_grant", error_description: "Code was not issued to this client" }, 400);
+    }
+
+    if (oauthCode.data.redirectUri !== redirect_uri) {
+      return jsonResponse({ error: "invalid_grant", error_description: "Redirect URI mismatch" }, 400);
+    }
+
+    // Check if code has expired
+    if (new Date(oauthCode.data.expiresAt) < new Date()) {
+      await client.from("oauthCode").delete().eq("code", code);
+      return jsonResponse({ error: "invalid_grant", error_description: "Authorization code has expired" }, 400);
+    }
+
+    // Verify PKCE if code_challenge was stored
+    if (oauthCode.data.codeChallenge) {
+      if (!code_verifier) {
+        return jsonResponse({ error: "invalid_grant", error_description: "PKCE code_verifier required" }, 400);
+      }
+
+      const method = oauthCode.data.codeChallengeMethod || "plain";
+      if (!verifyCodeChallenge(code_verifier, oauthCode.data.codeChallenge, method)) {
+        return jsonResponse({ error: "invalid_grant", error_description: "PKCE verification failed" }, 400);
+      }
     }
 
     // Generate access token and refresh token
     const accessToken = crypto.randomUUID() as string;
-    const refreshToken = crypto.randomUUID() as string;
+    const newRefreshToken = crypto.randomUUID() as string;
 
-    const [tokenResult] = await Promise.all([
-      client.from("oauthToken").insert([
-        {
-          accessToken,
-          refreshToken,
-          clientId: client_id,
-          userId: oauthCode.data.userId,
-          companyId: oauthCode.data.companyId,
-          createdAt: new Date(Date.now()).toISOString(),
-          expiresAt: new Date(Date.now() + 3600 * 1000).toISOString() // 1 hour expiration
-        }
-      ])
+    const tokenResult = await client.from("oauthToken").insert([
+      {
+        accessToken,
+        refreshToken: newRefreshToken,
+        clientId: client_id,
+        userId: oauthCode.data.userId,
+        companyId: oauthCode.data.companyId,
+        scope: oauthCode.data.scope || null,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString()
+      }
     ]);
 
     if (tokenResult.error) {
-      return data(
-        { data: null, error: "Failed to create token" },
-        { status: 500 }
-      );
+      return jsonResponse({ error: "server_error", error_description: "Failed to create token" }, 500);
     }
 
     // Delete the used authorization code
     await client.from("oauthCode").delete().eq("code", code);
 
-    return {
-      data: {
-        access_token: accessToken,
-        token_type: "Bearer",
-        expires_in: 3600,
-        refresh_token: refreshToken
-      },
-      error: null
-    };
+    return jsonResponse({
+      access_token: accessToken,
+      token_type: "Bearer",
+      expires_in: 3600,
+      refresh_token: newRefreshToken,
+      scope: oauthCode.data.scope || undefined
+    });
   } else if (grant_type === "refresh_token") {
     if (!refresh_token) {
-      return data(
-        {
-          data: null,
-          error: "Invalid request"
-        },
-        { status: 400 }
-      );
+      return jsonResponse({ error: "invalid_request", error_description: "Missing refresh_token" }, 400);
     }
 
     // Verify the refresh token
-    const [tokenResult] = await Promise.all([
-      client
-        .from("oauthToken")
-        .select("*")
-        .eq("refreshToken", refresh_token)
-        .single()
-    ]);
+    const tokenResult = await client
+      .from("oauthToken")
+      .select("*")
+      .eq("refreshToken", refresh_token)
+      .single();
 
-    if (!tokenResult.data || tokenResult.data.clientId !== client_id) {
-      return data(
-        { data: null, error: "Invalid refresh token" },
-        { status: 400 }
-      );
+    if (!tokenResult.data) {
+      return jsonResponse({ error: "invalid_grant", error_description: "Invalid refresh token" }, 400);
+    }
+
+    if (tokenResult.data.clientId !== client_id) {
+      return jsonResponse({ error: "invalid_grant", error_description: "Refresh token was not issued to this client" }, 400);
     }
 
     // Generate new access token
     const newAccessToken = crypto.randomUUID();
 
-    const [updateResult] = await Promise.all([
-      client
-        .from("oauthToken")
-        .update({
-          accessToken: newAccessToken,
-          expiresAt: new Date(Date.now() + 3600 * 1000).toISOString() // 1 hour expiration
-        })
-        .eq("refreshToken", refresh_token)
-    ]);
+    const updateResult = await client
+      .from("oauthToken")
+      .update({
+        accessToken: newAccessToken,
+        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString()
+      })
+      .eq("refreshToken", refresh_token);
 
     if (updateResult.error) {
-      return data(
-        { error: "server_error", error_description: "Failed to refresh token" },
-        { status: 500 }
-      );
+      return jsonResponse({ error: "server_error", error_description: "Failed to refresh token" }, 500);
     }
 
-    return {
-      data: {
-        access_token: newAccessToken,
-        token_type: "Bearer",
-        expires_in: 3600
-      },
-      error: null
-    };
+    return jsonResponse({
+      access_token: newAccessToken,
+      token_type: "Bearer",
+      expires_in: 3600,
+      scope: tokenResult.data.scope || undefined
+    });
   }
 
-  return data(
-    {
-      data: null,
-      error: "Unsupported grant type"
-    },
-    { status: 400 }
-  );
+  return jsonResponse({ error: "unsupported_grant_type", error_description: "Unsupported grant type" }, 400);
 }
