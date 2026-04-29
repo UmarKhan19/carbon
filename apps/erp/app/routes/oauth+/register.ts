@@ -1,3 +1,4 @@
+import { hashOAuthSecret } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { z } from "zod";
@@ -19,9 +20,15 @@ function jsonResponse(body: unknown, status: number = 200) {
 const clientRegistrationSchema = z.object({
   client_name: z.string().min(1),
   redirect_uris: z.array(z.string().url()).min(1),
-  grant_types: z.array(z.string()).optional().default(["authorization_code", "refresh_token"]),
+  grant_types: z
+    .array(z.string())
+    .optional()
+    .default(["authorization_code", "refresh_token"]),
   response_types: z.array(z.string()).optional().default(["code"]),
-  token_endpoint_auth_method: z.enum(["client_secret_post", "client_secret_basic", "none"]).optional().default("none"),
+  token_endpoint_auth_method: z
+    .enum(["client_secret_post", "client_secret_basic", "none"])
+    .optional()
+    .default("none"),
   client_uri: z.string().url().optional(),
   logo_uri: z.string().url().optional(),
   scope: z.string().optional()
@@ -31,7 +38,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
-  return jsonResponse({ error: "method_not_allowed", error_description: "Use POST" }, 405);
+  return jsonResponse(
+    { error: "method_not_allowed", error_description: "Use POST" },
+    405
+  );
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -41,15 +51,23 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     body = await request.json();
   } catch {
-    return jsonResponse({ error: "invalid_request", error_description: "Invalid JSON body" }, 400);
+    return jsonResponse(
+      { error: "invalid_request", error_description: "Invalid JSON body" },
+      400
+    );
   }
 
   const validation = clientRegistrationSchema.safeParse(body);
   if (!validation.success) {
-    return jsonResponse({
-      error: "invalid_client_metadata",
-      error_description: validation.error.issues.map(i => i.message).join(", ")
-    }, 400);
+    return jsonResponse(
+      {
+        error: "invalid_client_metadata",
+        error_description: validation.error.issues
+          .map((i) => i.message)
+          .join(", ")
+      },
+      400
+    );
   }
 
   const {
@@ -65,14 +83,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // Generate client credentials
   const clientId = `mcp_${crypto.randomUUID().replace(/-/g, "")}`;
-  const clientSecret = token_endpoint_auth_method !== "none"
-    ? crypto.randomUUID()
-    : null;
+  const rawClientSecret =
+    token_endpoint_auth_method !== "none" ? crypto.randomUUID() : null;
 
   const insertResult = await client.from("oauthDynamicClient").insert([
     {
       clientId,
-      clientSecret,
+      clientSecret: rawClientSecret ? hashOAuthSecret(rawClientSecret) : null,
       clientName: client_name,
       redirectUris: redirect_uris,
       grantTypes: grant_types,
@@ -87,8 +104,14 @@ export async function action({ request }: ActionFunctionArgs) {
   ]);
 
   if (insertResult.error) {
-    console.error("[OAuth Register] Failed to create client:", insertResult.error);
-    return jsonResponse({ error: "server_error", error_description: "Failed to register client" }, 500);
+    console.error(
+      "[OAuth Register] Failed to create client:",
+      insertResult.error
+    );
+    return jsonResponse(
+      { error: "server_error", error_description: "Failed to register client" },
+      500
+    );
   }
 
   const response: Record<string, unknown> = {
@@ -100,8 +123,8 @@ export async function action({ request }: ActionFunctionArgs) {
     token_endpoint_auth_method
   };
 
-  if (clientSecret) {
-    response.client_secret = clientSecret;
+  if (rawClientSecret) {
+    response.client_secret = rawClientSecret;
   }
 
   if (client_uri) response.client_uri = client_uri;
