@@ -136,6 +136,7 @@ const PurchaseOrderPDF = ({
           countryCode: supplierCountryCode,
           taxId: purchaseOrderLocations.supplierTaxId,
           vatNumber: purchaseOrderLocations.supplierVatNumber,
+          eori: purchaseOrderLocations.supplierEori,
           contactName: purchaseOrderLocations.supplierContactName,
           contactEmail: purchaseOrderLocations.supplierContactEmail
         }}

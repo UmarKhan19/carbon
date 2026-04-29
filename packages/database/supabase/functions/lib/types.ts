@@ -4351,6 +4351,7 @@ export type Database = {
           customFields: Json | null
           defaultCc: string[] | null
           embedding: unknown
+          eori: string | null
           fax: string | null
           id: string
           logo: string | null
@@ -4377,6 +4378,7 @@ export type Database = {
           customFields?: Json | null
           defaultCc?: string[] | null
           embedding?: unknown
+          eori?: string | null
           fax?: string | null
           id?: string
           logo?: string | null
@@ -4403,6 +4405,7 @@ export type Database = {
           customFields?: Json | null
           defaultCc?: string[] | null
           embedding?: unknown
+          eori?: string | null
           fax?: string | null
           id?: string
           logo?: string | null
@@ -35433,48 +35436,6 @@ export type Database = {
           },
         ]
       }
-      searchIndex_XLi2EzeWpKuKxqAUnMPWK2: {
-        Row: {
-          createdAt: string
-          description: string | null
-          entityId: string
-          entityType: string
-          id: number
-          link: string
-          metadata: Json | null
-          searchVector: unknown
-          tags: string[] | null
-          title: string
-          updatedAt: string | null
-        }
-        Insert: {
-          createdAt?: string
-          description?: string | null
-          entityId: string
-          entityType: string
-          id?: number
-          link: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title: string
-          updatedAt?: string | null
-        }
-        Update: {
-          createdAt?: string
-          description?: string | null
-          entityId?: string
-          entityType?: string
-          id?: number
-          link?: string
-          metadata?: Json | null
-          searchVector?: unknown
-          tags?: string[] | null
-          title?: string
-          updatedAt?: string | null
-        }
-        Relationships: []
-      }
       searchIndexRegistry: {
         Row: {
           companyId: string
@@ -37900,6 +37861,7 @@ export type Database = {
           customFields: Json | null
           defaultCc: string[] | null
           embedding: unknown
+          eori: string | null
           fax: string | null
           id: string
           logo: string | null
@@ -37928,6 +37890,7 @@ export type Database = {
           customFields?: Json | null
           defaultCc?: string[] | null
           embedding?: unknown
+          eori?: string | null
           fax?: string | null
           id?: string
           logo?: string | null
@@ -37956,6 +37919,7 @@ export type Database = {
           customFields?: Json | null
           defaultCc?: string[] | null
           embedding?: unknown
+          eori?: string | null
           fax?: string | null
           id?: string
           logo?: string | null
@@ -46155,6 +46119,7 @@ export type Database = {
           customerTypeId: string | null
           customFields: Json | null
           defaultCc: string[] | null
+          eori: string | null
           externalId: Json | null
           fax: string | null
           id: string | null
@@ -50257,14 +50222,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -51652,6 +51617,7 @@ export type Database = {
           supplierContactName: string | null
           supplierCountryCode: string | null
           supplierCountryName: string | null
+          supplierEori: string | null
           supplierName: string | null
           supplierPostalCode: string | null
           supplierStateProvince: string | null
@@ -52714,6 +52680,7 @@ export type Database = {
           customerCity: string | null
           customerCountryCode: string | null
           customerCountryName: string | null
+          customerEori: string | null
           customerName: string | null
           customerPostalCode: string | null
           customerStateProvince: string | null
@@ -55037,6 +55004,7 @@ export type Database = {
           customerCity: string | null
           customerCountryCode: string | null
           customerCountryName: string | null
+          customerEori: string | null
           customerName: string | null
           customerPostalCode: string | null
           customerStateProvince: string | null
@@ -55061,6 +55029,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
+            columns: ["invoiceCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
             columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -55069,13 +55044,6 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["customerCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55613,6 +55581,7 @@ export type Database = {
           customerCity: string | null
           customerCountryCode: string | null
           customerCountryName: string | null
+          customerEori: string | null
           customerName: string | null
           customerPostalCode: string | null
           customerStateProvince: string | null
@@ -57849,6 +57818,7 @@ export type Database = {
           customFields: Json | null
           defaultCc: string[] | null
           embedding: unknown
+          eori: string | null
           externalId: Json | null
           fax: string | null
           id: string | null

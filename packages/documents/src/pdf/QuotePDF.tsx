@@ -72,6 +72,7 @@ const QuotePDF = ({
     customerStateProvince,
     customerPostalCode,
     customerCountryCode,
+    customerEori,
     contactName,
     contactEmail
   } = quoteCustomerDetails;
@@ -264,6 +265,7 @@ const QuotePDF = ({
           stateProvince: customerStateProvince,
           postalCode: customerPostalCode,
           countryCode: customerCountryCode,
+          eori: customerEori,
           contactName: contactName,
           contactEmail: contactEmail
         }}

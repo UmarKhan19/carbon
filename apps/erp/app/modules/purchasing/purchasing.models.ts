@@ -316,6 +316,7 @@ export const supplierValidator = z.object({
   purchasingContactId: zfd.text(z.string().optional()),
   taxId: zfd.text(z.string().optional()),
   vatNumber: zfd.text(z.string().optional()),
+  eori: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });
@@ -334,6 +335,7 @@ export const supplierApprovalValidator = z.object({
   purchasingContactId: zfd.text(z.string().optional()),
   taxId: zfd.text(z.string().optional()),
   vatNumber: zfd.text(z.string().optional()),
+  eori: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });
@@ -389,7 +391,8 @@ export const supplierAccountingValidator = z.object({
   id: zfd.text(z.string()),
   supplierTypeId: zfd.text(z.string().optional()),
   taxId: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional())
+  vatNumber: zfd.text(z.string().optional()),
+  eori: zfd.text(z.string().optional())
 });
 
 export const supplierTypeValidator = z.object({

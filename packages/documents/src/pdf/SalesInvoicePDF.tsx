@@ -78,6 +78,7 @@ const SalesInvoicePDF = ({
     customerStateProvince,
     customerPostalCode,
     customerCountryName,
+    customerEori,
     invoiceCustomerName,
     invoiceAddressLine1,
     invoiceAddressLine2,
@@ -147,7 +148,8 @@ const SalesInvoicePDF = ({
           city: customerCity,
           stateProvince: customerStateProvince,
           postalCode: customerPostalCode,
-          countryCode: customerCountryName
+          countryCode: customerCountryName,
+          eori: customerEori
         }}
         counterPartyLabel="Buyer"
         accountsReceivableEmail={companySettings?.accountsReceivableEmail}

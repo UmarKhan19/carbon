@@ -49,7 +49,8 @@ export const customerAccountingValidator = z.object({
   id: zfd.text(z.string()),
   customerTypeId: zfd.text(z.string().optional()),
   taxId: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional())
+  vatNumber: zfd.text(z.string().optional()),
+  eori: zfd.text(z.string().optional())
 });
 
 export const customerContactValidator = z.object({
@@ -76,6 +77,7 @@ export const customerValidator = z.object({
     z.number().min(0).max(1, { message: "Tax percent must be between 0 and 1" })
   ),
   vatNumber: zfd.text(z.string().optional()),
+  eori: zfd.text(z.string().optional()),
   salesContactId: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
