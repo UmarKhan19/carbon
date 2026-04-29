@@ -402,7 +402,7 @@ Carbon's MCP server supports OAuth 2.0 authentication to enable use as a remote 
 ```typescript
 {
   clientId: string
-  clientSecret: string
+  clientSecret: string                 // SHA-256 hash, not plaintext
   name: string
   redirectUris: string[]
   companyId: string
@@ -413,7 +413,7 @@ Carbon's MCP server supports OAuth 2.0 authentication to enable use as a remote 
 ```typescript
 {
   clientId: string
-  clientSecret: string | null
+  clientSecret: string | null          // SHA-256 hash, not plaintext
   clientName: string
   redirectUris: string[]
   grantTypes: string[]
@@ -443,8 +443,8 @@ Carbon's MCP server supports OAuth 2.0 authentication to enable use as a remote 
 **oauthToken** (access/refresh tokens):
 ```typescript
 {
-  accessToken: string
-  refreshToken: string
+  accessToken: string                  // SHA-256 hash, not plaintext
+  refreshToken: string                 // SHA-256 hash, not plaintext
   clientId: string
   userId: string
   companyId: string
@@ -463,10 +463,13 @@ OAuth flow supports PKCE (Proof Key for Code Exchange) which is required for pub
 ### MCP OAuth Authentication
 
 The MCP endpoint (`/api/mcp`) accepts OAuth Bearer tokens:
-1. Checks if Bearer token exists in `oauthToken` table
+1. Checks if Bearer token hash exists in `oauthToken` table (tokens are stored as SHA-256 hashes and looked up by hash)
 2. Validates token hasn't expired
 3. Uses userId/companyId from token for authorization
 4. Falls back to carbon-key API key auth if not an OAuth token
+5. `companyId` and `userId` always come from the authenticated token context and cannot be overridden by caller arguments
+
+**Token Hashing**: Access tokens and refresh tokens are stored as SHA-256 hashes in the database. The `hashOAuthSecret` function in `@carbon/auth/auth.server` is the canonical hashing function used for all OAuth secret storage (access tokens, refresh tokens, and client secrets).
 
 ### Dynamic Client Registration
 
