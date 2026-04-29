@@ -1,4 +1,4 @@
-import { requirePermissions } from "@carbon/auth/auth.server";
+import { hashOAuthSecret, requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { ActionFunctionArgs } from "react-router";
@@ -9,7 +9,7 @@ async function authenticateOAuthToken(accessToken: string) {
   const tokenResult = await serviceRole
     .from("oauthToken")
     .select("userId, companyId, expiresAt, scope")
-    .eq("accessToken", accessToken)
+    .eq("accessToken", hashOAuthSecret(accessToken))
     .single();
 
   if (!tokenResult.data) {
@@ -45,11 +45,18 @@ export async function action({ request }: ActionFunctionArgs) {
     // Check if this is an OAuth access token
     const oauthAuth = await authenticateOAuthToken(token);
     if (oauthAuth) {
-      console.log("[MCP] OAuth auth successful:", { companyId: oauthAuth.companyId, userId: oauthAuth.userId });
+      console.log("[MCP] OAuth auth successful:", {
+        companyId: oauthAuth.companyId,
+        userId: oauthAuth.userId
+      });
 
       // Use service role client for OAuth-authenticated requests
       const client = getCarbonServiceRole();
-      const server = createMcpServer({ client, companyId: oauthAuth.companyId, userId: oauthAuth.userId });
+      const server = createMcpServer({
+        client,
+        companyId: oauthAuth.companyId,
+        userId: oauthAuth.userId
+      });
       const transport = new WebStandardStreamableHTTPServerTransport({
         sessionIdGenerator: undefined,
         enableJsonResponse: true
@@ -64,7 +71,10 @@ export async function action({ request }: ActionFunctionArgs) {
       const corsHeaders = new Headers(response.headers);
       corsHeaders.set("Access-Control-Allow-Origin", "*");
       corsHeaders.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-      corsHeaders.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      corsHeaders.set(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+      );
 
       return new Response(response.body, {
         status: response.status,
@@ -107,7 +117,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const responseHeaders = new Headers(response.headers);
   responseHeaders.set("Access-Control-Allow-Origin", "*");
   responseHeaders.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-  responseHeaders.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  responseHeaders.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
 
   return new Response(response.body, {
     status: response.status,
