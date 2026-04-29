@@ -1,3 +1,4 @@
+import { hashOAuthSecret } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validator } from "@carbon/form";
 import { createHash } from "crypto";
@@ -16,7 +17,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
   return new Response(
-    JSON.stringify({ error: "method_not_allowed", error_description: "Use POST" }),
+    JSON.stringify({
+      error: "method_not_allowed",
+      error_description: "Use POST"
+    }),
     { status: 405, headers: corsHeaders }
   );
 }
@@ -63,7 +67,13 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   if (validation.error) {
-    return jsonResponse({ error: "invalid_request", error_description: "Invalid request parameters" }, 400);
+    return jsonResponse(
+      {
+        error: "invalid_request",
+        error_description: "Invalid request parameters"
+      },
+      400
+    );
   }
 
   const {
@@ -79,72 +89,139 @@ export async function action({ request }: ActionFunctionArgs) {
   // Check both static and dynamic clients
   const [staticClient, dynamicClient] = await Promise.all([
     client.from("oauthClient").select("*").eq("clientId", client_id).single(),
-    client.from("oauthDynamicClient").select("*").eq("clientId", client_id).single()
+    client
+      .from("oauthDynamicClient")
+      .select("*")
+      .eq("clientId", client_id)
+      .single()
   ]);
 
   const oauthClient = staticClient.data || dynamicClient.data;
 
   if (!oauthClient) {
-    return jsonResponse({ error: "invalid_client", error_description: "Unknown client" }, 401);
+    return jsonResponse(
+      { error: "invalid_client", error_description: "Unknown client" },
+      401
+    );
   }
 
   // For static clients or confidential dynamic clients, verify client_secret
   const isDynamicClient = !!dynamicClient.data;
-  const isPublicClient = isDynamicClient && dynamicClient.data.tokenEndpointAuthMethod === "none";
+  const isPublicClient =
+    isDynamicClient && dynamicClient.data.tokenEndpointAuthMethod === "none";
 
   if (!isPublicClient) {
-    const expectedSecret = staticClient.data?.clientSecret || dynamicClient.data?.clientSecret;
-    if (!client_secret || expectedSecret !== client_secret) {
-      return jsonResponse({ error: "invalid_client", error_description: "Invalid client credentials" }, 401);
+    const expectedSecretHash =
+      staticClient.data?.clientSecret || dynamicClient.data?.clientSecret;
+    if (
+      !client_secret ||
+      expectedSecretHash !== hashOAuthSecret(client_secret)
+    ) {
+      return jsonResponse(
+        {
+          error: "invalid_client",
+          error_description: "Invalid client credentials"
+        },
+        401
+      );
     }
   }
 
   if (grant_type === "authorization_code") {
     if (!code || !redirect_uri) {
-      return jsonResponse({ error: "invalid_request", error_description: "Missing code or redirect_uri" }, 400);
+      return jsonResponse(
+        {
+          error: "invalid_request",
+          error_description: "Missing code or redirect_uri"
+        },
+        400
+      );
     }
 
     // Verify the authorization code
-    const oauthCode = await client.from("oauthCode").select("*").eq("code", code).single();
+    const oauthCode = await client
+      .from("oauthCode")
+      .select("*")
+      .eq("code", code)
+      .single();
 
     if (!oauthCode.data) {
-      return jsonResponse({ error: "invalid_grant", error_description: "Invalid authorization code" }, 400);
+      return jsonResponse(
+        {
+          error: "invalid_grant",
+          error_description: "Invalid authorization code"
+        },
+        400
+      );
     }
 
     if (oauthCode.data.clientId !== client_id) {
-      return jsonResponse({ error: "invalid_grant", error_description: "Code was not issued to this client" }, 400);
+      return jsonResponse(
+        {
+          error: "invalid_grant",
+          error_description: "Code was not issued to this client"
+        },
+        400
+      );
     }
 
     if (oauthCode.data.redirectUri !== redirect_uri) {
-      return jsonResponse({ error: "invalid_grant", error_description: "Redirect URI mismatch" }, 400);
+      return jsonResponse(
+        { error: "invalid_grant", error_description: "Redirect URI mismatch" },
+        400
+      );
     }
 
     // Check if code has expired
     if (new Date(oauthCode.data.expiresAt) < new Date()) {
       await client.from("oauthCode").delete().eq("code", code);
-      return jsonResponse({ error: "invalid_grant", error_description: "Authorization code has expired" }, 400);
+      return jsonResponse(
+        {
+          error: "invalid_grant",
+          error_description: "Authorization code has expired"
+        },
+        400
+      );
     }
 
     // Verify PKCE if code_challenge was stored
     if (oauthCode.data.codeChallenge) {
       if (!code_verifier) {
-        return jsonResponse({ error: "invalid_grant", error_description: "PKCE code_verifier required" }, 400);
+        return jsonResponse(
+          {
+            error: "invalid_grant",
+            error_description: "PKCE code_verifier required"
+          },
+          400
+        );
       }
 
       const method = oauthCode.data.codeChallengeMethod || "plain";
-      if (!verifyCodeChallenge(code_verifier, oauthCode.data.codeChallenge, method)) {
-        return jsonResponse({ error: "invalid_grant", error_description: "PKCE verification failed" }, 400);
+      if (
+        !verifyCodeChallenge(
+          code_verifier,
+          oauthCode.data.codeChallenge,
+          method
+        )
+      ) {
+        return jsonResponse(
+          {
+            error: "invalid_grant",
+            error_description: "PKCE verification failed"
+          },
+          400
+        );
       }
     }
 
     // Generate access token and refresh token
-    const accessToken = crypto.randomUUID() as string;
-    const newRefreshToken = crypto.randomUUID() as string;
+    const rawAccessToken = crypto.randomUUID();
+    const rawRefreshToken = crypto.randomUUID();
 
     const tokenResult = await client.from("oauthToken").insert([
       {
-        accessToken,
-        refreshToken: newRefreshToken,
+        accessToken: hashOAuthSecret(rawAccessToken),
+        refreshToken: hashOAuthSecret(rawRefreshToken),
         clientId: client_id,
         userId: oauthCode.data.userId,
         companyId: oauthCode.data.companyId,
@@ -155,61 +232,88 @@ export async function action({ request }: ActionFunctionArgs) {
     ]);
 
     if (tokenResult.error) {
-      return jsonResponse({ error: "server_error", error_description: "Failed to create token" }, 500);
+      return jsonResponse(
+        { error: "server_error", error_description: "Failed to create token" },
+        500
+      );
     }
 
     // Delete the used authorization code
     await client.from("oauthCode").delete().eq("code", code);
 
     return jsonResponse({
-      access_token: accessToken,
+      access_token: rawAccessToken,
       token_type: "Bearer",
       expires_in: 3600,
-      refresh_token: newRefreshToken,
+      refresh_token: rawRefreshToken,
       scope: oauthCode.data.scope || undefined
     });
   } else if (grant_type === "refresh_token") {
     if (!refresh_token) {
-      return jsonResponse({ error: "invalid_request", error_description: "Missing refresh_token" }, 400);
+      return jsonResponse(
+        {
+          error: "invalid_request",
+          error_description: "Missing refresh_token"
+        },
+        400
+      );
     }
 
     // Verify the refresh token
     const tokenResult = await client
       .from("oauthToken")
       .select("*")
-      .eq("refreshToken", refresh_token)
+      .eq("refreshToken", hashOAuthSecret(refresh_token))
       .single();
 
     if (!tokenResult.data) {
-      return jsonResponse({ error: "invalid_grant", error_description: "Invalid refresh token" }, 400);
+      return jsonResponse(
+        { error: "invalid_grant", error_description: "Invalid refresh token" },
+        400
+      );
     }
 
     if (tokenResult.data.clientId !== client_id) {
-      return jsonResponse({ error: "invalid_grant", error_description: "Refresh token was not issued to this client" }, 400);
+      return jsonResponse(
+        {
+          error: "invalid_grant",
+          error_description: "Refresh token was not issued to this client"
+        },
+        400
+      );
     }
 
     // Generate new access token
-    const newAccessToken = crypto.randomUUID();
+    const rawNewAccessToken = crypto.randomUUID();
 
     const updateResult = await client
       .from("oauthToken")
       .update({
-        accessToken: newAccessToken,
+        accessToken: hashOAuthSecret(rawNewAccessToken),
         expiresAt: new Date(Date.now() + 3600 * 1000).toISOString()
       })
-      .eq("refreshToken", refresh_token);
+      .eq("refreshToken", hashOAuthSecret(refresh_token));
 
     if (updateResult.error) {
-      return jsonResponse({ error: "server_error", error_description: "Failed to refresh token" }, 500);
+      return jsonResponse(
+        { error: "server_error", error_description: "Failed to refresh token" },
+        500
+      );
     }
 
     return jsonResponse({
-      access_token: newAccessToken,
+      access_token: rawNewAccessToken,
       token_type: "Bearer",
       expires_in: 3600,
       scope: tokenResult.data.scope || undefined
     });
   }
 
-  return jsonResponse({ error: "unsupported_grant_type", error_description: "Unsupported grant type" }, 400);
+  return jsonResponse(
+    {
+      error: "unsupported_grant_type",
+      error_description: "Unsupported grant type"
+    },
+    400
+  );
 }
