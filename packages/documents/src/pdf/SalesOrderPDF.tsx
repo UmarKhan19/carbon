@@ -195,6 +195,14 @@ const SalesOrderPDF = ({
               {salesOrder?.shippingTermName && (
                 <Text>Shipping Terms: {salesOrder.shippingTermName}</Text>
               )}
+              {salesOrder?.incoterm && (
+                <Text>
+                  Incoterm: {salesOrder.incoterm}
+                  {salesOrder.incotermLocation
+                    ? ` - ${salesOrder.incotermLocation}`
+                    : ""}
+                </Text>
+              )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
             </View>
           </View>

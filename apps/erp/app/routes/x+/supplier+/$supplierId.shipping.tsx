@@ -88,6 +88,8 @@ export default function SupplierShippingRoute() {
       supplierShipping?.shippingSupplierLocationId ?? "",
     shippingMethodId: supplierShipping?.shippingMethodId ?? "",
     shippingTermId: supplierShipping?.shippingTermId ?? "",
+    incoterm: supplierShipping?.incoterm ?? "",
+    incotermLocation: supplierShipping?.incotermLocation ?? "",
     ...getCustomFields(supplierShipping?.customFields)
   };
 

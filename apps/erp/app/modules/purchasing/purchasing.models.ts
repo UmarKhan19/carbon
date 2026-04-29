@@ -156,7 +156,9 @@ export const purchaseOrderDeliveryValidator = z
     customerId: zfd.text(z.string().optional()),
     customerLocationId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
-    notes: zfd.text(z.string().optional())
+    notes: zfd.text(z.string().optional()),
+    incoterm: zfd.text(z.string().optional()),
+    incotermLocation: zfd.text(z.string().optional())
   })
   .refine(
     (data) => {
@@ -378,7 +380,9 @@ export const supplierShippingValidator = z.object({
   shippingSupplierLocationId: zfd.text(z.string().optional()),
   shippingSupplierContactId: zfd.text(z.string().optional()),
   // shippingTermId: zfd.text(z.string().optional()),
-  shippingMethodId: zfd.text(z.string().optional())
+  shippingMethodId: zfd.text(z.string().optional()),
+  incoterm: zfd.text(z.string().optional()),
+  incotermLocation: zfd.text(z.string().optional())
 });
 
 export const supplierAccountingValidator = z.object({

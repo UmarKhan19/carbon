@@ -1,4 +1,45 @@
-DROP VIEW IF EXISTS "salesOrders";
+CREATE TYPE "incoterm" AS ENUM (
+  'EXW',
+  'FCA',
+  'FAS',
+  'FOB',
+  'CPT',
+  'CIP',
+  'CFR',
+  'CIF',
+  'DAP',
+  'DPU',
+  'DDP'
+);
+
+ALTER TABLE "quoteShipment"
+  ADD COLUMN "incoterm" "incoterm",
+  ADD COLUMN "incotermLocation" TEXT;
+
+ALTER TABLE "salesOrderShipment"
+  ADD COLUMN "incoterm" "incoterm",
+  ADD COLUMN "incotermLocation" TEXT;
+
+ALTER TABLE "salesInvoiceShipment"
+  ADD COLUMN "incoterm" "incoterm",
+  ADD COLUMN "incotermLocation" TEXT;
+
+ALTER TABLE "purchaseOrderDelivery"
+  ADD COLUMN "incoterm" "incoterm",
+  ADD COLUMN "incotermLocation" TEXT;
+
+ALTER TABLE "purchaseInvoiceDelivery"
+  ADD COLUMN "incoterm" "incoterm",
+  ADD COLUMN "incotermLocation" TEXT;
+
+ALTER TABLE "customerShipping"
+  ADD COLUMN "incoterm" "incoterm",
+  ADD COLUMN "incotermLocation" TEXT;
+
+ALTER TABLE "supplierShipping"
+  ADD COLUMN "incoterm" "incoterm",
+  ADD COLUMN "incotermLocation" TEXT;
+
 CREATE OR REPLACE VIEW "salesOrders" WITH(SECURITY_INVOKER=true) AS
   SELECT
     s.*,
@@ -78,7 +119,6 @@ CREATE OR REPLACE VIEW "salesOrders" WITH(SECURITY_INVOKER=true) AS
   LEFT JOIN "shippingTerm" st ON st."id" = ss."shippingTermId"
   LEFT JOIN "salesOrderPayment" sp ON sp."id" = s."id";
 
-DROP VIEW IF EXISTS "purchaseOrders";
 CREATE OR REPLACE VIEW "purchaseOrders" WITH(SECURITY_INVOKER=true) AS
   SELECT
     p.*,

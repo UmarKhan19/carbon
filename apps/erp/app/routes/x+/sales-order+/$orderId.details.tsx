@@ -179,6 +179,8 @@ export default function SalesOrderDetailsRoute() {
     customerId: shipment?.customerId ?? "",
     customerLocationId: shipment?.customerLocationId ?? "",
     shippingCost: shipment?.shippingCost ?? 0,
+    incoterm: shipment?.incoterm ?? "",
+    incotermLocation: shipment?.incotermLocation ?? "",
     ...getCustomFields(shipment?.customFields)
   };
 

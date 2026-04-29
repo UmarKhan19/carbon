@@ -200,6 +200,14 @@ const SalesInvoicePDF = ({
                   Shipping Terms: {salesInvoiceShipment.shippingTermId}
                 </Text>
               )}
+              {salesInvoiceShipment?.incoterm && (
+                <Text>
+                  Incoterm: {salesInvoiceShipment.incoterm}
+                  {salesInvoiceShipment.incotermLocation
+                    ? ` - ${salesInvoiceShipment.incotermLocation}`
+                    : ""}
+                </Text>
+              )}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>

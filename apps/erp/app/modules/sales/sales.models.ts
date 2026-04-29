@@ -94,7 +94,9 @@ export const customerShippingValidator = z.object({
   shippingCustomerLocationId: zfd.text(z.string().optional()),
   shippingCustomerContactId: zfd.text(z.string().optional()),
   // shippingTermId: zfd.text(z.string().optional()),
-  shippingMethodId: zfd.text(z.string().optional())
+  shippingMethodId: zfd.text(z.string().optional()),
+  incoterm: zfd.text(z.string().optional()),
+  incotermLocation: zfd.text(z.string().optional())
 });
 
 export const customerStatusValidator = z.object({
@@ -627,7 +629,9 @@ export const quoteShipmentValidator = z.object({
   locationId: zfd.text(z.string().optional()),
   shippingMethodId: zfd.text(z.string().optional()),
   receiptRequestedDate: zfd.text(z.string().optional()),
-  shippingCost: zfd.numeric(z.number().optional())
+  shippingCost: zfd.numeric(z.number().optional()),
+  incoterm: zfd.text(z.string().optional()),
+  incotermLocation: zfd.text(z.string().optional())
 });
 
 export const salesOrderLineType = [
@@ -704,7 +708,9 @@ export const salesOrderShipmentValidator = z
     supplierId: zfd.text(z.string().optional()),
     supplierLocationId: zfd.text(z.string().optional()),
     shippingCost: zfd.numeric(z.number().optional()),
-    notes: zfd.text(z.string().optional())
+    notes: zfd.text(z.string().optional()),
+    incoterm: zfd.text(z.string().optional()),
+    incotermLocation: zfd.text(z.string().optional())
   })
   .refine(
     (data) => {

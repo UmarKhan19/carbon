@@ -216,6 +216,14 @@ const PurchaseOrderPDF = ({
                 </Text>
               )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
+              {purchaseOrder?.incoterm && (
+                <Text>
+                  Incoterm: {purchaseOrder.incoterm}
+                  {purchaseOrder.incotermLocation
+                    ? ` - ${purchaseOrder.incotermLocation}`
+                    : ""}
+                </Text>
+              )}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>

@@ -296,6 +296,14 @@ const QuotePDF = ({
                 </Text>
               )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
+              {shipment?.incoterm && (
+                <Text>
+                  Incoterm: {shipment.incoterm}
+                  {shipment.incotermLocation
+                    ? ` - ${shipment.incotermLocation}`
+                    : ""}
+                </Text>
+              )}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>

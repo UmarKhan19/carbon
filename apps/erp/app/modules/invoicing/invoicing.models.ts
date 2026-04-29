@@ -93,6 +93,8 @@ export const purchaseInvoiceDeliveryValidator = z.object({
   shippingMethodId: zfd.text(z.string().optional()),
   shippingTermId: zfd.text(z.string().optional()),
   supplierShippingCost: zfd.numeric(z.number().optional().default(0)),
+  incoterm: zfd.text(z.string().optional()),
+  incotermLocation: zfd.text(z.string().optional()),
   customFields: z.any().optional()
 });
 
@@ -205,6 +207,8 @@ export const salesInvoiceShipmentValidator = z.object({
   shippingMethodId: zfd.text(z.string().optional()),
   shippingTermId: zfd.text(z.string().optional()),
   shippingCost: zfd.numeric(z.number().optional().default(0)),
+  incoterm: zfd.text(z.string().optional()),
+  incotermLocation: zfd.text(z.string().optional()),
   customFields: z.any().optional()
 });
 
