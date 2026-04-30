@@ -1,4 +1,4 @@
-import { DOMAIN, getCookieDomain } from "@carbon/auth";
+import { DOMAIN, VERCEL_ENV } from "@carbon/auth";
 import * as cookie from "cookie";
 
 const cookieName = "theme";
@@ -24,11 +24,9 @@ export function getTheme(request: Request): Theme {
 export function setTheme(theme: string) {
   const cookieOptions: cookie.SerializeOptions = {
     path: "/",
-    maxAge: 31536000
+    maxAge: 31536000,
+    domain: VERCEL_ENV === "production" ? DOMAIN : undefined
   };
-
-  const cookieDomain = getCookieDomain(DOMAIN);
-  if (cookieDomain) cookieOptions.domain = cookieDomain;
 
   return cookie.serialize(cookieName, theme, cookieOptions);
 }
