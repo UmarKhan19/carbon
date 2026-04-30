@@ -1,4 +1,3 @@
-import { DOMAIN, getCookieDomain } from "@carbon/auth";
 import type { Mode } from "@carbon/utils";
 import * as cookie from "cookie";
 
@@ -16,15 +15,6 @@ export function getMode(request: Request): Mode | null {
 export function setMode(mode: Mode | "system") {
   if (mode === "system") {
     return cookie.serialize(cookieName, "", { path: "/", maxAge: -1 });
-  } else {
-    const cookieOptions: cookie.SerializeOptions = {
-      path: "/",
-      maxAge: 31536000
-    };
-
-    const cookieDomain = getCookieDomain(DOMAIN);
-    if (cookieDomain) cookieOptions.domain = cookieDomain;
-
-    return cookie.serialize(cookieName, mode, cookieOptions);
   }
+  return cookie.serialize(cookieName, mode, { path: "/", maxAge: 31536000 });
 }
