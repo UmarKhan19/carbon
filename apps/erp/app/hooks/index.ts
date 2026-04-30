@@ -18,7 +18,8 @@ import { usePercentFormatter } from "./usePercentFormatter";
 import { usePermissions } from "./usePermissions";
 import { useRealtime } from "./useRealtime";
 import { useScrollPosition } from "./useScrollPosition";
-import { useSettings, useSupplierApprovalRequired } from "./useSettings";
+import { useSettings } from "./useSettings";
+import { useSupplierApprovalRequired } from "./useSupplierApprovalRequired";
 import { useTrainingPanel } from "./useTrainingPanel";
 import { useUser } from "./useUser";
 

@@ -50,9 +50,9 @@ import {
   useDateFormatter,
   usePermissions,
   useRouteData,
+  useSupplierApprovalRequired,
   useUser
 } from "~/hooks";
-import { useSupplierApprovalRequired } from "~/hooks/useSettings";
 import type { SupplierDetail } from "~/modules/purchasing";
 import { SupplierStatusIndicator } from "~/modules/purchasing/ui/Supplier/SupplierStatusIndicator";
 import type { ApprovalDecision } from "~/modules/shared/types";
