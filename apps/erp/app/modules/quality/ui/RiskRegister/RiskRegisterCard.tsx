@@ -58,15 +58,25 @@ export default function RiskRegisterCard({
   const fetchRisks = useCallback(async () => {
     if (!carbon || !company?.id) return;
     setLoading(true);
-    const { data, error } = await carbon
+
+    let query = carbon
       .from("riskRegister")
-      .select("*, assignee:assignee(id, firstName, lastName, avatarUrl)")
-      .eq("companyId", company.id)
-      .or(`source.eq.${source},sourceId.eq.${sourceId},itemId.eq.${itemId}`)
-      .order("createdAt", { ascending: false });
+      .select("*")
+      .eq("companyId", company.id);
+
+    if (itemId) {
+      query = query.or(
+        `and(source.eq.${source},sourceId.eq.${sourceId}),itemId.eq.${itemId}`
+      );
+    } else {
+      query = query.eq("source", source).eq("sourceId", sourceId);
+    }
+
+    const { data, error } = await query.order("createdAt", { ascending: false });
 
     if (error) {
       toast.error(t`Failed to fetch risks`);
+      setLoading(false);
       return;
     }
 
