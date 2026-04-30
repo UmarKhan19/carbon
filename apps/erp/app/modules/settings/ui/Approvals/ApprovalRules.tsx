@@ -6,13 +6,15 @@ import {
   CardHeader,
   CardTitle,
   Heading,
+  HStack,
   ScrollArea,
+  Switch,
   VStack
 } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
 import { memo } from "react";
 import { LuPlus } from "react-icons/lu";
-import { Link } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { Empty } from "~/components";
 import { usePermissions } from "~/hooks";
 import {
@@ -26,12 +28,19 @@ type ApprovalRulesProps = {
   poRules: ApprovalRule[];
   qdRules: ApprovalRule[];
   supplierRules: ApprovalRule[];
+  supplierApprovalEnabled: boolean;
 };
 
 const ApprovalRules = memo(
-  ({ poRules, qdRules, supplierRules }: ApprovalRulesProps) => {
+  ({
+    poRules,
+    qdRules,
+    supplierRules,
+    supplierApprovalEnabled
+  }: ApprovalRulesProps) => {
     const permissions = usePermissions();
     const canCreate = permissions.can("update", "settings");
+    const fetcher = useFetcher();
 
     return (
       <ScrollArea className="h-full w-full">
@@ -143,32 +152,54 @@ const ApprovalRules = memo(
                       </Trans>
                     </CardDescription>
                   </div>
-                  {canCreate && supplierRules.length === 0 && (
-                    <Button variant="primary" leftIcon={<LuPlus />} asChild>
-                      <Link to={path.to.newApprovalRule("supplier")}>
-                        <Trans>New Rule</Trans>
-                      </Link>
-                    </Button>
-                  )}
+                  <HStack>
+                    <Switch
+                      checked={supplierApprovalEnabled}
+                      disabled={
+                        !permissions.can("update", "settings") ||
+                        fetcher.state !== "idle"
+                      }
+                      onCheckedChange={(checked) => {
+                        fetcher.submit(
+                          {
+                            intent: "toggleSupplierApproval",
+                            enabled: String(checked)
+                          },
+                          { method: "POST" }
+                        );
+                      }}
+                    />
+                    {canCreate &&
+                      supplierApprovalEnabled &&
+                      supplierRules.length === 0 && (
+                        <Button variant="primary" leftIcon={<LuPlus />} asChild>
+                          <Link to={path.to.newApprovalRule("supplier")}>
+                            <Trans>New Rule</Trans>
+                          </Link>
+                        </Button>
+                      )}
+                  </HStack>
                 </div>
               </CardHeader>
-              <CardContent>
-                {supplierRules.length === 0 ? (
-                  <Empty className="my-4" />
-                ) : (
-                  <VStack spacing={3} className="items-stretch">
-                    {supplierRules
-                      .filter((r) => r.id)
-                      .map((rule) => (
-                        <ApprovalRuleCard
-                          key={rule.id}
-                          rule={rule}
-                          documentType="supplier"
-                        />
-                      ))}
-                  </VStack>
-                )}
-              </CardContent>
+              {supplierApprovalEnabled && (
+                <CardContent>
+                  {supplierRules.length === 0 ? (
+                    <Empty className="my-4" />
+                  ) : (
+                    <VStack spacing={3} className="items-stretch">
+                      {supplierRules
+                        .filter((r) => r.id)
+                        .map((rule) => (
+                          <ApprovalRuleCard
+                            key={rule.id}
+                            rule={rule}
+                            documentType="supplier"
+                          />
+                        ))}
+                    </VStack>
+                  )}
+                </CardContent>
+              )}
             </Card>
           </VStack>
         </div>

@@ -48,7 +48,6 @@ import {
   updateLeadTimesOnReceiptSetting,
   updatePurchasePriceUpdateTimingSetting,
   updatePurchasingPdfThumbnails,
-  updateSupplierApprovalSetting,
   updateSupplierQuoteNotificationSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -103,31 +102,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
-    case "supplierApproval":
-      const supplierApprovalEnabled =
-        formData.get("supplierApproval") === "true";
-      const supplierApprovalResult = await updateSupplierApprovalSetting(
-        client,
-        companyId,
-        supplierApprovalEnabled
-      );
-
-      if (supplierApprovalResult.error) {
-        console.error(
-          "Failed to update supplier approval setting:",
-          supplierApprovalResult.error
-        );
-        return {
-          success: false,
-          message: supplierApprovalResult.error.message
-        };
-      }
-
-      return {
-        success: true,
-        message: `Supplier approval ${supplierApprovalEnabled ? "enabled" : "disabled"}`
-      };
-
     case "accountsPayableAddressToggle":
       const apToggleEnabled = formData.get("enabled") === "true";
       const apToggleResult = await updateAccountsPayableAddressSetting(
@@ -343,21 +317,6 @@ export default function PurchasingSettingsRoute() {
   }, [fetcher.data?.message, fetcher.data?.success]);
 
   const toggleFetcher = useFetcher<typeof action>();
-
-  const [supplierApprovalEnabled, setSupplierApprovalEnabled] = useState(
-    companySettings.supplierApproval ?? false
-  );
-
-  const handleSupplierApprovalToggle = useCallback(
-    (checked: boolean) => {
-      setSupplierApprovalEnabled(checked);
-      toggleFetcher.submit(
-        { intent: "supplierApproval", supplierApproval: checked.toString() },
-        { method: "POST" }
-      );
-    },
-    [toggleFetcher]
-  );
 
   const [apAddressEnabled, setApAddressEnabled] = useState(
     companySettings.accountsPayableAddress ?? false
@@ -633,27 +592,6 @@ export default function PurchasingSettingsRoute() {
               <Switch
                 checked={leadTimesOnReceiptEnabled}
                 onCheckedChange={handleLeadTimesOnReceiptToggle}
-                disabled={toggleFetcher.state !== "idle"}
-              />
-            </HStack>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <HStack className="justify-between items-center">
-              <div>
-                <CardTitle>
-                  <Trans>Supplier Approval Required</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>
-                    Require approval before suppliers can be set to Active
-                  </Trans>
-                </CardDescription>
-              </div>
-              <Switch
-                checked={supplierApprovalEnabled}
-                onCheckedChange={handleSupplierApprovalToggle}
                 disabled={toggleFetcher.state !== "idle"}
               />
             </HStack>
