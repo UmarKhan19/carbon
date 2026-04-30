@@ -1,4 +1,4 @@
-import { DOMAIN } from "@carbon/auth";
+import { DOMAIN, VERCEL_ENV } from "@carbon/auth";
 import type { Mode } from "@carbon/utils";
 import * as cookie from "cookie";
 
@@ -22,7 +22,7 @@ export function setMode(mode: Mode | "system") {
       maxAge: 31536000
     };
 
-    if (DOMAIN && !DOMAIN.startsWith("localhost")) {
+    if (VERCEL_ENV === "production" && DOMAIN && !DOMAIN.startsWith("localhost")) {
       cookieOptions.domain = DOMAIN;
     }
     return cookie.serialize(cookieName, mode, cookieOptions);
