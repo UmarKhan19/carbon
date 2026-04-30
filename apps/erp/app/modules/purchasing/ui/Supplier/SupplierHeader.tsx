@@ -52,7 +52,7 @@ import {
   useRouteData,
   useUser
 } from "~/hooks";
-import { useSettings } from "~/hooks/useSettings";
+import { useSupplierApprovalRequired } from "~/hooks/useSettings";
 import type { SupplierDetail } from "~/modules/purchasing";
 import { SupplierStatusIndicator } from "~/modules/purchasing/ui/Supplier/SupplierStatusIndicator";
 import type { ApprovalDecision } from "~/modules/shared/types";
@@ -70,7 +70,7 @@ const SupplierHeader = () => {
   const requestApprovalFetcher = useFetcher();
   const permissions = usePermissions();
   const { company } = useUser();
-  const settings = useSettings();
+  const isApprovalRequired = useSupplierApprovalRequired();
   const deleteModal = useDisclosure();
   const makeInactiveModal = useDisclosure();
   const [approvalDecision, setApprovalDecision] =
@@ -105,7 +105,6 @@ const SupplierHeader = () => {
   const approvalRequestId = routeData?.approvalRequest?.id;
   const hasApprovalRequest = !!approvalRequestId;
   const canApprove = routeData?.canApprove ?? false;
-  const isApprovalRequired = settings.supplierApproval ?? false;
 
   const submitRequestApproval = () => {
     const formData = new FormData();

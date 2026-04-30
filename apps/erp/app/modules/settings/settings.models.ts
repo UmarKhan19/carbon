@@ -336,10 +336,6 @@ const billingAddress = {
   email: zfd.text(z.string().email().optional())
 };
 
-export const supplierApprovalValidator = z.object({
-  supplierApproval: zfd.checkbox()
-});
-
 export const accountsPayableBillingAddressValidator = z.object(billingAddress);
 export const accountsReceivableBillingAddressValidator =
   z.object(billingAddress);

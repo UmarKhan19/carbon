@@ -75,11 +75,12 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   // Check supplier approval status
-  const companySettingsCheck = await getCompanySettings(serviceRole, companyId);
-  if (
-    companySettingsCheck.data?.supplierApproval &&
-    purchaseOrder.data.supplierId
-  ) {
+  const supplierApprovalRequired = await isApprovalRequired(
+    serviceRole,
+    "supplier",
+    companyId
+  );
+  if (supplierApprovalRequired && purchaseOrder.data.supplierId) {
     const supplier = await getSupplier(
       serviceRole,
       purchaseOrder.data.supplierId

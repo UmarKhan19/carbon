@@ -11195,18 +11195,6 @@
       ]
     },
     {
-      "name": "settings_updateSupplierApprovalSetting",
-      "module": "settings",
-      "classification": "WRITE",
-      "description": "update supplier approval setting",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "supplierApproval"
-      ]
-    },
-    {
       "name": "settings_updateAccountsPayableAddressSetting",
       "module": "settings",
       "classification": "WRITE",

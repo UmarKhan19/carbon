@@ -42,7 +42,10 @@ import {
   getCompanySettings
 } from "~/modules/settings";
 import { getCustomFieldsSchemas } from "~/modules/shared/shared.server";
-import { getSavedViews } from "~/modules/shared/shared.service";
+import {
+  getSavedViews,
+  isApprovalRequired
+} from "~/modules/shared/shared.service";
 import {
   getUser,
   getUserClaims,
@@ -101,7 +104,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     claims,
     groups,
     defaults,
-    auditLogEnabled
+    auditLogEnabled,
+    supplierApprovalRequired
   ] = await Promise.all([
     getCompanies(client, userId),
     getStripeCustomerByCompanyId(companyId, userId),
@@ -113,7 +117,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUserClaims(userId, companyId),
     getUserGroups(client, userId),
     getUserDefaults(client, userId, companyId),
-    isAuditLogEnabled(client, companyId)
+    isAuditLogEnabled(client, companyId),
+    isApprovalRequired(client, "supplier", companyId)
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
@@ -153,7 +158,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     auditLogEnabled,
     company,
     companies: companies.data ?? [],
-    companySettings: companySettings.data,
+    companySettings: companySettings.data ?? null,
+    supplierApprovalRequired,
     customFields: customFields.data ?? [],
     defaults: defaults.data,
     integrations: integrations.data ?? [],

@@ -1165,21 +1165,6 @@ export const registerSettingsTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "settings_updateSupplierApprovalSetting",
-    {
-      description: "update supplier approval setting",
-      inputSchema: z.object({
-      supplierApproval: z.boolean(),
-    }),
-      annotations: WRITE_ANNOTATIONS,
-    },
-    withErrorHandling(async (params) => {
-      const result = await updateSupplierApprovalSetting(ctx.client, ctx.companyId, params.supplierApproval);
-      return toMcpResult(result);
-    }, "Failed: settings_updateSupplierApprovalSetting"),
-  );
-
-  server.registerTool(
     "settings_updateAccountsPayableAddressSetting",
     {
       description: "update accounts payable address setting",

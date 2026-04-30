@@ -35,7 +35,12 @@ import { Link, useFetcher, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout/Panels";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
-import { usePermissions, useRouteData, useSettings, useUser } from "~/hooks";
+import {
+  usePermissions,
+  useRouteData,
+  useSupplierApprovalRequired,
+  useUser
+} from "~/hooks";
 import type { PurchaseInvoice, PurchaseInvoiceLine } from "~/modules/invoicing";
 import { PurchaseInvoicingStatus } from "~/modules/invoicing";
 import type { action as statusAction } from "~/routes/x+/purchase-invoice+/$invoiceId.status";
@@ -49,7 +54,7 @@ import PurchaseInvoiceVoidModal from "./PurchaseInvoiceVoidModal";
 const PurchaseInvoiceHeader = () => {
   const { t } = useLingui();
   const permissions = usePermissions();
-  const settings = useSettings();
+  const supplierApprovalRequired = useSupplierApprovalRequired();
   const { invoiceId } = useParams();
   const { company } = useUser();
   const postingModal = useDisclosure();
@@ -86,11 +91,11 @@ const PurchaseInvoiceHeader = () => {
 
   const isSupplierApproved = useMemo(
     () =>
-      !settings?.supplierApproval ||
+      !supplierApprovalRequired ||
       suppliers.find((s) => s.id === routeData?.purchaseInvoice?.supplierId)
         ?.supplierStatus === "Active",
     [
-      settings?.supplierApproval,
+      supplierApprovalRequired,
       routeData?.purchaseInvoice?.supplierId,
       suppliers
     ]
@@ -246,7 +251,7 @@ const PurchaseInvoiceHeader = () => {
               // @ts-expect-error TS2322 - TODO: fix type
               status={routeData?.purchaseInvoice?.status}
             />
-            {settings?.supplierApproval && !isSupplierApproved && (
+            {supplierApprovalRequired && !isSupplierApproved && (
               <Status color="red">
                 <Trans>Unapproved Supplier</Trans>
               </Status>

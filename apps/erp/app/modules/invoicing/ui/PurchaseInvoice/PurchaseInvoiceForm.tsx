@@ -30,7 +30,11 @@ import {
   SupplierLocation
 } from "~/components/Form";
 import PaymentTerm from "~/components/Form/PaymentTerm";
-import { usePermissions, useRouteData, useSettings } from "~/hooks";
+import {
+  usePermissions,
+  useRouteData,
+  useSupplierApprovalRequired
+} from "~/hooks";
 import { purchaseInvoiceValidator } from "~/modules/invoicing";
 import { path } from "~/utils/path";
 import { isPurchaseInvoiceLocked } from "../../invoicing.models";
@@ -44,7 +48,7 @@ type PurchaseInvoiceFormProps = {
 const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   const { t } = useLingui();
   const permissions = usePermissions();
-  const settings = useSettings();
+  const supplierApprovalRequired = useSupplierApprovalRequired();
   const { carbon } = useCarbon();
   const isEditing = initialValues.id !== undefined;
 
@@ -195,7 +199,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 name="supplierId"
                 label={t`Supplier`}
                 onChange={onSupplierChange}
-                onlyApproved={settings?.supplierApproval ?? false}
+                onlyApproved={supplierApprovalRequired}
               />
               <Input
                 name="supplierReference"
@@ -207,7 +211,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 label={t`Invoice Supplier`}
                 value={invoiceSupplier.id}
                 onChange={onInvoiceSupplierChange}
-                onlyApproved={settings?.supplierApproval ?? false}
+                onlyApproved={supplierApprovalRequired}
               />
               <SupplierLocation
                 name="invoiceSupplierLocationId"

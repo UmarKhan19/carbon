@@ -28,7 +28,7 @@ import {
   SupplierStatus,
   SupplierType
 } from "~/components/Form";
-import { usePermissions, useSettings } from "~/hooks";
+import { usePermissions, useSupplierApprovalRequired } from "~/hooks";
 import type { Supplier } from "~/modules/purchasing";
 import {
   supplierApprovalValidator,
@@ -50,8 +50,7 @@ const SupplierForm = ({
   const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<Supplier>>();
-  const settings = useSettings();
-  const supplierApprovalRequired = settings?.supplierApproval ?? false;
+  const supplierApprovalRequired = useSupplierApprovalRequired();
 
   useEffect(() => {
     if (type !== "modal") return;
