@@ -2108,7 +2108,7 @@ msgstr "Wählen Sie eine andere Datei"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:35
 msgid "Choose scope to continue"
-msgstr "Wählen Sie einen Bereich aus, um fortzufahren"
+msgstr ""
 
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:53
 msgid "Choose your preferred language for the interface."
@@ -6494,7 +6494,7 @@ msgstr "Ungültige Einladung"
 
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:45
 msgid "Invalid tracking number"
-msgstr "Ungültige Verfolgungsnummer"
+msgstr ""
 
 #: apps/erp/app/components/Form/ConversionFactor.tsx:274
 #: apps/erp/app/components/Form/ConversionFactor.tsx:299
@@ -9602,7 +9602,7 @@ msgstr "Wählen Sie ein Datum oder lassen Sie es leer, um es zu löschen."
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:27
 msgid "Pick a scope to view resolved prices and create price overrides."
-msgstr "Wählen Sie einen Bereich aus, um aufgelöste Preise anzuzeigen und Preisüberschreibungen zu erstellen."
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:142
 msgid "Pick List"
@@ -11609,7 +11609,7 @@ msgstr "Scannen"
 
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:82
 msgid "Scan or enter a tracking number"
-msgstr "Scannen oder Verfolgungsnummer eingeben"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:137
 msgid "Scan or enter tracked entity ID, serial, or batch"
@@ -11797,7 +11797,7 @@ msgstr "Wählen Sie einen Bevollmächtigten"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:24
 msgid "Select a customer or customer type"
-msgstr "Wählen Sie einen Kunden oder Kundentyp"
+msgstr ""
 
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:127
 msgid "Select a default approver"

@@ -2108,7 +2108,7 @@ msgstr "选择另一个文件"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:35
 msgid "Choose scope to continue"
-msgstr "选择范围以继续"
+msgstr ""
 
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:53
 msgid "Choose your preferred language for the interface."
@@ -6494,7 +6494,7 @@ msgstr "无效邀请"
 
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:45
 msgid "Invalid tracking number"
-msgstr "无效的追踪号码"
+msgstr ""
 
 #: apps/erp/app/components/Form/ConversionFactor.tsx:274
 #: apps/erp/app/components/Form/ConversionFactor.tsx:299
@@ -9602,7 +9602,7 @@ msgstr "选择日期或留空以清除。"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:27
 msgid "Pick a scope to view resolved prices and create price overrides."
-msgstr "选择范围以查看已解决的价格并创建价格覆盖。"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:142
 msgid "Pick List"
@@ -11609,7 +11609,7 @@ msgstr "扫描"
 
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:82
 msgid "Scan or enter a tracking number"
-msgstr "扫描或输入追踪号"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:137
 msgid "Scan or enter tracked entity ID, serial, or batch"
@@ -11797,7 +11797,7 @@ msgstr "选择受理人"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:24
 msgid "Select a customer or customer type"
-msgstr "选择客户或客户类型"
+msgstr ""
 
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:127
 msgid "Select a default approver"
