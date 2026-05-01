@@ -12,6 +12,7 @@ import {
   journalReference,
   TrackedEntityAttributes,
 } from "../lib/utils.ts";
+import { isInternalUser } from "../lib/flags.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
@@ -56,11 +57,14 @@ serve(async (req: Request) => {
       companyId
     );
 
-    const companyRecord = await client
-      .from("company")
-      .select("companyGroupId")
-      .eq("id", companyId)
-      .single();
+    const [companyRecord, isInternal] = await Promise.all([
+      client
+        .from("company")
+        .select("companyGroupId")
+        .eq("id", companyId)
+        .single(),
+      isInternalUser(client, userId),
+    ]);
     if (companyRecord.error) throw new Error("Failed to fetch company");
     const companyGroupId = companyRecord.data.companyGroupId;
 
@@ -206,19 +210,21 @@ serve(async (req: Request) => {
       const reversingJournalLines: Omit<
         Database["public"]["Tables"]["journalLine"]["Insert"],
         "journalId"
-      >[] = originalJournalLines.data.map((entry) => ({
-        accountNumber: entry.accountNumber!,
-        accrual: entry.accrual,
-        description: `VOID: ${entry.description}`,
-        amount: -entry.amount,
-        quantity: -entry.quantity,
-        documentType: entry.documentType,
-        documentId: entry.documentId,
-        externalDocumentId: entry.externalDocumentId,
-        documentLineReference: entry.documentLineReference,
-        journalLineReference: entry.journalLineReference,
-        companyId,
-      }));
+      >[] = isInternal
+        ? originalJournalLines.data.map((entry) => ({
+            accountNumber: entry.accountNumber!,
+            accrual: entry.accrual,
+            description: `VOID: ${entry.description}`,
+            amount: -entry.amount,
+            quantity: -entry.quantity,
+            documentType: entry.documentType,
+            documentId: entry.documentId,
+            externalDocumentId: entry.externalDocumentId,
+            documentLineReference: entry.documentLineReference,
+            journalLineReference: entry.journalLineReference,
+            companyId,
+          }))
+        : [];
 
       const receiptLinesByPurchaseOrderLineId = receiptLines.data.reduce<
         Record<string, Database["public"]["Tables"]["receiptLine"]["Row"][]>
@@ -712,9 +718,11 @@ serve(async (req: Request) => {
           return acc;
         }, {});
 
-        // Get account defaults (once for all lines)
-        const accountDefaults = await getDefaultPostingGroup(client, companyId);
-        if (accountDefaults.error || !accountDefaults.data) {
+        // Get account defaults (once for all lines) - only needed for journal entries
+        const accountDefaults = isInternal
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (isInternal && (accountDefaults?.error || !accountDefaults?.data)) {
           throw new Error("Error getting account defaults");
         }
 
@@ -733,7 +741,7 @@ serve(async (req: Request) => {
           const isNegativeReceipt = receivedQuantity < 0;
           const absReceivedQuantity = Math.abs(receivedQuantity);
 
-          if (absReceivedQuantity > 0) {
+          if (isInternal && accountDefaults?.data && absReceivedQuantity > 0) {
             const lineCost = absReceivedQuantity * receiptLine.unitPrice;
 
             // Add proportional shipping cost based on line value percentage
@@ -749,21 +757,17 @@ serve(async (req: Request) => {
             let debitDescription: string;
 
             if (itemTrackingType !== "Non-Inventory" && !isOutsideProcessing) {
-              // Inventory items: DR inventoryAccount
               debitAccount = accountDefaults.data.inventoryAccount;
               debitDescription = "Inventory Account";
             } else if (isOutsideProcessing) {
-              // Outside processing: DR workInProgressAccount
               debitAccount = accountDefaults.data.workInProgressAccount;
               debitDescription = "WIP Account";
             } else {
-              // Non-inventory items: DR indirectCostAccount
               debitAccount = accountDefaults.data.indirectCostAccount;
               debitDescription = "Indirect Cost Account";
             }
 
             if (isNegativeReceipt) {
-              // For returns, flip: DR goodsReceivedNotInvoicedAccount / CR debitAccount
               journalLineInserts.push({
                 accountNumber:
                   accountDefaults.data.goodsReceivedNotInvoicedAccount,
@@ -799,7 +803,6 @@ serve(async (req: Request) => {
                 companyGroupId,
               });
             } else {
-              // Normal receipt: DR debitAccount / CR goodsReceivedNotInvoicedAccount
               journalLineInserts.push({
                 accountNumber: debitAccount,
                 description: debitDescription,
@@ -927,25 +930,25 @@ serve(async (req: Request) => {
           }
 
           // Track dimensions for this receipt line's journal lines
-          const jlCount = journalLineInserts.length - jlStartIdx;
-          const lineItemPostingGroupId =
-            itemCosts.data.find(
-              (cost) => cost.itemId === receiptLine.itemId
-            )?.itemPostingGroupId ?? null;
-          for (let i = 0; i < jlCount; i++) {
-            journalLineDimensionsMeta.push({
-              supplierTypeId: supplier.data.supplierTypeId ?? null,
-              itemPostingGroupId: lineItemPostingGroupId,
-              locationId: receiptLine.locationId ?? null,
-            });
+          if (isInternal) {
+            const jlCount = journalLineInserts.length - jlStartIdx;
+            const lineItemPostingGroupId =
+              itemCosts.data.find(
+                (cost) => cost.itemId === receiptLine.itemId
+              )?.itemPostingGroupId ?? null;
+            for (let i = 0; i < jlCount; i++) {
+              journalLineDimensionsMeta.push({
+                supplierTypeId: supplier.data.supplierTypeId ?? null,
+                itemPostingGroupId: lineItemPostingGroupId,
+                locationId: receiptLine.locationId ?? null,
+              });
+            }
           }
         }
 
-        const accountingPeriodId = await getCurrentAccountingPeriod(
-          client,
-          companyId,
-          db
-        );
+        const accountingPeriodId = isInternal
+          ? await getCurrentAccountingPeriod(client, companyId, db)
+          : null;
 
         await db.transaction().execute(async (trx) => {
           for await (const [purchaseOrderLineId, update] of Object.entries(
@@ -1016,30 +1019,30 @@ serve(async (req: Request) => {
             .where("id", "=", receipt.data.sourceDocumentId)
             .execute();
 
-          const journalEntryId = await getNextSequence(
-            trx,
-            "journalEntry",
-            companyId
-          );
+          if (isInternal && journalLineInserts.length > 0) {
+            const journalEntryId = await getNextSequence(
+              trx,
+              "journalEntry",
+              companyId
+            );
 
-          const journalResult = await trx
-            .insertInto("journal")
-            .values({
-              journalEntryId,
-              accountingPeriodId,
-              description: `Purchase Receipt ${receipt.data.receiptId}`,
-              postingDate: today,
-              companyId,
-              sourceType: "Purchase Receipt",
-              status: "Posted",
-              postedAt: new Date().toISOString(),
-              postedBy: userId,
-              createdBy: userId,
-            })
-            .returning(["id"])
-            .executeTakeFirstOrThrow();
+            const journalResult = await trx
+              .insertInto("journal")
+              .values({
+                journalEntryId,
+                accountingPeriodId,
+                description: `Purchase Receipt ${receipt.data.receiptId}`,
+                postingDate: today,
+                companyId,
+                sourceType: "Purchase Receipt",
+                status: "Posted",
+                postedAt: new Date().toISOString(),
+                postedBy: userId,
+                createdBy: userId,
+              })
+              .returning(["id"])
+              .executeTakeFirstOrThrow();
 
-          if (journalLineInserts.length > 0) {
             const journalLineResults = await trx
               .insertInto("journalLine")
               .values(
@@ -1235,9 +1238,11 @@ serve(async (req: Request) => {
           Database["public"]["Tables"]["warehouseTransferLine"]["Update"]
         > = {};
 
-        // Get account defaults (once for all lines)
-        const accountDefaults = await getDefaultPostingGroup(client, companyId);
-        if (accountDefaults.error || !accountDefaults.data) {
+        // Get account defaults (once for all lines) - only needed for journal entries
+        const accountDefaults = isInternal
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (isInternal && (accountDefaults?.error || !accountDefaults?.data)) {
           throw new Error("Error getting account defaults");
         }
 
@@ -1289,10 +1294,9 @@ serve(async (req: Request) => {
           });
 
           // Create journal entries for inventory movement if there's value
-          if (totalValue > 0) {
+          if (isInternal && accountDefaults?.data && totalValue > 0) {
             const journalLineReference = nanoid();
 
-            // Credit (subtract) inventory from source location
             journalLineInserts.push({
               accountNumber: accountDefaults.data.inventoryAccount,
               description: `Transfer Out - ${warehouseTransfer.data?.transferId}`,
@@ -1307,7 +1311,6 @@ serve(async (req: Request) => {
               companyGroupId,
             });
 
-            // Debit (add) inventory to destination location
             journalLineInserts.push({
               accountNumber: accountDefaults.data.inventoryAccount,
               description: `Transfer In - ${warehouseTransfer.data?.transferId}`,
@@ -1324,12 +1327,14 @@ serve(async (req: Request) => {
           }
 
           // Track dimensions for this receipt line's journal lines
-          const jlCount = journalLineInserts.length - jlStartIdx;
-          for (let i = 0; i < jlCount; i++) {
-            journalLineDimensionsMeta.push({
-              itemPostingGroupId: itemCost?.itemPostingGroupId ?? null,
-              locationId: receiptLine.locationId ?? null,
-            });
+          if (isInternal) {
+            const jlCount = journalLineInserts.length - jlStartIdx;
+            for (let i = 0; i < jlCount; i++) {
+              journalLineDimensionsMeta.push({
+                itemPostingGroupId: itemCost?.itemPostingGroupId ?? null,
+                locationId: receiptLine.locationId ?? null,
+              });
+            }
           }
         }
 
@@ -1363,11 +1368,9 @@ serve(async (req: Request) => {
           newStatus = "To Receive";
         }
 
-        const accountingPeriodId = await getCurrentAccountingPeriod(
-          client,
-          companyId,
-          db
-        );
+        const accountingPeriodId = isInternal
+          ? await getCurrentAccountingPeriod(client, companyId, db)
+          : null;
 
         await db.transaction().execute(async (trx) => {
           // Update warehouse transfer lines
@@ -1392,7 +1395,7 @@ serve(async (req: Request) => {
             .execute();
 
           // Create journal entries if there are any
-          if (journalLineInserts.length > 0) {
+          if (isInternal && journalLineInserts.length > 0) {
             const transferJournalEntryId = await getNextSequence(
               trx,
               "journalEntry",

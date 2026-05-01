@@ -16,7 +16,6 @@ CREATE TABLE "companyGroup" (
   "updatedAt" TIMESTAMP WITH TIME ZONE,
 
   CONSTRAINT "companyGroup_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "companyGroup_name_key" UNIQUE ("name"),
   CONSTRAINT "companyGroup_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id"),
   CONSTRAINT "companyGroup_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id")
 );

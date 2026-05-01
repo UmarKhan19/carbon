@@ -15,10 +15,18 @@ import {
   LuTrendingUp
 } from "react-icons/lu";
 import { usePermissions, useRouteData } from "~/hooks";
-import type { AuthenticatedRouteGroup } from "~/types";
+import { useFlags } from "~/hooks/useFlags";
+import type { AuthenticatedRouteGroup, Role } from "~/types";
 import { path } from "~/utils/path";
 
-const multiCompanyRoutes = new Set([path.to.intercompany]);
+const multiCompanyRoutes = new Set<string>([path.to.intercompany]);
+const internalOnlyRoutes = new Set<string>([
+  path.to.balanceSheet,
+  path.to.incomeStatement,
+  path.to.trialBalance,
+  path.to.intercompany,
+  path.to.accountingJournals
+]);
 
 export default function useAccountingSubmodules() {
   const { t } = useLingui();
@@ -116,31 +124,26 @@ export default function useAccountingSubmodules() {
     [t]
   );
 
+  const { isInternal } = useFlags();
   const permissions = usePermissions();
   const routeData = useRouteData<{ hasMultipleCompanies: boolean }>(
     path.to.accounting
   );
   const hasMultipleCompanies = routeData?.hasMultipleCompanies ?? false;
+
+  const isRouteVisible = (route: { to: string; role?: string }) => {
+    if (route.role && !permissions.is(route.role as Role)) return false;
+    if (!hasMultipleCompanies && multiCompanyRoutes.has(route.to)) return false;
+    if (!isInternal && internalOnlyRoutes.has(route.to)) return false;
+    return true;
+  };
+
   return {
     groups: accountingRoutes
-      .filter((group) => {
-        const filteredRoutes = group.routes.filter((route) => {
-          if (route.role && !permissions.is(route.role)) return false;
-          if (!hasMultipleCompanies && multiCompanyRoutes.has(route.to))
-            return false;
-          return true;
-        });
-
-        return filteredRoutes.length > 0;
-      })
+      .filter((group) => group.routes.some(isRouteVisible))
       .map((group) => ({
         ...group,
-        routes: group.routes.filter((route) => {
-          if (route.role && !permissions.is(route.role)) return false;
-          if (!hasMultipleCompanies && multiCompanyRoutes.has(route.to))
-            return false;
-          return true;
-        })
+        routes: group.routes.filter(isRouteVisible)
       }))
   };
 }

@@ -6,6 +6,7 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import type { Database } from "../lib/types.ts";
+import { isInternalUser } from "../lib/flags.ts";
 import { credit, debit, journalReference } from "../lib/utils.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
@@ -47,11 +48,14 @@ serve(async (req: Request) => {
       companyId
     );
 
-    const companyRecord = await client
-      .from("company")
-      .select("companyGroupId")
-      .eq("id", companyId)
-      .single();
+    const [companyRecord, isInternal] = await Promise.all([
+      client
+        .from("company")
+        .select("companyGroupId")
+        .eq("id", companyId)
+        .single(),
+      isInternalUser(client, userId),
+    ]);
     if (companyRecord.error) throw new Error("Failed to fetch company");
     const companyGroupId = companyRecord.data.companyGroupId;
 
@@ -227,15 +231,17 @@ serve(async (req: Request) => {
         }, {});
 
         // Get account defaults (once for all lines)
-        const accountDefaults = await getDefaultPostingGroup(client, companyId);
-        if (accountDefaults.error || !accountDefaults.data) {
+        const accountDefaults = isInternal
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (isInternal && (accountDefaults?.error || !accountDefaults?.data)) {
           throw new Error("Error getting account defaults");
         }
 
         // For IC transactions, use IC Receivables (1130) instead of regular AR
         const receivablesAccount = isIntercompany
           ? "1130"
-          : accountDefaults.data.receivablesAccount;
+          : accountDefaults?.data?.receivablesAccount;
 
         for await (const invoiceLine of salesInvoiceLines.data) {
           const invoiceLineQuantityInInventoryUnit = invoiceLine.quantity;
@@ -310,148 +316,101 @@ serve(async (req: Request) => {
 
                   // create the normal GL entries for a part
 
-                  journalLineReference = nanoid();
+                  if (isInternal && accountDefaults?.data) {
+                    journalLineReference = nanoid();
 
-                  if (itemTrackingType === "Inventory") {
-                    // debit the inventory account
+                    if (itemTrackingType === "Inventory") {
+                      // debit the inventory account
+                      journalLineInserts.push({
+                        accountNumber: accountDefaults.data.inventoryAccount,
+                        description: "Inventory Account",
+                        amount: credit(
+                          "asset",
+                          totalLineCostWithWeightedShipping
+                        ),
+                        quantity: invoiceLineQuantityInInventoryUnit,
+                        documentType: "Invoice",
+                        documentId: salesInvoice.data?.id,
+                        externalDocumentId: salesInvoice.data?.customerReference,
+                        journalLineReference,
+                        companyId,
+                        companyGroupId,
+                      });
+
+                      // creidt the cost of goods sold account
+                      journalLineInserts.push({
+                        accountNumber:
+                          accountDefaults.data.costOfGoodsSoldAccount,
+                        description: "Cost of Goods Sold",
+                        amount: debit(
+                          "expense",
+                          totalLineCostWithWeightedShipping
+                        ),
+                        quantity: invoiceLineQuantityInInventoryUnit,
+                        documentType: "Invoice",
+                        documentId: salesInvoice.data?.id,
+                        externalDocumentId: salesInvoice.data?.customerReference,
+                        journalLineReference,
+                        companyId,
+                        companyGroupId,
+                      });
+                    }
+
+                    journalLineReference = nanoid();
+
+                    // credit the sales account
                     journalLineInserts.push({
-                      accountNumber: accountDefaults.data.inventoryAccount,
-                      description: "Inventory Account",
+                      accountNumber: accountDefaults.data.salesAccount,
+                      description: "Sales Account",
                       amount: credit(
-                        "asset",
+                        "revenue",
                         totalLineCostWithWeightedShipping
                       ),
                       quantity: invoiceLineQuantityInInventoryUnit,
                       documentType: "Invoice",
                       documentId: salesInvoice.data?.id,
                       externalDocumentId: salesInvoice.data?.customerReference,
+                      documentLineReference: journalReference.to.salesInvoice(
+                        invoiceLine.salesOrderLineId!
+                      ),
                       journalLineReference,
                       companyId,
                       companyGroupId,
                     });
 
-                    // creidt the cost of goods sold account
+                    // debit the accounts receivable account
                     journalLineInserts.push({
-                      accountNumber:
-                        accountDefaults.data.costOfGoodsSoldAccount,
-                      description: "Cost of Goods Sold",
-                      amount: debit(
-                        "expense",
-                        totalLineCostWithWeightedShipping
-                      ),
+                      accountNumber: receivablesAccount,
+                      description: isIntercompany
+                        ? "IC Receivables"
+                        : "Accounts Receivable",
+                      amount: debit("asset", totalLineCostWithWeightedShipping),
                       quantity: invoiceLineQuantityInInventoryUnit,
                       documentType: "Invoice",
                       documentId: salesInvoice.data?.id,
                       externalDocumentId: salesInvoice.data?.customerReference,
+                      documentLineReference: journalReference.to.salesInvoice(
+                        invoiceLine.salesOrderLineId!
+                      ),
                       journalLineReference,
+                      intercompanyPartnerId,
                       companyId,
                       companyGroupId,
                     });
                   }
-
-                  journalLineReference = nanoid();
-
-                  // credit the sales account
-                  journalLineInserts.push({
-                    accountNumber: accountDefaults.data.salesAccount,
-                    description: "Sales Account",
-                    amount: credit(
-                      "revenue",
-                      totalLineCostWithWeightedShipping
-                    ),
-                    quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Invoice",
-                    documentId: salesInvoice.data?.id,
-                    externalDocumentId: salesInvoice.data?.customerReference,
-                    documentLineReference: journalReference.to.salesInvoice(
-                      invoiceLine.salesOrderLineId!
-                    ),
-                    journalLineReference,
-                    companyId,
-                    companyGroupId,
-                  });
-
-                  // debit the accounts receivable account
-                  journalLineInserts.push({
-                    accountNumber: receivablesAccount,
-                    description: isIntercompany
-                      ? "IC Receivables"
-                      : "Accounts Receivable",
-                    amount: debit("asset", totalLineCostWithWeightedShipping),
-                    quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Invoice",
-                    documentId: salesInvoice.data?.id,
-                    externalDocumentId: salesInvoice.data?.customerReference,
-                    documentLineReference: journalReference.to.salesInvoice(
-                      invoiceLine.salesOrderLineId!
-                    ),
-                    journalLineReference,
-                    intercompanyPartnerId,
-                    companyId,
-                    companyGroupId,
-                  });
                 } // if the line is associated with a sales order line, we do accrual/reversing
                 else {
-                  // Create the normal GL entries for the invoice
-                  journalLineReference = nanoid();
-
-                  // Credit the sales account
-                  journalLineInserts.push({
-                    accountNumber: accountDefaults.data.salesAccount,
-                    description: "Sales Account",
-                    amount: credit(
-                      "revenue",
-                      totalLineCostWithWeightedShipping
-                    ),
-                    quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Invoice",
-                    documentId: salesInvoice.data?.id,
-                    externalDocumentId: salesInvoice.data?.customerReference,
-                    documentLineReference: invoiceLine.salesOrderLineId
-                      ? journalReference.to.salesInvoice(
-                          invoiceLine.salesOrderLineId
-                        )
-                      : null,
-                    journalLineReference,
-                    companyId,
-                    companyGroupId,
-                  });
-
-                  // Debit the accounts receivable account
-                  journalLineInserts.push({
-                    accountNumber: receivablesAccount,
-                    description: isIntercompany
-                      ? "IC Receivables"
-                      : "Accounts Receivable",
-                    amount: debit("asset", totalLineCostWithWeightedShipping),
-                    quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Invoice",
-                    documentId: salesInvoice.data?.id,
-                    externalDocumentId: salesInvoice.data?.customerReference,
-                    documentLineReference: invoiceLine.salesOrderLineId
-                      ? journalReference.to.salesInvoice(
-                          invoiceLine.salesOrderLineId
-                        )
-                      : null,
-                    journalLineReference,
-                    intercompanyPartnerId,
-                    companyId,
-                    companyGroupId,
-                  });
-
-                  // For inventory items, handle COGS and inventory
-                  if (itemTrackingType !== "Non-Inventory") {
+                  if (isInternal && accountDefaults?.data) {
+                    // Create the normal GL entries for the invoice
                     journalLineReference = nanoid();
 
-                    // Debit cost of goods sold
+                    // Credit the sales account
                     journalLineInserts.push({
-                      accountNumber:
-                        accountDefaults.data.costOfGoodsSoldAccount,
-                      description: "Cost of Goods Sold",
-                      amount: debit(
-                        "expense",
-                        invoiceLineQuantityInInventoryUnit *
-                          invoiceLineUnitCostInInventoryUnit
+                      accountNumber: accountDefaults.data.salesAccount,
+                      description: "Sales Account",
+                      amount: credit(
+                        "revenue",
+                        totalLineCostWithWeightedShipping
                       ),
                       quantity: invoiceLineQuantityInInventoryUnit,
                       documentType: "Invoice",
@@ -467,15 +426,13 @@ serve(async (req: Request) => {
                       companyGroupId,
                     });
 
-                    // Credit inventory account
+                    // Debit the accounts receivable account
                     journalLineInserts.push({
-                      accountNumber: accountDefaults.data.inventoryAccount,
-                      description: "Inventory Account",
-                      amount: credit(
-                        "asset",
-                        invoiceLineQuantityInInventoryUnit *
-                          invoiceLineUnitCostInInventoryUnit
-                      ),
+                      accountNumber: receivablesAccount,
+                      description: isIntercompany
+                        ? "IC Receivables"
+                        : "Accounts Receivable",
+                      amount: debit("asset", totalLineCostWithWeightedShipping),
                       quantity: invoiceLineQuantityInInventoryUnit,
                       documentType: "Invoice",
                       documentId: salesInvoice.data?.id,
@@ -486,9 +443,62 @@ serve(async (req: Request) => {
                           )
                         : null,
                       journalLineReference,
+                      intercompanyPartnerId,
                       companyId,
                       companyGroupId,
                     });
+
+                    // For inventory items, handle COGS and inventory
+                    if (itemTrackingType !== "Non-Inventory") {
+                      journalLineReference = nanoid();
+
+                      // Debit cost of goods sold
+                      journalLineInserts.push({
+                        accountNumber:
+                          accountDefaults.data.costOfGoodsSoldAccount,
+                        description: "Cost of Goods Sold",
+                        amount: debit(
+                          "expense",
+                          invoiceLineQuantityInInventoryUnit *
+                            invoiceLineUnitCostInInventoryUnit
+                        ),
+                        quantity: invoiceLineQuantityInInventoryUnit,
+                        documentType: "Invoice",
+                        documentId: salesInvoice.data?.id,
+                        externalDocumentId: salesInvoice.data?.customerReference,
+                        documentLineReference: invoiceLine.salesOrderLineId
+                          ? journalReference.to.salesInvoice(
+                              invoiceLine.salesOrderLineId
+                            )
+                          : null,
+                        journalLineReference,
+                        companyId,
+                        companyGroupId,
+                      });
+
+                      // Credit inventory account
+                      journalLineInserts.push({
+                        accountNumber: accountDefaults.data.inventoryAccount,
+                        description: "Inventory Account",
+                        amount: credit(
+                          "asset",
+                          invoiceLineQuantityInInventoryUnit *
+                            invoiceLineUnitCostInInventoryUnit
+                        ),
+                        quantity: invoiceLineQuantityInInventoryUnit,
+                        documentType: "Invoice",
+                        documentId: salesInvoice.data?.id,
+                        externalDocumentId: salesInvoice.data?.customerReference,
+                        documentLineReference: invoiceLine.salesOrderLineId
+                          ? journalReference.to.salesInvoice(
+                              invoiceLine.salesOrderLineId
+                            )
+                          : null,
+                        journalLineReference,
+                        companyId,
+                        companyGroupId,
+                      });
+                    }
                   }
                 }
               }
@@ -505,11 +515,9 @@ serve(async (req: Request) => {
           }
         }
 
-        const accountingPeriodId = await getCurrentAccountingPeriod(
-          client,
-          companyId,
-          db
-        );
+        const accountingPeriodId = isInternal
+          ? await getCurrentAccountingPeriod(client, companyId, db)
+          : null;
 
         await db.transaction().execute(async (trx) => {
           if (shipmentLineInserts.length > 0) {
@@ -639,41 +647,43 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          const journalEntryId = await getNextSequence(
-            trx,
-            "journalEntry",
-            companyId
-          );
-
-          const journalResult = await trx
-            .insertInto("journal")
-            .values({
-              journalEntryId,
-              accountingPeriodId,
-              description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
-              postingDate: today,
-              companyId,
-              sourceType: "Sales Invoice",
-              status: "Posted",
-              postedAt: new Date().toISOString(),
-              postedBy: userId,
-              createdBy: userId,
-            })
-            .returning(["id"])
-            .executeTakeFirstOrThrow();
-
           let journalLineResults: { id: string }[] = [];
-          if (journalLineInserts.length > 0) {
-            journalLineResults = await trx
-              .insertInto("journalLine")
-              .values(
-                journalLineInserts.map((line) => ({
-                  ...line,
-                  journalId: journalResult.id,
-                }))
-              )
+          if (isInternal) {
+            const journalEntryId = await getNextSequence(
+              trx,
+              "journalEntry",
+              companyId
+            );
+
+            const journalResult = await trx
+              .insertInto("journal")
+              .values({
+                journalEntryId,
+                accountingPeriodId,
+                description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
+                postingDate: today,
+                companyId,
+                sourceType: "Sales Invoice",
+                status: "Posted",
+                postedAt: new Date().toISOString(),
+                postedBy: userId,
+                createdBy: userId,
+              })
               .returning(["id"])
-              .execute();
+              .executeTakeFirstOrThrow();
+
+            if (journalLineInserts.length > 0) {
+              journalLineResults = await trx
+                .insertInto("journalLine")
+                .values(
+                  journalLineInserts.map((line) => ({
+                    ...line,
+                    journalId: journalResult.id,
+                  }))
+                )
+                .returning(["id"])
+                .execute();
+            }
           }
 
           if (itemLedgerInserts.length > 0) {
@@ -695,7 +705,7 @@ serve(async (req: Request) => {
           }
 
           // Create intercompany transaction record if IC
-          if (isIntercompany && intercompanyPartnerId) {
+          if (isInternal && isIntercompany && intercompanyPartnerId) {
             const icJournalLineId = journalLineResults.length > 0
               ? journalLineResults[0].id
               : null;
@@ -799,19 +809,21 @@ serve(async (req: Request) => {
         }, {});
 
         // Create reversing journal entries
-        const reversingJournalEntries = journalEntries.map((entry) => ({
-          accountNumber: entry.accountNumber,
-          description: `VOID: ${entry.description}`,
-          amount: -entry.amount, // Reverse the amount
-          quantity: -entry.quantity,
-          documentType: "Invoice" as const,
-          documentId: salesInvoice.data?.id,
-          externalDocumentId: entry.externalDocumentId,
-          documentLineReference: entry.documentLineReference,
-          journalLineReference: entry.journalLineReference,
-          companyId,
-          companyGroupId,
-        }));
+        const reversingJournalEntries = isInternal
+          ? journalEntries.map((entry) => ({
+              accountNumber: entry.accountNumber,
+              description: `VOID: ${entry.description}`,
+              amount: -entry.amount, // Reverse the amount
+              quantity: -entry.quantity,
+              documentType: "Invoice" as const,
+              documentId: salesInvoice.data?.id,
+              externalDocumentId: entry.externalDocumentId,
+              documentLineReference: entry.documentLineReference,
+              journalLineReference: entry.journalLineReference,
+              companyId,
+              companyGroupId,
+            }))
+          : [];
 
         // Create reversing item ledger entries
         const reversingItemLedgerEntries: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
@@ -844,11 +856,9 @@ serve(async (req: Request) => {
           });
         }
 
-        const accountingPeriodId = await getCurrentAccountingPeriod(
-          client,
-          companyId,
-          db
-        );
+        const accountingPeriodId = isInternal
+          ? await getCurrentAccountingPeriod(client, companyId, db)
+          : null;
 
         await db.transaction().execute(async (trx) => {
           // Update sales order lines to reverse invoiced quantities
@@ -921,40 +931,42 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          const voidJournalEntryId = await getNextSequence(
-            trx,
-            "journalEntry",
-            companyId
-          );
+          if (isInternal) {
+            const voidJournalEntryId = await getNextSequence(
+              trx,
+              "journalEntry",
+              companyId
+            );
 
-          const voidJournalResult = await trx
-            .insertInto("journal")
-            .values({
-              journalEntryId: voidJournalEntryId,
-              accountingPeriodId,
-              description: `VOID Sales Invoice ${salesInvoice.data?.invoiceId}`,
-              postingDate: today,
-              companyId,
-              sourceType: "Sales Invoice",
-              status: "Posted",
-              postedAt: new Date().toISOString(),
-              postedBy: userId,
-              createdBy: userId,
-            })
-            .returning(["id"])
-            .executeTakeFirstOrThrow();
-
-          if (reversingJournalEntries.length > 0) {
-            await trx
-              .insertInto("journalLine")
-              .values(
-                reversingJournalEntries.map((line) => ({
-                  ...line,
-                  journalId: voidJournalResult.id,
-                }))
-              )
+            const voidJournalResult = await trx
+              .insertInto("journal")
+              .values({
+                journalEntryId: voidJournalEntryId,
+                accountingPeriodId,
+                description: `VOID Sales Invoice ${salesInvoice.data?.invoiceId}`,
+                postingDate: today,
+                companyId,
+                sourceType: "Sales Invoice",
+                status: "Posted",
+                postedAt: new Date().toISOString(),
+                postedBy: userId,
+                createdBy: userId,
+              })
               .returning(["id"])
-              .execute();
+              .executeTakeFirstOrThrow();
+
+            if (reversingJournalEntries.length > 0) {
+              await trx
+                .insertInto("journalLine")
+                .values(
+                  reversingJournalEntries.map((line) => ({
+                    ...line,
+                    journalId: voidJournalResult.id,
+                  }))
+                )
+                .returning(["id"])
+                .execute();
+            }
           }
 
           // Insert reversing item ledger entries

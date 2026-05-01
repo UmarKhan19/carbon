@@ -68,7 +68,7 @@ export function useModules() {
     {
       permission: "accounting",
       name: t`Accounting`,
-      to: path.to.balanceSheet,
+      to: path.to.chartOfAccounts,
       icon: LuLandmark
     },
     {

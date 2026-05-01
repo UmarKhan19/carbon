@@ -1477,7 +1477,7 @@ msgid "Backflush"
 msgstr "Cofnięcie"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:42
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:31
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:39
 msgid "Balance Sheet"
 msgstr ""
 
@@ -2042,7 +2042,7 @@ msgstr "Zmiana tego spowoduje zastąpienie istniejącej metody"
 msgid "Changing this will update the part ID"
 msgstr "Zmiana tego zaktualizuje identyfikator części"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:72
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:80
 #: apps/erp/app/routes/x+/accounting+/charts.tsx:16
 msgid "Chart of Accounts"
 msgstr "Plan kont"
@@ -2335,7 +2335,7 @@ msgstr "Parametry konfiguracji"
 msgid "Configurator"
 msgstr "Konfigurator"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:69
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:77
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:84
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:524
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:840
@@ -2791,7 +2791,7 @@ msgstr "Prawidłowa odpowiedź"
 msgid "Correct Answers"
 msgstr "Prawidłowe odpowiedzi"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:78
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:86
 msgid "Cost Centers"
 msgstr ""
 
@@ -3555,7 +3555,7 @@ msgid "Decide what an operator sees if they try to issue a batch or serial that'
 msgstr "Zdecyduj, co operator widzi, jeśli spróbuje wydać partię lub numer seryjny, który już wygasł."
 
 #: apps/erp/app/modules/accounting/ui/AccountDefaults/AccountDefaultsForm.tsx:458
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:84
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:92
 msgid "Default Accounts"
 msgstr "Konta domyślne"
 
@@ -4130,7 +4130,7 @@ msgstr "Cyfrowe oferty"
 msgid "Dimension"
 msgstr "Wymiar"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:90
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:98
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:278
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:566
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:59
@@ -5143,7 +5143,7 @@ msgid "Exchange Rate"
 msgstr "Kurs wymiany"
 
 #: apps/erp/app/modules/accounting/ui/ExchangeRates/ExchangeRatesTable.tsx:86
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:96
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:104
 #: apps/erp/app/routes/x+/accounting+/exchange-rates.tsx:13
 msgid "Exchange Rates"
 msgstr ""
@@ -5876,7 +5876,7 @@ msgstr "Imię"
 msgid "First Operation"
 msgstr "Pierwsza operacja"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:102
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:110
 msgid "Fiscal Year"
 msgstr ""
 
@@ -6279,7 +6279,7 @@ msgid "Includes tax and shipping costs"
 msgstr "Obejmuje podatki i koszty wysyłki"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:43
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:37
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:45
 msgid "Income Statement"
 msgstr ""
 
@@ -6387,7 +6387,7 @@ msgstr "Integracja nie znaleziona"
 msgid "Integrations"
 msgstr "Integracje"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:54
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:62
 msgid "Intercompany"
 msgstr ""
 
@@ -6871,7 +6871,7 @@ msgstr "Wymagane zadania"
 msgid "Join {0}"
 msgstr "Dołącz do {0}"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:60
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:68
 msgid "Journal Entries"
 msgstr ""
 
@@ -7472,7 +7472,7 @@ msgstr "Ponownie aktywuje ten dokument."
 msgid "Makes this document active and visible."
 msgstr "Sprawia, że dokument jest aktywny i widoczny."
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:51
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:59
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:25
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:27
 #: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:20
@@ -9379,7 +9379,7 @@ msgid "Payment Term"
 msgstr "Warunki Płatności"
 
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermsTable.tsx:132
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:108
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:116
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:246
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:246
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:91
@@ -10759,7 +10759,7 @@ msgstr "System uzupełniania zapasów"
 msgid "Report"
 msgstr "Raport"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:28
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:36
 #: apps/erp/app/modules/quality/ui/Issue/IssueHeader.tsx:115
 #: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:70
 msgid "Reports"
@@ -13702,7 +13702,7 @@ msgstr "Transfery"
 msgid "Trash"
 msgstr "Kosz"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:43
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:51
 msgid "Trial Balance"
 msgstr ""
 
