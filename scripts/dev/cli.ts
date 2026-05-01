@@ -148,7 +148,13 @@ async function up() {
       task: async () => {
         await execStep(
           "npx",
-          ["tsx", "scripts/migrate.ts"],
+          [
+            "supabase",
+            "migration",
+            "up",
+            "--db-url",
+            `postgresql://postgres:postgres@localhost:${ports.PORT_DB}/postgres`,
+          ],
           join(root, "packages/database")
         );
         return "migrations applied";
