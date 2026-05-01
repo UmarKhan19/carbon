@@ -583,8 +583,8 @@ msgstr "添加必需的操作"
 msgid "Add Requirement"
 msgstr "添加要求"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:108
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:112
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:109
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:113
 msgid "Add Risk"
 msgstr "添加风险"
 
@@ -1223,7 +1223,7 @@ msgstr "你确定要删除此记录吗？"
 msgid "Are you sure you want to delete this required action?"
 msgstr "你确定要删除此必需操作吗？"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:191
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:192
 msgid "Are you sure you want to delete this risk?"
 msgstr "你确定要删除此风险吗？"
 
@@ -3702,8 +3702,8 @@ msgstr "定义每批检查多少个跟踪实体，以及在批次被拒绝前允
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:160
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:323
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:234
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:180
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:243
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:181
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:244
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegistersTable.tsx:269
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:400
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:378
@@ -3942,7 +3942,7 @@ msgstr "删除收货单行"
 msgid "Delete RFQ"
 msgstr "删除询价单"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:190
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:191
 msgid "Delete Risk"
 msgstr "删除风险"
 
@@ -4449,7 +4449,7 @@ msgstr "时长"
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:232
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:223
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSummary.tsx:139
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:235
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:236
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterForm.tsx:140
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:389
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:89
@@ -5535,7 +5535,7 @@ msgstr "获取物料成本失败"
 msgid "Failed to fetch place details"
 msgstr "获取地点详情失败"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:69
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:70
 msgid "Failed to fetch risks"
 msgstr "获取风险失败"
 
@@ -11216,7 +11216,7 @@ msgid "Risk"
 msgstr "风险"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:74
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:103
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:104
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegistersTable.tsx:259
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:43
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:68

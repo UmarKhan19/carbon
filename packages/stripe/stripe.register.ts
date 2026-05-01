@@ -33,6 +33,7 @@ const events: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
   "customer.subscription.pending_update_applied",
   "customer.subscription.pending_update_expired",
   "customer.subscription.trial_will_end",
+  "invoice.sent",
   "invoice.paid",
   "invoice.payment_failed",
   "invoice.payment_action_required",

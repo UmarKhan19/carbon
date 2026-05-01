@@ -583,8 +583,8 @@ msgstr "Add Required Actions"
 msgid "Add Requirement"
 msgstr "Add Requirement"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:108
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:112
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:109
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:113
 msgid "Add Risk"
 msgstr "Add Risk"
 
@@ -1223,7 +1223,7 @@ msgstr "Are you sure you want to delete this record?"
 msgid "Are you sure you want to delete this required action?"
 msgstr "Are you sure you want to delete this required action?"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:191
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:192
 msgid "Are you sure you want to delete this risk?"
 msgstr "Are you sure you want to delete this risk?"
 
@@ -3702,8 +3702,8 @@ msgstr "Defines how many tracked entities are inspected per lot, and how many fa
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:160
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:323
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:234
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:180
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:243
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:181
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:244
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegistersTable.tsx:269
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:400
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:378
@@ -3942,7 +3942,7 @@ msgstr "Delete receipt line"
 msgid "Delete RFQ"
 msgstr "Delete RFQ"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:190
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:191
 msgid "Delete Risk"
 msgstr "Delete Risk"
 
@@ -4449,7 +4449,7 @@ msgstr "Duration"
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:232
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:223
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSummary.tsx:139
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:235
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:236
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterForm.tsx:140
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:389
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:89
@@ -5535,7 +5535,7 @@ msgstr "Failed to fetch item costs"
 msgid "Failed to fetch place details"
 msgstr "Failed to fetch place details"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:69
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:70
 msgid "Failed to fetch risks"
 msgstr "Failed to fetch risks"
 
@@ -11216,7 +11216,7 @@ msgid "Risk"
 msgstr "Risk"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:74
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:103
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:104
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegistersTable.tsx:259
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:43
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:68
