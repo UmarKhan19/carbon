@@ -137,8 +137,6 @@ export default function SalesInvoiceBasicRoute() {
 
   if (!invoiceData) throw new Error("Could not find invoice data");
 
-  const isReadOnly = isSalesInvoiceLocked(salesInvoice.status);
-
   const shipmentFormRef = useRef<SalesInvoiceShipmentFormRef>(null);
 
   const handleEditShippingCost = () => {
@@ -189,7 +187,6 @@ export default function SalesInvoiceBasicRoute() {
             attachments={resolvedFiles}
             id={invoiceId}
             type="Sales Invoice"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

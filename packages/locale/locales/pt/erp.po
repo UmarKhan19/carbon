@@ -564,8 +564,8 @@ msgstr "Adicionar Ações Obrigatórias"
 msgid "Add Requirement"
 msgstr "Adicionar Requisito"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:108
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:112
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:109
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:113
 msgid "Add Risk"
 msgstr "Adicionar Risco"
 
@@ -1198,7 +1198,7 @@ msgstr "Tem certeza de que deseja excluir este registro?"
 msgid "Are you sure you want to delete this required action?"
 msgstr "Tem a certeza de que deseja eliminar esta ação obrigatória?"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:191
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:192
 msgid "Are you sure you want to delete this risk?"
 msgstr "Tem certeza de que deseja deletar este risco?"
 
@@ -1669,10 +1669,10 @@ msgstr "Ao fazer login, você concorda com os <0>Termos de Serviço</0> e a <1>P
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:333
 #: apps/erp/app/routes/x+/part+/$itemId.details.tsx:334
 #: apps/erp/app/routes/x+/part+/$itemId.make.$makeMethodId.tsx:204
-#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:439
+#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:436
 #: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.make.$methodId.tsx:137
-#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:280
-#: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:175
+#: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:279
+#: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:174
 #: apps/erp/app/routes/x+/tool+/$itemId.details.tsx:269
 #: apps/erp/app/routes/x+/tool+/$itemId.make.$makeMethodId.tsx:161
 msgid "CAD Model"
@@ -3656,8 +3656,8 @@ msgstr "Define quantas entidades rastreadas são inspecionadas por lote e quanta
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionDocuments.tsx:160
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:323
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:234
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:180
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:243
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:181
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:244
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegistersTable.tsx:269
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:400
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:378
@@ -3892,7 +3892,7 @@ msgstr "Excluir linha de recebimento"
 msgid "Delete RFQ"
 msgstr "Eliminar RFQ"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:190
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:191
 msgid "Delete Risk"
 msgstr "Eliminar Risco"
 
@@ -4386,7 +4386,7 @@ msgstr "Duração"
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:232
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuotesTable.tsx:223
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSummary.tsx:139
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:235
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:236
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterForm.tsx:140
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:389
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:89
@@ -5463,7 +5463,7 @@ msgstr "Falha ao buscar custos de itens"
 msgid "Failed to fetch place details"
 msgstr "Falha ao buscar detalhes do local"
 
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:69
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:70
 msgid "Failed to fetch risks"
 msgstr "Falha ao buscar riscos"
 
@@ -7073,7 +7073,7 @@ msgstr "Item esquerdo"
 msgid "Leftover Parts Detected"
 msgstr "Peças Excedentes Detectadas"
 
-#: apps/erp/app/routes/_public+/_layout.tsx:30
+#: apps/erp/app/routes/_public+/_layout.tsx:31
 #: apps/erp/app/routes/_public+/magic-link.tsx:33
 msgid "Let's build something"
 msgstr "Vamos construir algo"
@@ -8826,16 +8826,16 @@ msgstr "Nota"
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:219
 #: apps/erp/app/routes/share+/quote.$id.tsx:1191
 #: apps/erp/app/routes/x+/person+/$personId.notes.tsx:46
-#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.details.tsx:186
-#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.details.tsx:190
-#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:340
-#: apps/erp/app/routes/x+/quote+/$quoteId.details.tsx:184
-#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.details.tsx:180
-#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.details.tsx:181
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.details.tsx:178
+#: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.details.tsx:188
+#: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:338
+#: apps/erp/app/routes/x+/quote+/$quoteId.details.tsx:182
+#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.details.tsx:174
+#: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.details.tsx:179
 #: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:209
-#: apps/erp/app/routes/x+/sales-order+/$orderId.details.tsx:209
+#: apps/erp/app/routes/x+/sales-order+/$orderId.details.tsx:207
 #: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:149
-#: apps/erp/app/routes/x+/sales-rfq+/$rfqId.details.tsx:130
+#: apps/erp/app/routes/x+/sales-rfq+/$rfqId.details.tsx:128
 msgid "Notes"
 msgstr "Notas"
 
@@ -11042,7 +11042,7 @@ msgid "Risk"
 msgstr "Risco"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:82
-#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:103
+#: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:104
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegistersTable.tsx:259
 #: apps/erp/app/modules/quality/ui/useQualitySubmodules.tsx:43
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:76

@@ -9,7 +9,6 @@ import { Fragment } from "react/jsx-runtime";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { DeferredFiles } from "~/components";
-import { useRouteData } from "~/hooks";
 import {
   getPurchaseInvoice,
   getPurchaseInvoiceLine,
@@ -140,13 +139,6 @@ export default function EditPurchaseInvoiceLineRoute() {
   if (!invoiceId) throw notFound("invoiceId not found");
   if (!lineId) throw notFound("lineId not found");
 
-  const routeData = useRouteData<{
-    purchaseInvoice: { status: string };
-  }>(path.to.purchaseInvoice(invoiceId));
-  const isReadOnly = isPurchaseInvoiceLocked(
-    routeData?.purchaseInvoice?.status
-  );
-
   const [items] = useItems();
   const { purchaseInvoiceLine, files } = useLoaderData<typeof loader>();
 
@@ -195,7 +187,6 @@ export default function EditPurchaseInvoiceLineRoute() {
             id={invoiceId}
             lineId={lineId}
             type="Purchase Invoice"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

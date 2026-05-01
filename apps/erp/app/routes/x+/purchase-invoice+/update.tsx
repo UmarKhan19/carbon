@@ -28,12 +28,15 @@ export async function action({ request }: ActionFunctionArgs) {
     .select("id, status")
     .in("id", ids as string[]);
 
-  const lockedError = requireUnlockedBulk({
-    statuses: (data ?? []).map((d) => d.status),
-    checkFn: isPurchaseInvoiceLocked,
-    message: "Cannot modify a confirmed purchase invoice."
-  });
-  if (lockedError) return lockedError;
+  const editableFields = ["dateIssued", "dateDue", "datePaid"];
+  if (!editableFields.includes(field)) {
+    const lockedError = requireUnlockedBulk({
+      statuses: (data ?? []).map((d) => d.status),
+      checkFn: isPurchaseInvoiceLocked,
+      message: "Cannot modify a confirmed purchase invoice."
+    });
+    if (lockedError) return lockedError;
+  }
 
   switch (field) {
     case "invoiceSupplierId":

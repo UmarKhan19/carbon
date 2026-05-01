@@ -583,7 +583,7 @@ msgstr "Kit"
 msgid "Labor"
 msgstr "Mão de Obra"
 
-#: apps/mes/app/routes/_public+/_layout.tsx:30
+#: apps/mes/app/routes/_public+/_layout.tsx:31
 msgid "Let's build something"
 msgstr "Vamos construir algo"
 

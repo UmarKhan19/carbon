@@ -115,8 +115,6 @@ export default function SalesRFQDetailsRoute() {
 
   if (!rfqData) throw new Error("Could not find rfq data");
 
-  const isReadOnly = isSalesRfqLocked(rfqData.rfqSummary.status);
-
   return (
     <VStack spacing={2}>
       <OpportunityState
@@ -138,7 +136,6 @@ export default function SalesRFQDetailsRoute() {
             attachments={resolvedFiles}
             id={rfqId}
             type="Request for Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

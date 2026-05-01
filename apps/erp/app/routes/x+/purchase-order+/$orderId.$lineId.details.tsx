@@ -195,7 +195,6 @@ export default function EditPurchaseOrderLineRoute() {
             id={orderId}
             lineId={lineId}
             type="Purchase Order"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

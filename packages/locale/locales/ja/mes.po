@@ -583,7 +583,7 @@ msgstr "キット"
 msgid "Labor"
 msgstr "作業"
 
-#: apps/mes/app/routes/_public+/_layout.tsx:30
+#: apps/mes/app/routes/_public+/_layout.tsx:31
 msgid "Let's build something"
 msgstr "さあ、何かを作りましょう"
 

@@ -11,7 +11,8 @@ import {
   Button,
   Heading,
   OperatingSystemContextProvider,
-  Toaster
+  Toaster,
+  TooltipProvider
 } from "@carbon/react";
 import { getPreferenceHeaders, useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
@@ -210,14 +211,16 @@ export default function App() {
     <OperatingSystemContextProvider platform={prefs.platform}>
       <LocaleProvider locale={appLanguage} catalog={linguiCatalog}>
         <I18nProvider locale={prefs.locale}>
-          <Document mode={mode} theme={theme} lang={appLanguage}>
-            <Outlet />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.env = ${JSON.stringify(env)};`
-              }}
-            />
-          </Document>
+          <TooltipProvider delayDuration={200}>
+            <Document mode={mode} theme={theme} lang={appLanguage}>
+              <Outlet />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `window.env = ${JSON.stringify(env)};`
+                }}
+              />
+            </Document>
+          </TooltipProvider>
         </I18nProvider>
       </LocaleProvider>
     </OperatingSystemContextProvider>

@@ -122,7 +122,6 @@ export default function SupplierQuoteDetailsRoute() {
   }>(path.to.supplierQuote(id));
 
   if (!routeData) throw new Error("Could not find quote data");
-  const isReadOnly = isSupplierQuoteLocked(routeData?.quote?.status);
   const initialValues = {
     id: routeData?.quote?.id ?? "",
     supplierId: routeData?.quote?.supplierId ?? "",
@@ -160,7 +159,6 @@ export default function SupplierQuoteDetailsRoute() {
             attachments={resolvedFiles}
             id={id}
             type="Supplier Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

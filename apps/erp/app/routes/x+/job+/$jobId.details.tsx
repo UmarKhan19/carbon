@@ -232,8 +232,6 @@ export default function JobDetailsRoute() {
 
   if (!jobData) throw new Error("Could not find job data");
 
-  const isReadOnly = isJobLocked(jobData?.job?.status);
-
   useRealtime("modelUpload", `modelPath=eq.(${jobData?.job.modelPath})`);
 
   const methodId = makeMethod?.id;
@@ -315,7 +313,6 @@ export default function JobDetailsRoute() {
               bucket="parts"
               itemId={makeMethod?.itemId ?? jobData.job.itemId}
               modelUpload={{ ...jobData.job }}
-              isReadOnly={isReadOnly}
             />
           )}
         </DeferredFiles>

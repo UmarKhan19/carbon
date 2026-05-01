@@ -179,8 +179,6 @@ export default function PurchaseInvoiceBasicRoute() {
 
   const { company } = useUser();
 
-  const isReadOnly = isPurchaseInvoiceLocked(purchaseInvoice.status);
-
   return (
     <Fragment key={invoiceId}>
       <PurchaseInvoiceSummary onEditShippingCost={handleEditShippingCost} />
@@ -198,7 +196,6 @@ export default function PurchaseInvoiceBasicRoute() {
             attachments={resolvedFiles}
             id={invoiceId}
             type="Purchase Invoice"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

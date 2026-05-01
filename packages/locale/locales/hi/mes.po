@@ -583,7 +583,7 @@ msgstr "किट"
 msgid "Labor"
 msgstr "श्रम"
 
-#: apps/mes/app/routes/_public+/_layout.tsx:30
+#: apps/mes/app/routes/_public+/_layout.tsx:31
 msgid "Let's build something"
 msgstr "चलिए कुछ बनाते हैं"
 

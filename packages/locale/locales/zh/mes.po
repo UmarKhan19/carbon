@@ -583,7 +583,7 @@ msgstr "套件"
 msgid "Labor"
 msgstr "人工"
 
-#: apps/mes/app/routes/_public+/_layout.tsx:30
+#: apps/mes/app/routes/_public+/_layout.tsx:31
 msgid "Let's build something"
 msgstr "让我们开始构建"
 

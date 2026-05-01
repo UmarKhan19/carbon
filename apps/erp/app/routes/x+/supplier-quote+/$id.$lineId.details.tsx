@@ -138,7 +138,6 @@ export default function SupplierQuoteLine() {
   }>(path.to.supplierQuote(id));
 
   const exchangeRate = routeData?.quote?.exchangeRate ?? 1;
-  const isReadOnly = isSupplierQuoteLocked(routeData?.quote?.status);
 
   const initialValues = {
     ...line,
@@ -179,7 +178,6 @@ export default function SupplierQuoteLine() {
             id={id}
             lineId={lineId}
             type="Supplier Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

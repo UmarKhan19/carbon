@@ -1,6 +1,8 @@
 import { CarbonEdition } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { TooltipProvider } from "@carbon/react";
 import { useMode } from "@carbon/remix";
+
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import { MeshGradient } from "@paper-design/shaders-react";
@@ -136,25 +138,27 @@ export default function OnboardingLayout() {
   const backgroundGradient = getBackgroundGradient(theme, mode);
 
   return (
-    <div className="relative h-screen w-screen">
-      <div
-        className="absolute inset-0"
-        style={{ background: backgroundGradient }}
-      >
-        <MeshGradient
-          speed={1}
-          colors={meshGradientColors}
-          distortion={0.8}
-          swirl={0.1}
-          grainMixer={0}
-          grainOverlay={0}
-          className="absolute inset-0 w-full h-full"
-          style={{ height: "100%", width: "100%" }}
-        />
+    <TooltipProvider>
+      <div className="relative h-screen w-screen">
+        <div
+          className="absolute inset-0"
+          style={{ background: backgroundGradient }}
+        >
+          <MeshGradient
+            speed={1}
+            colors={meshGradientColors}
+            distortion={0.8}
+            swirl={0.1}
+            grainMixer={0}
+            grainOverlay={0}
+            className="absolute inset-0 w-full h-full"
+            style={{ height: "100%", width: "100%" }}
+          />
+        </div>
+        <div className="relative z-10 flex h-full w-full items-center justify-center p-4">
+          <Outlet />
+        </div>
       </div>
-      <div className="relative z-10 flex h-full w-full items-center justify-center p-4">
-        <Outlet />
-      </div>
-    </div>
+    </TooltipProvider>
   );
 }

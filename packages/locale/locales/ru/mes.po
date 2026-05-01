@@ -583,7 +583,7 @@ msgstr "Комплект"
 msgid "Labor"
 msgstr "Трудозатраты"
 
-#: apps/mes/app/routes/_public+/_layout.tsx:30
+#: apps/mes/app/routes/_public+/_layout.tsx:31
 msgid "Let's build something"
 msgstr "Давайте создадим что-то"
 

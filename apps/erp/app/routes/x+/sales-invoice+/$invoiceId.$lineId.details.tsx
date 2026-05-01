@@ -9,7 +9,6 @@ import { Fragment } from "react/jsx-runtime";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { DeferredFiles } from "~/components";
-import { useRouteData } from "~/hooks";
 import {
   getSalesInvoice,
   getSalesInvoiceLine,
@@ -136,11 +135,6 @@ export default function EditSalesInvoiceLineRoute() {
   if (!invoiceId) throw notFound("invoiceId not found");
   if (!lineId) throw notFound("lineId not found");
 
-  const routeData = useRouteData<{
-    salesInvoice: { status: string };
-  }>(path.to.salesInvoice(invoiceId));
-  const isReadOnly = isSalesInvoiceLocked(routeData?.salesInvoice?.status);
-
   const { salesInvoiceLine, files } = useLoaderData<typeof loader>();
 
   const initialValues = {
@@ -190,7 +184,6 @@ export default function EditSalesInvoiceLineRoute() {
             lineId={lineId}
             itemId={salesInvoiceLine?.itemId}
             type="Sales Invoice"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>
