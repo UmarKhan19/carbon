@@ -1,5 +1,5 @@
 ###
-# Worktree-isolated dev stack. Boot via `npm run dev:up` (see scripts/dev/cli.ts).
+# Worktree-isolated dev stack. Boot via `npm run dev:up` (see packages/dev/src/cli.ts).
 # COMPOSE_PROJECT_NAME=carbon-<slug> namespaces every container, network, volume.
 # Required env (provided by .env via --env-file): PORT_*, SUPABASE_JWT_SECRET,
 # SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, plus user secrets passed through.
@@ -28,7 +28,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - pgconfig:/etc/postgresql-custom
-      - ./scripts/dev/db-init/init.sql:/docker-entrypoint-initdb.d/zz-carbon-roles.sql:ro
+      - ./packages/dev/src/db-init/init.sql:/docker-entrypoint-initdb.d/zz-carbon-roles.sql:ro
     command:
       - postgres
       - -c
@@ -216,21 +216,10 @@ services:
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
     volumes:
-      - ./scripts/dev/kong.yml:/home/kong/kong.yml:ro
+      - ./packages/dev/src/kong.yml:/home/kong/kong.yml:ro
 
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - "${PORT_REDIS}:6379"
-    command: redis-server --appendonly yes
-    volumes:
-      - redis:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+  # Redis is shared across worktrees — see root docker-compose.yml.
+  # Each worktree gets its own logical DB index (0-15) via REDIS_URL.
 
   inngest:
     image: inngest/inngest:v1.18.0
@@ -249,5 +238,4 @@ volumes:
   pgdata:
   pgconfig:
   storage:
-  redis:
   inngest:

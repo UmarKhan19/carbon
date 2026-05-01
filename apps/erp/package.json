@@ -137,7 +137,8 @@
   "scripts": {
     "build": "react-router build",
     "clean": "rimraf .cache .turbo node_modules dist build",
-    "dev": "react-router dev",
+    "dev": "portless",
+    "dev:app": "react-router dev --port $PORT --host $HOST",
     "dev:novu": "npx novu@latest dev --port 3000",
     "sync:novu": "npx novu@latest sync ",
     "lint": "biome lint --write ",

@@ -1,11 +1,11 @@
 import {
-  AUTH_PROVIDERS,
   assertIsPost,
+  AUTH_PROVIDERS,
+  carbonClient,
   CarbonEdition,
   CLOUDFLARE_TURNSTILE_SECRET_KEY,
   CLOUDFLARE_TURNSTILE_SITE_KEY,
   CONTROLLED_ENVIRONMENT,
-  carbonClient,
   error,
   magicLinkValidator,
   RATE_LIMIT

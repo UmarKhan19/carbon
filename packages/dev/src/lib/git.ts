@@ -13,6 +13,17 @@ export async function gitRoot(): Promise<string> {
   return r.stdout.trim();
 }
 
+export async function isLinkedWorktree(): Promise<boolean> {
+  // Linked worktree: --absolute-git-dir points at .git/worktrees/<name>;
+  // --git-common-dir points at the shared .git of the main checkout.
+  const [a, b] = await Promise.all([
+    execa("git", ["rev-parse", "--absolute-git-dir"], { reject: false }),
+    execa("git", ["rev-parse", "--git-common-dir"], { reject: false }),
+  ]);
+  if (a.exitCode !== 0 || b.exitCode !== 0) return false;
+  return a.stdout.trim() !== b.stdout.trim();
+}
+
 export async function currentBranch(cwd = process.cwd()): Promise<string> {
   try {
     const r = await execa("git", ["rev-parse", "--abbrev-ref", "HEAD"], {

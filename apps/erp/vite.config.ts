@@ -33,7 +33,7 @@ export default defineConfig(({ isSsrBuild }) => ({
   },
   server: {
     port: 3000,
-    allowedHosts: [".ngrok-free.app", ".ngrok-free.dev"],
+    allowedHosts: [".ngrok-free.app", ".ngrok-free.dev", ".dev", ".localhost"],
   },
   plugins: [
     babelMacros(),

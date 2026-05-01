@@ -11,16 +11,12 @@ import {
   select,
   spinner,
   tasks,
-  text,
+  text
 } from "@clack/prompts";
 import Table from "cli-table3";
-import { execa, type ResultPromise } from "execa";
-import {
-  copyFileSync,
-  existsSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { execa } from "execa";
+import { addDependency } from "nypm";
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
@@ -29,12 +25,19 @@ import {
   addWorktree,
   branchExists,
   currentBranch,
-  isDirty,
   listWorktrees as gitListWorktrees,
-  removeWorktree,
+  isDirty,
+  isLinkedWorktree,
+  removeWorktree
 } from "./lib/git.js";
 import { loadEnv } from "./lib/load-env.js";
-import { PORT_NAMES, getPorts, resolvePorts } from "./lib/ports.js";
+import {
+  getSlot,
+  PORT_NAMES,
+  removeSlot,
+  resolveSlot,
+  SHARED_REDIS_PORT
+} from "./lib/ports.js";
 import { renderEnv, writeEnv } from "./lib/render-env.js";
 import {
   ensureSlugAvailable,
@@ -42,7 +45,7 @@ import {
   persistSlug,
   projectName,
   resolveSlug,
-  slugifyBranch,
+  slugifyBranch
 } from "./lib/slug.js";
 
 const COMPOSE_FILE = "docker-compose.dev.yml";
@@ -75,6 +78,8 @@ async function main() {
 async function up() {
   intro("Carbon · dev up");
 
+  await ensurePortless();
+
   const selectedApps = await pickApps();
 
   const root = await getWorktreeRoot();
@@ -83,22 +88,59 @@ async function up() {
   persistSlug(root, slug);
   log.info(`worktree: ${slug}  (project ${projectName(slug)})`);
 
-  const ports = await resolvePorts(slug, root);
-  log.info(
-    `ports: ${PORT_NAMES.map((n) => `${n.replace("PORT_", "").toLowerCase()}=${ports[n]}`).join(" ")}`
-  );
-
-  writeEnv(root, renderEnv({ slug, ports }));
-  loadEnv(join(root, ".env.local"));
-  loadEnv(join(root, ".env"));
+  let ports!: Awaited<ReturnType<typeof resolveSlot>>["ports"];
+  let redisDb!: number;
+  let jwt!: Awaited<ReturnType<typeof resolveSlot>>["jwt"];
+  let branchSegment = "";
 
   await tasks([
     {
+      title: "Configure portless",
+      task: async () => {
+        const slot = await resolveSlot(slug, root);
+        ports = slot.ports;
+        redisDb = slot.redisDb;
+        jwt = slot.jwt;
+
+        // URL pattern: <app>.<branch>.dev — e.g. erp.feat-x.dev, api.feat-x.dev.
+        // Override portless's worktree-aware default by writing per-app
+        // portless.json with the full name. Each portless name = `<app>.<branch>`.
+        const branch = await currentBranch(root);
+        branchSegment = branch ? slugifyBranch(branch) : slug;
+
+        for (const id of selectedApps) {
+          writePortlessConfig(join(root, "apps", id), {
+            name: `${id}.${branchSegment}`,
+            script: "dev:app",
+          });
+        }
+
+        writeEnv(
+          root,
+          renderEnv({ slug, ports, redisDb, jwt, branchSegment })
+        );
+        loadEnv(join(root, ".env.local"));
+        loadEnv(join(root, ".env"));
+        return `branch "${branchSegment}", redis db ${redisDb}`;
+      }
+    },
+    {
       title: "Render .env.local & sync symlinks",
       task: async () => {
-        await execStep("npx", ["tsx", "scripts/setup-env-files.ts"], root);
+        await execStep("tsx", ["scripts/setup-env-files.ts"], root);
         return "env files synced";
-      },
+      }
+    },
+    {
+      title: "Boot shared redis",
+      task: async () => {
+        await execStep(
+          "docker",
+          ["compose", "-f", "docker-compose.yml", "up", "-d", "redis"],
+          root
+        );
+        return `shared redis on :${SHARED_REDIS_PORT} (index ${redisDb})`;
+      }
     },
     {
       title: "Boot docker compose stack",
@@ -115,171 +157,205 @@ async function up() {
             "--env-file",
             ".env.local",
             "up",
-            "-d",
+            "-d"
           ],
           root
         );
         return "containers up";
-      },
+      }
     },
     {
       title: "Wait for services",
       task: async (msg) => {
         msg("postgres + kong + inngest");
         await execStep(
-          "npx",
+          "wait-on",
           [
-            "wait-on",
             "-t",
             "60000",
             `tcp:${ports.PORT_DB}`,
             `tcp:${ports.PORT_API}`,
-            `tcp:${ports.PORT_INNGEST}`,
+            `tcp:${ports.PORT_INNGEST}`
           ],
           root
         );
         msg("storage tables");
         await waitForStorageTables(ports.PORT_DB);
         return "all services responding";
-      },
+      }
     },
     {
       title: "Apply database migrations",
       task: async () => {
         await execStep(
-          "npx",
+          "supabase",
           [
-            "supabase",
             "migration",
             "up",
             "--db-url",
-            `postgresql://postgres:postgres@localhost:${ports.PORT_DB}/postgres`,
+            `postgresql://postgres:postgres@localhost:${ports.PORT_DB}/postgres`
           ],
           join(root, "packages/database")
         );
         return "migrations applied";
-      },
+      }
     },
     {
       title: "Start portless proxy",
       task: async (msg) => {
-        cleanStalePortlessRoutes(slug);
-        execa("npx", ["portless", "proxy", "start"], {
+        cleanStalePortlessRoutes(branchSegment);
+        execa("portless", ["proxy", "start"], {
           cwd: root,
           detached: true,
           stdio: "ignore",
+          preferLocal: true
         }).unref();
         msg("waiting for proxy on :443");
         await waitForPortlessProxy();
         return "proxy listening";
-      },
+      }
     },
     {
       title: "Register service aliases",
       task: async () => {
+        // Aliases follow the same <app>.<branch> pattern.
         const aliases: { name: string; port: number }[] = [
-          { name: `api.${slug}`, port: ports.PORT_API },
-          { name: `studio.${slug}`, port: ports.PORT_STUDIO },
-          { name: `mail.${slug}`, port: ports.PORT_INBUCKET },
-          { name: `inngest.${slug}`, port: ports.PORT_INNGEST },
+          { name: `api.${branchSegment}`, port: ports.PORT_API },
+          { name: `studio.${branchSegment}`, port: ports.PORT_STUDIO },
+          { name: `mail.${branchSegment}`, port: ports.PORT_INBUCKET },
+          { name: `inngest.${branchSegment}`, port: ports.PORT_INNGEST }
         ];
         await Promise.all(
           aliases.map((a) =>
-            execa(
-              "npx",
-              ["portless", "alias", a.name, String(a.port), "--force"],
-              { cwd: root, reject: false, stdio: "ignore" }
-            )
+            execa("portless", ["alias", a.name, String(a.port), "--force"], {
+              cwd: root,
+              reject: false,
+              stdio: "ignore",
+              preferLocal: true
+            })
           )
         );
         return `${aliases.length} aliases registered`;
-      },
-    },
+      }
+    }
   ]);
 
   if (process.env.CARBON_EDITION === "cloud") {
     execa("npm", ["run", "dev:stripe"], {
       cwd: root,
       detached: true,
-      stdio: "ignore",
+      stdio: "ignore"
     }).unref();
     log.info("stripe listener spawned (CARBON_EDITION=cloud)");
   }
 
   // Print summary BEFORE spawning apps, so it stays visible above app logs.
-  note(summaryLines(slug, ports).join("\n"), `Carbon dev — ${slug}`);
+  note(summaryLines(ports, branchSegment).join("\n"), `Carbon dev — ${slug}`);
   outro("apps starting (Ctrl+C to stop)");
 
-  const apps = selectedApps.map((id) => ({
-    name: `${id}.${slug}`,
-    dir: `apps/${id}`,
-    selfUrl: `https://${id}.${slug}.dev`,
-  }));
-  const children = apps.map((app) => spawnApp(root, app));
-  const stop = () => children.forEach((c) => c.kill("SIGTERM"));
-  process.on("SIGINT", stop);
-  process.on("SIGTERM", stop);
+  // Delegate app spawning to turbo + portless. Each app's `dev` script invokes
+  // portless, which reads the `"portless"` config in apps/<id>/package.json and
+  // runs `dev:app` (react-router dev) behind a stable URL.
+  // turbo.json sets `dev` task as `interactive: true` + `ui: "tui"` so turbo
+  // forwards a real TTY to portless (otherwise portless aborts in non-TTY mode
+  // and prints its help text).
+  const filters = selectedApps.flatMap((id) => ["--filter", `./apps/${id}`]);
+  const ac = new AbortController();
+  const stop = () => ac.abort();
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
 
-  await Promise.all(children.map((c) => c.catch(() => undefined)));
+  const child = execa("turbo", ["run", "dev", ...filters], {
+    cwd: root,
+    stdio: "inherit",
+    preferLocal: true,
+    reject: false,
+    cancelSignal: ac.signal,
+    forceKillAfterDelay: 10_000,
+  });
+  await child.catch(() => undefined);
 }
 
-function spawnApp(
-  root: string,
-  app: { name: string; dir: string; selfUrl: string }
-): ResultPromise<{ stdout: "pipe"; stderr: "pipe"; reject: false }> {
-  const tag = app.name.split(".")[0]; // "erp" or "mes"
-  const child = execa(
-    "npx",
-    ["portless", "--name", app.name, "--", "react-router", "dev"],
-    {
-      cwd: join(root, app.dir),
-      stdin: "ignore",
-      stdout: "pipe",
-      stderr: "pipe",
-      env: { ...process.env, VERCEL_URL: app.selfUrl },
-      reject: false,
-    }
+function writePortlessConfig(
+  appDir: string,
+  cfg: { name: string; script: string }
+) {
+  // Per-app portless.json — gitignored, rewritten every dev:up so URLs follow
+  // the current branch slug. Overrides any package.json "portless" key.
+  writeFileSync(
+    join(appDir, "portless.json"),
+    JSON.stringify(cfg, null, 2) + "\n"
   );
-  if (child.stdout) prefixStream(child.stdout, tag);
-  if (child.stderr) prefixStream(child.stderr, tag, true);
-  return child as ResultPromise<{
-    stdout: "pipe";
-    stderr: "pipe";
-    reject: false;
-  }>;
-}
-
-function prefixStream(stream: NodeJS.ReadableStream, tag: string, err = false) {
-  const out = err ? process.stderr : process.stdout;
-  const colors: Record<string, (s: string) => string> = {
-    erp: pc.cyan,
-    mes: pc.magenta,
-  };
-  const color = colors[tag] ?? pc.white;
-  const prefix = color(`[${tag}]`) + " ";
-  let buf = "";
-  stream.setEncoding("utf8");
-  stream.on("data", (chunk: string) => {
-    buf += chunk;
-    const lines = buf.split("\n");
-    buf = lines.pop() ?? "";
-    for (const line of lines) {
-      if (line.length === 0) continue;
-      out.write(prefix + line + "\n");
-    }
-  });
-  stream.on("end", () => {
-    if (buf.length > 0) out.write(prefix + buf + "\n");
-  });
 }
 
 async function execStep(cmd: string, args: string[], cwd: string) {
-  const r = await execa(cmd, args, { cwd, reject: false });
+  const r = await execa(cmd, args, { cwd, reject: false, preferLocal: true });
   if (r.exitCode !== 0) {
     process.stderr.write(r.stderr?.toString() ?? "");
     process.stdout.write(r.stdout?.toString() ?? "");
     throw new Error(`${cmd} ${args.join(" ")} failed (exit ${r.exitCode})`);
   }
+}
+
+const PORTLESS_MIN_VERSION = "0.11.0";
+
+async function ensurePortless() {
+  // Detect global portless. We do NOT want it as a project dep (per upstream
+  // recommendation) — it must live on PATH outside node_modules.
+  const installed = await detectPortlessVersion();
+  if (installed && cmpSemver(installed, PORTLESS_MIN_VERSION) >= 0) return;
+
+  if (!installed) {
+    log.warn(
+      `portless is not installed globally. Required for app routing (${PORTLESS_MIN_VERSION}+).`
+    );
+  } else {
+    log.warn(
+      `portless v${installed} is too old. Need ${PORTLESS_MIN_VERSION}+ for monorepo + package.json config.`
+    );
+  }
+
+  const ok = await confirm({
+    message: `Install portless@latest globally now?`,
+    initialValue: true,
+  });
+  if (isCancel(ok) || !ok) {
+    cancel(
+      `Aborted. Install manually: ${pc.cyan("npm install -g portless@latest")} or ${pc.cyan("bun install -g portless@latest")}`
+    );
+    process.exit(1);
+  }
+
+  const s = spinner();
+  s.start("installing portless@latest globally");
+  try {
+    await addDependency("portless", { global: true, silent: true });
+  } catch (err) {
+    s.stop("✗ install failed");
+    log.error(
+      `Run manually: ${pc.cyan("npm install -g portless@latest")} (or bun/pnpm equivalent)`
+    );
+    log.error(err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  }
+  const after = await detectPortlessVersion();
+  s.stop(`portless v${after ?? "?"} installed`);
+}
+
+async function detectPortlessVersion(): Promise<string | null> {
+  const r = await execa("portless", ["--version"], { reject: false });
+  if (r.exitCode !== 0) return null;
+  const m = r.stdout.match(/(\d+)\.(\d+)\.(\d+)/);
+  return m ? m[0] : null;
+}
+
+function cmpSemver(a: string, b: string): number {
+  const pa = a.split(".").map(Number);
+  const pb = b.split(".").map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) - (pb[i] ?? 0);
+  }
+  return 0;
 }
 
 async function waitForPortlessProxy() {
@@ -306,17 +382,14 @@ async function down() {
   log.info(`stopping ${projectName(slug)} (volumes preserved)`);
   await composeDown(root, slug, false);
   await Promise.all(
-    [
-      `api.${slug}`,
-      `studio.${slug}`,
-      `mail.${slug}`,
-      `inngest.${slug}`,
-    ].map((name) =>
-      execa("npx", ["portless", "alias", "--remove", name], {
-        cwd: root,
-        reject: false,
-        stdio: "ignore",
-      })
+    [`api.${slug}`, `studio.${slug}`, `mail.${slug}`, `inngest.${slug}`].map(
+      (name) =>
+        execa("portless", ["alias", "--remove", name], {
+          cwd: root,
+          reject: false,
+          stdio: "ignore",
+          preferLocal: true
+        })
     )
   );
   outro("stopped");
@@ -329,8 +402,8 @@ async function reset() {
 
   if (process.env.CARBON_DEV_YES !== "1") {
     const ok = await confirm({
-      message: `Destroy all volumes for ${pc.bold(projectName(slug))}? (postgres, storage, redis, inngest data will be wiped)`,
-      initialValue: false,
+      message: `Destroy all volumes for ${pc.bold(projectName(slug))}? (postgres, storage, inngest data will be wiped, redis db flushed)`,
+      initialValue: false
     });
     if (isCancel(ok) || !ok) {
       cancel("reset aborted");
@@ -340,19 +413,53 @@ async function reset() {
 
   log.warn(`resetting ${projectName(slug)}`);
   await composeDown(root, slug, true);
+  const slot = getSlot(slug);
+  if (slot && typeof slot.redisDb === "number") {
+    await flushRedisDb(slot.redisDb);
+  }
   await up();
+}
+
+async function flushRedisDb(db: number) {
+  // Try host redis-cli first, fall back to docker exec into the shared redis container.
+  let r = await execa(
+    "redis-cli",
+    [
+      "-h",
+      "localhost",
+      "-p",
+      String(SHARED_REDIS_PORT),
+      "-n",
+      String(db),
+      "FLUSHDB"
+    ],
+    { reject: false, stdio: "ignore" }
+  );
+  if (r.exitCode !== 0) {
+    r = await execa(
+      "docker",
+      ["exec", "carbon-redis", "redis-cli", "-n", String(db), "FLUSHDB"],
+      { reject: false, stdio: "ignore" }
+    );
+  }
+  if (r.exitCode !== 0) {
+    log.warn(`redis flush of db ${db} failed (skipped)`);
+  }
 }
 
 const APP_CHOICES = [
   { value: "erp", label: "ERP", hint: "main app" },
-  { value: "mes", label: "MES", hint: "shop floor" },
+  { value: "mes", label: "MES", hint: "shop floor" }
 ] as const;
 
 async function pickApps(): Promise<string[]> {
   // Non-interactive override (CI / scripts).
   const fromEnv = process.env.CARBON_DEV_APPS;
   if (fromEnv) {
-    return fromEnv.split(",").map((s) => s.trim()).filter(Boolean);
+    return fromEnv
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
   // Skip prompt if stdin is not a TTY (e.g. piped).
   if (!process.stdin.isTTY) return APP_CHOICES.map((c) => c.value);
@@ -362,10 +469,10 @@ async function pickApps(): Promise<string[]> {
     options: APP_CHOICES.map((c) => ({
       value: c.value,
       label: c.label,
-      hint: c.hint,
+      hint: c.hint
     })),
     initialValues: APP_CHOICES.map((c) => c.value),
-    required: true,
+    required: true
   });
   if (isCancel(picked)) {
     cancel("aborted");
@@ -378,13 +485,16 @@ async function status() {
   intro("Carbon · dev status");
   const root = await getWorktreeRoot();
   const slug = resolveSlug(root);
-  const ports = getPorts(slug);
-  log.info(`worktree: ${pc.cyan(slug)}  project: ${pc.cyan(projectName(slug))}`);
-  if (!ports) {
+  const slot = getSlot(slug);
+  log.info(
+    `worktree: ${pc.cyan(slug)}  project: ${pc.cyan(projectName(slug))}`
+  );
+  if (!slot) {
     log.warn("no port assignment yet — run `npm run dev:up`");
     outro("");
     return;
   }
+  const { ports, redisDb } = slot;
 
   const portsTable = new Table({
     head: [pc.bold("Service"), pc.bold("Port")],
@@ -393,17 +503,22 @@ async function status() {
       mid: "",
       "left-mid": "",
       "mid-mid": "",
-      "right-mid": "",
-    },
+      "right-mid": ""
+    }
   });
   for (const n of PORT_NAMES) {
     portsTable.push([
       pc.cyan(n.replace("PORT_", "").toLowerCase()),
-      pc.bold(String(ports[n])),
+      pc.bold(String(ports[n]))
     ]);
   }
+  portsTable.push([
+    pc.cyan("redis (shared)"),
+    pc.bold(`${SHARED_REDIS_PORT}`) +
+      pc.dim(typeof redisDb === "number" ? ` /db ${redisDb}` : " /db ?")
+  ]);
   log.message("\n" + portsTable.toString(), {
-    symbol: pc.bold(pc.yellow("Portless")),
+    symbol: pc.bold(pc.yellow("Portless"))
   });
 
   const ps = await execa(
@@ -417,7 +532,7 @@ async function status() {
       "ps",
       "-a",
       "--format",
-      "json",
+      "json"
     ],
     { cwd: root, reject: false }
   );
@@ -445,8 +560,10 @@ async function status() {
 
   const colorState = (state: string, health?: string): string => {
     const s = state.toLowerCase();
-    if (s === "running" && health === "unhealthy") return pc.yellow("◑ unhealthy");
-    if (s === "running" && health === "starting") return pc.yellow("◐ starting");
+    if (s === "running" && health === "unhealthy")
+      return pc.yellow("◑ unhealthy");
+    if (s === "running" && health === "starting")
+      return pc.yellow("◐ starting");
     if (s === "running") return pc.green("● running");
     if (s === "restarting") return pc.yellow("◌ restarting");
     if (s === "exited") return pc.red("✗ exited");
@@ -463,7 +580,9 @@ async function status() {
       const key = `${p.PublishedPort}:${p.TargetPort}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      out.push(`${pc.cyan(String(p.PublishedPort))}${pc.dim("→" + p.TargetPort)}`);
+      out.push(
+        `${pc.cyan(String(p.PublishedPort))}${pc.dim("→" + p.TargetPort)}`
+      );
     }
     return out.length ? out.join(" ") : pc.dim("—");
   };
@@ -479,27 +598,23 @@ async function status() {
       mid: "",
       "left-mid": "",
       "mid-mid": "",
-      "right-mid": "",
-    },
+      "right-mid": ""
+    }
   });
   for (const c of sorted) {
     servicesTable.push([
       pc.cyan(c.Service),
       colorState(c.State, c.Health),
-      formatPorts(c),
+      formatPorts(c)
     ]);
   }
   log.message("\n" + servicesTable.toString(), {
-    symbol: pc.bold(pc.yellow("Docker")),
+    symbol: pc.bold(pc.yellow("Docker"))
   });
   outro("");
 }
 
-async function composeDown(
-  root: string,
-  slug: string,
-  withVolumes: boolean
-) {
+async function composeDown(root: string, slug: string, withVolumes: boolean) {
   const args = ["compose", "-f", COMPOSE_FILE, "-p", projectName(slug), "down"];
   if (withVolumes) args.push("-v");
   const s = spinner();
@@ -508,7 +623,7 @@ async function composeDown(
   s.stop("compose stopped");
 }
 
-function cleanStalePortlessRoutes(slug: string) {
+function cleanStalePortlessRoutes(branchSegment: string) {
   const path = `${homedir()}/.portless/routes.json`;
   if (!existsSync(path)) return;
   let routes: { hostname: string; pid: number }[];
@@ -517,12 +632,15 @@ function cleanStalePortlessRoutes(slug: string) {
   } catch {
     return;
   }
-  // Drop any alias (pid=0) whose hostname has our slug — they may be from a
-  // previous TLD and would otherwise linger forever.
-  const slugSegment = `.${slug}.`;
+  // Drop alias entries (pid=0) for our compose services on either TLD.
+  const services = ["api", "studio", "mail", "inngest"];
+  const ourHosts = services.flatMap((s) => [
+    `${s}.${branchSegment}.dev`,
+    `${s}.${branchSegment}.localhost`,
+  ]);
   const before = routes.length;
   const filtered = routes.filter(
-    (r) => !(r.pid === 0 && r.hostname.includes(slugSegment))
+    (r) => !(r.pid === 0 && ourHosts.includes(r.hostname))
   );
   if (filtered.length !== before) {
     log.info(`pruned ${before - filtered.length} stale portless route(s)`);
@@ -552,7 +670,10 @@ function link(url: string, text?: string) {
   return `\x1b]8;;${url}\x1b\\${label}\x1b]8;;\x1b\\`;
 }
 
-function summaryLines(slug: string, ports: Record<string, number>): string[] {
+function summaryLines(
+  ports: Record<string, number>,
+  branchSegment: string
+): string[] {
   type Color = (s: string) => string;
   const row = (color: Color, label: string, url: string, port?: number) => {
     const lbl = color(pc.bold(label.padEnd(8)));
@@ -560,15 +681,16 @@ function summaryLines(slug: string, ports: Record<string, number>): string[] {
     const portTag = port ? `  ${pc.dim(`:${port}`)}` : "";
     return `${lbl}  ${target}${portTag}`;
   };
+  const host = (sub: string) => `https://${sub}.${branchSegment}.dev`;
   const dbUrl = `postgresql://postgres:postgres@localhost:${ports.PORT_DB}/postgres`;
   return [
-    row(pc.cyan, "ERP", `https://erp.${slug}.dev`),
-    row(pc.magenta, "MES", `https://mes.${slug}.dev`),
-    row(pc.green, "API", `https://api.${slug}.dev`, ports.PORT_API),
-    row(pc.green, "Studio", `https://studio.${slug}.dev`, ports.PORT_STUDIO),
-    row(pc.yellow, "Mail", `https://mail.${slug}.dev`, ports.PORT_INBUCKET),
-    row(pc.blue, "Inngest", `https://inngest.${slug}.dev`, ports.PORT_INNGEST),
-    `${pc.gray(pc.bold("Postgres".padEnd(8)))}  ${pc.gray(dbUrl)}`,
+    row(pc.cyan, "ERP", host("erp")),
+    row(pc.magenta, "MES", host("mes")),
+    row(pc.green, "API", host("api"), ports.PORT_API),
+    row(pc.green, "Studio", host("studio"), ports.PORT_STUDIO),
+    row(pc.yellow, "Mail", host("mail"), ports.PORT_INBUCKET),
+    row(pc.blue, "Inngest", host("inngest"), ports.PORT_INNGEST),
+    `${pc.gray(pc.bold("Postgres".padEnd(8)))}  ${pc.gray(dbUrl)}`
   ];
 }
 
@@ -578,7 +700,8 @@ function summaryLines(slug: string, ports: Record<string, number>): string[] {
 
 // Reference for git ref name rules: git-check-ref-format(1).
 // We allow most chars but reject the documented bad ones.
-const INVALID_BRANCH_RE = /(^[\/-])|([\/-]$)|(\.\.)|(@\{)|([\s~^:?*\[\\])|(\/{2,})/;
+const INVALID_BRANCH_RE =
+  /(^[/-])|([/-]$)|(\.\.)|(@\{)|([\s~^:?*[\\])|(\/{2,})/;
 
 async function promptBranch(): Promise<string> {
   while (true) {
@@ -591,7 +714,7 @@ async function promptBranch(): Promise<string> {
         if (INVALID_BRANCH_RE.test(t))
           return "Invalid git branch name (no spaces, control chars, ~^:?*[\\, no leading/trailing - or /, no '..' or '@{')";
         if (t.length > 100) return "Branch name too long";
-      },
+      }
     });
     if (isCancel(value)) {
       cancel("aborted");
@@ -599,14 +722,19 @@ async function promptBranch(): Promise<string> {
     }
     const trimmed = (value as string).trim();
     if (await branchExists(trimmed)) {
-      log.error(`Branch '${trimmed}' already exists locally — try another name`);
+      log.error(
+        `Branch '${trimmed}' already exists locally — try another name`
+      );
       continue;
     }
     return trimmed;
   }
 }
 
-async function promptDirName(parentDir: string, initial: string): Promise<string> {
+async function promptDirName(
+  parentDir: string,
+  initial: string
+): Promise<string> {
   while (true) {
     const value = await text({
       message: `Worktree directory (relative to ${pc.dim(parentDir)})`,
@@ -615,7 +743,7 @@ async function promptDirName(parentDir: string, initial: string): Promise<string
         if (!v || !v.trim()) return "Directory name required";
         if (/[\s/]/.test(v.trim()))
           return "No spaces or slashes — must be a single dirname";
-      },
+      }
     });
     if (isCancel(value)) {
       cancel("aborted");
@@ -645,7 +773,7 @@ async function newWorktree() {
 
   const cur = await currentBranch(here);
   const baseOptions: { value: string; label: string }[] = [
-    { value: "main", label: "main" },
+    { value: "main", label: "main" }
   ];
   if (cur && cur !== "main") baseOptions.push({ value: cur, label: cur });
   baseOptions.push({ value: "origin/main", label: "origin/main" });
@@ -653,7 +781,7 @@ async function newWorktree() {
   const baseRef = await select({
     message: "Base ref",
     options: baseOptions,
-    initialValue: "main",
+    initialValue: "main"
   });
   if (isCancel(baseRef)) {
     cancel("aborted");
@@ -662,7 +790,7 @@ async function newWorktree() {
 
   const copyEnv = await confirm({
     message: "Copy .env from current worktree?",
-    initialValue: true,
+    initialValue: true
   });
   if (isCancel(copyEnv)) {
     cancel("aborted");
@@ -677,11 +805,11 @@ async function newWorktree() {
         const r = await addWorktree({
           path: targetPath,
           branch,
-          baseRef: baseRef as string,
+          baseRef: baseRef as string
         });
         if (!r.ok) throw new Error(r.error);
         return `worktree at ${relative(here, targetPath)}`;
-      },
+      }
     },
     ...(copyEnv === true
       ? [
@@ -692,10 +820,10 @@ async function newWorktree() {
               if (!existsSync(src)) return "no .env in source — skipped";
               copyFileSync(src, join(targetPath, ".env"));
               return ".env copied";
-            },
-          },
+            }
+          }
         ]
-      : []),
+      : [])
   ]);
 
   note(
@@ -704,7 +832,7 @@ async function newWorktree() {
       "",
       `  ${pc.cyan("cd")} ${relative(here, targetPath)}`,
       `  ${pc.cyan("npm install")}    ${pc.dim("# if needed")}`,
-      `  ${pc.cyan("npm run dev:up")}`,
+      `  ${pc.cyan("npm run dev:up")}`
     ].join("\n"),
     `worktree ready — ${branch}`
   );
@@ -716,7 +844,7 @@ async function listWorktrees() {
 
   const [wtsAll, registry] = await Promise.all([
     gitListWorktrees(),
-    Promise.resolve(readPortRegistry()),
+    Promise.resolve(readPortRegistry())
   ]);
   const wts = wtsAll.filter((w) => !w.bare);
 
@@ -729,7 +857,7 @@ async function listWorktrees() {
         "ps",
         "-a",
         "--format",
-        '{{.Label "com.docker.compose.project"}}\t{{.State}}',
+        '{{.Label "com.docker.compose.project"}}\t{{.State}}'
       ],
       { reject: false }
     );
@@ -749,8 +877,8 @@ async function listWorktrees() {
       mid: "",
       "left-mid": "",
       "mid-mid": "",
-      "right-mid": "",
-    },
+      "right-mid": ""
+    }
   });
   for (const w of wts) {
     const slug = slugForPath(w.path, registry);
@@ -766,11 +894,11 @@ async function listWorktrees() {
     table.push([
       w.current ? pc.bold(pc.cyan(w.path)) : w.path,
       w.branch ? pc.cyan(w.branch) : pc.dim("(detached)"),
-      stack,
+      stack
     ]);
   }
   log.message("\n" + table.toString(), {
-    symbol: pc.bold(pc.yellow("worktrees")),
+    symbol: pc.bold(pc.yellow("worktrees"))
   });
   outro("");
 }
@@ -790,8 +918,8 @@ async function removeWorktreeCmd() {
     message: "Worktree to remove",
     options: wts.map((w) => ({
       value: w.path,
-      label: `${w.branch ?? "(detached)"}  ${pc.dim(w.path)}`,
-    })),
+      label: `${w.branch ?? "(detached)"}  ${pc.dim(w.path)}`
+    }))
   });
   if (isCancel(choice)) {
     cancel("aborted");
@@ -807,7 +935,10 @@ async function removeWorktreeCmd() {
 
   const warnings: string[] = [];
   if (dirty) warnings.push(`${pc.yellow("⚠")} uncommitted changes in worktree`);
-  if (slug) warnings.push(`${pc.yellow("⚠")} stack ${projectLabel} will be destroyed (volumes wiped)`);
+  if (slug)
+    warnings.push(
+      `${pc.yellow("⚠")} stack ${projectLabel} will be destroyed (volumes wiped)`
+    );
 
   if (warnings.length) {
     log.warn(warnings.join("\n"));
@@ -815,13 +946,14 @@ async function removeWorktreeCmd() {
 
   const ok = await confirm({
     message: `Permanently remove ${target.branch ?? targetPath} and ${slug ? "wipe its docker volumes" : "the worktree"}?`,
-    initialValue: false,
+    initialValue: false
   });
   if (isCancel(ok) || !ok) {
     cancel("aborted");
     process.exit(0);
   }
 
+  const slotInfo = slug ? getSlot(slug) : null;
   await tasks([
     ...(slug
       ? [
@@ -837,13 +969,24 @@ async function removeWorktreeCmd() {
                   "-p",
                   projectLabel,
                   "down",
-                  "-v",
+                  "-v"
                 ],
                 { cwd: targetPath, stdio: "ignore", reject: false }
               );
               return "stack removed";
-            },
-          },
+            }
+          }
+        ]
+      : []),
+    ...(slotInfo && typeof slotInfo.redisDb === "number"
+      ? [
+          {
+            title: `Flush redis db ${slotInfo.redisDb}`,
+            task: async () => {
+              await flushRedisDb(slotInfo.redisDb);
+              return "redis db flushed";
+            }
+          }
         ]
       : []),
     {
@@ -852,23 +995,19 @@ async function removeWorktreeCmd() {
         const r = await removeWorktree(targetPath, dirty);
         if (!r.ok) throw new Error(r.error);
         return "worktree removed";
-      },
+      }
     },
     ...(slug
       ? [
           {
             title: "Prune port registry",
             task: async () => {
-              const path = `${homedir()}/.carbon/dev-ports.json`;
-              if (!existsSync(path)) return "registry not found — skipped";
-              const reg = JSON.parse(readFileSync(path, "utf8"));
-              delete reg[slug];
-              writeFileSync(path, JSON.stringify(reg, null, 2));
+              removeSlot(slug);
               return `removed ${slug}`;
-            },
-          },
+            }
+          }
         ]
-      : []),
+      : [])
   ]);
 
   outro("done");
