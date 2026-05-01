@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execa } from "execa";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 
@@ -21,11 +21,10 @@ export function persistSlug(worktreeRoot: string, slug: string) {
   writeFileSync(join(worktreeRoot, SLUG_FILE), `${slug}\n`);
 }
 
-export function getWorktreeRoot(): string {
+export async function getWorktreeRoot(): Promise<string> {
   try {
-    return execSync("git rev-parse --show-toplevel", {
-      encoding: "utf8",
-    }).trim();
+    const r = await execa("git", ["rev-parse", "--show-toplevel"]);
+    return r.stdout.trim();
   } catch {
     return process.cwd();
   }
@@ -35,14 +34,22 @@ export function projectName(slug: string): string {
   return `carbon-${slug}`;
 }
 
-export function ensureSlugAvailable(slug: string, worktreeRoot: string) {
+export async function ensureSlugAvailable(slug: string, worktreeRoot: string) {
   const project = projectName(slug);
   let runningPath: string | null = null;
   try {
-    const out = execSync(
-      `docker ps --filter "label=com.docker.compose.project=${project}" --format "{{.Label \\"com.docker.compose.project.working_dir\\"}}"`,
-      { encoding: "utf8" }
-    ).trim();
+    const r = await execa(
+      "docker",
+      [
+        "ps",
+        "--filter",
+        `label=com.docker.compose.project=${project}`,
+        "--format",
+        '{{.Label "com.docker.compose.project.working_dir"}}',
+      ],
+      { reject: false }
+    );
+    const out = r.stdout.trim();
     if (out) runningPath = out.split("\n")[0];
   } catch {
     return;
@@ -60,4 +67,8 @@ function slugify(input: string): string {
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .replace(/-+/g, "-");
+}
+
+export function slugifyBranch(branch: string): string {
+  return slugify(branch);
 }

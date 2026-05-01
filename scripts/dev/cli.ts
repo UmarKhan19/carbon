@@ -8,14 +8,31 @@ import {
   multiselect,
   note,
   outro,
+  select,
   spinner,
   tasks,
+  text,
 } from "@clack/prompts";
-import { spawn, spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import Table from "cli-table3";
+import { execa, type ResultPromise } from "execa";
+import {
+  copyFileSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
 import pc from "picocolors";
+import {
+  addWorktree,
+  branchExists,
+  currentBranch,
+  isDirty,
+  listWorktrees as gitListWorktrees,
+  removeWorktree,
+} from "./lib/git.js";
 import { loadEnv } from "./lib/load-env.js";
 import { PORT_NAMES, getPorts, resolvePorts } from "./lib/ports.js";
 import { renderEnv, writeEnv } from "./lib/render-env.js";
@@ -25,6 +42,7 @@ import {
   persistSlug,
   projectName,
   resolveSlug,
+  slugifyBranch,
 } from "./lib/slug.js";
 
 const COMPOSE_FILE = "docker-compose.dev.yml";
@@ -35,14 +53,20 @@ async function main() {
     case "up":
       return await up();
     case "down":
-      return down();
+      return await down();
     case "reset":
       return await reset();
     case "status":
-      return status();
+      return await status();
+    case "new":
+      return await newWorktree();
+    case "list":
+      return await listWorktrees();
+    case "remove":
+      return await removeWorktreeCmd();
     default:
       console.error(
-        `Unknown command: ${cmd}\nUsage: tsx scripts/dev/cli.ts [up|down|reset|status]`
+        `Unknown command: ${cmd}\nUsage: tsx scripts/dev/cli.ts [up|down|reset|status|new|list|remove]`
       );
       process.exit(1);
   }
@@ -53,9 +77,9 @@ async function up() {
 
   const selectedApps = await pickApps();
 
-  const root = getWorktreeRoot();
+  const root = await getWorktreeRoot();
   const slug = resolveSlug(root);
-  ensureSlugAvailable(slug, root);
+  await ensureSlugAvailable(slug, root);
   persistSlug(root, slug);
   log.info(`worktree: ${slug}  (project ${projectName(slug)})`);
 
@@ -115,7 +139,7 @@ async function up() {
           root
         );
         msg("storage tables");
-        waitForStorageTables(ports.PORT_DB);
+        await waitForStorageTables(ports.PORT_DB);
         return "all services responding";
       },
     },
@@ -134,11 +158,10 @@ async function up() {
       title: "Start portless proxy",
       task: async (msg) => {
         cleanStalePortlessRoutes(slug);
-        spawn("npx", ["portless", "proxy", "start"], {
+        execa("npx", ["portless", "proxy", "start"], {
           cwd: root,
-          stdio: "ignore",
           detached: true,
-          env: process.env,
+          stdio: "ignore",
         }).unref();
         msg("waiting for proxy on :443");
         await waitForPortlessProxy();
@@ -154,20 +177,22 @@ async function up() {
           { name: `mail.${slug}`, port: ports.PORT_INBUCKET },
           { name: `inngest.${slug}`, port: ports.PORT_INNGEST },
         ];
-        for (const a of aliases) {
-          silentRun(
-            "npx",
-            ["portless", "alias", a.name, String(a.port), "--force"],
-            root
-          );
-        }
+        await Promise.all(
+          aliases.map((a) =>
+            execa(
+              "npx",
+              ["portless", "alias", a.name, String(a.port), "--force"],
+              { cwd: root, reject: false, stdio: "ignore" }
+            )
+          )
+        );
         return `${aliases.length} aliases registered`;
       },
     },
   ]);
 
   if (process.env.CARBON_EDITION === "cloud") {
-    spawn("npm", ["run", "dev:stripe"], {
+    execa("npm", ["run", "dev:stripe"], {
       cwd: root,
       detached: true,
       stdio: "ignore",
@@ -189,33 +214,33 @@ async function up() {
   process.on("SIGINT", stop);
   process.on("SIGTERM", stop);
 
-  await Promise.all(
-    children.map(
-      (c) =>
-        new Promise<void>((resolve) => {
-          c.on("exit", () => resolve());
-        })
-    )
-  );
+  await Promise.all(children.map((c) => c.catch(() => undefined)));
 }
 
 function spawnApp(
   root: string,
   app: { name: string; dir: string; selfUrl: string }
-) {
+): ResultPromise<{ stdout: "pipe"; stderr: "pipe"; reject: false }> {
   const tag = app.name.split(".")[0]; // "erp" or "mes"
-  const child = spawn(
+  const child = execa(
     "npx",
     ["portless", "--name", app.name, "--", "react-router", "dev"],
     {
       cwd: join(root, app.dir),
-      stdio: ["ignore", "pipe", "pipe"],
+      stdin: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
       env: { ...process.env, VERCEL_URL: app.selfUrl },
+      reject: false,
     }
   );
-  prefixStream(child.stdout!, tag);
-  prefixStream(child.stderr!, tag, true);
-  return child;
+  if (child.stdout) prefixStream(child.stdout, tag);
+  if (child.stderr) prefixStream(child.stderr, tag, true);
+  return child as ResultPromise<{
+    stdout: "pipe";
+    stderr: "pipe";
+    reject: false;
+  }>;
 }
 
 function prefixStream(stream: NodeJS.ReadableStream, tag: string, err = false) {
@@ -243,16 +268,12 @@ function prefixStream(stream: NodeJS.ReadableStream, tag: string, err = false) {
 }
 
 async function execStep(cmd: string, args: string[], cwd: string) {
-  const result = spawnSync(cmd, args, { cwd, stdio: "pipe", env: process.env });
-  if (result.status !== 0) {
-    process.stderr.write(result.stderr?.toString() ?? "");
-    process.stdout.write(result.stdout?.toString() ?? "");
-    throw new Error(`${cmd} ${args.join(" ")} failed (exit ${result.status})`);
+  const r = await execa(cmd, args, { cwd, reject: false });
+  if (r.exitCode !== 0) {
+    process.stderr.write(r.stderr?.toString() ?? "");
+    process.stdout.write(r.stdout?.toString() ?? "");
+    throw new Error(`${cmd} ${args.join(" ")} failed (exit ${r.exitCode})`);
   }
-}
-
-function silentRun(cmd: string, args: string[], cwd: string) {
-  spawnSync(cmd, args, { cwd, stdio: "ignore", env: process.env });
 }
 
 async function waitForPortlessProxy() {
@@ -264,34 +285,40 @@ async function waitForPortlessProxy() {
       const pid = Number(readFileSync(pidFile, "utf8").trim());
       try {
         process.kill(pid, 0);
-        await new Promise((r) => setTimeout(r, 500));
+        await sleep(500);
         return;
       } catch {}
     }
-    await new Promise((r) => setTimeout(r, 500));
+    await sleep(500);
   }
 }
 
-function down() {
+async function down() {
   intro("Carbon · dev down");
-  const root = getWorktreeRoot();
+  const root = await getWorktreeRoot();
   const slug = resolveSlug(root);
   log.info(`stopping ${projectName(slug)} (volumes preserved)`);
-  composeDown(root, slug, false);
-  for (const name of [
-    `api.${slug}`,
-    `studio.${slug}`,
-    `mail.${slug}`,
-    `inngest.${slug}`,
-  ]) {
-    silentRun("npx", ["portless", "alias", "--remove", name], root);
-  }
+  await composeDown(root, slug, false);
+  await Promise.all(
+    [
+      `api.${slug}`,
+      `studio.${slug}`,
+      `mail.${slug}`,
+      `inngest.${slug}`,
+    ].map((name) =>
+      execa("npx", ["portless", "alias", "--remove", name], {
+        cwd: root,
+        reject: false,
+        stdio: "ignore",
+      })
+    )
+  );
   outro("stopped");
 }
 
 async function reset() {
   intro("Carbon · dev reset");
-  const root = getWorktreeRoot();
+  const root = await getWorktreeRoot();
   const slug = resolveSlug(root);
 
   if (process.env.CARBON_DEV_YES !== "1") {
@@ -306,7 +333,7 @@ async function reset() {
   }
 
   log.warn(`resetting ${projectName(slug)}`);
-  composeDown(root, slug, true);
+  await composeDown(root, slug, true);
   await up();
 }
 
@@ -341,22 +368,39 @@ async function pickApps(): Promise<string[]> {
   return picked as string[];
 }
 
-function status() {
+async function status() {
   intro("Carbon · dev status");
-  const root = getWorktreeRoot();
+  const root = await getWorktreeRoot();
   const slug = resolveSlug(root);
   const ports = getPorts(slug);
-  log.info(`worktree: ${slug}  project: ${projectName(slug)}`);
+  log.info(`worktree: ${pc.cyan(slug)}  project: ${pc.cyan(projectName(slug))}`);
   if (!ports) {
     log.warn("no port assignment yet — run `npm run dev:up`");
     outro("");
     return;
   }
-  log.message(
-    PORT_NAMES.map((n) => `  ${n.padEnd(18)} ${ports[n]}`).join("\n"),
-    { symbol: "ports" }
-  );
-  spawnSync(
+
+  const portsTable = new Table({
+    head: [pc.bold("Service"), pc.bold("Port")],
+    style: { head: [], border: ["gray"] },
+    chars: {
+      mid: "",
+      "left-mid": "",
+      "mid-mid": "",
+      "right-mid": "",
+    },
+  });
+  for (const n of PORT_NAMES) {
+    portsTable.push([
+      pc.cyan(n.replace("PORT_", "").toLowerCase()),
+      pc.bold(String(ports[n])),
+    ]);
+  }
+  log.message("\n" + portsTable.toString(), {
+    symbol: pc.bold(pc.yellow("Portless")),
+  });
+
+  const ps = await execa(
     "docker",
     [
       "compose",
@@ -365,20 +409,96 @@ function status() {
       "-p",
       projectName(slug),
       "ps",
+      "-a",
       "--format",
-      "table {{.Service}}\\t{{.Status}}\\t{{.Ports}}",
+      "json",
     ],
-    { cwd: root, stdio: "inherit" }
+    { cwd: root, reject: false }
   );
+
+  if (ps.exitCode !== 0 || !ps.stdout?.trim()) {
+    log.warn("no containers running");
+    outro("");
+    return;
+  }
+
+  type Container = {
+    Service: string;
+    Name: string;
+    State: string;
+    Status: string;
+    Health?: string;
+    Publishers?: { PublishedPort: number; TargetPort: number }[] | null;
+  };
+
+  // docker compose ps --format json emits NDJSON (one obj per line).
+  const containers: Container[] = ps.stdout
+    .split("\n")
+    .filter(Boolean)
+    .map((l) => JSON.parse(l));
+
+  const colorState = (state: string, health?: string): string => {
+    const s = state.toLowerCase();
+    if (s === "running" && health === "unhealthy") return pc.yellow("◑ unhealthy");
+    if (s === "running" && health === "starting") return pc.yellow("◐ starting");
+    if (s === "running") return pc.green("● running");
+    if (s === "restarting") return pc.yellow("◌ restarting");
+    if (s === "exited") return pc.red("✗ exited");
+    if (s === "created") return pc.gray("○ created");
+    return pc.dim(state);
+  };
+
+  const formatPorts = (c: Container): string => {
+    if (!c.Publishers || c.Publishers.length === 0) return pc.dim("—");
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const p of c.Publishers) {
+      if (!p.PublishedPort) continue;
+      const key = `${p.PublishedPort}:${p.TargetPort}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(`${pc.cyan(String(p.PublishedPort))}${pc.dim("→" + p.TargetPort)}`);
+    }
+    return out.length ? out.join(" ") : pc.dim("—");
+  };
+
+  const sorted = [...containers].sort((a, b) =>
+    a.Service.localeCompare(b.Service)
+  );
+
+  const servicesTable = new Table({
+    head: [pc.bold("Service"), pc.bold("Status"), pc.bold("Ports")],
+    style: { head: [], border: ["gray"] },
+    chars: {
+      mid: "",
+      "left-mid": "",
+      "mid-mid": "",
+      "right-mid": "",
+    },
+  });
+  for (const c of sorted) {
+    servicesTable.push([
+      pc.cyan(c.Service),
+      colorState(c.State, c.Health),
+      formatPorts(c),
+    ]);
+  }
+  log.message("\n" + servicesTable.toString(), {
+    symbol: pc.bold(pc.yellow("Docker")),
+  });
   outro("");
 }
 
-function composeDown(root: string, slug: string, withVolumes: boolean) {
+async function composeDown(
+  root: string,
+  slug: string,
+  withVolumes: boolean
+) {
   const args = ["compose", "-f", COMPOSE_FILE, "-p", projectName(slug), "down"];
   if (withVolumes) args.push("-v");
   const s = spinner();
   s.start(`docker compose down${withVolumes ? " -v" : ""}`);
-  spawnSync("docker", args, { cwd: root, stdio: "ignore" });
+  await execa("docker", args, { cwd: root, stdio: "ignore", reject: false });
   s.stop("compose stopped");
 }
 
@@ -404,17 +524,17 @@ function cleanStalePortlessRoutes(slug: string) {
   }
 }
 
-function waitForStorageTables(port: number) {
+async function waitForStorageTables(port: number) {
   const url = `postgresql://postgres:postgres@localhost:${port}/postgres`;
   const deadline = Date.now() + 60_000;
   while (Date.now() < deadline) {
-    const r = spawnSync(
+    const r = await execa(
       "psql",
       [url, "-tAc", "SELECT to_regclass('storage.buckets')"],
-      { env: { ...process.env, PGSSLMODE: "disable" }, encoding: "utf8" }
+      { env: { ...process.env, PGSSLMODE: "disable" }, reject: false }
     );
-    if (r.status === 0 && r.stdout?.trim() === "storage.buckets") return;
-    spawnSync("sleep", ["1"]);
+    if (r.exitCode === 0 && r.stdout?.trim() === "storage.buckets") return;
+    await sleep(1000);
   }
   throw new Error("storage.buckets did not appear within 60s");
 }
@@ -444,6 +564,328 @@ function summaryLines(slug: string, ports: Record<string, number>): string[] {
     row(pc.blue, "Inngest", `https://inngest.${slug}.dev`, ports.PORT_INNGEST),
     `${pc.gray(pc.bold("Postgres".padEnd(8)))}  ${pc.gray(dbUrl)}`,
   ];
+}
+
+// ============================================================================
+// Worktree lifecycle: new / list / remove
+// ============================================================================
+
+// Reference for git ref name rules: git-check-ref-format(1).
+// We allow most chars but reject the documented bad ones.
+const INVALID_BRANCH_RE = /(^[\/-])|([\/-]$)|(\.\.)|(@\{)|([\s~^:?*\[\\])|(\/{2,})/;
+
+async function promptBranch(): Promise<string> {
+  while (true) {
+    const value = await text({
+      message: "Branch name",
+      placeholder: "feature/foo",
+      validate(v) {
+        if (!v || !v.trim()) return "Branch is required";
+        const t = v.trim();
+        if (INVALID_BRANCH_RE.test(t))
+          return "Invalid git branch name (no spaces, control chars, ~^:?*[\\, no leading/trailing - or /, no '..' or '@{')";
+        if (t.length > 100) return "Branch name too long";
+      },
+    });
+    if (isCancel(value)) {
+      cancel("aborted");
+      process.exit(0);
+    }
+    const trimmed = (value as string).trim();
+    if (await branchExists(trimmed)) {
+      log.error(`Branch '${trimmed}' already exists locally — try another name`);
+      continue;
+    }
+    return trimmed;
+  }
+}
+
+async function promptDirName(parentDir: string, initial: string): Promise<string> {
+  while (true) {
+    const value = await text({
+      message: `Worktree directory (relative to ${pc.dim(parentDir)})`,
+      initialValue: initial,
+      validate(v) {
+        if (!v || !v.trim()) return "Directory name required";
+        if (/[\s/]/.test(v.trim()))
+          return "No spaces or slashes — must be a single dirname";
+      },
+    });
+    if (isCancel(value)) {
+      cancel("aborted");
+      process.exit(0);
+    }
+    const trimmed = (value as string).trim();
+    if (existsSync(join(parentDir, trimmed))) {
+      log.error(`Path '${trimmed}' already exists in ${parentDir}`);
+      continue;
+    }
+    return trimmed;
+  }
+}
+
+async function newWorktree() {
+  intro("Carbon · new worktree");
+
+  const here = await getWorktreeRoot();
+  const parentDir = dirname(here);
+  const repoBaseName = basename(here).replace(/-[a-z0-9-]+$/i, "");
+
+  const branch = await promptBranch();
+
+  const defaultDir = `${repoBaseName}-${slugifyBranch(branch)}`;
+  const dirName = await promptDirName(parentDir, defaultDir);
+  const targetPath = resolve(parentDir, dirName);
+
+  const cur = await currentBranch(here);
+  const baseOptions: { value: string; label: string }[] = [
+    { value: "main", label: "main" },
+  ];
+  if (cur && cur !== "main") baseOptions.push({ value: cur, label: cur });
+  baseOptions.push({ value: "origin/main", label: "origin/main" });
+
+  const baseRef = await select({
+    message: "Base ref",
+    options: baseOptions,
+    initialValue: "main",
+  });
+  if (isCancel(baseRef)) {
+    cancel("aborted");
+    process.exit(0);
+  }
+
+  const copyEnv = await confirm({
+    message: "Copy .env from current worktree?",
+    initialValue: true,
+  });
+  if (isCancel(copyEnv)) {
+    cancel("aborted");
+    process.exit(0);
+  }
+
+  await tasks([
+    {
+      title: `git worktree add ${dirName}`,
+      task: async (msg) => {
+        msg(`branching from ${baseRef}`);
+        const r = await addWorktree({
+          path: targetPath,
+          branch,
+          baseRef: baseRef as string,
+        });
+        if (!r.ok) throw new Error(r.error);
+        return `worktree at ${relative(here, targetPath)}`;
+      },
+    },
+    ...(copyEnv === true
+      ? [
+          {
+            title: "Copy .env",
+            task: async () => {
+              const src = join(here, ".env");
+              if (!existsSync(src)) return "no .env in source — skipped";
+              copyFileSync(src, join(targetPath, ".env"));
+              return ".env copied";
+            },
+          },
+        ]
+      : []),
+  ]);
+
+  note(
+    [
+      pc.bold("Next steps:"),
+      "",
+      `  ${pc.cyan("cd")} ${relative(here, targetPath)}`,
+      `  ${pc.cyan("npm install")}    ${pc.dim("# if needed")}`,
+      `  ${pc.cyan("npm run dev:up")}`,
+    ].join("\n"),
+    `worktree ready — ${branch}`
+  );
+  outro("done");
+}
+
+async function listWorktrees() {
+  intro("Carbon · worktrees");
+
+  const [wtsAll, registry] = await Promise.all([
+    gitListWorktrees(),
+    Promise.resolve(readPortRegistry()),
+  ]);
+  const wts = wtsAll.filter((w) => !w.bare);
+
+  // Map docker project → status
+  const dockerStatus = new Map<string, string>();
+  try {
+    const r = await execa(
+      "docker",
+      [
+        "ps",
+        "-a",
+        "--format",
+        '{{.Label "com.docker.compose.project"}}\t{{.State}}',
+      ],
+      { reject: false }
+    );
+    for (const line of (r.stdout ?? "").split("\n")) {
+      const [project, state] = line.split("\t");
+      if (!project) continue;
+      const prev = dockerStatus.get(project);
+      if (state === "running") dockerStatus.set(project, "running");
+      else if (!prev) dockerStatus.set(project, state);
+    }
+  } catch {}
+
+  const table = new Table({
+    head: [pc.bold("Worktree"), pc.bold("Branch"), pc.bold("Stack")],
+    style: { head: [], border: ["gray"] },
+    chars: {
+      mid: "",
+      "left-mid": "",
+      "mid-mid": "",
+      "right-mid": "",
+    },
+  });
+  for (const w of wts) {
+    const slug = slugForPath(w.path, registry);
+    const project = slug ? `carbon-${slug}` : "—";
+    const ds = slug ? dockerStatus.get(`carbon-${slug}`) : null;
+    const stack = !slug
+      ? pc.gray("not initialized")
+      : ds === "running"
+        ? pc.green(`● up · ${project}`)
+        : ds
+          ? pc.yellow(`${ds} · ${project}`)
+          : pc.dim(`registered · ${project}`);
+    table.push([
+      w.current ? pc.bold(pc.cyan(w.path)) : w.path,
+      w.branch ? pc.cyan(w.branch) : pc.dim("(detached)"),
+      stack,
+    ]);
+  }
+  log.message("\n" + table.toString(), {
+    symbol: pc.bold(pc.yellow("worktrees")),
+  });
+  outro("");
+}
+
+async function removeWorktreeCmd() {
+  intro("Carbon · remove worktree");
+
+  const wtsAll = await gitListWorktrees();
+  const wts = wtsAll.filter((w) => !w.bare && !w.current);
+  if (wts.length === 0) {
+    log.warn("no other worktrees to remove");
+    outro("");
+    return;
+  }
+
+  const choice = await select({
+    message: "Worktree to remove",
+    options: wts.map((w) => ({
+      value: w.path,
+      label: `${w.branch ?? "(detached)"}  ${pc.dim(w.path)}`,
+    })),
+  });
+  if (isCancel(choice)) {
+    cancel("aborted");
+    process.exit(0);
+  }
+  const targetPath = choice as string;
+  const target = wts.find((w) => w.path === targetPath)!;
+
+  const dirty = await isDirty(targetPath);
+  const registry = readPortRegistry();
+  const slug = slugForPath(targetPath, registry);
+  const projectLabel = slug ? `carbon-${slug}` : "(no stack)";
+
+  const warnings: string[] = [];
+  if (dirty) warnings.push(`${pc.yellow("⚠")} uncommitted changes in worktree`);
+  if (slug) warnings.push(`${pc.yellow("⚠")} stack ${projectLabel} will be destroyed (volumes wiped)`);
+
+  if (warnings.length) {
+    log.warn(warnings.join("\n"));
+  }
+
+  const ok = await confirm({
+    message: `Permanently remove ${target.branch ?? targetPath} and ${slug ? "wipe its docker volumes" : "the worktree"}?`,
+    initialValue: false,
+  });
+  if (isCancel(ok) || !ok) {
+    cancel("aborted");
+    process.exit(0);
+  }
+
+  await tasks([
+    ...(slug
+      ? [
+          {
+            title: `docker compose down -v · ${projectLabel}`,
+            task: async () => {
+              await execa(
+                "docker",
+                [
+                  "compose",
+                  "-f",
+                  COMPOSE_FILE,
+                  "-p",
+                  projectLabel,
+                  "down",
+                  "-v",
+                ],
+                { cwd: targetPath, stdio: "ignore", reject: false }
+              );
+              return "stack removed";
+            },
+          },
+        ]
+      : []),
+    {
+      title: `git worktree remove ${targetPath}`,
+      task: async () => {
+        const r = await removeWorktree(targetPath, dirty);
+        if (!r.ok) throw new Error(r.error);
+        return "worktree removed";
+      },
+    },
+    ...(slug
+      ? [
+          {
+            title: "Prune port registry",
+            task: async () => {
+              const path = `${homedir()}/.carbon/dev-ports.json`;
+              if (!existsSync(path)) return "registry not found — skipped";
+              const reg = JSON.parse(readFileSync(path, "utf8"));
+              delete reg[slug];
+              writeFileSync(path, JSON.stringify(reg, null, 2));
+              return `removed ${slug}`;
+            },
+          },
+        ]
+      : []),
+  ]);
+
+  outro("done");
+}
+
+function readPortRegistry(): Record<string, { worktreeRoot: string }> {
+  const path = `${homedir()}/.carbon/dev-ports.json`;
+  if (!existsSync(path)) return {};
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return {};
+  }
+}
+
+function slugForPath(
+  path: string,
+  registry: Record<string, { worktreeRoot: string }>
+): string | null {
+  for (const [slug, entry] of Object.entries(registry)) {
+    if (entry.worktreeRoot === path) return slug;
+  }
+  return null;
 }
 
 const invokedAsScript =

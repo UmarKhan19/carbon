@@ -1,31 +1,31 @@
 #!/usr/bin/env tsx
-import { execSync } from "node:child_process";
+import { execa } from "execa";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import pg from "pg";
 
-const repoRoot = (() => {
-  try {
-    return execSync("git rev-parse --show-toplevel", { encoding: "utf8" }).trim();
-  } catch {
-    return process.cwd();
-  }
-})();
-loadEnv(join(repoRoot, ".env"));
-
-const dbUrl = process.env.SUPABASE_DB_URL;
-if (!dbUrl) {
-  console.error("SUPABASE_DB_URL not set (run `npm run dev:up` first)");
+run().catch((err) => {
+  console.error(err instanceof Error ? err.message : err);
   process.exit(1);
-}
-
-const migrationsDir = join(repoRoot, "packages/database/supabase/migrations");
-if (!existsSync(migrationsDir)) {
-  console.error(`migrations dir not found: ${migrationsDir}`);
-  process.exit(1);
-}
+});
 
 async function run() {
+  const repoRoot = await detectRepoRoot();
+  loadEnv(join(repoRoot, ".env.local"));
+  loadEnv(join(repoRoot, ".env"));
+
+  const dbUrl = process.env.SUPABASE_DB_URL;
+  if (!dbUrl) {
+    console.error("SUPABASE_DB_URL not set (run `npm run dev:up` first)");
+    process.exit(1);
+  }
+
+  const migrationsDir = join(repoRoot, "packages/database/supabase/migrations");
+  if (!existsSync(migrationsDir)) {
+    console.error(`migrations dir not found: ${migrationsDir}`);
+    process.exit(1);
+  }
+
   const client = new pg.Client({ connectionString: dbUrl, ssl: false });
   await client.connect();
 
@@ -82,10 +82,14 @@ async function run() {
   );
 }
 
-run().catch((err) => {
-  console.error(err instanceof Error ? err.message : err);
-  process.exit(1);
-});
+async function detectRepoRoot(): Promise<string> {
+  try {
+    const r = await execa("git", ["rev-parse", "--show-toplevel"]);
+    return r.stdout.trim();
+  } catch {
+    return process.cwd();
+  }
+}
 
 function loadEnv(path: string) {
   if (!existsSync(path)) return;
