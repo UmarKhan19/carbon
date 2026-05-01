@@ -16,15 +16,27 @@ services:
     ports:
       - "${PORT_DB}:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: /var/run/postgresql
+      POSTGRES_PORT: 5432
+      PGPORT: 5432
       POSTGRES_DB: postgres
+      PGDATABASE: postgres
+      POSTGRES_PASSWORD: postgres
+      PGPASSWORD: postgres
       JWT_SECRET: ${SUPABASE_JWT_SECRET}
       JWT_EXP: 3600
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - pgconfig:/etc/postgresql-custom
+      - ./scripts/dev/db-init/init.sql:/docker-entrypoint-initdb.d/zz-carbon-roles.sql:ro
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - log_min_messages=fatal
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -228,9 +240,6 @@ services:
     command:
       - inngest
       - dev
-      - --no-discovery
-      - -u
-      - http://host.docker.internal:${PORT_ERP}/api/inngest
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -238,6 +247,7 @@ services:
 
 volumes:
   pgdata:
+  pgconfig:
   storage:
   redis:
   inngest:
