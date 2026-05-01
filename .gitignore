@@ -52,3 +52,7 @@ packages/database/supabase/seed.sql
 **/build/
 !**/build/.gitkeep
 .orcka
+
+# Worktree-isolated dev environment
+.carbon-worktree
+portless.json
