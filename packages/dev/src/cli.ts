@@ -134,11 +134,20 @@ async function up() {
     {
       title: "Boot shared redis",
       task: async () => {
-        await execStep(
-          "docker",
-          ["compose", "-f", "docker-compose.yml", "up", "-d", "redis"],
-          root
-        );
+        const args = ["compose", "-f", "docker-compose.yml", "up", "-d", "redis"];
+        let r = await execa("docker", args, { cwd: root, reject: false });
+        if (r.exitCode !== 0 && /already in use/i.test(r.stderr ?? "")) {
+          // Stale carbon-redis from a previous compose project. Remove + retry.
+          await execa("docker", ["rm", "-f", "carbon-redis"], {
+            reject: false,
+            stdio: "ignore"
+          });
+          r = await execa("docker", args, { cwd: root, reject: false });
+        }
+        if (r.exitCode !== 0) {
+          process.stderr.write(r.stderr ?? "");
+          throw new Error(`shared redis up failed (exit ${r.exitCode})`);
+        }
         return `shared redis on :${SHARED_REDIS_PORT} (index ${redisDb})`;
       }
     },
