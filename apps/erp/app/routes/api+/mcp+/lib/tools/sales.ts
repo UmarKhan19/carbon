@@ -200,9 +200,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_closeSalesOrder",
     {
       description: "close sales order",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -215,11 +215,11 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_convertSalesRfqToQuote",
     {
       description: "convert sales rfq to quote",
-      inputSchema: {
+      inputSchema: z.object({
       payload: z.object({
     id: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -232,9 +232,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_convertQuoteToOrder",
     {
       description: "convert quote to order",
-      inputSchema: {
+      inputSchema: z.object({
       payload: selectedLinesValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -247,9 +247,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_copyQuoteLine",
     {
       description: "copy quote line",
-      inputSchema: {
+      inputSchema: z.object({
       payload: getMethodValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -262,9 +262,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_copyQuote",
     {
       description: "copy quote",
-      inputSchema: {
+      inputSchema: z.object({
       payload: getMethodValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -277,9 +277,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteCustomer",
     {
       description: "delete customer",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -292,10 +292,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteCustomerContact",
     {
       description: "delete customer contact",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
       customerContactId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -308,10 +308,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteCustomerLocation",
     {
       description: "delete customer location",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
       customerLocationId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -324,9 +324,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteCustomerStatus",
     {
       description: "delete customer status",
-      inputSchema: {
+      inputSchema: z.object({
       customerStatusId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -339,9 +339,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteCustomerType",
     {
       description: "delete customer type",
-      inputSchema: {
+      inputSchema: z.object({
       customerTypeId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -354,9 +354,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteNoQuoteReason",
     {
       description: "delete no quote reason",
-      inputSchema: {
+      inputSchema: z.object({
       noQuoteReasonId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -369,9 +369,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteQuote",
     {
       description: "delete quote",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -384,9 +384,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteQuoteMakeMethod",
     {
       description: "delete quote make method",
-      inputSchema: {
+      inputSchema: z.object({
       quoteMakeMethodId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -399,9 +399,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteQuoteLine",
     {
       description: "delete quote line",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -414,9 +414,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteQuoteMaterial",
     {
       description: "delete quote material",
-      inputSchema: {
+      inputSchema: z.object({
       quoteMaterialId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -429,9 +429,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteQuoteOperation",
     {
       description: "delete quote operation",
-      inputSchema: {
+      inputSchema: z.object({
       quoteOperationId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -444,9 +444,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteQuoteOperationStep",
     {
       description: "delete quote operation step",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -459,9 +459,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteQuoteOperationParameter",
     {
       description: "delete quote operation parameter",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -474,9 +474,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteQuoteOperationTool",
     {
       description: "delete quote operation tool",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -489,9 +489,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteSalesOrder",
     {
       description: "delete sales order",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -504,9 +504,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteSalesOrderLine",
     {
       description: "delete sales order line",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -519,9 +519,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteSalesRFQ",
     {
       description: "delete sales r f q",
-      inputSchema: {
+      inputSchema: z.object({
       salesRfqId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -534,9 +534,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_deleteSalesRFQLine",
     {
       description: "delete sales r f q line",
-      inputSchema: {
+      inputSchema: z.object({
       salesRFQLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -549,9 +549,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getConfigurationParametersByQuoteLineId",
     {
       description: "get configuration parameters by quote line id",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -564,9 +564,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomer",
     {
       description: "get customer",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -579,9 +579,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerContact",
     {
       description: "get customer contact",
-      inputSchema: {
+      inputSchema: z.object({
       customerContactId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -594,9 +594,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerContacts",
     {
       description: "get customer contacts",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -609,9 +609,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerLocation",
     {
       description: "get customer location",
-      inputSchema: {
+      inputSchema: z.object({
       customerLocationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -624,9 +624,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerLocations",
     {
       description: "get customer locations",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -639,9 +639,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerPayment",
     {
       description: "get customer payment",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -654,9 +654,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerShipping",
     {
       description: "get customer shipping",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -669,13 +669,13 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomers",
     {
       description: "get customers",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -688,7 +688,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomersList",
     {
       description: "get customers list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -701,9 +701,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerStatus",
     {
       description: "get customer status",
-      inputSchema: {
+      inputSchema: z.object({
       customerStatusId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -716,13 +716,13 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerStatuses",
     {
       description: "get customer statuses",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -735,7 +735,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerStatusesList",
     {
       description: "get customer statuses list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -748,9 +748,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerType",
     {
       description: "get customer type",
-      inputSchema: {
+      inputSchema: z.object({
       customerTypeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -763,13 +763,13 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerTypes",
     {
       description: "get customer types",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -782,7 +782,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getCustomerTypesList",
     {
       description: "get customer types list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -795,14 +795,14 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getExternalSalesOrderLines",
     {
       description: "get external sales order lines",
-      inputSchema: {
+      inputSchema: z.object({
       customerId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -815,9 +815,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getModelByQuoteLineId",
     {
       description: "get model by quote line id",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -830,7 +830,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getNoQuoteReasonsList",
     {
       description: "get no quote reasons list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -843,9 +843,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getNoQuoteReason",
     {
       description: "get no quote reason",
-      inputSchema: {
+      inputSchema: z.object({
       noQuoteReasonId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -858,13 +858,13 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getNoQuoteReasons",
     {
       description: "get no quote reasons",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -877,9 +877,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getOpportunity",
     {
       description: "get opportunity",
-      inputSchema: {
+      inputSchema: z.object({
       opportunityId: z.string().nullable(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -892,9 +892,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getOpportunityDocuments",
     {
       description: "get opportunity documents",
-      inputSchema: {
+      inputSchema: z.object({
       opportunityId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -907,10 +907,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getOpportunityLineDocuments",
     {
       description: "get opportunity line documents",
-      inputSchema: {
+      inputSchema: z.object({
       lineId: z.string(),
       itemId: z.string().nullable().optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -923,9 +923,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuote",
     {
       description: "get quote",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -938,7 +938,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteFavorites",
     {
       description: "get quote favorites",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -951,13 +951,13 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuotes",
     {
       description: "get quotes",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -970,7 +970,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuotesList",
     {
       description: "get quotes list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -983,9 +983,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteAssembliesByLine",
     {
       description: "get quote assemblies by line",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -998,9 +998,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteAssemblies",
     {
       description: "get quote assemblies",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1013,9 +1013,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteCustomerDetails",
     {
       description: "get quote customer details",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1028,9 +1028,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteLine",
     {
       description: "get quote line",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1043,9 +1043,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteLinesList",
     {
       description: "get quote lines list",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1058,9 +1058,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteMakeMethod",
     {
       description: "get quote make method",
-      inputSchema: {
+      inputSchema: z.object({
       quoteMakeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1073,9 +1073,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getRootQuoteMakeMethod",
     {
       description: "get root quote make method",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1088,9 +1088,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteMethodTrees",
     {
       description: "get quote method trees",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1103,9 +1103,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteMethodTreeArray",
     {
       description: "get quote method tree array",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1118,9 +1118,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteLines",
     {
       description: "get quote lines",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1133,9 +1133,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteByExternalId",
     {
       description: "get quote by external id",
-      inputSchema: {
+      inputSchema: z.object({
       externalId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1148,9 +1148,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteLinePrices",
     {
       description: "get quote line prices",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1163,9 +1163,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteLinePricesByQuoteId",
     {
       description: "get quote line prices by quote id",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1178,10 +1178,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteLinePricesByItemId",
     {
       description: "get quote line prices by item id",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       currentQuoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1194,10 +1194,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteLinePricesByItemIds",
     {
       description: "get quote line prices by item ids",
-      inputSchema: {
+      inputSchema: z.object({
       itemIds: z.array(z.string()),
       currentQuoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1210,9 +1210,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteMaterials",
     {
       description: "get quote materials",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1225,9 +1225,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteMaterial",
     {
       description: "get quote material",
-      inputSchema: {
+      inputSchema: z.object({
       materialId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1240,9 +1240,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteMaterialsByLine",
     {
       description: "get quote materials by line",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1255,9 +1255,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteMaterialsByMethodId",
     {
       description: "get quote materials by method id",
-      inputSchema: {
+      inputSchema: z.object({
       quoteMakeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1270,9 +1270,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteMaterialsByOperation",
     {
       description: "get quote materials by operation",
-      inputSchema: {
+      inputSchema: z.object({
       quoteOperationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1285,9 +1285,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteOperation",
     {
       description: "get quote operation",
-      inputSchema: {
+      inputSchema: z.object({
       quoteOperationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1300,9 +1300,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteOperationsByLine",
     {
       description: "get quote operations by line",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1315,9 +1315,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteOperationsByMethodId",
     {
       description: "get quote operations by method id",
-      inputSchema: {
+      inputSchema: z.object({
       quoteMakeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1330,9 +1330,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteOperations",
     {
       description: "get quote operations",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1345,9 +1345,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuotePayment",
     {
       description: "get quote payment",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1360,9 +1360,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getQuoteShipment",
     {
       description: "get quote shipment",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1375,10 +1375,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getRelatedPricesForQuoteLine",
     {
       description: "get related prices for quote line",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       quoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1391,7 +1391,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesDocumentsAssignedToMe",
     {
       description: "get sales documents assigned to me",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1404,9 +1404,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrder",
     {
       description: "get sales order",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1419,9 +1419,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderCustomerDetails",
     {
       description: "get sales order customer details",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1434,7 +1434,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderFavorites",
     {
       description: "get sales order favorites",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1447,10 +1447,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderRelatedItems",
     {
       description: "get sales order related items",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
       opportunityId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1463,7 +1463,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrders",
     {
       description: "get sales orders",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -1471,7 +1471,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     status: z.string().nullable(),
     customerId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1484,7 +1484,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrdersList",
     {
       description: "get sales orders list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1497,9 +1497,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderPayment",
     {
       description: "get sales order payment",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1512,7 +1512,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesTerms",
     {
       description: "get sales terms",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1525,9 +1525,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderShipment",
     {
       description: "get sales order shipment",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1540,7 +1540,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderCustomers",
     {
       description: "get sales order customers",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1553,9 +1553,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderLines",
     {
       description: "get sales order lines",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1568,9 +1568,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderInvoiceLines",
     {
       description: "get sales order invoice lines",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1583,9 +1583,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderInvoicesByIds",
     {
       description: "get sales order invoices by ids",
-      inputSchema: {
+      inputSchema: z.object({
       invoiceIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1598,9 +1598,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderLinesByItemId",
     {
       description: "get sales order lines by item id",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1613,9 +1613,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderLinesByItemIds",
     {
       description: "get sales order lines by item ids",
-      inputSchema: {
+      inputSchema: z.object({
       itemIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1628,9 +1628,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderLine",
     {
       description: "get sales order line",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1643,9 +1643,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesOrderLineShipments",
     {
       description: "get sales order line shipments",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1658,9 +1658,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesRFQ",
     {
       description: "get sales r f q",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1673,7 +1673,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesRFQFavorites",
     {
       description: "get sales r f q favorites",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1686,13 +1686,13 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesRFQs",
     {
       description: "get sales r f qs",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1705,9 +1705,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesRFQLine",
     {
       description: "get sales r f q line",
-      inputSchema: {
+      inputSchema: z.object({
       lineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1720,9 +1720,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_getSalesRFQLines",
     {
       description: "get sales r f q lines",
-      inputSchema: {
+      inputSchema: z.object({
       salesRfqId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1735,9 +1735,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_insertCustomerContact",
     {
       description: "insert customer contact",
-      inputSchema: {
+      inputSchema: z.object({
       customerContact: customerContactValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1750,7 +1750,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_insertCustomerLocation",
     {
       description: "insert customer location",
-      inputSchema: {
+      inputSchema: z.object({
       customerLocation: z.object({
     customerId: z.string(),
     name: z.string(),
@@ -1763,7 +1763,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     postalCode: z.string().optional(),
     customFields: z.any().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1776,9 +1776,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_insertSalesOrderLines",
     {
       description: "insert sales order lines",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderLines: salesOrderLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1791,9 +1791,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_finalizeQuote",
     {
       description: "finalize quote",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1806,9 +1806,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_releaseSalesOrder",
     {
       description: "release sales order",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1821,9 +1821,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertCustomer",
     {
       description: "upsert customer",
-      inputSchema: {
+      inputSchema: z.object({
       customer: customerValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1836,9 +1836,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateCustomerAccounting",
     {
       description: "update customer accounting",
-      inputSchema: {
+      inputSchema: z.object({
       customerAccounting: customerAccountingValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1851,9 +1851,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateCustomerContact",
     {
       description: "update customer contact",
-      inputSchema: {
+      inputSchema: z.object({
       customerContact: customerContactValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1866,7 +1866,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateCustomerLocation",
     {
       description: "update customer location",
-      inputSchema: {
+      inputSchema: z.object({
       customerLocation: z.object({
     addressId: z.string(),
     name: z.string(),
@@ -1879,7 +1879,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     postalCode: z.string().optional(),
     customFields: z.any().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1892,9 +1892,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateCustomerPayment",
     {
       description: "update customer payment",
-      inputSchema: {
+      inputSchema: z.object({
       customerPayment: customerPaymentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1907,9 +1907,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateCustomerShipping",
     {
       description: "update customer shipping",
-      inputSchema: {
+      inputSchema: z.object({
       customerShipping: customerShippingValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1952,9 +1952,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertCustomerStatus",
     {
       description: "upsert customer status",
-      inputSchema: {
+      inputSchema: z.object({
       customerStatus: customerStatusValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1967,9 +1967,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertCustomerType",
     {
       description: "upsert customer type",
-      inputSchema: {
+      inputSchema: z.object({
       customerType: customerTypeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1982,9 +1982,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertNoQuoteReason",
     {
       description: "upsert no quote reason",
-      inputSchema: {
+      inputSchema: z.object({
       noQuoteReason: noQuoteReasonValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1997,12 +1997,12 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateSalesRFQFavorite",
     {
       description: "update sales r f q favorite",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     favorite: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2015,12 +2015,12 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateSalesRFQLineOrder",
     {
       description: "update sales r f q line order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     order: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2033,12 +2033,12 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateQuoteExchangeRate",
     {
       description: "update quote exchange rate",
-      inputSchema: {
+      inputSchema: z.object({
       data: z.object({
     id: z.string(),
     exchangeRate: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2051,10 +2051,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateQuoteLinePrecision",
     {
       description: "update quote line precision",
-      inputSchema: {
+      inputSchema: z.object({
       quoteLineId: z.string(),
       precision: z.number(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2067,12 +2067,12 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateSalesOrderExchangeRate",
     {
       description: "update sales order exchange rate",
-      inputSchema: {
+      inputSchema: z.object({
       data: z.object({
     id: z.string(),
     exchangeRate: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2085,12 +2085,12 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateQuoteFavorite",
     {
       description: "update quote favorite",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     favorite: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2103,14 +2103,14 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateSalesRFQStatus",
     {
       description: "update sales r f q status",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     id: z.string(),
     status: z.any(),
     noQuoteReasonId: z.string().nullable(),
     assignee: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2123,12 +2123,12 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateQuoteMaterialOrder",
     {
       description: "update quote material order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     order: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2141,12 +2141,12 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateQuoteOperationOrder",
     {
       description: "update quote operation order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     order: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2159,13 +2159,13 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateQuoteStatus",
     {
       description: "update quote status",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2178,7 +2178,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertMakeMethodFromQuoteLine",
     {
       description: "upsert make method from quote line",
-      inputSchema: {
+      inputSchema: z.object({
       lineMethod: z.object({
     itemId: z.string(),
     quoteId: z.string(),
@@ -2191,7 +2191,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     steps: z.boolean(),
     workInstructions: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2204,7 +2204,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertMakeMethodFromQuoteMethod",
     {
       description: "upsert make method from quote method",
-      inputSchema: {
+      inputSchema: z.object({
       quoteMethod: z.object({
     sourceId: z.string(),
     targetId: z.string(),
@@ -2216,7 +2216,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     steps: z.boolean(),
     workInstructions: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2229,9 +2229,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuote",
     {
       description: "upsert quote",
-      inputSchema: {
+      inputSchema: z.object({
       quote: quoteValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2244,9 +2244,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteLine",
     {
       description: "upsert quote line",
-      inputSchema: {
+      inputSchema: z.object({
       quotationLine: quoteLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2259,10 +2259,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteLineAdditionalCharges",
     {
       description: "upsert quote line additional charges",
-      inputSchema: {
+      inputSchema: z.object({
       lineId: z.string(),
       update: quoteLineAdditionalChargesValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2275,7 +2275,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteLinePrices",
     {
       description: "upsert quote line prices",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
       lineId: z.string(),
       quoteLinePrices: z.object({
@@ -2286,7 +2286,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     quantity: z.number(),
     categoryMarkups: z.any().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2299,11 +2299,11 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_calculatePricesForQuantities",
     {
       description: "calculate prices for quantities",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
       quoteLineId: z.string(),
       quantities: z.array(z.number()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2316,10 +2316,10 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_recalculateQuoteLinePrices",
     {
       description: "recalculate quote line prices",
-      inputSchema: {
+      inputSchema: z.object({
       quoteId: z.string(),
       quoteLineId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2332,7 +2332,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteLineMethod",
     {
       description: "upsert quote line method",
-      inputSchema: {
+      inputSchema: z.object({
       lineMethod: z.object({
     itemId: z.string(),
     quoteId: z.string(),
@@ -2346,7 +2346,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     steps: z.boolean(),
     workInstructions: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2359,9 +2359,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteMaterial",
     {
       description: "upsert quote material",
-      inputSchema: {
+      inputSchema: z.object({
       quoteMaterial: quoteMaterialValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2374,7 +2374,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteMaterialMakeMethod",
     {
       description: "upsert quote material make method",
-      inputSchema: {
+      inputSchema: z.object({
       quoteMethod: z.object({
     sourceId: z.string(),
     targetId: z.string(),
@@ -2387,7 +2387,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     steps: z.boolean(),
     workInstructions: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2400,9 +2400,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteOperation",
     {
       description: "upsert quote operation",
-      inputSchema: {
+      inputSchema: z.object({
       operation: quoteOperationValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2415,9 +2415,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteOperationStep",
     {
       description: "upsert quote operation step",
-      inputSchema: {
+      inputSchema: z.object({
       quoteOperationStep: operationStepValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2430,9 +2430,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteOperationParameter",
     {
       description: "upsert quote operation parameter",
-      inputSchema: {
+      inputSchema: z.object({
       quoteOperationParameter: operationParameterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2445,9 +2445,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteOperationTool",
     {
       description: "upsert quote operation tool",
-      inputSchema: {
+      inputSchema: z.object({
       quoteOperationTool: operationToolValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2460,9 +2460,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuotePayment",
     {
       description: "upsert quote payment",
-      inputSchema: {
+      inputSchema: z.object({
       quotePayment: quotePaymentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2475,9 +2475,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertQuoteShipment",
     {
       description: "upsert quote shipment",
-      inputSchema: {
+      inputSchema: z.object({
       quoteShipment: quoteShipmentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2490,12 +2490,12 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateSalesOrderFavorite",
     {
       description: "update sales order favorite",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     favorite: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2508,13 +2508,13 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_updateSalesOrderStatus",
     {
       description: "update sales order status",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2527,9 +2527,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertSalesOrder",
     {
       description: "upsert sales order",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrder: salesOrderValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2542,9 +2542,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertSalesOrderShipment",
     {
       description: "upsert sales order shipment",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderShipment: salesOrderShipmentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2557,9 +2557,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertSalesOrderLine",
     {
       description: "upsert sales order line",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderLine: salesOrderLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2572,9 +2572,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertSalesOrderPayment",
     {
       description: "upsert sales order payment",
-      inputSchema: {
+      inputSchema: z.object({
       salesOrderPayment: salesOrderPaymentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2587,9 +2587,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertSalesRFQ",
     {
       description: "upsert sales r f q",
-      inputSchema: {
+      inputSchema: z.object({
       rfq: salesRfqValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2602,9 +2602,9 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
     "sales_upsertSalesRFQLine",
     {
       description: "upsert sales r f q line",
-      inputSchema: {
+      inputSchema: z.object({
       salesRfqLine: salesRfqLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

@@ -1,5 +1,5 @@
+import { createClient } from "@supabase/supabase-js";
 import { createHash } from "node:crypto";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.33.1";
 import type { Database } from "../lib/types.ts";
 import { checkApiKeyRateLimit } from "./ratelimit.ts";
 

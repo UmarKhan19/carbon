@@ -27,12 +27,12 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_deleteUserAttributeValue",
     {
       description: "delete user attribute value",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     userAttributeId: z.string(),
     userAttributeValueId: z.string()
   }),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -45,9 +45,9 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_getAccount",
     {
       description: "get account",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -60,9 +60,9 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_getAttributes",
     {
       description: "get attributes",
-      inputSchema: {
+      inputSchema: z.object({
       isPublic: z.boolean(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -75,7 +75,7 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_getPrivateAttributes",
     {
       description: "get private attributes",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -88,7 +88,7 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_getPublicAttributes",
     {
       description: "get public attributes",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -101,7 +101,7 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_getAllAttributeCategories",
     {
       description: "get all attribute categories",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -114,9 +114,9 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_getAttributeCategoryWithValues",
     {
       description: "get attribute category with values",
-      inputSchema: {
+      inputSchema: z.object({
       categoryId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -129,9 +129,9 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_updateAvatar",
     {
       description: "update avatar",
-      inputSchema: {
+      inputSchema: z.object({
       avatarUrl: z.string().nullable(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -144,14 +144,14 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_updatePublicAccount",
     {
       description: "update public account",
-      inputSchema: {
+      inputSchema: z.object({
       account: z.object({
     id: z.string(),
     firstName: z.string(),
     lastName: z.string(),
     about: z.string().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -164,14 +164,14 @@ export const registerAccountTools: RegisterTools = (server, ctx) => {
     "account_upsertUserAttributeValue",
     {
       description: "upsert user attribute value",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     userAttributeValueId: z.any().optional(),
     userAttributeId: z.string(),
     value: z.any(),
     type: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

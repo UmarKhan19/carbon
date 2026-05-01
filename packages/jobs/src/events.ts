@@ -32,7 +32,10 @@ export type Events = {
       subject: string;
       text: string;
       html: string;
-      attachments?: Array<{ filename: string; content: string }>;
+      attachments?: Array<
+        | { filename: string; content: string }
+        | { filename: string; path: string }
+      >;
       companyId: string;
     };
   };

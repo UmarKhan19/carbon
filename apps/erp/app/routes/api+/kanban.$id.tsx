@@ -6,13 +6,12 @@ import { trigger } from "@carbon/jobs";
 import { Loading } from "@carbon/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Await, useLoaderData } from "react-router";
 import { Redirect } from "~/components/Redirect";
 
-import { getDefaultShelfForJob, getKanban } from "~/modules/inventory";
+import { getDefaultStorageUnitForJob, getKanban } from "~/modules/inventory";
 import { getItemReplenishment } from "~/modules/items";
 import {
   getActiveJobOperationByJobId,
@@ -72,16 +71,18 @@ async function handleKanban({
       };
     }
 
-    const [nextSequence, manufacturing, defaultShelf] = await Promise.all([
-      getNextSequence(client, "job", companyId),
-      getItemReplenishment(client, kanban.data.itemId!, companyId),
-      getDefaultShelfForJob(
-        client,
-        kanban.data.itemId!,
-        kanban.data.locationId!,
-        companyId
-      )
-    ]);
+    const [nextSequence, manufacturing, defaultStorageUnit] = await Promise.all(
+      [
+        getNextSequence(client, "job", companyId),
+        getItemReplenishment(client, kanban.data.itemId!, companyId),
+        getDefaultStorageUnitForJob(
+          client,
+          kanban.data.itemId!,
+          kanban.data.locationId!,
+          companyId
+        )
+      ]
+    );
 
     if (nextSequence.error) {
       console.error(nextSequence.error);
@@ -105,15 +106,16 @@ async function handleKanban({
       };
     }
 
-    // Use shelf from kanban if it exists, otherwise use default shelf
-    const shelfId = kanban.data.shelfId || defaultShelf || undefined;
+    // Use storage unit from kanban if it exists, otherwise use default storage unit
+    const storageUnitId =
+      kanban.data.storageUnitId || defaultStorageUnit || undefined;
 
     const createdJob = await upsertJob(client, {
       jobId: jobReadableId,
       itemId: kanban.data.itemId!,
       quantity: kanban.data.quantity!,
       locationId: kanban.data.locationId!,
-      shelfId,
+      storageUnitId,
       unitOfMeasureCode: kanban.data.purchaseUnitOfMeasureCode!,
       deadlineType: "Hard Deadline",
       scrapQuantity: 0,
@@ -179,8 +181,7 @@ async function handleKanban({
             userId,
             mode: "initial",
             direction: "backward"
-          },
-          region: FunctionRegion.UsEast1
+          }
         }),
         serviceRole
           .from("job")
@@ -293,7 +294,7 @@ async function handleKanban({
         .maybeSingle(),
       client
         .from("pickMethod")
-        .select("defaultShelfId")
+        .select("defaultStorageUnitId")
         .eq("itemId", kanban.data.itemId!)
         .eq("companyId", companyId)
         .eq("locationId", kanban.data.locationId!)
@@ -331,8 +332,10 @@ async function handleKanban({
         itemReplenishment?.conversionFactor ||
         1,
       locationId: kanban.data.locationId!,
-      shelfId:
-        kanban.data.shelfId || inventory.data?.defaultShelfId || undefined,
+      storageUnitId:
+        kanban.data.storageUnitId ||
+        inventory.data?.defaultStorageUnitId ||
+        undefined,
       companyId,
       createdBy: userId
     });

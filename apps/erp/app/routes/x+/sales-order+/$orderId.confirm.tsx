@@ -39,9 +39,7 @@ export async function action(args: ActionFunctionArgs) {
 
     const serviceRole = getCarbonServiceRole();
 
-    const [salesOrder] = await Promise.all([
-      getSalesOrder(serviceRole, orderId)
-    ]);
+    const salesOrder = await getSalesOrder(serviceRole, orderId);
     if (salesOrder.error) {
       return {
         success: false,
@@ -61,8 +59,8 @@ export async function action(args: ActionFunctionArgs) {
       validate: Intl.DateTimeFormat.supportedLocalesOf
     });
 
-    let file: ArrayBuffer;
     let fileName: string;
+    let documentFilePath: string;
 
     try {
       const result = await generateAndAttachSalesOrderPdf({
@@ -75,8 +73,8 @@ export async function action(args: ActionFunctionArgs) {
         serviceRole,
         pdfLoader
       });
-      file = result.file;
       fileName = result.fileName;
+      documentFilePath = result.documentFilePath;
       // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
     } catch (err) {
       return {
@@ -114,7 +112,7 @@ export async function action(args: ActionFunctionArgs) {
             userId,
             customerContactId: customerContact,
             cc: ccSelections,
-            file,
+            documentFilePath,
             fileName,
             serviceRole,
             locales

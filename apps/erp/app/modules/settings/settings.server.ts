@@ -412,3 +412,12 @@ export async function getIntegrationsWithHealth(
     error: null
   };
 }
+
+export async function invalidateIntegrationHealthCache(
+  integrationId: string,
+  companyId: string
+) {
+  const key = `integrations:${companyId}:${integrationId}:health`;
+
+  return await redis.del(key);
+}

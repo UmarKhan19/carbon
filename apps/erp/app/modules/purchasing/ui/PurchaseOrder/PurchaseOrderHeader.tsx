@@ -72,7 +72,7 @@ const PurchaseOrderHeader = () => {
     canReopen: boolean;
     canDelete: boolean;
     defaultCc: string[];
-    supplier: { supplierStatus: string | null } | null;
+    supplier: { status: string | null } | null;
   }>(path.to.purchaseOrder(orderId));
 
   const [suppliers] = useSuppliers();
@@ -132,7 +132,7 @@ const PurchaseOrderHeader = () => {
 
   return (
     <>
-      <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px] overflow-x-auto scrollbar-hide">
+      <div className="flex flex-shrink-0 items-center justify-between p-2 bg-background border-b h-[50px] overflow-x-auto scrollbar-hide">
         <HStack className="w-full justify-between">
           <HStack>
             <IconButton

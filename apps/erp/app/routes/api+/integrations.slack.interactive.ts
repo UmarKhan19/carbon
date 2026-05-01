@@ -8,7 +8,6 @@ import {
   getSlackIntegrationByTeamId
 } from "@carbon/ee/slack.server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
@@ -463,8 +462,7 @@ async function handleViewSubmission(
           id: ncrId,
           companyId,
           userId: employee.data?.id ?? "system"
-        },
-        region: FunctionRegion.UsEast1
+        }
       })
     ]);
 

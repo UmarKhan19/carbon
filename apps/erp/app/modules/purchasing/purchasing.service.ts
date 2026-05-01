@@ -6,7 +6,6 @@ import type {
   PostgrestSingleResponse,
   SupabaseClient
 } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import { getEmployeeJob } from "~/modules/people";
 import type { GenericQueryFilters } from "~/utils/query";
@@ -71,8 +70,7 @@ export async function convertSupplierQuoteToOrder(
     body: {
       type: "supplierQuoteToPurchaseOrder",
       ...payload
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -552,6 +550,14 @@ export async function getSupplierInteractionDocuments(
     .from("private")
     .list(`${companyId}/supplier-interaction/${interactionId}`);
 
+  if (result.error) {
+    console.error(
+      "Failed to list supplier interaction documents",
+      result.error
+    );
+    return [];
+  }
+
   return (
     result.data?.map((f) => ({ ...f, bucket: "supplier-interaction" })) ?? []
   );
@@ -566,9 +572,19 @@ export async function getSupplierInteractionLineDocuments(
     .from("private")
     .list(`${companyId}/supplier-interaction-line/${lineId}`);
 
+  if (result.error) {
+    console.error(
+      "Failed to list supplier interaction line documents",
+      result.error
+    );
+    return [];
+  }
+
   return (
-    result.data?.map((f) => ({ ...f, bucket: "supplier-interaction-line" })) ??
-    []
+    result.data?.map((f) => ({
+      ...f,
+      bucket: "supplier-interaction-line"
+    })) ?? []
   );
 }
 
@@ -1317,7 +1333,8 @@ export async function upsertPurchaseOrder(
     invoiceSupplierLocationId
   } = supplierPayment.data;
 
-  const { shippingMethodId, shippingTermId } = supplierShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    supplierShipping.data;
 
   if (purchaseOrder.currencyCode) {
     const currency = await getCurrencyByCode(
@@ -1363,6 +1380,8 @@ export async function upsertPurchaseOrder(
         locationId: locationId,
         shippingMethodId: shippingMethodId,
         shippingTermId: shippingTermId,
+        incoterm: incoterm,
+        incotermLocation: incotermLocation,
         companyId: purchaseOrder.companyId
       }
     ]),

@@ -2,7 +2,7 @@ import { cn } from "@carbon/react";
 
 const paragraphVariants = {
   base: {
-    text: "font-sans text-base font-normal text-muted-foreground",
+    text: "font-sans text-base font-normal text-muted-foreground text-pretty",
     spacing: "mb-3"
   },
   "base/bright": {

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { address, contact } from "~/types/validators";
 import { taxExemptionReasons } from "../sales/sales.models";
-import { methodItemType } from "../shared";
+import { incoterms, methodItemType } from "../shared";
 
 export const KPIs = [
   {
@@ -157,7 +157,9 @@ export const purchaseOrderDeliveryValidator = z
     customerId: zfd.text(z.string().optional()),
     customerLocationId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
-    notes: zfd.text(z.string().optional())
+    notes: zfd.text(z.string().optional()),
+    incoterm: zfd.text(z.enum(incoterms).optional()),
+    incotermLocation: zfd.text(z.string().optional())
   })
   .refine(
     (data) => {
@@ -207,7 +209,7 @@ export const purchaseOrderLineValidator = z
     purchaseQuantity: zfd.numeric(z.number().optional()),
     purchaseUnitOfMeasureCode: zfd.text(z.string().optional()),
     requestedDate: zfd.text(z.string().optional()),
-    shelfId: zfd.text(z.string().optional()),
+    storageUnitId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     supplierTaxAmount: zfd.numeric(z.number().optional()),
     supplierUnitPrice: zfd.numeric(z.number().optional())
@@ -338,6 +340,7 @@ export const supplierTaxValidator = z
     supplierId: z.string().min(1),
     taxId: zfd.text(z.string().optional()),
     vatNumber: zfd.text(z.string().optional()),
+    eori: zfd.text(z.string().optional()),
     taxExempt: z.coerce.boolean().default(false),
     taxExemptionReason: z.preprocess(
       (val) => (val === "" ? undefined : val),
@@ -395,7 +398,9 @@ export const supplierShippingValidator = z.object({
   shippingSupplierLocationId: zfd.text(z.string().optional()),
   shippingSupplierContactId: zfd.text(z.string().optional()),
   // shippingTermId: zfd.text(z.string().optional()),
-  shippingMethodId: zfd.text(z.string().optional())
+  shippingMethodId: zfd.text(z.string().optional()),
+  incoterm: zfd.text(z.enum(incoterms).optional()),
+  incotermLocation: zfd.text(z.string().optional())
 });
 
 export const supplierAccountingValidator = z.object({

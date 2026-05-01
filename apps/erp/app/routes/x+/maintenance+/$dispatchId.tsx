@@ -119,7 +119,7 @@ export default function MaintenanceDispatchRoute() {
                   </VStack>
                 </div>
               }
-              properties={<MaintenanceDispatchProperties />}
+              properties={<MaintenanceDispatchProperties key={dispatchId} />}
             />
           </div>
         </div>

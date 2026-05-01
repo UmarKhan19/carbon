@@ -13,7 +13,6 @@ import {
   Skeleton,
   VStack
 } from "@carbon/react";
-import { formatDateTime } from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { memo, useEffect, useRef } from "react";
 import {
@@ -25,7 +24,7 @@ import {
 } from "react-icons/lu";
 import { Link, useFetcher } from "react-router";
 import { EmployeeAvatar, Empty } from "~/components";
-import { usePermissions, useRouteData } from "~/hooks";
+import { useDateFormatter, usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
 
 type AuditLogDrawerProps = {
@@ -34,6 +33,11 @@ type AuditLogDrawerProps = {
   entityType: string;
   entityId: string;
   companyId: string;
+  /**
+   * Optional: scope the view to a single raw row rather than the full entity.
+   * When set, the drawer filters audit entries to `recordId = recordId`.
+   */
+  recordId?: string;
   /** When true, shows an upgrade prompt instead of fetching audit data */
   planRestricted?: boolean;
 };
@@ -70,11 +74,12 @@ const AuditLogDrawer = memo(
     entityType,
     entityId,
     companyId,
+    recordId,
     planRestricted = false
   }: AuditLogDrawerProps) => {
     const fetcher = useFetcher<AuditLogFetcherData>();
     const lastLoadedRef = useRef<string | null>(null);
-    const loadKey = `${entityType}:${entityId}:${companyId}`;
+    const loadKey = `${entityType}:${entityId}:${companyId}:${recordId ?? ""}`;
 
     const rootRouteData = useRouteData<{ auditLogEnabled: boolean }>(
       path.to.authenticatedRoot
@@ -101,12 +106,14 @@ const AuditLogDrawer = memo(
         entityId,
         companyId
       });
+      if (recordId) params.set("recordId", recordId);
       fetcher.load(`/api/audit-log?${params.toString()}`);
     }, [
       isOpen,
       entityType,
       entityId,
       companyId,
+      recordId,
       loadKey,
       fetcher,
       planRestricted,
@@ -218,6 +225,7 @@ type AuditLogEntryCardProps = {
 };
 
 const AuditLogEntryCard = memo(({ entry }: AuditLogEntryCardProps) => {
+  const { formatDateTime } = useDateFormatter();
   const opInfo = operationLabels[entry.operation] ?? {
     label: entry.operation,
     variant: "secondary" as const,
@@ -309,6 +317,7 @@ const AuditLogEntryCard = memo(({ entry }: AuditLogEntryCardProps) => {
 });
 
 AuditLogEntryCard.displayName = "AuditLogEntryCard";
+export { AuditLogEntryCard };
 
 function formatValue(value: unknown): string {
   if (value === null) return "null";

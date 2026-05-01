@@ -1,8 +1,8 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
@@ -47,6 +47,8 @@ import type {
   partValidator,
   pickMethodValidator,
   serviceValidator,
+  shelfLifeModes,
+  shelfLifeTriggerTimings,
   supplierPartValidator,
   toolValidator,
   unitOfMeasureValidator
@@ -64,8 +66,7 @@ export async function activateMethodVersion(
     body: {
       type: "methodVersionToActive",
       ...payload
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -91,8 +92,7 @@ export async function copyItem(
         steps: args.steps,
         workInstructions: args.workInstructions
       }
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -110,8 +110,7 @@ export async function copyMakeMethod(
       targetId: args.targetId,
       companyId: args.companyId,
       userId: args.userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -155,8 +154,7 @@ export async function createRevision(
         targetId: itemInsert.data.id,
         companyId: item.companyId,
         userId: createdBy
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
   }
 
@@ -641,7 +639,7 @@ export async function getItemReplenishment(
     .single();
 }
 
-export async function getItemShelfQuantities(
+export async function getItemStorageUnitQuantities(
   client: SupabaseClient<Database>,
   itemId: string,
   companyId: string,
@@ -1921,7 +1919,7 @@ export async function upsertConfigurationParameter(
         sanitize({
           ...data,
           updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: now(getLocalTimeZone()).toAbsoluteString()
         })
       )
       .eq("id", configurationParameter.id);
@@ -2019,6 +2017,414 @@ export async function upsertConfigurationRule(
   });
 }
 
+/**
+ * Persist (or clear) the per-item shelf-life policy. Shelf life lives on the
+ * "itemShelfLife" table, keyed by itemId. Absence of a row = not managed.
+ *
+ * Three-way mode handling so this helper can be called from any upsert path
+ * safely, including forms that don't surface the shelf-life fields:
+ *   - mode undefined         -> no-op. The caller's form didn't opine on
+ *                               shelf life; leave whatever row exists alone.
+ *   - mode 'NotManaged'      -> explicit opt-out. DELETE any existing row.
+ *   - mode 'Fixed Duration' or
+ *     'Calculated'           -> UPSERT, clearing fields that don't apply to
+ *                               the selected mode so stale values never leak
+ *                               between modes.
+ *
+ * Callers on an item INSERT path should pass companyId so the helper can
+ * seed a fresh row without a round-trip; on an UPDATE path where we know
+ * the row already exists, companyId is optional.
+ */
+/**
+ * Persist the user's "default storage unit" pick from the item form as a
+ * row in the "pickMethod" table. Items are company-wide in Carbon;
+ * per-location stocking facts live on pickMethod keyed by
+ * (itemId, locationId). Writing the form pick here (rather than as
+ * columns on "item") respects that boundary and lets a single item
+ * accumulate multiple location defaults over time.
+ *
+ * The locationId for the pickMethod row is derived from the chosen
+ * storageUnit (every storageUnit belongs to exactly one location), so
+ * the caller only needs to pass the storageUnitId. This keeps the item
+ * form to a single "Default Storage Unit" field - the location is
+ * implicit.
+ *
+ * Semantics:
+ *   - storageUnitId undefined -> no-op. Forms that don't surface this
+ *     field (e.g. the manufacturing sub-form) can share an action
+ *     without accidentally creating or clobbering a pickMethod row.
+ *   - storageUnitId set -> UPSERT on (itemId, storageUnit.locationId).
+ *     Existing defaultStorageUnit for that location is overwritten with
+ *     the new pick.
+ */
+export async function upsertItemDefaultPickMethod(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId: string;
+    userId: string;
+    storageUnitId?: string;
+  }
+) {
+  if (!args.storageUnitId) {
+    return { data: null, error: null };
+  }
+
+  const storageUnit = await client
+    .from("storageUnit")
+    .select("locationId, companyId")
+    .eq("id", args.storageUnitId)
+    .single();
+  if (storageUnit.error || !storageUnit.data) return storageUnit;
+
+  return client.from("pickMethod").upsert(
+    {
+      itemId: args.itemId,
+      locationId: storageUnit.data.locationId,
+      defaultStorageUnitId: args.storageUnitId,
+      companyId: storageUnit.data.companyId,
+      createdBy: args.userId,
+      updatedBy: args.userId,
+      updatedAt: today(getLocalTimeZone()).toString()
+    },
+    { onConflict: "itemId,locationId" }
+  );
+}
+
+/**
+ * Return the distinct processIds referenced by methodOperation rows on the
+ * item's active makeMethod. Used to scope the shelf-life trigger-process
+ * picker to processes the recipe will actually run, so users can't pick a
+ * process the trigger never matches against (the set-shelf-life helper short-circuits
+ * on processId mismatch). Empty array when the item has no active recipe.
+ */
+export async function getRecipeProcessIdsForItem(
+  client: SupabaseClient<Database>,
+  itemId: string
+) {
+  const makeMethod = await client
+    .from("activeMakeMethods")
+    .select("id")
+    .eq("itemId", itemId)
+    .maybeSingle();
+  if (makeMethod.error || !makeMethod.data?.id) {
+    return { data: [] as string[], error: makeMethod.error ?? null };
+  }
+  const operations = await client
+    .from("methodOperation")
+    .select("processId")
+    .eq("makeMethodId", makeMethod.data.id);
+  if (operations.error) {
+    return { data: [] as string[], error: operations.error };
+  }
+  const ids = Array.from(
+    new Set(
+      (operations.data ?? [])
+        .map((o) => o.processId)
+        .filter((id): id is string => !!id)
+    )
+  );
+  return { data: ids, error: null };
+}
+
+/**
+ * Fetch the shelf-life policy for an item. Returns `data: null` (without
+ * an error) when the item has no row, since absence = "not managed" and
+ * that's a valid state we don't want to treat as an error path.
+ */
+export async function getItemShelfLife(
+  client: SupabaseClient<Database>,
+  itemId: string
+) {
+  return client
+    .from("itemShelfLife")
+    .select("mode, days, triggerProcessId, triggerTiming, calculateFromBom")
+    .eq("itemId", itemId)
+    .maybeSingle();
+}
+
+/**
+ * Returns true when the item's active make-method has at least one BOM
+ * input with a managed shelf-life policy. Used to surface a warning when
+ * the user picks a BOM-driven shelf-life mode (Calculated, or Fixed
+ * Duration with calculateFromBom) but no input would actually contribute
+ * an expiry date.
+ *
+ * Returns false when there is no make-method, no materials, or every
+ * material has shelf-life NotManaged. Errors are coerced to false — this
+ * is a UI hint, not a correctness gate.
+ */
+export async function getBomHasShelfLifeManagedInput(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+): Promise<boolean> {
+  const makeMethods = await getMakeMethods(client, itemId, companyId);
+  if (makeMethods.error || !makeMethods.data?.length) return false;
+
+  const active =
+    makeMethods.data.find((m) => m.status === "Active") ?? makeMethods.data[0];
+
+  const materials = await getMethodMaterialsByMakeMethod(client, active.id);
+  const inputItemIds = (materials.data ?? [])
+    .map((m) => m.itemId)
+    .filter((id): id is string => !!id);
+  if (inputItemIds.length === 0) return false;
+
+  // Any row in itemShelfLife is by definition managed - the upsert path
+  // deletes the row when mode = 'NotManaged' and the column enum has no
+  // such value, so presence is sufficient.
+  const managed = await client
+    .from("itemShelfLife")
+    .select("itemId")
+    .in("itemId", inputItemIds)
+    .limit(1);
+
+  return !managed.error && (managed.data?.length ?? 0) > 0;
+}
+
+export async function upsertItemShelfLife(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId: string;
+    userId: string;
+    companyId?: string;
+    mode?: (typeof shelfLifeModes)[number];
+    days?: number;
+    triggerProcessId?: string;
+    triggerTiming?: (typeof shelfLifeTriggerTimings)[number];
+    calculateFromBom?: boolean;
+  }
+) {
+  if (args.mode === undefined) {
+    return { data: null, error: null };
+  }
+
+  if (args.mode === "NotManaged") {
+    return client.from("itemShelfLife").delete().eq("itemId", args.itemId);
+  }
+
+  const days = args.mode === "Fixed Duration" ? (args.days ?? null) : null;
+  const triggerProcessId =
+    args.mode === "Fixed Duration" ? (args.triggerProcessId ?? null) : null;
+  // triggerTiming only matters when there's a trigger process. Reset to the
+  // default 'After' otherwise so the column never carries a stale value
+  // from a prior config.
+  const triggerTiming = triggerProcessId
+    ? (args.triggerTiming ?? "After")
+    : "After";
+  // Calculate-from-BOM is meaningful only on Fixed Duration; the table
+  // CHECK enforces the same rule. Coerce any stale flag back to false on
+  // mode switches so the row never carries an inconsistent combo.
+  const calculateFromBom =
+    args.mode === "Fixed Duration" ? (args.calculateFromBom ?? false) : false;
+
+  // Reject trigger processes that aren't on the item's active recipe.
+  // The set-shelf-life helper gates on processId equality, so a process
+  // outside the recipe would never match and the expiry start date would
+  // silently never get set. Mirrors the guard inside
+  // upsertPickMethodWithShelfLife.
+  if (triggerProcessId) {
+    const recipe = await getRecipeProcessIdsForItem(client, args.itemId);
+    if (recipe.error) {
+      return { data: null, error: recipe.error } as any;
+    }
+    if (!recipe.data.includes(triggerProcessId)) {
+      return {
+        data: null,
+        error: {
+          message:
+            "Shelf-life trigger process must be one of the operations on this item's recipe",
+          details: "",
+          hint: "",
+          code: "shelf_life_trigger_process_not_in_recipe"
+        }
+      } as any;
+    }
+  }
+
+  const existing = await client
+    .from("itemShelfLife")
+    .select("itemId")
+    .eq("itemId", args.itemId)
+    .maybeSingle();
+
+  if (existing.error) return existing;
+
+  if (existing.data) {
+    return client
+      .from("itemShelfLife")
+      .update({
+        mode: args.mode,
+        days,
+        triggerProcessId,
+        triggerTiming,
+        calculateFromBom,
+        updatedBy: args.userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("itemId", args.itemId);
+  }
+
+  let companyId = args.companyId;
+  if (!companyId) {
+    const itemRow = await client
+      .from("item")
+      .select("companyId")
+      .eq("id", args.itemId)
+      .single();
+    if (itemRow.error || !itemRow.data) return itemRow;
+    companyId = itemRow.data.companyId ?? undefined;
+  }
+
+  return client.from("itemShelfLife").insert({
+    itemId: args.itemId,
+    mode: args.mode!,
+    days,
+    triggerProcessId,
+    triggerTiming,
+    calculateFromBom,
+    companyId: companyId!,
+    createdBy: args.userId
+  });
+}
+
+/**
+ * Atomic counterpart to {@link upsertPickMethod} + {@link upsertItemShelfLife}.
+ *
+ * The inventory form card submits pickMethod fields and shelf-life fields in
+ * the same POST (see pickMethodWithShelfLifeValidator). Writing them through
+ * two independent Supabase calls means a failure between the two leaves a
+ * partial update committed. This helper runs both writes inside a single
+ * Postgres transaction via Kysely.
+ */
+export async function upsertPickMethodWithShelfLife(
+  db: Kysely<KyselyDatabase>,
+  args: {
+    itemId: string;
+    locationId: string;
+    defaultStorageUnitId?: string | null;
+    customFields?: Json;
+    userId: string;
+    shelfLife: {
+      mode?: (typeof shelfLifeModes)[number];
+      days?: number;
+      triggerProcessId?: string;
+      triggerTiming?: (typeof shelfLifeTriggerTimings)[number];
+      calculateFromBom?: boolean;
+    };
+  }
+) {
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  return db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("pickMethod")
+      .set({
+        defaultStorageUnitId: args.defaultStorageUnitId ?? null,
+        customFields: args.customFields ?? null,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "=", args.itemId)
+      .where("locationId", "=", args.locationId)
+      .execute();
+
+    const { mode, days, triggerProcessId, triggerTiming, calculateFromBom } =
+      args.shelfLife;
+
+    // mode undefined = caller didn't surface the field; leave any existing
+    // row alone (matches upsertItemShelfLife semantics).
+    if (mode === undefined) return;
+
+    if (mode === "NotManaged") {
+      await trx
+        .deleteFrom("itemShelfLife")
+        .where("itemId", "=", args.itemId)
+        .execute();
+      return;
+    }
+
+    const normalizedDays = mode === "Fixed Duration" ? (days ?? null) : null;
+    const normalizedTriggerProcess =
+      mode === "Fixed Duration" ? (triggerProcessId ?? null) : null;
+    const normalizedTriggerTiming = normalizedTriggerProcess
+      ? (triggerTiming ?? "After")
+      : "After";
+    const normalizedCalcFromBom =
+      mode === "Fixed Duration" ? (calculateFromBom ?? false) : false;
+
+    // Reject trigger processes that aren't on the item's active recipe.
+    // The set-shelf-life helper gates on processId equality, so picking a
+    // process the recipe never runs would silently never set the expiry.
+    if (normalizedTriggerProcess) {
+      const recipeProcessIds = await trx
+        .selectFrom("methodOperation as mo")
+        .innerJoin("activeMakeMethods as amm", "amm.id", "mo.makeMethodId")
+        .select("mo.processId")
+        .where("amm.itemId", "=", args.itemId)
+        .where("mo.processId", "is not", null)
+        .execute();
+      const allowed = new Set(
+        recipeProcessIds
+          .map((r) => r.processId)
+          .filter((id): id is string => !!id)
+      );
+      if (!allowed.has(normalizedTriggerProcess)) {
+        throw new Error(
+          "Shelf-life trigger process must be one of the operations on this item's recipe"
+        );
+      }
+    }
+
+    const existing = await trx
+      .selectFrom("itemShelfLife")
+      .select("itemId")
+      .where("itemId", "=", args.itemId)
+      .executeTakeFirst();
+
+    if (existing) {
+      await trx
+        .updateTable("itemShelfLife")
+        .set({
+          mode,
+          days: normalizedDays,
+          triggerProcessId: normalizedTriggerProcess,
+          triggerTiming: normalizedTriggerTiming,
+          calculateFromBom: normalizedCalcFromBom,
+          updatedBy: args.userId,
+          updatedAt
+        })
+        .where("itemId", "=", args.itemId)
+        .execute();
+      return;
+    }
+
+    const itemRow = await trx
+      .selectFrom("item")
+      .select("companyId")
+      .where("id", "=", args.itemId)
+      .executeTakeFirstOrThrow();
+
+    if (!itemRow.companyId) {
+      throw new Error(`Item ${args.itemId} has no companyId`);
+    }
+
+    await trx
+      .insertInto("itemShelfLife")
+      .values({
+        itemId: args.itemId,
+        mode,
+        days: normalizedDays,
+        triggerProcessId: normalizedTriggerProcess,
+        triggerTiming: normalizedTriggerTiming,
+        calculateFromBom: normalizedCalcFromBom,
+        companyId: itemRow.companyId,
+        createdBy: args.userId
+      })
+      .execute();
+  });
+}
+
 export async function upsertConsumable(
   client: SupabaseClient<Database>,
   consumable:
@@ -2073,6 +2479,27 @@ export async function upsertConsumable(
     if (consumableInsert.error) return consumableInsert;
     if (itemCostUpdate.error) return itemCostUpdate;
 
+    if (itemId) {
+      const pickMethod = await upsertItemDefaultPickMethod(client, {
+        itemId,
+        userId: consumable.createdBy,
+        storageUnitId: consumable.defaultStorageUnitId
+      });
+      if (pickMethod.error) return pickMethod;
+
+      const shelfLife = await upsertItemShelfLife(client, {
+        itemId,
+        userId: consumable.createdBy,
+        companyId: consumable.companyId,
+        mode: consumable.shelfLifeMode,
+        days: consumable.shelfLifeDays,
+        triggerProcessId: consumable.shelfLifeTriggerProcessId,
+        triggerTiming: consumable.shelfLifeTriggerTiming,
+        calculateFromBom: consumable.shelfLifeCalculateFromBom
+      });
+      if (shelfLife.error) return shelfLife;
+    }
+
     const newConsumable = await client
       .from("consumables")
       .select("id")
@@ -2116,6 +2543,25 @@ export async function upsertConsumable(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const pickMethod = await upsertItemDefaultPickMethod(client, {
+    itemId: consumable.id,
+    userId: consumable.updatedBy,
+    storageUnitId: consumable.defaultStorageUnitId
+  });
+  if (pickMethod.error) return pickMethod;
+
+  const shelfLife = await upsertItemShelfLife(client, {
+    itemId: consumable.id,
+    userId: consumable.updatedBy,
+    mode: consumable.shelfLifeMode,
+    days: consumable.shelfLifeDays,
+    triggerProcessId: consumable.shelfLifeTriggerProcessId,
+    triggerTiming: consumable.shelfLifeTriggerTiming,
+    calculateFromBom: consumable.shelfLifeCalculateFromBom
+  });
+  if (shelfLife.error) return shelfLife;
+
   return updateConsumable;
 }
 
@@ -2187,6 +2633,27 @@ export async function upsertPart(
       if (itemReplenishmentInsert.error) return itemReplenishmentInsert;
     }
 
+    if (itemId) {
+      const pickMethod = await upsertItemDefaultPickMethod(client, {
+        itemId,
+        userId: part.createdBy,
+        storageUnitId: part.defaultStorageUnitId
+      });
+      if (pickMethod.error) return pickMethod;
+
+      const shelfLife = await upsertItemShelfLife(client, {
+        itemId,
+        userId: part.createdBy,
+        companyId: part.companyId,
+        mode: part.shelfLifeMode,
+        days: part.shelfLifeDays,
+        triggerProcessId: part.shelfLifeTriggerProcessId,
+        triggerTiming: part.shelfLifeTriggerTiming,
+        calculateFromBom: part.shelfLifeCalculateFromBom
+      });
+      if (shelfLife.error) return shelfLife;
+    }
+
     const newPart = await client
       .from("parts")
       .select("id")
@@ -2230,6 +2697,25 @@ export async function upsertPart(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const pickMethod = await upsertItemDefaultPickMethod(client, {
+    itemId: part.id,
+    userId: part.updatedBy,
+    storageUnitId: part.defaultStorageUnitId
+  });
+  if (pickMethod.error) return pickMethod;
+
+  const shelfLife = await upsertItemShelfLife(client, {
+    itemId: part.id,
+    userId: part.updatedBy,
+    mode: part.shelfLifeMode,
+    days: part.shelfLifeDays,
+    triggerProcessId: part.shelfLifeTriggerProcessId,
+    triggerTiming: part.shelfLifeTriggerTiming,
+    calculateFromBom: part.shelfLifeCalculateFromBom
+  });
+  if (shelfLife.error) return shelfLife;
+
   return updatePart;
 }
 
@@ -2476,6 +2962,45 @@ export async function upsertMakeMethodVersion(
   return insert;
 }
 
+/**
+ * On BoM material add, seed `methodMaterial.storageUnitIds` with every
+ * (locationId -> defaultStorageUnitId) pair configured for the child item
+ * in "pickMethod". Values set by the caller win so downstream BoMs
+ * constructed with explicit picks are untouched.
+ *
+ * The JSONB is modelled as Record<locationId, storageUnitId>. Reading all
+ * pickMethods (rather than a single "default") matches Carbon's model
+ * where an item can be stocked across multiple locations, each with its
+ * own preferred bin.
+ */
+async function resolveMethodMaterialStorageUnitIds(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId?: string | null;
+    current?: Record<string, string>;
+  }
+): Promise<Record<string, string>> {
+  const current = { ...(args.current ?? {}) };
+  if (!args.itemId) return current;
+
+  const pickMethods = await client
+    .from("pickMethod")
+    .select("locationId, defaultStorageUnitId")
+    .eq("itemId", args.itemId);
+
+  for (const row of pickMethods.data ?? []) {
+    if (
+      row.locationId &&
+      row.defaultStorageUnitId &&
+      !current[row.locationId]
+    ) {
+      current[row.locationId] = row.defaultStorageUnitId;
+    }
+  }
+
+  return current;
+}
+
 export async function upsertMethodMaterial(
   client: SupabaseClient<Database>,
 
@@ -2504,12 +3029,25 @@ export async function upsertMethodMaterial(
   }
 
   if ("createdBy" in methodMaterial) {
+    // Seed storageUnitIds from the child item's default location/storage-unit
+    // if the caller didn't already provide one for that location. Respects
+    // the form value when supplied, adds a sensible default otherwise.
+    const seededStorageUnitIds = await resolveMethodMaterialStorageUnitIds(
+      client,
+      {
+        itemId: methodMaterial.itemId,
+        current: methodMaterial.storageUnitIds as
+          | Record<string, string>
+          | undefined
+      }
+    );
     return client
       .from("methodMaterial")
       .insert([
         {
           ...methodMaterial,
           itemId: methodMaterial.itemId!,
+          storageUnitIds: seededStorageUnitIds,
           materialMakeMethodId
         }
       ])
@@ -2666,6 +3204,10 @@ export async function upsertMaterial(
       })
 ) {
   if ("createdBy" in material) {
+    // Collect every newly-created item id across the sizes / no-sizes
+    // branches so the shelf-life policy can be applied uniformly.
+    const newItemIds: string[] = [];
+
     if (material.sizes) {
       const itemInserts = await Promise.all(
         material.sizes.map((size) =>
@@ -2693,6 +3235,9 @@ export async function upsertMaterial(
       if (hasErrors) {
         const firstError = itemInserts.find((insert) => insert.error);
         return firstError!;
+      }
+      for (const insert of itemInserts) {
+        if (insert.data?.id) newItemIds.push(insert.data.id);
       }
       const itemCostUpdate = await Promise.all(
         itemInserts.map((insert) =>
@@ -2729,6 +3274,7 @@ export async function upsertMaterial(
         .single();
       if (itemInsert.error) return itemInsert;
       const itemId = itemInsert.data?.id;
+      if (itemId) newItemIds.push(itemId);
       const itemCostUpdate = await client
         .from("itemCost")
         .update(
@@ -2741,6 +3287,27 @@ export async function upsertMaterial(
       if (itemCostUpdate.error) {
         console.error(itemCostUpdate.error);
       }
+    }
+
+    for (const itemId of newItemIds) {
+      const pickMethod = await upsertItemDefaultPickMethod(client, {
+        itemId,
+        userId: material.createdBy,
+        storageUnitId: material.defaultStorageUnitId
+      });
+      if (pickMethod.error) return pickMethod;
+
+      const shelfLife = await upsertItemShelfLife(client, {
+        itemId,
+        userId: material.createdBy,
+        companyId: material.companyId,
+        mode: material.shelfLifeMode,
+        days: material.shelfLifeDays,
+        triggerProcessId: material.shelfLifeTriggerProcessId,
+        triggerTiming: material.shelfLifeTriggerTiming,
+        calculateFromBom: material.shelfLifeCalculateFromBom
+      });
+      if (shelfLife.error) return shelfLife;
     }
 
     const materialInsert = await client.from("material").upsert({
@@ -2809,6 +3376,25 @@ export async function upsertMaterial(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const pickMethod = await upsertItemDefaultPickMethod(client, {
+    itemId: material.id,
+    userId: material.updatedBy,
+    storageUnitId: material.defaultStorageUnitId
+  });
+  if (pickMethod.error) return pickMethod;
+
+  const shelfLife = await upsertItemShelfLife(client, {
+    itemId: material.id,
+    userId: material.updatedBy,
+    mode: material.shelfLifeMode,
+    days: material.shelfLifeDays,
+    triggerProcessId: material.shelfLifeTriggerProcessId,
+    triggerTiming: material.shelfLifeTriggerTiming,
+    calculateFromBom: material.shelfLifeCalculateFromBom
+  });
+  if (shelfLife.error) return shelfLife;
+
   return updateMaterial;
 }
 
@@ -3231,6 +3817,27 @@ export async function upsertTool(
     if (toolInsert.error) return toolInsert;
     if (itemCostUpdate.error) return itemCostUpdate;
 
+    if (itemId) {
+      const pickMethod = await upsertItemDefaultPickMethod(client, {
+        itemId,
+        userId: tool.createdBy,
+        storageUnitId: tool.defaultStorageUnitId
+      });
+      if (pickMethod.error) return pickMethod;
+
+      const shelfLife = await upsertItemShelfLife(client, {
+        itemId,
+        userId: tool.createdBy,
+        companyId: tool.companyId,
+        mode: tool.shelfLifeMode,
+        days: tool.shelfLifeDays,
+        triggerProcessId: tool.shelfLifeTriggerProcessId,
+        triggerTiming: tool.shelfLifeTriggerTiming,
+        calculateFromBom: tool.shelfLifeCalculateFromBom
+      });
+      if (shelfLife.error) return shelfLife;
+    }
+
     const newTool = await client
       .from("tools")
       .select("*")
@@ -3274,6 +3881,25 @@ export async function upsertTool(
   ]);
 
   if (updateItem.error) return updateItem;
+
+  const pickMethod = await upsertItemDefaultPickMethod(client, {
+    itemId: tool.id,
+    userId: tool.updatedBy,
+    storageUnitId: tool.defaultStorageUnitId
+  });
+  if (pickMethod.error) return pickMethod;
+
+  const shelfLife = await upsertItemShelfLife(client, {
+    itemId: tool.id,
+    userId: tool.updatedBy,
+    mode: tool.shelfLifeMode,
+    days: tool.shelfLifeDays,
+    triggerProcessId: tool.shelfLifeTriggerProcessId,
+    triggerTiming: tool.shelfLifeTriggerTiming,
+    calculateFromBom: tool.shelfLifeCalculateFromBom
+  });
+  if (shelfLife.error) return shelfLife;
+
   return updateTool;
 }
 

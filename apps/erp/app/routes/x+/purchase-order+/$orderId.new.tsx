@@ -102,7 +102,7 @@ export default function NewPurchaseOrderLineRoute() {
     purchaseUnitOfMeasureCode: "",
     requestedDate: undefined,
     setupPrice: 0,
-    shelfId: "",
+    storageUnitId: "",
     supplierShippingCost: 0,
     supplierTaxAmount: 0,
     supplierUnitPrice: 0

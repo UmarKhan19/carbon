@@ -389,7 +389,7 @@ export default function Configurator({
               </div>
             </div>
 
-            <div className="w-1/3 flex flex-col">
+            <div className="w-1/3 flex flex-col bg-background">
               <ParameterPanel
                 parameters={parameters}
                 onChange={setParameters}

@@ -1,4 +1,4 @@
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.33.1";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "../lib/types.ts";
 
 export async function getDefaultPostingGroup(

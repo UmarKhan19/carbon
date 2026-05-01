@@ -10,6 +10,8 @@ import type {
   getCustomerTypes,
   getNoQuoteReasons,
   getOpportunity,
+  getPricingRule,
+  getPricingRules,
   getQuoteLinePrices,
   getQuoteLines,
   getQuoteMakeMethod,
@@ -25,8 +27,94 @@ import type {
   getSalesOrderRelatedItems,
   getSalesOrders,
   getSalesRFQLines,
-  getSalesRFQs
+  getSalesRFQs,
+  priceSourceTypes
 } from "./sales.service";
+
+// Pricing types
+export type MatchedRule = {
+  id: string;
+  name: string;
+  ruleType: string;
+  amountType: string;
+  amount: number;
+  priority: number;
+  minMarginPercent: number | null;
+};
+
+export type PriceOverrideBreak = {
+  id?: string;
+  quantity: number;
+  overridePrice: number;
+  active: boolean;
+};
+
+export type OverrideEntry = {
+  id: string;
+  quantity: number;
+  overridePrice: number;
+  notes: string | null;
+  validFrom: string | null;
+  validTo: string | null;
+  applyRulesOnTop: boolean;
+};
+
+export type PriceListRow = {
+  itemId: string;
+  partId: string;
+  itemName: string;
+  itemPostingGroupId: string | null;
+  thumbnailPath: string | null;
+  basePrice: number;
+  resolvedPrice: number;
+  isOverridden: boolean;
+  source: PriceSource;
+  trace: PriceTraceStep[];
+  overrideId: string | null;
+  overrideQuantity: number | null;
+  overrideNotes: string | null;
+  overrideValidFrom: string | null;
+  overrideValidTo: string | null;
+};
+
+export type PriceListResult = {
+  data: PriceListRow[];
+  count: number;
+};
+
+export type PriceResolutionInput = {
+  customerId?: string;
+  customerTypeId?: string;
+  itemId: string;
+  itemPostingGroupId?: string;
+  quantity: number;
+  date?: string;
+  existingBasePrice?: number;
+};
+
+export type PriceResolutionResult = {
+  finalPrice: number;
+  basePrice: number;
+  trace: PriceTraceStep[];
+};
+
+export type PriceSource = (typeof priceSourceTypes)[number];
+
+export type PriceTraceStep = {
+  step: string;
+  source: string;
+  amount: number;
+  adjustment?: number;
+  ruleId?: string;
+};
+
+export type PricingRule = NonNullable<
+  Awaited<ReturnType<typeof getPricingRules>>["data"]
+>[number];
+
+export type PricingRuleDetail = NonNullable<
+  Awaited<ReturnType<typeof getPricingRule>>["data"]
+>;
 
 export type Costs = {
   consumableCost: number;

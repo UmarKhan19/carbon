@@ -211,7 +211,7 @@ export const createPurchaseOrderTool = tool({
               itemReplenishment?.data?.conversionFactor ??
               1,
             locationId: locationId,
-            shelfId: null,
+            storageUnitId: null,
             supplierTaxAmount: 0,
             companyId: context.companyId,
             createdBy: context.userId

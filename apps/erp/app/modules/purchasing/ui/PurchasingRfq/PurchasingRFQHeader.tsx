@@ -61,7 +61,7 @@ const PurchasingRFQHeader = () => {
 
   const permissions = usePermissions();
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
   const finalizeFetcher = useFetcher<{ error: string | null }>();
 
   const routeData = useRouteData<{
@@ -88,7 +88,7 @@ const PurchasingRFQHeader = () => {
   const canCompareQuotes = activeLinkedQuotes.length > 1;
 
   return (
-    <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px] overflow-x-auto scrollbar-hide ">
+    <div className="flex flex-shrink-0 items-center justify-between p-2 bg-background border-b h-[50px] overflow-x-auto scrollbar-hide ">
       <HStack className="w-full justify-between">
         <HStack>
           <IconButton

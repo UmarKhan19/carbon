@@ -55,11 +55,11 @@ import {
   Number,
   NumberControlled,
   Select,
-  Shelf,
+  StorageUnit,
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import type {
   Item as SortableItem,
   SortableItemRenderProps
@@ -699,7 +699,7 @@ function MaterialForm({
     kit: boolean;
     requiresBatchTracking: boolean;
     requiresSerialTracking: boolean;
-    shelfId?: string;
+    storageUnitId?: string;
     itemReplenishmentSystem: string;
   }>({
     itemId: item.data.itemId ?? "",
@@ -712,7 +712,7 @@ function MaterialForm({
     kit: item.data.kit ?? false,
     requiresBatchTracking: item.data.requiresBatchTracking ?? false,
     requiresSerialTracking: item.data.requiresSerialTracking ?? false,
-    shelfId: item.data.shelfId ?? undefined,
+    storageUnitId: item.data.storageUnitId ?? undefined,
     itemReplenishmentSystem: item.data.item?.replenishmentSystem ?? "Buy"
   });
 
@@ -731,7 +731,7 @@ function MaterialForm({
       kit: false,
       requiresBatchTracking: false,
       requiresSerialTracking: false,
-      shelfId: "",
+      storageUnitId: "",
       itemReplenishmentSystem: "Buy"
     });
   };
@@ -755,7 +755,7 @@ function MaterialForm({
       carbon.from("itemCost").select("unitCost").eq("itemId", itemId).single(),
       carbon
         .from("pickMethod")
-        .select("defaultShelfId")
+        .select("defaultStorageUnitId")
         .eq("itemId", itemId)
         .eq("companyId", company.id)
         .eq("locationId", locationId!)
@@ -776,7 +776,7 @@ function MaterialForm({
       methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
       requiresBatchTracking: item.data?.itemTrackingType === "Batch",
       requiresSerialTracking: item.data?.itemTrackingType === "Serial",
-      shelfId: pickMethod.data?.defaultShelfId ?? "",
+      storageUnitId: pickMethod.data?.defaultStorageUnitId ?? "",
       itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
 
@@ -793,7 +793,7 @@ function MaterialForm({
     defaultIsOpen: isReleased
   });
   const locationId = routeData?.job?.locationId ?? undefined;
-  const shelves = useShelves(locationId);
+  const storageUnits = useStorageUnits(locationId);
 
   return (
     <ValidatedForm
@@ -838,6 +838,7 @@ function MaterialForm({
           name="itemId"
           label={itemType}
           includeInactive
+          locationId={locationId}
           validItemTypes={["Consumable", "Material", "Part"]}
           type={itemType}
           onChange={(value) => {
@@ -920,11 +921,12 @@ function MaterialForm({
             />
             <Badge variant="secondary">
               <LuGitPullRequest className="size-3 mr-1" />
-              {shelves.options?.find((s) => s.value === itemData.shelfId)
-                ?.label ??
+              {storageUnits.options?.find(
+                (s) => s.value === itemData.storageUnitId
+              )?.label ??
                 (itemData.methodType === "Make to Order"
                   ? t`WIP`
-                  : t`Default Shelf`)}
+                  : t`Default Storage Unit`)}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -959,14 +961,14 @@ function MaterialForm({
             }}
             replenishmentSystem={itemData.itemReplenishmentSystem}
           />
-          <Shelf
-            name="shelfId"
-            label={t`Shelf`}
-            value={itemData.shelfId}
+          <StorageUnit
+            name="storageUnitId"
+            label={t`Storage Unit`}
+            value={itemData.storageUnitId}
             onChange={(value) => {
               setItemData((d) => ({
                 ...d,
-                shelfId: value?.id ?? ""
+                storageUnitId: value?.id ?? ""
               }));
             }}
             locationId={locationId}

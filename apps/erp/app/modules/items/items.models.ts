@@ -52,6 +52,15 @@ export const itemReplenishmentSystems = [
   "Buy and Make"
 ] as const;
 
+export const shelfLifeModes = [
+  "NotManaged",
+  "Fixed Duration",
+  "Calculated",
+  "Set on Receipt"
+] as const;
+
+export const shelfLifeTriggerTimings = ["Before", "After"] as const;
+
 export const partManufacturingPolicies = [
   "Make to Stock",
   "Make to Order"
@@ -92,8 +101,128 @@ export const itemValidator = z.object({
   unitOfMeasureCode: z
     .string()
     .min(1, { message: "Unit of Measure is required" }),
-  unitCost: zfd.numeric(z.number().nonnegative().optional())
+  unitCost: zfd.numeric(z.number().nonnegative().optional()),
+  // Default storage unit (form-only; persisted to pickMethod via
+  // upsertItemDefaultPickMethod). Can point at any level of the
+  // storageUnit hierarchy since storageUnit nests via parentId. The
+  // locationId is derived server-side from storageUnit.locationId -
+  // the form itself does not capture a location.
+  defaultStorageUnitId: zfd.text(z.string().optional()),
+  // Shelf life. The UI Select only surfaces "Fixed Duration" / "Calculated";
+  // clearing it (X button) submits an empty string, which we preprocess to
+  // the sentinel "NotManaged" so the server deletes any existing
+  // itemShelfLife row. Truly absent fields (non-form callers like MCP that
+  // don't set shelfLifeMode at all) remain undefined, which the upsert
+  // helper treats as a no-op.
+  shelfLifeMode: z.preprocess(
+    (v) => (v === "" ? "NotManaged" : v),
+    z.enum(shelfLifeModes).optional()
+  ),
+  shelfLifeDays: zfd.numeric(z.number().positive().optional()),
+  shelfLifeTriggerProcessId: zfd.text(z.string().optional()),
+  // Whether the clock starts when the trigger process begins ('Before') or
+  // completes ('After'). Only meaningful with Fixed Duration + a trigger
+  // process; ignored otherwise. Defaults to 'After' to preserve legacy
+  // behavior on items that pre-date this column.
+  shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional(),
+  // Fixed Duration + Make items only: when true, the produced expiry is
+  // capped by the earliest input expiry — the output cannot outlast its
+  // raw materials. Falls back to today + days when no input has a date.
+  // Mirrors the inventory-settings "Calculate from BOM" copy.
+  shelfLifeCalculateFromBom: zfd.checkbox(),
+  requiresInspection: zfd.checkbox().optional()
 });
+
+// Common storage / shelf-life refines. Shared across all item-type
+// validators. Default Storage Unit is optional for every type - users can
+// set it later via the pickMethod UI once they know where the item lives.
+const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
+  schema: T
+) => {
+  const refined: z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>> = schema
+    .refine(
+      (data: z.infer<T>) =>
+        data.shelfLifeDays === undefined ||
+        data.shelfLifeMode === "Fixed Duration",
+      {
+        message:
+          "Shelf-life days can only be set when shelf-life management is Fixed Duration",
+        path: ["shelfLifeDays"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        data.shelfLifeMode !== "Fixed Duration" ||
+        data.shelfLifeDays !== undefined,
+      {
+        message:
+          "Shelf-life days is required when shelf-life management is Fixed Duration",
+        path: ["shelfLifeDays"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        !data.shelfLifeTriggerProcessId ||
+        data.shelfLifeMode === "Fixed Duration",
+      {
+        message:
+          "Trigger process can only be set when shelf-life management is Fixed Duration",
+        path: ["shelfLifeTriggerProcessId"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        !data.shelfLifeMode ||
+        data.shelfLifeMode === "NotManaged" ||
+        data.itemTrackingType === "Serial" ||
+        data.itemTrackingType === "Batch",
+      {
+        message:
+          "Shelf-life can only be managed on items tracked by Serial or Batch - there's no per-unit record to set the expiry on otherwise",
+        path: ["shelfLifeMode"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        data.shelfLifeMode !== "Calculated" ||
+        data.replenishmentSystem !== "Buy",
+      {
+        message:
+          "Component minimum shelf-life requires a BoM - only Make or Buy and Make items qualify",
+        path: ["shelfLifeMode"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        data.shelfLifeMode !== "Set on Receipt" ||
+        data.replenishmentSystem !== "Make",
+      {
+        message:
+          "Set on receipt applies at goods-in - only Buy or Buy and Make items qualify",
+        path: ["shelfLifeMode"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        !data.shelfLifeCalculateFromBom ||
+        data.shelfLifeMode === "Fixed Duration",
+      {
+        message: "Calculate from BOM only applies to Fixed Duration shelf life",
+        path: ["shelfLifeCalculateFromBom"]
+      }
+    )
+    .refine(
+      (data: z.infer<T>) =>
+        !data.shelfLifeCalculateFromBom || data.replenishmentSystem !== "Buy",
+      {
+        message:
+          "Calculate from BOM requires a BoM - only Make or Buy and Make items qualify",
+        path: ["shelfLifeCalculateFromBom"]
+      }
+    ) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
+
+  return refined;
+};
 
 export const configurationParameterGroupValidator = z.object({
   id: zfd.text(z.string().optional()),
@@ -144,13 +273,15 @@ export const configurationRuleValidator = z.object({
   code: z.string().min(1, { message: "Code is required" })
 });
 
-export const consumableValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Consumable ID is required" }).max(255),
-    unitOfMeasureCode: z
-      .string()
-      .min(1, { message: "Unit of Measure is required" })
-  })
+export const consumableValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Consumable ID is required" }).max(255),
+      unitOfMeasureCode: z
+        .string()
+        .min(1, { message: "Unit of Measure is required" })
+    })
+  )
 );
 
 export const customerPartValidator = z.object({
@@ -178,17 +309,19 @@ export const makeMethodVersionValidator = z.object({
   version: zfd.numeric(z.number().min(0, { message: "Please enter a version" }))
 });
 
-export const materialValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Material ID is required" }).max(255),
-    materialSubstanceId: zfd.text(z.string().optional()),
-    materialFormId: zfd.text(z.string().optional()),
-    materialTypeId: zfd.text(z.string().optional()),
-    finishId: zfd.text(z.string().optional()),
-    gradeId: zfd.text(z.string().optional()),
-    dimensionId: zfd.text(z.string().optional()),
-    sizes: z.array(z.string()).optional()
-  })
+export const materialValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Material ID is required" }).max(255),
+      materialSubstanceId: zfd.text(z.string().optional()),
+      materialFormId: zfd.text(z.string().optional()),
+      materialTypeId: zfd.text(z.string().optional()),
+      finishId: zfd.text(z.string().optional()),
+      gradeId: zfd.text(z.string().optional()),
+      dimensionId: zfd.text(z.string().optional()),
+      sizes: z.array(z.string()).optional()
+    })
+  )
 );
 
 export const materialValidatorWithGeneratedIds = z.object({
@@ -229,7 +362,7 @@ export const methodMaterialValidator = z.object({
   unitOfMeasureCode: z
     .string()
     .min(1, { message: "Unit of Measure is required" }),
-  shelfIds: z.string().transform((val) => {
+  storageUnitIds: z.string().transform((val) => {
     try {
       return JSON.parse(val) as Record<string, string>;
     } catch {
@@ -490,20 +623,89 @@ export const materialTypeValidator = z.object({
   code: z.string().min(1, { message: "Code is required" }).max(10)
 });
 
-export const partValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Part ID is required" }).max(255),
-    revision: z.string().min(1, { message: "Revision is required" }),
-    modelUploadId: zfd.text(z.string().optional()),
-    lotSize: zfd.numeric(z.number().min(0).optional())
-  })
+export const partValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Part ID is required" }).max(255),
+      revision: z.string().min(1, { message: "Revision is required" }),
+      modelUploadId: zfd.text(z.string().optional()),
+      lotSize: zfd.numeric(z.number().min(0).optional())
+    })
+  )
 );
 
 export const pickMethodValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   locationId: z.string().min(1, { message: "Location is required" }),
-  defaultShelfId: zfd.text(z.string().optional())
+  defaultStorageUnitId: zfd.text(z.string().optional())
 });
+
+// pickMethod form + shelf-life policy in one submit. Shelf-life itself is
+// item-level (stored on itemShelfLife keyed by itemId), not per-location,
+// but we surface the controls on the per-location "Inventory" card so
+// users editing the item's stocking defaults can also manage its shelf-
+// life policy without navigating elsewhere. The server-side action is
+// responsible for routing each subset of fields to its own upsert helper.
+//
+// Note: this validator does NOT reference itemTrackingType (pickMethod
+// doesn't carry it). The UI gates visibility of the shelf-life fields on
+// tracking type via a prop, and the itemValidator chain already enforces
+// the Serial-or-Batch prerequisite at item creation. If a caller somehow
+// posts shelfLifeMode on an item without Serial/Batch tracking, the
+// itemShelfLife table's CHECK constraints still stand - but it's easier
+// UX to not render the fields at all in that case.
+export const pickMethodWithShelfLifeValidator = pickMethodValidator
+  .merge(
+    z.object({
+      shelfLifeMode: z.preprocess(
+        (v) => (v === "" ? "NotManaged" : v),
+        z.enum(shelfLifeModes).optional()
+      ),
+      shelfLifeDays: zfd.numeric(z.number().positive().optional()),
+      shelfLifeTriggerProcessId: zfd.text(z.string().optional()),
+      shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional(),
+      shelfLifeCalculateFromBom: zfd.checkbox()
+    })
+  )
+  .refine(
+    (data) =>
+      data.shelfLifeDays === undefined ||
+      data.shelfLifeMode === "Fixed Duration",
+    {
+      message:
+        "Shelf-life days can only be set when shelf-life management is Fixed Duration",
+      path: ["shelfLifeDays"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.shelfLifeMode !== "Fixed Duration" ||
+      data.shelfLifeDays !== undefined,
+    {
+      message:
+        "Shelf-life days is required when shelf-life management is Fixed Duration",
+      path: ["shelfLifeDays"]
+    }
+  )
+  .refine(
+    (data) =>
+      !data.shelfLifeTriggerProcessId ||
+      data.shelfLifeMode === "Fixed Duration",
+    {
+      message:
+        "Trigger process can only be set when shelf-life management is Fixed Duration",
+      path: ["shelfLifeTriggerProcessId"]
+    }
+  )
+  .refine(
+    (data) =>
+      !data.shelfLifeCalculateFromBom ||
+      data.shelfLifeMode === "Fixed Duration",
+    {
+      message: "Calculate from BOM only applies to Fixed Duration shelf life",
+      path: ["shelfLifeCalculateFromBom"]
+    }
+  );
 
 export const revisionValidator = z
   .object({
@@ -519,15 +721,17 @@ export const revisionValidator = z
     { message: "Revision or copy from is required" }
   );
 
-export const serviceValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Service ID is required" }).max(255),
-    serviceType: z.enum(serviceType, {
-      errorMap: (issue, ctx) => ({
-        message: "Service type is required"
+export const serviceValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Service ID is required" }).max(255),
+      serviceType: z.enum(serviceType, {
+        errorMap: (issue, ctx) => ({
+          message: "Service type is required"
+        })
       })
     })
-  })
+  )
 );
 
 export const supplierPartValidator = z.object({
@@ -541,16 +745,18 @@ export const supplierPartValidator = z.object({
   unitPrice: zfd.numeric(z.number().min(0).optional())
 });
 
-export const toolValidator = itemValidator.merge(
-  z.object({
-    id: z.string().min(1, { message: "Tool ID is required" }).max(255),
-    revision: z.string().min(1, { message: "Revision is required" }),
-    modelUploadId: zfd.text(z.string().optional()),
-    unitOfMeasureCode: z
-      .string()
-      .min(1, { message: "Unit of Measure is required" }),
-    lotSize: zfd.numeric(z.number().min(0).optional())
-  })
+export const toolValidator = applyStorageAndShelfLifeRefines(
+  itemValidator.merge(
+    z.object({
+      id: z.string().min(1, { message: "Tool ID is required" }).max(255),
+      revision: z.string().min(1, { message: "Revision is required" }),
+      modelUploadId: zfd.text(z.string().optional()),
+      unitOfMeasureCode: z
+        .string()
+        .min(1, { message: "Unit of Measure is required" }),
+      lotSize: zfd.numeric(z.number().min(0).optional())
+    })
+  )
 );
 
 export const unitOfMeasureValidator = z.object({

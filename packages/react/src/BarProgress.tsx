@@ -126,7 +126,7 @@ export function BarProgress({
             <div />
           )}
           {value && (
-            <span className="text-xs font-mono text-muted-foreground">
+            <span className="text-xs font-mono tabular-nums text-muted-foreground">
               {value}
             </span>
           )}

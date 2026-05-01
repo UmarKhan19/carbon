@@ -137,7 +137,11 @@ const CustomerContact = ({
   ) => void;
 }) => {
   const initialLoad = useRef(true);
-  const { error, defaultValue } = useField(name);
+  const {
+    error,
+    defaultValue,
+    isOptional: isCustomerContactOptional
+  } = useField(name);
   const [value, setValue] = useControlField<string | null>(name);
 
   const customerContactFetcher =
@@ -193,7 +197,7 @@ const CustomerContact = ({
 
   return (
     <FormControl isInvalid={!!error}>
-      <FormLabel htmlFor={name}>
+      <FormLabel htmlFor={name} isOptional={isCustomerContactOptional}>
         <Trans>Customer Contact</Trans>
       </FormLabel>
       <input type="hidden" name={name} id={name} value={value ?? ""} />

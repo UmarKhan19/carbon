@@ -1,6 +1,7 @@
 import bwipjs from "@bwip-js/node";
 import { getAppUrl } from "@carbon/auth";
 import type { Database } from "@carbon/database";
+import { formatDate } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import { generateQRCode } from "../qr/qr-code";
@@ -40,6 +41,7 @@ const StockTransferPDF = ({
   stockTransfer,
   stockTransferLines,
   location,
+  locale,
   title = "Stock Transfer",
   thumbnails
 }: StockTransferPDFProps) => {
@@ -47,7 +49,7 @@ const StockTransferPDF = ({
     {
       label: "Date",
       value: stockTransfer?.createdAt
-        ? new Date(stockTransfer.createdAt).toLocaleDateString()
+        ? formatDate(stockTransfer.createdAt, undefined, locale)
         : ""
     },
     {
@@ -84,6 +86,7 @@ const StockTransferPDF = ({
             title={title}
             documentId={stockTransfer?.stockTransferId}
             date={stockTransfer?.createdAt}
+            locale={locale}
           />
           <Summary company={company} items={details} />
         </View>
@@ -103,9 +106,9 @@ const StockTransferPDF = ({
 
           {stockTransferLines
             .sort((a, b) => {
-              const shelfA = a.fromShelfName || "Any";
-              const shelfB = b.fromShelfName || "Any";
-              return shelfA.localeCompare(shelfB);
+              const storageUnitA = a.fromStorageUnitName || "Any";
+              const storageUnitB = b.fromStorageUnitName || "Any";
+              return storageUnitA.localeCompare(storageUnitB);
             })
             .map((line) => {
               const barcodeDataUrl = generateBarcode(line.itemReadableId ?? "");
@@ -150,8 +153,8 @@ const StockTransferPDF = ({
 
                   <View style={tw("w-1/4 text-center")}>
                     <Text style={tw("text-xs")}>
-                      {line.fromShelfName || "Any"} →{" "}
-                      {line.toShelfName || "Any"}
+                      {line.fromStorageUnitName || "Any"} →{" "}
+                      {line.toStorageUnitName || "Any"}
                     </Text>
                   </View>
 

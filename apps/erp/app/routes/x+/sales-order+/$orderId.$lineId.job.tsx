@@ -7,7 +7,7 @@ import { trigger } from "@carbon/jobs";
 import { parseDate } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { getDefaultShelfForJob } from "~/modules/inventory";
+import { getDefaultStorageUnitForJob } from "~/modules/inventory";
 import { getItemReplenishment } from "~/modules/items";
 import {
   salesOrderToJobValidator,
@@ -71,7 +71,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!jobId) throw new Error("jobId is not defined");
   const { id: _id, ...d } = validation.data;
 
-  const shelfId = await getDefaultShelfForJob(
+  const storageUnitId = await getDefaultStorageUnitForJob(
     serviceRole,
     validation.data.itemId,
     validation.data.locationId,
@@ -81,7 +81,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const createJob = await upsertJob(serviceRole, {
     ...d,
     jobId,
-    shelfId: shelfId ?? undefined,
+    storageUnitId: storageUnitId ?? undefined,
     startDate: d.dueDate
       ? parseDate(d.dueDate).subtract({ days: leadTime }).toString()
       : undefined,

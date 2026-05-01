@@ -16,7 +16,7 @@ type ColorFieldProps = {
 };
 
 const ColorPicker = ({ name, label }: ColorFieldProps) => {
-  const { error } = useField(name);
+  const { error, isOptional: fieldIsOptional } = useField(name);
   const [value, setValue] = useControlField<string>(name);
   const disclosure = useDisclosure();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,7 +28,7 @@ const ColorPicker = ({ name, label }: ColorFieldProps) => {
 
   return (
     <FormControl>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel isOptional={fieldIsOptional}>{label}</FormLabel>
       <input type="hidden" name={name} value={value} />
       <div className="relative" ref={containerRef}>
         <HStack>

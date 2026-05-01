@@ -132,9 +132,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_closePurchaseOrder",
     {
       description: "close purchase order",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -147,9 +147,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_convertSupplierQuoteToOrder",
     {
       description: "convert supplier quote to order",
-      inputSchema: {
+      inputSchema: z.object({
       payload: selectedLinesValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -162,9 +162,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deletePurchaseOrder",
     {
       description: "delete purchase order",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -177,9 +177,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deletePurchaseOrderLine",
     {
       description: "delete purchase order line",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -192,9 +192,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deleteSupplier",
     {
       description: "delete supplier",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -207,10 +207,10 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deleteSupplierContact",
     {
       description: "delete supplier contact",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
       supplierContactId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -223,10 +223,10 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deleteSupplierLocation",
     {
       description: "delete supplier location",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
       supplierLocationId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -239,9 +239,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deleteSupplierProcess",
     {
       description: "delete supplier process",
-      inputSchema: {
+      inputSchema: z.object({
       supplierProcessId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -254,9 +254,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deleteSupplierQuote",
     {
       description: "delete supplier quote",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -269,9 +269,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deleteSupplierQuoteLine",
     {
       description: "delete supplier quote line",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -284,9 +284,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deleteSupplierType",
     {
       description: "delete supplier type",
-      inputSchema: {
+      inputSchema: z.object({
       supplierTypeId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -299,9 +299,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchaseOrder",
     {
       description: "get purchase order",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -314,9 +314,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_finalizeSupplierQuote",
     {
       description: "finalize supplier quote",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -329,7 +329,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchaseOrders",
     {
       description: "get purchase orders",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -337,7 +337,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     status: z.string().nullable(),
     supplierId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -350,9 +350,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchaseOrderDelivery",
     {
       description: "get purchase order delivery",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -365,9 +365,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchaseOrderLocations",
     {
       description: "get purchase order locations",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -380,9 +380,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchaseOrderPayment",
     {
       description: "get purchase order payment",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -395,9 +395,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchaseOrderLines",
     {
       description: "get purchase order lines",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -410,9 +410,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchaseOrderLine",
     {
       description: "get purchase order line",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -425,7 +425,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchaseOrderSuppliers",
     {
       description: "get purchase order suppliers",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -438,7 +438,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingDocumentsAssignedToMe",
     {
       description: "get purchasing documents assigned to me",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -451,7 +451,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingPlanning",
     {
       description: "get purchasing planning",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       periods: z.array(z.string()),
       args: z.object({
@@ -459,7 +459,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -472,7 +472,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingTerms",
     {
       description: "get purchasing terms",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -485,9 +485,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplier",
     {
       description: "get supplier",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -500,10 +500,10 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierApprovalContext",
     {
       description: "get supplier approval context",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
       status: z.string().nullable(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -516,9 +516,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierContact",
     {
       description: "get supplier contact",
-      inputSchema: {
+      inputSchema: z.object({
       supplierContactId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -531,9 +531,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierContacts",
     {
       description: "get supplier contacts",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -546,9 +546,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierInteraction",
     {
       description: "get supplier interaction",
-      inputSchema: {
+      inputSchema: z.object({
       opportunityId: z.string().nullable(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -561,9 +561,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierInteractionDocuments",
     {
       description: "get supplier interaction documents",
-      inputSchema: {
+      inputSchema: z.object({
       interactionId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -576,9 +576,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierInteractionLineDocuments",
     {
       description: "get supplier interaction line documents",
-      inputSchema: {
+      inputSchema: z.object({
       lineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -591,9 +591,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierLocations",
     {
       description: "get supplier locations",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -606,9 +606,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierLocation",
     {
       description: "get supplier location",
-      inputSchema: {
+      inputSchema: z.object({
       supplierContactId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -621,9 +621,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierPayment",
     {
       description: "get supplier payment",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -636,9 +636,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierProcessById",
     {
       description: "get supplier process by id",
-      inputSchema: {
+      inputSchema: z.object({
       supplierProcessId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -651,9 +651,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierProcessesByProcess",
     {
       description: "get supplier processes by process",
-      inputSchema: {
+      inputSchema: z.object({
       processId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -666,9 +666,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierProcessesBySupplier",
     {
       description: "get supplier processes by supplier",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -681,9 +681,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuote",
     {
       description: "get supplier quote",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -696,9 +696,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuoteByInteractionId",
     {
       description: "get supplier quote by interaction id",
-      inputSchema: {
+      inputSchema: z.object({
       interactionId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -711,9 +711,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuoteByExternalLinkId",
     {
       description: "get supplier quote by external link id",
-      inputSchema: {
+      inputSchema: z.object({
       externalLinkId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -726,13 +726,13 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuotes",
     {
       description: "get supplier quotes",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -745,9 +745,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuoteLine",
     {
       description: "get supplier quote line",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -760,9 +760,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuoteLines",
     {
       description: "get supplier quote lines",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -775,9 +775,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuoteLinePrices",
     {
       description: "get supplier quote line prices",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteLineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -790,9 +790,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuoteLinePricesByQuoteId",
     {
       description: "get supplier quote line prices by quote id",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -805,7 +805,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuotesList",
     {
       description: "get supplier quotes list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -818,9 +818,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierShipping",
     {
       description: "get supplier shipping",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -833,7 +833,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSuppliers",
     {
       description: "get suppliers",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -841,7 +841,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     type: z.string().nullable(),
     status: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -854,7 +854,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSuppliersList",
     {
       description: "get suppliers list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -867,9 +867,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierType",
     {
       description: "get supplier type",
-      inputSchema: {
+      inputSchema: z.object({
       supplierTypeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -882,13 +882,13 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierTypes",
     {
       description: "get supplier types",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -901,7 +901,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierTypesList",
     {
       description: "get supplier types list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -914,9 +914,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_insertSupplier",
     {
       description: "insert supplier",
-      inputSchema: {
+      inputSchema: z.object({
       supplier: supplierValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -929,9 +929,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_insertSupplierContact",
     {
       description: "insert supplier contact",
-      inputSchema: {
+      inputSchema: z.object({
       supplierContact: supplierContactValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -944,9 +944,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_insertSupplierInteraction",
     {
       description: "insert supplier interaction",
-      inputSchema: {
+      inputSchema: z.object({
       supplierId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -959,7 +959,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_insertSupplierLocation",
     {
       description: "insert supplier location",
-      inputSchema: {
+      inputSchema: z.object({
       supplierLocation: z.object({
     supplierId: z.string(),
     name: z.string(),
@@ -972,7 +972,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     countryCode: z.string().optional(),
     customFields: z.any().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -985,9 +985,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_finalizePurchaseOrder",
     {
       description: "finalize purchase order",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1000,9 +1000,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_sendSupplierQuote",
     {
       description: "send supplier quote",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1015,12 +1015,12 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updatePurchaseOrder",
     {
       description: "update purchase order",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrder: z.object({
     id: z.string(),
     status: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1033,12 +1033,12 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updatePurchaseOrderExchangeRate",
     {
       description: "update purchase order exchange rate",
-      inputSchema: {
+      inputSchema: z.object({
       data: z.object({
     id: z.string(),
     exchangeRate: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1051,12 +1051,12 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updatePurchaseOrderFavorite",
     {
       description: "update purchase order favorite",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     favorite: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1069,13 +1069,13 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updatePurchaseOrderStatus",
     {
       description: "update purchase order status",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1088,9 +1088,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updateSupplierAccounting",
     {
       description: "update supplier accounting",
-      inputSchema: {
+      inputSchema: z.object({
       supplierAccounting: supplierAccountingValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1103,9 +1103,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updateSupplierContact",
     {
       description: "update supplier contact",
-      inputSchema: {
+      inputSchema: z.object({
       supplierContact: supplierContactValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1118,7 +1118,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updateSupplierLocation",
     {
       description: "update supplier location",
-      inputSchema: {
+      inputSchema: z.object({
       supplierLocation: z.object({
     addressId: z.string(),
     name: z.string(),
@@ -1131,7 +1131,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     postalCode: z.string().optional(),
     customFields: z.any().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1144,9 +1144,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updateSupplierPayment",
     {
       description: "update supplier payment",
-      inputSchema: {
+      inputSchema: z.object({
       supplierPayment: supplierPaymentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1159,12 +1159,12 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updateSupplierQuoteExchangeRate",
     {
       description: "update supplier quote exchange rate",
-      inputSchema: {
+      inputSchema: z.object({
       data: z.object({
     id: z.string(),
     exchangeRate: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1177,12 +1177,12 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updateSupplierQuoteFavorite",
     {
       description: "update supplier quote favorite",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     favorite: z.boolean()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1195,13 +1195,13 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updateSupplierQuoteStatus",
     {
       description: "update supplier quote status",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1214,9 +1214,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updateSupplierShipping",
     {
       description: "update supplier shipping",
-      inputSchema: {
+      inputSchema: z.object({
       supplierShipping: supplierShippingValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1259,10 +1259,10 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertPurchaseOrder",
     {
       description: "upsert purchase order",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrder: purchaseOrderValidator,
       receiptRequestedDate: z.string().optional(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1275,9 +1275,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertPurchaseOrderDelivery",
     {
       description: "upsert purchase order delivery",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderDelivery: purchaseOrderDeliveryValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1290,9 +1290,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertPurchaseOrderLine",
     {
       description: "upsert purchase order line",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderLine: purchaseOrderLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1305,9 +1305,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertPurchaseOrderPayment",
     {
       description: "upsert purchase order payment",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderPayment: purchaseOrderPaymentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1320,9 +1320,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertSupplier",
     {
       description: "upsert supplier",
-      inputSchema: {
+      inputSchema: z.object({
       supplier: supplierValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1335,9 +1335,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertSupplierProcess",
     {
       description: "upsert supplier process",
-      inputSchema: {
+      inputSchema: z.object({
       supplierProcess: supplierProcessValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1350,9 +1350,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertSupplierQuote",
     {
       description: "upsert supplier quote",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuote: supplierQuoteValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1365,9 +1365,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertSupplierQuoteLine",
     {
       description: "upsert supplier quote line",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteLine: supplierQuoteLineValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1380,9 +1380,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertSupplierType",
     {
       description: "upsert supplier type",
-      inputSchema: {
+      inputSchema: z.object({
       supplierType: supplierTypeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1395,9 +1395,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deletePurchasingRFQ",
     {
       description: "delete purchasing r f q",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1410,9 +1410,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_deletePurchasingRFQLine",
     {
       description: "delete purchasing r f q line",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqLineId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1425,9 +1425,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingRFQ",
     {
       description: "get purchasing r f q",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1440,13 +1440,13 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingRFQs",
     {
       description: "get purchasing r f qs",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1459,9 +1459,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingRFQLine",
     {
       description: "get purchasing r f q line",
-      inputSchema: {
+      inputSchema: z.object({
       lineId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1474,9 +1474,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingRFQLines",
     {
       description: "get purchasing r f q lines",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1489,9 +1489,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingRFQSuppliers",
     {
       description: "get purchasing r f q suppliers",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1504,7 +1504,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertPurchasingRFQ",
     {
       description: "upsert purchasing r f q",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfq: z.object({
     id: z.string().optional(),
     rfqId: z.string(),
@@ -1515,7 +1515,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     status: z.any().optional(),
     customFields: z.any().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1528,9 +1528,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertPurchasingRFQLine",
     {
       description: "upsert purchasing r f q line",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqLine: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1543,10 +1543,10 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_upsertPurchasingRFQSuppliers",
     {
       description: "upsert purchasing r f q suppliers",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqId: z.string(),
       supplierIds: z.array(z.string()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1559,13 +1559,13 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_updatePurchasingRFQStatus",
     {
       description: "update purchasing r f q status",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.string().nullable().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1578,9 +1578,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getLinkedSupplierQuotes",
     {
       description: "get linked supplier quotes",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1593,9 +1593,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getLinkedPurchasingRfqs",
     {
       description: "get linked purchasing rfqs",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1608,9 +1608,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getLinkedPurchasingRfqsForInteraction",
     {
       description: "get linked purchasing rfqs for interaction",
-      inputSchema: {
+      inputSchema: z.object({
       supplierInteractionId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1623,9 +1623,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSiblingQuotesForQuote",
     {
       description: "get sibling quotes for quote",
-      inputSchema: {
+      inputSchema: z.object({
       supplierQuoteId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1638,9 +1638,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getLinkedPurchasingRfqsForOrder",
     {
       description: "get linked purchasing rfqs for order",
-      inputSchema: {
+      inputSchema: z.object({
       purchaseOrderId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1653,9 +1653,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getSupplierQuotesForComparison",
     {
       description: "get supplier quotes for comparison",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1668,9 +1668,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
     "purchasing_getPurchasingRFQSuppliersWithLinks",
     {
       description: "get purchasing r f q suppliers with links",
-      inputSchema: {
+      inputSchema: z.object({
       purchasingRfqId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

@@ -5,20 +5,25 @@ import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
 import { InventoryDetails } from "~/modules/inventory";
 import type { PartSummary, UnitOfMeasureListItem } from "~/modules/items";
 import {
+  getBomHasShelfLifeManagedInput,
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemShelfLife,
+  getItemStorageUnitQuantities,
   getPickMethod,
-  pickMethodValidator,
-  upsertPickMethod
+  pickMethodWithShelfLifeValidator,
+  type shelfLifeModes,
+  upsertPickMethod,
+  upsertPickMethodWithShelfLife
 } from "~/modules/items";
 import { PickMethodForm } from "~/modules/items/ui/Item";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
+import { getDatabaseClient } from "~/services/database.server";
 import { useItems } from "~/stores";
 import type { ListItem } from "~/types";
 import { getCustomFields, setCustomFields } from "~/utils/form";
@@ -100,9 +105,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
   }
 
-  const [quantities, itemShelfQuantities] = await Promise.all([
+  const [
+    quantities,
+    itemStorageUnitQuantities,
+    shelfLife,
+    bomHasShelfLifeManagedInput
+  ] = await Promise.all([
     getItemQuantities(client, itemId, companyId, locationId),
-    getItemShelfQuantities(client, itemId, companyId, locationId)
+    getItemStorageUnitQuantities(client, itemId, companyId, locationId),
+    getItemShelfLife(client, itemId),
+    getBomHasShelfLifeManagedInput(client, itemId, companyId)
   ]);
   if (quantities.error) {
     throw redirect(
@@ -111,20 +123,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  if (itemShelfQuantities.error || !itemShelfQuantities.data) {
+  if (itemStorageUnitQuantities.error || !itemStorageUnitQuantities.data) {
     throw redirect(
       path.to.items,
       await flash(
         request,
-        error(itemShelfQuantities, "Failed to load part quantities")
+        error(itemStorageUnitQuantities, "Failed to load part quantities")
       )
     );
   }
 
   return {
     partInventory: partInventory.data,
-    itemShelfQuantities: itemShelfQuantities.data,
+    itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
+    shelfLife: shelfLife.data,
+    bomHasShelfLifeManagedInput,
     itemId,
     locationId
   };
@@ -132,7 +146,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { userId } = await requirePermissions(request, {
     update: "parts"
   });
 
@@ -140,33 +154,47 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
 
   const formData = await request.formData();
-  // validate with partsValidator
-  const validation = await validator(pickMethodValidator).validate(formData);
+  const validation = await validator(pickMethodWithShelfLifeValidator).validate(
+    formData
+  );
 
   if (validation.error) {
     return validationError(validation.error);
   }
 
-  const { ...update } = validation.data;
+  const {
+    shelfLifeMode,
+    shelfLifeDays,
+    shelfLifeTriggerProcessId,
+    shelfLifeTriggerTiming,
+    shelfLifeCalculateFromBom,
+    ...pickMethodFields
+  } = validation.data;
 
-  const updatePickMethod = await upsertPickMethod(client, {
-    ...update,
-    itemId,
-    customFields: setCustomFields(formData),
-    updatedBy: userId
-  });
-  if (updatePickMethod.error) {
+  try {
+    await upsertPickMethodWithShelfLife(getDatabaseClient(), {
+      itemId,
+      locationId: pickMethodFields.locationId,
+      defaultStorageUnitId: pickMethodFields.defaultStorageUnitId,
+      customFields: setCustomFields(formData),
+      userId,
+      shelfLife: {
+        mode: shelfLifeMode,
+        days: shelfLifeDays,
+        triggerProcessId: shelfLifeTriggerProcessId,
+        triggerTiming: shelfLifeTriggerTiming,
+        calculateFromBom: shelfLifeCalculateFromBom
+      }
+    });
+  } catch (err) {
     throw redirect(
       path.to.part(itemId),
-      await flash(
-        request,
-        error(updatePickMethod.error, "Failed to update part inventory")
-      )
+      await flash(request, error(err, "Failed to update part inventory"))
     );
   }
 
   throw redirect(
-    path.to.partInventoryLocation(itemId, update.locationId),
+    path.to.partInventoryLocation(itemId, pickMethodFields.locationId),
     await flash(request, success("Updated part inventory"))
   );
 }
@@ -177,8 +205,14 @@ export default function PartInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.partRoot);
 
-  const { partInventory, itemShelfQuantities, quantities, itemId } =
-    useLoaderData<typeof loader>();
+  const {
+    partInventory,
+    itemStorageUnitQuantities,
+    quantities,
+    shelfLife,
+    bomHasShelfLifeManagedInput,
+    itemId
+  } = useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
@@ -188,31 +222,43 @@ export default function PartInventoryRoute() {
 
   const initialValues = {
     ...partInventory,
-    defaultShelfId: partInventory.defaultShelfId ?? undefined,
+    defaultStorageUnitId: partInventory.defaultStorageUnitId ?? undefined,
+    shelfLifeMode: shelfLife?.mode as
+      | (typeof shelfLifeModes)[number]
+      | undefined,
+    shelfLifeDays: shelfLife?.days ?? undefined,
+    shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
+    shelfLifeTriggerTiming: shelfLife?.triggerTiming ?? undefined,
+    shelfLifeCalculateFromBom: shelfLife?.calculateFromBom ?? false,
     ...getCustomFields(partInventory.customFields ?? {})
   };
 
   const [items] = useItems();
-  const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
+  const item = items.find((i) => i.id === itemId);
+  const itemTrackingType = item?.itemTrackingType;
+  const replenishmentSystem = item?.replenishmentSystem ?? null;
 
-  const shelves = useShelves(partInventory?.locationId);
+  const storageUnits = useStorageUnits(partInventory?.locationId);
 
   return (
     <VStack spacing={2} className="p-2">
       <PickMethodForm
-        key={initialValues.itemId}
+        key={`${initialValues.itemId}-${itemTrackingType ?? "Inventory"}`}
         initialValues={initialValues}
         locations={sharedPartsData?.locations ?? []}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
         type="Part"
+        itemTrackingType={itemTrackingType ?? "Inventory"}
+        replenishmentSystem={replenishmentSystem}
+        bomHasShelfLifeManagedInput={bomHasShelfLifeManagedInput}
       />
       <InventoryDetails
-        itemShelfQuantities={itemShelfQuantities}
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
         pickMethod={initialValues}
         quantities={quantities}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
       />
     </VStack>
   );

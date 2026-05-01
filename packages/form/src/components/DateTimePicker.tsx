@@ -13,6 +13,7 @@ import {
   toCalendarDateTime,
   toZoned
 } from "@internationalized/date";
+import { useLocale } from "@react-aria/i18n";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import { useField } from "../hooks";
@@ -39,11 +40,17 @@ const DateTimePicker = ({
   helperText,
   onChange
 }: DateTimePickerProps) => {
+  const { locale } = useLocale();
   const formState = useFormStateContext();
   const isDisabled =
     formState.isDisabled || formState.isReadOnly || isDisabledProp;
   const { validate } = useFormContext();
-  const { error, defaultValue, validate: validateField } = useField(name);
+  const {
+    error,
+    defaultValue,
+    validate: validateField,
+    isOptional: fieldIsOptional
+  } = useField(name);
   const [date, setDate] = useState<CalendarDateTime | undefined>(
     defaultValue
       ? toCalendarDateTime(parseAbsolute(defaultValue, getLocalTimeZone()))
@@ -74,13 +81,17 @@ const DateTimePicker = ({
 
   const DateTimePickerPreview = (
     <span className="flex flex-grow line-clamp-1 items-center">
-      {formatDateTime(utcValue)}
+      {formatDateTime(utcValue, locale)}
     </span>
   );
 
   return (
     <FormControl isInvalid={!!error}>
-      {label && <FormLabel htmlFor={name}>{label}</FormLabel>}
+      {label && (
+        <FormLabel htmlFor={name} isOptional={fieldIsOptional ?? false}>
+          {label}
+        </FormLabel>
+      )}
       <input type="hidden" name={name} value={utcValue} />
       <DateTimePickerBase
         value={date}

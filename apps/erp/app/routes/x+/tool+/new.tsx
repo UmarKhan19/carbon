@@ -70,6 +70,7 @@ export default function ToolsNewRoute() {
     unitOfMeasureCode: "EA",
     unitCost: 0,
     active: true,
+    shelfLifeCalculateFromBom: false,
     tags: []
   };
 

@@ -247,7 +247,7 @@ export default function QuoteRoute() {
                     </VStack>
                   </div>
                 }
-                properties={<QuoteProperties />}
+                properties={<QuoteProperties key={quoteId} />}
               />
             </div>
           </div>

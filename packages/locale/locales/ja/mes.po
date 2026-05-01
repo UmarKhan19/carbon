@@ -15,7 +15,7 @@ msgstr ""
 
 #. placeholder {0}: attribute.name
 #. placeholder {1}: activeStep + 1
-#: apps/mes/app/components/JobOperation/components/Step.tsx:434
+#: apps/mes/app/components/JobOperation/components/Step.tsx:435
 msgid "{0} - Set {1}"
 msgstr "{0} - セット {1}"
 
@@ -33,21 +33,21 @@ msgstr "{0} 利用可能"
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
 #. placeholder {1}: operation.targetQuantity
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:637
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:851
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1795
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:638
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:852
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1811
 msgid "{0} of {1}"
 msgstr "{0} / {1}"
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:874
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:875
 msgid "{0} of {1} complete"
 msgstr "{0} / {1} 完了"
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1819
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1835
 msgid "{0} of {1} completed"
 msgstr "{0} / {1} 完了済み"
 
@@ -66,40 +66,31 @@ msgstr "アカウント設定"
 
 #: apps/mes/app/components/AppSidebar.tsx:199
 #: apps/mes/app/routes/x+/active.tsx:69
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:409
-#: apps/mes/app/routes/x+/timecard.tsx:424
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:411
+#: apps/mes/app/routes/x+/timecard.tsx:429
 msgid "Active"
 msgstr "アクティブ"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1017
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1018
 msgid "Actual"
 msgstr "実績"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:431
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:433
 msgid "Add"
 msgstr "追加"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:667
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:668
 msgid "Add & Issue"
 msgstr "追加して払出"
 
-#: apps/mes/app/components/AdjustInventory.tsx:112
-#: apps/mes/app/components/AdjustInventory.tsx:117
-#: apps/mes/app/components/AdjustInventory.tsx:140
-#: apps/mes/app/components/AdjustInventory.tsx:193
+#: apps/mes/app/components/AdjustInventory.tsx:114
+#: apps/mes/app/components/AdjustInventory.tsx:119
+#: apps/mes/app/components/AdjustInventory.tsx:142
+#: apps/mes/app/components/AdjustInventory.tsx:195
 msgid "Add Inventory"
 msgstr "在庫追加"
 
-#: apps/mes/app/components/PinInOverlay.tsx:515
-msgid "Add New Operator"
-msgstr "新しいオペレーターを追加"
-
-#: apps/mes/app/components/PinInOverlay.tsx:417
-#: apps/mes/app/components/PinInOverlay.tsx:625
-msgid "Add Operator"
-msgstr "オペレーターを追加"
-
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:302
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:303
 msgid "Add Spare Part"
 msgstr "スペアパーツを追加"
 
@@ -111,11 +102,11 @@ msgstr "すべて"
 msgid "Are you sure you want to close out this operation? This will end all active production events for this operation."
 msgstr "この工程をクローズしてもよろしいですか？この工程のすべてのアクティブな生産イベントが終了します。"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2364
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2380
 msgid "Are you sure you want to delete this step?"
 msgstr "このステップを削除してもよろしいですか？"
 
-#: apps/mes/app/routes/x+/timecard.tsx:495
+#: apps/mes/app/routes/x+/timecard.tsx:500
 msgid "Are you sure you want to delete this timecard? This cannot be undone."
 msgstr "このタイムカードを削除してもよろしいですか？この操作は元に戻せません。"
 
@@ -133,7 +124,7 @@ msgstr "割当済み"
 msgid "Assigned to Me"
 msgstr "自分に割当"
 
-#: apps/mes/app/routes/x+/operations.tsx:386
+#: apps/mes/app/routes/x+/operations.tsx:405
 msgid "Assignee"
 msgstr "担当者"
 
@@ -156,7 +147,7 @@ msgid "Batch is not available"
 msgstr "バッチは利用できません"
 
 #. placeholder {0}: index + 1
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:501
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:502
 msgid "Batch Number {0}"
 msgstr "バッチ番号 {0}"
 
@@ -181,18 +172,17 @@ msgstr "ご心配なく。パスワード忘却フローを使用して新しい
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "サインインすることにより、<0>利用規約</0>および<1>プライバシーポリシー</1>に同意したものとみなされます。"
 
-#: apps/mes/app/components/AdjustInventory.tsx:188
+#: apps/mes/app/components/AdjustInventory.tsx:190
 #: apps/mes/app/components/EndShift.tsx:141
 #: apps/mes/app/components/Feedback.tsx:139
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:268
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:139
-#: apps/mes/app/components/JobOperation/components/Step.tsx:556
-#: apps/mes/app/components/JobOperation/components/Step.tsx:604
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:657
-#: apps/mes/app/components/PinInOverlay.tsx:616
+#: apps/mes/app/components/JobOperation/components/Step.tsx:557
+#: apps/mes/app/components/JobOperation/components/Step.tsx:605
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:658
 #: apps/mes/app/components/Suggestion.tsx:199
-#: apps/mes/app/routes/x+/timecard.tsx:408
-#: apps/mes/app/routes/x+/timecard.tsx:505
+#: apps/mes/app/routes/x+/timecard.tsx:413
+#: apps/mes/app/routes/x+/timecard.tsx:510
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -200,7 +190,11 @@ msgstr "キャンセル"
 msgid "Carbon Logo"
 msgstr "Carbonロゴ"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:473
+#: apps/mes/app/routes/x+/operations.tsx:470
+msgid "Cards"
+msgstr "カード"
+
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:474
 msgid "Chat"
 msgstr "チャット"
 
@@ -214,7 +208,7 @@ msgid "Clear"
 msgstr "クリア"
 
 #: apps/mes/app/components/Filter/Filter.tsx:121
-#: apps/mes/app/routes/x+/operations.tsx:480
+#: apps/mes/app/routes/x+/operations.tsx:528
 msgid "Clear Filters"
 msgstr "フィルターをクリア"
 
@@ -227,20 +221,20 @@ msgstr "検索をクリア"
 
 #: apps/mes/app/components/TimeCardButton.tsx:90
 #: apps/mes/app/components/TimeCardButton.tsx:97
-#: apps/mes/app/routes/x+/timecard.tsx:264
-#: apps/mes/app/routes/x+/timecard.tsx:319
+#: apps/mes/app/routes/x+/timecard.tsx:267
+#: apps/mes/app/routes/x+/timecard.tsx:324
 msgid "Clock In"
 msgstr "出勤打刻"
 
 #: apps/mes/app/components/TimeCardButton.tsx:71
 #: apps/mes/app/components/TimeCardButton.tsx:78
-#: apps/mes/app/routes/x+/timecard.tsx:253
-#: apps/mes/app/routes/x+/timecard.tsx:322
+#: apps/mes/app/routes/x+/timecard.tsx:256
+#: apps/mes/app/routes/x+/timecard.tsx:327
 msgid "Clock Out"
 msgstr "退勤打刻"
 
-#. placeholder {0}: formatTime(openEntry.clockIn)
-#: apps/mes/app/routes/x+/timecard.tsx:272
+#. placeholder {0}: formatTime(openEntry.clockIn, locale)
+#: apps/mes/app/routes/x+/timecard.tsx:275
 msgid "Clocked in since {0}"
 msgstr "{0} から出勤中"
 
@@ -252,7 +246,7 @@ msgstr "閉じる"
 msgid "Close Anyways"
 msgstr "強制的に閉じる"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2112
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2128
 msgid "Close Out"
 msgstr "クローズ"
 
@@ -281,6 +275,10 @@ msgstr "カラム {0} が {1} の上に移動し、{3} 中の位置 {2} にな�
 msgid "Column: {0}"
 msgstr "カラム: {0}"
 
+#: apps/mes/app/routes/x+/operations.tsx:447
+msgid "Columns"
+msgstr "列"
+
 #: apps/mes/app/components/AppSidebar.tsx:420
 msgid "Company"
 msgstr "会社"
@@ -289,7 +287,7 @@ msgstr "会社"
 msgid "Complete"
 msgstr "完了"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:630
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:631
 msgid "Completed"
 msgstr "完了済み"
 
@@ -301,18 +299,19 @@ msgstr "コンソール"
 msgid "Console Mode"
 msgstr "コンソールモード"
 
-#: apps/mes/app/components/PinInOverlay.tsx:575
-msgid "Copy PIN"
-msgstr "PINをコピー"
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1102
+msgid "Consumed expired"
+msgstr "消費期限切れ"
 
+#. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
-#: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:339
+#: packages/react/src/CreateableCombobox.tsx:338
+#: packages/react/src/CreateableMultiSelect.tsx:355
 msgid "Create {0}"
 msgstr "{0}を作成"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1985
-#: apps/mes/app/routes/x+/operations.tsx:428
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2001
+#: apps/mes/app/routes/x+/operations.tsx:473
 msgid "Customer"
 msgstr "顧客"
 
@@ -320,48 +319,48 @@ msgstr "顧客"
 msgid "Dark Mode"
 msgstr "ダークモード"
 
-#: apps/mes/app/routes/x+/timecard.tsx:316
+#: apps/mes/app/routes/x+/timecard.tsx:321
 msgid "Date"
 msgstr "日付"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2012
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2028
 msgid "Deadline"
 msgstr "期限"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1119
-msgid "Default Shelf"
-msgstr "デフォルト棚"
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1134
+msgid "Default Storage Unit"
+msgstr "デフォルト保管ユニット"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:613
-#: apps/mes/app/routes/x+/timecard.tsx:457
-#: apps/mes/app/routes/x+/timecard.tsx:517
+#: apps/mes/app/components/JobOperation/components/Step.tsx:614
+#: apps/mes/app/routes/x+/timecard.tsx:462
+#: apps/mes/app/routes/x+/timecard.tsx:522
 msgid "Delete"
 msgstr "削除"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2363
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2379
 msgid "Delete Step"
 msgstr "ステップを削除"
 
-#. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString()
-#: apps/mes/app/routes/x+/timecard.tsx:488
+#. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
+#: apps/mes/app/routes/x+/timecard.tsx:493
 msgid "Delete Timecard ({0})"
 msgstr "タイムカードを削除（{0}）"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1999
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:284
-#: apps/mes/app/routes/x+/operations.tsx:429
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2015
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:286
+#: apps/mes/app/routes/x+/operations.tsx:474
 msgid "Description"
 msgstr "説明"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:455
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:456
 msgid "Details"
 msgstr "詳細"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:224
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:226
 msgid "Dispatch not found"
 msgstr "ディスパッチが見つかりません"
 
-#: apps/mes/app/routes/x+/operations.tsx:422
+#: apps/mes/app/routes/x+/operations.tsx:441
 msgid "Display"
 msgstr "表示"
 
@@ -370,7 +369,7 @@ msgstr "表示"
 msgid "Down"
 msgstr "停止"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1466
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1482
 msgid "Download"
 msgstr "ダウンロード"
 
@@ -386,16 +385,16 @@ msgstr "{0} のドラッグがキャンセルされました。"
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:578
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:679
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2031
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:579
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:680
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2047
 #: apps/mes/app/components/Kanban/components/ItemCard.tsx:229
 #: apps/mes/app/components/OperationsList.tsx:187
 msgid "Due {0}"
 msgstr "期限 {0}"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:658
-#: apps/mes/app/routes/x+/operations.tsx:430
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:659
+#: apps/mes/app/routes/x+/operations.tsx:475
 msgid "Due Date"
 msgstr "納期"
 
@@ -407,18 +406,22 @@ msgstr "バッチ番号が重複しています"
 msgid "Duplicate serial number"
 msgstr "シリアル番号が重複しています"
 
-#: apps/mes/app/routes/x+/operations.tsx:431
-#: apps/mes/app/routes/x+/timecard.tsx:325
+#: apps/mes/app/routes/x+/operations.tsx:476
+#: apps/mes/app/routes/x+/timecard.tsx:330
 msgid "Duration"
 msgstr "時間"
 
-#: apps/mes/app/routes/x+/timecard.tsx:445
+#: apps/mes/app/routes/x+/timecard.tsx:450
 msgid "Edit"
 msgstr "編集"
 
 #: apps/mes/app/routes/_public+/login.tsx:229
 msgid "Email Address"
 msgstr "メールアドレス"
+
+#: apps/mes/app/routes/x+/operations.tsx:450
+msgid "Empty work centers"
+msgstr "空の作業センター"
 
 #: apps/mes/app/components/EndShift.tsx:72
 #: apps/mes/app/components/EndShift.tsx:75
@@ -427,16 +430,8 @@ msgstr "メールアドレス"
 msgid "End Operations"
 msgstr "工程を終了"
 
-#: apps/mes/app/components/PinInOverlay.tsx:528
-msgid "Enter first name"
-msgstr "名を入力"
-
-#: apps/mes/app/components/PinInOverlay.tsx:540
-msgid "Enter last name"
-msgstr "姓を入力"
-
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:352
+#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "{0} のPINを入力"
 
@@ -444,15 +439,11 @@ msgstr "{0} のPINを入力"
 msgid "Error"
 msgstr "エラー"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1014
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1015
 msgid "Estimated"
 msgstr "見積"
 
-#: apps/mes/app/components/PinInOverlay.tsx:603
-msgid "Failed to add operator"
-msgstr "オペレーターの追加に失敗しました"
-
-#: apps/mes/app/components/AdjustInventory.tsx:94
+#: apps/mes/app/components/AdjustInventory.tsx:96
 msgid "Failed to complete inventory adjustment"
 msgstr "在庫調整の完了に失敗しました"
 
@@ -464,12 +455,12 @@ msgstr "工程の終了に失敗しました"
 msgid "Failed to fetch active operations"
 msgstr "アクティブな工程の取得に失敗しました"
 
-#: apps/mes/app/components/AdjustInventory.tsx:63
-msgid "Failed to fetch shelves"
-msgstr "棚の取得に失敗しました"
+#: apps/mes/app/components/AdjustInventory.tsx:65
+msgid "Failed to fetch storageUnits"
+msgstr "storageUnitsの取得に失敗しました"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:385
+#: apps/mes/app/components/JobOperation/components/Step.tsx:386
 msgid "Failed to upload file: {0}"
 msgstr "ファイルのアップロードに失敗しました: {0}"
 
@@ -487,11 +478,11 @@ msgstr "フィードバック"
 msgid "File size exceeds 10MB limit"
 msgstr "ファイルサイズが10MBの制限を超えています"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1393
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1409
 msgid "Files"
 msgstr "ファイル"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1396
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1412
 msgid "Files related to the job and the opportunity line."
 msgstr "ジョブおよび案件明細に関連するファイル。"
 
@@ -499,17 +490,9 @@ msgstr "ジョブおよび案件明細に関連するファイル。"
 msgid "Filter"
 msgstr "フィルター"
 
-#: apps/mes/app/components/PinInOverlay.tsx:523
-msgid "First Name"
-msgstr "名"
-
-#: apps/mes/app/components/TimeCardWarning.tsx:107
+#: apps/mes/app/components/TimeCardWarning.tsx:109
 msgid "Forgot to Clock Out?"
 msgstr "退勤打刻を忘れましたか？"
-
-#: apps/mes/app/components/PinInOverlay.tsx:589
-msgid "Generate new PIN"
-msgstr "新しいPINを生成"
 
 #: apps/mes/app/components/Feedback.tsx:165
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
@@ -519,7 +502,7 @@ msgstr "技術的な問題がありますか？<0>Carbonサポート</0>にお�
 msgid "I understand and want to complete without issuing"
 msgstr "理解した上で払出なしで完了します"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:140
+#: apps/mes/app/components/TimeCardWarning.tsx:142
 msgid "I'm Still Working"
 msgstr "まだ作業中です"
 
@@ -544,7 +527,7 @@ msgstr "進行中"
 msgid "Insufficient quantity"
 msgstr "数量が不足しています"
 
-#: apps/mes/app/components/AdjustInventory.tsx:89
+#: apps/mes/app/components/AdjustInventory.tsx:91
 msgid "Inventory adjustment completed"
 msgstr "在庫調整が完了しました"
 
@@ -560,55 +543,51 @@ msgstr "が次と等しい"
 msgid "is any of"
 msgstr "が次のいずれか"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1200
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1215
 msgid "Issue"
 msgstr "払出"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:973
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:974
 msgid "Issue Material"
 msgstr "材料払出"
 
-#: apps/mes/app/components/AdjustInventory.tsx:162
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1962
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:313
+#: apps/mes/app/components/AdjustInventory.tsx:164
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1978
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:314
 msgid "Item"
 msgstr "品目"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:515
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:516
 msgid "Item Master"
 msgstr "品目マスター"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1973
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1989
 msgid "Job"
 msgstr "ジョブ"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:506
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:507
 msgid "Job Details"
 msgstr "ジョブ詳細"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:500
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:501
 msgid "Job Traveler"
 msgstr "ジョブトラベラー"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1102
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1270
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1117
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1285
 msgid "Kit"
 msgstr "キット"
 
 #: apps/mes/app/components/JobOperation/components/Controls.tsx:182
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2163
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2179
 msgid "Labor"
 msgstr "作業"
-
-#: apps/mes/app/components/PinInOverlay.tsx:535
-msgid "Last Name"
-msgstr "姓"
 
 #: apps/mes/app/routes/_public+/_layout.tsx:30
 msgid "Let's build something"
 msgstr "さあ、何かを作りましょう"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:325
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:326
 msgid "Loading item details..."
 msgstr "品目詳細を読み込み中..."
 
@@ -622,7 +601,7 @@ msgid "Location"
 msgstr "ロケーション"
 
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:97
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2102
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2118
 msgid "Log Completed"
 msgstr "完了を記録"
 
@@ -641,7 +620,7 @@ msgid "Log rework for {0}"
 msgstr "{0} の手直しを記録"
 
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:95
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2085
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2101
 msgid "Log Scrap"
 msgstr "スクラップを記録"
 
@@ -655,7 +634,7 @@ msgid "Login"
 msgstr "ログイン"
 
 #: apps/mes/app/components/JobOperation/components/Controls.tsx:198
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2196
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2212
 msgid "Machine"
 msgstr "機械"
 
@@ -664,15 +643,15 @@ msgstr "機械"
 msgid "Maintenance"
 msgstr "メンテナンス"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:543
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:545
 msgid "Maintenance Completed"
 msgstr "メンテナンス完了"
 
-#: apps/mes/app/components/AdjustInventory.tsx:147
+#: apps/mes/app/components/AdjustInventory.tsx:149
 msgid "Manually add items to inventory"
 msgstr "手動で在庫に品目を追加"
 
-#: apps/mes/app/components/AdjustInventory.tsx:149
+#: apps/mes/app/components/AdjustInventory.tsx:151
 msgid "Manually remove items from inventory"
 msgstr "手動で在庫から品目を削除"
 
@@ -680,20 +659,20 @@ msgstr "手動で在庫から品目を削除"
 msgid "matches"
 msgstr "が一致"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:960
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:961
 msgid "Materials"
 msgstr "材料"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:835
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1779
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:836
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1795
 msgid "Maximum number of records reached"
 msgstr "レコードの最大数に達しました"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:461
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:462
 msgid "Model"
 msgstr "モデル"
 
-#: apps/mes/app/routes/x+/timecard.tsx:435
+#: apps/mes/app/routes/x+/timecard.tsx:440
 msgid "More options"
 msgstr "その他のオプション"
 
@@ -716,26 +695,26 @@ msgstr "{minValue} から {maxValue} {unitOfMeasureCode} の間である必要�
 
 #: apps/mes/app/components/TimeCardButton.tsx:105
 #: apps/mes/app/components/TimeCardButton.tsx:115
-#: apps/mes/app/routes/x+/timecard.tsx:242
+#: apps/mes/app/routes/x+/timecard.tsx:245
 msgid "My Hours"
 msgstr "勤務時間"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1410
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1426
 msgid "Name"
 msgstr "名前"
 
-#: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:261
+#: packages/react/src/CreateableCombobox.tsx:258
+#: packages/react/src/CreateableMultiSelect.tsx:274
 msgid "New"
 msgstr "新規"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:846
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1790
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:847
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1806
 msgid "New Record"
 msgstr "新規レコード"
 
-#: apps/mes/app/routes/x+/timecard.tsx:295
-#: apps/mes/app/routes/x+/timecard.tsx:299
+#: apps/mes/app/routes/x+/timecard.tsx:300
+#: apps/mes/app/routes/x+/timecard.tsx:304
 msgid "Next"
 msgstr "次へ"
 
@@ -764,7 +743,7 @@ msgstr "利用可能なシリアル番号が見つかりません"
 msgid "No dispatches assigned to you"
 msgstr "あなたに割り当てられたディスパッチはありません"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1425
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1441
 msgid "No files"
 msgstr "ファイルなし"
 
@@ -778,15 +757,15 @@ msgstr "影響なし"
 msgid "No maintenance scheduled for today"
 msgstr "本日のメンテナンス予定はありません"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1029
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1030
 msgid "No materials"
 msgstr "材料なし"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
+#: apps/mes/app/components/PinInOverlay.tsx:223
 msgid "No operators"
 msgstr "オペレーターなし"
 
-#: packages/react/src/CreateableMultiSelect.tsx:291
+#: packages/react/src/CreateableMultiSelect.tsx:304
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "オプションが見つかりません。"
@@ -799,8 +778,8 @@ msgstr "オプションが見つかりません。"
 msgid "No recent operations"
 msgstr "最近の工程はありません"
 
-#: apps/mes/app/components/PinInOverlay.tsx:285
-#: apps/mes/app/routes/x+/operations.tsx:477
+#: apps/mes/app/components/PinInOverlay.tsx:223
+#: apps/mes/app/routes/x+/operations.tsx:525
 msgid "No results"
 msgstr "結果なし"
 
@@ -821,15 +800,15 @@ msgstr "結果が見つかりません"
 msgid "No scheduled time"
 msgstr "予定時間なし"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1605
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1621
 msgid "No serial numbers"
 msgstr "シリアル番号なし"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:475
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:477
 msgid "No spare parts added yet"
 msgstr "スペアパーツはまだ追加されていません"
 
-#: apps/mes/app/routes/x+/timecard.tsx:337
+#: apps/mes/app/routes/x+/timecard.tsx:342
 msgid "No time entries for this week"
 msgstr "今週のタイムエントリーはありません"
 
@@ -837,7 +816,7 @@ msgstr "今週のタイムエントリーはありません"
 msgid "No work centers are blocked"
 msgstr "ブロックされているワークセンターはありません"
 
-#: apps/mes/app/routes/x+/operations.tsx:489
+#: apps/mes/app/routes/x+/operations.tsx:537
 msgid "No work centers exist"
 msgstr "ワークセンターがありません"
 
@@ -882,15 +861,15 @@ msgstr "オペレーター実施"
 msgid "Optional"
 msgstr "オプション"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1698
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1714
 msgid "Parameters"
 msgstr "パラメーター"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1008
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1009
 msgid "Part"
 msgstr "パーツ"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:541
+#: apps/mes/app/components/JobOperation/components/Step.tsx:542
 msgid "Passed Inspection"
 msgstr "検査合格"
 
@@ -905,11 +884,7 @@ msgstr "一時停止"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "カラム {0} を位置 {1}/{2} で選択しました"
 
-#: apps/mes/app/components/PinInOverlay.tsx:548
-msgid "PIN"
-msgstr "PIN"
-
-#: apps/mes/app/components/PinInOverlay.tsx:432
+#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "ピンアウト"
 
@@ -926,7 +901,7 @@ msgstr "クローズする前にこの工程のすべてのステップを記録
 msgid "Please select an item"
 msgstr "品目を選択してください"
 
-#: apps/mes/app/routes/x+/timecard.tsx:280
+#: apps/mes/app/routes/x+/timecard.tsx:285
 msgid "Prev"
 msgstr "前へ"
 
@@ -938,31 +913,31 @@ msgstr "予防保全"
 msgid "Priority"
 msgstr "優先度"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:470
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:516
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:471
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:518
 msgid "Procedure"
 msgstr "手順"
 
-#: apps/mes/app/routes/x+/operations.tsx:358
+#: apps/mes/app/routes/x+/operations.tsx:377
 msgid "Process"
 msgstr "プロセス"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:924
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:925
 msgid "Process Parameters"
 msgstr "プロセスパラメーター"
 
-#: apps/mes/app/routes/x+/operations.tsx:359
+#: apps/mes/app/routes/x+/operations.tsx:378
 msgid "Processes"
 msgstr "プロセス一覧"
 
-#: apps/mes/app/routes/x+/operations.tsx:432
+#: apps/mes/app/routes/x+/operations.tsx:477
 msgid "Progress"
 msgstr "進捗"
 
-#: apps/mes/app/components/AdjustInventory.tsx:168
+#: apps/mes/app/components/AdjustInventory.tsx:170
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:236
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2228
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:335
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2244
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:336
 msgid "Quantity"
 msgstr "数量"
 
@@ -972,23 +947,23 @@ msgid "Quantity must be greater than 0"
 msgstr "数量は0より大きい値を入力してください"
 
 #: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:292
+#: apps/mes/app/components/PinInOverlay.tsx:230
 #: apps/mes/app/routes/x+/recent.tsx:69
 msgid "Recent"
 msgstr "最近"
 
 #: apps/mes/app/components/JobOperation/components/Step.tsx:205
-#: apps/mes/app/components/JobOperation/components/Step.tsx:567
+#: apps/mes/app/components/JobOperation/components/Step.tsx:568
 msgid "Record"
 msgstr "記録"
 
 #. placeholder {0}: activeStep + 1
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:803
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1754
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:804
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1770
 msgid "Record {0}"
 msgstr "レコード {0}"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:511
+#: apps/mes/app/components/JobOperation/components/Step.tsx:512
 msgid "Remove"
 msgstr "削除"
 
@@ -997,29 +972,29 @@ msgstr "削除"
 msgid "Remove filter"
 msgstr "フィルターを削除"
 
-#: apps/mes/app/components/AdjustInventory.tsx:112
-#: apps/mes/app/components/AdjustInventory.tsx:117
-#: apps/mes/app/components/AdjustInventory.tsx:142
-#: apps/mes/app/components/AdjustInventory.tsx:195
+#: apps/mes/app/components/AdjustInventory.tsx:114
+#: apps/mes/app/components/AdjustInventory.tsx:119
+#: apps/mes/app/components/AdjustInventory.tsx:144
+#: apps/mes/app/components/AdjustInventory.tsx:197
 msgid "Remove Inventory"
 msgstr "在庫削除"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:460
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:462
 msgid "Remove part"
 msgstr "パーツを削除"
 
-#: apps/mes/app/routes/x+/operations.tsx:434
+#: apps/mes/app/routes/x+/operations.tsx:479
 msgid "Sales Order"
 msgstr "受注"
 
-#: apps/mes/app/routes/x+/timecard.tsx:401
+#: apps/mes/app/routes/x+/timecard.tsx:406
 msgid "Save"
 msgstr "保存"
 
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:65
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1582
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:363
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:483
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1598
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:364
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:484
 msgid "Scan"
 msgstr "スキャン"
 
@@ -1028,8 +1003,8 @@ msgid "Scan or enter serial number"
 msgstr "シリアル番号をスキャンまたは入力"
 
 #: apps/mes/app/components/AppSidebar.tsx:189
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:449
-#: apps/mes/app/routes/x+/operations.tsx:404
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:450
+#: apps/mes/app/routes/x+/operations.tsx:423
 msgid "Schedule"
 msgstr "スケジュール"
 
@@ -1038,39 +1013,39 @@ msgstr "スケジュール"
 msgid "Scrap Reason"
 msgstr "スクラップ理由"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:647
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:648
 msgid "Scrapped"
 msgstr "スクラップ済み"
 
 #: apps/mes/app/routes/x+/active.tsx:83
 #: apps/mes/app/routes/x+/assigned.tsx:103
 #: apps/mes/app/routes/x+/maintenance.tsx:453
-#: apps/mes/app/routes/x+/operations.tsx:411
+#: apps/mes/app/routes/x+/operations.tsx:430
 #: apps/mes/app/routes/x+/recent.tsx:83
 msgid "Search"
 msgstr "検索"
 
-#: apps/mes/app/components/PinInOverlay.tsx:269
+#: apps/mes/app/components/PinInOverlay.tsx:207
 msgid "Search operators..."
 msgstr "オペレーターを検索..."
 
 #: apps/mes/app/components/Filter/ActiveFilters.tsx:166
 #: apps/mes/app/components/Filter/Filter.tsx:163
-#: packages/react/src/Combobox.tsx:194
-#: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:281
+#: packages/react/src/Combobox.tsx:235
+#: packages/react/src/CreateableCombobox.tsx:278
+#: packages/react/src/CreateableMultiSelect.tsx:177
+#: packages/react/src/CreateableMultiSelect.tsx:294
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "検索..."
 
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:69
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:94
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1649
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:367
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:487
-#: packages/react/src/Combobox.tsx:112
-#: packages/react/src/CreateableCombobox.tsx:121
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1665
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:368
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:488
+#: packages/react/src/Combobox.tsx:148
+#: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
 msgid "Select"
 msgstr "選択"
@@ -1091,21 +1066,21 @@ msgstr "スクラップ数量と理由を選択"
 msgid "Select a serial number to continue with this operation"
 msgstr "この工程を続行するシリアル番号を選択してください"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:305
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:306
 msgid "Select an item and specify the quantity to issue"
 msgstr "品目を選択し、払出数量を指定してください"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:316
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:317
 msgid "Select an item..."
 msgstr "品目を選択..."
 
 #. placeholder {0}: index + 1
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:591
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:592
 msgid "Select Batch {0}"
 msgstr "バッチ {0} を選択"
 
 #. placeholder {0}: index + 1
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:439
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:440
 msgid "Select Serial {0}"
 msgstr "シリアル {0} を選択"
 
@@ -1114,12 +1089,12 @@ msgid "Select Serial Number"
 msgstr "シリアル番号を選択"
 
 #: apps/mes/app/components/Feedback.tsx:160
-#: apps/mes/app/components/JobOperation/components/Chat.tsx:222
+#: apps/mes/app/components/JobOperation/components/Chat.tsx:224
 #: apps/mes/app/components/Suggestion.tsx:220
 msgid "Send"
 msgstr "送信"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1592
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1608
 msgid "Serial"
 msgstr "シリアル"
 
@@ -1129,7 +1104,7 @@ msgid "Serial {0}"
 msgstr "シリアル {0}"
 
 #. placeholder {0}: index + 1
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:381
+#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:382
 msgid "Serial Number {0}"
 msgstr "シリアル番号 {0}"
 
@@ -1141,30 +1116,22 @@ msgstr "シリアル番号は利用できません"
 msgid "Serial number is required"
 msgstr "シリアル番号は必須です"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1563
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1579
 msgid "Serial Numbers"
 msgstr "シリアル番号"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:147
+#: apps/mes/app/components/TimeCardWarning.tsx:149
 msgid "Set Clock Out"
 msgstr "退勤時間を設定"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:128
+#: apps/mes/app/components/TimeCardWarning.tsx:130
 msgid "Set clock-out time"
 msgstr "退勤時間を設定"
 
 #: apps/mes/app/components/JobOperation/components/Controls.tsx:166
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2130
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2146
 msgid "Setup"
 msgstr "段取り"
-
-#: apps/mes/app/components/PinInOverlay.tsx:595
-msgid "Share this PIN with the operator so they can pin in at the terminal."
-msgstr "オペレーターがターミナルでピンインできるように、このPINを共有してください。"
-
-#: apps/mes/app/components/AdjustInventory.tsx:170
-msgid "Shelf"
-msgstr "棚"
 
 #: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
@@ -1186,19 +1153,19 @@ msgstr "サインアウト"
 msgid "Signed in as {stationName}"
 msgstr "{stationName} としてサインイン中"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1413
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1429
 msgid "Size"
 msgstr "サイズ"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1011
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1012
 msgid "Source"
 msgstr "ソース"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:424
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:426
 msgid "Spare Parts"
 msgstr "スペアパーツ"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:487
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:489
 msgid "Spare Parts Used"
 msgstr "使用済みスペアパーツ"
 
@@ -1206,7 +1173,7 @@ msgstr "使用済みスペアパーツ"
 msgid "Start"
 msgstr "開始"
 
-#: apps/mes/app/components/PinInOverlay.tsx:333
+#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "ステーションユーザー"
 
@@ -1215,7 +1182,7 @@ msgid "Station: {stationName}"
 msgstr "ステーション: {stationName}"
 
 #: apps/mes/app/routes/x+/maintenance.tsx:356
-#: apps/mes/app/routes/x+/operations.tsx:433
+#: apps/mes/app/routes/x+/operations.tsx:478
 msgid "Status"
 msgstr "ステータス"
 
@@ -1223,16 +1190,20 @@ msgstr "ステータス"
 msgid "Statuses"
 msgstr "ステータス一覧"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:749
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:860
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1695
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1805
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:750
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:861
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1711
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1821
 msgid "Steps"
 msgstr "ステップ"
 
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:223
 msgid "Steps are missing"
 msgstr "ステップが未記録です"
+
+#: apps/mes/app/components/AdjustInventory.tsx:172
+msgid "Storage Unit"
+msgstr "保管場所"
 
 #: apps/mes/app/components/Suggestion.tsx:160
 msgid "Submit anonymously"
@@ -1251,7 +1222,7 @@ msgstr "サポート必要"
 msgid "Switch Operator"
 msgstr "オペレーターを切替"
 
-#: apps/mes/app/routes/x+/operations.tsx:375
+#: apps/mes/app/routes/x+/operations.tsx:394
 msgid "Tag"
 msgstr "タグ"
 
@@ -1264,16 +1235,16 @@ msgstr "この工程の完了数量が必要数量 {0} を下回っています�
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "部品表にシリアルまたはバッチ追跡対象の材料が完全に払い出されていません。払出なしで完了すると、トレーサビリティ記録が不正確になる可能性があります。"
 
-#: apps/mes/app/routes/x+/operations.tsx:435
+#: apps/mes/app/routes/x+/operations.tsx:480
 msgid "Thumbnail"
 msgstr "サムネイル"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:385
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:387
 msgid "Time Entries"
 msgstr "タイムエントリー"
 
 #. placeholder {0}: formatDuration(totalDuration)
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:306
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:308
 msgid "Time Worked: {0}"
 msgstr "作業時間: {0}"
 
@@ -1290,20 +1261,20 @@ msgid "Total Quantity"
 msgstr "合計数量"
 
 #. placeholder {0}: formatDuration(totalDuration)
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:546
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:548
 msgid "Total time: {0}"
 msgstr "合計時間: {0}"
 
 #. placeholder {0}: formatTotalHours(entries)
-#: apps/mes/app/routes/x+/timecard.tsx:471
+#: apps/mes/app/routes/x+/timecard.tsx:476
 msgid "Total: {0}"
 msgstr "合計: {0}"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1579
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1595
 msgid "Tracking Labels"
 msgstr "追跡ラベル"
 
-#: apps/mes/app/components/JobOperation/components/Chat.tsx:211
+#: apps/mes/app/components/JobOperation/components/Chat.tsx:213
 msgid "Type a message..."
 msgstr "メッセージを入力..."
 
@@ -1311,7 +1282,7 @@ msgstr "メッセージを入力..."
 msgid "Unissued serial/batch materials"
 msgstr "未払出のシリアル/バッチ材料"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:264
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:266
 msgid "Unknown"
 msgstr "不明"
 
@@ -1319,17 +1290,17 @@ msgstr "不明"
 msgid "Update"
 msgstr "更新"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:68
+#: apps/mes/app/components/TimeCardWarning.tsx:70
 msgid "Updated successfully"
 msgstr "正常に更新されました"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:387
+#: apps/mes/app/components/JobOperation/components/Step.tsx:388
 msgid "Uploaded: {0}"
 msgstr "アップロード完了: {0}"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:373
+#: apps/mes/app/components/JobOperation/components/Step.tsx:374
 msgid "Uploading {0}"
 msgstr "{0} をアップロード中"
 
@@ -1341,22 +1312,22 @@ msgstr "メンテナンスディスパッチを表示"
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "アカウントにサインインするためのマジックリンクをお送りしました。"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1118
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1133
 msgid "WIP"
 msgstr "仕掛品"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1935
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:258
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1951
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:260
 #: apps/mes/app/routes/x+/maintenance.tsx:332
-#: apps/mes/app/routes/x+/operations.tsx:347
+#: apps/mes/app/routes/x+/operations.tsx:366
 msgid "Work Center"
 msgstr "ワークセンター"
 
-#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
-#: apps/mes/app/components/TimeCardWarning.tsx:119
+#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString(locale)
+#: apps/mes/app/components/TimeCardWarning.tsx:121
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
 msgstr "{0} に出勤打刻しました。下記で退勤時間を編集するか、まだ作業中であることを確認してください。"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:110
+#: apps/mes/app/components/TimeCardWarning.tsx:112
 msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
 msgstr "{hoursElapsed} 時間出勤中です。退勤打刻を忘れていませんか？"

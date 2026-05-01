@@ -10,6 +10,7 @@ import {
   HStack,
   toast
 } from "@carbon/react";
+import { isEoriCountry } from "@carbon/utils";
 import { nanoid } from "nanoid";
 import { useCallback, useState } from "react";
 import { LuPaperclip } from "react-icons/lu";
@@ -34,9 +35,8 @@ const taxExemptionReasonOptions = taxExemptionReasons.map((reason) => ({
 const CustomerTaxForm = ({ initialValues }: CustomerTaxFormProps) => {
   const permissions = usePermissions();
   const { carbon } = useCarbon();
-  const {
-    company: { id: companyId }
-  } = useUser();
+  const { company } = useUser();
+  const companyId = company.id;
   const [certificatePath, setCertificatePath] = useState(
     initialValues.taxExemptionCertificatePath ?? ""
   );
@@ -86,6 +86,9 @@ const CustomerTaxForm = ({ initialValues }: CustomerTaxFormProps) => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Input name="taxId" label="Tax ID" />
             <Input name="vatNumber" label="VAT Number" />
+            {isEoriCountry(company.countryCode) && (
+              <Input name="eori" label="EORI" />
+            )}
             <Boolean
               name="taxExempt"
               label="Tax Exempt"

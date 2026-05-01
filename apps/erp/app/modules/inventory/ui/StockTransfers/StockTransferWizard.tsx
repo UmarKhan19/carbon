@@ -72,13 +72,13 @@ import { getAccessorKey } from "~/components/Table/utils";
 import { useUser } from "~/hooks";
 import {
   addTransferLine,
-  clearSelectedToItemShelves,
+  clearSelectedToItemStorageUnits,
   clearStockTransferWizard,
   hasTransferLine,
-  hasTransferLinesToItemShelf,
-  isToItemShelfSelected,
+  hasTransferLinesToItemStorageUnit,
+  isToItemStorageUnitSelected,
   removeTransferLine,
-  toggleToItemShelfSelection,
+  toggleToItemStorageUnitSelection,
   updateTransferLineQuantity,
   useItems,
   useStockTransferWizard,
@@ -123,8 +123,8 @@ type TransferTableRow = {
   quantityRequired: number;
   quantityAvailable: number;
   quantityIncoming: number;
-  shelfId: string | null;
-  shelfName: string | null;
+  storageUnitId: string | null;
+  storageUnitName: string | null;
 };
 
 function TransferGrid({ locationId }: { locationId: string }) {
@@ -159,7 +159,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
     if (!carbon) return;
     setTransferToIsLoading(true);
     const { data, error } = await carbon.rpc(
-      "get_item_shelf_requirements_by_location",
+      "get_item_storage_unit_requirements_by_location",
       {
         company_id: companyId,
         location_id: locationId
@@ -176,13 +176,14 @@ function TransferGrid({ locationId }: { locationId: string }) {
           itemReadableId: item.itemReadableId,
           description: item.description,
           thumbnailPath: item.thumbnailPath,
-          quantityOnHand: item.quantityOnHandInShelf,
-          quantityRequired: item.quantityRequiredByShelf,
+          quantityOnHand: item.quantityOnHandInStorageUnit,
+          quantityRequired: item.quantityRequiredByStorageUnit,
           quantityAvailable:
-            item.quantityOnHandInShelf - item.quantityRequiredByShelf,
+            item.quantityOnHandInStorageUnit -
+            item.quantityRequiredByStorageUnit,
           quantityIncoming: item.quantityIncoming,
-          shelfId: item.shelfId,
-          shelfName: item.shelfName
+          storageUnitId: item.storageUnitId,
+          storageUnitName: item.storageUnitName
         })) ?? [];
       setAllTransferToData(mappedData);
     }
@@ -191,7 +192,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
   }, [carbon, companyId, locationId]);
 
   const transferFromQuery = useCallback(async () => {
-    if (!carbon || wizard.selectedToItemShelfIds.size === 0) {
+    if (!carbon || wizard.selectedToItemStorageUnitIds.size === 0) {
       setAllTransferFromData([]);
       return;
     }
@@ -200,13 +201,15 @@ function TransferGrid({ locationId }: { locationId: string }) {
 
     // Get the selected "to" items to extract their itemIds
     const selectedToItems = allTransferToData.filter((item) =>
-      wizard.selectedToItemShelfIds.has(`${item.itemId}:${item.shelfId}`)
+      wizard.selectedToItemStorageUnitIds.has(
+        `${item.itemId}:${item.storageUnitId}`
+      )
     );
 
     // Fetch data for each selected item
     const fromDataPromises = selectedToItems.map(async (toItem) => {
       const { data, error } = await carbon.rpc(
-        "get_item_shelf_requirements_by_location_and_item",
+        "get_item_storage_unit_requirements_by_location_and_item",
         {
           company_id: companyId,
           location_id: locationId,
@@ -219,22 +222,23 @@ function TransferGrid({ locationId }: { locationId: string }) {
         return [];
       }
 
-      // Filter out the selected "to" shelf
+      // Filter out the selected "to" storage unit
       return (
         data
-          ?.filter((item) => item.shelfId !== toItem.shelfId)
+          ?.filter((item) => item.storageUnitId !== toItem.storageUnitId)
           .map((item) => ({
             itemId: item.itemId,
             itemReadableId: item.itemReadableId,
             description: item.description,
             thumbnailPath: item.thumbnailPath,
-            quantityOnHand: item.quantityOnHandInShelf,
-            quantityRequired: item.quantityRequiredByShelf,
+            quantityOnHand: item.quantityOnHandInStorageUnit,
+            quantityRequired: item.quantityRequiredByStorageUnit,
             quantityAvailable:
-              item.quantityOnHandInShelf - item.quantityRequiredByShelf,
+              item.quantityOnHandInStorageUnit -
+              item.quantityRequiredByStorageUnit,
             quantityIncoming: item.quantityIncoming,
-            shelfId: item.shelfId,
-            shelfName: item.shelfName
+            storageUnitId: item.storageUnitId,
+            storageUnitName: item.storageUnitName
           })) ?? []
       );
     });
@@ -248,7 +252,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
     carbon,
     companyId,
     locationId,
-    wizard.selectedToItemShelfIds,
+    wizard.selectedToItemStorageUnitIds,
     allTransferToData
   ]);
 
@@ -268,10 +272,10 @@ function TransferGrid({ locationId }: { locationId: string }) {
     setTransferFromOffset(0);
   }, [pageSize]);
 
-  // Deselect active item/shelf when "to" table page changes
+  // Deselect active item/storage unit when "to" table page changes
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    clearSelectedToItemShelves();
+    clearSelectedToItemStorageUnits();
   }, [transferToOffset]);
 
   // Client-side filtering and pagination for "to" table
@@ -369,23 +373,24 @@ function TransferGrid({ locationId }: { locationId: string }) {
         header: t`Item ID`
       },
       {
-        accessorKey: "shelfName",
-        cell: ({ row }) => row.original.shelfName,
-        header: t`Shelf`
+        accessorKey: "storageUnitName",
+        cell: ({ row }) => row.original.storageUnitName,
+        header: t`Storage Unit`
       },
       {
         accessorKey: "quantityOnHand",
         cell: ({ row }) => {
-          // Calculate total quantity being transferred to this specific item/shelf combination
-          const transferLinesToThisItemShelf = wizard.lines.filter(
+          // Calculate total quantity being transferred to this specific item/storage unit combination
+          const transferLinesToThisItemStorageUnit = wizard.lines.filter(
             (line) =>
               line.itemId === row.original.itemId &&
-              line.toShelfId === row.original.shelfId
+              line.toStorageUnitId === row.original.storageUnitId
           );
-          const totalTransferQuantity = transferLinesToThisItemShelf.reduce(
-            (sum, line) => sum + (line.quantity ?? 0),
-            0
-          );
+          const totalTransferQuantity =
+            transferLinesToThisItemStorageUnit.reduce(
+              (sum, line) => sum + (line.quantity ?? 0),
+              0
+            );
 
           const adjustedQuantity =
             row.original.quantityOnHand + totalTransferQuantity;
@@ -409,7 +414,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </div>
           );
         },
-        header: t`On Shelf`
+        header: t`On Storage Unit`
       },
       {
         accessorKey: "quantityRequired",
@@ -420,16 +425,17 @@ function TransferGrid({ locationId }: { locationId: string }) {
       {
         accessorKey: "quantityAvailable",
         cell: ({ row }) => {
-          // Calculate total quantity being transferred to this specific item/shelf combination
-          const transferLinesToThisItemShelf = wizard.lines.filter(
+          // Calculate total quantity being transferred to this specific item/storage unit combination
+          const transferLinesToThisItemStorageUnit = wizard.lines.filter(
             (line) =>
               line.itemId === row.original.itemId &&
-              line.toShelfId === row.original.shelfId
+              line.toStorageUnitId === row.original.storageUnitId
           );
-          const totalTransferQuantity = transferLinesToThisItemShelf.reduce(
-            (sum, line) => sum + (line.quantity ?? 0),
-            0
-          );
+          const totalTransferQuantity =
+            transferLinesToThisItemStorageUnit.reduce(
+              (sum, line) => sum + (line.quantity ?? 0),
+              0
+            );
 
           // Calculate total available including incoming quantities
           const totalAvailableWithIncoming =
@@ -493,13 +499,13 @@ function TransferGrid({ locationId }: { locationId: string }) {
       {
         id: "actions",
         cell: ({ row }) => {
-          const isSelected = isToItemShelfSelected(
+          const isSelected = isToItemStorageUnitSelected(
             row.original.itemId,
-            row.original.shelfId!
+            row.original.storageUnitId!
           );
-          const hasTransfers = hasTransferLinesToItemShelf(
+          const hasTransfers = hasTransferLinesToItemStorageUnit(
             row.original.itemId,
-            row.original.shelfId!
+            row.original.storageUnitId!
           );
           return (
             <div className="flex justify-end">
@@ -508,16 +514,16 @@ function TransferGrid({ locationId }: { locationId: string }) {
                 onClick={() => {
                   if (isSelected) {
                     // If already selected, deselect it
-                    toggleToItemShelfSelection(
+                    toggleToItemStorageUnitSelection(
                       row.original.itemId,
-                      row.original.shelfId!
+                      row.original.storageUnitId!
                     );
                   } else {
                     // If not selected, clear selection and select only this one
-                    clearSelectedToItemShelves();
-                    toggleToItemShelfSelection(
+                    clearSelectedToItemStorageUnits();
+                    toggleToItemStorageUnitSelection(
                       row.original.itemId,
-                      row.original.shelfId!
+                      row.original.storageUnitId!
                     );
                   }
                 }}
@@ -550,8 +556,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
           const toItem = allTransferToData.find(
             (item) =>
               item.itemId === row.original.itemId &&
-              wizard.selectedToItemShelfIds.has(
-                `${item.itemId}:${item.shelfId}`
+              wizard.selectedToItemStorageUnitIds.has(
+                `${item.itemId}:${item.storageUnitId}`
               )
           );
 
@@ -559,8 +565,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
 
           const isLineAdded = hasTransferLine(
             row.original.itemId,
-            row.original.shelfId!,
-            toItem.shelfId!
+            row.original.storageUnitId!,
+            toItem.storageUnitId!
           );
 
           return (
@@ -572,8 +578,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
                   if (isLineAdded) {
                     removeTransferLine(
                       row.original.itemId,
-                      row.original.shelfId!,
-                      toItem.shelfId!
+                      row.original.storageUnitId!,
+                      toItem.storageUnitId!
                     );
                   } else {
                     // Calculate default quantity:
@@ -599,10 +605,10 @@ function TransferGrid({ locationId }: { locationId: string }) {
                       itemReadableId: row.original.itemReadableId,
                       description: row.original.description,
                       thumbnailPath: row.original.thumbnailPath,
-                      fromShelfId: row.original.shelfId!,
-                      fromShelfName: row.original.shelfName!,
-                      toShelfId: toItem.shelfId!,
-                      toShelfName: toItem.shelfName!,
+                      fromStorageUnitId: row.original.storageUnitId!,
+                      fromStorageUnitName: row.original.storageUnitName!,
+                      toStorageUnitId: toItem.storageUnitId!,
+                      toStorageUnitName: toItem.storageUnitName!,
                       quantityAvailable: row.original.quantityAvailable,
                       quantity: defaultQuantity,
                       requiresSerialTracking: trackingType === "Serial",
@@ -625,8 +631,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
           const toItem = allTransferToData.find(
             (item) =>
               item.itemId === row.original.itemId &&
-              wizard.selectedToItemShelfIds.has(
-                `${item.itemId}:${item.shelfId}`
+              wizard.selectedToItemStorageUnitIds.has(
+                `${item.itemId}:${item.storageUnitId}`
               )
           );
 
@@ -634,8 +640,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
 
           const isLineAdded = hasTransferLine(
             row.original.itemId,
-            row.original.shelfId!,
-            toItem.shelfId!
+            row.original.storageUnitId!,
+            toItem.storageUnitId!
           );
 
           if (!isLineAdded) return null;
@@ -644,8 +650,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
           const line = wizard.lines.find(
             (l) =>
               l.itemId === row.original.itemId &&
-              l.fromShelfId === row.original.shelfId! &&
-              l.toShelfId === toItem.shelfId!
+              l.fromStorageUnitId === row.original.storageUnitId! &&
+              l.toStorageUnitId === toItem.storageUnitId!
           );
 
           return (
@@ -662,8 +668,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
 
                   updateTransferLineQuantity(
                     row.original.itemId,
-                    row.original.shelfId!,
-                    toItem.shelfId!,
+                    row.original.storageUnitId!,
+                    toItem.storageUnitId!,
                     clampedValue
                   );
                 }
@@ -699,9 +705,9 @@ function TransferGrid({ locationId }: { locationId: string }) {
         header: t`Item ID`
       },
       {
-        accessorKey: "shelfName",
-        cell: ({ row }) => row.original.shelfName,
-        header: t`Shelf`
+        accessorKey: "storageUnitName",
+        cell: ({ row }) => row.original.storageUnitName,
+        header: t`Storage Unit`
       },
       {
         accessorKey: "quantityOnHand",
@@ -710,8 +716,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
           const toItem = allTransferToData.find(
             (item) =>
               item.itemId === row.original.itemId &&
-              wizard.selectedToItemShelfIds.has(
-                `${item.itemId}:${item.shelfId}`
+              wizard.selectedToItemStorageUnitIds.has(
+                `${item.itemId}:${item.storageUnitId}`
               )
           );
 
@@ -721,8 +727,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
           const transferLine = wizard.lines.find(
             (l) =>
               l.itemId === row.original.itemId &&
-              l.fromShelfId === row.original.shelfId! &&
-              l.toShelfId === toItem.shelfId!
+              l.fromStorageUnitId === row.original.storageUnitId! &&
+              l.toStorageUnitId === toItem.storageUnitId!
           );
 
           const transferQuantity = transferLine?.quantity ?? 0;
@@ -748,7 +754,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
             </div>
           );
         },
-        header: t`On Shelf`
+        header: t`On Storage Unit`
       },
       {
         accessorKey: "quantityAvailable",
@@ -757,8 +763,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
           const toItem = allTransferToData.find(
             (item) =>
               item.itemId === row.original.itemId &&
-              wizard.selectedToItemShelfIds.has(
-                `${item.itemId}:${item.shelfId}`
+              wizard.selectedToItemStorageUnitIds.has(
+                `${item.itemId}:${item.storageUnitId}`
               )
           );
 
@@ -787,8 +793,8 @@ function TransferGrid({ locationId }: { locationId: string }) {
           const transferLine = wizard.lines.find(
             (l) =>
               l.itemId === row.original.itemId &&
-              l.fromShelfId === row.original.shelfId! &&
-              l.toShelfId === toItem.shelfId!
+              l.fromStorageUnitId === row.original.storageUnitId! &&
+              l.toStorageUnitId === toItem.storageUnitId!
           );
 
           const transferQuantity = transferLine?.quantity ?? 0;
@@ -855,7 +861,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
     ];
   }, [
     allTransferToData,
-    wizard.selectedToItemShelfIds,
+    wizard.selectedToItemStorageUnitIds,
     wizard.lines,
     items,
     formatter,
@@ -883,7 +889,7 @@ function TransferGrid({ locationId }: { locationId: string }) {
               search={transferToSearch}
               onSearchChange={setTransferToSearch}
               isRowSelected={(row) =>
-                isToItemShelfSelected(row.itemId, row.shelfId!)
+                isToItemStorageUnitSelected(row.itemId, row.storageUnitId!)
               }
             />
           </div>
@@ -909,12 +915,16 @@ function TransferGrid({ locationId }: { locationId: string }) {
                 const toItem = allTransferToData.find(
                   (item) =>
                     item.itemId === row.itemId &&
-                    wizard.selectedToItemShelfIds.has(
-                      `${item.itemId}:${item.shelfId}`
+                    wizard.selectedToItemStorageUnitIds.has(
+                      `${item.itemId}:${item.storageUnitId}`
                     )
                 );
                 return toItem
-                  ? hasTransferLine(row.itemId, row.shelfId!, toItem.shelfId!)
+                  ? hasTransferLine(
+                      row.itemId,
+                      row.storageUnitId!,
+                      toItem.storageUnitId!
+                    )
                   : false;
               }}
             />
@@ -1015,7 +1025,7 @@ function TransferTable({
                 <LuTriangleAlert className="h-6 w-6 flex-shrink-0" />
               </div>
               <span className="text-xs font-mono font-light text-foreground uppercase">
-                No shelves exist
+                No storage units exist
               </span>
             </div>
           ) : (
@@ -1221,10 +1231,10 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
 
   const onRemoveItem = (
     itemId: string,
-    fromShelfId: string,
-    toShelfId: string
+    fromStorageUnitId: string,
+    toStorageUnitId: string
   ) => {
-    removeTransferLine(itemId, fromShelfId, toShelfId);
+    removeTransferLine(itemId, fromStorageUnitId, toStorageUnitId);
   };
 
   if (linesCount === 0) {
@@ -1314,7 +1324,7 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
                 <div className="space-y-3">
                   {activeLines.map((line) => (
                     <div
-                      key={`${line.itemId}-${line.fromShelfId}-${line.toShelfId}`}
+                      key={`${line.itemId}-${line.fromStorageUnitId}-${line.toStorageUnitId}`}
                       className="group bg-secondary/50 border border-border rounded-lg p-3 hover:bg-secondary transition-colors"
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
@@ -1343,8 +1353,8 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
                           onClick={() =>
                             onRemoveItem(
                               line.itemId,
-                              line.fromShelfId,
-                              line.toShelfId
+                              line.fromStorageUnitId,
+                              line.toStorageUnitId
                             )
                           }
                         />
@@ -1354,11 +1364,15 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
                           className="items-center justify-start"
                           spacing={1}
                         >
-                          <Badge variant="outline">{line.fromShelfName}</Badge>
+                          <Badge variant="outline">
+                            {line.fromStorageUnitName}
+                          </Badge>
                           <LuArrowRight className="size-4" />
                           <Count count={line.quantity ?? 0} />
                           <LuArrowRight className="size-4" />
-                          <Badge variant="outline">{line.toShelfName}</Badge>
+                          <Badge variant="outline">
+                            {line.toStorageUnitName}
+                          </Badge>
                         </HStack>
                       </div>
                     </div>
@@ -1407,7 +1421,7 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
               <div className="space-y-2">
                 {activeLines.slice(0, 3).map((line) => (
                   <div
-                    key={`${line.itemId}-${line.fromShelfId}-${line.toShelfId}`}
+                    key={`${line.itemId}-${line.fromStorageUnitId}-${line.toStorageUnitId}`}
                     className="flex items-center justify-between text-sm"
                   >
                     <span className="font-mono text-xs truncate flex-1">
@@ -1417,7 +1431,7 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
                       <Count count={line.quantity ?? 0} />
                       <LuArrowRight className="size-4" />
                       <Badge variant="outline" className="ml-2">
-                        {line.toShelfName}
+                        {line.toStorageUnitName}
                       </Badge>
                     </HStack>
                   </div>

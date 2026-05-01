@@ -97,9 +97,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_activateGauge",
     {
       description: "activate gauge",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -112,9 +112,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deactivateGauge",
     {
       description: "deactivate gauge",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -127,9 +127,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteGauge",
     {
       description: "delete gauge",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -142,9 +142,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteGaugeCalibrationRecord",
     {
       description: "delete gauge calibration record",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeCalibrationRecordId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -157,9 +157,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteGaugeType",
     {
       description: "delete gauge type",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeTypeId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -172,9 +172,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteIssue",
     {
       description: "delete issue",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -187,10 +187,10 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteIssueAssociation",
     {
       description: "delete issue association",
-      inputSchema: {
+      inputSchema: z.object({
       type: z.string(),
       associationId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -203,9 +203,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteIssueType",
     {
       description: "delete issue type",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceTypeId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -218,9 +218,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteIssueWorkflow",
     {
       description: "delete issue workflow",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceWorkflowId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -233,9 +233,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteRequiredAction",
     {
       description: "delete required action",
-      inputSchema: {
+      inputSchema: z.object({
       requiredActionId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -248,9 +248,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteQualityDocument",
     {
       description: "delete quality document",
-      inputSchema: {
+      inputSchema: z.object({
       qualityDocumentId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -263,9 +263,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteQualityDocumentStep",
     {
       description: "delete quality document step",
-      inputSchema: {
+      inputSchema: z.object({
       qualityDocumentStepId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -278,9 +278,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_deleteRisk",
     {
       description: "delete risk",
-      inputSchema: {
+      inputSchema: z.object({
       riskId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -293,9 +293,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueFromExternalLink",
     {
       description: "get issue from external link",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -308,9 +308,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGauge",
     {
       description: "get gauge",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -323,13 +323,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGauges",
     {
       description: "get gauges",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -342,7 +342,7 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGaugesList",
     {
       description: "get gauges list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -355,9 +355,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGaugeCalibrationRecord",
     {
       description: "get gauge calibration record",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -370,13 +370,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGaugeCalibrationRecords",
     {
       description: "get gauge calibration records",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -389,9 +389,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGaugeCalibrationRecordsByGaugeId",
     {
       description: "get gauge calibration records by gauge id",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -404,7 +404,7 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGaugeTypesList",
     {
       description: "get gauge types list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -417,9 +417,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGaugeType",
     {
       description: "get gauge type",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeTypeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -432,13 +432,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getGaugeTypes",
     {
       description: "get gauge types",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -451,9 +451,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssue",
     {
       description: "get issue",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -466,13 +466,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssues",
     {
       description: "get issues",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -485,9 +485,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueWorkflow",
     {
       description: "get issue workflow",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceWorkflowId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -500,9 +500,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueAction",
     {
       description: "get issue action",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -515,10 +515,10 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueActionTasks",
     {
       description: "get issue action tasks",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
       supplierId: z.string().optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -531,9 +531,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueApprovalTasks",
     {
       description: "get issue approval tasks",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -546,9 +546,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueItems",
     {
       description: "get issue items",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -561,9 +561,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueAssociations",
     {
       description: "get issue associations",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -576,9 +576,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueReviewers",
     {
       description: "get issue reviewers",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -591,9 +591,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueSuppliers",
     {
       description: "get issue suppliers",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -606,9 +606,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueTasks",
     {
       description: "get issue tasks",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -621,9 +621,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueType",
     {
       description: "get issue type",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceTypeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -636,13 +636,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueTypes",
     {
       description: "get issue types",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -655,13 +655,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueWorkflows",
     {
       description: "get issue workflows",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -674,7 +674,7 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueWorkflowsList",
     {
       description: "get issue workflows list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -687,7 +687,7 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getIssueTypesList",
     {
       description: "get issue types list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -700,13 +700,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getQualityActions",
     {
       description: "get quality actions",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -719,9 +719,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getQualityDocument",
     {
       description: "get quality document",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -734,9 +734,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getQualityDocumentSteps",
     {
       description: "get quality document steps",
-      inputSchema: {
+      inputSchema: z.object({
       qualityDocumentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -749,12 +749,12 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getQualityDocumentVersions",
     {
       description: "get quality document versions",
-      inputSchema: {
+      inputSchema: z.object({
       qualityDocument: z.object({
     name: z.string(),
     version: z.number()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -767,12 +767,12 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getQualityDocuments",
     {
       description: "get quality documents",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -785,7 +785,7 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getQualityDocumentsList",
     {
       description: "get quality documents list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -798,9 +798,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getQualityFiles",
     {
       description: "get quality files",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -813,7 +813,7 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getRequiredActionsList",
     {
       description: "get required actions list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -826,13 +826,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getRequiredActions",
     {
       description: "get required actions",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -845,9 +845,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getRequiredAction",
     {
       description: "get required action",
-      inputSchema: {
+      inputSchema: z.object({
       requiredActionId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -860,9 +860,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getRisk",
     {
       description: "get risk",
-      inputSchema: {
+      inputSchema: z.object({
       riskId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -875,7 +875,7 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_getRisks",
     {
       description: "get risks",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -884,7 +884,7 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     source: z.any().optional(),
     assignee: z.array(z.string()).optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -897,9 +897,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_insertIssueReviewer",
     {
       description: "insert issue reviewer",
-      inputSchema: {
+      inputSchema: z.object({
       reviewer: nonConformanceReviewerValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -912,12 +912,12 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_updateIssueActionProcesses",
     {
       description: "update issue action processes",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     actionTaskId: z.string(),
     processIds: z.array(z.string())
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -930,14 +930,14 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_updateIssueStatus",
     {
       description: "update issue status",
-      inputSchema: {
+      inputSchema: z.object({
       update: z.object({
     id: z.string(),
     status: z.any(),
     assignee: z.any(),
     closeDate: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -950,14 +950,14 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_updateIssueTaskStatus",
     {
       description: "update issue task status",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     status: z.enum(["Pending", "Completed", "Skipped", "In Progress"]),
     type: z.enum(["investigation", "action", "approval", "review"]),
     assignee: z.string().nullable().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -970,13 +970,13 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_updateIssueTaskContent",
     {
       description: "update issue task content",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     id: z.string(),
     type: z.enum(["action", "approval", "review"]),
     content: z.any()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -989,12 +989,12 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_updateQualityDocumentStepOrder",
     {
       description: "update quality document step order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     sortOrder: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1007,10 +1007,10 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_updateRiskStatus",
     {
       description: "update risk status",
-      inputSchema: {
+      inputSchema: z.object({
       riskId: z.string(),
       status: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1023,9 +1023,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertGauge",
     {
       description: "upsert gauge",
-      inputSchema: {
+      inputSchema: z.object({
       gauge: gaugeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1038,9 +1038,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertGaugeCalibrationRecord",
     {
       description: "upsert gauge calibration record",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeCalibrationRecord: gaugeCalibrationRecordValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1053,9 +1053,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertGaugeType",
     {
       description: "upsert gauge type",
-      inputSchema: {
+      inputSchema: z.object({
       gaugeType: gaugeTypeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1068,9 +1068,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertIssue",
     {
       description: "upsert issue",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformance: issueValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1083,9 +1083,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertIssueWorkflow",
     {
       description: "upsert issue workflow",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceWorkflow: issueWorkflowValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1098,9 +1098,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertIssueType",
     {
       description: "upsert issue type",
-      inputSchema: {
+      inputSchema: z.object({
       nonConformanceType: issueTypeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1113,9 +1113,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertRequiredAction",
     {
       description: "upsert required action",
-      inputSchema: {
+      inputSchema: z.object({
       requiredAction: issueTypeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1128,9 +1128,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertQualityDocument",
     {
       description: "upsert quality document",
-      inputSchema: {
+      inputSchema: z.object({
       qualityDocument: qualityDocumentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1143,9 +1143,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertQualityDocumentStep",
     {
       description: "upsert quality document step",
-      inputSchema: {
+      inputSchema: z.object({
       qualityDocumentStep: qualityDocumentStepValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1158,9 +1158,9 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     "quality_upsertRisk",
     {
       description: "upsert risk",
-      inputSchema: {
+      inputSchema: z.object({
       risk: riskRegisterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

@@ -29,7 +29,6 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useState } from "react";
 import {
@@ -47,7 +46,12 @@ import { Enumerable } from "~/components/Enumerable";
 import { Tags } from "~/components/Form";
 import { useSupplierTypes } from "~/components/Form/SupplierType";
 import { ConfirmDelete } from "~/components/Modals";
-import { usePermissions, useRouteData, useUser } from "~/hooks";
+import {
+  useDateFormatter,
+  usePermissions,
+  useRouteData,
+  useUser
+} from "~/hooks";
 import { useSettings } from "~/hooks/useSettings";
 import type { SupplierDetail } from "~/modules/purchasing";
 import { SupplierStatusIndicator } from "~/modules/purchasing/ui/Supplier/SupplierStatusIndicator";
@@ -62,6 +66,7 @@ const SupplierHeader = () => {
   if (!supplierId) throw new Error("Could not find supplierId");
   const fetcher = useFetcher<typeof action>();
   const { t } = useLingui();
+  const { formatDate } = useDateFormatter();
   const requestApprovalFetcher = useFetcher();
   const permissions = usePermissions();
   const { company } = useUser();

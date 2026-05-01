@@ -1,7 +1,6 @@
 import { SUPABASE_URL } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
@@ -490,19 +489,8 @@ export async function seedCompany(
       companyId,
       userId,
       parentCompanyId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
-}
-
-export async function updateCompany(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  company: Partial<z.infer<typeof companyValidator>> & {
-    updatedBy: string;
-  }
-) {
-  return client.from("company").update(sanitize(company)).eq("id", companyId);
 }
 
 export async function updateCompanyPlan(
@@ -524,22 +512,50 @@ export async function updateCompanyPlan(
 export async function updateDefaultCustomerCc(
   client: SupabaseClient<Database>,
   companyId: string,
-  defaultCustomerCc: string[]
+  userId: string
 ) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ defaultCustomerCc }))
-    .eq("id", companyId);
+  return client.functions.invoke("seed-company", {
+    body: {
+      companyId,
+      userId
+    }
+  });
 }
 
-export async function updateDefaultSupplierCc(
+export async function updateCompany(
   client: SupabaseClient<Database>,
   companyId: string,
-  defaultSupplierCc: string[]
+  company: Partial<z.infer<typeof companyValidator>> & {
+    updatedBy: string;
+  }
+) {
+  return client.from("company").update(sanitize(company)).eq("id", companyId);
+}
+
+export async function updateShelfLifeSettings(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  settings: {
+    /** undefined disables expiry badges company-wide. */
+    nearExpiryWarningDays: number | undefined;
+    /** Seed for the "Shelf-life (days)" input on new items. */
+    defaultShelfLifeDays: number;
+    /** MIN expiry scope for Calculated-mode finished products. */
+    calculatedInputScope: "AllInputs" | "ManagedInputsOnly";
+    /** Policy enforced when an operator consumes an expired entity. */
+    expiredEntityPolicy: "Warn" | "Block" | "BlockWithOverride";
+  }
 ) {
   return client
     .from("companySettings")
-    .update(sanitize({ defaultSupplierCc }))
+    .update({
+      inventoryShelfLife: {
+        nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null,
+        defaultShelfLifeDays: settings.defaultShelfLifeDays,
+        calculatedInputScope: settings.calculatedInputScope,
+        expiredEntityPolicy: settings.expiredEntityPolicy
+      }
+    })
     .eq("id", companyId);
 }
 

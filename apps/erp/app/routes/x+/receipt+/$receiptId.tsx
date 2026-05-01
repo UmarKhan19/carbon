@@ -10,7 +10,8 @@ import {
   getReceipt,
   getReceiptFiles,
   getReceiptLines,
-  getReceiptTracking
+  getReceiptTracking,
+  getShelfLifeForItems
 } from "~/modules/inventory";
 import { getCompanySettings } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -50,6 +51,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   let receiptLineIds: string[] = [];
   let itemsWithBatchProperties: string[] = [];
+  let trackedItemIds: string[] = [];
 
   if (receiptLines.data) {
     receiptLineIds = receiptLines.data.map((line) => line.id!).filter(Boolean);
@@ -57,6 +59,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       .filter((line) => line && line.itemId && line.requiresBatchTracking)
       .map((line) => line.itemId)
       .filter((itemId) => itemId !== null);
+    trackedItemIds = receiptLines.data
+      .filter(
+        (line) =>
+          line?.itemId &&
+          (line.requiresBatchTracking || line.requiresSerialTracking)
+      )
+      .map((line) => line.itemId)
+      .filter((itemId) => itemId !== null) as string[];
   }
 
   return {
@@ -67,7 +77,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     batchProperties:
       getBatchProperties(serviceRole, itemsWithBatchProperties, companyId) ??
       [],
-    companySettings: getCompanySettings(serviceRole, companyId)
+    companySettings: getCompanySettings(serviceRole, companyId),
+    itemShelfLife: await getShelfLifeForItems(serviceRole, trackedItemIds)
   };
 }
 

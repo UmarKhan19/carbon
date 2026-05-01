@@ -213,7 +213,7 @@ export default function MaterialRoute() {
                 <Outlet />
               </div>
             }
-            properties={<MaterialProperties />}
+            properties={<MaterialProperties key={itemId} />}
           />
         </div>
       </div>

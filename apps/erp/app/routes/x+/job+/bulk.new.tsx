@@ -11,7 +11,7 @@ import {
 } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { getDefaultShelfForJob } from "~/modules/inventory";
+import { getDefaultStorageUnitForJob } from "~/modules/inventory";
 import { getItemReplenishment } from "~/modules/items";
 import {
   bulkJobValidator,
@@ -102,7 +102,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  const shelfId = await getDefaultShelfForJob(
+  const storageUnitId = await getDefaultStorageUnitForJob(
     serviceRole,
     jobData.itemId,
     jobData.locationId,
@@ -141,7 +141,7 @@ export async function action({ request }: ActionFunctionArgs) {
             .subtract({ days: manufacturing.data?.leadTime ?? 7 })
             .toString()
         : undefined,
-      shelfId: shelfId ?? undefined,
+      storageUnitId: storageUnitId ?? undefined,
       configuration,
       companyId,
       createdBy: userId,

@@ -155,7 +155,6 @@ verify_jwt = true
 [functions.pick]
 enabled = true
 verify_jwt = true
-import_map = "./functions/pick/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/pick/index.ts"
@@ -166,7 +165,6 @@ entrypoint = "./functions/pick/index.ts"
 [functions.post-stock-transfer]
 enabled = true
 verify_jwt = true
-import_map = "./functions/post-stock-transfer/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/post-stock-transfer/index.ts"
@@ -175,11 +173,9 @@ entrypoint = "./functions/post-stock-transfer/index.ts"
 # static_files = [ "./functions/post-stock-transfer/*.html" ]
 
 
-
 [functions.transcription]
 enabled = true
 verify_jwt = true
-import_map = "./functions/transcription/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/transcription/index.ts"
@@ -190,7 +186,6 @@ entrypoint = "./functions/transcription/index.ts"
 [functions.embedding]
 enabled = true
 verify_jwt = true
-import_map = "./functions/embedding/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/embedding/index.ts"

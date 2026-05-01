@@ -84,6 +84,7 @@ export default function CustomerTaxRoute() {
     customerId: customerTax?.customerId ?? "",
     taxId: customerTax?.taxId ?? "",
     vatNumber: customerTax?.vatNumber ?? "",
+    eori: customerTax?.eori ?? "",
     taxExempt: customerTax?.taxExempt ?? false,
     taxExemptionReason: customerTax?.taxExemptionReason ?? "",
     taxExemptionCertificateNumber:

@@ -33,14 +33,14 @@ const UserSelect = (props: UserSelectProps) => {
   const state = useUserSelect(props);
   const {
     dropdown,
-    innerProps: { hideSelections, isMulti, label, readOnly, width },
+    innerProps: { hideSelections, isMulti, isOptional, label, readOnly, width },
     refs: { containerRef },
     selectionItemsById
   } = state;
 
   return (
     <UserSelectContext.Provider value={state}>
-      {label && <FormLabel>{label}</FormLabel>}
+      {label && <FormLabel isOptional={isOptional}>{label}</FormLabel>}
       <Container ref={containerRef} width={width}>
         {!(readOnly && isMulti) && (
           <Combobox>

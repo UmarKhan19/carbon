@@ -212,6 +212,15 @@ export const sequences = [
     step: 1
   },
   {
+    table: "inboundInspection",
+    name: "Inbound Inspection",
+    prefix: "II",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
     table: "maintenanceDispatch",
     name: "Maintenance Dispatch",
     prefix: "MAIN",

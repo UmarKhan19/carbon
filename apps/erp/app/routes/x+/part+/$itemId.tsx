@@ -250,7 +250,7 @@ export default function PartRoute() {
                                   module: "production",
                                   children: jobs.map((job) => ({
                                     ...job,
-                                    methodType: "Make"
+                                    methodType: "Make to Order"
                                   }))
                                 },
                                 {
@@ -396,7 +396,7 @@ export default function PartRoute() {
                                 module: "production",
                                 children: jobs.map((job) => ({
                                   ...job,
-                                  methodType: "Make"
+                                  methodType: "Make to Order"
                                 }))
                               },
                               {
@@ -503,7 +503,7 @@ export default function PartRoute() {
                 <Outlet />
               </div>
             }
-            properties={<PartProperties />}
+            properties={<PartProperties key={itemId} />}
           />
         </div>
       </div>

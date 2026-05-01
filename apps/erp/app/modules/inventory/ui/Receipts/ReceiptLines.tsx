@@ -8,6 +8,7 @@ import {
   CardTitle,
   CreatableCombobox,
   cn,
+  DatePicker,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -36,10 +37,12 @@ import {
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
+import { parseDate } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
+  LuCalendar,
   LuCircleAlert,
   LuEllipsisVertical,
   LuGroup,
@@ -61,7 +64,7 @@ import { DocumentPreview, Empty, ItemThumbnail } from "~/components";
 import DocumentIcon from "~/components/DocumentIcon";
 import { Enumerable } from "~/components/Enumerable";
 import FileDropzone from "~/components/FileDropzone";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useRouteData, useUser } from "~/hooks";
@@ -71,7 +74,7 @@ import type {
   Receipt,
   ReceiptLine
 } from "~/modules/inventory";
-import { ShelfForm, splitValidator } from "~/modules/inventory";
+import { StorageUnitForm, splitValidator } from "~/modules/inventory";
 import { getDocumentType } from "~/modules/shared/shared.service";
 import type { action as receiptLinesUpdateAction } from "~/routes/x+/receipt+/lines.update";
 import { useItems } from "~/stores";
@@ -93,6 +96,11 @@ const ReceiptLines = () => {
     receiptFiles: PostgrestResponse<StorageItem>;
     receiptLineTracking: ItemTracking[];
     batchProperties: PostgrestResponse<BatchProperty>;
+    itemShelfLife: PostgrestResponse<{
+      itemId: string;
+      mode: string;
+      days: number | null;
+    }>;
   }>(path.to.receipt(receiptId));
 
   const receiptsById = new Map<string, ReceiptLine>(
@@ -196,7 +204,7 @@ const ReceiptLines = () => {
         }
       | {
           lineId: string;
-          field: "shelfId";
+          field: "storageUnitId";
           value: string;
         }) => {
       const formData = new FormData();
@@ -213,7 +221,9 @@ const ReceiptLines = () => {
     []
   );
 
-  const isPosted = routeData?.receipt.status === "Posted";
+  const isPosted =
+    routeData?.receipt.status === "Posted" ||
+    routeData?.receipt.status === "Voided";
 
   return (
     <>
@@ -230,10 +240,14 @@ const ReceiptLines = () => {
               <Empty className="py-6" />
             ) : (
               receiptLines.map((line, index) => {
-                const tracking = routeData?.receiptLineTracking?.find((t) => {
-                  const attributes = t.attributes as TrackedEntityAttributes;
-                  return attributes["Receipt Line"] === line.id;
-                });
+                const trackingCandidates =
+                  routeData?.receiptLineTracking?.filter((t) => {
+                    const attributes = t.attributes as TrackedEntityAttributes;
+                    return attributes["Receipt Line"] === line.id;
+                  }) ?? [];
+                const tracking =
+                  trackingCandidates.find((t) => t.expirationDate) ??
+                  trackingCandidates[0];
                 return (
                   <ReceiptLineItem
                     key={line.id}
@@ -254,6 +268,7 @@ const ReceiptLines = () => {
                       }));
                     }}
                     batchProperties={routeData?.batchProperties}
+                    itemShelfLife={routeData?.itemShelfLife}
                     tracking={tracking}
                     upload={(files) => upload(files, line.id!)}
                     deleteFile={(file) => deleteFile(file, line.id!)}
@@ -277,6 +292,7 @@ function ReceiptLineItem({
   onUpdate,
   files,
   batchProperties,
+  itemShelfLife,
   tracking,
   serialNumbers,
   getPath,
@@ -290,6 +306,11 @@ function ReceiptLineItem({
   isReadOnly: boolean;
   files?: PostgrestResponse<StorageItem>;
   batchProperties?: PostgrestResponse<BatchProperty>;
+  itemShelfLife?: PostgrestResponse<{
+    itemId: string;
+    mode: string;
+    days: number | null;
+  }>;
   tracking: ItemTracking | undefined;
   serialNumbers: { index: number; number: string }[];
   getPath: (file: StorageItem) => string;
@@ -308,7 +329,7 @@ function ReceiptLineItem({
       }
     | {
         lineId: string;
-        field: "shelfId";
+        field: "storageUnitId";
         value: string;
       }) => Promise<void>;
   upload: (files: File[]) => Promise<void>;
@@ -446,15 +467,15 @@ function ReceiptLineItem({
             </VStack>
           </HStack>
 
-          <Shelf
+          <StorageUnit
             locationId={line.locationId}
-            shelfId={line.shelfId}
+            storageUnitId={line.storageUnitId}
             isReadOnly={isReadOnly}
-            onChange={(shelf) => {
+            onChange={(storageUnit) => {
               onUpdate({
                 lineId: line.id!,
-                field: "shelfId",
-                value: shelf
+                field: "storageUnitId",
+                value: storageUnit
               });
             }}
           />
@@ -468,6 +489,7 @@ function ReceiptLineItem({
             isReadOnly={isReadOnly}
             tracking={tracking}
             batchProperties={batchProperties}
+            itemShelfLife={itemShelfLife}
           />
         </>
       )}
@@ -478,6 +500,8 @@ function ReceiptLineItem({
           serialNumbers={serialNumbers}
           isReadOnly={isReadOnly}
           onSerialNumbersChange={onSerialNumbersChange}
+          itemShelfLife={itemShelfLife}
+          tracking={tracking}
         />
       )}
       {(line.requiresBatchTracking || line.requiresSerialTracking) && (
@@ -553,6 +577,7 @@ function BatchForm({
   line,
   receipt,
   batchProperties,
+  itemShelfLife,
   tracking,
   isReadOnly
 }: {
@@ -560,17 +585,29 @@ function BatchForm({
   receipt?: Receipt;
   isReadOnly: boolean;
   batchProperties?: PostgrestResponse<BatchProperty>;
+  itemShelfLife?: PostgrestResponse<{
+    itemId: string;
+    mode: string;
+    days: number | null;
+  }>;
   tracking: ItemTracking | undefined;
 }) {
+  const { t } = useLingui();
   const submit = useSubmit();
+  const shelfLife = itemShelfLife?.data?.find(
+    (sl) => sl.itemId === line.itemId
+  );
+  const showExpiryField = shelfLife?.mode === "Set on Receipt";
   const [values, setValues] = useState<{
     number: string;
     properties: any;
+    expirationDate: string;
   }>(() => {
     if (tracking) {
       const attributes = tracking.attributes as TrackedEntityAttributes;
       return {
         number: tracking.readableId || "",
+        expirationDate: tracking.expirationDate ?? "",
         properties: Object.entries(attributes)
           .filter(
             ([key]) =>
@@ -579,7 +616,8 @@ function BatchForm({
                 "Shipment",
                 "Shipment Line Index",
                 "Receipt Line",
-                "Receipt"
+                "Receipt",
+                "expirationDate"
               ].includes(key)
           )
           .reduce((acc, [key, value]) => ({ ...acc, [key]: value || "" }), {})
@@ -587,9 +625,38 @@ function BatchForm({
     }
     return {
       number: "",
-      properties: {}
+      properties: {},
+      expirationDate: ""
     };
   });
+
+  useEffect(() => {
+    if (!tracking) return;
+    setValues((prev) => {
+      const attributes = tracking.attributes as TrackedEntityAttributes;
+      const newExpiration = tracking.expirationDate ?? "";
+      const newNumber = tracking.readableId || "";
+      if (prev.expirationDate === newExpiration && prev.number === newNumber)
+        return prev;
+      return {
+        number: newNumber || prev.number,
+        expirationDate: newExpiration || prev.expirationDate,
+        properties: Object.entries(attributes)
+          .filter(
+            ([key]) =>
+              ![
+                "Shipment Line",
+                "Shipment",
+                "Shipment Line Index",
+                "Receipt Line",
+                "Receipt",
+                "expirationDate"
+              ].includes(key)
+          )
+          .reduce((acc, [key, value]) => ({ ...acc, [key]: value || "" }), {})
+      };
+    });
+  }, [tracking]);
 
   const updateBatchNumber = async (newValues: typeof values, isNew = false) => {
     if (!receipt?.id || !newValues.number.trim()) return;
@@ -619,8 +686,17 @@ function BatchForm({
     formData.append("receiptId", receipt.id);
     formData.append("receiptLineId", line.id!);
     formData.append("trackingType", "batch");
+    if (tracking?.id) {
+      formData.append("trackedEntityId", tracking.id);
+    }
     formData.append("batchNumber", valuesToSubmit.number.trim());
-    formData.append("properties", JSON.stringify(valuesToSubmit.properties));
+    const propertiesWithExpiry = valuesToSubmit.expirationDate
+      ? {
+          ...valuesToSubmit.properties,
+          expirationDate: valuesToSubmit.expirationDate
+        }
+      : valuesToSubmit.properties;
+    formData.append("properties", JSON.stringify(propertiesWithExpiry));
     formData.append("quantity", (line.receivedQuantity ?? 0).toString());
 
     submit(formData, {
@@ -693,7 +769,10 @@ function BatchForm({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 ">
         <div className="flex flex-col gap-2 w-full">
           <label className="text-xs text-muted-foreground flex items-center gap-2">
-            <LuGroup /> Batch Number
+            <LuGroup /> <Trans>Batch Number</Trans>
+            {showExpiryField && (
+              <span className="text-destructive-foreground">*</span>
+            )}
           </label>
 
           <Input
@@ -711,6 +790,32 @@ function BatchForm({
             }}
           />
         </div>
+
+        {showExpiryField && (
+          <div className="flex flex-col gap-2 w-full">
+            <label className="text-xs text-muted-foreground flex items-center gap-2">
+              <LuCalendar /> <Trans>Expiration Date</Trans>
+            </label>
+            <DatePicker
+              isDisabled={isReadOnly}
+              value={
+                values.expirationDate ? parseDate(values.expirationDate) : null
+              }
+              onChange={(date) => {
+                const next = date?.toString() ?? "";
+                const newValues = { ...values, expirationDate: next };
+                setValues(newValues);
+                if (newValues.number.trim()) {
+                  updateBatchNumber(newValues, true);
+                } else if (next) {
+                  toast.error(
+                    t`Enter a batch number before setting the expiration date`
+                  );
+                }
+              }}
+            />
+          </div>
+        )}
 
         <Suspense fallback={null}>
           <Await resolve={batchProperties}>
@@ -758,19 +863,39 @@ function SerialForm({
   line,
   receipt,
   batchProperties,
+  itemShelfLife,
   serialNumbers,
   isReadOnly,
-  onSerialNumbersChange
+  onSerialNumbersChange,
+  tracking
 }: {
   line: ReceiptLine;
   receipt?: Receipt;
   batchProperties?: PostgrestResponse<BatchProperty>;
+  itemShelfLife?: PostgrestResponse<{
+    itemId: string;
+    mode: string;
+    days: number | null;
+  }>;
   serialNumbers: { index: number; number: string }[];
   isReadOnly: boolean;
   onSerialNumbersChange: (
     serialNumbers: { index: number; number: string }[]
   ) => void;
+  tracking: ItemTracking | undefined;
 }) {
+  const shelfLife = itemShelfLife?.data?.find(
+    (sl) => sl.itemId === line.itemId
+  );
+  const showExpiryField = shelfLife?.mode === "Set on Receipt";
+  const [expiryDate, setExpiryDate] = useState(tracking?.expirationDate ?? "");
+
+  useEffect(() => {
+    if (tracking?.expirationDate) {
+      setExpiryDate((prev) => prev || tracking.expirationDate || "");
+    }
+  }, [tracking?.expirationDate]);
+
   const [errors, setErrors] = useState<Record<number, string>>({});
 
   // Check for duplicates within the current form
@@ -808,6 +933,9 @@ function SerialForm({
       formData.append("trackingType", "serial");
       formData.append("index", serialNumber.index.toString());
       formData.append("serialNumber", serialNumber.number.trim());
+      if (expiryDate) {
+        formData.append("expiryDate", expiryDate);
+      }
 
       try {
         const response = await fetch(path.to.receiptLinesTracking(receipt.id), {
@@ -837,7 +965,7 @@ function SerialForm({
         }
       }
     },
-    [line.id, line.itemId, receipt?.id, validateSerialNumber]
+    [line.id, line.itemId, receipt?.id, validateSerialNumber, expiryDate]
   );
 
   const navigateToLineTrackingLabels = (zpl?: boolean, labelSize?: string) => {
@@ -863,6 +991,7 @@ function SerialForm({
     }
   };
   const propertiesDisclosure = useDisclosure();
+  console.log({ serialNumbers, expiryDate });
   return (
     <div className="flex flex-col gap-6 p-6 border rounded-lg">
       <div className="flex justify-between items-center gap-6">
@@ -882,6 +1011,20 @@ function SerialForm({
           </SplitButton>
         </div>
       </div>
+
+      {showExpiryField && (
+        <div className="flex flex-col gap-2 max-w-xs">
+          <label className="text-xs text-muted-foreground flex items-center gap-2">
+            <LuCalendar />{" "}
+            <Trans>Expiration Date (applies to all serials on this line)</Trans>
+          </label>
+          <DatePicker
+            isDisabled={isReadOnly}
+            value={expiryDate ? parseDate(expiryDate) : null}
+            onChange={(date) => setExpiryDate(date?.toString() ?? "")}
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-4 gap-y-3">
         {serialNumbers.map((serialNumber, index) => (
@@ -1023,59 +1166,63 @@ function SplitReceiptLineModal({
   );
 }
 
-function Shelf({
+function StorageUnit({
   locationId,
-  shelfId,
+  storageUnitId,
   isReadOnly,
   onChange
 }: {
   locationId: string | null;
-  shelfId: string | null;
+  storageUnitId: string | null;
   isReadOnly: boolean;
-  onChange: (shelf: string) => void;
+  onChange: (storageUnit: string) => void;
 }) {
-  const { options } = useShelves(locationId ?? undefined);
-  const newShelfModal = useDisclosure();
+  const { options } = useStorageUnits(locationId ?? undefined);
+  const newStorageUnitModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   if (!locationId) return null;
 
-  const ShelfPreview = (
+  const StorageUnitPreview = (
     value: string,
     options: { value: string; label: string | JSX.Element }[]
   ) => {
-    const shelf = options.find((o) => o.value === value);
-    if (!shelf) return null;
-    return shelf.label;
+    const storageUnit = options.find((o) => o.value === value);
+    if (!storageUnit) return null;
+    return storageUnit.label;
   };
 
   return (
     <div className="flex flex-col items-start gap-1 min-w-[140px] text-sm">
-      <label className="text-xs text-muted-foreground">Shelf</label>
+      <label className="text-xs text-muted-foreground">Storage Unit</label>
       <CreatableCombobox
         ref={triggerRef}
         options={options}
-        value={shelfId ?? undefined}
+        value={storageUnitId ?? undefined}
         onChange={onChange}
         disabled={isReadOnly}
         isReadOnly={isReadOnly}
-        inline={ShelfPreview}
+        inline={StorageUnitPreview}
         onCreateOption={(option) => {
-          newShelfModal.onOpen();
+          newStorageUnitModal.onOpen();
           setCreated(option);
         }}
       />
-      {newShelfModal.isOpen && (
-        <ShelfForm
+      {newStorageUnitModal.isOpen && (
+        <StorageUnitForm
           locationId={locationId}
           type="modal"
           onClose={() => {
             setCreated("");
-            newShelfModal.onClose();
+            newStorageUnitModal.onClose();
             triggerRef.current?.click();
           }}
-          initialValues={{ name: created, locationId: locationId }}
+          initialValues={{
+            name: created,
+            locationId: locationId,
+            storageTypeIds: []
+          }}
         />
       )}
     </div>

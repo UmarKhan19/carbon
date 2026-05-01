@@ -16,7 +16,7 @@ import type { PostgrestResponse } from "@supabase/supabase-js";
 import { useEffect, useState } from "react";
 import { useFetcher, useParams } from "react-router";
 import type { z } from "zod";
-import { Hidden, Item, Number, Shelf, Submit } from "~/components/Form";
+import { Hidden, Item, Number, StorageUnit, Submit } from "~/components/Form";
 import { usePermissions, useRouteData } from "~/hooks";
 import {
   isStockTransferLocked,
@@ -156,6 +156,7 @@ const StockTransferLineForm = ({
                   label={itemType}
                   // @ts-ignore
                   type={itemType}
+                  locationId={locationId}
                   onTypeChange={onTypeChange}
                   onChange={(value) => {
                     onItemChange(value?.value as string);
@@ -169,15 +170,15 @@ const StockTransferLineForm = ({
                   maxValue={itemTrackingType === "Serial" ? 1 : undefined}
                   defaultValue={itemTrackingType === "Serial" ? 1 : undefined}
                 />
-                <Shelf
-                  name="fromShelfId"
-                  label={t`From Shelf`}
+                <StorageUnit
+                  name="fromStorageUnitId"
+                  label={t`From Storage Unit`}
                   locationId={locationId}
                   itemId={itemId ?? undefined}
                 />
-                <Shelf
-                  name="toShelfId"
-                  label={t`To Shelf`}
+                <StorageUnit
+                  name="toStorageUnitId"
+                  label={t`To Storage Unit`}
                   locationId={locationId}
                   itemId={itemId ?? undefined}
                 />

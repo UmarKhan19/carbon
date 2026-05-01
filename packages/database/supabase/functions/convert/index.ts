@@ -289,10 +289,6 @@ serve(async (req: Request) => {
 
         let purchaseInvoiceId = "";
 
-        const company = await client.from("company").select("companyGroupId").eq("id", companyId).single();
-        if (company.error) throw new Error("Failed to fetch company");
-        const companyGroupId = company.data.companyGroupId;
-
         await db.transaction().execute(async (trx) => {
           purchaseInvoiceId = await getNextSequence(
             trx,
@@ -324,7 +320,6 @@ serve(async (req: Request) => {
               totalTax: 0,
               balance: uninvoicedSubtotal ?? 0,
               companyId,
-              companyGroupId,
               createdBy: userId,
             })
             .returning(["id"])
@@ -343,6 +338,8 @@ serve(async (req: Request) => {
                 purchaseOrderDelivery.data.supplierShippingCost ?? 0,
               shippingMethodId: purchaseOrderDelivery.data.shippingMethodId,
               shippingTermId: purchaseOrderDelivery.data.shippingTermId,
+              incoterm: purchaseOrderDelivery.data.incoterm,
+              incotermLocation: purchaseOrderDelivery.data.incotermLocation,
               companyId,
               updatedBy: userId,
             })
@@ -356,7 +353,7 @@ serve(async (req: Request) => {
               purchaseOrderLineId: line.id,
               itemId: line.itemId,
               locationId: line.locationId,
-              shelfId: line.shelfId,
+              storageUnitId: line.storageUnitId,
               accountNumber: line.accountNumber,
               assetId: line.assetId,
               description: line.description,
@@ -370,7 +367,6 @@ serve(async (req: Request) => {
               exchangeRate: line.exchangeRate ?? 1,
               jobOperationId: line.jobOperationId,
               companyId,
-              companyGroupId,
               createdBy: userId,
             }));
 
@@ -490,47 +486,70 @@ serve(async (req: Request) => {
             })
             .execute();
 
+          const selectedQuoteLines = quoteLines.data.filter(
+            (line) =>
+              line.id &&
+              selectedLines &&
+              line.id in selectedLines &&
+              selectedLines[line.id].quantity > 0
+          );
+
+          const pickMethodDefaultsByLineId = new Map<string, string | null>();
+          await Promise.all(
+            selectedQuoteLines.map(async (line) => {
+              if (!line.id || !line.itemId) return;
+              if (line.methodType === "Make to Order") return;
+              const lineLocationId = line.locationId ?? quote.data.locationId;
+              if (!lineLocationId) return;
+              const pickMethod = await trx
+                .selectFrom("pickMethod")
+                .where("itemId", "=", line.itemId)
+                .where("locationId", "=", lineLocationId)
+                .where("companyId", "=", companyId)
+                .select("defaultStorageUnitId")
+                .executeTakeFirst();
+              if (pickMethod?.defaultStorageUnitId) {
+                pickMethodDefaultsByLineId.set(
+                  line.id,
+                  pickMethod.defaultStorageUnitId
+                );
+              }
+            })
+          );
+
           const salesOrderLineInserts: Database["public"]["Tables"]["salesOrderLine"]["Insert"][] =
-            quoteLines.data
-              .filter(
-                (line) =>
-                  line.id &&
-                  selectedLines &&
-                  line.id in selectedLines &&
-                  selectedLines[line.id].quantity > 0
-              )
-              .map((line) => {
-                return {
-                  id: line.id,
-                  salesOrderId: insertedSalesOrderId,
-                  salesOrderLineType: line.itemType as "Part",
-                  addOnCost: selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn,
-                  nonTaxableAddOnCost: (selectedLines![line.id!].addOn ?? 0) - (selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn ?? 0),
-                  description: line.description,
-                  itemId: line.itemId,
-                  locationId: line.locationId ?? quote.data.locationId,
-                  methodType: line.methodType,
-                  internalNotes: line.internalNotes,
-                  externalNotes: line.externalNotes,
-                  saleQuantity: selectedLines![line.id!].quantity,
-                  status: "Ordered",
-                  unitOfMeasureCode: line.unitOfMeasureCode,
-                  unitPrice: selectedLines![line.id!].netUnitPrice,
-                  promisedDate: format(
-                    new Date(
-                      Date.now() +
-                        selectedLines![line.id!].leadTime * 24 * 60 * 60 * 1000
-                    ),
-                    "yyyy-MM-dd"
+            selectedQuoteLines.map((line) => {
+              return {
+                id: line.id,
+                salesOrderId: insertedSalesOrderId,
+                salesOrderLineType: line.itemType as "Part",
+                addOnCost: selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn,
+                nonTaxableAddOnCost: (selectedLines![line.id!].addOn ?? 0) - (selectedLines![line.id!].taxableAddOn ?? selectedLines![line.id!].addOn ?? 0),
+                description: line.description,
+                itemId: line.itemId,
+                locationId: line.locationId ?? quote.data.locationId,
+                methodType: line.methodType,
+                storageUnitId: pickMethodDefaultsByLineId.get(line.id!) ?? null,
+                internalNotes: line.internalNotes,
+                externalNotes: line.externalNotes,
+                saleQuantity: selectedLines![line.id!].quantity,
+                status: "Ordered",
+                unitOfMeasureCode: line.unitOfMeasureCode,
+                unitPrice: selectedLines![line.id!].netUnitPrice,
+                promisedDate: format(
+                  new Date(
+                    Date.now() +
+                      selectedLines![line.id!].leadTime * 24 * 60 * 60 * 1000
                   ),
-                  createdBy: userId,
-                  companyId,
-                  companyGroupId: company.data!.companyGroupId,
-                  exchangeRate: quote.data.exchangeRate ?? 1,
-                  taxPercent: line.taxPercent,
-                  shippingCost: selectedLines![line.id!].shippingCost,
-                };
-              });
+                  "yyyy-MM-dd"
+                ),
+                createdBy: userId,
+                companyId,
+                exchangeRate: quote.data.exchangeRate ?? 1,
+                taxPercent: line.taxPercent,
+                shippingCost: selectedLines![line.id!].shippingCost,
+              };
+            });
 
           if (salesOrderLineInserts.length > 0) {
             await trx
@@ -562,6 +581,7 @@ serve(async (req: Request) => {
             .where("id", "=", quote.data.id)
             .execute();
 
+          const customerPartSeen = new Set<string>();
           const customerPartToItemInserts = quoteLines.data
             .map((line) => ({
               companyId,
@@ -570,7 +590,13 @@ serve(async (req: Request) => {
               customerPartRevision: line.customerPartRevision ?? "",
               itemId: line.itemId!,
             }))
-            .filter((line) => !!line.itemId && !!line.customerPartId);
+            .filter((line) => {
+              if (!line.itemId || !line.customerPartId) return false;
+              const key = `${line.customerId}-${line.itemId}`;
+              if (customerPartSeen.has(key)) return false;
+              customerPartSeen.add(key);
+              return true;
+            });
           if (customerPartToItemInserts.length > 0) {
             await trx
               .insertInto("customerPartToItem")
@@ -641,10 +667,6 @@ serve(async (req: Request) => {
           throw new Error("Purchase order payment not found");
         if (!salesOrderShipment.data)
           throw new Error("Purchase order delivery not found");
-
-        const company = await client.from("company").select("companyGroupId").eq("id", companyId).single();
-        if (company.error) throw new Error("Failed to fetch company");
-        const companyGroupId = company.data.companyGroupId;
 
         const uninvoicedLines = salesOrderLines?.data?.reduce<
           (typeof salesOrderLines)["data"]
@@ -717,6 +739,8 @@ serve(async (req: Request) => {
               shippingCost: salesOrderShipment.data.shippingCost ?? 0,
               shippingMethodId: salesOrderShipment.data.shippingMethodId,
               shippingTermId: salesOrderShipment.data.shippingTermId,
+              incoterm: salesOrderShipment.data.incoterm,
+              incotermLocation: salesOrderShipment.data.incotermLocation,
               companyId,
               createdBy: userId,
             })
@@ -738,7 +762,7 @@ serve(async (req: Request) => {
                 methodType: line.methodType,
                 itemId: line.itemId,
                 locationId: line.locationId,
-                shelfId: line.shelfId,
+                storageUnitId: line.storageUnitId,
                 accountNumber: line.accountNumber,
                 assetId: line.assetId,
                 description: line.description,
@@ -751,7 +775,6 @@ serve(async (req: Request) => {
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
                 exchangeRate: line.exchangeRate ?? 1,
                 companyId,
-                companyGroupId,
                 createdBy: userId,
               });
             }
@@ -889,7 +912,7 @@ serve(async (req: Request) => {
           .from("currency")
           .select("*")
           .eq("code", currencyCode)
-          .eq("companyGroupId", company.data.companyGroupId)
+          .eq("companyId", companyId)
           .single();
         const exchangeRate = currency.data?.exchangeRate ?? 1;
 
@@ -900,7 +923,7 @@ serve(async (req: Request) => {
           invoiceCustomerLocationId,
         } = customerPayment.data;
 
-        const { shippingMethodId, shippingTermId } = customerShipping.data;
+        const { shippingMethodId, shippingTermId, incoterm, incotermLocation } = customerShipping.data;
 
         let insertedQuoteId = "";
         let insertedQuoteLines: {
@@ -1021,6 +1044,8 @@ serve(async (req: Request) => {
               locationId: salesRfq.data?.locationId,
               shippingMethodId: shippingMethodId,
               shippingTermId: shippingTermId,
+              incoterm: incoterm,
+              incotermLocation: incotermLocation,
               companyId,
             })
             .execute();
@@ -1067,6 +1092,7 @@ serve(async (req: Request) => {
             .where("id", "=", id)
             .execute();
 
+          const rfqCustomerPartSeen = new Set<string>();
           const customerPartToItemInserts = salesRfqLinesWithItemIds
             .map((line) => ({
               companyId,
@@ -1075,7 +1101,13 @@ serve(async (req: Request) => {
               customerPartRevision: line.customerPartRevision ?? "",
               itemId: line.itemId!,
             }))
-            .filter((line) => !!line.itemId && !!line.customerPartId);
+            .filter((line) => {
+              if (!line.itemId || !line.customerPartId) return false;
+              const key = `${line.customerId}-${line.itemId}`;
+              if (rfqCustomerPartSeen.has(key)) return false;
+              rfqCustomerPartSeen.add(key);
+              return true;
+            });
           if (customerPartToItemInserts.length > 0) {
             await trx
               .insertInto("customerPartToItem")
@@ -1195,10 +1227,6 @@ serve(async (req: Request) => {
         if (!salesOrderShipment.data)
           throw new Error("Purchase order delivery not found");
 
-        const company = await client.from("company").select("companyGroupId").eq("id", companyId).single();
-        if (company.error) throw new Error("Failed to fetch company");
-        const companyGroupId = company.data.companyGroupId;
-
         const uninvoicedLines = salesOrderLines?.data?.reduce<
           (typeof salesOrderLines)["data"]
         >((acc, line) => {
@@ -1283,6 +1311,8 @@ serve(async (req: Request) => {
               shippingCost: salesOrderShipment.data.shippingCost ?? 0,
               shippingMethodId: salesOrderShipment.data.shippingMethodId,
               shippingTermId: salesOrderShipment.data.shippingTermId,
+              incoterm: salesOrderShipment.data.incoterm,
+              incotermLocation: salesOrderShipment.data.incotermLocation,
               companyId,
               createdBy: userId,
             })
@@ -1304,7 +1334,7 @@ serve(async (req: Request) => {
                 methodType: line.methodType,
                 itemId: line.itemId,
                 locationId: line.locationId,
-                shelfId: line.shelfId,
+                storageUnitId: line.storageUnitId,
                 accountNumber: line.accountNumber,
                 assetId: line.assetId,
                 description: line.description,
@@ -1317,7 +1347,6 @@ serve(async (req: Request) => {
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
                 exchangeRate: line.exchangeRate ?? 1,
                 companyId,
-                companyGroupId,
                 createdBy: userId,
               });
             }
@@ -1456,6 +1485,8 @@ serve(async (req: Request) => {
                 locationId: employeeJob.data?.locationId,
                 shippingMethodId: supplierShipping.data.shippingMethodId,
                 shippingTermId: supplierShipping.data.shippingTermId,
+                incoterm: supplierShipping.data.incoterm,
+                incotermLocation: supplierShipping.data.incotermLocation,
                 companyId: companyId,
               })
               .execute(),
@@ -1477,10 +1508,10 @@ serve(async (req: Request) => {
                   description: line.description,
                   itemId: line.itemId,
                   locationId: employeeJob.data?.locationId,
-                  shelfId:
+                  storageUnitId:
                     pickMethods.data?.find(
                       (method) => method.itemId === line.itemId
-                    )?.defaultShelfId ?? null,
+                    )?.defaultStorageUnitId ?? null,
                   exchangeRate: quote.data.exchangeRate ?? 1,
                   conversionFactor: line.conversionFactor,
                   internalNotes: line.internalNotes,
@@ -1494,7 +1525,6 @@ serve(async (req: Request) => {
                   supplierTaxAmount: selectedLines![line.id!].supplierTaxAmount,
                   createdBy: userId,
                   companyId,
-                  companyGroupId: company.data!.companyGroupId,
                 };
               });
 
@@ -1724,7 +1754,7 @@ serve(async (req: Request) => {
               lineId: line.id,
               itemId: line.itemId,
               locationId: line.fromLocationId,
-              shelfId: line.fromShelfId,
+              storageUnitId: line.fromStorageUnitId,
               orderQuantity: line.quantity,
               shippedQuantity: 0,
               unitOfMeasure: line.unitOfMeasureCode || "EA",
@@ -1796,7 +1826,7 @@ serve(async (req: Request) => {
               lineId: line.id,
               itemId: line.itemId,
               locationId: line.toLocationId,
-              shelfId: line.toShelfId,
+              storageUnitId: line.toStorageUnitId,
               orderQuantity: line.quantity,
               receivedQuantity: 0,
               unitOfMeasure: line.unitOfMeasureCode || "EA",

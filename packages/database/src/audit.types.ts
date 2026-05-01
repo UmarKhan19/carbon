@@ -16,11 +16,15 @@ export interface AuditMetadata {
 }
 
 /**
- * Represents a single field change in the diff
+ * Represents a single field change in the diff.
+ *
+ * Both `old` and `new` are optional: INSERT entries populated via a table's
+ * `createFields` config only include `new`, and the UI hides the "old" pill
+ * when the key is absent.
  */
 export interface AuditDiffEntry {
-  old: unknown;
-  new: unknown;
+  old?: unknown;
+  new?: unknown;
 }
 
 /**
@@ -38,6 +42,13 @@ export interface AuditLogEntry {
   tableName: AuditableTable;
   entityType: AuditEntityType;
   entityId: string;
+  /**
+   * The raw PK of the row that triggered this entry.
+   * For root tables, recordId == entityId. For child tables they differ
+   * (e.g. entityId = parent id, recordId = child row id). Nullable to
+   * tolerate legacy rows inserted before the column was added.
+   */
+  recordId: string | null;
   operation: AuditOperation;
   actorId: string | null;
   diff: AuditDiff | null;
@@ -53,10 +64,12 @@ export interface CreateAuditLogEntry {
   tableName: AuditableTable;
   entityType: AuditEntityType;
   entityId: string;
+  recordId: string;
   operation: AuditOperation;
   actorId: string | null;
   diff?: AuditDiff | null;
   metadata?: AuditMetadata | null;
+  createdAt?: string;
 }
 
 /**

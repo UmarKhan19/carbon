@@ -50,7 +50,7 @@ import {
   getItemPlanning,
   getItemQuantities,
   getItemReplenishment,
-  getItemShelfQuantities,
+  getItemStorageUnitQuantities,
   getItemSupply,
   getItemUnitSalePrice,
   getMaterialUsedIn,
@@ -190,11 +190,11 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_activateMethodVersion",
     {
       description: "activate method version",
-      inputSchema: {
+      inputSchema: z.object({
       payload: z.object({
     id: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -207,9 +207,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_copyItem",
     {
       description: "copy item",
-      inputSchema: {
+      inputSchema: z.object({
       args: getMethodValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -222,9 +222,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_copyMakeMethod",
     {
       description: "copy make method",
-      inputSchema: {
+      inputSchema: z.object({
       args: getMethodValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -237,12 +237,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_createRevision",
     {
       description: "create revision",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     item: z.any(),
     revision: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -255,9 +255,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteConfigurationParameter",
     {
       description: "delete configuration parameter",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -270,10 +270,10 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteConfigurationRule",
     {
       description: "delete configuration rule",
-      inputSchema: {
+      inputSchema: z.object({
       field: z.string(),
       itemId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -286,9 +286,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteItemCustomerPart",
     {
       description: "delete item customer part",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -301,9 +301,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteConfigurationParameterGroup",
     {
       description: "delete configuration parameter group",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -316,9 +316,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteItem",
     {
       description: "delete item",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -331,9 +331,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteItemPostingGroup",
     {
       description: "delete item posting group",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -346,9 +346,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMaterialDimension",
     {
       description: "delete material dimension",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -361,9 +361,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMaterialFinish",
     {
       description: "delete material finish",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -376,9 +376,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMaterialForm",
     {
       description: "delete material form",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -391,9 +391,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMaterialGrade",
     {
       description: "delete material grade",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -406,9 +406,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMaterialSubstance",
     {
       description: "delete material substance",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -421,9 +421,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMethodMaterial",
     {
       description: "delete method material",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -436,9 +436,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_assertMethodOperationIsDraft",
     {
       description: "assert method operation is draft",
-      inputSchema: {
+      inputSchema: z.object({
       operationId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -451,9 +451,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMethodOperationStep",
     {
       description: "delete method operation step",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -466,9 +466,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMethodOperationParameter",
     {
       description: "delete method operation parameter",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -481,9 +481,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMethodOperationTool",
     {
       description: "delete method operation tool",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -496,9 +496,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteUnitOfMeasure",
     {
       description: "delete unit of measure",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -511,9 +511,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getConfigurationParameters",
     {
       description: "get configuration parameters",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -526,9 +526,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getConfigurationRules",
     {
       description: "get configuration rules",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -541,9 +541,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getConsumable",
     {
       description: "get consumable",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -556,14 +556,14 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getConsumables",
     {
       description: "get consumables",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     supplierId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -576,7 +576,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getConsumablesList",
     {
       description: "get consumables list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -589,9 +589,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItem",
     {
       description: "get item",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -604,9 +604,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemCost",
     {
       description: "get item cost",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -619,9 +619,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemCostHistory",
     {
       description: "get item cost history",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -634,9 +634,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemCustomerPart",
     {
       description: "get item customer part",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -649,9 +649,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemCustomerParts",
     {
       description: "get item customer parts",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -664,13 +664,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemDemand",
     {
       description: "get item demand",
-      inputSchema: {
+      inputSchema: z.object({
       arg1: z.object({
     itemId: z.string(),
     locationId: z.string(),
     periods: z.array(z.string())
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -683,9 +683,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemFiles",
     {
       description: "get item files",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -698,9 +698,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemPostingGroup",
     {
       description: "get item posting group",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -713,13 +713,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemPostingGroups",
     {
       description: "get item posting groups",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -732,7 +732,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemPostingGroupsList",
     {
       description: "get item posting groups list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -745,9 +745,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemManufacturing",
     {
       description: "get item manufacturing",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -760,10 +760,10 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemPlanning",
     {
       description: "get item planning",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -776,10 +776,10 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemQuantities",
     {
       description: "get item quantities",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -792,9 +792,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemReplenishment",
     {
       description: "get item replenishment",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -804,32 +804,32 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "items_getItemShelfQuantities",
+    "items_getItemStorageUnitQuantities",
     {
-      description: "get item shelf quantities",
-      inputSchema: {
+      description: "get item storage unit quantities",
+      inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getItemShelfQuantities(ctx.client, params.itemId, ctx.companyId, params.locationId);
+      const result = await getItemStorageUnitQuantities(ctx.client, params.itemId, ctx.companyId, params.locationId);
       return toMcpResult(result);
-    }, "Failed: items_getItemShelfQuantities"),
+    }, "Failed: items_getItemStorageUnitQuantities"),
   );
 
   server.registerTool(
     "items_getItemSupply",
     {
       description: "get item supply",
-      inputSchema: {
+      inputSchema: z.object({
       arg1: z.object({
     itemId: z.string(),
     locationId: z.string(),
     periods: z.array(z.string())
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -842,9 +842,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getItemUnitSalePrice",
     {
       description: "get item unit sale price",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -857,9 +857,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialUsedIn",
     {
       description: "get material used in",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -872,9 +872,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMakeMethods",
     {
       description: "get make methods",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -887,9 +887,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMakeMethodById",
     {
       description: "get make method by id",
-      inputSchema: {
+      inputSchema: z.object({
       makeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -902,9 +902,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterial",
     {
       description: "get material",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -917,14 +917,14 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterials",
     {
       description: "get materials",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     supplierId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -937,7 +937,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialsList",
     {
       description: "get materials list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -950,9 +950,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialDimension",
     {
       description: "get material dimension",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -965,14 +965,14 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialDimensions",
     {
       description: "get material dimensions",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     isMetric: z.boolean()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -985,10 +985,10 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialDimensionList",
     {
       description: "get material dimension list",
-      inputSchema: {
+      inputSchema: z.object({
       materialFormId: z.string(),
       isMetric: z.boolean(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1001,9 +1001,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialFinish",
     {
       description: "get material finish",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1016,13 +1016,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialFinishes",
     {
       description: "get material finishes",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1035,9 +1035,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialFinishList",
     {
       description: "get material finish list",
-      inputSchema: {
+      inputSchema: z.object({
       materialSubstanceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1050,9 +1050,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialForm",
     {
       description: "get material form",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1065,13 +1065,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialForms",
     {
       description: "get material forms",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1084,7 +1084,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialFormsList",
     {
       description: "get material forms list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1097,13 +1097,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialGrades",
     {
       description: "get material grades",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1116,9 +1116,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialGrade",
     {
       description: "get material grade",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1131,9 +1131,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialGradeList",
     {
       description: "get material grade list",
-      inputSchema: {
+      inputSchema: z.object({
       materialSubstanceId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1146,9 +1146,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialSubstance",
     {
       description: "get material substance",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1161,13 +1161,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialSubstances",
     {
       description: "get material substances",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1180,7 +1180,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialSubstancesList",
     {
       description: "get material substances list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1193,9 +1193,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMethodMaterial",
     {
       description: "get method material",
-      inputSchema: {
+      inputSchema: z.object({
       materialId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1208,13 +1208,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMethodMaterials",
     {
       description: "get method materials",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1227,9 +1227,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMethodMaterialsByMakeMethod",
     {
       description: "get method materials by make method",
-      inputSchema: {
+      inputSchema: z.object({
       makeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1242,13 +1242,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMethodOperations",
     {
       description: "get method operations",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1261,9 +1261,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMethodOperationsByMakeMethodId",
     {
       description: "get method operations by make method id",
-      inputSchema: {
+      inputSchema: z.object({
       makeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1276,9 +1276,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMethodTree",
     {
       description: "get method tree",
-      inputSchema: {
+      inputSchema: z.object({
       makeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1291,9 +1291,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMethodTreeArray",
     {
       description: "get method tree array",
-      inputSchema: {
+      inputSchema: z.object({
       makeMethodId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1306,12 +1306,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getOpenJobMaterials",
     {
       description: "get open job materials",
-      inputSchema: {
+      inputSchema: z.object({
       arg1: z.object({
     itemId: z.string(),
     locationId: z.string()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1324,12 +1324,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getOpenProductionOrders",
     {
       description: "get open production orders",
-      inputSchema: {
+      inputSchema: z.object({
       arg1: z.object({
     itemId: z.string(),
     locationId: z.string()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1342,12 +1342,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getOpenPurchaseOrderLines",
     {
       description: "get open purchase order lines",
-      inputSchema: {
+      inputSchema: z.object({
       arg1: z.object({
     itemId: z.string(),
     locationId: z.string()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1360,12 +1360,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getOpenSalesOrderLines",
     {
       description: "get open sales order lines",
-      inputSchema: {
+      inputSchema: z.object({
       arg1: z.object({
     itemId: z.string(),
     locationId: z.string()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1378,9 +1378,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getPart",
     {
       description: "get part",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1393,14 +1393,14 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getParts",
     {
       description: "get parts",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     supplierId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1413,7 +1413,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getPartsList",
     {
       description: "get parts list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1426,9 +1426,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getPartUsedIn",
     {
       description: "get part used in",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1441,10 +1441,10 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getPickMethod",
     {
       description: "get pick method",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1457,9 +1457,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getPickMethods",
     {
       description: "get pick methods",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1472,7 +1472,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getServices",
     {
       description: "get services",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -1481,7 +1481,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     group: z.string().nullable(),
     supplierId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1494,9 +1494,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getService",
     {
       description: "get service",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1509,7 +1509,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getServicesList",
     {
       description: "get services list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1522,9 +1522,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getSupplierParts",
     {
       description: "get supplier parts",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1537,9 +1537,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getTool",
     {
       description: "get tool",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1552,14 +1552,14 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getTools",
     {
       description: "get tools",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     supplierId: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1572,7 +1572,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getToolsList",
     {
       description: "get tools list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1585,9 +1585,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getUnitOfMeasure",
     {
       description: "get unit of measure",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1600,13 +1600,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getUnitOfMeasures",
     {
       description: "get unit of measures",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1619,7 +1619,7 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getUnitOfMeasuresList",
     {
       description: "get unit of measures list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1632,9 +1632,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_updateConfigurationParameterGroupOrder",
     {
       description: "update configuration parameter group order",
-      inputSchema: {
+      inputSchema: z.object({
       data: configurationParameterGroupOrderValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1647,11 +1647,11 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_updateDefaultRevision",
     {
       description: "update default revision",
-      inputSchema: {
+      inputSchema: z.object({
       data: z.object({
     id: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1664,9 +1664,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_updateConfigurationParameterOrder",
     {
       description: "update configuration parameter order",
-      inputSchema: {
+      inputSchema: z.object({
       data: configurationParameterOrderValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1679,12 +1679,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_updateItemCost",
     {
       description: "update item cost",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       cost: z.object({
     unitCost: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1697,12 +1697,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_updateMaterialOrder",
     {
       description: "update material order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     order: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1715,12 +1715,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_updateOperationOrder",
     {
       description: "update operation order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     order: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1733,12 +1733,12 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_updateRevision",
     {
       description: "update revision",
-      inputSchema: {
+      inputSchema: z.object({
       revision: z.object({
     id: z.string(),
     revision: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1751,9 +1751,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertConfigurationParameter",
     {
       description: "upsert configuration parameter",
-      inputSchema: {
+      inputSchema: z.object({
       configurationParameter: configurationParameterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1766,9 +1766,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertConfigurationParameterGroup",
     {
       description: "upsert configuration parameter group",
-      inputSchema: {
+      inputSchema: z.object({
       configurationParameterGroup: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1781,9 +1781,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertConfigurationRule",
     {
       description: "upsert configuration rule",
-      inputSchema: {
+      inputSchema: z.object({
       configurationRule: configurationRuleValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1796,9 +1796,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertConsumable",
     {
       description: "upsert consumable",
-      inputSchema: {
+      inputSchema: z.object({
       consumable: consumableValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1811,9 +1811,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertPart",
     {
       description: "upsert part",
-      inputSchema: {
+      inputSchema: z.object({
       part: partValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1826,9 +1826,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_updateItem",
     {
       description: "update item",
-      inputSchema: {
+      inputSchema: z.object({
       item: itemValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1841,9 +1841,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertItemCost",
     {
       description: "upsert item cost",
-      inputSchema: {
+      inputSchema: z.object({
       itemCost: itemCostValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1856,9 +1856,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertPickMethod",
     {
       description: "upsert pick method",
-      inputSchema: {
+      inputSchema: z.object({
       pickMethod: pickMethodValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1871,9 +1871,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertItemManufacturing",
     {
       description: "upsert item manufacturing",
-      inputSchema: {
+      inputSchema: z.object({
       partManufacturing: itemManufacturingValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1886,9 +1886,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertItemPlanning",
     {
       description: "upsert item planning",
-      inputSchema: {
+      inputSchema: z.object({
       partPlanning: itemPlanningValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1901,9 +1901,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertItemPurchasing",
     {
       description: "upsert item purchasing",
-      inputSchema: {
+      inputSchema: z.object({
       itemPurchasing: itemPurchasingValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1916,9 +1916,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertItemPostingGroup",
     {
       description: "upsert item posting group",
-      inputSchema: {
+      inputSchema: z.object({
       itemPostingGroup: itemPostingGroupValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1931,9 +1931,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertSupplierPart",
     {
       description: "upsert supplier part",
-      inputSchema: {
+      inputSchema: z.object({
       supplierPart: supplierPartValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1946,9 +1946,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertItemCustomerPart",
     {
       description: "upsert item customer part",
-      inputSchema: {
+      inputSchema: z.object({
       customerPart: customerPartValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1961,9 +1961,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertItemUnitSalePrice",
     {
       description: "upsert item unit sale price",
-      inputSchema: {
+      inputSchema: z.object({
       itemUnitSalePrice: itemUnitSalePriceValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1976,9 +1976,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMakeMethodVersion",
     {
       description: "upsert make method version",
-      inputSchema: {
+      inputSchema: z.object({
       makeMethodVersion: makeMethodVersionValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1991,9 +1991,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMethodMaterial",
     {
       description: "upsert method material",
-      inputSchema: {
+      inputSchema: z.object({
       methodMaterial: methodMaterialValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2006,9 +2006,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMethodOperation",
     {
       description: "upsert method operation",
-      inputSchema: {
+      inputSchema: z.object({
       methodOperation: methodOperationValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2021,9 +2021,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMethodOperationStep",
     {
       description: "upsert method operation step",
-      inputSchema: {
+      inputSchema: z.object({
       methodOperationStep: operationStepValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2036,9 +2036,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMethodOperationParameter",
     {
       description: "upsert method operation parameter",
-      inputSchema: {
+      inputSchema: z.object({
       methodOperationParameter: operationParameterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2051,9 +2051,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMethodOperationTool",
     {
       description: "upsert method operation tool",
-      inputSchema: {
+      inputSchema: z.object({
       methodOperationTool: operationToolValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2066,9 +2066,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMaterial",
     {
       description: "upsert material",
-      inputSchema: {
+      inputSchema: z.object({
       material: materialValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2081,9 +2081,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMaterialDimension",
     {
       description: "upsert material dimension",
-      inputSchema: {
+      inputSchema: z.object({
       materialDimension: materialDimensionValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2096,9 +2096,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMaterialFinish",
     {
       description: "upsert material finish",
-      inputSchema: {
+      inputSchema: z.object({
       materialFinish: materialFinishValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2111,9 +2111,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMaterialForm",
     {
       description: "upsert material form",
-      inputSchema: {
+      inputSchema: z.object({
       materialForm: materialFormValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2126,9 +2126,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMaterialGrade",
     {
       description: "upsert material grade",
-      inputSchema: {
+      inputSchema: z.object({
       materialGrade: materialGradeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2141,9 +2141,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_deleteMaterialType",
     {
       description: "delete material type",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2156,13 +2156,13 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialTypes",
     {
       description: "get material types",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2175,9 +2175,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialType",
     {
       description: "get material type",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2190,10 +2190,10 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getMaterialTypeList",
     {
       description: "get material type list",
-      inputSchema: {
+      inputSchema: z.object({
       materialSubstanceId: z.string(),
       materialFormId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2206,9 +2206,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMaterialType",
     {
       description: "upsert material type",
-      inputSchema: {
+      inputSchema: z.object({
       materialType: materialTypeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2221,9 +2221,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertMaterialSubstance",
     {
       description: "upsert material substance",
-      inputSchema: {
+      inputSchema: z.object({
       materialSubstance: materialSubstanceValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2236,9 +2236,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertService",
     {
       description: "upsert service",
-      inputSchema: {
+      inputSchema: z.object({
       service: serviceValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2251,9 +2251,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertUnitOfMeasure",
     {
       description: "upsert unit of measure",
-      inputSchema: {
+      inputSchema: z.object({
       unitOfMeasure: unitOfMeasureValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2266,9 +2266,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_upsertTool",
     {
       description: "upsert tool",
-      inputSchema: {
+      inputSchema: z.object({
       tool: toolValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2281,9 +2281,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getSupplierPriceBreaksForItems",
     {
       description: "get supplier price breaks for items",
-      inputSchema: {
+      inputSchema: z.object({
       itemIds: z.array(z.string()),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2296,11 +2296,11 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_lookupBuyPrice",
     {
       description: "lookup buy price",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
       qty: z.number(),
       fallbackCost: z.number(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -2313,9 +2313,9 @@ export const registerItemsTools: RegisterTools = (server, ctx) => {
     "items_getSupplierPartPriceBreaks",
     {
       description: "get supplier part price breaks",
-      inputSchema: {
+      inputSchema: z.object({
       supplierPartId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

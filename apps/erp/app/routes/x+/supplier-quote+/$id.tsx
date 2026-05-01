@@ -136,7 +136,7 @@ export default function SupplierQuoteRoute() {
                   </VStack>
                 </div>
               }
-              properties={<SupplierQuoteProperties />}
+              properties={<SupplierQuoteProperties key={id} />}
             />
           </div>
         </div>

@@ -120,6 +120,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       replenishmentSystem: "Make" as const,
       revision,
       unitOfMeasureCode: "EA",
+      shelfLifeCalculateFromBom: false,
       companyId,
       createdBy: userId
     };

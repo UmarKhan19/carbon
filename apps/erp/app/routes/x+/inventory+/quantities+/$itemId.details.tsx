@@ -5,12 +5,12 @@ import type { JSONContent } from "@carbon/react";
 import { VStack } from "@carbon/react";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { InventoryDetails } from "~/modules/inventory";
 import {
   getItem,
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemStorageUnitQuantities,
   getMakeMethodById,
   getMakeMethods,
   getMethodMaterialsByMakeMethod,
@@ -122,18 +122,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const itemShelfQuantities = await getItemShelfQuantities(
+  const itemStorageUnitQuantities = await getItemStorageUnitQuantities(
     client,
     itemId,
     companyId,
     locationId
   );
-  if (itemShelfQuantities.error || !itemShelfQuantities.data) {
+  if (itemStorageUnitQuantities.error || !itemStorageUnitQuantities.data) {
     throw redirect(
       path.to.inventory,
       await flash(
         request,
-        error(itemShelfQuantities.error, "Failed to load item shelf quantities")
+        error(
+          itemStorageUnitQuantities.error,
+          "Failed to load item storage unit quantities"
+        )
       )
     );
   }
@@ -188,7 +191,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     pickMethod: pickMethod.data,
     quantities: quantities.data,
-    itemShelfQuantities: itemShelfQuantities.data,
+    itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     item: item.data,
     methodData,
     tags
@@ -196,7 +199,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function ItemInventoryRoute() {
-  const { pickMethod, quantities, itemShelfQuantities, item } =
+  const { pickMethod, quantities, itemStorageUnitQuantities, item } =
     useLoaderData<typeof loader>();
 
   const [items] = useItems();
@@ -204,20 +207,20 @@ export default function ItemInventoryRoute() {
     (i) => i.id === item.id
   )?.itemTrackingType;
 
-  const shelves = useShelves(pickMethod?.locationId);
+  const storageUnits = useStorageUnits(pickMethod?.locationId);
 
   return (
     <VStack spacing={2}>
       <InventoryDetails
-        itemShelfQuantities={itemShelfQuantities}
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={item.unitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
         pickMethod={{
           ...pickMethod,
-          defaultShelfId: pickMethod.defaultShelfId ?? undefined
+          defaultStorageUnitId: pickMethod.defaultStorageUnitId ?? undefined
         }}
         quantities={quantities}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
       />
     </VStack>
   );

@@ -100,7 +100,7 @@ export async function action({ request }: ActionFunctionArgs) {
     quoteId: quoteInsert.data.id,
     itemId: CONFIGURED_ITEM_ID,
     description: `${material} Custom Item - ${width}x${height}x${length}`,
-    methodType: "Make",
+    methodType: "Make to Order",
     unitOfMeasureCode: "EA",
     quantity: [1, 25, 50, 100],
     configuration

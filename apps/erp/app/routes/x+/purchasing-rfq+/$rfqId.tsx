@@ -126,7 +126,7 @@ export default function PurchasingRFQRoute() {
                   </VStack>
                 </div>
               }
-              properties={<PurchasingRFQProperties />}
+              properties={<PurchasingRFQProperties key={rfqId} />}
             />
           </div>
         </div>

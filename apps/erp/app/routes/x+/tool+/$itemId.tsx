@@ -246,7 +246,7 @@ export default function ToolRoute() {
                                   module: "production",
                                   children: jobs.map((job) => ({
                                     ...job,
-                                    methodType: "Make"
+                                    methodType: "Make to Order"
                                   }))
                                 },
                                 {
@@ -392,7 +392,7 @@ export default function ToolRoute() {
                                 module: "production",
                                 children: jobs.map((job) => ({
                                   ...job,
-                                  methodType: "Make"
+                                  methodType: "Make to Order"
                                 }))
                               },
                               {
@@ -499,7 +499,7 @@ export default function ToolRoute() {
                 <Outlet />
               </div>
             }
-            properties={<ToolProperties />}
+            properties={<ToolProperties key={itemId} />}
           />
         </div>
       </div>

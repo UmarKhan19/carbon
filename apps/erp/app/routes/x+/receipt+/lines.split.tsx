@@ -2,7 +2,6 @@ import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validator } from "@carbon/form";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { splitValidator } from "~/modules/inventory";
 
@@ -54,8 +53,7 @@ export async function action({ request }: ActionFunctionArgs) {
       receiptLineId: documentLineId,
       quantity,
       userId: userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 
   if (salesOrderShipment.error) {

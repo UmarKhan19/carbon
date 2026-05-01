@@ -4,7 +4,6 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { msg } from "@lingui/core/macro";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { jobCompleteValidator } from "~/modules/production";
@@ -38,7 +37,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     salesOrderId,
     salesOrderLineId,
     locationId,
-    shelfId,
+    storageUnitId,
     leftoverAction,
     leftoverShipQuantity,
     leftoverReceiveQuantity
@@ -123,10 +122,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
           companyId,
           userId,
           quantityComplete: quantityToReceiveToInventory,
-          shelfId,
+          storageUnitId,
           locationId
-        },
-        region: FunctionRegion.UsEast1
+        }
       });
 
       if (issue.error) {
@@ -149,10 +147,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
         companyId,
         userId,
         quantityComplete,
-        shelfId,
+        storageUnitId,
         locationId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (issue.error) {

@@ -3,19 +3,12 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Spinner } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
-import { Suspense } from "react";
 import { Fragment } from "react/jsx-runtime";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import {
-  Await,
-  Outlet,
-  redirect,
-  useLoaderData,
-  useParams
-} from "react-router";
+import { Outlet, redirect, useLoaderData, useParams } from "react-router";
+import { DeferredFiles } from "~/components";
 import { useRouteData } from "~/hooks";
 import {
   getPurchaseInvoice,
@@ -44,11 +37,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { lineId } = params;
   if (!lineId) throw notFound("lineId not found");
 
-  const purchaseInvoiceLine = await getPurchaseInvoiceLine(client, lineId);
+  const [purchaseInvoiceLine, files] = await Promise.all([
+    getPurchaseInvoiceLine(client, lineId),
+    getSupplierInteractionLineDocuments(client, companyId, lineId)
+  ]);
 
   return {
     purchaseInvoiceLine: purchaseInvoiceLine?.data ?? null,
-    files: getSupplierInteractionLineDocuments(client, companyId, lineId)
+    files
   };
 }
 
@@ -173,7 +169,7 @@ export default function EditPurchaseInvoiceLineRoute() {
     inventoryUnitOfMeasureCode:
       purchaseInvoiceLine?.inventoryUnitOfMeasureCode ?? "",
     conversionFactor: purchaseInvoiceLine?.conversionFactor ?? 1,
-    shelfId: purchaseInvoiceLine?.shelfId ?? "",
+    storageUnitId: purchaseInvoiceLine?.storageUnitId ?? "",
     taxPercent: purchaseInvoiceLine?.taxPercent ?? 0,
     ...getCustomFields(purchaseInvoiceLine?.customFields)
   };
@@ -192,25 +188,17 @@ export default function EditPurchaseInvoiceLineRoute() {
         internalNotes={purchaseInvoiceLine?.internalNotes as JSONContent}
       />
 
-      <Suspense
-        fallback={
-          <div className="flex w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
-            <Spinner className="h-10 w-10" />
-          </div>
-        }
-      >
-        <Await resolve={files}>
-          {(resolvedFiles) => (
-            <SupplierInteractionLineDocuments
-              files={resolvedFiles ?? []}
-              id={invoiceId}
-              lineId={lineId}
-              type="Purchase Invoice"
-              isReadOnly={isReadOnly}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <DeferredFiles resolve={files}>
+        {(resolvedFiles) => (
+          <SupplierInteractionLineDocuments
+            files={resolvedFiles ?? []}
+            id={invoiceId}
+            lineId={lineId}
+            type="Purchase Invoice"
+            isReadOnly={isReadOnly}
+          />
+        )}
+      </DeferredFiles>
 
       <Outlet />
     </Fragment>

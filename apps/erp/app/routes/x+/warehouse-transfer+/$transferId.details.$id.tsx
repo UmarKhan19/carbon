@@ -29,16 +29,16 @@ const warehouseTransferLineActionValidator = z.discriminatedUnion("type", [
     transferId: z.string().min(1),
     itemId: z.string().min(1),
     quantity: zfd.numeric(z.number().min(0.0001)),
-    fromShelfId: zfd.text(z.string().optional()),
-    toShelfId: zfd.text(z.string().optional()),
+    fromStorageUnitId: zfd.text(z.string().optional()),
+    toStorageUnitId: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional())
   }),
   z.object({
     type: z.literal("update"),
     id: z.string().min(1),
     quantity: zfd.numeric(z.number().min(0.0001)),
-    fromShelfId: zfd.text(z.string().optional()),
-    toShelfId: zfd.text(z.string().optional()),
+    fromStorageUnitId: zfd.text(z.string().optional()),
+    toStorageUnitId: zfd.text(z.string().optional()),
     notes: zfd.text(z.string().optional())
   }),
   z.object({
@@ -181,8 +181,8 @@ export default function WarehouseTransferLineDetailsRoute() {
       warehouseTransferLine.warehouseTransfer?.fromLocationId ?? "",
     toLocationId: warehouseTransferLine.warehouseTransfer?.toLocationId ?? "",
     quantity: warehouseTransferLine.quantity ?? 1,
-    fromShelfId: warehouseTransferLine.fromShelfId ?? "",
-    toShelfId: warehouseTransferLine.toShelfId ?? "",
+    fromStorageUnitId: warehouseTransferLine.fromStorageUnitId ?? "",
+    toStorageUnitId: warehouseTransferLine.toStorageUnitId ?? "",
     notes: warehouseTransferLine.notes ?? ""
   };
 

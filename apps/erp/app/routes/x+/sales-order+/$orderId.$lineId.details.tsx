@@ -4,7 +4,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Card, CardHeader, CardTitle, Spinner } from "@carbon/react";
+import { Card, CardHeader, CardTitle } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Fragment, Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -15,7 +15,7 @@ import {
   useLoaderData,
   useParams
 } from "react-router";
-import { CadModel } from "~/components";
+import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
 import { getItemReplenishment } from "~/modules/items";
 import { getJobsBySalesOrderLine } from "~/modules/production";
@@ -187,7 +187,7 @@ export default function EditSalesOrderLineRoute() {
     promisedDate: line?.promisedDate ?? undefined,
     saleQuantity: line?.saleQuantity ?? 1,
     setupPrice: line?.setupPrice ?? 0,
-    shelfId: line?.shelfId ?? "",
+    storageUnitId: line?.storageUnitId ?? "",
     unitOfMeasureCode: line?.unitOfMeasureCode ?? "",
     unitPrice: line?.unitPrice ?? 0,
     taxPercent: line?.taxPercent ?? 0,
@@ -257,27 +257,19 @@ export default function EditSalesOrderLineRoute() {
         shipments={shipments}
       />
 
-      <Suspense
-        fallback={
-          <div className="flex w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
-            <Spinner className="h-10 w-10" />
-          </div>
-        }
-      >
-        <Await resolve={files}>
-          {(resolvedFiles) => (
-            <OpportunityLineDocuments
-              files={resolvedFiles ?? []}
-              id={orderId}
-              lineId={lineId}
-              itemId={line?.itemId}
-              modelUpload={line ?? undefined}
-              type="Sales Order"
-              isReadOnly={isReadOnly}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <DeferredFiles resolve={files}>
+        {(resolvedFiles) => (
+          <OpportunityLineDocuments
+            files={resolvedFiles ?? []}
+            id={orderId}
+            lineId={lineId}
+            itemId={line?.itemId}
+            modelUpload={line ?? undefined}
+            type="Sales Order"
+            isReadOnly={isReadOnly}
+          />
+        )}
+      </DeferredFiles>
       <CadModel
         isReadOnly={isReadOnly || !permissions.can("update", "sales")}
         metadata={{

@@ -5,7 +5,6 @@ import { SalesInvoiceEmail } from "@carbon/documents/email";
 import { validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import { renderAsync } from "@react-email/components";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { getPaymentTermsList } from "~/modules/accounting";
@@ -41,6 +40,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let file: ArrayBuffer;
   let fileName: string;
+  let documentFilePath: string;
 
   const setPendingState = await client
     .from("salesInvoice")
@@ -66,8 +66,7 @@ export async function action(args: ActionFunctionArgs) {
           invoiceId: invoiceId,
           userId: userId,
           companyId: companyId
-        },
-        region: FunctionRegion.UsEast1
+        }
       }
     );
 
@@ -99,9 +98,7 @@ export async function action(args: ActionFunctionArgs) {
     };
   }
 
-  const [salesInvoice] = await Promise.all([
-    getSalesInvoice(serviceRole, invoiceId)
-  ]);
+  const salesInvoice = await getSalesInvoice(serviceRole, invoiceId);
   if (salesInvoice.error) {
     return {
       success: false,
@@ -141,7 +138,7 @@ export async function action(args: ActionFunctionArgs) {
         .slice(0, -5)}.pdf`
     );
 
-    const documentFilePath = `${companyId}/opportunity/${salesInvoice.data.opportunityId}/${fileName}`;
+    documentFilePath = `${companyId}/opportunity/${salesInvoice.data.opportunityId}/${fileName}`;
 
     const documentFileUpload = await serviceRole.storage
       .from("private")
@@ -294,20 +291,25 @@ export async function action(args: ActionFunctionArgs) {
 
         const html = await renderAsync(emailTemplate);
         const text = await renderAsync(emailTemplate, { plainText: true });
+        const { data: signedUrlData } = await serviceRole.storage
+          .from("private")
+          .createSignedUrl(documentFilePath, 3600);
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [seller.data.email, customer.data.contact.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: seller.data.email,
           subject: `Invoice ${salesInvoice.data.invoiceId} from ${company.data.name}`,
           html,
           text,
-          attachments: [
-            {
-              content: Buffer.from(file).toString("base64"),
-              filename: fileName
-            }
-          ],
+          attachments: signedUrlData?.signedUrl
+            ? [
+                {
+                  path: signedUrlData.signedUrl,
+                  filename: fileName
+                }
+              ]
+            : undefined,
           companyId
         });
         // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration

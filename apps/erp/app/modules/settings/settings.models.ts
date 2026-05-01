@@ -125,6 +125,46 @@ export const purchasePriceUpdateTimingValidator = z.object({
   purchasePriceUpdateTiming: z.enum(purchasePriceUpdateTimingTypes)
 });
 
+export const calculatedShelfLifeInputScopes = [
+  "AllInputs",
+  "ManagedInputsOnly"
+] as const;
+
+export const expiredEntityPolicies = [
+  "Warn",
+  "Block",
+  "BlockWithOverride"
+] as const;
+
+// Every shelf-life knob lives inside the companySettings.inventoryShelfLife
+// JSONB blob. The validator below reads/writes that single object so the
+// settings form can submit one cohesive structure.
+export const shelfLifeSettingsValidator = z.object({
+  // Empty input -> undefined -> persisted as null in JSONB, which disables
+  // expiry badges company-wide. Any value 0..365 drives the amber
+  // "expiring soon" badge plus the red "expired" badge.
+  nearExpiryWarningDays: zfd.numeric(
+    z.number().int().min(0).max(365).optional()
+  ),
+  // Seed value for the "Shelf-life (days)" input when a new item is first
+  // configured for Fixed Duration. Defaults to 7.
+  defaultShelfLifeDays: zfd.numeric(
+    z.number().int().min(1).max(3650).default(7)
+  ),
+  // Calculated-mode MIN expiry scope. 'AllInputs' = MIN over every input
+  // carrying an expiry (food/perishable default). 'ManagedInputsOnly' =
+  // only inputs whose own item has a Fixed Duration / Calculated policy
+  // (excludes supplier-set Set-on-Receipt expiries).
+  calculatedInputScope: z
+    .enum(calculatedShelfLifeInputScopes)
+    .default("AllInputs"),
+  // What happens when an operator tries to consume an expired tracked
+  // entity. 'Warn' lets it through with a banner; 'Block' rejects;
+  // 'BlockWithOverride' rejects unless the caller has inventory:update
+  // and supplies an override reason that gets audit-logged.
+  expiredEntityPolicy: z.enum(expiredEntityPolicies).default("Block")
+});
+
 export const updateLeadTimesOnReceiptValidator = z.object({
   updateLeadTimesOnReceipt: zfd.checkbox()
 });

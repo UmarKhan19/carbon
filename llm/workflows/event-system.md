@@ -16,6 +16,8 @@ This workflow describes how to use Carbon's Event System to create reactive work
 | Sync to accounting     | `SYNC`       | Push new customer to Xero                 |
 | Internal automation    | `WORKFLOW`   | Auto-assign tasks when job status changes |
 | Update search index    | `SEARCH`     | Re-index customer after update            |
+| Audit log              | `AUDIT`      | Record change history                     |
+| Embedding index        | `EMBEDDING`  | Update vector embeddings                  |
 
 ---
 
@@ -125,6 +127,8 @@ const HandlerTypeSchema = z.enum([
   "WORKFLOW",
   "SYNC",
   "SEARCH",
+  "AUDIT",
+  "EMBEDDING",
   "YOUR_NEW_TYPE",
 ]);
 ```
@@ -139,95 +143,130 @@ DROP CONSTRAINT IF EXISTS "eventSystemSubscription_handlerType_check";
 
 ALTER TABLE "eventSystemSubscription"
 ADD CONSTRAINT "eventSystemSubscription_handlerType_check"
-CHECK ("handlerType" IN ('WEBHOOK', 'WORKFLOW', 'SYNC', 'SEARCH', 'YOUR_NEW_TYPE'));
+CHECK ("handlerType" IN ('WEBHOOK', 'WORKFLOW', 'SYNC', 'SEARCH', 'AUDIT', 'EMBEDDING', 'YOUR_NEW_TYPE'));
 ```
 
-### Step 3: Create the Handler Task
+### Step 3: Register the Event Name
 
-Create `packages/jobs/trigger/event/your-handler.ts`:
+In `packages/jobs/src/events.ts`, add a new entry to the `Events` type:
 
 ```typescript
-import { logger, task } from "@trigger.dev/sdk/v3";
+export type Events = {
+  // ...existing events...
+  "carbon/event-your-new-type": {
+    data: {
+      msgId: number;
+      data: {
+        // Payload shape your handler expects
+        table: string;
+        operation: "INSERT" | "UPDATE" | "DELETE";
+        recordId: string;
+        new: Record<string, any> | null;
+        old: Record<string, any> | null;
+        timestamp: string;
+        companyId: string;
+        handlerConfig: Record<string, any>;
+      };
+    };
+  };
+};
+```
+
+### Step 4: Create the Handler Function
+
+Create `packages/jobs/src/inngest/functions/events/your-handler.ts`:
+
+```typescript
 import { z } from "zod";
+import { inngest } from "../../client.ts";
 
-const YourPayloadSchema = z.object({
-  records: z.array(
-    z.object({
-      event: z.object({
-        table: z.string(),
-        operation: z.enum(["INSERT", "UPDATE", "DELETE"]),
-        recordId: z.string(),
-        new: z.record(z.any()).nullable(),
-        old: z.record(z.any()).nullable(),
-        timestamp: z.string(),
-      }),
-      companyId: z.string(),
-      handlerConfig: z.record(z.any()),
-    })
-  ),
+const yourPayloadSchema = z.object({
+  msgId: z.number(),
+  data: z.object({
+    table: z.string(),
+    operation: z.enum(["INSERT", "UPDATE", "DELETE"]),
+    recordId: z.string(),
+    new: z.record(z.any()).nullable(),
+    old: z.record(z.any()).nullable(),
+    timestamp: z.string(),
+    companyId: z.string(),
+    handlerConfig: z.record(z.any()),
+  }),
 });
 
-export const yourHandlerTask = task({
-  id: "event-handler-your-type",
-  retry: {
-    maxAttempts: 3,
-    factor: 2,
-    randomize: true,
+export type YourPayload = z.infer<typeof yourPayloadSchema>;
+
+export const yourHandlerFunction = inngest.createFunction(
+  {
+    id: "event-handler-your-new-type",
+    retries: 3,
+    idempotency: "event.data.msgId",
+    concurrency: {
+      limit: 0,
+      key: "event.data.data.table + '-' + event.data.data.recordId",
+    },
   },
-  run: async (input: unknown) => {
-    const payload = YourPayloadSchema.parse(input);
+  { event: "carbon/event-your-new-type" },
+  async ({ event, step }) => {
+    const payload = yourPayloadSchema.parse(event.data);
 
-    logger.info(`Processing ${payload.records.length} events`);
-
-    for (const record of payload.records) {
+    await step.run("process-event", async () => {
       // Your handler logic here
-      logger.info(`Processing ${record.event.table} ${record.event.operation}`);
-    }
-
-    return { processed: payload.records.length };
+      console.log(
+        `Processing ${payload.data.table} ${payload.data.operation}`
+      );
+    });
   },
-});
+);
 ```
 
-### Step 4: Update the Queue Router
+### Step 5: Register the Function
 
-In `packages/jobs/trigger/event/queue.ts`:
+In `packages/jobs/src/inngest/index.ts` (or wherever `functions` is exported), add the new function to the exported array so it's served by the Inngest handler.
+
+### Step 6: Update the Queue Router
+
+In `packages/jobs/src/inngest/functions/events/queue.ts`:
 
 ```typescript
-import { yourHandlerTask } from "./your-handler.ts";
-
 // Add to grouped types
 const grouped: Record<HandlerType, QueueJob[]> = {
   WEBHOOK: [],
   WORKFLOW: [],
   SYNC: [],
   SEARCH: [],
-  YOUR_NEW_TYPE: [],  // Add this
+  AUDIT: [],
+  EMBEDDING: [],
+  YOUR_NEW_TYPE: [], // Add this
 };
 
-// Add handler in the all() block
-async yourNewType() {
-  let queue: number[] = [];
+// In the event dispatch section, add a new step.sendEvent() block for the
+// new handler type. For per-row dispatch (like WEBHOOK):
 
-  if (grouped.YOUR_NEW_TYPE.length === 0) return queue;
+if (grouped.YOUR_NEW_TYPE.length > 0) {
+  const events = grouped.YOUR_NEW_TYPE.map((job) => ({
+    name: "carbon/event-your-new-type" as const,
+    data: {
+      msgId: job.msg_id,
+      data: {
+        ...job.message.event,
+        companyId: job.message.companyId,
+        handlerConfig: job.message.handlerConfig,
+      },
+    },
+  }));
 
-  const records = grouped.YOUR_NEW_TYPE.map((job) => {
-    queue.push(job.msg_id);
-    return {
-      event: job.message.event,
-      companyId: job.message.companyId,
-      handlerConfig: job.message.handlerConfig,
-    };
-  });
-
-  await yourHandlerTask.trigger({ records });
-
-  return queue;
-},
-
-// Include in total
-total = total.concat(webhooks, workflows, syncs, searches, yourNewType);
+  // Chunk to stay under Inngest's 256KB event size limit
+  for (let i = 0; i < events.length; i += CHUNK_SIZE) {
+    await step.sendEvent(
+      `send-your-new-type-${i}`,
+      events.slice(i, i + CHUNK_SIZE),
+    );
+  }
+}
 ```
+
+For batch dispatch (like SYNC/SEARCH/AUDIT/EMBEDDING), send a single event whose `data` is an array of records instead of one event per row.
 
 ---
 
@@ -291,7 +330,7 @@ import { deleteEventSystemSubscriptionsByName } from "@carbon/database/event";
 await deleteEventSystemSubscriptionsByName(
   client,
   companyId,
-  "my-webhook-subscription"
+  "my-webhook-subscription",
 );
 ```
 
@@ -318,12 +357,22 @@ SELECT * FROM pgmq.metrics('event_system');
 SELECT * FROM pgmq.read('event_system', 30, 10);
 ```
 
-### Check Trigger.dev Dashboard
+### Check Inngest Dashboard
 
-1. Go to Trigger.dev dashboard
-2. Look for `event-queue` task runs (cron)
-3. Check downstream handler tasks (`event-handler-webhook`, etc.)
-4. Review logs and error messages
+1. Production: go to https://app.inngest.com/ and open the Carbon app
+2. Find the `event-queue` function (cron, runs every minute) to verify PGMQ is being drained
+3. Check downstream handler functions (`event-handler-webhook`, `event-handler-sync`, `event-handler-search`, `event-handler-audit`, `event-handler-embedding`, `event-handler-workflow`)
+4. Review the run log, inputs, step outputs, and any errors
+
+### Local Development
+
+The Inngest Dev Server runs locally against the ERP app:
+
+```bash
+npx inngest-cli@latest dev -u http://localhost:3000/api/inngest
+```
+
+The dev server UI is at http://localhost:8288 and shows the same functions, events, and runs as the cloud dashboard.
 
 ### Test a Subscription Manually
 
@@ -331,7 +380,7 @@ Insert/update a row in the watched table and verify:
 
 1. Message appears in PGMQ queue (within same transaction)
 2. `event-queue` picks it up (within 1 minute)
-3. Handler task executes successfully
+3. Handler function executes successfully (visible in Inngest dashboard)
 
 ---
 
@@ -341,7 +390,9 @@ Insert/update a row in the watched table and verify:
 2. **Missing companyId**: Subscriptions are company-scoped; events without companyId are skipped
 3. **Wrong operation array**: Use `["INSERT"]` not `["insert"]` (uppercase)
 4. **Filter not matching**: JSONB filter uses `@>` containment operator
-5. **Handler not deployed**: Ensure Trigger.dev tasks are deployed after code changes
+5. **Handler not registered**: New Inngest functions must be exported in `packages/jobs/src/inngest/index.ts` so they're served by `/api/inngest`
+6. **Event size limit**: Inngest caps events at 256KB — always chunk batch dispatches (see `CHUNK_SIZE` in `queue.ts`)
+7. **Missing idempotency key**: Without `idempotency: "event.data.msgId"` on the handler, retries may re-process the same PGMQ message
 
 ---
 
@@ -352,5 +403,7 @@ Insert/update a row in the watched table and verify:
 - [ ] Handler type matches your use case
 - [ ] Config contains required fields for handler type
 - [ ] Filter (if used) matches expected row structure
-- [ ] Handler task is deployed to Trigger.dev
-- [ ] Tested with a real database operation
+- [ ] Handler function is registered in `packages/jobs/src/inngest/index.ts`
+- [ ] Queue router (`queue.ts`) routes the new handler type
+- [ ] Event name is declared in `packages/jobs/src/events.ts`
+- [ ] Tested with a real database operation (verified in Inngest dashboard)

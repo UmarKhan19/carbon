@@ -63,7 +63,7 @@ const SupplierForm = ({
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
       toast.error(t`Failed to create supplier: ${fetcher.data.error.message}`);
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, t, type]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -144,7 +144,7 @@ const SupplierForm = ({
                     </>
                   )}
                   <Currency name="currencyCode" label={t`Currency`} />
-                  <Input name="website" label="Website" />
+                  <Input name="website" label={t`Website`} />
 
                   {/* <EmailRecipients name="defaultCc" label={t`Default CC`} /> */}
                   <CustomFormFields table="supplier" />

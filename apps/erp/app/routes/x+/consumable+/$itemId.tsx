@@ -209,7 +209,7 @@ export default function ConsumableRoute() {
                 <Outlet />
               </div>
             }
-            properties={<ConsumableProperties />}
+            properties={<ConsumableProperties key={itemId} />}
           />
         </div>
       </div>

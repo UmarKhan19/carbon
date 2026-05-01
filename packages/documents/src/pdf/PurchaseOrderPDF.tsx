@@ -55,7 +55,6 @@ const PurchaseOrderPDF = ({
   accountsPayableBillingAddress,
   company,
   companySettings,
-  locale,
   meta,
   paymentTerms,
   purchaseOrder,
@@ -63,6 +62,7 @@ const PurchaseOrderPDF = ({
   purchaseOrderLocations,
   terms,
   thumbnails,
+  locale,
   title = "Purchase Order"
 }: PurchaseOrderPDFProps) => {
   const {
@@ -121,6 +121,7 @@ const PurchaseOrderPDF = ({
         documentId={purchaseOrder?.purchaseOrderId}
         date={purchaseOrder?.orderDate}
         currencyCode={purchaseOrder?.currencyCode}
+        locale={locale}
       />
 
       <PartyDetails
@@ -136,6 +137,7 @@ const PurchaseOrderPDF = ({
           countryCode: supplierCountryCode,
           taxId: purchaseOrderLocations.supplierTaxId,
           vatNumber: purchaseOrderLocations.supplierVatNumber,
+          eori: purchaseOrderLocations.supplierEori,
           contactName: purchaseOrderLocations.supplierContactName,
           contactEmail: purchaseOrderLocations.supplierContactEmail
         }}
@@ -200,22 +202,41 @@ const PurchaseOrderPDF = ({
               Order Details
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
-              <Text>Date: {formatDate(purchaseOrder?.orderDate)}</Text>
+              <Text>
+                Date: {formatDate(purchaseOrder?.orderDate, undefined, locale)}
+              </Text>
               {purchaseOrder?.supplierReference && (
                 <Text>Reference: {purchaseOrder.supplierReference}</Text>
               )}
               {purchaseOrder?.receiptRequestedDate && (
                 <Text>
                   Requested Date:{" "}
-                  {formatDate(purchaseOrder.receiptRequestedDate)}
+                  {formatDate(
+                    purchaseOrder.receiptRequestedDate,
+                    undefined,
+                    locale
+                  )}
                 </Text>
               )}
               {purchaseOrder?.receiptPromisedDate && (
                 <Text>
-                  Promised Date: {formatDate(purchaseOrder.receiptPromisedDate)}
+                  Promised Date:{" "}
+                  {formatDate(
+                    purchaseOrder.receiptPromisedDate,
+                    undefined,
+                    locale
+                  )}
                 </Text>
               )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
+              {purchaseOrder?.incoterm && (
+                <Text>
+                  Incoterm: {purchaseOrder.incoterm}
+                  {purchaseOrder.incotermLocation
+                    ? ` - ${purchaseOrder.incotermLocation}`
+                    : ""}
+                </Text>
+              )}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>
@@ -282,7 +303,8 @@ const PurchaseOrderPDF = ({
                     {line.requestedDate &&
                       line.purchaseOrderLineType !== "Comment" && (
                         <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
-                          Required: {formatDate(line.requestedDate)}
+                          Required:{" "}
+                          {formatDate(line.requestedDate, undefined, locale)}
                         </Text>
                       )}
                     {purchaseOrder.purchaseOrderType === "Outside Processing" &&

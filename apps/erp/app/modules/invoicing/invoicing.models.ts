@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
-import { methodItemType, methodType } from "../shared";
+import { incoterms, methodItemType, methodType } from "../shared";
 
 export const purchaseInvoiceLineType = [
   "Part",
@@ -18,7 +18,7 @@ export const purchaseInvoiceStatusType = [
   // "Return",
   "Pending",
   "Partially Paid",
-  "Submitted",
+  "Open",
   "Debit Note Issued",
   "Paid",
   "Voided",
@@ -93,6 +93,8 @@ export const purchaseInvoiceDeliveryValidator = z.object({
   shippingMethodId: zfd.text(z.string().optional()),
   shippingTermId: zfd.text(z.string().optional()),
   supplierShippingCost: zfd.numeric(z.number().optional().default(0)),
+  incoterm: zfd.text(z.enum(incoterms).optional()),
+  incotermLocation: zfd.text(z.string().optional()),
   customFields: z.any().optional()
 });
 
@@ -119,7 +121,7 @@ export const purchaseInvoiceLineValidator = z
     supplierShippingCost: zfd.numeric(z.number().optional().default(0)),
     supplierTaxAmount: zfd.numeric(z.number().optional().default(0)),
     locationId: zfd.text(z.string().optional()),
-    shelfId: zfd.text(z.string().optional()),
+    storageUnitId: zfd.text(z.string().optional()),
     exchangeRate: zfd.numeric(z.number().optional())
   })
   .refine(
@@ -205,6 +207,8 @@ export const salesInvoiceShipmentValidator = z.object({
   shippingMethodId: zfd.text(z.string().optional()),
   shippingTermId: zfd.text(z.string().optional()),
   shippingCost: zfd.numeric(z.number().optional().default(0)),
+  incoterm: zfd.text(z.enum(incoterms).optional()),
+  incotermLocation: zfd.text(z.string().optional()),
   customFields: z.any().optional()
 });
 
@@ -238,7 +242,7 @@ export const salesInvoiceLineValidator = z
     shippingCost: zfd.numeric(z.number().optional().default(0)),
     taxPercent: zfd.numeric(z.number().optional().default(0)),
     locationId: zfd.text(z.string().optional()),
-    shelfId: zfd.text(z.string().optional()),
+    storageUnitId: zfd.text(z.string().optional()),
     exchangeRate: zfd.numeric(z.number().optional())
   })
   .refine(

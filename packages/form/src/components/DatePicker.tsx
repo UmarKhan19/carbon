@@ -8,6 +8,7 @@ import {
 import { formatDate } from "@carbon/utils";
 import type { CalendarDate } from "@internationalized/date";
 import { parseDate } from "@internationalized/date";
+import { useLocale } from "@react-aria/i18n";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useField } from "../hooks";
@@ -36,11 +37,17 @@ const DatePicker = ({
   value,
   onChange
 }: DatePickerProps) => {
+  const { locale } = useLocale();
   const formState = useFormStateContext();
   const isDisabled =
     formState.isDisabled || formState.isReadOnly || isDisabledProp;
   const { validate } = useFormContext();
-  const { error, defaultValue, validate: validateField } = useField(name);
+  const {
+    error,
+    defaultValue,
+    validate: validateField,
+    isOptional: fieldIsOptional
+  } = useField(name);
   const [date, setDate] = useState<CalendarDate | undefined>(
     value
       ? parseDate(value)
@@ -78,13 +85,17 @@ const DatePicker = ({
 
   const DatePickerPreview = (
     <span className="flex flex-grow line-clamp-1 items-center">
-      {formatDate(utcValue)}
+      {formatDate(utcValue, undefined, locale)}
     </span>
   );
 
   return (
     <FormControl isInvalid={!!error}>
-      {label && <FormLabel htmlFor={name}>{label}</FormLabel>}
+      {label && (
+        <FormLabel htmlFor={name} isOptional={fieldIsOptional ?? false}>
+          {label}
+        </FormLabel>
+      )}
       <input type="hidden" name={name} value={utcValue} />
       <DatePickerBase
         value={date}

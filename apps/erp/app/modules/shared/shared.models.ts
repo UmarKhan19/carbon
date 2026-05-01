@@ -91,6 +91,20 @@ export const documentTypes = [
   "Other"
 ] as const;
 
+export const incoterms = [
+  "EXW",
+  "FCA",
+  "FAS",
+  "FOB",
+  "CPT",
+  "CIP",
+  "CFR",
+  "CIF",
+  "DAP",
+  "DPU",
+  "DDP"
+] as const;
+
 export const inspectionStatus = ["Pass", "Fail"] as const;
 
 export const tablesWithTags = [
@@ -111,11 +125,6 @@ export const methodItemType = [
   // "Service",
 ] as const;
 
-export const methodOperationOrders = [
-  "After Previous",
-  "With Previous"
-] as const;
-
 export const months = [
   "January",
   "February",
@@ -129,6 +138,11 @@ export const months = [
   "October",
   "November",
   "December"
+] as const;
+
+export const methodOperationOrders = [
+  "After Previous",
+  "With Previous"
 ] as const;
 
 export const methodType = [

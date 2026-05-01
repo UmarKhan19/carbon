@@ -1,14 +1,23 @@
 import { ValidatedForm } from "@carbon/form";
-import { VStack } from "@carbon/react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  VStack
+} from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher, useParams } from "react-router";
 import { Hidden, Input, Submit, TextArea } from "~/components/Form";
-import type { User } from "~/modules/users/types";
 import { path } from "~/utils/path";
 import { accountProfileValidator } from "../../account.models";
+import type { Account } from "../../types";
+import ProfilePhotoForm from "./ProfilePhotoForm";
 
 type ProfileFormProps = {
-  user: User;
+  user: Account;
 };
 
 const ProfileForm = ({ user }: ProfileFormProps) => {
@@ -26,23 +35,43 @@ const ProfileForm = ({ user }: ProfileFormProps) => {
       fetcher={fetcher}
       className="w-full"
     >
-      <VStack spacing={4}>
-        <Input name="email" label={t`Email`} isDisabled />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          <Input name="firstName" label={t`First Name`} />
-          <Input name="lastName" label={t`Last Name`} />
-        </div>
-        <TextArea
-          name="about"
-          label={t`About`}
-          characterLimit={160}
-          className="my-2"
-        />
-        <Hidden name="intent" value="about" />
-        <Submit>
-          <Trans>Save</Trans>
-        </Submit>
-      </VStack>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Trans>Profile</Trans>
+          </CardTitle>
+          <CardDescription>
+            <Trans>
+              This information will be visible to all users, so be careful what
+              you share.
+            </Trans>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 w-full">
+            <VStack spacing={4}>
+              <Input name="email" label={t`Email`} isDisabled />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                <Input name="firstName" label={t`First Name`} />
+                <Input name="lastName" label={t`Last Name`} />
+              </div>
+              <TextArea
+                name="about"
+                label={t`About`}
+                characterLimit={160}
+                className="my-2"
+              />
+              <Hidden name="intent" value="about" />
+            </VStack>
+            <ProfilePhotoForm user={user} />
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Submit>
+            <Trans>Save</Trans>
+          </Submit>
+        </CardFooter>
+      </Card>
     </ValidatedForm>
   );
 };

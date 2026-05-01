@@ -162,7 +162,7 @@ export default function SalesRFQRoute() {
                     </VStack>
                   </div>
                 }
-                properties={<SalesRFQProperties />}
+                properties={<SalesRFQProperties key={rfqId} />}
               />
             </div>
           </div>

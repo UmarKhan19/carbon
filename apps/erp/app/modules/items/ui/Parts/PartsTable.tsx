@@ -22,7 +22,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
+
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
@@ -54,7 +54,7 @@ import {
 import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
 import { ConfirmDelete } from "~/components/Modals";
-import { usePermissions } from "~/hooks";
+import { useDateFormatter, usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { methodType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
@@ -76,23 +76,33 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
   const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
+  const { formatDate } = useDateFormatter();
 
-  const translateReplenishment = (v: string) =>
-    v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`;
-  const translateMethodType = (v: string) =>
-    v === "Purchase to Order"
-      ? t`Purchase to Order`
-      : v === "Pull from Inventory"
-        ? t`Pull from Inventory`
-        : t`Make to Order`;
-  const translateTrackingType = (v: string) =>
-    v === "Inventory"
-      ? t`Inventory`
-      : v === "Non-Inventory"
-        ? t`Non-Inventory`
-        : v === "Serial"
-          ? t`Serial`
-          : t`Batch`;
+  const translateReplenishment = useCallback(
+    (v: string) =>
+      v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`,
+    [t]
+  );
+  const translateMethodType = useCallback(
+    (v: string) =>
+      v === "Purchase to Order"
+        ? t`Purchase to Order`
+        : v === "Pull from Inventory"
+          ? t`Pull from Inventory`
+          : t`Make to Order`,
+    [t]
+  );
+  const translateTrackingType = useCallback(
+    (v: string) =>
+      v === "Inventory"
+        ? t`Inventory`
+        : v === "Non-Inventory"
+          ? t`Non-Inventory`
+          : v === "Serial"
+            ? t`Serial`
+            : t`Batch`,
+    [t]
+  );
 
   const deleteItemModal = useDisclosure();
   const [selectedItem, setSelectedItem] = useState<Part | null>(null);
@@ -333,7 +343,16 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [tags, people, customColumns, itemPostingGroups, t]);
+  }, [
+    tags,
+    people,
+    customColumns,
+    itemPostingGroups,
+    t,
+    translateMethodType,
+    translateReplenishment,
+    translateTrackingType
+  ]);
 
   const fetcher = useFetcher<typeof action>();
   useEffect(() => {
@@ -472,7 +491,13 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
         </DropdownMenuContent>
       );
     },
-    [onBulkUpdate, itemPostingGroups]
+    [
+      onBulkUpdate,
+      itemPostingGroups,
+      translateMethodType,
+      translateReplenishment,
+      translateTrackingType
+    ]
   );
 
   const renderContextMenu = useMemo(() => {

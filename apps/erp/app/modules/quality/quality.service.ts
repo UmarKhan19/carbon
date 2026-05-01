@@ -17,6 +17,7 @@ import type {
   issueTypeValidator,
   issueValidator,
   issueWorkflowValidator,
+  itemSamplingPlanValidator,
   nonConformanceReviewerValidator,
   nonConformanceStatus,
   qualityDocumentStepValidator,
@@ -125,6 +126,11 @@ export async function deleteIssueAssociation(
     case "trackedEntities":
       return await client
         .from("nonConformanceTrackedEntity")
+        .delete()
+        .eq("id", associationId);
+    case "inboundInspections":
+      return await (client as any)
+        .from("nonConformanceInboundInspection")
         .delete()
         .eq("id", associationId);
     default:
@@ -496,10 +502,11 @@ export async function getIssueAssociations(
     receiptLines,
     trackedEntities,
     customers,
-    suppliers
+    suppliers,
+    inboundInspections
   ] = await Promise.all([
     // Items
-    client
+    (client as any)
       .from("nonConformanceItem")
       .select(
         `
@@ -510,11 +517,24 @@ export async function getIssueAssociations(
       createdAt,
       ...item(
         readableIdWithRevision
+      ),
+      links:nonConformanceItemTrackedEntity(
+        id,
+        quantity,
+        trackedEntityId,
+        trackedEntity(
+          id,
+          readableId,
+          status,
+          quantity,
+          attributes
+        )
       )
       `
       )
       .eq("nonConformanceId", nonConformanceId)
-      .eq("companyId", companyId),
+      .eq("companyId", companyId)
+      .order("createdAt", { ascending: true }),
     // Job Operations
     client
       .from("nonConformanceJobOperation")
@@ -661,12 +681,33 @@ export async function getIssueAssociations(
       `
       )
       .eq("nonConformanceId", nonConformanceId)
+      .eq("companyId", companyId),
+
+    // Inbound Inspections
+    (client as any)
+      .from("nonConformanceInboundInspection")
+      .select(
+        `
+        id,
+        inboundInspectionId,
+        inboundInspection:inboundInspection (
+          id,
+          inboundInspectionId,
+          itemReadableId,
+          lotSize,
+          status,
+          sampleSize,
+          acceptanceNumber
+        )
+      `
+      )
+      .eq("nonConformanceId", nonConformanceId)
       .eq("companyId", companyId)
   ]);
 
   return {
     items:
-      items.data?.map((item) => ({
+      items.data?.map((item: any) => ({
         type: "items",
         id: item.id,
         documentId: item.itemId,
@@ -674,7 +715,8 @@ export async function getIssueAssociations(
         documentLineId: "",
         disposition: item.disposition,
         quantity: item.quantity,
-        createdAt: item.createdAt
+        createdAt: item.createdAt,
+        links: item.links ?? []
       })) || [],
     jobOperations: [
       // Manually-associated job operations
@@ -754,7 +796,18 @@ export async function getIssueAssociations(
         documentId: item.supplierId ?? "",
         documentLineId: "",
         documentReadableId: item.supplier.name
-      })) || []
+      })) || [],
+    inboundInspections: ((inboundInspections as any)?.data ?? []).map(
+      (link: any) => ({
+        id: link.id,
+        type: "inboundInspections",
+        documentId: link.inboundInspectionId ?? "",
+        documentLineId: "",
+        documentReadableId: link.inboundInspection?.inboundInspectionId ?? "",
+        quantity: link.inboundInspection?.lotSize ?? 0,
+        status: link.inboundInspection?.status ?? null
+      })
+    )
   };
 }
 
@@ -1767,4 +1820,125 @@ export async function upsertRisk(
       .select("id")
       .single();
   }
+}
+
+// -------------------------------------------------------------
+// Inbound Inspections (lot-based)
+// -------------------------------------------------------------
+
+export async function getItemSamplingPlan(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  return (client as any)
+    .from("itemSamplingPlan")
+    .select("*")
+    .eq("itemId", itemId)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function upsertItemSamplingPlan(
+  client: SupabaseClient<Database>,
+  plan: z.infer<typeof itemSamplingPlanValidator> & {
+    companyId: string;
+    updatedBy: string;
+  }
+) {
+  const existing = await (client as any)
+    .from("itemSamplingPlan")
+    .select("itemId")
+    .eq("itemId", plan.itemId)
+    .eq("companyId", plan.companyId)
+    .maybeSingle();
+
+  const payload = {
+    itemId: plan.itemId,
+    type: plan.type,
+    sampleSize: plan.sampleSize ?? null,
+    percentage: plan.percentage ?? null,
+    aql: plan.aql ?? null,
+    inspectionLevel: plan.inspectionLevel,
+    severity: plan.severity,
+    companyId: plan.companyId
+  };
+
+  if (existing.data) {
+    return (client as any)
+      .from("itemSamplingPlan")
+      .update({
+        ...payload,
+        updatedBy: plan.updatedBy,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("itemId", plan.itemId)
+      .eq("companyId", plan.companyId);
+  }
+
+  return (client as any).from("itemSamplingPlan").insert({
+    ...payload,
+    createdBy: plan.updatedBy
+  });
+}
+
+export async function getInboundInspections(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: GenericQueryFilters & {
+    search: string | null;
+    status: string | null;
+  }
+) {
+  let query = (client as any)
+    .from("inboundInspection")
+    .select(
+      "*, item(readableId, name), receipt(receiptId, supplierId), supplier(name), inboundInspectionSample(status)",
+      { count: "exact" }
+    )
+    .eq("companyId", companyId);
+
+  if (args?.search) {
+    query = query.or(
+      `itemReadableId.ilike.%${args.search}%,notes.ilike.%${args.search}%`
+    );
+  }
+
+  if (args?.status) {
+    // @ts-ignore - status is a valid enum value
+    query = query.eq("status", args.status);
+  }
+
+  if (args) {
+    query = setGenericQueryFilters(query, args, [
+      { column: "createdAt", ascending: false }
+    ]);
+  }
+
+  return query;
+}
+
+export async function getInboundInspection(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return (client as any)
+    .from("inboundInspection")
+    .select(
+      "*, item(readableId, name, type), receipt(receiptId, supplierId, createdBy), supplier(name), inboundInspectionSample(*, trackedEntity(id, readableId, attributes, status, sourceDocumentReadableId))"
+    )
+    .eq("id", id)
+    .single();
+}
+
+export async function getInboundInspectionLotTrackedEntities(
+  client: SupabaseClient<Database>,
+  receiptLineId: string,
+  companyId: string
+) {
+  return client
+    .from("trackedEntity")
+    .select("*")
+    .eq("attributes ->> Receipt Line", receiptLineId)
+    .eq("companyId", companyId);
 }

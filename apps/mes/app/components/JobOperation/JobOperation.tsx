@@ -48,9 +48,7 @@ import type { TrackedEntityAttributes } from "@carbon/utils";
 import {
   convertDateStringToIsoString,
   convertKbToString,
-  formatDate,
   formatDurationMilliseconds,
-  formatRelativeTime,
   getItemReadableId,
   labelSizes
 } from "@carbon/utils";
@@ -94,7 +92,7 @@ import {
   MethodItemTypeIcon,
   TrackingTypeIcon
 } from "~/components/Icons";
-import { useUrlParams, useUser } from "~/hooks";
+import { useDateFormatter, useUrlParams, useUser } from "~/hooks";
 import type { productionEventType } from "~/services/models";
 import { getFileType } from "~/services/operations.service";
 import type {
@@ -137,6 +135,7 @@ import { useOperation } from "./hooks/useOperation";
 
 type JobOperationProps = {
   events: ProductionEvent[];
+  expiredEntityPolicy?: "Warn" | "Block" | "BlockWithOverride";
   files: Promise<StorageItem[]>;
   kanban: Kanban | null;
   materials: Promise<{
@@ -174,6 +173,7 @@ type JobOperationProps = {
 
 export const JobOperation = ({
   events,
+  expiredEntityPolicy = "Block",
   files,
   job,
   kanban,
@@ -187,6 +187,7 @@ export const JobOperation = ({
   workCenter
 }: JobOperationProps) => {
   const { t } = useLingui();
+  const { formatDate, formatRelativeTime } = useDateFormatter();
   const [params, setParams] = useUrlParams();
 
   const trackedEntityParam = params.get("trackedEntityId");
@@ -1087,6 +1088,20 @@ export const JobOperation = ({
                                                 />
                                               </Badge>
                                             ) : null}
+                                            {(
+                                              material as {
+                                                hasExpiredConsumed?: boolean;
+                                              }
+                                            ).hasExpiredConsumed && (
+                                              <Badge
+                                                variant="red"
+                                                className="gap-1 shrink-0"
+                                                title="A consumed batch or serial is now past its expiry date."
+                                              >
+                                                <LuTriangleAlert className="size-3" />
+                                                <Trans>Consumed expired</Trans>
+                                              </Badge>
+                                            )}
                                           </HStack>
                                         </Td>
                                         <Td className="hidden lg:table-cell">
@@ -1112,11 +1127,11 @@ export const JobOperation = ({
                                             />
                                             <Badge variant="secondary">
                                               <LuGitPullRequest className="size-3 mr-1" />
-                                              {material.shelfName ??
+                                              {material.storageUnitName ??
                                                 (material.methodType ===
                                                 "Make to Order"
                                                   ? t`WIP`
-                                                  : t`Default Shelf`)}
+                                                  : t`Default Storage Unit`)}
                                             </Badge>
                                           </div>
                                         </Td>
@@ -1364,6 +1379,7 @@ export const JobOperation = ({
                           {issueModal.isOpen && (
                             <IssueMaterialModal
                               operationId={operation.id}
+                              expiredEntityPolicy={expiredEntityPolicy}
                               material={selectedMaterial ?? undefined}
                               parentId={trackedEntityId ?? ""}
                               parentIdIsSerialized={

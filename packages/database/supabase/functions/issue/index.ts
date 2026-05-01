@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
+import { getLocalTimeZone, parseDate, today } from "npm:@internationalized/date";
+import { Transaction } from "kysely";
 import { z } from "npm:zod@^3.24.1";
 
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
@@ -6,12 +8,292 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/nanoid.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import {
-  getShelfWithHighestQuantity,
-  updatePickMethodDefaultShelfIfNeeded,
-} from "../lib/shelves.ts";
+  getStorageUnitWithHighestQuantity,
+  updatePickMethodDefaultStorageUnitIfNeeded,
+} from "../lib/storage-units.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 import { TrackedEntityAttributes } from "../lib/utils.ts";
+
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
+
+type InventoryShelfLifeSettings = {
+  expiredEntityPolicy?: ExpiredEntityPolicy;
+};
+
+/**
+ * Resolve the company's expired-entity policy from companySettings JSONB.
+ * Defaults to 'Block' when the row or key is absent so the safe behavior
+ * is the default.
+ */
+async function getExpiredEntityPolicy(
+  trx: Transaction<DB>,
+  companyId: string
+): Promise<ExpiredEntityPolicy> {
+  const row = await trx
+    .selectFrom("companySettings")
+    .select("inventoryShelfLife")
+    .where("id", "=", companyId)
+    .executeTakeFirst();
+  const blob = (row?.inventoryShelfLife ??
+    null) as InventoryShelfLifeSettings | null;
+  return blob?.expiredEntityPolicy ?? "Block";
+}
+
+/**
+ * Apply the policy to a list of trackedEntity rows about to be consumed.
+ * Returns:
+ *   { ok: true }                 - no expiries, or warn-only with no expired
+ *   { ok: true, warning }        - warn-only, with expired ids in the message
+ *   { ok: false, reason }        - block (or block-without-override), caller
+ *                                  should raise an error and refuse the op
+ *
+ * Caller is responsible for the override flow:
+ *   - In 'BlockWithOverride' mode, if the request payload supplies
+ *     overrideExpired=true + overrideReason, treat the result as ok and
+ *     emit an audit-log row.
+ */
+function checkExpiredEntities(
+  entities: { id: string; expirationDate: string | null }[],
+  policy: ExpiredEntityPolicy,
+  override: { allowed: boolean; reason: string | null }
+): { ok: true; warning?: string } | { ok: false; reason: string } {
+  const todayLocal = today(getLocalTimeZone());
+  const expired = entities.filter((e) => {
+    if (!e.expirationDate) return false;
+    try {
+      return parseDate(e.expirationDate).compare(todayLocal) < 0;
+    } catch {
+      return false;
+    }
+  });
+  if (expired.length === 0) return { ok: true };
+
+  const ids = expired.map((e) => e.id).join(", ");
+
+  if (policy === "Warn") {
+    return {
+      ok: true,
+      warning: `Consumed ${expired.length} expired tracked entit${
+        expired.length === 1 ? "y" : "ies"
+      }: ${ids}`,
+    };
+  }
+
+  if (
+    policy === "BlockWithOverride" &&
+    override.allowed &&
+    override.reason &&
+    override.reason.trim().length > 0
+  ) {
+    return { ok: true };
+  }
+
+  return {
+    ok: false,
+    reason: `Cannot consume expired tracked entit${
+      expired.length === 1 ? "y" : "ies"
+    }: ${ids}`,
+  };
+}
+
+async function issueJobOperationMaterials(
+  trx: Transaction<DB>,
+  {
+    jobOperationId,
+    quantity,
+    companyId,
+    userId,
+  }: {
+    jobOperationId: string;
+    quantity: number;
+    companyId: string;
+    userId: string;
+  }
+) {
+  const materialsToIssue = await trx
+    .selectFrom("jobMaterial")
+    .where("jobOperationId", "=", jobOperationId)
+    .where("quantityToIssue", ">", 0)
+    .where("itemType", "in", ["Material", "Part", "Consumable"])
+    .where("methodType", "!=", "Make to Order")
+    .where("estimatedQuantity", ">", 0)
+    .where("requiresBatchTracking", "=", false)
+    .where("requiresSerialTracking", "=", false)
+    .selectAll()
+    .execute();
+
+  const kittedChildren = await trx
+    .selectFrom("jobMaterialWithMakeMethodId")
+    .where("jobOperationId", "=", jobOperationId)
+    .where("itemType", "in", ["Material", "Part", "Consumable"])
+    .where("methodType", "=", "Make to Order")
+    .where("kit", "=", true)
+    .selectAll()
+    .execute();
+
+  const jobMakeMethodIdsOfKittedChildren = kittedChildren.map(
+    (kittedChild) => kittedChild.jobMaterialMakeMethodId
+  );
+
+  if (jobMakeMethodIdsOfKittedChildren.length > 0) {
+    const materialsToIssueFromKittedChildren = await trx
+      .selectFrom("jobMaterial")
+      .where("jobMakeMethodId", "in", jobMakeMethodIdsOfKittedChildren)
+      .where("quantityToIssue", ">", 0)
+      .where("itemType", "in", ["Material", "Part", "Consumable"])
+      .where("methodType", "!=", "Make to Order")
+      .where("estimatedQuantity", ">", 0)
+      .where("requiresBatchTracking", "=", false)
+      .where("requiresSerialTracking", "=", false)
+      .selectAll()
+      .execute();
+
+    materialsToIssue.push(...materialsToIssueFromKittedChildren);
+  }
+
+  if (materialsToIssue.length === 0) return;
+
+  const jobId = materialsToIssue[0].jobId;
+
+  const [job, items] = await Promise.all([
+    trx
+      .selectFrom("job")
+      .where("id", "=", jobId)
+      .select("locationId")
+      .executeTakeFirst(),
+    trx
+      .selectFrom("item")
+      .where(
+        "id",
+        "in",
+        materialsToIssue.map((material) => material.itemId)
+      )
+      .select(["id", "item.itemTrackingType"])
+      .execute(),
+  ]);
+
+  if (!job?.locationId) {
+    throw new Error("Job location is required");
+  }
+
+  const itemIdIsTracked = new Map(
+    items.map((item) => [item.id, item.itemTrackingType === "Inventory"])
+  );
+
+  const itemLedgerInserts: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
+    [];
+
+  for await (const material of materialsToIssue) {
+    if (!material.quantityToIssue) continue;
+
+    const quantityToIssue = Number(material.quantity) * quantity;
+
+    let proposedStorageUnitId = material.storageUnitId;
+
+    if (!proposedStorageUnitId) {
+      if (material.defaultStorageUnit) {
+        const pickMethod = await trx
+          .selectFrom("pickMethod")
+          .where("itemId", "=", material.itemId)
+          .where("locationId", "=", job.locationId!)
+          .where("companyId", "=", companyId)
+          .select("defaultStorageUnitId")
+          .executeTakeFirst();
+
+        proposedStorageUnitId = pickMethod?.defaultStorageUnitId;
+
+        if (!proposedStorageUnitId) {
+          proposedStorageUnitId = await getStorageUnitWithHighestQuantity(
+            trx,
+            material.itemId,
+            job.locationId!
+          );
+        }
+      } else {
+        proposedStorageUnitId = await getStorageUnitWithHighestQuantity(
+          trx,
+          material.itemId,
+          job.locationId!
+        );
+      }
+    }
+
+    const currentStorageUnitQuantity = await trx
+      .selectFrom("itemLedger")
+      .select((eb) => eb.fn.sum("quantity").as("quantity"))
+      .where("itemId", "=", material.itemId)
+      .where("locationId", "=", job.locationId!)
+      .where("storageUnitId", "=", proposedStorageUnitId ?? "")
+      .executeTakeFirst();
+
+    const allStorageUnitQuantities = await trx
+      .selectFrom("itemLedger")
+      .select([
+        "storageUnitId",
+        (eb) => eb.fn.sum("quantity").as("quantity"),
+      ])
+      .where("itemId", "=", material.itemId)
+      .where("locationId", "=", job.locationId!)
+      .groupBy("storageUnitId")
+      .having((eb) => eb.fn.sum("quantity"), ">", 0)
+      .execute();
+
+    let finalStorageUnitId = proposedStorageUnitId;
+    const currentQuantity = Number(currentStorageUnitQuantity?.quantity ?? 0);
+
+    if (
+      currentQuantity < quantityToIssue &&
+      allStorageUnitQuantities.length > 0
+    ) {
+      const bestStorageUnit = allStorageUnitQuantities.reduce((best, current) =>
+        Number(current.quantity) > Number(best.quantity) ? current : best
+      );
+      finalStorageUnitId = bestStorageUnit.storageUnitId ?? null;
+    }
+
+    const isTracked = itemIdIsTracked.get(material.itemId);
+
+    if (isTracked) {
+      itemLedgerInserts.push({
+        entryType: "Consumption",
+        documentType: "Job Consumption",
+        documentId: jobId,
+        documentLineId: jobOperationId,
+        companyId,
+        itemId: material.itemId,
+        quantity: -quantityToIssue,
+        locationId: job.locationId,
+        storageUnitId: finalStorageUnitId,
+        createdBy: userId,
+      });
+    }
+
+    await trx
+      .updateTable("jobMaterial")
+      .set({
+        quantityIssued:
+          (Number(material.quantityIssued) ?? 0) + quantityToIssue,
+      })
+      .where("id", "=", material.id)
+      .execute();
+  }
+
+  if (itemLedgerInserts.length > 0) {
+    await trx.insertInto("itemLedger").values(itemLedgerInserts).execute();
+
+    for (const ledger of itemLedgerInserts) {
+      await updatePickMethodDefaultStorageUnitIfNeeded(
+        trx,
+        ledger.itemId,
+        ledger.locationId,
+        ledger.storageUnitId,
+        companyId,
+        userId
+      );
+    }
+  }
+}
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -29,7 +311,7 @@ const payloadValidator = z.discriminatedUnion("type", [
     type: z.literal("jobCompleteInventory"),
     jobId: z.string(),
     quantityComplete: z.number(),
-    shelfId: z.string().optional(),
+    storageUnitId: z.string().optional(),
     locationId: z.string().optional(),
     companyId: z.string(),
     userId: z.string(),
@@ -106,6 +388,8 @@ const payloadValidator = z.discriminatedUnion("type", [
         quantity: z.number(),
       })
     ),
+    overrideExpired: z.boolean().optional(),
+    overrideReason: z.string().optional(),
     companyId: z.string(),
     userId: z.string(),
   }),
@@ -142,6 +426,8 @@ const payloadValidator = z.discriminatedUnion("type", [
         quantity: z.number(),
       })
     ),
+    overrideExpired: z.boolean().optional(),
+    overrideReason: z.string().optional(),
     companyId: z.string(),
     userId: z.string(),
   }),
@@ -188,7 +474,7 @@ serve(async (req: Request) => {
         const {
           jobId,
           quantityComplete,
-          shelfId,
+          storageUnitId,
           locationId,
           companyId,
           userId,
@@ -255,7 +541,7 @@ serve(async (req: Request) => {
               itemId: job?.itemId!,
               quantity: quantityReceivedToInventory,
               locationId,
-              shelfId,
+              storageUnitId,
               trackedEntityId: trackedEntity.data.id,
               createdBy: userId,
             });
@@ -280,7 +566,7 @@ serve(async (req: Request) => {
                 itemId: job?.itemId!,
                 quantity: 1,
                 locationId,
-                shelfId,
+                storageUnitId,
                 trackedEntityId: trackedEntity.id,
                 createdBy: userId,
               });
@@ -306,7 +592,7 @@ serve(async (req: Request) => {
               itemId: job?.itemId!,
               quantity: quantityReceivedToInventory,
               locationId,
-              shelfId,
+              storageUnitId,
               createdBy: userId,
             });
           }
@@ -317,13 +603,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
+            // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -336,204 +622,12 @@ serve(async (req: Request) => {
       case "jobOperation": {
         const { id, companyId, quantity, userId } = validatedPayload;
         await db.transaction().execute(async (trx) => {
-          const materialsToIssue = await trx
-            .selectFrom("jobMaterial")
-            .where("jobOperationId", "=", id)
-            .where("quantityToIssue", ">", 0)
-            .where("itemType", "in", ["Material", "Part", "Consumable"])
-            .where("methodType", "!=", "Make to Order")
-            .where("estimatedQuantity", ">", 0)
-            .where("requiresBatchTracking", "=", false)
-            .where("requiresSerialTracking", "=", false)
-            .selectAll()
-            .execute();
-
-          const kittedChildren = await trx
-            .selectFrom("jobMaterialWithMakeMethodId")
-            .where("jobOperationId", "=", id)
-            .where("itemType", "in", ["Material", "Part", "Consumable"])
-            .where("methodType", "=", "Make to Order")
-            .where("kit", "=", true)
-            .selectAll()
-            .execute();
-
-          const jobMakeMethodIdsOfKittedChildren = kittedChildren.map(
-            (kittedChild) => kittedChild.jobMaterialMakeMethodId
-          );
-
-          if (jobMakeMethodIdsOfKittedChildren.length > 0) {
-            const materialsToIssueFromKittedChildren = await trx
-              .selectFrom("jobMaterial")
-              .where("jobMakeMethodId", "in", jobMakeMethodIdsOfKittedChildren)
-              .where("quantityToIssue", ">", 0)
-              .where("itemType", "in", ["Material", "Part", "Consumable"])
-              .where("methodType", "!=", "Make to Order")
-              .where("estimatedQuantity", ">", 0)
-              .where("requiresBatchTracking", "=", false)
-              .where("requiresSerialTracking", "=", false)
-              .selectAll()
-              .execute();
-
-            materialsToIssue.push(...materialsToIssueFromKittedChildren);
-          }
-
-          if (materialsToIssue.length > 0) {
-            const jobId = materialsToIssue[0].jobId;
-
-            const [job, items] = await Promise.all([
-              trx
-                .selectFrom("job")
-                .where("id", "=", jobId)
-                .select("locationId")
-                .executeTakeFirst(),
-              trx
-                .selectFrom("item")
-                .where(
-                  "id",
-                  "in",
-                  materialsToIssue.map((material) => material.itemId)
-                )
-                .select(["id", "item.itemTrackingType"])
-                .execute(),
-            ]);
-
-            if (!job?.locationId) {
-              throw new Error("Job location is required");
-            }
-
-            const itemIdIsTracked = new Map(
-              items.map((item) => [
-                item.id,
-                item.itemTrackingType === "Inventory",
-              ])
-            );
-
-            for await (const material of materialsToIssue) {
-              if (material.quantityToIssue) {
-                // Calculate the quantity to issue based on payload quantity multiplied by the material quantity
-                const quantityToIssue = Number(material.quantity) * quantity;
-
-                // Determine shelf to use - prioritize material.shelfId, then fetch if needed
-                let proposedShelfId = material.shelfId;
-
-                if (!proposedShelfId) {
-                  if (material.defaultShelf) {
-                    // Fetch pick method default shelf
-                    const pickMethod = await trx
-                      .selectFrom("pickMethod")
-                      .where("itemId", "=", material.itemId)
-                      .where("locationId", "=", job?.locationId!)
-                      .where("companyId", "=", companyId)
-                      .select("defaultShelfId")
-                      .executeTakeFirst();
-
-                    proposedShelfId = pickMethod?.defaultShelfId;
-
-                    // If defaultShelfId is null, get shelf with highest quantity
-                    if (!proposedShelfId) {
-                      proposedShelfId = await getShelfWithHighestQuantity(
-                        trx,
-                        material.itemId,
-                        job?.locationId!
-                      );
-                    }
-                  } else {
-                    // Get shelf with highest quantity
-                    proposedShelfId = await getShelfWithHighestQuantity(
-                      trx,
-                      material.itemId,
-                      job?.locationId!
-                    );
-                  }
-                }
-
-                // Get current quantity on this shelf for diagnostics
-                const currentShelfQuantity = await trx
-                  .selectFrom("itemLedger")
-                  .select((eb) => eb.fn.sum("quantity").as("quantity"))
-                  .where("itemId", "=", material.itemId)
-                  .where("locationId", "=", job.locationId!)
-                  .where("shelfId", "=", proposedShelfId ?? "")
-                  .executeTakeFirst();
-
-                // Get all shelf quantities for this item for diagnostics
-                const allShelfQuantities = await trx
-                  .selectFrom("itemLedger")
-                  .select([
-                    "shelfId",
-                    (eb) => eb.fn.sum("quantity").as("quantity"),
-                  ])
-                  .where("itemId", "=", material.itemId)
-                  .where("locationId", "=", job.locationId!)
-                  .groupBy("shelfId")
-                  .having((eb) => eb.fn.sum("quantity"), ">", 0)
-                  .execute();
-
-                // Use shelf with highest quantity if proposed shelf has insufficient quantity
-                let finalShelfId = proposedShelfId;
-                const currentQuantity = Number(
-                  currentShelfQuantity?.quantity ?? 0
-                );
-
-                if (
-                  currentQuantity < quantityToIssue &&
-                  allShelfQuantities.length > 0
-                ) {
-                  const bestShelf = allShelfQuantities.reduce((best, current) =>
-                    Number(current.quantity) > Number(best.quantity)
-                      ? current
-                      : best
-                  );
-                  finalShelfId = bestShelf.shelfId ?? null;
-                }
-
-                const isTracked = itemIdIsTracked.get(material.itemId);
-
-                if (isTracked) {
-                  itemLedgerInserts.push({
-                    entryType: "Consumption",
-                    documentType: "Job Consumption",
-                    documentId: jobId,
-                    documentLineId: id,
-                    companyId,
-                    itemId: material.itemId,
-                    quantity: -quantityToIssue,
-                    locationId: job?.locationId,
-                    shelfId: finalShelfId,
-                    createdBy: userId,
-                  });
-                }
-
-                await trx
-                  .updateTable("jobMaterial")
-                  .set({
-                    quantityIssued:
-                      (Number(material.quantityIssued) ?? 0) + quantityToIssue,
-                  })
-                  .where("id", "=", material.id)
-                  .execute();
-              }
-            }
-
-            if (itemLedgerInserts.length > 0) {
-              await trx
-                .insertInto("itemLedger")
-                .values(itemLedgerInserts)
-                .execute();
-
-              // Update pickMethod defaultShelfId if needed for each inserted ledger
-              for (const ledger of itemLedgerInserts) {
-                await updatePickMethodDefaultShelfIfNeeded(
-                  trx,
-                  ledger.itemId,
-                  ledger.locationId,
-                  ledger.shelfId,
-                  companyId,
-                  userId
-                );
-              }
-            }
-          }
+          await issueJobOperationMaterials(trx, {
+            jobOperationId: id,
+            quantity,
+            companyId,
+            userId,
+          });
         });
 
         break;
@@ -630,6 +724,13 @@ serve(async (req: Request) => {
               .where("id", "=", trackedEntityId)
               .execute();
           }
+
+          await issueJobOperationMaterials(trx, {
+            jobOperationId: row.jobOperationId,
+            quantity: row.quantity,
+            companyId,
+            userId,
+          });
         });
 
         return new Response(
@@ -756,6 +857,8 @@ serve(async (req: Request) => {
                 quantity: 1,
                 status: "Reserved",
                 attributes: trackedEntity.attributes,
+                itemId: trackedEntity.itemId ?? null,
+                expirationDate: trackedEntity.expirationDate ?? null,
                 companyId,
                 createdBy: userId,
               })
@@ -764,6 +867,13 @@ serve(async (req: Request) => {
 
             newEntityId = newTrackedEntityResult?.id;
           }
+
+          await issueJobOperationMaterials(trx, {
+            jobOperationId: row.jobOperationId,
+            quantity: row.quantity,
+            companyId,
+            userId,
+          });
         });
 
         return new Response(
@@ -820,20 +930,20 @@ serve(async (req: Request) => {
               .selectAll()
               .executeTakeFirst();
 
-            let shelfId: string | null | undefined;
-            // Prioritize material.shelfId if available
-            if (material?.shelfId) {
-              shelfId = material.shelfId;
-            } else if (material?.defaultShelf) {
+            let storageUnitId: string | null | undefined;
+            // Prioritize material.storageUnitId if available
+            if (material?.storageUnitId) {
+              storageUnitId = material.storageUnitId;
+            } else if (material?.defaultStorageUnit) {
               const pickMethod = await trx
                 .selectFrom("pickMethod")
                 .where("itemId", "=", itemId)
                 .where("locationId", "=", job?.locationId!)
-                .select("defaultShelfId")
+                .select("defaultStorageUnitId")
                 .executeTakeFirst();
-              shelfId = pickMethod?.defaultShelfId;
+              storageUnitId = pickMethod?.defaultStorageUnitId;
             } else {
-              shelfId = await getShelfWithHighestQuantity(
+              storageUnitId = await getStorageUnitWithHighestQuantity(
                 trx,
                 itemId,
                 job?.locationId!
@@ -859,7 +969,7 @@ serve(async (req: Request) => {
                 companyId,
                 itemId: material?.itemId!,
                 locationId: job?.locationId,
-                shelfId,
+                storageUnitId,
                 quantity:
                   adjustmentType === "Positive Adjmt."
                     ? Number(quantityToIssue)
@@ -884,31 +994,31 @@ serve(async (req: Request) => {
                 .values(itemLedgerInserts)
                 .execute();
 
-              // Update pickMethod defaultShelfId if needed for each inserted ledger
+              // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
               for (const ledger of itemLedgerInserts) {
-                await updatePickMethodDefaultShelfIfNeeded(
+                await updatePickMethodDefaultStorageUnitIfNeeded(
                   trx,
                   ledger.itemId,
                   ledger.locationId,
-                  ledger.shelfId,
+                  ledger.storageUnitId,
                   companyId,
                   userId
                 );
               }
             }
           } else {
-            let shelfId: string | null | undefined;
+            let storageUnitId: string | null | undefined;
             if (item?.itemTrackingType === "Inventory") {
               const pickMethod = await trx
                 .selectFrom("pickMethod")
                 .where("itemId", "=", itemId)
                 .where("locationId", "=", job?.locationId!)
-                .select("defaultShelfId")
+                .select("defaultStorageUnitId")
                 .executeTakeFirst();
 
-              shelfId =
-                pickMethod?.defaultShelfId ??
-                (await getShelfWithHighestQuantity(
+              storageUnitId =
+                pickMethod?.defaultStorageUnitId ??
+                (await getStorageUnitWithHighestQuantity(
                   trx,
                   itemId,
                   job?.locationId!
@@ -926,7 +1036,7 @@ serve(async (req: Request) => {
                     ? Number(quantity)
                     : -Number(quantity),
                 locationId: job?.locationId,
-                shelfId,
+                storageUnitId,
                 createdBy: userId,
               });
             }
@@ -949,7 +1059,7 @@ serve(async (req: Request) => {
                 jobId: jobOperation?.jobId!,
                 jobMakeMethodId: jobOperation?.jobMakeMethodId!,
                 jobOperationId: id,
-                shelfId: shelfId ?? undefined,
+                storageUnitId: storageUnitId ?? undefined,
                 methodType: "Pull from Inventory",
                 quantity: 0,
                 quantityIssued: Number(quantity ?? 0),
@@ -963,13 +1073,13 @@ serve(async (req: Request) => {
                 .values(itemLedgerInserts)
                 .execute();
 
-              // Update pickMethod defaultShelfId if needed for each inserted ledger
+              // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
               for (const ledger of itemLedgerInserts) {
-                await updatePickMethodDefaultShelfIfNeeded(
+                await updatePickMethodDefaultStorageUnitIfNeeded(
                   trx,
                   ledger.itemId,
                   ledger.locationId,
-                  ledger.shelfId,
+                  ledger.storageUnitId,
                   companyId,
                   userId
                 );
@@ -1015,7 +1125,7 @@ serve(async (req: Request) => {
           const material = jobMaterial.data!;
           const quantity = Number(entity.quantity);
 
-          // Get item ledger to find location and shelf
+          // Get item ledger to find location and storage unit
           const itemLedger = await trx
             .selectFrom("itemLedger")
             .where("trackedEntityId", "=", trackedEntityId)
@@ -1106,7 +1216,7 @@ serve(async (req: Request) => {
                 itemId: entity.sourceDocumentId!,
                 quantity: -quantity,
                 locationId: job?.locationId ?? itemLedger?.locationId,
-                shelfId: itemLedger?.shelfId,
+                storageUnitId: itemLedger?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               })
@@ -1143,6 +1253,8 @@ serve(async (req: Request) => {
           itemId,
           parentTrackedEntityId,
           children,
+          overrideExpired,
+          overrideReason,
           companyId,
           userId,
         } = validatedPayload;
@@ -1161,6 +1273,8 @@ serve(async (req: Request) => {
             "Either materialId or both jobOperationId and itemId must be provided"
           );
         }
+
+        let expiredWarning: string | undefined;
 
         const splitEntities = await db.transaction().execute(async (trx) => {
           const trackedEntities = await trx
@@ -1188,6 +1302,23 @@ serve(async (req: Request) => {
 
           if (trackedEntities.some((entity) => entity.status !== "Available")) {
             throw new Error("Tracked entities are not available");
+          }
+
+          // Expiry policy gate. Reads companySettings.inventoryShelfLife.
+          const expiredPolicy = await getExpiredEntityPolicy(trx, companyId);
+          const expiredCheck = checkExpiredEntities(
+            trackedEntities.map((e) => ({
+              id: e.id,
+              expirationDate: e.expirationDate,
+            })),
+            expiredPolicy,
+            { allowed: !!overrideExpired, reason: overrideReason ?? null }
+          );
+          if (!expiredCheck.ok) {
+            throw new Error(expiredCheck.reason);
+          }
+          if (expiredCheck.warning) {
+            expiredWarning = expiredCheck.warning;
           }
 
           let jobMaterial: Awaited<
@@ -1471,6 +1602,8 @@ serve(async (req: Request) => {
                   quantity: remainingQuantity,
                   status: trackedEntity.status ?? "Available",
                   attributes: trackedEntity.attributes,
+                  itemId: trackedEntity.itemId ?? trackedEntity.sourceDocumentId,
+                  expirationDate: trackedEntity.expirationDate ?? null,
                   companyId,
                   createdBy: userId,
                 })
@@ -1528,10 +1661,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: -Number(trackedEntity.quantity),
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: trackedEntity.id!,
                     createdBy: userId,
                   },
@@ -1543,10 +1676,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: quantity,
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: trackedEntity.id!,
                     createdBy: userId,
                   },
@@ -1558,10 +1691,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: remainingQuantity,
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: newTrackedEntityId,
                     createdBy: userId,
                   }
@@ -1595,9 +1728,9 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: -quantity,
                 locationId: job?.locationId,
-                shelfId: itemLedgers.find(
+                storageUnitId: itemLedgers.find(
                   (itemLedger) => itemLedger.trackedEntityId === trackedEntityId
-                )?.shelfId,
+                )?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               });
@@ -1617,13 +1750,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
+            // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -1662,6 +1795,7 @@ serve(async (req: Request) => {
           JSON.stringify({
             success: true,
             splitEntities,
+            warning: expiredWarning,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -1825,9 +1959,9 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: quantity,
                 locationId: job?.locationId,
-                shelfId: itemLedgers.find(
+                storageUnitId: itemLedgers.find(
                   (itemLedger) => itemLedger.trackedEntityId === trackedEntityId
-                )?.shelfId,
+                )?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               });
@@ -1847,13 +1981,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
+            // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -2056,7 +2190,7 @@ serve(async (req: Request) => {
           const existingLedger = await trx
             .selectFrom("itemLedger")
             .where("trackedEntityId", "=", trackedEntityId)
-            .select(["locationId", "shelfId"])
+            .select(["locationId", "storageUnitId"])
             .orderBy("createdAt", "desc")
             .executeTakeFirst();
 
@@ -2074,7 +2208,7 @@ serve(async (req: Request) => {
                   itemId: oldItem.id,
                   quantity: -oldQuantity,
                   locationId: existingLedger?.locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId,
                   createdBy: userId,
                 },
@@ -2087,7 +2221,7 @@ serve(async (req: Request) => {
                   itemId: newItem.id,
                   quantity: quantity,
                   locationId: existingLedger?.locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId,
                   createdBy: userId,
                 },
@@ -2174,9 +2308,9 @@ serve(async (req: Request) => {
 
           // Only create item ledger entry for non-tracked items (not Serial or Batch)
           if (item.itemTrackingType !== "Serial" && item.itemTrackingType !== "Batch") {
-            // Get shelf with highest quantity for this item at this location
-            const shelfId = locationId
-              ? await getShelfWithHighestQuantity(
+            // Get storage unit with highest quantity for this item at this location
+            const storageUnitId = locationId
+              ? await getStorageUnitWithHighestQuantity(
                   trx,
                   itemId,
                   locationId
@@ -2194,18 +2328,18 @@ serve(async (req: Request) => {
                 itemId,
                 quantity: -quantity,
                 locationId,
-                shelfId,
+                storageUnitId,
                 createdBy: userId,
               })
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             if (locationId) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 itemId,
                 locationId,
-                shelfId,
+                storageUnitId,
                 companyId,
                 userId
               );
@@ -2230,6 +2364,8 @@ serve(async (req: Request) => {
           itemId,
           unitOfMeasureCode,
           children,
+          overrideExpired,
+          overrideReason,
           companyId,
           userId,
         } = validatedPayload;
@@ -2237,6 +2373,8 @@ serve(async (req: Request) => {
         if (children.length === 0) {
           throw new Error("At least one tracked entity is required");
         }
+
+        let expiredWarning: string | undefined;
 
         const splitEntities = await db.transaction().execute(async (trx) => {
           // Get the maintenance dispatch to find the location
@@ -2297,6 +2435,23 @@ serve(async (req: Request) => {
 
           if (trackedEntities.some((entity) => entity.status !== "Available")) {
             throw new Error("Some tracked entities are not available");
+          }
+
+          // Expiry policy gate.
+          const expiredPolicy = await getExpiredEntityPolicy(trx, companyId);
+          const expiredCheck = checkExpiredEntities(
+            trackedEntities.map((e) => ({
+              id: e.id,
+              expirationDate: e.expirationDate,
+            })),
+            expiredPolicy,
+            { allowed: !!overrideExpired, reason: overrideReason ?? null }
+          );
+          if (!expiredCheck.ok) {
+            throw new Error(expiredCheck.reason);
+          }
+          if (expiredCheck.warning) {
+            expiredWarning = expiredCheck.warning;
           }
 
           // Get item details
@@ -2415,6 +2570,8 @@ serve(async (req: Request) => {
                   quantity: remainingQuantity,
                   status: trackedEntity.status ?? "Available",
                   attributes: trackedEntity.attributes,
+                  itemId: trackedEntity.itemId ?? trackedEntity.sourceDocumentId,
+                  expirationDate: trackedEntity.expirationDate ?? null,
                   companyId,
                   createdBy: userId,
                 })
@@ -2469,7 +2626,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: -Number(trackedEntity.quantity),
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: trackedEntity.id!,
                   createdBy: userId,
                 },
@@ -2481,7 +2638,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: quantity,
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: trackedEntity.id!,
                   createdBy: userId,
                 },
@@ -2493,7 +2650,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: remainingQuantity,
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: newTrackedEntityId,
                   createdBy: userId,
                 }
@@ -2540,7 +2697,7 @@ serve(async (req: Request) => {
               itemId: trackedEntity.sourceDocumentId,
               quantity: -quantity,
               locationId,
-              shelfId: existingLedger?.shelfId,
+              storageUnitId: existingLedger?.storageUnitId,
               trackedEntityId,
               createdBy: userId,
             });
@@ -2566,13 +2723,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -2587,6 +2744,7 @@ serve(async (req: Request) => {
             success: true,
             message: "Material issued successfully",
             splitEntities,
+            warning: expiredWarning,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -2732,7 +2890,7 @@ serve(async (req: Request) => {
               itemId: trackedEntity.sourceDocumentId,
               quantity: quantity, // Positive to return to inventory
               locationId,
-              shelfId: existingLedger?.shelfId,
+              storageUnitId: existingLedger?.storageUnitId,
               trackedEntityId,
               createdBy: userId,
             });
@@ -2751,13 +2909,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -2913,7 +3071,7 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: quantity, // Positive to return to inventory
                 locationId,
-                shelfId: existingLedger?.shelfId,
+                storageUnitId: existingLedger?.storageUnitId,
                 trackedEntityId: junction.trackedEntityId,
                 createdBy: userId,
               });
@@ -2946,7 +3104,7 @@ serve(async (req: Request) => {
             const quantity = Number(dispatchItem.quantity);
 
             if (quantity > 0) {
-              // Find the shelf from the original consumption ledger entry
+              // Find the storage unit from the original consumption ledger entry
               const originalLedger = await trx
                 .selectFrom("itemLedger")
                 .where("documentLineId", "=", maintenanceDispatchItemId)
@@ -2966,7 +3124,7 @@ serve(async (req: Request) => {
                   itemId: dispatchItem.itemId,
                   quantity: quantity, // Positive to return to inventory
                   locationId,
-                  shelfId: originalLedger?.shelfId,
+                  storageUnitId: originalLedger?.storageUnitId,
                   createdBy: userId,
                 })
                 .execute();
@@ -3005,9 +3163,22 @@ serve(async (req: Request) => {
     );
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify(err), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    // Error.prototype properties (message, name, stack) aren't enumerable,
+    // so a plain JSON.stringify(err) produces "{}" and clients lose the
+    // actual reason (e.g. "Cannot consume expired tracked entity ...").
+    // Pull the message out explicitly.
+    const message =
+      err instanceof Error
+        ? err.message
+        : typeof err === "string"
+          ? err
+          : "Unexpected error";
+    return new Response(
+      JSON.stringify({ success: false, message }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      }
+    );
   }
 });

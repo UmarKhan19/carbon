@@ -141,9 +141,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_deleteAccount",
     {
       description: "delete account",
-      inputSchema: {
+      inputSchema: z.object({
       accountId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -153,12 +153,42 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
+    "accounting_deleteAccountCategory",
+    {
+      description: "delete account category",
+      inputSchema: z.object({
+      accountCategoryId: z.string(),
+    }),
+      annotations: DESTRUCTIVE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await deleteAccountCategory(ctx.client, params.accountCategoryId);
+      return toMcpResult(result);
+    }, "Failed: accounting_deleteAccountCategory"),
+  );
+
+  server.registerTool(
+    "accounting_deleteAccountSubcategory",
+    {
+      description: "delete account subcategory",
+      inputSchema: z.object({
+      accountSubcategoryId: z.string(),
+    }),
+      annotations: DESTRUCTIVE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await deleteAccountSubcategory(ctx.client, params.accountSubcategoryId);
+      return toMcpResult(result);
+    }, "Failed: accounting_deleteAccountSubcategory"),
+  );
+
+  server.registerTool(
     "accounting_deletePaymentTerm",
     {
       description: "delete payment term",
-      inputSchema: {
+      inputSchema: z.object({
       paymentTermId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -171,9 +201,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccount",
     {
       description: "get account",
-      inputSchema: {
+      inputSchema: z.object({
       accountId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -186,14 +216,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccounts",
     {
       description: "get accounts",
-      inputSchema: {
-      companyGroupId: z.string(),
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -206,14 +235,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getAccountsList",
     {
       description: "get accounts list",
-      inputSchema: {
-      companyGroupId: z.string(),
+      inputSchema: z.object({
       args: z.object({
     isGroup: z.boolean().nullable().optional(),
     incomeBalance: z.any().optional(),
     classes: z.array(z.any()).optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -225,23 +253,104 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
   server.registerTool(
     "accounting_getGroupAccounts",
     {
-      description: "get group accounts",
-      inputSchema: {
-      companyGroupId: z.string(),
-    },
+      description: "get account categories",
+      inputSchema: z.object({
+      args: z.object({
+    limit: z.number().int().default(100),
+    offset: z.number().int().default(0),
+    search: z.string().nullable()
+  }),
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
       const result = await getGroupAccounts(ctx.client, params.companyGroupId);
       return toMcpResult(result);
-    }, "Failed: accounting_getGroupAccounts"),
+    }, "Failed: accounting_getAccountCategories"),
+  );
+
+  server.registerTool(
+    "accounting_getAccountCategoriesList",
+    {
+      description: "get account categories list",
+      inputSchema: z.object({}),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getAccountCategoriesList(ctx.client, ctx.companyId);
+      return toMcpResult(result);
+    }, "Failed: accounting_getAccountCategoriesList"),
+  );
+
+  server.registerTool(
+    "accounting_getAccountCategory",
+    {
+      description: "get account category",
+      inputSchema: z.object({
+      accountCategoryId: z.string(),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getAccountCategory(ctx.client, params.accountCategoryId, ctx.companyId);
+      return toMcpResult(result);
+    }, "Failed: accounting_getAccountCategory"),
+  );
+
+  server.registerTool(
+    "accounting_getAccountSubcategories",
+    {
+      description: "get account subcategories",
+      inputSchema: z.object({
+      args: z.object({
+    limit: z.number().int().default(100),
+    offset: z.number().int().default(0),
+    search: z.string().nullable()
+  }),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getAccountSubcategories(ctx.client, ctx.companyId, params.args);
+      return toMcpResult(result);
+    }, "Failed: accounting_getAccountSubcategories"),
+  );
+
+  server.registerTool(
+    "accounting_getAccountSubcategoriesByCategory",
+    {
+      description: "get account subcategories by category",
+      inputSchema: z.object({
+      accountCategoryId: z.string(),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getAccountSubcategoriesByCategory(ctx.client, params.accountCategoryId, ctx.companyId);
+      return toMcpResult(result);
+    }, "Failed: accounting_getAccountSubcategoriesByCategory"),
+  );
+
+  server.registerTool(
+    "accounting_getAccountSubcategory",
+    {
+      description: "get account subcategory",
+      inputSchema: z.object({
+      accountSubcategoryId: z.string(),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getAccountSubcategory(ctx.client, params.accountSubcategoryId);
+      return toMcpResult(result);
+    }, "Failed: accounting_getAccountSubcategory"),
   );
 
   server.registerTool(
     "accounting_getBaseCurrency",
     {
       description: "get base currency",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -254,14 +363,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getChartOfAccounts",
     {
       description: "get chart of accounts",
-      inputSchema: {
-      companyGroupId: z.string(),
+      inputSchema: z.object({
       args: z.object({
     incomeBalance: z.enum(["Income Statement", "Balance Sheet", "null"]),
     startDate: z.string().nullable(),
     endDate: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -274,9 +382,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrency",
     {
       description: "get currency",
-      inputSchema: {
+      inputSchema: z.object({
       currencyId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -289,10 +397,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrencyByCode",
     {
       description: "get currency by code",
-      inputSchema: {
-      companyGroupId: z.string(),
+      inputSchema: z.object({
       currencyCode: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -305,14 +412,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrencies",
     {
       description: "get currencies",
-      inputSchema: {
-      companyGroupId: z.string(),
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -325,7 +431,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrenciesList",
     {
       description: "get currencies list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -338,9 +444,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getCurrentAccountingPeriod",
     {
       description: "get current accounting period",
-      inputSchema: {
+      inputSchema: z.object({
       date: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -353,7 +459,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getDefaultAccounts",
     {
       description: "get default accounts",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -366,7 +472,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getFiscalYearSettings",
     {
       description: "get fiscal year settings",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -376,12 +482,48 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
+    "accounting_getInventoryPostingGroup",
+    {
+      description: "get inventory posting group",
+      inputSchema: z.object({
+      args: z.object({
+    itemPostingGroupId: z.string().nullable(),
+    locationId: z.string().nullable()
+  }),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getInventoryPostingGroup(ctx.client, ctx.companyId, params.args);
+      return toMcpResult(result);
+    }, "Failed: accounting_getInventoryPostingGroup"),
+  );
+
+  server.registerTool(
+    "accounting_getInventoryPostingGroups",
+    {
+      description: "get inventory posting groups",
+      inputSchema: z.object({
+      args: z.object({
+    limit: z.number().int().default(100),
+    offset: z.number().int().default(0)
+  }),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getInventoryPostingGroups(ctx.client, ctx.companyId, params.args);
+      return toMcpResult(result);
+    }, "Failed: accounting_getInventoryPostingGroups"),
+  );
+
+  server.registerTool(
     "accounting_getPaymentTerm",
     {
       description: "get payment term",
-      inputSchema: {
+      inputSchema: z.object({
       paymentTermId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -394,13 +536,13 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getPaymentTerms",
     {
       description: "get payment terms",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -413,7 +555,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_getPaymentTermsList",
     {
       description: "get payment terms list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -423,12 +565,84 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
+    "accounting_getPurchasingPostingGroup",
+    {
+      description: "get purchasing posting group",
+      inputSchema: z.object({
+      args: z.object({
+    itemPostingGroupId: z.string().nullable(),
+    supplierTypeId: z.string().nullable()
+  }),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getPurchasingPostingGroup(ctx.client, ctx.companyId, params.args);
+      return toMcpResult(result);
+    }, "Failed: accounting_getPurchasingPostingGroup"),
+  );
+
+  server.registerTool(
+    "accounting_getPurchasingPostingGroups",
+    {
+      description: "get purchasing posting groups",
+      inputSchema: z.object({
+      args: z.object({
+    limit: z.number().int().default(100),
+    offset: z.number().int().default(0)
+  }),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getPurchasingPostingGroups(ctx.client, ctx.companyId, params.args);
+      return toMcpResult(result);
+    }, "Failed: accounting_getPurchasingPostingGroups"),
+  );
+
+  server.registerTool(
+    "accounting_getPurchasingSalesGroup",
+    {
+      description: "get purchasing sales group",
+      inputSchema: z.object({
+      args: z.object({
+    itemPostingGroupId: z.string().nullable(),
+    customerTypeId: z.string().nullable()
+  }),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getPurchasingSalesGroup(ctx.client, params.args);
+      return toMcpResult(result);
+    }, "Failed: accounting_getPurchasingSalesGroup"),
+  );
+
+  server.registerTool(
+    "accounting_getSalesPostingGroups",
+    {
+      description: "get sales posting groups",
+      inputSchema: z.object({
+      args: z.object({
+    limit: z.number().int().default(100),
+    offset: z.number().int().default(0)
+  }),
+    }),
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getSalesPostingGroups(ctx.client, ctx.companyId, params.args);
+      return toMcpResult(result);
+    }, "Failed: accounting_getSalesPostingGroups"),
+  );
+
+  server.registerTool(
     "accounting_updateDefaultBalanceSheetAccounts",
     {
       description: "update default balance sheet accounts",
-      inputSchema: {
+      inputSchema: z.object({
       defaultAccounts: defaultBalanceSheetAccountValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -441,9 +655,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_updateDefaultIncomeAccounts",
     {
       description: "update default income accounts",
-      inputSchema: {
+      inputSchema: z.object({
       defaultAccounts: defaultIncomeAcountValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -456,9 +670,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_updateFiscalYearSettings",
     {
       description: "update fiscal year settings",
-      inputSchema: {
+      inputSchema: z.object({
       fiscalYearSettings: fiscalYearSettingsValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -471,9 +685,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_upsertAccount",
     {
       description: "upsert account",
-      inputSchema: {
+      inputSchema: z.object({
       account: accountValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -483,12 +697,42 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
+    "accounting_upsertAccountCategory",
+    {
+      description: "upsert account category",
+      inputSchema: z.object({
+      accountCategory: accountCategoryValidator,
+    }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await upsertAccountCategory(ctx.client, { ...params.accountCategory, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: accounting_upsertAccountCategory"),
+  );
+
+  server.registerTool(
+    "accounting_upsertAccountSubcategory",
+    {
+      description: "upsert account subcategory",
+      inputSchema: z.object({
+      accountSubcategory: accountSubcategoryValidator,
+    }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await upsertAccountSubcategory(ctx.client, { ...params.accountSubcategory, createdBy: ctx.userId, updatedBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: accounting_upsertAccountSubcategory"),
+  );
+
+  server.registerTool(
     "accounting_upsertCurrency",
     {
       description: "upsert currency",
-      inputSchema: {
+      inputSchema: z.object({
       currency: currencyValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -501,9 +745,9 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     "accounting_upsertPaymentTerm",
     {
       description: "upsert payment term",
-      inputSchema: {
+      inputSchema: z.object({
       paymentTerm: paymentTermValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

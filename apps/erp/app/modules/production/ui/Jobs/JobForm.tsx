@@ -281,7 +281,9 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                         label={type}
                         type={type}
                         value={itemData.itemId}
+                        locationId={initialValues.locationId ?? undefined}
                         validItemTypes={["Part", "Tool"]}
+                        replenishmentSystem="Make"
                         onChange={(value) => {
                           onItemChange(value?.value as string);
                         }}
@@ -441,6 +443,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                           label={type}
                           type={type}
                           value={itemData.itemId}
+                          locationId={initialValues.locationId ?? undefined}
                           validItemTypes={["Part", "Tool"]}
                           onChange={(value) => {
                             onItemChange(value?.value as string);

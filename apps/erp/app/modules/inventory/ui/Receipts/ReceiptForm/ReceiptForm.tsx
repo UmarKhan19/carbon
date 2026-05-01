@@ -27,6 +27,7 @@ import {
   LuEllipsisVertical,
   LuQrCode,
   LuShoppingCart,
+  LuTicketX,
   LuTrash,
   LuTruck
 } from "react-icons/lu";
@@ -53,6 +54,7 @@ import type {
 import {
   ReceiptPostModal,
   ReceiptStatus,
+  ReceiptVoidModal,
   receiptSourceDocumentType,
   receiptValidator
 } from "~/modules/inventory";
@@ -92,6 +94,7 @@ const ReceiptForm = ({
   } = useReceiptForm({ status, initialValues });
 
   const postModal = useDisclosure();
+  const voidModal = useDisclosure();
   const deleteDisclosure = useDisclosure();
   const { trigger: auditLogTrigger, drawer: auditLogDrawer } = useAuditLog({
     entityType: "receipt",
@@ -101,6 +104,8 @@ const ReceiptForm = ({
   });
 
   const isPosted = status === "Posted";
+  const isVoided = status === "Voided";
+  const isInvoiced = routeData?.receipt?.invoiced === true;
   const isEditing = initialValues.id !== undefined;
 
   const canPost =
@@ -201,6 +206,20 @@ const ReceiptForm = ({
               >
                 <Trans>Post</Trans>
               </Button>
+              {isPosted && (
+                <Button
+                  leftIcon={<LuTicketX />}
+                  variant="destructive"
+                  onClick={voidModal.onOpen}
+                  isDisabled={
+                    isVoided ||
+                    isInvoiced ||
+                    !permissions.can("update", "inventory")
+                  }
+                >
+                  <Trans>Void</Trans>
+                </Button>
+              )}
             </HStack>
           </CardHeader>
 
@@ -269,6 +288,7 @@ const ReceiptForm = ({
       </Card>
 
       {postModal.isOpen && <ReceiptPostModal onClose={postModal.onClose} />}
+      {voidModal.isOpen && <ReceiptVoidModal onClose={voidModal.onClose} />}
       {deleteDisclosure.isOpen && (
         <ConfirmDelete
           action={path.to.deleteReceipt(receiptId)}

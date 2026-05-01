@@ -29,7 +29,7 @@ import {
   Item,
   Location,
   NumberControlled,
-  Shelf,
+  StorageUnit,
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
@@ -91,7 +91,7 @@ const PurchaseInvoiceLineForm = ({
     purchaseUom: string;
     inventoryUom: string;
     conversionFactor: number;
-    shelfId: string | null;
+    storageUnitId: string | null;
     minimumOrderQuantity?: number;
     taxAmount: number;
     taxPercent: number;
@@ -106,7 +106,7 @@ const PurchaseInvoiceLineForm = ({
     purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
     inventoryUom: initialValues.inventoryUnitOfMeasureCode ?? "",
     conversionFactor: initialValues.conversionFactor ?? 1,
-    shelfId: initialValues.shelfId ?? "",
+    storageUnitId: initialValues.storageUnitId ?? "",
     minimumOrderQuantity: undefined,
     taxAmount: initialValues.supplierTaxAmount ?? 0,
     taxPercent: initialValues.taxPercent ?? 0,
@@ -178,7 +178,7 @@ const PurchaseInvoiceLineForm = ({
       inventoryUom: "",
       purchaseUom: "",
       conversionFactor: 1,
-      shelfId: "",
+      storageUnitId: "",
       minimumOrderQuantity: undefined,
       taxAmount: 0,
       taxPercent: 0,
@@ -214,7 +214,7 @@ const PurchaseInvoiceLineForm = ({
             .maybeSingle(),
           carbon
             .from("pickMethod")
-            .select("defaultShelfId")
+            .select("defaultStorageUnitId")
             .eq("itemId", itemId)
             .eq("companyId", company.id)
             .eq("locationId", locationId!)
@@ -255,7 +255,7 @@ const PurchaseInvoiceLineForm = ({
             supplierPart?.data?.conversionFactor ??
             itemReplenishment?.conversionFactor ??
             1,
-          shelfId: inventory.data?.defaultShelfId ?? null,
+          storageUnitId: inventory.data?.defaultStorageUnitId ?? null,
           taxAmount: 0,
           taxPercent: 0,
           priceBreaks: breaks,
@@ -281,9 +281,9 @@ const PurchaseInvoiceLineForm = ({
 
     setLocationId(newLocation.value);
     if (!itemData.itemId) return;
-    const shelf = await carbon
+    const storageUnit = await carbon
       .from("pickMethod")
-      .select("defaultShelfId")
+      .select("defaultStorageUnitId")
       .eq("itemId", itemData.itemId)
       .eq("companyId", company.id)
       .eq("locationId", newLocation.value)
@@ -291,7 +291,7 @@ const PurchaseInvoiceLineForm = ({
 
     setItemData((d) => ({
       ...d,
-      shelfId: shelf?.data?.defaultShelfId ?? ""
+      storageUnitId: storageUnit?.data?.defaultStorageUnitId ?? ""
     }));
   };
 
@@ -377,6 +377,7 @@ const PurchaseInvoiceLineForm = ({
                     label={itemType}
                     // @ts-ignore
                     type={itemType}
+                    locationId={locationId}
                     replenishmentSystem="Buy"
                     onChange={(value) => {
                       onItemChange(value?.value as string);
@@ -385,7 +386,9 @@ const PurchaseInvoiceLineForm = ({
                   />
 
                   <FormControl className="col-span-2">
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel isOptional>
+                      <Trans>Description</Trans>
+                    </FormLabel>
                     <Input
                       value={itemData.description}
                       onChange={(e) =>
@@ -512,16 +515,16 @@ const PurchaseInvoiceLineForm = ({
                         value={locationId}
                         onChange={onLocationChange}
                       />
-                      <Shelf
-                        name="shelfId"
-                        label={t`Shelf`}
+                      <StorageUnit
+                        name="storageUnitId"
+                        label={t`Storage Unit`}
                         locationId={locationId}
-                        value={itemData.shelfId ?? undefined}
+                        value={itemData.storageUnitId ?? undefined}
                         onChange={(newValue) => {
                           if (newValue) {
                             setItemData((d) => ({
                               ...d,
-                              shelfId: newValue?.id
+                              storageUnitId: newValue?.id
                             }));
                           }
                         }}

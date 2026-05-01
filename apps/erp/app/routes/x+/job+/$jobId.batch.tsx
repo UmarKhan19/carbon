@@ -16,10 +16,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!jobId) throw new Error("Could not find jobId");
   const formData = await request.formData();
   const trackedEntityId = String(formData.get("id"));
-  const value = String(formData.get("value"));
-  if (!value) throw new Error("Could not find value");
+  const rawValue = formData.get("value");
+  const value = rawValue == null ? "" : String(rawValue).trim();
 
-  const update = await updateJobBatchNumber(client, trackedEntityId, value);
+  const update = await updateJobBatchNumber(
+    client,
+    trackedEntityId,
+    value === "" ? null : value
+  );
 
   if (update.error) {
     return data(

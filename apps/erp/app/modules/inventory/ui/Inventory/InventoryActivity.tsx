@@ -8,7 +8,9 @@ const getActivityText = (ledgerRecord: ItemLedger) => {
   switch (ledgerRecord.documentType) {
     case "Purchase Receipt":
       return `received ${ledgerRecord.quantity} units${
-        ledgerRecord.shelf?.name ? ` to ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` to ${ledgerRecord.storageUnit.name}`
+          : ""
       }${
         ledgerRecord.trackedEntityId
           ? ` from ${
@@ -18,11 +20,15 @@ const getActivityText = (ledgerRecord: ItemLedger) => {
       }`;
     case "Purchase Invoice":
       return `invoiced ${ledgerRecord.quantity} units${
-        ledgerRecord.shelf?.name ? ` on ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` on ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Sales Shipment":
       return `shipped ${-1 * ledgerRecord.quantity} units${
-        ledgerRecord.shelf?.name ? ` from ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` from ${ledgerRecord.storageUnit.name}`
+          : ""
       }${
         ledgerRecord.trackedEntityId
           ? ` of ${Math.abs(ledgerRecord.quantity) > 1 ? "batch" : "serial"} ${
@@ -32,69 +38,97 @@ const getActivityText = (ledgerRecord: ItemLedger) => {
       }`;
     case "Sales Invoice":
       return `invoiced ${ledgerRecord.quantity} units for sale${
-        ledgerRecord.shelf?.name ? ` from ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` from ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Transfer Shipment":
       return `shipped ${-1 * ledgerRecord.quantity} units${
-        ledgerRecord.shelf?.name ? ` from ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` from ${ledgerRecord.storageUnit.name}`
+          : ""
       } for transfer`;
     case "Transfer Receipt":
       return `received ${ledgerRecord.quantity} units${
-        ledgerRecord.shelf?.name ? ` to ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` to ${ledgerRecord.storageUnit.name}`
+          : ""
       } from transfer`;
     case "Direct Transfer":
       return `transferred ${Math.abs(ledgerRecord.quantity)} units${
-        ledgerRecord.shelf?.name
+        ledgerRecord.storageUnit?.name
           ? ` ${ledgerRecord.quantity > 0 ? "to" : "from"} ${
-              ledgerRecord.shelf.name
+              ledgerRecord.storageUnit.name
             }`
           : ""
       }`;
     case "Inventory Receipt":
       return `received ${ledgerRecord.quantity} units into inventory${
-        ledgerRecord.shelf?.name ? ` on ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` on ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Inventory Shipment":
       return `shipped ${-1 * ledgerRecord.quantity} units from inventory${
-        ledgerRecord.shelf?.name ? ` from ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` from ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Posted Assembly":
       return `assembled ${ledgerRecord.quantity} units${
-        ledgerRecord.shelf?.name ? ` on ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` on ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Purchase Credit Memo":
       return `credited ${ledgerRecord.quantity} units for purchase${
-        ledgerRecord.shelf?.name ? ` on ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` on ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Purchase Return Shipment":
       return `returned ${ledgerRecord.quantity} units to supplier${
-        ledgerRecord.shelf?.name ? ` from ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` from ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Sales Credit Memo":
       return `credited ${ledgerRecord.quantity} units for sale${
-        ledgerRecord.shelf?.name ? ` on ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` on ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Sales Return Receipt":
       return `received ${ledgerRecord.quantity} units as sales return${
-        ledgerRecord.shelf?.name ? ` to ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` to ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Service Credit Memo":
       return `credited ${ledgerRecord.quantity} units for service${
-        ledgerRecord.shelf?.name ? ` on ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` on ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Service Invoice":
       return `invoiced ${ledgerRecord.quantity} units for service${
-        ledgerRecord.shelf?.name ? ` from ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` from ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Service Shipment":
       return `shipped ${-1 * ledgerRecord.quantity} units for service${
-        ledgerRecord.shelf?.name ? ` from ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` from ${ledgerRecord.storageUnit.name}`
+          : ""
       }`;
     case "Job Consumption":
       return (
         <span>
           issued {-1 * ledgerRecord.quantity} units{" "}
-          {ledgerRecord.shelf?.name ? `from ${ledgerRecord.shelf.name} ` : ""}
+          {ledgerRecord.storageUnit?.name
+            ? `from ${ledgerRecord.storageUnit.name} `
+            : ""}
           {ledgerRecord.trackedEntityId ? (
             <>
               from {Math.abs(ledgerRecord.quantity) > 1 ? "batch" : "serial"}{" "}
@@ -130,7 +164,9 @@ const getActivityText = (ledgerRecord: ItemLedger) => {
       return (
         <span>
           issued {-1 * ledgerRecord.quantity} units{" "}
-          {ledgerRecord.shelf?.name ? `from ${ledgerRecord.shelf.name} ` : ""}
+          {ledgerRecord.storageUnit?.name
+            ? `from ${ledgerRecord.storageUnit.name} `
+            : ""}
           {ledgerRecord.trackedEntityId ? (
             <>
               from {Math.abs(ledgerRecord.quantity) > 1 ? "batch" : "serial"}{" "}
@@ -155,7 +191,9 @@ const getActivityText = (ledgerRecord: ItemLedger) => {
         <>
           <span>
             received {ledgerRecord.quantity} units
-            {ledgerRecord.shelf?.name ? ` to ${ledgerRecord.shelf.name}` : ""}{" "}
+            {ledgerRecord.storageUnit?.name
+              ? ` to ${ledgerRecord.storageUnit.name}`
+              : ""}{" "}
             from a
           </span>{" "}
           <Hyperlink
@@ -173,7 +211,9 @@ const getActivityText = (ledgerRecord: ItemLedger) => {
   switch (ledgerRecord.entryType) {
     case "Positive Adjmt.":
       return `made a positive adjustment of ${ledgerRecord.quantity}${
-        ledgerRecord.shelf?.name ? ` to ${ledgerRecord.shelf?.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` to ${ledgerRecord.storageUnit?.name}`
+          : ""
       }${
         ledgerRecord.trackedEntityId
           ? ` for ${Math.abs(ledgerRecord.quantity) > 1 ? "batch" : "serial"} ${
@@ -183,7 +223,9 @@ const getActivityText = (ledgerRecord: ItemLedger) => {
       }`;
     case "Negative Adjmt.":
       return `made a negative adjustment of ${-1 * ledgerRecord.quantity}${
-        ledgerRecord.shelf?.name ? ` to ${ledgerRecord.shelf.name}` : ""
+        ledgerRecord.storageUnit?.name
+          ? ` to ${ledgerRecord.storageUnit.name}`
+          : ""
       }${
         ledgerRecord.trackedEntityId
           ? ` for ${Math.abs(ledgerRecord.quantity) > 1 ? "batch" : "serial"} ${
