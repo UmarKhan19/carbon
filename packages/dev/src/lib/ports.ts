@@ -1,5 +1,5 @@
-import { getPort } from "get-port-please";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import net from "node:net";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { generateJwtCreds, type JwtCreds } from "./jwt.js";
@@ -9,7 +9,7 @@ export const PORT_NAMES = [
   "PORT_API",
   "PORT_STUDIO",
   "PORT_INBUCKET",
-  "PORT_INNGEST",
+  "PORT_INNGEST"
 ] as const;
 
 export type PortName = (typeof PORT_NAMES)[number];
@@ -57,7 +57,7 @@ export async function resolveSlot(
     return {
       ports: existing.ports,
       redisDb: existing.redisDb,
-      jwt: existing.jwt,
+      jwt: existing.jwt
     };
   }
 
@@ -119,30 +119,34 @@ function pickRedisDb(taken: Set<number>): number {
 async function pickPorts(claimed: Set<number>): Promise<PortMap> {
   const ports = {} as PortMap;
   for (const name of PORT_NAMES) {
-    const port = await getPort({
-      random: true,
-      host: "127.0.0.1",
-      ports: [],
-      portRange: [49152, 65535],
-      // get-port-please doesn't accept a "claimed" set, so we ask for a random
-      // free port and reroll if it collides with our registry.
-    });
-    if (claimed.has(port)) {
-      // collision with another worktree — try once more
-      const retry = await getPort({
-        random: true,
-        host: "127.0.0.1",
-        portRange: [49152, 65535],
-      });
-      if (claimed.has(retry)) {
-        throw new Error(`Port ${retry} already claimed; try again`);
-      }
-      ports[name] = retry;
-      claimed.add(retry);
-    } else {
-      ports[name] = port;
-      claimed.add(port);
-    }
+    ports[name] = await pickFreePort(claimed);
   }
   return ports;
+}
+
+async function pickFreePort(taken: Set<number>): Promise<number> {
+  // OS-assigned ephemeral port via listen(0). Retry if it collides with our
+  // registry's claimed-set (other worktrees we know about).
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const port = await new Promise<number>((resolve, reject) => {
+      const server = net.createServer();
+      server.unref();
+      server.on("error", reject);
+      server.listen(0, "127.0.0.1", () => {
+        const addr = server.address();
+        if (typeof addr === "object" && addr) {
+          const p = addr.port;
+          server.close(() => resolve(p));
+        } else {
+          server.close();
+          reject(new Error("could not determine port"));
+        }
+      });
+    });
+    if (!taken.has(port)) {
+      taken.add(port);
+      return port;
+    }
+  }
+  throw new Error("Failed to allocate a free port after 100 attempts");
 }
