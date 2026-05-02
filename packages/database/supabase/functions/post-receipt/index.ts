@@ -212,7 +212,7 @@ serve(async (req: Request) => {
         "journalId"
       >[] = isInternal
         ? originalJournalLines.data.map((entry) => ({
-            accountNumber: entry.accountNumber!,
+            accountId: entry.accountId,
             accrual: entry.accrual,
             description: `VOID: ${entry.description}`,
             amount: -entry.amount,
@@ -358,13 +358,25 @@ serve(async (req: Request) => {
           .execute();
 
         if (reversingJournalLines.length > 0) {
+          const voidJournalEntryId = await getNextSequence(
+            trx,
+            "journalEntry",
+            companyId
+          );
+
           const journal = await trx
             .insertInto("journal")
             .values({
+              journalEntryId: voidJournalEntryId,
               accountingPeriodId,
               description: `VOID Purchase Receipt ${receipt.data.receiptId}`,
               postingDate: today,
               companyId,
+              sourceType: "Purchase Receipt",
+              status: "Posted",
+              postedAt: new Date().toISOString(),
+              postedBy: userId,
+              createdBy: userId,
             })
             .returning(["id"])
             .execute();
@@ -726,6 +738,75 @@ serve(async (req: Request) => {
           throw new Error("Error getting account defaults");
         }
 
+        // Detect invoice-first scenario: PO lines where qty invoiced > qty received
+        const invoiceFirstQtyByPoLine = new Map<string, number>();
+        const accrualUnitCostByPoLine = new Map<string, number>();
+
+        if (isInternal) {
+          for (const pol of purchaseOrderLines.data) {
+            const invoicedInInventoryUnit =
+              (pol.quantityInvoiced ?? 0) * (pol.conversionFactor ?? 1);
+            const receivedInInventoryUnit =
+              (pol.quantityReceived ?? 0) * (pol.conversionFactor ?? 1);
+            const invoiceFirstQty = Math.max(
+              0,
+              invoicedInInventoryUnit - receivedInInventoryUnit
+            );
+            if (invoiceFirstQty > 0) {
+              invoiceFirstQtyByPoLine.set(pol.id, invoiceFirstQty);
+            }
+          }
+
+          if (invoiceFirstQtyByPoLine.size > 0) {
+            const accrualDocRefs = [...invoiceFirstQtyByPoLine.keys()].map(
+              (id) => journalReference.to.purchaseInvoice(id)
+            );
+
+            const accrualJournalLines = await client
+              .from("journalLine")
+              .select("documentLineReference, amount, quantity")
+              .in("documentLineReference", accrualDocRefs)
+              .eq("accrual", true)
+              .eq("companyId", companyId);
+
+            if (accrualJournalLines.error) {
+              throw new Error("Failed to fetch accrual journal lines");
+            }
+
+            // GR/IR debit entries have negative amounts (debit on a liability)
+            const accrualCostByPoLine: Record<
+              string,
+              { totalCost: number; totalQty: number }
+            > = {};
+            for (const jl of accrualJournalLines.data ?? []) {
+              if ((jl.amount ?? 0) < 0 && (jl.quantity ?? 0) > 0) {
+                const [, poLineId] = (
+                  jl.documentLineReference ?? ""
+                ).split(":");
+                if (!accrualCostByPoLine[poLineId]) {
+                  accrualCostByPoLine[poLineId] = {
+                    totalCost: 0,
+                    totalQty: 0,
+                  };
+                }
+                accrualCostByPoLine[poLineId].totalCost += Math.abs(
+                  jl.amount ?? 0
+                );
+                accrualCostByPoLine[poLineId].totalQty += jl.quantity ?? 0;
+              }
+            }
+
+            for (const [poLineId, info] of Object.entries(accrualCostByPoLine)) {
+              if (info.totalQty > 0) {
+                accrualUnitCostByPoLine.set(
+                  poLineId,
+                  info.totalCost / info.totalQty
+                );
+              }
+            }
+          }
+        }
+
         for await (const receiptLine of receiptLines.data) {
           const jlStartIdx = journalLineInserts.length;
 
@@ -769,8 +850,7 @@ serve(async (req: Request) => {
 
             if (isNegativeReceipt) {
               journalLineInserts.push({
-                accountNumber:
-                  accountDefaults.data.goodsReceivedNotInvoicedAccount,
+                accountId: accountDefaults.data.goodsReceivedNotInvoicedAccount,
                 description: "Goods Received Not Invoiced",
                 amount: debit("liability", cost),
                 quantity: absReceivedQuantity,
@@ -783,11 +863,10 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
-                companyGroupId,
               });
 
               journalLineInserts.push({
-                accountNumber: debitAccount,
+                accountId: debitAccount,
                 description: debitDescription,
                 amount: credit("asset", cost),
                 quantity: absReceivedQuantity,
@@ -800,11 +879,10 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
-                companyGroupId,
               });
             } else {
               journalLineInserts.push({
-                accountNumber: debitAccount,
+                accountId: debitAccount,
                 description: debitDescription,
                 amount: debit("asset", cost),
                 quantity: absReceivedQuantity,
@@ -817,12 +895,10 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
-                companyGroupId,
               });
 
               journalLineInserts.push({
-                accountNumber:
-                  accountDefaults.data.goodsReceivedNotInvoicedAccount,
+                accountId: accountDefaults.data.goodsReceivedNotInvoicedAccount,
                 description: "Goods Received Not Invoiced",
                 amount: credit("liability", cost),
                 quantity: absReceivedQuantity,
@@ -835,8 +911,71 @@ serve(async (req: Request) => {
                 ),
                 journalLineReference,
                 companyId,
-                companyGroupId,
               });
+
+              // Invoice-first PPV: when invoice was posted before receipt,
+              // accrual entries used invoice cost for GR/IR. The standard
+              // entries above credited GR/IR at PO cost. Add adjustment
+              // entries so GR/IR clears at invoice cost and PPV captures
+              // the difference.
+              const poLineId = receiptLine.lineId;
+              if (poLineId && invoiceFirstQtyByPoLine.has(poLineId)) {
+                const remainingInvoiceFirstQty =
+                  invoiceFirstQtyByPoLine.get(poLineId)!;
+                const invoiceFirstQty = Math.min(
+                  absReceivedQuantity,
+                  remainingInvoiceFirstQty
+                );
+
+                if (invoiceFirstQty > 0) {
+                  invoiceFirstQtyByPoLine.set(
+                    poLineId,
+                    remainingInvoiceFirstQty - invoiceFirstQty
+                  );
+
+                  const accrualUnitCost =
+                    accrualUnitCostByPoLine.get(poLineId) ?? 0;
+                  const poUnitCost = cost / absReceivedQuantity;
+                  const variance =
+                    invoiceFirstQty * (accrualUnitCost - poUnitCost);
+
+                  if (Math.abs(variance) > 0.005) {
+                    journalLineInserts.push({
+                      accountId:
+                        accountDefaults.data.goodsReceivedNotInvoicedAccount,
+                      description: "GR/IR Clearing",
+                      amount: credit("liability", variance),
+                      quantity: invoiceFirstQty,
+                      documentType: "Receipt",
+                      documentId: receipt.data?.id ?? undefined,
+                      externalDocumentId:
+                        purchaseOrder.data?.supplierReference ?? undefined,
+                      documentLineReference: journalReference.to.receipt(
+                        poLineId
+                      ),
+                      journalLineReference,
+                      companyId,
+                    });
+
+                    journalLineInserts.push({
+                      accountId:
+                        accountDefaults.data.purchaseVarianceAccount,
+                      description: "Purchase Price Variance",
+                      amount: debit("expense", variance),
+                      quantity: invoiceFirstQty,
+                      documentType: "Receipt",
+                      documentId: receipt.data?.id ?? undefined,
+                      externalDocumentId:
+                        purchaseOrder.data?.supplierReference ?? undefined,
+                      documentLineReference: journalReference.to.receipt(
+                        poLineId
+                      ),
+                      journalLineReference,
+                      companyId,
+                    });
+                  }
+                }
+              }
             }
           }
 
@@ -1298,7 +1437,7 @@ serve(async (req: Request) => {
             const journalLineReference = nanoid();
 
             journalLineInserts.push({
-              accountNumber: accountDefaults.data.inventoryAccount,
+              accountId: accountDefaults.data.inventoryAccount,
               description: `Transfer Out - ${warehouseTransfer.data?.transferId}`,
               amount: credit("asset", totalValue),
               quantity: Math.abs(receivedQuantity),
@@ -1308,11 +1447,10 @@ serve(async (req: Request) => {
               documentLineReference: `transfer-receipt:${receiptLine.lineId}`,
               journalLineReference,
               companyId,
-              companyGroupId,
             });
 
             journalLineInserts.push({
-              accountNumber: accountDefaults.data.inventoryAccount,
+              accountId: accountDefaults.data.inventoryAccount,
               description: `Transfer In - ${warehouseTransfer.data?.transferId}`,
               amount: debit("asset", totalValue),
               quantity: Math.abs(receivedQuantity),
@@ -1322,7 +1460,6 @@ serve(async (req: Request) => {
               documentLineReference: `transfer-receipt:${receiptLine.lineId}`,
               journalLineReference,
               companyId,
-              companyGroupId,
             });
           }
 

@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   Heading,
   HStack,
@@ -197,7 +198,24 @@ const SalesInvoiceHeader = () => {
                   size="sm"
                 />
               </DropdownMenuTrigger>
-              <DropdownMenuContent>{auditLogTrigger}</DropdownMenuContent>
+              <DropdownMenuContent>
+                {auditLogTrigger}
+                {isPosted && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      disabled={
+                        isVoided || !permissions.can("update", "invoicing")
+                      }
+                      destructive
+                      onClick={voidModal.onOpen}
+                    >
+                      <DropdownMenuIcon icon={<LuTicketX />} />
+                      <Trans>Void</Trans>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
             </DropdownMenu>
             <SalesInvoiceStatus status={salesInvoice.status} />
           </HStack>
@@ -312,16 +330,6 @@ const SalesInvoiceHeader = () => {
             >
               <Trans>Post</Trans>
             </Button>
-            {isPosted && (
-              <Button
-                leftIcon={<LuTicketX />}
-                variant="destructive"
-                onClick={voidModal.onOpen}
-                isDisabled={isVoided || !permissions.can("update", "invoicing")}
-              >
-                <Trans>Void</Trans>
-              </Button>
-            )}
             <DropdownMenu>
               <DropdownMenuTrigger
                 asChild

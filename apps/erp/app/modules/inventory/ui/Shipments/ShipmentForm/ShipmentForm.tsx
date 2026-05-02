@@ -180,6 +180,19 @@ const ShipmentForm = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {auditLogTrigger}
+                  {(isPosted || isVoided) && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        disabled={isVoided || !permissions.is("employee")}
+                        destructive
+                        onClick={voidModal.onOpen}
+                      >
+                        <DropdownMenuIcon icon={<LuTicketX />} />
+                        <Trans>Void</Trans>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     disabled={
@@ -262,16 +275,6 @@ const ShipmentForm = ({
               >
                 <Trans>Post</Trans>
               </Button>
-              {(isPosted || isVoided) && (
-                <Button
-                  variant="destructive"
-                  onClick={voidModal.onOpen}
-                  isDisabled={isVoided || !permissions.is("employee")}
-                  leftIcon={<LuTicketX />}
-                >
-                  <Trans>Void</Trans>
-                </Button>
-              )}
             </HStack>
           </CardHeader>
 

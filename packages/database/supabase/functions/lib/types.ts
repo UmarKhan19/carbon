@@ -338,7 +338,6 @@ export type Database = {
           bankCashAccount: string
           bankForeignCurrencyAccount: string
           bankLocalCurrencyAccount: string
-          companyGroupId: string
           companyId: string
           costOfGoodsSoldAccount: string
           currencyTranslationAccount: string
@@ -381,7 +380,6 @@ export type Database = {
           bankCashAccount: string
           bankForeignCurrencyAccount: string
           bankLocalCurrencyAccount: string
-          companyGroupId: string
           companyId: string
           costOfGoodsSoldAccount: string
           currencyTranslationAccount: string
@@ -424,7 +422,6 @@ export type Database = {
           bankCashAccount?: string
           bankForeignCurrencyAccount?: string
           bankLocalCurrencyAccount?: string
-          companyGroupId?: string
           companyId?: string
           costOfGoodsSoldAccount?: string
           currencyTranslationAccount?: string
@@ -460,177 +457,171 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "accountDefault_accumulatedDepreciationAccount_fkey"
-            columns: ["accumulatedDepreciationAccount", "companyGroupId"]
+            columns: ["accumulatedDepreciationAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_accumulatedDepreciationAccount_fkey"
-            columns: ["accumulatedDepreciationAccount", "companyGroupId"]
+            columns: ["accumulatedDepreciationAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_accumulatedDepreciationOnDisposalAccount_fkey"
-            columns: [
-              "accumulatedDepreciationOnDisposalAccount",
-              "companyGroupId",
-            ]
+            columns: ["accumulatedDepreciationOnDisposalAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_accumulatedDepreciationOnDisposalAccount_fkey"
-            columns: [
-              "accumulatedDepreciationOnDisposalAccount",
-              "companyGroupId",
-            ]
+            columns: ["accumulatedDepreciationOnDisposalAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_aquisitionCostAccount_fkey"
-            columns: ["assetAquisitionCostAccount", "companyGroupId"]
+            columns: ["assetAquisitionCostAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_aquisitionCostAccount_fkey"
-            columns: ["assetAquisitionCostAccount", "companyGroupId"]
+            columns: ["assetAquisitionCostAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_aquisitionCostOnDisposalAccount_fkey"
-            columns: ["assetAquisitionCostOnDisposalAccount", "companyGroupId"]
+            columns: ["assetAquisitionCostOnDisposalAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_aquisitionCostOnDisposalAccount_fkey"
-            columns: ["assetAquisitionCostOnDisposalAccount", "companyGroupId"]
+            columns: ["assetAquisitionCostOnDisposalAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_assetDepreciationExpenseAccount_fkey"
-            columns: ["assetDepreciationExpenseAccount", "companyGroupId"]
+            columns: ["assetDepreciationExpenseAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_assetDepreciationExpenseAccount_fkey"
-            columns: ["assetDepreciationExpenseAccount", "companyGroupId"]
+            columns: ["assetDepreciationExpenseAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_assetGainsAndLossesAccount_fkey"
-            columns: ["assetGainsAndLossesAccount", "companyGroupId"]
+            columns: ["assetGainsAndLossesAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_assetGainsAndLossesAccount_fkey"
-            columns: ["assetGainsAndLossesAccount", "companyGroupId"]
+            columns: ["assetGainsAndLossesAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_bankCashAccount_fkey"
-            columns: ["bankCashAccount", "companyGroupId"]
+            columns: ["bankCashAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_bankCashAccount_fkey"
-            columns: ["bankCashAccount", "companyGroupId"]
+            columns: ["bankCashAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_bankForeignCurrencyAccount_fkey"
-            columns: ["bankForeignCurrencyAccount", "companyGroupId"]
+            columns: ["bankForeignCurrencyAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_bankForeignCurrencyAccount_fkey"
-            columns: ["bankForeignCurrencyAccount", "companyGroupId"]
+            columns: ["bankForeignCurrencyAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_bankLocalCurrencyAccount_fkey"
-            columns: ["bankLocalCurrencyAccount", "companyGroupId"]
+            columns: ["bankLocalCurrencyAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_bankLocalCurrencyAccount_fkey"
-            columns: ["bankLocalCurrencyAccount", "companyGroupId"]
+            columns: ["bankLocalCurrencyAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_costOfGoodsSoldAccount_fkey"
-            columns: ["costOfGoodsSoldAccount", "companyGroupId"]
+            columns: ["costOfGoodsSoldAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_costOfGoodsSoldAccount_fkey"
-            columns: ["costOfGoodsSoldAccount", "companyGroupId"]
+            columns: ["costOfGoodsSoldAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_currencyTranslationAccount_fkey"
-            columns: ["currencyTranslationAccount", "companyGroupId"]
+            columns: ["currencyTranslationAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_currencyTranslationAccount_fkey"
-            columns: ["currencyTranslationAccount", "companyGroupId"]
+            columns: ["currencyTranslationAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_customerPaymentDiscountAccount_fkey"
-            columns: ["customerPaymentDiscountAccount", "companyGroupId"]
+            columns: ["customerPaymentDiscountAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_customerPaymentDiscountAccount_fkey"
-            columns: ["customerPaymentDiscountAccount", "companyGroupId"]
+            columns: ["customerPaymentDiscountAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_fkey"
@@ -662,353 +653,353 @@ export type Database = {
           },
           {
             foreignKeyName: "accountDefault_goodsReceivedNotInvoicedAccount_fkey"
-            columns: ["goodsReceivedNotInvoicedAccount", "companyGroupId"]
+            columns: ["goodsReceivedNotInvoicedAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_goodsReceivedNotInvoicedAccount_fkey"
-            columns: ["goodsReceivedNotInvoicedAccount", "companyGroupId"]
+            columns: ["goodsReceivedNotInvoicedAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_indirectCostAccount_fkey"
-            columns: ["indirectCostAccount", "companyGroupId"]
+            columns: ["indirectCostAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_indirectCostAccount_fkey"
-            columns: ["indirectCostAccount", "companyGroupId"]
+            columns: ["indirectCostAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_interestAccount_fkey"
-            columns: ["interestAccount", "companyGroupId"]
+            columns: ["interestAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_interestAccount_fkey"
-            columns: ["interestAccount", "companyGroupId"]
+            columns: ["interestAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_inventoryAccount_fkey"
-            columns: ["inventoryAccount", "companyGroupId"]
+            columns: ["inventoryAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_inventoryAccount_fkey"
-            columns: ["inventoryAccount", "companyGroupId"]
+            columns: ["inventoryAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_inventoryAdjustmentVarianceAccount_fkey"
-            columns: ["inventoryAdjustmentVarianceAccount", "companyGroupId"]
+            columns: ["inventoryAdjustmentVarianceAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_inventoryAdjustmentVarianceAccount_fkey"
-            columns: ["inventoryAdjustmentVarianceAccount", "companyGroupId"]
+            columns: ["inventoryAdjustmentVarianceAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_inventoryShippedNotInvoicedAccount_fkey"
-            columns: ["inventoryShippedNotInvoicedAccount", "companyGroupId"]
+            columns: ["inventoryShippedNotInvoicedAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_inventoryShippedNotInvoicedAccount_fkey"
-            columns: ["inventoryShippedNotInvoicedAccount", "companyGroupId"]
+            columns: ["inventoryShippedNotInvoicedAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_laborAndMachineVarianceAccount_fkey"
-            columns: ["laborAndMachineVarianceAccount", "companyGroupId"]
+            columns: ["laborAndMachineVarianceAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_laborAndMachineVarianceAccount_fkey"
-            columns: ["laborAndMachineVarianceAccount", "companyGroupId"]
+            columns: ["laborAndMachineVarianceAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_lotSizeVarianceAccount_fkey"
-            columns: ["lotSizeVarianceAccount", "companyGroupId"]
+            columns: ["lotSizeVarianceAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_lotSizeVarianceAccount_fkey"
-            columns: ["lotSizeVarianceAccount", "companyGroupId"]
+            columns: ["lotSizeVarianceAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_maintenanceAccount_fkey"
-            columns: ["maintenanceAccount", "companyGroupId"]
+            columns: ["maintenanceAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_maintenanceAccount_fkey"
-            columns: ["maintenanceAccount", "companyGroupId"]
+            columns: ["maintenanceAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_materialVarianceAccount_fkey"
-            columns: ["materialVarianceAccount", "companyGroupId"]
+            columns: ["materialVarianceAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_materialVarianceAccount_fkey"
-            columns: ["materialVarianceAccount", "companyGroupId"]
+            columns: ["materialVarianceAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_overheadVarianceAccount_fkey"
-            columns: ["overheadVarianceAccount", "companyGroupId"]
+            columns: ["overheadVarianceAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_overheadVarianceAccount_fkey"
-            columns: ["overheadVarianceAccount", "companyGroupId"]
+            columns: ["overheadVarianceAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_payablesAccount_fkey"
-            columns: ["payablesAccount", "companyGroupId"]
+            columns: ["payablesAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_payablesAccount_fkey"
-            columns: ["payablesAccount", "companyGroupId"]
+            columns: ["payablesAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_prepaymentAccount_fkey"
-            columns: ["prepaymentAccount", "companyGroupId"]
+            columns: ["prepaymentAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_prepaymentAccount_fkey"
-            columns: ["prepaymentAccount", "companyGroupId"]
+            columns: ["prepaymentAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_purchaseTaxPayableAccount_fkey"
-            columns: ["purchaseTaxPayableAccount", "companyGroupId"]
+            columns: ["purchaseTaxPayableAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_purchaseTaxPayableAccount_fkey"
-            columns: ["purchaseTaxPayableAccount", "companyGroupId"]
+            columns: ["purchaseTaxPayableAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_purchaseVarianceAccount_fkey"
-            columns: ["purchaseVarianceAccount", "companyGroupId"]
+            columns: ["purchaseVarianceAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_purchaseVarianceAccount_fkey"
-            columns: ["purchaseVarianceAccount", "companyGroupId"]
+            columns: ["purchaseVarianceAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_receivablesAccount_fkey"
-            columns: ["receivablesAccount", "companyGroupId"]
+            columns: ["receivablesAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_receivablesAccount_fkey"
-            columns: ["receivablesAccount", "companyGroupId"]
+            columns: ["receivablesAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_retainedEarningsAccount_fkey"
-            columns: ["retainedEarningsAccount", "companyGroupId"]
+            columns: ["retainedEarningsAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_retainedEarningsAccount_fkey"
-            columns: ["retainedEarningsAccount", "companyGroupId"]
+            columns: ["retainedEarningsAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_reverseChargeSalesTaxPayableAccount_fkey"
-            columns: ["reverseChargeSalesTaxPayableAccount", "companyGroupId"]
+            columns: ["reverseChargeSalesTaxPayableAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_reverseChargeSalesTaxPayableAccount_fkey"
-            columns: ["reverseChargeSalesTaxPayableAccount", "companyGroupId"]
+            columns: ["reverseChargeSalesTaxPayableAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_roundingAccount_fkey"
-            columns: ["roundingAccount", "companyGroupId"]
+            columns: ["roundingAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_roundingAccount_fkey"
-            columns: ["roundingAccount", "companyGroupId"]
+            columns: ["roundingAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_salesAccount_fkey"
-            columns: ["salesAccount", "companyGroupId"]
+            columns: ["salesAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_salesAccount_fkey"
-            columns: ["salesAccount", "companyGroupId"]
+            columns: ["salesAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_salesDiscountAccount_fkey"
-            columns: ["salesDiscountAccount", "companyGroupId"]
+            columns: ["salesDiscountAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_salesDiscountAccount_fkey"
-            columns: ["salesDiscountAccount", "companyGroupId"]
+            columns: ["salesDiscountAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_salesTaxPayableAccount_fkey"
-            columns: ["salesTaxPayableAccount", "companyGroupId"]
+            columns: ["salesTaxPayableAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_salesTaxPayableAccount_fkey"
-            columns: ["salesTaxPayableAccount", "companyGroupId"]
+            columns: ["salesTaxPayableAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_serviceChargeAccount_fkey"
-            columns: ["serviceChargeAccount", "companyGroupId"]
+            columns: ["serviceChargeAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_serviceChargeAccount_fkey"
-            columns: ["serviceChargeAccount", "companyGroupId"]
+            columns: ["serviceChargeAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_subcontractingVarianceAccount_fkey"
-            columns: ["subcontractingVarianceAccount", "companyGroupId"]
+            columns: ["subcontractingVarianceAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_subcontractingVarianceAccount_fkey"
-            columns: ["subcontractingVarianceAccount", "companyGroupId"]
+            columns: ["subcontractingVarianceAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_supplierPaymentDiscountAccount_fkey"
-            columns: ["supplierPaymentDiscountAccount", "companyGroupId"]
+            columns: ["supplierPaymentDiscountAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_supplierPaymentDiscountAccount_fkey"
-            columns: ["supplierPaymentDiscountAccount", "companyGroupId"]
+            columns: ["supplierPaymentDiscountAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_updatedBy_fkey"
@@ -1047,17 +1038,17 @@ export type Database = {
           },
           {
             foreignKeyName: "accountDefault_workInProgressAccount_fkey"
-            columns: ["workInProgressAccount", "companyGroupId"]
+            columns: ["workInProgressAccount"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "accountDefault_workInProgressAccount_fkey"
-            columns: ["workInProgressAccount", "companyGroupId"]
+            columns: ["workInProgressAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -8249,17 +8240,10 @@ export type Database = {
           },
           {
             foreignKeyName: "exchangeRateHistory_currencyCode_fkey"
-            columns: ["currencyCode", "companyGroupId"]
+            columns: ["currencyCode"]
             isOneToOne: false
-            referencedRelation: "currencies"
-            referencedColumns: ["code", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "exchangeRateHistory_currencyCode_fkey"
-            columns: ["currencyCode", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "currency"
-            referencedColumns: ["code", "companyGroupId"]
+            referencedRelation: "currencyCode"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -12475,7 +12459,6 @@ export type Database = {
       itemUnitSalePrice: {
         Row: {
           allowInvoiceDiscount: boolean
-          companyGroupId: string
           companyId: string
           createdAt: string
           createdBy: string
@@ -12492,7 +12475,6 @@ export type Database = {
         }
         Insert: {
           allowInvoiceDiscount?: boolean
-          companyGroupId: string
           companyId: string
           createdAt?: string
           createdBy: string
@@ -12509,7 +12491,6 @@ export type Database = {
         }
         Update: {
           allowInvoiceDiscount?: boolean
-          companyGroupId?: string
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -12590,17 +12571,10 @@ export type Database = {
           },
           {
             foreignKeyName: "itemUnitSalePrice_currencyCode_fkey"
-            columns: ["currencyCode", "companyGroupId"]
+            columns: ["currencyCode"]
             isOneToOne: false
-            referencedRelation: "currencies"
-            referencedColumns: ["code", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "itemUnitSalePrice_currencyCode_fkey"
-            columns: ["currencyCode", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "currency"
-            referencedColumns: ["code", "companyGroupId"]
+            referencedRelation: "currencyCode"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "itemUnitSalePrice_itemId_fkey"
@@ -15274,10 +15248,9 @@ export type Database = {
       }
       journalLine: {
         Row: {
-          accountNumber: string
+          accountId: string | null
           accrual: boolean
           amount: number
-          companyGroupId: string
           companyId: string
           createdAt: string
           customFields: Json | null
@@ -15298,10 +15271,9 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
-          accountNumber: string
+          accountId?: string | null
           accrual?: boolean
           amount: number
-          companyGroupId: string
           companyId: string
           createdAt?: string
           customFields?: Json | null
@@ -15322,10 +15294,9 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
-          accountNumber?: string
+          accountId?: string | null
           accrual?: boolean
           amount?: number
-          companyGroupId?: string
           companyId?: string
           createdAt?: string
           customFields?: Json | null
@@ -15347,18 +15318,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "journalLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "journalLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "journalLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "journalLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "journalLine_companyId_fkey"
@@ -25802,7 +25773,6 @@ export type Database = {
         Row: {
           assignee: string | null
           balance: number
-          companyGroupId: string
           companyId: string
           createdAt: string
           createdBy: string
@@ -25837,7 +25807,6 @@ export type Database = {
         Insert: {
           assignee?: string | null
           balance?: number
-          companyGroupId: string
           companyId: string
           createdAt?: string
           createdBy: string
@@ -25872,7 +25841,6 @@ export type Database = {
         Update: {
           assignee?: string | null
           balance?: number
-          companyGroupId?: string
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -26005,17 +25973,10 @@ export type Database = {
           },
           {
             foreignKeyName: "purchaseInvoice_currencyCode_fkey"
-            columns: ["currencyCode", "companyGroupId"]
+            columns: ["currencyCode"]
             isOneToOne: false
-            referencedRelation: "currencies"
-            referencedColumns: ["code", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "purchaseInvoice_currencyCode_fkey"
-            columns: ["currencyCode", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "currency"
-            referencedColumns: ["code", "companyGroupId"]
+            referencedRelation: "currencyCode"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "purchaseInvoice_invoiceSupplierContactId_fkey"
@@ -26274,9 +26235,8 @@ export type Database = {
       }
       purchaseInvoiceLine: {
         Row: {
-          accountNumber: string | null
+          accountId: string | null
           assetId: string | null
-          companyGroupId: string
           companyId: string
           conversionFactor: number | null
           createdAt: string
@@ -26314,9 +26274,8 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
-          accountNumber?: string | null
+          accountId?: string | null
           assetId?: string | null
-          companyGroupId: string
           companyId: string
           conversionFactor?: number | null
           createdAt?: string
@@ -26354,9 +26313,8 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
-          accountNumber?: string | null
+          accountId?: string | null
           assetId?: string | null
-          companyGroupId?: string
           companyId?: string
           conversionFactor?: number | null
           createdAt?: string
@@ -26394,6 +26352,20 @@ export type Database = {
           updatedBy?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "purchaseInvoiceLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchaseInvoiceLine_jobOperationId_fkey"
             columns: ["jobOperationId"]
@@ -26442,20 +26414,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "storageUnit"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchaseInvoiceLines_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "purchaseInvoiceLines_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
           },
           {
             foreignKeyName: "purchaseInvoiceLines_companyId_fkey"
@@ -27444,9 +27402,8 @@ export type Database = {
       }
       purchaseOrderLine: {
         Row: {
-          accountNumber: string | null
+          accountId: string | null
           assetId: string | null
-          companyGroupId: string
           companyId: string
           conversionFactor: number | null
           createdAt: string
@@ -27494,9 +27451,8 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
-          accountNumber?: string | null
+          accountId?: string | null
           assetId?: string | null
-          companyGroupId: string
           companyId: string
           conversionFactor?: number | null
           createdAt?: string
@@ -27544,9 +27500,8 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
-          accountNumber?: string | null
+          accountId?: string | null
           assetId?: string | null
-          companyGroupId?: string
           companyId?: string
           conversionFactor?: number | null
           createdAt?: string
@@ -27595,18 +27550,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "purchaseOrderLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "purchaseOrderLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "purchaseOrderLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "purchaseOrderLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "purchaseOrderLine_createdBy_fkey"
@@ -28111,7 +28066,6 @@ export type Database = {
       }
       purchasePayment: {
         Row: {
-          companyGroupId: string
           companyId: string
           createdAt: string
           createdBy: string
@@ -28127,7 +28081,6 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
-          companyGroupId: string
           companyId: string
           createdAt?: string
           createdBy: string
@@ -28143,7 +28096,6 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
-          companyGroupId?: string
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -28224,17 +28176,10 @@ export type Database = {
           },
           {
             foreignKeyName: "purchasePayment_currencyCode_fkey"
-            columns: ["currencyCode", "companyGroupId"]
+            columns: ["currencyCode"]
             isOneToOne: false
-            referencedRelation: "currencies"
-            referencedColumns: ["code", "companyGroupId"]
-          },
-          {
-            foreignKeyName: "purchasePayment_currencyCode_fkey"
-            columns: ["currencyCode", "companyGroupId"]
-            isOneToOne: false
-            referencedRelation: "currency"
-            referencedColumns: ["code", "companyGroupId"]
+            referencedRelation: "currencyCode"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "purchasePayment_supplierId_fkey"
@@ -33133,10 +33078,9 @@ export type Database = {
       }
       salesInvoiceLine: {
         Row: {
-          accountNumber: string | null
+          accountId: string | null
           addOnCost: number
           assetId: string | null
-          companyGroupId: string
           companyId: string
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
@@ -33172,10 +33116,9 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
-          accountNumber?: string | null
+          accountId?: string | null
           addOnCost?: number
           assetId?: string | null
-          companyGroupId: string
           companyId: string
           convertedAddOnCost?: number | null
           convertedNonTaxableAddOnCost?: number | null
@@ -33211,10 +33154,9 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
-          accountNumber?: string | null
+          accountId?: string | null
           addOnCost?: number
           assetId?: string | null
-          companyGroupId?: string
           companyId?: string
           convertedAddOnCost?: number | null
           convertedNonTaxableAddOnCost?: number | null
@@ -33251,18 +33193,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "salesInvoiceLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "salesInvoiceLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "salesInvoiceLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "salesInvoiceLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "salesInvoiceLine_companyId_fkey"
@@ -33908,6 +33850,13 @@ export type Database = {
             referencedColumns: ["userId"]
           },
           {
+            foreignKeyName: "salesOrder_currencyCode_fkey"
+            columns: ["currencyCode"]
+            isOneToOne: false
+            referencedRelation: "currencyCode"
+            referencedColumns: ["code"]
+          },
+          {
             foreignKeyName: "salesOrder_customerContactId_fkey"
             columns: ["customerContactId"]
             isOneToOne: false
@@ -34074,10 +34023,9 @@ export type Database = {
       }
       salesOrderLine: {
         Row: {
-          accountNumber: string | null
+          accountId: string | null
           addOnCost: number
           assetId: string | null
-          companyGroupId: string
           companyId: string
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
@@ -34121,10 +34069,9 @@ export type Database = {
           updatedBy: string | null
         }
         Insert: {
-          accountNumber?: string | null
+          accountId?: string | null
           addOnCost?: number
           assetId?: string | null
-          companyGroupId: string
           companyId: string
           convertedAddOnCost?: number | null
           convertedNonTaxableAddOnCost?: number | null
@@ -34168,10 +34115,9 @@ export type Database = {
           updatedBy?: string | null
         }
         Update: {
-          accountNumber?: string | null
+          accountId?: string | null
           addOnCost?: number
           assetId?: string | null
-          companyGroupId?: string
           companyId?: string
           convertedAddOnCost?: number | null
           convertedNonTaxableAddOnCost?: number | null
@@ -34216,18 +34162,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "salesOrderLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "salesOrderLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "salesOrderLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "salesOrderLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "salesOrderLine_createdBy_fkey"
@@ -36806,7 +36752,6 @@ export type Database = {
           active: boolean
           carrier: Database["public"]["Enums"]["shippingCarrier"]
           carrierAccountId: string | null
-          companyGroupId: string
           companyId: string
           createdAt: string
           createdBy: string
@@ -36822,7 +36767,6 @@ export type Database = {
           active?: boolean
           carrier?: Database["public"]["Enums"]["shippingCarrier"]
           carrierAccountId?: string | null
-          companyGroupId: string
           companyId: string
           createdAt?: string
           createdBy: string
@@ -36838,7 +36782,6 @@ export type Database = {
           active?: boolean
           carrier?: Database["public"]["Enums"]["shippingCarrier"]
           carrierAccountId?: string | null
-          companyGroupId?: string
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -36853,17 +36796,17 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "shippingMethod_carrierAccountId_fkey"
-            columns: ["carrierAccountId", "companyGroupId"]
+            columns: ["carrierAccountId"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "shippingMethod_carrierAccountId_fkey"
-            columns: ["carrierAccountId", "companyGroupId"]
+            columns: ["carrierAccountId"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "shippingMethod_companyId_fkey"
@@ -50717,14 +50660,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -51165,7 +51108,7 @@ export type Database = {
       }
       purchaseInvoiceLines: {
         Row: {
-          accountNumber: string | null
+          accountId: string | null
           assetId: string | null
           companyId: string | null
           conversionFactor: number | null
@@ -51210,6 +51153,20 @@ export type Database = {
           updatedBy: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "purchaseInvoiceLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "purchaseInvoiceLine_jobOperationId_fkey"
             columns: ["jobOperationId"]
@@ -51616,6 +51573,13 @@ export type Database = {
             referencedColumns: ["userId"]
           },
           {
+            foreignKeyName: "purchaseInvoice_currencyCode_fkey"
+            columns: ["currencyCode"]
+            isOneToOne: false
+            referencedRelation: "currencyCode"
+            referencedColumns: ["code"]
+          },
+          {
             foreignKeyName: "purchaseInvoice_invoiceSupplierContactId_fkey"
             columns: ["invoiceSupplierContactId"]
             isOneToOne: false
@@ -51759,10 +51723,9 @@ export type Database = {
       }
       purchaseOrderLines: {
         Row: {
-          accountNumber: string | null
+          accountId: string | null
           assetId: string | null
           autodeskUrn: string | null
-          companyGroupId: string | null
           companyId: string | null
           conversionFactor: number | null
           createdAt: string | null
@@ -51824,18 +51787,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "purchaseOrderLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "purchaseOrderLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "purchaseOrderLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "purchaseOrderLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "purchaseOrderLine_createdBy_fkey"
@@ -52095,14 +52058,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55160,10 +55123,9 @@ export type Database = {
       }
       salesInvoiceLines: {
         Row: {
-          accountNumber: string | null
+          accountId: string | null
           addOnCost: number | null
           assetId: string | null
-          companyGroupId: string | null
           companyId: string | null
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
@@ -55208,18 +55170,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "salesInvoiceLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "salesInvoiceLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "salesInvoiceLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "salesInvoiceLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "salesInvoiceLine_companyId_fkey"
@@ -55795,11 +55757,10 @@ export type Database = {
       }
       salesOrderLines: {
         Row: {
-          accountNumber: string | null
+          accountId: string | null
           addOnCost: number | null
           assetId: string | null
           autodeskUrn: string | null
-          companyGroupId: string | null
           companyId: string | null
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
@@ -55879,18 +55840,18 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "salesOrderLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "salesOrderLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "salesOrderLine_accountNumber_fkey"
-            columns: ["accountNumber", "companyGroupId"]
+            foreignKeyName: "salesOrderLine_accountId_fkey"
+            columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["number", "companyGroupId"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "salesOrderLine_createdBy_fkey"
@@ -56074,14 +56035,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56268,6 +56229,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "salesOrder_currencyCode_fkey"
+            columns: ["currencyCode"]
+            isOneToOne: false
+            referencedRelation: "currencyCode"
+            referencedColumns: ["code"]
           },
           {
             foreignKeyName: "salesOrder_customerContactId_fkey"

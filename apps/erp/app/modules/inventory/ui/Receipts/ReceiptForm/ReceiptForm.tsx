@@ -159,6 +159,23 @@ const ReceiptForm = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {auditLogTrigger}
+                  {isPosted && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        disabled={
+                          isVoided ||
+                          isInvoiced ||
+                          !permissions.can("update", "inventory")
+                        }
+                        destructive
+                        onClick={voidModal.onOpen}
+                      >
+                        <DropdownMenuIcon icon={<LuTicketX />} />
+                        <Trans>Void</Trans>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     disabled={
@@ -169,7 +186,7 @@ const ReceiptForm = ({
                     onClick={deleteDisclosure.onOpen}
                   >
                     <DropdownMenuIcon icon={<LuTrash />} />
-                    <Trans>Delete Receipt</Trans>
+                    <Trans>Delete</Trans>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -206,20 +223,6 @@ const ReceiptForm = ({
               >
                 <Trans>Post</Trans>
               </Button>
-              {isPosted && (
-                <Button
-                  leftIcon={<LuTicketX />}
-                  variant="destructive"
-                  onClick={voidModal.onOpen}
-                  isDisabled={
-                    isVoided ||
-                    isInvoiced ||
-                    !permissions.can("update", "inventory")
-                  }
-                >
-                  <Trans>Void</Trans>
-                </Button>
-              )}
             </HStack>
           </CardHeader>
 

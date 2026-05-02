@@ -31,8 +31,8 @@ const JournalLineRow = ({
   availableDimensions,
   autoSaveDimensions = false
 }: JournalLineRowProps) => {
-  const handleAccountChange = (accountNumber: string) => {
-    onChange({ ...line, accountNumber });
+  const handleAccountChange = (accountId: string) => {
+    onChange({ ...line, accountId });
   };
 
   const handleDebitChange = (value: number) => {
@@ -68,7 +68,7 @@ const JournalLineRow = ({
         {/* Account and Description */}
         <div className="space-y-2">
           <AccountControlled
-            value={line.accountNumber}
+            value={line.accountId}
             onChange={handleAccountChange}
             placeholder="Select account"
             isReadOnly={isDisabled}

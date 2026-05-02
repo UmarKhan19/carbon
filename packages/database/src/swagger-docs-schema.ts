@@ -10849,9 +10849,6 @@ export default {
             $ref: "#/parameters/rowFilter.itemUnitSalePrice.tags"
           },
           {
-            $ref: "#/parameters/rowFilter.itemUnitSalePrice.companyGroupId"
-          },
-          {
             $ref: "#/parameters/select"
           },
           {
@@ -10953,9 +10950,6 @@ export default {
             $ref: "#/parameters/rowFilter.itemUnitSalePrice.tags"
           },
           {
-            $ref: "#/parameters/rowFilter.itemUnitSalePrice.companyGroupId"
-          },
-          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -11009,9 +11003,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemUnitSalePrice.tags"
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemUnitSalePrice.companyGroupId"
           },
           {
             $ref: "#/parameters/body.itemUnitSalePrice"
@@ -20485,9 +20476,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.shelfId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceLines.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.assetId"
           },
           {
@@ -20567,6 +20555,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.totalAmount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLines.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.thumbnailPath"
@@ -22591,9 +22582,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchasePayment.customFields"
           },
           {
-            $ref: "#/parameters/rowFilter.purchasePayment.companyGroupId"
-          },
-          {
             $ref: "#/parameters/select"
           },
           {
@@ -22692,9 +22680,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchasePayment.customFields"
           },
           {
-            $ref: "#/parameters/rowFilter.purchasePayment.companyGroupId"
-          },
-          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -22745,9 +22730,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchasePayment.customFields"
-          },
-          {
-            $ref: "#/parameters/rowFilter.purchasePayment.companyGroupId"
           },
           {
             $ref: "#/parameters/body.purchasePayment"
@@ -27730,9 +27712,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.itemId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.assetId"
           },
           {
@@ -27853,7 +27832,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate"
@@ -27933,9 +27912,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.itemId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.assetId"
           },
           {
@@ -28056,7 +28032,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate"
@@ -28090,9 +28066,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.itemId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.assetId"
           },
           {
@@ -28213,7 +28186,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.taxAmount"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate"
@@ -28459,9 +28432,6 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.updatedBy"
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.companyGroupId"
-          },
-          {
             $ref: "#/parameters/rowFilter.accountDefault.goodsReceivedNotInvoicedAccount"
           },
           {
@@ -28641,9 +28611,6 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.updatedBy"
           },
           {
-            $ref: "#/parameters/rowFilter.accountDefault.companyGroupId"
-          },
-          {
             $ref: "#/parameters/rowFilter.accountDefault.goodsReceivedNotInvoicedAccount"
           },
           {
@@ -28775,9 +28742,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.updatedBy"
-          },
-          {
-            $ref: "#/parameters/rowFilter.accountDefault.companyGroupId"
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.goodsReceivedNotInvoicedAccount"
@@ -29635,9 +29599,6 @@ export default {
             $ref: "#/parameters/rowFilter.shippingMethod.tags"
           },
           {
-            $ref: "#/parameters/rowFilter.shippingMethod.companyGroupId"
-          },
-          {
             $ref: "#/parameters/select"
           },
           {
@@ -29736,9 +29697,6 @@ export default {
             $ref: "#/parameters/rowFilter.shippingMethod.tags"
           },
           {
-            $ref: "#/parameters/rowFilter.shippingMethod.companyGroupId"
-          },
-          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -29789,9 +29747,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.shippingMethod.tags"
-          },
-          {
-            $ref: "#/parameters/rowFilter.shippingMethod.companyGroupId"
           },
           {
             $ref: "#/parameters/body.shippingMethod"
@@ -30745,9 +30700,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoice.companyGroupId"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoice.status"
           },
           {
@@ -30903,9 +30855,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoice.companyGroupId"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoice.status"
           },
           {
@@ -31013,9 +30962,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoice.locationId"
-          },
-          {
-            $ref: "#/parameters/rowFilter.purchaseInvoice.companyGroupId"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoice.status"
@@ -34624,9 +34570,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.storageUnitId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.assetId"
           },
           {
@@ -34708,7 +34651,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.totalAmount"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountId"
           },
           {
             $ref: "#/parameters/select"
@@ -34797,9 +34740,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.storageUnitId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.assetId"
           },
           {
@@ -34881,7 +34821,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.totalAmount"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountId"
           },
           {
             $ref: "#/parameters/preferReturn"
@@ -34924,9 +34864,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.storageUnitId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.assetId"
           },
           {
@@ -35008,7 +34945,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.totalAmount"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountId"
           },
           {
             $ref: "#/parameters/body.purchaseInvoiceLine"
@@ -35677,9 +35614,6 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLines.methodType"
           },
           {
-            $ref: "#/parameters/rowFilter.salesInvoiceLines.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.salesInvoiceLines.assetId"
           },
           {
@@ -35761,7 +35695,7 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLines.updatedBy"
           },
           {
-            $ref: "#/parameters/rowFilter.salesInvoiceLines.companyGroupId"
+            $ref: "#/parameters/rowFilter.salesInvoiceLines.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.salesInvoiceLines.nonTaxableAddOnCost"
@@ -42910,9 +42844,6 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLines.itemId"
           },
           {
-            $ref: "#/parameters/rowFilter.salesOrderLines.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.salesOrderLines.assetId"
           },
           {
@@ -43018,7 +42949,7 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLines.sentDate"
           },
           {
-            $ref: "#/parameters/rowFilter.salesOrderLines.companyGroupId"
+            $ref: "#/parameters/rowFilter.salesOrderLines.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLines.nonTaxableAddOnCost"
@@ -45433,9 +45364,6 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.journalId"
           },
           {
-            $ref: "#/parameters/rowFilter.journalLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.journalLine.description"
           },
           {
@@ -45475,7 +45403,7 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.tags"
           },
           {
-            $ref: "#/parameters/rowFilter.journalLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.journalLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.journalLine.updatedAt"
@@ -45552,9 +45480,6 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.journalId"
           },
           {
-            $ref: "#/parameters/rowFilter.journalLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.journalLine.description"
           },
           {
@@ -45594,7 +45519,7 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.tags"
           },
           {
-            $ref: "#/parameters/rowFilter.journalLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.journalLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.journalLine.updatedAt"
@@ -45625,9 +45550,6 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.journalId"
           },
           {
-            $ref: "#/parameters/rowFilter.journalLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.journalLine.description"
           },
           {
@@ -45667,7 +45589,7 @@ export default {
             $ref: "#/parameters/rowFilter.journalLine.tags"
           },
           {
-            $ref: "#/parameters/rowFilter.journalLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.journalLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.journalLine.updatedAt"
@@ -51535,9 +51457,6 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.itemId"
           },
           {
-            $ref: "#/parameters/rowFilter.salesOrderLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.salesOrderLine.assetId"
           },
           {
@@ -51643,7 +51562,7 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate"
           },
           {
-            $ref: "#/parameters/rowFilter.salesOrderLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.salesOrderLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.nonTaxableAddOnCost"
@@ -51729,9 +51648,6 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.itemId"
           },
           {
-            $ref: "#/parameters/rowFilter.salesOrderLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.salesOrderLine.assetId"
           },
           {
@@ -51837,7 +51753,7 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate"
           },
           {
-            $ref: "#/parameters/rowFilter.salesOrderLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.salesOrderLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.nonTaxableAddOnCost"
@@ -51877,9 +51793,6 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.itemId"
           },
           {
-            $ref: "#/parameters/rowFilter.salesOrderLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.salesOrderLine.assetId"
           },
           {
@@ -51985,7 +51898,7 @@ export default {
             $ref: "#/parameters/rowFilter.salesOrderLine.sentDate"
           },
           {
-            $ref: "#/parameters/rowFilter.salesOrderLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.salesOrderLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.salesOrderLine.nonTaxableAddOnCost"
@@ -56683,9 +56596,6 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.itemId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLines.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.assetId"
           },
           {
@@ -56806,7 +56716,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.taxAmount"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLines.companyGroupId"
+            $ref: "#/parameters/rowFilter.purchaseOrderLines.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.requestedDate"
@@ -65836,9 +65746,6 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.methodType"
           },
           {
-            $ref: "#/parameters/rowFilter.salesInvoiceLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.assetId"
           },
           {
@@ -65920,7 +65827,7 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy"
           },
           {
-            $ref: "#/parameters/rowFilter.salesInvoiceLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.nonTaxableAddOnCost"
@@ -66006,9 +65913,6 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.methodType"
           },
           {
-            $ref: "#/parameters/rowFilter.salesInvoiceLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.assetId"
           },
           {
@@ -66090,7 +65994,7 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy"
           },
           {
-            $ref: "#/parameters/rowFilter.salesInvoiceLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.nonTaxableAddOnCost"
@@ -66130,9 +66034,6 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.methodType"
           },
           {
-            $ref: "#/parameters/rowFilter.salesInvoiceLine.accountNumber"
-          },
-          {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.assetId"
           },
           {
@@ -66214,7 +66115,7 @@ export default {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.updatedBy"
           },
           {
-            $ref: "#/parameters/rowFilter.salesInvoiceLine.companyGroupId"
+            $ref: "#/parameters/rowFilter.salesInvoiceLine.accountId"
           },
           {
             $ref: "#/parameters/rowFilter.salesInvoiceLine.nonTaxableAddOnCost"
@@ -81878,8 +81779,7 @@ export default {
         "allowInvoiceDiscount",
         "companyId",
         "createdBy",
-        "createdAt",
-        "companyGroupId"
+        "createdAt"
       ],
       properties: {
         itemId: {
@@ -81894,6 +81794,8 @@ export default {
           type: "number"
         },
         currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string"
         },
@@ -81952,10 +81854,6 @@ export default {
             type: "string"
           },
           type: "array"
-        },
-        companyGroupId: {
-          format: "text",
-          type: "string"
         }
       },
       type: "object"
@@ -85671,6 +85569,8 @@ export default {
           type: "string"
         },
         currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string"
         },
@@ -86695,10 +86595,6 @@ export default {
           format: "text",
           type: "string"
         },
-        accountNumber: {
-          format: "text",
-          type: "string"
-        },
         assetId: {
           format: "text",
           type: "string"
@@ -86817,6 +86713,12 @@ export default {
         totalAmount: {
           format: "numeric",
           type: "number"
+        },
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
         },
         thumbnailPath: {
           format: "text",
@@ -87621,8 +87523,7 @@ export default {
         "totalAmount",
         "companyId",
         "createdBy",
-        "createdAt",
-        "companyGroupId"
+        "createdAt"
       ],
       properties: {
         id: {
@@ -87646,6 +87547,8 @@ export default {
           type: "string"
         },
         currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string"
         },
@@ -87688,10 +87591,6 @@ export default {
         },
         customFields: {
           format: "jsonb"
-        },
-        companyGroupId: {
-          format: "text",
-          type: "string"
         }
       },
       type: "object"
@@ -89452,6 +89351,8 @@ export default {
           type: "string"
         },
         currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string"
         },
@@ -89853,8 +89754,7 @@ export default {
         "createdBy",
         "exchangeRate",
         "supplierShippingCost",
-        "supplierTaxAmount",
-        "companyGroupId"
+        "supplierTaxAmount"
       ],
       properties: {
         id: {
@@ -89887,10 +89787,6 @@ export default {
         itemId: {
           description:
             "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        accountNumber: {
           format: "text",
           type: "string"
         },
@@ -90077,7 +89973,9 @@ export default {
           format: "numeric",
           type: "number"
         },
-        companyGroupId: {
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -90248,7 +90146,6 @@ export default {
         "purchaseTaxPayableAccount",
         "reverseChargeSalesTaxPayableAccount",
         "retainedEarningsAccount",
-        "companyGroupId",
         "goodsReceivedNotInvoicedAccount",
         "overheadVarianceAccount",
         "lotSizeVarianceAccount",
@@ -90263,134 +90160,200 @@ export default {
           type: "string"
         },
         salesAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         salesDiscountAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         costOfGoodsSoldAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         purchaseVarianceAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         inventoryAdjustmentVarianceAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         materialVarianceAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         laborAndMachineVarianceAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         indirectCostAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         maintenanceAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         assetDepreciationExpenseAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         assetGainsAndLossesAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         serviceChargeAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         interestAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         supplierPaymentDiscountAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         customerPaymentDiscountAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         roundingAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         assetAquisitionCostAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         assetAquisitionCostOnDisposalAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         accumulatedDepreciationAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         accumulatedDepreciationOnDisposalAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         inventoryAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         workInProgressAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         receivablesAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         inventoryShippedNotInvoicedAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         bankCashAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         bankLocalCurrencyAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         bankForeignCurrencyAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         prepaymentAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         payablesAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         salesTaxPayableAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         purchaseTaxPayableAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         reverseChargeSalesTaxPayableAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         retainedEarningsAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -90400,27 +90363,33 @@ export default {
           format: "text",
           type: "string"
         },
-        companyGroupId: {
-          format: "text",
-          type: "string"
-        },
         goodsReceivedNotInvoicedAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         overheadVarianceAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         lotSizeVarianceAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         subcontractingVarianceAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
         currencyTranslationAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         }
@@ -90806,8 +90775,7 @@ export default {
         "active",
         "companyId",
         "createdAt",
-        "createdBy",
-        "companyGroupId"
+        "createdBy"
       ],
       properties: {
         id: {
@@ -90827,6 +90795,8 @@ export default {
           type: "string"
         },
         carrierAccountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -90875,10 +90845,6 @@ export default {
             type: "string"
           },
           type: "array"
-        },
-        companyGroupId: {
-          format: "text",
-          type: "string"
         }
       },
       type: "object"
@@ -91312,7 +91278,6 @@ export default {
         "createdBy",
         "createdAt",
         "supplierInteractionId",
-        "companyGroupId",
         "status"
       ],
       properties: {
@@ -91361,6 +91326,8 @@ export default {
           type: "string"
         },
         currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string"
         },
@@ -91469,10 +91436,6 @@ export default {
         locationId: {
           description:
             "Note:\nThis is a Foreign Key to `location.id`.<fk table='location' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        companyGroupId: {
           format: "text",
           type: "string"
         },
@@ -93116,8 +93079,7 @@ export default {
         "createdBy",
         "createdAt",
         "supplierShippingCost",
-        "supplierTaxAmount",
-        "companyGroupId"
+        "supplierTaxAmount"
       ],
       properties: {
         id: {
@@ -93178,10 +93140,6 @@ export default {
         storageUnitId: {
           description:
             "Note:\nThis is a Foreign Key to `storageUnit.id`.<fk table='storageUnit' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        accountNumber: {
           format: "text",
           type: "string"
         },
@@ -93311,7 +93269,9 @@ export default {
           format: "numeric",
           type: "number"
         },
-        companyGroupId: {
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         }
@@ -93671,10 +93631,6 @@ export default {
           format: 'public."methodType"',
           type: "string"
         },
-        accountNumber: {
-          format: "text",
-          type: "string"
-        },
         assetId: {
           format: "text",
           type: "string"
@@ -93798,7 +93754,9 @@ export default {
           format: "text",
           type: "string"
         },
-        companyGroupId: {
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -96862,10 +96820,6 @@ export default {
           format: "text",
           type: "string"
         },
-        accountNumber: {
-          format: "text",
-          type: "string"
-        },
         assetId: {
           format: "text",
           type: "string"
@@ -97011,7 +96965,9 @@ export default {
           format: "date",
           type: "string"
         },
-        companyGroupId: {
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -98302,14 +98258,12 @@ export default {
       required: [
         "id",
         "journalId",
-        "accountNumber",
         "amount",
         "quantity",
         "journalLineReference",
         "accrual",
         "companyId",
-        "createdAt",
-        "companyGroupId"
+        "createdAt"
       ],
       properties: {
         id: {
@@ -98321,10 +98275,6 @@ export default {
         journalId: {
           description:
             "Note:\nThis is a Foreign Key to `journal.id`.<fk table='journal' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        accountNumber: {
           format: "text",
           type: "string"
         },
@@ -98394,7 +98344,9 @@ export default {
           },
           type: "array"
         },
-        companyGroupId: {
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -101371,7 +101323,6 @@ export default {
         "methodType",
         "shippingCost",
         "taxPercent",
-        "companyGroupId",
         "nonTaxableAddOnCost"
       ],
       properties: {
@@ -101404,10 +101355,6 @@ export default {
         itemId: {
           description:
             "Note:\nThis is a Foreign Key to `item.id`.<fk table='item' column='id'/>",
-          format: "text",
-          type: "string"
-        },
-        accountNumber: {
           format: "text",
           type: "string"
         },
@@ -101569,7 +101516,9 @@ export default {
           format: "date",
           type: "string"
         },
-        companyGroupId: {
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -102995,6 +102944,8 @@ export default {
           type: "string"
         },
         currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string"
         },
@@ -103651,10 +103602,6 @@ export default {
           format: "text",
           type: "string"
         },
-        accountNumber: {
-          format: "text",
-          type: "string"
-        },
         assetId: {
           format: "text",
           type: "string"
@@ -103827,7 +103774,9 @@ export default {
           format: "numeric",
           type: "number"
         },
-        companyGroupId: {
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -106008,6 +105957,8 @@ export default {
           type: "string"
         },
         currencyCode: {
+          description:
+            "Note:\nThis is a Foreign Key to `currencyCode.code`.<fk table='currencyCode' column='code'/>",
           format: "text",
           type: "string"
         },
@@ -108287,7 +108238,6 @@ export default {
         "companyId",
         "createdAt",
         "createdBy",
-        "companyGroupId",
         "nonTaxableAddOnCost"
       ],
       properties: {
@@ -108331,10 +108281,6 @@ export default {
           default: "Pull from Inventory",
           enum: ["Purchase to Order", "Pull from Inventory", "Make to Order"],
           format: 'public."methodType"',
-          type: "string"
-        },
-        accountNumber: {
-          format: "text",
           type: "string"
         },
         assetId: {
@@ -108468,7 +108414,9 @@ export default {
           format: "text",
           type: "string"
         },
-        companyGroupId: {
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -115280,12 +115228,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.itemUnitSalePrice.companyGroupId": {
-      name: "companyGroupId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "body.holidayYears": {
       name: "holidayYears",
       description: "holidayYears",
@@ -120556,12 +120498,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseInvoiceLines.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.purchaseInvoiceLines.assetId": {
       name: "assetId",
       required: false,
@@ -120720,6 +120656,12 @@ export default {
     },
     "rowFilter.purchaseInvoiceLines.totalAmount": {
       name: "totalAmount",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseInvoiceLines.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"
@@ -121737,12 +121679,6 @@ export default {
     },
     "rowFilter.purchasePayment.customFields": {
       name: "customFields",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.purchasePayment.companyGroupId": {
-      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string"
@@ -124175,12 +124111,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseOrderLine.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.purchaseOrderLine.assetId": {
       name: "assetId",
       required: false,
@@ -124421,8 +124351,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseOrderLine.companyGroupId": {
-      name: "companyGroupId",
+    "rowFilter.purchaseOrderLine.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"
@@ -124807,12 +124737,6 @@ export default {
     },
     "rowFilter.accountDefault.updatedBy": {
       name: "updatedBy",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.accountDefault.companyGroupId": {
-      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string"
@@ -125362,12 +125286,6 @@ export default {
     },
     "rowFilter.shippingMethod.tags": {
       name: "tags",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.shippingMethod.companyGroupId": {
-      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string"
@@ -125992,12 +125910,6 @@ export default {
     },
     "rowFilter.purchaseInvoice.locationId": {
       name: "locationId",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.purchaseInvoice.companyGroupId": {
-      name: "companyGroupId",
       required: false,
       in: "query",
       type: "string"
@@ -127771,12 +127683,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseInvoiceLine.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.purchaseInvoiceLine.assetId": {
       name: "assetId",
       required: false,
@@ -127939,8 +127845,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseInvoiceLine.companyGroupId": {
-      name: "companyGroupId",
+    "rowFilter.purchaseInvoiceLine.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"
@@ -128350,12 +128256,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.salesInvoiceLines.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.salesInvoiceLines.assetId": {
       name: "assetId",
       required: false,
@@ -128518,8 +128418,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.salesInvoiceLines.companyGroupId": {
-      name: "companyGroupId",
+    "rowFilter.salesInvoiceLines.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"
@@ -131921,12 +131821,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.salesOrderLines.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.salesOrderLines.assetId": {
       name: "assetId",
       required: false,
@@ -132137,8 +132031,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.salesOrderLines.companyGroupId": {
-      name: "companyGroupId",
+    "rowFilter.salesOrderLines.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"
@@ -133676,12 +133570,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.journalLine.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.journalLine.description": {
       name: "description",
       required: false,
@@ -133760,8 +133648,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.journalLine.companyGroupId": {
-      name: "companyGroupId",
+    "rowFilter.journalLine.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"
@@ -137070,12 +136958,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.salesOrderLine.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.salesOrderLine.assetId": {
       name: "assetId",
       required: false,
@@ -137286,8 +137168,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.salesOrderLine.companyGroupId": {
-      name: "companyGroupId",
+    "rowFilter.salesOrderLine.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"
@@ -139602,12 +139484,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseOrderLines.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.purchaseOrderLines.assetId": {
       name: "assetId",
       required: false,
@@ -139848,8 +139724,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseOrderLines.companyGroupId": {
-      name: "companyGroupId",
+    "rowFilter.purchaseOrderLines.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"
@@ -144816,12 +144692,6 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.salesInvoiceLine.accountNumber": {
-      name: "accountNumber",
-      required: false,
-      in: "query",
-      type: "string"
-    },
     "rowFilter.salesInvoiceLine.assetId": {
       name: "assetId",
       required: false,
@@ -144984,8 +144854,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.salesInvoiceLine.companyGroupId": {
-      name: "companyGroupId",
+    "rowFilter.salesInvoiceLine.accountId": {
+      name: "accountId",
       required: false,
       in: "query",
       type: "string"

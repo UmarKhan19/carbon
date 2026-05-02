@@ -43,8 +43,7 @@ BEGIN
         COALESCE(SUM(CASE WHEN j."postingDate" <= to_date THEN jl."amount" ELSE 0 END), 0) AS "balanceAtDate",
         COALESCE(SUM(CASE WHEN j."postingDate" >= from_date AND j."postingDate" <= to_date THEN jl."amount" ELSE 0 END), 0) AS "netChange"
       FROM "account" a
-      LEFT JOIN "journalLine" jl ON jl."accountNumber" = a."number"
-        AND jl."companyGroupId" = a."companyGroupId"
+      LEFT JOIN "journalLine" jl ON jl."accountId" = a."id"
         AND (p_company_id IS NULL OR jl."companyId" = p_company_id)
       LEFT JOIN "journal" j ON j."id" = jl."journalId"
       WHERE a."companyGroupId" = p_company_group_id

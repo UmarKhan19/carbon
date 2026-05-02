@@ -765,7 +765,7 @@ export const salesOrderLineValidator = z
         message: "Type is required"
       })
     }),
-    accountNumber: zfd.text(z.string().optional()),
+    accountId: zfd.text(z.string().optional()),
     shippingCost: zfd.numeric(z.number().optional()),
     addOnCost: zfd.numeric(z.number().optional()),
     nonTaxableAddOnCost: zfd.numeric(z.number().optional()),

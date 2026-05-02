@@ -78,8 +78,8 @@ const IntercompanyTransactionForm = ({
                 <Number name="amount" label="Amount" minValue={0} />
                 <SourceCurrencySync companies={companies} />
                 <Input name="description" label="Description" />
-                <Account name="debitAccountNumber" label="Debit Account" />
-                <Account name="creditAccountNumber" label="Credit Account" />
+                <Account name="debitAccountId" label="Debit Account" />
+                <Account name="creditAccountId" label="Credit Account" />
                 <Input name="postingDate" label="Posting Date" type="date" />
               </VStack>
             </ModalDrawerBody>

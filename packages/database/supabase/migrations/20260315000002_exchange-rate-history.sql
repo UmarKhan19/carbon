@@ -16,7 +16,7 @@ CREATE TABLE "exchangeRateHistory" (
   CONSTRAINT "exchangeRateHistory_companyGroupId_fkey"
     FOREIGN KEY ("companyGroupId") REFERENCES "companyGroup"("id") ON DELETE CASCADE,
   CONSTRAINT "exchangeRateHistory_currencyCode_fkey"
-    FOREIGN KEY ("currencyCode", "companyGroupId") REFERENCES "currency"("code", "companyGroupId"),
+    FOREIGN KEY ("currencyCode") REFERENCES "currencyCode"("code"),
   CONSTRAINT "exchangeRateHistory_rate_check" CHECK ("rate" > 0),
   CONSTRAINT "exchangeRateHistory_unique"
     UNIQUE ("currencyCode", "effectiveDate", "companyGroupId")

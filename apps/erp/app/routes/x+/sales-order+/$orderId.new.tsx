@@ -34,10 +34,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot add lines to a locked sales order. Reopen it first."
   });
 
-  const { client, companyId, companyGroupId, userId } =
-    await requirePermissions(request, {
-      create: "sales"
-    });
+  const { client, companyId, userId } = await requirePermissions(request, {
+    create: "sales"
+  });
 
   const formData = await request.formData();
   const validation = await validator(salesOrderLineValidator).validate(
@@ -54,7 +53,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const createSalesOrderLine = await upsertSalesOrderLine(client, {
     ...d,
     companyId,
-    companyGroupId,
     createdBy: userId,
     customFields: setCustomFields(formData)
   });

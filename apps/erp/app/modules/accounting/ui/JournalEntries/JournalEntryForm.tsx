@@ -73,7 +73,7 @@ function generateId() {
 function createEmptyLine(): ClientJournalLine {
   return {
     id: generateId(),
-    accountNumber: "",
+    accountId: "",
     description: "",
     debit: null,
     credit: null,
@@ -155,7 +155,7 @@ const JournalEntryForm = ({
 
   const linesJson = JSON.stringify(
     lines.map((l) => ({
-      accountNumber: l.accountNumber,
+      accountId: l.accountId,
       description: l.description,
       debit: l.debit ?? 0,
       credit: l.credit ?? 0,

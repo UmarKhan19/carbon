@@ -417,7 +417,7 @@ const AccountDefaultsForm = ({
   > = useMemo(
     () => ({
       income: incomeStatementAccounts.map((c) => ({
-        value: c.number,
+        value: c.id,
         label: (
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono text-muted-foreground">
@@ -428,7 +428,7 @@ const AccountDefaultsForm = ({
         )
       })),
       balance: balanceSheetAccounts.map((c) => ({
-        value: c.number,
+        value: c.id,
         label: (
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono text-muted-foreground">

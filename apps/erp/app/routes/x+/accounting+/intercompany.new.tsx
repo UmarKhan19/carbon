@@ -71,8 +71,8 @@ export default function NewIntercompanyTransactionRoute() {
     amount: 0,
     currencyCode: "",
     description: "",
-    debitAccountNumber: "",
-    creditAccountNumber: "",
+    debitAccountId: "",
+    creditAccountId: "",
     postingDate: new Date().toISOString().split("T")[0]
   };
 

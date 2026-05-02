@@ -110,7 +110,7 @@ export const purchaseInvoiceLineValidator = z
     purchaseOrderId: zfd.text(z.string().optional()),
     purchaseOrderLineId: zfd.text(z.string().optional()),
     itemId: zfd.text(z.string().optional()),
-    accountNumber: zfd.text(z.string().optional()),
+    accountId: zfd.text(z.string().optional()),
     assetId: zfd.text(z.string().optional()),
     description: zfd.text(z.string().optional()),
     quantity: zfd.numeric(z.number().optional()),
@@ -148,10 +148,10 @@ export const purchaseInvoiceLineValidator = z
   );
 // .refine(
 //   (data) =>
-//     data.invoiceLineType === "G/L Account" ? data.accountNumber : true,
+//     data.invoiceLineType === "G/L Account" ? data.accountId : true,
 //   {
 //     message: "Account is required",
-//     path: ["accountNumber"], // path of error
+//     path: ["accountId"], // path of error
 //   }
 // )
 // .refine(
@@ -229,7 +229,7 @@ export const salesInvoiceLineValidator = z
     purchaseOrderId: zfd.text(z.string().optional()),
     purchaseOrderLineId: zfd.text(z.string().optional()),
     itemId: zfd.text(z.string().optional()),
-    accountNumber: zfd.text(z.string().optional()),
+    accountId: zfd.text(z.string().optional()),
     assetId: zfd.text(z.string().optional()),
     addOnCost: zfd.numeric(z.number().optional().default(0)),
     nonTaxableAddOnCost: zfd.numeric(z.number().optional().default(0)),

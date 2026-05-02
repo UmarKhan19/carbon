@@ -252,7 +252,7 @@ export async function getAccountsList(
 ) {
   let query = client
     .from("account")
-    .select("number, name, incomeBalance, class")
+    .select("id, number, name, incomeBalance, class")
     .eq("companyGroupId", companyGroupId)
     .eq("active", true);
 
@@ -1371,7 +1371,7 @@ export async function createIntercompanyTransaction(
     .insert([
       {
         journalId,
-        accountNumber: input.debitAccountNumber,
+        accountId: input.debitAccountId,
         description: input.description,
         amount: input.amount,
         journalLineReference: journalLineRef,
@@ -1381,7 +1381,7 @@ export async function createIntercompanyTransaction(
       },
       {
         journalId,
-        accountNumber: input.creditAccountNumber,
+        accountId: input.creditAccountId,
         description: input.description,
         amount: -input.amount,
         journalLineReference: journalLineRef,
@@ -1495,7 +1495,7 @@ export async function getJournalEntry(
 ) {
   return client
     .from("journal")
-    .select("*, journalLine(*, account!journalLine_accountNumber_fkey(class))")
+    .select("*, journalLine(*, account!journalLine_accountId_fkey(class))")
     .eq("id", id)
     .single();
 }
@@ -1559,8 +1559,7 @@ export async function upsertJournalEntryLine(
   const account = await client
     .from("account")
     .select("class")
-    .eq("number", data.accountNumber)
-    .eq("companyGroupId", data.companyGroupId)
+    .eq("id", data.accountId)
     .single();
 
   if (account.error || !account.data?.class) {
@@ -1578,12 +1577,11 @@ export async function upsertJournalEntryLine(
       .from("journalLine")
       .insert({
         journalId: data.journalId,
-        accountNumber: data.accountNumber,
+        accountId: data.accountId,
         description: data.description,
         amount,
         journalLineReference: crypto.randomUUID(),
-        companyId: data.companyId,
-        companyGroupId: data.companyGroupId
+        companyId: data.companyId
       })
       .select("id")
       .single();
@@ -1592,7 +1590,7 @@ export async function upsertJournalEntryLine(
       .from("journalLine")
       .update(
         sanitize({
-          accountNumber: data.accountNumber,
+          accountId: data.accountId,
           description: data.description,
           amount,
           updatedBy: data.updatedBy
@@ -1619,7 +1617,7 @@ export async function saveJournalEntryWithLines(
     description?: string;
     updatedBy: string;
     lines: Array<{
-      accountNumber: string;
+      accountId: string;
       description?: string;
       debit: number;
       credit: number;
@@ -1654,30 +1652,26 @@ export async function saveJournalEntryWithLines(
 
   if (data.lines.length === 0) return { data: null, error: null };
 
-  // 3. Look up account classes for all distinct account numbers
-  const accountNumbers = [...new Set(data.lines.map((l) => l.accountNumber))];
+  // 3. Look up account classes for all distinct account IDs
+  const accountIds = [...new Set(data.lines.map((l) => l.accountId))];
   const accounts = await client
     .from("account")
-    .select("number, class")
-    .eq("companyGroupId", data.companyGroupId)
-    .in("number", accountNumbers);
+    .select("id, class")
+    .in("id", accountIds);
 
   if (accounts.error) return accounts;
 
-  const accountClassMap = new Map(
-    accounts.data.map((a) => [a.number, a.class])
-  );
+  const accountMap = new Map(accounts.data.map((a) => [a.id, a.class]));
 
   // 4. Build insert payloads
   const inserts = data.lines.map((line) => {
-    const accountClass = accountClassMap.get(line.accountNumber);
+    const accountClass = accountMap.get(line.accountId);
     if (!accountClass) {
-      throw new Error(`Account not found: ${line.accountNumber}`);
+      throw new Error(`Account not found: ${line.accountId}`);
     }
     return {
       journalId: data.journalEntryId,
-      accountNumber: line.accountNumber,
-      companyGroupId: data.companyGroupId,
+      accountId: line.accountId,
       description: line.description,
       amount: toStoredAmount(line.debit, line.credit, accountClass),
       journalLineReference: crypto.randomUUID(),
@@ -1813,9 +1807,8 @@ export async function reverseJournalEntry(
   // 3. Copy lines with negated amounts
   const lines = (original.data.journalLine ?? []).map((line) => ({
     journalId: reversed.data.id,
-    accountNumber: line.accountNumber,
+    accountId: line.accountId,
     companyId: line.companyId,
-    companyGroupId: line.companyGroupId,
     description: line.description,
     amount: -Number(line.amount),
     journalLineReference: crypto.randomUUID()

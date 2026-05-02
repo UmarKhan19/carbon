@@ -239,9 +239,21 @@ serve(async (req: Request) => {
         }
 
         // For IC transactions, use IC Receivables (1130) instead of regular AR
-        const receivablesAccount = isIntercompany
-          ? "1130"
-          : accountDefaults?.data?.receivablesAccount;
+        let receivablesAccountId: string | undefined;
+        if (isIntercompany && companyGroupId) {
+          // TODO: consider storing the IC receivables account ID in a config
+          // rather than looking it up by number each time
+          const icAccount = await client
+            .from("account")
+            .select("id")
+            .eq("number", "1130")
+            .eq("companyGroupId", companyGroupId)
+            .single();
+          if (icAccount.error) throw new Error("Failed to fetch IC receivables account 1130");
+          receivablesAccountId = icAccount.data.id;
+        } else {
+          receivablesAccountId = accountDefaults?.data?.receivablesAccount;
+        }
 
         for await (const invoiceLine of salesInvoiceLines.data) {
           const invoiceLineQuantityInInventoryUnit = invoiceLine.quantity;
@@ -322,7 +334,7 @@ serve(async (req: Request) => {
                     if (itemTrackingType === "Inventory") {
                       // debit the inventory account
                       journalLineInserts.push({
-                        accountNumber: accountDefaults.data.inventoryAccount,
+                        accountId: accountDefaults.data.inventoryAccount,
                         description: "Inventory Account",
                         amount: credit(
                           "asset",
@@ -334,13 +346,11 @@ serve(async (req: Request) => {
                         externalDocumentId: salesInvoice.data?.customerReference,
                         journalLineReference,
                         companyId,
-                        companyGroupId,
                       });
 
                       // creidt the cost of goods sold account
                       journalLineInserts.push({
-                        accountNumber:
-                          accountDefaults.data.costOfGoodsSoldAccount,
+                        accountId: accountDefaults.data.costOfGoodsSoldAccount,
                         description: "Cost of Goods Sold",
                         amount: debit(
                           "expense",
@@ -352,7 +362,6 @@ serve(async (req: Request) => {
                         externalDocumentId: salesInvoice.data?.customerReference,
                         journalLineReference,
                         companyId,
-                        companyGroupId,
                       });
                     }
 
@@ -360,7 +369,7 @@ serve(async (req: Request) => {
 
                     // credit the sales account
                     journalLineInserts.push({
-                      accountNumber: accountDefaults.data.salesAccount,
+                      accountId: accountDefaults.data.salesAccount,
                       description: "Sales Account",
                       amount: credit(
                         "revenue",
@@ -375,12 +384,11 @@ serve(async (req: Request) => {
                       ),
                       journalLineReference,
                       companyId,
-                      companyGroupId,
                     });
 
                     // debit the accounts receivable account
                     journalLineInserts.push({
-                      accountNumber: receivablesAccount,
+                      accountId: receivablesAccountId,
                       description: isIntercompany
                         ? "IC Receivables"
                         : "Accounts Receivable",
@@ -395,7 +403,6 @@ serve(async (req: Request) => {
                       journalLineReference,
                       intercompanyPartnerId,
                       companyId,
-                      companyGroupId,
                     });
                   }
                 } // if the line is associated with a sales order line, we do accrual/reversing
@@ -406,7 +413,7 @@ serve(async (req: Request) => {
 
                     // Credit the sales account
                     journalLineInserts.push({
-                      accountNumber: accountDefaults.data.salesAccount,
+                      accountId: accountDefaults.data.salesAccount,
                       description: "Sales Account",
                       amount: credit(
                         "revenue",
@@ -423,12 +430,11 @@ serve(async (req: Request) => {
                         : null,
                       journalLineReference,
                       companyId,
-                      companyGroupId,
                     });
 
                     // Debit the accounts receivable account
                     journalLineInserts.push({
-                      accountNumber: receivablesAccount,
+                      accountId: receivablesAccountId,
                       description: isIntercompany
                         ? "IC Receivables"
                         : "Accounts Receivable",
@@ -445,7 +451,6 @@ serve(async (req: Request) => {
                       journalLineReference,
                       intercompanyPartnerId,
                       companyId,
-                      companyGroupId,
                     });
 
                     // For inventory items, handle COGS and inventory
@@ -454,8 +459,7 @@ serve(async (req: Request) => {
 
                       // Debit cost of goods sold
                       journalLineInserts.push({
-                        accountNumber:
-                          accountDefaults.data.costOfGoodsSoldAccount,
+                        accountId: accountDefaults.data.costOfGoodsSoldAccount,
                         description: "Cost of Goods Sold",
                         amount: debit(
                           "expense",
@@ -473,12 +477,11 @@ serve(async (req: Request) => {
                           : null,
                         journalLineReference,
                         companyId,
-                        companyGroupId,
                       });
 
                       // Credit inventory account
                       journalLineInserts.push({
-                        accountNumber: accountDefaults.data.inventoryAccount,
+                        accountId: accountDefaults.data.inventoryAccount,
                         description: "Inventory Account",
                         amount: credit(
                           "asset",
@@ -496,7 +499,6 @@ serve(async (req: Request) => {
                           : null,
                         journalLineReference,
                         companyId,
-                        companyGroupId,
                       });
                     }
                   }
@@ -811,7 +813,7 @@ serve(async (req: Request) => {
         // Create reversing journal entries
         const reversingJournalEntries = isInternal
           ? journalEntries.map((entry) => ({
-              accountNumber: entry.accountNumber,
+              accountId: entry.accountId,
               description: `VOID: ${entry.description}`,
               amount: -entry.amount, // Reverse the amount
               quantity: -entry.quantity,
@@ -821,7 +823,6 @@ serve(async (req: Request) => {
               documentLineReference: entry.documentLineReference,
               journalLineReference: entry.journalLineReference,
               companyId,
-              companyGroupId,
             }))
           : [];
 

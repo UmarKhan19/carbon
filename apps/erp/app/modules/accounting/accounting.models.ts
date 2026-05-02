@@ -196,7 +196,7 @@ export const fiscalYearSettingsValidator = z.object({
 
 export const journalLineValidator = z.object({
   postingDate: zfd.text(z.string().optional()),
-  accountNumber: z.string().min(1, { message: "Account is required" }),
+  accountId: z.string().min(1, { message: "Account is required" }),
   description: z.string().optional(),
   amount: z.number(),
   documentType: z.union([z.enum(journalLineDocumentType), z.undefined()]),
@@ -409,17 +409,15 @@ export const intercompanyTransactionValidator = z
     ),
     currencyCode: z.string().min(1, { message: "Currency is required" }),
     description: z.string().min(1, { message: "Description is required" }),
-    debitAccountNumber: z
-      .string()
-      .min(1, { message: "Debit account is required" }),
-    creditAccountNumber: z
+    debitAccountId: z.string().min(1, { message: "Debit account is required" }),
+    creditAccountId: z
       .string()
       .min(1, { message: "Credit account is required" }),
     postingDate: zfd.text(z.string().optional())
   })
   .refine(
     (data) => {
-      return data.debitAccountNumber !== data.creditAccountNumber;
+      return data.debitAccountId !== data.creditAccountId;
     },
     {
       message: "Debit and credit account must be different"
@@ -459,7 +457,7 @@ export const journalEntryLineValidator = z
   .object({
     id: zfd.text(z.string().optional()),
     journalEntryId: zfd.text(z.string().optional()),
-    accountNumber: z.string().min(1, { message: "Account is required" }),
+    accountId: z.string().min(1, { message: "Account is required" }),
     description: z.string().optional(),
     debit: zfd.numeric(z.number().min(0)),
     credit: zfd.numeric(z.number().min(0))

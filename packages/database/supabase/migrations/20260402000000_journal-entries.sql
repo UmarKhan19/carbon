@@ -133,7 +133,9 @@ CREATE POLICY "DELETE" ON "public"."journalLine"
   );
 
 -- View for manual journal entries list
-CREATE OR REPLACE VIEW "journalEntries" AS
+CREATE OR REPLACE VIEW "journalEntries"
+WITH (security_invoker = true)
+AS
   SELECT
     j.*,
     COALESCE(SUM(
@@ -153,6 +155,5 @@ CREATE OR REPLACE VIEW "journalEntries" AS
     COUNT(jl."id")::integer AS "lineCount"
   FROM "journal" j
   LEFT JOIN "journalLine" jl ON jl."journalId" = j."id"
-  LEFT JOIN "account" a ON a."number" = jl."accountNumber"
-    AND a."companyGroupId" = jl."companyGroupId"
+  LEFT JOIN "account" a ON a."id" = jl."accountId"
   GROUP BY j."id";

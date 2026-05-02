@@ -481,13 +481,13 @@ BEGIN
 
     -- Generate reversing entries from source journal lines
     INSERT INTO "journalLine" (
-      "journalId", "accountNumber", "description", "amount",
+      "journalId", "accountId", "description", "amount",
       "documentType", "journalLineReference",
       "companyId", "companyGroupId"
     )
     SELECT
       v_journal_id,
-      jl."accountNumber",
+      jl."accountId",
       'IC Elimination: ' || COALESCE(jl."description", ''),
       -jl."amount",
       jl."documentType",
@@ -503,13 +503,13 @@ BEGIN
 
     -- Also reverse the matched counterpart entries
     INSERT INTO "journalLine" (
-      "journalId", "accountNumber", "description", "amount",
+      "journalId", "accountId", "description", "amount",
       "documentType", "journalLineReference",
       "companyId", "companyGroupId"
     )
     SELECT
       v_journal_id,
-      jl."accountNumber",
+      jl."accountId",
       'IC Elimination: ' || COALESCE(jl."description", ''),
       -jl."amount",
       jl."documentType",

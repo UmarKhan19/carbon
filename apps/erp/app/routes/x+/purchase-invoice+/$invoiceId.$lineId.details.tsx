@@ -77,7 +77,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot modify a confirmed purchase invoice."
   });
 
-  const { client, companyGroupId, userId } = await requirePermissions(request, {
+  const { client, userId } = await requirePermissions(request, {
     create: "invoicing"
   });
 
@@ -97,22 +97,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
   //   d.assetId = undefined;
   //   d.itemId = undefined;
   // } else if (d.invoiceLineType === "Fixed Asset") {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.itemId = undefined;
   // } else
   // if (d.invoiceLineType === "Comment") {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.assetId = undefined;
   //   d.itemId = undefined;
   // } else {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.assetId = undefined;
   // }
 
   const updatePurchaseInvoiceLine = await upsertPurchaseInvoiceLine(client, {
     id: lineId,
     ...d,
-    companyGroupId,
     updatedBy: userId,
     customFields: setCustomFields(formData)
   });
@@ -148,7 +147,7 @@ export default function EditPurchaseInvoiceLineRoute() {
     invoiceLineType: (purchaseInvoiceLine?.invoiceLineType ?? "Part") as "Part",
     itemId: purchaseInvoiceLine?.itemId ?? "",
 
-    accountNumber: purchaseInvoiceLine?.accountNumber ?? "",
+    accountId: purchaseInvoiceLine?.accountId ?? "",
     assetId: purchaseInvoiceLine?.assetId ?? "",
     description: purchaseInvoiceLine?.description ?? "",
     quantity: purchaseInvoiceLine?.quantity ?? 1,

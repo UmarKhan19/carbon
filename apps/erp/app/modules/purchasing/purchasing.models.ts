@@ -196,7 +196,7 @@ export const purchaseOrderLineValidator = z
       })
     }),
     itemId: zfd.text(z.string().optional()),
-    accountNumber: zfd.text(z.string().optional()),
+    accountId: zfd.text(z.string().optional()),
     assetId: zfd.text(z.string().optional()),
     conversionFactor: zfd.numeric(z.number().optional()),
     description: zfd.text(z.string().optional()),
@@ -228,10 +228,10 @@ export const purchaseOrderLineValidator = z
   );
 // .refine(
 //   (data) =>
-//     data.purchaseOrderLineType === "G/L Account" ? data.accountNumber : true,
+//     data.purchaseOrderLineType === "G/L Account" ? data.accountId : true,
 //   {
 //     message: "Account is required",
-//     path: ["accountNumber"], // path of error
+//     path: ["accountId"], // path of error
 //   }
 // )
 // .refine(

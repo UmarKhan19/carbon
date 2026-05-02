@@ -19,6 +19,11 @@ export const abilitiesQuery = (companyId: string | null) => ({
   staleTime: RefreshRate.Low
 });
 
+export const accountsQuery = (companyId: string | null) => ({
+  queryKey: ["accounts", companyId ?? "null"],
+  staleTime: RefreshRate.Low
+});
+
 export const countriesQuery = () => ({
   queryKey: ["countries"],
   staleTime: RefreshRate.Never

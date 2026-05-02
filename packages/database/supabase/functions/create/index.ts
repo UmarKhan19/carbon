@@ -669,7 +669,6 @@ serve(async (req: Request) => {
                     jobId: job.data?.id,
                     jobOperationId: operation.id,
                     companyId,
-                    companyGroupId: companyRecord.data.companyGroupId,
                     createdBy: userId,
                     exchangeRate:
                       exchangeRates.find(

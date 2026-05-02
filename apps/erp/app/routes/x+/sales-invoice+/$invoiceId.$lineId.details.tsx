@@ -73,7 +73,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot modify a locked sales invoice. Reopen it first."
   });
 
-  const { client, companyGroupId, userId } = await requirePermissions(request, {
+  const { client, userId } = await requirePermissions(request, {
     create: "invoicing"
   });
 
@@ -93,22 +93,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
   //   d.assetId = undefined;
   //   d.itemId = undefined;
   // } else if (d.invoiceLineType === "Fixed Asset") {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.itemId = undefined;
   // } else
   // if (d.invoiceLineType === "Comment") {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.assetId = undefined;
   //   d.itemId = undefined;
   // } else {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.assetId = undefined;
   // }
 
   const updateSalesInvoiceLine = await upsertSalesInvoiceLine(client, {
     id: lineId,
     ...d,
-    companyGroupId,
     updatedBy: userId,
     customFields: setCustomFields(formData)
   });
@@ -144,7 +143,7 @@ export default function EditSalesInvoiceLineRoute() {
     methodType: (salesInvoiceLine?.methodType ??
       "Pull from Inventory") as "Pull from Inventory",
     itemId: salesInvoiceLine?.itemId ?? "",
-    accountNumber: salesInvoiceLine?.accountNumber ?? "",
+    accountId: salesInvoiceLine?.accountId ?? "",
     addOnCost: salesInvoiceLine?.addOnCost ?? 0,
     nonTaxableAddOnCost: salesInvoiceLine?.nonTaxableAddOnCost ?? 0,
     assetId: salesInvoiceLine?.assetId ?? "",

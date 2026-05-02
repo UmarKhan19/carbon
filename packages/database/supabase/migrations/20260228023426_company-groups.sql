@@ -183,8 +183,9 @@ ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_salesTaxP
 ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_reverseChargeSalesTaxPayableAccount_fkey";
 ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_purchaseTaxPayableAccount_fkey";
 ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_retainedEarningsAccount_fkey";
+ALTER TABLE "accountDefault" DROP CONSTRAINT IF EXISTS "accountDefault_inventoryInvoicedNotReceivedAccount_fkey";
 
--- postingGroupInventory (14 account FKs)
+-- postingGroupInventory (tables dropped in next migration, but FKs block account_number_key drop)
 ALTER TABLE "postingGroupInventory" DROP CONSTRAINT IF EXISTS "postingGroupInventory_costOfGoodsSoldAccount_fkey";
 ALTER TABLE "postingGroupInventory" DROP CONSTRAINT IF EXISTS "postingGroupInventory_inventoryAccount_fkey";
 ALTER TABLE "postingGroupInventory" DROP CONSTRAINT IF EXISTS "postingGroupInventory_inventoryInterimAccrualAccount_fkey";
@@ -200,7 +201,7 @@ ALTER TABLE "postingGroupInventory" DROP CONSTRAINT IF EXISTS "postingGroupInven
 ALTER TABLE "postingGroupInventory" DROP CONSTRAINT IF EXISTS "postingGroupInventory_capacityVarianceAccount_fkey";
 ALTER TABLE "postingGroupInventory" DROP CONSTRAINT IF EXISTS "postingGroupInventory_overheadAccount_fkey";
 
--- postingGroupPurchasing (6 account FKs)
+-- postingGroupPurchasing
 ALTER TABLE "postingGroupPurchasing" DROP CONSTRAINT IF EXISTS "postingGroupPurchasing_payablesAccount_fkey";
 ALTER TABLE "postingGroupPurchasing" DROP CONSTRAINT IF EXISTS "postingGroupPurchasing_purchaseAccount_fkey";
 ALTER TABLE "postingGroupPurchasing" DROP CONSTRAINT IF EXISTS "postingGroupPurchasing_purchaseDiscountAccount_fkey";
@@ -208,7 +209,7 @@ ALTER TABLE "postingGroupPurchasing" DROP CONSTRAINT IF EXISTS "postingGroupPurc
 ALTER TABLE "postingGroupPurchasing" DROP CONSTRAINT IF EXISTS "postingGroupPurchasing_purchasePrepaymentAccount_fkey";
 ALTER TABLE "postingGroupPurchasing" DROP CONSTRAINT IF EXISTS "postingGroupPurchasing_purchaseTaxPayableAccount_fkey";
 
--- postingGroupSales (6 account FKs)
+-- postingGroupSales
 ALTER TABLE "postingGroupSales" DROP CONSTRAINT IF EXISTS "postingGroupSales_receivablesAccount_fkey";
 ALTER TABLE "postingGroupSales" DROP CONSTRAINT IF EXISTS "postingGroupSales_salesAccount_fkey";
 ALTER TABLE "postingGroupSales" DROP CONSTRAINT IF EXISTS "postingGroupSales_salesDiscountAccount_fkey";
@@ -347,257 +348,430 @@ CREATE INDEX "currency_companyGroupId_idx" ON "currency"("companyGroupId");
 -- Each table keeps its companyId (for operational scoping) and gains
 -- companyGroupId (for FK references to group-scoped tables).
 
--- accountDefault
-ALTER TABLE "accountDefault" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "accountDefault" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "accountDefault"."companyId";
-ALTER TABLE "accountDefault" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "accountDefault_companyGroupId_idx" ON "accountDefault"("companyGroupId");
+-- accountDefault: backfill account columns from numbers to IDs
+DO $$
+DECLARE
+  col TEXT;
+  cols TEXT[] := ARRAY[
+    'salesAccount', 'salesDiscountAccount', 'costOfGoodsSoldAccount',
+    'purchaseAccount', 'directCostAppliedAccount', 'overheadCostAppliedAccount',
+    'purchaseVarianceAccount', 'inventoryAdjustmentVarianceAccount',
+    'materialVarianceAccount', 'capacityVarianceAccount',
+    'overheadAccount', 'maintenanceAccount',
+    'assetDepreciationExpenseAccount', 'assetGainsAndLossesAccount',
+    'serviceChargeAccount', 'interestAccount',
+    'supplierPaymentDiscountAccount', 'customerPaymentDiscountAccount',
+    'roundingAccount',
+    'assetAquisitionCostAccount', 'assetAquisitionCostOnDisposalAccount',
+    'accumulatedDepreciationAccount', 'accumulatedDepreciationOnDisposalAccount',
+    'inventoryAccount', 'inventoryInterimAccrualAccount',
+    'workInProgressAccount', 'receivablesAccount',
+    'inventoryShippedNotInvoicedAccount',
+    'bankCashAccount', 'bankLocalCurrencyAccount', 'bankForeignCurrencyAccount',
+    'prepaymentAccount', 'payablesAccount',
+    'inventoryReceivedNotInvoicedAccount',
+    'salesTaxPayableAccount', 'reverseChargeSalesTaxPayableAccount',
+    'purchaseTaxPayableAccount', 'retainedEarningsAccount'
+  ];
+BEGIN
+  FOREACH col IN ARRAY cols
+  LOOP
+    EXECUTE format(
+      'UPDATE "accountDefault" ad SET %I = a."id"
+       FROM "account" a
+       INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+       WHERE a."number" = ad.%I
+         AND c."id" = ad."companyId"',
+      col, col
+    );
+  END LOOP;
+END;
+$$;
 
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_salesAccount_fkey"
-  FOREIGN KEY ("salesAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("salesAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_salesDiscountAccount_fkey"
-  FOREIGN KEY ("salesDiscountAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("salesDiscountAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_costOfGoodsSoldAccount_fkey"
-  FOREIGN KEY ("costOfGoodsSoldAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("costOfGoodsSoldAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_purchaseAccount_fkey"
-  FOREIGN KEY ("purchaseAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("purchaseAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_directCostAppliedAccount_fkey"
-  FOREIGN KEY ("directCostAppliedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("directCostAppliedAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_overheadCostAppliedAccount_fkey"
-  FOREIGN KEY ("overheadCostAppliedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("overheadCostAppliedAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_purchaseVarianceAccount_fkey"
-  FOREIGN KEY ("purchaseVarianceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("purchaseVarianceAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_inventoryAdjustmentVarianceAccount_fkey"
-  FOREIGN KEY ("inventoryAdjustmentVarianceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("inventoryAdjustmentVarianceAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_materialVarianceAccount_fkey"
-  FOREIGN KEY ("materialVarianceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("materialVarianceAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_capacityVarianceAccount_fkey"
-  FOREIGN KEY ("capacityVarianceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("capacityVarianceAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_overheadAccount_fkey"
-  FOREIGN KEY ("overheadAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("overheadAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_maintenanceAccount_fkey"
-  FOREIGN KEY ("maintenanceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("maintenanceAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_assetDepreciationExpenseAccount_fkey"
-  FOREIGN KEY ("assetDepreciationExpenseAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("assetDepreciationExpenseAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_assetGainsAndLossesAccount_fkey"
-  FOREIGN KEY ("assetGainsAndLossesAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("assetGainsAndLossesAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_serviceChargeAccount_fkey"
-  FOREIGN KEY ("serviceChargeAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("serviceChargeAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_interestAccount_fkey"
-  FOREIGN KEY ("interestAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("interestAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_supplierPaymentDiscountAccount_fkey"
-  FOREIGN KEY ("supplierPaymentDiscountAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("supplierPaymentDiscountAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_customerPaymentDiscountAccount_fkey"
-  FOREIGN KEY ("customerPaymentDiscountAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("customerPaymentDiscountAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_roundingAccount_fkey"
-  FOREIGN KEY ("roundingAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("roundingAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_aquisitionCostAccount_fkey"
-  FOREIGN KEY ("assetAquisitionCostAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("assetAquisitionCostAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_aquisitionCostOnDisposalAccount_fkey"
-  FOREIGN KEY ("assetAquisitionCostOnDisposalAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("assetAquisitionCostOnDisposalAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_accumulatedDepreciationAccount_fkey"
-  FOREIGN KEY ("accumulatedDepreciationAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("accumulatedDepreciationAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_accumulatedDepreciationOnDisposalAccount_fkey"
-  FOREIGN KEY ("accumulatedDepreciationOnDisposalAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("accumulatedDepreciationOnDisposalAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_inventoryAccount_fkey"
-  FOREIGN KEY ("inventoryAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("inventoryAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_inventoryInterimAccrualAccount_fkey"
-  FOREIGN KEY ("inventoryInterimAccrualAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("inventoryInterimAccrualAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_workInProgressAccount_fkey"
-  FOREIGN KEY ("workInProgressAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("workInProgressAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_receivablesAccount_fkey"
-  FOREIGN KEY ("receivablesAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("receivablesAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_inventoryShippedNotInvoicedAccount_fkey"
-  FOREIGN KEY ("inventoryShippedNotInvoicedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("inventoryShippedNotInvoicedAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_bankCashAccount_fkey"
-  FOREIGN KEY ("bankCashAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("bankCashAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_bankLocalCurrencyAccount_fkey"
-  FOREIGN KEY ("bankLocalCurrencyAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("bankLocalCurrencyAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_bankForeignCurrencyAccount_fkey"
-  FOREIGN KEY ("bankForeignCurrencyAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("bankForeignCurrencyAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_prepaymentAccount_fkey"
-  FOREIGN KEY ("prepaymentAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("prepaymentAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_payablesAccount_fkey"
-  FOREIGN KEY ("payablesAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("payablesAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_inventoryReceivedNotInvoicedAccount_fkey"
-  FOREIGN KEY ("inventoryReceivedNotInvoicedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("inventoryReceivedNotInvoicedAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_salesTaxPayableAccount_fkey"
-  FOREIGN KEY ("salesTaxPayableAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("salesTaxPayableAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_reverseChargeSalesTaxPayableAccount_fkey"
-  FOREIGN KEY ("reverseChargeSalesTaxPayableAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("reverseChargeSalesTaxPayableAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_purchaseTaxPayableAccount_fkey"
-  FOREIGN KEY ("purchaseTaxPayableAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("purchaseTaxPayableAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_retainedEarningsAccount_fkey"
-  FOREIGN KEY ("retainedEarningsAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+  FOREIGN KEY ("retainedEarningsAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- postingGroupInventory
-ALTER TABLE "postingGroupInventory" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "postingGroupInventory" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "postingGroupInventory"."companyId";
-ALTER TABLE "postingGroupInventory" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "postingGroupInventory_companyGroupId_idx" ON "postingGroupInventory"("companyGroupId");
+-- journalLine: make accountNumber nullable, add accountId, backfill from account table, simple FK
+ALTER TABLE "journalLine" ALTER COLUMN "accountNumber" DROP NOT NULL;
+ALTER TABLE "journalLine" ADD COLUMN "accountId" TEXT;
+UPDATE "journalLine" SET "accountId" = a."id"
+  FROM "account" a
+  INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+  WHERE a."number" = "journalLine"."accountNumber"
+    AND c."id" = "journalLine"."companyId";
+ALTER TABLE "journalLine" ADD CONSTRAINT "journalLine_accountId_fkey"
+  FOREIGN KEY ("accountId") REFERENCES "account"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+CREATE INDEX "journalLine_accountId_idx" ON "journalLine"("accountId");
 
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_costOfGoodsSoldAccount_fkey"
-  FOREIGN KEY ("costOfGoodsSoldAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_inventoryAccount_fkey"
-  FOREIGN KEY ("inventoryAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_inventoryInterimAccrualAccount_fkey"
-  FOREIGN KEY ("inventoryInterimAccrualAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_inventoryReceivedNotInvoicedAccount_fkey"
-  FOREIGN KEY ("inventoryReceivedNotInvoicedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_inventoryInvoicedNotReceivedAccount_fkey"
-  FOREIGN KEY ("inventoryInvoicedNotReceivedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_inventoryShippedNotInvoicedAccount_fkey"
-  FOREIGN KEY ("inventoryShippedNotInvoicedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_workInProgressAccount_fkey"
-  FOREIGN KEY ("workInProgressAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_directCostAppliedAccount_fkey"
-  FOREIGN KEY ("directCostAppliedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_overheadCostAppliedAccount_fkey"
-  FOREIGN KEY ("overheadCostAppliedAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_purchaseVarianceAccount_fkey"
-  FOREIGN KEY ("purchaseVarianceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_inventoryAdjustmentVarianceAccount_fkey"
-  FOREIGN KEY ("inventoryAdjustmentVarianceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_materialVarianceAccount_fkey"
-  FOREIGN KEY ("materialVarianceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_capacityVarianceAccount_fkey"
-  FOREIGN KEY ("capacityVarianceAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "postingGroupInventory" ADD CONSTRAINT "postingGroupInventory_overheadAccount_fkey"
-  FOREIGN KEY ("overheadAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
+-- purchaseOrderLine: add accountId, backfill, simple FK
+ALTER TABLE "purchaseOrderLine" ADD COLUMN "accountId" TEXT;
+UPDATE "purchaseOrderLine" SET "accountId" = a."id"
+  FROM "account" a
+  INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+  WHERE a."number" = "purchaseOrderLine"."accountNumber"
+    AND c."id" = "purchaseOrderLine"."companyId";
+ALTER TABLE "purchaseOrderLine" ADD CONSTRAINT "purchaseOrderLine_accountId_fkey"
+  FOREIGN KEY ("accountId") REFERENCES "account"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+CREATE INDEX "purchaseOrderLine_accountId_idx" ON "purchaseOrderLine"("accountId");
 
--- postingGroupPurchasing
-ALTER TABLE "postingGroupPurchasing" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "postingGroupPurchasing" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "postingGroupPurchasing"."companyId";
-ALTER TABLE "postingGroupPurchasing" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "postingGroupPurchasing_companyGroupId_idx" ON "postingGroupPurchasing"("companyGroupId");
+-- salesOrderLine: add accountId, backfill, simple FK
+ALTER TABLE "salesOrderLine" ADD COLUMN "accountId" TEXT;
+UPDATE "salesOrderLine" SET "accountId" = a."id"
+  FROM "account" a
+  INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+  WHERE a."number" = "salesOrderLine"."accountNumber"
+    AND c."id" = "salesOrderLine"."companyId";
+ALTER TABLE "salesOrderLine" ADD CONSTRAINT "salesOrderLine_accountId_fkey"
+  FOREIGN KEY ("accountId") REFERENCES "account"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+CREATE INDEX "salesOrderLine_accountId_idx" ON "salesOrderLine"("accountId");
 
-ALTER TABLE "postingGroupPurchasing" ADD CONSTRAINT "postingGroupPurchasing_payablesAccount_fkey"
-  FOREIGN KEY ("payablesAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupPurchasing" ADD CONSTRAINT "postingGroupPurchasing_purchaseAccount_fkey"
-  FOREIGN KEY ("purchaseAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupPurchasing" ADD CONSTRAINT "postingGroupPurchasing_purchaseDiscountAccount_fkey"
-  FOREIGN KEY ("purchaseDiscountAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupPurchasing" ADD CONSTRAINT "postingGroupPurchasing_purchaseCreditAccount_fkey"
-  FOREIGN KEY ("purchaseCreditAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupPurchasing" ADD CONSTRAINT "postingGroupPurchasing_purchasePrepaymentAccount_fkey"
-  FOREIGN KEY ("purchasePrepaymentAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupPurchasing" ADD CONSTRAINT "postingGroupPurchasing_purchaseTaxPayableAccount_fkey"
-  FOREIGN KEY ("purchaseTaxPayableAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- salesInvoiceLine: add accountId, backfill, simple FK
+ALTER TABLE "salesInvoiceLine" ADD COLUMN "accountId" TEXT;
+UPDATE "salesInvoiceLine" SET "accountId" = a."id"
+  FROM "account" a
+  INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+  WHERE a."number" = "salesInvoiceLine"."accountNumber"
+    AND c."id" = "salesInvoiceLine"."companyId";
+ALTER TABLE "salesInvoiceLine" ADD CONSTRAINT "salesInvoiceLine_accountId_fkey"
+  FOREIGN KEY ("accountId") REFERENCES "account"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+CREATE INDEX "salesInvoiceLine_accountId_idx" ON "salesInvoiceLine"("accountId");
 
--- postingGroupSales
-ALTER TABLE "postingGroupSales" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "postingGroupSales" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "postingGroupSales"."companyId";
-ALTER TABLE "postingGroupSales" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "postingGroupSales_companyGroupId_idx" ON "postingGroupSales"("companyGroupId");
+-- purchaseInvoiceLine: add accountId, backfill, simple FK
+ALTER TABLE "purchaseInvoiceLine" ADD COLUMN "accountId" TEXT;
+UPDATE "purchaseInvoiceLine" SET "accountId" = a."id"
+  FROM "account" a
+  INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+  WHERE a."number" = "purchaseInvoiceLine"."accountNumber"
+    AND c."id" = "purchaseInvoiceLine"."companyId";
+ALTER TABLE "purchaseInvoiceLine" ADD CONSTRAINT "purchaseInvoiceLine_accountId_fkey"
+  FOREIGN KEY ("accountId") REFERENCES "account"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+CREATE INDEX "purchaseInvoiceLine_accountId_idx" ON "purchaseInvoiceLine"("accountId");
 
-ALTER TABLE "postingGroupSales" ADD CONSTRAINT "postingGroupSales_receivablesAccount_fkey"
-  FOREIGN KEY ("receivablesAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupSales" ADD CONSTRAINT "postingGroupSales_salesAccount_fkey"
-  FOREIGN KEY ("salesAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupSales" ADD CONSTRAINT "postingGroupSales_salesDiscountAccount_fkey"
-  FOREIGN KEY ("salesDiscountAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupSales" ADD CONSTRAINT "postingGroupSales_salesCreditAccount_fkey"
-  FOREIGN KEY ("salesCreditAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupSales" ADD CONSTRAINT "postingGroupSales_salesPrepaymentAccount_fkey"
-  FOREIGN KEY ("salesPrepaymentAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-ALTER TABLE "postingGroupSales" ADD CONSTRAINT "postingGroupSales_salesTaxPayableAccount_fkey"
-  FOREIGN KEY ("salesTaxPayableAccount", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+-- Drop views that use SELECT * from line tables (they depend on accountNumber column)
+DROP VIEW IF EXISTS "purchaseOrderLines";
+DROP VIEW IF EXISTS "purchaseInvoiceLines";
+DROP VIEW IF EXISTS "salesOrderLines";
+DROP VIEW IF EXISTS "salesInvoiceLines";
 
--- journalLine
-ALTER TABLE "journalLine" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "journalLine" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "journalLine"."companyId";
-ALTER TABLE "journalLine" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "journalLine_companyGroupId_idx" ON "journalLine"("companyGroupId");
+-- Drop CHECK constraints that reference accountNumber
+ALTER TABLE "purchaseOrderLine" DROP CONSTRAINT IF EXISTS "purchaseOrderLineType_number";
+ALTER TABLE "purchaseInvoiceLine" DROP CONSTRAINT IF EXISTS "invoiceLineType_number";
+ALTER TABLE "salesOrderLine" DROP CONSTRAINT IF EXISTS "salesOrderLineType_number";
 
-ALTER TABLE "journalLine" ADD CONSTRAINT "journalLine_accountNumber_fkey"
-  FOREIGN KEY ("accountNumber", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON UPDATE CASCADE ON DELETE SET NULL;
+-- Drop accountNumber columns (data has been backfilled to accountId above)
+ALTER TABLE "journalLine" DROP COLUMN "accountNumber";
+DROP INDEX IF EXISTS "journalLine_accountNumber_idx";
+ALTER TABLE "purchaseOrderLine" DROP COLUMN "accountNumber";
+ALTER TABLE "salesOrderLine" DROP COLUMN "accountNumber";
+ALTER TABLE "purchaseInvoiceLine" DROP COLUMN "accountNumber";
+ALTER TABLE "salesInvoiceLine" DROP COLUMN "accountNumber";
 
--- purchaseOrderLine
-ALTER TABLE "purchaseOrderLine" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "purchaseOrderLine" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "purchaseOrderLine"."companyId";
-ALTER TABLE "purchaseOrderLine" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "purchaseOrderLine_companyGroupId_idx" ON "purchaseOrderLine"("companyGroupId");
+-- Recreate CHECK constraints using accountId
+ALTER TABLE "purchaseOrderLine" ADD CONSTRAINT "purchaseOrderLineType_check"
+  CHECK (
+    (
+      "purchaseOrderLineType" = 'Comment' AND
+      "itemId" IS NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NULL AND
+      "description" IS NOT NULL
+    )
+    OR (
+      "purchaseOrderLineType" = 'G/L Account' AND
+      "itemId" IS NULL AND
+      "accountId" IS NOT NULL AND
+      "assetId" IS NULL
+    )
+    OR (
+      (
+        "purchaseOrderLineType" = 'Part' OR
+        "purchaseOrderLineType" = 'Material' OR
+        "purchaseOrderLineType" = 'Tool' OR
+        "purchaseOrderLineType" = 'Consumable' OR
+        "purchaseOrderLineType" = 'Fixture' OR
+        "purchaseOrderLineType" = 'Service'
+      ) AND
+      "itemId" IS NOT NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NULL
+    ) OR (
+      "purchaseOrderLineType" = 'Fixed Asset' AND
+      "itemId" IS NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NOT NULL
+    )
+  );
 
-ALTER TABLE "purchaseOrderLine" ADD CONSTRAINT "purchaseOrderLine_accountNumber_fkey"
-  FOREIGN KEY ("accountNumber", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "purchaseInvoiceLine" ADD CONSTRAINT "invoiceLineType_check"
+  CHECK (
+    (
+      "invoiceLineType" = 'Comment' AND
+      "itemId" IS NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NULL AND
+      "description" IS NOT NULL
+    )
+    OR (
+      "invoiceLineType" = 'G/L Account' AND
+      "itemId" IS NULL AND
+      "accountId" IS NOT NULL AND
+      "assetId" IS NULL
+    )
+    OR (
+      (
+        "invoiceLineType" = 'Part' OR
+        "invoiceLineType" = 'Material' OR
+        "invoiceLineType" = 'Tool' OR
+        "invoiceLineType" = 'Consumable' OR
+        "invoiceLineType" = 'Fixture' OR
+        "invoiceLineType" = 'Service'
+      ) AND
+      "itemId" IS NOT NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NULL
+    )
+    OR (
+      "invoiceLineType" = 'Fixed Asset' AND
+      "itemId" IS NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NOT NULL
+    )
+  );
 
--- salesOrderLine
-ALTER TABLE "salesOrderLine" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "salesOrderLine" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "salesOrderLine"."companyId";
-ALTER TABLE "salesOrderLine" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "salesOrderLine_companyGroupId_idx" ON "salesOrderLine"("companyGroupId");
+ALTER TABLE "salesOrderLine" ADD CONSTRAINT "salesOrderLineType_check"
+  CHECK (
+    (
+      "salesOrderLineType" = 'Comment' AND
+      "itemId" IS NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NULL AND
+      "description" IS NOT NULL
+    )
+    OR (
+      (
+        "salesOrderLineType" = 'Part' OR
+        "salesOrderLineType" = 'Material' OR
+        "salesOrderLineType" = 'Tool' OR
+        "salesOrderLineType" = 'Consumable' OR
+        "salesOrderLineType" = 'Fixture' OR
+        "salesOrderLineType" = 'Service'
+      ) AND
+      "itemId" IS NOT NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NULL
+    ) OR (
+      "salesOrderLineType" = 'Fixed Asset' AND
+      "itemId" IS NULL AND
+      "accountId" IS NULL AND
+      "assetId" IS NOT NULL
+    )
+  );
 
-ALTER TABLE "salesOrderLine" ADD CONSTRAINT "salesOrderLine_accountNumber_fkey"
-  FOREIGN KEY ("accountNumber", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
+-- Recreate views that were dropped for the accountNumber column removal
+CREATE OR REPLACE VIEW "purchaseOrderLines" WITH(SECURITY_INVOKER=true) AS (
+  SELECT DISTINCT ON (pl.id)
+    pl.*,
+    CASE
+      WHEN i."thumbnailPath" IS NULL AND mu."thumbnailPath" IS NOT NULL THEN mu."thumbnailPath"
+      WHEN i."thumbnailPath" IS NULL AND imu."thumbnailPath" IS NOT NULL THEN imu."thumbnailPath"
+      ELSE i."thumbnailPath"
+    END as "thumbnailPath",
+    i.name as "itemName",
+    i."readableIdWithRevision" as "itemReadableId",
+    i.description as "itemDescription",
+    COALESCE(mu.id, imu.id) as "modelId",
+    COALESCE(mu."autodeskUrn", imu."autodeskUrn") as "autodeskUrn",
+    COALESCE(mu."modelPath", imu."modelPath") as "modelPath",
+    COALESCE(mu."name", imu."name") as "modelName",
+    COALESCE(mu."size", imu."size") as "modelSize",
+    ic."unitCost" as "unitCost",
+    sp."supplierPartId",
+    jo."description" as "jobOperationDescription"
+  FROM "purchaseOrderLine" pl
+  INNER JOIN "purchaseOrder" so ON so.id = pl."purchaseOrderId"
+  LEFT JOIN "modelUpload" mu ON pl."modelUploadId" = mu."id"
+  INNER JOIN "item" i ON i.id = pl."itemId"
+  LEFT JOIN "itemCost" ic ON ic."itemId" = i.id
+  LEFT JOIN "modelUpload" imu ON imu.id = i."modelUploadId"
+  LEFT JOIN "supplierPart" sp ON sp."supplierId" = so."supplierId" AND sp."itemId" = i.id
+  LEFT JOIN "jobOperation" jo ON jo."id" = pl."jobOperationId"
+);
 
--- salesInvoiceLine
-ALTER TABLE "salesInvoiceLine" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "salesInvoiceLine" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "salesInvoiceLine"."companyId";
-ALTER TABLE "salesInvoiceLine" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "salesInvoiceLine_companyGroupId_idx" ON "salesInvoiceLine"("companyGroupId");
+CREATE OR REPLACE VIEW "purchaseInvoiceLines" WITH(SECURITY_INVOKER=true) AS (
+  SELECT
+    pl.*,
+    CASE
+      WHEN i."thumbnailPath" IS NULL AND mu."thumbnailPath" IS NOT NULL THEN mu."thumbnailPath"
+      WHEN i."thumbnailPath" IS NULL AND imu."thumbnailPath" IS NOT NULL THEN imu."thumbnailPath"
+      ELSE i."thumbnailPath"
+    END as "thumbnailPath",
+    i."readableIdWithRevision" as "itemReadableId",
+    i.name as "itemName",
+    i.description as "itemDescription",
+    ic."unitCost" as "unitCost",
+    sp."supplierPartId"
+  FROM "purchaseInvoiceLine" pl
+  INNER JOIN "purchaseInvoice" pi ON pi.id = pl."invoiceId"
+  LEFT JOIN "modelUpload" mu ON pl."modelUploadId" = mu."id"
+  INNER JOIN "item" i ON i.id = pl."itemId"
+  LEFT JOIN "itemCost" ic ON ic."itemId" = i.id
+  LEFT JOIN "modelUpload" imu ON imu.id = i."modelUploadId"
+  LEFT JOIN "supplierPart" sp ON sp."supplierId" = pi."supplierId" AND sp."itemId" = i.id
+);
 
-ALTER TABLE "salesInvoiceLine" ADD CONSTRAINT "salesInvoiceLine_accountNumber_fkey"
-  FOREIGN KEY ("accountNumber", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE OR REPLACE VIEW "salesOrderLines" WITH(SECURITY_INVOKER=true) AS (
+  SELECT
+    sl.*,
+    i."readableIdWithRevision" as "itemReadableId",
+    CASE
+      WHEN i."thumbnailPath" IS NULL AND mu."thumbnailPath" IS NOT NULL THEN mu."thumbnailPath"
+      WHEN i."thumbnailPath" IS NULL AND imu."thumbnailPath" IS NOT NULL THEN imu."thumbnailPath"
+      ELSE i."thumbnailPath"
+    END as "thumbnailPath",
+    COALESCE(mu.id, imu.id) as "modelId",
+    COALESCE(mu."autodeskUrn", imu."autodeskUrn") as "autodeskUrn",
+    COALESCE(mu."modelPath", imu."modelPath") as "modelPath",
+    COALESCE(mu."name", imu."name") as "modelName",
+    COALESCE(mu."size", imu."size") as "modelSize",
+    ic."unitCost" as "unitCost",
+    cp."customerPartId",
+    cp."customerPartRevision",
+    so."orderDate",
+    so."customerId",
+    so."salesOrderId" as "salesOrderReadableId"
+  FROM "salesOrderLine" sl
+  INNER JOIN "salesOrder" so ON so.id = sl."salesOrderId"
+  LEFT JOIN "modelUpload" mu ON sl."modelUploadId" = mu."id"
+  INNER JOIN "item" i ON i.id = sl."itemId"
+  LEFT JOIN "itemCost" ic ON ic."itemId" = i.id
+  LEFT JOIN "modelUpload" imu ON imu.id = i."modelUploadId"
+  LEFT JOIN "customerPartToItem" cp ON cp."customerId" = so."customerId" AND cp."itemId" = i.id
+);
 
--- purchaseInvoiceLine
-ALTER TABLE "purchaseInvoiceLine" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "purchaseInvoiceLine" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "purchaseInvoiceLine"."companyId";
-ALTER TABLE "purchaseInvoiceLine" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "purchaseInvoiceLine_companyGroupId_idx" ON "purchaseInvoiceLine"("companyGroupId");
+CREATE OR REPLACE VIEW "salesInvoiceLines" WITH(SECURITY_INVOKER=true) AS (
+  SELECT
+    sl.*,
+    i."readableIdWithRevision" as "itemReadableId",
+    CASE
+      WHEN i."thumbnailPath" IS NULL AND mu."thumbnailPath" IS NOT NULL THEN mu."thumbnailPath"
+      WHEN i."thumbnailPath" IS NULL AND imu."thumbnailPath" IS NOT NULL THEN imu."thumbnailPath"
+      ELSE i."thumbnailPath"
+    END as "thumbnailPath",
+    i.name as "itemName",
+    i.description as "itemDescription",
+    ic."unitCost" as "unitCost",
+    (SELECT cp."customerPartId"
+     FROM "customerPartToItem" cp
+     WHERE cp."customerId" = si."customerId" AND cp."itemId" = i.id
+     LIMIT 1) as "customerPartId"
+  FROM "salesInvoiceLine" sl
+  INNER JOIN "salesInvoice" si ON si.id = sl."invoiceId"
+  LEFT JOIN "modelUpload" mu ON sl."modelUploadId" = mu."id"
+  INNER JOIN "item" i ON i.id = sl."itemId"
+  LEFT JOIN "itemCost" ic ON ic."itemId" = i.id
+  LEFT JOIN "modelUpload" imu ON imu.id = i."modelUploadId"
+);
 
-ALTER TABLE "purchaseInvoiceLine" ADD CONSTRAINT "purchaseInvoiceLines_accountNumber_fkey"
-  FOREIGN KEY ("accountNumber", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- shippingMethod
-ALTER TABLE "shippingMethod" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "shippingMethod" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "shippingMethod"."companyId";
-ALTER TABLE "shippingMethod" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "shippingMethod_companyGroupId_idx" ON "shippingMethod"("companyGroupId");
-
+-- shippingMethod: convert carrierAccountId from account number to account id
+UPDATE "shippingMethod" SET "carrierAccountId" = a."id"
+  FROM "account" a
+  INNER JOIN "company" c ON c."companyGroupId" = a."companyGroupId"
+  WHERE a."number" = "shippingMethod"."carrierAccountId"
+    AND c."id" = "shippingMethod"."companyId";
 ALTER TABLE "shippingMethod" ADD CONSTRAINT "shippingMethod_carrierAccountId_fkey"
-  FOREIGN KEY ("carrierAccountId", "companyGroupId") REFERENCES "account"("number", "companyGroupId") ON DELETE CASCADE ON UPDATE CASCADE;
+  FOREIGN KEY ("carrierAccountId") REFERENCES "account"("id") ON UPDATE CASCADE ON DELETE SET NULL;
 
--- Currency FK tables
-
--- purchaseInvoice
-ALTER TABLE "purchaseInvoice" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "purchaseInvoice" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "purchaseInvoice"."companyId";
-ALTER TABLE "purchaseInvoice" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "purchaseInvoice_companyGroupId_idx" ON "purchaseInvoice"("companyGroupId");
+-- Currency FK tables: simple FK to currencyCode reference table
+-- (purchaseInvoiceLine, purchaseOrderPayment, salesOrderPayment, quotePayment,
+--  customerPayment, supplierPayment had their currencyCode column dropped in
+--  earlier migrations — no FK needed)
 
 ALTER TABLE "purchaseInvoice" ADD CONSTRAINT "purchaseInvoice_currencyCode_fkey"
-  FOREIGN KEY ("currencyCode", "companyGroupId") REFERENCES "currency"("code", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- purchasePayment
-ALTER TABLE "purchasePayment" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "purchasePayment" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "purchasePayment"."companyId";
-ALTER TABLE "purchasePayment" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "purchasePayment_companyGroupId_idx" ON "purchasePayment"("companyGroupId");
+  FOREIGN KEY ("currencyCode") REFERENCES "currencyCode"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE "purchasePayment" ADD CONSTRAINT "purchasePayment_currencyCode_fkey"
-  FOREIGN KEY ("currencyCode", "companyGroupId") REFERENCES "currency"("code", "companyGroupId") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- itemUnitSalePrice
-ALTER TABLE "itemUnitSalePrice" ADD COLUMN "companyGroupId" TEXT;
-UPDATE "itemUnitSalePrice" SET "companyGroupId" = c."companyGroupId"
-  FROM "company" c WHERE c."id" = "itemUnitSalePrice"."companyId";
-ALTER TABLE "itemUnitSalePrice" ALTER COLUMN "companyGroupId" SET NOT NULL;
-CREATE INDEX "itemUnitSalePrice_companyGroupId_idx" ON "itemUnitSalePrice"("companyGroupId");
+  FOREIGN KEY ("currencyCode") REFERENCES "currencyCode"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE "itemUnitSalePrice" ADD CONSTRAINT "itemUnitSalePrice_currencyCode_fkey"
-  FOREIGN KEY ("currencyCode", "companyGroupId") REFERENCES "currency"("code", "companyGroupId") ON DELETE SET NULL ON UPDATE CASCADE;
+  FOREIGN KEY ("currencyCode") REFERENCES "currencyCode"("code") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "salesOrder" ADD CONSTRAINT "salesOrder_currencyCode_fkey"
+  FOREIGN KEY ("currencyCode") REFERENCES "currencyCode"("code") ON DELETE SET NULL ON UPDATE CASCADE;
+
 
 -- =====================================================
 -- PART 6: New RLS Policies on Shared Tables

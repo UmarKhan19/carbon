@@ -263,6 +263,7 @@ serve(async (req: Request) => {
         .execute();
 
       // Shared tables: only seed for new groups (existing groups already have these)
+      let accountIdByKey: Record<string, string> = {};
       if (isNewGroup) {
         await trx
           .insertInto("currency")
@@ -270,7 +271,6 @@ serve(async (req: Request) => {
           .execute();
 
         // Insert accounts in order, resolving parentKey to parentId
-        const accountIdByKey: Record<string, string> = {};
         for (const { key, parentKey, ...acc } of accounts) {
           const result = await trx
             .insertInto("account")
@@ -297,6 +297,25 @@ serve(async (req: Request) => {
             }))
           )
           .execute();
+      } else {
+        // For subsidiaries joining an existing group, look up account IDs by number
+        const existingAccounts = await trx
+          .selectFrom("account")
+          .select(["id", "number"])
+          .where("companyGroupId", "=", companyGroupId!)
+          .where("number", "is not", null)
+          .execute();
+        for (const acc of existingAccounts) {
+          if (acc.number) {
+            accountIdByKey[acc.number] = acc.id;
+          }
+        }
+      }
+
+      // Resolve account numbers to IDs for account defaults
+      const resolvedDefaults: Record<string, string | null> = {};
+      for (const [key, number] of Object.entries(accountDefaults)) {
+        resolvedDefaults[key] = accountIdByKey[number] ?? null;
       }
 
       // Company-specific accounting defaults and posting groups
@@ -304,9 +323,8 @@ serve(async (req: Request) => {
         .insertInto("accountDefault")
         .values([
           {
-            ...accountDefaults,
+            ...resolvedDefaults,
             companyId,
-            companyGroupId,
           },
         ])
         .execute();

@@ -395,6 +395,10 @@ async function seedDev() {
         );
       }
 
+      // Resolve account numbers to IDs for account defaults
+      const resolveAccountId = (number: string) =>
+        accountIdByKey[number] ?? null;
+
       // Seed account defaults
       await client.query(
         `INSERT INTO "accountDefault" (
@@ -412,51 +416,55 @@ async function seedDev() {
           "bankLocalCurrencyAccount", "bankForeignCurrencyAccount", "prepaymentAccount",
           "payablesAccount", "goodsReceivedNotInvoicedAccount", "inventoryShippedNotInvoicedAccount",
           "salesTaxPayableAccount", "purchaseTaxPayableAccount", "reverseChargeSalesTaxPayableAccount",
-          "retainedEarningsAccount", "companyId", "companyGroupId"
+          "retainedEarningsAccount", "currencyTranslationAccount", "companyId"
         ) VALUES (
           $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
           $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39
         )`,
         [
-          accountDefaults.salesAccount,
-          accountDefaults.salesDiscountAccount,
-          accountDefaults.costOfGoodsSoldAccount,
-          accountDefaults.purchaseVarianceAccount,
-          accountDefaults.inventoryAdjustmentVarianceAccount,
-          accountDefaults.materialVarianceAccount,
-          accountDefaults.laborAndMachineVarianceAccount,
-          accountDefaults.overheadVarianceAccount,
-          accountDefaults.lotSizeVarianceAccount,
-          accountDefaults.subcontractingVarianceAccount,
-          accountDefaults.indirectCostAccount,
-          accountDefaults.maintenanceAccount,
-          accountDefaults.assetDepreciationExpenseAccount,
-          accountDefaults.assetGainsAndLossesAccount,
-          accountDefaults.serviceChargeAccount,
-          accountDefaults.interestAccount,
-          accountDefaults.supplierPaymentDiscountAccount,
-          accountDefaults.customerPaymentDiscountAccount,
-          accountDefaults.roundingAccount,
-          accountDefaults.assetAquisitionCostAccount,
-          accountDefaults.assetAquisitionCostOnDisposalAccount,
-          accountDefaults.accumulatedDepreciationAccount,
-          accountDefaults.accumulatedDepreciationOnDisposalAccount,
-          accountDefaults.inventoryAccount,
-          accountDefaults.workInProgressAccount,
-          accountDefaults.receivablesAccount,
-          accountDefaults.bankCashAccount,
-          accountDefaults.bankLocalCurrencyAccount,
-          accountDefaults.bankForeignCurrencyAccount,
-          accountDefaults.prepaymentAccount,
-          accountDefaults.payablesAccount,
-          accountDefaults.goodsReceivedNotInvoicedAccount,
-          accountDefaults.inventoryShippedNotInvoicedAccount,
-          accountDefaults.salesTaxPayableAccount,
-          accountDefaults.purchaseTaxPayableAccount,
-          accountDefaults.reverseChargeSalesTaxPayableAccount,
-          accountDefaults.retainedEarningsAccount,
-          companyId,
-          companyGroupId
+          resolveAccountId(accountDefaults.salesAccount),
+          resolveAccountId(accountDefaults.salesDiscountAccount),
+          resolveAccountId(accountDefaults.costOfGoodsSoldAccount),
+          resolveAccountId(accountDefaults.purchaseVarianceAccount),
+          resolveAccountId(accountDefaults.inventoryAdjustmentVarianceAccount),
+          resolveAccountId(accountDefaults.materialVarianceAccount),
+          resolveAccountId(accountDefaults.laborAndMachineVarianceAccount),
+          resolveAccountId(accountDefaults.overheadVarianceAccount),
+          resolveAccountId(accountDefaults.lotSizeVarianceAccount),
+          resolveAccountId(accountDefaults.subcontractingVarianceAccount),
+          resolveAccountId(accountDefaults.indirectCostAccount),
+          resolveAccountId(accountDefaults.maintenanceAccount),
+          resolveAccountId(accountDefaults.assetDepreciationExpenseAccount),
+          resolveAccountId(accountDefaults.assetGainsAndLossesAccount),
+          resolveAccountId(accountDefaults.serviceChargeAccount),
+          resolveAccountId(accountDefaults.interestAccount),
+          resolveAccountId(accountDefaults.supplierPaymentDiscountAccount),
+          resolveAccountId(accountDefaults.customerPaymentDiscountAccount),
+          resolveAccountId(accountDefaults.roundingAccount),
+          resolveAccountId(accountDefaults.assetAquisitionCostAccount),
+          resolveAccountId(
+            accountDefaults.assetAquisitionCostOnDisposalAccount
+          ),
+          resolveAccountId(accountDefaults.accumulatedDepreciationAccount),
+          resolveAccountId(
+            accountDefaults.accumulatedDepreciationOnDisposalAccount
+          ),
+          resolveAccountId(accountDefaults.inventoryAccount),
+          resolveAccountId(accountDefaults.workInProgressAccount),
+          resolveAccountId(accountDefaults.receivablesAccount),
+          resolveAccountId(accountDefaults.bankCashAccount),
+          resolveAccountId(accountDefaults.bankLocalCurrencyAccount),
+          resolveAccountId(accountDefaults.bankForeignCurrencyAccount),
+          resolveAccountId(accountDefaults.prepaymentAccount),
+          resolveAccountId(accountDefaults.payablesAccount),
+          resolveAccountId(accountDefaults.goodsReceivedNotInvoicedAccount),
+          resolveAccountId(accountDefaults.inventoryShippedNotInvoicedAccount),
+          resolveAccountId(accountDefaults.salesTaxPayableAccount),
+          resolveAccountId(accountDefaults.purchaseTaxPayableAccount),
+          resolveAccountId(accountDefaults.reverseChargeSalesTaxPayableAccount),
+          resolveAccountId(accountDefaults.retainedEarningsAccount),
+          resolveAccountId(accountDefaults.currencyTranslationAccount),
+          companyId
         ]
       );
 

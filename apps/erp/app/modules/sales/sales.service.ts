@@ -4883,14 +4883,15 @@ export async function upsertSalesOrderLine(
       .select("id")
       .single();
   }
+
   const salesOrder = await getSalesOrder(client, salesOrderLine.salesOrderId);
   if (salesOrder.error) return salesOrder;
 
-  salesOrderLine.exchangeRate = salesOrder.data?.exchangeRate ?? 1;
-
   return client
     .from("salesOrderLine")
-    .insert([salesOrderLine])
+    .insert([
+      { ...salesOrderLine, exchangeRate: salesOrder.data?.exchangeRate ?? 1 }
+    ])
     .select("id")
     .single();
 }

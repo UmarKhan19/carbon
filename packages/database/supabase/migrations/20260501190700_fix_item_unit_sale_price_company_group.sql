@@ -1,6 +1,6 @@
--- Fix item insert interceptor to include companyGroupId on itemUnitSalePrice.
--- The original item interceptor migration exists on main, so redefine the
--- function in a new migration rather than editing historical migration SQL.
+-- Fix item insert interceptor to remove companyGroupId from itemUnitSalePrice.
+-- The currencyCode FK now references currencyCode("code") directly,
+-- so companyGroupId is no longer needed on itemUnitSalePrice.
 
 CREATE OR REPLACE FUNCTION sync_create_item_related_records(
   p_table TEXT,
@@ -14,12 +14,11 @@ SECURITY DEFINER
 AS $$
 DECLARE
   base_currency TEXT;
-  company_group_id TEXT;
 BEGIN
   IF p_operation != 'INSERT' THEN RETURN; END IF;
 
-  SELECT "baseCurrencyCode", "companyGroupId"
-  INTO base_currency, company_group_id
+  SELECT "baseCurrencyCode"
+  INTO base_currency
   FROM "company"
   WHERE "id" = p_new->>'companyId';
 
@@ -29,10 +28,9 @@ BEGIN
   INSERT INTO "itemReplenishment"("itemId", "createdBy", "companyId")
   VALUES (p_new->>'id', p_new->>'createdBy', p_new->>'companyId');
 
-  INSERT INTO "itemUnitSalePrice"("itemId", "currencyCode", "createdBy", "companyId", "companyGroupId")
-  VALUES (p_new->>'id', COALESCE(base_currency, 'USD'), p_new->>'createdBy', p_new->>'companyId', company_group_id);
+  INSERT INTO "itemUnitSalePrice"("itemId", "currencyCode", "createdBy", "companyId")
+  VALUES (p_new->>'id', COALESCE(base_currency, 'USD'), p_new->>'createdBy', p_new->>'companyId');
 
-  -- Insert itemPlanning records for each location in the company
   INSERT INTO "itemPlanning"("itemId", "locationId", "createdBy", "companyId")
   SELECT
     p_new->>'id',

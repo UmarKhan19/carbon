@@ -95,7 +95,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot modify a confirmed purchase order."
   });
 
-  const { client, companyGroupId, userId } = await requirePermissions(request, {
+  const { client, userId } = await requirePermissions(request, {
     update: "purchasing"
   });
 
@@ -114,7 +114,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const updatePurchaseOrderLine = await upsertPurchaseOrderLine(client, {
     id: lineId,
     ...d,
-    companyGroupId,
     updatedBy: userId,
     customFields: setCustomFields(formData)
   });
@@ -153,7 +152,7 @@ export default function EditPurchaseOrderLineRoute() {
     purchaseOrderId: line?.purchaseOrderId ?? "",
     purchaseOrderLineType: (line?.purchaseOrderLineType ?? "Part") as "Part",
     itemId: line?.itemId ?? "",
-    accountNumber: line?.accountNumber ?? "",
+    accountId: line?.accountId ?? "",
     assetId: line?.assetId ?? "",
     conversionFactor: line?.conversionFactor ?? 1,
     description: line?.description ?? "",

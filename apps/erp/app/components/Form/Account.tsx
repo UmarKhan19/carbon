@@ -1,10 +1,49 @@
 import type { ComboboxProps } from "@carbon/form";
 import { Combobox } from "@carbon/form";
 import { Badge, Combobox as ComboboxBase, useMount } from "@carbon/react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFetcher } from "react-router";
 import type { AccountClass, getAccountsList } from "~/modules/accounting";
 import { path } from "~/utils/path";
+import { accountsQuery, getCompanyId } from "~/utils/react-query";
+
+type AccountData = {
+  id: string;
+  number: string;
+  name: string;
+  class: AccountClass | null;
+  incomeBalance: string | null;
+};
+
+export function useAccounts(classes?: AccountClass[]): AccountData[] {
+  const fetcher = useFetcher<Awaited<ReturnType<typeof getAccountsList>>>();
+  const companyId = getCompanyId();
+  const { queryKey } = accountsQuery(companyId);
+
+  const [accounts, setAccounts] = useState<AccountData[]>(() => {
+    return window?.clientCache?.getQueryData<AccountData[]>(queryKey) ?? [];
+  });
+
+  useMount(() => {
+    if (accounts.length === 0) {
+      fetcher.load(`${path.to.api.accounts}?isGroup=false`);
+    }
+  });
+
+  useEffect(() => {
+    if (fetcher.data?.data) {
+      window?.clientCache?.setQueryData(queryKey, fetcher.data.data);
+      setAccounts(fetcher.data.data as AccountData[]);
+    }
+  }, [fetcher.data, queryKey]);
+
+  return useMemo(() => {
+    if (!classes || classes.length === 0) return accounts;
+    return accounts.filter(
+      (a) => a.class && classes.includes(a.class as AccountClass)
+    );
+  }, [accounts, classes]);
+}
 
 const badgeColors: Record<
   string,
@@ -18,36 +57,22 @@ const badgeColors: Record<
 };
 
 function useAccountOptions(classes?: AccountClass[]) {
-  const accountFetcher =
-    useFetcher<Awaited<ReturnType<typeof getAccountsList>>>();
+  const accounts = useAccounts(classes);
 
-  useMount(() => {
-    const classQueryParams = classes?.map((c) => `class=${c}`).join("&") ?? "";
-    accountFetcher.load(
-      `${path.to.api.accounts}?isGroup=false&${classQueryParams}`
-    );
-  });
-
-  const options = useMemo(
+  return useMemo(
     () =>
-      accountFetcher.data?.data
-        ? accountFetcher.data?.data.map((c) => ({
-            value: c.number,
-            label: (
-              <div className="flex items-center justify-between w-full gap-2">
-                <span className="truncate">{c.name}</span>
-                {c.class && (
-                  <Badge variant={badgeColors[c.class]}>{c.class}</Badge>
-                )}
-              </div>
-            ),
-            helper: c.number
-          }))
-        : [],
-    [accountFetcher.data]
+      accounts.map((c) => ({
+        value: c.id,
+        label: (
+          <div className="flex items-center justify-between w-full gap-2">
+            <span className="truncate">{c.name}</span>
+            {c.class && <Badge variant={badgeColors[c.class]}>{c.class}</Badge>}
+          </div>
+        ),
+        helper: c.number
+      })),
+    [accounts]
   );
-
-  return options;
 }
 
 type AccountSelectProps = Omit<ComboboxProps, "options"> & {

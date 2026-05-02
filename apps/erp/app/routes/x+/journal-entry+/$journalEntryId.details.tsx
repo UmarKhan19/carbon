@@ -41,7 +41,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   let lines: Array<{
-    accountNumber: string;
+    accountId: string;
     description?: string;
     debit: number;
     credit: number;
@@ -56,7 +56,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   // Validate lines
   for (const line of lines) {
-    if (!line.accountNumber) {
+    if (!line.accountId) {
       return data(
         {},
         await flash(request, error(null, "Each line must have an account"))
@@ -142,7 +142,7 @@ export default function JournalEntryDetailsRoute() {
       const accountClass = line.account?.class ?? "Asset";
       return {
         id: line.id,
-        accountNumber: line.accountNumber,
+        accountId: line.accountId ?? "",
         description: line.description ?? "",
         debit: toDisplayDebit(amount, accountClass) || null,
         credit: toDisplayCredit(amount, accountClass) || null,
