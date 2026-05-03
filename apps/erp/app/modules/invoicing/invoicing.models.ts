@@ -9,7 +9,7 @@ export const purchaseInvoiceLineType = [
   "Tool",
   "Consumable",
   // "Fixed Asset",
-  // "G/L Account",
+  "G/L Account",
   "Comment"
 ] as const;
 
@@ -102,7 +102,7 @@ export const purchaseInvoiceLineValidator = z
   .object({
     id: zfd.text(z.string().optional()),
     invoiceId: z.string().min(1, { message: "Invoice is required" }),
-    invoiceLineType: z.enum(methodItemType, {
+    invoiceLineType: z.enum([...methodItemType, "G/L Account"], {
       errorMap: (issue, ctx) => ({
         message: "Type is required"
       })
@@ -111,6 +111,7 @@ export const purchaseInvoiceLineValidator = z
     purchaseOrderLineId: zfd.text(z.string().optional()),
     itemId: zfd.text(z.string().optional()),
     accountId: zfd.text(z.string().optional()),
+    costCenterId: zfd.text(z.string().optional()),
     assetId: zfd.text(z.string().optional()),
     description: zfd.text(z.string().optional()),
     quantity: zfd.numeric(z.number().optional()),
@@ -143,31 +144,16 @@ export const purchaseInvoiceLineValidator = z
         : true,
     {
       message: "Location is required",
-      path: ["locationId"] // path of error
+      path: ["locationId"]
+    }
+  )
+  .refine(
+    (data) => (data.invoiceLineType === "G/L Account" ? data.accountId : true),
+    {
+      message: "Account is required",
+      path: ["accountId"]
     }
   );
-// .refine(
-//   (data) =>
-//     data.invoiceLineType === "G/L Account" ? data.accountId : true,
-//   {
-//     message: "Account is required",
-//     path: ["accountId"], // path of error
-//   }
-// )
-// .refine(
-//   (data) => (data.invoiceLineType === "Fixed Asset" ? data.assetId : true),
-//   {
-//     message: "Asset is required",
-//     path: ["assetId"], // path of error
-//   }
-// )
-// .refine(
-//   (data) => (data.invoiceLineType === "Comment" ? data.description : true),
-//   {
-//     message: "Comment is required",
-//     path: ["description"], // path of error
-//   }
-// );
 
 export const salesInvoiceValidator = z.object({
   id: zfd.text(z.string().optional()),
