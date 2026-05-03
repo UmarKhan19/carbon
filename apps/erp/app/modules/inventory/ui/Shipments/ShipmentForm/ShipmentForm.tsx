@@ -262,7 +262,12 @@ const ShipmentForm = ({
 
               <Button
                 variant={
-                  canPost && !isPosted && !isVoided ? "primary" : "secondary"
+                  !canPost ||
+                  isPosted ||
+                  isVoided ||
+                  !permissions.is("employee")
+                    ? "secondary"
+                    : "primary"
                 }
                 onClick={postModal.onOpen}
                 isDisabled={

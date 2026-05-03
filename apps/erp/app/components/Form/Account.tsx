@@ -5,7 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useFetcher } from "react-router";
 import type { AccountClass, getAccountsList } from "~/modules/accounting";
 import { path } from "~/utils/path";
-import { accountsQuery, getCompanyId } from "~/utils/react-query";
+import {
+  accountsQuery,
+  getClientCache,
+  getCompanyId
+} from "~/utils/react-query";
 
 type AccountData = {
   id: string;
@@ -21,7 +25,7 @@ export function useAccounts(classes?: AccountClass[]): AccountData[] {
   const { queryKey } = accountsQuery(companyId);
 
   const [accounts, setAccounts] = useState<AccountData[]>(() => {
-    return window?.clientCache?.getQueryData<AccountData[]>(queryKey) ?? [];
+    return getClientCache()?.getQueryData<AccountData[]>(queryKey) ?? [];
   });
 
   useMount(() => {
@@ -32,7 +36,7 @@ export function useAccounts(classes?: AccountClass[]): AccountData[] {
 
   useEffect(() => {
     if (fetcher.data?.data) {
-      window?.clientCache?.setQueryData(queryKey, fetcher.data.data);
+      getClientCache()?.setQueryData(queryKey, fetcher.data.data);
       setAccounts(fetcher.data.data as AccountData[]);
     }
   }, [fetcher.data, queryKey]);

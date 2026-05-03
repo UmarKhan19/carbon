@@ -30,6 +30,22 @@ CREATE OR REPLACE VIEW "purchaseOrderLines" WITH(SECURITY_INVOKER=true) AS (
   LEFT JOIN "account" a ON a.id = pl."accountId"
 );
 
+DROP VIEW IF EXISTS "supplierQuoteLines";
+CREATE OR REPLACE VIEW "supplierQuoteLines" WITH(SECURITY_INVOKER=true) AS (
+  SELECT
+    ql.*,
+    i."readableIdWithRevision" as "itemReadableId",
+    i."type" as "itemType",
+    COALESCE(i."thumbnailPath", mu."thumbnailPath") as "thumbnailPath",
+    ic."unitCost" as "unitCost",
+    a."name" as "accountName"
+  FROM "supplierQuoteLine" ql
+  LEFT JOIN "item" i ON i.id = ql."itemId"
+  LEFT JOIN "itemCost" ic ON ic."itemId" = i.id
+  LEFT JOIN "modelUpload" mu ON mu.id = i."modelUploadId"
+  LEFT JOIN "account" a ON a.id = ql."accountId"
+);
+
 DROP VIEW IF EXISTS "purchaseInvoiceLines";
 CREATE OR REPLACE VIEW "purchaseInvoiceLines" WITH(SECURITY_INVOKER=true) AS (
   SELECT

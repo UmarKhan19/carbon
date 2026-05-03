@@ -1,18 +1,16 @@
 import { useCarbon } from "@carbon/auth";
-import { ValidatedForm } from "@carbon/form";
+import { DatePicker, ValidatedForm } from "@carbon/form";
 import {
   Badge,
   CardAction,
+  cn,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  FormControl,
-  FormLabel,
   HStack,
   IconButton,
-  Input,
   ModalCard,
   ModalCardBody,
   ModalCardContent,
@@ -96,10 +94,12 @@ const SupplierQuoteLineForm = ({
     accountId: string;
     costCenterId: string;
     description: string;
+    requiredDate: string | null;
   }>({
     accountId: initialValues.accountId ?? "",
     costCenterId: initialValues.costCenterId ?? "",
-    description: initialValues.description ?? ""
+    description: initialValues.description ?? "",
+    requiredDate: initialValues.requiredDate ?? null
   });
 
   const [itemType, setItemType] = useState(initialValues.itemType);
@@ -189,97 +189,102 @@ const SupplierQuoteLineForm = ({
 
   return (
     <>
-      <ModalCardProvider type={type}>
-        <ModalCard
-          onClose={onClose}
-          defaultCollapsed={false}
-          isCollapsible={isEditing}
-        >
-          <ModalCardContent size="xxlarge">
-            <ValidatedForm
-              defaultValues={initialValues}
-              validator={supplierQuoteLineValidator}
-              method="post"
-              action={
-                isEditing
-                  ? path.to.supplierQuoteLine(id, initialValues.id!)
-                  : path.to.newSupplierQuoteLine(id)
-              }
-              className="w-full"
-              isDisabled={isEditing && isLocked}
-              onSubmit={() => {
-                if (type === "modal") onClose?.();
-              }}
-            >
-              <HStack className="w-full justify-between items-start">
-                <ModalCardHeader>
-                  <ModalCardTitle>
-                    {isEditing
-                      ? "Supplier Quote Line"
-                      : "New Supplier Quote Line"}
-                  </ModalCardTitle>
-                  <ModalCardDescription>
-                    {isEditing ? (
-                      <div className="flex flex-col items-start gap-1">
-                        <span>{itemData?.description}</span>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">
-                            {initialValues?.quantity.join(", ")}
-                          </Badge>
-                        </div>
-                      </div>
-                    ) : (
-                      "A quote line contains pricing and lead times for a particular part"
-                    )}
-                  </ModalCardDescription>
-                </ModalCardHeader>
-                {isEditing &&
-                  !isLocked &&
-                  permissions.can("update", "purchasing") && (
-                    <CardAction className="pr-12">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <IconButton
-                            icon={<BsThreeDotsVertical />}
-                            aria-label={t`More`}
-                            variant="ghost"
-                          />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            destructive
-                            onClick={deleteDisclosure.onOpen}
-                          >
-                            <DropdownMenuIcon icon={<LuTrash />} />
-                            <Trans>Delete Line</Trans>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </CardAction>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "direct" | "indirect")}
+        className="w-full"
+      >
+        <ModalCardProvider type={type}>
+          <ModalCard
+            onClose={onClose}
+            defaultCollapsed={false}
+            isCollapsible={isEditing}
+          >
+            <ModalCardContent size="xxlarge">
+              <ValidatedForm
+                defaultValues={initialValues}
+                validator={supplierQuoteLineValidator}
+                method="post"
+                action={
+                  isEditing
+                    ? path.to.supplierQuoteLine(id, initialValues.id!)
+                    : path.to.newSupplierQuoteLine(id)
+                }
+                className="w-full"
+                isDisabled={isEditing && isLocked}
+                onSubmit={() => {
+                  if (type === "modal") onClose?.();
+                }}
+              >
+                <HStack
+                  className={cn(
+                    "w-full justify-between items-start",
+                    type === "modal" && "pr-16"
                   )}
-              </HStack>
-              <ModalCardBody>
-                <Hidden name="id" />
-                <Hidden name="supplierQuoteId" />
-
-                <Tabs
-                  value={activeTab}
-                  onValueChange={(v) =>
-                    setActiveTab(v as "direct" | "indirect")
-                  }
                 >
-                  {!isEditing && (
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="direct">
-                        <LuBox className="mr-1" />
-                        <Trans>Direct</Trans>
-                      </TabsTrigger>
-                      <TabsTrigger value="indirect">
-                        <LuReceipt className="mr-1" />
-                        <Trans>Indirect</Trans>
-                      </TabsTrigger>
-                    </TabsList>
-                  )}
+                  <ModalCardHeader className="flex flex-1">
+                    <ModalCardTitle>
+                      {isEditing
+                        ? "Supplier Quote Line"
+                        : "New Supplier Quote Line"}
+                    </ModalCardTitle>
+                    <ModalCardDescription>
+                      {isEditing ? (
+                        <div className="flex flex-col items-start gap-1">
+                          <span>{itemData?.description}</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">
+                              {initialValues?.quantity.join(", ")}
+                            </Badge>
+                          </div>
+                        </div>
+                      ) : (
+                        "A quote line contains pricing and lead times for a particular part"
+                      )}
+                    </ModalCardDescription>
+                  </ModalCardHeader>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {!isEditing && (
+                      <TabsList>
+                        <TabsTrigger value="direct">
+                          <LuBox className="mr-1" />
+                          <Trans>Direct</Trans>
+                        </TabsTrigger>
+                        <TabsTrigger value="indirect">
+                          <LuReceipt className="mr-1" />
+                          <Trans>Indirect</Trans>
+                        </TabsTrigger>
+                      </TabsList>
+                    )}
+                    {isEditing &&
+                      !isLocked &&
+                      permissions.can("update", "purchasing") && (
+                        <CardAction>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <IconButton
+                                icon={<BsThreeDotsVertical />}
+                                aria-label={t`More`}
+                                variant="ghost"
+                              />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                destructive
+                                onClick={deleteDisclosure.onOpen}
+                              >
+                                <DropdownMenuIcon icon={<LuTrash />} />
+                                <Trans>Delete Line</Trans>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </CardAction>
+                      )}
+                  </div>
+                </HStack>
+                <ModalCardBody>
+                  <Hidden name="id" />
+                  <Hidden name="supplierQuoteId" />
 
                   <TabsContent value="direct">
                     <Hidden name="supplierQuoteLineType" value={itemType} />
@@ -377,29 +382,40 @@ const SupplierQuoteLineForm = ({
                     <VStack>
                       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                         <div className="col-span-2 grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-2 auto-rows-min">
-                          <Account name="accountId" label={t`GL Account`} />
-                          <FormControl>
-                            <FormLabel>
-                              <Trans>Description</Trans>
-                            </FormLabel>
-                            <Input
-                              value={indirectData.description}
-                              onChange={(e) =>
-                                setIndirectData((d) => ({
-                                  ...d,
-                                  description: e.target.value
-                                }))
-                              }
-                            />
-                          </FormControl>
-                          <Hidden
+                          <Account
+                            name="accountId"
+                            label={t`GL Account`}
+                            classes={["Asset", "Expense"]}
+                            isOptional={false}
+                          />
+
+                          <InputControlled
+                            label={t`Description`}
                             name="description"
                             value={indirectData.description}
+                            isOptional={false}
+                            onChange={(newValue) =>
+                              setIndirectData((d) => ({
+                                ...d,
+                                description: newValue
+                              }))
+                            }
                           />
                           <CostCenter
                             name="costCenterId"
                             label={t`Cost Center`}
                             isOptional
+                          />
+                          <DatePicker
+                            name="requiredDate"
+                            label={t`Required Date`}
+                            value={indirectData.requiredDate ?? undefined}
+                            onChange={(date) => {
+                              setIndirectData((d) => ({
+                                ...d,
+                                requiredDate: date
+                              }));
+                            }}
                           />
                           <CustomFormFields table="supplierQuoteLine" />
                         </div>
@@ -414,24 +430,24 @@ const SupplierQuoteLineForm = ({
                       </div>
                     </VStack>
                   </TabsContent>
-                </Tabs>
-              </ModalCardBody>
-              <ModalCardFooter>
-                <Submit
-                  isDisabled={
-                    isLocked ||
-                    (isEditing
-                      ? !permissions.can("update", "purchasing")
-                      : !permissions.can("create", "purchasing"))
-                  }
-                >
-                  <Trans>Save</Trans>
-                </Submit>
-              </ModalCardFooter>
-            </ValidatedForm>
-          </ModalCardContent>
-        </ModalCard>
-      </ModalCardProvider>
+                </ModalCardBody>
+                <ModalCardFooter>
+                  <Submit
+                    isDisabled={
+                      isLocked ||
+                      (isEditing
+                        ? !permissions.can("update", "purchasing")
+                        : !permissions.can("create", "purchasing"))
+                    }
+                  >
+                    <Trans>Save</Trans>
+                  </Submit>
+                </ModalCardFooter>
+              </ValidatedForm>
+            </ModalCardContent>
+          </ModalCard>
+        </ModalCardProvider>
+      </Tabs>
       {isEditing && deleteDisclosure.isOpen && initialValues.id && (
         <DeleteSupplierQuoteLine
           line={{

@@ -34,7 +34,7 @@ import {
   LuTruck,
   LuX
 } from "react-icons/lu";
-import { Link, useFetcher, useParams } from "react-router";
+import { Link, useFetcher, useNavigation, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -95,7 +95,14 @@ const PurchaseOrderHeader = () => {
 
   const statusFetcher = useFetcher<{}>();
   const approvalFetcher = useFetcher<{}>();
+  const navigation = useNavigation();
   const { receive, invoice, ship } = usePurchaseOrder();
+
+  const isReceiving =
+    navigation.state !== "idle" && navigation.formAction === path.to.newReceipt;
+  const isInvoicing =
+    navigation.state !== "idle" &&
+    navigation.location?.pathname === path.to.newPurchaseInvoice;
 
   const isNeedsApproval = routeData?.purchaseOrder?.status === "Needs Approval";
   const hasApprovalRequest = !!routeData?.approvalRequest;
@@ -397,7 +404,8 @@ const PurchaseOrderHeader = () => {
                           "To Receive",
                           "To Receive and Invoice",
                           "To Invoice"
-                        ].includes(routeData?.purchaseOrder?.status ?? "")
+                        ].includes(routeData?.purchaseOrder?.status ?? "") ||
+                        isReceiving
                       }
                       onClick={() => {
                         receive(routeData?.purchaseOrder);
@@ -423,10 +431,11 @@ const PurchaseOrderHeader = () => {
               ) : (
                 <Button
                   leftIcon={<LuHandCoins />}
+                  isLoading={isReceiving}
                   isDisabled={
                     !["To Receive", "To Receive and Invoice"].includes(
                       routeData?.purchaseOrder?.status ?? ""
-                    )
+                    ) || isReceiving
                   }
                   variant={
                     ["To Receive", "To Receive and Invoice"].includes(
@@ -468,7 +477,7 @@ const PurchaseOrderHeader = () => {
                         disabled={
                           !["To Invoice", "To Receive and Invoice"].includes(
                             routeData?.purchaseOrder?.status ?? ""
-                          )
+                          ) || isInvoicing
                         }
                         onClick={() => {
                           invoice(routeData?.purchaseOrder);
@@ -497,10 +506,11 @@ const PurchaseOrderHeader = () => {
                 ) : (
                   <Button
                     leftIcon={<LuCreditCard />}
+                    isLoading={isInvoicing}
                     isDisabled={
                       !["To Invoice", "To Receive and Invoice"].includes(
                         routeData?.purchaseOrder?.status ?? ""
-                      )
+                      ) || isInvoicing
                     }
                     variant={
                       ["To Invoice", "To Receive and Invoice"].includes(

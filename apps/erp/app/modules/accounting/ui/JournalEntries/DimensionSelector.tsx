@@ -6,7 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
@@ -131,19 +130,28 @@ const DimensionSelector = ({
           <DropdownMenuContent align="start" className="w-56">
             <DropdownMenuLabel>Dimensions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {availableDimensions.map((dim) => (
-              <DropdownMenuSub key={dim.dimensionId}>
-                <DropdownMenuSubTrigger>
-                  <DropdownMenuIcon
-                    icon={
-                      <DimensionEntityTypeIcon
-                        entityType={dim.entityType as any}
-                      />
-                    }
-                  />
+            {availableDimensions.map((dim) =>
+              dim.values.length === 0 ? (
+                <DropdownMenuLabel
+                  key={dim.dimensionId}
+                  className="flex items-center gap-2 text-muted-foreground font-normal"
+                >
+                  <DimensionEntityTypeIcon entityType={dim.entityType as any} />
                   {dim.dimensionName}
-                </DropdownMenuSubTrigger>
-                <DropdownMenuPortal>
+                  <span className="ml-auto text-xs">No values</span>
+                </DropdownMenuLabel>
+              ) : (
+                <DropdownMenuSub key={dim.dimensionId}>
+                  <DropdownMenuSubTrigger>
+                    <DropdownMenuIcon
+                      icon={
+                        <DimensionEntityTypeIcon
+                          entityType={dim.entityType as any}
+                        />
+                      }
+                    />
+                    {dim.dimensionName}
+                  </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent>
                     <DropdownMenuRadioGroup
                       value={valueByDimension.get(dim.dimensionId) ?? ""}
@@ -158,9 +166,9 @@ const DimensionSelector = ({
                       ))}
                     </DropdownMenuRadioGroup>
                   </DropdownMenuSubContent>
-                </DropdownMenuPortal>
-              </DropdownMenuSub>
-            ))}
+                </DropdownMenuSub>
+              )
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

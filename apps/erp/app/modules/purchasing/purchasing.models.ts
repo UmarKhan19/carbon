@@ -209,7 +209,7 @@ export const purchaseOrderLineValidator = z
     promisedDate: zfd.text(z.string().optional()),
     purchaseQuantity: zfd.numeric(z.number().optional()),
     purchaseUnitOfMeasureCode: zfd.text(z.string().optional()),
-    requestedDate: zfd.text(z.string().optional()),
+    requiredDate: zfd.text(z.string().optional()),
     storageUnitId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     supplierTaxAmount: zfd.numeric(z.number().optional()),
@@ -233,6 +233,14 @@ export const purchaseOrderLineValidator = z
     {
       message: "Account is required",
       path: ["accountId"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.purchaseOrderLineType === "G/L Account" ? data.description : true,
+    {
+      message: "Description is required",
+      path: ["description"]
     }
   );
 
@@ -447,6 +455,7 @@ export const supplierQuoteLineValidator = z
     inventoryUnitOfMeasureCode: zfd.text(z.string().optional()),
     purchaseUnitOfMeasureCode: zfd.text(z.string().optional()),
     conversionFactor: zfd.numeric(z.number().optional()),
+    requiredDate: zfd.text(z.string().optional()),
     quantity: z.array(
       zfd.numeric(z.number().min(0.00001, { message: "Quantity is required" }))
     )
@@ -473,9 +482,15 @@ export const supplierQuoteLineValidator = z
   )
   .refine(
     (data) =>
-      ["Part", "Service", "Material", "Tool", "Fixture", "Consumable"].includes(
-        data.supplierQuoteLineType
-      )
+      [
+        "Part",
+        "Service",
+        "Material",
+        "Tool",
+        "Fixture",
+        "Consumable",
+        "G/L Account"
+      ].includes(data.supplierQuoteLineType)
         ? data.description
         : true,
     {

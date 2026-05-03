@@ -50,6 +50,14 @@ Patterns learned from corrections. Review at the start of each session.
 
 - `apps/erp` has no vitest config and no tests. Adding unit tests for validators there requires setting up vitest + mocking the supabase client — not a 5-minute job. If a task says "add validator tests", the estimate should include test-infrastructure setup unless `packages/*` (which does have vitest) is the right home for the pure function.
 
+## Use `accountId` not `accountNumber`
+
+- The codebase has migrated from `accountNumber` to `accountId` for GL account references. The old `accountNumber`-based foreign keys in the DB schema (e.g., on `purchaseOrderLine`, `purchaseInvoiceLine`) are from older migrations — current code uses `accountId`. Always use `accountId` when referencing GL accounts.
+
+## Do not commit without being asked
+
+- Never create git commits unless the user explicitly asks to commit. Stage and commit only on request. The user wants to review changes before committing.
+
 ## Bash fallbacks when tools are missing
 
 - `pandoc` is not on the user's machine. For `.docx` extraction, use the `anthropic-skills:docx` skill's `unpack.py` (needs `defusedxml`; install via `mise x python@3.14.2 -- pip install defusedxml`) or an equivalent Python/JS extraction, rather than assuming pandoc is available.

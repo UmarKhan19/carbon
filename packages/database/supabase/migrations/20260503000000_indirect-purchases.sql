@@ -19,3 +19,13 @@ ALTER TABLE "supplierQuoteLine" ADD CONSTRAINT "supplierQuoteLine_accountId_fkey
 CREATE INDEX "supplierQuoteLine_accountId_idx" ON "supplierQuoteLine"("accountId");
 
 ALTER TABLE "supplierQuoteLine" ADD COLUMN "supplierQuoteLineType" TEXT NOT NULL DEFAULT 'Part';
+
+ALTER TABLE "supplierQuoteLine" ALTER COLUMN "itemId" DROP NOT NULL;
+ALTER TABLE "supplierQuoteLine" ADD CONSTRAINT "supplierQuoteLine_itemId_check"
+  CHECK (
+    ("supplierQuoteLineType" = 'G/L Account') OR ("itemId" IS NOT NULL)
+  );
+
+ALTER TABLE "purchaseOrderLine" RENAME COLUMN "requestedDate" TO "requiredDate";
+ALTER TABLE "purchaseInvoiceLine" ADD COLUMN "requiredDate" DATE;
+ALTER TABLE "supplierQuoteLine" ADD COLUMN "requiredDate" DATE;

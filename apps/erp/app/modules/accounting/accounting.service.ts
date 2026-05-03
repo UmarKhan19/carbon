@@ -677,7 +677,9 @@ export async function getCostCentersTree(
 ) {
   return client
     .from("costCenter")
-    .select("id, name, parentCostCenterId")
+    .select(
+      "id, name, parentCostCenterId, ownerId, owner:user!costCenter_ownerId_fkey(fullName)"
+    )
     .eq("companyId", companyId)
     .order("name");
 }

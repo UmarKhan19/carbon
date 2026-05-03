@@ -7969,6 +7969,21 @@ export default {
             $ref: "#/parameters/rowFilter.supplierQuoteLine.externalNotes"
           },
           {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.supplierQuoteLineType"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.requiredDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.ownerId"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -8085,6 +8100,21 @@ export default {
             $ref: "#/parameters/rowFilter.supplierQuoteLine.externalNotes"
           },
           {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.supplierQuoteLineType"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.requiredDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.ownerId"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -8153,6 +8183,21 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.supplierQuoteLine.externalNotes"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.supplierQuoteLineType"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.requiredDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLine.ownerId"
           },
           {
             $ref: "#/parameters/body.supplierQuoteLine"
@@ -20473,7 +20518,7 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.locationId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseInvoiceLines.shelfId"
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLines.storageUnitId"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.assetId"
@@ -20560,6 +20605,12 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.accountId"
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLines.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLines.requiredDate"
+          },
+          {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.thumbnailPath"
           },
           {
@@ -20576,6 +20627,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLines.supplierPartId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLines.accountName"
           },
           {
             $ref: "#/parameters/select"
@@ -27835,10 +27889,16 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.accountId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate"
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.requiredDate"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.ownerId"
           },
           {
             $ref: "#/parameters/select"
@@ -28035,10 +28095,16 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.accountId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate"
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.requiredDate"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.ownerId"
           },
           {
             $ref: "#/parameters/preferReturn"
@@ -28189,10 +28255,16 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.accountId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLine.requestedDate"
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.requiredDate"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLine.receivedDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLine.ownerId"
           },
           {
             $ref: "#/parameters/body.purchaseOrderLine"
@@ -30067,6 +30139,18 @@ export default {
             $ref: "#/parameters/rowFilter.supplierQuoteLines.externalNotes"
           },
           {
+            $ref: "#/parameters/rowFilter.supplierQuoteLines.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLines.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLines.supplierQuoteLineType"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLines.requiredDate"
+          },
+          {
             $ref: "#/parameters/rowFilter.supplierQuoteLines.itemReadableId"
           },
           {
@@ -30077,6 +30161,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.supplierQuoteLines.unitCost"
+          },
+          {
+            $ref: "#/parameters/rowFilter.supplierQuoteLines.accountName"
           },
           {
             $ref: "#/parameters/select"
@@ -34654,6 +34741,15 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountId"
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.requiredDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.ownerId"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -34824,6 +34920,15 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountId"
           },
           {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.requiredDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.ownerId"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -34946,6 +35051,15 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseInvoiceLine.accountId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.costCenterId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.requiredDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseInvoiceLine.ownerId"
           },
           {
             $ref: "#/parameters/body.purchaseInvoiceLine"
@@ -56719,10 +56833,13 @@ export default {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.accountId"
           },
           {
-            $ref: "#/parameters/rowFilter.purchaseOrderLines.requestedDate"
+            $ref: "#/parameters/rowFilter.purchaseOrderLines.requiredDate"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.receivedDate"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLines.costCenterId"
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.thumbnailPath"
@@ -56759,6 +56876,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrderLines.jobOperationDescription"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrderLines.accountName"
           },
           {
             $ref: "#/parameters/select"
@@ -80212,11 +80332,11 @@ export default {
         "id",
         "supplierQuoteId",
         "supplierQuoteRevisionId",
-        "itemId",
         "description",
         "conversionFactor",
         "companyId",
-        "createdBy"
+        "createdBy",
+        "supplierQuoteLineType"
       ],
       properties: {
         id: {
@@ -80311,6 +80431,33 @@ export default {
         },
         externalNotes: {
           format: "json"
+        },
+        costCenterId: {
+          description:
+            "Note:\nThis is a Foreign Key to `costCenter.id`.<fk table='costCenter' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        supplierQuoteLineType: {
+          default: "Part",
+          format: "text",
+          type: "string"
+        },
+        requiredDate: {
+          format: "date",
+          type: "string"
+        },
+        ownerId: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -86589,7 +86736,7 @@ export default {
           format: "text",
           type: "string"
         },
-        shelfId: {
+        storageUnitId: {
           description:
             "Note:\nThis is a Foreign Key to `storageUnit.id`.<fk table='storageUnit' column='id'/>",
           format: "text",
@@ -86720,6 +86867,16 @@ export default {
           format: "text",
           type: "string"
         },
+        costCenterId: {
+          description:
+            "Note:\nThis is a Foreign Key to `costCenter.id`.<fk table='costCenter' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        requiredDate: {
+          format: "date",
+          type: "string"
+        },
         thumbnailPath: {
           format: "text",
           type: "string"
@@ -86741,6 +86898,10 @@ export default {
           type: "number"
         },
         supplierPartId: {
+          format: "text",
+          type: "string"
+        },
+        accountName: {
           format: "text",
           type: "string"
         }
@@ -89979,12 +90140,24 @@ export default {
           format: "text",
           type: "string"
         },
-        requestedDate: {
+        requiredDate: {
           format: "date",
           type: "string"
         },
         receivedDate: {
           format: "date",
+          type: "string"
+        },
+        costCenterId: {
+          description:
+            "Note:\nThis is a Foreign Key to `costCenter.id`.<fk table='costCenter' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        ownerId: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
           type: "string"
         }
       },
@@ -91076,6 +91249,26 @@ export default {
         externalNotes: {
           format: "json"
         },
+        costCenterId: {
+          description:
+            "Note:\nThis is a Foreign Key to `costCenter.id`.<fk table='costCenter' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        accountId: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        supplierQuoteLineType: {
+          format: "text",
+          type: "string"
+        },
+        requiredDate: {
+          format: "date",
+          type: "string"
+        },
         itemReadableId: {
           format: "text",
           type: "string"
@@ -91099,6 +91292,10 @@ export default {
         unitCost: {
           format: "numeric",
           type: "number"
+        },
+        accountName: {
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -93272,6 +93469,22 @@ export default {
         accountId: {
           description:
             "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        costCenterId: {
+          description:
+            "Note:\nThis is a Foreign Key to `costCenter.id`.<fk table='costCenter' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        requiredDate: {
+          format: "date",
+          type: "string"
+        },
+        ownerId: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
           type: "string"
         }
@@ -103780,12 +103993,18 @@ export default {
           format: "text",
           type: "string"
         },
-        requestedDate: {
+        requiredDate: {
           format: "date",
           type: "string"
         },
         receivedDate: {
           format: "date",
+          type: "string"
+        },
+        costCenterId: {
+          description:
+            "Note:\nThis is a Foreign Key to `costCenter.id`.<fk table='costCenter' column='id'/>",
+          format: "text",
           type: "string"
         },
         thumbnailPath: {
@@ -103833,6 +104052,10 @@ export default {
           type: "string"
         },
         jobOperationDescription: {
+          format: "text",
+          type: "string"
+        },
+        accountName: {
           format: "text",
           type: "string"
         }
@@ -113452,6 +113675,36 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.supplierQuoteLine.costCenterId": {
+      name: "costCenterId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.supplierQuoteLine.accountId": {
+      name: "accountId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.supplierQuoteLine.supplierQuoteLineType": {
+      name: "supplierQuoteLineType",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.supplierQuoteLine.requiredDate": {
+      name: "requiredDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.supplierQuoteLine.ownerId": {
+      name: "ownerId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.quoteOperation": {
       name: "quoteOperation",
       description: "quoteOperation",
@@ -120492,8 +120745,8 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseInvoiceLines.shelfId": {
-      name: "shelfId",
+    "rowFilter.purchaseInvoiceLines.storageUnitId": {
+      name: "storageUnitId",
       required: false,
       in: "query",
       type: "string"
@@ -120666,6 +120919,18 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.purchaseInvoiceLines.costCenterId": {
+      name: "costCenterId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseInvoiceLines.requiredDate": {
+      name: "requiredDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "rowFilter.purchaseInvoiceLines.thumbnailPath": {
       name: "thumbnailPath",
       required: false,
@@ -120698,6 +120963,12 @@ export default {
     },
     "rowFilter.purchaseInvoiceLines.supplierPartId": {
       name: "supplierPartId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseInvoiceLines.accountName": {
+      name: "accountName",
       required: false,
       in: "query",
       type: "string"
@@ -124357,14 +124628,26 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseOrderLine.requestedDate": {
-      name: "requestedDate",
+    "rowFilter.purchaseOrderLine.requiredDate": {
+      name: "requiredDate",
       required: false,
       in: "query",
       type: "string"
     },
     "rowFilter.purchaseOrderLine.receivedDate": {
       name: "receivedDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseOrderLine.costCenterId": {
+      name: "costCenterId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseOrderLine.ownerId": {
+      name: "ownerId",
       required: false,
       in: "query",
       type: "string"
@@ -125524,6 +125807,30 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.supplierQuoteLines.costCenterId": {
+      name: "costCenterId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.supplierQuoteLines.accountId": {
+      name: "accountId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.supplierQuoteLines.supplierQuoteLineType": {
+      name: "supplierQuoteLineType",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.supplierQuoteLines.requiredDate": {
+      name: "requiredDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "rowFilter.supplierQuoteLines.itemReadableId": {
       name: "itemReadableId",
       required: false,
@@ -125544,6 +125851,12 @@ export default {
     },
     "rowFilter.supplierQuoteLines.unitCost": {
       name: "unitCost",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.supplierQuoteLines.accountName": {
+      name: "accountName",
       required: false,
       in: "query",
       type: "string"
@@ -127847,6 +128160,24 @@ export default {
     },
     "rowFilter.purchaseInvoiceLine.accountId": {
       name: "accountId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseInvoiceLine.costCenterId": {
+      name: "costCenterId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseInvoiceLine.requiredDate": {
+      name: "requiredDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseInvoiceLine.ownerId": {
+      name: "ownerId",
       required: false,
       in: "query",
       type: "string"
@@ -139730,14 +140061,20 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.purchaseOrderLines.requestedDate": {
-      name: "requestedDate",
+    "rowFilter.purchaseOrderLines.requiredDate": {
+      name: "requiredDate",
       required: false,
       in: "query",
       type: "string"
     },
     "rowFilter.purchaseOrderLines.receivedDate": {
       name: "receivedDate",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseOrderLines.costCenterId": {
+      name: "costCenterId",
       required: false,
       in: "query",
       type: "string"
@@ -139810,6 +140147,12 @@ export default {
     },
     "rowFilter.purchaseOrderLines.jobOperationDescription": {
       name: "jobOperationDescription",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseOrderLines.accountName": {
+      name: "accountName",
       required: false,
       in: "query",
       type: "string"

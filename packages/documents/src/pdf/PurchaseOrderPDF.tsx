@@ -294,17 +294,17 @@ const PurchaseOrderPDF = ({
                     {line.purchaseOrderLineType === "Comment" ? "" : rowIndex}
                   </Text>
                   <View style={tw("w-[33%] pr-2")}>
-                    <Text style={tw("text-gray-800")}>
+                    <Text style={tw("text-gray-900")}>
                       {getLineDescription(line)}
                     </Text>
                     <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
                       {getLineDescriptionDetails(line)}
                     </Text>
-                    {line.requestedDate &&
+                    {line.requiredDate &&
                       line.purchaseOrderLineType !== "Comment" && (
                         <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
                           Required:{" "}
-                          {formatDate(line.requestedDate, undefined, locale)}
+                          {formatDate(line.requiredDate, undefined, locale)}
                         </Text>
                       )}
                     {purchaseOrder.purchaseOrderType === "Outside Processing" &&

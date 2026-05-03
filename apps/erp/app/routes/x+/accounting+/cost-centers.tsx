@@ -18,6 +18,7 @@ import {
   CostCentersListView,
   CostCentersTreeView
 } from "~/modules/accounting/ui/CostCenters";
+import { getApprovalRulesForApprover } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -32,7 +33,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
     role: "employee"
   });
 
-  const costCenters = await getCostCentersTree(client, companyId);
+  const [costCenters, approvalRules] = await Promise.all([
+    getCostCentersTree(client, companyId),
+    getApprovalRulesForApprover(client, "purchaseOrder", companyId)
+  ]);
 
   if (costCenters.error) {
     throw redirect(
@@ -45,7 +49,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   return {
-    costCenters: costCenters.data ?? []
+    costCenters: costCenters.data ?? [],
+    purchaseOrderApprovalsActive: (approvalRules.data?.length ?? 0) > 0
   };
 }
 

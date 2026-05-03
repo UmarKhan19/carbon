@@ -215,6 +215,23 @@ const ReceiptForm = ({
                   routeData?.receipt?.sourceDocumentReadableId ?? undefined
                 }
               />
+              {isPosted &&
+                !isInvoiced &&
+                routeData?.receipt?.sourceDocument === "Purchase Order" &&
+                routeData?.receipt?.sourceDocumentId &&
+                permissions.can("create", "invoicing") && (
+                  <Button
+                    variant="secondary"
+                    leftIcon={<LuCreditCard />}
+                    asChild
+                  >
+                    <Link
+                      to={`${path.to.newPurchaseInvoice}?sourceDocument=Purchase Order&sourceDocumentId=${routeData.receipt.sourceDocumentId}`}
+                    >
+                      <Trans>Invoice</Trans>
+                    </Link>
+                  </Button>
+                )}
               <Button
                 variant={canPost && !isPosted ? "primary" : "secondary"}
                 onClick={postModal.onOpen}

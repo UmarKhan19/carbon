@@ -19,11 +19,12 @@ import type { z } from "zod";
 import {
   CostCenter,
   CustomFormFields,
+  Employee,
   Hidden,
   Input,
   Submit
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
 import { costCenterValidator } from "../../accounting.models";
 
@@ -42,6 +43,10 @@ const CostCenterForm = ({
 }: CostCenterFormProps) => {
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
+  const routeData = useRouteData<{
+    purchaseOrderApprovalsActive: boolean;
+  }>(path.to.costCenters);
+  const approvalsActive = routeData?.purchaseOrderApprovalsActive ?? false;
 
   useEffect(() => {
     if (type !== "modal") return;
@@ -95,6 +100,11 @@ const CostCenterForm = ({
                 <CostCenter
                   name="parentCostCenterId"
                   label="Parent Cost Center"
+                />
+                <Employee
+                  name="ownerId"
+                  label="Owner"
+                  isOptional={!approvalsActive}
                 />
                 <CustomFormFields table="costCenter" />
               </VStack>

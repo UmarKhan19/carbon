@@ -585,7 +585,7 @@ to:
             <VStack spacing={0} className="min-w-0">
               <span className="font-semibold line-clamp-1">
                 {line.purchaseOrderLineType === "G/L Account"
-                  ? (line.description || "GL Account")
+                  ? (line.description || "Indirect Expense")
                   : getItemReadableId(items, line.itemId)}
               </span>
               <span className="text-muted-foreground text-xs truncate line-clamp-1">

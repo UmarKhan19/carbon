@@ -47,6 +47,11 @@ function CostCenterNodeComponent({
           <span className="truncate text-sm font-medium leading-tight text-foreground">
             {costCenter.name}
           </span>
+          {costCenter.owner?.fullName && (
+            <span className="truncate text-xs text-muted-foreground leading-tight">
+              {costCenter.owner.fullName}
+            </span>
+          )}
         </div>
 
         <DropdownMenu>

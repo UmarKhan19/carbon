@@ -61,6 +61,11 @@ function CostCentersRow({
           <span className="text-sm font-medium text-foreground">
             {costCenter.name}
           </span>
+          {costCenter.owner?.fullName && (
+            <span className="text-xs text-muted-foreground">
+              {costCenter.owner.fullName}
+            </span>
+          )}
         </div>
 
         <div className="ml-auto">

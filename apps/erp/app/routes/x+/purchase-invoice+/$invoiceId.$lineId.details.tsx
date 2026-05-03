@@ -161,6 +161,7 @@ export default function EditPurchaseInvoiceLineRoute() {
       purchaseInvoiceLine?.inventoryUnitOfMeasureCode ?? "",
     conversionFactor: purchaseInvoiceLine?.conversionFactor ?? 1,
     storageUnitId: purchaseInvoiceLine?.storageUnitId ?? "",
+    costCenterId: purchaseInvoiceLine?.costCenterId ?? "",
     taxPercent: purchaseInvoiceLine?.taxPercent ?? 0,
     ...getCustomFields(purchaseInvoiceLine?.customFields)
   };

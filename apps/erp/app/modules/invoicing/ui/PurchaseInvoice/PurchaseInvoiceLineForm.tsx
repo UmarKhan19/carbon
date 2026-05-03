@@ -1,10 +1,11 @@
 import { useCarbon } from "@carbon/auth";
-import { ValidatedForm } from "@carbon/form";
+import { DatePicker, InputControlled, ValidatedForm } from "@carbon/form";
 import {
   Badge,
   cn,
   FormControl,
   FormLabel,
+  HStack,
   Input,
   ModalCard,
   ModalCardBody,
@@ -150,6 +151,7 @@ const PurchaseInvoiceLineForm = ({
     costCenterId: string;
     description: string;
     quantity: number;
+    requiredDate: string | null;
     supplierUnitPrice: number;
     supplierShippingCost: number;
     taxAmount: number;
@@ -159,6 +161,7 @@ const PurchaseInvoiceLineForm = ({
     costCenterId: initialValues.costCenterId ?? "",
     description: initialValues.description ?? "",
     quantity: initialValues.quantity ?? 1,
+    requiredDate: initialValues.requiredDate ?? null,
     supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     taxAmount: initialValues.supplierTaxAmount ?? 0,
@@ -344,95 +347,106 @@ const PurchaseInvoiceLineForm = ({
   };
 
   return (
-    <ModalCardProvider type={type}>
-      <ModalCard
-        onClose={onClose}
-        defaultCollapsed={false}
-        isCollapsible={isEditing}
-      >
-        <ModalCardContent size="xxlarge">
-          <ValidatedForm
-            defaultValues={initialValues}
-            validator={purchaseInvoiceLineValidator}
-            method="post"
-            action={
-              isEditing
-                ? path.to.purchaseInvoiceLine(invoiceId, initialValues.id!)
-                : path.to.newPurchaseInvoiceLine(invoiceId)
-            }
-            className="w-full"
-            isDisabled={!isEditable}
-            onSubmit={() => {
-              if (type === "modal") onClose?.();
-            }}
-          >
-            <ModalCardHeader>
-              <ModalCardTitle
+    <Tabs
+      value={activeTab}
+      onValueChange={(v) => setActiveTab(v as "direct" | "indirect")}
+      className="w-full"
+    >
+      <ModalCardProvider type={type}>
+        <ModalCard
+          onClose={onClose}
+          defaultCollapsed={false}
+          isCollapsible={isEditing}
+        >
+          <ModalCardContent size="xxlarge">
+            <ValidatedForm
+              defaultValues={initialValues}
+              validator={purchaseInvoiceLineValidator}
+              method="post"
+              action={
+                isEditing
+                  ? path.to.purchaseInvoiceLine(invoiceId, initialValues.id!)
+                  : path.to.newPurchaseInvoiceLine(invoiceId)
+              }
+              className="w-full"
+              isDisabled={!isEditable}
+              onSubmit={() => {
+                if (type === "modal") onClose?.();
+              }}
+            >
+              <HStack
                 className={cn(
-                  isEditing &&
-                    !isGLAccount &&
-                    !itemData?.itemId &&
-                    "text-muted-foreground"
+                  "w-full justify-between items-start",
+                  type === "modal" && "pr-16"
                 )}
               >
-                {isEditing
-                  ? isGLAccount
-                    ? indirectData.description || "G/L Account"
-                    : (getItemReadableId(items, itemData?.itemId) ?? "...")
-                  : "New Purchase Invoice Line"}
-              </ModalCardTitle>
-              <ModalCardDescription>
-                {isEditing ? (
-                  <div className="flex flex-col items-start gap-1">
-                    <span>{itemData?.description}</span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{initialValues?.quantity}</Badge>
-                      <Badge variant="green">
-                        {currencyFormatter.format(
-                          (initialValues?.supplierUnitPrice ?? 0) +
-                            (initialValues?.supplierShippingCost ?? 0)
-                        )}{" "}
-                        {initialValues?.purchaseUnitOfMeasureCode}
-                      </Badge>
-                      {(initialValues?.taxPercent ?? 0) > 0 ? (
-                        <Badge variant="red">
-                          {percentFormatter.format(
-                            initialValues?.taxPercent ?? 0
-                          )}{" "}
-                          Tax
-                        </Badge>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : (
-                  "A purchase invoice line contains invoice details for a particular item"
-                )}
-              </ModalCardDescription>
-            </ModalCardHeader>
-            <ModalCardBody>
-              <Hidden name="id" />
-              <Hidden name="invoiceId" />
-              <Hidden
-                name="exchangeRate"
-                value={routeData?.purchaseInvoice?.exchangeRate ?? 1}
-              />
-
-              <Tabs
-                value={activeTab}
-                onValueChange={(v) => setActiveTab(v as "direct" | "indirect")}
-              >
-                {!isEditing && (
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="direct">
-                      <LuBox className="mr-1" />
-                      <Trans>Direct</Trans>
-                    </TabsTrigger>
-                    <TabsTrigger value="indirect">
-                      <LuReceipt className="mr-1" />
-                      <Trans>Indirect</Trans>
-                    </TabsTrigger>
-                  </TabsList>
-                )}
+                <ModalCardHeader className="flex flex-1">
+                  <ModalCardTitle
+                    className={cn(
+                      isEditing &&
+                        !isGLAccount &&
+                        !itemData?.itemId &&
+                        "text-muted-foreground"
+                    )}
+                  >
+                    {isEditing
+                      ? isGLAccount
+                        ? indirectData.description || "G/L Account"
+                        : (getItemReadableId(items, itemData?.itemId) ?? "...")
+                      : "New Purchase Invoice Line"}
+                  </ModalCardTitle>
+                  <ModalCardDescription>
+                    {isEditing ? (
+                      <div className="flex flex-col items-start gap-1">
+                        <span>{itemData?.description}</span>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">
+                            {initialValues?.quantity}
+                          </Badge>
+                          <Badge variant="green">
+                            {currencyFormatter.format(
+                              (initialValues?.supplierUnitPrice ?? 0) +
+                                (initialValues?.supplierShippingCost ?? 0)
+                            )}{" "}
+                            {initialValues?.purchaseUnitOfMeasureCode}
+                          </Badge>
+                          {(initialValues?.taxPercent ?? 0) > 0 ? (
+                            <Badge variant="red">
+                              {percentFormatter.format(
+                                initialValues?.taxPercent ?? 0
+                              )}{" "}
+                              Tax
+                            </Badge>
+                          ) : null}
+                        </div>
+                      </div>
+                    ) : (
+                      "A purchase invoice line contains invoice details for a particular item"
+                    )}
+                  </ModalCardDescription>
+                </ModalCardHeader>
+                <div className="flex-shrink-0">
+                  {!isEditing && (
+                    <TabsList>
+                      <TabsTrigger value="direct">
+                        <LuBox className="mr-1" />
+                        <Trans>Direct</Trans>
+                      </TabsTrigger>
+                      <TabsTrigger value="indirect">
+                        <LuReceipt className="mr-1" />
+                        <Trans>Indirect</Trans>
+                      </TabsTrigger>
+                    </TabsList>
+                  )}
+                </div>
+              </HStack>
+              <ModalCardBody>
+                <Hidden name="id" />
+                <Hidden name="invoiceId" />
+                <Hidden
+                  name="exchangeRate"
+                  value={routeData?.purchaseInvoice?.exchangeRate ?? 1}
+                />
 
                 <TabsContent value="direct">
                   <Hidden name="invoiceLineType" value={itemType} />
@@ -639,25 +653,38 @@ const PurchaseInvoiceLineForm = ({
                   <Hidden name="description" value={indirectData.description} />
                   <VStack>
                     <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
-                      <Account name="accountId" label={t`GL Account`} />
-                      <FormControl>
-                        <FormLabel>
-                          <Trans>Description</Trans>
-                        </FormLabel>
-                        <Input
-                          value={indirectData.description}
-                          onChange={(e) =>
-                            setIndirectData((d) => ({
-                              ...d,
-                              description: e.target.value
-                            }))
-                          }
-                        />
-                      </FormControl>
+                      <Account
+                        name="accountId"
+                        label={t`GL Account`}
+                        classes={["Asset", "Expense"]}
+                      />
+                      <InputControlled
+                        label={t`Description`}
+                        name="description"
+                        value={indirectData.description}
+                        isOptional={false}
+                        onChange={(newValue) =>
+                          setIndirectData((d) => ({
+                            ...d,
+                            description: newValue
+                          }))
+                        }
+                      />
                       <CostCenter
                         name="costCenterId"
                         label={t`Cost Center`}
                         isOptional
+                      />
+                      <DatePicker
+                        name="requiredDate"
+                        label={t`Required Date`}
+                        value={indirectData.requiredDate ?? undefined}
+                        onChange={(date) => {
+                          setIndirectData((d) => ({
+                            ...d,
+                            requiredDate: date
+                          }));
+                        }}
                       />
                       <NumberControlled
                         name="quantity"
@@ -755,17 +782,17 @@ const PurchaseInvoiceLineForm = ({
                     </div>
                   </VStack>
                 </TabsContent>
-              </Tabs>
-            </ModalCardBody>
-            <ModalCardFooter>
-              <Submit isDisabled={isDisabled} withBlocker={false}>
-                <Trans>Save</Trans>
-              </Submit>
-            </ModalCardFooter>
-          </ValidatedForm>
-        </ModalCardContent>
-      </ModalCard>
-    </ModalCardProvider>
+              </ModalCardBody>
+              <ModalCardFooter>
+                <Submit isDisabled={isDisabled} withBlocker={false}>
+                  <Trans>Save</Trans>
+                </Submit>
+              </ModalCardFooter>
+            </ValidatedForm>
+          </ModalCardContent>
+        </ModalCard>
+      </ModalCardProvider>
+    </Tabs>
   );
 };
 

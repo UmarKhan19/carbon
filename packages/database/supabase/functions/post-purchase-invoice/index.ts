@@ -221,7 +221,7 @@ serve(async (req: Request) => {
         });
 
         const areAllLinesReceivedProjected = projectedLines.every((line) => {
-          if (line.purchaseOrderLineType === "Comment") return true;
+          if (line.purchaseOrderLineType === "Comment" || line.purchaseOrderLineType === "G/L Account") return true;
           const target = line.purchaseQuantity ?? 0;
           if (target <= 0) return true;
           return (line.quantityReceived ?? 0) >= target;
@@ -390,7 +390,15 @@ serve(async (req: Request) => {
       });
     }
 
-    const [purchaseInvoice, purchaseInvoiceLines, purchaseInvoiceDelivery] =
+    const companyRecord = await client
+      .from("company")
+      .select("companyGroupId")
+      .eq("id", companyId)
+      .single();
+    if (companyRecord.error) throw new Error("Failed to fetch company");
+    const companyGroupId = companyRecord.data.companyGroupId;
+
+    const [purchaseInvoice, purchaseInvoiceLines, purchaseInvoiceDelivery, dimensions] =
       await Promise.all([
         client.from("purchaseInvoice").select("*").eq("id", invoiceId).single(),
         client
@@ -402,6 +410,17 @@ serve(async (req: Request) => {
           .select("supplierShippingCost")
           .eq("id", invoiceId)
           .single(),
+        client
+          .from("dimension")
+          .select("id, entityType")
+          .eq("companyGroupId", companyGroupId)
+          .eq("active", true)
+          .in("entityType", [
+            "SupplierType",
+            "ItemPostingGroup",
+            "Location",
+            "CostCenter",
+          ]),
       ]);
 
     if (purchaseInvoice.error)
@@ -410,6 +429,14 @@ serve(async (req: Request) => {
       throw new Error("Failed to fetch receipt lines");
     if (purchaseInvoiceDelivery.error)
       throw new Error("Failed to fetch purchase invoice delivery");
+    if (dimensions.error) {
+      console.error("Failed to fetch dimensions", dimensions.error);
+    }
+
+    const dimensionMap = new Map<string, string>();
+    for (const dim of dimensions.data ?? []) {
+      if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
+    }
 
     const shippingCost =
       (purchaseInvoiceDelivery.data?.supplierShippingCost ?? 0) *
@@ -501,6 +528,13 @@ serve(async (req: Request) => {
       Database["public"]["Tables"]["journalLine"]["Insert"],
       "journalId"
     >[] = [];
+
+    const journalLineDimensionsMeta: {
+      supplierTypeId: string | null;
+      itemPostingGroupId: string | null;
+      locationId: string | null;
+      costCenterId: string | null;
+    }[] = [];
 
     const receiptLineInserts: Omit<
       Database["public"]["Tables"]["receiptLine"]["Insert"],
@@ -747,6 +781,18 @@ serve(async (req: Request) => {
                   journalLineReference,
                   companyId,
                 });
+
+                const lineItemPostingGroupId =
+                  itemCosts.data.find(
+                    (cost) => cost.itemId === invoiceLine.itemId
+                  )?.itemPostingGroupId ?? null;
+                const itemDimMeta = {
+                  supplierTypeId: supplier.data.supplierTypeId ?? null,
+                  itemPostingGroupId: lineItemPostingGroupId,
+                  locationId: invoiceLine.locationId ?? null,
+                  costCenterId: null,
+                };
+                journalLineDimensionsMeta.push(itemDimMeta, itemDimMeta);
               }
             } // if the line is associated with a purchase order line, we do accrual/reversing
             else {
@@ -823,6 +869,8 @@ serve(async (req: Request) => {
 
               const quantityAlreadyReversed =
                 quantityReceived > quantityInvoiced ? quantityInvoiced : 0;
+
+              const jlStartIdxReverse = journalLineInserts.length;
 
               if (quantityToReverse > 0 && isInternal && accountDefaults?.data) {
                 // Calculate receipt cost from existing journal lines for PPV
@@ -917,6 +965,22 @@ serve(async (req: Request) => {
                   journalLineReference,
                   companyId,
                 });
+
+                const reverseLineItemPostingGroupId =
+                  itemCosts.data.find(
+                    (cost) => cost.itemId === invoiceLine.itemId
+                  )?.itemPostingGroupId ?? null;
+                const reverseDimMeta = {
+                  supplierTypeId: supplier.data.supplierTypeId ?? null,
+                  itemPostingGroupId: reverseLineItemPostingGroupId,
+                  locationId: invoiceLine.locationId ?? null,
+                  costCenterId: null,
+                };
+                const reverseJlCount =
+                  journalLineInserts.length - jlStartIdxReverse;
+                for (let i = 0; i < reverseJlCount; i++) {
+                  journalLineDimensionsMeta.push(reverseDimMeta);
+                }
               }
 
               if (invoiceLineQuantityInInventoryUnit > quantityToReverse && isInternal && accountDefaults?.data) {
@@ -965,6 +1029,18 @@ serve(async (req: Request) => {
                   journalLineReference,
                   companyId,
                 });
+
+                const accrualLineItemPostingGroupId =
+                  itemCosts.data.find(
+                    (cost) => cost.itemId === invoiceLine.itemId
+                  )?.itemPostingGroupId ?? null;
+                const accrualDimMeta = {
+                  supplierTypeId: supplier.data.supplierTypeId ?? null,
+                  itemPostingGroupId: accrualLineItemPostingGroupId,
+                  locationId: invoiceLine.locationId ?? null,
+                  costCenterId: null,
+                };
+                journalLineDimensionsMeta.push(accrualDimMeta, accrualDimMeta);
               }
             }
           }
@@ -978,15 +1054,15 @@ serve(async (req: Request) => {
         case "G/L Account": {
           if (isInternal && accountDefaults?.data) {
             const account = await client
-              .from("accounts")
-              .select("id, name, directPosting")
+              .from("account")
+              .select("id, name, isGroup")
               .eq("id", invoiceLine.accountId ?? "")
               .single();
 
             if (account.error || !account.data)
               throw new Error("Failed to fetch account");
-            if (!account.data.directPosting)
-              throw new Error("Account is not a direct posting account");
+            if (account.data.isGroup)
+              throw new Error("Cannot post to a group account");
 
             journalLineReference = nanoid();
 
@@ -1023,6 +1099,14 @@ serve(async (req: Request) => {
               journalLineReference,
               companyId,
             });
+
+            const glDimMeta = {
+              supplierTypeId: null,
+              itemPostingGroupId: null,
+              locationId: invoiceLine.locationId ?? null,
+              costCenterId: invoiceLine.costCenterId ?? null,
+            };
+            journalLineDimensionsMeta.push(glDimMeta, glDimMeta);
           }
           break;
         }
@@ -1136,7 +1220,9 @@ serve(async (req: Request) => {
 
         const areAllLinesReceived = purchaseOrderLines.every(
           (line) =>
-            line.purchaseOrderLineType === "Comment" || line.receivedComplete
+            line.purchaseOrderLineType === "Comment" ||
+            line.purchaseOrderLineType === "G/L Account" ||
+            line.receivedComplete
         );
 
         let status: Database["public"]["Tables"]["purchaseOrder"]["Row"]["status"] =
@@ -1186,7 +1272,7 @@ serve(async (req: Request) => {
         const journalId = journal[0].id;
         if (!journalId) throw new Error("Failed to insert journal");
 
-        await trx
+        const journalLineResults = await trx
           .insertInto("journalLine")
           .values(
             journalLineInserts.map((journalLine) => ({
@@ -1196,6 +1282,66 @@ serve(async (req: Request) => {
           )
           .returning(["id"])
           .execute();
+
+        if (dimensionMap.size > 0) {
+          const journalLineDimensionInserts: {
+            journalLineId: string;
+            dimensionId: string;
+            valueId: string;
+            companyId: string;
+          }[] = [];
+
+          journalLineResults.forEach((jl, index) => {
+            const meta = journalLineDimensionsMeta[index];
+            if (!meta) return;
+
+            if (
+              meta.supplierTypeId &&
+              dimensionMap.has("SupplierType")
+            ) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("SupplierType")!,
+                valueId: meta.supplierTypeId,
+                companyId,
+              });
+            }
+            if (
+              meta.itemPostingGroupId &&
+              dimensionMap.has("ItemPostingGroup")
+            ) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("ItemPostingGroup")!,
+                valueId: meta.itemPostingGroupId,
+                companyId,
+              });
+            }
+            if (meta.locationId && dimensionMap.has("Location")) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("Location")!,
+                valueId: meta.locationId,
+                companyId,
+              });
+            }
+            if (meta.costCenterId && dimensionMap.has("CostCenter")) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("CostCenter")!,
+                valueId: meta.costCenterId,
+                companyId,
+              });
+            }
+          });
+
+          if (journalLineDimensionInserts.length > 0) {
+            await trx
+              .insertInto("journalLineDimension")
+              .values(journalLineDimensionInserts)
+              .execute();
+          }
+        }
       }
 
       if (itemLedgerInserts.length > 0) {

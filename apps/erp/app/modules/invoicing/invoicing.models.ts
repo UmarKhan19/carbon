@@ -121,6 +121,7 @@ export const purchaseInvoiceLineValidator = z
     supplierUnitPrice: zfd.numeric(z.number().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional().default(0)),
     supplierTaxAmount: zfd.numeric(z.number().optional().default(0)),
+    requiredDate: zfd.text(z.string().optional()),
     locationId: zfd.text(z.string().optional()),
     storageUnitId: zfd.text(z.string().optional()),
     exchangeRate: zfd.numeric(z.number().optional())
@@ -152,6 +153,14 @@ export const purchaseInvoiceLineValidator = z
     {
       message: "Account is required",
       path: ["accountId"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.invoiceLineType === "G/L Account" ? data.description : true,
+    {
+      message: "Description is required",
+      path: ["description"]
     }
   );
 

@@ -26239,6 +26239,7 @@ export type Database = {
           assetId: string | null
           companyId: string
           conversionFactor: number | null
+          costCenterId: string | null
           createdAt: string
           createdBy: string
           customFields: Json | null
@@ -26254,10 +26255,12 @@ export type Database = {
           jobOperationId: string | null
           locationId: string | null
           modelUploadId: string | null
+          ownerId: string | null
           purchaseOrderId: string | null
           purchaseOrderLineId: string | null
           purchaseUnitOfMeasureCode: string | null
           quantity: number
+          requiredDate: string | null
           serviceId: string | null
           shippingCost: number | null
           storageUnitId: string | null
@@ -26278,6 +26281,7 @@ export type Database = {
           assetId?: string | null
           companyId: string
           conversionFactor?: number | null
+          costCenterId?: string | null
           createdAt?: string
           createdBy: string
           customFields?: Json | null
@@ -26293,10 +26297,12 @@ export type Database = {
           jobOperationId?: string | null
           locationId?: string | null
           modelUploadId?: string | null
+          ownerId?: string | null
           purchaseOrderId?: string | null
           purchaseOrderLineId?: string | null
           purchaseUnitOfMeasureCode?: string | null
           quantity?: number
+          requiredDate?: string | null
           serviceId?: string | null
           shippingCost?: number | null
           storageUnitId?: string | null
@@ -26317,6 +26323,7 @@ export type Database = {
           assetId?: string | null
           companyId?: string
           conversionFactor?: number | null
+          costCenterId?: string | null
           createdAt?: string
           createdBy?: string
           customFields?: Json | null
@@ -26332,10 +26339,12 @@ export type Database = {
           jobOperationId?: string | null
           locationId?: string | null
           modelUploadId?: string | null
+          ownerId?: string | null
           purchaseOrderId?: string | null
           purchaseOrderLineId?: string | null
           purchaseUnitOfMeasureCode?: string | null
           quantity?: number
+          requiredDate?: string | null
           serviceId?: string | null
           shippingCost?: number | null
           storageUnitId?: string | null
@@ -26364,6 +26373,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_costCenterId_fkey"
+            columns: ["costCenterId"]
+            isOneToOne: false
+            referencedRelation: "costCenter"
             referencedColumns: ["id"]
           },
           {
@@ -26407,6 +26423,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "purchaseInvoiceLine_storageUnitId_fkey"
@@ -27406,6 +27457,7 @@ export type Database = {
           assetId: string | null
           companyId: string
           conversionFactor: number | null
+          costCenterId: string | null
           createdAt: string
           createdBy: string
           customFields: Json | null
@@ -27422,6 +27474,7 @@ export type Database = {
           jobOperationId: string | null
           locationId: string | null
           modelUploadId: string | null
+          ownerId: string | null
           promisedDate: string | null
           purchaseOrderId: string
           purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -27434,7 +27487,7 @@ export type Database = {
           quantityToReceive: number | null
           receivedComplete: boolean
           receivedDate: string | null
-          requestedDate: string | null
+          requiredDate: string | null
           requiresInspection: boolean
           setupPrice: number | null
           shippingCost: number | null
@@ -27455,6 +27508,7 @@ export type Database = {
           assetId?: string | null
           companyId: string
           conversionFactor?: number | null
+          costCenterId?: string | null
           createdAt?: string
           createdBy: string
           customFields?: Json | null
@@ -27471,6 +27525,7 @@ export type Database = {
           jobOperationId?: string | null
           locationId?: string | null
           modelUploadId?: string | null
+          ownerId?: string | null
           promisedDate?: string | null
           purchaseOrderId: string
           purchaseOrderLineType: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -27483,7 +27538,7 @@ export type Database = {
           quantityToReceive?: number | null
           receivedComplete?: boolean
           receivedDate?: string | null
-          requestedDate?: string | null
+          requiredDate?: string | null
           requiresInspection?: boolean
           setupPrice?: number | null
           shippingCost?: number | null
@@ -27504,6 +27559,7 @@ export type Database = {
           assetId?: string | null
           companyId?: string
           conversionFactor?: number | null
+          costCenterId?: string | null
           createdAt?: string
           createdBy?: string
           customFields?: Json | null
@@ -27520,6 +27576,7 @@ export type Database = {
           jobOperationId?: string | null
           locationId?: string | null
           modelUploadId?: string | null
+          ownerId?: string | null
           promisedDate?: string | null
           purchaseOrderId?: string
           purchaseOrderLineType?: Database["public"]["Enums"]["purchaseOrderLineType"]
@@ -27532,7 +27589,7 @@ export type Database = {
           quantityToReceive?: number | null
           receivedComplete?: boolean
           receivedDate?: string | null
-          requestedDate?: string | null
+          requiredDate?: string | null
           requiresInspection?: boolean
           setupPrice?: number | null
           shippingCost?: number | null
@@ -27561,6 +27618,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_costCenterId_fkey"
+            columns: ["costCenterId"]
+            isOneToOne: false
+            referencedRelation: "costCenter"
             referencedColumns: ["id"]
           },
           {
@@ -27709,6 +27773,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "purchaseOrderLine_purchaseOrderId_fkey"
@@ -39974,8 +40073,10 @@ export type Database = {
       }
       supplierQuoteLine: {
         Row: {
+          accountId: string | null
           companyId: string
           conversionFactor: number
+          costCenterId: string | null
           createdBy: string
           customFields: Json | null
           description: string
@@ -39983,20 +40084,25 @@ export type Database = {
           id: string
           internalNotes: Json | null
           inventoryUnitOfMeasureCode: string | null
-          itemId: string
+          itemId: string | null
+          ownerId: string | null
           purchaseUnitOfMeasureCode: string | null
           quantity: number[] | null
+          requiredDate: string | null
           supplierPartId: string | null
           supplierPartRevision: string | null
           supplierQuoteId: string
+          supplierQuoteLineType: string
           supplierQuoteRevisionId: number
           tags: string[] | null
           updatedAt: string | null
           updatedBy: string | null
         }
         Insert: {
+          accountId?: string | null
           companyId: string
           conversionFactor?: number
+          costCenterId?: string | null
           createdBy: string
           customFields?: Json | null
           description: string
@@ -40004,20 +40110,25 @@ export type Database = {
           id?: string
           internalNotes?: Json | null
           inventoryUnitOfMeasureCode?: string | null
-          itemId: string
+          itemId?: string | null
+          ownerId?: string | null
           purchaseUnitOfMeasureCode?: string | null
           quantity?: number[] | null
+          requiredDate?: string | null
           supplierPartId?: string | null
           supplierPartRevision?: string | null
           supplierQuoteId: string
+          supplierQuoteLineType?: string
           supplierQuoteRevisionId?: number
           tags?: string[] | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Update: {
+          accountId?: string | null
           companyId?: string
           conversionFactor?: number
+          costCenterId?: string | null
           createdBy?: string
           customFields?: Json | null
           description?: string
@@ -40025,18 +40136,35 @@ export type Database = {
           id?: string
           internalNotes?: Json | null
           inventoryUnitOfMeasureCode?: string | null
-          itemId?: string
+          itemId?: string | null
+          ownerId?: string | null
           purchaseUnitOfMeasureCode?: string | null
           quantity?: number[] | null
+          requiredDate?: string | null
           supplierPartId?: string | null
           supplierPartRevision?: string | null
           supplierQuoteId?: string
+          supplierQuoteLineType?: string
           supplierQuoteRevisionId?: number
           tags?: string[] | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "supplierQuoteLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "supplierQuoteLine_companyId_fkey"
             columns: ["companyId"]
@@ -40064,6 +40192,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_costCenterId_fkey"
+            columns: ["costCenterId"]
+            isOneToOne: false
+            referencedRelation: "costCenter"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "supplierQuoteLine_createdBy_fkey"
@@ -40148,6 +40283,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tools"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "supplierQuoteLine_purchaseUnitOfMeasureCode_fkey"
@@ -51109,9 +51279,11 @@ export type Database = {
       purchaseInvoiceLines: {
         Row: {
           accountId: string | null
+          accountName: string | null
           assetId: string | null
           companyId: string | null
           conversionFactor: number | null
+          costCenterId: string | null
           createdAt: string | null
           createdBy: string | null
           customFields: Json | null
@@ -51134,9 +51306,10 @@ export type Database = {
           purchaseOrderLineId: string | null
           purchaseUnitOfMeasureCode: string | null
           quantity: number | null
+          requiredDate: string | null
           serviceId: string | null
-          shelfId: string | null
           shippingCost: number | null
+          storageUnitId: string | null
           supplierExtendedPrice: number | null
           supplierPartId: string | null
           supplierShippingCost: number | null
@@ -51165,6 +51338,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_costCenterId_fkey"
+            columns: ["costCenterId"]
+            isOneToOne: false
+            referencedRelation: "costCenter"
             referencedColumns: ["id"]
           },
           {
@@ -51211,7 +51391,7 @@ export type Database = {
           },
           {
             foreignKeyName: "purchaseInvoiceLine_storageUnitId_fkey"
-            columns: ["shelfId"]
+            columns: ["storageUnitId"]
             isOneToOne: false
             referencedRelation: "storageUnit"
             referencedColumns: ["id"]
@@ -51724,10 +51904,12 @@ export type Database = {
       purchaseOrderLines: {
         Row: {
           accountId: string | null
+          accountName: string | null
           assetId: string | null
           autodeskUrn: string | null
           companyId: string | null
           conversionFactor: number | null
+          costCenterId: string | null
           createdAt: string | null
           createdBy: string | null
           customFields: Json | null
@@ -51766,7 +51948,7 @@ export type Database = {
           quantityToReceive: number | null
           receivedComplete: boolean | null
           receivedDate: string | null
-          requestedDate: string | null
+          requiredDate: string | null
           requiresInspection: boolean | null
           setupPrice: number | null
           shippingCost: number | null
@@ -51798,6 +51980,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_costCenterId_fkey"
+            columns: ["costCenterId"]
+            isOneToOne: false
+            referencedRelation: "costCenter"
             referencedColumns: ["id"]
           },
           {
@@ -56035,14 +56224,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -57810,8 +57999,11 @@ export type Database = {
       }
       supplierQuoteLines: {
         Row: {
+          accountId: string | null
+          accountName: string | null
           companyId: string | null
           conversionFactor: number | null
+          costCenterId: string | null
           createdBy: string | null
           customFields: Json | null
           description: string | null
@@ -57824,9 +58016,11 @@ export type Database = {
           itemType: Database["public"]["Enums"]["itemType"] | null
           purchaseUnitOfMeasureCode: string | null
           quantity: number[] | null
+          requiredDate: string | null
           supplierPartId: string | null
           supplierPartRevision: string | null
           supplierQuoteId: string | null
+          supplierQuoteLineType: string | null
           supplierQuoteRevisionId: number | null
           tags: string[] | null
           thumbnailPath: string | null
@@ -57835,6 +58029,20 @@ export type Database = {
           updatedBy: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "supplierQuoteLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_accountId_fkey"
+            columns: ["accountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "supplierQuoteLine_companyId_fkey"
             columns: ["companyId"]
@@ -57862,6 +58070,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_costCenterId_fkey"
+            columns: ["costCenterId"]
+            isOneToOne: false
+            referencedRelation: "costCenter"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "supplierQuoteLine_createdBy_fkey"

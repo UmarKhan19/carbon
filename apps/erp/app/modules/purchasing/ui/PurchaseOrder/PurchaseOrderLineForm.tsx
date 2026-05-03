@@ -1,10 +1,16 @@
 import { useCarbon } from "@carbon/auth";
-import { Combobox, DatePicker, ValidatedForm } from "@carbon/form";
+import {
+  Combobox,
+  DatePicker,
+  InputControlled,
+  ValidatedForm
+} from "@carbon/form";
 import {
   Badge,
   cn,
   FormControl,
   FormLabel,
+  HStack,
   Input,
   ModalCard,
   ModalCardBody,
@@ -105,7 +111,7 @@ const PurchaseOrderLineForm = ({
     priceBreaks: Array<{ quantity: number; unitPrice: number }>;
     purchaseQuantity: number;
     purchaseUom: string;
-    requestedDate: string | null;
+    requiredDate: string | null;
     storageUnitId: string | null;
     supplierShippingCost: number;
     supplierTaxAmount: number;
@@ -121,7 +127,7 @@ const PurchaseOrderLineForm = ({
     purchaseQuantity: initialValues.purchaseQuantity ?? 1,
     purchaseUom: initialValues.purchaseUnitOfMeasureCode ?? "",
     priceBreaks: [],
-    requestedDate: initialValues?.requestedDate ?? null,
+    requiredDate: initialValues?.requiredDate ?? null,
     storageUnitId: initialValues.storageUnitId ?? "",
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     supplierTaxAmount: initialValues.supplierTaxAmount ?? 0,
@@ -167,6 +173,7 @@ const PurchaseOrderLineForm = ({
     costCenterId: string;
     description: string;
     purchaseQuantity: number;
+    requiredDate: string | null;
     supplierUnitPrice: number;
     supplierShippingCost: number;
     supplierTaxAmount: number;
@@ -176,6 +183,7 @@ const PurchaseOrderLineForm = ({
     costCenterId: initialValues.costCenterId ?? "",
     description: initialValues.description ?? "",
     purchaseQuantity: initialValues.purchaseQuantity ?? 1,
+    requiredDate: initialValues.requiredDate ?? null,
     supplierUnitPrice: initialValues.supplierUnitPrice ?? 0,
     supplierShippingCost: initialValues.supplierShippingCost ?? 0,
     supplierTaxAmount: initialValues.supplierTaxAmount ?? 0,
@@ -254,7 +262,7 @@ const PurchaseOrderLineForm = ({
       priceBreaks: [],
       purchaseQuantity: 1,
       purchaseUom: "",
-      requestedDate: null,
+      requiredDate: null,
       storageUnitId: "",
       supplierShippingCost: 0,
       supplierTaxAmount: 0,
@@ -332,7 +340,7 @@ const PurchaseOrderLineForm = ({
             supplierPart?.data?.conversionFactor ??
             itemReplenishment?.conversionFactor ??
             1,
-          requestedDate:
+          requiredDate:
             leadTime === 0
               ? null
               : today(getLocalTimeZone()).add({ days: leadTime }).toString(),
@@ -378,102 +386,111 @@ const PurchaseOrderLineForm = ({
 
   return (
     <>
-      <ModalCardProvider type={type}>
-        <ModalCard
-          onClose={onClose}
-          defaultCollapsed={false}
-          isCollapsible={isEditing}
-        >
-          <ModalCardContent size="xxlarge">
-            <ValidatedForm
-              defaultValues={initialValues}
-              validator={purchaseOrderLineValidator}
-              method="post"
-              action={
-                isEditing
-                  ? path.to.purchaseOrderLine(orderId, initialValues.id!)
-                  : path.to.newPurchaseOrderLine(orderId)
-              }
-              className="w-full"
-              fetcher={fetcher}
-              isDisabled={isLocked}
-              onSubmit={() => {
-                if (type === "modal") onClose?.();
-              }}
-            >
-              <ModalCardHeader>
-                <ModalCardTitle
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as "direct" | "indirect")}
+        className="w-full"
+      >
+        <ModalCardProvider type={type}>
+          <ModalCard
+            onClose={onClose}
+            defaultCollapsed={false}
+            isCollapsible={isEditing}
+          >
+            <ModalCardContent size="xxlarge">
+              <ValidatedForm
+                defaultValues={initialValues}
+                validator={purchaseOrderLineValidator}
+                method="post"
+                action={
+                  isEditing
+                    ? path.to.purchaseOrderLine(orderId, initialValues.id!)
+                    : path.to.newPurchaseOrderLine(orderId)
+                }
+                className="w-full"
+                fetcher={fetcher}
+                isDisabled={isLocked}
+                onSubmit={() => {
+                  if (type === "modal") onClose?.();
+                }}
+              >
+                <HStack
                   className={cn(
-                    isEditing &&
-                      !isGLAccount &&
-                      !itemData?.itemId &&
-                      "text-muted-foreground"
+                    "w-full justify-between items-start",
+                    type === "modal" && "pr-16"
                   )}
                 >
-                  {isEditing
-                    ? isGLAccount
-                      ? indirectData.description || "G/L Account"
-                      : getItemReadableId(items, itemData?.itemId) || "..."
-                    : "New Purchase Order Line"}
-                </ModalCardTitle>
-                <ModalCardDescription>
-                  {isOutsideProcessing ? (
-                    <Badge variant="default">Outside Processing</Badge>
-                  ) : isEditing ? (
-                    <div className="flex flex-col items-start gap-1">
-                      <span>{itemData?.description}</span>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">
-                          {initialValues?.purchaseQuantity}
-                        </Badge>
-                        <Badge variant="green">
-                          {currencyFormatter.format(
-                            (initialValues?.supplierUnitPrice ?? 0) +
-                              (initialValues?.supplierShippingCost ?? 0)
-                          )}{" "}
-                          {initialValues?.purchaseUnitOfMeasureCode}
-                        </Badge>
-                        {/* @ts-expect-error TS2339 */}
-                        {initialValues?.taxPercent > 0 ? (
-                          <Badge variant="red">
+                  <ModalCardHeader className="flex flex-1">
+                    <ModalCardTitle
+                      className={cn(
+                        isEditing &&
+                          !isGLAccount &&
+                          !itemData?.itemId &&
+                          "text-muted-foreground"
+                      )}
+                    >
+                      {isEditing
+                        ? isGLAccount
+                          ? indirectData.description || "G/L Account"
+                          : getItemReadableId(items, itemData?.itemId) || "..."
+                        : "New Purchase Order Line"}
+                    </ModalCardTitle>
+                    <ModalCardDescription>
+                      {isOutsideProcessing ? (
+                        <Badge variant="default">Outside Processing</Badge>
+                      ) : isEditing ? (
+                        <div className="flex flex-col items-start gap-1">
+                          <span>{itemData?.description}</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline">
+                              {initialValues?.purchaseQuantity}
+                            </Badge>
+                            <Badge variant="green">
+                              {currencyFormatter.format(
+                                (initialValues?.supplierUnitPrice ?? 0) +
+                                  (initialValues?.supplierShippingCost ?? 0)
+                              )}{" "}
+                              {initialValues?.purchaseUnitOfMeasureCode}
+                            </Badge>
                             {/* @ts-expect-error TS2339 */}
-                            {percentFormatter.format(initialValues?.taxPercent)}{" "}
-                            Tax
-                          </Badge>
-                        ) : null}
-                      </div>
-                    </div>
-                  ) : (
-                    "A purchase order line contains order details for a particular item"
-                  )}
-                </ModalCardDescription>
-              </ModalCardHeader>
-              <ModalCardBody>
-                <Hidden name="id" />
-                <Hidden name="purchaseOrderId" />
-                <Hidden
-                  name="exchangeRate"
-                  value={routeData?.purchaseOrder?.exchangeRate ?? 1}
-                />
-
-                <Tabs
-                  value={activeTab}
-                  onValueChange={(v) =>
-                    setActiveTab(v as "direct" | "indirect")
-                  }
-                >
-                  {!isEditing && (
-                    <TabsList className="mb-4">
-                      <TabsTrigger value="direct">
-                        <LuBox className="mr-1" />
-                        <Trans>Direct</Trans>
-                      </TabsTrigger>
-                      <TabsTrigger value="indirect">
-                        <LuReceipt className="mr-1" />
-                        <Trans>Indirect</Trans>
-                      </TabsTrigger>
-                    </TabsList>
-                  )}
+                            {initialValues?.taxPercent > 0 ? (
+                              <Badge variant="red">
+                                {percentFormatter.format(
+                                  /* @ts-expect-error TS2339 */
+                                  initialValues?.taxPercent ?? 0
+                                )}{" "}
+                                Tax
+                              </Badge>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : (
+                        "A purchase order line contains order details for a particular item"
+                      )}
+                    </ModalCardDescription>
+                  </ModalCardHeader>
+                  <div className="flex-shrink-0">
+                    {!isEditing && (
+                      <TabsList>
+                        <TabsTrigger value="direct">
+                          <LuBox className="mr-1" />
+                          <Trans>Direct</Trans>
+                        </TabsTrigger>
+                        <TabsTrigger value="indirect">
+                          <LuReceipt className="mr-1" />
+                          <Trans>Indirect</Trans>
+                        </TabsTrigger>
+                      </TabsList>
+                    )}
+                  </div>
+                </HStack>
+                <ModalCardBody>
+                  <Hidden name="id" />
+                  <Hidden name="purchaseOrderId" />
+                  <Hidden
+                    name="exchangeRate"
+                    value={routeData?.purchaseOrder?.exchangeRate ?? 1}
+                  />
 
                   <TabsContent value="direct">
                     <Hidden name="purchaseOrderLineType" value={itemType} />
@@ -498,33 +515,25 @@ const PurchaseOrderLineForm = ({
                           onTypeChange={onTypeChange}
                         />
 
-                        <FormControl>
-                          <FormLabel isOptional>
-                            <Trans>Description</Trans>
-                          </FormLabel>
-                          <Input
-                            value={itemData.description}
-                            onChange={(e) =>
-                              setItemData((d) => ({
-                                ...d,
-                                description: e.target.value
-                              }))
-                            }
-                          />
-                        </FormControl>
+                        <InputControlled
+                          label={t`Description`}
+                          name="description"
+                          value={itemData.description}
+                          isOptional={false}
+                        />
 
                         {isOutsideProcessing && (
                           <JobOperationSelect jobId={initialValues.jobId} />
                         )}
 
                         <DatePicker
-                          name="requestedDate"
+                          name="requiredDate"
                           label={t`Required Date`}
-                          value={itemData?.requestedDate ?? undefined}
+                          value={itemData?.requiredDate ?? undefined}
                           onChange={(date) => {
                             setItemData((d) => ({
                               ...d,
-                              requestedDate: date
+                              requiredDate: date
                             }));
                           }}
                         />
@@ -722,7 +731,11 @@ const PurchaseOrderLineForm = ({
                     />
                     <VStack>
                       <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
-                        <Account name="accountId" label={t`GL Account`} />
+                        <Account
+                          name="accountId"
+                          label={t`GL Account`}
+                          classes={["Asset", "Expense"]}
+                        />
                         <FormControl>
                           <FormLabel>
                             <Trans>Description</Trans>
@@ -741,6 +754,17 @@ const PurchaseOrderLineForm = ({
                           name="costCenterId"
                           label={t`Cost Center`}
                           isOptional
+                        />
+                        <DatePicker
+                          name="requiredDate"
+                          label={t`Required Date`}
+                          value={indirectData.requiredDate ?? undefined}
+                          onChange={(date) => {
+                            setIndirectData((d) => ({
+                              ...d,
+                              requiredDate: date
+                            }));
+                          }}
                         />
                         <NumberControlled
                           name="purchaseQuantity"
@@ -838,17 +862,17 @@ const PurchaseOrderLineForm = ({
                       </div>
                     </VStack>
                   </TabsContent>
-                </Tabs>
-              </ModalCardBody>
-              <ModalCardFooter>
-                <Submit isDisabled={isDisabled} withBlocker={false}>
-                  <Trans>Save</Trans>
-                </Submit>
-              </ModalCardFooter>
-            </ValidatedForm>
-          </ModalCardContent>
-        </ModalCard>
-      </ModalCardProvider>
+                </ModalCardBody>
+                <ModalCardFooter>
+                  <Submit isDisabled={isDisabled} withBlocker={false}>
+                    <Trans>Save</Trans>
+                  </Submit>
+                </ModalCardFooter>
+              </ValidatedForm>
+            </ModalCardContent>
+          </ModalCard>
+        </ModalCardProvider>
+      </Tabs>
       {isEditing && deleteDisclosure.isOpen && (
         <DeletePurchaseOrderLine
           line={initialValues as PurchaseOrderLine}

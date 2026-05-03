@@ -387,7 +387,8 @@ export const costLedgerValidator = z.object({
 export const costCenterValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
-  parentCostCenterId: zfd.text(z.string().optional())
+  parentCostCenterId: zfd.text(z.string().optional()),
+  ownerId: zfd.text(z.string().optional())
 });
 
 export const intercompanyTransactionStatuses = [
