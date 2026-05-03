@@ -8,8 +8,11 @@ import {
   DropdownMenuIcon,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  FormControl,
+  FormLabel,
   HStack,
   IconButton,
+  Input,
   ModalCard,
   ModalCardBody,
   ModalCardContent,
@@ -18,6 +21,10 @@ import {
   ModalCardHeader,
   ModalCardProvider,
   ModalCardTitle,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
   toast,
   useDisclosure,
   VStack
@@ -25,12 +32,14 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
-import { LuTrash } from "react-icons/lu";
+import { LuBox, LuReceipt, LuTrash } from "react-icons/lu";
 import { useParams } from "react-router";
 import type { z } from "zod";
 import {
+  Account,
   ArrayNumeric,
   ConversionFactor,
+  CostCenter,
   CustomFormFields,
   Hidden,
   InputControlled,
@@ -78,6 +87,20 @@ const SupplierQuoteLineForm = ({
   const isLocked = isSupplierQuoteLocked(routeData?.quote?.status);
 
   const isEditing = initialValues.id !== undefined;
+  const isGLAccount = initialValues.supplierQuoteLineType === "G/L Account";
+  const [activeTab, setActiveTab] = useState<"direct" | "indirect">(
+    isGLAccount ? "indirect" : "direct"
+  );
+
+  const [indirectData, setIndirectData] = useState<{
+    accountId: string;
+    costCenterId: string;
+    description: string;
+  }>({
+    accountId: initialValues.accountId ?? "",
+    costCenterId: initialValues.costCenterId ?? "",
+    description: initialValues.description ?? ""
+  });
 
   const [itemType, setItemType] = useState(initialValues.itemType);
   const [itemData, setItemData] = useState<{
@@ -238,94 +261,160 @@ const SupplierQuoteLineForm = ({
               <ModalCardBody>
                 <Hidden name="id" />
                 <Hidden name="supplierQuoteId" />
-                <Hidden
-                  name="inventoryUnitOfMeasureCode"
-                  value={itemData?.inventoryUom}
-                />
-                <VStack>
-                  <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
-                    <div className="col-span-2 grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-2 auto-rows-min">
-                      <Item
-                        autoFocus
-                        name="itemId"
-                        label={t`Part`}
-                        type={itemType}
-                        value={itemData.itemId}
-                        includeInactive
-                        onChange={(value) => {
-                          onItemChange(value?.value as string);
-                        }}
-                        onTypeChange={(type) => {
-                          setItemType(type as MethodItemType);
 
-                          setItemData({
-                            ...itemData,
-                            itemId: "",
-                            description: "",
-                            inventoryUom: "",
-                            purchaseUom: "",
-                            conversionFactor: 1,
-                            supplierPartId: ""
-                          });
-                        }}
-                      />
+                <Tabs
+                  value={activeTab}
+                  onValueChange={(v) =>
+                    setActiveTab(v as "direct" | "indirect")
+                  }
+                >
+                  {!isEditing && (
+                    <TabsList className="mb-4">
+                      <TabsTrigger value="direct">
+                        <LuBox className="mr-1" />
+                        <Trans>Direct</Trans>
+                      </TabsTrigger>
+                      <TabsTrigger value="indirect">
+                        <LuReceipt className="mr-1" />
+                        <Trans>Indirect</Trans>
+                      </TabsTrigger>
+                    </TabsList>
+                  )}
 
-                      <InputControlled
-                        name="description"
-                        label={t`Short Description`}
-                        value={itemData.description}
-                      />
+                  <TabsContent value="direct">
+                    <Hidden name="supplierQuoteLineType" value={itemType} />
+                    <Hidden
+                      name="inventoryUnitOfMeasureCode"
+                      value={itemData?.inventoryUom}
+                    />
+                    <VStack>
+                      <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
+                        <div className="col-span-2 grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-2 auto-rows-min">
+                          <Item
+                            autoFocus
+                            name="itemId"
+                            label={t`Part`}
+                            type={itemType}
+                            value={itemData.itemId}
+                            includeInactive
+                            onChange={(value) => {
+                              onItemChange(value?.value as string);
+                            }}
+                            onTypeChange={(type) => {
+                              setItemType(type as MethodItemType);
+                              setItemData({
+                                ...itemData,
+                                itemId: "",
+                                description: "",
+                                inventoryUom: "",
+                                purchaseUom: "",
+                                conversionFactor: 1,
+                                supplierPartId: ""
+                              });
+                            }}
+                          />
 
-                      <InputControlled
-                        name="supplierPartId"
-                        label={t`Supplier Part Number`}
-                        value={itemData.supplierPartId}
-                        onChange={(newValue) => {
-                          setItemData((d) => ({
-                            ...d,
-                            supplierPartId: newValue
-                          }));
-                        }}
-                        onBlur={(e) => onSupplierPartChange(e.target.value)}
-                      />
-                      <UnitOfMeasure
-                        name="purchaseUnitOfMeasureCode"
-                        label={t`Purchase Unit of Measure`}
-                        value={itemData.purchaseUom}
-                        onChange={(newValue) => {
-                          if (newValue) {
-                            setItemData((d) => ({
-                              ...d,
-                              purchaseUom: newValue?.value as string
-                            }));
-                          }
-                        }}
-                      />
-                      <ConversionFactor
-                        name="conversionFactor"
-                        purchasingCode={itemData.purchaseUom}
-                        inventoryCode={itemData.inventoryUom}
-                        value={itemData.conversionFactor}
-                        onChange={(value) => {
-                          setItemData((d) => ({
-                            ...d,
-                            conversionFactor: value
-                          }));
-                        }}
-                      />
+                          <InputControlled
+                            name="description"
+                            label={t`Short Description`}
+                            value={itemData.description}
+                          />
 
-                      <CustomFormFields table="supplierQuoteLine" />
-                    </div>
-                    <div className="flex gap-y-4">
-                      <ArrayNumeric
-                        name="quantity"
-                        label={t`Quantity`}
-                        defaults={[1, 25, 50, 100]}
-                        isDisabled={isLocked}
-                      />
-                    </div>
-                  </div>
-                </VStack>
+                          <InputControlled
+                            name="supplierPartId"
+                            label={t`Supplier Part Number`}
+                            value={itemData.supplierPartId}
+                            onChange={(newValue) => {
+                              setItemData((d) => ({
+                                ...d,
+                                supplierPartId: newValue
+                              }));
+                            }}
+                            onBlur={(e) => onSupplierPartChange(e.target.value)}
+                          />
+                          <UnitOfMeasure
+                            name="purchaseUnitOfMeasureCode"
+                            label={t`Purchase Unit of Measure`}
+                            value={itemData.purchaseUom}
+                            onChange={(newValue) => {
+                              if (newValue) {
+                                setItemData((d) => ({
+                                  ...d,
+                                  purchaseUom: newValue?.value as string
+                                }));
+                              }
+                            }}
+                          />
+                          <ConversionFactor
+                            name="conversionFactor"
+                            purchasingCode={itemData.purchaseUom}
+                            inventoryCode={itemData.inventoryUom}
+                            value={itemData.conversionFactor}
+                            onChange={(value) => {
+                              setItemData((d) => ({
+                                ...d,
+                                conversionFactor: value
+                              }));
+                            }}
+                          />
+
+                          <CustomFormFields table="supplierQuoteLine" />
+                        </div>
+                        <div className="flex gap-y-4">
+                          <ArrayNumeric
+                            name="quantity"
+                            label={t`Quantity`}
+                            defaults={[1, 25, 50, 100]}
+                            isDisabled={isLocked}
+                          />
+                        </div>
+                      </div>
+                    </VStack>
+                  </TabsContent>
+
+                  <TabsContent value="indirect">
+                    <Hidden name="supplierQuoteLineType" value="G/L Account" />
+                    <VStack>
+                      <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
+                        <div className="col-span-2 grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-2 auto-rows-min">
+                          <Account name="accountId" label={t`GL Account`} />
+                          <FormControl>
+                            <FormLabel>
+                              <Trans>Description</Trans>
+                            </FormLabel>
+                            <Input
+                              value={indirectData.description}
+                              onChange={(e) =>
+                                setIndirectData((d) => ({
+                                  ...d,
+                                  description: e.target.value
+                                }))
+                              }
+                            />
+                          </FormControl>
+                          <Hidden
+                            name="description"
+                            value={indirectData.description}
+                          />
+                          <CostCenter
+                            name="costCenterId"
+                            label={t`Cost Center`}
+                            isOptional
+                          />
+                          <CustomFormFields table="supplierQuoteLine" />
+                        </div>
+                        <div className="flex gap-y-4">
+                          <ArrayNumeric
+                            name="quantity"
+                            label={t`Quantity`}
+                            defaults={[1, 25, 50, 100]}
+                            isDisabled={isLocked}
+                          />
+                        </div>
+                      </div>
+                    </VStack>
+                  </TabsContent>
+                </Tabs>
               </ModalCardBody>
               <ModalCardFooter>
                 <Submit

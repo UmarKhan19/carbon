@@ -47,6 +47,7 @@ export default function SupplierQuoteExplorer() {
 
   const supplierQuoteLineInitialValues = {
     supplierQuoteId: id,
+    supplierQuoteLineType: "Part" as const,
     status: "Draft" as const,
     itemType: "Part" as const,
     description: "",

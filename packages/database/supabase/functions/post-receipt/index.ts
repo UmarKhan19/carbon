@@ -303,7 +303,11 @@ serve(async (req: Request) => {
 
       const areAllLinesReceivedProjected = projectedPurchaseOrderLines.every(
         (line) => {
-          if (line.purchaseOrderLineType === "Comment") return true;
+          if (
+            line.purchaseOrderLineType === "Comment" ||
+            line.purchaseOrderLineType === "G/L Account"
+          )
+            return true;
           const target = line.purchaseQuantity ?? 0;
           if (target <= 0) return true;
           return (line.quantityReceived ?? 0) >= target;
@@ -1128,7 +1132,9 @@ serve(async (req: Request) => {
 
           const areAllLinesReceived = purchaseOrderLines.every(
             (line) =>
-              line.purchaseOrderLineType === "Comment" || line.receivedComplete
+              line.purchaseOrderLineType === "Comment" ||
+              line.purchaseOrderLineType === "G/L Account" ||
+              line.receivedComplete
           );
 
           let status: Database["public"]["Tables"]["purchaseOrder"]["Row"]["status"] =

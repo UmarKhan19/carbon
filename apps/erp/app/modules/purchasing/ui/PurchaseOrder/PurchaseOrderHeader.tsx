@@ -122,6 +122,15 @@ const PurchaseOrderHeader = () => {
     routeData?.purchaseOrder?.purchaseOrderType === "Outside Processing";
   const hasShipments = shipments.length > 0;
   const requiresShipment = isOutsideProcessing && !hasShipments;
+  const hasReceivableLines = useMemo(
+    () =>
+      routeData?.lines?.some(
+        (line) =>
+          line.purchaseOrderLineType !== "Comment" &&
+          line.purchaseOrderLineType !== "G/L Account"
+      ) ?? false,
+    [routeData?.lines]
+  );
 
   const markAsPlanned = () => {
     statusFetcher.submit(
@@ -363,75 +372,77 @@ const PurchaseOrderHeader = () => {
                   <Trans>Reject</Trans>
                 </Button>
               </>
-            ) : receipts.length > 0 ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    leftIcon={<LuHandCoins />}
-                    variant={
-                      ["To Receive", "To Receive and Invoice"].includes(
-                        routeData?.purchaseOrder?.status ?? ""
-                      ) && !requiresShipment
-                        ? "primary"
-                        : "secondary"
-                    }
-                    rightIcon={<LuChevronDown />}
-                  >
-                    <Trans>Receipts</Trans>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem
-                    disabled={
-                      ![
-                        "To Receive",
-                        "To Receive and Invoice",
-                        "To Invoice"
-                      ].includes(routeData?.purchaseOrder?.status ?? "")
-                    }
-                    onClick={() => {
-                      receive(routeData?.purchaseOrder);
-                    }}
-                  >
-                    <DropdownMenuIcon icon={<LuCirclePlus />} />
-                    <Trans>New Receipt</Trans>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {receipts.map((receipt) => (
-                    <DropdownMenuItem key={receipt.id} asChild>
-                      <Link to={path.to.receipt(receipt.id)}>
-                        <DropdownMenuIcon icon={<LuHandCoins />} />
-                        <HStack spacing={8}>
-                          <span>{receipt.receiptId}</span>
-                          <ReceiptStatus status={receipt.status} />
-                        </HStack>
-                      </Link>
+            ) : hasReceivableLines ? (
+              receipts.length > 0 ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      leftIcon={<LuHandCoins />}
+                      variant={
+                        ["To Receive", "To Receive and Invoice"].includes(
+                          routeData?.purchaseOrder?.status ?? ""
+                        ) && !requiresShipment
+                          ? "primary"
+                          : "secondary"
+                      }
+                      rightIcon={<LuChevronDown />}
+                    >
+                      <Trans>Receipts</Trans>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      disabled={
+                        ![
+                          "To Receive",
+                          "To Receive and Invoice",
+                          "To Invoice"
+                        ].includes(routeData?.purchaseOrder?.status ?? "")
+                      }
+                      onClick={() => {
+                        receive(routeData?.purchaseOrder);
+                      }}
+                    >
+                      <DropdownMenuIcon icon={<LuCirclePlus />} />
+                      <Trans>New Receipt</Trans>
                     </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button
-                leftIcon={<LuHandCoins />}
-                isDisabled={
-                  !["To Receive", "To Receive and Invoice"].includes(
-                    routeData?.purchaseOrder?.status ?? ""
-                  )
-                }
-                variant={
-                  ["To Receive", "To Receive and Invoice"].includes(
-                    routeData?.purchaseOrder?.status ?? ""
-                  ) && !requiresShipment
-                    ? "primary"
-                    : "secondary"
-                }
-                onClick={() => {
-                  receive(routeData?.purchaseOrder);
-                }}
-              >
-                <Trans>Receive</Trans>
-              </Button>
-            )}
+                    <DropdownMenuSeparator />
+                    {receipts.map((receipt) => (
+                      <DropdownMenuItem key={receipt.id} asChild>
+                        <Link to={path.to.receipt(receipt.id)}>
+                          <DropdownMenuIcon icon={<LuHandCoins />} />
+                          <HStack spacing={8}>
+                            <span>{receipt.receiptId}</span>
+                            <ReceiptStatus status={receipt.status} />
+                          </HStack>
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button
+                  leftIcon={<LuHandCoins />}
+                  isDisabled={
+                    !["To Receive", "To Receive and Invoice"].includes(
+                      routeData?.purchaseOrder?.status ?? ""
+                    )
+                  }
+                  variant={
+                    ["To Receive", "To Receive and Invoice"].includes(
+                      routeData?.purchaseOrder?.status ?? ""
+                    ) && !requiresShipment
+                      ? "primary"
+                      : "secondary"
+                  }
+                  onClick={() => {
+                    receive(routeData?.purchaseOrder);
+                  }}
+                >
+                  <Trans>Receive</Trans>
+                </Button>
+              )
+            ) : null}
 
             {!isNeedsApproval && (
               <>

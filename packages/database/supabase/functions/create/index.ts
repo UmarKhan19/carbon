@@ -879,7 +879,8 @@ serve(async (req: Request) => {
           if (
             !d.itemId ||
             !d.purchaseQuantity ||
-            d.purchaseOrderLineType === "Service"
+            d.purchaseOrderLineType === "Service" ||
+            d.purchaseOrderLineType === "G/L Account"
           ) {
             return acc;
           }
@@ -1885,7 +1886,8 @@ serve(async (req: Request) => {
             if (
               !purchaseOrderLine.itemId ||
               !purchaseOrderLine.purchaseQuantity ||
-              purchaseOrderLine.purchaseOrderLineType === "Service"
+              purchaseOrderLine.purchaseOrderLineType === "Service" ||
+              purchaseOrderLine.purchaseOrderLineType === "G/L Account"
             ) {
               continue;
             }
