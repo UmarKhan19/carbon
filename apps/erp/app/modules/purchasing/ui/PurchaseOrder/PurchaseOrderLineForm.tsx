@@ -572,7 +572,7 @@ const PurchaseOrderLineForm = ({
                       !isOutsideProcessing && (
                         <Location
                           name="locationId"
-                          label={t`Location`}
+                          label={t`Delivery Location`}
                           value={locationId}
                           onChange={onLocationChange}
                         />

@@ -529,7 +529,7 @@ const SalesOrderLineForm = ({
                         ].includes(lineType) && (
                           <Location
                             name="locationId"
-                            label={t`Location`}
+                            label={t`Shipping Location`}
                             onChange={onLocationChange}
                           />
                         )}

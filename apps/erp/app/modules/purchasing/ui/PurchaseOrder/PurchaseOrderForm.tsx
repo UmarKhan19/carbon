@@ -168,7 +168,7 @@ const PurchaseOrderForm = ({ initialValues }: PurchaseOrderFormProps) => {
                 value={supplier.supplierContactId}
               />
 
-              <Location name="locationId" label={t`Location`} />
+              <Location name="locationId" label={t`Delivery Location`} />
               <Currency
                 name="currencyCode"
                 label={t`Currency`}
