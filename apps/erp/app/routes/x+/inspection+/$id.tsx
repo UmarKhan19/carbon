@@ -53,7 +53,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       path.to.inspectionDocuments,
       await flash(
         request,
-        error(diagram.error, "Failed to load balloon document")
+        error(diagram.error, "Failed to load inspection document")
       )
     );
   }

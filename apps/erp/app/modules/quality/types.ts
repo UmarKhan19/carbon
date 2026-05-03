@@ -1,16 +1,6 @@
 import type { Database } from "@carbon/database";
-import type { z } from "zod";
+import type { nonConformanceAssociationType } from "./quality.models";
 import type {
-  balloonAnnotationCreateItemValidator,
-  balloonAnnotationDeleteValidator,
-  balloonAnnotationUpdateItemValidator,
-  balloonCreateFromPayloadItemValidator,
-  balloonDeleteValidator,
-  balloonUpdateItemValidator,
-  nonConformanceAssociationType
-} from "./quality.models";
-import type {
-  getBalloonAnnotations,
   getBalloons,
   getGaugeCalibrationRecords,
   getGauges,
@@ -45,23 +35,6 @@ export type InspectionDocumentDetail = NonNullable<
 export type Balloon = NonNullable<
   Awaited<ReturnType<typeof getBalloons>>["data"]
 >[number];
-export type BalloonAnnotationRecord = NonNullable<
-  Awaited<ReturnType<typeof getBalloonAnnotations>>["data"]
->[number];
-
-export type BalloonAnnotation = {
-  id: string;
-  balloonNumber: number;
-  x: number;
-  y: number;
-  page: number;
-  rect?: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null;
-};
 
 export type BalloonFeature = {
   id: string;
@@ -76,27 +49,10 @@ export type BalloonFeature = {
 };
 
 export type InspectionDocumentContent = {
-  drawingNumber: string | null;
-  revision: string | null;
   pdfUrl: string | null;
-  annotations: BalloonAnnotation[];
+  drawingNumber: string | null;
   features: BalloonFeature[];
 };
-
-export type BalloonCreateFromPayloadItem = z.infer<
-  typeof balloonCreateFromPayloadItemValidator
->;
-export type BalloonUpdateItem = z.infer<typeof balloonUpdateItemValidator>;
-export type BalloonDeleteIds = z.infer<typeof balloonDeleteValidator>["ids"];
-export type BalloonAnnotationCreateItem = z.infer<
-  typeof balloonAnnotationCreateItemValidator
->;
-export type BalloonAnnotationUpdateItem = z.infer<
-  typeof balloonAnnotationUpdateItemValidator
->;
-export type BalloonAnnotationDeleteIds = z.infer<
-  typeof balloonAnnotationDeleteValidator
->["ids"];
 
 export type Gauge = NonNullable<
   Awaited<ReturnType<typeof getGauges>>["data"]

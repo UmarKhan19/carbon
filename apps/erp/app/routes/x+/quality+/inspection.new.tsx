@@ -40,14 +40,14 @@ export async function action({ request }: ActionFunctionArgs) {
       path.to.inspectionDocuments,
       await flash(
         request,
-        error(result.error, "Failed to create balloon document")
+        error(result.error, "Failed to create inspection document")
       )
     );
   }
 
   throw redirect(
     path.to.inspectionDocument(result.data.id),
-    await flash(request, success("Balloon document created"))
+    await flash(request, success("Inspection document created"))
   );
 }
 
@@ -56,7 +56,7 @@ export default function BalloonNewRoute() {
 
   return (
     <InspectionDocumentForm
-      initialValues={{ name: "", partId: "", drawingNumber: "", revision: "" }}
+      initialValues={{ name: "", partId: "", drawingNumber: "" }}
       onClose={() => navigate(-1)}
     />
   );

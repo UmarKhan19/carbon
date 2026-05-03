@@ -829,7 +829,6 @@ export const path = {
     holiday: (id: string) => generatePath(`${x}/people/holidays/${id}`),
     holidays: `${x}/people/holidays`,
     import: (tableId: string) => generatePath(`${x}/shared/import/${tableId}`),
-    inspections: `${x}/quality/inspections`,
     integration: (id: string) =>
       generatePath(`${x}/settings/integrations/${id}`),
     integrationDeactivate: (id: string) =>

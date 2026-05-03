@@ -83,14 +83,8 @@ import {
   upsertInspectionDocument,
   deleteInspectionDocument,
   getBalloons,
-  createBalloonsForAnchors,
-  createBalloonsFromPayload,
-  updateBalloons,
-  deleteBalloons,
-  getBalloonAnnotations,
-  createBalloonAnnotations,
-  updateBalloonAnnotations,
-  deleteBalloonAnnotations,
+  getInspectionPlan,
+  saveInspectionDocumentAtomic,
 } from "~/modules/quality/quality.service";
 import {
   nonConformanceReviewerValidator,
@@ -104,12 +98,6 @@ import {
   qualityDocumentStepValidator,
   riskRegisterValidator,
   inspectionDocumentValidator,
-  balloonCreateFromPayloadItemValidator,
-  balloonUpdateItemValidator,
-  balloonDeleteValidator,
-  balloonAnnotationCreateItemValidator,
-  balloonAnnotationUpdateItemValidator,
-  balloonAnnotationDeleteValidator,
 } from "~/modules/quality/quality.models";
 
 export const registerQualityTools: RegisterTools = (server, ctx) => {
@@ -1268,130 +1256,40 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "quality_createBalloonsForAnchors",
+    "quality_getInspectionPlan",
     {
-      description: "create balloons for anchors",
-      inputSchema: {
-      args: z.object({
-    inspectionDocumentId: z.string(),
-    anchors: z.any(),
-    pageNumber: z.number(),
-    regionX: z.number(),
-    regionY: z.number(),
-    regionWidth: z.number(),
-    regionHeight: z.number()
-  }),
-    },
-      annotations: WRITE_ANNOTATIONS,
-    },
-    withErrorHandling(async (params) => {
-      const result = await createBalloonsForAnchors(ctx.client, { ...params.args, companyId: ctx.companyId, createdBy: ctx.userId });
-      return toMcpResult(result);
-    }, "Failed: quality_createBalloonsForAnchors"),
-  );
-
-  server.registerTool(
-    "quality_createBalloonsFromPayload",
-    {
-      description: "create balloons from payload",
-      inputSchema: {
-      args: balloonCreateFromPayloadItemValidator,
-    },
-      annotations: WRITE_ANNOTATIONS,
-    },
-    withErrorHandling(async (params) => {
-      const result = await createBalloonsFromPayload(ctx.client, { ...params.args, companyId: ctx.companyId, createdBy: ctx.userId });
-      return toMcpResult(result);
-    }, "Failed: quality_createBalloonsFromPayload"),
-  );
-
-  server.registerTool(
-    "quality_updateBalloons",
-    {
-      description: "update balloons",
-      inputSchema: {
-      args: balloonUpdateItemValidator,
-    },
-      annotations: WRITE_ANNOTATIONS,
-    },
-    withErrorHandling(async (params) => {
-      const result = await updateBalloons(ctx.client, { ...params.args, companyId: ctx.companyId, updatedBy: ctx.userId });
-      return toMcpResult(result);
-    }, "Failed: quality_updateBalloons"),
-  );
-
-  server.registerTool(
-    "quality_deleteBalloons",
-    {
-      description: "delete balloons",
-      inputSchema: {
-      args: balloonDeleteValidator,
-    },
-      annotations: DESTRUCTIVE_ANNOTATIONS,
-    },
-    withErrorHandling(async (params) => {
-      const result = await deleteBalloons(ctx.client, { ...params.args, companyId: ctx.companyId, updatedBy: ctx.userId });
-      return toMcpResult(result);
-    }, "Failed: quality_deleteBalloons"),
-  );
-
-  server.registerTool(
-    "quality_getBalloonAnnotations",
-    {
-      description: "get balloon annotations",
+      description: "get inspection plan",
       inputSchema: {
       inspectionDocumentId: z.string(),
     },
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await getBalloonAnnotations(ctx.client, params.inspectionDocumentId);
+      const result = await getInspectionPlan(ctx.client, params.inspectionDocumentId);
       return toMcpResult(result);
-    }, "Failed: quality_getBalloonAnnotations"),
+    }, "Failed: quality_getInspectionPlan"),
   );
 
   server.registerTool(
-    "quality_createBalloonAnnotations",
+    "quality_saveInspectionDocumentAtomic",
     {
-      description: "create balloon annotations",
+      description: "save inspection document atomic",
       inputSchema: {
-      args: balloonAnnotationCreateItemValidator,
+      args: z.object({
+    inspectionDocumentId: z.string(),
+    pdfUrl: z.string().nullable().optional(),
+    pageCount: z.number().optional(),
+    defaultPageWidth: z.number().optional(),
+    defaultPageHeight: z.number().optional(),
+    anchors: z.any(),
+    balloons: z.any()
+  }),
     },
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await createBalloonAnnotations(ctx.client, { ...params.args, companyId: ctx.companyId, createdBy: ctx.userId });
+      const result = await saveInspectionDocumentAtomic(ctx.client, { ...params.args, companyId: ctx.companyId, userId: ctx.userId });
       return toMcpResult(result);
-    }, "Failed: quality_createBalloonAnnotations"),
-  );
-
-  server.registerTool(
-    "quality_updateBalloonAnnotations",
-    {
-      description: "update balloon annotations",
-      inputSchema: {
-      args: balloonAnnotationUpdateItemValidator,
-    },
-      annotations: WRITE_ANNOTATIONS,
-    },
-    withErrorHandling(async (params) => {
-      const result = await updateBalloonAnnotations(ctx.client, { ...params.args, companyId: ctx.companyId, updatedBy: ctx.userId });
-      return toMcpResult(result);
-    }, "Failed: quality_updateBalloonAnnotations"),
-  );
-
-  server.registerTool(
-    "quality_deleteBalloonAnnotations",
-    {
-      description: "delete balloon annotations",
-      inputSchema: {
-      args: balloonAnnotationDeleteValidator,
-    },
-      annotations: DESTRUCTIVE_ANNOTATIONS,
-    },
-    withErrorHandling(async (params) => {
-      const result = await deleteBalloonAnnotations(ctx.client, { ...params.args, companyId: ctx.companyId, updatedBy: ctx.userId });
-      return toMcpResult(result);
-    }, "Failed: quality_deleteBalloonAnnotations"),
+    }, "Failed: quality_saveInspectionDocumentAtomic"),
   );
 };

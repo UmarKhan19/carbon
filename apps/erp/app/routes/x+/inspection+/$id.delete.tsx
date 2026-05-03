@@ -22,13 +22,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
       path.to.inspectionDocuments,
       await flash(
         request,
-        error(result.error, "Failed to delete balloon document")
+        error(result.error, "Failed to delete inspection document")
       )
     );
   }
 
   throw redirect(
     path.to.inspectionDocuments,
-    await flash(request, success("Balloon document deleted"))
+    await flash(request, success("Inspection document deleted"))
   );
 }

@@ -39,7 +39,7 @@ Tools are namespaced by module — use the prefix to discover related tools:
 - people_* — 24 read, 14 write, 6 delete tools
 - production_* — 62 read, 45 write, 22 delete tools
 - purchasing_* — 51 read, 34 write, 11 delete tools
-- quality_* — 42 read, 25 write, 14 delete tools
+- quality_* — 42 read, 21 write, 12 delete tools
 - resources_* — 47 read, 27 write, 20 delete tools
 - sales_* — 78 read, 54 write, 18 delete tools
 - settings_* — 26 read, 40 write, 2 delete tools

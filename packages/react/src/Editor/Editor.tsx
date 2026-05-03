@@ -19,16 +19,20 @@ import {
   renderItems
 } from "@carbon/tiptap";
 import TextStyle from "@tiptap/extension-text-style";
-import { useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Separator } from "../Separator";
 import { cn } from "../utils/cn";
 import { ColorSelector } from "./components/ColorSelector";
 import { LinkSelector } from "./components/LinkSelector";
-import { NodeSelector } from "./components/NodeSelector";
-import { TextButtons } from "./components/TextButton";
 import { defaultExtensions } from "./extensions";
-import { getSuggestionItems } from "./slash";
+
+const NodeSelector = lazy(() =>
+  import("./components/NodeSelector").then((m) => ({ default: m.NodeSelector }))
+);
+const TextButtons = lazy(() =>
+  import("./components/TextButton").then((m) => ({ default: m.TextButtons }))
+);
 
 interface MentionConfig {
   /**
@@ -76,6 +80,7 @@ const Editor = ({
   const [openNode, setOpenNode] = useState(false);
   const [openColor, setOpenColor] = useState(false);
   const [openLink, setOpenLink] = useState(false);
+  const [suggestionItems, setSuggestionItems] = useState<any[]>([]);
 
   // Use a ref to hold the current mention items so the extension can access
   // the latest items without needing to be recreated
@@ -105,10 +110,16 @@ const Editor = ({
     });
   }, [onUpload, disableFileUpload]);
 
-  const suggestionItems = useMemo(
-    () => getSuggestionItems(uploadFn),
-    [uploadFn]
-  );
+  useEffect(() => {
+    let cancelled = false;
+    import("./slash").then((m) => {
+      if (cancelled) return;
+      setSuggestionItems(m.getSuggestionItems(uploadFn));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [uploadFn]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const mentionExtension = useMemo(() => {
@@ -195,12 +206,16 @@ const Editor = ({
           className="flex w-fit max-w-[90vw] overflow-hidden rounded-md border border-muted bg-background shadow-xl p-2"
         >
           <Separator orientation="vertical" />
-          <NodeSelector open={openNode} onOpenChange={setOpenNode} />
+          <Suspense fallback={null}>
+            <NodeSelector open={openNode} onOpenChange={setOpenNode} />
+          </Suspense>
           <Separator orientation="vertical" />
 
           <LinkSelector open={openLink} onOpenChange={setOpenLink} />
           <Separator orientation="vertical" />
-          <TextButtons />
+          <Suspense fallback={null}>
+            <TextButtons />
+          </Suspense>
           <Separator orientation="vertical" />
           <ColorSelector open={openColor} onOpenChange={setOpenColor} />
         </EditorBubble>

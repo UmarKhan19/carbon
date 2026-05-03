@@ -147,7 +147,7 @@ const InspectionDocumentTable = memo(
               deleteDisclosure.onClose();
             }}
             name={selectedDiagram.name}
-            text={t`Are you sure you want to delete this balloon document?`}
+            text={t`Are you sure you want to delete this inspection document?`}
           />
         )}
       </>

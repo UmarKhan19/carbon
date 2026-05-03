@@ -10,12 +10,6 @@ import { sanitize } from "~/utils/supabase";
 
 import type { inspectionStatus } from "../shared";
 import type {
-  balloonAnnotationCreateItemValidator,
-  balloonAnnotationDeleteValidator,
-  balloonAnnotationUpdateItemValidator,
-  balloonCreateFromPayloadItemValidator,
-  balloonDeleteValidator,
-  balloonUpdateItemValidator,
   gaugeCalibrationRecordValidator,
   gaugeCalibrationStatus,
   gaugeTypeValidator,
@@ -1812,7 +1806,6 @@ function mapInspectionDocument(row: Record<string, unknown>) {
     updatedAt: (row.updatedAt as string | null) ?? null,
     content: {
       drawingNumber,
-      revision: (row.revision as string | null) ?? null,
       pdfUrl: toPreviewUrl((row.storagePath as string | null) ?? null),
       annotations: [],
       features: []
@@ -1915,7 +1908,7 @@ export async function upsertInspectionDocument(
       })
     | (Omit<z.infer<typeof inspectionDocumentValidator>, "id"> & {
         id: string;
-        companyId?: string;
+        companyId: string;
         createdBy: string;
         updatedBy?: string;
         pageCount?: number;
@@ -1925,10 +1918,8 @@ export async function upsertInspectionDocument(
 ) {
   const {
     id,
-    name,
     partId,
     drawingNumber,
-    revision,
     pdfUrl,
     pageCount,
     defaultPageWidth,
@@ -1961,11 +1952,16 @@ export async function upsertInspectionDocument(
           column: string,
           value: unknown
         ) => {
-          select: (columns: string) => {
-            single: () => Promise<{
-              data: { id: string } | null;
-              error: unknown;
-            }>;
+          eq: (
+            column: string,
+            value: unknown
+          ) => {
+            select: (columns: string) => {
+              single: () => Promise<{
+                data: { id: string } | null;
+                error: unknown;
+              }>;
+            };
           };
         };
       };
@@ -1983,6 +1979,15 @@ export async function upsertInspectionDocument(
   const storagePath = toStoragePath(pdfUrl);
 
   if (id) {
+    if (!companyId) {
+      return {
+        data: null,
+        error: {
+          message: "companyId is required to update inspection document"
+        }
+      };
+    }
+
     const existingResult = await documentClient
       .from("inspectionDocument")
       .select("*")
@@ -1995,18 +2000,29 @@ export async function upsertInspectionDocument(
       return {
         data: null,
         error: {
-          message: "Balloon document not found"
+          message: "Inspection document not found"
+        }
+      };
+    }
+    if (String(existing.companyId ?? "") !== companyId) {
+      return {
+        data: null,
+        error: {
+          message: "Inspection document does not belong to this company"
         }
       };
     }
 
     const updatePayload: Record<string, unknown> = {
-      drawingNumber: drawingNumber ?? name,
-      revision: revision ?? null,
-      partId,
       updatedBy: updatedBy ?? createdBy,
       updatedAt: new Date().toISOString()
     };
+    if (drawingNumber !== undefined) {
+      updatePayload.drawingNumber = drawingNumber ?? null;
+    }
+    if (partId !== undefined) {
+      updatePayload.partId = partId;
+    }
 
     if (storagePath) {
       updatePayload.storagePath = storagePath;
@@ -2026,6 +2042,7 @@ export async function upsertInspectionDocument(
       .from("inspectionDocument")
       .update(updatePayload)
       .eq("id", id)
+      .eq("companyId", companyId)
       .select("id")
       .single();
   }
@@ -2033,14 +2050,7 @@ export async function upsertInspectionDocument(
   if (!companyId) {
     return {
       data: null,
-      error: { message: "companyId is required to create balloon document" }
-    };
-  }
-
-  if (!storagePath) {
-    return {
-      data: null,
-      error: { message: "PDF upload is required to create balloon document" }
+      error: { message: "companyId is required to create inspection document" }
     };
   }
 
@@ -2049,17 +2059,20 @@ export async function upsertInspectionDocument(
     .insert({
       companyId,
       partId,
-      drawingNumber: drawingNumber ?? name,
-      revision: revision ?? null,
+      drawingNumber: drawingNumber ?? null,
       version: 0,
-      storagePath,
-      fileName: fileNameFromPath(storagePath),
+      ...(storagePath
+        ? {
+            storagePath,
+            fileName: fileNameFromPath(storagePath),
+            uploadedBy: createdBy
+          }
+        : {}),
       ...(pageCount && pageCount > 0 ? { pageCount } : {}),
       ...(defaultPageWidth && defaultPageWidth > 0 ? { defaultPageWidth } : {}),
       ...(defaultPageHeight && defaultPageHeight > 0
         ? { defaultPageHeight }
         : {}),
-      uploadedBy: createdBy,
       createdBy
     })
     .select("id")
@@ -2108,7 +2121,7 @@ export async function deleteInspectionDocument(
 
   if (!existingResult.data) {
     return {
-      error: { message: "Balloon document not found" }
+      error: { message: "Inspection document not found" }
     };
   }
 
@@ -2132,7 +2145,10 @@ function mapBalloon(row: Record<string, unknown>) {
     xCoordinate: Number(row.xCoordinate),
     yCoordinate: Number(row.yCoordinate),
     description: (row.description as string | null) ?? null,
-    data: (row.data as Record<string, unknown> | null) ?? null,
+    nominalValue: (row.nominalValue as string | null) ?? null,
+    tolerancePlus: (row.tolerancePlus as string | null) ?? null,
+    toleranceMinus: (row.toleranceMinus as string | null) ?? null,
+    unit: (row.unit as string | null) ?? null,
     createdBy: String(row.createdBy),
     updatedBy: (row.updatedBy as string | null) ?? null,
     createdAt: String(row.createdAt),
@@ -2140,43 +2156,6 @@ function mapBalloon(row: Record<string, unknown>) {
     // The balloon's own id serves as its anchor id since they are the same row
     balloonAnchorId: String(row.id)
   };
-}
-
-function clamp01(n: number) {
-  return Math.max(0, Math.min(1, n));
-}
-
-type BalloonRect = {
-  pageNumber: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
-
-function overlaps(a: BalloonRect, b: BalloonRect) {
-  if (a.pageNumber !== b.pageNumber) return false;
-  return !(
-    a.x + a.width <= b.x ||
-    b.x + b.width <= a.x ||
-    a.y + a.height <= b.y ||
-    b.y + b.height <= a.y
-  );
-}
-
-function inBounds(rect: BalloonRect) {
-  return (
-    rect.x >= 0 &&
-    rect.y >= 0 &&
-    rect.x + rect.width <= 1 &&
-    rect.y + rect.height <= 1
-  );
-}
-
-function clampRectToBounds(rect: BalloonRect): BalloonRect {
-  const x = clamp01(Math.min(rect.x, 1 - rect.width));
-  const y = clamp01(Math.min(rect.y, 1 - rect.height));
-  return { ...rect, x, y };
 }
 
 export async function getBalloons(
@@ -2220,257 +2199,7 @@ export async function getBalloons(
   };
 }
 
-export async function createBalloonsForAnchors(
-  client: SupabaseClient<Database>,
-  args: {
-    inspectionDocumentId: string;
-    companyId: string;
-    createdBy: string;
-    anchors: {
-      pageNumber: number;
-      regionX: number;
-      regionY: number;
-      regionWidth: number;
-      regionHeight: number;
-    }[];
-  }
-) {
-  const documentClient = client as any;
-
-  if (args.anchors.length === 0) {
-    return { data: [], error: null };
-  }
-
-  const existing = await documentClient
-    .from("balloon")
-    .select("id, xCoordinate, yCoordinate, pageNumber", { count: "exact" })
-    .eq("inspectionDocumentId", args.inspectionDocumentId)
-    .eq("companyId", args.companyId)
-    .is("deletedAt", null);
-
-  if (existing.error) {
-    return { data: null, error: existing.error };
-  }
-
-  let nextLabel = (existing.count ?? 0) + 1;
-  const balloonWidth = 0.04;
-  const balloonHeight = 0.04;
-  const offset = 0.02;
-  const occupied: BalloonRect[] = (existing.data ?? [])
-    .map((b: Record<string, unknown>) => ({
-      pageNumber: Number(b.pageNumber ?? 1),
-      x: Number(b.xCoordinate ?? 0),
-      y: Number(b.yCoordinate ?? 0),
-      width: balloonWidth,
-      height: balloonHeight
-    }))
-    .filter((r: BalloonRect) => Number.isFinite(r.x) && Number.isFinite(r.y));
-
-  return documentClient.from("balloon").insert(
-    args.anchors.map((s) => {
-      const candidates: BalloonRect[] = [
-        {
-          pageNumber: s.pageNumber,
-          x: s.regionX + s.regionWidth + offset,
-          y: s.regionY,
-          width: balloonWidth,
-          height: balloonHeight
-        },
-        {
-          pageNumber: s.pageNumber,
-          x: s.regionX + s.regionWidth + offset,
-          y: s.regionY - balloonHeight - offset,
-          width: balloonWidth,
-          height: balloonHeight
-        },
-        {
-          pageNumber: s.pageNumber,
-          x: s.regionX + s.regionWidth + offset,
-          y: s.regionY + s.regionHeight + offset,
-          width: balloonWidth,
-          height: balloonHeight
-        },
-        {
-          pageNumber: s.pageNumber,
-          x: s.regionX,
-          y: s.regionY - balloonHeight - offset,
-          width: balloonWidth,
-          height: balloonHeight
-        },
-        {
-          pageNumber: s.pageNumber,
-          x: s.regionX,
-          y: s.regionY + s.regionHeight + offset,
-          width: balloonWidth,
-          height: balloonHeight
-        },
-        {
-          pageNumber: s.pageNumber,
-          x: s.regionX - balloonWidth - offset,
-          y: s.regionY,
-          width: balloonWidth,
-          height: balloonHeight
-        }
-      ];
-
-      const placed =
-        candidates.find(
-          (candidate) =>
-            inBounds(candidate) &&
-            !occupied.some((other) => overlaps(candidate, other))
-        ) ?? clampRectToBounds(candidates[0]!);
-
-      occupied.push(placed);
-      const label = String(nextLabel++);
-
-      return {
-        inspectionDocumentId: args.inspectionDocumentId,
-        companyId: args.companyId,
-        pageNumber: s.pageNumber,
-        regionX: s.regionX,
-        regionY: s.regionY,
-        regionWidth: s.regionWidth,
-        regionHeight: s.regionHeight,
-        label,
-        xCoordinate: placed.x,
-        yCoordinate: placed.y,
-        data: {
-          source: "anchor-auto",
-          pageNumber: s.pageNumber,
-          placement: { width: balloonWidth, height: balloonHeight, offset }
-        },
-        createdBy: args.createdBy,
-        updatedBy: args.createdBy
-      };
-    })
-  );
-}
-
-export async function createBalloonsFromPayload(
-  client: SupabaseClient<Database>,
-  args: {
-    inspectionDocumentId: string;
-    companyId: string;
-    createdBy: string;
-    balloons: z.infer<typeof balloonCreateFromPayloadItemValidator>[];
-  }
-) {
-  const documentClient = client as unknown as {
-    from: (table: string) => {
-      insert: (payload: Record<string, unknown>[]) => Promise<{
-        data: Record<string, unknown>[] | null;
-        error: unknown;
-      }>;
-    };
-  };
-
-  if (args.balloons.length === 0) {
-    return { data: [], error: null };
-  }
-
-  return documentClient.from("balloon").insert(
-    args.balloons.map((b) => ({
-      inspectionDocumentId: args.inspectionDocumentId,
-      companyId: args.companyId,
-      pageNumber: b.pageNumber,
-      regionX: b.regionX,
-      regionY: b.regionY,
-      regionWidth: b.regionWidth,
-      regionHeight: b.regionHeight,
-      label: b.label,
-      xCoordinate: b.xCoordinate,
-      yCoordinate: b.yCoordinate,
-      description: b.description ?? null,
-      data: b.data,
-      createdBy: args.createdBy,
-      updatedBy: args.createdBy
-    }))
-  );
-}
-
-export async function updateBalloons(
-  client: SupabaseClient<Database>,
-  args: {
-    inspectionDocumentId: string;
-    companyId: string;
-    updatedBy: string;
-    balloons: z.infer<typeof balloonUpdateItemValidator>[];
-  }
-) {
-  const documentClient = client as any;
-
-  if (args.balloons.length === 0) {
-    return { data: [], error: null };
-  }
-
-  const updated: Record<string, unknown>[] = [];
-  for (const b of args.balloons) {
-    const payload: Record<string, unknown> = {
-      updatedBy: args.updatedBy,
-      updatedAt: new Date().toISOString()
-    };
-    if (typeof b.pageNumber === "number") payload.pageNumber = b.pageNumber;
-    if (typeof b.regionX === "number") payload.regionX = b.regionX;
-    if (typeof b.regionY === "number") payload.regionY = b.regionY;
-    if (typeof b.regionWidth === "number") payload.regionWidth = b.regionWidth;
-    if (typeof b.regionHeight === "number")
-      payload.regionHeight = b.regionHeight;
-    if (typeof b.label === "string") payload.label = b.label;
-    if (typeof b.xCoordinate === "number") payload.xCoordinate = b.xCoordinate;
-    if (typeof b.yCoordinate === "number") payload.yCoordinate = b.yCoordinate;
-    if (b.data !== undefined) payload.data = b.data;
-    if (b.description !== undefined) payload.description = b.description;
-
-    const result = await documentClient
-      .from("balloon")
-      .update(payload)
-      .eq("id", b.id)
-      .eq("inspectionDocumentId", args.inspectionDocumentId)
-      .eq("companyId", args.companyId)
-      .is("deletedAt", null)
-      .select("*");
-
-    if (result.error) {
-      return { data: null, error: result.error };
-    }
-    if (result.data?.[0]) {
-      updated.push(mapBalloon(result.data[0]));
-    }
-  }
-
-  return { data: updated, error: null };
-}
-
-export async function deleteBalloons(
-  client: SupabaseClient<Database>,
-  args: {
-    inspectionDocumentId: string;
-    companyId: string;
-    updatedBy: string;
-    ids: z.infer<typeof balloonDeleteValidator>["ids"];
-  }
-) {
-  const documentClient = client as any;
-
-  if (args.ids.length === 0) {
-    return { data: [], error: null };
-  }
-
-  return documentClient
-    .from("balloon")
-    .update({
-      deletedAt: new Date().toISOString(),
-      updatedBy: args.updatedBy,
-      updatedAt: new Date().toISOString()
-    })
-    .in("id", args.ids)
-    .eq("inspectionDocumentId", args.inspectionDocumentId)
-    .eq("companyId", args.companyId)
-    .is("deletedAt", null)
-    .select("id");
-}
-
-export async function getBalloonAnnotations(
+export async function getInspectionPlan(
   client: SupabaseClient<Database>,
   inspectionDocumentId: string
 ) {
@@ -2487,220 +2216,87 @@ export async function getBalloonAnnotations(
           ) => {
             order: (
               column: string,
-              opts: { ascending: boolean }
-            ) => Promise<{
-              data: Record<string, unknown>[] | null;
-              error: unknown;
-            }>;
+              opts?: { ascending?: boolean }
+            ) => {
+              order: (
+                column: string,
+                opts?: { ascending?: boolean }
+              ) => Promise<{
+                data: Record<string, unknown>[] | null;
+                error: unknown;
+              }>;
+            };
           };
         };
       };
     };
   };
 
-  return documentClient
-    .from("balloonAnnotation")
-    .select("*")
+  const result = await documentClient
+    .from("balloon")
+    .select(
+      "id, inspectionDocumentId, pageNumber, label, description, nominalValue, tolerancePlus, toleranceMinus, unit, regionX, regionY, regionWidth, regionHeight, xCoordinate, yCoordinate"
+    )
     .eq("inspectionDocumentId", inspectionDocumentId)
     .is("deletedAt", null)
+    .order("pageNumber", { ascending: true })
     .order("createdAt", { ascending: true });
+
+  return {
+    data: (result.data ?? []).map((row) => ({
+      id: String(row.id),
+      inspectionDocumentId: String(row.inspectionDocumentId),
+      pageNumber: Number(row.pageNumber),
+      characteristic: String(row.label),
+      description: (row.description as string | null) ?? null,
+      nominalValue: (row.nominalValue as string | null) ?? null,
+      tolerancePlus: (row.tolerancePlus as string | null) ?? null,
+      toleranceMinus: (row.toleranceMinus as string | null) ?? null,
+      unit: (row.unit as string | null) ?? null,
+      regionX: Number(row.regionX),
+      regionY: Number(row.regionY),
+      regionWidth: Number(row.regionWidth),
+      regionHeight: Number(row.regionHeight),
+      xCoordinate: Number(row.xCoordinate),
+      yCoordinate: Number(row.yCoordinate)
+    })),
+    error: result.error
+  };
 }
 
-export async function createBalloonAnnotations(
+export async function saveInspectionDocumentAtomic(
   client: SupabaseClient<Database>,
   args: {
     inspectionDocumentId: string;
     companyId: string;
-    createdBy: string;
-    annotations: z.infer<typeof balloonAnnotationCreateItemValidator>[];
+    userId: string;
+    pdfUrl?: string | null;
+    pageCount?: number;
+    defaultPageWidth?: number;
+    defaultPageHeight?: number;
+    anchors: unknown;
+    balloons: unknown;
   }
 ) {
-  const documentClient = client as unknown as {
-    from: (table: string) => {
-      insert: (payload: Record<string, unknown>[]) => {
-        select: (columns: string) => Promise<{
-          data: Record<string, unknown>[] | null;
-          error: unknown;
-        }>;
-      };
-    };
-  };
-
-  if (args.annotations.length === 0) {
-    return { data: [], error: null };
-  }
-
-  return documentClient
-    .from("balloonAnnotation")
-    .insert(
-      args.annotations.map((annotation) => ({
-        inspectionDocumentId: args.inspectionDocumentId,
-        companyId: args.companyId,
-        pageNumber: annotation.pageNumber,
-        xCoordinate: annotation.xCoordinate,
-        yCoordinate: annotation.yCoordinate,
-        text: annotation.text,
-        width: annotation.width ?? null,
-        height: annotation.height ?? null,
-        rotation: annotation.rotation ?? 0,
-        style: annotation.style ?? null,
-        createdBy: args.createdBy,
-        updatedBy: args.createdBy
-      }))
-    )
-    .select("*");
-}
-
-export async function updateBalloonAnnotations(
-  client: SupabaseClient<Database>,
-  args: {
-    inspectionDocumentId: string;
-    companyId: string;
-    updatedBy: string;
-    annotations: z.infer<typeof balloonAnnotationUpdateItemValidator>[];
-  }
-) {
-  const documentClient = client as unknown as {
-    from: (table: string) => {
-      update: (payload: Record<string, unknown>) => {
-        eq: (
-          column: string,
-          value: unknown
-        ) => {
-          eq: (
-            column: string,
-            value: unknown
-          ) => {
-            eq: (
-              column: string,
-              value: unknown
-            ) => {
-              is: (
-                column: string,
-                value: null
-              ) => {
-                select: (columns: string) => Promise<{
-                  data: Record<string, unknown>[] | null;
-                  error: unknown;
-                }>;
-              };
-            };
-          };
-        };
-      };
-    };
-  };
-
-  if (args.annotations.length === 0) {
-    return { data: [], error: null };
-  }
-
-  const updated: Record<string, unknown>[] = [];
-  for (const annotation of args.annotations) {
-    const payload: Record<string, unknown> = {
-      updatedBy: args.updatedBy,
-      updatedAt: new Date().toISOString()
-    };
-
-    if (typeof annotation.pageNumber === "number") {
-      payload.pageNumber = annotation.pageNumber;
+  return (
+    client as unknown as {
+      rpc: (
+        fn: string,
+        args: Record<string, unknown>
+      ) => Promise<{
+        data: unknown;
+        error: unknown;
+      }>;
     }
-    if (typeof annotation.xCoordinate === "number") {
-      payload.xCoordinate = annotation.xCoordinate;
-    }
-    if (typeof annotation.yCoordinate === "number") {
-      payload.yCoordinate = annotation.yCoordinate;
-    }
-    if (typeof annotation.text === "string") {
-      payload.text = annotation.text;
-    }
-    if (annotation.width !== undefined) {
-      payload.width = annotation.width;
-    }
-    if (annotation.height !== undefined) {
-      payload.height = annotation.height;
-    }
-    if (typeof annotation.rotation === "number") {
-      payload.rotation = annotation.rotation;
-    }
-    if (annotation.style !== undefined) {
-      payload.style = annotation.style;
-    }
-
-    const result = await documentClient
-      .from("balloonAnnotation")
-      .update(payload)
-      .eq("id", annotation.id)
-      .eq("inspectionDocumentId", args.inspectionDocumentId)
-      .eq("companyId", args.companyId)
-      .is("deletedAt", null)
-      .select("*");
-
-    if (result.error) {
-      return { data: null, error: result.error };
-    }
-    if (result.data?.[0]) {
-      updated.push(result.data[0]);
-    }
-  }
-
-  return { data: updated, error: null };
-}
-
-export async function deleteBalloonAnnotations(
-  client: SupabaseClient<Database>,
-  args: {
-    inspectionDocumentId: string;
-    companyId: string;
-    updatedBy: string;
-    ids: z.infer<typeof balloonAnnotationDeleteValidator>["ids"];
-  }
-) {
-  const documentClient = client as unknown as {
-    from: (table: string) => {
-      update: (payload: Record<string, unknown>) => {
-        in: (
-          column: string,
-          values: string[]
-        ) => {
-          eq: (
-            column: string,
-            value: unknown
-          ) => {
-            eq: (
-              column: string,
-              value: unknown
-            ) => {
-              is: (
-                column: string,
-                value: null
-              ) => {
-                select: (columns: string) => Promise<{
-                  data: Record<string, unknown>[] | null;
-                  error: unknown;
-                }>;
-              };
-            };
-          };
-        };
-      };
-    };
-  };
-
-  if (args.ids.length === 0) {
-    return { data: [], error: null };
-  }
-
-  return documentClient
-    .from("balloonAnnotation")
-    .update({
-      deletedAt: new Date().toISOString(),
-      updatedBy: args.updatedBy,
-      updatedAt: new Date().toISOString()
-    })
-    .in("id", args.ids)
-    .eq("inspectionDocumentId", args.inspectionDocumentId)
-    .eq("companyId", args.companyId)
-    .is("deletedAt", null)
-    .select("id");
+  ).rpc("save_inspection_document_atomic", {
+    p_inspection_document_id: args.inspectionDocumentId,
+    p_company_id: args.companyId,
+    p_user_id: args.userId,
+    p_pdf_url: args.pdfUrl ?? null,
+    p_page_count: args.pageCount ?? null,
+    p_default_page_width: args.defaultPageWidth ?? null,
+    p_default_page_height: args.defaultPageHeight ?? null,
+    p_anchors: args.anchors,
+    p_balloons: args.balloons
+  });
 }
