@@ -87,14 +87,20 @@ const SupplierTaxForm = ({ initialValues }: SupplierTaxFormProps) => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
             <Input name="taxId" label="Tax ID" />
             <Input name="vatNumber" label="VAT Number" />
-            {isEoriCountry(company.countryCode) && (
+            {isEoriCountry(company.countryCode) ? (
               <Input name="eori" label="EORI" />
+            ) : (
+              <div />
             )}
-            <Boolean
-              name="taxExempt"
-              label="Tax Exempt"
-              onChange={setTaxExempt}
-            />
+
+            <div className="col-span-3">
+              <Boolean
+                name="taxExempt"
+                label="Tax Exempt"
+                bordered
+                onChange={setTaxExempt}
+              />
+            </div>
             {taxExempt && (
               <>
                 <Select

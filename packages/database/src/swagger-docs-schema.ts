@@ -62128,6 +62128,9 @@ export default {
             $ref: "#/parameters/rowFilter.productionEvent.notes"
           },
           {
+            $ref: "#/parameters/rowFilter.productionEvent.postedToGL"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -62229,6 +62232,9 @@ export default {
             $ref: "#/parameters/rowFilter.productionEvent.notes"
           },
           {
+            $ref: "#/parameters/rowFilter.productionEvent.postedToGL"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -62282,6 +62288,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.productionEvent.notes"
+          },
+          {
+            $ref: "#/parameters/rowFilter.productionEvent.postedToGL"
           },
           {
             $ref: "#/parameters/body.productionEvent"
@@ -79747,7 +79756,11 @@ export default {
             "Sales Return",
             "Transfer Receipt",
             "Inventory Adjustment",
-            "Production Order"
+            "Production Order",
+            "Job Consumption",
+            "Job Receipt",
+            "Production Event",
+            "Job Close"
           ],
           format: 'public."journalEntrySourceType"',
           type: "string"
@@ -88238,7 +88251,17 @@ export default {
             "Invoice",
             "Credit Memo",
             "Blanket Order",
-            "Return Order"
+            "Return Order",
+            "Sales Shipment",
+            "Transfer Shipment",
+            "Purchase Receipt",
+            "Purchase Invoice",
+            "Job Consumption",
+            "Job Receipt",
+            "Batch Split",
+            "Maintenance Consumption",
+            "Production Event",
+            "Job Close"
           ],
           format: 'public."journalLineDocumentType"',
           type: "string"
@@ -88687,7 +88710,11 @@ export default {
             "Sales Return",
             "Transfer Receipt",
             "Inventory Adjustment",
-            "Production Order"
+            "Production Order",
+            "Job Consumption",
+            "Job Receipt",
+            "Production Event",
+            "Job Close"
           ],
           format: 'public."journalEntrySourceType"',
           type: "string"
@@ -98557,7 +98584,17 @@ export default {
             "Invoice",
             "Credit Memo",
             "Blanket Order",
-            "Return Order"
+            "Return Order",
+            "Sales Shipment",
+            "Transfer Shipment",
+            "Purchase Receipt",
+            "Purchase Invoice",
+            "Job Consumption",
+            "Job Receipt",
+            "Batch Split",
+            "Maintenance Consumption",
+            "Production Event",
+            "Job Close"
           ],
           format: 'public."journalLineDocumentType"',
           type: "string"
@@ -106836,7 +106873,8 @@ export default {
         "startTime",
         "companyId",
         "createdAt",
-        "createdBy"
+        "createdBy",
+        "postedToGL"
       ],
       properties: {
         id: {
@@ -106911,6 +106949,11 @@ export default {
         notes: {
           format: "text",
           type: "string"
+        },
+        postedToGL: {
+          default: false,
+          format: "boolean",
+          type: "boolean"
         }
       },
       type: "object"
@@ -143356,6 +143399,12 @@ export default {
     },
     "rowFilter.productionEvent.notes": {
       name: "notes",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.productionEvent.postedToGL": {
+      name: "postedToGL",
       required: false,
       in: "query",
       type: "string"

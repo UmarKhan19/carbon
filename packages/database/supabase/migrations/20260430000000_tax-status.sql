@@ -124,33 +124,55 @@ CREATE POLICY "Employees with sales_delete or purchasing_delete can delete tax c
     AND (storage.foldername(name))[2] = 'tax-certificates'
   );
 
--- Update create_customer_entries trigger to also create customerTax
-CREATE OR REPLACE FUNCTION public.create_customer_entries()
-RETURNS TRIGGER AS $$
+-- Update customer insert interceptor to also create customerTax
+CREATE OR REPLACE FUNCTION sync_create_customer_entries(
+  p_table TEXT,
+  p_operation TEXT,
+  p_new JSONB,
+  p_old JSONB
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 BEGIN
-  INSERT INTO public."customerPayment"("customerId", "invoiceCustomerId", "companyId")
-  VALUES (new.id, new.id, new."companyId");
-  INSERT INTO public."customerShipping"("customerId", "shippingCustomerId", "companyId")
-  VALUES (new.id, new.id, new."companyId");
-  INSERT INTO public."customerTax"("customerId", "companyId")
-  VALUES (new.id, new."companyId");
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+  IF p_operation != 'INSERT' THEN RETURN; END IF;
 
--- Update create_supplier_entries trigger to also create supplierTax
-CREATE OR REPLACE FUNCTION public.create_supplier_entries()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public."supplierPayment"("supplierId", "invoiceSupplierId", "companyId")
-  VALUES (new.id, new.id, new."companyId");
-  INSERT INTO public."supplierShipping"("supplierId", "shippingSupplierId", "companyId")
-  VALUES (new.id, new.id, new."companyId");
-  INSERT INTO public."supplierTax"("supplierId", "companyId")
-  VALUES (new.id, new."companyId");
-  RETURN new;
+  INSERT INTO "customerPayment"("customerId", "invoiceCustomerId", "companyId")
+  VALUES (p_new->>'id', p_new->>'id', p_new->>'companyId');
+
+  INSERT INTO "customerShipping"("customerId", "shippingCustomerId", "companyId")
+  VALUES (p_new->>'id', p_new->>'id', p_new->>'companyId');
+
+  INSERT INTO "customerTax"("customerId", "companyId")
+  VALUES (p_new->>'id', p_new->>'companyId');
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
+
+-- Update supplier insert interceptor to also create supplierTax
+CREATE OR REPLACE FUNCTION sync_create_supplier_entries(
+  p_table TEXT,
+  p_operation TEXT,
+  p_new JSONB,
+  p_old JSONB
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF p_operation != 'INSERT' THEN RETURN; END IF;
+
+  INSERT INTO "supplierPayment"("supplierId", "invoiceSupplierId", "companyId")
+  VALUES (p_new->>'id', p_new->>'id', p_new->>'companyId');
+
+  INSERT INTO "supplierShipping"("supplierId", "shippingSupplierId", "companyId")
+  VALUES (p_new->>'id', p_new->>'id', p_new->>'companyId');
+
+  INSERT INTO "supplierTax"("supplierId", "companyId")
+  VALUES (p_new->>'id', p_new->>'companyId');
+END;
+$$;
 
 -- Drop views that depend on the columns we're removing
 DROP VIEW IF EXISTS "suppliers";

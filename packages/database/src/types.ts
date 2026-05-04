@@ -25475,6 +25475,7 @@ export type Database = {
           id: string
           jobOperationId: string
           notes: string | null
+          postedToGL: boolean
           startTime: string
           type: Database["public"]["Enums"]["productionEventType"] | null
           updatedAt: string | null
@@ -25491,6 +25492,7 @@ export type Database = {
           id?: string
           jobOperationId: string
           notes?: string | null
+          postedToGL?: boolean
           startTime?: string
           type?: Database["public"]["Enums"]["productionEventType"] | null
           updatedAt?: string | null
@@ -25507,6 +25509,7 @@ export type Database = {
           id?: string
           jobOperationId?: string
           notes?: string | null
+          postedToGL?: boolean
           startTime?: string
           type?: Database["public"]["Enums"]["productionEventType"] | null
           updatedAt?: string | null
@@ -61892,6 +61895,10 @@ export type Database = {
         | "Transfer Receipt"
         | "Inventory Adjustment"
         | "Production Order"
+        | "Job Consumption"
+        | "Job Receipt"
+        | "Production Event"
+        | "Job Close"
       journalEntryStatus: "Draft" | "Posted" | "Reversed"
       journalLineDocumentType:
         | "Receipt"
@@ -61899,6 +61906,16 @@ export type Database = {
         | "Credit Memo"
         | "Blanket Order"
         | "Return Order"
+        | "Sales Shipment"
+        | "Transfer Shipment"
+        | "Purchase Receipt"
+        | "Purchase Invoice"
+        | "Job Consumption"
+        | "Job Receipt"
+        | "Batch Split"
+        | "Maintenance Consumption"
+        | "Production Event"
+        | "Job Close"
       kanbanOutput: "label" | "qrcode" | "url"
       maintenanceDispatchPriority: "Low" | "Medium" | "High" | "Critical"
       maintenanceDispatchStatus:
@@ -63137,6 +63154,10 @@ export const Constants = {
         "Transfer Receipt",
         "Inventory Adjustment",
         "Production Order",
+        "Job Consumption",
+        "Job Receipt",
+        "Production Event",
+        "Job Close",
       ],
       journalEntryStatus: ["Draft", "Posted", "Reversed"],
       journalLineDocumentType: [
@@ -63145,6 +63166,16 @@ export const Constants = {
         "Credit Memo",
         "Blanket Order",
         "Return Order",
+        "Sales Shipment",
+        "Transfer Shipment",
+        "Purchase Receipt",
+        "Purchase Invoice",
+        "Job Consumption",
+        "Job Receipt",
+        "Batch Split",
+        "Maintenance Consumption",
+        "Production Event",
+        "Job Close",
       ],
       kanbanOutput: ["label", "qrcode", "url"],
       maintenanceDispatchPriority: ["Low", "Medium", "High", "Critical"],
