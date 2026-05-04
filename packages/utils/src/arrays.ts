@@ -5,25 +5,30 @@ export type ArrayElement<A> = A extends readonly (infer T)[] ? T : never;
 
 /**
  * A utility function to filter out null and undefined values from an array.
+ *
+ * Indexed loop instead of `.reduce` to avoid the per-call closure
+ * allocation and keep the load IC at `arr[i]` monomorphic.
  */
 export const filterEmpty = <
   T extends Array<any>,
   U = Exclude<ArrayElement<T>, null | undefined>
 >(
   arr: T
-): U[] =>
-  arr.reduce<U[]>((acc, item) => {
-    if (item !== null && item !== undefined) {
-      acc.push(item);
-    }
-
-    return acc;
-  }, []);
+): U[] => {
+  const out: U[] = [];
+  const len = arr.length;
+  for (let i = 0; i < len; i++) {
+    const item = arr[i];
+    if (item !== null && item !== undefined) out.push(item);
+  }
+  return out;
+};
 
 // Chunk
 export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
   const chunks: T[][] = [];
-  for (let i = 0; i < array.length; i += chunkSize) {
+  const len = array.length;
+  for (let i = 0; i < len; i += chunkSize) {
     chunks.push(array.slice(i, i + chunkSize));
   }
   return chunks;

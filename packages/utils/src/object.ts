@@ -1,18 +1,27 @@
+/**
+ * Group an array by a key derived from each item. Indexed loop and a
+ * `result[key] === undefined` check keep the hot path off `.reduce`'s
+ * closure allocation and avoid the implicit `in` lookup of `!result[key]`
+ * (which also misbehaves on items that happen to map to the falsy keys
+ * `""` / `0`).
+ */
 export const groupBy = <T, K extends keyof any>(
   array: T[],
   getKey: (item: T) => K
 ): Record<K, T[]> => {
-  return array.reduce(
-    (result, item) => {
-      const key = getKey(item);
-      if (!result[key]) {
-        result[key] = [];
-      }
-      result[key].push(item);
-      return result;
-    },
-    {} as Record<K, T[]>
-  );
+  const result = {} as Record<K, T[]>;
+  const len = array.length;
+  for (let i = 0; i < len; i++) {
+    const item = array[i];
+    const key = getKey(item);
+    const bucket = result[key];
+    if (bucket === undefined) {
+      result[key] = [item];
+    } else {
+      bucket.push(item);
+    }
+  }
+  return result;
 };
 
 export const pick = <T extends Record<string, any>, K extends keyof T>(
@@ -20,7 +29,9 @@ export const pick = <T extends Record<string, any>, K extends keyof T>(
   keys: K[]
 ): Pick<T, K> => {
   const result = {} as Pick<T, K>;
-  for (const key of keys) {
+  const len = keys.length;
+  for (let i = 0; i < len; i++) {
+    const key = keys[i];
     if (key in obj) {
       result[key] = obj[key];
     }
@@ -33,8 +44,6 @@ export const get = <T extends Record<string, any>, K extends keyof T>(
   key: K,
   defaultValue: T[K]
 ): T[K] => {
-  if (obj[key] === undefined) {
-    return defaultValue;
-  }
-  return obj[key];
+  const value = obj[key];
+  return value === undefined ? defaultValue : value;
 };

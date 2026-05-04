@@ -28,6 +28,31 @@ export function formatDuration(
 const aboveOneSecondUnits = ["d", "h", "m", "s"] as Unit[];
 const belowOneSecondUnits = ["ms"] as Unit[];
 
+// Single regex pass replaces the 14-step `.replace` chain in the "short"
+// style branch — each prior `.replace` allocated a new intermediate
+// string. Unit ordering: longer suffix first so plurals don't get
+// truncated to the singular form.
+const SHORT_UNIT_PATTERN =
+  / (milliseconds?|seconds?|minutes?|hours?|days?|weeks?|months?|years?)/g;
+const SHORT_UNIT_MAP: Record<string, string> = {
+  millisecond: "ms",
+  milliseconds: "ms",
+  second: "s",
+  seconds: "s",
+  minute: "m",
+  minutes: "m",
+  hour: "h",
+  hours: "h",
+  day: "d",
+  days: "d",
+  week: "w",
+  weeks: "w",
+  month: "mo",
+  months: "mo",
+  year: "y",
+  years: "y"
+};
+
 export function formatDurationHours(
   hours: number,
   options?: DurationOptions
@@ -62,24 +87,11 @@ export function formatDurationMilliseconds(
     return duration;
   }
 
-  switch (options.style) {
-    case "short":
-      duration = duration.replace(" milliseconds", "ms");
-      duration = duration.replace(" millisecond", "ms");
-      duration = duration.replace(" seconds", "s");
-      duration = duration.replace(" second", "s");
-      duration = duration.replace(" minutes", "m");
-      duration = duration.replace(" minute", "m");
-      duration = duration.replace(" hours", "h");
-      duration = duration.replace(" hour", "h");
-      duration = duration.replace(" days", "d");
-      duration = duration.replace(" day", "d");
-      duration = duration.replace(" weeks", "w");
-      duration = duration.replace(" week", "w");
-      duration = duration.replace(" months", "mo");
-      duration = duration.replace(" month", "mo");
-      duration = duration.replace(" years", "y");
-      duration = duration.replace(" year", "y");
+  if (options.style === "short") {
+    duration = duration.replace(
+      SHORT_UNIT_PATTERN,
+      (_match: string, unit: string) => SHORT_UNIT_MAP[unit]
+    );
   }
 
   return duration;
