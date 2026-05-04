@@ -1,5 +1,9 @@
 import { CONTROLLED_ENVIRONMENT } from "@carbon/auth";
 import {
+  getSortedLanguageSelectOptions,
+  resolveLanguage
+} from "@carbon/locale";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -18,11 +22,14 @@ import {
 import { ItarDisclosure, useEdition, useMode } from "@carbon/remix";
 import { Edition, themes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useRef, useState } from "react";
+import { useLocale } from "@react-aria/i18n";
+import { useMemo, useRef, useState } from "react";
 import {
+  LuCheck,
   LuCreditCard,
   LuFileText,
   LuHouse,
+  LuLanguages,
   LuLogOut,
   LuMoon,
   LuPalette,
@@ -51,8 +58,17 @@ const AvatarMenu = () => {
   const modeSubmitRef = useRef<HTMLButtonElement>(null);
 
   const fetcher = useFetcher<typeof action>();
+  const localeFetcher = useFetcher<{ ok?: boolean }>();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+
+  const { locale } = useLocale();
+  const resolvedLocale = resolveLanguage(locale);
+
+  const languageOptions = useMemo(
+    () => getSortedLanguageSelectOptions(locale),
+    [locale]
+  );
 
   const onThemeChange = (t: string) => {
     const newTheme = themes.find((theme) => theme.name === t);
@@ -81,7 +97,7 @@ const AvatarMenu = () => {
         <DropdownMenuTrigger className="outline-none focus-visible:outline-none">
           <Avatar path={user.avatarUrl} name={name} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuContent align="end" className="w-64">
           <DropdownMenuLabel>{t`Signed in as ${name}`}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
@@ -162,7 +178,44 @@ const AvatarMenu = () => {
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger disabled={localeFetcher.state !== "idle"}>
+              <DropdownMenuIcon icon={<LuLanguages />} />
+              <Trans>Language</Trans>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <localeFetcher.Form method="post" action="/api/locale">
+                {languageOptions.map((opt) => (
+                  <DropdownMenuItem key={opt.value} asChild>
+                    <button
+                      type="submit"
+                      name="locale"
+                      value={opt.value}
+                      disabled={
+                        localeFetcher.state !== "idle" ||
+                        opt.value === resolvedLocale
+                      }
+                      className="flex w-full cursor-default items-center rounded-sm px-2 py-1.5 text-left text-sm outline-none focus:bg-accent data-[highlighted]:bg-accent"
+                    >
+                      <span
+                        className={
+                          opt.value === resolvedLocale
+                            ? "font-medium"
+                            : undefined
+                        }
+                      >
+                        {opt.label}
+                      </span>
+                      {opt.value === resolvedLocale ? (
+                        <LuCheck className="ml-auto h-4 w-4 shrink-0" />
+                      ) : null}
+                    </button>
+                  </DropdownMenuItem>
+                ))}
+              </localeFetcher.Form>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to={path.to.profile}>

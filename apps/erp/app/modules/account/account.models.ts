@@ -1,3 +1,4 @@
+import { supportedLanguages } from "@carbon/locale";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
@@ -16,19 +17,7 @@ export const accountProfileValidator = z.object({
 });
 
 export const accountLanguageValidator = z.object({
-  locale: z.enum([
-    "en",
-    "fr",
-    "de",
-    "es",
-    "it",
-    "ja",
-    "pl",
-    "pt",
-    "ru",
-    "zh",
-    "hi"
-  ])
+  locale: z.enum(supportedLanguages)
 });
 
 export const accountPasswordValidator = z

@@ -20,26 +20,23 @@ export default function AccountRoute() {
   // const { links } = useAccountSubmodules();
 
   return (
-    <VStack
-      className="flex w-full h-full items-center justify-start bg-card"
-      spacing={4}
-    >
-      <div className="flex bg-card border-b border-border py-8 px-2 w-full justify-center">
-        <div className="w-full max-w-[60rem]">
+    <div className="flex min-h-full w-full flex-col gap-4 bg-card">
+      <div className="w-full shrink-0 border-b border-border">
+        <div className="mx-auto w-full max-w-[60rem] px-2 py-8">
           <Heading size="h3">
             <Trans>Account Settings</Trans>
           </Heading>
         </div>
       </div>
 
-      <div className="max-w-[60rem] w-full">
-        <div className="grid grid-cols-1 h-full w-full gap-8">
+      <div className="mx-auto w-full max-w-[60rem] flex-1 px-2">
+        <div className="grid w-full grid-cols-1 gap-8">
           {/* <DetailSidebar links={links} /> */}
-          <VStack spacing={0} className="h-full">
+          <VStack spacing={0} className="h-full w-full">
             <Outlet />
           </VStack>
         </div>
       </div>
-    </VStack>
+    </div>
   );
 }

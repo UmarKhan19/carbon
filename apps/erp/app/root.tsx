@@ -86,6 +86,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     QUICKBOOKS_CLIENT_ID,
     SUPABASE_ANON_KEY,
     SUPABASE_URL,
+    DEFAULT_LANGUAGE,
     VERCEL_ENV,
     VERCEL_URL,
     XERO_CLIENT_ID
@@ -114,6 +115,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         QUICKBOOKS_CLIENT_ID,
         SUPABASE_ANON_KEY,
         SUPABASE_URL,
+        DEFAULT_LANGUAGE,
         VERCEL_ENV,
         VERCEL_URL,
         XERO_CLIENT_ID

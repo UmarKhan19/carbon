@@ -1,5 +1,8 @@
 import { ValidatedForm } from "@carbon/form";
-import { resolveLanguage } from "@carbon/locale";
+import {
+  getSortedLanguageSelectOptions,
+  resolveLanguage
+} from "@carbon/locale";
 import {
   Card,
   CardContent,
@@ -17,22 +20,10 @@ import { accountLanguageValidator } from "../../account.models";
 const ProfileLanguageForm = ({ locale }: { locale: string }) => {
   const { t } = useLingui();
 
-  const options = useMemo(() => {
-    const items = [
-      { label: t`English`, value: "en" },
-      { label: t`French`, value: "fr" },
-      { label: t`German`, value: "de" },
-      { label: t`Spanish`, value: "es" },
-      { label: t`Italian`, value: "it" },
-      { label: t`Japanese`, value: "ja" },
-      { label: t`Polish`, value: "pl" },
-      { label: t`Portuguese`, value: "pt" },
-      { label: t`Russian`, value: "ru" },
-      { label: t`Chinese`, value: "zh" },
-      { label: t`Hindi`, value: "hi" }
-    ];
-    return items.sort((a, b) => a.label.localeCompare(b.label, locale));
-  }, [t, locale]);
+  const options = useMemo(
+    () => getSortedLanguageSelectOptions(locale),
+    [locale]
+  );
 
   return (
     <ValidatedForm

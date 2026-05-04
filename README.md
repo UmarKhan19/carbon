@@ -177,10 +177,15 @@ $ cp ./.env.example ./.env
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID="******.apps.googleusercontent.com"`
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET="GOCSPX-****************"`
 
-2. **Supabase**: Start up the backend services using `npm run db:start`. Find the following values in its output to set the supabase entries:
+2. **Supabase**: Start up the backend services using `npm run db:start`. Set the Supabase entries from the CLI output:
 
-- `SUPABASE_SERVICE_ROLE_KEY=[service_role key]`
-- `SUPABASE_ANON_KEY=[anon key]`
+- `SUPABASE_URL` — **Project URL** (e.g. `http://127.0.0.1:54321`)
+- `SUPABASE_ANON_KEY` — the **Publishable** key (`sb_publishable_...`). Older CLI versions labeled this the anon key (`eyJ...`).
+- `SUPABASE_SERVICE_ROLE_KEY` — the **Secret** key (`sb_secret_...`). Older CLI versions labeled this the service_role key.
+
+Alternatively, run `supabase status -o env` in `packages/database` (or your Supabase project directory) for machine-readable lines, including legacy JWT-style anon/service keys if your CLI still prints them.
+
+See [Supabase API keys](https://supabase.com/docs/guides/api/api-keys) for how publishable and secret keys relate to the legacy names.
 
 3. **Redis** (Caching): Set up a Redis instance (local or cloud) and add the connection URL. You can set one up in the cloud easily using [Upstash](https://console.upstash.com/auth/sign-in):
 

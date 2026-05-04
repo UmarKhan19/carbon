@@ -211,7 +211,7 @@ msgstr "एक गोदाम स्थानांतरण दो स्थ�
 msgid "Abilities"
 msgstr "क्षमताएं"
 
-#: apps/erp/app/components/AvatarMenu.tsx:210
+#: apps/erp/app/components/AvatarMenu.tsx:263
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:60
 msgid "About"
 msgstr "के बारे में"
@@ -258,8 +258,8 @@ msgstr "खाता प्रबंधक"
 msgid "Account Number"
 msgstr "खाता संख्या"
 
-#: apps/erp/app/components/AvatarMenu.tsx:170
-#: apps/erp/app/routes/x+/account+/_layout.tsx:30
+#: apps/erp/app/components/AvatarMenu.tsx:223
+#: apps/erp/app/routes/x+/account+/_layout.tsx:27
 msgid "Account Settings"
 msgstr "खाता सेटिंग्स"
 
@@ -752,7 +752,7 @@ msgstr "API और Webhooks"
 msgid "API Docs"
 msgstr "API डॉक्स"
 
-#: apps/erp/app/components/AvatarMenu.tsx:98
+#: apps/erp/app/components/AvatarMenu.tsx:114
 msgid "API Documentation"
 msgstr "API दस्तावेज़"
 
@@ -2098,15 +2098,11 @@ msgstr "चैट"
 msgid "Check your email"
 msgstr "अपना ईमेल जांचें"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:31
-msgid "Chinese"
-msgstr "चीनी"
-
 #: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:286
 msgid "Choose another file"
 msgstr "दूसरी फ़ाइल चुनें"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:53
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:44
 msgid "Choose your preferred language for the interface."
 msgstr "अपनी पसंद की भाषा इंटरफेस के लिए चुनें।"
 
@@ -3436,11 +3432,11 @@ msgstr "दैनिक उपयोग"
 msgid "Dark"
 msgstr "गहरा"
 
-#: apps/erp/app/components/AvatarMenu.tsx:108
+#: apps/erp/app/components/AvatarMenu.tsx:124
 msgid "Dark Mode"
 msgstr "डार्क मोड"
 
-#: apps/erp/app/components/AvatarMenu.tsx:90
+#: apps/erp/app/components/AvatarMenu.tsx:106
 #: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:91
 #: apps/erp/app/routes/x+/quality+/_index.tsx:81
 #: apps/erp/app/routes/x+/settings+/quality.tsx:268
@@ -5023,10 +5019,6 @@ msgstr "समाप्ति समय"
 msgid "Engineering Contact"
 msgstr "इंजीनियरिंग संपर्क"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:22
-msgid "English"
-msgstr "अंग्रेजी"
-
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:812
 msgid "Enter a batch number before setting the expiration date"
 msgstr "समाप्ति तारीख सेट करने से पहले एक बैच नंबर दर्ज करें"
@@ -5996,10 +5988,6 @@ msgstr "क्या आप क्लॉक आउट करना भूल ग
 msgid "Format"
 msgstr "प्रारूप"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:23
-msgid "French"
-msgstr "फ्रेंच"
-
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:156
 msgid "Frequencies"
 msgstr "आवृत्तियाँ"
@@ -6089,10 +6077,6 @@ msgstr "जेनरेट की गई आईडी अक्षम हैं"
 msgid "Generated IDs are enabled"
 msgstr "जेनरेट की गई आईडी सक्षम हैं"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:24
-msgid "German"
-msgstr "जर्मन"
-
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:226
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:279
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:361
@@ -6169,10 +6153,6 @@ msgstr "कॉलम को छिपाएं, पिन करें और �
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:273
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "उच्च प्राथमिकता टाई जीतती है और मार्कअप के लिए पहले लागू होती है"
-
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:32
-msgid "Hindi"
-msgstr "हिंदी"
 
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:210
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:141
@@ -6761,10 +6741,6 @@ msgstr "जारी तारीख"
 msgid "Issues"
 msgstr "समस्याएं"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:26
-msgid "Italian"
-msgstr "इतालवी"
-
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
 msgid "item"
 msgstr "आइटम"
@@ -6886,10 +6862,6 @@ msgstr "वस्तुएं"
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:301
 msgid "Items inside this window get a yellow badge."
 msgstr "इस विंडो के अंदर आइटम को एक पीला बैज मिलता है।"
-
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:27
-msgid "Japanese"
-msgstr "जापानी"
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
@@ -7065,8 +7037,9 @@ msgstr "श्रम समय"
 msgid "Labor Unit"
 msgstr "श्रम इकाई"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:50
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:57
+#: apps/erp/app/components/AvatarMenu.tsx:185
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:41
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:48
 msgid "Language"
 msgstr "भाषा"
 
@@ -7576,7 +7549,7 @@ msgstr "शेल्फ लाइफ को कैसे ट्रैक कि�
 msgid "Manage Ownership"
 msgstr "स्वामित्व प्रबंधित करें"
 
-#: apps/erp/app/components/AvatarMenu.tsx:179
+#: apps/erp/app/components/AvatarMenu.tsx:232
 #: apps/erp/app/routes/x+/settings+/billing.tsx:200
 #: apps/erp/app/routes/x+/settings+/billing.tsx:266
 msgid "Manage Subscription"
@@ -9716,10 +9689,6 @@ msgstr "PO संख्या"
 msgid "Policy & Procedure"
 msgstr "नीति और प्रक्रिया"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:28
-msgid "Polish"
-msgstr "पोलिश"
-
 #: apps/erp/app/modules/sales/ui/CustomerPortals/CustomerPortalsTable.tsx:56
 msgid "Portal Link"
 msgstr "पोर्टल लिंक"
@@ -9728,11 +9697,7 @@ msgstr "पोर्टल लिंक"
 msgid "Portals"
 msgstr "पोर्टल"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:29
-msgid "Portuguese"
-msgstr "पुर्तगाली"
-
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:377
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:338
 msgid "Positive Adjustment"
 msgstr "सकारात्मक समायोजन"
 
@@ -9914,7 +9879,7 @@ msgstr "प्राथमिकताएं"
 msgid "Priority"
 msgstr "प्राथमिकता"
 
-#: apps/erp/app/components/AvatarMenu.tsx:200
+#: apps/erp/app/components/AvatarMenu.tsx:253
 msgid "Privacy Policy"
 msgstr "गोपनीयता नीति"
 
@@ -10017,7 +9982,7 @@ msgstr "उत्पादन मात्रा"
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:41
 #: apps/erp/app/modules/account/ui/useAccountSubmodules.tsx:10
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:18
-#: apps/erp/app/routes/x+/account+/profile.tsx:23
+#: apps/erp/app/routes/x+/account+/profile.tsx:20
 #: apps/erp/app/routes/x+/person+/$personId.details.tsx:40
 msgid "Profile"
 msgstr "प्रोफ़ाइल"
@@ -11258,10 +11223,6 @@ msgstr "टेस्ट चलाएं"
 msgid "Running Total"
 msgstr "कुल चल रहा है"
 
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:30
-msgid "Russian"
-msgstr "रूसी"
-
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:121
 msgid "Safety Stock"
 msgstr "सुरक्षा स्टॉक"
@@ -11431,7 +11392,7 @@ msgstr "शनिवार"
 #: apps/erp/app/components/Table/components/TableHeader.tsx:212
 #: apps/erp/app/modules/account/ui/Personal/PersonalDataForm.tsx:24
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:71
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:62
+#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:53
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:192
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:824
 #: apps/erp/app/modules/accounting/ui/AccountCategories/AccountCategoryForm.tsx:101
@@ -12406,11 +12367,11 @@ msgstr "Google के साथ साइन इन करें"
 msgid "Sign in with Outlook"
 msgstr "Outlook के साथ साइन इन करें"
 
-#: apps/erp/app/components/AvatarMenu.tsx:218
+#: apps/erp/app/components/AvatarMenu.tsx:271
 msgid "Sign Out"
 msgstr "साइन आउट"
 
-#: apps/erp/app/components/AvatarMenu.tsx:85
+#: apps/erp/app/components/AvatarMenu.tsx:101
 msgid "Signed in as {name}"
 msgstr "{name} के रूप में साइन इन किया गया"
 
@@ -12529,10 +12490,6 @@ msgstr "स्रोत"
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:879
 msgid "Sourcing Type"
 msgstr "सोर्सिंग प्रकार"
-
-#: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:25
-msgid "Spanish"
-msgstr "स्पेनिश"
 
 #: apps/erp/app/routes/x+/resources+/_index.tsx:187
 msgid "Spare Part Consumption"
@@ -13321,11 +13278,11 @@ msgstr "कर:"
 msgid "Temperature"
 msgstr "तापमान"
 
-#: apps/erp/app/components/AvatarMenu.tsx:188
+#: apps/erp/app/components/AvatarMenu.tsx:241
 msgid "Terms and Privacy"
 msgstr "शर्तें और गोपनीयता"
 
-#: apps/erp/app/components/AvatarMenu.tsx:194
+#: apps/erp/app/components/AvatarMenu.tsx:247
 msgid "Terms of Service"
 msgstr "सेवा की शर्तें"
 
@@ -13416,7 +13373,7 @@ msgstr "खरीद के समय आइटम की यूनिट की
 msgid "Theme"
 msgstr "थीम"
 
-#: apps/erp/app/components/AvatarMenu.tsx:136
+#: apps/erp/app/components/AvatarMenu.tsx:152
 msgid "Theme Color"
 msgstr "थीम रंग"
 
