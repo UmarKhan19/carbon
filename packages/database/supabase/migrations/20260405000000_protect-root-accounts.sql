@@ -11,7 +11,7 @@ UPDATE "account" SET "isSystem" = true WHERE "parentId" IS NULL;
 
 -- 3. Recreate the accounts view so it picks up the new column
 DROP VIEW IF EXISTS "accounts";
-CREATE OR REPLACE VIEW "accounts" AS SELECT "account".* FROM "account";
+CREATE OR REPLACE VIEW "accounts" WITH(SECURITY_INVOKER=true) AS SELECT "account".* FROM "account";
 
 -- 4. Trigger function
 CREATE OR REPLACE FUNCTION "protect_system_accounts"()

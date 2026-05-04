@@ -303,6 +303,9 @@ export const defaultIncomeAcountValidator = z.object({
   subcontractingVarianceAccount: z.string().min(1, {
     message: "Subcontracting variance account is required"
   }),
+  laborAbsorptionAccount: z.string().min(1, {
+    message: "Labor absorption account is required"
+  }),
   indirectCostAccount: z.string().min(1, {
     message: "Indirect cost account is required"
   }),
@@ -388,7 +391,7 @@ export const costCenterValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
   parentCostCenterId: zfd.text(z.string().optional()),
-  ownerId: zfd.text(z.string().optional())
+  ownerId: z.string().min(1, { message: "Owner is required" })
 });
 
 export const intercompanyTransactionStatuses = [

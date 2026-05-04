@@ -28519,6 +28519,9 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount"
           },
           {
+            $ref: "#/parameters/rowFilter.accountDefault.laborAbsorptionAccount"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -28698,6 +28701,9 @@ export default {
             $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount"
           },
           {
+            $ref: "#/parameters/rowFilter.accountDefault.laborAbsorptionAccount"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -28829,6 +28835,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.accountDefault.currencyTranslationAccount"
+          },
+          {
+            $ref: "#/parameters/rowFilter.accountDefault.laborAbsorptionAccount"
           },
           {
             $ref: "#/parameters/body.accountDefault"
@@ -36832,6 +36841,9 @@ export default {
             $ref: "#/parameters/rowFilter.costCenter.customFields"
           },
           {
+            $ref: "#/parameters/rowFilter.costCenter.ownerId"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -36918,6 +36930,9 @@ export default {
             $ref: "#/parameters/rowFilter.costCenter.customFields"
           },
           {
+            $ref: "#/parameters/rowFilter.costCenter.ownerId"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -36956,6 +36971,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.costCenter.customFields"
+          },
+          {
+            $ref: "#/parameters/rowFilter.costCenter.ownerId"
           },
           {
             $ref: "#/parameters/body.costCenter"
@@ -45286,6 +45304,9 @@ export default {
             $ref: "#/parameters/rowFilter.costLedger.supplierId"
           },
           {
+            $ref: "#/parameters/rowFilter.costLedger.remainingQuantity"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -45393,6 +45414,9 @@ export default {
             $ref: "#/parameters/rowFilter.costLedger.supplierId"
           },
           {
+            $ref: "#/parameters/rowFilter.costLedger.remainingQuantity"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -45452,6 +45476,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.costLedger.supplierId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.costLedger.remainingQuantity"
           },
           {
             $ref: "#/parameters/body.costLedger"
@@ -82836,7 +82863,8 @@ export default {
             "Cancelled",
             "Overdue",
             "Due Today",
-            "Planned"
+            "Planned",
+            "Closed"
           ],
           format: 'public."jobStatus"',
           type: "string"
@@ -88305,7 +88333,8 @@ export default {
             "Cancelled",
             "Overdue",
             "Due Today",
-            "Planned"
+            "Planned",
+            "Closed"
           ],
           format: 'public."jobStatus"',
           type: "string"
@@ -90561,6 +90590,12 @@ export default {
           type: "string"
         },
         currencyTranslationAccount: {
+          description:
+            "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        laborAbsorptionAccount: {
           description:
             "Note:\nThis is a Foreign Key to `account.id`.<fk table='account' column='id'/>",
           format: "text",
@@ -94549,6 +94584,12 @@ export default {
         },
         customFields: {
           format: "jsonb"
+        },
+        ownerId: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -98341,7 +98382,8 @@ export default {
         "cost",
         "nominalCost",
         "companyId",
-        "createdAt"
+        "createdAt",
+        "remainingQuantity"
       ],
       properties: {
         id: {
@@ -98463,6 +98505,11 @@ export default {
             "Note:\nThis is a Foreign Key to `supplier.id`.<fk table='supplier' column='id'/>",
           format: "text",
           type: "string"
+        },
+        remainingQuantity: {
+          default: 0,
+          format: "numeric",
+          type: "number"
         }
       },
       type: "object"
@@ -125054,6 +125101,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.accountDefault.laborAbsorptionAccount": {
+      name: "laborAbsorptionAccount",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.warehouse": {
       name: "warehouse",
       description: "warehouse",
@@ -129475,6 +129528,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.costCenter.ownerId": {
+      name: "ownerId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.riskRegister": {
       name: "riskRegister",
       description: "riskRegister",
@@ -133876,6 +133935,12 @@ export default {
     },
     "rowFilter.costLedger.supplierId": {
       name: "supplierId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.costLedger.remainingQuantity": {
+      name: "remainingQuantity",
       required: false,
       in: "query",
       type: "string"

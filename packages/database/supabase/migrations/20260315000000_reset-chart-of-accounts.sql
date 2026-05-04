@@ -120,6 +120,7 @@ ALTER TABLE "accountDefault" ADD COLUMN IF NOT EXISTS "overheadVarianceAccount" 
 ALTER TABLE "accountDefault" ADD COLUMN IF NOT EXISTS "lotSizeVarianceAccount" TEXT;
 ALTER TABLE "accountDefault" ADD COLUMN IF NOT EXISTS "subcontractingVarianceAccount" TEXT;
 ALTER TABLE "accountDefault" ADD COLUMN IF NOT EXISTS "currencyTranslationAccount" TEXT;
+ALTER TABLE "accountDefault" ADD COLUMN IF NOT EXISTS "laborAbsorptionAccount" TEXT;
 
 
 -- ============================================================
@@ -232,6 +233,7 @@ BEGIN
         ('cogs', NULL, 'Cost of Goods Sold', TRUE, 'income-statement', NULL, 'Income Statement', 'Expense', FALSE),
         ('5010', '5010', 'Cost of Goods Sold - Direct', FALSE, 'cogs', 'Cost of Goods Sold', 'Income Statement', 'Expense', FALSE),
         ('5050', '5050', 'Indirect Materials & Services', FALSE, 'cogs', 'Cost of Goods Sold', 'Income Statement', 'Expense', FALSE),
+        ('5060', '5060', 'Labor & Machine Absorption', FALSE, 'cogs', 'Cost of Goods Sold', 'Income Statement', 'Expense', FALSE),
 
         ('variances', NULL, 'Variances', TRUE, 'cogs', NULL, 'Income Statement', 'Expense', FALSE),
         ('5210', '5210', 'Purchase Price Variance', FALSE, 'variances', 'Cost of Goods Sold', 'Income Statement', 'Expense', FALSE),
@@ -319,7 +321,8 @@ BEGIN
       "bankLocalCurrencyAccount", "bankForeignCurrencyAccount", "prepaymentAccount",
       "payablesAccount", "goodsReceivedNotInvoicedAccount", "inventoryShippedNotInvoicedAccount",
       "salesTaxPayableAccount", "purchaseTaxPayableAccount", "reverseChargeSalesTaxPayableAccount",
-      "retainedEarningsAccount", "currencyTranslationAccount"
+      "retainedEarningsAccount", "currencyTranslationAccount",
+      "laborAbsorptionAccount"
     )
     SELECT
       c.id,
@@ -337,7 +340,8 @@ BEGIN
       key_to_id -> '1020', key_to_id -> '1030', key_to_id -> '2110',
       key_to_id -> '2010', key_to_id -> '2125', key_to_id -> '2130',
       key_to_id -> '2210', key_to_id -> '2220', key_to_id -> '2230',
-      key_to_id -> '3100', key_to_id -> '3200'
+      key_to_id -> '3100', key_to_id -> '3200',
+      key_to_id -> '5060'
     FROM company c
     WHERE c."companyGroupId" = cg_id;
 
@@ -443,6 +447,8 @@ ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_retainedEarningsAcco
   FOREIGN KEY ("retainedEarningsAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_currencyTranslationAccount_fkey"
   FOREIGN KEY ("currencyTranslationAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "accountDefault" ADD CONSTRAINT "accountDefault_laborAbsorptionAccount_fkey"
+  FOREIGN KEY ("laborAbsorptionAccount") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- journalLine
 ALTER TABLE "journalLine" ADD CONSTRAINT "journalLine_accountId_fkey"

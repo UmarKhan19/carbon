@@ -736,6 +736,7 @@ serve(async (req: Request) => {
                 nominalCost:
                   invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
                 cost: totalLineCostWithWeightedShipping,
+                remainingQuantity: invoiceLineQuantityInInventoryUnit,
                 supplierId: purchaseInvoice.data?.supplierId,
                 companyId,
               });
@@ -810,6 +811,7 @@ serve(async (req: Request) => {
                 nominalCost:
                   invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
                 cost: totalLineCostWithWeightedShipping,
+                remainingQuantity: invoiceLineQuantityInInventoryUnit,
                 supplierId: purchaseInvoice.data?.supplierId,
                 companyId,
               });

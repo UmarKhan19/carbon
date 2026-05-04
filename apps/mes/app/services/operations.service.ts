@@ -37,15 +37,41 @@ export async function finishJobOperation(
   args: {
     jobOperationId: string;
     userId: string;
+    companyId: string;
   }
 ) {
-  return client
+  const result = await client
     .from("jobOperation")
     .update({
       status: "Done",
       updatedBy: args.userId
     })
     .eq("id", args.jobOperationId);
+
+  if (!result.error) {
+    const unpostedEvents = await client
+      .from("productionEvent")
+      .select("id")
+      .eq("jobOperationId", args.jobOperationId)
+      .not("endTime", "is", null)
+      .eq("postedToGL", false);
+
+    if (unpostedEvents.data?.length) {
+      await Promise.all(
+        unpostedEvents.data.map((event) =>
+          client.functions.invoke("post-production-event", {
+            body: {
+              productionEventId: event.id,
+              userId: args.userId,
+              companyId: args.companyId
+            }
+          })
+        )
+      );
+    }
+  }
+
+  return result;
 }
 
 export async function getActiveJobOperationsByEmployee(

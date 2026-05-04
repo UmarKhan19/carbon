@@ -14,7 +14,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Separator,
   Status,
   useDisclosure,
   VStack
@@ -288,53 +287,72 @@ const JournalEntryForm = ({
                 />
               </div>
 
-              <Separator />
+              {/* Journal Lines + Totals */}
+              <div className="rounded-lg border border-border overflow-hidden w-full">
+                {/* Column Headers */}
+                <div className="grid grid-cols-[auto_1fr_140px_140px_40px] items-center gap-3 px-4 py-2.5 text-sm text-muted-foreground font-medium bg-muted/50 border-b border-border">
+                  <div className="w-6" />
+                  <div className="pl-3">Account & Details</div>
+                  <div className="text-right pr-3">Debit</div>
+                  <div className="text-right pr-3">Credit</div>
+                  <div />
+                </div>
 
-              {/* Column Headers */}
-              <div className="grid grid-cols-[auto_1fr_140px_140px_40px] items-center gap-3 px-4 text-xxs text-foreground/70 uppercase font-light tracking-wide  w-full">
-                <div className="w-6" />
-                <div className="pl-3">Account & Details</div>
-                <div className="text-right pr-3">Debit</div>
-                <div className="text-right pr-3">Credit</div>
-                <div />
-              </div>
+                {/* Lines */}
+                <div className="divide-y divide-border">
+                  {lines.map((line, index) => (
+                    <JournalLineRow
+                      key={line.id}
+                      line={line}
+                      index={index}
+                      currencyCode={company.baseCurrencyCode}
+                      onChange={(updatedLine) =>
+                        handleLineChange(index, updatedLine)
+                      }
+                      onDelete={() => handleDeleteLine(index)}
+                      canDelete={lines.length > 2}
+                      isDisabled={isDisabled}
+                      availableDimensions={dimensions}
+                      autoSaveDimensions={isPosted || isReversed}
+                    />
+                  ))}
+                </div>
 
-              {/* Journal Lines */}
-              <div className="rounded-lg border border-border divide-y divide-border overflow-hidden w-full">
-                {lines.map((line, index) => (
-                  <JournalLineRow
-                    key={line.id}
-                    line={line}
-                    index={index}
-                    currencyCode={company.baseCurrencyCode}
-                    onChange={(updatedLine) =>
-                      handleLineChange(index, updatedLine)
-                    }
-                    onDelete={() => handleDeleteLine(index)}
-                    canDelete={lines.length > 2}
-                    isDisabled={isDisabled}
-                    availableDimensions={dimensions}
-                    autoSaveDimensions={isPosted || isReversed}
-                  />
-                ))}
-              </div>
+                {/* Add Line Button */}
+                {!isDisabled && (
+                  <button
+                    type="button"
+                    onClick={handleAddLine}
+                    className="flex w-full items-center justify-center gap-2 border-t border-dashed border-border py-2.5 text-sm text-muted-foreground hover:bg-muted/30 hover:text-foreground transition-colors"
+                  >
+                    <LuPlus className="size-3.5" />
+                    Add Line
+                  </button>
+                )}
 
-              {/* Add Line Button */}
-              {!isDisabled && (
-                <Button
-                  variant="ghost"
-                  onClick={handleAddLine}
-                  leftIcon={<LuPlus />}
-                  className="w-full border border-dashed border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground"
-                >
-                  Add Line
-                </Button>
-              )}
-
-              {/* Totals */}
-              <div className="rounded-lg border p-4 w-full">
-                <div className="grid grid-cols-[1fr_140px_140px_40px] items-center gap-3">
-                  <div className="text-sm font-medium">Totals</div>
+                {/* Totals */}
+                <div className="grid grid-cols-[auto_1fr_140px_140px_40px] items-center gap-3 px-4 py-3 bg-muted/50 border-t border-border">
+                  <div className="w-6" />
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    Totals
+                    {isBalanced && totalDebits > 0 ? (
+                      <Status color="green">Balanced</Status>
+                    ) : totalDebits === 0 && totalCredits === 0 ? (
+                      <Status color="yellow">
+                        Enter at least one debit and credit
+                      </Status>
+                    ) : (
+                      <Status color="yellow">
+                        Unbalanced
+                        {totalDebits > 0 && (
+                          <span className="ml-1 font-normal">
+                            ({currencyFormatter.format(Math.abs(difference))}{" "}
+                            {difference > 0 ? "more debits" : "more credits"})
+                          </span>
+                        )}
+                      </Status>
+                    )}
+                  </div>
                   <div className="text-right font-mono text-sm tabular-nums">
                     {currencyFormatter.format(totalDebits)}
                   </div>
@@ -342,30 +360,6 @@ const JournalEntryForm = ({
                     {currencyFormatter.format(totalCredits)}
                   </div>
                   <div />
-                </div>
-
-                {/* Balance Indicator */}
-                <div className="mt-4 flex items-center justify-between border-t pt-4">
-                  <div className="flex items-center gap-2">
-                    {isBalanced && totalDebits > 0 ? (
-                      <Status color="green">Entry is balanced</Status>
-                    ) : totalDebits === 0 && totalCredits === 0 ? (
-                      <Status color="yellow">
-                        Enter at least one debit and credit
-                      </Status>
-                    ) : (
-                      <Status color="yellow">Entry is not balanced</Status>
-                    )}
-                  </div>
-                  {!isBalanced && totalDebits > 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      Difference:{" "}
-                      <span className="font-mono tabular-nums">
-                        {currencyFormatter.format(Math.abs(difference))}
-                      </span>{" "}
-                      {difference > 0 ? "more in debits" : "more in credits"}
-                    </div>
-                  )}
                 </div>
               </div>
             </VStack>

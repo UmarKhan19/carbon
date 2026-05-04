@@ -59,9 +59,9 @@ const JournalLineRow = ({
 
   return (
     <div className="group">
-      <div className="grid grid-cols-[auto_1fr_140px_140px_40px] items-start gap-3 py-6 px-4 transition-colors">
+      <div className="grid grid-cols-[auto_1fr_140px_140px_40px] items-start gap-3 py-4 px-4 transition-colors hover:bg-muted/30">
         {/* Row number */}
-        <div className="flex h-9 w-6 items-center justify-center text-xs font-medium text-muted-foreground">
+        <div className="flex h-9 w-6 items-center justify-center text-xs font-medium text-muted-foreground tabular-nums">
           {index + 1}
         </div>
 

@@ -77,6 +77,12 @@ serve(async (req: Request) => {
 
       if (Math.abs(remainingWip) < 0.01) return;
 
+      const job = await trx
+        .selectFrom("job")
+        .where("id", "=", jobId)
+        .select(["jobId"])
+        .executeTakeFirstOrThrow();
+
       const journalLineReference = nanoid();
 
       const journalLineInserts = [
@@ -121,7 +127,7 @@ serve(async (req: Request) => {
         .values({
           journalEntryId,
           accountingPeriodId,
-          description: `Job Close Variance ${jobId}`,
+          description: `Job Close Variance ${job.jobId}`,
           postingDate: today,
           companyId,
           sourceType: "Job Close",

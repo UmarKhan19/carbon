@@ -275,6 +275,14 @@ const categoryGroups: CategoryGroup[] = [
         badgeType: "Expense"
       },
       {
+        name: "laborAbsorptionAccount",
+        label: "Labor & Machine Absorption",
+        description:
+          "Credit account when labor/machine time is absorbed into WIP",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
         name: "purchaseVarianceAccount",
         label: "Purchase Price Variance",
         description: "Variance between actual purchase price and standard cost",

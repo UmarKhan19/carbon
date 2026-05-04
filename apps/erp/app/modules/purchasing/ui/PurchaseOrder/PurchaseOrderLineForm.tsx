@@ -494,7 +494,7 @@ const PurchaseOrderLineForm = ({
 
                   <TabsContent value="direct">
                     <Hidden name="purchaseOrderLineType" value={itemType} />
-                    <Hidden name="description" value={itemData.description} />
+
                     <Hidden
                       name="inventoryUnitOfMeasureCode"
                       value={itemData?.inventoryUom}

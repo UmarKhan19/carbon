@@ -175,7 +175,7 @@ async function issueJobOperationMaterials(
     trx
       .selectFrom("job")
       .where("id", "=", jobId)
-      .select("locationId")
+      .select(["locationId", "jobId"])
       .executeTakeFirst(),
     trx
       .selectFrom("item")
@@ -411,7 +411,7 @@ async function issueJobOperationMaterials(
         .values({
           journalEntryId,
           accountingPeriodId,
-          description: `Material Issue to Job ${jobId}`,
+          description: `Material Issue to Job ${job?.jobId ?? jobId}`,
           postingDate: new Date().toISOString().slice(0, 10),
           companyId,
           sourceType: "Job Consumption",
@@ -703,7 +703,7 @@ serve(async (req: Request) => {
           const job = await trx
             .selectFrom("job")
             .where("id", "=", jobId)
-            .select(["itemId", "quantityReceivedToInventory"])
+            .select(["itemId", "quantityReceivedToInventory", "jobId"])
             .executeTakeFirstOrThrow();
 
           const jobMakeMethod = await trx
@@ -831,6 +831,91 @@ serve(async (req: Request) => {
 
           // WIP discharge: DR FG Inventory / CR WIP
           if (isInternal && accountDefaults?.data) {
+            // Post any unposted production events as labor/machine absorption JEs
+            const unpostedEvents = await trx
+              .selectFrom("productionEvent")
+              .innerJoin("jobOperation", "jobOperation.id", "productionEvent.jobOperationId")
+              .innerJoin("workCenter", "workCenter.id", "productionEvent.workCenterId")
+              .select([
+                "productionEvent.id as id",
+                "productionEvent.duration as duration",
+                "productionEvent.type as type",
+                "workCenter.laborRate as laborRate",
+                "workCenter.machineRate as machineRate",
+              ])
+              .where("jobOperation.jobId", "=", jobId)
+              .where("productionEvent.endTime", "is not", null)
+              .where("productionEvent.postedToGL", "=", false)
+              .where("productionEvent.duration", ">", 0)
+              .execute();
+
+            for (const event of unpostedEvents) {
+              const durationHours = Number(event.duration) / 3600;
+              const rate = event.type === "Machine"
+                ? Number(event.machineRate ?? 0)
+                : Number(event.laborRate ?? 0);
+              const laborCost = durationHours * rate;
+
+              if (laborCost > 0 && accountDefaults.data.laborAbsorptionAccount) {
+                const laborJournalLineReference = nanoid();
+                const laborAccountingPeriodId = await getCurrentAccountingPeriod(client, companyId, db);
+                const laborJournalEntryId = await getNextSequence(trx, "journalEntry", companyId);
+
+                const laborJournalResult = await trx
+                  .insertInto("journal")
+                  .values({
+                    journalEntryId: laborJournalEntryId,
+                    accountingPeriodId: laborAccountingPeriodId,
+                    description: `${event.type} Time — Job ${job.jobId}`,
+                    postingDate: new Date().toISOString().slice(0, 10),
+                    companyId,
+                    sourceType: "Production Event",
+                    status: "Posted",
+                    postedAt: new Date().toISOString(),
+                    postedBy: userId,
+                    createdBy: userId,
+                  })
+                  .returning(["id"])
+                  .executeTakeFirstOrThrow();
+
+                await trx
+                  .insertInto("journalLine")
+                  .values([
+                    {
+                      journalId: laborJournalResult.id,
+                      accountId: accountDefaults.data.workInProgressAccount,
+                      description: "WIP Account",
+                      amount: debit("asset", laborCost),
+                      quantity: 1,
+                      documentType: "Production Event",
+                      documentId: jobId,
+                      documentLineReference: journalReference.to.job(jobId),
+                      journalLineReference: laborJournalLineReference,
+                      companyId,
+                    },
+                    {
+                      journalId: laborJournalResult.id,
+                      accountId: accountDefaults.data.laborAbsorptionAccount,
+                      description: "Labor/Machine Absorption",
+                      amount: credit("expense", laborCost),
+                      quantity: 1,
+                      documentType: "Production Event",
+                      documentId: jobId,
+                      documentLineReference: journalReference.to.job(jobId),
+                      journalLineReference: laborJournalLineReference,
+                      companyId,
+                    },
+                  ])
+                  .execute();
+              }
+
+              await trx
+                .updateTable("productionEvent")
+                .set({ postedToGL: true })
+                .where("id", "=", event.id)
+                .execute();
+            }
+
             // Calculate accumulated WIP cost for this job
             const wipEntries = await trx
               .selectFrom("journalLine")
@@ -889,7 +974,7 @@ serve(async (req: Request) => {
                 .values({
                   journalEntryId,
                   accountingPeriodId,
-                  description: `Job Completion ${jobId}`,
+                  description: `Job Completion ${job.jobId}`,
                   postingDate: today,
                   companyId,
                   sourceType: "Job Receipt",

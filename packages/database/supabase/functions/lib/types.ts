@@ -348,6 +348,7 @@ export type Database = {
           inventoryAccount: string
           inventoryAdjustmentVarianceAccount: string
           inventoryShippedNotInvoicedAccount: string
+          laborAbsorptionAccount: string | null
           laborAndMachineVarianceAccount: string
           lotSizeVarianceAccount: string
           maintenanceAccount: string
@@ -390,6 +391,7 @@ export type Database = {
           inventoryAccount: string
           inventoryAdjustmentVarianceAccount: string
           inventoryShippedNotInvoicedAccount: string
+          laborAbsorptionAccount?: string | null
           laborAndMachineVarianceAccount: string
           lotSizeVarianceAccount: string
           maintenanceAccount: string
@@ -432,6 +434,7 @@ export type Database = {
           inventoryAccount?: string
           inventoryAdjustmentVarianceAccount?: string
           inventoryShippedNotInvoicedAccount?: string
+          laborAbsorptionAccount?: string | null
           laborAndMachineVarianceAccount?: string
           lotSizeVarianceAccount?: string
           maintenanceAccount?: string
@@ -731,6 +734,20 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_inventoryShippedNotInvoicedAccount_fkey"
             columns: ["inventoryShippedNotInvoicedAccount"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_laborAbsorptionAccount_fkey"
+            columns: ["laborAbsorptionAccount"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_laborAbsorptionAccount_fkey"
+            columns: ["laborAbsorptionAccount"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["id"]
@@ -3955,6 +3972,7 @@ export type Database = {
           customFields: Json | null
           id: string
           name: string
+          ownerId: string | null
           parentCostCenterId: string | null
           updatedAt: string | null
           updatedBy: string | null
@@ -3966,6 +3984,7 @@ export type Database = {
           customFields?: Json | null
           id?: string
           name: string
+          ownerId?: string | null
           parentCostCenterId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
@@ -3977,6 +3996,7 @@ export type Database = {
           customFields?: Json | null
           id?: string
           name?: string
+          ownerId?: string | null
           parentCostCenterId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
@@ -4046,6 +4066,41 @@ export type Database = {
             referencedColumns: ["userId"]
           },
           {
+            foreignKeyName: "costCenter_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "costCenter_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "costCenter_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "costCenter_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "costCenter_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
             foreignKeyName: "costCenter_parentCostCenterId_fkey"
             columns: ["parentCostCenterId"]
             isOneToOne: false
@@ -4108,6 +4163,7 @@ export type Database = {
           nominalCost: number
           postingDate: string
           quantity: number
+          remainingQuantity: number
           supplierId: string | null
         }
         Insert: {
@@ -4128,6 +4184,7 @@ export type Database = {
           nominalCost?: number
           postingDate?: string
           quantity?: number
+          remainingQuantity?: number
           supplierId?: string | null
         }
         Update: {
@@ -4148,6 +4205,7 @@ export type Database = {
           nominalCost?: number
           postingDate?: string
           quantity?: number
+          remainingQuantity?: number
           supplierId?: string | null
         }
         Relationships: [
@@ -61822,6 +61880,7 @@ export type Database = {
         | "Overdue"
         | "Due Today"
         | "Planned"
+        | "Closed"
       journalEntrySourceType:
         | "Manual"
         | "Purchase Receipt"
@@ -63065,6 +63124,7 @@ export const Constants = {
         "Overdue",
         "Due Today",
         "Planned",
+        "Closed",
       ],
       journalEntrySourceType: [
         "Manual",

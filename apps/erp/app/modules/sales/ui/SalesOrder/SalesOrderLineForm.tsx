@@ -44,8 +44,7 @@ import {
   NumberControlled,
   SelectControlled,
   StorageUnit,
-  Submit,
-  UnitOfMeasure
+  Submit
 } from "~/components/Form";
 import {
   useCurrencyFormatter,
@@ -426,6 +425,7 @@ const SalesOrderLineForm = ({
                       : undefined
                   }
                 />
+                <Hidden name="unitOfMeasureCode" value={itemData.uom} />
                 <VStack>
                   <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                     <Item
@@ -485,11 +485,6 @@ const SalesOrderLineForm = ({
                           label={t`Quantity`}
                           value={saleQuantity}
                           onChange={onQuantityChange}
-                        />
-                        <UnitOfMeasure
-                          name="unitOfMeasureCode"
-                          label={t`Unit of Measure`}
-                          value={itemData.uom}
                         />
                         <div className="flex flex-col gap-y-2 w-full">
                           <div className="flex items-center justify-between min-h-[16px]">

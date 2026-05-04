@@ -133,7 +133,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (status === "Closed") {
-    await client.functions.invoke("close-job", {
+    const serviceRole = await getCarbonServiceRole();
+    await serviceRole.functions.invoke("close-job", {
       body: { jobId: id, userId, companyId }
     });
   }

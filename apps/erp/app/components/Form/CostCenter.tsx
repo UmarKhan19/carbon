@@ -3,6 +3,7 @@ import { CreatableCombobox } from "@carbon/form";
 import { useDisclosure, useMount } from "@carbon/react";
 import { useMemo, useRef, useState } from "react";
 import { useFetcher } from "react-router";
+import { useUser } from "~/hooks/useUser";
 import type { getCostCentersList } from "~/modules/accounting";
 import CostCenterForm from "~/modules/accounting/ui/CostCenters/CostCenterForm";
 import { path } from "~/utils/path";
@@ -10,8 +11,10 @@ import { path } from "~/utils/path";
 type CostCenterSelectProps = Omit<ComboboxProps, "options">;
 
 const CostCenter = (props: CostCenterSelectProps) => {
+  const { id: userId } = useUser();
   const newCostCenterModal = useDisclosure();
   const [created, setCreated] = useState<string>("");
+
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   const options = useCostCenters();
@@ -37,7 +40,8 @@ const CostCenter = (props: CostCenterSelectProps) => {
             triggerRef.current?.click();
           }}
           initialValues={{
-            name: created
+            name: created,
+            ownerId: userId
           }}
         />
       )}

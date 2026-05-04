@@ -134,11 +134,10 @@ const DimensionSelector = ({
               dim.values.length === 0 ? (
                 <DropdownMenuLabel
                   key={dim.dimensionId}
-                  className="flex items-center gap-2 text-muted-foreground font-normal"
+                  className="flex items-center gap-2 text-muted-foreground font-normal text-sm flex-nowrap"
                 >
                   <DimensionEntityTypeIcon entityType={dim.entityType as any} />
                   {dim.dimensionName}
-                  <span className="ml-auto text-xs">No values</span>
                 </DropdownMenuLabel>
               ) : (
                 <DropdownMenuSub key={dim.dimensionId}>

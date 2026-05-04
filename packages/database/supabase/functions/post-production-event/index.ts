@@ -80,6 +80,10 @@ serve(async (req: Request) => {
 
     const event = productionEvent.data;
     if (!event.endTime || !event.duration || !event.workCenterId) {
+      await client
+        .from("productionEvent")
+        .update({ postedToGL: true })
+        .eq("id", productionEventId);
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -89,21 +93,25 @@ serve(async (req: Request) => {
 
     const workCenter = await client
       .from("workCenter")
-      .select("laborRate, quotingRate")
+      .select("laborRate, machineRate")
       .eq("id", event.workCenterId)
       .single();
 
-    if (workCenter.error) throw new Error("Failed to fetch work center");
+    if (workCenter.error) throw new Error(`Failed to fetch work center ${event.workCenterId}: ${workCenter.error.message}`);
 
     const durationHours = event.duration / 3600;
     const rate =
       event.type === "Machine"
-        ? Number(workCenter.data.quotingRate ?? 0)
+        ? Number(workCenter.data.machineRate ?? 0)
         : Number(workCenter.data.laborRate ?? 0);
 
     const cost = durationHours * rate;
 
     if (cost <= 0) {
+      await client
+        .from("productionEvent")
+        .update({ postedToGL: true })
+        .eq("id", productionEventId);
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -118,7 +126,7 @@ serve(async (req: Request) => {
 
     const job = await client
       .from("job")
-      .select("itemId, locationId")
+      .select("itemId, locationId, jobId")
       .eq("id", jobId)
       .single();
 
@@ -150,7 +158,7 @@ serve(async (req: Request) => {
       {
         accountId: accountDefaults.data.laborAbsorptionAccount!,
         description: "Labor/Machine Absorption",
-        amount: credit("revenue", cost),
+        amount: credit("expense", cost),
         quantity: 1,
         documentType: "Production Event",
         documentId: jobId,
@@ -178,7 +186,7 @@ serve(async (req: Request) => {
         .values({
           journalEntryId,
           accountingPeriodId,
-          description: `${event.type} Time — Job ${jobId}`,
+          description: `${event.type} Time — Job ${job.data.jobId}`,
           postingDate: today,
           companyId,
           sourceType: "Production Event",
@@ -239,6 +247,11 @@ serve(async (req: Request) => {
         }
       }
     });
+
+    await client
+      .from("productionEvent")
+      .update({ postedToGL: true })
+      .eq("id", productionEventId);
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

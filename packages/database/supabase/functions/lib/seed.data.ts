@@ -576,6 +576,7 @@ export const accounts = [
   { key: "cogs", number: null, name: "Cost of Goods Sold", isGroup: true, parentKey: "income-statement", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
   { key: "5010", number: "5010", name: "Cost of Goods Sold - Direct", isGroup: false, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
   { key: "5050", number: "5050", name: "Indirect Materials & Services", isGroup: false, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "5060", number: "5060", name: "Labor & Machine Absorption", isGroup: false, parentKey: "cogs", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
 
   // Variances
   { key: "variances", number: null, name: "Variances", isGroup: true, parentKey: "cogs", accountType: "Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
@@ -632,6 +633,7 @@ export const accountDefaults = {
   overheadVarianceAccount: "5240",
   lotSizeVarianceAccount: "5250",
   subcontractingVarianceAccount: "5260",
+  laborAbsorptionAccount: "5060",
   indirectCostAccount: "5050",
   maintenanceAccount: "6010",
   assetDepreciationExpenseAccount: "6310",

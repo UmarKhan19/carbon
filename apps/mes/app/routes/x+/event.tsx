@@ -1,5 +1,6 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { getLocalTimeZone, now } from "@internationalized/date";
@@ -72,7 +73,8 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
     if (endEvent.data && endEvent.data.length > 0) {
-      await client.functions.invoke("post-production-event", {
+      const serviceRole = await getCarbonServiceRole();
+      await serviceRole.functions.invoke("post-production-event", {
         body: {
           productionEventId: endEvent.data[0].id,
           userId,

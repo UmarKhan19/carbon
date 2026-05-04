@@ -261,14 +261,7 @@ const ShipmentForm = ({
               )}
 
               <Button
-                variant={
-                  !canPost ||
-                  isPosted ||
-                  isVoided ||
-                  !permissions.is("employee")
-                    ? "secondary"
-                    : "primary"
-                }
+                variant={!isPosted && !isVoided ? "primary" : "secondary"}
                 onClick={postModal.onOpen}
                 isDisabled={
                   !canPost ||
@@ -492,7 +485,7 @@ function InvoiceButtons({
             ) : (
               <Button
                 leftIcon={<LuCreditCard />}
-                variant={isVoided ? "secondary" : "primary"}
+                variant={isPosted && !isVoided ? "primary" : "secondary"}
                 isDisabled={!isPosted}
                 onClick={() => onCreateInvoice(shipment)}
               >
