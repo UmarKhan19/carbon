@@ -666,6 +666,39 @@ serve(async (req: Request) => {
           companyId
         );
 
+        const [isInternal, companyRecord] = await Promise.all([
+          isInternalUser(client, userId),
+          client
+            .from("company")
+            .select("companyGroupId")
+            .eq("id", companyId)
+            .single(),
+        ]);
+        if (companyRecord.error) throw new Error("Failed to fetch company");
+
+        const accountDefaults = isInternal
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (isInternal && (accountDefaults?.error || !accountDefaults?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensions = isInternal
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecord.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location", "CostCenter"])
+          : null;
+
+        const dimensionMap = new Map<string, string>();
+        if (dimensions?.data) {
+          for (const dim of dimensions.data) {
+            if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
+          }
+        }
+
         await db.transaction().execute(async (trx) => {
           const job = await trx
             .selectFrom("job")
@@ -793,6 +826,194 @@ serve(async (req: Request) => {
                 companyId,
                 userId
               );
+            }
+          }
+
+          // WIP discharge: DR FG Inventory / CR WIP
+          if (isInternal && accountDefaults?.data) {
+            // Calculate accumulated WIP cost for this job
+            const wipEntries = await trx
+              .selectFrom("journalLine")
+              .innerJoin("journal", "journal.id", "journalLine.journalId")
+              .select((eb) => eb.fn.sum("journalLine.amount").as("totalWip"))
+              .where("journalLine.accountId", "=", accountDefaults.data!.workInProgressAccount)
+              .where("journalLine.documentId", "=", jobId)
+              .where("journal.companyId", "=", companyId)
+              .executeTakeFirst();
+
+            const accumulatedWipCost = Math.abs(Number(wipEntries?.totalWip ?? 0));
+
+            if (accumulatedWipCost > 0) {
+              const today = new Date().toISOString().slice(0, 10);
+              const journalLineReference = nanoid();
+
+              const journalLineInserts = [
+                {
+                  accountId: accountDefaults.data.inventoryAccount,
+                  description: "Finished Goods Inventory",
+                  amount: debit("asset", accumulatedWipCost),
+                  quantity: quantityReceivedToInventory,
+                  documentType: "Job Receipt",
+                  documentId: jobId,
+                  documentLineReference: journalReference.to.job(jobId),
+                  journalLineReference,
+                  companyId,
+                },
+                {
+                  accountId: accountDefaults.data.workInProgressAccount,
+                  description: "WIP Account",
+                  amount: credit("asset", accumulatedWipCost),
+                  quantity: quantityReceivedToInventory,
+                  documentType: "Job Receipt",
+                  documentId: jobId,
+                  documentLineReference: journalReference.to.job(jobId),
+                  journalLineReference,
+                  companyId,
+                },
+              ];
+
+              const accountingPeriodId = await getCurrentAccountingPeriod(
+                client,
+                companyId,
+                db
+              );
+
+              const journalEntryId = await getNextSequence(
+                trx,
+                "journalEntry",
+                companyId
+              );
+
+              const journalResult = await trx
+                .insertInto("journal")
+                .values({
+                  journalEntryId,
+                  accountingPeriodId,
+                  description: `Job Completion ${jobId}`,
+                  postingDate: today,
+                  companyId,
+                  sourceType: "Job Receipt",
+                  status: "Posted",
+                  postedAt: new Date().toISOString(),
+                  postedBy: userId,
+                  createdBy: userId,
+                })
+                .returning(["id"])
+                .executeTakeFirstOrThrow();
+
+              const journalLineResults = await trx
+                .insertInto("journalLine")
+                .values(
+                  journalLineInserts.map((line) => ({
+                    ...line,
+                    journalId: journalResult.id,
+                  }))
+                )
+                .returning(["id"])
+                .execute();
+
+              // Write costLedger entry for finished good
+              await trx
+                .insertInto("costLedger")
+                .values({
+                  itemLedgerType: "Output",
+                  costLedgerType: "Direct Cost",
+                  adjustment: false,
+                  documentType: "Job Receipt",
+                  documentId: jobId,
+                  itemId: job.itemId!,
+                  quantity: quantityReceivedToInventory,
+                  cost: accumulatedWipCost,
+                  remainingQuantity: quantityReceivedToInventory,
+                  companyId,
+                })
+                .execute();
+
+              // Update itemCost.unitCost for Average cost items
+              const finishedItemCost = await trx
+                .selectFrom("itemCost")
+                .selectAll()
+                .where("itemId", "=", job.itemId!)
+                .where("companyId", "=", companyId)
+                .executeTakeFirst();
+
+              if (finishedItemCost?.costingMethod === "Average") {
+                const existingOnHand = await trx
+                  .selectFrom("itemLedger")
+                  .select((eb) => eb.fn.sum("quantity").as("quantity"))
+                  .where("itemId", "=", job.itemId!)
+                  .where("companyId", "=", companyId)
+                  .executeTakeFirst();
+
+                const existingQty = Number(existingOnHand?.quantity ?? 0);
+                const existingValue =
+                  existingQty * Number(finishedItemCost.unitCost ?? 0);
+                const newValue = accumulatedWipCost;
+                const newQty = quantityReceivedToInventory;
+                const totalQty = existingQty + newQty;
+
+                if (totalQty > 0) {
+                  const newUnitCost = (existingValue + newValue) / totalQty;
+                  await trx
+                    .updateTable("itemCost")
+                    .set({ unitCost: newUnitCost })
+                    .where("itemId", "=", job.itemId!)
+                    .where("companyId", "=", companyId)
+                    .execute();
+                }
+              }
+
+              // Insert dimensions
+              if (dimensionMap.size > 0) {
+                const finishedGoodItemCost = await trx
+                  .selectFrom("itemCost")
+                  .where("itemId", "=", job.itemId!)
+                  .where("companyId", "=", companyId)
+                  .select("itemPostingGroupId")
+                  .executeTakeFirst();
+
+                const jobRecord = await trx
+                  .selectFrom("job")
+                  .where("id", "=", jobId)
+                  .select(["locationId"])
+                  .executeTakeFirst();
+
+                const dimensionInserts: {
+                  journalLineId: string;
+                  dimensionId: string;
+                  valueId: string;
+                  companyId: string;
+                }[] = [];
+
+                journalLineResults.forEach((jl) => {
+                  if (
+                    finishedGoodItemCost?.itemPostingGroupId &&
+                    dimensionMap.has("ItemPostingGroup")
+                  ) {
+                    dimensionInserts.push({
+                      journalLineId: jl.id,
+                      dimensionId: dimensionMap.get("ItemPostingGroup")!,
+                      valueId: finishedGoodItemCost.itemPostingGroupId,
+                      companyId,
+                    });
+                  }
+                  if (jobRecord?.locationId && dimensionMap.has("Location")) {
+                    dimensionInserts.push({
+                      journalLineId: jl.id,
+                      dimensionId: dimensionMap.get("Location")!,
+                      valueId: jobRecord.locationId,
+                      companyId,
+                    });
+                  }
+                });
+
+                if (dimensionInserts.length > 0) {
+                  await trx
+                    .insertInto("journalLineDimension")
+                    .values(dimensionInserts)
+                    .execute();
+                }
+              }
             }
           }
         });
