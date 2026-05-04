@@ -5,6 +5,7 @@ import {
   LuClipboardCheck,
   LuFileText,
   LuReceipt,
+  LuShieldCheck,
   LuShoppingCart,
   LuTags
 } from "react-icons/lu";
@@ -86,6 +87,13 @@ export function usePartNavigation() {
       permission: "quality",
       icon: LuClipboardCheck,
       shortcut: "Command+Shift+q"
+    },
+    {
+      name: t`Rules`,
+      to: path.to.partRules(itemId),
+      role: ["employee"],
+      permission: "parts",
+      icon: LuShieldCheck
     }
   ].filter(
     (item) =>

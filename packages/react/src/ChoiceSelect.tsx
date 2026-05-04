@@ -59,6 +59,11 @@ type ChoiceSelectProps<V extends string = string> = {
   className?: string;
   /** Optional aria-label for the trigger. */
   "aria-label"?: string;
+  /**
+   * Popover alignment relative to the trigger. Defaults to `"start"` so the
+   * dropdown's left edge lines up with the trigger's left edge.
+   */
+  align?: "start" | "center" | "end";
 };
 
 export function ChoiceSelect<V extends string = string>({
@@ -68,6 +73,7 @@ export function ChoiceSelect<V extends string = string>({
   placeholder,
   disabled,
   className,
+  align = "start",
   "aria-label": ariaLabel
 }: ChoiceSelectProps<V>) {
   const selected = options.find((o) => o.value === value);
@@ -97,7 +103,10 @@ export function ChoiceSelect<V extends string = string>({
           <SelectValue placeholder={placeholder} />
         )}
       </SelectTrigger>
-      <SelectContent className="min-w-[var(--radix-select-trigger-width)]">
+      <SelectContent
+        align={align}
+        className="min-w-[var(--radix-select-trigger-width)] w-auto"
+      >
         {options.map((opt) => (
           <SelectItem
             key={opt.value}

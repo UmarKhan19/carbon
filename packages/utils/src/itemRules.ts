@@ -1,0 +1,541 @@
+// Item Rules evaluator. AST → JIT-compiled closure with LRU cache.
+// Used server-side on transactions (receipt, shipment, stock transfer, job ops)
+// to enforce per-item validation/guideline rules.
+
+export type Operator =
+  | "eq"
+  | "neq"
+  | "in"
+  | "notIn"
+  | "isSet"
+  | "isNotSet"
+  | "gt"
+  | "lt";
+
+export type Severity = "error" | "warn";
+
+export type Condition = {
+  field: string;
+  op: Operator;
+  value?: unknown;
+};
+
+export type MatchKind = "all" | "any" | "none";
+
+export type ConditionAst = {
+  /**
+   * - `all`  — every condition must be true (AND)
+   * - `any`  — at least one condition must be true (OR)
+   * - `none` — no condition may be true (NOR / negate)
+   */
+  kind: MatchKind;
+  conditions: Condition[];
+};
+
+export type Violation = {
+  ruleId: string;
+  severity: Severity;
+  message: string;
+};
+
+export type RuleContext = {
+  item?: Record<string, unknown> & { customFields?: Record<string, unknown> };
+  shelf?: Record<string, unknown>;
+  storageUnit?: Record<string, unknown>;
+  transaction?: Record<string, unknown>;
+  workCenter?: Record<string, unknown>;
+  job?: Record<string, unknown>;
+  operation?: Record<string, unknown>;
+};
+
+export type ItemRuleRow = {
+  id: string;
+  severity: Severity;
+  message: string;
+  conditionAst: ConditionAst;
+  updatedAt?: string | null;
+  active?: boolean;
+};
+
+export type CompiledRule = {
+  id: string;
+  severity: Severity;
+  rawMessage: string;
+  predicate: (ctx: RuleContext) => boolean;
+};
+
+// ---------------------------------------------------------------------------
+// Field path resolver
+// ---------------------------------------------------------------------------
+
+type Resolver = (ctx: RuleContext) => unknown;
+
+const ROOT_KEYS = new Set([
+  "item",
+  "shelf",
+  "storageUnit",
+  "transaction",
+  "workCenter",
+  "job",
+  "operation"
+]);
+
+const buildResolver = (path: string): Resolver => {
+  const segments = path.split(".");
+  if (segments.length < 2 || !ROOT_KEYS.has(segments[0]!)) {
+    return () => undefined;
+  }
+  return (ctx: RuleContext) => {
+    let cur: unknown = (ctx as Record<string, unknown>)[segments[0]!];
+    for (let i = 1; i < segments.length; i++) {
+      if (cur == null || typeof cur !== "object") return undefined;
+      cur = (cur as Record<string, unknown>)[segments[i]!];
+    }
+    return cur;
+  };
+};
+
+// ---------------------------------------------------------------------------
+// Operator implementations (pure)
+// ---------------------------------------------------------------------------
+
+const isNullish = (v: unknown): boolean => v === null || v === undefined;
+
+const operatorFns: Record<
+  Operator,
+  (left: unknown, right: unknown) => boolean
+> = {
+  eq: (l, r) => l === r,
+  neq: (l, r) => l !== r,
+  in: (l, r) => Array.isArray(r) && r.includes(l),
+  notIn: (l, r) => Array.isArray(r) && !r.includes(l),
+  isSet: (l) => !isNullish(l) && l !== "",
+  isNotSet: (l) => isNullish(l) || l === "",
+  gt: (l, r) => typeof l === "number" && typeof r === "number" && l > r,
+  lt: (l, r) => typeof l === "number" && typeof r === "number" && l < r
+};
+
+// ---------------------------------------------------------------------------
+// Compiler
+// ---------------------------------------------------------------------------
+
+const compileCondition = (cond: Condition): ((ctx: RuleContext) => boolean) => {
+  const resolve = buildResolver(cond.field);
+  const op = operatorFns[cond.op];
+  if (!op) return () => false;
+  const value = cond.value;
+  // Bind everything at compile time. Closure shape is monomorphic per Operator
+  // (single property access pattern, single equality check), keeping V8 happy.
+  return (ctx) => op(resolve(ctx), value);
+};
+
+const compilePredicate = (
+  ast: ConditionAst
+): ((ctx: RuleContext) => boolean) => {
+  if (!ast || !Array.isArray(ast.conditions)) return () => false;
+  const kind = ast.kind;
+  if (kind !== "all" && kind !== "any" && kind !== "none") return () => false;
+  // Vacuous-truth handling: empty `all` = true, empty `any`/`none` = false/true.
+  if (ast.conditions.length === 0) {
+    return kind === "all" || kind === "none" ? () => true : () => false;
+  }
+  const fns = ast.conditions.map(compileCondition);
+  if (kind === "all") {
+    return (ctx) => {
+      for (let i = 0; i < fns.length; i++) {
+        if (!fns[i]!(ctx)) return false;
+      }
+      return true;
+    };
+  }
+  if (kind === "any") {
+    return (ctx) => {
+      for (let i = 0; i < fns.length; i++) {
+        if (fns[i]!(ctx)) return true;
+      }
+      return false;
+    };
+  }
+  // none — no condition may be true
+  return (ctx) => {
+    for (let i = 0; i < fns.length; i++) {
+      if (fns[i]!(ctx)) return false;
+    }
+    return true;
+  };
+};
+
+export const compileRule = (row: ItemRuleRow): CompiledRule => ({
+  id: row.id,
+  severity: row.severity,
+  rawMessage: row.message,
+  predicate: compilePredicate(row.conditionAst)
+});
+
+// ---------------------------------------------------------------------------
+// LRU cache (process-scoped, FIFO eviction at cap)
+// ---------------------------------------------------------------------------
+
+const CACHE_CAP = 256;
+const cache = new Map<string, CompiledRule>();
+
+const cacheKey = (row: ItemRuleRow): string =>
+  `${row.id}:${row.updatedAt ?? ""}`;
+
+export const compileWithCache = (row: ItemRuleRow): CompiledRule => {
+  const key = cacheKey(row);
+  const hit = cache.get(key);
+  if (hit) {
+    // Refresh recency: delete + re-insert so the most-recently-used floats to the end.
+    cache.delete(key);
+    cache.set(key, hit);
+    return hit;
+  }
+  const compiled = compileRule(row);
+  cache.set(key, compiled);
+  if (cache.size > CACHE_CAP) {
+    const oldest = cache.keys().next().value as string | undefined;
+    if (oldest !== undefined) cache.delete(oldest);
+  }
+  return compiled;
+};
+
+export const __resetItemRulesCache = (): void => {
+  cache.clear();
+};
+
+export const __itemRulesCacheSize = (): number => cache.size;
+
+// ---------------------------------------------------------------------------
+// Message interpolation
+// ---------------------------------------------------------------------------
+
+const TOKEN_RE = /\{([a-zA-Z_][\w.]*)\}/g;
+
+export const interpolateMessage = (
+  template: string,
+  ctx: RuleContext
+): string => {
+  return template.replace(TOKEN_RE, (match, path: string) => {
+    const value = buildResolver(path)(ctx);
+    if (value == null) return match; // leave literal `{path}` so missing fields are visible
+    return String(value);
+  });
+};
+
+// ---------------------------------------------------------------------------
+// Evaluator
+// ---------------------------------------------------------------------------
+
+export const evaluateRules = (
+  rules: CompiledRule[],
+  ctx: RuleContext
+): Violation[] => {
+  const out: Violation[] = [];
+  for (let i = 0; i < rules.length; i++) {
+    const rule = rules[i]!;
+    if (rule.predicate(ctx)) continue; // condition satisfied — no violation
+    out.push({
+      ruleId: rule.id,
+      severity: rule.severity,
+      message: interpolateMessage(rule.rawMessage, ctx)
+    });
+  }
+  return out;
+};
+
+// ---------------------------------------------------------------------------
+// Field resolver registry — single source of truth for builder UI + evaluator
+// ---------------------------------------------------------------------------
+
+// Pull DB row shapes from the generated Supabase types so the registry stays
+// in sync with the schema. Type-only import — no runtime dependency.
+import type { Database } from "@carbon/database";
+
+type Tables = Database["public"]["Tables"];
+
+/**
+ * Compile-time check: returns `true` if the column type accepts `null`,
+ * else `false`. Used to verify each `dbField` declares the correct nullability.
+ */
+type IsNullable<T> = null extends T ? true : false;
+
+type ExpectedNullable<
+  T extends keyof Tables,
+  C extends keyof Tables[T]["Row"]
+> = IsNullable<Tables[T]["Row"][C]>;
+
+export type FieldType = "string" | "number" | "enum" | "id";
+
+export type ValueOptionsLoader =
+  | "locations"
+  | "storageTypes"
+  | "workCenters"
+  | "itemTypes"
+  | "replenishmentSystems"
+  | "itemTrackingTypes"
+  | "itemPostingGroups";
+
+export type FieldDef = {
+  path: string;
+  label: string;
+  type: FieldType;
+  operators: Operator[];
+  context: "item" | "storage" | "transaction" | "manufacturing";
+  valueOptionsLoader?: ValueOptionsLoader;
+  /**
+   * `true` (default) — column is nullable; `isSet`/`isNotSet` are valid.
+   * `false`           — column is NOT NULL at the DB level; presence ops are
+   *                     stripped from the available operator list.
+   */
+  nullable?: boolean;
+};
+
+const PRESENCE_OPS = new Set<Operator>(["isSet", "isNotSet"]);
+
+const SCALAR_OPS: Operator[] = ["eq", "neq", "isSet", "isNotSet"];
+const ENUM_OPS: Operator[] = ["eq", "neq", "in", "notIn", "isSet", "isNotSet"];
+const ID_OPS: Operator[] = ["eq", "neq", "in", "notIn", "isSet", "isNotSet"];
+const NUMBER_OPS: Operator[] = ["eq", "neq", "gt", "lt", "isSet", "isNotSet"];
+
+/**
+ * Returns the operator subset valid for a field given its DB nullability.
+ * Strips `isSet`/`isNotSet` when the field is non-nullable — those ops are
+ * meaningless on a NOT NULL column and would always evaluate to a constant.
+ */
+export const availableOperators = (def: FieldDef): Operator[] =>
+  def.nullable === false
+    ? def.operators.filter((op) => !PRESENCE_OPS.has(op))
+    : def.operators;
+
+export const isOperatorAllowed = (def: FieldDef, op: Operator): boolean =>
+  availableOperators(def).includes(op);
+
+/**
+ * Field declaration helpers. Two flavors:
+ *
+ * - `fields.database({ table, column, nullable, ... })` — maps 1:1 to a real
+ *   DB column. Nullability is **enforced at compile time** against
+ *   `Database["public"]["Tables"][T]["Row"][C]`. Schema drift = TS error.
+ *   Path is derived as `${ctxKey ?? table}.${column}`.
+ *
+ * - `fields.synthetic({ path, derivedFrom, nullable, ... })` — no direct DB
+ *   column (e.g. `transaction.*` is built per-trigger; `item.itemPostingGroupId`
+ *   is denormalised from a join). Nullability is asserted by hand; document
+ *   the runtime source in `derivedFrom`.
+ */
+const fields = {
+  database: <
+    T extends keyof Tables,
+    C extends Extract<keyof Tables[T]["Row"], string>,
+    N extends ExpectedNullable<T, C>
+  >(args: {
+    table: T;
+    column: C;
+    nullable: N; // ← must equal ExpectedNullable<T, C> or TS errors
+    label: string;
+    type: FieldType;
+    operators: Operator[];
+    context: FieldDef["context"];
+    ctxKey?: string;
+    valueOptionsLoader?: ValueOptionsLoader;
+  }): FieldDef => ({
+    path: `${args.ctxKey ?? args.table}.${args.column}`,
+    label: args.label,
+    type: args.type,
+    operators: args.operators,
+    context: args.context,
+    valueOptionsLoader: args.valueOptionsLoader,
+    nullable: args.nullable
+  }),
+
+  synthetic: (args: {
+    path: string;
+    derivedFrom: string;
+    nullable: boolean;
+    label: string;
+    type: FieldType;
+    operators: Operator[];
+    context: FieldDef["context"];
+    valueOptionsLoader?: ValueOptionsLoader;
+  }): FieldDef => ({
+    path: args.path,
+    label: args.label,
+    type: args.type,
+    operators: args.operators,
+    context: args.context,
+    valueOptionsLoader: args.valueOptionsLoader,
+    nullable: args.nullable
+  })
+};
+
+export const FIELD_REGISTRY: FieldDef[] = [
+  // ── Item ──────────────────────────────────────────────────────────────────
+  fields.database({
+    table: "item",
+    column: "type",
+    nullable: false,
+    label: "Item type",
+    type: "enum",
+    operators: ENUM_OPS,
+    context: "item",
+    valueOptionsLoader: "itemTypes"
+  }),
+  fields.database({
+    table: "item",
+    column: "replenishmentSystem",
+    nullable: false,
+    label: "Replenishment system",
+    type: "enum",
+    operators: ENUM_OPS,
+    context: "item",
+    valueOptionsLoader: "replenishmentSystems"
+  }),
+  fields.database({
+    table: "item",
+    column: "itemTrackingType",
+    nullable: false,
+    label: "Item tracking type",
+    type: "enum",
+    operators: ENUM_OPS,
+    context: "item",
+    valueOptionsLoader: "itemTrackingTypes"
+  }),
+  fields.synthetic({
+    path: "item.itemPostingGroupId",
+    derivedFrom: "itemCost.itemPostingGroupId (denormalised into ctx.item)",
+    nullable: true,
+    label: "Item posting group",
+    type: "id",
+    operators: ID_OPS,
+    context: "item",
+    valueOptionsLoader: "itemPostingGroups"
+  }),
+
+  // ── Storage ───────────────────────────────────────────────────────────────
+  fields.synthetic({
+    path: "shelf.locationId",
+    derivedFrom: "storageUnit.locationId via shelfId join (no `shelf` table)",
+    nullable: false,
+    label: "Shelf location",
+    type: "id",
+    operators: ID_OPS,
+    context: "storage",
+    valueOptionsLoader: "locations"
+  }),
+  fields.synthetic({
+    path: "storageUnit.storageTypeId",
+    derivedFrom: "first element of storageUnit.storageTypeIds[]",
+    nullable: true,
+    label: "Storage type",
+    type: "id",
+    operators: ID_OPS,
+    context: "storage",
+    valueOptionsLoader: "storageTypes"
+  }),
+  fields.database({
+    table: "storageUnit",
+    column: "warehouseId",
+    nullable: true,
+    label: "Warehouse",
+    type: "id",
+    operators: ID_OPS,
+    context: "storage"
+  }),
+
+  // ── Transaction ───────────────────────────────────────────────────────────
+  // `transaction` is a synthetic ctx assembled per-trigger (receipt/shipment/
+  // stock-transfer/job op). No corresponding table — all paths synthetic.
+  fields.synthetic({
+    path: "transaction.kind",
+    derivedFrom: "set by trigger handler (receipt|shipment|stockTransfer|jobOp)",
+    nullable: false,
+    label: "Transaction kind",
+    type: "enum",
+    operators: ENUM_OPS,
+    context: "transaction"
+  }),
+  fields.synthetic({
+    path: "transaction.locationId",
+    derivedFrom: "trigger handler — varies by surface",
+    nullable: true,
+    label: "Transaction location",
+    type: "id",
+    operators: ID_OPS,
+    context: "transaction",
+    valueOptionsLoader: "locations"
+  }),
+  fields.synthetic({
+    path: "transaction.quantity",
+    derivedFrom: "line.quantity from receipt/shipment/transfer/op consumption",
+    nullable: false,
+    label: "Transaction quantity",
+    type: "number",
+    operators: NUMBER_OPS,
+    context: "transaction"
+  }),
+  fields.synthetic({
+    path: "transaction.userId",
+    derivedFrom: "auth user on the action — system jobs may omit",
+    nullable: true,
+    label: "User",
+    type: "id",
+    operators: SCALAR_OPS,
+    context: "transaction"
+  }),
+
+  // ── Manufacturing ─────────────────────────────────────────────────────────
+  fields.database({
+    table: "workCenter",
+    column: "id",
+    nullable: false,
+    label: "Work center",
+    type: "id",
+    operators: ID_OPS,
+    context: "manufacturing",
+    valueOptionsLoader: "workCenters"
+  }),
+  fields.database({
+    table: "workCenter",
+    column: "locationId",
+    nullable: true,
+    label: "Work center location",
+    type: "id",
+    operators: ID_OPS,
+    context: "manufacturing",
+    valueOptionsLoader: "locations"
+  }),
+  fields.database({
+    table: "job",
+    column: "id",
+    nullable: false,
+    label: "Job",
+    type: "id",
+    operators: SCALAR_OPS,
+    context: "manufacturing"
+  }),
+  fields.database({
+    table: "jobOperation",
+    column: "id",
+    ctxKey: "operation",
+    nullable: false,
+    label: "Operation",
+    type: "id",
+    operators: SCALAR_OPS,
+    context: "manufacturing"
+  })
+];
+
+export const getFieldDef = (path: string): FieldDef | undefined => {
+  // Custom fields are dynamic — accept any item.customFields.* path.
+  if (path.startsWith("item.customFields.")) {
+    return {
+      path,
+      label: path.slice("item.customFields.".length),
+      type: "string",
+      operators: SCALAR_OPS,
+      context: "item"
+    };
+  }
+  return FIELD_REGISTRY.find((f) => f.path === path);
+};
