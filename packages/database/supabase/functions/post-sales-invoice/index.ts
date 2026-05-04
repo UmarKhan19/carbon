@@ -11,6 +11,7 @@ import { credit, debit, journalReference } from "../lib/utils.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
+import { calculateCOGS } from "../shared/calculate-cogs.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -132,7 +133,7 @@ serve(async (req: Request) => {
             .eq("companyId", companyId),
           client
             .from("itemCost")
-            .select("itemId, itemPostingGroupId")
+            .select("itemId, itemPostingGroupId, costingMethod")
             .in("itemId", itemIds),
           client
             .from("customer")
@@ -238,6 +239,34 @@ serve(async (req: Request) => {
           throw new Error("Error getting account defaults");
         }
 
+        const dimensions = isInternal
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyGroupId)
+              .eq("active", true)
+              .in("entityType", [
+                "CustomerType",
+                "ItemPostingGroup",
+                "Location",
+                "CostCenter",
+              ])
+          : null;
+
+        const dimensionMap = new Map<string, string>();
+        if (dimensions?.data) {
+          for (const dim of dimensions.data) {
+            if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
+          }
+        }
+
+        const journalLineDimensionsMeta: {
+          customerTypeId: string | null;
+          itemPostingGroupId: string | null;
+          locationId: string | null;
+          costCenterId: string | null;
+        }[] = [];
+
         // For IC transactions, use IC Receivables (1130) instead of regular AR
         let receivablesAccountId: string | undefined;
         if (isIntercompany && companyGroupId) {
@@ -329,41 +358,10 @@ serve(async (req: Request) => {
                   // create the normal GL entries for a part
 
                   if (isInternal && accountDefaults?.data) {
-                    journalLineReference = nanoid();
-
-                    if (itemTrackingType === "Inventory") {
-                      // debit the inventory account
-                      journalLineInserts.push({
-                        accountId: accountDefaults.data.inventoryAccount,
-                        description: "Inventory Account",
-                        amount: credit(
-                          "asset",
-                          totalLineCostWithWeightedShipping
-                        ),
-                        quantity: invoiceLineQuantityInInventoryUnit,
-                        documentType: "Invoice",
-                        documentId: salesInvoice.data?.id,
-                        externalDocumentId: salesInvoice.data?.customerReference,
-                        journalLineReference,
-                        companyId,
-                      });
-
-                      // creidt the cost of goods sold account
-                      journalLineInserts.push({
-                        accountId: accountDefaults.data.costOfGoodsSoldAccount,
-                        description: "Cost of Goods Sold",
-                        amount: debit(
-                          "expense",
-                          totalLineCostWithWeightedShipping
-                        ),
-                        quantity: invoiceLineQuantityInInventoryUnit,
-                        documentType: "Invoice",
-                        documentId: salesInvoice.data?.id,
-                        externalDocumentId: salesInvoice.data?.customerReference,
-                        journalLineReference,
-                        companyId,
-                      });
-                    }
+                    const lineItemPostingGroupId =
+                      itemCosts.data.find(
+                        (cost) => cost.itemId === invoiceLine.itemId
+                      )?.itemPostingGroupId ?? null;
 
                     journalLineReference = nanoid();
 
@@ -404,8 +402,54 @@ serve(async (req: Request) => {
                       intercompanyPartnerId,
                       companyId,
                     });
+
+                    for (let i = 0; i < 2; i++) {
+                      journalLineDimensionsMeta.push({
+                        customerTypeId: customer.data.customerTypeId ?? null,
+                        itemPostingGroupId: lineItemPostingGroupId,
+                        locationId: invoiceLine.locationId ?? null,
+                        costCenterId: null,
+                      });
+                    }
+
+                    if (itemTrackingType === "Inventory") {
+                      const cogsJournalLineReference = nanoid();
+
+                      journalLineInserts.push({
+                        accountId: accountDefaults.data.costOfGoodsSoldAccount,
+                        description: "Cost of Goods Sold",
+                        amount: 0,
+                        quantity: invoiceLineQuantityInInventoryUnit,
+                        documentType: "Invoice",
+                        documentId: salesInvoice.data?.id,
+                        externalDocumentId: salesInvoice.data?.customerReference,
+                        journalLineReference: cogsJournalLineReference,
+                        companyId,
+                      });
+
+                      journalLineInserts.push({
+                        accountId: accountDefaults.data.inventoryAccount,
+                        description: "Inventory Account",
+                        amount: 0,
+                        quantity: invoiceLineQuantityInInventoryUnit,
+                        documentType: "Invoice",
+                        documentId: salesInvoice.data?.id,
+                        externalDocumentId: salesInvoice.data?.customerReference,
+                        journalLineReference: cogsJournalLineReference,
+                        companyId,
+                      });
+
+                      for (let i = 0; i < 2; i++) {
+                        journalLineDimensionsMeta.push({
+                          customerTypeId: customer.data.customerTypeId ?? null,
+                          itemPostingGroupId: lineItemPostingGroupId,
+                          locationId: invoiceLine.locationId ?? null,
+                          costCenterId: null,
+                        });
+                      }
+                    }
                   }
-                } // if the line is associated with a sales order line, we do accrual/reversing
+                } // if the line is associated with a sales order line, COGS was posted at shipment — keep only AR + Revenue
                 else {
                   if (isInternal && accountDefaults?.data) {
                     // Create the normal GL entries for the invoice
@@ -453,52 +497,17 @@ serve(async (req: Request) => {
                       companyId,
                     });
 
-                    // For inventory items, handle COGS and inventory
-                    if (itemTrackingType !== "Non-Inventory") {
-                      journalLineReference = nanoid();
+                    const itemPostingGroupId =
+                      itemCosts.data.find(
+                        (cost) => cost.itemId === invoiceLine.itemId
+                      )?.itemPostingGroupId ?? null;
 
-                      // Debit cost of goods sold
-                      journalLineInserts.push({
-                        accountId: accountDefaults.data.costOfGoodsSoldAccount,
-                        description: "Cost of Goods Sold",
-                        amount: debit(
-                          "expense",
-                          invoiceLineQuantityInInventoryUnit *
-                            invoiceLineUnitCostInInventoryUnit
-                        ),
-                        quantity: invoiceLineQuantityInInventoryUnit,
-                        documentType: "Invoice",
-                        documentId: salesInvoice.data?.id,
-                        externalDocumentId: salesInvoice.data?.customerReference,
-                        documentLineReference: invoiceLine.salesOrderLineId
-                          ? journalReference.to.salesInvoice(
-                              invoiceLine.salesOrderLineId
-                            )
-                          : null,
-                        journalLineReference,
-                        companyId,
-                      });
-
-                      // Credit inventory account
-                      journalLineInserts.push({
-                        accountId: accountDefaults.data.inventoryAccount,
-                        description: "Inventory Account",
-                        amount: credit(
-                          "asset",
-                          invoiceLineQuantityInInventoryUnit *
-                            invoiceLineUnitCostInInventoryUnit
-                        ),
-                        quantity: invoiceLineQuantityInInventoryUnit,
-                        documentType: "Invoice",
-                        documentId: salesInvoice.data?.id,
-                        externalDocumentId: salesInvoice.data?.customerReference,
-                        documentLineReference: invoiceLine.salesOrderLineId
-                          ? journalReference.to.salesInvoice(
-                              invoiceLine.salesOrderLineId
-                            )
-                          : null,
-                        journalLineReference,
-                        companyId,
+                    for (let i = 0; i < 2; i++) {
+                      journalLineDimensionsMeta.push({
+                        customerTypeId: customer.data.customerTypeId ?? null,
+                        itemPostingGroupId,
+                        locationId: invoiceLine.locationId ?? null,
+                        costCenterId: null,
                       });
                     }
                   }
@@ -649,6 +658,59 @@ serve(async (req: Request) => {
               .execute();
           }
 
+          // Calculate COGS for direct invoice items (no sales order)
+          const directInvoiceItems = salesInvoiceLines.data.filter(
+            (line) => line.salesOrderLineId === null && line.itemId
+          );
+
+          for (const directLine of directInvoiceItems) {
+            if (!directLine.itemId) continue;
+
+            const itemTrackingType =
+              items.data.find((item) => item.id === directLine.itemId)
+                ?.itemTrackingType ?? "Inventory";
+
+            if (itemTrackingType !== "Inventory") continue;
+
+            const cogsResult = await calculateCOGS(trx, {
+              itemId: directLine.itemId,
+              quantity: directLine.quantity,
+              companyId,
+            });
+
+            for (let i = 0; i < journalLineInserts.length; i++) {
+              const jl = journalLineInserts[i];
+              if (
+                jl.description === "Cost of Goods Sold" &&
+                jl.amount === 0 &&
+                jl.quantity === directLine.quantity
+              ) {
+                journalLineInserts[i].amount = debit("expense", cogsResult.totalCost);
+                if (i + 1 < journalLineInserts.length) {
+                  journalLineInserts[i + 1].amount = credit("asset", cogsResult.totalCost);
+                }
+
+                await trx
+                  .insertInto("costLedger")
+                  .values({
+                    itemLedgerType: "Sale",
+                    costLedgerType: "Direct Cost",
+                    adjustment: false,
+                    documentType: "Sales Shipment",
+                    documentId: salesInvoice.data?.id ?? "",
+                    itemId: directLine.itemId,
+                    quantity: -directLine.quantity,
+                    cost: -cogsResult.totalCost,
+                    remainingQuantity: 0,
+                    companyId,
+                  })
+                  .execute();
+
+                break;
+              }
+            }
+          }
+
           let journalLineResults: { id: string }[] = [];
           if (isInternal) {
             const journalEntryId = await getNextSequence(
@@ -685,6 +747,60 @@ serve(async (req: Request) => {
                 )
                 .returning(["id"])
                 .execute();
+            }
+
+            if (dimensionMap.size > 0) {
+              const journalLineDimensionInserts: {
+                journalLineId: string;
+                dimensionId: string;
+                valueId: string;
+                companyId: string;
+              }[] = [];
+
+              journalLineResults.forEach((jl, index) => {
+                const meta = journalLineDimensionsMeta[index];
+                if (!meta) return;
+
+                if (meta.customerTypeId && dimensionMap.has("CustomerType")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("CustomerType")!,
+                    valueId: meta.customerTypeId,
+                    companyId,
+                  });
+                }
+                if (meta.itemPostingGroupId && dimensionMap.has("ItemPostingGroup")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("ItemPostingGroup")!,
+                    valueId: meta.itemPostingGroupId,
+                    companyId,
+                  });
+                }
+                if (meta.locationId && dimensionMap.has("Location")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("Location")!,
+                    valueId: meta.locationId,
+                    companyId,
+                  });
+                }
+                if (meta.costCenterId && dimensionMap.has("CostCenter")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("CostCenter")!,
+                    valueId: meta.costCenterId,
+                    companyId,
+                  });
+                }
+              });
+
+              if (journalLineDimensionInserts.length > 0) {
+                await trx
+                  .insertInto("journalLineDimension")
+                  .values(journalLineDimensionInserts)
+                  .execute();
+              }
             }
           }
 
