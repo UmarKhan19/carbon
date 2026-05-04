@@ -104,7 +104,7 @@ export function formatTimeAgo(isoString: string, locale?: string) {
 
   const len = DIVISIONS.length;
   for (let i = 0; i < len; i++) {
-    const division = DIVISIONS[i];
+    const division = DIVISIONS[i]!;
     if (Math.abs(duration) < division.amount) {
       return relativeFormatter.format(Math.round(duration), division.name);
     }
@@ -119,7 +119,7 @@ export function formatTimeFromNow(isoString: string, locale?: string) {
 
   const len = DIVISIONS.length;
   for (let i = 0; i < len; i++) {
-    const division = DIVISIONS[i];
+    const division = DIVISIONS[i]!;
     if (Math.abs(duration) < division.amount) {
       return relativeFormatter.format(Math.round(-1 * duration), division.name);
     }

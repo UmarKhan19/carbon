@@ -90,7 +90,7 @@ export function formatDurationMilliseconds(
   if (options.style === "short") {
     duration = duration.replace(
       SHORT_UNIT_PATTERN,
-      (_match: string, unit: string) => SHORT_UNIT_MAP[unit]
+      (match: string, unit: string) => SHORT_UNIT_MAP[unit] ?? match
     );
   }
 

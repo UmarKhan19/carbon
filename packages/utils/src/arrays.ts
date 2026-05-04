@@ -59,7 +59,7 @@ export function pluckUnique<T, U>(
   if (len === 0) return out;
   const seen = new Set<NonNullable<U>>();
   for (let i = 0; i < len; i++) {
-    const value = selector(rows[i]);
+    const value = selector(rows[i]!);
     if (value === null || value === undefined) continue;
     if (seen.has(value as NonNullable<U>)) continue;
     seen.add(value as NonNullable<U>);

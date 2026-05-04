@@ -12,7 +12,7 @@ export const groupBy = <T, K extends keyof any>(
   const result = {} as Record<K, T[]>;
   const len = array.length;
   for (let i = 0; i < len; i++) {
-    const item = array[i];
+    const item = array[i]!;
     const key = getKey(item);
     const bucket = result[key];
     if (bucket === undefined) {
@@ -31,7 +31,7 @@ export const pick = <T extends Record<string, any>, K extends keyof T>(
   const result = {} as Pick<T, K>;
   const len = keys.length;
   for (let i = 0; i < len; i++) {
-    const key = keys[i];
+    const key = keys[i]!;
     if (key in obj) {
       result[key] = obj[key];
     }

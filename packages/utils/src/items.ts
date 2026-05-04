@@ -18,7 +18,7 @@ export function getItemReadableId(
   // rendering looks up readable ids per row.
   const len = items.length;
   for (let i = 0; i < len; i++) {
-    const item = items[i];
+    const item = items[i]!;
     if (item.id === itemId) return item.readableIdWithRevision;
   }
   return undefined;
@@ -33,7 +33,7 @@ export function getItemReadableId(
 export function getItemById(items: Item[], itemId: string): Item | undefined {
   const len = items.length;
   for (let i = 0; i < len; i++) {
-    const item = items[i];
+    const item = items[i]!;
     if (item.id === itemId) return item;
   }
   return undefined;
