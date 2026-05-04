@@ -1275,6 +1275,20 @@ export async function updateSupplierTax(
 ) {
   return client
     .from("supplierTax")
+    .update(sanitize(supplierTax))
+    .eq("supplierId", supplierTax.supplierId);
+}
+
+export async function upsertSupplierTax(
+  client: SupabaseClient<Database>,
+  supplierTax: z.infer<typeof supplierTaxValidator> & {
+    companyId: string;
+    updatedBy: string;
+    taxExemptionCertificatePath?: string | null;
+  }
+) {
+  return client
+    .from("supplierTax")
     .upsert(sanitize(supplierTax), { onConflict: "supplierId" });
 }
 

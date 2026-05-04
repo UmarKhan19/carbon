@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-04T11:09:48.569Z",
+  "generated": "2026-05-04T11:22:49.433Z",
   "totalTools": 1076,
   "modules": 15,
   "tools": [
@@ -6528,7 +6528,7 @@
       ]
     },
     {
-      "name": "purchasing_updateSupplierTax",
+      "name": "purchasing_upsertSupplierTax",
       "module": "purchasing",
       "classification": "WRITE",
       "description": "update supplier tax",
