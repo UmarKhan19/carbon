@@ -80,7 +80,7 @@ import {
   updateSupplierQuoteStatus,
   updateSupplierShipping,
   getSupplierTax,
-  upsertSupplierTax,
+  updateSupplierTax,
   upsertPurchaseOrder,
   upsertPurchaseOrderDelivery,
   upsertPurchaseOrderLine,
@@ -1241,7 +1241,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "purchasing_upsertSupplierTax",
+    "purchasing_updateSupplierTax",
     {
       description: "update supplier tax",
       inputSchema: {
@@ -1250,9 +1250,9 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await upsertSupplierTax(ctx.client, { ...params.supplierTax, companyId: ctx.companyId, updatedBy: ctx.userId });
+      const result = await updateSupplierTax(ctx.client, { ...params.supplierTax, companyId: ctx.companyId, updatedBy: ctx.userId });
       return toMcpResult(result);
-    }, "Failed: purchasing_upsertSupplierTax"),
+    }, "Failed: purchasing_updateSupplierTax"),
   );
 
   server.registerTool(

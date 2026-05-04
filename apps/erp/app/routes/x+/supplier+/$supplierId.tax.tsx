@@ -7,7 +7,7 @@ import { redirect, useLoaderData } from "react-router";
 import {
   getSupplierTax,
   supplierTaxValidator,
-  upsertSupplierTax
+  updateSupplierTax
 } from "~/modules/purchasing";
 import { SupplierTaxForm } from "~/modules/purchasing/ui/Supplier";
 import { path } from "~/utils/path";
@@ -57,7 +57,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const taxExemptionCertificatePath =
     formData.get("taxExemptionCertificatePath")?.toString() || null;
 
-  const update = await upsertSupplierTax(client, {
+  const update = await updateSupplierTax(client, {
     ...validation.data,
     supplierId,
     companyId,
