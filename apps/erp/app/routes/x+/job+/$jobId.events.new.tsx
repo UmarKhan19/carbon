@@ -85,6 +85,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  if (d.endTime) {
+    await client.functions.invoke("post-production-event", {
+      body: {
+        productionEventId: insert.data.id,
+        userId,
+        companyId
+      }
+    });
+  }
+
   return modal
     ? data(insert, { status: 201 })
     : redirect(

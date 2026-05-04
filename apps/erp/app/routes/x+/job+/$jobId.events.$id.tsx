@@ -82,6 +82,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  if (d.endTime) {
+    await client.functions.invoke("post-production-event", {
+      body: {
+        productionEventId: id,
+        userId,
+        companyId
+      }
+    });
+  }
+
   throw redirect(
     `${path.to.jobProductionEvents(jobId)}?${getParams(request)}`,
     await flash(request, success("Updated production event"))

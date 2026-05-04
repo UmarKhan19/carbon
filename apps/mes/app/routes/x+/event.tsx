@@ -71,6 +71,15 @@ export async function action({ request }: ActionFunctionArgs) {
         await flash(request, error(endEvent.error, "Failed to end event"))
       );
     }
+    if (endEvent.data && endEvent.data.length > 0) {
+      await client.functions.invoke("post-production-event", {
+        body: {
+          productionEventId: endEvent.data[0].id,
+          userId,
+          companyId
+        }
+      });
+    }
     return data(
       endEvent.data,
       await flash(request, success(`Ended ${d.type.toLowerCase()} operation`))
