@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { ResizablePanel, ResizablePanelGroup, VStack } from "@carbon/react";
+import { pluckUnique } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import type { InventoryItem } from "~/modules/inventory";
@@ -84,8 +85,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  // Deduplicate tag names using Set
-  const uniqueTags = [...new Set((tags.data ?? []).map((t) => t.name))];
+  const uniqueTags = pluckUnique(tags.data, (t) => t.name);
 
   return {
     count: inventoryItems.count ?? 0,

@@ -13,7 +13,7 @@ import {
   RatelimitError,
   SyncFactory
 } from "@carbon/ee/accounting";
-import { groupBy } from "@carbon/utils";
+import { groupBy, pluckUnique } from "@carbon/utils";
 import { PostgresDriver } from "kysely";
 import { z } from "zod";
 import { inngest } from "../../client";
@@ -44,13 +44,6 @@ const TABLE_TO_ENTITY_MAP: Partial<Record<string, AccountingEntityType>> = {
 
 function getEntityTypeFromTable(table: string): AccountingEntityType | null {
   return TABLE_TO_ENTITY_MAP[table] ?? null;
-}
-
-function getDeduplicatedIds<T>(
-  records: T[],
-  getId: (r: T) => string
-): string[] {
-  return [...new Set(records.map(getId))];
 }
 
 export const syncFunction = inngest.createFunction(
@@ -169,7 +162,7 @@ export const syncFunction = inngest.createFunction(
                 // Process INSERTs and UPDATEs (push to accounting)
                 const toSync = [...inserts, ...updates];
                 if (toSync.length > 0) {
-                  const entityIds = getDeduplicatedIds(
+                  const entityIds = pluckUnique(
                     toSync,
                     (r) => r.event.recordId
                   );

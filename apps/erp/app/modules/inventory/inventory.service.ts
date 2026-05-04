@@ -998,6 +998,7 @@ export async function updateTrackedEntityExpiry(
     expirationDate: string | null;
     reason: string;
     userId: string;
+    source?: string;
   }
 ) {
   const existing = await client
@@ -1021,6 +1022,7 @@ export async function updateTrackedEntityExpiry(
         previous: existing.data?.expirationDate ?? null,
         next: args.expirationDate,
         reason: args.reason,
+        source: args.source ?? null,
         userId: args.userId,
         at: now(getLocalTimeZone()).toAbsoluteString()
       }
@@ -1139,6 +1141,7 @@ export async function insertManualInventoryAdjustment(
     readableId,
     originalStorageUnitId,
     comment,
+    expirationDate: providedExpirationDate,
     ...rest
   } = inventoryAdjustment;
   const data = {
@@ -1146,6 +1149,53 @@ export async function insertManualInventoryAdjustment(
     entryType:
       adjustmentType === "Set Quantity" ? "Positive Adjmt." : adjustmentType, // This will be overwritten below
     comment: comment || null
+  };
+
+  // For new tracked entities created here, fall back to the item's Fixed
+  // Duration shelf-life policy when the user did not type an expiry. Other
+  // modes (Calculated, Set on Receipt) intentionally stay NULL — they get
+  // resolved at production / receipt time, not on a manual adjustment.
+  const resolveExpirationForNewEntity = async (): Promise<string | null> => {
+    if (providedExpirationDate) return providedExpirationDate;
+    const shelfLife = await client
+      .from("itemShelfLife")
+      .select("mode, days")
+      .eq("itemId", inventoryAdjustment.itemId)
+      .maybeSingle();
+    if (
+      !shelfLife.error &&
+      shelfLife.data?.mode === "Fixed Duration" &&
+      shelfLife.data.days
+    ) {
+      return today(getLocalTimeZone())
+        .add({ days: Number(shelfLife.data.days) })
+        .toString();
+    }
+    return null;
+  };
+
+  // For existing tracked entities, only write when the user supplied a value
+  // and it differs from the current row. Routes through updateTrackedEntityExpiry
+  // so the override is captured in attributes.expiryOverrides for traceability.
+  const applyExpirationOverride = async (trackedEntityId: string) => {
+    if (!providedExpirationDate) return null;
+    const current = await client
+      .from("trackedEntity")
+      .select("expirationDate")
+      .eq("id", trackedEntityId)
+      .single();
+    if (
+      !current.error &&
+      current.data?.expirationDate === providedExpirationDate
+    )
+      return null;
+    return updateTrackedEntityExpiry(client, {
+      trackedEntityId,
+      expirationDate: providedExpirationDate,
+      reason: comment?.trim() || "Updated via inventory adjustment",
+      source: "Inventory Adjustment",
+      userId: data.createdBy
+    });
   };
 
   const storageUnitQuantities = await client.rpc(
@@ -1188,6 +1238,13 @@ export async function insertManualInventoryAdjustment(
       if (trackedEntityUpdate.error) {
         return trackedEntityUpdate;
       }
+    }
+
+    if (inventoryAdjustment.trackedEntityId) {
+      const expiryOverride = await applyExpirationOverride(
+        inventoryAdjustment.trackedEntityId
+      );
+      if (expiryOverride?.error) return expiryOverride;
     }
 
     // Create negative adjustment at original storage unit
@@ -1242,12 +1299,19 @@ export async function insertManualInventoryAdjustment(
       data.entryType = "Negative Adjmt.";
       data.quantity = -Math.abs(quantityDifference);
     } else {
-      // No change in quantity, but readableId might have changed
+      // No change in quantity, but readableId / expirationDate might have changed
       if (inventoryAdjustment.trackedEntityId && readableId !== undefined) {
-        return client
+        const trackedEntityUpdate = await client
           .from("trackedEntity")
           .update({ readableId })
           .eq("id", inventoryAdjustment.trackedEntityId);
+        if (trackedEntityUpdate.error) return trackedEntityUpdate;
+      }
+      if (inventoryAdjustment.trackedEntityId) {
+        const expiryOverride = await applyExpirationOverride(
+          inventoryAdjustment.trackedEntityId
+        );
+        if (expiryOverride?.error) return expiryOverride;
       }
       return { data: null };
     }
@@ -1277,12 +1341,43 @@ export async function insertManualInventoryAdjustment(
       if (trackedEntityUpdate.error) {
         return trackedEntityUpdate;
       }
+
+      const expiryOverride = await applyExpirationOverride(
+        inventoryAdjustment.trackedEntityId
+      );
+      if (expiryOverride?.error) return expiryOverride;
     } else {
-      const item = await client
-        .from("item")
-        .select("*")
-        .eq("id", data.itemId)
-        .single();
+      const [item, expirationDate] = await Promise.all([
+        client.from("item").select("*").eq("id", data.itemId).single(),
+        resolveExpirationForNewEntity()
+      ]);
+
+      // Stamp the trace blob so the popover Source / Override steps can show
+      // the entity originated from a manual inventory adjustment, by whom,
+      // and when. Mirrors the receipt/job markers consumed by
+      // ExpiryTracePopover (attrs.Receipt, attrs.Job).
+      const adjustmentStamp = {
+        userId: data.createdBy,
+        at: now(getLocalTimeZone()).toAbsoluteString(),
+        reason: comment?.trim() || "Created via inventory adjustment"
+      };
+      const attributes: Record<string, unknown> = {
+        "Inventory Adjustment": adjustmentStamp,
+        ...(expirationDate
+          ? {
+              expiryOverrides: [
+                {
+                  previous: null,
+                  next: expirationDate,
+                  reason: adjustmentStamp.reason,
+                  source: "Inventory Adjustment",
+                  userId: adjustmentStamp.userId,
+                  at: adjustmentStamp.at
+                }
+              ]
+            }
+          : {})
+      };
 
       // Create a new tracked entity
       const trackedEntityInsert = await client
@@ -1296,6 +1391,8 @@ export async function insertManualInventoryAdjustment(
             readableId: readableId,
             quantity: data.quantity,
             status: "Available",
+            expirationDate,
+            attributes: attributes as unknown as Json,
             companyId: data.companyId,
             createdBy: data.createdBy
           }
@@ -1889,4 +1986,27 @@ export async function getShelfLifeForItems(
     .from("itemShelfLife")
     .select("itemId, mode, days")
     .in("itemId", itemIds);
+}
+
+/**
+ * Map of trackedEntityId → expirationDate (or null) for a set of ids.
+ * Used by the inventory adjustment modal to prefill the date picker when
+ * editing an existing batch / serial.
+ */
+export async function getTrackedEntityExpirations(
+  client: SupabaseClient<Database>,
+  trackedEntityIds: string[]
+): Promise<Record<string, string | null>> {
+  if (trackedEntityIds.length === 0) return {};
+  const result = await client
+    .from("trackedEntity")
+    .select("id, expirationDate")
+    .in("id", trackedEntityIds);
+  return (result.data ?? []).reduce<Record<string, string | null>>(
+    (acc, row) => {
+      acc[row.id] = row.expirationDate ?? null;
+      return acc;
+    },
+    {}
+  );
 }

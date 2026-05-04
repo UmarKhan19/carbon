@@ -3,11 +3,15 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
+import { pluckUnique } from "@carbon/utils";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
-import { InventoryDetails } from "~/modules/inventory";
+import {
+  getTrackedEntityExpirations,
+  InventoryDetails
+} from "~/modules/inventory";
 import type { PartSummary, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getBomHasShelfLifeManagedInput,
@@ -133,12 +137,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  const trackedEntityIds = pluckUnique(
+    itemStorageUnitQuantities.data,
+    (row) => row.trackedEntityId
+  );
+  const trackedEntityExpirations = await getTrackedEntityExpirations(
+    client,
+    trackedEntityIds
+  );
+
   return {
     partInventory: partInventory.data,
     itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
     shelfLife: shelfLife.data,
     bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
     itemId,
     locationId
   };
@@ -211,6 +225,7 @@ export default function PartInventoryRoute() {
     quantities,
     shelfLife,
     bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
     itemId
   } = useLoaderData<typeof loader>();
 
@@ -256,6 +271,8 @@ export default function PartInventoryRoute() {
         itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
+        itemShelfLife={shelfLife ?? null}
+        trackedEntityExpirations={trackedEntityExpirations}
         pickMethod={initialValues}
         quantities={quantities}
         storageUnits={storageUnits.options}

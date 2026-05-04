@@ -125,6 +125,7 @@ export const inventoryAdjustmentValidator = z.object({
   quantity: zfd.numeric(z.number()),
   trackedEntityId: zfd.text(z.string().optional()),
   readableId: zfd.text(z.string().optional()),
+  expirationDate: zfd.text(z.string().optional()),
   comment: zfd.text(z.string().optional())
 });
 

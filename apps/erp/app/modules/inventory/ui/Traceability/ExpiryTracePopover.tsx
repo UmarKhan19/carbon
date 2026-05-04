@@ -218,6 +218,9 @@ function buildSteps(
   const splitFrom = attrs["Split Entity ID"];
   const receiptId = attrs.Receipt;
   const jobId = attrs.Job;
+  const adjustment = attrs["Inventory Adjustment"] as
+    | { userId?: string; at?: string; reason?: string }
+    | undefined;
   if (typeof splitFrom === "string" && splitFrom) {
     out.push({
       step: "Source",
@@ -239,6 +242,15 @@ function buildSteps(
       label: "Production output",
       detail: entity.sourceDocumentReadableId ?? jobId,
       href: path.to.job(jobId),
+      date: sourceDate
+    });
+  } else if (adjustment && typeof adjustment === "object") {
+    out.push({
+      step: "Source",
+      label: "Manual inventory adjustment",
+      detail: adjustment.at
+        ? `Recorded ${formatDate(adjustment.at)}`
+        : (entity.sourceDocumentReadableId ?? undefined),
       date: sourceDate
     });
   } else {
@@ -289,15 +301,19 @@ function buildSteps(
         previous?: string | null;
         next?: string | null;
         reason?: string;
+        source?: string | null;
         userId?: string;
         at?: string;
       }>)
     : [];
   overrides.forEach((o) => {
+    const detailParts: string[] = [];
+    if (o.source) detailParts.push(o.source);
+    if (o.at) detailParts.push(`recorded ${formatDate(o.at)}`);
     out.push({
       step: "Override",
       label: o.reason ?? "Manual override",
-      detail: o.at ? `Recorded ${formatDate(o.at)}` : undefined,
+      detail: detailParts.length ? detailParts.join(" · ") : undefined,
       date: o.next ?? null
     });
   });

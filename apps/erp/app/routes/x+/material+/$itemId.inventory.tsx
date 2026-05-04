@@ -3,11 +3,15 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
+import { pluckUnique } from "@carbon/utils";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
-import { InventoryDetails } from "~/modules/inventory";
+import {
+  getTrackedEntityExpirations,
+  InventoryDetails
+} from "~/modules/inventory";
 import type { Material, UnitOfMeasureListItem } from "~/modules/items";
 import {
   getBomHasShelfLifeManagedInput,
@@ -142,10 +146,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const [shelfLife, bomHasShelfLifeManagedInput] = await Promise.all([
-    getItemShelfLife(client, itemId),
-    getBomHasShelfLifeManagedInput(client, itemId, companyId)
-  ]);
+  const trackedEntityIds = pluckUnique(
+    itemStorageUnitQuantities.data,
+    (row) => row.trackedEntityId
+  );
+
+  const [shelfLife, bomHasShelfLifeManagedInput, trackedEntityExpirations] =
+    await Promise.all([
+      getItemShelfLife(client, itemId),
+      getBomHasShelfLifeManagedInput(client, itemId, companyId),
+      getTrackedEntityExpirations(client, trackedEntityIds)
+    ]);
 
   return {
     materialInventory: materialInventory.data,
@@ -153,6 +164,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     quantities: quantities.data,
     shelfLife: shelfLife.data,
     bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
     itemId,
     locationId
   };
@@ -225,6 +237,7 @@ export default function MaterialInventoryRoute() {
     quantities,
     shelfLife,
     bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
     itemId
   } = useLoaderData<typeof loader>();
 
@@ -271,6 +284,8 @@ export default function MaterialInventoryRoute() {
         itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
+        itemShelfLife={shelfLife ?? null}
+        trackedEntityExpirations={trackedEntityExpirations}
         pickMethod={initialValues}
         quantities={quantities}
         storageUnits={storageUnits.options}

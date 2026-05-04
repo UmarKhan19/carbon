@@ -40,6 +40,7 @@ const SKIPPED_ATTRIBUTE_KEYS = new Set([
   "Receipt Line",
   "Sales Order Line",
   "Shipment Line",
+  "Inventory Adjustment",
   "expiryOverrides"
 ]);
 
@@ -143,7 +144,7 @@ export function AttributeList({ attrs }: { attrs: Record<string, any> }) {
             case "Receipt Line Index":
             case "Shipment Line Index":
             default: {
-              if (key === "expiryOverrides") return null;
+              if (SKIPPED_ATTRIBUTE_KEYS.has(key)) return null;
               if (value === null || value === undefined) return null;
               if (typeof value === "object") {
                 return (
