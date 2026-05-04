@@ -16,6 +16,7 @@ import { useCallback, useMemo, useState } from "react";
 import { LuBan, LuCheckCheck, LuListChecks, LuPlus } from "react-icons/lu";
 import { Hidden } from "~/components/Form";
 import ConditionRow, { CONDITION_GRID_CLASS } from "./ConditionRow";
+import { useValueOptions } from "./useValueOptions";
 
 type RuleBuilderProps = {
   name: string;
@@ -58,6 +59,7 @@ export default function RuleBuilder({ name, initial }: RuleBuilderProps) {
   const [conditions, setConditions] = useState<Condition[]>(
     initial?.conditions?.length ? initial.conditions : [emptyCondition()]
   );
+  const optionsByLoader = useValueOptions();
 
   const handleChange = useCallback(
     (index: number, patch: Partial<Condition>) => {
@@ -83,7 +85,7 @@ export default function RuleBuilder({ name, initial }: RuleBuilderProps) {
   return (
     <VStack spacing={2} className="w-full">
       <div className="flex items-center justify-between w-full gap-3 flex-wrap">
-        <Heading size="h5">
+        <Heading size="h4">
           <Trans>Conditions</Trans>
         </Heading>
         <ChoiceSelect<MatchKind>
@@ -99,19 +101,19 @@ export default function RuleBuilder({ name, initial }: RuleBuilderProps) {
       <Hidden name={name} value={JSON.stringify(ast)} />
 
       <div className="flex flex-col gap-2 w-full">
-        <div
-          className={`${CONDITION_GRID_CLASS} hidden md:grid px-3 pr-9`}
-          aria-hidden
-        >
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {t`Field`}
-          </span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {t`Operator`}
-          </span>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {t`Value`}
-          </span>
+        <div className="hidden sm:flex w-full items-center gap-2" aria-hidden>
+          <div className={`${CONDITION_GRID_CLASS} flex-1 min-w-0 px-3`}>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {t`Field`}
+            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {t`Operator`}
+            </span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {t`Value`}
+            </span>
+          </div>
+          <div className="w-8 shrink-0" />
         </div>
         {conditions.map((c, i) => (
           <ConditionRow
@@ -121,6 +123,7 @@ export default function RuleBuilder({ name, initial }: RuleBuilderProps) {
             canRemove={conditions.length > 1}
             onChange={handleChange}
             onRemove={handleRemove}
+            optionsByLoader={optionsByLoader}
           />
         ))}
       </div>

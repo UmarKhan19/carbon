@@ -43,7 +43,7 @@ export default function SeveritySelect({ name, label }: SeveritySelectProps) {
       </FormLabel>
       <input type="hidden" name={name} value={value ?? ""} />
       <ChoiceCardGroup<Severity>
-        value={value ?? ("error" as Severity)}
+        value={value ?? "error"}
         onChange={setValue}
         options={options}
         direction="row"

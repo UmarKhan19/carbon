@@ -1,4 +1,6 @@
+import type { Json } from "@carbon/database";
 import { Badge, MenuIcon, MenuItem, Status } from "@carbon/react";
+import type { TransactionSurface } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
@@ -9,6 +11,7 @@ import { Enumerable } from "~/components/Enumerable";
 import { usePermissions, useUrlParams } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { path } from "~/utils/path";
+import SurfaceChips from "./SurfaceChips";
 
 type ItemRuleRowView = {
   id: string;
@@ -18,8 +21,9 @@ type ItemRuleRowView = {
   description?: string | null;
   message: string;
   updatedAt?: string | null;
-  customFields?: unknown;
+  customFields: Json;
   assignmentCount?: number;
+  surfaces?: TransactionSurface[];
 };
 
 type ItemRulesTableProps = {
@@ -55,14 +59,19 @@ const ItemRulesTable = memo(({ data, count }: ItemRulesTableProps) => {
         header: t`Severity`,
         cell: ({ row }) =>
           row.original.severity === "error" ? (
-            <Badge variant="destructive">
+            <Badge variant="red">
               <Trans>Error</Trans>
             </Badge>
           ) : (
-            <Badge variant="outline">
+            <Badge variant="yellow">
               <Trans>Warn</Trans>
             </Badge>
           )
+      },
+      {
+        accessorKey: "surfaces",
+        header: t`Surfaces`,
+        cell: ({ row }) => <SurfaceChips surfaces={row.original.surfaces} />
       },
       {
         accessorKey: "active",

@@ -1,10 +1,32 @@
-import { Badge, Button, Heading, IconButton, Status } from "@carbon/react";
+import {
+  Badge,
+  Button,
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Combobox,
+  HStack,
+  IconButton,
+  Status,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr
+} from "@carbon/react";
+import type { TransactionSurface } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
-import { LuPlus, LuShieldCheck, LuTrash } from "react-icons/lu";
+import { LuLibrary, LuPlus, LuShieldCheck, LuTrash } from "react-icons/lu";
 import { Form, Link, useFetcher } from "react-router";
+import { Hyperlink } from "~/components";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
+import SurfaceChips from "./SurfaceChips";
 
 type AssignedRule = {
   ruleId: string;
@@ -14,6 +36,7 @@ type AssignedRule = {
     severity: "error" | "warn";
     message: string;
     active: boolean;
+    surfaces?: TransactionSurface[];
   };
 };
 
@@ -38,6 +61,8 @@ export default function ItemRuleAssignments({
   const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher();
+  const canCreate = permissions.can("create", "parts");
+  const canDelete = permissions.can("delete", "parts");
 
   const assignedSet = useMemo(
     () => new Set(assignments.map((a) => a.ruleId)),
@@ -49,107 +74,128 @@ export default function ItemRuleAssignments({
     [library, assignedSet]
   );
 
-  return (
-    <div className="p-4 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <Heading size="h4">
-          <Trans>Rules</Trans>
-        </Heading>
-        <div className="flex items-center gap-2">
-          {available.length > 0 && permissions.can("create", "parts") && (
-            <fetcher.Form method="post" action={path.to.itemRuleAssign(itemId)}>
-              <select
-                name="ruleId"
-                className="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
-                onChange={(e) => {
-                  if (e.target.value) {
-                    e.currentTarget.form?.requestSubmit();
-                  }
-                }}
-                defaultValue=""
-              >
-                <option value="" disabled>
-                  {t`Add rule…`}
-                </option>
-                {available.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
-            </fetcher.Form>
-          )}
-          <Button
-            as={Link}
-            to={path.to.newItemRule}
-            variant="secondary"
-            size="sm"
-            leftIcon={<LuPlus />}
-          >
-            <Trans>Create new rule</Trans>
-          </Button>
-        </div>
-      </div>
+  const availableOptions = useMemo(
+    () => available.map((r) => ({ value: r.id, label: r.name })),
+    [available]
+  );
 
-      {assignments.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 gap-2 text-center">
-          <LuShieldCheck className="h-8 w-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            <Trans>No rules assigned to this item</Trans>
-          </p>
-          <p className="text-xs text-muted-foreground max-w-sm">
+  const handleAssign = (ruleId: string) => {
+    if (!ruleId) return;
+    const fd = new FormData();
+    fd.set("ruleId", ruleId);
+    fetcher.submit(fd, {
+      method: "post",
+      action: path.to.itemRuleAssign(itemId)
+    });
+  };
+
+  const isEmpty = assignments.length === 0;
+
+  return (
+    <Card className="flex-grow">
+      <HStack className="justify-between items-start">
+        <CardHeader>
+          <CardTitle>
+            <HStack className="gap-2 items-baseline">
+              <span>
+                <Trans>Rules</Trans>
+              </span>
+              {!isEmpty && (
+                <span className="text-sm text-muted-foreground tabular-nums">
+                  {assignments.length}
+                </span>
+              )}
+            </HStack>
+          </CardTitle>
+          <CardDescription>
             <Trans>
-              Add a rule from the library or create a new one to enforce
-              constraints on receipts, shipments, transfers, and jobs.
+              Enforce constraints on receipts, shipments, transfers and job
+              operations for this item.
             </Trans>
-          </p>
-        </div>
-      ) : (
-        <div className="border border-border rounded-md overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40">
-              <tr>
-                <th className="text-left px-3 py-2 font-medium">
+          </CardDescription>
+        </CardHeader>
+        {!isEmpty && canCreate && (
+          <CardAction>
+            <HStack className="gap-2">
+              {availableOptions.length > 0 && (
+                <Combobox
+                  size="sm"
+                  value=""
+                  options={availableOptions}
+                  onChange={handleAssign}
+                  placeholder={t`Add from library…`}
+                />
+              )}
+              <Button
+                asChild
+                variant="secondary"
+                size="sm"
+                leftIcon={<LuPlus />}
+              >
+                <Link to={path.to.newItemRule}>
+                  <Trans>Create rule</Trans>
+                </Link>
+              </Button>
+            </HStack>
+          </CardAction>
+        )}
+      </HStack>
+
+      <CardContent>
+        {isEmpty ? (
+          <EmptyState
+            availableOptions={availableOptions}
+            canCreate={canCreate}
+            onAssign={handleAssign}
+          />
+        ) : (
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>
                   <Trans>Name</Trans>
-                </th>
-                <th className="text-left px-3 py-2 font-medium">
+                </Th>
+                <Th>
                   <Trans>Severity</Trans>
-                </th>
-                <th className="text-left px-3 py-2 font-medium">
-                  <Trans>Message</Trans>
-                </th>
-                <th className="text-left px-3 py-2 font-medium">
+                </Th>
+                <Th>
+                  <Trans>Surfaces</Trans>
+                </Th>
+                <Th>
                   <Trans>Status</Trans>
-                </th>
-                <th className="w-10" />
-              </tr>
-            </thead>
-            <tbody>
+                </Th>
+                <Th>
+                  <Trans>Message</Trans>
+                </Th>
+                <Th />
+              </Tr>
+            </Thead>
+            <Tbody>
               {assignments.map((a) => (
-                <tr key={a.ruleId} className="border-t border-border">
-                  <td className="px-3 py-2">
-                    <Link
-                      to={path.to.itemRule(a.ruleId)}
-                      className="hover:underline"
-                    >
-                      {a.rule.name}
-                    </Link>
-                  </td>
-                  <td className="px-3 py-2">
+                <Tr key={a.ruleId}>
+                  <Td>
+                    <Hyperlink to={path.to.itemRule(a.ruleId)}>
+                      <HStack className="gap-2 items-center">
+                        <LuShieldCheck className="text-muted-foreground" />
+                        <span>{a.rule.name}</span>
+                      </HStack>
+                    </Hyperlink>
+                  </Td>
+                  <Td>
                     {a.rule.severity === "error" ? (
-                      <Badge variant="destructive">
+                      <Badge variant="red">
                         <Trans>Error</Trans>
                       </Badge>
                     ) : (
-                      <Badge variant="outline">
-                        <Trans>Warn</Trans>
+                      <Badge variant="yellow">
+                        <Trans>Warning</Trans>
                       </Badge>
                     )}
-                  </td>
-                  <td className="px-3 py-2 text-muted-foreground truncate max-w-[400px]">
-                    {a.rule.message}
-                  </td>
-                  <td className="px-3 py-2">
+                  </Td>
+                  <Td>
+                    <SurfaceChips surfaces={a.rule.surfaces} />
+                  </Td>
+                  <Td>
                     {a.rule.active ? (
                       <Status color="green">
                         <Trans>Active</Trans>
@@ -159,8 +205,11 @@ export default function ItemRuleAssignments({
                         <Trans>Inactive</Trans>
                       </Status>
                     )}
-                  </td>
-                  <td className="px-3 py-2 text-right">
+                  </Td>
+                  <Td className="text-muted-foreground max-w-[480px] truncate">
+                    {a.rule.message}
+                  </Td>
+                  <Td className="text-right">
                     <Form
                       method="post"
                       action={path.to.itemRuleUnassign(itemId, a.ruleId)}
@@ -171,15 +220,92 @@ export default function ItemRuleAssignments({
                         aria-label={t`Unassign rule`}
                         variant="ghost"
                         size="sm"
-                        isDisabled={!permissions.can("delete", "parts")}
+                        isDisabled={!canDelete}
                       />
                     </Form>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </Tbody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+type EmptyStateProps = {
+  availableOptions: { value: string; label: string }[];
+  canCreate: boolean;
+  onAssign: (ruleId: string) => void;
+};
+
+function EmptyState({
+  availableOptions,
+  canCreate,
+  onAssign
+}: EmptyStateProps) {
+  const { t } = useLingui();
+  return (
+    <div className="flex flex-col items-center justify-center gap-5 py-10 text-center">
+      <div className="flex size-14 items-center justify-center rounded-full bg-muted">
+        <LuShieldCheck className="size-6 text-muted-foreground" />
+      </div>
+
+      <div className="flex flex-col gap-1.5 max-w-md">
+        <p className="text-base font-medium">
+          <Trans>No rules assigned</Trans>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          <Trans>
+            Pick an existing rule from the library or create a new one to start
+            enforcing constraints on this item.
+          </Trans>
+        </p>
+      </div>
+
+      {canCreate && (
+        <HStack className="gap-2 flex-wrap justify-center pt-1">
+          {availableOptions.length > 0 ? (
+            <>
+              <Combobox
+                size="sm"
+                value=""
+                options={availableOptions}
+                onChange={onAssign}
+                placeholder={t`Add from library…`}
+              />
+              <Button
+                asChild
+                variant="secondary"
+                size="sm"
+                leftIcon={<LuPlus />}
+              >
+                <Link to={path.to.newItemRule}>
+                  <Trans>Create new rule</Trans>
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                asChild
+                variant="secondary"
+                size="sm"
+                leftIcon={<LuLibrary />}
+              >
+                <Link to={path.to.itemRules}>
+                  <Trans>Browse library</Trans>
+                </Link>
+              </Button>
+              <Button asChild size="sm" leftIcon={<LuPlus />}>
+                <Link to={path.to.newItemRule}>
+                  <Trans>Create new rule</Trans>
+                </Link>
+              </Button>
+            </>
+          )}
+        </HStack>
       )}
     </div>
   );

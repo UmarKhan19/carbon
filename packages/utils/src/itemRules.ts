@@ -14,6 +14,24 @@ export type Operator =
 
 export type Severity = "error" | "warn";
 
+/**
+ * Transaction surfaces a rule may opt into. Mirrors the Postgres ENUM
+ * `transactionSurface`. After `bun run db:types` regenerates the database
+ * types, tighten this to:
+ *
+ *   import type { Database } from "@carbon/database";
+ *   ...as const satisfies readonly Database["public"]["Enums"]["transactionSurface"][];
+ *
+ * The runtime array stays the source of truth for the validator's `z.enum`.
+ */
+export const TRANSACTION_SURFACES = [
+  "receipt",
+  "shipment",
+  "stockTransfer",
+  "jobOperation"
+] as const;
+export type TransactionSurface = (typeof TRANSACTION_SURFACES)[number];
+
 export type Condition = {
   field: string;
   op: Operator;
@@ -53,6 +71,12 @@ export type ItemRuleRow = {
   severity: Severity;
   message: string;
   conditionAst: ConditionAst;
+  /**
+   * Surfaces this rule applies to. Empty arrays are not allowed at the DB
+   * level (CHECK constraint); treat missing/empty client-side as "all
+   * surfaces" for forward-compat with rules created before the migration.
+   */
+  surfaces?: TransactionSurface[];
   updatedAt?: string | null;
   active?: boolean;
 };
@@ -61,6 +85,7 @@ export type CompiledRule = {
   id: string;
   severity: Severity;
   rawMessage: string;
+  surfaces: TransactionSurface[];
   predicate: (ctx: RuleContext) => boolean;
 };
 
@@ -169,6 +194,12 @@ export const compileRule = (row: ItemRuleRow): CompiledRule => ({
   id: row.id,
   severity: row.severity,
   rawMessage: row.message,
+  // Empty / missing → treat as "all surfaces" (backward-compat for rules
+  // created before the surfaces column existed).
+  surfaces:
+    row.surfaces && row.surfaces.length > 0
+      ? row.surfaces
+      : [...TRANSACTION_SURFACES],
   predicate: compilePredicate(row.conditionAst)
 });
 
@@ -216,9 +247,11 @@ export const interpolateMessage = (
   template: string,
   ctx: RuleContext
 ): string => {
-  return template.replace(TOKEN_RE, (match, path: string) => {
+  return template.replace(TOKEN_RE, (_match, path: string) => {
     const value = buildResolver(path)(ctx);
-    if (value == null) return match; // leave literal `{path}` so missing fields are visible
+    // Missing / null values render as an em-dash so the message stays
+    // readable when the rule fires precisely because the field is empty.
+    if (value == null || value === "") return "—";
     return String(value);
   });
 };
@@ -229,11 +262,15 @@ export const interpolateMessage = (
 
 export const evaluateRules = (
   rules: CompiledRule[],
-  ctx: RuleContext
+  ctx: RuleContext,
+  surface: TransactionSurface
 ): Violation[] => {
   const out: Violation[] = [];
   for (let i = 0; i < rules.length; i++) {
     const rule = rules[i]!;
+    // Surface gate — skip rules that don't opt into this surface before
+    // touching the predicate. Cheap: 1–4 element array, O(1) in practice.
+    if (!rule.surfaces.includes(surface)) continue;
     if (rule.predicate(ctx)) continue; // condition satisfied — no violation
     out.push({
       ruleId: rule.id,
@@ -433,28 +470,9 @@ export const FIELD_REGISTRY: FieldDef[] = [
     context: "storage",
     valueOptionsLoader: "storageTypes"
   }),
-  fields.database({
-    table: "storageUnit",
-    column: "warehouseId",
-    nullable: true,
-    label: "Warehouse",
-    type: "id",
-    operators: ID_OPS,
-    context: "storage"
-  }),
-
   // ── Transaction ───────────────────────────────────────────────────────────
   // `transaction` is a synthetic ctx assembled per-trigger (receipt/shipment/
   // stock-transfer/job op). No corresponding table — all paths synthetic.
-  fields.synthetic({
-    path: "transaction.kind",
-    derivedFrom: "set by trigger handler (receipt|shipment|stockTransfer|jobOp)",
-    nullable: false,
-    label: "Transaction kind",
-    type: "enum",
-    operators: ENUM_OPS,
-    context: "transaction"
-  }),
   fields.synthetic({
     path: "transaction.locationId",
     derivedFrom: "trigger handler — varies by surface",
@@ -472,15 +490,6 @@ export const FIELD_REGISTRY: FieldDef[] = [
     label: "Transaction quantity",
     type: "number",
     operators: NUMBER_OPS,
-    context: "transaction"
-  }),
-  fields.synthetic({
-    path: "transaction.userId",
-    derivedFrom: "auth user on the action — system jobs may omit",
-    nullable: true,
-    label: "User",
-    type: "id",
-    operators: SCALAR_OPS,
     context: "transaction"
   }),
 
@@ -504,25 +513,6 @@ export const FIELD_REGISTRY: FieldDef[] = [
     operators: ID_OPS,
     context: "manufacturing",
     valueOptionsLoader: "locations"
-  }),
-  fields.database({
-    table: "job",
-    column: "id",
-    nullable: false,
-    label: "Job",
-    type: "id",
-    operators: SCALAR_OPS,
-    context: "manufacturing"
-  }),
-  fields.database({
-    table: "jobOperation",
-    column: "id",
-    ctxKey: "operation",
-    nullable: false,
-    label: "Operation",
-    type: "id",
-    operators: SCALAR_OPS,
-    context: "manufacturing"
   })
 ];
 

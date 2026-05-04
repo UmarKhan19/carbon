@@ -10,6 +10,7 @@ import {
   evaluateRules,
   type RuleContext,
   type Severity,
+  type TransactionSurface,
   type Violation
 } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";
@@ -19,18 +20,18 @@ import {
   getRuleAssignmentsForItem
 } from "./items.service";
 
-export async function loadRulesTabData({
-  request,
-  itemId
-}: {
-  request: LoaderFunctionArgs["request"];
-  itemId: string;
-}) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "parts",
-    role: "employee"
-  });
+type SupabaseLikeClient = Parameters<typeof getActiveRulesForItem>[0];
 
+/**
+ * Fetch a per-item rules payload (assignments + library) using an already-
+ * authenticated Supabase client. Use this from a loader that has already
+ * called `requirePermissions` so we don't re-auth for every nested card.
+ */
+export async function getItemRulesDataForItem(
+  client: SupabaseLikeClient,
+  itemId: string,
+  companyId: string
+) {
   const [assignmentsRes, libraryRes] = await Promise.all([
     getRuleAssignmentsForItem(client, itemId, companyId),
     getItemRulesList(client, companyId)
@@ -50,6 +51,7 @@ export async function loadRulesTabData({
           severity: Severity;
           message: string;
           active: boolean;
+          surfaces: TransactionSurface[];
         }
       }
     ];
@@ -59,6 +61,20 @@ export async function loadRulesTabData({
     assignments,
     library: libraryRes.data ?? []
   };
+}
+
+export async function loadRulesTabData({
+  request,
+  itemId
+}: {
+  request: LoaderFunctionArgs["request"];
+  itemId: string;
+}) {
+  const { client, companyId } = await requirePermissions(request, {
+    view: "parts",
+    role: "employee"
+  });
+  return getItemRulesDataForItem(client, itemId, companyId);
 }
 
 /**
@@ -84,13 +100,16 @@ export async function loadCompiledRulesForItem(
 }
 
 /**
- * Evaluate all compiled rules in `ctx`. Caller decides what to do with violations.
+ * Evaluate all compiled rules in `ctx` for the given trigger surface.
+ * Rules whose `surfaces` set does not include `surface` are skipped before
+ * the predicate runs. Caller decides what to do with returned violations.
  */
 export function evaluateForItem(
   rules: CompiledRule[],
-  ctx: RuleContext
+  ctx: RuleContext,
+  surface: TransactionSurface
 ): Violation[] {
-  return evaluateRules(rules, ctx);
+  return evaluateRules(rules, ctx, surface);
 }
 
 /**

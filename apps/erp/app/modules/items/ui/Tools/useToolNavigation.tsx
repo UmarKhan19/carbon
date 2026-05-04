@@ -4,7 +4,6 @@ import {
   LuChartLine,
   LuClipboardCheck,
   LuFileText,
-  LuShieldCheck,
   LuShoppingCart,
   LuTags
 } from "react-icons/lu";
@@ -79,13 +78,6 @@ export function useToolNavigation() {
       permission: "quality",
       icon: LuClipboardCheck,
       shortcut: "Command+Shift+q"
-    },
-    {
-      name: t`Rules`,
-      to: path.to.toolRules(itemId),
-      role: ["employee"],
-      permission: "parts",
-      icon: LuShieldCheck
     }
   ].filter(
     (item) =>

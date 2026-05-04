@@ -89,7 +89,7 @@ export default function EditItemRuleRoute() {
     severity: (rule?.severity as "error" | "warn") ?? "error",
     active: rule?.active ?? true,
     conditionAst: (rule?.conditionAst as ConditionAst | undefined) ?? {
-      kind: "and" as const,
+      kind: "all" as const,
       conditions: []
     },
     ...getCustomFields(rule?.customFields)
@@ -98,7 +98,15 @@ export default function EditItemRuleRoute() {
   return (
     <ItemRuleForm
       key={initialValues.id}
-      initialValues={initialValues}
+      // ConditionAst.value is `unknown` to keep the AST permissive at the
+      // type level, but the validator narrows it to scalars/arrays. Cast
+      // through `unknown` since the runtime values are produced by the same
+      // validator on save.
+      initialValues={
+        initialValues as unknown as React.ComponentProps<
+          typeof ItemRuleForm
+        >["initialValues"]
+      }
       onClose={() => navigate(-1)}
     />
   );

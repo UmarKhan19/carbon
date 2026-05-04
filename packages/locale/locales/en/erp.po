@@ -271,10 +271,10 @@ msgstr "Account Subcategory"
 msgid "Account Type"
 msgstr "Account Type"
 
-#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:47
-#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:47
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:52
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:51
+#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:46
+#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:46
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:51
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:50
 msgid "Accounting"
 msgstr "Accounting"
 
@@ -298,7 +298,7 @@ msgstr "Accumulation Period (Weeks)"
 msgid "Accumulation Period:"
 msgstr "Accumulation Period:"
 
-#: apps/erp/app/components/ItemRuleViolationModal.tsx:110
+#: apps/erp/app/components/ItemRuleViolationModal.tsx:105
 msgid "Acknowledge & continue"
 msgstr "Acknowledge & continue"
 
@@ -359,9 +359,9 @@ msgstr "Activate Work Center"
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:244
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:183
 #: apps/erp/app/modules/items/ui/Item/MakeMethodVersionStatus.tsx:24
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:155
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:113
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:73
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:201
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:117
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:82
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:681
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:375
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:381
@@ -463,10 +463,6 @@ msgstr "Add a column below to sort the view"
 msgid "Add a comment..."
 msgstr "Add a comment..."
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:101
-msgid "Add a rule from the library or create a new one to enforce constraints on receipts, shipments, transfers, and jobs."
-msgstr "Add a rule from the library or create a new one to enforce constraints on receipts, shipments, transfers, and jobs."
-
 #: apps/erp/app/modules/quality/ui/Issue/ActionTasksList.tsx:259
 msgid "Add Actions"
 msgstr "Add Actions"
@@ -497,7 +493,7 @@ msgstr "Add Child Storage Unit"
 msgid "Add Company"
 msgstr "Add Company"
 
-#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:84
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:138
 msgid "Add condition"
 msgstr "Add condition"
 
@@ -508,6 +504,11 @@ msgstr "Add Contractor"
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:446
 msgid "Add Entry"
 msgstr "Add Entry"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:126
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:276
+msgid "Add from library…"
+msgstr "Add from library…"
 
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:294
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:417
@@ -602,10 +603,6 @@ msgstr "Add Requirement"
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:113
 msgid "Add Risk"
 msgstr "Add Risk"
-
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:72
-msgid "Add rule…"
-msgstr "Add rule…"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:503
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:513
@@ -724,10 +721,6 @@ msgstr "All jobs completed"
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "All members of selected groups and selected individuals will be able to approve requests"
 
-#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:58
-msgid "all of the following must be true"
-msgstr "all of the following must be true"
-
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:278
 msgid "All Suppliers"
 msgstr "All Suppliers"
@@ -739,6 +732,10 @@ msgstr "All Types"
 #: apps/erp/app/routes/x+/resources+/_index.tsx:162
 msgid "All Work Centers"
 msgstr "All Work Centers"
+
+#: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:34
+msgid "Allows acknowledge & continue"
+msgstr "Allows acknowledge & continue"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:244
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:321
@@ -790,6 +787,11 @@ msgstr "API Key"
 #: apps/erp/app/routes/x+/settings+/api-keys.tsx:13
 msgid "API Keys"
 msgstr "API Keys"
+
+#: apps/erp/app/modules/items/ui/ItemRules/SurfacesField.tsx:78
+#: apps/erp/app/modules/items/ui/ItemRules/SurfacesField.tsx:96
+msgid "Applies to"
+msgstr "Applies to"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:206
 msgid "Apply pricing rules"
@@ -1282,7 +1284,7 @@ msgstr "Are you sure you want to permanently delete {0}?"
 msgid "Are you sure you want to permanently delete the supplier process?"
 msgstr "Are you sure you want to permanently delete the supplier process?"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:164
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:167
 msgid "Are you sure you want to post this receipt?"
 msgstr "Are you sure you want to post this receipt?"
 
@@ -1409,6 +1411,10 @@ msgstr "Assignment"
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:47
 msgid "Assignments"
 msgstr "Assignments"
+
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:47
+msgid "At least one condition must match"
+msgstr "At least one condition must match"
 
 #: apps/erp/app/components/Layout/Topbar/Feedback.tsx:147
 #: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:212
@@ -1577,7 +1583,7 @@ msgid "Batch number"
 msgstr "Batch number"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:392
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:772
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:776
 msgid "Batch Number"
 msgstr "Batch Number"
 
@@ -1647,6 +1653,10 @@ msgstr "Block, allow override"
 msgid "Blocked by {0}"
 msgstr "Blocked by {0}"
 
+#: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:28
+msgid "Blocks save until resolved"
+msgstr "Blocks save until resolved"
+
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:487
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:527
 msgid "BoM"
@@ -1664,6 +1674,10 @@ msgstr "BOM synced successfully"
 #: apps/erp/app/components/Breadcrumb.tsx:25
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:298
+msgid "Browse library"
+msgstr "Browse library"
 
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:467
 msgid "Bucket"
@@ -1780,7 +1794,7 @@ msgstr "Can't disable the only active break. Add another break or toggle the ove
 #: apps/erp/app/components/Form/ConversionFactor.tsx:321
 #: apps/erp/app/components/Form/Item.tsx:370
 #: apps/erp/app/components/Form/Items.tsx:115
-#: apps/erp/app/components/ItemRuleViolationModal.tsx:101
+#: apps/erp/app/components/ItemRuleViolationModal.tsx:96
 #: apps/erp/app/components/Layout/Topbar/Feedback.tsx:135
 #: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:200
 #: apps/erp/app/components/Modals/ConfirmDelete/ConfirmDelete.tsx:62
@@ -1796,7 +1810,7 @@ msgstr "Can't disable the only active break. Add another break or toggle the ove
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:395
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:423
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:332
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:195
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:198
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:85
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:191
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:85
@@ -1811,7 +1825,7 @@ msgstr "Can't disable the only active break. Add another break or toggle the ove
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:87
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:180
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:78
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:130
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:134
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:105
 #: apps/erp/app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:105
 #: apps/erp/app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:105
@@ -1972,10 +1986,6 @@ msgstr "Cannot move to parts bucket without item ID"
 msgid "Cannot place order - no supplier associated with this item"
 msgstr "Cannot place order - no supplier associated with this item"
 
-#: apps/erp/app/components/ItemRuleViolationModal.tsx:66
-msgid "Cannot save"
-msgstr "Cannot save"
-
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:370
 msgid "Cannot send RFQ"
 msgstr "Cannot send RFQ"
@@ -1989,7 +1999,7 @@ msgstr "Cannot upload to parts bucket without item ID"
 msgid "Capacity Variance"
 msgstr "Capacity Variance"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:66
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:67
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:66
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:65
 msgid "Carbon client is not available"
@@ -1998,7 +2008,7 @@ msgstr "Carbon client is not available"
 #: apps/erp/app/components/Documents.tsx:194
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1278
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1282
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:412
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -2299,7 +2309,7 @@ msgstr "Columns"
 msgid "Coming soon"
 msgstr "Coming soon"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ConditionRow.tsx:97
+#: apps/erp/app/modules/items/ui/ItemRules/ValueInput.tsx:122
 msgid "comma-separated values"
 msgstr "comma-separated values"
 
@@ -2410,7 +2420,7 @@ msgstr "Completion Barcode"
 msgid "Completion Time"
 msgstr "Completion Time"
 
-#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:55
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:89
 msgid "Conditions"
 msgstr "Conditions"
 
@@ -2498,7 +2508,7 @@ msgid "Configured"
 msgstr "Configured"
 
 #: apps/erp/app/components/Form/ConversionFactor.tsx:324
-#: apps/erp/app/components/ItemRuleViolationModal.tsx:112
+#: apps/erp/app/components/ItemRuleViolationModal.tsx:107
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferHeader.tsx:128
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:535
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:448
@@ -2967,7 +2977,8 @@ msgstr "Create Jobs"
 msgid "Create Kanban"
 msgstr "Create Kanban"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:89
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:285
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:303
 msgid "Create new rule"
 msgstr "Create new rule"
 
@@ -2979,6 +2990,10 @@ msgstr "Create Quote Revision"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:518
 msgid "Create Revision"
 msgstr "Create Revision"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:136
+msgid "Create rule"
+msgstr "Create rule"
 
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:149
 msgid "Create Rule"
@@ -3849,7 +3864,7 @@ msgstr "Delete Employee Type"
 msgid "Delete Failure Mode"
 msgstr "Delete Failure Mode"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:542
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:546
 msgid "Delete file"
 msgstr "Delete file"
 
@@ -3975,7 +3990,7 @@ msgstr "Delete Reason"
 msgid "Delete Receipt"
 msgstr "Delete Receipt"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:371
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:375
 msgid "Delete receipt line"
 msgstr "Delete receipt line"
 
@@ -3993,7 +4008,7 @@ msgid "Delete rows"
 msgstr "Delete rows"
 
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:358
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:114
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:123
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:126
 msgid "Delete Rule"
 msgstr "Delete Rule"
@@ -4152,7 +4167,7 @@ msgstr "Departments"
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:154
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:97
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupsTable.tsx:49
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:107
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:110
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:146
 #: apps/erp/app/modules/items/ui/Methods/MethodMaterialsTable.tsx:64
 #: apps/erp/app/modules/items/ui/Methods/MethodOperationsTable.tsx:28
@@ -4198,11 +4213,11 @@ msgid "Detail"
 msgstr "Detail"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/useInventoryNavigation.tsx:15
-#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:33
+#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:32
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:484
-#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:33
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:37
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:36
+#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:32
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:36
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:35
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:737
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:31
 #: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:137
@@ -4768,11 +4783,11 @@ msgstr "Edit Receipt"
 msgid "Edit Revision"
 msgstr "Edit Revision"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:98
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:101
 msgid "Edit rule"
 msgstr "Edit rule"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:104
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:113
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:114
 msgid "Edit Rule"
 msgstr "Edit Rule"
@@ -5063,6 +5078,10 @@ msgstr "End Date"
 msgid "End Time"
 msgstr "End Time"
 
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:111
+msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
+msgstr "Enforce constraints on receipts, shipments, transfers and job operations for this item."
+
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:181
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteProperties.tsx:282
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:184
@@ -5076,7 +5095,7 @@ msgstr "Engineering Contact"
 msgid "English"
 msgstr "English"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:812
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:816
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Enter a batch number before setting the expiration date"
 
@@ -5125,15 +5144,12 @@ msgstr "EORI"
 msgid "ERP, MES, QMS"
 msgstr "ERP, MES, QMS"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:141
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:59
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:187
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:63
+#: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:27
 #: apps/erp/app/routes/_public+/callback.tsx:150
 msgid "Error"
 msgstr "Error"
-
-#: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:12
-msgid "Error — blocks save"
-msgstr "Error — blocks save"
 
 #: apps/erp/app/components/Documents.tsx:107
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:321
@@ -5226,7 +5242,7 @@ msgstr "Error removing model from sales order line"
 msgid "Error validating serial number"
 msgstr "Error validating serial number"
 
-#: apps/erp/app/components/ItemRuleViolationModal.tsx:82
+#: apps/erp/app/components/ItemRuleViolationModal.tsx:77
 msgid "Errors"
 msgstr "Errors"
 
@@ -5272,6 +5288,10 @@ msgstr "Event Type"
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:891
 msgid "Events"
 msgstr "Events"
+
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:41
+msgid "Every condition must match"
+msgstr "Every condition must match"
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:47
 msgid "Everything from Starter"
@@ -5334,7 +5354,7 @@ msgid "Expected Receipt Date"
 msgstr "Expected Receipt Date"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:397
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:797
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:801
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5346,7 +5366,7 @@ msgstr "Expected Receipt Date"
 msgid "Expiration Date"
 msgstr "Expiration Date"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1019
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1023
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "Expiration Date (applies to all serials on this line)"
 
@@ -5884,6 +5904,10 @@ msgstr "Fees"
 msgid "Fetch"
 msgstr "Fetch"
 
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:107
+msgid "Field"
+msgstr "Field"
+
 #: apps/erp/app/components/ImportCSVModal/FieldMappings.tsx:192
 msgid "Field Mapping"
 msgstr "Field Mapping"
@@ -6364,8 +6388,8 @@ msgstr "in selected period"
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:338
 #: apps/erp/app/components/Contact.tsx:63
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:245
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:159
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:77
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:205
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:86
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:382
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:287
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:286
@@ -6384,7 +6408,7 @@ msgstr "Inactive"
 msgid "Inactive actions will not appear in selection lists"
 msgstr "Inactive actions will not appear in selection lists"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:114
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:118
 msgid "Inactive rules are skipped during evaluation but kept on items"
 msgstr "Inactive rules are skipped during evaluation but kept on items"
 
@@ -6574,23 +6598,23 @@ msgstr "Invalid Invite"
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:82
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:50
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:82
-#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:63
+#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:62
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:62
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:106
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:126
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:70
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:94
-#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:63
+#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:62
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:171
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:387
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:402
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:98
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:68
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:67
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:169
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:365
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:380
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:98
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:67
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:66
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:71
 #: apps/erp/app/routes/x+/inventory+/_layout.tsx:19
 #: apps/erp/app/routes/x+/receipt+/_layout.tsx:12
@@ -6918,7 +6942,7 @@ msgstr "Item ID"
 msgid "Item Master"
 msgstr "Item Master"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:135
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:144
 #: apps/erp/app/routes/x+/items+/rules.tsx:15
 msgid "Item Rules"
 msgstr "Item Rules"
@@ -6938,7 +6962,7 @@ msgid "items"
 msgstr "items"
 
 #: apps/erp/app/hooks/useModules.tsx:46
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:83
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:92
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:116
 #: apps/erp/app/modules/quality/ui/Issue/IssueForm.tsx:157
 #: apps/erp/app/modules/quality/ui/Issue/IssuesTable.tsx:225
@@ -7266,7 +7290,7 @@ msgstr "Likelihood"
 msgid "Line Item Comparison"
 msgstr "Line Item Comparison"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:351
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:355
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
 msgid "Line options"
@@ -7714,6 +7738,22 @@ msgstr "Mark Partial"
 msgid "Mark to delete"
 msgstr "Mark to delete"
 
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:95
+msgid "Match"
+msgstr "Match"
+
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:40
+msgid "Match all"
+msgstr "Match all"
+
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:46
+msgid "Match any"
+msgstr "Match any"
+
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:52
+msgid "Match none"
+msgstr "Match none"
+
 #: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:145
 msgid "matches"
 msgstr "matches"
@@ -7873,7 +7913,7 @@ msgstr "Measurement Standard"
 msgid "Members"
 msgstr "Members"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:119
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:168
 #: apps/erp/app/modules/items/ui/ItemRules/MessageWithTokens.tsx:49
 msgid "Message"
 msgstr "Message"
@@ -7991,7 +8031,7 @@ msgstr "Minutes/1000 Pieces"
 msgid "Minutes/Piece"
 msgstr "Minutes/Piece"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:172
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:175
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:142
 msgid "Missing Information"
@@ -8201,9 +8241,9 @@ msgstr "My Saved View"
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:107
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:96
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupsTable.tsx:32
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:113
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:104
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:43
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:156
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:107
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:47
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:96
 #: apps/erp/app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:96
 #: apps/erp/app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:96
@@ -8262,10 +8302,6 @@ msgstr "Navigate"
 #: apps/erp/app/routes/x+/quality+/_index.tsx:306
 msgid "NCRs by Type"
 msgstr "NCRs by Type"
-
-#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:87
-msgid "Need OR? Create a second rule — rules combine independently."
-msgstr "Need OR? Create a second rule — rules combine independently."
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:363
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:381
@@ -8532,7 +8568,7 @@ msgstr "New Revision"
 msgid "New RFQ"
 msgstr "New RFQ"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:98
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:101
 msgid "New rule"
 msgstr "New rule"
 
@@ -8749,6 +8785,10 @@ msgstr "No comments yet. Be the first to add a comment."
 msgid "No completed jobs within range"
 msgstr "No completed jobs within range"
 
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:53
+msgid "No condition may match"
+msgstr "No condition may match"
+
 #: apps/erp/app/components/Form/ConversionFactor.tsx:122
 msgid "No conversion is required"
 msgstr "No conversion is required"
@@ -8789,6 +8829,10 @@ msgstr "No employees assigned yet. Add groups to see status."
 msgid "No employees found"
 msgstr "No employees found"
 
+#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:119
+msgid "No fields found."
+msgstr "No fields found."
+
 #: apps/erp/app/components/Documents.tsx:436
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:250
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineDocuments.tsx:338
@@ -8822,6 +8866,7 @@ msgstr "No issue types configured"
 msgid "No logo uploaded"
 msgstr "No logo uploaded"
 
+#: apps/erp/app/modules/items/ui/ItemRules/ValueCombobox.tsx:103
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:187
 msgid "No matches"
 msgstr "No matches"
@@ -8837,6 +8882,10 @@ msgstr "No new notifications"
 #: apps/erp/app/components/RichText.tsx:63
 msgid "No notes"
 msgstr "No notes"
+
+#: apps/erp/app/modules/items/ui/ItemRules/OperatorCombobox.tsx:135
+msgid "No operators."
+msgstr "No operators."
 
 #: apps/erp/app/components/Assignee.tsx:169
 #: packages/react/src/CreateableMultiSelect.tsx:304
@@ -8916,9 +8965,9 @@ msgstr "No results"
 msgid "No results found"
 msgstr "No results found"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:98
-msgid "No rules assigned to this item"
-msgstr "No rules assigned to this item"
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:257
+msgid "No rules assigned"
+msgstr "No rules assigned"
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionLotView.tsx:265
 msgid "No samples inspected yet."
@@ -8931,6 +8980,14 @@ msgstr "No sorts applied to this view"
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:630
 msgid "No time entries for this week"
 msgstr "No time entries for this week"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ValueInput.tsx:34
+msgid "No value needed"
+msgstr "No value needed"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ValueCombobox.tsx:103
+msgid "No values available"
+msgstr "No values available"
 
 #: apps/erp/app/routes/x+/production+/_index.tsx:158
 msgid "No work center utilization data within range"
@@ -9068,6 +9125,7 @@ msgid "Now let's set up your company"
 msgstr "Now let's set up your company"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTable.tsx:28
+#: apps/erp/app/modules/items/ui/ItemRules/ValueInput.tsx:97
 msgid "Number"
 msgstr "Number"
 
@@ -9265,6 +9323,7 @@ msgstr "Operations"
 msgid "Operations Type"
 msgstr "Operations Type"
 
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:110
 #: apps/erp/app/routes/x+/users+/operators.tsx:200
 msgid "Operator"
 msgstr "Operator"
@@ -9296,7 +9355,7 @@ msgstr "Opportunity"
 msgid "Optional"
 msgstr "Optional"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:108
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:111
 msgid "Optional context for this rule"
 msgstr "Optional context for this rule"
 
@@ -9707,6 +9766,10 @@ msgstr "Pick a customer or customer type to view their pricing."
 msgid "Pick a date or leave blank to clear it."
 msgstr "Pick a date or leave blank to clear it."
 
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:260
+msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
+msgstr "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:142
 msgid "Pick List"
 msgstr "Pick List"
@@ -9751,11 +9814,11 @@ msgstr "Planned Start"
 msgid "Planned Start Time"
 msgstr "Planned Start Time"
 
-#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:55
+#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:54
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:62
-#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:55
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:60
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:59
+#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:54
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:59
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:58
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:500
 #: apps/erp/app/modules/production/ui/useProductionSubmodules.tsx:42
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:580
@@ -9856,7 +9919,7 @@ msgstr "Post Comment"
 msgid "Post Invoice"
 msgstr "Post Invoice"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:161
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:164
 msgid "Post Receipt"
 msgstr "Post Receipt"
 
@@ -10351,11 +10414,11 @@ msgid "Purchased"
 msgstr "Purchased"
 
 #: apps/erp/app/hooks/useModules.tsx:58
-#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:39
+#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:38
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:72
-#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:39
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:43
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:42
+#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:38
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:42
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:41
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:89
 #: apps/erp/app/routes/x+/purchase-invoice+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchase-invoice+/new.tsx:24
@@ -10417,10 +10480,10 @@ msgid "Qty. Scrapped"
 msgstr "Qty. Scrapped"
 
 #: apps/erp/app/hooks/useModules.tsx:64
-#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:71
-#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:71
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:83
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:75
+#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:70
+#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:70
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:82
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:74
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:101
 #: apps/erp/app/routes/x+/issue-workflow+/_layout.tsx:12
 #: apps/erp/app/routes/x+/issue+/_layout.tsx:12
@@ -10453,7 +10516,7 @@ msgstr "Quantities"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:218
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:404
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1152
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1156
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -10703,7 +10766,7 @@ msgstr "Receipt ID"
 msgid "Receipt Line"
 msgstr "Receipt Line"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:233
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:237
 msgid "Receipt Lines"
 msgstr "Receipt Lines"
 
@@ -10893,7 +10956,7 @@ msgstr "Remove {0}"
 msgid "Remove attachment"
 msgstr "Remove attachment"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ConditionRow.tsx:130
+#: apps/erp/app/modules/items/ui/ItemRules/ConditionRow.tsx:88
 msgid "Remove condition"
 msgstr "Remove condition"
 
@@ -11219,10 +11282,6 @@ msgstr "Reverse any item ledger entries from this invoice"
 msgid "Reverse the related journal entries"
 msgstr "Reverse the related journal entries"
 
-#: apps/erp/app/components/ItemRuleViolationModal.tsx:71
-msgid "Review before saving"
-msgstr "Review before saving"
-
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:107
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:273
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:266
@@ -11345,7 +11404,7 @@ msgstr "Role:"
 msgid "rows"
 msgstr "rows"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:129
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:138
 msgid "Rule"
 msgstr "Rule"
 
@@ -11361,11 +11420,11 @@ msgstr "Rule applies to every item."
 msgid "Rule Type"
 msgstr "Rule Type"
 
-#: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:80
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:56
-#: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:80
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:92
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:84
+#: apps/erp/app/components/ItemRuleViolationModal.tsx:68
+msgid "Rule Violation"
+msgstr "Rule Violation"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:101
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:107
 msgid "Rules"
 msgstr "Rules"
@@ -11396,7 +11455,7 @@ msgstr "Sale Price"
 
 #: apps/erp/app/hooks/useModules.tsx:34
 #: apps/erp/app/modules/accounting/ui/PostingGroups/SalesPostingGroupsTable.tsx:98
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:76
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:75
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:107
 #: apps/erp/app/routes/x+/customer+/_layout.tsx:15
 #: apps/erp/app/routes/x+/quote+/_layout.tsx:13
@@ -11586,7 +11645,7 @@ msgstr "Saturday"
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:152
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:122
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:104
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:127
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:131
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:102
 #: apps/erp/app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:102
 #: apps/erp/app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:102
@@ -11856,6 +11915,10 @@ msgstr "Search customers or types..."
 msgid "Search employees..."
 msgstr "Search employees..."
 
+#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:114
+msgid "Search fields..."
+msgstr "Search fields..."
+
 #: apps/erp/app/modules/quality/ui/Issue/Jira/IssueDialog.tsx:95
 #: apps/erp/app/modules/quality/ui/Issue/Linear/IssueDialog.tsx:94
 msgid "Search for existing or create a new one"
@@ -11868,6 +11931,10 @@ msgstr "Search history"
 #: apps/erp/app/components/Gantt/Gantt.tsx:882
 msgid "Search Job"
 msgstr "Search Job"
+
+#: apps/erp/app/modules/items/ui/ItemRules/OperatorCombobox.tsx:130
+msgid "Search operators..."
+msgstr "Search operators..."
 
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:873
 msgid "Search processes..."
@@ -11892,6 +11959,7 @@ msgstr "Search the web"
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:565
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:165
 #: apps/erp/app/modules/items/ui/Item/UsedIn.tsx:136
+#: apps/erp/app/modules/items/ui/ItemRules/ValueCombobox.tsx:94
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:157
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:112
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:175
@@ -12028,9 +12096,9 @@ msgstr "Select Employee"
 msgid "Select Employee Type"
 msgstr "Select Employee Type"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ConditionRow.tsx:67
-msgid "Select field..."
-msgstr "Select field..."
+#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:103
+msgid "Select field"
+msgstr "Select field"
 
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:230
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:414
@@ -12070,9 +12138,22 @@ msgstr "Select Supplier Status"
 msgid "Select Supplier Type"
 msgstr "Select Supplier Type"
 
+#: apps/erp/app/modules/items/ui/ItemRules/SurfacesField.tsx:95
+msgid "Select surfaces"
+msgstr "Select surfaces"
+
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:465
 msgid "Select the groups that should complete this training"
 msgstr "Select the groups that should complete this training"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ValueCombobox.tsx:79
+#: apps/erp/app/modules/items/ui/ItemRules/ValueInput.tsx:79
+msgid "Select value"
+msgstr "Select value"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ValueInput.tsx:61
+msgid "Select values"
+msgstr "Select values"
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:202
 msgid "Selected"
@@ -12259,9 +12340,9 @@ msgstr "Setup Unit"
 msgid "Severities"
 msgstr "Severities"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:116
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:55
-#: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:15
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:159
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:59
+#: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:42
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterForm.tsx:181
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegistersTable.tsx:156
 #: apps/erp/app/modules/quality/ui/SamplingPlan/SamplingPlanForm.tsx:251
@@ -12701,7 +12782,7 @@ msgstr "Split line"
 msgid "Split off quantity"
 msgstr "Split off quantity"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:363
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:367
 msgid "Split receipt line"
 msgstr "Split receipt line"
 
@@ -12814,8 +12895,8 @@ msgstr "Statistical acceptance failed, so the entire lot is considered non-confo
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:70
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:135
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:129
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:122
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:69
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:165
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:78
 #: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:142
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:315
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningOrderDrawer.tsx:374
@@ -13297,6 +13378,11 @@ msgstr "Supply & Demand"
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:365
 msgid "Supports {0} files"
 msgstr "Supports {0} files"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:162
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:73
+msgid "Surfaces"
+msgstr "Surfaces"
 
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchesTable.tsx:250
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:213
@@ -14129,7 +14215,7 @@ msgstr "Un-sampled entities will remain On Hold so you can keep inspecting and d
 msgid "Unapproved Supplier"
 msgstr "Unapproved Supplier"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:171
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:220
 msgid "Unassign rule"
 msgstr "Unassign rule"
 
@@ -14558,7 +14644,8 @@ msgstr "Validating job..."
 
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2515
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2626
-#: apps/erp/app/modules/items/ui/ItemRules/ConditionRow.tsx:97
+#: apps/erp/app/modules/items/ui/ItemRules/RuleBuilder.tsx:113
+#: apps/erp/app/modules/items/ui/ItemRules/ValueInput.tsx:122
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1911
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1998
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationStepRecordsTable.tsx:86
@@ -14844,8 +14931,7 @@ msgstr "Warehouse Transfer"
 msgid "Warehouse Transfers"
 msgstr "Warehouse Transfers"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:145
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:63
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:67
 msgid "Warn"
 msgstr "Warn"
 
@@ -14865,14 +14951,12 @@ msgstr "Warn when the person inspecting an inbound item is the same person who r
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:61
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:61
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:62
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:191
+#: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:33
 msgid "Warning"
 msgstr "Warning"
 
-#: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:13
-msgid "Warning — allows acknowledge"
-msgstr "Warning — allows acknowledge"
-
-#: apps/erp/app/components/ItemRuleViolationModal.tsx:90
+#: apps/erp/app/components/ItemRuleViolationModal.tsx:85
 msgid "Warnings"
 msgstr "Warnings"
 

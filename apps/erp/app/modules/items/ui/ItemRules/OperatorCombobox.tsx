@@ -6,10 +6,10 @@ import {
   CommandItem,
   CommandList,
   CommandTrigger,
+  cn,
   Popover,
   PopoverContent,
-  PopoverTrigger,
-  cn
+  PopoverTrigger
 } from "@carbon/react";
 import type { Operator } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
@@ -104,7 +104,7 @@ export default function OperatorCombobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <CommandTrigger
-          size="sm"
+          size="md"
           role="combobox"
           aria-expanded={open}
           disabled={disabled}

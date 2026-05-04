@@ -61,16 +61,11 @@ export default function ItemRuleViolationModal({
           <ModalTitle>
             <span className="flex items-center gap-2">
               {hasError ? (
-                <>
-                  <LuOctagonAlert className="text-destructive h-5 w-5" />
-                  <Trans>Cannot save</Trans>
-                </>
+                <LuOctagonAlert className="text-destructive h-5 w-5" />
               ) : (
-                <>
-                  <LuTriangleAlert className="text-amber-500 h-5 w-5" />
-                  <Trans>Review before saving</Trans>
-                </>
+                <LuTriangleAlert className="text-amber-500 h-5 w-5" />
               )}
+              <Trans>Rule Violation</Trans>
             </span>
           </ModalTitle>
         </ModalHeader>

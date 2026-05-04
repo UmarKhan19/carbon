@@ -6,10 +6,10 @@ import {
   CommandItem,
   CommandList,
   CommandTrigger,
+  cn,
   Popover,
   PopoverContent,
-  PopoverTrigger,
-  cn
+  PopoverTrigger
 } from "@carbon/react";
 import { FIELD_REGISTRY, type FieldDef, getFieldDef } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
@@ -76,7 +76,7 @@ export default function FieldCombobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <CommandTrigger
-          size="sm"
+          size="md"
           role="combobox"
           aria-expanded={open}
           icon={<LuChevronDown className="h-4 w-4 shrink-0 opacity-50" />}
@@ -91,8 +91,9 @@ export default function FieldCombobox({
             <div className="flex min-w-0 flex-1 items-center gap-2 text-left">
               <div
                 className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground"
-                aria-label={ctx.label}
                 title={ctx.label}
+                role="img"
+                aria-label={ctx.label}
               >
                 {ctx.icon}
               </div>

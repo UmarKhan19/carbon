@@ -1,7 +1,12 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
-import type { ConditionAst, ItemRuleRow, Severity } from "@carbon/utils";
+import type {
+  ConditionAst,
+  ItemRuleRow,
+  Severity,
+  TransactionSurface
+} from "@carbon/utils";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -4065,7 +4070,8 @@ export async function getItemRulesList(
     name: string;
     severity: Severity;
     active: boolean;
-  }>(client, "itemRule", "id, name, severity, active", (query) =>
+    surfaces: TransactionSurface[];
+  }>(client, "itemRule", "id, name, severity, active, surfaces", (query) =>
     query.eq("companyId", companyId).order("name")
   );
 }
@@ -4112,7 +4118,7 @@ export async function getActiveRulesForItem(
   const { data, error } = await client
     .from("itemRuleAssignment")
     .select(
-      `itemRule:ruleId(id, severity, message, conditionAst, updatedAt, active)`
+      `itemRule:ruleId(id, severity, message, conditionAst, surfaces, updatedAt, active)`
     )
     .eq("itemId", itemId)
     .eq("companyId", companyId);
@@ -4121,9 +4127,13 @@ export async function getActiveRulesForItem(
 
   const rows: ItemRuleRow[] = [];
   for (const r of data ?? []) {
-    // supabase returns the joined row either as object or array depending on FK shape
-    const rule = (r as { itemRule: ItemRuleRow | ItemRuleRow[] | null })
-      .itemRule;
+    // supabase returns the joined row either as object or array depending on FK shape.
+    // Cast through `unknown` because the generated `Database` types don't yet
+    // know about the `surfaces` column (run `bun run db:types` after the
+    // migration applies to refresh).
+    const rule = (
+      r as unknown as { itemRule: ItemRuleRow | ItemRuleRow[] | null }
+    ).itemRule;
     const node = Array.isArray(rule) ? rule[0] : rule;
     if (node && node.active !== false) rows.push(node);
   }
@@ -4138,7 +4148,7 @@ export async function getRuleAssignmentsForItem(
   return client
     .from("itemRuleAssignment")
     .select(
-      `itemId, ruleId, createdAt, itemRule:ruleId(id, name, severity, message, active)`
+      `itemId, ruleId, createdAt, itemRule:ruleId(id, name, severity, message, active, surfaces)`
     )
     .eq("itemId", itemId)
     .eq("companyId", companyId);

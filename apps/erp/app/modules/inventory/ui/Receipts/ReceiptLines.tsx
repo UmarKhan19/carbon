@@ -68,6 +68,7 @@ import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useRouteData, useUser } from "~/hooks";
+import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import type {
   BatchProperty,
   ItemTracking,
@@ -88,7 +89,12 @@ const ReceiptLines = () => {
   const { receiptId } = useParams();
   if (!receiptId) throw new Error("receiptId not found");
 
-  const fetcher = useFetcher<typeof receiptLinesUpdateAction>();
+  const ruleViolations = useItemRuleViolations<typeof receiptLinesUpdateAction>(
+    {
+      action: path.to.bulkUpdateReceiptLine
+    }
+  );
+
   const { upload, deleteFile, getPath } = useReceiptFiles(receiptId);
   const routeData = useRouteData<{
     receipt: Receipt;
@@ -212,10 +218,7 @@ const ReceiptLines = () => {
       formData.append("ids", lineId);
       formData.append("field", field);
       formData.append("value", value.toString());
-      fetcher.submit(formData, {
-        method: "post",
-        action: path.to.bulkUpdateReceiptLine
-      });
+      ruleViolations.submit(formData);
     },
 
     []
@@ -227,6 +230,7 @@ const ReceiptLines = () => {
 
   return (
     <>
+      <ruleViolations.ViolationModal />
       <Card>
         <CardHeader>
           <CardTitle>

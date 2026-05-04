@@ -11,7 +11,7 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
-import type { ConditionAst } from "@carbon/utils";
+import { type ConditionAst, TRANSACTION_SURFACES } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
@@ -29,6 +29,7 @@ import { itemRuleValidator } from "../../items.models";
 import MessageWithTokens from "./MessageWithTokens";
 import RuleBuilder from "./RuleBuilder";
 import SeveritySelect from "./SeveritySelect";
+import SurfacesField from "./SurfacesField";
 
 type ItemRuleFormInitial = Partial<z.infer<typeof itemRuleValidator>> & {
   conditionAst?: ConditionAst;
@@ -57,7 +58,7 @@ export default function ItemRuleForm({
   const conditionAstInitial: ConditionAst = (initialValues.conditionAst as
     | ConditionAst
     | undefined) ?? {
-    kind: "and",
+    kind: "all",
     conditions: []
   };
 
@@ -69,7 +70,9 @@ export default function ItemRuleForm({
     description: initialValues.description ?? "",
     message: initialValues.message ?? "",
     severity: initialValues.severity ?? "error",
-    active: initialValues.active ?? true
+    active: initialValues.active ?? true,
+    // Default new rules to all surfaces (matches DB default).
+    surfaces: initialValues.surfaces ?? [...TRANSACTION_SURFACES]
   };
 
   return (
@@ -80,7 +83,7 @@ export default function ItemRuleForm({
           if (!o) onClose();
         }}
       >
-        <ModalDrawerContent>
+        <ModalDrawerContent size="lg">
           <ValidatedForm
             validator={itemRuleValidator}
             method="post"
@@ -108,6 +111,7 @@ export default function ItemRuleForm({
                   placeholder={t`Optional context for this rule`}
                 />
                 <SeveritySelect name="severity" />
+                <SurfacesField name="surfaces" />
                 <Boolean
                   name="active"
                   label={t`Active`}

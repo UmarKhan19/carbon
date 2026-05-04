@@ -1,3 +1,4 @@
+import { TRANSACTION_SURFACES } from "@carbon/utils";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import {
@@ -818,6 +819,11 @@ export const itemRuleValidator = z.object({
   message: z.string().min(1, { message: "Message is required" }).max(500),
   severity: z.enum(itemRuleSeverities),
   active: zfd.checkbox(),
+  surfaces: zfd
+    .repeatableOfType(z.enum(TRANSACTION_SURFACES))
+    .refine((arr) => arr.length >= 1, {
+      message: "Pick at least one surface"
+    }),
   conditionAst: itemRuleConditionAstFormField
 });
 
