@@ -13,7 +13,12 @@ import {
 } from "../lib/storage-units.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
-import { TrackedEntityAttributes } from "../lib/utils.ts";
+import { TrackedEntityAttributes, credit, debit, journalReference } from "../lib/utils.ts";
+import { isInternalUser } from "../lib/flags.ts";
+import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
+import { getNextSequence } from "../shared/get-next-sequence.ts";
+import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
+import { calculateCOGS } from "../shared/calculate-cogs.ts";
 
 type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
 
@@ -104,11 +109,21 @@ async function issueJobOperationMaterials(
     quantity,
     companyId,
     userId,
+    isInternal,
+    accountDefaults,
+    dimensionMap,
+    client,
+    db,
   }: {
     jobOperationId: string;
     quantity: number;
     companyId: string;
     userId: string;
+    isInternal: boolean;
+    accountDefaults: any;
+    dimensionMap: Map<string, string>;
+    client: any;
+    db: any;
   }
 ) {
   const materialsToIssue = await trx
@@ -291,6 +306,171 @@ async function issueJobOperationMaterials(
         companyId,
         userId
       );
+    }
+  }
+
+  if (isInternal && accountDefaults?.data && itemLedgerInserts.length > 0) {
+    const journalLineInserts: {
+      accountId: string;
+      description: string;
+      amount: number;
+      quantity: number;
+      documentType: string;
+      documentId: string;
+      documentLineReference: string;
+      journalLineReference: string;
+      companyId: string;
+    }[] = [];
+
+    const journalLineDimensionsMeta: {
+      itemPostingGroupId: string | null;
+      locationId: string | null;
+    }[] = [];
+
+    const finishedGoodJob = await trx
+      .selectFrom("job")
+      .where("id", "=", jobId)
+      .select(["itemId", "locationId"])
+      .executeTakeFirst();
+
+    const finishedGoodItemCost = finishedGoodJob?.itemId
+      ? await trx
+          .selectFrom("itemCost")
+          .where("itemId", "=", finishedGoodJob.itemId)
+          .where("companyId", "=", companyId)
+          .select("itemPostingGroupId")
+          .executeTakeFirst()
+      : null;
+
+    for (const ledger of itemLedgerInserts) {
+      const materialQuantity = Math.abs(Number(ledger.quantity));
+      if (materialQuantity === 0) continue;
+
+      const cogsResult = await calculateCOGS(trx, {
+        itemId: ledger.itemId,
+        quantity: materialQuantity,
+        companyId,
+      });
+
+      const journalLineReference = nanoid();
+
+      journalLineInserts.push({
+        accountId: accountDefaults.data.workInProgressAccount,
+        description: "WIP Account",
+        amount: debit("asset", cogsResult.totalCost),
+        quantity: materialQuantity,
+        documentType: "Job Consumption",
+        documentId: jobId,
+        documentLineReference: journalReference.to.materialIssue(jobOperationId),
+        journalLineReference,
+        companyId,
+      });
+
+      journalLineInserts.push({
+        accountId: accountDefaults.data.inventoryAccount,
+        description: "Inventory Account",
+        amount: credit("asset", cogsResult.totalCost),
+        quantity: materialQuantity,
+        documentType: "Job Consumption",
+        documentId: jobId,
+        documentLineReference: journalReference.to.materialIssue(jobOperationId),
+        journalLineReference,
+        companyId,
+      });
+
+      await trx
+        .insertInto("costLedger")
+        .values({
+          itemLedgerType: "Consumption",
+          costLedgerType: "Direct Cost",
+          adjustment: false,
+          documentType: "Job Consumption",
+          documentId: jobId,
+          itemId: ledger.itemId,
+          quantity: -materialQuantity,
+          cost: -cogsResult.totalCost,
+          remainingQuantity: 0,
+          companyId,
+        })
+        .execute();
+
+      for (let i = 0; i < 2; i++) {
+        journalLineDimensionsMeta.push({
+          itemPostingGroupId: finishedGoodItemCost?.itemPostingGroupId ?? null,
+          locationId: finishedGoodJob?.locationId ?? null,
+        });
+      }
+    }
+
+    if (journalLineInserts.length > 0) {
+      const accountingPeriodId = await getCurrentAccountingPeriod(client, companyId, db);
+      const journalEntryId = await getNextSequence(trx, "journalEntry", companyId);
+
+      const journalResult = await trx
+        .insertInto("journal")
+        .values({
+          journalEntryId,
+          accountingPeriodId,
+          description: `Material Issue to Job ${jobId}`,
+          postingDate: new Date().toISOString().slice(0, 10),
+          companyId,
+          sourceType: "Job Consumption",
+          status: "Posted",
+          postedAt: new Date().toISOString(),
+          postedBy: userId,
+          createdBy: userId,
+        })
+        .returning(["id"])
+        .executeTakeFirstOrThrow();
+
+      const journalLineResults = await trx
+        .insertInto("journalLine")
+        .values(
+          journalLineInserts.map((line) => ({
+            ...line,
+            journalId: journalResult.id,
+          }))
+        )
+        .returning(["id"])
+        .execute();
+
+      if (dimensionMap.size > 0) {
+        const dimensionInserts: {
+          journalLineId: string;
+          dimensionId: string;
+          valueId: string;
+          companyId: string;
+        }[] = [];
+
+        journalLineResults.forEach((jl, index) => {
+          const meta = journalLineDimensionsMeta[index];
+          if (!meta) return;
+
+          if (meta.itemPostingGroupId && dimensionMap.has("ItemPostingGroup")) {
+            dimensionInserts.push({
+              journalLineId: jl.id,
+              dimensionId: dimensionMap.get("ItemPostingGroup")!,
+              valueId: meta.itemPostingGroupId,
+              companyId,
+            });
+          }
+          if (meta.locationId && dimensionMap.has("Location")) {
+            dimensionInserts.push({
+              journalLineId: jl.id,
+              dimensionId: dimensionMap.get("Location")!,
+              valueId: meta.locationId,
+              companyId,
+            });
+          }
+        });
+
+        if (dimensionInserts.length > 0) {
+          await trx
+            .insertInto("journalLineDimension")
+            .values(dimensionInserts)
+            .execute();
+        }
+      }
     }
   }
 }
@@ -621,12 +801,53 @@ serve(async (req: Request) => {
       }
       case "jobOperation": {
         const { id, companyId, quantity, userId } = validatedPayload;
+
+        const client = await getSupabaseServiceRole(
+          req.headers.get("Authorization"),
+          req.headers.get("carbon-key") ?? "",
+          companyId
+        );
+
+        const [isInternal, companyRecord] = await Promise.all([
+          isInternalUser(client, userId),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecord.error) throw new Error("Failed to fetch company");
+
+        const accountDefaults = isInternal
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (isInternal && (accountDefaults?.error || !accountDefaults?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensions = isInternal
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecord.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMap = new Map<string, string>();
+        if (dimensions?.data) {
+          for (const dim of dimensions.data) {
+            if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
+          }
+        }
+
         await db.transaction().execute(async (trx) => {
           await issueJobOperationMaterials(trx, {
             jobOperationId: id,
             quantity,
             companyId,
             userId,
+            isInternal,
+            accountDefaults: accountDefaults?.data ? accountDefaults : null,
+            dimensionMap,
+            client,
+            db,
           });
         });
 
@@ -655,6 +876,35 @@ serve(async (req: Request) => {
 
         if (!jobOperation.data || !jobOperation.data.jobMakeMethodId) {
           throw new Error("Job operation not found");
+        }
+
+        const [isInternalBatch, companyRecordBatch] = await Promise.all([
+          isInternalUser(client, userId),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecordBatch.error) throw new Error("Failed to fetch company");
+
+        const accountDefaultsBatch = isInternalBatch
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (isInternalBatch && (accountDefaultsBatch?.error || !accountDefaultsBatch?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensionsBatch = isInternalBatch
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecordBatch.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMapBatch = new Map<string, string>();
+        if (dimensionsBatch?.data) {
+          for (const dim of dimensionsBatch.data) {
+            if (dim.entityType) dimensionMapBatch.set(dim.entityType, dim.id);
+          }
         }
 
         await db.transaction().execute(async (trx) => {
@@ -730,6 +980,11 @@ serve(async (req: Request) => {
             quantity: row.quantity,
             companyId,
             userId,
+            isInternal: isInternalBatch,
+            accountDefaults: accountDefaultsBatch?.data ? accountDefaultsBatch : null,
+            dimensionMap: dimensionMapBatch,
+            client,
+            db,
           });
         });
 
@@ -775,6 +1030,35 @@ serve(async (req: Request) => {
             `Operation ${row.jobOperationId}` in
             (trackedEntity.attributes as TrackedEntityAttributes)
         );
+
+        const [isInternalSerial, companyRecordSerial] = await Promise.all([
+          isInternalUser(client, userId),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecordSerial.error) throw new Error("Failed to fetch company");
+
+        const accountDefaultsSerial = isInternalSerial
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (isInternalSerial && (accountDefaultsSerial?.error || !accountDefaultsSerial?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensionsSerial = isInternalSerial
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecordSerial.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMapSerial = new Map<string, string>();
+        if (dimensionsSerial?.data) {
+          for (const dim of dimensionsSerial.data) {
+            if (dim.entityType) dimensionMapSerial.set(dim.entityType, dim.id);
+          }
+        }
 
         let newEntityId: string | undefined;
         await db.transaction().execute(async (trx) => {
@@ -873,6 +1157,11 @@ serve(async (req: Request) => {
             quantity: row.quantity,
             companyId,
             userId,
+            isInternal: isInternalSerial,
+            accountDefaults: accountDefaultsSerial?.data ? accountDefaultsSerial : null,
+            dimensionMap: dimensionMapSerial,
+            client,
+            db,
           });
         });
 
