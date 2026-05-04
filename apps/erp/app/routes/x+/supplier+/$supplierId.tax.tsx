@@ -3,7 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useLoaderData } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
 import {
   getSupplierTax,
   supplierTaxValidator,
@@ -22,7 +22,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const supplierTax = await getSupplierTax(client, supplierId);
 
-  if (supplierTax.error || !supplierTax.data) {
+  if (supplierTax.error) {
     throw redirect(
       path.to.supplier(supplierId),
       await flash(
@@ -39,7 +39,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     update: "purchasing"
   });
 
@@ -59,6 +59,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const update = await updateSupplierTax(client, {
     ...validation.data,
     supplierId,
+    companyId,
     taxExemptionCertificatePath,
     updatedBy: userId
   });
@@ -80,8 +81,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function SupplierTaxRoute() {
   const { supplierTax } = useLoaderData<typeof loader>();
+  const { supplierId } = useParams();
   const initialValues = {
-    supplierId: supplierTax?.supplierId ?? "",
+    supplierId: supplierTax?.supplierId ?? supplierId ?? "",
     taxId: supplierTax?.taxId ?? "",
     vatNumber: supplierTax?.vatNumber ?? "",
     eori: supplierTax?.eori ?? "",

@@ -52876,6 +52876,9 @@ export default {
             $ref: "#/parameters/rowFilter.user.isConsoleOperator"
           },
           {
+            $ref: "#/parameters/rowFilter.user.phone"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -52980,6 +52983,9 @@ export default {
             $ref: "#/parameters/rowFilter.user.isConsoleOperator"
           },
           {
+            $ref: "#/parameters/rowFilter.user.phone"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -53036,6 +53042,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.user.isConsoleOperator"
+          },
+          {
+            $ref: "#/parameters/rowFilter.user.phone"
           },
           {
             $ref: "#/parameters/body.user"
@@ -59273,6 +59282,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.purchaseOrders.createdByEmail"
+          },
+          {
+            $ref: "#/parameters/rowFilter.purchaseOrders.createdByPhone"
           },
           {
             $ref: "#/parameters/select"
@@ -102259,6 +102271,10 @@ export default {
           default: false,
           format: "boolean",
           type: "boolean"
+        },
+        phone: {
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -105276,6 +105292,10 @@ export default {
           type: "string"
         },
         createdByEmail: {
+          format: "text",
+          type: "string"
+        },
+        createdByPhone: {
           format: "text",
           type: "string"
         }
@@ -138159,6 +138179,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.user.phone": {
+      name: "phone",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.companyAccountsReceivableBillingAddress": {
       name: "companyAccountsReceivableBillingAddress",
       description: "companyAccountsReceivableBillingAddress",
@@ -141500,6 +141526,12 @@ export default {
     },
     "rowFilter.purchaseOrders.createdByEmail": {
       name: "createdByEmail",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.purchaseOrders.createdByPhone": {
+      name: "createdByPhone",
       required: false,
       in: "query",
       type: "string"

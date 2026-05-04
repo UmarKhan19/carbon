@@ -1262,20 +1262,20 @@ export async function getSupplierTax(
     .from("supplierTax")
     .select("*")
     .eq("supplierId", supplierId)
-    .single();
+    .maybeSingle();
 }
 
 export async function updateSupplierTax(
   client: SupabaseClient<Database>,
   supplierTax: z.infer<typeof supplierTaxValidator> & {
+    companyId: string;
     updatedBy: string;
     taxExemptionCertificatePath?: string | null;
   }
 ) {
   return client
     .from("supplierTax")
-    .update(sanitize(supplierTax))
-    .eq("supplierId", supplierTax.supplierId);
+    .upsert(sanitize(supplierTax), { onConflict: "supplierId" });
 }
 
 export async function upsertPurchaseOrder(

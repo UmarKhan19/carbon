@@ -36,6 +36,7 @@ type PartyDetailsProps = {
   counterPartyLabel: string;
   createdByFullName?: string | null;
   createdByEmail?: string | null;
+  createdByPhone?: string | null;
   accountsPayableEmail?: string | null;
   accountsReceivableEmail?: string | null;
 };
@@ -67,6 +68,7 @@ const PartyDetails = ({
   counterPartyLabel,
   createdByFullName,
   createdByEmail,
+  createdByPhone,
   accountsPayableEmail,
   accountsReceivableEmail
 }: PartyDetailsProps) => {
@@ -115,6 +117,7 @@ const PartyDetails = ({
                 {createdByEmail ? ` (${createdByEmail})` : ""}
               </Text>
             )}
+            {createdByPhone && <Text>Phone: {createdByPhone}</Text>}
             {accountsPayableEmail && (
               <Text>Accounts Payable: {accountsPayableEmail}</Text>
             )}
