@@ -11,7 +11,7 @@ import {
   getLineTotal,
   getTotal
 } from "../utils/sales-order";
-import { getCurrencyFormatter } from "../utils/shared";
+import { getCurrencyFormatter, getRegistrationFooter } from "../utils/shared";
 import {
   Header,
   Note,
@@ -115,6 +115,12 @@ const SalesOrderPDF = ({
         keywords: meta?.keywords ?? "sales order",
         subject: meta?.subject ?? "Sales Order"
       }}
+      footerLabel={getRegistrationFooter(
+        company.name,
+        company.countryCode,
+        company.taxId
+      )}
+      footerDocumentId={salesOrder?.salesOrderId}
     >
       <Header
         company={company}

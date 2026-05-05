@@ -11,7 +11,7 @@ import {
   getLineTotal,
   getTotal
 } from "../utils/sales-invoice";
-import { getCurrencyFormatter } from "../utils/shared";
+import { getCurrencyFormatter, getRegistrationFooter } from "../utils/shared";
 import {
   Header,
   Note,
@@ -124,6 +124,12 @@ const SalesInvoicePDF = ({
         keywords: meta?.keywords ?? "sales invoice",
         subject: meta?.subject ?? "Invoice"
       }}
+      footerLabel={getRegistrationFooter(
+        company.name,
+        company.countryCode,
+        company.taxId
+      )}
+      footerDocumentId={salesInvoice?.invoiceId}
     >
       <Header
         company={company}

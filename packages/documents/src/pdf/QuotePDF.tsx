@@ -6,7 +6,7 @@ import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { getLineDescription, getLineDescriptionDetails } from "../utils/quote";
-import { getCurrencyFormatter } from "../utils/shared";
+import { getCurrencyFormatter, getRegistrationFooter } from "../utils/shared";
 import { Header, Note, PartyDetails, Template } from "./components";
 
 type QuoteCustomerDetails =
@@ -227,6 +227,12 @@ const QuotePDF = ({
         keywords: meta?.keywords ?? "quote",
         subject: meta?.subject ?? "Quote"
       }}
+      footerLabel={getRegistrationFooter(
+        company.name,
+        company.countryCode,
+        company.taxId
+      )}
+      footerDocumentId={quote?.quoteId}
     >
       <Header
         company={company}
