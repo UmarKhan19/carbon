@@ -43518,6 +43518,7 @@ export type Database = {
           id: string
           isConsoleOperator: boolean
           lastName: string
+          phone: string | null
           updatedAt: string | null
         }
         Insert: {
@@ -43535,6 +43536,7 @@ export type Database = {
           id: string
           isConsoleOperator?: boolean
           lastName?: string
+          phone?: string | null
           updatedAt?: string | null
         }
         Update: {
@@ -43552,6 +43554,7 @@ export type Database = {
           id?: string
           isConsoleOperator?: boolean
           lastName?: string
+          phone?: string | null
           updatedAt?: string | null
         }
         Relationships: []
@@ -52332,6 +52335,7 @@ export type Database = {
           createdBy: string | null
           createdByEmail: string | null
           createdByFullName: string | null
+          createdByPhone: string | null
           currencyCode: string | null
           customFields: Json | null
           deliveryDate: string | null
@@ -55714,7 +55718,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -55728,7 +55732,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]

@@ -1250,7 +1250,7 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await updateSupplierTax(ctx.client, { ...params.supplierTax, updatedBy: ctx.userId });
+      const result = await updateSupplierTax(ctx.client, { ...params.supplierTax, companyId: ctx.companyId, updatedBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: purchasing_updateSupplierTax"),
   );
