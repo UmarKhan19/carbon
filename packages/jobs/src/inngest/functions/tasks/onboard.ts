@@ -256,12 +256,6 @@ export const onboardFunction = inngest.createFunction(
           }
         });
 
-        const from = `Brad from Carbon <${
-          RESEND_DOMAIN === "carbon.ms"
-            ? "brad@carbon.ms"
-            : `no-reply@${RESEND_DOMAIN}`
-        }>`;
-
         const sendOnboardingEmail = await step.run(
           "check-onboarding-email-eligibility",
           async () => {
@@ -272,12 +266,21 @@ export const onboardFunction = inngest.createFunction(
         await step.sleep("wait-5m", "5m");
 
         if (sendOnboardingEmail) {
+          const from = `Chase from Carbon <${
+            RESEND_DOMAIN === "carbon.ms"
+              ? "chase@carbon.ms"
+              : `no-reply@${RESEND_DOMAIN}`
+          }>`;
           await step.run("send-welcome-email", async () => {
             await sendEmail({
               from,
               to: user.email,
-              subject: `carbon`,
-              html: await render(WelcomeEmail())
+              subject: `Welcome to Carbon`,
+              html: await render(
+                WelcomeEmail({
+                  firstName: user.firstName
+                })
+              )
             });
           });
         }
@@ -285,6 +288,11 @@ export const onboardFunction = inngest.createFunction(
         await step.sleep("wait-3d", "3d");
 
         if (sendOnboardingEmail) {
+          const from = `Info from Carbon <${
+            RESEND_DOMAIN === "carbon.ms"
+              ? "info@carbon.ms"
+              : `no-reply@${RESEND_DOMAIN}`
+          }>`;
           await step.run("send-get-started-email", async () => {
             await sendEmail({
               from,

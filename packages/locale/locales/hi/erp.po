@@ -15,7 +15,7 @@ msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:99
 msgid " A supplier is a business or person who sells you parts or services."
-msgstr "एक आपूर्तिकर्ता एक व्यवसाय या व्यक्ति है जो आपको पार्ट्स या सेवाएं बेचता है।"
+msgstr ""
 
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:203
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
@@ -553,7 +553,7 @@ msgstr "प्रश्न जोड़ें"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:53
 msgid "Add Receipt"
-msgstr "रसीद जोड़ें"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Issue/ActionTasksList.tsx:216
 msgid "Add Required Actions"
@@ -571,7 +571,7 @@ msgstr "जोखिम जोड़ें"
 
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:53
 msgid "Add Shipment"
-msgstr "शिपमेंट जोड़ें"
+msgstr ""
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:513
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:513
@@ -749,7 +749,7 @@ msgstr "एपीआई कुंजी"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:135
-#: apps/erp/app/routes/x+/settings+/api-keys.tsx:13
+#: apps/erp/app/routes/x+/settings+/api-keys.tsx:17
 msgid "API Keys"
 msgstr "एपीआई कुंजियाँ"
 
@@ -958,10 +958,10 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 #. placeholder {1}: account.number ? ` (${account.number})` : ""
 #: apps/erp/app/routes/x+/accounting+/charts.delete.$accountId.tsx:79
 msgid "Are you sure you want to delete the account: {0}{1}? This cannot be undone."
-msgstr "क्या आप सुनिश्चित हैं कि आप खाता हटाना चाहते हैं: {0}{1}? यह पूर्ववत नहीं किया जा सकता।"
+msgstr ""
 
 #. placeholder {0}: apiKey.name
-#: apps/erp/app/routes/x+/settings+/api-keys.delete.$id.tsx:56
+#: apps/erp/app/routes/x+/settings+/api-keys.delete.$id.tsx:64
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "क्या आप सुनिश्चित हैं कि आप API कुंजी को हटाना चाहते हैं: {0}? यह पूर्ववत नहीं किया जा सकता।"
 
@@ -1157,7 +1157,7 @@ msgid "Are you sure you want to delete the view \"{0}\"?"
 msgstr "क्या आप सुनिश्चित हैं कि आप दृश्य \"{0}\" को हटाना चाहते हैं?"
 
 #. placeholder {0}: webhook.name
-#: apps/erp/app/routes/x+/settings+/webhooks.delete.$id.tsx:76
+#: apps/erp/app/routes/x+/settings+/webhooks.delete.$id.tsx:84
 msgid "Are you sure you want to delete the webhook: {0}? This cannot be undone."
 msgstr "क्या आप सुनिश्चित हैं कि आप वेबहुक को हटाना चाहते हैं: {0}? यह पूर्ववत नहीं किया जा सकता।"
 
@@ -1480,13 +1480,13 @@ msgstr "बैकफ्लश"
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:42
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:39
 msgid "Balance Sheet"
-msgstr "बैलेंस शीट"
+msgstr ""
 
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:288
 #: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:34
 #: apps/erp/app/routes/onboarding+/company.tsx:227
 msgid "Base Currency"
-msgstr "आधार मुद्रा"
+msgstr ""
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:187
 msgid "Base Price"
@@ -1622,6 +1622,10 @@ msgstr "बल्क आयात"
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:403
 msgid "Bulk Jobs"
 msgstr "बल्क जॉब्स"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:128
+msgid "Business plan"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:87
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:91
@@ -2216,7 +2220,7 @@ msgstr "कॉलम दृश्यता और क्रम"
 msgid "Columns"
 msgstr "कॉलम"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:84
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:93
 msgid "Coming soon"
 msgstr "जल्द ही आ रहा है"
 
@@ -2245,7 +2249,7 @@ msgstr "कंपनी"
 #: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:28
 #: apps/erp/app/routes/onboarding+/company.tsx:224
 msgid "Company Name"
-msgstr "कंपनी का नाम"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionForm.tsx:125
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionLotView.tsx:207
@@ -2396,7 +2400,7 @@ msgstr "विभिन्न लेनदेन प्रकारों के
 
 #: apps/erp/app/modules/accounting/ui/FiscalYear/FiscalYearSettingsForm.tsx:65
 msgid "Configure the start months for your fiscal and tax years"
-msgstr "अपने वित्तीय और कर वर्षों के लिए शुरुआती महीनों को कॉन्फ़िगर करें"
+msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:555
 msgid "Configure when purchased item prices should be updated from supplier transactions."
@@ -2639,7 +2643,7 @@ msgstr "दस्तावेज़ की अद्वितीय पहचा
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TraceabilitySidebar.tsx:234
 msgid "Copy ID"
-msgstr "आईडी कॉपी करें"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Issue/IssueProperties.tsx:227
 msgid "Copy issue number"
@@ -2655,7 +2659,7 @@ msgstr "जॉब नंबर कॉपी करें"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TraceabilitySidebar.tsx:220
 msgid "Copy link"
-msgstr "लिंक कॉपी करें"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:187
 msgid "Copy link to consumable"
@@ -2793,11 +2797,11 @@ msgstr "सही उत्तर"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:754
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:406
 msgid "Cost Center"
-msgstr "लागत केंद्र"
+msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:86
 msgid "Cost Centers"
-msgstr "लागत केंद्र"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/ItemCostHistoryChart.tsx:167
 msgid "Cost History"
@@ -2813,7 +2817,7 @@ msgstr "लागत और पोस्टिंग"
 
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:67
 msgid "Costing Method"
-msgstr "लागत निर्धारण विधि"
+msgstr ""
 
 #: apps/erp/app/components/DeferredFiles.tsx:67
 msgid "Couldn't load documents"
@@ -2934,7 +2938,7 @@ msgstr "बनाया गया"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountForm.tsx:69
 msgid "Created account"
-msgstr "खाता बनाया गया"
+msgstr ""
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:354
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:495
@@ -3122,7 +3126,7 @@ msgstr "भंडारण प्रकार बनाया गया"
 #. placeholder {0}: fetcher.data.data.name
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:61
 msgid "Created supplier: {0}"
-msgstr "आपूर्तिकर्ता बनाया गया: {0}"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:157
 msgid "Created tool"
@@ -3915,7 +3919,7 @@ msgstr "नियम हटाएं"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:232
 msgid "Delete Sales Invoice"
-msgstr "बिक्रय चालान हटाएं"
+msgstr ""
 
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:338
 msgid "Delete Sales Order"
@@ -4129,7 +4133,8 @@ msgstr "विवरण"
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:375
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:33
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:546
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:101
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:115
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:119
 msgid "Details"
 msgstr "विवरण"
 
@@ -4161,7 +4166,7 @@ msgstr "आयाम"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:477
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:251
 msgid "Direct"
-msgstr "सीधा"
+msgstr ""
 
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleCard.tsx:90
 msgid "Disabled"
@@ -4433,7 +4438,7 @@ msgstr "संपादित करें"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountForm.tsx:112
 msgid "Edit Account"
-msgstr "खाता संपादित करें"
+msgstr ""
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:112
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:173
@@ -5167,7 +5172,7 @@ msgstr "विनिमय दर"
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:104
 #: apps/erp/app/routes/x+/accounting+/exchange-rates.tsx:13
 msgid "Exchange Rates"
-msgstr "विनिमय दरें"
+msgstr ""
 
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:97
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:603
@@ -5450,7 +5455,7 @@ msgstr "भंडारण प्रकार बनाने में वि�
 #. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:63
 msgid "Failed to create supplier: {0}"
-msgstr "आपूर्तिकर्ता बनाने में विफल: {0}"
+msgstr ""
 
 #. placeholder {0}: fetcher.data.error.message
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:159
@@ -5900,7 +5905,7 @@ msgstr "पहली ऑपरेशन"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:110
 msgid "Fiscal Year"
-msgstr "वित्तीय वर्ष"
+msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/FiscalYear/FiscalYearSettingsForm.tsx:62
 msgid "Fiscal Year Settings"
@@ -6042,7 +6047,7 @@ msgstr "विधि प्राप्त करें"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:735
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:387
 msgid "GL Account"
-msgstr "जीएल खाता"
+msgstr ""
 
 #. placeholder {0}: user.firstName
 #: apps/erp/app/components/Greeting.tsx:24
@@ -6297,7 +6302,7 @@ msgstr "कर और शिपिंग लागत शामिल है"
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:43
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:45
 msgid "Income Statement"
-msgstr "आय विवरण"
+msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountForm.tsx:148
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/GroupAccountForm.tsx:191
@@ -6335,7 +6340,7 @@ msgstr "इनकोटर्म स्थान"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:481
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:255
 msgid "Indirect"
-msgstr "अप्रत्यक्ष"
+msgstr ""
 
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:44
 msgid "Infrastructure"
@@ -6382,12 +6387,12 @@ msgstr "निरीक्षण"
 msgid "Inspector"
 msgstr "निरीक्षक"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:125
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:159
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:715
 msgid "Install"
 msgstr "इंस्टॉल करें"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:79
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:88
 msgid "Installed"
 msgstr "स्थापित"
 
@@ -6409,9 +6414,13 @@ msgstr "एकीकरण नहीं मिला"
 msgid "Integrations"
 msgstr "एकीकरण"
 
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:133
+msgid "Integrations are available on the Business plan and above."
+msgstr ""
+
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:62
 msgid "Intercompany"
-msgstr "अंतरकंपनी"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentNotes.tsx:117
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionLineNotes.tsx:135
@@ -6888,7 +6897,7 @@ msgstr "{0} में शामिल हों"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:68
 msgid "Journal Entries"
-msgstr "जर्नल प्रविष्टियां"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:635
 msgid "Kanban"
@@ -6945,16 +6954,16 @@ msgstr "लेबल"
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:223
 msgid "Label to complete the current operation for this kanban"
-msgstr "इस कनबन के लिए वर्तमान ऑपरेशन को पूरा करने के लिए लेबल"
+msgstr ""
 
 #. placeholder {0}: row.original.replenishmentSystem === "Make" ? "Job" : "Order"
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:172
 msgid "Label to create a {0} for this kanban"
-msgstr "इस कनबन के लिए {0} बनाने के लिए लेबल"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:197
 msgid "Label to start the next operation for this kanban"
-msgstr "इस कनबन के लिए अगली ऑपरेशन शुरू करने के लिए लेबल"
+msgstr ""
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:237
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:65
@@ -7096,7 +7105,7 @@ msgstr "चलिए कुछ बनाते हैं"
 
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:279
 msgid "Let's set up your new company"
-msgstr "आइए अपनी नई कंपनी सेट अप करें"
+msgstr ""
 
 #: apps/erp/app/routes/onboarding+/user.tsx:96
 msgid "Let's setup your account"
@@ -8398,7 +8407,7 @@ msgstr "नया स्टोरेज यूनिट"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:94
 msgid "New Supplier"
-msgstr "नया आपूर्तिकर्ता"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:169
 msgid "New Supplier Part"
@@ -8436,7 +8445,7 @@ msgstr "नया संस्करण"
 
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:343
 msgid "New Warehouse Transfer"
-msgstr "नया गोदाम स्थानांतरण"
+msgstr ""
 
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:85
 msgid "New Webhook"
@@ -8633,7 +8642,7 @@ msgstr "कोई लोगो अपलोड नहीं किया गय�
 
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:187
 msgid "No matches"
-msgstr "कोई मेल नहीं"
+msgstr ""
 
 #: apps/erp/app/components/Layout/Topbar/Search/SearchEmptyState.tsx:46
 msgid "No matches for \"{query}\". Try a different search term."
@@ -9267,7 +9276,7 @@ msgstr "मूल विभाग"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/GroupAccountForm.tsx:144
 msgid "Parent Group"
-msgstr "मूल समूह"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:97
 msgid "Parent Storage Unit"
@@ -9481,7 +9490,7 @@ msgstr "सॉर्ट करने के लिए एक कॉलम चु
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:23
 msgid "Pick a customer or customer type to view their pricing."
-msgstr "उनकी मूल्य निर्धारण देखने के लिए एक ग्राहक या ग्राहक प्रकार चुनें।"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:78
 msgid "Pick a date or leave blank to clear it."
@@ -10132,11 +10141,11 @@ msgstr "क्रय माप की इकाई"
 #. placeholder {0}: row.original.replenishmentSystem === "Make" ? "Job" : "Order"
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:249
 msgid "QR Code to create a {0} for this kanban"
-msgstr "इस कनबन के लिए {0} बनाने के लिए QR कोड"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:284
 msgid "QR Code to start the next operation for this kanban"
-msgstr "इस कनबन के लिए अगली ऑपरेशन शुरू करने के लिए QR कोड"
+msgstr ""
 
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:335
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:413
@@ -11412,7 +11421,7 @@ msgstr "स्कैन करें"
 
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:153
 msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "एक लेबल स्कैन करें या ID, सीरियल नंबर, या बैच नंबर से खोजें।"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:137
 msgid "Scan or enter tracked entity ID, serial, or batch"
@@ -11420,7 +11429,7 @@ msgstr "ट्रैक किए गए इकाई ID, सीरीज़ य
 
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:161
 msgid "Scan or search..."
-msgstr "स्कैन या खोजें..."
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:100
 msgid "Scan or select a tracked entity from this lot and record the inspection result."
@@ -11525,7 +11534,7 @@ msgstr "ग्राहकों और प्रकारों को खो�
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceListScopeEmpty.tsx:31
 msgid "Search customers or types..."
-msgstr "ग्राहकों या प्रकारों को खोजें..."
+msgstr ""
 
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:210
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:267
@@ -12833,7 +12842,7 @@ msgstr "आपूर्तिकर्ता ऑर्डर संख्या"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:92
 msgid "Supplier Overview"
-msgstr "आपूर्तिकर्ता अवलोकन"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:180
 msgid "Supplier Part ID"
@@ -13704,7 +13713,7 @@ msgstr "ट्रैश"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:51
 msgid "Trial Balance"
-msgstr "ट्रायल बैलेंस"
+msgstr ""
 
 #: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:82
 msgid "Tuesday"
@@ -13793,7 +13802,7 @@ msgstr "अनुमोदित नहीं आपूर्तिकर्त�
 msgid "Unassigned"
 msgstr "अनुत्तरित"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:116
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:150
 msgid "Uninstall"
 msgstr "अनइंस्टॉल करें"
 
@@ -13991,7 +14000,7 @@ msgstr "अपडेट किया गया"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountForm.tsx:69
 msgid "Updated account"
-msgstr "खाता अपडेट किया गया"
+msgstr ""
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:379
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:520
@@ -14550,7 +14559,7 @@ msgstr "वेबहुक URL"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:171
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:227
-#: apps/erp/app/routes/x+/settings+/webhooks.tsx:14
+#: apps/erp/app/routes/x+/settings+/webhooks.tsx:18
 msgid "Webhooks"
 msgstr "वेबहुक"
 

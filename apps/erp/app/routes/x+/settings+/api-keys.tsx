@@ -1,9 +1,13 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { usePlan } from "@carbon/remix";
+import { Plan } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
+import { PlanUpgradeBanner } from "~/components/PlanUpgradeBanner";
+import { useFlags } from "~/hooks/useFlags";
 import { ApiKeysTable, getApiKeys } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -48,6 +52,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function ApiKeysRoute() {
   const { apiKeys, count } = useLoaderData<typeof loader>();
+  const plan = usePlan();
+  const { isCloud } = useFlags();
+  const isStarterPlan = isCloud && plan === Plan.Starter;
+
+  if (isStarterPlan) {
+    return (
+      <PlanUpgradeBanner
+        feature="API keys"
+        description="Programmatic access via API keys is not available on the Starter plan. Upgrade to create and manage API keys for your company."
+      />
+    );
+  }
   return (
     <>
       <ApiKeysTable count={count} data={apiKeys} />

@@ -7,11 +7,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-  cn
+  cn,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
 } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
+import { usePlan, useRouteData } from "@carbon/remix";
+import { Plan } from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
+import { LuLock } from "react-icons/lu";
 import { Link, useFetcher, useNavigate } from "react-router";
+import { useFlags } from "~/hooks/useFlags";
 import { path } from "~/utils/path";
 
 export type IntegrationHealth = {
@@ -30,6 +36,9 @@ export function IntegrationCard({
   const fetcher = useFetcher<{}>();
   const navigate = useNavigate();
   const routeData = useRouteData<{ state: string }>(path.to.integrations);
+  const plan = usePlan();
+  const { isCloud } = useFlags();
+  const isStarterPlan = isCloud && plan === Plan.Starter;
 
   const getOauthUrl = (integration: Integration) => {
     if ("oauth" in integration && !!integration.oauth) {
@@ -96,12 +105,37 @@ export function IntegrationCard({
         {integration.description}
       </CardContent>
       <CardFooter className="flex flex-end flex-row-reverse gap-2">
-        <Button isDisabled={!installed} variant="secondary" asChild>
-          <Link to={integration.active && installed ? integration.id : "#"}>
-            <Trans>Details</Trans>
-          </Link>
+        <Button
+          isDisabled={isStarterPlan || !installed}
+          variant="secondary"
+          asChild={!isStarterPlan}
+        >
+          {isStarterPlan ? (
+            <span>
+              <Trans>Details</Trans>
+            </span>
+          ) : (
+            <Link to={integration.active && installed ? integration.id : "#"}>
+              <Trans>Details</Trans>
+            </Link>
+          )}
         </Button>
-        {installed ? (
+        {isStarterPlan ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span tabIndex={0}>
+                <Button isDisabled leftIcon={<LuLock />}>
+                  <Trans>Business plan</Trans>
+                </Button>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <Trans>
+                Integrations are available on the Business plan and above.
+              </Trans>
+            </TooltipContent>
+          </Tooltip>
+        ) : installed ? (
           <fetcher.Form
             method="post"
             action={path.to.integrationDeactivate(integration.id)}

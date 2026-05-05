@@ -749,7 +749,7 @@ msgstr "API Key"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:135
-#: apps/erp/app/routes/x+/settings+/api-keys.tsx:13
+#: apps/erp/app/routes/x+/settings+/api-keys.tsx:17
 msgid "API Keys"
 msgstr "API Keys"
 
@@ -961,7 +961,7 @@ msgid "Are you sure you want to delete the account: {0}{1}? This cannot be undon
 msgstr "Are you sure you want to delete the account: {0}{1}? This cannot be undone."
 
 #. placeholder {0}: apiKey.name
-#: apps/erp/app/routes/x+/settings+/api-keys.delete.$id.tsx:56
+#: apps/erp/app/routes/x+/settings+/api-keys.delete.$id.tsx:64
 msgid "Are you sure you want to delete the API key: {0}? This cannot be undone."
 msgstr "Are you sure you want to delete the API key: {0}? This cannot be undone."
 
@@ -1157,7 +1157,7 @@ msgid "Are you sure you want to delete the view \"{0}\"?"
 msgstr "Are you sure you want to delete the view \"{0}\"?"
 
 #. placeholder {0}: webhook.name
-#: apps/erp/app/routes/x+/settings+/webhooks.delete.$id.tsx:76
+#: apps/erp/app/routes/x+/settings+/webhooks.delete.$id.tsx:84
 msgid "Are you sure you want to delete the webhook: {0}? This cannot be undone."
 msgstr "Are you sure you want to delete the webhook: {0}? This cannot be undone."
 
@@ -1622,6 +1622,10 @@ msgstr "Bulk Import"
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:403
 msgid "Bulk Jobs"
 msgstr "Bulk Jobs"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:128
+msgid "Business plan"
+msgstr "Business plan"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:87
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:91
@@ -2216,7 +2220,7 @@ msgstr "Column visibility and order"
 msgid "Columns"
 msgstr "Columns"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:84
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:93
 msgid "Coming soon"
 msgstr "Coming soon"
 
@@ -4129,7 +4133,8 @@ msgstr "Detail"
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:375
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:33
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:546
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:101
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:115
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:119
 msgid "Details"
 msgstr "Details"
 
@@ -6382,12 +6387,12 @@ msgstr "Inspections"
 msgid "Inspector"
 msgstr "Inspector"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:125
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:159
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:715
 msgid "Install"
 msgstr "Install"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:79
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:88
 msgid "Installed"
 msgstr "Installed"
 
@@ -6408,6 +6413,10 @@ msgstr "Integration not found"
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:159
 msgid "Integrations"
 msgstr "Integrations"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:133
+msgid "Integrations are available on the Business plan and above."
+msgstr "Integrations are available on the Business plan and above."
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:62
 msgid "Intercompany"
@@ -13793,7 +13802,7 @@ msgstr "Unapproved Supplier"
 msgid "Unassigned"
 msgstr "Unassigned"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:116
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:150
 msgid "Uninstall"
 msgstr "Uninstall"
 
@@ -14550,7 +14559,7 @@ msgstr "Webhook URL"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:171
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:227
-#: apps/erp/app/routes/x+/settings+/webhooks.tsx:14
+#: apps/erp/app/routes/x+/settings+/webhooks.tsx:18
 msgid "Webhooks"
 msgstr "Webhooks"
 
