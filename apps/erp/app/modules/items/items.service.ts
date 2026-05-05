@@ -4092,7 +4092,9 @@ export async function upsertItemRule(
     .update({
       ...sanitize(rule),
       conditionAst: rule.conditionAst as unknown as Json,
-      updatedAt: today(getLocalTimeZone()).toString()
+      // Full timestamp (not date-only) so the LRU cache in
+      // `compileWithCache` invalidates on every edit, not once per day.
+      updatedAt: now(getLocalTimeZone()).toAbsoluteString()
     })
     .eq("id", rule.id)
     .select("id")
@@ -4115,29 +4117,50 @@ export async function getActiveRulesForItem(
   itemId: string,
   companyId: string
 ): Promise<{ data: ItemRuleRow[]; error: unknown }> {
+  const batched = await getActiveRulesForItems(client, [itemId], companyId);
+  return { data: batched.data.get(itemId) ?? [], error: batched.error };
+}
+
+/**
+ * Batched variant — single round-trip + JOIN for N items. Use this when
+ * iterating over multiple items in one request (e.g. evaluating every line
+ * on a receipt) to avoid the N+1 round-trips you'd get from calling
+ * `getActiveRulesForItem` per item.
+ */
+export async function getActiveRulesForItems(
+  client: SupabaseClient<Database>,
+  itemIds: string[],
+  companyId: string
+): Promise<{ data: Map<string, ItemRuleRow[]>; error: unknown }> {
+  const out = new Map<string, ItemRuleRow[]>();
+  if (itemIds.length === 0) return { data: out, error: null };
+
   const { data, error } = await client
     .from("itemRuleAssignment")
     .select(
-      `itemRule:ruleId(id, severity, message, conditionAst, surfaces, updatedAt, active)`
+      `itemId, itemRule:ruleId(id, severity, message, conditionAst, surfaces, updatedAt, active)`
     )
-    .eq("itemId", itemId)
+    .in("itemId", itemIds)
     .eq("companyId", companyId);
 
-  if (error) return { data: [], error };
+  if (error) return { data: out, error };
 
-  const rows: ItemRuleRow[] = [];
   for (const r of data ?? []) {
     // supabase returns the joined row either as object or array depending on FK shape.
     // Cast through `unknown` because the generated `Database` types don't yet
     // know about the `surfaces` column (run `bun run db:types` after the
     // migration applies to refresh).
-    const rule = (
-      r as unknown as { itemRule: ItemRuleRow | ItemRuleRow[] | null }
-    ).itemRule;
-    const node = Array.isArray(rule) ? rule[0] : rule;
-    if (node && node.active !== false) rows.push(node);
+    const row = r as unknown as {
+      itemId: string;
+      itemRule: ItemRuleRow | ItemRuleRow[] | null;
+    };
+    const node = Array.isArray(row.itemRule) ? row.itemRule[0] : row.itemRule;
+    if (!node || node.active === false) continue;
+    const bucket = out.get(row.itemId);
+    if (bucket) bucket.push(node);
+    else out.set(row.itemId, [node]);
   }
-  return { data: rows, error: null };
+  return { data: out, error: null };
 }
 
 export async function getRuleAssignmentsForItem(

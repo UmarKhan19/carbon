@@ -1,7 +1,17 @@
-import { Input, MultiSelect } from "@carbon/react";
+import {
+  Input,
+  MultiSelect,
+  NumberDecrementStepper,
+  NumberField,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputGroup,
+  NumberInputStepper
+} from "@carbon/react";
 import type { FieldDef, Operator } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import { memo } from "react";
+import { LuChevronDown, LuChevronUp } from "react-icons/lu";
 import type { ValueOption } from "./useValueOptions";
 import ValueCombobox from "./ValueCombobox";
 
@@ -86,22 +96,30 @@ function ValueInputImpl({
   if (!multi && fieldDef?.type === "number") {
     const numValue =
       typeof value === "number"
-        ? String(value)
-        : typeof value === "string"
-          ? value
-          : "";
+        ? value
+        : typeof value === "string" && value !== ""
+          ? Number(value)
+          : Number.NaN;
     return (
-      <Input
-        size="md"
-        type="number"
-        placeholder={t`Number`}
-        value={numValue}
-        onChange={(e) => {
-          const raw = e.target.value;
-          const n = Number(raw);
-          onChange(raw === "" || Number.isNaN(n) ? undefined : n);
-        }}
-      />
+      <NumberField
+        value={Number.isNaN(numValue) ? undefined : numValue}
+        onChange={(n) =>
+          onChange(typeof n === "number" && !Number.isNaN(n) ? n : undefined)
+        }
+        aria-label={t`Number`}
+      >
+        <NumberInputGroup className="relative">
+          <NumberInput placeholder={t`Number`} />
+          <NumberInputStepper>
+            <NumberIncrementStepper>
+              <LuChevronUp size="1em" strokeWidth="3" />
+            </NumberIncrementStepper>
+            <NumberDecrementStepper>
+              <LuChevronDown size="1em" strokeWidth="3" />
+            </NumberDecrementStepper>
+          </NumberInputStepper>
+        </NumberInputGroup>
+      </NumberField>
     );
   }
 

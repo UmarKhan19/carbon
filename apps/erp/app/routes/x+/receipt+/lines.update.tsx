@@ -1,11 +1,9 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import type { Violation } from "@carbon/utils";
 import type { ActionFunctionArgs } from "react-router";
 import {
-  evaluateForItem,
-  isBlocked,
-  loadCompiledRulesForItem
+  evaluateLinesForSurface,
+  isBlocked
 } from "~/modules/items/itemRules.server";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -30,18 +28,36 @@ export async function action({ request }: ActionFunctionArgs) {
     return { error: { message: `Invalid field: ${field}` }, data: null };
   }
 
-  // Item Rule evaluation (storage context relevant only for storageUnitId edits;
-  // quantity-only edits still evaluate transaction.quantity rules).
-  // Use service role so item / storageUnit reads aren't blocked by RLS for
-  // users with `inventory.update` but not `parts.view`.
+  // Item Rule evaluation. Service role for item / storageUnit reads so RLS
+  // doesn't return empty rows for users with `inventory.update` but not
+  // `parts.view`.
   const serviceRole = getCarbonServiceRole();
-  const { violations, ruleNames } = await evaluateReceiptLineUpdate({
+  const { data: lines } = await serviceRole
+    .from("receiptLine")
+    .select(
+      "id, itemId, storageUnitId, receivedQuantity, locationId, receiptId"
+    )
+    .in("id", ids)
+    .eq("companyId", companyId);
+
+  const { violations, ruleNames } = await evaluateLinesForSurface({
     client: serviceRole,
     companyId,
     userId,
-    receiptLineIds: ids,
-    field,
-    value
+    surface: "receipt",
+    lines: (lines ?? []).map((l) => ({
+      lineId: l.id as string,
+      itemId: l.itemId as string | null,
+      // Edits-in-flight: substitute the candidate value when this is a
+      // storageUnitId edit so the rule sees the new value, not the persisted one.
+      storageUnitId:
+        field === "storageUnitId" ? value : (l.storageUnitId as string | null),
+      quantity:
+        field === "receivedQuantity"
+          ? Number(value)
+          : Number(l.receivedQuantity ?? 0),
+      locationId: l.locationId as string | null
+    }))
   });
 
   if (violations.length > 0 && isBlocked(violations, acknowledged)) {
@@ -64,148 +80,4 @@ export async function action({ request }: ActionFunctionArgs) {
     .eq("companyId", companyId);
 
   return update;
-}
-
-type EvalArgs = {
-  client: ReturnType<typeof getCarbonServiceRole>;
-  companyId: string;
-  userId: string;
-  receiptLineIds: string[];
-  field: "storageUnitId" | "receivedQuantity";
-  value: string | null;
-};
-
-type EvalResult = {
-  violations: Violation[];
-  ruleNames: Record<string, string>;
-};
-
-async function evaluateReceiptLineUpdate({
-  client,
-  companyId,
-  userId,
-  receiptLineIds,
-  field,
-  value
-}: EvalArgs): Promise<EvalResult> {
-  if (receiptLineIds.length === 0) return { violations: [], ruleNames: {} };
-
-  // Fetch all relevant receipt lines + their items in one round trip.
-  const { data: lines } = await client
-    .from("receiptLine")
-    .select(
-      "id, itemId, storageUnitId, receivedQuantity, locationId, receiptId"
-    )
-    .in("id", receiptLineIds)
-    .eq("companyId", companyId);
-
-  if (!lines || lines.length === 0) return { violations: [], ruleNames: {} };
-
-  const itemIds = Array.from(
-    new Set(lines.map((l) => l.itemId).filter(Boolean))
-  ) as string[];
-  const storageUnitIds = Array.from(
-    new Set(
-      lines
-        .map((l) =>
-          field === "storageUnitId" ? value : (l.storageUnitId as string | null)
-        )
-        .filter(Boolean) as string[]
-    )
-  );
-
-  const [itemsRes, storageUnitsRes] = await Promise.all([
-    itemIds.length
-      ? client
-          .from("item")
-          .select(
-            "id, type, replenishmentSystem, itemTrackingType, name, readableId"
-          )
-          .in("id", itemIds)
-      : Promise.resolve({ data: [], error: null }),
-    storageUnitIds.length
-      ? client
-          .from("storageUnit")
-          .select("id, storageTypeIds, warehouseId, name, locationId")
-          .in("id", storageUnitIds)
-      : Promise.resolve({ data: [], error: null })
-  ]);
-
-  const itemsById = new Map(
-    (itemsRes.data ?? []).map((it) => [it.id, it as Record<string, unknown>])
-  );
-  // Flatten `storageTypeIds[0]` into the synthetic `storageTypeId` field the
-  // rule registry resolves against. Mirrors the synthetic mapping declared in
-  // FIELD_REGISTRY.
-  const unitsById = new Map(
-    (storageUnitsRes.data ?? []).map((u) => {
-      const ids = (u as { storageTypeIds?: string[] | null }).storageTypeIds;
-      return [
-        u.id,
-        {
-          ...(u as Record<string, unknown>),
-          storageTypeId: ids && ids.length > 0 ? ids[0] : undefined
-        } as Record<string, unknown>
-      ];
-    })
-  );
-
-  // Per-item compile is cached; cheap to repeat.
-  const compiledByItem = new Map(
-    await Promise.all(
-      itemIds.map(
-        async (id) =>
-          [id, await loadCompiledRulesForItem(client, id, companyId)] as const
-      )
-    )
-  );
-
-  const all: Violation[] = [];
-  for (const line of lines) {
-    const itemId = line.itemId as string | null;
-    if (!itemId) continue;
-    const compiled = compiledByItem.get(itemId);
-    if (!compiled || compiled.length === 0) continue;
-
-    const storageUnitId =
-      field === "storageUnitId" ? value : (line.storageUnitId as string | null);
-    const quantity =
-      field === "receivedQuantity"
-        ? Number(value)
-        : Number(line.receivedQuantity ?? 0);
-
-    const ctx = {
-      item: itemsById.get(itemId) as
-        | (Record<string, unknown> & {
-            customFields?: Record<string, unknown>;
-          })
-        | undefined,
-      storageUnit: storageUnitId
-        ? (unitsById.get(storageUnitId) as Record<string, unknown> | undefined)
-        : undefined,
-      transaction: {
-        kind: "receipt",
-        locationId: line.locationId,
-        quantity,
-        userId
-      }
-    };
-
-    all.push(...evaluateForItem(compiled, ctx, "receipt"));
-  }
-
-  // Resolve rule names so the modal can render names instead of UUIDs.
-  const ruleNames: Record<string, string> = {};
-  if (all.length > 0) {
-    const violatedIds = Array.from(new Set(all.map((v) => v.ruleId)));
-    const { data: namedRules } = await client
-      .from("itemRule")
-      .select("id, name")
-      .in("id", violatedIds);
-    for (const r of namedRules ?? []) {
-      ruleNames[r.id as string] = r.name as string;
-    }
-  }
-
-  return { violations: all, ruleNames };
 }

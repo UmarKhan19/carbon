@@ -1,3 +1,13 @@
+-- Per-rule trigger surface scoping. Rules opt in to one or more transaction
+-- surfaces; the evaluator skips surfaces a rule didn't subscribe to.
+CREATE TYPE "transactionSurface" AS ENUM (
+  'receipt',
+  'shipment',
+  'stockTransfer',
+  'jobOperation',
+  'inventoryAdjustment'
+);
+
 CREATE TABLE "itemRule" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT xid(),
   "companyId" TEXT NOT NULL,
@@ -6,6 +16,13 @@ CREATE TABLE "itemRule" (
   "message" TEXT NOT NULL,
   "severity" TEXT NOT NULL CHECK ("severity" IN ('error', 'warn')),
   "conditionAst" JSONB NOT NULL,
+  "surfaces" "transactionSurface"[] NOT NULL DEFAULT ARRAY[
+    'receipt',
+    'shipment',
+    'stockTransfer',
+    'jobOperation',
+    'inventoryAdjustment'
+  ]::"transactionSurface"[],
   "active" BOOLEAN NOT NULL DEFAULT TRUE,
   "createdBy" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -16,7 +33,8 @@ CREATE TABLE "itemRule" (
   CONSTRAINT "itemRule_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "itemRule_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id"),
   CONSTRAINT "itemRule_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id"),
-  CONSTRAINT "itemRule_companyId_name_key" UNIQUE ("companyId", "name")
+  CONSTRAINT "itemRule_companyId_name_key" UNIQUE ("companyId", "name"),
+  CONSTRAINT "itemRule_surfaces_nonempty" CHECK (array_length("surfaces", 1) >= 1)
 );
 
 CREATE INDEX "itemRule_companyId_idx" ON "itemRule" ("companyId");

@@ -1,4 +1,4 @@
-import { ValidatedForm } from "@carbon/form";
+import { Boolean, ValidatedForm } from "@carbon/form";
 import {
   Button,
   HStack,
@@ -11,12 +11,16 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
-import { type ConditionAst, TRANSACTION_SURFACES } from "@carbon/utils";
+import {
+  type Condition,
+  type ConditionAst,
+  TRANSACTION_SURFACES
+} from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { useState } from "react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import {
-  Boolean,
   CustomFormFields,
   Hidden,
   Input,
@@ -62,6 +66,14 @@ export default function ItemRuleForm({
     conditions: []
   };
 
+  // Live mirror of the AST conditions, kept in sync via RuleBuilder's
+  // callback. MessageWithTokens reads it to offer per-condition tokens
+  // (`{condition[0].value}`, etc.) that resolve to the rule's required
+  // value at eval time — independent of the runtime ctx.
+  const [liveConditions, setLiveConditions] = useState<Condition[]>(
+    conditionAstInitial.conditions
+  );
+
   // ValidatedForm wants defaultValues; we hand it the scalar fields.
   // conditionAst gets driven by RuleBuilder via Hidden field.
   const defaults = {
@@ -104,7 +116,13 @@ export default function ItemRuleForm({
             <ModalDrawerBody>
               <Hidden name="id" />
               <VStack spacing={4}>
-                <Input name="name" label={t`Name`} />
+                <HStack className="w-full gap-x-4">
+                  <Input name="name" label={t`Name`} />
+
+                  <div className="shrink-0 pb-2">
+                    <Boolean variant="large" name="active" label={t`Active`} />
+                  </div>
+                </HStack>
                 <TextArea
                   name="description"
                   label={t`Description`}
@@ -112,16 +130,12 @@ export default function ItemRuleForm({
                 />
                 <SeveritySelect name="severity" />
                 <SurfacesField name="surfaces" />
-                <Boolean
-                  name="active"
-                  label={t`Active`}
-                  description={t`Inactive rules are skipped during evaluation but kept on items`}
-                />
                 <RuleBuilder
                   name="conditionAst"
                   initial={conditionAstInitial}
+                  onConditionsChange={setLiveConditions}
                 />
-                <MessageWithTokens name="message" />
+                <MessageWithTokens name="message" conditions={liveConditions} />
                 <CustomFormFields table="itemRule" />
               </VStack>
             </ModalDrawerBody>

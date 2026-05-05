@@ -11471,6 +11471,7 @@ export type Database = {
           message: string
           name: string
           severity: string
+          surfaces: Database["public"]["Enums"]["transactionSurface"][]
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -11486,6 +11487,7 @@ export type Database = {
           message: string
           name: string
           severity: string
+          surfaces?: Database["public"]["Enums"]["transactionSurface"][]
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -11501,6 +11503,7 @@ export type Database = {
           message?: string
           name?: string
           severity?: string
+          surfaces?: Database["public"]["Enums"]["transactionSurface"][]
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -35717,7 +35720,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_SAFdgX1kzotmkUvw9QAGFY: {
+      searchIndex_BNaDBR9kDXVbuh63RgUa3B: {
         Row: {
           createdAt: string
           description: string | null
@@ -55352,6 +55355,13 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
+            columns: ["invoiceCountryCode"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["alpha2"]
+          },
+          {
+            foreignKeyName: "address_countryCode_fkey"
             columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
@@ -55360,13 +55370,6 @@ export type Database = {
           {
             foreignKeyName: "address_countryCode_fkey"
             columns: ["customerCountryCode"]
-            isOneToOne: false
-            referencedRelation: "country"
-            referencedColumns: ["alpha2"]
-          },
-          {
-            foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -61684,6 +61687,11 @@ export type Database = {
         | "Numerical"
       trainingStatus: "Draft" | "Active" | "Archived"
       trainingType: "Mandatory" | "Optional"
+      transactionSurface:
+        | "receipt"
+        | "shipment"
+        | "stockTransfer"
+        | "jobOperation"
       warehouseTransferStatus:
         | "Draft"
         | "To Ship and Receive"
@@ -62922,6 +62930,12 @@ export const Constants = {
       ],
       trainingStatus: ["Draft", "Active", "Archived"],
       trainingType: ["Mandatory", "Optional"],
+      transactionSurface: [
+        "receipt",
+        "shipment",
+        "stockTransfer",
+        "jobOperation",
+      ],
       warehouseTransferStatus: [
         "Draft",
         "To Ship and Receive",

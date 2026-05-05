@@ -47,7 +47,7 @@ export default function AuditLogUpgradeOverlay() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="mt-5">
           <CardHeader>
             <CardTitle>Archived Logs</CardTitle>
             <CardDescription>

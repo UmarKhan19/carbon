@@ -5,6 +5,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
   CommandTrigger,
   cn,
   Popover,
@@ -117,49 +118,55 @@ export default function FieldCombobox({
             onWheel={(e) => e.stopPropagation()}
           >
             <CommandEmpty>{t`No fields found.`}</CommandEmpty>
-            {CONTEXT_ORDER.map((ctxKey) => {
-              const fields = grouped.get(ctxKey) ?? [];
-              if (fields.length === 0) return null;
-              const meta = CONTEXT[ctxKey];
-              return (
-                <CommandGroup
-                  key={ctxKey}
-                  heading={
-                    <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      {meta.icon}
-                      {meta.label}
-                    </span>
-                  }
-                >
-                  {fields.map((f) => (
-                    <CommandItem
-                      key={f.path}
-                      value={`${meta.label} ${f.label} ${f.path}`}
-                      onSelect={() => {
-                        onChange(f.path);
-                        setOpen(false);
-                      }}
-                      className="flex items-center gap-2 px-2 py-2"
-                    >
-                      <span className="flex min-w-0 flex-1 flex-col">
-                        <span className="truncate text-sm font-medium">
-                          {f.label}
-                        </span>
-                        <span className="truncate text-xs text-muted-foreground">
-                          {f.path}
-                        </span>
-                      </span>
-                      <LuCheck
-                        className={cn(
-                          "h-4 w-4 shrink-0",
-                          value === f.path ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+            {(() => {
+              const visibleCtx = CONTEXT_ORDER.filter(
+                (k) => (grouped.get(k) ?? []).length > 0
               );
-            })}
+              return visibleCtx.map((ctxKey, gi) => {
+                const fields = grouped.get(ctxKey) ?? [];
+                const meta = CONTEXT[ctxKey];
+                return (
+                  <div key={ctxKey}>
+                    {gi > 0 && <CommandSeparator />}
+                    <CommandGroup
+                      heading={
+                        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {meta.icon}
+                          {meta.label}
+                        </span>
+                      }
+                    >
+                      {fields.map((f) => (
+                        <CommandItem
+                          key={f.path}
+                          value={`${meta.label} ${f.label} ${f.path}`}
+                          onSelect={() => {
+                            onChange(f.path);
+                            setOpen(false);
+                          }}
+                          className="flex items-center gap-2 px-2 py-2"
+                        >
+                          <span className="flex min-w-0 flex-1 flex-col">
+                            <span className="truncate text-sm font-medium">
+                              {f.label}
+                            </span>
+                            <span className="truncate text-xs text-muted-foreground">
+                              {f.path}
+                            </span>
+                          </span>
+                          <LuCheck
+                            className={cn(
+                              "h-4 w-4 shrink-0",
+                              value === f.path ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </div>
+                );
+              });
+            })()}
           </CommandList>
         </Command>
       </PopoverContent>

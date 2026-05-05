@@ -4,6 +4,7 @@ import {
   LuArrowRightLeft,
   LuFactory,
   LuPackage,
+  LuScale,
   LuTruck
 } from "react-icons/lu";
 
@@ -20,6 +21,10 @@ const SURFACE_VISUALS: Record<
   jobOperation: {
     label: "Job operations",
     icon: <LuFactory className="size-3.5" />
+  },
+  inventoryAdjustment: {
+    label: "Inventory adjustments",
+    icon: <LuScale className="size-3.5" />
   }
 };
 
@@ -45,10 +50,7 @@ export default function SurfaceChips({
   );
   return (
     <div
-      className={cn(
-        "flex items-center gap-0.5 text-muted-foreground",
-        className
-      )}
+      className={cn("flex items-center gap-1 text-muted-foreground", className)}
       role="group"
       aria-label="Transaction surfaces"
     >

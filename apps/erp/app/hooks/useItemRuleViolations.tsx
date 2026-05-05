@@ -65,6 +65,9 @@ export function useItemRuleViolations<T = unknown>({
   // `data` alone to detect "operation succeeded".
   const pendingSuccessRef = useRef(false);
   const [dismissed, setDismissed] = useState(false);
+  // Track idle→submitting transitions so the hook resets correctly even when
+  // the form submits via `fetcher={...}` prop directly (bypassing `submit()`).
+  const prevIdleRef = useRef(true);
 
   const data = fetcher.data as ItemRuleViolationPayload | undefined;
   const errorMessage = data?.error?.message;
@@ -78,6 +81,20 @@ export function useItemRuleViolations<T = unknown>({
   const violations = idle ? (data?.violations ?? []) : [];
   const ruleNames = idle ? data?.ruleNames : undefined;
   const hasViolations = violations.length > 0 && !dismissed;
+
+  // Detect idle→submitting transition. Resets per-submission state even when
+  // the form drives the fetcher directly via the `fetcher` prop (not submit()).
+  useEffect(() => {
+    if (!idle && prevIdleRef.current) {
+      setDismissed(false);
+      pendingSuccessRef.current = true;
+      // Capture FormData for acknowledge re-post when form uses fetcher prop.
+      if (fetcher.formData) {
+        lastSubmissionRef.current = fetcher.formData;
+      }
+    }
+    prevIdleRef.current = idle;
+  }, [idle, fetcher.formData]);
 
   // Toast any non-violation server error.
   useEffect(() => {

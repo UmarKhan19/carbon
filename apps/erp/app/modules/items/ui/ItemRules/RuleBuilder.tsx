@@ -12,7 +12,7 @@ import {
   type MatchKind
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuBan, LuCheckCheck, LuListChecks, LuPlus } from "react-icons/lu";
 import { Hidden } from "~/components/Form";
 import ConditionRow, { CONDITION_GRID_CLASS } from "./ConditionRow";
@@ -21,6 +21,12 @@ import { useValueOptions } from "./useValueOptions";
 type RuleBuilderProps = {
   name: string;
   initial?: ConditionAst;
+  /**
+   * Notifies the parent of every condition-list change so siblings (e.g.
+   * `MessageWithTokens`) can offer per-condition tokens that resolve to
+   * the rule's required values at eval time.
+   */
+  onConditionsChange?: (conditions: Condition[]) => void;
 };
 
 const emptyCondition = (): Condition => ({
@@ -29,7 +35,11 @@ const emptyCondition = (): Condition => ({
   value: undefined
 });
 
-export default function RuleBuilder({ name, initial }: RuleBuilderProps) {
+export default function RuleBuilder({
+  name,
+  initial,
+  onConditionsChange
+}: RuleBuilderProps) {
   const { t } = useLingui();
   const [kind, setKind] = useState<MatchKind>(initial?.kind ?? "all");
 
@@ -60,6 +70,13 @@ export default function RuleBuilder({ name, initial }: RuleBuilderProps) {
     initial?.conditions?.length ? initial.conditions : [emptyCondition()]
   );
   const optionsByLoader = useValueOptions();
+
+  // Keep parents in sync with the live condition list. `onConditionsChange`
+  // identity isn't tracked — parents wrap in `useCallback` if they need it.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: callback identity intentionally untracked
+  useEffect(() => {
+    onConditionsChange?.(conditions);
+  }, [conditions]);
 
   const handleChange = useCallback(
     (index: number, patch: Partial<Condition>) => {

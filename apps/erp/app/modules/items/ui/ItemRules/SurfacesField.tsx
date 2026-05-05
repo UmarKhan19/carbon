@@ -12,6 +12,7 @@ import {
   LuArrowRightLeft,
   LuFactory,
   LuPackage,
+  LuScale,
   LuTruck
 } from "react-icons/lu";
 
@@ -38,6 +39,11 @@ const SURFACE_META: Record<
     title: "Job operations",
     description: "Material consumption + operation finish",
     icon: <LuFactory />
+  },
+  inventoryAdjustment: {
+    title: "Inventory adjustments",
+    description: "Manual quantity edits at a storage unit",
+    icon: <LuScale />
   }
 };
 

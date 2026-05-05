@@ -18,7 +18,7 @@ const ruleOf = (
   id: overrides.id ?? "rule_1",
   severity: overrides.severity ?? "error",
   message: overrides.message ?? "violated",
-  conditionAst: { kind: "and", conditions: conditions as never },
+  conditionAst: { kind: "all", conditions: conditions as never },
   updatedAt: overrides.updatedAt ?? "2026-05-04T00:00:00Z",
   active: true
 });
@@ -179,10 +179,8 @@ describe("interpolateMessage", () => {
     ).toBe("Vanilla Ice Cream cannot live on A1");
   });
 
-  it("leaves unresolved tokens as literal so bugs are visible", () => {
-    expect(interpolateMessage("{item.name} is bad", {})).toBe(
-      "{item.name} is bad"
-    );
+  it("renders missing ctx tokens as em-dash", () => {
+    expect(interpolateMessage("{item.name} is bad", {})).toBe("— is bad");
   });
 
   it("does not match malformed tokens", () => {
@@ -216,11 +214,15 @@ describe("evaluateRules", () => {
       })
     );
 
-    const violations = evaluateRules([r1, r2], {
-      item: { name: "Vanilla" },
-      storageUnit: { storageTypeId: "ambient" }, // fails r1
-      transaction: { quantity: 2000 } // fails r2 (not less than 1000)
-    });
+    const violations = evaluateRules(
+      [r1, r2],
+      {
+        item: { name: "Vanilla" },
+        storageUnit: { storageTypeId: "ambient" }, // fails r1
+        transaction: { quantity: 2000 } // fails r2 (not less than 1000)
+      },
+      "receipt"
+    );
 
     expect(violations).toHaveLength(2);
     expect(violations[0]).toEqual({
@@ -241,9 +243,11 @@ describe("evaluateRules", () => {
         }
       ])
     );
-    const violations = evaluateRules([r], {
-      storageUnit: { storageTypeId: "cold" }
-    });
+    const violations = evaluateRules(
+      [r],
+      { storageUnit: { storageTypeId: "cold" } },
+      "receipt"
+    );
     expect(violations).toEqual([]);
   });
 });
@@ -299,5 +303,80 @@ describe("FIELD_REGISTRY", () => {
 
   it("returns undefined for unknown paths", () => {
     expect(getFieldDef("garbage.path")).toBeUndefined();
+  });
+});
+
+describe("required-field pre-check", () => {
+  const coldRule = ruleOf(
+    [{ field: "storageUnit.storageTypeId", op: "eq", value: "cold-id" }],
+    { id: "rule_cold", severity: "error", message: "must be cold storage" }
+  );
+
+  it("null field → hard violation, predicate skipped", () => {
+    const compiled = compileRule(coldRule);
+    // Predicate would PASS if it ran (undefined === "cold-id" is false, so
+    // normally a violation fires for wrong value — but here storageUnit is
+    // entirely absent, so required-field check must fire first).
+    const ctx: RuleContext = {}; // storageUnit undefined
+    const violations = evaluateRules([compiled], ctx, "inventoryAdjustment");
+    expect(violations).toHaveLength(1);
+    expect(violations[0]?.ruleId).toBe("rule_cold");
+    expect(violations[0]?.severity).toBe("error");
+    expect(violations[0]?.message).toBe("Storage type is required");
+  });
+
+  it("empty string counts as missing", () => {
+    const compiled = compileRule(coldRule);
+    const ctx: RuleContext = { storageUnit: { storageTypeId: "" } };
+    const violations = evaluateRules([compiled], ctx, "inventoryAdjustment");
+    expect(violations).toHaveLength(1);
+    expect(violations[0]?.message).toBe("Storage type is required");
+  });
+
+  it("isSet op is exempt — predicate runs, not required-field check", () => {
+    const rule = compileRule(
+      ruleOf([{ field: "storageUnit.storageTypeId", op: "isSet" }], {
+        id: "rule_isset",
+        severity: "warn",
+        message: "storage type must be set"
+      })
+    );
+    const ctx: RuleContext = {}; // storageUnit undefined
+    const violations = evaluateRules([rule], ctx, "inventoryAdjustment");
+    expect(violations).toHaveLength(1);
+    // Must be the rule's own message, not "is required"
+    expect(violations[0]?.message).toBe("storage type must be set");
+    expect(violations[0]?.message).not.toContain("required");
+  });
+
+  it("isNotSet op is exempt — predicate runs, not required-field check", () => {
+    const rule = compileRule(
+      ruleOf([{ field: "storageUnit.storageTypeId", op: "isNotSet" }], {
+        id: "rule_isnotset",
+        severity: "warn",
+        message: "storage type must not be set"
+      })
+    );
+    const ctx: RuleContext = { storageUnit: { storageTypeId: "some-id" } };
+    const violations = evaluateRules([rule], ctx, "inventoryAdjustment");
+    expect(violations).toHaveLength(1);
+    expect(violations[0]?.message).toBe("storage type must not be set");
+    expect(violations[0]?.message).not.toContain("required");
+  });
+
+  it("field present but wrong value → predicate violation, not required", () => {
+    const compiled = compileRule(coldRule);
+    const ctx: RuleContext = { storageUnit: { storageTypeId: "ambient-id" } };
+    const violations = evaluateRules([compiled], ctx, "inventoryAdjustment");
+    expect(violations).toHaveLength(1);
+    expect(violations[0]?.message).toBe("must be cold storage");
+    expect(violations[0]?.message).not.toContain("required");
+  });
+
+  it("all required fields present and predicate passes → no violations", () => {
+    const compiled = compileRule(coldRule);
+    const ctx: RuleContext = { storageUnit: { storageTypeId: "cold-id" } };
+    const violations = evaluateRules([compiled], ctx, "inventoryAdjustment");
+    expect(violations).toEqual([]);
   });
 });

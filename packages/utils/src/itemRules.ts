@@ -28,7 +28,8 @@ export const TRANSACTION_SURFACES = [
   "receipt",
   "shipment",
   "stockTransfer",
-  "jobOperation"
+  "jobOperation",
+  "inventoryAdjustment"
 ] as const;
 export type TransactionSurface = (typeof TRANSACTION_SURFACES)[number];
 
@@ -86,6 +87,23 @@ export type CompiledRule = {
   severity: Severity;
   rawMessage: string;
   surfaces: TransactionSurface[];
+  /**
+   * Raw condition list — kept on the compiled rule so message templates can
+   * reference `{condition[N].field|operator|value}` at eval time without
+   * round-tripping back to the AST row.
+   */
+  conditions: Condition[];
+  /**
+   * Pre-bound resolvers for every condition whose op is NOT a presence-aware
+   * operator (`isSet`/`isNotSet`). Evaluator runs these BEFORE the predicate;
+   * any null / undefined / empty-string field hit short-circuits the rule
+   * to a "field is required" violation. Lets authors declare contracts at
+   * the condition level — referencing a field implies it must be set.
+   */
+  requiredFieldChecks: {
+    field: string;
+    resolve: (ctx: RuleContext) => unknown;
+  }[];
   predicate: (ctx: RuleContext) => boolean;
 };
 
@@ -200,6 +218,17 @@ export const compileRule = (row: ItemRuleRow): CompiledRule => ({
     row.surfaces && row.surfaces.length > 0
       ? row.surfaces
       : [...TRANSACTION_SURFACES],
+  conditions:
+    row.conditionAst && Array.isArray(row.conditionAst.conditions)
+      ? row.conditionAst.conditions
+      : [],
+  requiredFieldChecks: (row.conditionAst &&
+  Array.isArray(row.conditionAst.conditions)
+    ? row.conditionAst.conditions
+    : []
+  )
+    .filter((c) => c.op !== "isSet" && c.op !== "isNotSet")
+    .map((c) => ({ field: c.field, resolve: buildResolver(c.field) })),
   predicate: compilePredicate(row.conditionAst)
 });
 
@@ -210,8 +239,26 @@ export const compileRule = (row: ItemRuleRow): CompiledRule => ({
 const CACHE_CAP = 256;
 const cache = new Map<string, CompiledRule>();
 
-const cacheKey = (row: ItemRuleRow): string =>
-  `${row.id}:${row.updatedAt ?? ""}`;
+// FNV-1a 32-bit. Cheap, deterministic, no deps. Used to cache-bust on
+// content changes even if `updatedAt` is missing/stale (e.g. callers that
+// forget to refresh the column on edit).
+const fnv1a = (s: string): string => {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
+  }
+  return h.toString(36);
+};
+
+const cacheKey = (row: ItemRuleRow): string => {
+  // Hash the bits that drive compilation output. If any change, the cached
+  // CompiledRule (with its baked-in rawMessage + predicate) is stale.
+  const contentHash = fnv1a(
+    `${row.message}|${JSON.stringify(row.conditionAst)}|${(row.surfaces ?? []).join(",")}`
+  );
+  return `${row.id}:${row.updatedAt ?? ""}:${contentHash}`;
+};
 
 export const compileWithCache = (row: ItemRuleRow): CompiledRule => {
   const key = cacheKey(row);
@@ -241,16 +288,86 @@ export const __itemRulesCacheSize = (): number => cache.size;
 // Message interpolation
 // ---------------------------------------------------------------------------
 
-const TOKEN_RE = /\{([a-zA-Z_][\w.]*)\}/g;
+/**
+ * Token grammar:
+ *   {ctx.dotted.path}                  — resolved against `RuleContext`
+ *   {condition[N].field|operator|value} — resolved against the rule's AST
+ *
+ * Missing/null tokens render as an em-dash so the message stays readable
+ * when the rule fires precisely because the field is empty.
+ */
+const TOKEN_RE =
+  /\{(condition\[\d+\]\.(?:field|operator|value)|[a-zA-Z_][\w.]*)\}/g;
+
+const CONDITION_TOKEN_RE = /^condition\[(\d+)\]\.(field|operator|value)$/;
+
+const OPERATOR_LABELS: Record<Operator, string> = {
+  eq: "equals",
+  neq: "not equals",
+  in: "is one of",
+  notIn: "is none of",
+  isSet: "is set",
+  isNotSet: "is not set",
+  gt: "greater than",
+  lt: "less than"
+};
+
+export type InterpolateMessageOptions = {
+  /** AST conditions for `{condition[N].…}` tokens. Pass `rule.conditions`. */
+  conditions?: Condition[];
+  /**
+   * Optional resolver that turns a condition's stored `value` into a
+   * human-friendly string (e.g. UUID → display label for `id`-typed
+   * loaders). Returning `undefined` falls back to a default formatter that
+   * stringifies scalars and joins arrays with `", "`.
+   */
+  resolveConditionValue?: (
+    cond: Condition,
+    index: number
+  ) => string | undefined;
+};
+
+const formatConditionValue = (value: unknown): string => {
+  if (value == null || value === "") return "—";
+  if (Array.isArray(value)) {
+    if (value.length === 0) return "—";
+    return value.map((v) => String(v)).join(", ");
+  }
+  return String(value);
+};
 
 export const interpolateMessage = (
   template: string,
-  ctx: RuleContext
+  ctx: RuleContext,
+  options: InterpolateMessageOptions = {}
 ): string => {
-  return template.replace(TOKEN_RE, (_match, path: string) => {
-    const value = buildResolver(path)(ctx);
-    // Missing / null values render as an em-dash so the message stays
-    // readable when the rule fires precisely because the field is empty.
+  const { conditions, resolveConditionValue } = options;
+  return template.replace(TOKEN_RE, (_match, raw: string) => {
+    const condMatch = CONDITION_TOKEN_RE.exec(raw);
+    if (condMatch) {
+      const idx = Number(condMatch[1]);
+      const prop = condMatch[2] as "field" | "operator" | "value";
+      const cond = conditions?.[idx];
+      if (!cond) return "—";
+      switch (prop) {
+        case "field":
+          // Read the registry at call time — declarations are hoisted by
+          // the module's eval order, so `getFieldDef` exists by the time
+          // any rule actually fires.
+          return getFieldDef(cond.field)?.label ?? cond.field;
+        case "operator":
+          return OPERATOR_LABELS[cond.op] ?? cond.op;
+        case "value":
+          if (cond.op === "isSet" || cond.op === "isNotSet") return "—";
+          if (resolveConditionValue) {
+            const resolved = resolveConditionValue(cond, idx);
+            if (resolved !== undefined) return resolved;
+          }
+          return formatConditionValue(cond.value);
+      }
+    }
+
+    const value = buildResolver(raw)(ctx);
     if (value == null || value === "") return "—";
     return String(value);
   });
@@ -260,22 +377,81 @@ export const interpolateMessage = (
 // Evaluator
 // ---------------------------------------------------------------------------
 
+export type EvaluateRulesOptions = {
+  /**
+   * Resolver for `{condition[N].value}` tokens — typically an async-prefilled
+   * lookup map of `id` → label for loader-backed condition values.
+   */
+  resolveConditionValue?: (
+    cond: Condition,
+    index: number
+  ) => string | undefined;
+};
+
+/**
+ * Walk a rule's required-field checks. Returns a label of the FIRST field
+ * that resolved to null / undefined / empty string, or `null` if every
+ * required field is populated. Indexed loop, monomorphic resolver call
+ * site — predicate-style hot path that V8 keeps in IC.
+ */
+const findFirstMissingRequiredField = (
+  rule: CompiledRule,
+  ctx: RuleContext
+): string | null => {
+  const checks = rule.requiredFieldChecks;
+  for (let i = 0; i < checks.length; i++) {
+    const c = checks[i]!;
+    const value = c.resolve(ctx);
+    if (value === null || value === undefined || value === "") {
+      return c.field;
+    }
+  }
+  return null;
+};
+
+const buildRequiredFieldMessage = (
+  rule: CompiledRule,
+  fieldPath: string
+): string => {
+  const label = getFieldDef(fieldPath)?.label ?? fieldPath;
+  return `${label} is required`;
+};
+
 export const evaluateRules = (
   rules: CompiledRule[],
   ctx: RuleContext,
-  surface: TransactionSurface
+  surface: TransactionSurface,
+  opts?: EvaluateRulesOptions
 ): Violation[] => {
   const out: Violation[] = [];
+  const resolveConditionValue = opts?.resolveConditionValue;
   for (let i = 0; i < rules.length; i++) {
     const rule = rules[i]!;
     // Surface gate — skip rules that don't opt into this surface before
     // touching the predicate. Cheap: 1–4 element array, O(1) in practice.
     if (!rule.surfaces.includes(surface)) continue;
+
+    // Required-field pre-check — referencing a field in a condition implies
+    // that field is part of the rule's contract. Null → hard violation,
+    // skip predicate.
+    const missing = findFirstMissingRequiredField(rule, ctx);
+    if (missing !== null) {
+      out.push({
+        ruleId: rule.id,
+        severity: rule.severity,
+        message: buildRequiredFieldMessage(rule, missing)
+      });
+      continue;
+    }
+
     if (rule.predicate(ctx)) continue; // condition satisfied — no violation
     out.push({
       ruleId: rule.id,
       severity: rule.severity,
-      message: interpolateMessage(rule.rawMessage, ctx)
+      message: interpolateMessage(rule.rawMessage, ctx, {
+        conditions: rule.conditions,
+        resolveConditionValue
+      })
     });
   }
   return out;

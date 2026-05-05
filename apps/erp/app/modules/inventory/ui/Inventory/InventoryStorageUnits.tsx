@@ -63,6 +63,7 @@ import {
 } from "~/components/Form";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions } from "~/hooks";
+import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import type {
   ItemStorageUnitQuantities,
   itemTrackingTypes,
@@ -96,6 +97,10 @@ const InventoryStorageUnits = ({
   const permissions = usePermissions();
   const { t } = useLingui();
   const adjustmentModal = useDisclosure();
+  const ruleViolations = useItemRuleViolations({
+    action: path.to.inventoryItemAdjustment(pickMethod.itemId),
+    onSuccess: adjustmentModal.onClose
+  });
 
   const unitOfMeasures = useUnitOfMeasure();
 
@@ -319,6 +324,7 @@ const InventoryStorageUnits = ({
             <ValidatedForm
               method="post"
               validator={inventoryAdjustmentValidator}
+              fetcher={ruleViolations.fetcher}
               action={path.to.inventoryItemAdjustment(pickMethod.itemId)}
               defaultValues={{
                 itemId: pickMethod.itemId,
@@ -333,7 +339,6 @@ const InventoryStorageUnits = ({
                 readableId: selectedReadableId || undefined,
                 expirationDate: defaultExpirationDate
               }}
-              onSubmit={adjustmentModal.onClose}
             >
               <ModalHeader>
                 <ModalTitle>
@@ -433,6 +438,7 @@ const InventoryStorageUnits = ({
           </ModalContent>
         </Modal>
       )}
+      <ruleViolations.ViolationModal />
       <Outlet />
     </>
   );

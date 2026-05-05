@@ -1207,6 +1207,7 @@ function StorageUnit({
         onChange={onChange}
         disabled={isReadOnly}
         isReadOnly={isReadOnly}
+        isClearable
         inline={StorageUnitPreview}
         onCreateOption={(option) => {
           newStorageUnitModal.onOpen();

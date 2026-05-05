@@ -173,10 +173,10 @@ export default function ItemRuleAssignments({
             <Tbody>
               {assignments.map((a) => (
                 <Tr key={a.ruleId}>
-                  <Td>
+                  <Td className="whitespace-nowrap">
                     <Hyperlink to={path.to.itemRule(a.ruleId)}>
                       <HStack className="gap-2 items-center">
-                        <LuShieldCheck className="text-muted-foreground" />
+                        <LuShieldCheck className="text-muted-foreground shrink-0" />
                         <span>{a.rule.name}</span>
                       </HStack>
                     </Hyperlink>
@@ -206,8 +206,10 @@ export default function ItemRuleAssignments({
                       </Status>
                     )}
                   </Td>
-                  <Td className="text-muted-foreground max-w-[480px] truncate">
-                    {a.rule.message}
+                  <Td className="w-full max-w-0">
+                    <p className="text-muted-foreground truncate max-w-xl">
+                      {a.rule.message}
+                    </p>
                   </Td>
                   <Td className="text-right">
                     <Form

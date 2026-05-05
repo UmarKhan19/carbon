@@ -182,7 +182,7 @@ export default function AuditLogRoute() {
             </Button>
           )}
         </div>
-        {isStarterTeaser ? (
+        {true ? (
           <AuditLogUpgradeOverlay />
         ) : (
           <>

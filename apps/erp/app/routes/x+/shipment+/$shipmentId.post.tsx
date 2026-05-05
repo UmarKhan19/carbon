@@ -5,6 +5,10 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { upsertDocument } from "~/modules/documents";
+import {
+  evaluateLinesForSurface,
+  isBlocked
+} from "~/modules/items/itemRules.server";
 import { loader as pdfLoader } from "~/routes/file+/shipment+/$id[.]pdf";
 import { path } from "~/utils/path";
 import { stripSpecialCharacters } from "~/utils/string";
@@ -16,6 +20,42 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { shipmentId } = params;
   if (!shipmentId) throw new Error("shipmentId not found");
+
+  const formData = await request.formData();
+  const acknowledged = formData.get("acknowledged") === "true";
+
+  // Item Rule evaluation across every line on this shipment before posting.
+  const serviceRole = getCarbonServiceRole();
+  const { data: lines } = await serviceRole
+    .from("shipmentLine")
+    .select(
+      "id, itemId, storageUnitId, shippedQuantity, locationId, shipmentId"
+    )
+    .eq("shipmentId", shipmentId)
+    .eq("companyId", companyId);
+
+  const { violations, ruleNames } = await evaluateLinesForSurface({
+    client: serviceRole,
+    companyId,
+    userId,
+    surface: "shipment",
+    lines: (lines ?? []).map((l) => ({
+      lineId: l.id as string,
+      itemId: l.itemId as string | null,
+      storageUnitId: l.storageUnitId as string | null,
+      quantity: Number(l.shippedQuantity ?? 0),
+      locationId: l.locationId as string | null
+    }))
+  });
+
+  if (violations.length > 0 && isBlocked(violations, acknowledged)) {
+    return {
+      error: null,
+      data: null,
+      violations,
+      ruleNames
+    };
+  }
 
   const setPendingState = await client
     .from("shipment")
@@ -35,8 +75,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   try {
-    const serviceRole = getCarbonServiceRole();
-
     // Get shipment details to check if it's related to a sales order
     const { data: shipment } = await serviceRole
       .from("shipment")
