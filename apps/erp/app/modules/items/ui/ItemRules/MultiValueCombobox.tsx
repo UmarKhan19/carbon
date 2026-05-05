@@ -1,4 +1,6 @@
 import {
+  Badge,
+  BadgeCloseButton,
   CommandTrigger,
   cn,
   Popover,
@@ -10,36 +12,30 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { LuCheck, LuChevronDown, LuSearch } from "react-icons/lu";
 import type { ValueOption } from "./useValueOptions";
 
-type ValueComboboxProps = {
-  value: string;
-  onChange: (next: string) => void;
+type MultiValueComboboxProps = {
+  value: string[];
+  onChange: (next: string[]) => void;
   options: ValueOption[];
   placeholder?: string;
   className?: string;
 };
 
 /**
- * Single-select autocomplete for a rule condition value. Visually mirrors
- * `FieldCombobox` and `OperatorCombobox` (chevron trigger, popover list).
- *
- * Plain `<ul>` + filtered render — no cmdk wrapper. cmdk's internal value /
- * filter state was the source of an empty-state flash when async-loaded
- * options arrived after mount. Driving rendering directly off local state
- * removes the race entirely.
+ * Multi-select equivalent of `ValueCombobox`. Same plain-HTML render to avoid
+ * cmdk's empty-state flash when async-loaded options arrive after mount.
  */
-export default function ValueCombobox({
+export default function MultiValueCombobox({
   value,
   onChange,
   options,
   placeholder,
   className
-}: ValueComboboxProps) {
+}: MultiValueComboboxProps) {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Reset search every time the popover opens; auto-focus the input.
   useEffect(() => {
     if (!open) return;
     setSearch("");
@@ -47,9 +43,10 @@ export default function ValueCombobox({
     return () => cancelAnimationFrame(id);
   }, [open]);
 
-  const selected = useMemo(
-    () => options.find((o) => o.value === value),
-    [options, value]
+  const selectedSet = useMemo(() => new Set(value), [value]);
+  const selectedOptions = useMemo(
+    () => options.filter((o) => selectedSet.has(o.value)),
+    [options, selectedSet]
   );
 
   const filtered = useMemo(() => {
@@ -61,6 +58,15 @@ export default function ValueCombobox({
     );
   }, [options, search]);
 
+  const toggle = (v: string) => {
+    if (selectedSet.has(v)) onChange(value.filter((x) => x !== v));
+    else onChange([...value, v]);
+  };
+
+  const remove = (v: string) => onChange(value.filter((x) => x !== v));
+
+  const hasSelections = selectedOptions.length > 0;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -71,15 +77,38 @@ export default function ValueCombobox({
           icon={<LuChevronDown className="h-4 w-4 shrink-0 opacity-50" />}
           className={cn(
             "w-full",
-            !selected && "text-muted-foreground",
+            !hasSelections && "text-muted-foreground",
             className
           )}
           onClick={() => setOpen(true)}
         >
-          <div className="flex min-w-0 flex-1 items-center gap-2 text-left">
-            <div className="truncate">
-              {selected?.label ?? placeholder ?? t`Select value`}
-            </div>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1 text-left">
+            {hasSelections ? (
+              selectedOptions.map((opt) => (
+                <Badge
+                  key={opt.value}
+                  variant="secondary"
+                  className="border border-card"
+                >
+                  {opt.label}
+                  <BadgeCloseButton
+                    type="button"
+                    tabIndex={-1}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      remove(opt.value);
+                    }}
+                  />
+                </Badge>
+              ))
+            ) : (
+              <div className="truncate">{placeholder ?? t`Select values`}</div>
+            )}
           </div>
         </CommandTrigger>
       </PopoverTrigger>
@@ -111,18 +140,14 @@ export default function ValueCombobox({
           ) : (
             <ul className="flex flex-col">
               {filtered.map((opt) => {
-                const isSelected = value === opt.value;
+                const isSelected = selectedSet.has(opt.value);
                 return (
                   <li key={opt.value}>
                     <button
                       type="button"
                       role="option"
                       aria-selected={isSelected}
-                      onClick={() => {
-                        onChange(opt.value);
-                        setSearch("");
-                        setOpen(false);
-                      }}
+                      onClick={() => toggle(opt.value)}
                       className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm hover:bg-accent focus-visible:bg-accent focus-visible:outline-none"
                     >
                       <span className="flex min-w-0 flex-1 truncate">

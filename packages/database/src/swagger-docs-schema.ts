@@ -30388,6 +30388,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemRule.conditionAst"
           },
           {
+            $ref: "#/parameters/rowFilter.itemRule.surfaces"
+          },
+          {
             $ref: "#/parameters/rowFilter.itemRule.active"
           },
           {
@@ -30404,9 +30407,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemRule.customFields"
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemRule.surfaces"
           },
           {
             $ref: "#/parameters/select"
@@ -30489,6 +30489,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemRule.conditionAst"
           },
           {
+            $ref: "#/parameters/rowFilter.itemRule.surfaces"
+          },
+          {
             $ref: "#/parameters/rowFilter.itemRule.active"
           },
           {
@@ -30505,9 +30508,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemRule.customFields"
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemRule.surfaces"
           },
           {
             $ref: "#/parameters/preferReturn"
@@ -30544,6 +30544,9 @@ export default {
             $ref: "#/parameters/rowFilter.itemRule.conditionAst"
           },
           {
+            $ref: "#/parameters/rowFilter.itemRule.surfaces"
+          },
+          {
             $ref: "#/parameters/rowFilter.itemRule.active"
           },
           {
@@ -30560,9 +30563,6 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.itemRule.customFields"
-          },
-          {
-            $ref: "#/parameters/rowFilter.itemRule.surfaces"
           },
           {
             $ref: "#/parameters/body.itemRule"
@@ -90215,10 +90215,10 @@ export default {
         "message",
         "severity",
         "conditionAst",
+        "surfaces",
         "active",
         "createdBy",
-        "createdAt",
-        "surfaces"
+        "createdAt"
       ],
       properties: {
         id: {
@@ -90252,6 +90252,13 @@ export default {
         conditionAst: {
           format: "jsonb"
         },
+        surfaces: {
+          format: 'public."transactionSurface"[]',
+          items: {
+            type: "string"
+          },
+          type: "array"
+        },
         active: {
           default: true,
           format: "boolean",
@@ -90280,13 +90287,6 @@ export default {
         },
         customFields: {
           format: "jsonb"
-        },
-        surfaces: {
-          format: 'public."transactionSurface"[]',
-          items: {
-            type: "string"
-          },
-          type: "array"
         }
       },
       type: "object"
@@ -124332,6 +124332,12 @@ export default {
       in: "query",
       type: "string"
     },
+    "rowFilter.itemRule.surfaces": {
+      name: "surfaces",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "rowFilter.itemRule.active": {
       name: "active",
       required: false,
@@ -124364,12 +124370,6 @@ export default {
     },
     "rowFilter.itemRule.customFields": {
       name: "customFields",
-      required: false,
-      in: "query",
-      type: "string"
-    },
-    "rowFilter.itemRule.surfaces": {
-      name: "surfaces",
       required: false,
       in: "query",
       type: "string"

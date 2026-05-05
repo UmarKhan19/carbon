@@ -1,6 +1,5 @@
 import {
   Input,
-  MultiSelect,
   NumberDecrementStepper,
   NumberField,
   NumberIncrementStepper,
@@ -12,6 +11,7 @@ import type { FieldDef, Operator } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import { memo } from "react";
 import { LuChevronDown, LuChevronUp } from "react-icons/lu";
+import MultiValueCombobox from "./MultiValueCombobox";
 import type { ValueOption } from "./useValueOptions";
 import ValueCombobox from "./ValueCombobox";
 
@@ -62,9 +62,7 @@ function ValueInputImpl({
       ? value.map(String).filter(Boolean)
       : [];
     return (
-      <MultiSelect
-        size="md"
-        className="w-full"
+      <MultiValueCombobox
         value={arrValue}
         onChange={(next) => onChange(next)}
         options={options!}
