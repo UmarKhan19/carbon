@@ -193,17 +193,17 @@ const InventoryStorageUnits = ({
         <HStack className="w-full justify-between">
           <CardHeader>
             <CardTitle>
-              <Trans>Storage Units</Trans>
+              <HStack className="gap-2 items-center">
+                <Trans>Storage Units</Trans>
+                <Enumerable
+                  value={
+                    unitOfMeasures.find(
+                      (uom) => uom.value === itemUnitOfMeasureCode
+                    )?.label || itemUnitOfMeasureCode
+                  }
+                />
+              </HStack>
             </CardTitle>
-            <CardDescription>
-              <Enumerable
-                value={
-                  unitOfMeasures.find(
-                    (uom) => uom.value === itemUnitOfMeasureCode
-                  )?.label || itemUnitOfMeasureCode
-                }
-              />
-            </CardDescription>
           </CardHeader>
           <CardAction>
             <Button onClick={() => openAdjustmentModal()}>

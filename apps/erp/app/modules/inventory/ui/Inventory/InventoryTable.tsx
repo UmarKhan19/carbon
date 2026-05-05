@@ -481,7 +481,7 @@ const InventoryTable = memo(
             return (
               <HStack spacing={0} className="gap-1">
                 {ids.map((id) => {
-                  const st = storageTypes.find((s) => s.id === id);
+                  const st = (storageTypes ?? []).find((s) => s.id === id);
                   return <Enumerable key={id} value={st?.name ?? null} />;
                 })}
               </HStack>
@@ -490,7 +490,7 @@ const InventoryTable = memo(
           meta: {
             filter: {
               type: "static",
-              options: storageTypes.map((st) => ({
+              options: (storageTypes ?? []).map((st) => ({
                 value: st.id,
                 label: <Enumerable value={st.name} />
               })),
