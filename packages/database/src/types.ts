@@ -6204,6 +6204,7 @@ export type Database = {
           id: string
           listOptions: string[] | null
           name: string
+          required: boolean
           sortOrder: number
           table: string
           tags: string[] | null
@@ -6219,6 +6220,7 @@ export type Database = {
           id?: string
           listOptions?: string[] | null
           name: string
+          required?: boolean
           sortOrder?: number
           table: string
           tags?: string[] | null
@@ -6234,6 +6236,7 @@ export type Database = {
           id?: string
           listOptions?: string[] | null
           name?: string
+          required?: boolean
           sortOrder?: number
           table?: string
           tags?: string[] | null

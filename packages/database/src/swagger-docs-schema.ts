@@ -65161,6 +65161,9 @@ export default {
             $ref: "#/parameters/rowFilter.customField.tags"
           },
           {
+            $ref: "#/parameters/rowFilter.customField.required"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -65259,6 +65262,9 @@ export default {
             $ref: "#/parameters/rowFilter.customField.tags"
           },
           {
+            $ref: "#/parameters/rowFilter.customField.required"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -65309,6 +65315,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.customField.tags"
+          },
+          {
+            $ref: "#/parameters/rowFilter.customField.required"
           },
           {
             $ref: "#/parameters/body.customField"
@@ -108217,7 +108226,8 @@ export default {
         "dataTypeId",
         "companyId",
         "createdAt",
-        "createdBy"
+        "createdBy",
+        "required"
       ],
       properties: {
         id: {
@@ -108292,6 +108302,11 @@ export default {
             type: "string"
           },
           type: "array"
+        },
+        required: {
+          default: false,
+          format: "boolean",
+          type: "boolean"
         }
       },
       type: "object"
@@ -144841,6 +144856,12 @@ export default {
     },
     "rowFilter.customField.tags": {
       name: "tags",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.customField.required": {
+      name: "required",
       required: false,
       in: "query",
       type: "string"
