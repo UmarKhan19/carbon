@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
+  Boolean,
   Hidden,
   Number,
   Select,
@@ -39,8 +40,10 @@ import {
   getCompanySettings,
   kanbanOutputTypes,
   kanbanOutputValidator,
+  pickingListSettingsValidator,
   shelfLifeSettingsValidator,
   updateKanbanOutputSetting,
+  updatePickingListSettings,
   updateShelfLifeSettings
 } from "~/modules/settings";
 
@@ -128,6 +131,32 @@ export async function action({ request }: ActionFunctionArgs) {
         success: true,
         message: "Shelf life & expiry settings updated"
       };
+
+    case "pickingLists":
+      const pickingListValidation = await validator(
+        pickingListSettingsValidator
+      ).validate(formData);
+
+      if (pickingListValidation.error) {
+        return { success: false, message: "Invalid form data" };
+      }
+
+      const pickingListResult = await updatePickingListSettings(
+        client,
+        companyId,
+        {
+          usePickingLists: pickingListValidation.data.usePickingLists,
+          defaultAutoGeneratePickingList:
+            pickingListValidation.data.defaultAutoGeneratePickingList
+        }
+      );
+      if (pickingListResult.error)
+        return {
+          success: false,
+          message: pickingListResult.error.message
+        };
+
+      return { success: true, message: "Picking list settings updated" };
   }
 
   return { success: false, message: "Invalid form data" };
@@ -195,6 +224,53 @@ export default function InventorySettingsRoute() {
                     }))}
                   />
                 </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit>
+                <Trans>Save</Trans>
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={pickingListSettingsValidator}
+            defaultValues={{
+              usePickingLists: companySettings.usePickingLists ?? true,
+              defaultAutoGeneratePickingList:
+                companySettings.defaultAutoGeneratePickingList ?? true
+            }}
+            fetcher={fetcher}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trans>Picking Lists</Trans>
+              </CardTitle>
+              <CardDescription>
+                <Trans>
+                  Master switch + per-job auto-generation default. Off the
+                  master switch and the entire picking workflow is disabled
+                  company-wide; off auto-generate and planners create PLs
+                  manually from the Job page.
+                </Trans>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Hidden name="intent" value="pickingLists" />
+              <div className="flex flex-col gap-4 max-w-[400px]">
+                <Boolean
+                  name="usePickingLists"
+                  label={t`Use picking lists`}
+                  description={t`When off, no picking list is ever generated and the picking module is hidden from new jobs.`}
+                />
+                <Boolean
+                  name="defaultAutoGeneratePickingList"
+                  label={t`Auto-generate on job release`}
+                  description={t`Default for new jobs. Each job can still override this on its details panel.`}
+                />
               </div>
             </CardContent>
             <CardFooter>

@@ -556,6 +556,17 @@ const JobProperties = () => {
 
       <VStack spacing={2}>
         <span className="text-xs font-medium text-muted-foreground">
+          <Trans>Picking</Trans>
+        </span>
+        <AutoGeneratePickingListToggle
+          jobId={jobId}
+          value={(routeData?.job as any)?.autoGeneratePickingList ?? true}
+          isDisabled={isDisabled}
+        />
+      </VStack>
+
+      <VStack spacing={2}>
+        <span className="text-xs font-medium text-muted-foreground">
           Created By
         </span>
         <EmployeeAvatar employeeId={routeData?.job?.createdBy ?? null} />
@@ -574,3 +585,55 @@ const JobProperties = () => {
 };
 
 export default JobProperties;
+
+// Inline toggle for job.autoGeneratePickingList. Submits to the dedicated
+// $jobId.auto-generate-picking-list action route so the rest of the job
+// upsert path (and bulk-create / API) doesn't need to know about this
+// column. Defaults to "on" so existing jobs don't visually flip off.
+function AutoGeneratePickingListToggle({
+  jobId,
+  value,
+  isDisabled
+}: {
+  jobId: string;
+  value: boolean;
+  isDisabled: boolean;
+}) {
+  const fetcher = useFetcher();
+  const optimisticOn =
+    fetcher.formData?.get("autoGeneratePickingList") != null
+      ? fetcher.formData?.get("autoGeneratePickingList") === "on"
+      : value;
+
+  const submit = (next: boolean) => {
+    const fd = new FormData();
+    if (next) fd.append("autoGeneratePickingList", "on");
+    fetcher.submit(fd, {
+      method: "post",
+      action: path.to.jobAutoGeneratePickingList(jobId)
+    });
+  };
+
+  return (
+    <label className="flex items-start gap-2 text-sm cursor-pointer select-none">
+      <input
+        type="checkbox"
+        checked={!!optimisticOn}
+        onChange={(e) => submit(e.target.checked)}
+        disabled={isDisabled || fetcher.state !== "idle"}
+        className="mt-0.5"
+      />
+      <span className="flex flex-col">
+        <span>
+          <Trans>Auto-generate picking list</Trans>
+        </span>
+        <span className="text-xs text-muted-foreground">
+          <Trans>
+            Generate a picking list automatically when this job moves to Planned
+            or Released.
+          </Trans>
+        </span>
+      </span>
+    </label>
+  );
+}

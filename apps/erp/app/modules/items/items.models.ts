@@ -368,7 +368,12 @@ export const methodMaterialValidator = z.object({
     } catch {
       return {};
     }
-  })
+  }),
+  // Picking-list inheritance: false on a methodMaterial means the item is
+  // line-side and shouldn't go through picking. Default true preserves
+  // existing behaviour. Propagates into jobMaterial.requiresPicking via
+  // get-method/index.ts BoM explosion.
+  requiresPicking: zfd.checkbox()
 });
 
 export const methodOperationValidator = z

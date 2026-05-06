@@ -128,6 +128,15 @@ const baseJobValidator = z.object({
   configuration: z.any().optional()
 });
 
+// Standalone toggle for the per-job autoGeneratePickingList override.
+// Lives outside the main jobValidator so other update paths (status
+// changes, bulk creates, the API) don't accidentally clobber the column.
+// The DB trigger seeds the value at INSERT from companySettings; this
+// validator is used only by the dedicated toggle action route.
+export const jobAutoGeneratePickingListValidator = z.object({
+  autoGeneratePickingList: zfd.checkbox()
+});
+
 export const bulkJobValidator = z
   .object({
     itemId: z.string().min(1, { message: "Item is required" }),
@@ -640,7 +649,10 @@ const baseMaterialValidator = z.object({
   unitOfMeasureCode: z
     .string()
     .min(1, { message: "Unit of Measure is required" }),
-  storageUnitId: zfd.text(z.string().optional())
+  storageUnitId: zfd.text(z.string().optional()),
+  // Per-job override of methodMaterial.requiresPicking. Default true so
+  // existing rows behave unchanged. False = line-side, RPC skips it.
+  requiresPicking: zfd.checkbox()
 });
 
 export const jobMaterialValidator = baseMaterialValidator

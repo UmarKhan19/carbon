@@ -922,6 +922,10 @@ serve(async (req: Request) => {
                 unitOfMeasureCode,
                 unitCost: unitCost ?? 0,
                 itemScrapPercentage,
+                // Inherit requiresPicking from the methodMaterial so line-side
+                // BoM choices propagate into every job created from the BoM.
+                // @ts-ignore — methodMaterial may not yet be in generated types
+                requiresPicking: child.data.requiresPicking ?? true,
                 companyId,
                 createdBy: userId,
                 customFields: {},
@@ -1433,6 +1437,10 @@ serve(async (req: Request) => {
                   // @ts-ignore: storageUnitIds is a dynamic field
                   child.data.storageUnitIds?.[job.data.locationId] ?? undefined
                 ),
+                // Inherit requiresPicking from the methodMaterial so line-side
+                // BoM choices propagate into every job created from the BoM.
+                // @ts-ignore — methodMaterial may not yet be in generated types
+                requiresPicking: child.data.requiresPicking ?? true,
                 companyId,
                 createdBy: userId,
                 customFields: {},

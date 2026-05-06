@@ -122,6 +122,16 @@ export const kanbanOutputValidator = z.object({
   kanbanOutput: z.enum(kanbanOutputTypes)
 });
 
+// Picking-list company-wide toggles. usePickingLists is the master switch
+// (off = no PL workflow ever, no auto-gen). defaultAutoGeneratePickingList
+// flows into job.autoGeneratePickingList via the BEFORE-INSERT trigger
+// `trigger_default_auto_generate_picking_list`, so flipping it here changes
+// the default for newly-created jobs without touching existing ones.
+export const pickingListSettingsValidator = z.object({
+  usePickingLists: zfd.checkbox(),
+  defaultAutoGeneratePickingList: zfd.checkbox()
+});
+
 export const purchasePriceUpdateTimingValidator = z.object({
   purchasePriceUpdateTiming: z.enum(purchasePriceUpdateTimingTypes)
 });

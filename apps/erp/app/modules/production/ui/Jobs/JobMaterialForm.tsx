@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { useFetcher, useLocation, useNavigate, useParams } from "react-router";
 import type { z } from "zod";
 import {
+  Boolean,
   DefaultMethodType,
   Hidden,
   InputControlled,
@@ -231,6 +232,13 @@ const JobMaterialForm = ({
                   label={t`Unit Cost`}
                   value={itemData.unitCost}
                   minValue={0}
+                />
+              )}
+              {itemData.methodType === "Pull from Inventory" && (
+                <Boolean
+                  name="requiresPicking"
+                  label={t`Requires picking`}
+                  description={t`Off = stored line-side. The picking list will skip this material.`}
                 />
               )}
             </div>

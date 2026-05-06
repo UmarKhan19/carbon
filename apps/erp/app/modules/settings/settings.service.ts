@@ -631,6 +631,22 @@ export async function updateKanbanOutputSetting(
     .eq("id", companyId);
 }
 
+export async function updatePickingListSettings(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args: { usePickingLists: boolean; defaultAutoGeneratePickingList: boolean }
+) {
+  return client
+    .from("companySettings")
+    .update(
+      sanitize({
+        usePickingLists: args.usePickingLists,
+        defaultAutoGeneratePickingList: args.defaultAutoGeneratePickingList
+      })
+    )
+    .eq("id", companyId);
+}
+
 export async function updateLogoDark(
   client: SupabaseClient<Database>,
   companyId: string,

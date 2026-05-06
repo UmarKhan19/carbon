@@ -66,6 +66,7 @@ import {
 import { ConfigurationEditor } from "~/components/Configurator/ConfigurationEditor";
 import type { Configuration } from "~/components/Configurator/types";
 import {
+  Boolean,
   DefaultMethodType,
   Hidden,
   Item,
@@ -1086,6 +1087,13 @@ function MaterialForm({
               }));
             }}
           />
+          {itemData.methodType === "Pull from Inventory" && (
+            <Boolean
+              name="requiresPicking"
+              label={t`Requires picking`}
+              description={t`Off = stored line-side. The picking-list flow will skip this material; consume it via the MES Issue modal at operation time.`}
+            />
+          )}
         </div>
       </div>
 

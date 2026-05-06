@@ -927,6 +927,8 @@ export const path = {
     jobPickingLists: (id: string) =>
       generatePath(`${x}/job/${id}/picking-lists`),
     jobStaging: (id: string) => generatePath(`${x}/job/${id}/staging`),
+    jobAutoGeneratePickingList: (id: string) =>
+      generatePath(`${x}/job/${id}/auto-generate-picking-list`),
     jobOperationsOrder: (jobId: string) =>
       generatePath(`${x}/job/methods/${jobId}/operation/order`),
     jobOperationsDelete: (jobId: string) =>
