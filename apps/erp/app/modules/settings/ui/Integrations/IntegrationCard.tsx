@@ -7,14 +7,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-  cn,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
+  cn
 } from "@carbon/react";
 import { useRouteData } from "@carbon/remix";
 import { Trans } from "@lingui/react/macro";
-import { LuLock } from "react-icons/lu";
 import { Link, useFetcher, useNavigate } from "react-router";
 import { usePlanGate } from "~/hooks/usePlanGate";
 import { path } from "~/utils/path";
@@ -103,11 +99,11 @@ export function IntegrationCard({
       </CardContent>
       <CardFooter className="flex flex-end flex-row-reverse gap-2">
         <Button
-          isDisabled={isStarterPlan || !installed}
+          isDisabled={!installed || isStarterPlan}
           variant="secondary"
-          asChild={!isStarterPlan}
+          asChild={!!installed && !isStarterPlan}
         >
-          {isStarterPlan ? (
+          {!installed || isStarterPlan ? (
             <span>
               <Trans>Details</Trans>
             </span>
@@ -117,22 +113,7 @@ export function IntegrationCard({
             </Link>
           )}
         </Button>
-        {isStarterPlan ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span tabIndex={0}>
-                <Button isDisabled leftIcon={<LuLock />}>
-                  <Trans>Business plan</Trans>
-                </Button>
-              </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              <Trans>
-                Integrations are available on the Business plan and above.
-              </Trans>
-            </TooltipContent>
-          </Tooltip>
-        ) : installed ? (
+        {installed && !isStarterPlan ? (
           <fetcher.Form
             method="post"
             action={path.to.integrationDeactivate(integration.id)}
@@ -149,7 +130,9 @@ export function IntegrationCard({
           </fetcher.Form>
         ) : (
           <Button
-            isDisabled={!integration.active || fetcher.state !== "idle"}
+            isDisabled={
+              !integration.active || fetcher.state !== "idle" || isStarterPlan
+            }
             isLoading={fetcher.state !== "idle"}
             onClick={handleInstall}
           >

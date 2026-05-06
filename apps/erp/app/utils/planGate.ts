@@ -14,7 +14,6 @@ export function planMeetsRequirement(
   current: Plan,
   plan: PlanRequirement = DEFAULT_ALLOWED_PLANS
 ): boolean {
-  return false;
   if (current === Plan.Unknown) return true;
   const allowed = Array.isArray(plan) ? plan : [plan];
   if (allowed.length === 0) return true;

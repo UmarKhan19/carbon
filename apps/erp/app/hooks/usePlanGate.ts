@@ -16,7 +16,7 @@ export function usePlanGate({
   const currentPlan = usePlan();
   const { isCloud } = useFlags();
 
-  const isGated = true && !planMeetsRequirement(currentPlan, plan);
+  const isGated = isCloud && !planMeetsRequirement(currentPlan, plan);
 
   return { isGated, plan: currentPlan, allowedPlans: plan };
 }

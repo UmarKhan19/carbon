@@ -1,8 +1,37 @@
-import { Button, Card, CardContent, cn, VStack } from "@carbon/react";
+import {
+  Button,
+  Card,
+  CardContent,
+  cn,
+  Modal,
+  ModalContent,
+  VStack
+} from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
+
+function useIsScrolling(idleMs = 200): boolean {
+  const [scrolling, setScrolling] = useState(false);
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    const onScroll = () => {
+      setScrolling(true);
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => setScrolling(false), idleMs);
+    };
+    document.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true
+    });
+    return () => {
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [idleMs]);
+  return scrolling;
+}
 
 type WithChildren = { children: ReactNode; className?: string };
 
@@ -80,6 +109,60 @@ function UpgradeOverlayActions({ children }: { children: ReactNode }) {
   return <div className="flex flex-col items-center gap-2">{children}</div>;
 }
 
+function UpgradeOverlayStickyGradient({
+  children,
+  className,
+  scrollOpacity = 0.9,
+  onClick
+}: {
+  children: ReactNode;
+  className?: string;
+  scrollOpacity?: number;
+  onClick?: () => void;
+}) {
+  const isScrolling = useIsScrolling();
+  return (
+    <div
+      className={cn(
+        "fixed inset-x-0 bottom-0 z-40 pointer-events-none",
+        "h-[50dvh] flex items-end justify-center pb-24",
+        "bg-gradient-to-t from-background from-[35%] via-background/70 via-[65%] to-transparent",
+        "transition-opacity duration-200 ease-out",
+        "motion-reduce:transition-none",
+        className
+      )}
+      style={{ opacity: isScrolling ? scrollOpacity : 1 }}
+    >
+      <div
+        onClick={onClick}
+        className="pointer-events-auto px-4 w-full flex flex-col items-center text-center gap-3 max-w-md mx-auto cursor-pointer rounded-md"
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function UpgradeOverlayDialog({
+  open,
+  onOpenChange,
+  children
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactNode;
+}) {
+  return (
+    <Modal open={open} onOpenChange={onOpenChange}>
+      <ModalContent className="max-w-md">
+        <CardContent className="flex flex-col items-center text-center gap-4 pt-8 pb-6">
+          {children}
+        </CardContent>
+      </ModalContent>
+    </Modal>
+  );
+}
+
 function UpgradeOverlayUpgradeButton({
   children,
   to = path.to.billing
@@ -98,6 +181,8 @@ export const UpgradeOverlay = Object.assign(UpgradeOverlayRoot, {
   Preview: UpgradeOverlayPreview,
   Card: UpgradeOverlayCard,
   Inline: UpgradeOverlayInline,
+  StickyGradient: UpgradeOverlayStickyGradient,
+  Dialog: UpgradeOverlayDialog,
   Icon: UpgradeOverlayIcon,
   Title: UpgradeOverlayTitle,
   Description: UpgradeOverlayDescription,
