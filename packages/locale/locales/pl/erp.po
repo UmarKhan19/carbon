@@ -748,9 +748,9 @@ msgid "API Key"
 msgstr "Klucz API"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
-#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:99
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:91
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:135
-#: apps/erp/app/routes/x+/settings+/api-keys.tsx:20
+#: apps/erp/app/routes/x+/settings+/api-keys.tsx:18
 msgid "API Keys"
 msgstr "Klucze API"
 
@@ -1396,7 +1396,7 @@ msgid "Attributes are inherited from the procedure."
 msgstr "Atrybuty są dziedziczone z procedury."
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:296
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:27
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:26
 msgid "Audit Log"
 msgstr "Dziennik audytu"
 
@@ -1412,13 +1412,13 @@ msgstr "Rejestrowanie audytu jest wyłączone"
 msgid "Audit logging is enabled"
 msgstr "Rejestrowanie audytu jest włączone"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:161
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:160
 msgid "Audit logging is not enabled"
 msgstr "Rejestrowanie audytu nie jest włączone"
 
-#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:89
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:80
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:147
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:175
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:164
 msgid "Audit Logs"
 msgstr "Dzienniki audytu"
 
@@ -1623,10 +1623,6 @@ msgstr "Import zbiorczy"
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:403
 msgid "Bulk Jobs"
 msgstr "Zadania zbiorcze"
-
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:128
-msgid "Business plan"
-msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:87
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:91
@@ -2036,7 +2032,7 @@ msgstr "Zmień typ"
 msgid "Changed By"
 msgstr "Zmienione przez"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:272
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:271
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:258
 msgid "Changes"
 msgstr "Zmiany"
@@ -2221,7 +2217,7 @@ msgstr "Widoczność i kolejność kolumn"
 msgid "Columns"
 msgstr "Kolumny"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:93
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:86
 msgid "Coming soon"
 msgstr "Wkrótce"
 
@@ -2446,6 +2442,10 @@ msgstr "Potwierdź import"
 #: apps/erp/app/modules/account/ui/Password/PasswordForm.tsx:57
 msgid "Confirm Password"
 msgstr "Potwierdź hasło"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:114
+msgid "Connect Carbon to your accounting, project, and CAD tools and much more."
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Issue/Jira/IssueDialog.tsx:83
 msgid "Connect Jira issue"
@@ -4134,8 +4134,8 @@ msgstr "Szczegóły"
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:375
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:33
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:546
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:115
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:119
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:108
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:112
 msgid "Details"
 msgstr "Szczegóły"
 
@@ -4889,7 +4889,7 @@ msgstr "Typy pracowników"
 msgid "Employees"
 msgstr "Pracownicy"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:164
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:163
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Włącz rejestrowanie audytu w ustawieniach, aby rozpocząć śledzenie zmian w Twoich danych."
 
@@ -4897,7 +4897,7 @@ msgstr "Włącz rejestrowanie audytu w ustawieniach, aby rozpocząć śledzenie 
 msgid "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 msgstr "Włącz cyfrowe oferty dla swojej firmy. Umożliwi to wysyłanie cyfrowych ofert do klientów i pozwoli im zaakceptować je online."
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:173
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:172
 msgid "Enable in Settings"
 msgstr "Włącz w Ustawieniach"
 
@@ -6118,7 +6118,7 @@ msgstr "Ukryj, przypnij i zmień kolejność kolumn"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Wyższy priorytet wygrywa remisy i jest stosowany jako pierwszy dla marż"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:210
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:209
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:74
 msgid "History"
@@ -6388,12 +6388,12 @@ msgstr "Inspekcje"
 msgid "Inspector"
 msgstr "Inspektor"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:159
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:139
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:715
 msgid "Install"
 msgstr "Zainstaluj"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:88
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:81
 msgid "Installed"
 msgstr "Zainstalowane"
 
@@ -6411,13 +6411,10 @@ msgstr "Instrukcje są dziedziczone z procedury."
 msgid "Integration not found"
 msgstr "Integracja nie znaleziona"
 
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:111
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:159
 msgid "Integrations"
 msgstr "Integracje"
-
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:133
-msgid "Integrations are available on the Business plan and above."
-msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:62
 msgid "Intercompany"
@@ -6634,7 +6631,7 @@ msgstr "Opis problemu"
 msgid "Issue not found"
 msgstr "Problem nie znaleziony"
 
-#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:102
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:94
 msgid "Issue scoped API keys for programmatic access to your Carbon data."
 msgstr ""
 
@@ -8346,7 +8343,7 @@ msgstr "Nowa linia oferty"
 msgid "New Receipt"
 msgstr "Nowy Paragon"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:306
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:305
 msgid "New record created"
 msgstr "Nowy rekord utworzony"
 
@@ -8551,7 +8548,7 @@ msgstr "Żadne wejście BOM nie ma polityki przydatności do spożycia"
 msgid "No calibration records found"
 msgstr "Nie znaleziono rekordów kalibracji"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:310
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:309
 msgid "No changes recorded"
 msgstr "Brak zarejestrowanych zmian"
 
@@ -9559,7 +9556,7 @@ msgstr "Planowany czas rozpoczęcia"
 msgid "Planning"
 msgstr "Planowanie"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:178
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:177
 msgid "Please contact your administrator to enable audit logging."
 msgstr "Skontaktuj się z administratorem, aby włączyć rejestrowanie audytu."
 
@@ -10143,7 +10140,7 @@ msgstr "Warunki zakupu i dostawy"
 msgid "Purchasing Unit of Measure"
 msgstr "Jednostka miary zakupu"
 
-#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:109
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:101
 msgid "Push record changes to external systems the moment they happen."
 msgstr ""
 
@@ -10537,7 +10534,7 @@ msgstr "Niedawno utworzone"
 msgid "Record"
 msgstr "Nagrywaj"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:308
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:307
 msgid "Record deleted"
 msgstr "Rekord usunięty"
 
@@ -11521,7 +11518,7 @@ msgstr "Przyczyny złomu"
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:554
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:467
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:369
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:63
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:67
 msgid "Search"
 msgstr "Szukaj"
 
@@ -12990,7 +12987,7 @@ msgstr "Przełącz"
 msgid "Sync"
 msgstr "Synchronizuj"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:245
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:244
 #: apps/erp/app/components/EmployeeAvatar.tsx:29
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:132
 msgid "System"
@@ -13579,11 +13576,11 @@ msgstr "Śledź"
 msgid "Track changes to key business entities including invoices, orders, customers, suppliers, and more."
 msgstr "Śledź zmiany w kluczowych jednostkach biznesowych, w tym fakturach, zamówieniach, klientach, dostawcach i nie tylko."
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:143
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:144
 msgid "Track every change to your orders, invoices, customers, and more."
 msgstr "Śledź każdą zmianę w swoich zamówieniach, fakturach, klientach i nie tylko."
 
-#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:92
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:83
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr "Śledź każdą zmianę w swoich zamówieniach, fakturach, klientach, dostawcach i nie tylko."
 
@@ -13811,7 +13808,7 @@ msgstr "Niezatwierdzony dostawca"
 msgid "Unassigned"
 msgstr "Nieprzydzielone"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:150
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:128
 msgid "Uninstall"
 msgstr "Odinstaluj"
 
@@ -14072,14 +14069,11 @@ msgstr "Zaktualizowano przez"
 msgid "Updated successfully"
 msgstr "Pomyślnie zaktualizowano"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:150
-#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:110
-#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:100
-#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:117
+#: apps/erp/app/components/UpgradeOverlay/UpgradeOverlay.tsx:150
 msgid "Upgrade to Business"
 msgstr "Uaktualnij do Business"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:140
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:141
 msgid "Upgrade to unlock audit history"
 msgstr "Uaktualnij, aby odblokować historię audytu"
 
@@ -14298,7 +14292,7 @@ msgstr "Wyświetl aktywne zadania"
 msgid "View Active Quotes"
 msgstr "Wyświetl aktywne oferty"
 
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:180
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:169
 msgid "View All"
 msgstr "Wyświetl wszystko"
 
@@ -14570,8 +14564,8 @@ msgstr "Adres URL webhooka"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:171
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:227
-#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:106
-#: apps/erp/app/routes/x+/settings+/webhooks.tsx:20
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:98
+#: apps/erp/app/routes/x+/settings+/webhooks.tsx:18
 msgid "Webhooks"
 msgstr "Webhooks"
 

@@ -748,9 +748,9 @@ msgid "API Key"
 msgstr "API 密钥"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
-#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:99
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:91
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:135
-#: apps/erp/app/routes/x+/settings+/api-keys.tsx:20
+#: apps/erp/app/routes/x+/settings+/api-keys.tsx:18
 msgid "API Keys"
 msgstr "API 密钥"
 
@@ -1396,7 +1396,7 @@ msgid "Attributes are inherited from the procedure."
 msgstr "属性继承自工序。"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:296
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:27
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:26
 msgid "Audit Log"
 msgstr "审计日志"
 
@@ -1412,13 +1412,13 @@ msgstr "审计日志已禁用"
 msgid "Audit logging is enabled"
 msgstr "审计日志已启用"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:161
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:160
 msgid "Audit logging is not enabled"
 msgstr "审计日志未启用"
 
-#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:89
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:80
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:147
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:175
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:164
 msgid "Audit Logs"
 msgstr "审计日志"
 
@@ -1623,10 +1623,6 @@ msgstr "批量导入"
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:403
 msgid "Bulk Jobs"
 msgstr "批量作业"
-
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:128
-msgid "Business plan"
-msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:87
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:91
@@ -2036,7 +2032,7 @@ msgstr "更改类型"
 msgid "Changed By"
 msgstr "更改者"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:272
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:271
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:258
 msgid "Changes"
 msgstr "更改"
@@ -2221,7 +2217,7 @@ msgstr "列的可见性和顺序"
 msgid "Columns"
 msgstr "列"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:93
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:86
 msgid "Coming soon"
 msgstr "即将推出"
 
@@ -2446,6 +2442,10 @@ msgstr "确认导入"
 #: apps/erp/app/modules/account/ui/Password/PasswordForm.tsx:57
 msgid "Confirm Password"
 msgstr "确认密码"
+
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:114
+msgid "Connect Carbon to your accounting, project, and CAD tools and much more."
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Issue/Jira/IssueDialog.tsx:83
 msgid "Connect Jira issue"
@@ -4134,8 +4134,8 @@ msgstr "详情"
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:375
 #: apps/erp/app/modules/sales/ui/Customer/CustomerSidebar/useCustomerSidebar.tsx:33
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:546
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:115
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:119
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:108
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:112
 msgid "Details"
 msgstr "详情"
 
@@ -4889,7 +4889,7 @@ msgstr "员工类型"
 msgid "Employees"
 msgstr "员工"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:164
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:163
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "在设置中启用审计日志以开始跟踪数据的更改。"
 
@@ -4897,7 +4897,7 @@ msgstr "在设置中启用审计日志以开始跟踪数据的更改。"
 msgid "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 msgstr "为您的公司启用数字报价。这将允许您向客户发送数字报价，并允许他们在线接受。"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:173
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:172
 msgid "Enable in Settings"
 msgstr "在设置中启用"
 
@@ -6118,7 +6118,7 @@ msgstr "隐藏、固定和重新排序列"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "更高的优先级在平局时获胜，并首先应用于加价"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:210
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:209
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:141
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLinePricingHistory.tsx:74
 msgid "History"
@@ -6388,12 +6388,12 @@ msgstr "检验"
 msgid "Inspector"
 msgstr "检查员"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:159
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:139
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:715
 msgid "Install"
 msgstr "安装"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:88
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:81
 msgid "Installed"
 msgstr "已安装"
 
@@ -6411,13 +6411,10 @@ msgstr "说明继承自工序。"
 msgid "Integration not found"
 msgstr "集成未找到"
 
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:111
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:159
 msgid "Integrations"
 msgstr "集成"
-
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:133
-msgid "Integrations are available on the Business plan and above."
-msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:62
 msgid "Intercompany"
@@ -6634,7 +6631,7 @@ msgstr "问题描述"
 msgid "Issue not found"
 msgstr "问题未找到"
 
-#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:102
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:94
 msgid "Issue scoped API keys for programmatic access to your Carbon data."
 msgstr ""
 
@@ -8346,7 +8343,7 @@ msgstr "新报价行"
 msgid "New Receipt"
 msgstr "新收据"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:306
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:305
 msgid "New record created"
 msgstr "新记录已创建"
 
@@ -8551,7 +8548,7 @@ msgstr "没有物料清单输入具有保质期政策"
 msgid "No calibration records found"
 msgstr "未找到校准记录"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:310
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:309
 msgid "No changes recorded"
 msgstr "未记录任何更改"
 
@@ -9559,7 +9556,7 @@ msgstr "计划开始时间"
 msgid "Planning"
 msgstr "规划"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:178
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:177
 msgid "Please contact your administrator to enable audit logging."
 msgstr "请联系您的管理员以启用审计日志。"
 
@@ -10143,7 +10140,7 @@ msgstr "采购条款和条件"
 msgid "Purchasing Unit of Measure"
 msgstr "采购计量单位"
 
-#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:109
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:101
 msgid "Push record changes to external systems the moment they happen."
 msgstr ""
 
@@ -10537,7 +10534,7 @@ msgstr "最近创建"
 msgid "Record"
 msgstr "录音"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:308
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:307
 msgid "Record deleted"
 msgstr "记录已删除"
 
@@ -11521,7 +11518,7 @@ msgstr "报废原因"
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:554
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:467
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:369
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:63
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:67
 msgid "Search"
 msgstr "搜索"
 
@@ -12990,7 +12987,7 @@ msgstr "切换"
 msgid "Sync"
 msgstr "同步"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:245
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:244
 #: apps/erp/app/components/EmployeeAvatar.tsx:29
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:132
 msgid "System"
@@ -13579,11 +13576,11 @@ msgstr "追踪"
 msgid "Track changes to key business entities including invoices, orders, customers, suppliers, and more."
 msgstr "跟踪关键业务实体的变化，包括发票、订单、客户、供应商等。"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:143
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:144
 msgid "Track every change to your orders, invoices, customers, and more."
 msgstr "跟踪对您的订单、发票、客户等的每一项更改。"
 
-#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:92
+#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:83
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr "跟踪对您的订单、发票、客户、供应商等的每项更改。"
 
@@ -13811,7 +13808,7 @@ msgstr "未批准的供应商"
 msgid "Unassigned"
 msgstr "未分配"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:150
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationCard.tsx:128
 msgid "Uninstall"
 msgstr "卸载"
 
@@ -14072,14 +14069,11 @@ msgstr "更新者"
 msgid "Updated successfully"
 msgstr "更新成功"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:150
-#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:110
-#: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:100
-#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:117
+#: apps/erp/app/components/UpgradeOverlay/UpgradeOverlay.tsx:150
 msgid "Upgrade to Business"
 msgstr "升级到商业版"
 
-#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:140
+#: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:141
 msgid "Upgrade to unlock audit history"
 msgstr "升级以解锁审计历史"
 
@@ -14298,7 +14292,7 @@ msgstr "查看活跃工作"
 msgid "View Active Quotes"
 msgstr "查看活跃报价"
 
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:180
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:169
 msgid "View All"
 msgstr "查看全部"
 
@@ -14570,8 +14564,8 @@ msgstr "Webhook URL"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:171
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:227
-#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:106
-#: apps/erp/app/routes/x+/settings+/webhooks.tsx:20
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:98
+#: apps/erp/app/routes/x+/settings+/webhooks.tsx:18
 msgid "Webhooks"
 msgstr "Webhooks"
 

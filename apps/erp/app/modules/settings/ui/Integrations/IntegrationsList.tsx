@@ -32,7 +32,6 @@ const IntegrationsList = ({
     "all"
   );
   const { isGated } = usePlanGate();
-  const [gatedDialogOpen, setGatedDialogOpen] = useState(false);
   const search = params.get("search") || "";
 
   const installed = integrations.filter((i) => i.id && i.active);
@@ -87,7 +86,7 @@ const IntegrationsList = ({
       </div>
       <div
         className={`grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-4 w-full ${
-          isGated ? "pb-[40dvh]" : "pb-4"
+          isGated ? "" : "pb-4"
         }`}
       >
         {filteredIntegrations.map((integration) => {
@@ -103,9 +102,7 @@ const IntegrationsList = ({
 
       {isGated && (
         <>
-          <UpgradeOverlay.StickyGradient
-            onClick={() => setGatedDialogOpen(true)}
-          >
+          <UpgradeOverlay.StickyGradient>
             <UpgradeOverlay.Icon>
               <LuPuzzle className="size-6 text-muted-foreground" />
             </UpgradeOverlay.Icon>
@@ -124,30 +121,6 @@ const IntegrationsList = ({
               <UpgradeOverlay.UpgradeButton />
             </UpgradeOverlay.Actions>
           </UpgradeOverlay.StickyGradient>
-
-          <UpgradeOverlay.Dialog
-            open={gatedDialogOpen}
-            onOpenChange={setGatedDialogOpen}
-          >
-            <UpgradeOverlay.Icon>
-              <LuPuzzle className="size-6 text-muted-foreground" />
-            </UpgradeOverlay.Icon>
-            <UpgradeOverlay.Content>
-              <UpgradeOverlay.Title>
-                <Trans>Upgrade to install integrations</Trans>
-              </UpgradeOverlay.Title>
-              <UpgradeOverlay.Description>
-                <Trans>
-                  Integrations are available on the Business plan and above.
-                  Upgrade to install and connect integrations to your Carbon
-                  data.
-                </Trans>
-              </UpgradeOverlay.Description>
-            </UpgradeOverlay.Content>
-            <UpgradeOverlay.Actions>
-              <UpgradeOverlay.UpgradeButton />
-            </UpgradeOverlay.Actions>
-          </UpgradeOverlay.Dialog>
         </>
       )}
     </div>

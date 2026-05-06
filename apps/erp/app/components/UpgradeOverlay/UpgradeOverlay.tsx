@@ -8,30 +8,9 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
-import { type ReactNode, useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
-
-function useIsScrolling(idleMs = 200): boolean {
-  const [scrolling, setScrolling] = useState(false);
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-    const onScroll = () => {
-      setScrolling(true);
-      if (timeout) clearTimeout(timeout);
-      timeout = setTimeout(() => setScrolling(false), idleMs);
-    };
-    document.addEventListener("scroll", onScroll, {
-      capture: true,
-      passive: true
-    });
-    return () => {
-      document.removeEventListener("scroll", onScroll, { capture: true });
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [idleMs]);
-  return scrolling;
-}
 
 type WithChildren = { children: ReactNode; className?: string };
 
@@ -112,26 +91,22 @@ function UpgradeOverlayActions({ children }: { children: ReactNode }) {
 function UpgradeOverlayStickyGradient({
   children,
   className,
-  scrollOpacity = 0.9,
   onClick
 }: {
   children: ReactNode;
   className?: string;
-  scrollOpacity?: number;
   onClick?: () => void;
 }) {
-  const isScrolling = useIsScrolling();
   return (
     <div
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 pointer-events-none",
-        "h-[50dvh] flex items-end justify-center pb-24",
-        "bg-gradient-to-t from-background from-[35%] via-background/70 via-[65%] to-transparent",
+        "sticky bottom-0 left-0 right-0 z-40 pointer-events-none",
+        "-mt-[100dvh] h-[100dvh] flex items-end justify-center pb-48",
+        "bg-gradient-to-b from-transparent via-background/55 via-[50%] to-background",
         "transition-opacity duration-200 ease-out",
         "motion-reduce:transition-none",
         className
       )}
-      style={{ opacity: isScrolling ? scrollOpacity : 1 }}
     >
       <div
         onClick={onClick}
