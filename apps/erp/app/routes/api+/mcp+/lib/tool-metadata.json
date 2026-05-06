@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-04T15:38:33.743Z",
-  "totalTools": 1015,
+  "generated": "2026-05-06T00:28:24.161Z",
+  "totalTools": 1075,
   "modules": 15,
   "tools": [
     {
@@ -10881,7 +10881,11 @@
       "classification": "WRITE",
       "description": "update company",
       "paramCount": 0,
-      "serviceParams": []
+      "serviceParams": [
+        "client",
+        "companyId",
+        "defaultSupplierCc"
+      ]
     },
     {
       "name": "settings_updateKanbanOutputSetting",
@@ -11248,7 +11252,11 @@
       "classification": "WRITE",
       "description": "update default supplier cc",
       "paramCount": 1,
-      "serviceParams": []
+      "serviceParams": [
+        "client",
+        "companyId",
+        "defaultSupplierCc"
+      ]
     },
     {
       "name": "settings_updateDefaultCustomerCc",

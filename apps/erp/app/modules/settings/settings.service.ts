@@ -1066,6 +1066,17 @@ export async function updateConsoleSetting(
   return update;
 }
 
+export async function updateDefaultSupplierCc(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  defaultSupplierCc: string[]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ defaultSupplierCc }))
+    .eq("id", companyId);
+}
+
 export async function upsertWebhook(
   client: SupabaseClient<Database>,
   webhook:
