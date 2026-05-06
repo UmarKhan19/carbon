@@ -11,14 +11,13 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { MCP_BLOCKED_TOOL_NAMES } from "../apps/erp/app/routes/api+/mcp+/lib/mcp-blocked-tools";
+import type { AuthField } from "../apps/erp/app/routes/api+/mcp+/lib/types";
 
 const ROOT = path.resolve(__dirname, "..");
 const MCP_LIB_DIR = path.join(ROOT, "apps/erp/app/routes/api+/mcp+/lib");
 const TOOLS_DIR = path.join(MCP_LIB_DIR, "tools");
 const MODULES_DIR = path.join(ROOT, "apps/erp/app/modules");
 const METADATA_FILE = path.join(MCP_LIB_DIR, "tool-metadata.json");
-
-type AuthField = "companyId" | "createdBy" | "updatedBy";
 
 interface ToolMetadata {
   name: string;

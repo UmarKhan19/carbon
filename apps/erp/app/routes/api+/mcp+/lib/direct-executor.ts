@@ -19,6 +19,7 @@ import * as sharedFunctions from "~/modules/shared/shared.service";
 import * as usersFunctions from "~/modules/users/users.service";
 import { isMcpBlockedTool } from "./mcp-blocked-tools";
 import toolMetadata from "./tool-metadata.json";
+import type { AuthField } from "./types";
 
 // Combine all functions into a single registry
 const functionRegistry = {
@@ -44,8 +45,6 @@ export interface ExecutorContext {
   companyId: string;
   userId: string;
 }
-
-type AuthField = "companyId" | "createdBy" | "updatedBy";
 
 // Stamps auth identity onto typed payloads. Carbon's services expect auth
 // fields inside the payload (predates MCP). `fields` is per-tool from
