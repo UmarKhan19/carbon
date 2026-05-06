@@ -1,5 +1,5 @@
 -- Allow authenticated users to read company groups they belong to
-CREATE POLICY "Users can view their company groups" ON "companyGroup"
+CREATE POLICY "SELECT" ON "companyGroup"
 FOR SELECT USING (
   "id" IN (
     SELECT "companyGroupId" FROM "company"

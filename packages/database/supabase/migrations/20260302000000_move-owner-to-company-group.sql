@@ -9,6 +9,7 @@ SET "ownerId" = (
   SELECT c."ownerId" FROM "company" c
   WHERE c."companyGroupId" = cg.id
     AND c."parentCompanyId" IS NULL
+    AND c."ownerId" IN (SELECT id FROM "user")
   LIMIT 1
 );
 

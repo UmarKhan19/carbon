@@ -131,6 +131,13 @@ DELETE FROM "account";
 
 
 -- ============================================================
+-- Phase 3.5: Ensure isSystem column exists (added later in protect-root-accounts,
+-- but needed here for the INSERT)
+-- ============================================================
+
+ALTER TABLE "account" ADD COLUMN IF NOT EXISTS "isSystem" BOOLEAN NOT NULL DEFAULT false;
+
+-- ============================================================
 -- Phase 4: Insert new accounts for every companyGroup
 -- ============================================================
 

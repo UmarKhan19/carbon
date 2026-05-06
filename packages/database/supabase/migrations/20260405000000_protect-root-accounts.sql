@@ -4,7 +4,7 @@
 -- isSystem = true and a trigger prevents UPDATE or DELETE on those rows.
 
 -- 1. Add column
-ALTER TABLE "account" ADD COLUMN "isSystem" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "account" ADD COLUMN IF NOT EXISTS "isSystem" BOOLEAN NOT NULL DEFAULT false;
 
 -- 2. Backfill: root accounts have no parent
 UPDATE "account" SET "isSystem" = true WHERE "parentId" IS NULL;

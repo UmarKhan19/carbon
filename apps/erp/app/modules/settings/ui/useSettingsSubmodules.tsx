@@ -26,10 +26,12 @@ import { useFlags } from "~/hooks/useFlags";
 import type { AuthenticatedRouteGroup } from "~/types";
 import { path } from "~/utils/path";
 
+const internalOnlyRoutes = new Set<string>([path.to.companies]);
+
 export default function useSettingsSubmodules() {
   const { t } = useLingui();
   const permissions = usePermissions();
-  const { isCloud } = useFlags();
+  const { isCloud, isInternal } = useFlags();
 
   const settingsRoutes: AuthenticatedRouteGroup<{
     requiresOwnership?: boolean;
@@ -174,42 +176,28 @@ export default function useSettingsSubmodules() {
         ]
       }
     ],
-    [permissions, isCloud, t]
+    [t]
   );
+
+  const isRouteVisible = (route: {
+    to: string;
+    role?: string;
+    requiresOwnership?: boolean;
+    requiresCloudEnvironment?: boolean;
+  }) => {
+    if (route.role && !permissions.is(route.role)) return false;
+    if (route.requiresOwnership && !permissions.isOwner()) return false;
+    if (route.requiresCloudEnvironment && !isCloud) return false;
+    if (!isInternal && internalOnlyRoutes.has(route.to)) return false;
+    return true;
+  };
 
   return {
     groups: settingsRoutes
-      .filter((group) => {
-        const filteredRoutes = group.routes.filter((route) => {
-          // Check role permission
-          if (route.role && !permissions.is(route.role)) {
-            return false;
-          }
-
-          return true;
-        });
-
-        return filteredRoutes.length > 0;
-      })
+      .filter((group) => group.routes.some(isRouteVisible))
       .map((group) => ({
         ...group,
-        routes: group.routes.filter((route) => {
-          // Check role permission
-          if (route.role && !permissions.is(route.role)) {
-            return false;
-          }
-
-          // Check ownership requirement
-          if (route.requiresOwnership && !permissions.isOwner()) {
-            return false;
-          }
-
-          if (route.requiresCloudEnvironment && !isCloud) {
-            return false;
-          }
-
-          return true;
-        })
+        routes: group.routes.filter(isRouteVisible)
       }))
   };
 }

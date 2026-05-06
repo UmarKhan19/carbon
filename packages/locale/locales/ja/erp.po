@@ -748,7 +748,7 @@ msgid "API Key"
 msgstr "APIキー"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:133
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:135
 #: apps/erp/app/routes/x+/settings+/api-keys.tsx:13
 msgid "API Keys"
 msgstr "APIキー"
@@ -773,7 +773,7 @@ msgid "Approval Requirements"
 msgstr "承認要件"
 
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:41
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:139
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:141
 #: apps/erp/app/routes/x+/settings+/approval-rules.tsx:14
 msgid "Approval Rules"
 msgstr "承認ルール"
@@ -1416,7 +1416,7 @@ msgid "Audit logging is not enabled"
 msgstr "監査ログが有効になっていません"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:89
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:145
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:147
 #: apps/erp/app/routes/x+/settings+/audit-logs.tsx:175
 msgid "Audit Logs"
 msgstr "監査ログ"
@@ -1570,7 +1570,7 @@ msgstr "プロセスの部品表"
 msgid "Bill To"
 msgstr "請求先"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:55
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:57
 #: apps/erp/app/routes/x+/settings+/billing.tsx:196
 msgid "Billing"
 msgstr "請求"
@@ -2230,12 +2230,12 @@ msgstr "コメント"
 
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:153
 #: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:46
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:49
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:51
 msgid "Companies"
 msgstr "企業"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:40
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:43
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:42
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:45
 #: apps/erp/app/routes/x+/settings+/company.tsx:30
 #: apps/erp/app/routes/x+/settings+/company.tsx:91
 msgid "Company"
@@ -3206,7 +3206,7 @@ msgid "Custom Field"
 msgstr "カスタムフィールド"
 
 #: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:128
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:151
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:153
 #: apps/erp/app/routes/x+/settings+/custom-fields.tsx:15
 msgid "Custom Fields"
 msgstr "カスタムフィールド"
@@ -6405,7 +6405,7 @@ msgstr "手順から継承された指示。"
 msgid "Integration not found"
 msgstr "統合が見つかりません"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:157
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:159
 msgid "Integrations"
 msgstr "統合"
 
@@ -6455,7 +6455,7 @@ msgstr "無効な招待"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:380
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:98
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:66
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:80
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:82
 #: apps/erp/app/routes/x+/inventory+/_layout.tsx:19
 #: apps/erp/app/routes/x+/receipt+/_layout.tsx:12
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:54
@@ -6790,7 +6790,7 @@ msgstr "アイテム"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:174
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:199
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:258
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:86
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:88
 #: apps/erp/app/routes/x+/consumable+/_layout.tsx:15
 #: apps/erp/app/routes/x+/issue+/$id.tsx:105
 #: apps/erp/app/routes/x+/items+/_layout.tsx:16
@@ -6957,7 +6957,7 @@ msgid "Label to start the next operation for this kanban"
 msgstr "このカンバンの次の操作を開始するためのラベル"
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:237
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:63
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:65
 #: apps/erp/app/routes/x+/settings+/labels.tsx:31
 #: apps/erp/app/routes/x+/settings+/labels.tsx:107
 msgid "Labels"
@@ -7309,7 +7309,7 @@ msgstr "ロゴが正常に削除されました"
 msgid "Logo uploaded successfully"
 msgstr "ロゴが正常にアップロードされました"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:69
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:71
 #: apps/erp/app/routes/x+/settings+/logos.tsx:32
 #: apps/erp/app/routes/x+/settings+/logos.tsx:83
 msgid "Logos"
@@ -7892,7 +7892,7 @@ msgstr "モデルがラインから削除されました"
 msgid "Module"
 msgstr "モジュール"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:77
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:79
 msgid "Modules"
 msgstr "モジュール"
 
@@ -9419,7 +9419,7 @@ msgstr "保留中"
 
 #: apps/erp/app/hooks/useModules.tsx:76
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:67
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:92
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:94
 #: apps/erp/app/routes/x+/people+/_layout.tsx:16
 #: apps/erp/app/routes/x+/person+/$personId.tsx:20
 #: apps/erp/app/routes/x+/settings+/people.tsx:42
@@ -9847,7 +9847,7 @@ msgstr "製品ラベルサイズ"
 
 #: apps/erp/app/hooks/useModules.tsx:40
 #: apps/erp/app/modules/production/ui/useProductionSubmodules.tsx:21
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:104
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:106
 #: apps/erp/app/routes/x+/job+/_layout.tsx:13
 #: apps/erp/app/routes/x+/procedure+/_layout.tsx:12
 #: apps/erp/app/routes/x+/production+/_layout.tsx:16
@@ -10098,7 +10098,7 @@ msgstr "購入済み"
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:38
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:42
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:41
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:98
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:100
 #: apps/erp/app/routes/x+/purchase-invoice+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchase-invoice+/new.tsx:24
 #: apps/erp/app/routes/x+/purchase-order+/_layout.tsx:12
@@ -10164,7 +10164,7 @@ msgstr "数量。スクラップ"
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:70
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:82
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:74
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:110
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:112
 #: apps/erp/app/routes/x+/issue-workflow+/_layout.tsx:12
 #: apps/erp/app/routes/x+/issue+/_layout.tsx:12
 #: apps/erp/app/routes/x+/quality-document+/_layout.tsx:12
@@ -10886,7 +10886,7 @@ msgid "Resolved Price"
 msgstr "解決済み価格"
 
 #: apps/erp/app/hooks/useModules.tsx:82
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:122
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:124
 #: apps/erp/app/routes/x+/maintenance+/_layout.tsx:12
 #: apps/erp/app/routes/x+/resources+/_layout.tsx:16
 #: apps/erp/app/routes/x+/settings+/resources.tsx:43
@@ -11100,7 +11100,7 @@ msgstr "販売価格"
 
 #: apps/erp/app/hooks/useModules.tsx:34
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:75
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:116
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:118
 #: apps/erp/app/routes/x+/customer+/_layout.tsx:15
 #: apps/erp/app/routes/x+/quote+/_layout.tsx:13
 #: apps/erp/app/routes/x+/sales-invoice+/_layout.tsx:12
@@ -11794,7 +11794,7 @@ msgid "Sends this document for approval before it can go active."
 msgstr "このドキュメントを承認のために送信してから、アクティブにすることができます。"
 
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:113
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:163
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:165
 #: apps/erp/app/routes/x+/settings+/sequences.tsx:12
 msgid "Sequences"
 msgstr "シーケンス"
@@ -12972,7 +12972,7 @@ msgstr "同期"
 
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:245
 #: apps/erp/app/components/EmployeeAvatar.tsx:29
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:130
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:132
 msgid "System"
 msgstr "システム"
 
@@ -14546,7 +14546,7 @@ msgstr "Webhook ドキュメント"
 msgid "Webhook URL"
 msgstr "Webhook URL"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:169
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:171
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:227
 #: apps/erp/app/routes/x+/settings+/webhooks.tsx:14
 msgid "Webhooks"
