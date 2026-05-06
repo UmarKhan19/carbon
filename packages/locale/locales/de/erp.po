@@ -198,7 +198,7 @@ msgstr "Ein Benutzer erfasst das Verfallsdatum für jede Charge oder Seriennumme
 msgid "Abilities"
 msgstr "Fähigkeiten"
 
-#: apps/erp/app/components/AvatarMenu.tsx:263
+#: apps/erp/app/components/AvatarMenu.tsx:256
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:61
 msgid "About"
 msgstr "Über"
@@ -236,7 +236,7 @@ msgstr "Kontoführer"
 msgid "Account Number"
 msgstr "Kontonummer"
 
-#: apps/erp/app/components/AvatarMenu.tsx:223
+#: apps/erp/app/components/AvatarMenu.tsx:216
 #: apps/erp/app/routes/x+/account+/_layout.tsx:27
 msgid "Account Settings"
 msgstr "Kontoeinstellungen"
@@ -259,7 +259,7 @@ msgstr "Buchhaltung"
 msgid "Accounts"
 msgstr "Konten"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:458
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:457
 msgid "Accounts Payable Billing Address"
 msgstr "Konten Zahlbar Rechnungsadresse"
 
@@ -626,13 +626,13 @@ msgid "Address"
 msgstr "Adresse"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:159
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:508
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:507
 #: apps/erp/app/routes/x+/settings+/sales.tsx:446
 msgid "Address Line 1"
 msgstr "Adresszeile 1"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:206
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:509
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:508
 #: apps/erp/app/routes/x+/settings+/sales.tsx:447
 msgid "Address Line 2"
 msgstr "Adresszeile 2"
@@ -737,7 +737,7 @@ msgstr "API und Webhooks"
 msgid "API Docs"
 msgstr "API-Dokumentation"
 
-#: apps/erp/app/components/AvatarMenu.tsx:114
+#: apps/erp/app/components/AvatarMenu.tsx:122
 msgid "API Documentation"
 msgstr "API-Dokumentation"
 
@@ -1576,7 +1576,7 @@ msgstr "Rechnung an"
 msgid "Billing"
 msgstr "Abrechnung"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:501
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:500
 #: apps/erp/app/routes/x+/settings+/sales.tsx:439
 msgid "Billing Address"
 msgstr "Rechnungsadresse"
@@ -2072,7 +2072,7 @@ msgstr "Wählen Sie Ihren Stil"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:210
 #: apps/erp/app/modules/resources/ui/Locations/LocationsTable.tsx:66
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:510
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:509
 #: apps/erp/app/routes/x+/settings+/sales.tsx:448
 msgid "City"
 msgstr "Stadt"
@@ -2399,11 +2399,11 @@ msgstr "Konfigurieren Sie die Standardkonten, die für verschiedene Transaktions
 msgid "Configure the start months for your fiscal and tax years"
 msgstr ""
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:555
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:554
 msgid "Configure when purchased item prices should be updated from supplier transactions."
 msgstr "Konfigurieren Sie, wann die Preise gekaufter Artikel aus Lieferantentransaktionen aktualisiert werden sollen."
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:628
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:627
 msgid "Configure who should receive notifications when a supplier submits a quote."
 msgstr "Konfigurieren Sie, wer Benachrichtigungen erhalten soll, wenn ein Lieferant ein Angebot einreicht."
 
@@ -3407,11 +3407,11 @@ msgstr "Tägliche Nutzung"
 msgid "Dark"
 msgstr "Dunkel"
 
-#: apps/erp/app/components/AvatarMenu.tsx:124
+#: apps/erp/app/components/AvatarMenu.tsx:132
 msgid "Dark Mode"
 msgstr "Dunkler Modus"
 
-#: apps/erp/app/components/AvatarMenu.tsx:106
+#: apps/erp/app/components/AvatarMenu.tsx:114
 #: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:134
 #: apps/erp/app/routes/x+/quality+/_index.tsx:81
 #: apps/erp/app/routes/x+/settings+/quality.tsx:268
@@ -3577,7 +3577,7 @@ msgstr "Standardkonten"
 msgid "Default Approver"
 msgstr "Standardgenehmiger"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:687
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:686
 #: apps/erp/app/routes/x+/settings+/sales.tsx:612
 msgid "Default CC Recipients"
 msgstr "Standard-CC-Empfänger"
@@ -3643,7 +3643,7 @@ msgstr "Standardwerte"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "Definieren Sie die Standardgröße des Produktetiketts. Wird zur Verfolgung von Artikeln im Bestand verwendet."
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:421
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:420
 msgid "Define the terms and conditions for purchase orders"
 msgstr "Definieren Sie die Bedingungen für Bestellungen"
 
@@ -4285,7 +4285,7 @@ msgstr "CSV herunterladen"
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:14
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:14
 #: apps/erp/app/modules/items/ui/Item/MakeMethodVersionStatus.tsx:18
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:429
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:428
 #: apps/erp/app/routes/x+/settings+/sales.tsx:366
 msgid "Draft"
 msgstr "Entwurf"
@@ -4824,7 +4824,7 @@ msgstr "Arbeitszentrum bearbeiten"
 #: apps/erp/app/modules/users/ui/Employees/EmployeesTable.tsx:115
 #: apps/erp/app/modules/users/ui/Suppliers/CreateSupplierModal/CreateSupplierModal.tsx:90
 #: apps/erp/app/modules/users/ui/Suppliers/SupplierAccountsTable/SuppliersAccountsTable.tsx:118
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:507
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:506
 #: apps/erp/app/routes/x+/settings+/sales.tsx:445
 msgid "Email"
 msgstr "E-Mail"
@@ -4838,7 +4838,7 @@ msgstr "E-Mail-Adresse"
 msgid "Email notifications not configured"
 msgstr "E-Mail-Benachrichtigungen nicht konfiguriert"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:674
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:673
 #: apps/erp/app/routes/x+/settings+/sales.tsx:599
 msgid "Emails"
 msgstr "E-Mails"
@@ -4929,7 +4929,7 @@ msgstr "Aktivieren Sie diese Option, um IDs und Beschreibungen für Rohstoffe zu
 msgid "Enable to include work instructions on job traveler PDFs."
 msgstr "Aktivieren Sie diese Option, um Arbeitsanweisungen in Job-Traveler-PDFs einzubeziehen."
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:729
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:728
 msgid "Enable to show part thumbnails on purchase order PDFs."
 msgstr "Aktivieren Sie diese Option, um Teilminiaturen auf Bestellungs-PDFs anzuzeigen."
 
@@ -5756,7 +5756,7 @@ msgstr "Favorit"
 #: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:178
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:105
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:184
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:515
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:514
 #: apps/erp/app/routes/x+/settings+/sales.tsx:453
 msgid "Fax"
 msgstr "Fax"
@@ -7008,7 +7008,7 @@ msgstr "Arbeitszeit"
 msgid "Labor Unit"
 msgstr "Arbeitseinheit"
 
-#: apps/erp/app/components/AvatarMenu.tsx:185
+#: apps/erp/app/components/AvatarMenu.tsx:178
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:41
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:48
 msgid "Language"
@@ -7067,7 +7067,7 @@ msgstr "Lieferzeit"
 msgid "Lead Time (Days)"
 msgstr "Lieferzeit (Tage)"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:592
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:591
 msgid "Lead Time Updates"
 msgstr "Aktualisierungen der Lieferzeit"
 
@@ -7121,7 +7121,7 @@ msgstr "Buchstabe"
 msgid "Light"
 msgstr "Hell"
 
-#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:34
+#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:33
 msgid "Light Mode"
 msgstr "Hellmodus"
 
@@ -7510,7 +7510,7 @@ msgstr "Verwalten Sie, wie die Haltbarkeit in Ihrem Bestand verfolgt, berechnet 
 msgid "Manage Ownership"
 msgstr "Eigentümerschaft verwalten"
 
-#: apps/erp/app/components/AvatarMenu.tsx:232
+#: apps/erp/app/components/AvatarMenu.tsx:225
 #: apps/erp/app/routes/x+/settings+/billing.tsx:203
 #: apps/erp/app/routes/x+/settings+/billing.tsx:269
 msgid "Manage Subscription"
@@ -8093,7 +8093,7 @@ msgstr "Meine gespeicherte Ansicht"
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:35
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:118
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:76
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:506
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:505
 #: apps/erp/app/routes/x+/settings+/sales.tsx:444
 msgid "Name"
 msgstr "Name"
@@ -8870,7 +8870,7 @@ msgid "Notification"
 msgstr "Benachrichtigung"
 
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:96
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:638
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:637
 #: apps/erp/app/routes/x+/settings+/sales.tsx:516
 #: apps/erp/app/routes/x+/settings+/sales.tsx:564
 msgid "Notifications"
@@ -9322,7 +9322,7 @@ msgstr "Teile-ID"
 msgid "Part is configured for manufacturing"
 msgstr "Teil ist für die Herstellung konfiguriert"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:725
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:724
 msgid "Part thumbnails are shown on purchase order PDFs."
 msgstr "Teilminiaturen werden auf Bestellungs-PDFs angezeigt."
 
@@ -9414,7 +9414,7 @@ msgstr "Zahlungsbedingungen"
 msgid "PDF"
 msgstr "PDF"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:707
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:706
 #: apps/erp/app/routes/x+/settings+/sales.tsx:633
 msgid "PDFs"
 msgstr "PDFs"
@@ -9465,7 +9465,7 @@ msgstr "Berechtigungen"
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:58
 #: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:170
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:176
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:514
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:513
 #: apps/erp/app/routes/x+/settings+/sales.tsx:452
 msgid "Phone"
 msgstr "Telefon"
@@ -9648,7 +9648,7 @@ msgid "Post Shipment"
 msgstr "Sendung buchen"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:221
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:512
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:511
 #: apps/erp/app/routes/x+/settings+/sales.tsx:450
 msgid "Postal Code"
 msgstr "Postleitzahl"
@@ -9790,7 +9790,7 @@ msgstr "Prioritäten"
 msgid "Priority"
 msgstr "Priorität"
 
-#: apps/erp/app/components/AvatarMenu.tsx:253
+#: apps/erp/app/components/AvatarMenu.tsx:246
 msgid "Privacy Policy"
 msgstr "Datenschutzrichtlinie"
 
@@ -10060,7 +10060,7 @@ msgstr "Bestellungen"
 msgid "Purchase orders required"
 msgstr "Bestellungen erforderlich"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:552
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:551
 msgid "Purchase Price Updates"
 msgstr "Aktualisierungen der Einkaufspreise"
 
@@ -10115,8 +10115,8 @@ msgstr "Gekauft"
 #: apps/erp/app/routes/x+/purchase-order+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchasing-rfq+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchasing+/_layout.tsx:16
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:65
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:411
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:64
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:410
 #: apps/erp/app/routes/x+/supplier-quote+/_layout.tsx:13
 #: apps/erp/app/routes/x+/supplier+/_layout.tsx:16
 msgid "Purchasing"
@@ -10132,7 +10132,7 @@ msgstr "Beschaffung"
 msgid "Purchasing Contact"
 msgstr "Einkaufskontakt"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:418
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:417
 msgid "Purchasing Terms & Conditions"
 msgstr "Einkaufsbedingungen"
 
@@ -11381,10 +11381,10 @@ msgstr "Samstag"
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:262
 #: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:527
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:582
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:657
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:699
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:526
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:581
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:656
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:698
 #: apps/erp/app/routes/x+/settings+/quality.tsx:250
 #: apps/erp/app/routes/x+/settings+/quality.tsx:295
 #: apps/erp/app/routes/x+/settings+/quality.tsx:368
@@ -12194,7 +12194,7 @@ msgstr "Dauern anzeigen"
 msgid "Show parent items"
 msgstr "Übergeordnete Elemente anzeigen"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:710
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:709
 msgid "Show part thumbnails on purchase orders."
 msgstr "Zeige Teilminiaturen auf Bestellungen an."
 
@@ -12218,11 +12218,11 @@ msgstr "Mit Google anmelden"
 msgid "Sign in with Outlook"
 msgstr "Mit Outlook anmelden"
 
-#: apps/erp/app/components/AvatarMenu.tsx:271
+#: apps/erp/app/components/AvatarMenu.tsx:264
 msgid "Sign Out"
 msgstr "Abmelden"
 
-#: apps/erp/app/components/AvatarMenu.tsx:101
+#: apps/erp/app/components/AvatarMenu.tsx:109
 msgid "Signed in as {name}"
 msgstr "Angemeldet als {name}"
 
@@ -12474,7 +12474,7 @@ msgstr "Gestartet"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:216
 #: apps/erp/app/modules/resources/ui/Locations/LocationsTable.tsx:74
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:511
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:510
 #: apps/erp/app/routes/x+/settings+/sales.tsx:449
 msgid "State / Province"
 msgstr "Bundesland / Provinz"
@@ -12881,7 +12881,7 @@ msgstr "Lieferantenofferte"
 msgid "Supplier Quote ID"
 msgstr "Lieferanten-Angebots-ID"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:625
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:624
 msgid "Supplier Quote Notifications"
 msgstr "Benachrichtigungen zu Lieferantenangebotsanfragen"
 
@@ -13134,11 +13134,11 @@ msgstr "Steuern:"
 msgid "Temperature"
 msgstr "Temperatur"
 
-#: apps/erp/app/components/AvatarMenu.tsx:241
+#: apps/erp/app/components/AvatarMenu.tsx:234
 msgid "Terms and Privacy"
 msgstr "Bedingungen und Datenschutz"
 
-#: apps/erp/app/components/AvatarMenu.tsx:247
+#: apps/erp/app/components/AvatarMenu.tsx:240
 msgid "Terms of Service"
 msgstr "Nutzungsbedingungen"
 
@@ -13154,7 +13154,7 @@ msgstr "Die Anzahl der Tage nach der Berechnungsmethode, für die der Skonto ver
 msgid "The amount of days after the calculation method that the payment is due"
 msgstr "Die Anzahl der Tage nach der Berechnungsmethode, bis die Zahlung fällig ist"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:461
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:460
 msgid "The billing address used on purchase orders and other purchasing documents."
 msgstr "Die Rechnungsadresse, die auf Bestellungen und anderen Einkaufsdokumenten verwendet wird."
 
@@ -13225,7 +13225,7 @@ msgstr "Der Stückpreis des Artikels zum Zeitpunkt des Kaufs"
 msgid "Theme"
 msgstr "Design"
 
-#: apps/erp/app/components/AvatarMenu.tsx:152
+#: apps/erp/app/components/AvatarMenu.tsx:145
 msgid "Theme Color"
 msgstr "Designfarbe"
 
@@ -13245,7 +13245,7 @@ msgstr "Es gibt externe Operationen, die mit diesem Auftrag verknüpft sind und 
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "Diese benutzerdefinierten Felder sind nur für Entitäten mit denselben Tags verfügbar"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:677
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:676
 msgid "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
 msgstr "Diese E-Mail-Adressen werden automatisch in CC auf alle an Lieferanten gesendeten E-Mails (Angebote, Bestellungen usw.) gesetzt."
 
@@ -13345,12 +13345,12 @@ msgstr "Vorschaubild entfernt"
 msgid "Thumbnail uploaded"
 msgstr "Miniaturansicht hochgeladen"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:718
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:717
 #: apps/erp/app/routes/x+/settings+/sales.tsx:647
 msgid "Thumbnails are included"
 msgstr "Miniaturansichten sind enthalten"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:720
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:719
 #: apps/erp/app/routes/x+/settings+/sales.tsx:649
 msgid "Thumbnails are not included"
 msgstr "Miniaturansichten sind nicht enthalten"
@@ -13955,7 +13955,7 @@ msgstr "Kanban aktualisieren"
 msgid "Update Linear issue"
 msgstr "Linear-Problem aktualisieren"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:595
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:594
 msgid "Update part lead times from posted purchase receipts."
 msgstr "Aktualisieren Sie die Teillaufzeiten aus gebuchten Kaufbelegen."
 
@@ -13968,7 +13968,7 @@ msgstr "Passwort aktualisieren"
 msgid "Update Permissions"
 msgstr "Berechtigungen aktualisieren"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:565
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:564
 msgid "Update prices on"
 msgstr "Preise aktualisieren am"
 
@@ -14655,7 +14655,7 @@ msgstr "Wer sollte Benachrichtigungen erhalten, wenn eine Anfrage als angebotber
 msgid "Who should receive notifications when a sales job is completed?"
 msgstr "Wer sollte Benachrichtigungen erhalten, wenn ein Verkaufsauftrag abgeschlossen ist?"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:642
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:641
 msgid "Who should receive notifications when a supplier quote is submitted?"
 msgstr "Wer sollte benachrichtigt werden, wenn ein Lieferantengebot eingereicht wird?"
 

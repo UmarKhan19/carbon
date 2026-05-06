@@ -198,7 +198,7 @@ msgstr "用户在收到货物时在每个批次或序列号上记录过期日期
 msgid "Abilities"
 msgstr "能力"
 
-#: apps/erp/app/components/AvatarMenu.tsx:263
+#: apps/erp/app/components/AvatarMenu.tsx:256
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:61
 msgid "About"
 msgstr "关于"
@@ -236,7 +236,7 @@ msgstr "账户经理"
 msgid "Account Number"
 msgstr "账户编号"
 
-#: apps/erp/app/components/AvatarMenu.tsx:223
+#: apps/erp/app/components/AvatarMenu.tsx:216
 #: apps/erp/app/routes/x+/account+/_layout.tsx:27
 msgid "Account Settings"
 msgstr "账户设置"
@@ -259,7 +259,7 @@ msgstr "会计"
 msgid "Accounts"
 msgstr "账户"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:458
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:457
 msgid "Accounts Payable Billing Address"
 msgstr "应付账款账单地址"
 
@@ -626,13 +626,13 @@ msgid "Address"
 msgstr "地址"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:159
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:508
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:507
 #: apps/erp/app/routes/x+/settings+/sales.tsx:446
 msgid "Address Line 1"
 msgstr "地址第1行"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:206
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:509
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:508
 #: apps/erp/app/routes/x+/settings+/sales.tsx:447
 msgid "Address Line 2"
 msgstr "地址第2行"
@@ -737,7 +737,7 @@ msgstr "API 和 Webhooks"
 msgid "API Docs"
 msgstr "API 文档"
 
-#: apps/erp/app/components/AvatarMenu.tsx:114
+#: apps/erp/app/components/AvatarMenu.tsx:122
 msgid "API Documentation"
 msgstr "API 文档"
 
@@ -1576,7 +1576,7 @@ msgstr "账单收款人"
 msgid "Billing"
 msgstr "账单"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:501
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:500
 #: apps/erp/app/routes/x+/settings+/sales.tsx:439
 msgid "Billing Address"
 msgstr "账单地址"
@@ -2072,7 +2072,7 @@ msgstr "选择您的风格"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:210
 #: apps/erp/app/modules/resources/ui/Locations/LocationsTable.tsx:66
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:510
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:509
 #: apps/erp/app/routes/x+/settings+/sales.tsx:448
 msgid "City"
 msgstr "城市"
@@ -2399,11 +2399,11 @@ msgstr "配置用于系统中各种交易类型的默认账户"
 msgid "Configure the start months for your fiscal and tax years"
 msgstr ""
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:555
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:554
 msgid "Configure when purchased item prices should be updated from supplier transactions."
 msgstr "配置何时应从供应商交易更新采购物品价格。"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:628
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:627
 msgid "Configure who should receive notifications when a supplier submits a quote."
 msgstr "配置供应商提交报价时谁应该收到通知。"
 
@@ -3407,11 +3407,11 @@ msgstr "日常使用"
 msgid "Dark"
 msgstr "深色"
 
-#: apps/erp/app/components/AvatarMenu.tsx:124
+#: apps/erp/app/components/AvatarMenu.tsx:132
 msgid "Dark Mode"
 msgstr "深色模式"
 
-#: apps/erp/app/components/AvatarMenu.tsx:106
+#: apps/erp/app/components/AvatarMenu.tsx:114
 #: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:134
 #: apps/erp/app/routes/x+/quality+/_index.tsx:81
 #: apps/erp/app/routes/x+/settings+/quality.tsx:268
@@ -3577,7 +3577,7 @@ msgstr "默认账户"
 msgid "Default Approver"
 msgstr "默认审批人"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:687
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:686
 #: apps/erp/app/routes/x+/settings+/sales.tsx:612
 msgid "Default CC Recipients"
 msgstr "默认抄送收件人"
@@ -3643,7 +3643,7 @@ msgstr "默认值"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "定义产品标签的默认大小。用于跟踪库存中的物品。"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:421
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:420
 msgid "Define the terms and conditions for purchase orders"
 msgstr "定义采购订单的条款和条件"
 
@@ -4285,7 +4285,7 @@ msgstr "下载 CSV"
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:14
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:14
 #: apps/erp/app/modules/items/ui/Item/MakeMethodVersionStatus.tsx:18
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:429
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:428
 #: apps/erp/app/routes/x+/settings+/sales.tsx:366
 msgid "Draft"
 msgstr "草稿"
@@ -4824,7 +4824,7 @@ msgstr "编辑工作中心"
 #: apps/erp/app/modules/users/ui/Employees/EmployeesTable.tsx:115
 #: apps/erp/app/modules/users/ui/Suppliers/CreateSupplierModal/CreateSupplierModal.tsx:90
 #: apps/erp/app/modules/users/ui/Suppliers/SupplierAccountsTable/SuppliersAccountsTable.tsx:118
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:507
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:506
 #: apps/erp/app/routes/x+/settings+/sales.tsx:445
 msgid "Email"
 msgstr "电子邮件"
@@ -4838,7 +4838,7 @@ msgstr "电子邮件地址"
 msgid "Email notifications not configured"
 msgstr "电子邮件通知未配置"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:674
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:673
 #: apps/erp/app/routes/x+/settings+/sales.tsx:599
 msgid "Emails"
 msgstr "电子邮件"
@@ -4929,7 +4929,7 @@ msgstr "启用以为原材料生成ID和描述。"
 msgid "Enable to include work instructions on job traveler PDFs."
 msgstr "启用以在工作单据 PDF 上包含工作说明。"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:729
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:728
 msgid "Enable to show part thumbnails on purchase order PDFs."
 msgstr "启用以在采购订单 PDF 上显示零件缩略图。"
 
@@ -5756,7 +5756,7 @@ msgstr "收藏"
 #: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:178
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:105
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:184
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:515
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:514
 #: apps/erp/app/routes/x+/settings+/sales.tsx:453
 msgid "Fax"
 msgstr "传真"
@@ -7008,7 +7008,7 @@ msgstr "劳动时间"
 msgid "Labor Unit"
 msgstr "劳动单位"
 
-#: apps/erp/app/components/AvatarMenu.tsx:185
+#: apps/erp/app/components/AvatarMenu.tsx:178
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:41
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:48
 msgid "Language"
@@ -7067,7 +7067,7 @@ msgstr "提前期"
 msgid "Lead Time (Days)"
 msgstr "交期（天）"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:592
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:591
 msgid "Lead Time Updates"
 msgstr "提前期更新"
 
@@ -7121,7 +7121,7 @@ msgstr "字母"
 msgid "Light"
 msgstr "浅色"
 
-#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:34
+#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:33
 msgid "Light Mode"
 msgstr "浅色模式"
 
@@ -7510,7 +7510,7 @@ msgstr "管理如何在整个库存中跟踪、计算和执行保质期。"
 msgid "Manage Ownership"
 msgstr "管理所有权"
 
-#: apps/erp/app/components/AvatarMenu.tsx:232
+#: apps/erp/app/components/AvatarMenu.tsx:225
 #: apps/erp/app/routes/x+/settings+/billing.tsx:203
 #: apps/erp/app/routes/x+/settings+/billing.tsx:269
 msgid "Manage Subscription"
@@ -8093,7 +8093,7 @@ msgstr "我的已保存视图"
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:35
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:118
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:76
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:506
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:505
 #: apps/erp/app/routes/x+/settings+/sales.tsx:444
 msgid "Name"
 msgstr "名称"
@@ -8870,7 +8870,7 @@ msgid "Notification"
 msgstr "通知"
 
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:96
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:638
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:637
 #: apps/erp/app/routes/x+/settings+/sales.tsx:516
 #: apps/erp/app/routes/x+/settings+/sales.tsx:564
 msgid "Notifications"
@@ -9322,7 +9322,7 @@ msgstr "零件ID"
 msgid "Part is configured for manufacturing"
 msgstr "零件已配置用于制造"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:725
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:724
 msgid "Part thumbnails are shown on purchase order PDFs."
 msgstr "部件缩略图显示在采购订单 PDF 上。"
 
@@ -9414,7 +9414,7 @@ msgstr "付款条款"
 msgid "PDF"
 msgstr "PDF"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:707
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:706
 #: apps/erp/app/routes/x+/settings+/sales.tsx:633
 msgid "PDFs"
 msgstr "PDF"
@@ -9465,7 +9465,7 @@ msgstr "权限"
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:58
 #: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:170
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:176
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:514
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:513
 #: apps/erp/app/routes/x+/settings+/sales.tsx:452
 msgid "Phone"
 msgstr "电话"
@@ -9648,7 +9648,7 @@ msgid "Post Shipment"
 msgstr "发布货运"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:221
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:512
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:511
 #: apps/erp/app/routes/x+/settings+/sales.tsx:450
 msgid "Postal Code"
 msgstr "邮政编码"
@@ -9790,7 +9790,7 @@ msgstr "优先级"
 msgid "Priority"
 msgstr "优先级"
 
-#: apps/erp/app/components/AvatarMenu.tsx:253
+#: apps/erp/app/components/AvatarMenu.tsx:246
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
@@ -10060,7 +10060,7 @@ msgstr "采购订单"
 msgid "Purchase orders required"
 msgstr "采购订单必需"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:552
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:551
 msgid "Purchase Price Updates"
 msgstr "采购价格更新"
 
@@ -10115,8 +10115,8 @@ msgstr "已购买"
 #: apps/erp/app/routes/x+/purchase-order+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchasing-rfq+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchasing+/_layout.tsx:16
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:65
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:411
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:64
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:410
 #: apps/erp/app/routes/x+/supplier-quote+/_layout.tsx:13
 #: apps/erp/app/routes/x+/supplier+/_layout.tsx:16
 msgid "Purchasing"
@@ -10132,7 +10132,7 @@ msgstr "采购"
 msgid "Purchasing Contact"
 msgstr "采购联系人"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:418
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:417
 msgid "Purchasing Terms & Conditions"
 msgstr "采购条款和条件"
 
@@ -11381,10 +11381,10 @@ msgstr "星期六"
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:262
 #: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:527
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:582
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:657
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:699
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:526
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:581
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:656
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:698
 #: apps/erp/app/routes/x+/settings+/quality.tsx:250
 #: apps/erp/app/routes/x+/settings+/quality.tsx:295
 #: apps/erp/app/routes/x+/settings+/quality.tsx:368
@@ -12194,7 +12194,7 @@ msgstr "显示时长"
 msgid "Show parent items"
 msgstr "显示父项"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:710
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:709
 msgid "Show part thumbnails on purchase orders."
 msgstr "在采购订单上显示零件缩略图。"
 
@@ -12218,11 +12218,11 @@ msgstr "用 Google 登录"
 msgid "Sign in with Outlook"
 msgstr "使用 Outlook 登录"
 
-#: apps/erp/app/components/AvatarMenu.tsx:271
+#: apps/erp/app/components/AvatarMenu.tsx:264
 msgid "Sign Out"
 msgstr "登出"
 
-#: apps/erp/app/components/AvatarMenu.tsx:101
+#: apps/erp/app/components/AvatarMenu.tsx:109
 msgid "Signed in as {name}"
 msgstr "以 {name} 身份登录"
 
@@ -12474,7 +12474,7 @@ msgstr "开始于"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:216
 #: apps/erp/app/modules/resources/ui/Locations/LocationsTable.tsx:74
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:511
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:510
 #: apps/erp/app/routes/x+/settings+/sales.tsx:449
 msgid "State / Province"
 msgstr "州/省"
@@ -12881,7 +12881,7 @@ msgstr "供应商报价"
 msgid "Supplier Quote ID"
 msgstr "供应商报价ID"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:625
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:624
 msgid "Supplier Quote Notifications"
 msgstr "供应商报价通知"
 
@@ -13134,11 +13134,11 @@ msgstr "税:"
 msgid "Temperature"
 msgstr "温度"
 
-#: apps/erp/app/components/AvatarMenu.tsx:241
+#: apps/erp/app/components/AvatarMenu.tsx:234
 msgid "Terms and Privacy"
 msgstr "条款和隐私"
 
-#: apps/erp/app/components/AvatarMenu.tsx:247
+#: apps/erp/app/components/AvatarMenu.tsx:240
 msgid "Terms of Service"
 msgstr "服务条款"
 
@@ -13154,7 +13154,7 @@ msgstr "计算方法后可用现金折扣的天数"
 msgid "The amount of days after the calculation method that the payment is due"
 msgstr "计算方法后的天数，在该天数后付款到期"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:461
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:460
 msgid "The billing address used on purchase orders and other purchasing documents."
 msgstr "用于采购订单和其他采购文件的账单地址。"
 
@@ -13225,7 +13225,7 @@ msgstr "购买时该商品的单价"
 msgid "Theme"
 msgstr "主题"
 
-#: apps/erp/app/components/AvatarMenu.tsx:152
+#: apps/erp/app/components/AvatarMenu.tsx:145
 msgid "Theme Color"
 msgstr "主题颜色"
 
@@ -13245,7 +13245,7 @@ msgstr "此工作有无供应商的外部操作。请在发布前为每个外部
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "这些自定义字段仅适用于具有相同标签的实体"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:677
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:676
 msgid "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
 msgstr "这些电子邮件地址将自动抄送到发送给供应商的所有电子邮件（报价单、采购订单等）。"
 
@@ -13345,12 +13345,12 @@ msgstr "缩略图已移除"
 msgid "Thumbnail uploaded"
 msgstr "缩略图已上传"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:718
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:717
 #: apps/erp/app/routes/x+/settings+/sales.tsx:647
 msgid "Thumbnails are included"
 msgstr "缩略图已包含"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:720
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:719
 #: apps/erp/app/routes/x+/settings+/sales.tsx:649
 msgid "Thumbnails are not included"
 msgstr "缩略图未包含"
@@ -13955,7 +13955,7 @@ msgstr "更新看板"
 msgid "Update Linear issue"
 msgstr "更新 Linear 问题"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:595
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:594
 msgid "Update part lead times from posted purchase receipts."
 msgstr "从已过账的采购收据更新零件提前期。"
 
@@ -13968,7 +13968,7 @@ msgstr "更新密码"
 msgid "Update Permissions"
 msgstr "更新权限"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:565
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:564
 msgid "Update prices on"
 msgstr "在以下时间更新价格"
 
@@ -14655,7 +14655,7 @@ msgstr "当RFQ标记为准备报价时，谁应该收到通知？"
 msgid "Who should receive notifications when a sales job is completed?"
 msgstr "销售工作完成时，谁应该收到通知？"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:642
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:641
 msgid "Who should receive notifications when a supplier quote is submitted?"
 msgstr "供应商报价提交时，谁应该收到通知？"
 

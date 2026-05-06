@@ -198,7 +198,7 @@ msgstr "ユーザーが商品を受け取る際に、各バッチまたはシリ
 msgid "Abilities"
 msgstr "能力"
 
-#: apps/erp/app/components/AvatarMenu.tsx:263
+#: apps/erp/app/components/AvatarMenu.tsx:256
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:61
 msgid "About"
 msgstr "について"
@@ -236,7 +236,7 @@ msgstr "アカウントマネージャー"
 msgid "Account Number"
 msgstr "勘定番号"
 
-#: apps/erp/app/components/AvatarMenu.tsx:223
+#: apps/erp/app/components/AvatarMenu.tsx:216
 #: apps/erp/app/routes/x+/account+/_layout.tsx:27
 msgid "Account Settings"
 msgstr "アカウント設定"
@@ -259,7 +259,7 @@ msgstr "会計"
 msgid "Accounts"
 msgstr "アカウント"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:458
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:457
 msgid "Accounts Payable Billing Address"
 msgstr "買掛金請求先住所"
 
@@ -626,13 +626,13 @@ msgid "Address"
 msgstr "住所"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:159
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:508
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:507
 #: apps/erp/app/routes/x+/settings+/sales.tsx:446
 msgid "Address Line 1"
 msgstr "住所 1行目"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:206
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:509
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:508
 #: apps/erp/app/routes/x+/settings+/sales.tsx:447
 msgid "Address Line 2"
 msgstr "住所2行目"
@@ -737,7 +737,7 @@ msgstr "APIとWebhooks"
 msgid "API Docs"
 msgstr "API ドキュメント"
 
-#: apps/erp/app/components/AvatarMenu.tsx:114
+#: apps/erp/app/components/AvatarMenu.tsx:122
 msgid "API Documentation"
 msgstr "APIドキュメント"
 
@@ -1576,7 +1576,7 @@ msgstr "請求先"
 msgid "Billing"
 msgstr "請求"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:501
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:500
 #: apps/erp/app/routes/x+/settings+/sales.tsx:439
 msgid "Billing Address"
 msgstr "請求先住所"
@@ -2072,7 +2072,7 @@ msgstr "あなたのスタイルを選択"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:210
 #: apps/erp/app/modules/resources/ui/Locations/LocationsTable.tsx:66
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:510
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:509
 #: apps/erp/app/routes/x+/settings+/sales.tsx:448
 msgid "City"
 msgstr "市区町村"
@@ -2399,11 +2399,11 @@ msgstr "様々なトランザクションタイプに使用されるデフォル
 msgid "Configure the start months for your fiscal and tax years"
 msgstr ""
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:555
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:554
 msgid "Configure when purchased item prices should be updated from supplier transactions."
 msgstr "仕入先取引から購入品目の価格をいつ更新するかを設定します。"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:628
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:627
 msgid "Configure who should receive notifications when a supplier submits a quote."
 msgstr "サプライヤーが見積もりを送信したときに通知を受け取るべき人を設定します。"
 
@@ -3407,11 +3407,11 @@ msgstr "日次使用量"
 msgid "Dark"
 msgstr "ダーク"
 
-#: apps/erp/app/components/AvatarMenu.tsx:124
+#: apps/erp/app/components/AvatarMenu.tsx:132
 msgid "Dark Mode"
 msgstr "ダークモード"
 
-#: apps/erp/app/components/AvatarMenu.tsx:106
+#: apps/erp/app/components/AvatarMenu.tsx:114
 #: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:134
 #: apps/erp/app/routes/x+/quality+/_index.tsx:81
 #: apps/erp/app/routes/x+/settings+/quality.tsx:268
@@ -3577,7 +3577,7 @@ msgstr "デフォルトアカウント"
 msgid "Default Approver"
 msgstr "デフォルト承認者"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:687
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:686
 #: apps/erp/app/routes/x+/settings+/sales.tsx:612
 msgid "Default CC Recipients"
 msgstr "デフォルトCC受信者"
@@ -3643,7 +3643,7 @@ msgstr "デフォルト"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "製品ラベルのデフォルトサイズを定義します。在庫内のアイテムを追跡するために使用されます。"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:421
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:420
 msgid "Define the terms and conditions for purchase orders"
 msgstr "購買注文の利用規約と条件を定義します"
 
@@ -4285,7 +4285,7 @@ msgstr "CSVをダウンロード"
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:14
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:14
 #: apps/erp/app/modules/items/ui/Item/MakeMethodVersionStatus.tsx:18
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:429
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:428
 #: apps/erp/app/routes/x+/settings+/sales.tsx:366
 msgid "Draft"
 msgstr "下書き"
@@ -4824,7 +4824,7 @@ msgstr "ワークセンターを編集"
 #: apps/erp/app/modules/users/ui/Employees/EmployeesTable.tsx:115
 #: apps/erp/app/modules/users/ui/Suppliers/CreateSupplierModal/CreateSupplierModal.tsx:90
 #: apps/erp/app/modules/users/ui/Suppliers/SupplierAccountsTable/SuppliersAccountsTable.tsx:118
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:507
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:506
 #: apps/erp/app/routes/x+/settings+/sales.tsx:445
 msgid "Email"
 msgstr "メール"
@@ -4838,7 +4838,7 @@ msgstr "メールアドレス"
 msgid "Email notifications not configured"
 msgstr "メール通知が設定されていません"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:674
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:673
 #: apps/erp/app/routes/x+/settings+/sales.tsx:599
 msgid "Emails"
 msgstr "メール"
@@ -4929,7 +4929,7 @@ msgstr "有効にして、原材料のIDと説明を生成します。"
 msgid "Enable to include work instructions on job traveler PDFs."
 msgstr "ジョブトラベラーPDFに作業指示を含めるには有効にしてください。"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:729
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:728
 msgid "Enable to show part thumbnails on purchase order PDFs."
 msgstr "購買注文PDFに部品サムネイルを表示するには有効にしてください。"
 
@@ -5756,7 +5756,7 @@ msgstr "お気に入り"
 #: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:178
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:105
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:184
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:515
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:514
 #: apps/erp/app/routes/x+/settings+/sales.tsx:453
 msgid "Fax"
 msgstr "ファックス"
@@ -7008,7 +7008,7 @@ msgstr "労働時間"
 msgid "Labor Unit"
 msgstr "労働単位"
 
-#: apps/erp/app/components/AvatarMenu.tsx:185
+#: apps/erp/app/components/AvatarMenu.tsx:178
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:41
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:48
 msgid "Language"
@@ -7067,7 +7067,7 @@ msgstr "リードタイム"
 msgid "Lead Time (Days)"
 msgstr "リードタイム（日数）"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:592
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:591
 msgid "Lead Time Updates"
 msgstr "リードタイム更新"
 
@@ -7121,7 +7121,7 @@ msgstr "文字"
 msgid "Light"
 msgstr "ライト"
 
-#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:34
+#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:33
 msgid "Light Mode"
 msgstr "ライトモード"
 
@@ -7510,7 +7510,7 @@ msgstr "棚卸資産全体で賞味期限がどのように追跡、計算、お
 msgid "Manage Ownership"
 msgstr "所有権を管理"
 
-#: apps/erp/app/components/AvatarMenu.tsx:232
+#: apps/erp/app/components/AvatarMenu.tsx:225
 #: apps/erp/app/routes/x+/settings+/billing.tsx:203
 #: apps/erp/app/routes/x+/settings+/billing.tsx:269
 msgid "Manage Subscription"
@@ -8093,7 +8093,7 @@ msgstr "マイ保存ビュー"
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:35
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:118
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:76
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:506
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:505
 #: apps/erp/app/routes/x+/settings+/sales.tsx:444
 msgid "Name"
 msgstr "名前"
@@ -8870,7 +8870,7 @@ msgid "Notification"
 msgstr "通知"
 
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:96
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:638
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:637
 #: apps/erp/app/routes/x+/settings+/sales.tsx:516
 #: apps/erp/app/routes/x+/settings+/sales.tsx:564
 msgid "Notifications"
@@ -9322,7 +9322,7 @@ msgstr "部品ID"
 msgid "Part is configured for manufacturing"
 msgstr "部品は製造用に構成されています"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:725
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:724
 msgid "Part thumbnails are shown on purchase order PDFs."
 msgstr "部品のサムネイルが発注書PDFに表示されます。"
 
@@ -9414,7 +9414,7 @@ msgstr "支払条件"
 msgid "PDF"
 msgstr "PDF"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:707
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:706
 #: apps/erp/app/routes/x+/settings+/sales.tsx:633
 msgid "PDFs"
 msgstr "PDF"
@@ -9465,7 +9465,7 @@ msgstr "権限"
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:58
 #: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:170
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:176
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:514
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:513
 #: apps/erp/app/routes/x+/settings+/sales.tsx:452
 msgid "Phone"
 msgstr "電話"
@@ -9648,7 +9648,7 @@ msgid "Post Shipment"
 msgstr "配送を転記"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:221
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:512
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:511
 #: apps/erp/app/routes/x+/settings+/sales.tsx:450
 msgid "Postal Code"
 msgstr "郵便番号"
@@ -9790,7 +9790,7 @@ msgstr "優先度"
 msgid "Priority"
 msgstr "優先度"
 
-#: apps/erp/app/components/AvatarMenu.tsx:253
+#: apps/erp/app/components/AvatarMenu.tsx:246
 msgid "Privacy Policy"
 msgstr "プライバシーポリシー"
 
@@ -10060,7 +10060,7 @@ msgstr "購入注文"
 msgid "Purchase orders required"
 msgstr "購入注文が必要です"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:552
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:551
 msgid "Purchase Price Updates"
 msgstr "購買価格の更新"
 
@@ -10115,8 +10115,8 @@ msgstr "購入済み"
 #: apps/erp/app/routes/x+/purchase-order+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchasing-rfq+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchasing+/_layout.tsx:16
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:65
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:411
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:64
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:410
 #: apps/erp/app/routes/x+/supplier-quote+/_layout.tsx:13
 #: apps/erp/app/routes/x+/supplier+/_layout.tsx:16
 msgid "Purchasing"
@@ -10132,7 +10132,7 @@ msgstr "購買"
 msgid "Purchasing Contact"
 msgstr "購買担当者"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:418
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:417
 msgid "Purchasing Terms & Conditions"
 msgstr "購買条件"
 
@@ -11381,10 +11381,10 @@ msgstr "土曜日"
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:262
 #: apps/erp/app/routes/x+/settings+/labels.tsx:146
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:527
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:582
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:657
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:699
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:526
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:581
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:656
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:698
 #: apps/erp/app/routes/x+/settings+/quality.tsx:250
 #: apps/erp/app/routes/x+/settings+/quality.tsx:295
 #: apps/erp/app/routes/x+/settings+/quality.tsx:368
@@ -12194,7 +12194,7 @@ msgstr "期間を表示"
 msgid "Show parent items"
 msgstr "親アイテムを表示"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:710
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:709
 msgid "Show part thumbnails on purchase orders."
 msgstr "購買注文に部品のサムネイルを表示します。"
 
@@ -12218,11 +12218,11 @@ msgstr "Googleでサインイン"
 msgid "Sign in with Outlook"
 msgstr "Outlookでサインイン"
 
-#: apps/erp/app/components/AvatarMenu.tsx:271
+#: apps/erp/app/components/AvatarMenu.tsx:264
 msgid "Sign Out"
 msgstr "サインアウト"
 
-#: apps/erp/app/components/AvatarMenu.tsx:101
+#: apps/erp/app/components/AvatarMenu.tsx:109
 msgid "Signed in as {name}"
 msgstr "{name}としてサインインしています"
 
@@ -12474,7 +12474,7 @@ msgstr "開始"
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:216
 #: apps/erp/app/modules/resources/ui/Locations/LocationsTable.tsx:74
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:511
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:510
 #: apps/erp/app/routes/x+/settings+/sales.tsx:449
 msgid "State / Province"
 msgstr "都道府県"
@@ -12881,7 +12881,7 @@ msgstr "仕入先見積"
 msgid "Supplier Quote ID"
 msgstr "仕入先見積ID"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:625
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:624
 msgid "Supplier Quote Notifications"
 msgstr "サプライヤー見積通知"
 
@@ -13134,11 +13134,11 @@ msgstr "税:"
 msgid "Temperature"
 msgstr "温度"
 
-#: apps/erp/app/components/AvatarMenu.tsx:241
+#: apps/erp/app/components/AvatarMenu.tsx:234
 msgid "Terms and Privacy"
 msgstr "利用規約とプライバシー"
 
-#: apps/erp/app/components/AvatarMenu.tsx:247
+#: apps/erp/app/components/AvatarMenu.tsx:240
 msgid "Terms of Service"
 msgstr "利用規約"
 
@@ -13154,7 +13154,7 @@ msgstr "計算方法の後、現金割引が利用可能になるまでの日数
 msgid "The amount of days after the calculation method that the payment is due"
 msgstr "計算方法の後の支払い期日までの日数"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:461
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:460
 msgid "The billing address used on purchase orders and other purchasing documents."
 msgstr "購買注文およびその他の購買文書で使用される請求先住所。"
 
@@ -13225,7 +13225,7 @@ msgstr "購入時のアイテムの単価"
 msgid "Theme"
 msgstr "テーマ"
 
-#: apps/erp/app/components/AvatarMenu.tsx:152
+#: apps/erp/app/components/AvatarMenu.tsx:145
 msgid "Theme Color"
 msgstr "テーマカラー"
 
@@ -13245,7 +13245,7 @@ msgstr "このジョブに関連付けられた外部オペレーションには
 msgid "These custom fields will only be available for entities with the same tags"
 msgstr "これらのカスタムフィールドは、同じタグを持つエンティティでのみ利用可能です"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:677
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:676
 msgid "These email addresses will be automatically CC'd on all emails sent to suppliers (quotes, purchase orders, etc.)."
 msgstr "これらのメールアドレスは、サプライヤーに送信されるすべてのメール（見積書、発注書など）に自動的にCC送信されます。"
 
@@ -13345,12 +13345,12 @@ msgstr "サムネイルが削除されました"
 msgid "Thumbnail uploaded"
 msgstr "サムネイルがアップロードされました"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:718
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:717
 #: apps/erp/app/routes/x+/settings+/sales.tsx:647
 msgid "Thumbnails are included"
 msgstr "サムネイルが含まれています"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:720
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:719
 #: apps/erp/app/routes/x+/settings+/sales.tsx:649
 msgid "Thumbnails are not included"
 msgstr "サムネイルは含まれていません"
@@ -13955,7 +13955,7 @@ msgstr "カンバンを更新"
 msgid "Update Linear issue"
 msgstr "Linear イシューを更新"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:595
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:594
 msgid "Update part lead times from posted purchase receipts."
 msgstr "投稿された購買領収書から部品のリードタイムを更新します。"
 
@@ -13968,7 +13968,7 @@ msgstr "パスワードを更新"
 msgid "Update Permissions"
 msgstr "権限を更新"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:565
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:564
 msgid "Update prices on"
 msgstr "価格を更新"
 
@@ -14655,7 +14655,7 @@ msgstr "RFQが見積もり準備完了とマークされたときに、誰が通
 msgid "Who should receive notifications when a sales job is completed?"
 msgstr "営業ジョブが完了したときに、誰が通知を受け取るべきですか？"
 
-#: apps/erp/app/routes/x+/settings+/purchasing.tsx:642
+#: apps/erp/app/routes/x+/settings+/purchasing.tsx:641
 msgid "Who should receive notifications when a supplier quote is submitted?"
 msgstr "サプライヤーの見積もりが送信されたときに、誰が通知を受け取るべきですか？"
 
