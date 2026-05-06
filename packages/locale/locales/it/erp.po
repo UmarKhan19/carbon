@@ -748,8 +748,9 @@ msgid "API Key"
 msgstr "Chiave API"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:99
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:135
-#: apps/erp/app/routes/x+/settings+/api-keys.tsx:17
+#: apps/erp/app/routes/x+/settings+/api-keys.tsx:20
 msgid "API Keys"
 msgstr "Chiavi API"
 
@@ -6633,6 +6634,10 @@ msgstr "Descrizione del problema"
 msgid "Issue not found"
 msgstr "Problema non trovato"
 
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:102
+msgid "Issue scoped API keys for programmatic access to your Carbon data."
+msgstr ""
+
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:166
 msgid "Issue Status"
 msgstr "Stato del Problema"
@@ -10137,6 +10142,10 @@ msgstr "Termini e Condizioni di Acquisto"
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:86
 msgid "Purchasing Unit of Measure"
 msgstr "Unità di Misura di Acquisto"
+
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:109
+msgid "Push record changes to external systems the moment they happen."
+msgstr ""
 
 #. placeholder {0}: row.original.replenishmentSystem === "Make" ? "Job" : "Order"
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:249
@@ -14064,7 +14073,9 @@ msgid "Updated successfully"
 msgstr "Aggiornato con successo"
 
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:150
+#: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:110
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:100
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:117
 msgid "Upgrade to Business"
 msgstr "Passa a Business"
 
@@ -14559,7 +14570,8 @@ msgstr "URL Webhook"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:171
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:227
-#: apps/erp/app/routes/x+/settings+/webhooks.tsx:18
+#: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:106
+#: apps/erp/app/routes/x+/settings+/webhooks.tsx:20
 msgid "Webhooks"
 msgstr "Webhook"
 

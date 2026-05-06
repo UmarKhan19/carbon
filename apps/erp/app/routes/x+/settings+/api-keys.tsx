@@ -6,9 +6,12 @@ import { Plan } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
-import { PlanUpgradeBanner } from "~/components/PlanUpgradeBanner";
 import { useFlags } from "~/hooks/useFlags";
-import { ApiKeysTable, getApiKeys } from "~/modules/settings";
+import {
+  ApiKeysTable,
+  ApiKeysUpgradeOverlay,
+  getApiKeys
+} from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
@@ -57,12 +60,7 @@ export default function ApiKeysRoute() {
   const isStarterPlan = isCloud && plan === Plan.Starter;
 
   if (isStarterPlan) {
-    return (
-      <PlanUpgradeBanner
-        feature="API keys"
-        description="Programmatic access via API keys is not available on the Starter plan. Upgrade to create and manage API keys for your company."
-      />
-    );
+    return <ApiKeysUpgradeOverlay />;
   }
   return (
     <>

@@ -6,10 +6,12 @@ import { Plan } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
-import { PlanUpgradeBanner } from "~/components/PlanUpgradeBanner";
 import { useFlags } from "~/hooks/useFlags";
 import { getConfig, getWebhooks } from "~/modules/settings";
-import { WebhooksTable } from "~/modules/settings/ui/Webhooks";
+import {
+  WebhooksTable,
+  WebhooksUpgradeOverlay
+} from "~/modules/settings/ui/Webhooks";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
@@ -75,12 +77,7 @@ export default function WebhooksRoute() {
   const isStarterPlan = isCloud && plan === Plan.Starter;
 
   if (isStarterPlan) {
-    return (
-      <PlanUpgradeBanner
-        feature="Webhooks"
-        description="Webhook delivery on record changes is not available on the Starter plan. Upgrade to get access."
-      />
-    );
+    return <WebhooksUpgradeOverlay />;
   }
   return (
     <>
