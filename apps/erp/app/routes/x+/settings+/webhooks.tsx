@@ -1,12 +1,10 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { usePlan } from "@carbon/remix";
-import { Plan } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
-import { useFlags } from "~/hooks/useFlags";
+import { usePlanGate } from "~/hooks/usePlanGate";
 import { getConfig, getWebhooks } from "~/modules/settings";
 import {
   WebhooksTable,
@@ -72,11 +70,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function WebhooksRoute() {
   const { webhooks, count } = useLoaderData<typeof loader>();
-  const plan = usePlan();
-  const { isCloud } = useFlags();
-  const isStarterPlan = isCloud && plan === Plan.Starter;
+  const { isGated } = usePlanGate();
 
-  if (isStarterPlan) {
+  if (isGated) {
     return <WebhooksUpgradeOverlay />;
   }
   return (

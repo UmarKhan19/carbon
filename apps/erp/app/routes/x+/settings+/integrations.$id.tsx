@@ -18,7 +18,7 @@ import {
   upsertCompanyIntegration
 } from "~/modules/settings/settings.server";
 import { path } from "~/utils/path";
-import { requireBusinessPlan } from "~/utils/planGate.server";
+import { requirePlan } from "~/utils/planGate.server";
 
 /**
  * Transforms flat owner settings (customerOwner, vendorOwner, etc.) into
@@ -219,7 +219,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     update: "settings"
   });
 
-  await requireBusinessPlan({
+  await requirePlan({
     request,
     client,
     companyId,

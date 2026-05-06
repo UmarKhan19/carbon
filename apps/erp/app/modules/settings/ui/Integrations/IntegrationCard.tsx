@@ -12,12 +12,11 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@carbon/react";
-import { usePlan, useRouteData } from "@carbon/remix";
-import { Plan } from "@carbon/utils";
+import { useRouteData } from "@carbon/remix";
 import { Trans } from "@lingui/react/macro";
 import { LuLock } from "react-icons/lu";
 import { Link, useFetcher, useNavigate } from "react-router";
-import { useFlags } from "~/hooks/useFlags";
+import { usePlanGate } from "~/hooks/usePlanGate";
 import { path } from "~/utils/path";
 
 export type IntegrationHealth = {
@@ -36,9 +35,7 @@ export function IntegrationCard({
   const fetcher = useFetcher<{}>();
   const navigate = useNavigate();
   const routeData = useRouteData<{ state: string }>(path.to.integrations);
-  const plan = usePlan();
-  const { isCloud } = useFlags();
-  const isStarterPlan = isCloud && plan === Plan.Starter;
+  const { isGated: isStarterPlan } = usePlanGate();
 
   const getOauthUrl = (integration: Integration) => {
     if ("oauth" in integration && !!integration.oauth) {

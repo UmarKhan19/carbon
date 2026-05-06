@@ -7,7 +7,7 @@ import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
 import { deleteWebhook, getWebhook } from "~/modules/settings";
 import { getParams, path } from "~/utils/path";
-import { requireBusinessPlan } from "~/utils/planGate.server";
+import { requirePlan } from "~/utils/planGate.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
@@ -35,7 +35,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     update: "users"
   });
 
-  await requireBusinessPlan({
+  await requirePlan({
     request,
     client,
     companyId,

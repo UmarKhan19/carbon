@@ -8,7 +8,7 @@ import { data, useNavigate } from "react-router";
 import { useRouteData } from "~/hooks";
 import { ApiKeyForm, apiKeyValidator, upsertApiKey } from "~/modules/settings";
 import { path } from "~/utils/path";
-import { requireBusinessPlan } from "~/utils/planGate.server";
+import { requirePlan } from "~/utils/planGate.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermissions(request, {
@@ -24,7 +24,7 @@ export async function action({ request }: ActionFunctionArgs) {
     update: "users"
   });
 
-  await requireBusinessPlan({
+  await requirePlan({
     request,
     client,
     companyId,

@@ -8,7 +8,7 @@ import { useRouteData } from "~/hooks";
 import type { ApiKey } from "~/modules/settings";
 import { ApiKeyForm, apiKeyValidator, upsertApiKey } from "~/modules/settings";
 import { getParams, path } from "~/utils/path";
-import { requireBusinessPlan } from "~/utils/planGate.server";
+import { requirePlan } from "~/utils/planGate.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -16,7 +16,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     update: "users"
   });
 
-  await requireBusinessPlan({
+  await requirePlan({
     request,
     client,
     companyId,

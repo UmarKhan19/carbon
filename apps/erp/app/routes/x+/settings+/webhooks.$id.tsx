@@ -11,7 +11,7 @@ import {
 } from "~/modules/settings";
 import { WebhookForm } from "~/modules/settings/ui/Webhooks";
 import { getParams, path } from "~/utils/path";
-import { requireBusinessPlan } from "~/utils/planGate.server";
+import { requirePlan } from "~/utils/planGate.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
@@ -40,7 +40,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     view: "settings"
   });
 
-  await requireBusinessPlan({
+  await requirePlan({
     request,
     client,
     companyId,
