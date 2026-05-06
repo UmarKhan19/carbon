@@ -67,7 +67,7 @@ serve(async (req: Request) => {
         .select("id, entityType")
         .eq("companyGroupId", companyRecord.data.companyGroupId)
         .eq("active", true)
-        .in("entityType", ["ItemPostingGroup", "Location"]),
+        .in("entityType", ["ItemPostingGroup", "Location", "Employee"]),
     ]);
 
     if (productionEvent.error) throw new Error("Failed to fetch production event");
@@ -234,6 +234,14 @@ serve(async (req: Request) => {
               journalLineId: jl.id,
               dimensionId: dimensionMap.get("Location")!,
               valueId: job.data.locationId,
+              companyId,
+            });
+          }
+          if (event.employeeId && dimensionMap.has("Employee")) {
+            dimensionInserts.push({
+              journalLineId: jl.id,
+              dimensionId: dimensionMap.get("Employee")!,
+              valueId: event.employeeId,
               companyId,
             });
           }

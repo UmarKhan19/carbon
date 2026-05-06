@@ -324,20 +324,24 @@ async function issueJobOperationMaterials(
       locationId: string | null;
     }[] = [];
 
-    const finishedGoodJob = await trx
+    const jobForLocation = await trx
       .selectFrom("job")
       .where("id", "=", jobId)
-      .select(["itemId", "locationId"])
+      .select(["locationId"])
       .executeTakeFirst();
 
-    const finishedGoodItemCost = finishedGoodJob?.itemId
+    const consumedItemIds = [...new Set(itemLedgerInserts.map((l) => l.itemId))];
+    const consumedItemCosts = consumedItemIds.length > 0
       ? await trx
           .selectFrom("itemCost")
-          .where("itemId", "=", finishedGoodJob.itemId)
+          .where("itemId", "in", consumedItemIds)
           .where("companyId", "=", companyId)
-          .select("itemPostingGroupId")
-          .executeTakeFirst()
-      : null;
+          .select(["itemId", "itemPostingGroupId"])
+          .execute()
+      : [];
+    const consumedPostingGroupMap = new Map(
+      consumedItemCosts.map((ic) => [ic.itemId, ic.itemPostingGroupId])
+    );
 
     for (const ledger of itemLedgerInserts) {
       const materialQuantity = Math.abs(Number(ledger.quantity));
@@ -393,8 +397,8 @@ async function issueJobOperationMaterials(
 
       for (let i = 0; i < 2; i++) {
         journalLineDimensionsMeta.push({
-          itemPostingGroupId: finishedGoodItemCost?.itemPostingGroupId ?? null,
-          locationId: finishedGoodJob?.locationId ?? null,
+          itemPostingGroupId: consumedPostingGroupMap.get(ledger.itemId) ?? null,
+          locationId: jobForLocation?.locationId ?? null,
         });
       }
     }
@@ -482,7 +486,6 @@ async function createMaterialWipEntries(
     wipAccount: string;
     inventoryAccount: string;
     dimensionMap: Map<string, string>;
-    finishedGoodItemPostingGroupId: string | null;
     jobLocationId: string | null;
     client: any;
     db: any;
@@ -493,7 +496,7 @@ async function createMaterialWipEntries(
   const {
     consumptionLedgers, jobId, operationId, description,
     wipAccount, inventoryAccount,
-    dimensionMap, finishedGoodItemPostingGroupId, jobLocationId,
+    dimensionMap, jobLocationId,
     client, db, companyId, userId,
   } = args;
 
@@ -513,6 +516,19 @@ async function createMaterialWipEntries(
     itemPostingGroupId: string | null;
     locationId: string | null;
   }[] = [];
+
+  const uniqueItemIds = [...new Set(consumptionLedgers.map((l) => l.itemId))];
+  const consumedItemCosts = uniqueItemIds.length > 0
+    ? await trx
+        .selectFrom("itemCost")
+        .where("itemId", "in", uniqueItemIds)
+        .where("companyId", "=", companyId)
+        .select(["itemId", "itemPostingGroupId"])
+        .execute()
+    : [];
+  const consumedPostingGroupMap = new Map(
+    consumedItemCosts.map((ic) => [ic.itemId, ic.itemPostingGroupId])
+  );
 
   for (const ledger of consumptionLedgers) {
     const ledgerQty = Number(ledger.quantity);
@@ -613,7 +629,7 @@ async function createMaterialWipEntries(
 
     for (let i = 0; i < 2; i++) {
       journalLineDimensionsMeta.push({
-        itemPostingGroupId: finishedGoodItemPostingGroupId,
+        itemPostingGroupId: consumedPostingGroupMap.get(ledger.itemId) ?? null,
         locationId: jobLocationId,
       });
     }
@@ -904,7 +920,7 @@ serve(async (req: Request) => {
               .select("id, entityType")
               .eq("companyGroupId", companyRecord.data.companyGroupId)
               .eq("active", true)
-              .in("entityType", ["ItemPostingGroup", "Location", "CostCenter"])
+              .in("entityType", ["ItemPostingGroup", "Location", "CostCenter", "Employee"])
           : null;
 
         const dimensionMap = new Map<string, string>();
@@ -1055,6 +1071,7 @@ serve(async (req: Request) => {
                 "productionEvent.id as id",
                 "productionEvent.duration as duration",
                 "productionEvent.type as type",
+                "productionEvent.employeeId as employeeId",
                 "workCenter.laborRate as laborRate",
                 "workCenter.machineRate as machineRate",
               ])
@@ -1093,7 +1110,7 @@ serve(async (req: Request) => {
                   .returning(["id"])
                   .executeTakeFirstOrThrow();
 
-                await trx
+                const laborJournalLineResults = await trx
                   .insertInto("journalLine")
                   .values([
                     {
@@ -1121,7 +1138,35 @@ serve(async (req: Request) => {
                       companyId,
                     },
                   ])
+                  .returning(["id"])
                   .execute();
+
+                if (dimensionMap.size > 0 && event.employeeId) {
+                  const laborDimensionInserts: {
+                    journalLineId: string;
+                    dimensionId: string;
+                    valueId: string;
+                    companyId: string;
+                  }[] = [];
+
+                  laborJournalLineResults.forEach((jl) => {
+                    if (dimensionMap.has("Employee")) {
+                      laborDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("Employee")!,
+                        valueId: event.employeeId!,
+                        companyId,
+                      });
+                    }
+                  });
+
+                  if (laborDimensionInserts.length > 0) {
+                    await trx
+                      .insertInto("journalLineDimension")
+                      .values(laborDimensionInserts)
+                      .execute();
+                  }
+                }
               }
 
               await trx
@@ -1958,15 +2003,6 @@ serve(async (req: Request) => {
                   .executeTakeFirst()
               : null;
 
-            const finishedGoodItemCost = jobRecord?.itemId
-              ? await trx
-                  .selectFrom("itemCost")
-                  .where("itemId", "=", jobRecord.itemId)
-                  .where("companyId", "=", companyId)
-                  .select("itemPostingGroupId")
-                  .executeTakeFirst()
-              : null;
-
             await createMaterialWipEntries(trx, {
               consumptionLedgers: itemLedgerInserts.map((l) => ({
                 itemId: l.itemId as string,
@@ -1978,7 +2014,7 @@ serve(async (req: Request) => {
               wipAccount: accountDefaults.data.workInProgressAccount,
               inventoryAccount: accountDefaults.data.inventoryAccount,
               dimensionMap,
-              finishedGoodItemPostingGroupId: finishedGoodItemCost?.itemPostingGroupId ?? null,
+
               jobLocationId: jobRecord?.locationId ?? null,
               client,
               db,
@@ -2144,15 +2180,6 @@ serve(async (req: Request) => {
               .execute();
 
             if (isInternalScrap && accountDefaultsScrap?.data) {
-              const finishedGoodItemCost = job?.itemId
-                ? await trx
-                    .selectFrom("itemCost")
-                    .where("itemId", "=", job.itemId)
-                    .where("companyId", "=", companyId)
-                    .select("itemPostingGroupId")
-                    .executeTakeFirst()
-                : null;
-
               await createMaterialWipEntries(trx, {
                 consumptionLedgers: [{ itemId: entity.sourceDocumentId!, quantity: -quantity }],
                 jobId: job?.id!,
@@ -2161,7 +2188,7 @@ serve(async (req: Request) => {
                 wipAccount: accountDefaultsScrap.data.workInProgressAccount,
                 inventoryAccount: accountDefaultsScrap.data.inventoryAccount,
                 dimensionMap: dimensionMapScrap,
-                finishedGoodItemPostingGroupId: finishedGoodItemCost?.itemPostingGroupId ?? null,
+  
                 jobLocationId: job?.locationId ?? null,
                 client,
                 db,
@@ -2751,24 +2778,6 @@ serve(async (req: Request) => {
               .map((l) => ({ itemId: l.itemId as string, quantity: Number(l.quantity) }));
 
             if (consumptionEntries.length > 0) {
-              const finishedGoodItemCost = job?.id
-                ? await (async () => {
-                    const jobRecord = await trx
-                      .selectFrom("job")
-                      .where("id", "=", job.id)
-                      .select(["itemId"])
-                      .executeTakeFirst();
-                    return jobRecord?.itemId
-                      ? await trx
-                          .selectFrom("itemCost")
-                          .where("itemId", "=", jobRecord.itemId)
-                          .where("companyId", "=", companyId)
-                          .select("itemPostingGroupId")
-                          .executeTakeFirst()
-                      : null;
-                  })()
-                : null;
-
               await createMaterialWipEntries(trx, {
                 consumptionLedgers: consumptionEntries,
                 jobId: job?.id!,
@@ -2777,7 +2786,7 @@ serve(async (req: Request) => {
                 wipAccount: accountDefaultsTracked.data.workInProgressAccount,
                 inventoryAccount: accountDefaultsTracked.data.inventoryAccount,
                 dimensionMap: dimensionMapTracked,
-                finishedGoodItemPostingGroupId: finishedGoodItemCost?.itemPostingGroupId ?? null,
+  
                 jobLocationId: job?.locationId ?? null,
                 client,
                 db,
@@ -3057,24 +3066,6 @@ serve(async (req: Request) => {
                 quantity: Number(l.quantity),
               }));
 
-              const finishedGoodItemCost = job?.id
-                ? await (async () => {
-                    const jobRecord = await trx
-                      .selectFrom("job")
-                      .where("id", "=", job.id)
-                      .select(["itemId"])
-                      .executeTakeFirst();
-                    return jobRecord?.itemId
-                      ? await trx
-                          .selectFrom("itemCost")
-                          .where("itemId", "=", jobRecord.itemId)
-                          .where("companyId", "=", companyId)
-                          .select("itemPostingGroupId")
-                          .executeTakeFirst()
-                      : null;
-                  })()
-                : null;
-
               await createMaterialWipEntries(trx, {
                 consumptionLedgers: returnEntries,
                 jobId: job?.id!,
@@ -3083,7 +3074,7 @@ serve(async (req: Request) => {
                 wipAccount: accountDefaultsUnconsume.data.workInProgressAccount,
                 inventoryAccount: accountDefaultsUnconsume.data.inventoryAccount,
                 dimensionMap: dimensionMapUnconsume,
-                finishedGoodItemPostingGroupId: finishedGoodItemCost?.itemPostingGroupId ?? null,
+  
                 jobLocationId: job?.locationId ?? null,
                 client: clientUnconsume,
                 db,
