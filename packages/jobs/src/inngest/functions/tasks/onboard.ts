@@ -275,12 +275,8 @@ export const onboardFunction = inngest.createFunction(
             await sendEmail({
               from,
               to: user.email,
-              subject: `Welcome to Carbon`,
-              html: await render(
-                WelcomeEmail({
-                  firstName: user.firstName
-                })
-              )
+              subject: `Carbon`,
+              html: await render(WelcomeEmail())
             });
           });
         }
