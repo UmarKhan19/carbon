@@ -246,12 +246,13 @@ serve(async (req: Request) => {
             .execute();
         }
       }
-    });
 
-    await client
-      .from("productionEvent")
-      .update({ postedToGL: true })
-      .eq("id", productionEventId);
+      await trx
+        .updateTable("productionEvent")
+        .set({ postedToGL: true })
+        .where("id", "=", productionEventId)
+        .execute();
+    });
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

@@ -2819,6 +2819,7 @@ msgstr "Costing Method"
 msgid "Couldn't load documents"
 msgstr "Couldn't load documents"
 
+#: apps/erp/app/components/Form/AddressAutocomplete.tsx:224
 #: apps/erp/app/components/Form/Country.tsx:15
 #: apps/erp/app/modules/resources/ui/Locations/LocationsTable.tsx:82
 msgid "Country"
@@ -7216,7 +7217,7 @@ msgstr "Loading item details..."
 
 #: apps/erp/app/components/Form/AddressAutocomplete.tsx:176
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:164
-#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:175
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:176
 #: apps/erp/app/components/Table/components/Filter/Filter.tsx:173
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:439
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:446
@@ -8652,7 +8653,7 @@ msgstr "No notes"
 msgid "No option found."
 msgstr "No option found."
 
-#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:177
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:178
 msgid "No options found."
 msgstr "No options found."
 
@@ -10624,7 +10625,7 @@ msgstr "Remove {0}"
 msgid "Remove attachment"
 msgstr "Remove attachment"
 
-#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:212
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:213
 #: apps/erp/app/components/Table/components/Filter/Filter.tsx:134
 msgid "Remove filter"
 msgstr "Remove filter"
@@ -11560,7 +11561,7 @@ msgid "Search the web"
 msgstr "Search the web"
 
 #: apps/erp/app/components/Assignee.tsx:167
-#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:170
+#: apps/erp/app/components/Table/components/Filter/ActiveFilters.tsx:171
 #: apps/erp/app/components/Table/components/Filter/Filter.tsx:168
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:565
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:165

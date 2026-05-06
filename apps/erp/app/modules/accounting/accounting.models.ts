@@ -446,7 +446,11 @@ export const journalEntrySourceTypes = [
   "Sales Return",
   "Transfer Receipt",
   "Inventory Adjustment",
-  "Production Order"
+  "Production Order",
+  "Job Consumption",
+  "Job Receipt",
+  "Production Event",
+  "Job Close"
 ] as const;
 
 export const journalEntryStatuses = ["Draft", "Posted", "Reversed"] as const;

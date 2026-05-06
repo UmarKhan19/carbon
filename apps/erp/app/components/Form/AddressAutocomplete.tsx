@@ -221,7 +221,7 @@ const AddressAutocomplete = ({
     <Input ref={postalCodeRef} name="postalCode" label={t`Postal Code`} />
   );
 
-  const countryField = <Country name="countryCode" />;
+  const countryField = <Country name="countryCode" label={t`Country`} />;
 
   if (variant === "grid") {
     return (

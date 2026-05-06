@@ -49,26 +49,27 @@ export async function finishJobOperation(
     .eq("id", args.jobOperationId);
 
   if (!result.error) {
-    const unpostedEvents = await client
+    client
       .from("productionEvent")
       .select("id")
       .eq("jobOperationId", args.jobOperationId)
       .not("endTime", "is", null)
-      .eq("postedToGL", false);
-
-    if (unpostedEvents.data?.length) {
-      await Promise.all(
-        unpostedEvents.data.map((event) =>
-          client.functions.invoke("post-production-event", {
-            body: {
-              productionEventId: event.id,
-              userId: args.userId,
-              companyId: args.companyId
-            }
-          })
-        )
-      );
-    }
+      .eq("postedToGL", false)
+      .then((unpostedEvents) => {
+        if (unpostedEvents.data?.length) {
+          Promise.all(
+            unpostedEvents.data.map((event) =>
+              client.functions.invoke("post-production-event", {
+                body: {
+                  productionEventId: event.id,
+                  userId: args.userId,
+                  companyId: args.companyId
+                }
+              })
+            )
+          );
+        }
+      });
   }
 
   return result;

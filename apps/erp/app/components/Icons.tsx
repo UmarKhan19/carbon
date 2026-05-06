@@ -580,6 +580,14 @@ export const JournalEntrySourceTypeIcon = ({
       return <LuPackage className={className} />;
     case "Production Order":
       return <LuFactory className={className} />;
+    case "Job Consumption":
+      return <LuHammer className={className} />;
+    case "Job Receipt":
+      return <LuClipboardCheck className={className} />;
+    case "Production Event":
+      return <LuHardHat className={className} />;
+    case "Job Close":
+      return <LuCircleCheck className={className} />;
   }
 
   return <LuSquare className={cn("text-muted-foreground", className)} />;
