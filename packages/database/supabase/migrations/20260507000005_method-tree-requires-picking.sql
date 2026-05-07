@@ -5,10 +5,11 @@
 -- choices never reach the job and every material defaults to
 -- requiresPicking = true.
 --
--- Mechanically identical to 20260408000000_method-tree-replenishment
--- with one new column at the end of the return TABLE + recursive CTE
--- + final SELECT (false fallback on the root row since a root
--- "Make to Order" item has no methodMaterial.requiresPicking column).
+-- Built on top of 20260417000300_storage-unit-recreate-dependents
+-- (the rename to storageUnitIds) — adds one column at the end of
+-- the return TABLE + recursive CTE + final SELECT, and a constant
+-- `true` on the root row since a root "Make to Order" item has no
+-- methodMaterial.requiresPicking column.
 -- ============================================================
 
 DROP FUNCTION IF EXISTS get_method_tree;
@@ -34,7 +35,7 @@ RETURNS TABLE (
     "revision" TEXT,
     "externalId" JSONB,
     "version" NUMERIC(10,2),
-    "shelfIds" JSONB,
+    "storageUnitIds" JSONB,
     "isPickDescendant" BOOLEAN,
     "replenishmentSystem" "itemReplenishmentSystem",
     "requiresPicking" BOOLEAN
@@ -57,7 +58,7 @@ WITH RECURSIVE material AS (
         NULL AS "operationId",
         COALESCE("order", 1) AS "order",
         "kit",
-        "shelfIds",
+        "storageUnitIds",
         false AS "isPickDescendant",
         COALESCE("requiresPicking", true) AS "requiresPicking"
     FROM
@@ -82,7 +83,7 @@ WITH RECURSIVE material AS (
         child."methodOperationId" AS "operationId",
         child."order",
         child."kit",
-        child."shelfIds",
+        child."storageUnitIds",
         (parent."methodType" = 'Pull from Inventory' OR parent."isPickDescendant") AS "isPickDescendant",
         COALESCE(child."requiresPicking", true) AS "requiresPicking"
     FROM
@@ -123,7 +124,7 @@ SELECT
     WHERE eim."entityType" = 'item' AND eim."entityId" = item.id
   ) AS "externalId",
   mm2."version",
-  material."shelfIds",
+  material."storageUnitIds",
   material."isPickDescendant",
   item."replenishmentSystem",
   material."requiresPicking"
@@ -171,7 +172,7 @@ SELECT
     WHERE eim."entityType" = 'item' AND eim."entityId" = item.id
   ) AS "externalId",
   mm."version",
-  '{}'::JSONB AS "shelfIds",
+  '{}'::JSONB AS "storageUnitIds",
   false AS "isPickDescendant",
   item."replenishmentSystem",
   true AS "requiresPicking"
