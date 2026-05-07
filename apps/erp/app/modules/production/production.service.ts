@@ -34,6 +34,7 @@ import type {
   procedureStepValidator,
   procedureValidator,
   productionEventValidator,
+  productionIncidentValidator,
   productionQuantityValidator,
   scrapReasonValidator
 } from "./production.models";
@@ -3088,4 +3089,99 @@ export async function triggerJobSchedule(
   });
 
   return { success: true };
+}
+
+// ─── Production Incidents (P3) ──────────────────────────────────
+
+export async function getProductionIncidentTypes(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return (client as any)
+    .from("productionIncidentType")
+    .select("id, name")
+    .eq("companyId", companyId)
+    .order("name", { ascending: true });
+}
+
+export async function getProductionIncidents(
+  client: SupabaseClient<Database>,
+  jobId: string
+) {
+  return (client as any)
+    .from("productionIncident")
+    .select(
+      `id, incidentId, jobId, itemId, trackedEntityId, incidentDate,
+       incidentTypeId, quantityLost, position, impactsPickingList, status,
+       notes, customFields, createdAt, createdBy,
+       incidentType:incidentTypeId(id, name),
+       item:itemId(id, name, readableId)`
+    )
+    .eq("jobId", jobId)
+    .order("incidentDate", { ascending: false })
+    .order("createdAt", { ascending: false });
+}
+
+export async function getProductionIncident(
+  client: SupabaseClient<Database>,
+  incidentId: string,
+  companyId: string
+) {
+  return (client as any)
+    .from("productionIncident")
+    .select(
+      `id, incidentId, jobId, itemId, trackedEntityId, incidentDate,
+       incidentTypeId, quantityLost, position, impactsPickingList, status,
+       notes, customFields, createdAt, createdBy`
+    )
+    .eq("id", incidentId)
+    .eq("companyId", companyId)
+    .single();
+}
+
+export async function upsertProductionIncident(
+  client: SupabaseClient<Database>,
+  incident:
+    | (Omit<z.infer<typeof productionIncidentValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+        customFields?: Json;
+      })
+    | (z.infer<typeof productionIncidentValidator> & {
+        id: string;
+        updatedBy: string;
+        customFields?: Json;
+      })
+) {
+  if ("createdBy" in incident) {
+    const { data: seq, error: seqError } = await (client as any).rpc(
+      "get_next_sequence",
+      { sequence_name: "productionIncident", company_id: incident.companyId }
+    );
+    if (seqError) return { data: null, error: seqError };
+    return (client as any)
+      .from("productionIncident")
+      .insert([{ ...incident, incidentId: seq as string }])
+      .select("id")
+      .single();
+  }
+  const { id, ...update } = incident;
+  return (client as any)
+    .from("productionIncident")
+    .update(sanitize(update))
+    .eq("id", id)
+    .select("id")
+    .single();
+}
+
+export async function deleteProductionIncident(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return (client as any)
+    .from("productionIncident")
+    .delete()
+    .eq("id", id)
+    .eq("companyId", companyId);
 }

@@ -101,6 +101,8 @@ const JobHeader = () => {
         return t`Picking Lists`;
       case "staging":
         return t`Staging`;
+      case "incidents":
+        return t`Incidents`;
       default:
         return t`Job`;
     }
@@ -142,6 +144,8 @@ const JobHeader = () => {
     if (location.pathname.includes(path.to.jobPickingLists(jobId)))
       return "picking-lists";
     if (location.pathname.includes(path.to.jobStaging(jobId))) return "staging";
+    if (location.pathname.includes(path.to.jobIncidents(jobId)))
+      return "incidents";
     return "details";
   };
 
@@ -299,7 +303,8 @@ const JobHeader = () => {
                   "quantities",
                   "step-records",
                   "picking-lists",
-                  "staging"
+                  "staging",
+                  "incidents"
                 ].map((i) => (
                   <DropdownMenuRadioItem value={i} key={i}>
                     <DropdownMenuIcon icon={getExplorerMenuIcon(i)} />
@@ -479,6 +484,8 @@ function getExplorerMenuIcon(type: string) {
       return <LuClipboardList />;
     case "staging":
       return <LuPackage />;
+    case "incidents":
+      return <LuTriangleAlert />;
     default:
       return <LuCirclePlay />;
   }
@@ -500,6 +507,8 @@ const getExplorePath = (jobId: string, type: string) => {
       return path.to.jobPickingLists(jobId);
     case "staging":
       return path.to.jobStaging(jobId);
+    case "incidents":
+      return path.to.jobIncidents(jobId);
     default:
       return path.to.jobDetails(jobId);
   }

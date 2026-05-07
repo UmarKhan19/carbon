@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-06T23:56:40.772Z",
+  "generated": "2026-05-07T17:58:18.323Z",
   "totalTools": 1075,
   "modules": 15,
   "tools": [
@@ -270,7 +270,7 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get accounts",
-      "paramCount": 4,
+      "paramCount": 5,
       "serviceParams": [
         "client",
         "companyGroupId",
@@ -285,7 +285,7 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get accounts list",
-      "paramCount": 4,
+      "paramCount": 5,
       "serviceParams": [
         "client",
         "companyGroupId",
@@ -300,7 +300,7 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get account categories",
-      "paramCount": 4,
+      "paramCount": 5,
       "serviceParams": [
         "client",
         "companyGroupId"
@@ -383,7 +383,7 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get chart of accounts",
-      "paramCount": 4,
+      "paramCount": 5,
       "serviceParams": [
         "client",
         "companyGroupId",
@@ -412,7 +412,7 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get currency by code",
-      "paramCount": 1,
+      "paramCount": 2,
       "serviceParams": [
         "client",
         "companyGroupId",
@@ -427,7 +427,7 @@
       "module": "accounting",
       "classification": "READ",
       "description": "get currencies",
-      "paramCount": 4,
+      "paramCount": 5,
       "serviceParams": [
         "client",
         "companyGroupId",

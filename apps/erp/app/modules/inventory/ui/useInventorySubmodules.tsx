@@ -55,6 +55,12 @@ export default function useInventorySubmodules() {
           to: path.to.pickingLists,
           icon: <LuClipboardList />,
           table: "pickingList"
+        },
+        {
+          name: t`Movements`,
+          to: path.to.movements,
+          icon: <LuArrowRightLeft />,
+          role: "employee"
         }
       ]
     },

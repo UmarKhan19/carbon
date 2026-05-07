@@ -927,6 +927,11 @@ export const path = {
     jobPickingLists: (id: string) =>
       generatePath(`${x}/job/${id}/picking-lists`),
     jobStaging: (id: string) => generatePath(`${x}/job/${id}/staging`),
+    jobIncidents: (id: string) => generatePath(`${x}/job/${id}/incidents`),
+    newJobIncident: (id: string) =>
+      generatePath(`${x}/job/${id}/incidents/new`),
+    jobIncident: (jobId: string, id: string) =>
+      generatePath(`${x}/job/${jobId}/incidents/${id}`),
     jobOperationsOrder: (jobId: string) =>
       generatePath(`${x}/job/methods/${jobId}/operation/order`),
     jobOperationsDelete: (jobId: string) =>
@@ -1290,6 +1295,7 @@ export const path = {
       generatePath(`${x}/picking-list/${id}/unpick/${lineId}`),
     deletePickingList: (id: string) =>
       generatePath(`${x}/picking-list/delete/${id}`),
+    movements: `${x}/inventory/movements`,
     newPickingList: `${x}/inventory/picking-lists/new`,
     pickingLists: `${x}/inventory/picking-lists`,
     reversePickingList: (id: string) =>

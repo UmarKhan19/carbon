@@ -1014,3 +1014,24 @@ export const demandProjectionValidator = z.object({
     ])
   )
 });
+
+// ─── Production Incidents (P3) ──────────────────────────────────
+
+export const productionIncidentStatuses = [
+  "Open",
+  "Resolved",
+  "Closed"
+] as const;
+
+export const productionIncidentValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  jobId: z.string().min(1, { message: "Job is required" }),
+  itemId: zfd.text(z.string().optional()),
+  trackedEntityId: zfd.text(z.string().optional()),
+  incidentTypeId: zfd.text(z.string().optional()),
+  incidentDate: z.string().min(1, { message: "Incident date is required" }),
+  quantityLost: zfd.numeric(z.number().min(0)),
+  position: zfd.text(z.string().optional()),
+  impactsPickingList: zfd.checkbox(),
+  status: z.enum(productionIncidentStatuses).default("Open")
+});

@@ -138,7 +138,7 @@ msgstr "Materiał to element fizyczny używany do wytworzenia części, którą 
 msgid "A name is required to save a view"
 msgstr "Nazwa jest wymagana, aby zapisać widok"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:726
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:735
 msgid "A new purchase order will be created for each supplier. Alternatively, you can choose an existing draft purchase order for the supplier to add the outside operations to."
 msgstr "Dla każdego dostawcy zostanie utworzone nowe zamówienie zakupu. Alternatywnie możesz wybrać istniejące zamówienie zakupu w wersji roboczej dla dostawcy, aby dodać do niego operacje zewnętrzne."
 
@@ -608,7 +608,7 @@ msgstr "Dodaj dostawcę"
 msgid "Add Timecard"
 msgstr "Dodaj kartę czasu pracy"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1142
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1151
 msgid "Add to stock for future use"
 msgstr "Dodaj do zapasów do przyszłego użytku"
 
@@ -655,6 +655,14 @@ msgstr "Typ korekty"
 msgid "Advanced"
 msgstr "Zaawansowane"
 
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:112
+msgid "Affects picking list"
+msgstr ""
+
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:114
+msgid "Affects PL"
+msgstr ""
+
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermForm.tsx:114
 msgid "After"
 msgstr "Po"
@@ -683,6 +691,10 @@ msgstr "Wszystkie zmiany w jednostkach podlegających audytowi są rejestrowane.
 msgid "All Customers"
 msgstr "Wszyscy Klienci"
 
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:178
+msgid "All destinations"
+msgstr ""
+
 #: apps/erp/app/modules/documents/ui/useDocumentsSubmodules.tsx:17
 msgid "All Documents"
 msgstr "Wszystkie dokumenty"
@@ -703,6 +715,10 @@ msgstr "Wszyscy członkowie wybranych grup i wybrane osoby będą mogły zatwier
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:278
 msgid "All Suppliers"
 msgstr "Wszyscy dostawcy"
+
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:167
+msgid "All types"
+msgstr ""
 
 #: apps/erp/app/routes/x+/quality+/_index.tsx:316
 msgid "All Types"
@@ -839,7 +855,7 @@ msgstr "Czy na pewno chcesz aktywować ten miernik?."
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "Czy na pewno chcesz anulować {0}? Spowoduje to również anulowanie wszystkich powiązanych ofert dostawców."
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:875
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:884
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "Czy na pewno chcesz anulować to zadanie? Nie będzie już dostępne na hali produkcyjnej."
 
@@ -1258,7 +1274,7 @@ msgstr "Czy na pewno chcesz opublikować tę przesyłkę?"
 msgid "Are you sure you want to reject this quote?"
 msgstr "Czy na pewno chcesz odrzucić tę ofertę?"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:711
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:720
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "Czy na pewno chcesz zwolnić to zadanie? Będzie dostępne dla hali produkcyjnej i będzie napędzać zakupy i produkcję."
 
@@ -1805,9 +1821,10 @@ msgstr "Nie można wyłączyć jedynego aktywnego przedziału. Dodaj inny przedz
 #: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:82
 #: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:99
 #: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:117
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:812
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:871
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1229
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:120
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:821
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:880
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1238
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:442
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:563
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:619
@@ -1910,7 +1927,7 @@ msgstr "Nie można wyłączyć jedynego aktywnego przedziału. Dodaj inny przedz
 msgid "Cancel"
 msgstr "Anuluj"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:891
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:900
 msgid "Cancel Job"
 msgstr "Anuluj zadanie"
 
@@ -2024,6 +2041,10 @@ msgstr "Przewoźnik"
 #: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:90
 msgid "Carrier Account"
 msgstr "Konto przewoźnika"
+
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:219
+msgid "Categories"
+msgstr ""
 
 #: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:52
 #: apps/erp/app/modules/people/ui/Attributes/AttributeCategoriesTable.tsx:176
@@ -2323,8 +2344,8 @@ msgstr "Ukończ wszystko"
 msgid "Complete all quantities on barcode scan"
 msgstr "Uzupełnij wszystkie ilości podczas skanowania kodu kreskowego"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1039
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1233
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1048
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1242
 msgid "Complete Job"
 msgstr "Ukończ zadanie"
 
@@ -2374,7 +2395,7 @@ msgid "Configurator"
 msgstr "Konfigurator"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:77
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:92
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:98
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:525
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:840
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:97
@@ -2987,6 +3008,7 @@ msgstr "Utwórz Centrum Pracy"
 #: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:245
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:124
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:470
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:225
 msgid "Created"
 msgstr "Utworzono"
 
@@ -3297,6 +3319,7 @@ msgstr "Pola niestandardowe"
 #: apps/erp/app/modules/users/ui/Customers/CreateCustomerModal.tsx:76
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:130
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:295
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:179
 #: apps/erp/app/routes/x+/issue+/$id.tsx:153
 #: apps/erp/app/routes/x+/sales+/_index.tsx:652
 #: apps/erp/app/routes/x+/sales+/_index.tsx:724
@@ -3491,6 +3514,7 @@ msgstr "Typ danych nie może być zmieniony"
 #: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:145
 #: apps/erp/app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:110
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineShipments.tsx:97
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:99
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:525
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:548
 msgid "Date"
@@ -4247,7 +4271,7 @@ msgstr "Bezpośredni"
 msgid "Disabled"
 msgstr "Wyłączone"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1175
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1184
 msgid "Discard"
 msgstr "Odrzuć"
 
@@ -4325,7 +4349,7 @@ msgstr "Dokument:"
 msgid "Documents"
 msgstr "Dokumenty"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:882
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:891
 msgid "Don't Cancel"
 msgstr "Nie anuluj"
 
@@ -4648,6 +4672,10 @@ msgstr "Edytuj grupę"
 #: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:83
 msgid "Edit Holiday"
 msgstr "Edytuj Święto"
+
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:60
+msgid "Edit Incident"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:89
 msgid "Edit Item Group"
@@ -6086,6 +6114,10 @@ msgstr "Częstotliwość"
 msgid "Friday"
 msgstr "Piątek"
 
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:213
+msgid "From"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:367
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:90
 msgid "From Location"
@@ -6421,7 +6453,23 @@ msgstr "Inspekcje przychodzące: Wymagaj innego inspektora"
 msgid "Inbox"
 msgstr "Skrzynka odbiorcza"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1124
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:96
+msgid "Incident"
+msgstr ""
+
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:77
+msgid "Incident Date"
+msgstr ""
+
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:81
+msgid "Incident Type"
+msgstr ""
+
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:105
+msgid "Incidents"
+msgstr ""
+
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1133
 msgid "Include extra parts in shipment"
 msgstr "Dołącz dodatkowe części do wysyłki"
 
@@ -6854,7 +6902,9 @@ msgstr "element"
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:139
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:408
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:581
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:207
 #: apps/erp/app/routes/x+/issue+/$id.tsx:104
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:105
 #: apps/erp/app/routes/x+/job+/$jobId.staging.tsx:168
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:123
 msgid "Item"
@@ -6955,7 +7005,7 @@ msgstr "Elementy w tym oknie otrzymują żółty znaczek."
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:93
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:105
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:107
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:682
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningOrderDrawer.tsx:366
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:932
@@ -7053,7 +7103,7 @@ msgid "Kanban Output"
 msgstr "Wyjście Kanban"
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:641
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:65
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:71
 #: apps/erp/app/routes/x+/inventory+/kanbans.tsx:18
 msgid "Kanbans"
 msgstr "Kanbany"
@@ -7239,7 +7289,7 @@ msgstr "Pozostaw puste dla dokładnego dopasowania"
 msgid "Left item"
 msgstr "Element po lewej stronie"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1099
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1108
 msgid "Leftover Parts Detected"
 msgstr "Wykryte nadmiarowe części"
 
@@ -7409,7 +7459,7 @@ msgstr "Ładowanie..."
 #: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:170
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:332
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:494
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1071
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1080
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:509
 #: apps/erp/app/modules/production/ui/Projection/DemandProjectionForm.tsx:116
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:165
@@ -8025,7 +8075,7 @@ msgstr "Minuty/Sztuka"
 msgid "Missing Information"
 msgstr "Brakujące informacje"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:781
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:790
 msgid "Missing Operations"
 msgstr "Brakujące operacje"
 
@@ -8033,7 +8083,7 @@ msgstr "Brakujące operacje"
 msgid "Missing Shipping Costs"
 msgstr "Brakujące koszty wysyłki"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:796
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:805
 msgid "Missing Suppliers"
 msgstr "Brakujący dostawcy"
 
@@ -8134,7 +8184,7 @@ msgstr "Więcej akcji"
 #: apps/erp/app/modules/items/ui/Materials/MaterialHeader.tsx:65
 #: apps/erp/app/modules/items/ui/Parts/PartHeader.tsx:61
 #: apps/erp/app/modules/items/ui/Tools/ToolHeader.tsx:59
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:180
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:184
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:80
 #: apps/erp/app/modules/production/ui/Schedule/Kanban/components/ItemCard.tsx:183
 #: apps/erp/app/modules/production/ui/Schedule/Kanban/components/JobCard.tsx:288
@@ -8189,6 +8239,12 @@ msgstr "Przenieś do kosza"
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:348
 msgid "Moved {0} to {1} bucket"
 msgstr "Przeniesiono {0} do zasobnika {1}"
+
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:60
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:53
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:140
+msgid "Movements"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:547
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:490
@@ -8699,9 +8755,13 @@ msgstr "Brak dodanych umiejętności"
 msgid "No Access"
 msgstr "Brak dostępu"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1178
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1187
 msgid "No action needed"
 msgstr "Brak wymaganych działań"
+
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:193
+msgid "No active movements right now."
+msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/billing.tsx:219
 msgid "No active plan"
@@ -8817,6 +8877,10 @@ msgstr "Brak przypisanych grup"
 #: apps/erp/app/components/ItemThumnailUpload.tsx:167
 msgid "No image"
 msgstr "Brak obrazu"
+
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:88
+msgid "No incidents reported on this job yet."
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionLotView.tsx:466
 msgid "No issue types configured"
@@ -9771,6 +9835,7 @@ msgid "Picking"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:53
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:169
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:139
 msgid "Picking List"
 msgstr ""
@@ -9895,6 +9960,10 @@ msgstr "Link do portalu"
 #: apps/erp/app/modules/sales/ui/useSalesSubmodules.tsx:62
 msgid "Portals"
 msgstr "Portale"
+
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:97
+msgid "Position / Location"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:377
 msgid "Positive Adjustment"
@@ -10167,6 +10236,10 @@ msgstr "Zdarzenie produkcyjne"
 msgid "Production Events"
 msgstr "Zdarzenia produkcyjne"
 
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:67
+msgid "Production Incidents"
+msgstr ""
+
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:464
 msgid "Production Qty"
 msgstr "Ilość produkcji"
@@ -10346,7 +10419,7 @@ msgstr "Zamówienie zakupu zostało pomyślnie usunięte"
 msgid "Purchase Orders"
 msgstr "Zamówienia Zakupu"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:723
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:732
 msgid "Purchase orders required"
 msgstr "Wymagane zamówienia zakupu"
 
@@ -10439,6 +10512,14 @@ msgstr "Kod QR do utworzenia {0} dla tego kanbanu"
 msgid "QR Code to start the next operation for this kanban"
 msgstr "Kod QR do rozpoczęcia następnej operacji dla tego kanbanu"
 
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:210
+msgid "Qty"
+msgstr ""
+
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:108
+msgid "Qty Lost"
+msgstr ""
+
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:335
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:413
 msgid "Qty to Order"
@@ -10490,7 +10571,7 @@ msgstr "Dokumenty Jakości"
 msgid "Quality Type"
 msgstr "Typ Jakości"
 
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:71
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:77
 msgid "Quantities"
 msgstr "Ilości"
 
@@ -10554,13 +10635,21 @@ msgstr "Ilości"
 msgid "Quantity"
 msgstr "Ilość"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1083
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1092
 msgid "Quantity Completed"
 msgstr "Ilość ukończona"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1089
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1098
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "Ilość pochodzi z ukończonych numerów seryjnych/partii w MES i nie może być edytowana."
+
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:91
+msgid "Quantity Lost"
+msgstr ""
+
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:66
+msgid "Quantity lost will reduce active picking list line quantities for this job when \"Affects picking list\" is checked."
+msgstr ""
 
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:269
 msgid "Quantity must be greater than 0"
@@ -10782,12 +10871,12 @@ msgid "Receive"
 msgstr "Odbierz"
 
 #. placeholder {0}: job.jobId
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1040
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1049
 msgid "Receive {0} to Inventory"
 msgstr "Odbierz {0} do Magazynu"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1139
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1205
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1148
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1214
 msgid "Receive to Inventory"
 msgstr "Odbierz do Magazynu"
 
@@ -10840,6 +10929,7 @@ msgstr "Przekierowanie na stronę weryfikacji..."
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:366
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:106
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:336
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:204
 msgid "Reference"
 msgstr "Odniesienie"
 
@@ -10897,8 +10987,8 @@ msgstr "Data odrzucenia"
 msgid "Release"
 msgstr "Zwolnienie"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:692
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:837
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:701
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:846
 msgid "Release Job"
 msgstr "Zwolnij zadanie"
 
@@ -11068,9 +11158,18 @@ msgstr "Uzupełnianie"
 msgid "Replenishment System"
 msgstr "System uzupełniania zapasów"
 
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:123
 #: apps/erp/app/modules/quality/ui/Issue/IssueHeader.tsx:140
 msgid "Report"
 msgstr "Raport"
+
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:79
+msgid "Report Incident"
+msgstr ""
+
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:62
+msgid "Report Production Incident"
+msgstr ""
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:36
 #: apps/erp/app/modules/quality/ui/Issue/IssueHeader.tsx:115
@@ -11607,6 +11706,7 @@ msgstr "Sobota"
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:59
 #: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:96
 #: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:114
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:123
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1114
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2861
 #: apps/erp/app/modules/production/ui/Jobs/ProductionEventForm.tsx:129
@@ -11877,6 +11977,10 @@ msgstr "Przeszukaj historię"
 #: apps/erp/app/components/Gantt/Gantt.tsx:882
 msgid "Search Job"
 msgstr "Szukaj zadania"
+
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:155
+msgid "Search part / ref / shelf"
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:873
 msgid "Search processes..."
@@ -12344,18 +12448,19 @@ msgstr "Zmiany"
 msgid "Ship"
 msgstr "Wysyłka"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1160
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1169
 msgid "Ship some, stock some"
 msgstr "Wyślij część, przechowaj część"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1121
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1189
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1130
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1198
 msgid "Ship to Customer"
 msgstr "Wyślij do klienta"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:285
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:729
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineShipments.tsx:94
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:170
 #: apps/erp/app/routes/x+/issue+/$id.tsx:132
 msgid "Shipment"
 msgstr "Wysyłka"
@@ -12471,7 +12576,7 @@ msgid "Shipping Method"
 msgstr "Metoda wysyłki"
 
 #: apps/erp/app/modules/inventory/ui/ShippingMethods/ShippingMethodsTable.tsx:147
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:109
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:115
 #: apps/erp/app/routes/x+/inventory+/shipping-methods.tsx:15
 msgid "Shipping Methods"
 msgstr "Metody wysyłki"
@@ -12705,7 +12810,7 @@ msgstr "Konkretni klienci"
 msgid "Specific Items"
 msgstr "Określone artykuły"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1157
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1166
 #: apps/erp/app/modules/quality/ui/Issue/AssociatedItemsList.tsx:656
 msgid "Split"
 msgstr "Podziel"
@@ -12844,6 +12949,7 @@ msgstr "Akceptacja statystyczna nie powiodła się, dlatego cała partia jest uw
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:135
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:129
 #: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:142
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:103
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:315
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningOrderDrawer.tsx:374
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:174
@@ -12872,6 +12978,8 @@ msgstr "Akceptacja statystyczna nie powiodła się, dlatego cała partia jest uw
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:115
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:158
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:90
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:222
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:111
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:142
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:659
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:810
@@ -12934,6 +13042,10 @@ msgstr "Rekordy Kroków"
 msgid "Steps"
 msgstr "Kroki"
 
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:168
+msgid "Stock Transfer"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:61
 msgid "Stock Transfer ID"
 msgstr "Identyfikator Transferu Zapasów"
@@ -12966,7 +13078,7 @@ msgstr "Typ magazynu"
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:105
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:258
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:280
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:102
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:108
 #: apps/erp/app/routes/x+/inventory+/storage-types.tsx:15
 msgid "Storage Types"
 msgstr "Typy magazynowania"
@@ -12983,7 +13095,7 @@ msgstr "Typy magazynowania"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:458
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1012
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:975
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1077
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1086
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:682
 #: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:439
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:978
@@ -12993,7 +13105,7 @@ msgstr "Jednostka magazynowa"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:191
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:394
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:95
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:101
 #: apps/erp/app/routes/x+/inventory+/storage-units.tsx:22
 msgid "Storage Units"
 msgstr "Jednostki magazynowe"
@@ -13594,7 +13706,7 @@ msgstr "Motyw"
 msgid "Theme Color"
 msgstr "Kolor motywu"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:784
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:793
 msgid "There are Bills of Processes associated with this job that have no operations. Please assign an operation to each make method before releasing it."
 msgstr "Istnieją Rachunki Procesów powiązane z tym zadaniem, które nie mają operacji. Proszę przypisać operację do każdej metody produkcji przed jej uruchomieniem."
 
@@ -13602,7 +13714,7 @@ msgstr "Istnieją Rachunki Procesów powiązane z tym zadaniem, które nie mają
 msgid "There are no active supplier quotes to compare for this RFQ."
 msgstr "Brak aktywnych ofert dostawców do porównania dla tego zapytania ofertowego."
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:799
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:808
 msgid "There are outside operations associated with this job that have no suppliers. Please assign a supplier to each outside operation before releasing it."
 msgstr "Istnieją operacje zewnętrzne powiązane z tym zadaniem, które nie mają dostawców. Proszę przypisać dostawcę do każdej operacji zewnętrznej przed jej uruchomieniem."
 
@@ -13646,11 +13758,11 @@ msgstr "To jest miesiąc, w którym rozpoczyna się Twój rok podatkowy."
 msgid "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."
 msgstr "Rachunek materiałów tego artykułu nie ma wejść z włączoną polityką przechowywania, dlatego żaden termin ważności nie będzie obliczony z rachunku materiałów."
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1045
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1054
 msgid "This job will be received to inventory. It will no longer be available on the shop floor."
 msgstr "To zadanie zostanie przyjęte do magazynu. Nie będzie już dostępne na hali produkcyjnej."
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1044
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1053
 msgid "This job will no longer be available on the shop floor."
 msgstr "Ta praca nie będzie już dostępna na hali produkcyjnej."
 
@@ -13764,6 +13876,10 @@ msgstr "Strefa czasowa"
 msgid "Title"
 msgstr "Tytuł"
 
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:216
+msgid "To"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:368
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:98
 msgid "To Location"
@@ -13821,7 +13937,7 @@ msgstr "Przełącz czasy trwania"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:196
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:184
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:166
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:170
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:66
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:156
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:95
@@ -13840,7 +13956,7 @@ msgstr "Przełącz poziom"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:384
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:382
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:416
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:421
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:165
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:557
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:298
@@ -13930,14 +14046,14 @@ msgstr "Całkowita ilość"
 msgid "Total:"
 msgstr "Razem:"
 
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:84
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:90
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:25
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:152
 #: apps/erp/app/routes/x+/traceability+/graph.tsx:24
 msgid "Traceability"
 msgstr "Możliwość śledzenia"
 
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:62
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:68
 msgid "Track"
 msgstr "Śledź"
 
@@ -13958,7 +14074,7 @@ msgid "Track when batches or serials of this item expire."
 msgstr "Śledź, kiedy partie lub numery seryjne tego artykułu wygasają."
 
 #: apps/erp/app/modules/inventory/ui/Traceability/TrackedEntitiesTable.tsx:250
-#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:78
+#: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:84
 #: apps/erp/app/routes/x+/inventory+/tracked-entities.tsx:16
 #: apps/erp/app/routes/x+/issue+/$id.tsx:147
 msgid "Tracked Entities"
@@ -14137,6 +14253,8 @@ msgstr "Wtorek"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:92
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1046
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1314
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:201
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:102
 msgid "Type"
 msgstr "Typ"
 
@@ -14607,7 +14725,7 @@ msgstr "Okres ważności"
 msgid "Valid To"
 msgstr "Ważne do"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:700
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:709
 msgid "Validating job..."
 msgstr "Walidacja zadania..."
 
@@ -15001,6 +15119,10 @@ msgstr "Gdy używany jest wygasły zapas"
 msgid "When off, no picking list is ever generated and the picking module is hidden from new jobs."
 msgstr ""
 
+#: apps/erp/app/modules/production/ui/Jobs/IncidentForm.tsx:113
+msgid "When on, active PL line quantities for this job get reduced by Quantity Lost."
+msgstr ""
+
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:63
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:118
 msgid "Who Can Approve"
@@ -15149,6 +15271,7 @@ msgstr "Rok"
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordsTable.tsx:194
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordsTable.tsx:209
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:469
+#: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:160
 msgid "Yes"
 msgstr "Tak"
 
@@ -15183,7 +15306,7 @@ msgstr "Zalogowałeś się o {0}. Możesz edytować czas wylogowania poniżej lu
 
 #. placeholder {0}: leftoverQuantity === 1 ? "part" : "parts"
 #. placeholder {1}: job.quantity
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1102
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1111
 msgid ""
 "You completed {leftoverQuantity} more \n"
 "                        {0} than the\n"
