@@ -1396,7 +1396,7 @@ msgid "Attributes are inherited from the procedure."
 msgstr "Gli attributi vengono ereditati dalla procedura."
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:296
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:26
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:27
 msgid "Audit Log"
 msgstr "Registro di Audit"
 
@@ -1418,7 +1418,7 @@ msgstr "Il controllo di audit non è abilitato"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:87
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:147
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:164
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:167
 msgid "Audit Logs"
 msgstr "Registri di Audit"
 
@@ -14292,7 +14292,7 @@ msgstr "Visualizza Lavori Attivi"
 msgid "View Active Quotes"
 msgstr "Visualizza Preventivi Attivi"
 
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:169
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:172
 msgid "View All"
 msgstr "Visualizza tutto"
 

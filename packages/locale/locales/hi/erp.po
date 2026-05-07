@@ -1396,7 +1396,7 @@ msgid "Attributes are inherited from the procedure."
 msgstr "प्रक्रिया से विशेषताएं विरासत में मिली हैं।"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:296
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:26
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:27
 msgid "Audit Log"
 msgstr "ऑडिट लॉग"
 
@@ -1418,7 +1418,7 @@ msgstr "ऑडिट लॉगिंग सक्षम नहीं है"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:87
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:147
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:164
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:167
 msgid "Audit Logs"
 msgstr "ऑडिट लॉग्स"
 
@@ -14292,7 +14292,7 @@ msgstr "सक्रिय नौकरियां देखें"
 msgid "View Active Quotes"
 msgstr "सक्रिय उद्धरण देखें"
 
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:169
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:172
 msgid "View All"
 msgstr "सभी देखें"
 

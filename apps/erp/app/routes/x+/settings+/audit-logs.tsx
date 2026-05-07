@@ -11,6 +11,7 @@ import {
   syncAuditSubscriptions
 } from "@carbon/database/audit";
 import { Button, Heading, ScrollArea, VStack } from "@carbon/react";
+import { Plan } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { LuHistory } from "react-icons/lu";
@@ -147,7 +148,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function AuditLogRoute() {
   const { enabled, archives } = useLoaderData<typeof loader>();
-  const { isGated } = usePlanGate();
+  const { isGated } = usePlanGate({
+    plan: [Plan.Business]
+  });
 
   if (isGated) {
     return <AuditLogUpgradeOverlay />;

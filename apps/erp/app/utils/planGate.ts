@@ -2,7 +2,11 @@ import { Plan } from "@carbon/utils";
 
 export type PlanRequirement = Plan | Plan[];
 
-export const DEFAULT_ALLOWED_PLANS: Plan[] = [Plan.Business, Plan.Partner];
+export const DEFAULT_ALLOWED_PLANS: Plan[] = [
+  Plan.Starter,
+  Plan.Business,
+  Plan.Partner
+];
 
 /**
  * Returns true when the user's current plan satisfies the requirement.

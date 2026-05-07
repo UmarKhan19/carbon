@@ -1396,7 +1396,7 @@ msgid "Attributes are inherited from the procedure."
 msgstr "属性は手順から継承されます。"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogTable.tsx:296
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:26
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:27
 msgid "Audit Log"
 msgstr "監査ログ"
 
@@ -1418,7 +1418,7 @@ msgstr "監査ログが有効になっていません"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:87
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:147
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:164
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:167
 msgid "Audit Logs"
 msgstr "監査ログ"
 
@@ -14292,7 +14292,7 @@ msgstr "アクティブなジョブを表示"
 msgid "View Active Quotes"
 msgstr "アクティブな見積もりを表示"
 
-#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:169
+#: apps/erp/app/routes/x+/settings+/audit-logs.tsx:172
 msgid "View All"
 msgstr "すべて表示"
 
