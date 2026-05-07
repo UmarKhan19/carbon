@@ -1,8 +1,4 @@
-import {
-  CarbonEdition,
-  error,
-  STRIPE_BYPASS_COMPANY_IDS
-} from "@carbon/auth";
+import { CarbonEdition, error, STRIPE_BYPASS_COMPANY_IDS } from "@carbon/auth";
 import { flash } from "@carbon/auth/session.server";
 import type { Database } from "@carbon/database";
 import { Edition, Plan } from "@carbon/utils";
@@ -11,8 +7,8 @@ import { redirect } from "react-router";
 import {
   DEFAULT_ALLOWED_PLANS,
   defaultUpgradeMessage,
-  planMeetsRequirement,
-  type PlanRequirement
+  type PlanRequirement,
+  planMeetsRequirement
 } from "./planGate";
 
 function isBypassCompany(companyId: string): boolean {
