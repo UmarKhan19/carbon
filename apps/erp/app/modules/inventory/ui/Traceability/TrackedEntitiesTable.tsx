@@ -1,5 +1,4 @@
 import { Badge, MenuIcon, MenuItem } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
@@ -19,7 +18,7 @@ import {
 import { useNavigate } from "react-router";
 import { Hyperlink, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
-import { usePermissions } from "~/hooks";
+import { useDateFormatter, usePermissions } from "~/hooks";
 import type { TrackedEntity } from "~/modules/inventory";
 import { trackedEntityStatus } from "~/modules/inventory";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
@@ -33,7 +32,7 @@ import TrackedEntityStatus from "./TrackedEntityStatus";
 type ShelfLifePolicy = {
   mode: string;
   days: number | null;
-  inheritEarliestInputExpiry?: boolean | null;
+  calculateFromBom?: boolean | null;
 };
 
 type TrackedEntitiesTableProps = {
@@ -52,6 +51,7 @@ const TrackedEntitiesTable = memo(
   }: TrackedEntitiesTableProps) => {
     const navigate = useNavigate();
     const { t } = useLingui();
+    const { formatDate } = useDateFormatter();
     const permissions = usePermissions();
     const numberFormatter = useNumberFormatter();
     const [items] = useItems();
@@ -185,8 +185,7 @@ const TrackedEntitiesTable = memo(
                           | "Calculated"
                           | "Set on Receipt",
                         days: policy.days,
-                        inheritEarliestInputExpiry:
-                          policy.inheritEarliestInputExpiry ?? false
+                        calculateFromBom: policy.calculateFromBom ?? false
                       }
                     : null
                 }
@@ -210,7 +209,14 @@ const TrackedEntitiesTable = memo(
           }
         }
       ],
-      [numberFormatter, items, t, nearExpiryWarningDays]
+      [
+        numberFormatter,
+        items,
+        t,
+        nearExpiryWarningDays,
+        shelfLifePolicies,
+        formatDate
+      ]
     );
 
     const renderContextMenu = useCallback(

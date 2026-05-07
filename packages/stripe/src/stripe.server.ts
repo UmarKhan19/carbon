@@ -13,6 +13,7 @@ import { Edition, Plan } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Stripe } from "stripe";
 import { z } from "zod";
+import { forwardToGtm } from "./gtm-events.server";
 
 export const stripe = STRIPE_SECRET_KEY
   ? new Stripe(STRIPE_SECRET_KEY, {
@@ -58,6 +59,7 @@ const allowedEventTypes = [
   "customer.subscription.pending_update_applied",
   "customer.subscription.pending_update_expired",
   "customer.subscription.trial_will_end",
+  "invoice.sent",
   "invoice.paid",
   "invoice.payment_failed",
   "invoice.payment_action_required",
@@ -280,6 +282,10 @@ export async function getCheckoutUrl({
     success_url: `${getAppUrl()}/api/webhook/stripe`,
     cancel_url: `${getAppUrl()}/api/webhook/stripe`,
     payment_method_types: ["card", "us_bank_account", "cashapp"],
+    billing_address_collection: "required",
+    automatic_tax: { enabled: true },
+    tax_id_collection: { enabled: true, required: "never" },
+    customer_update: { name: "auto", address: "auto" },
     ...(plan.data?.stripeTrialPeriodDays &&
       plan.data.stripeTrialPeriodDays > 0 && {
         subscription_data: {
@@ -393,6 +399,8 @@ export async function processStripeEvent({
       throw new Error("Stripe webhook handler failed");
     }
 
+    const collectedTaxId = data.customer_details?.tax_ids?.[0]?.value;
+
     try {
       await Promise.all([
         syncStripeDataToKV(customer, companyId),
@@ -401,7 +409,13 @@ export async function processStripeEvent({
           companyId,
           userId,
           data.customer_details?.email ?? undefined
-        )
+        ),
+        collectedTaxId
+          ? getCarbonServiceRole()
+              .from("company")
+              .update({ taxId: collectedTaxId })
+              .eq("id", companyId)
+          : Promise.resolve()
       ]);
     } catch (error) {
       console.error("Error processing webhook:", error);
@@ -444,6 +458,14 @@ export async function processStripeEvent({
       console.error("Error processing webhook:", error);
       throw new Error("Stripe webhook handler failed");
     }
+  } else if (
+    eventType === "invoice.sent" ||
+    eventType === "invoice.payment_succeeded" ||
+    eventType === "invoice.payment_failed"
+  ) {
+    forwardToGtm(eventType, { invoice: event.data.object }).catch((err) => {
+      console.error("[gtm-events] forward failed:", err);
+    });
   }
 }
 

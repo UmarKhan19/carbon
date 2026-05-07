@@ -1,4 +1,5 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
+import plugin from "tailwindcss/plugin";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -117,6 +118,10 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        dashflow: {
+          from: { strokeDashoffset: "20" },
+          to: { strokeDashoffset: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -132,5 +137,13 @@ export default {
     require("@tailwindcss/typography"),
     require("tailwind-scrollbar"),
     require("tailwind-scrollbar-hide"),
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        ".bg-gradient-fade": {
+          "background-image":
+            "linear-gradient(90deg, var(--tw-gradient-from) 0%, var(--tw-gradient-to) 40%)",
+        },
+      });
+    }),
   ],
 };

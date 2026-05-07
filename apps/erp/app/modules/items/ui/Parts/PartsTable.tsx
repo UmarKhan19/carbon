@@ -22,7 +22,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
+
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
@@ -54,7 +54,7 @@ import {
 import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
 import { ConfirmDelete } from "~/components/Modals";
-import { usePermissions } from "~/hooks";
+import { useDateFormatter, usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { methodType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
@@ -76,6 +76,7 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
   const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
+  const { formatDate } = useDateFormatter();
 
   const translateReplenishment = useCallback(
     (v: string) =>
@@ -170,57 +171,7 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
           icon: <LuGroup />
         }
       },
-      {
-        accessorKey: "itemTrackingType",
-        header: t`Tracking`,
-        cell: (item) => (
-          <Badge variant="secondary">
-            <TrackingTypeIcon type={item.getValue<string>()} className="mr-2" />
-            <span>{translateTrackingType(item.getValue<string>())}</span>
-          </Badge>
-        ),
-        meta: {
-          filter: {
-            type: "static",
-            options: itemTrackingTypes.map((type) => ({
-              value: type,
-              label: (
-                <Badge variant="secondary">
-                  <TrackingTypeIcon type={type} className="mr-2" />
-                  <span>{translateTrackingType(type)}</span>
-                </Badge>
-              )
-            }))
-          },
-          icon: <TbTargetArrow />
-        }
-      },
 
-      {
-        accessorKey: "defaultMethodType",
-        header: t`Default Method`,
-        cell: (item) => (
-          <Badge variant="secondary">
-            <MethodIcon type={item.getValue<string>()} className="mr-2" />
-            <span>{translateMethodType(item.getValue<string>())}</span>
-          </Badge>
-        ),
-        meta: {
-          filter: {
-            type: "static",
-            options: methodType.map((value) => ({
-              value,
-              label: (
-                <Badge variant="secondary">
-                  <MethodIcon type={value} className="mr-2" />
-                  <span>{translateMethodType(value)}</span>
-                </Badge>
-              )
-            }))
-          },
-          icon: <RxCodesandboxLogo />
-        }
-      },
       {
         accessorKey: "replenishmentSystem",
         header: t`Replenishment`,
@@ -247,6 +198,56 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
             }))
           },
           icon: <LuLoaderCircle />
+        }
+      },
+      {
+        accessorKey: "defaultMethodType",
+        header: t`Default Method`,
+        cell: (item) => (
+          <Badge variant="secondary">
+            <MethodIcon type={item.getValue<string>()} className="mr-2" />
+            <span>{translateMethodType(item.getValue<string>())}</span>
+          </Badge>
+        ),
+        meta: {
+          filter: {
+            type: "static",
+            options: methodType.map((value) => ({
+              value,
+              label: (
+                <Badge variant="secondary">
+                  <MethodIcon type={value} className="mr-2" />
+                  <span>{translateMethodType(value)}</span>
+                </Badge>
+              )
+            }))
+          },
+          icon: <RxCodesandboxLogo />
+        }
+      },
+      {
+        accessorKey: "itemTrackingType",
+        header: t`Tracking`,
+        cell: (item) => (
+          <Badge variant="secondary">
+            <TrackingTypeIcon type={item.getValue<string>()} className="mr-2" />
+            <span>{translateTrackingType(item.getValue<string>())}</span>
+          </Badge>
+        ),
+        meta: {
+          filter: {
+            type: "static",
+            options: itemTrackingTypes.map((type) => ({
+              value: type,
+              label: (
+                <Badge variant="secondary">
+                  <TrackingTypeIcon type={type} className="mr-2" />
+                  <span>{translateTrackingType(type)}</span>
+                </Badge>
+              )
+            }))
+          },
+          icon: <TbTargetArrow />
         }
       },
 
@@ -350,7 +351,8 @@ const PartsTable = memo(({ data, tags, count }: PartsTableProps) => {
     t,
     translateMethodType,
     translateReplenishment,
-    translateTrackingType
+    translateTrackingType,
+    formatDate
   ]);
 
   const fetcher = useFetcher<typeof action>();

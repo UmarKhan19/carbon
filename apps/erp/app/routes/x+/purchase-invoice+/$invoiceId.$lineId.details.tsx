@@ -9,7 +9,6 @@ import { Fragment } from "react/jsx-runtime";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { DeferredFiles } from "~/components";
-import { useRouteData } from "~/hooks";
 import {
   getPurchaseInvoice,
   getPurchaseInvoiceLine,
@@ -98,15 +97,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
   //   d.assetId = undefined;
   //   d.itemId = undefined;
   // } else if (d.invoiceLineType === "Fixed Asset") {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.itemId = undefined;
   // } else
   // if (d.invoiceLineType === "Comment") {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.assetId = undefined;
   //   d.itemId = undefined;
   // } else {
-  //   d.accountNumber = undefined;
+  //   d.accountId = undefined;
   //   d.assetId = undefined;
   // }
 
@@ -139,13 +138,6 @@ export default function EditPurchaseInvoiceLineRoute() {
   if (!invoiceId) throw notFound("invoiceId not found");
   if (!lineId) throw notFound("lineId not found");
 
-  const routeData = useRouteData<{
-    purchaseInvoice: { status: string };
-  }>(path.to.purchaseInvoice(invoiceId));
-  const isReadOnly = isPurchaseInvoiceLocked(
-    routeData?.purchaseInvoice?.status
-  );
-
   const [items] = useItems();
   const { purchaseInvoiceLine, files } = useLoaderData<typeof loader>();
 
@@ -155,7 +147,7 @@ export default function EditPurchaseInvoiceLineRoute() {
     invoiceLineType: (purchaseInvoiceLine?.invoiceLineType ?? "Part") as "Part",
     itemId: purchaseInvoiceLine?.itemId ?? "",
 
-    accountNumber: purchaseInvoiceLine?.accountNumber ?? "",
+    accountId: purchaseInvoiceLine?.accountId ?? "",
     assetId: purchaseInvoiceLine?.assetId ?? "",
     description: purchaseInvoiceLine?.description ?? "",
     quantity: purchaseInvoiceLine?.quantity ?? 1,
@@ -169,6 +161,7 @@ export default function EditPurchaseInvoiceLineRoute() {
       purchaseInvoiceLine?.inventoryUnitOfMeasureCode ?? "",
     conversionFactor: purchaseInvoiceLine?.conversionFactor ?? 1,
     storageUnitId: purchaseInvoiceLine?.storageUnitId ?? "",
+    costCenterId: purchaseInvoiceLine?.costCenterId ?? "",
     taxPercent: purchaseInvoiceLine?.taxPercent ?? 0,
     ...getCustomFields(purchaseInvoiceLine?.customFields)
   };
@@ -194,7 +187,6 @@ export default function EditPurchaseInvoiceLineRoute() {
             id={invoiceId}
             lineId={lineId}
             type="Purchase Invoice"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

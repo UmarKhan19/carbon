@@ -1,5 +1,4 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
 import {
   getLocalTimeZone,
   parseAbsolute,
@@ -17,6 +16,7 @@ import {
   LuShieldCheck
 } from "react-icons/lu";
 import { Link } from "react-router";
+import { useDateFormatter } from "~/hooks";
 import type { TrackedEntity } from "~/modules/inventory";
 import { path } from "~/utils/path";
 
@@ -68,7 +68,7 @@ type ExpiryTracePopoverProps = {
   policy?: {
     mode: "Fixed Duration" | "Calculated" | "Set on Receipt" | null;
     days?: number | null;
-    inheritEarliestInputExpiry?: boolean | null;
+    calculateFromBom?: boolean | null;
   } | null;
   /** Optional precomputed input expiries when the policy is Calculated. */
   inputs?: Array<{ id: string; expirationDate: string | null; label?: string }>;
@@ -91,11 +91,12 @@ export function ExpiryTracePopover({
   inputs,
   children
 }: ExpiryTracePopoverProps) {
+  const { formatDate } = useDateFormatter();
   if (!entity.expirationDate) {
     return <>{children}</>;
   }
 
-  const steps = buildSteps(entity, policy, inputs);
+  const steps = buildSteps(entity, policy, inputs, formatDate);
 
   return (
     <Popover>
@@ -204,7 +205,8 @@ export function ExpiryTracePopover({
 function buildSteps(
   entity: ExpiryTracePopoverProps["entity"],
   policy: ExpiryTracePopoverProps["policy"],
-  inputs: ExpiryTracePopoverProps["inputs"]
+  inputs: ExpiryTracePopoverProps["inputs"],
+  formatDate: (date: string | null | undefined) => string
 ): ExpiryTraceStep[] {
   const attrs = (entity.attributes ?? {}) as Record<string, unknown>;
   const out: ExpiryTraceStep[] = [];
@@ -214,8 +216,11 @@ function buildSteps(
   // happened. For receipt-source entities this is the goods-in date.
   const sourceDate = entity.createdAt ?? null;
   const splitFrom = attrs["Split Entity ID"];
-  const receiptId = attrs["Receipt"];
-  const jobId = attrs["Job"];
+  const receiptId = attrs.Receipt;
+  const jobId = attrs.Job;
+  const adjustment = attrs["Inventory Adjustment"] as
+    | { userId?: string; at?: string; reason?: string }
+    | undefined;
   if (typeof splitFrom === "string" && splitFrom) {
     out.push({
       step: "Source",
@@ -239,6 +244,15 @@ function buildSteps(
       href: path.to.job(jobId),
       date: sourceDate
     });
+  } else if (adjustment && typeof adjustment === "object") {
+    out.push({
+      step: "Source",
+      label: "Manual inventory adjustment",
+      detail: adjustment.at
+        ? `Recorded ${formatDate(adjustment.at)}`
+        : (entity.sourceDocumentReadableId ?? undefined),
+      date: sourceDate
+    });
   } else {
     out.push({
       step: "Source",
@@ -257,7 +271,7 @@ function buildSteps(
           ? "MIN expiry across consumed inputs"
           : "Date entered at receipt";
     const detailParts = [baseDetail];
-    if (policy.mode === "Fixed Duration" && policy.inheritEarliestInputExpiry) {
+    if (policy.mode === "Fixed Duration" && policy.calculateFromBom) {
       detailParts.push("Capped by earliest input expiry");
     }
     out.push({
@@ -287,15 +301,19 @@ function buildSteps(
         previous?: string | null;
         next?: string | null;
         reason?: string;
+        source?: string | null;
         userId?: string;
         at?: string;
       }>)
     : [];
   overrides.forEach((o) => {
+    const detailParts: string[] = [];
+    if (o.source) detailParts.push(o.source);
+    if (o.at) detailParts.push(`recorded ${formatDate(o.at)}`);
     out.push({
       step: "Override",
       label: o.reason ?? "Manual override",
-      detail: o.at ? `Recorded ${formatDate(o.at)}` : undefined,
+      detail: detailParts.length ? detailParts.join(" · ") : undefined,
       date: o.next ?? null
     });
   });

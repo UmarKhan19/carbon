@@ -14,8 +14,14 @@ export function getItemReadableId(
   itemId?: string | null
 ): string | undefined {
   if (!itemId) return undefined;
-  const item = items.find((item) => item.id === itemId);
-  return item?.readableIdWithRevision;
+  // Indexed loop — `.find` allocates a closure per call. Hot path: list
+  // rendering looks up readable ids per row.
+  const len = items.length;
+  for (let i = 0; i < len; i++) {
+    const item = items[i]!;
+    if (item.id === itemId) return item.readableIdWithRevision;
+  }
+  return undefined;
 }
 
 /**
@@ -25,7 +31,27 @@ export function getItemReadableId(
  * @returns The item, or undefined if not found
  */
 export function getItemById(items: Item[], itemId: string): Item | undefined {
-  return items.find((item) => item.id === itemId);
+  const len = items.length;
+  for (let i = 0; i < len; i++) {
+    const item = items[i]!;
+    if (item.id === itemId) return item;
+  }
+  return undefined;
+}
+
+// Build a separator-joined string from a fixed-arity record without
+// allocating an intermediate `[…].filter().join()` array — saves two array
+// allocations and a closure per call. Falsy parts (undefined, "") are
+// dropped to match the prior `.filter((p) => !!p)` behaviour.
+function joinTruthy(parts: (string | undefined)[], sep: string): string {
+  let out = "";
+  const len = parts.length;
+  for (let i = 0; i < len; i++) {
+    const part = parts[i];
+    if (!part) continue;
+    out = out.length === 0 ? part : out + sep + part;
+  }
+  return out;
 }
 
 export function getMaterialDescription(material: {
@@ -36,16 +62,17 @@ export function getMaterialDescription(material: {
   dimensions?: string;
   finish?: string;
 }) {
-  return [
-    material.grade,
-    material.substance,
-    material.materialType,
-    material.shape,
-    material.dimensions,
-    material.finish
-  ]
-    .filter((p) => !!p)
-    .join(" ");
+  return joinTruthy(
+    [
+      material.grade,
+      material.substance,
+      material.materialType,
+      material.shape,
+      material.dimensions,
+      material.finish
+    ],
+    " "
+  );
 }
 
 export function getMaterialId(material: {
@@ -56,14 +83,15 @@ export function getMaterialId(material: {
   dimensions?: string;
   finish?: string;
 }) {
-  return [
-    material.grade,
-    material.substanceCode,
-    material.materialTypeCode,
-    material.shapeCode,
-    material.dimensions,
-    material.finish
-  ]
-    .filter((p) => !!p)
-    .join("-");
+  return joinTruthy(
+    [
+      material.grade,
+      material.substanceCode,
+      material.materialTypeCode,
+      material.shapeCode,
+      material.dimensions,
+      material.finish
+    ],
+    "-"
+  );
 }

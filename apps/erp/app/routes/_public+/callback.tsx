@@ -8,7 +8,7 @@ import {
 } from "@carbon/auth";
 import { refreshAccessToken } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { setCompanyId } from "@carbon/auth/company.server";
+import { getCompanyId, setCompanyId } from "@carbon/auth/company.server";
 import {
   destroyAuthSession,
   flash,
@@ -57,12 +57,21 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const companies = await serviceRole
     .from("userToCompany")
-    .select("companyId")
+    .select("companyId, ...company(companyGroupId)")
     .eq("userId", userId);
+
+  const cookieCompanyId = getCompanyId(request);
+  const match = (companies.data?.find((c) => c.companyId === cookieCompanyId) ??
+    companies.data?.[0]) as
+    | { companyId: string; companyGroupId: string | null }
+    | undefined;
+  const companyId = match?.companyId;
+  const companyGroupId = match?.companyGroupId ?? "";
 
   const authSession = await refreshAccessToken(
     refreshToken,
-    companies.data?.[0]?.companyId
+    companyId,
+    companyGroupId
   );
 
   if (!authSession) {

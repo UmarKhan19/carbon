@@ -2,11 +2,12 @@ import bwipjs from "@bwip-js/node";
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
-import { formatCityStatePostalCode } from "@carbon/utils";
+import { formatCityStatePostalCode, formatDate } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import { generateQRCode } from "../qr/qr-code";
 import type { PDF } from "../types";
+import { getRegistrationFooter } from "../utils/shared";
 import { Header, Note, Template } from "./components";
 
 interface PackingSlipProps extends PDF {
@@ -45,20 +46,6 @@ const tw = createTw({
   }
 });
 
-const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return null;
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric"
-    });
-  } catch {
-    return dateStr;
-  }
-};
-
 const PackingSlipPDF = ({
   company,
   customer,
@@ -73,6 +60,7 @@ const PackingSlipPDF = ({
   paymentTerm,
   shippingMethod,
   title = "Packing Slip",
+  locale,
   trackedEntities,
   thumbnails
 }: PackingSlipProps) => {
@@ -97,12 +85,19 @@ const PackingSlipPDF = ({
         keywords: meta?.keywords ?? "packing slip",
         subject: meta?.subject ?? "Packing Slip"
       }}
+      footerLabel={getRegistrationFooter(
+        company.name,
+        company.countryCode,
+        company.taxId
+      )}
+      footerDocumentId={shipment?.shipmentId}
     >
       <Header
         company={company}
         title="Packing Slip"
         documentId={shipment?.shipmentId}
         date={shipment?.postingDate}
+        locale={locale}
       />
 
       {/* Ship To */}
@@ -136,7 +131,9 @@ const PackingSlipPDF = ({
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
               {shipment?.postingDate && (
-                <Text>Date: {formatDate(shipment.postingDate)}</Text>
+                <Text>
+                  Date: {formatDate(shipment.postingDate, undefined, locale)}
+                </Text>
               )}
               {sourceDocument && sourceDocumentId && (
                 <Text>

@@ -156,7 +156,6 @@ export default function PurchasingRFQLine() {
             id={rfqId}
             lineId={lineId}
             type="Purchasing Request for Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

@@ -22,6 +22,7 @@ declare global {
       VERCEL_ENV: string;
       QUICKBOOKS_CLIENT_ID: string;
       XERO_CLIENT_ID: string;
+      DEFAULT_LANGUAGE: string;
     };
   }
 }
@@ -64,6 +65,8 @@ declare global {
       STRIPE_WEBHOOK_SECRET: string;
       STRIPE_BYPASS_COMPANY_IDS: string;
       STRIPE_BYPASS_USER_IDS: string;
+      GTM_URL: string;
+      GTM_EVENTS_API_SECRET_KEY: string;
       SUPABASE_ANON_KEY: string;
       SUPABASE_URL: string;
       SUPABASE_DB_URL: string;
@@ -77,6 +80,7 @@ declare global {
       INNGEST_EVENT_KEY: string;
       XERO_CLIENT_SECRET: string;
       XERO_WEBHOOK_SECRET: string;
+      DEFAULT_LANGUAGE: string;
     }
   }
 }
@@ -285,6 +289,14 @@ export const STRIPE_BYPASS_COMPANY_IDS = getEnv("STRIPE_BYPASS_COMPANY_IDS", {
 export const STRIPE_BYPASS_USER_IDS = getEnv("STRIPE_BYPASS_USER_IDS", {
   isRequired: false
 });
+export const GTM_URL = getEnv("GTM_URL", {
+  isRequired: false,
+  isSecret: false
+});
+export const GTM_EVENTS_API_SECRET_KEY = getEnv("GTM_EVENTS_API_SECRET_KEY", {
+  isRequired: false,
+  isSecret: true
+});
 export const REDIS_URL = getEnv("REDIS_URL", {
   isRequired: true,
   isSecret: true
@@ -346,6 +358,12 @@ export const SUPABASE_ANON_KEY = getEnv("SUPABASE_ANON_KEY", {
   isSecret: false
 });
 
+export const DEFAULT_LANGUAGE =
+  getEnv("DEFAULT_LANGUAGE", {
+    isSecret: false,
+    isRequired: false
+  }) ?? "en";
+
 export const RATE_LIMIT = parseInt(
   getEnv("RATE_LIMIT", { isRequired: false, isSecret: false }) || "5",
   10
@@ -404,7 +422,8 @@ export function getBrowserEnv() {
     SUPABASE_URL,
     VERCEL_ENV,
     VERCEL_URL,
-    XERO_CLIENT_ID
+    XERO_CLIENT_ID,
+    DEFAULT_LANGUAGE
   };
 }
 

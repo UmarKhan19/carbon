@@ -15,7 +15,7 @@ msgstr ""
 
 #. placeholder {0}: attribute.name
 #. placeholder {1}: activeStep + 1
-#: apps/mes/app/components/JobOperation/components/Step.tsx:434
+#: apps/mes/app/components/JobOperation/components/Step.tsx:435
 msgid "{0} - Set {1}"
 msgstr "{0} — Набор {1}"
 
@@ -33,21 +33,21 @@ msgstr "{0} доступно"
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
 #. placeholder {1}: operation.targetQuantity
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:639
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:853
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1812
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:638
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:852
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1811
 msgid "{0} of {1}"
 msgstr "{0} из {1}"
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:876
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:875
 msgid "{0} of {1} complete"
 msgstr "{0} из {1} завершено"
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1836
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1835
 msgid "{0} of {1} completed"
 msgstr "{0} из {1} завершено"
 
@@ -66,16 +66,16 @@ msgstr "Настройки аккаунта"
 
 #: apps/mes/app/components/AppSidebar.tsx:199
 #: apps/mes/app/routes/x+/active.tsx:69
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:409
-#: apps/mes/app/routes/x+/timecard.tsx:424
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:411
+#: apps/mes/app/routes/x+/timecard.tsx:429
 msgid "Active"
 msgstr "Активные"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1019
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1018
 msgid "Actual"
 msgstr "Факт"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:431
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:433
 msgid "Add"
 msgstr "Добавить"
 
@@ -102,11 +102,11 @@ msgstr "Все"
 msgid "Are you sure you want to close out this operation? This will end all active production events for this operation."
 msgstr "Вы уверены, что хотите завершить эту операцию? Это прекратит все активные производственные события для данной операции."
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2381
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2380
 msgid "Are you sure you want to delete this step?"
 msgstr "Вы уверены, что хотите удалить этот шаг?"
 
-#: apps/mes/app/routes/x+/timecard.tsx:495
+#: apps/mes/app/routes/x+/timecard.tsx:500
 msgid "Are you sure you want to delete this timecard? This cannot be undone."
 msgstr "Вы уверены, что хотите удалить этот табель? Это действие нельзя отменить."
 
@@ -132,7 +132,7 @@ msgstr "Исполнитель"
 msgid "Attach File"
 msgstr "Прикрепить файл"
 
-#: apps/mes/app/routes/_public+/login.tsx:190
+#: apps/mes/app/routes/_public+/login.tsx:197
 msgid "Authentication Error"
 msgstr "Ошибка аутентификации"
 
@@ -164,11 +164,11 @@ msgstr "Заблокировано {0}"
 msgid "Blocking"
 msgstr "Блокирующие"
 
-#: apps/mes/app/routes/_public+/callback.tsx:153
+#: apps/mes/app/routes/_public+/callback.tsx:160
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
 msgstr "Но не волнуйтесь. Вы можете использовать функцию восстановления пароля, чтобы запросить новую волшебную ссылку."
 
-#: apps/mes/app/routes/_public+/login.tsx:249
+#: apps/mes/app/routes/_public+/login.tsx:256
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "Выполняя вход, вы соглашаетесь с <0>Условиями использования</0> и <1>Политикой конфиденциальности.</1>"
 
@@ -177,16 +177,16 @@ msgstr "Выполняя вход, вы соглашаетесь с <0>Усло�
 #: apps/mes/app/components/Feedback.tsx:139
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:268
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:139
-#: apps/mes/app/components/JobOperation/components/Step.tsx:556
-#: apps/mes/app/components/JobOperation/components/Step.tsx:604
+#: apps/mes/app/components/JobOperation/components/Step.tsx:557
+#: apps/mes/app/components/JobOperation/components/Step.tsx:605
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:658
 #: apps/mes/app/components/Suggestion.tsx:199
-#: apps/mes/app/routes/x+/timecard.tsx:408
-#: apps/mes/app/routes/x+/timecard.tsx:505
+#: apps/mes/app/routes/x+/timecard.tsx:413
+#: apps/mes/app/routes/x+/timecard.tsx:510
 msgid "Cancel"
 msgstr "Отмена"
 
-#: apps/mes/app/routes/_public+/login.tsx:159
+#: apps/mes/app/routes/_public+/login.tsx:166
 msgid "Carbon Logo"
 msgstr "Логотип Carbon"
 
@@ -194,11 +194,11 @@ msgstr "Логотип Carbon"
 msgid "Cards"
 msgstr "Карточки"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:475
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:474
 msgid "Chat"
 msgstr "Чат"
 
-#: apps/mes/app/routes/_public+/login.tsx:168
+#: apps/mes/app/routes/_public+/login.tsx:175
 msgid "Check your email"
 msgstr "Проверьте вашу электронную почту"
 
@@ -221,20 +221,20 @@ msgstr "Очистить поиск"
 
 #: apps/mes/app/components/TimeCardButton.tsx:90
 #: apps/mes/app/components/TimeCardButton.tsx:97
-#: apps/mes/app/routes/x+/timecard.tsx:264
-#: apps/mes/app/routes/x+/timecard.tsx:319
+#: apps/mes/app/routes/x+/timecard.tsx:267
+#: apps/mes/app/routes/x+/timecard.tsx:324
 msgid "Clock In"
 msgstr "Отметить приход"
 
 #: apps/mes/app/components/TimeCardButton.tsx:71
 #: apps/mes/app/components/TimeCardButton.tsx:78
-#: apps/mes/app/routes/x+/timecard.tsx:253
-#: apps/mes/app/routes/x+/timecard.tsx:322
+#: apps/mes/app/routes/x+/timecard.tsx:256
+#: apps/mes/app/routes/x+/timecard.tsx:327
 msgid "Clock Out"
 msgstr "Отметить уход"
 
-#. placeholder {0}: formatTime(openEntry.clockIn)
-#: apps/mes/app/routes/x+/timecard.tsx:272
+#. placeholder {0}: formatTime(openEntry.clockIn, locale)
+#: apps/mes/app/routes/x+/timecard.tsx:275
 msgid "Clocked in since {0}"
 msgstr "На смене с {0}"
 
@@ -246,7 +246,7 @@ msgstr "Закрыть"
 msgid "Close Anyways"
 msgstr "Всё равно закрыть"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2129
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2128
 msgid "Close Out"
 msgstr "Завершить"
 
@@ -287,7 +287,7 @@ msgstr "Компания"
 msgid "Complete"
 msgstr "Завершить"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:632
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:631
 msgid "Completed"
 msgstr "Завершено"
 
@@ -299,18 +299,18 @@ msgstr "Консоль"
 msgid "Console Mode"
 msgstr "Режим консоли"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1103
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1102
 msgid "Consumed expired"
 msgstr "Потреблено истекшее"
 
 #. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
-#: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:333
+#: packages/react/src/CreateableCombobox.tsx:338
+#: packages/react/src/CreateableMultiSelect.tsx:355
 msgid "Create {0}"
 msgstr "Создать {0}"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2002
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2001
 #: apps/mes/app/routes/x+/operations.tsx:473
 msgid "Customer"
 msgstr "Заказчик"
@@ -319,44 +319,44 @@ msgstr "Заказчик"
 msgid "Dark Mode"
 msgstr "Тёмная тема"
 
-#: apps/mes/app/routes/x+/timecard.tsx:316
+#: apps/mes/app/routes/x+/timecard.tsx:321
 msgid "Date"
 msgstr "Дата"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2029
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2028
 msgid "Deadline"
 msgstr "Срок"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1135
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1134
 msgid "Default Storage Unit"
 msgstr "Хранилище по умолчанию"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:613
-#: apps/mes/app/routes/x+/timecard.tsx:457
-#: apps/mes/app/routes/x+/timecard.tsx:517
+#: apps/mes/app/components/JobOperation/components/Step.tsx:614
+#: apps/mes/app/routes/x+/timecard.tsx:462
+#: apps/mes/app/routes/x+/timecard.tsx:522
 msgid "Delete"
 msgstr "Удалить"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2380
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2379
 msgid "Delete Step"
 msgstr "Удалить шаг"
 
-#. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString()
-#: apps/mes/app/routes/x+/timecard.tsx:488
+#. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
+#: apps/mes/app/routes/x+/timecard.tsx:493
 msgid "Delete Timecard ({0})"
 msgstr "Удалить табель ({0})"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2016
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:284
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2015
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:286
 #: apps/mes/app/routes/x+/operations.tsx:474
 msgid "Description"
 msgstr "Описание"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:457
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:456
 msgid "Details"
 msgstr "Детали"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:224
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:226
 msgid "Dispatch not found"
 msgstr "Наряд не найден"
 
@@ -369,7 +369,7 @@ msgstr "Отображение"
 msgid "Down"
 msgstr "Простой"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1483
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1482
 msgid "Download"
 msgstr "Скачать"
 
@@ -385,15 +385,15 @@ msgstr "Перетаскивание {0} отменено."
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:580
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:681
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2048
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:579
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:680
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2047
 #: apps/mes/app/components/Kanban/components/ItemCard.tsx:229
 #: apps/mes/app/components/OperationsList.tsx:187
 msgid "Due {0}"
 msgstr "Срок {0}"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:660
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:659
 #: apps/mes/app/routes/x+/operations.tsx:475
 msgid "Due Date"
 msgstr "Срок выполнения"
@@ -407,15 +407,15 @@ msgid "Duplicate serial number"
 msgstr "Дублирующийся серийный номер"
 
 #: apps/mes/app/routes/x+/operations.tsx:476
-#: apps/mes/app/routes/x+/timecard.tsx:325
+#: apps/mes/app/routes/x+/timecard.tsx:330
 msgid "Duration"
 msgstr "Длительность"
 
-#: apps/mes/app/routes/x+/timecard.tsx:445
+#: apps/mes/app/routes/x+/timecard.tsx:450
 msgid "Edit"
 msgstr "Редактировать"
 
-#: apps/mes/app/routes/_public+/login.tsx:229
+#: apps/mes/app/routes/_public+/login.tsx:236
 msgid "Email Address"
 msgstr "Электронная почта"
 
@@ -435,11 +435,11 @@ msgstr "Завершить операции"
 msgid "Enter PIN for {0}"
 msgstr "Введите PIN для {0}"
 
-#: apps/mes/app/routes/_public+/callback.tsx:146
+#: apps/mes/app/routes/_public+/callback.tsx:153
 msgid "Error"
 msgstr "Ошибка"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1016
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1015
 msgid "Estimated"
 msgstr "План"
 
@@ -460,7 +460,7 @@ msgid "Failed to fetch storageUnits"
 msgstr "Не удалось получить единицы хранения"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:385
+#: apps/mes/app/components/JobOperation/components/Step.tsx:386
 msgid "Failed to upload file: {0}"
 msgstr "Не удалось загрузить файл: {0}"
 
@@ -478,11 +478,11 @@ msgstr "Обратная связь"
 msgid "File size exceeds 10MB limit"
 msgstr "Размер файла превышает ограничение в 10 МБ"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1410
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1409
 msgid "Files"
 msgstr "Файлы"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1413
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1412
 msgid "Files related to the job and the opportunity line."
 msgstr "Файлы, связанные с заданием и позицией заказа."
 
@@ -490,7 +490,7 @@ msgstr "Файлы, связанные с заданием и позицией �
 msgid "Filter"
 msgstr "Фильтр"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:107
+#: apps/mes/app/components/TimeCardWarning.tsx:109
 msgid "Forgot to Clock Out?"
 msgstr "Забыли отметить уход?"
 
@@ -502,7 +502,7 @@ msgstr "Возникла техническая проблема? Обратит
 msgid "I understand and want to complete without issuing"
 msgstr "Я понимаю и хочу завершить без выдачи"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:140
+#: apps/mes/app/components/TimeCardWarning.tsx:142
 msgid "I'm Still Working"
 msgstr "Я ещё работаю"
 
@@ -543,47 +543,47 @@ msgstr "равно"
 msgid "is any of"
 msgstr "любое из"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1216
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1215
 msgid "Issue"
 msgstr "Выдать"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:975
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:974
 msgid "Issue Material"
 msgstr "Выдать материал"
 
 #: apps/mes/app/components/AdjustInventory.tsx:164
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1979
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1978
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:314
 msgid "Item"
 msgstr "Номенклатура"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:517
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:516
 msgid "Item Master"
 msgstr "Карточка номенклатуры"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1990
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1989
 msgid "Job"
 msgstr "Задание"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:508
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:507
 msgid "Job Details"
 msgstr "Детали задания"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:502
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:501
 msgid "Job Traveler"
 msgstr "Маршрутный лист"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1118
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1286
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1117
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1285
 msgid "Kit"
 msgstr "Комплект"
 
 #: apps/mes/app/components/JobOperation/components/Controls.tsx:182
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2180
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2179
 msgid "Labor"
 msgstr "Трудозатраты"
 
-#: apps/mes/app/routes/_public+/_layout.tsx:30
+#: apps/mes/app/routes/_public+/_layout.tsx:31
 msgid "Let's build something"
 msgstr "Давайте создадим что-то"
 
@@ -601,7 +601,7 @@ msgid "Location"
 msgstr "Расположение"
 
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:97
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2119
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2118
 msgid "Log Completed"
 msgstr "Записать готовые"
 
@@ -620,7 +620,7 @@ msgid "Log rework for {0}"
 msgstr "Записать доработку для {0}"
 
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:95
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2102
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2101
 msgid "Log Scrap"
 msgstr "Записать брак"
 
@@ -629,12 +629,12 @@ msgstr "Записать брак"
 msgid "Log scrap for {0}"
 msgstr "Записать брак для {0}"
 
-#: apps/mes/app/routes/_public+/callback.tsx:160
+#: apps/mes/app/routes/_public+/callback.tsx:167
 msgid "Login"
 msgstr "Вход"
 
 #: apps/mes/app/components/JobOperation/components/Controls.tsx:198
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2213
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2212
 msgid "Machine"
 msgstr "Станок"
 
@@ -643,7 +643,7 @@ msgstr "Станок"
 msgid "Maintenance"
 msgstr "Обслуживание"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:543
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:545
 msgid "Maintenance Completed"
 msgstr "Обслуживание завершено"
 
@@ -659,20 +659,20 @@ msgstr "Списать номенклатуру со склада вручную
 msgid "matches"
 msgstr "соответствует"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:962
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:961
 msgid "Materials"
 msgstr "Материалы"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:837
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1796
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:836
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1795
 msgid "Maximum number of records reached"
 msgstr "Достигнуто максимальное количество записей"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:463
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:462
 msgid "Model"
 msgstr "Модель"
 
-#: apps/mes/app/routes/x+/timecard.tsx:435
+#: apps/mes/app/routes/x+/timecard.tsx:440
 msgid "More options"
 msgstr "Дополнительные действия"
 
@@ -695,26 +695,26 @@ msgstr "Должно быть между {minValue} и {maxValue} {unitOfMeasure
 
 #: apps/mes/app/components/TimeCardButton.tsx:105
 #: apps/mes/app/components/TimeCardButton.tsx:115
-#: apps/mes/app/routes/x+/timecard.tsx:242
+#: apps/mes/app/routes/x+/timecard.tsx:245
 msgid "My Hours"
 msgstr "Мои часы"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1427
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1426
 msgid "Name"
 msgstr "Имя"
 
-#: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:255
+#: packages/react/src/CreateableCombobox.tsx:258
+#: packages/react/src/CreateableMultiSelect.tsx:274
 msgid "New"
 msgstr "Новое"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:848
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1807
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:847
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1806
 msgid "New Record"
 msgstr "Новая запись"
 
-#: apps/mes/app/routes/x+/timecard.tsx:295
-#: apps/mes/app/routes/x+/timecard.tsx:299
+#: apps/mes/app/routes/x+/timecard.tsx:300
+#: apps/mes/app/routes/x+/timecard.tsx:304
 msgid "Next"
 msgstr "Далее"
 
@@ -743,7 +743,7 @@ msgstr "Доступные серийные номера не найдены"
 msgid "No dispatches assigned to you"
 msgstr "Нет нарядов, назначенных вам"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1442
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1441
 msgid "No files"
 msgstr "Нет файлов"
 
@@ -757,7 +757,7 @@ msgstr "Без влияния"
 msgid "No maintenance scheduled for today"
 msgstr "На сегодня обслуживание не запланировано"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1031
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1030
 msgid "No materials"
 msgstr "Нет материалов"
 
@@ -765,7 +765,7 @@ msgstr "Нет материалов"
 msgid "No operators"
 msgstr "Нет операторов"
 
-#: packages/react/src/CreateableMultiSelect.tsx:285
+#: packages/react/src/CreateableMultiSelect.tsx:304
 #: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "Опция не найдена."
@@ -800,15 +800,15 @@ msgstr "Ничего не найдено"
 msgid "No scheduled time"
 msgstr "Нет запланированного времени"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1622
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1621
 msgid "No serial numbers"
 msgstr "Нет серийных номеров"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:475
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:477
 msgid "No spare parts added yet"
 msgstr "Запасные части ещё не добавлены"
 
-#: apps/mes/app/routes/x+/timecard.tsx:337
+#: apps/mes/app/routes/x+/timecard.tsx:342
 msgid "No time entries for this week"
 msgstr "Нет записей учёта времени за эту неделю"
 
@@ -861,15 +861,15 @@ msgstr "Выполнено оператором"
 msgid "Optional"
 msgstr "Опционально"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1715
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1714
 msgid "Parameters"
 msgstr "Параметры"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1010
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1009
 msgid "Part"
 msgstr "Деталь"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:541
+#: apps/mes/app/components/JobOperation/components/Step.tsx:542
 msgid "Passed Inspection"
 msgstr "Контроль пройден"
 
@@ -901,7 +901,7 @@ msgstr "Пожалуйста, зафиксируйте все шаги этой 
 msgid "Please select an item"
 msgstr "Пожалуйста, выберите номенклатуру"
 
-#: apps/mes/app/routes/x+/timecard.tsx:280
+#: apps/mes/app/routes/x+/timecard.tsx:285
 msgid "Prev"
 msgstr "Назад"
 
@@ -913,8 +913,8 @@ msgstr "Профилактическое"
 msgid "Priority"
 msgstr "Приоритет"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:472
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:516
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:471
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:518
 msgid "Procedure"
 msgstr "Процедура"
 
@@ -922,7 +922,7 @@ msgstr "Процедура"
 msgid "Process"
 msgstr "Процесс"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:926
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:925
 msgid "Process Parameters"
 msgstr "Параметры процесса"
 
@@ -936,7 +936,7 @@ msgstr "Прогресс"
 
 #: apps/mes/app/components/AdjustInventory.tsx:170
 #: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:236
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2245
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2244
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:336
 msgid "Quantity"
 msgstr "Количество"
@@ -953,17 +953,17 @@ msgid "Recent"
 msgstr "Недавние"
 
 #: apps/mes/app/components/JobOperation/components/Step.tsx:205
-#: apps/mes/app/components/JobOperation/components/Step.tsx:567
+#: apps/mes/app/components/JobOperation/components/Step.tsx:568
 msgid "Record"
 msgstr "Записать"
 
 #. placeholder {0}: activeStep + 1
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:805
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1771
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:804
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1770
 msgid "Record {0}"
 msgstr "Запись {0}"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:511
+#: apps/mes/app/components/JobOperation/components/Step.tsx:512
 msgid "Remove"
 msgstr "Удалить"
 
@@ -979,7 +979,7 @@ msgstr "Удалить фильтр"
 msgid "Remove Inventory"
 msgstr "Списать запас"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:460
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:462
 msgid "Remove part"
 msgstr "Удалить деталь"
 
@@ -987,12 +987,12 @@ msgstr "Удалить деталь"
 msgid "Sales Order"
 msgstr "Заказ на продажу"
 
-#: apps/mes/app/routes/x+/timecard.tsx:401
+#: apps/mes/app/routes/x+/timecard.tsx:406
 msgid "Save"
 msgstr "Сохранить"
 
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:65
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1599
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1598
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:364
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:484
 msgid "Scan"
@@ -1003,7 +1003,7 @@ msgid "Scan or enter serial number"
 msgstr "Сканируйте или введите серийный номер"
 
 #: apps/mes/app/components/AppSidebar.tsx:189
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:451
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:450
 #: apps/mes/app/routes/x+/operations.tsx:423
 msgid "Schedule"
 msgstr "Расписание"
@@ -1013,7 +1013,7 @@ msgstr "Расписание"
 msgid "Scrap Reason"
 msgstr "Причина брака"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:649
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:648
 msgid "Scrapped"
 msgstr "Списано в брак"
 
@@ -1031,21 +1031,21 @@ msgstr "Поиск операторов..."
 
 #: apps/mes/app/components/Filter/ActiveFilters.tsx:166
 #: apps/mes/app/components/Filter/Filter.tsx:163
-#: packages/react/src/Combobox.tsx:193
-#: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:275
+#: packages/react/src/Combobox.tsx:235
+#: packages/react/src/CreateableCombobox.tsx:278
+#: packages/react/src/CreateableMultiSelect.tsx:177
+#: packages/react/src/CreateableMultiSelect.tsx:294
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "Поиск..."
 
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:69
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:94
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1666
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1665
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:368
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:488
-#: packages/react/src/Combobox.tsx:111
-#: packages/react/src/CreateableCombobox.tsx:121
+#: packages/react/src/Combobox.tsx:148
+#: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
 msgid "Select"
 msgstr "Выбрать"
@@ -1089,12 +1089,12 @@ msgid "Select Serial Number"
 msgstr "Выберите серийный номер"
 
 #: apps/mes/app/components/Feedback.tsx:160
-#: apps/mes/app/components/JobOperation/components/Chat.tsx:222
+#: apps/mes/app/components/JobOperation/components/Chat.tsx:224
 #: apps/mes/app/components/Suggestion.tsx:220
 msgid "Send"
 msgstr "Отправить"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1609
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1608
 msgid "Serial"
 msgstr "Серийный"
 
@@ -1116,32 +1116,32 @@ msgstr "Серийный номер недоступен"
 msgid "Serial number is required"
 msgstr "Серийный номер обязателен"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1580
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1579
 msgid "Serial Numbers"
 msgstr "Серийные номера"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:147
+#: apps/mes/app/components/TimeCardWarning.tsx:149
 msgid "Set Clock Out"
 msgstr "Установить время ухода"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:128
+#: apps/mes/app/components/TimeCardWarning.tsx:130
 msgid "Set clock-out time"
 msgstr "Установить время ухода"
 
 #: apps/mes/app/components/JobOperation/components/Controls.tsx:166
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2147
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:2146
 msgid "Setup"
 msgstr "Наладка"
 
-#: apps/mes/app/routes/_public+/login.tsx:239
+#: apps/mes/app/routes/_public+/login.tsx:246
 msgid "Sign in with Email"
 msgstr "Войти по электронной почте"
 
-#: apps/mes/app/routes/_public+/login.tsx:206
+#: apps/mes/app/routes/_public+/login.tsx:213
 msgid "Sign in with Google"
 msgstr "Войти через Google"
 
-#: apps/mes/app/routes/_public+/login.tsx:219
+#: apps/mes/app/routes/_public+/login.tsx:226
 msgid "Sign in with Outlook"
 msgstr "Войти через Outlook"
 
@@ -1153,19 +1153,19 @@ msgstr "Выйти"
 msgid "Signed in as {stationName}"
 msgstr "Вход выполнен как {stationName}"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1430
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1429
 msgid "Size"
 msgstr "Размер"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1013
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1012
 msgid "Source"
 msgstr "Источник"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:424
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:426
 msgid "Spare Parts"
 msgstr "Запасные части"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:487
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:489
 msgid "Spare Parts Used"
 msgstr "Использованные запасные части"
 
@@ -1190,10 +1190,10 @@ msgstr "Статус"
 msgid "Statuses"
 msgstr "Статусы"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:751
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:862
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1712
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1822
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:750
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:861
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1711
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1821
 msgid "Steps"
 msgstr "Шаги"
 
@@ -1239,12 +1239,12 @@ msgstr "В спецификации есть материалы с серийн�
 msgid "Thumbnail"
 msgstr "Миниатюра"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:385
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:387
 msgid "Time Entries"
 msgstr "Записи учёта времени"
 
 #. placeholder {0}: formatDuration(totalDuration)
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:306
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:308
 msgid "Time Worked: {0}"
 msgstr "Отработанное время: {0}"
 
@@ -1261,20 +1261,20 @@ msgid "Total Quantity"
 msgstr "Общее количество"
 
 #. placeholder {0}: formatDuration(totalDuration)
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:546
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:548
 msgid "Total time: {0}"
 msgstr "Общее время: {0}"
 
 #. placeholder {0}: formatTotalHours(entries)
-#: apps/mes/app/routes/x+/timecard.tsx:471
+#: apps/mes/app/routes/x+/timecard.tsx:476
 msgid "Total: {0}"
 msgstr "Итого: {0}"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1596
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1595
 msgid "Tracking Labels"
 msgstr "Этикетки отслеживания"
 
-#: apps/mes/app/components/JobOperation/components/Chat.tsx:211
+#: apps/mes/app/components/JobOperation/components/Chat.tsx:213
 msgid "Type a message..."
 msgstr "Введите сообщение..."
 
@@ -1282,7 +1282,7 @@ msgstr "Введите сообщение..."
 msgid "Unissued serial/batch materials"
 msgstr "Невыданные серийные/партионные материалы"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:264
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:266
 msgid "Unknown"
 msgstr "Неизвестно"
 
@@ -1290,17 +1290,17 @@ msgstr "Неизвестно"
 msgid "Update"
 msgstr "Обновить"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:68
+#: apps/mes/app/components/TimeCardWarning.tsx:70
 msgid "Updated successfully"
 msgstr "Успешно обновлено"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:387
+#: apps/mes/app/components/JobOperation/components/Step.tsx:388
 msgid "Uploaded: {0}"
 msgstr "Загружено: {0}"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:373
+#: apps/mes/app/components/JobOperation/components/Step.tsx:374
 msgid "Uploading {0}"
 msgstr "Загрузка {0}"
 
@@ -1308,26 +1308,26 @@ msgstr "Загрузка {0}"
 msgid "View maintenance dispatch"
 msgstr "Просмотреть наряд на обслуживание"
 
-#: apps/mes/app/routes/_public+/login.tsx:171
+#: apps/mes/app/routes/_public+/login.tsx:178
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Мы отправили вам ссылку для входа в ваш аккаунт."
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1134
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1133
 msgid "WIP"
 msgstr "НЗП"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1952
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:258
+#: apps/mes/app/components/JobOperation/JobOperation.tsx:1951
+#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:260
 #: apps/mes/app/routes/x+/maintenance.tsx:332
 #: apps/mes/app/routes/x+/operations.tsx:366
 msgid "Work Center"
 msgstr "Рабочий центр"
 
-#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
-#: apps/mes/app/components/TimeCardWarning.tsx:119
+#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString(locale)
+#: apps/mes/app/components/TimeCardWarning.tsx:121
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
 msgstr "Вы отметили приход в {0}. Вы можете изменить время ухода ниже или подтвердить, что всё ещё работаете."
 
-#: apps/mes/app/components/TimeCardWarning.tsx:110
+#: apps/mes/app/components/TimeCardWarning.tsx:112
 msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
 msgstr "Вы на смене уже {hoursElapsed} часов. Вы забыли отметить уход?"

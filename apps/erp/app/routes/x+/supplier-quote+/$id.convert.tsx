@@ -10,7 +10,7 @@ import {
   getSupplierQuote,
   selectedLinesValidator
 } from "~/modules/purchasing";
-import { getCompanySettings } from "~/modules/settings";
+import { isApprovalRequired } from "~/modules/shared";
 import { path } from "~/utils/path";
 
 // the edge function grows larger than 2MB - so this is a workaround to avoid the edge function limit
@@ -51,15 +51,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const serviceRole = getCarbonServiceRole();
 
   // Check supplier approval status
-  const [quote, companySettingsResult] = await Promise.all([
+  const [quote, supplierApprovalRequired] = await Promise.all([
     getSupplierQuote(serviceRole, id),
-    getCompanySettings(serviceRole, companyId)
+    isApprovalRequired(serviceRole, "supplier", companyId)
   ]);
 
-  if (companySettingsResult.data?.supplierApproval && quote.data?.supplierId) {
+  if (supplierApprovalRequired && quote.data?.supplierId) {
     const supplier = await getSupplier(serviceRole, quote.data.supplierId);
-    // @ts-expect-error TS2339 - TODO: fix type
-    if (supplier.data?.supplierStatus !== "Active") {
+    if (supplier.data?.status !== "Active") {
       throw redirect(
         path.to.supplierQuoteDetails(id),
         await flash(

@@ -161,7 +161,6 @@ export default function SalesRFQLine() {
             itemId={line?.itemId}
             modelUpload={line ?? undefined}
             type="Request for Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

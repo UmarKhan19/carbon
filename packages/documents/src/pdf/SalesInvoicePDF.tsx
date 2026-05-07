@@ -11,7 +11,7 @@ import {
   getLineTotal,
   getTotal
 } from "../utils/sales-invoice";
-import { getCurrencyFormatter } from "../utils/shared";
+import { getCurrencyFormatter, getRegistrationFooter } from "../utils/shared";
 import {
   Header,
   Note,
@@ -20,10 +20,16 @@ import {
   Template
 } from "./components";
 
+type SalesInvoiceLocations =
+  Database["public"]["Views"]["salesInvoiceLocations"]["Row"] & {
+    customerTaxId?: string | null;
+    customerVatNumber?: string | null;
+  };
+
 interface SalesInvoicePDFProps extends PDF {
   salesInvoice: Database["public"]["Views"]["salesInvoices"]["Row"];
   salesInvoiceLines: Database["public"]["Views"]["salesInvoiceLines"]["Row"][];
-  salesInvoiceLocations: Database["public"]["Views"]["salesInvoiceLocations"]["Row"];
+  salesInvoiceLocations: SalesInvoiceLocations;
   salesInvoiceShipment: Database["public"]["Tables"]["salesInvoiceShipment"]["Row"];
   accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
   companySettings?:
@@ -58,7 +64,6 @@ const SalesInvoicePDF = ({
   accountsReceivableBillingAddress,
   company,
   companySettings,
-  locale,
   meta,
   salesInvoice,
   salesInvoiceShipment,
@@ -68,6 +73,7 @@ const SalesInvoicePDF = ({
   paymentTerms,
   shippingMethods,
   thumbnails,
+  locale,
   title = "Invoice"
 }: SalesInvoicePDFProps) => {
   const {
@@ -78,6 +84,8 @@ const SalesInvoicePDF = ({
     customerStateProvince,
     customerPostalCode,
     customerCountryName,
+    customerTaxId,
+    customerVatNumber,
     customerEori,
     invoiceCustomerName,
     invoiceAddressLine1,
@@ -116,6 +124,12 @@ const SalesInvoicePDF = ({
         keywords: meta?.keywords ?? "sales invoice",
         subject: meta?.subject ?? "Invoice"
       }}
+      footerLabel={getRegistrationFooter(
+        company.name,
+        company.countryCode,
+        company.taxId
+      )}
+      footerDocumentId={salesInvoice?.invoiceId}
     >
       <Header
         company={company}
@@ -123,6 +137,7 @@ const SalesInvoicePDF = ({
         documentId={salesInvoice?.invoiceId}
         date={salesInvoice?.dateIssued}
         currencyCode={salesInvoice?.currencyCode}
+        locale={locale}
       />
 
       <PartyDetails
@@ -149,6 +164,8 @@ const SalesInvoicePDF = ({
           stateProvince: customerStateProvince,
           postalCode: customerPostalCode,
           countryCode: customerCountryName,
+          taxId: customerTaxId,
+          vatNumber: customerVatNumber,
           eori: customerEori
         }}
         counterPartyLabel="Buyer"
@@ -187,10 +204,16 @@ const SalesInvoicePDF = ({
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
               {salesInvoice?.dateIssued && (
-                <Text>Date Issued: {formatDate(salesInvoice.dateIssued)}</Text>
+                <Text>
+                  Date Issued:{" "}
+                  {formatDate(salesInvoice.dateIssued, undefined, locale)}
+                </Text>
               )}
               {salesInvoice?.dateDue && (
-                <Text>Due Date: {formatDate(salesInvoice.dateDue)}</Text>
+                <Text>
+                  Due Date:{" "}
+                  {formatDate(salesInvoice.dateDue, undefined, locale)}
+                </Text>
               )}
               {salesInvoice?.customerReference && (
                 <Text>Customer Ref: {salesInvoice.customerReference}</Text>

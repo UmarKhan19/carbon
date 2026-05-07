@@ -120,8 +120,6 @@ export default function PurchasingRFQDetailsRoute() {
 
   if (!rfqData) throw new Error("Could not find rfq data");
 
-  const isReadOnly = isRfqLocked(rfqData.rfqSummary.status);
-
   return (
     <VStack spacing={2}>
       <SupplierInteractionState
@@ -146,7 +144,6 @@ export default function PurchasingRFQDetailsRoute() {
             attachments={resolvedFiles}
             id={rfqId}
             type="Purchasing Request for Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

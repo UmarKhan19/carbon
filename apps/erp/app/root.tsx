@@ -12,6 +12,7 @@ import {
   Heading,
   OperatingSystemContextProvider,
   Toaster,
+  TooltipProvider,
   useMount
 } from "@carbon/react";
 import { getPreferenceHeaders, useMode } from "@carbon/remix";
@@ -85,6 +86,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     QUICKBOOKS_CLIENT_ID,
     SUPABASE_ANON_KEY,
     SUPABASE_URL,
+    DEFAULT_LANGUAGE,
     VERCEL_ENV,
     VERCEL_URL,
     XERO_CLIENT_ID
@@ -113,6 +115,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         QUICKBOOKS_CLIENT_ID,
         SUPABASE_ANON_KEY,
         SUPABASE_URL,
+        DEFAULT_LANGUAGE,
         VERCEL_ENV,
         VERCEL_URL,
         XERO_CLIENT_ID
@@ -244,14 +247,16 @@ export default function App() {
     <OperatingSystemContextProvider platform={prefs.platform}>
       <LocaleProvider locale={appLanguage} catalog={linguiCatalog}>
         <I18nProvider locale={prefs.locale}>
-          <Document mode={mode} theme={theme} lang={appLanguage}>
-            <Outlet />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.env = ${JSON.stringify(env)};`
-              }}
-            />
-          </Document>
+          <TooltipProvider delayDuration={200}>
+            <Document mode={mode} theme={theme} lang={appLanguage}>
+              <Outlet />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `window.env = ${JSON.stringify(env)};`
+                }}
+              />
+            </Document>
+          </TooltipProvider>
         </I18nProvider>
       </LocaleProvider>
     </OperatingSystemContextProvider>

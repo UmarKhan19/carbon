@@ -42,7 +42,10 @@ import {
   getCompanySettings
 } from "~/modules/settings";
 import { getCustomFieldsSchemas } from "~/modules/shared/shared.server";
-import { getSavedViews } from "~/modules/shared/shared.service";
+import {
+  getSavedViews,
+  isApprovalRequired
+} from "~/modules/shared/shared.service";
 import {
   getUser,
   getUserClaims,
@@ -117,14 +120,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
-    await destroyAuthSession(request);
+    throw await destroyAuthSession(request);
   }
 
   let company = companies.data?.find((c) => c.companyId === companyId);
 
   if (!company && companies.data?.length) {
     company = companies.data[0];
-    const sessionCookie = await updateCompanySession(request, company.id!);
+    const sessionCookie = await updateCompanySession(
+      request,
+      company.id!,
+      company.companyGroupId ?? ""
+    );
     const companyIdCookie = setCompanyId(company.id!);
     throw redirect(path.to.authenticatedRoot, {
       headers: [
@@ -149,7 +156,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     auditLogEnabled,
     company,
     companies: companies.data ?? [],
-    companySettings: companySettings.data,
+    companySettings: companySettings.data ?? null,
     customFields: customFields.data ?? [],
     defaults: defaults.data,
     integrations: integrations.data ?? [],
@@ -159,6 +166,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     role: claims?.role,
     user: user.data,
     savedViews: savedViews.data ?? [],
+    supplierApprovalRequired: isApprovalRequired(client, "supplier", companyId),
     openClockEntry: companySettings.data?.timeCardEnabled
       ? getOpenClockEntry(client, userId, companyId)
       : null

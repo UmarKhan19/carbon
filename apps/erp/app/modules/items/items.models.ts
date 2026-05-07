@@ -1,3 +1,4 @@
+import { TRANSACTION_SURFACES } from "@carbon/utils";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import {
@@ -31,6 +32,13 @@ export const itemTrackingTypes = [
   "Serial",
   "Batch"
 ] as const;
+
+export const ItemTrackingType = {
+  Inventory: "Inventory",
+  NonInventory: "Non-Inventory",
+  Serial: "Serial",
+  Batch: "Batch"
+} as const satisfies Record<string, (typeof itemTrackingTypes)[number]>;
 
 export const itemCostingMethods = [
   "Standard",
@@ -128,7 +136,8 @@ export const itemValidator = z.object({
   // Fixed Duration + Make items only: when true, the produced expiry is
   // capped by the earliest input expiry — the output cannot outlast its
   // raw materials. Falls back to today + days when no input has a date.
-  shelfLifeInheritEarliestInputExpiry: zfd.checkbox(),
+  // Mirrors the inventory-settings "Calculate from BOM" copy.
+  shelfLifeCalculateFromBom: zfd.checkbox(),
   requiresInspection: zfd.checkbox().optional()
 });
 
@@ -203,22 +212,20 @@ const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
     )
     .refine(
       (data: z.infer<T>) =>
-        !data.shelfLifeInheritEarliestInputExpiry ||
+        !data.shelfLifeCalculateFromBom ||
         data.shelfLifeMode === "Fixed Duration",
       {
-        message:
-          "Inheriting the earliest input expiry only applies to Fixed Duration shelf life",
-        path: ["shelfLifeInheritEarliestInputExpiry"]
+        message: "Calculate from BOM only applies to Fixed Duration shelf life",
+        path: ["shelfLifeCalculateFromBom"]
       }
     )
     .refine(
       (data: z.infer<T>) =>
-        !data.shelfLifeInheritEarliestInputExpiry ||
-        data.replenishmentSystem !== "Buy",
+        !data.shelfLifeCalculateFromBom || data.replenishmentSystem !== "Buy",
       {
         message:
-          "Inheriting input expiry requires a BoM - only Make or Buy and Make items qualify",
-        path: ["shelfLifeInheritEarliestInputExpiry"]
+          "Calculate from BOM requires a BoM - only Make or Buy and Make items qualify",
+        path: ["shelfLifeCalculateFromBom"]
       }
     ) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
 
@@ -492,11 +499,11 @@ export const methodOperationValidator = z
 export const itemCostValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   itemPostingGroupId: zfd.text(z.string().optional()),
-  // costingMethod: z.enum(itemCostingMethods, {
-  //   errorMap: (issue, ctx) => ({
-  //     message: "Costing method is required",
-  //   }),
-  // }),
+  costingMethod: z.enum(itemCostingMethods, {
+    errorMap: () => ({
+      message: "Costing method is required"
+    })
+  }),
   // standardCost: zfd.numeric(z.number().min(0)),
   unitCost: zfd.numeric(z.number().min(0))
   // costIsAdjusted: zfd.checkbox(),
@@ -665,7 +672,7 @@ export const pickMethodWithShelfLifeValidator = pickMethodValidator
       shelfLifeDays: zfd.numeric(z.number().positive().optional()),
       shelfLifeTriggerProcessId: zfd.text(z.string().optional()),
       shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional(),
-      shelfLifeInheritEarliestInputExpiry: zfd.checkbox()
+      shelfLifeCalculateFromBom: zfd.checkbox()
     })
   )
   .refine(
@@ -700,12 +707,11 @@ export const pickMethodWithShelfLifeValidator = pickMethodValidator
   )
   .refine(
     (data) =>
-      !data.shelfLifeInheritEarliestInputExpiry ||
+      !data.shelfLifeCalculateFromBom ||
       data.shelfLifeMode === "Fixed Duration",
     {
-      message:
-        "Inheriting the earliest input expiry only applies to Fixed Duration shelf life",
-      path: ["shelfLifeInheritEarliestInputExpiry"]
+      message: "Calculate from BOM only applies to Fixed Duration shelf life",
+      path: ["shelfLifeCalculateFromBom"]
     }
   );
 
@@ -766,3 +772,71 @@ export const unitOfMeasureValidator = z.object({
   code: z.string().min(1, { message: "Code is required" }).max(10),
   name: z.string().min(1, { message: "Name is required" }).max(50)
 });
+
+export const itemRuleSeverities = ["error", "warn"] as const;
+
+export const itemRuleOperators = [
+  "eq",
+  "neq",
+  "in",
+  "notIn",
+  "isSet",
+  "isNotSet",
+  "gt",
+  "lt"
+] as const;
+
+const itemRuleConditionValueSchema = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.array(z.union([z.string(), z.number(), z.boolean()])),
+  z.null()
+]);
+
+const itemRuleConditionSchema = z.object({
+  field: z.string().min(1, { message: "Field is required" }),
+  op: z.enum(itemRuleOperators),
+  value: itemRuleConditionValueSchema.optional()
+});
+
+export const itemRuleMatchKinds = ["all", "any", "none"] as const;
+
+export const itemRuleConditionAstSchema = z.object({
+  kind: z.enum(itemRuleMatchKinds),
+  conditions: z
+    .array(itemRuleConditionSchema)
+    .min(1, { message: "At least one condition is required" })
+});
+
+// conditionAst arrives as a JSON-encoded string in form data; pre-parse before validating.
+const itemRuleConditionAstFormField = z.preprocess((raw) => {
+  if (typeof raw !== "string") return raw;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return raw;
+  }
+}, itemRuleConditionAstSchema);
+
+export const itemRuleValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }).max(120),
+  description: zfd.text(z.string().optional()),
+  message: z.string().min(1, { message: "Message is required" }).max(500),
+  severity: z.enum(itemRuleSeverities),
+  active: zfd.checkbox(),
+  surfaces: zfd
+    .repeatableOfType(z.enum(TRANSACTION_SURFACES))
+    .refine((arr) => arr.length >= 1, {
+      message: "Pick at least one surface"
+    }),
+  conditionAst: itemRuleConditionAstFormField
+});
+
+export const itemRuleAssignmentValidator = z.object({
+  itemId: z.string().min(1, { message: "Item ID is required" }),
+  ruleId: z.string().min(1, { message: "Rule ID is required" })
+});
+
+export const itemRuleAcknowledgeValidator = zfd.checkbox();

@@ -186,7 +186,7 @@ export function IssueMaterialModal({
           // small destructive Badge for expired stock — pops in the dropdown
           // far better than a plain "EXPIRED" prefix in the helper line.
           const label = expired ? (
-            <span className="flex items-center gap-2">
+            <span key={sn.id} className="flex items-center gap-2">
               <span className="truncate">{labelText}</span>
               <Badge variant="red">Expired</Badge>
             </span>
@@ -264,8 +264,6 @@ export function IssueMaterialModal({
     const remaining = total - (material.quantityIssued ?? 0);
     return Math.max(1, remaining);
   }, [material, parentIdIsSerialized]);
-
-  const [quantity, setQuantity] = useState(initialQuantity);
 
   // Serial numbers selection state
   const [selectedSerialNumbers, setSelectedSerialNumbers] = useState<
@@ -348,7 +346,6 @@ export function IssueMaterialModal({
     async (itemId: string) => {
       setSelectedItemId(itemId);
       setItemDetails(null);
-      setQuantity(1);
       setSelectedSerialNumbers([{ index: 0, id: "" }]);
       setSelectedBatchNumbers([{ index: 0, id: "", quantity: 1 }]);
       setSerialErrors({});
@@ -931,9 +928,15 @@ export function IssueMaterialModal({
                 materialId: material?.id ?? "",
                 jobOperationId: operationId,
                 itemId: selectedItemId,
-                quantity:
+                // Default to the remaining qty, but never submit zero/negative
+                // — that's how this modal ends up posting an invalid form and
+                // the server bouncing it silently when a material has been
+                // fully issued already.
+                quantity: Math.max(
+                  1,
                   (material?.estimatedQuantity ?? 0) -
-                  (material?.quantityIssued ?? 0),
+                    (material?.quantityIssued ?? 0)
+                ),
                 adjustmentType: "Negative Adjmt."
               }}
               fetcher={inventoryFetcher}
@@ -1000,29 +1003,21 @@ export function IssueMaterialModal({
                           </Select>
                         </div>
                       )}
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Quantity
-                        </label>
-
-                        <NumberField
-                          value={quantity}
-                          onChange={setQuantity}
-                          minValue={0.01}
-                        >
-                          <NumberInputGroup className="relative">
-                            <NumberInput name="quantity" />
-                            <NumberInputStepper>
-                              <NumberIncrementStepper>
-                                <LuChevronUp size="1em" strokeWidth="3" />
-                              </NumberIncrementStepper>
-                              <NumberDecrementStepper>
-                                <LuChevronDown size="1em" strokeWidth="3" />
-                              </NumberDecrementStepper>
-                            </NumberInputStepper>
-                          </NumberInputGroup>
-                        </NumberField>
-                      </div>
+                      {/*
+                        Use the form-aware `<Number>` (FormNumberInput) so
+                        `name="quantity"` lands on react-aria's NumberField
+                        and a hidden form input is rendered with the numeric
+                        value. The previous inline NumberField put `name` on
+                        NumberInput (the display slot), which react-aria
+                        ignores — the form submitted with no `quantity` key,
+                        the server's zod schema rejected it, and the action
+                        returned a 400 the modal silently swallowed.
+                      */}
+                      <FormNumberInput
+                        name="quantity"
+                        label="Quantity"
+                        minValue={0.01}
+                      />
                     </>
                   )}
                 </div>

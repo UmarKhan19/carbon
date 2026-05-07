@@ -75,17 +75,17 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   // Check supplier approval status
-  const companySettingsCheck = await getCompanySettings(serviceRole, companyId);
-  if (
-    companySettingsCheck.data?.supplierApproval &&
-    purchaseOrder.data.supplierId
-  ) {
+  const supplierApprovalRequired = await isApprovalRequired(
+    serviceRole,
+    "supplier",
+    companyId
+  );
+  if (supplierApprovalRequired && purchaseOrder.data.supplierId) {
     const supplier = await getSupplier(
       serviceRole,
       purchaseOrder.data.supplierId
     );
-    // @ts-expect-error TS2339 - TODO: fix type
-    if (supplier.data?.supplierStatus !== "Active") {
+    if (supplier.data?.status !== "Active") {
       throw redirect(
         path.to.purchaseOrder(orderId),
         await flash(
