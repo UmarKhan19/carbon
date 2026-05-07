@@ -477,7 +477,7 @@ msgid "Add Group"
 msgstr "समूह जोड़ें"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:519
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:613
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:618
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:612
 msgid "Add Item"
 msgstr "आइटम जोड़ें"
@@ -717,7 +717,7 @@ msgid "Amount Type"
 msgstr "राशि प्रकार"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:697
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:742
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:749
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:738
 msgid "An item cannot be added to itself."
 msgstr "एक आइटम को स्वयं में नहीं जोड़ा जा सकता।"
@@ -1471,9 +1471,9 @@ msgstr "घर वापस जाएं"
 
 #: apps/erp/app/routes/x+/traceability+/graph.tsx:228
 msgid "Back to traceability"
-msgstr "ट्रेसेबिलिटी पर वापस जाएं"
+msgstr "ट्रेसेबिलिटी पर वापस जाएं<<<<<<< HEAD"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:988
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1001
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:992
 msgid "Backflush"
 msgstr "बैकफ्लश"
@@ -1538,7 +1538,7 @@ msgid "Batch Size"
 msgstr "बैच आकार"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1253
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:166
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:171
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:177
 msgid "Batch Tracking"
 msgstr "बैच ट्रैकिंग"
@@ -1550,7 +1550,7 @@ msgstr "बीटा"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:507
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:533
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:602
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:607
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:721
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:601
 msgid "Bill of Material"
@@ -2484,7 +2484,7 @@ msgstr "कंसोल ऑपरेटर"
 #: apps/erp/app/components/Form/Items.tsx:37
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:502
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1297
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:208
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:213
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:210
 msgid "Consumable"
 msgstr "उपभोग्य"
@@ -3623,7 +3623,7 @@ msgstr "डिफ़ॉल्ट स्रोत"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageFields.tsx:18
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:134
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:938
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:245
 msgid "Default Storage Unit"
 msgstr "डिफ़ॉल्ट स्टोरेज यूनिट"
@@ -4081,7 +4081,7 @@ msgstr "विभाग"
 #: apps/erp/app/modules/items/ui/Methods/MethodOperationsTable.tsx:28
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:142
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:142
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:863
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:872
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1245
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1526
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2346
@@ -5547,7 +5547,7 @@ msgstr "आइटम डेटा लोड करने में विफल"
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:93
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:711
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:766
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:773
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:112
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:111
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:161
@@ -5872,9 +5872,9 @@ msgstr "अंतिम रूप दें"
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:194
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:1063
 msgid "Finish"
-msgstr "फिनिश"
+msgstr "फिनिश<<<<<<< HEAD"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:894
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:903
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:905
 msgid "Finish To"
 msgstr "समाप्त करने के लिए"
@@ -5898,9 +5898,9 @@ msgstr "फिनिशेस"
 #: apps/erp/app/routes/onboarding+/user.tsx:102
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:155
 msgid "First Name"
-msgstr "पहला नाम"
+msgstr "पहला नाम<<<<<<< HEAD"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:999
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1012
 msgid "First Operation"
 msgstr "पहली ऑपरेशन"
 
@@ -6940,8 +6940,8 @@ msgstr "कुंजी"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1117
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1134
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1068
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1085
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1082
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1099
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1072
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1089
 msgid "Kit"
@@ -7473,8 +7473,8 @@ msgstr "आकार {0} को डिफ़ॉल्ट बनाएं?"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:416
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:436
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:92
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:194
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:913
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:199
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:922
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:195
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:924
 msgid "Make to Order"
@@ -7586,7 +7586,7 @@ msgstr "मिलान जोड़े"
 #: apps/erp/app/components/Form/Items.tsx:33
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1299
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:654
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:210
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:215
 #: apps/erp/app/modules/production/ui/Jobs/JobEstimatesVsActuals.tsx:270
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:212
 msgid "Material"
@@ -7756,7 +7756,7 @@ msgstr "विधि संचालन"
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:975
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:988
 #: apps/erp/app/modules/items/ui/Methods/MethodMaterialsTable.tsx:69
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:954
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:963
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:213
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:966
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMaterialForm.tsx:247
@@ -9021,7 +9021,7 @@ msgid "Open task details"
 msgstr "कार्य विवरण खोलें"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1076
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1027
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1040
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:203
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationStepRecordsTable.tsx:70
 #: apps/erp/app/modules/production/ui/Jobs/ProductionEventForm.tsx:93
@@ -9295,7 +9295,7 @@ msgstr "प्रकार के अनुसार पेरेटो"
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:776
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1301
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:583
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:212
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:217
 #: apps/erp/app/modules/production/ui/Projection/DemandProjectionTable.tsx:194
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:215
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:301
@@ -9961,9 +9961,9 @@ msgstr "प्रकाशित करें"
 
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:617
 msgid "Published by Carbon"
-msgstr "Carbon द्वारा प्रकाशित"
+msgstr "Carbon द्वारा प्रकाशित<<<<<<< HEAD"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:901
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:910
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:912
 msgid "Pull From"
 msgstr "से खींचें"
@@ -9981,8 +9981,8 @@ msgstr "से खींचें"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:415
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:435
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:91
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:192
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:912
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:197
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:921
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:193
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:923
 msgid "Pull from Inventory"
@@ -10081,8 +10081,8 @@ msgstr "खरीद मात्रा"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:413
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:433
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:89
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:190
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:910
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:195
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:919
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:191
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:921
 msgid "Purchase to Order"
@@ -10229,7 +10229,7 @@ msgstr "मात्रा"
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:568
 #: apps/erp/app/modules/items/ui/Item/ItemCostHistoryChart.tsx:298
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:385
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:850
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:859
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:3048
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:3180
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:428
@@ -11297,7 +11297,7 @@ msgstr "शनिवार"
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:59
 #: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:96
 #: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:114
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1098
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1112
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2861
 #: apps/erp/app/modules/production/ui/Jobs/ProductionEventForm.tsx:129
 #: apps/erp/app/modules/production/ui/Jobs/ProductionQuantityForm.tsx:111
@@ -11763,9 +11763,9 @@ msgstr "उन समूहों का चयन करें जिन्ह�
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:202
 msgid "Selected"
-msgstr "चयनित"
+msgstr "चयनित<<<<<<< HEAD"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:998
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1011
 msgid "Selected Operation"
 msgstr "चयनित ऑपरेशन"
 
@@ -11861,7 +11861,7 @@ msgid "Serial or Batch Tracking Required"
 msgstr "सीरियल या बैच ट्रैकिंग आवश्यक है"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1251
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:177
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:182
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:175
 msgid "Serial Tracking"
 msgstr "सीरियल ट्रैकिंग"
@@ -12625,7 +12625,7 @@ msgstr "स्टोरेज प्रकार"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:609
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:458
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1011
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:966
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:975
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1056
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:682
 #: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:439
@@ -12667,8 +12667,8 @@ msgstr "उप-विभाग"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1117
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1131
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1068
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1082
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1096
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1072
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1086
 msgid "Subassembly"
@@ -13830,7 +13830,7 @@ msgstr "इकाई"
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:310
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:322
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:314
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:873
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:882
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2385
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:231
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:885
@@ -14665,9 +14665,9 @@ msgstr "इन्वेंटरी जॉब पूरा होने पर �
 
 #: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:83
 msgid "Why is the expiration being changed?"
-msgstr "समाप्ति क्यों बदली जा रही है?"
+msgstr "समाप्ति क्यों बदली जा रही है?<<<<<<< HEAD"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:928
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:937
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:244
 msgid "WIP"
 msgstr "WIP"
