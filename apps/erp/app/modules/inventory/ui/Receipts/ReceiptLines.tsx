@@ -26,9 +26,6 @@ import {
   ModalTitle,
   NumberField,
   NumberInput,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
   SplitButton,
   Tooltip,
   TooltipContent,
@@ -42,14 +39,7 @@ import { labelSizes } from "@carbon/utils";
 import { parseDate } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
-import {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import {
   LuCalendar,
   LuCircleAlert,
@@ -73,6 +63,7 @@ import { DocumentPreview, Empty, ItemThumbnail } from "~/components";
 import DocumentIcon from "~/components/DocumentIcon";
 import { Enumerable } from "~/components/Enumerable";
 import FileDropzone from "~/components/FileDropzone";
+import { StorageUnitDrillSelect } from "~/components/Form/StorageUnitDrillSelect";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useRouteData, useUser } from "~/hooks";
@@ -82,7 +73,7 @@ import type {
   Receipt,
   ReceiptLine
 } from "~/modules/inventory";
-import { StorageUnitForm, splitValidator } from "~/modules/inventory";
+import { splitValidator } from "~/modules/inventory";
 import { getDocumentType } from "~/modules/shared/shared.service";
 import { useItems } from "~/stores";
 import type { StorageItem } from "~/types";
@@ -475,18 +466,23 @@ function ReceiptLineItem({
             </VStack>
           </HStack>
 
-          <StorageUnit
-            locationId={line.locationId}
-            storageUnitId={line.storageUnitId}
-            isReadOnly={isReadOnly}
-            onChange={(storageUnit) => {
-              onUpdate({
-                lineId: line.id!,
-                field: "storageUnitId",
-                value: storageUnit
-              });
-            }}
-          />
+          <div className="flex flex-col items-start gap-1 min-w-[140px] text-sm">
+            <label className="text-xs text-muted-foreground">
+              Storage Unit
+            </label>
+            <StorageUnitDrillSelect
+              locationId={line.locationId}
+              value={line.storageUnitId}
+              isReadOnly={isReadOnly}
+              onChange={(storageUnit) => {
+                onUpdate({
+                  lineId: line.id!,
+                  field: "storageUnitId",
+                  value: storageUnit
+                });
+              }}
+            />
+          </div>
         </div>
       </div>
       {line.requiresBatchTracking && (
@@ -1171,293 +1167,6 @@ function SplitReceiptLineModal({
         </ValidatedForm>
       </ModalContent>
     </Modal>
-  );
-}
-
-type StorageUnitTreeRow = {
-  id: string;
-  name: string;
-  parentId: string | null;
-  depth: number;
-  ancestorPath: string[];
-};
-
-// Receipt-local: pulls from storageUnits_recursive so the dropdown can
-// indent each row by depth and group children under their parent. The
-// shared useStorageUnits hook stays flat to avoid disturbing the many
-// other call sites; only Receipt benefits from the tree view today.
-function useStorageUnitsTree(locationId?: string | null) {
-  const fetcher = useFetcher<{
-    data: StorageUnitTreeRow[] | null;
-    error: unknown;
-  }>();
-
-  useEffect(() => {
-    if (locationId) {
-      fetcher.load(path.to.api.storageUnitsTree(locationId));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locationId]);
-
-  return fetcher.data?.data ?? [];
-}
-
-// Drill-down picker. Picking a parent doesn't select it as the value — it
-// pushes onto the breadcrumb stack and reveals that node's children. Click
-// the row body to select; click the chevron to drill in. Breadcrumb chips
-// at the top let the user pop back up. Search flattens the view: every
-// matching node is shown with its full path until the box is cleared.
-function StorageUnit({
-  locationId,
-  storageUnitId,
-  isReadOnly,
-  onChange
-}: {
-  locationId: string | null;
-  storageUnitId: string | null;
-  isReadOnly: boolean;
-  onChange: (storageUnit: string) => void;
-}) {
-  const rows = useStorageUnitsTree(locationId);
-  const newStorageUnitModal = useDisclosure();
-  const [created, setCreated] = useState<string>("");
-  const [open, setOpen] = useState(false);
-  const [stack, setStack] = useState<string[]>([]);
-  const [search, setSearch] = useState("");
-  const triggerRef = useRef<HTMLButtonElement>(null);
-
-  const byId = useMemo(() => {
-    const m = new Map<string, StorageUnitTreeRow>();
-    rows.forEach((r) => m.set(r.id, r));
-    return m;
-  }, [rows]);
-
-  const childrenOf = useMemo(() => {
-    const m = new Map<string | null, StorageUnitTreeRow[]>();
-    rows.forEach((r) => {
-      const arr = m.get(r.parentId) ?? [];
-      arr.push(r);
-      m.set(r.parentId, arr);
-    });
-    m.forEach((arr) => arr.sort((a, b) => a.name.localeCompare(b.name)));
-    return m;
-  }, [rows]);
-
-  const currentParentId = stack.length === 0 ? null : stack[stack.length - 1];
-  const currentChildren = childrenOf.get(currentParentId) ?? [];
-  const breadcrumb = stack
-    .map((id) => byId.get(id))
-    .filter((r): r is StorageUnitTreeRow => Boolean(r));
-
-  const renderPath = useCallback(
-    (row: StorageUnitTreeRow) =>
-      (row.ancestorPath ?? [])
-        .slice(0, -1)
-        .map((id) => byId.get(id)?.name)
-        .filter(Boolean)
-        .join(" / "),
-    [byId]
-  );
-
-  const searchResults = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return null;
-    return rows.filter((r) => {
-      if (r.name?.toLowerCase().includes(q)) return true;
-      return (r.ancestorPath ?? []).some((id) =>
-        byId.get(id)?.name?.toLowerCase().includes(q)
-      );
-    });
-  }, [search, rows, byId]);
-
-  if (!locationId) return null;
-
-  const selectedRow = storageUnitId ? byId.get(storageUnitId) : undefined;
-  const triggerLabel = selectedRow?.name ?? "";
-
-  const reset = () => {
-    setStack([]);
-    setSearch("");
-  };
-
-  const select = (id: string) => {
-    onChange(id);
-    setOpen(false);
-    reset();
-  };
-
-  return (
-    <div className="flex flex-col items-start gap-1 min-w-[140px] text-sm">
-      <label className="text-xs text-muted-foreground">Storage Unit</label>
-      <Popover
-        open={open}
-        onOpenChange={(o) => {
-          setOpen(o);
-          if (!o) reset();
-        }}
-      >
-        <PopoverTrigger asChild>
-          <button
-            ref={triggerRef}
-            type="button"
-            disabled={isReadOnly}
-            className={cn(
-              "flex h-8 w-full items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 text-sm text-left",
-              "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              isReadOnly && "opacity-60 cursor-not-allowed",
-              !triggerLabel && "text-muted-foreground"
-            )}
-          >
-            <span className="truncate">{triggerLabel || "Select"}</span>
-            {storageUnitId && !isReadOnly ? (
-              <span
-                role="button"
-                tabIndex={-1}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChange("");
-                }}
-                className="flex h-4 w-4 items-center justify-center rounded hover:bg-muted"
-              >
-                <LuX className="h-3 w-3" />
-              </span>
-            ) : null}
-          </button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[280px] p-0" align="start">
-          <div className="flex flex-wrap items-center gap-1 border-b px-2 py-1.5">
-            <button
-              type="button"
-              onClick={() => setStack([])}
-              className={cn(
-                "rounded px-1.5 py-0.5 text-xs hover:bg-muted",
-                stack.length === 0
-                  ? "text-foreground font-medium"
-                  : "text-muted-foreground"
-              )}
-            >
-              All
-            </button>
-            {breadcrumb.map((row, i) => (
-              <span key={row.id} className="flex items-center gap-1">
-                <span className="text-muted-foreground text-xs">/</span>
-                <button
-                  type="button"
-                  onClick={() => setStack(stack.slice(0, i + 1))}
-                  className={cn(
-                    "rounded px-1.5 py-0.5 text-xs hover:bg-muted",
-                    i === breadcrumb.length - 1
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground"
-                  )}
-                >
-                  {row.name}
-                </button>
-              </span>
-            ))}
-          </div>
-          <div className="border-b px-2 py-1.5">
-            <Input
-              autoFocus
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search…"
-              className="h-7 text-sm"
-            />
-          </div>
-          <div className="max-h-[260px] overflow-y-auto py-1">
-            {searchResults ? (
-              searchResults.length === 0 ? (
-                <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                  No matches
-                </div>
-              ) : (
-                searchResults.map((row) => (
-                  <button
-                    key={row.id}
-                    type="button"
-                    onClick={() => select(row.id)}
-                    className="flex w-full flex-col items-start px-3 py-1.5 text-left text-sm hover:bg-muted"
-                  >
-                    <span>{row.name}</span>
-                    {renderPath(row) && (
-                      <span className="text-xs text-muted-foreground">
-                        {renderPath(row)}
-                      </span>
-                    )}
-                  </button>
-                ))
-              )
-            ) : currentChildren.length === 0 ? (
-              <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                No storage units
-              </div>
-            ) : (
-              currentChildren.map((row) => {
-                const hasChildren = (childrenOf.get(row.id) ?? []).length > 0;
-                return (
-                  <div
-                    key={row.id}
-                    className="flex items-stretch hover:bg-muted"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => select(row.id)}
-                      className="flex-1 px-3 py-1.5 text-left text-sm"
-                    >
-                      {row.name}
-                    </button>
-                    {hasChildren && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setStack([...stack, row.id]);
-                          setSearch("");
-                        }}
-                        className="flex w-7 items-center justify-center border-l text-muted-foreground hover:text-foreground"
-                        aria-label={`Open ${row.name}`}
-                      >
-                        ›
-                      </button>
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-          <div className="border-t px-2 py-1.5">
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                reset();
-                newStorageUnitModal.onOpen();
-                setCreated(search);
-              }}
-              className="w-full rounded px-2 py-1 text-left text-xs text-muted-foreground hover:bg-muted"
-            >
-              + New storage unit{search ? `: "${search}"` : ""}
-            </button>
-          </div>
-        </PopoverContent>
-      </Popover>
-      {newStorageUnitModal.isOpen && (
-        <StorageUnitForm
-          locationId={locationId}
-          type="modal"
-          onClose={() => {
-            setCreated("");
-            newStorageUnitModal.onClose();
-            triggerRef.current?.click();
-          }}
-          initialValues={{
-            name: created,
-            locationId: locationId,
-            storageTypeIds: []
-          }}
-        />
-      )}
-    </div>
   );
 }
 

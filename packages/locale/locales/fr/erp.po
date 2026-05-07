@@ -1557,7 +1557,7 @@ msgid "Batch number"
 msgstr "Numéro de lot"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:397
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:780
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:776
 msgid "Batch Number"
 msgstr "Numéro de lot"
 
@@ -1977,7 +1977,7 @@ msgstr "Le client Carbon n'est pas disponible"
 #: apps/erp/app/components/Documents.tsx:194
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1510
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1219
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:412
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -3828,7 +3828,7 @@ msgstr "Supprimer le type d'employé"
 msgid "Delete Failure Mode"
 msgstr "Supprimer le mode de défaillance"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:550
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:546
 msgid "Delete file"
 msgstr "Supprimer le fichier"
 
@@ -3953,7 +3953,7 @@ msgstr "Supprimer la raison"
 msgid "Delete Receipt"
 msgstr "Supprimer le reçu"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:379
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:370
 msgid "Delete receipt line"
 msgstr "Supprimer la ligne de reçu"
 
@@ -5049,7 +5049,7 @@ msgstr ""
 msgid "Engineering Contact"
 msgstr "Contact Technique"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:820
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:816
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Entrez un numéro de lot avant de définir la date d'expiration"
 
@@ -5308,7 +5308,7 @@ msgid "Expected Receipt Date"
 msgstr "Date de réception prévue"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:402
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:805
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:801
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5320,7 +5320,7 @@ msgstr "Date de réception prévue"
 msgid "Expiration Date"
 msgstr "Date d'expiration"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1027
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1023
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "Date d'expiration (s'applique à tous les numéros de série de cette ligne)"
 
@@ -7230,7 +7230,7 @@ msgstr "Probabilité"
 msgid "Line Item Comparison"
 msgstr "Comparaison des articles"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:359
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:350
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
 msgid "Line options"
@@ -10372,7 +10372,7 @@ msgstr "Quantités"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:223
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:409
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1160
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1156
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -10619,7 +10619,7 @@ msgstr "ID de reçu"
 msgid "Receipt Line"
 msgstr "Ligne de réception"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:241
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:232
 msgid "Receipt Lines"
 msgstr "Lignes de réception"
 
@@ -12588,7 +12588,7 @@ msgstr "Diviser la ligne"
 msgid "Split off quantity"
 msgstr "Quantité à diviser"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:371
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:362
 msgid "Split receipt line"
 msgstr "Diviser la ligne de reçu"
 

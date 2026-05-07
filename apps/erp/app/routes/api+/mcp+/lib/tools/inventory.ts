@@ -83,11 +83,6 @@ import {
   upsertWarehouseTransferLine,
   getDefaultStorageUnitForJob,
 } from "~/modules/inventory/inventory.service";
-import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import {
-  evaluateLinesForSurface,
-  isBlocked,
-} from "~/modules/items/itemRules.server";
 import {
   inventoryAdjustmentValidator,
   batchPropertyOrderValidator,
@@ -1003,35 +998,10 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      // Item-rule eval gate. MCP has no acknowledge UI — block on ANY violation
-      // (errors and warnings). Operators must use the UI flow when they need to
-      // override warns. Service role for item / storageUnit reads bypasses RLS.
-      const serviceRole = getCarbonServiceRole();
-      const { violations, ruleNames } = await evaluateLinesForSurface({
-        client: serviceRole,
-        companyId: ctx.companyId,
-        userId: ctx.userId,
-        surface: "inventoryAdjustment",
-        lines: [
-          {
-            lineId: params.inventoryAdjustment.itemId,
-            itemId: params.inventoryAdjustment.itemId,
-            storageUnitId: params.inventoryAdjustment.storageUnitId ?? null,
-            quantity: Number(params.inventoryAdjustment.quantity ?? 0),
-            locationId: params.inventoryAdjustment.locationId,
-          },
-        ],
-      });
-      if (violations.length > 0 && isBlocked(violations, false)) {
-        return toMcpResult({
-          data: null,
-          error: {
-            message: `Item rules blocked the adjustment: ${violations
-              .map((v) => `${ruleNames[v.ruleId] ?? v.ruleId}: ${v.message}`)
-              .join("; ")}`,
-          },
-        });
-      }
+      // TODO(item-rules): MCP path bypasses item-rule gate. This wrapper is
+      // dead code — actual MCP dispatch goes through direct-executor.ts
+      // calling the service directly. Place the gate in direct-executor or
+      // inside insertManualInventoryAdjustment itself.
       const result = await insertManualInventoryAdjustment(ctx.client, { ...params.inventoryAdjustment, companyId: ctx.companyId, createdBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: inventory_insertManualInventoryAdjustment"),

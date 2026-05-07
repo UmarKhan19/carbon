@@ -1557,7 +1557,7 @@ msgid "Batch number"
 msgstr "バッチ番号"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:397
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:780
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:776
 msgid "Batch Number"
 msgstr "バッチ番号"
 
@@ -1977,7 +1977,7 @@ msgstr "Carbonクライアントは利用できません"
 #: apps/erp/app/components/Documents.tsx:194
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1510
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1219
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:412
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -3828,7 +3828,7 @@ msgstr "従業員タイプを削除"
 msgid "Delete Failure Mode"
 msgstr "失敗モードを削除"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:550
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:546
 msgid "Delete file"
 msgstr "ファイルを削除"
 
@@ -3953,7 +3953,7 @@ msgstr "理由を削除"
 msgid "Delete Receipt"
 msgstr "領収書を削除"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:379
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:370
 msgid "Delete receipt line"
 msgstr "領収書行を削除"
 
@@ -5049,7 +5049,7 @@ msgstr ""
 msgid "Engineering Contact"
 msgstr "エンジニアリング担当者"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:820
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:816
 msgid "Enter a batch number before setting the expiration date"
 msgstr "有効期限を設定する前にバッチ番号を入力してください"
 
@@ -5308,7 +5308,7 @@ msgid "Expected Receipt Date"
 msgstr "予想受取日"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:402
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:805
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:801
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5320,7 +5320,7 @@ msgstr "予想受取日"
 msgid "Expiration Date"
 msgstr "有効期限"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1027
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1023
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "有効期限（このラインのすべてのシリアルに適用）"
 
@@ -7230,7 +7230,7 @@ msgstr "可能性"
 msgid "Line Item Comparison"
 msgstr "明細項目の比較"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:359
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:350
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
 msgid "Line options"
@@ -10372,7 +10372,7 @@ msgstr "数量"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:223
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:409
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1160
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1156
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -10619,7 +10619,7 @@ msgstr "受取ID"
 msgid "Receipt Line"
 msgstr "領収書行"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:241
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:232
 msgid "Receipt Lines"
 msgstr "領収書行"
 
@@ -12588,7 +12588,7 @@ msgstr "ラインを分割"
 msgid "Split off quantity"
 msgstr "分割数量"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:371
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:362
 msgid "Split receipt line"
 msgstr "領収書行を分割"
 

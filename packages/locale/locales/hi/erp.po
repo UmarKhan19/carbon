@@ -1557,7 +1557,7 @@ msgid "Batch number"
 msgstr "बैच नंबर"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:397
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:780
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:776
 msgid "Batch Number"
 msgstr "बैच नंबर"
 
@@ -1977,7 +1977,7 @@ msgstr "Carbon क्लाइंट उपलब्ध नहीं है"
 #: apps/erp/app/components/Documents.tsx:194
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:81
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:105
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1510
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1219
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:412
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:202
 #: apps/erp/app/modules/production/ui/Jobs/JobDocuments.tsx:243
@@ -3828,7 +3828,7 @@ msgstr "कर्मचारी प्रकार हटाएं"
 msgid "Delete Failure Mode"
 msgstr "विफलता मोड हटाएं"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:550
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:546
 msgid "Delete file"
 msgstr "फ़ाइल हटाएं"
 
@@ -3953,7 +3953,7 @@ msgstr "कारण हटाएं"
 msgid "Delete Receipt"
 msgstr "रसीद हटाएं"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:379
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:370
 msgid "Delete receipt line"
 msgstr "रसीद लाइन हटाएं"
 
@@ -5049,7 +5049,7 @@ msgstr ""
 msgid "Engineering Contact"
 msgstr "इंजीनियरिंग संपर्क"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:820
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:816
 msgid "Enter a batch number before setting the expiration date"
 msgstr "समाप्ति तारीख सेट करने से पहले एक बैच नंबर दर्ज करें"
 
@@ -5308,7 +5308,7 @@ msgid "Expected Receipt Date"
 msgstr "अपेक्षित प्राप्ति तारीख"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:402
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:805
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:801
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:279
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteForm.tsx:178
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteProperties.tsx:275
@@ -5320,7 +5320,7 @@ msgstr "अपेक्षित प्राप्ति तारीख"
 msgid "Expiration Date"
 msgstr "समाप्ति तारीख"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1027
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1023
 msgid "Expiration Date (applies to all serials on this line)"
 msgstr "समाप्ति तारीख (इस लाइन पर सभी सीरीज़ पर लागू होता है)"
 
@@ -7230,7 +7230,7 @@ msgstr "संभावना"
 msgid "Line Item Comparison"
 msgstr "लाइन आइटम तुलना"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:359
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:350
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
 msgid "Line options"
@@ -10372,7 +10372,7 @@ msgstr "मात्रा"
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:223
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:409
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:215
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1160
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:1156
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1161
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:168
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:685
@@ -10619,7 +10619,7 @@ msgstr "रसीद आईडी"
 msgid "Receipt Line"
 msgstr "रसीद लाइन"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:241
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:232
 msgid "Receipt Lines"
 msgstr "रसीद लाइनें"
 
@@ -12588,7 +12588,7 @@ msgstr "लाइन को विभाजित करें"
 msgid "Split off quantity"
 msgstr "विभाजित करने के लिए मात्रा"
 
-#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:371
+#: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:362
 msgid "Split receipt line"
 msgstr "रसीद लाइन को विभाजित करें"
 
