@@ -993,6 +993,8 @@ export const path = {
     maintenanceSchedules: `${x}/resources/scheduled-maintenance`,
     makeMethodGet: `${x}/items/methods/get`,
     makeMethodSave: `${x}/items/methods/save`,
+    makeMethodFinishTo: (id: string) =>
+      generatePath(`${x}/items/methods/${id}/finish-to`),
     markTrainingComplete: `${x}/resources/assignments/complete`,
     material: (id: string) => generatePath(`${x}/material/${id}`),
     materialCosting: (id: string) =>

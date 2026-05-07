@@ -20,6 +20,7 @@ import {
 import {
   BillOfMaterial,
   BillOfProcess,
+  MakeMethodProperties,
   MakeMethodTools
 } from "~/modules/items/ui/Item";
 import type { MethodItemType, MethodType } from "~/modules/shared";
@@ -131,6 +132,18 @@ export default function ToolMakeMethodPage() {
           )}
         </Await>
       </Suspense>
+
+      <MakeMethodProperties
+        key={`props:${makeMethodId}`}
+        makeMethodId={makeMethod.id}
+        finishToStorageUnitId={
+          (makeMethod as { finishToStorageUnitId?: string | null })
+            .finishToStorageUnitId ?? null
+        }
+        isReadOnly={
+          !permissions.can("update", "parts") || makeMethod.status !== "Draft"
+        }
+      />
 
       <BillOfMaterial
         key={`bom:${makeMethodId}`}

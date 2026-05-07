@@ -38,7 +38,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return { workCenter: workCenter.data };
+  // `workCenters` view currently omits workCenter.defaultStorageUnitId.
+  // Fetch the raw table value so Edit form can prefill this field.
+  const workCenterStorageUnit = await client
+    .from("workCenter")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  const defaultStorageUnitId =
+    (
+      workCenterStorageUnit.data as {
+        defaultStorageUnitId?: string | null;
+      } | null
+    )?.defaultStorageUnitId ?? null;
+
+  return {
+    workCenter: {
+      ...workCenter.data,
+      defaultStorageUnitId
+    }
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {

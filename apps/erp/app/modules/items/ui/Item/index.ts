@@ -10,6 +10,7 @@ import ItemPlanningForm from "./ItemPlanningForm";
 import ItemPurchasingForm from "./ItemPurchasingForm";
 import ItemRiskRegister from "./ItemRiskRegister";
 import ItemSalePriceForm from "./ItemSalePriceForm";
+import MakeMethodProperties from "./MakeMethodProperties";
 import MakeMethodTools from "./MakeMethodTools";
 import PickMethodForm from "./PickMethodForm";
 import SupplierPartForm from "./SupplierPartForm";
@@ -29,6 +30,7 @@ export {
   ItemPurchasingForm,
   ItemRiskRegister,
   ItemSalePriceForm,
+  MakeMethodProperties,
   MakeMethodTools,
   PickMethodForm,
   SupplierPartForm,

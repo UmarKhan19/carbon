@@ -1702,13 +1702,13 @@ msgstr "Ao fazer login, você concorda com os <0>Termos de Serviço</0> e a <1>P
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:343
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:333
 #: apps/erp/app/routes/x+/part+/$itemId.details.tsx:334
-#: apps/erp/app/routes/x+/part+/$itemId.make.$makeMethodId.tsx:204
+#: apps/erp/app/routes/x+/part+/$itemId.make.$makeMethodId.tsx:217
 #: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:436
 #: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.make.$methodId.tsx:137
 #: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:278
 #: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:174
 #: apps/erp/app/routes/x+/tool+/$itemId.details.tsx:269
-#: apps/erp/app/routes/x+/tool+/$itemId.make.$makeMethodId.tsx:161
+#: apps/erp/app/routes/x+/tool+/$itemId.make.$makeMethodId.tsx:174
 msgid "CAD Model"
 msgstr "Modelo CAD"
 
@@ -3630,6 +3630,14 @@ msgstr "Aprovador Padrão"
 #: apps/erp/app/routes/x+/settings+/sales.tsx:612
 msgid "Default CC Recipients"
 msgstr "Destinatários CC Padrão"
+
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:63
+msgid "Default destination shelf for finished output of this make method. Drives `job.finishToStorageUnitId` for new jobs created from this method."
+msgstr ""
+
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:100
+msgid "Default destination storage unit for finished output. Optional."
+msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:272
 msgid "Default for new jobs. Each job can still override this on its details panel."
@@ -5985,6 +5993,14 @@ msgstr "Acabamento"
 msgid "Finish To"
 msgstr "Terminar Em"
 
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:99
+msgid "Finish To Storage Unit"
+msgstr ""
+
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:43
+msgid "Finish-to storage unit saved"
+msgstr ""
+
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:65
 #: apps/erp/app/routes/x+/items+/finishes.tsx:15
 msgid "Finishes"
@@ -7598,6 +7614,10 @@ msgstr "Desativar"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:356
 msgid "Make items cannot be invoiced directly. Change method to Pick to continue."
 msgstr "Itens de fabricação não podem ser faturados diretamente. Altere o método para Coleta para continuar."
+
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:60
+msgid "Make Method Properties"
+msgstr ""
 
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:597
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:455
@@ -11558,6 +11578,7 @@ msgstr "Sábado"
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:166
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:102
 #: apps/erp/app/modules/items/ui/Item/ItemSalePriceForm.tsx:72
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:77
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:152
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:122
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:104
