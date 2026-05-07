@@ -1,10 +1,11 @@
 {
   "name": "@carbon/logger",
   "devDependencies": {
-    "@carbon/config": "*",
-    "tsup": "8.5.1",
-    "typescript": "5.8.3",
-    "vitest": "4.1.4"
+    "@carbon/config": "workspace:*",
+    "sst": "catalog:",
+    "tsup": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": "./src/index.ts"
@@ -17,10 +18,10 @@
     "test": "vitest run",
     "typecheck": "tsgo --noEmit"
   },
-  "version": "*",
+  "version": "0.0.0",
   "dependencies": {
-    "cookie": "1.1.1",
-    "dompurify": "3.4.0",
-    "nanoid": "5.1.7"
+    "cookie": "catalog:",
+    "dompurify": "catalog:",
+    "nanoid": "catalog:"
   }
 }
