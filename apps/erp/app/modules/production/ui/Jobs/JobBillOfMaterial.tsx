@@ -48,6 +48,7 @@ import { Link, useFetcher, useFetchers, useParams } from "react-router";
 import type { z } from "zod";
 import { MethodIcon, MethodItemTypeIcon, TrackingTypeIcon } from "~/components";
 import {
+  Boolean,
   DefaultMethodType,
   Hidden,
   InputControlled,
@@ -229,6 +230,7 @@ const initialMethodMaterial: Omit<Material, "jobMakeMethodId" | "order"> & {
   // @ts-ignore
   itemType: "Item" as const,
   methodType: "Purchase to Order" as const,
+  requiresPicking: true,
   description: "",
   quantity: 1,
   unitCost: 0,
@@ -691,6 +693,7 @@ function MaterialForm({
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: MethodType;
+    requiresPicking: boolean;
     description: string;
     jobOperationId: string;
     unitCost: number;
@@ -704,6 +707,7 @@ function MaterialForm({
   }>({
     itemId: item.data.itemId ?? "",
     methodType: item.data.methodType ?? "Pull from Inventory",
+    requiresPicking: item.data.requiresPicking ?? true,
     description: item.data.description ?? "",
     jobOperationId: item.data.jobOperationId ?? "",
     unitCost: item.data.unitCost ?? 0,
@@ -723,6 +727,7 @@ function MaterialForm({
     setItemData({
       itemId: "",
       methodType: "" as "Pull from Inventory",
+      requiresPicking: true,
       quantity: 1,
       unitCost: 0,
       description: "",
@@ -774,6 +779,7 @@ function MaterialForm({
       unitCost: itemCost.data?.unitCost ?? 0,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
       methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
+      requiresPicking: true,
       requiresBatchTracking: item.data?.itemTrackingType === "Batch",
       requiresSerialTracking: item.data?.itemTrackingType === "Serial",
       storageUnitId: pickMethod.data?.defaultStorageUnitId ?? "",
@@ -803,7 +809,10 @@ function MaterialForm({
           : path.to.jobMaterial(jobId, item.id!)
       }
       method="post"
-      defaultValues={item.data}
+      defaultValues={{
+        ...item.data,
+        requiresPicking: item.data.requiresPicking ?? true
+      }}
       validator={
         ["Draft", "Planned"].includes(job?.status ?? "") ||
         jobOperations?.length === 0
@@ -974,6 +983,13 @@ function MaterialForm({
             locationId={locationId}
             itemId={itemData.itemId}
           />
+          {itemData.methodType === "Pull from Inventory" && (
+            <Boolean
+              name="requiresPicking"
+              label={t`Requires picking`}
+              description={t`Off = stored line-side. The picking list will skip this material.`}
+            />
+          )}
         </div>
       </div>
 

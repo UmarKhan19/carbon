@@ -21,6 +21,7 @@ import {
   redirect,
   useActionData,
   useFetcher,
+  useLoaderData,
   useNavigate,
   useNavigation
 } from "react-router";
@@ -30,7 +31,12 @@ import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermissions(request, { create: "inventory" });
-  return {};
+  const url = new URL(request.url);
+  return {
+    defaultJobId: url.searchParams.get("jobId") ?? undefined,
+    defaultLocationId: url.searchParams.get("locationId") ?? undefined,
+    returnTo: url.searchParams.get("returnTo") ?? undefined
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -149,11 +155,13 @@ function useLocationOptions() {
 }
 
 export default function NewPickingListRoute() {
+  const { defaultJobId, defaultLocationId, returnTo } =
+    useLoaderData<typeof loader>();
   const { t } = useLingui();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const navigate = useNavigate();
-  const onClose = () => navigate(path.to.pickingLists);
+  const onClose = () => navigate(returnTo ?? path.to.pickingLists);
   const isSubmitting = navigation.state === "submitting";
 
   const jobOptions = useJobOptions();
@@ -165,6 +173,10 @@ export default function NewPickingListRoute() {
         <ValidatedForm
           validator={pickingListValidator}
           method="post"
+          defaultValues={{
+            jobId: defaultJobId,
+            locationId: defaultLocationId
+          }}
           className="flex h-full flex-col"
         >
           <DrawerHeader>

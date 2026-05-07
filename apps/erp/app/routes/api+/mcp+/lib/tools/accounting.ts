@@ -217,6 +217,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     {
       description: "get accounts",
       inputSchema: z.object({
+      companyGroupId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -236,6 +237,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     {
       description: "get accounts list",
       inputSchema: z.object({
+      companyGroupId: z.string(),
       args: z.object({
     isGroup: z.boolean().nullable().optional(),
     incomeBalance: z.any().optional(),
@@ -255,6 +257,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     {
       description: "get account categories",
       inputSchema: z.object({
+      companyGroupId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
@@ -364,6 +367,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     {
       description: "get chart of accounts",
       inputSchema: z.object({
+      companyGroupId: z.string(),
       args: z.object({
     incomeBalance: z.enum(["Income Statement", "Balance Sheet", "null"]),
     startDate: z.string().nullable(),
@@ -398,6 +402,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     {
       description: "get currency by code",
       inputSchema: z.object({
+      companyGroupId: z.string(),
       currencyCode: z.string(),
     }),
       annotations: READ_ONLY_ANNOTATIONS,
@@ -413,6 +418,7 @@ export const registerAccountingTools: RegisterTools = (server, ctx) => {
     {
       description: "get currencies",
       inputSchema: z.object({
+      companyGroupId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),

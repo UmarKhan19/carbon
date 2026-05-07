@@ -24,10 +24,21 @@ export function usePermissions() {
   }
 
   const can = useCallback(
-    (action: "view" | "create" | "update" | "delete", feature: string) => {
+    (
+      action: "view" | "create" | "update" | "delete" | "approve",
+      feature: string
+    ) => {
+      const permissionByAction = (
+        data?.permissions?.[feature] as
+          | Partial<Record<string, string[]>>
+          | undefined
+      )?.[action];
+
+      if (!Array.isArray(permissionByAction)) return false;
+
       return (
-        data?.permissions[feature]?.[action].includes("0") ||
-        data?.permissions[feature]?.[action].includes(companyId)
+        permissionByAction.includes("0") ||
+        permissionByAction.includes(companyId)
       );
     },
     [companyId, data?.permissions]

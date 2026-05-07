@@ -132,6 +132,27 @@ async function generatePickingList(client: any, payload: any) {
     throw new Error("Picking lists are disabled for this company");
   }
 
+  // Guard: don't create a draft PL shell when the job has no eligible
+  // pull-from-inventory materials for picking.
+  const { count: eligibleCount, error: eligibleError } = await client
+    .from("jobMaterial")
+    .select("id", { count: "exact", head: true })
+    .eq("jobId", jobId)
+    .eq("companyId", companyId)
+    .eq("methodType", "Pull from Inventory")
+    .gt("quantityToIssue", 0)
+    .eq("requiresPicking", true);
+
+  if (eligibleError) {
+    throw new Error(eligibleError.message ?? "Failed to evaluate picking requirements");
+  }
+
+  if (!eligibleCount || eligibleCount <= 0) {
+    throw new Error(
+      "No pickable materials found for this job. Ensure BOM lines are Pull from Inventory, requiresPicking=true, and quantityToIssue > 0."
+    );
+  }
+
   const pickingListId = await getNextPickingListId(client, companyId);
 
   const { data: pl, error: plError } = await client
@@ -159,7 +180,40 @@ async function generatePickingList(client: any, payload: any) {
     p_user_id: userId,
   });
 
-  if (rpcError) throw new Error(rpcError.message ?? "Failed to generate picking list lines");
+  if (rpcError) {
+    await client
+      .from("pickingList")
+      .delete()
+      .eq("id", pl.id)
+      .eq("companyId", companyId);
+    throw new Error(rpcError.message ?? "Failed to generate picking list lines");
+  }
+
+  const { count: lineCount, error: lineCountError } = await client
+    .from("pickingListLine")
+    .select("id", { count: "exact", head: true })
+    .eq("pickingListId", pl.id)
+    .eq("companyId", companyId);
+
+  if (lineCountError) {
+    await client
+      .from("pickingList")
+      .delete()
+      .eq("id", pl.id)
+      .eq("companyId", companyId);
+    throw new Error(lineCountError.message ?? "Failed to validate generated picking list lines");
+  }
+
+  if (!lineCount || lineCount <= 0) {
+    await client
+      .from("pickingList")
+      .delete()
+      .eq("id", pl.id)
+      .eq("companyId", companyId);
+    throw new Error(
+      "No picking list lines were generated. Review job materials and picking configuration before retrying."
+    );
+  }
 
   return pl;
 }

@@ -477,7 +477,7 @@ msgid "Add Group"
 msgstr "添加组"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:520
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:613
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:615
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:612
 msgid "Add Item"
 msgstr "添加项目"
@@ -727,7 +727,7 @@ msgid "Amount Type"
 msgstr "金额类型"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:698
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:742
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:747
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:738
 msgid "An item cannot be added to itself."
 msgstr "一个项目不能添加到自身。"
@@ -1363,7 +1363,7 @@ msgstr "分配给我"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:179
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:384
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:134
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:86
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:148
 msgid "Assignee"
 msgstr "被指派人"
 
@@ -1462,8 +1462,8 @@ msgstr "自动启动作业"
 msgid "Auto-generate on job release"
 msgstr ""
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:628
-msgid "Auto-generate picking list"
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:599
+msgid "Auto-generate picking list. Controlled at the company level in Settings → Inventory."
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:322
@@ -1505,7 +1505,7 @@ msgstr "返回主页"
 msgid "Back to traceability"
 msgstr "返回可追溯性"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:988
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1004
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:992
 msgid "Backflush"
 msgstr "反冲"
@@ -1570,7 +1570,7 @@ msgid "Batch Size"
 msgstr "批量大小"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1261
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:166
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:167
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:177
 msgid "Batch Tracking"
 msgstr "批次追踪"
@@ -1582,7 +1582,7 @@ msgstr "测试版"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:508
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:534
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:602
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:604
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:721
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:601
 msgid "Bill of Material"
@@ -1898,7 +1898,7 @@ msgstr "无法禁用唯一的活跃价格段。请添加另一个价格段或改
 #: apps/erp/app/modules/users/ui/Groups/GroupsForm.tsx:77
 #: apps/erp/app/routes/share+/quote.$id.tsx:1414
 #: apps/erp/app/routes/share+/quote.$id.tsx:1476
-#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:208
+#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:220
 #: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:227
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:220
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:618
@@ -2488,7 +2488,7 @@ msgstr "确认密码"
 msgid "Confirm Picking List"
 msgstr ""
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:92
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:154
 msgid "Confirmed"
 msgstr ""
 
@@ -2533,7 +2533,7 @@ msgstr "控制台操作员"
 #: apps/erp/app/components/Form/Items.tsx:37
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:501
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1305
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:208
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:209
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:210
 msgid "Consumable"
 msgstr "消耗品"
@@ -2947,6 +2947,10 @@ msgstr "创建工作"
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:338
 msgid "Create Kanban"
 msgstr "创建看板"
+
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:117
+msgid "Create Picking List"
+msgstr ""
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:156
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:434
@@ -3684,7 +3688,7 @@ msgstr "默认来源"
 
 #: apps/erp/app/modules/items/ui/Item/ItemStorageFields.tsx:18
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:134
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:938
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:245
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:190
 msgid "Default Storage Unit"
@@ -4148,7 +4152,7 @@ msgstr "部门"
 #: apps/erp/app/modules/items/ui/Methods/MethodOperationsTable.tsx:28
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:142
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:142
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:863
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:872
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1245
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1526
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2346
@@ -4185,7 +4189,7 @@ msgstr "描述（可选）"
 msgid "Description of Issue"
 msgstr "问题描述"
 
-#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:200
+#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:212
 msgid "Destination Storage Unit ID"
 msgstr ""
 
@@ -4398,7 +4402,7 @@ msgstr "将文件拖放到此处，或点击浏览。"
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr ""
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:89
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:151
 msgid "Due"
 msgstr ""
 
@@ -4429,7 +4433,7 @@ msgstr "截止日期 {0}"
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:247
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:184
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:125
-#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:196
+#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:208
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:844
 #: apps/erp/app/routes/x+/schedule+/operations.tsx:472
 msgid "Due Date"
@@ -5661,7 +5665,7 @@ msgstr "加载项目数据失败"
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:93
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:712
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:766
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:771
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:113
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:111
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:161
@@ -5988,7 +5992,7 @@ msgstr "完成"
 msgid "Finish"
 msgstr "完成"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:894
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:903
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:905
 msgid "Finish To"
 msgstr "完成至"
@@ -6018,7 +6022,7 @@ msgstr "表面处理"
 msgid "First Name"
 msgstr "名字"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:999
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1015
 msgid "First Operation"
 msgstr "首次操作"
 
@@ -6134,17 +6138,13 @@ msgstr "量规类型"
 msgid "Gauges"
 msgstr "量规"
 
-#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:211
+#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:223
 msgid "Generate"
 msgstr ""
 
 #: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:118
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
 msgstr "生成新的4位PIN码。与操作员分享，以便他们可以在MES终端上登录。"
-
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:631
-msgid "Generate a picking list automatically when this job moves to Planned or Released."
-msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/items.tsx:137
 msgid "Generate material IDs and descriptions based on the properties of the material."
@@ -6961,7 +6961,7 @@ msgstr "此窗口内的项目会获得黄色徽章。"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:932
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:424
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:295
-#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:188
+#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:200
 msgid "Job"
 msgstr "工作"
 
@@ -7079,8 +7079,8 @@ msgstr "钥匙"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1125
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1142
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1068
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1085
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1084
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1101
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1072
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1089
 msgid "Kit"
@@ -7436,8 +7436,8 @@ msgstr "加载中..."
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:424
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:168
 #: apps/erp/app/modules/users/ui/Employees/CreateEmployeeModal.tsx:83
-#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:192
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:83
+#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:204
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:145
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:820
 #: apps/erp/app/routes/x+/schedule+/operations.tsx:451
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:158
@@ -7643,8 +7643,8 @@ msgstr "将尺寸 {0} 设为默认值？"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:416
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:436
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:92
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:194
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:913
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:195
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:922
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:195
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:924
 msgid "Make to Order"
@@ -7764,7 +7764,7 @@ msgstr "匹配对"
 #: apps/erp/app/components/Form/Items.tsx:33
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1307
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:653
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:210
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:211
 #: apps/erp/app/modules/production/ui/Jobs/JobEstimatesVsActuals.tsx:270
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:212
 msgid "Material"
@@ -7934,7 +7934,7 @@ msgstr "方法操作"
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:976
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:989
 #: apps/erp/app/modules/items/ui/Methods/MethodMaterialsTable.tsx:69
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:954
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:963
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:214
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:966
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMaterialForm.tsx:247
@@ -8490,7 +8490,7 @@ msgid "New Payment Term"
 msgstr "新付款条款"
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:160
-#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:172
+#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:184
 msgid "New Picking List"
 msgstr ""
 
@@ -8877,7 +8877,7 @@ msgstr "无零件ID"
 msgid "No parts added yet"
 msgstr "还未添加零件"
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:69
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:126
 msgid "No picking lists exist for this job yet."
 msgstr ""
 
@@ -9094,6 +9094,11 @@ msgstr "OEE 影响"
 msgid "of"
 msgstr "的"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:596
+msgid "Off"
+msgstr ""
+
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:990
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:241
 msgid "Off = stored line-side. The picking list will skip this material."
 msgstr ""
@@ -9106,6 +9111,10 @@ msgstr ""
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:396
 msgid "OK"
 msgstr "确定"
+
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:596
+msgid "On"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:133
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:303
@@ -9230,7 +9239,7 @@ msgid "Open task details"
 msgstr "打开任务详情"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1077
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1027
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1043
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:204
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationStepRecordsTable.tsx:70
 #: apps/erp/app/modules/production/ui/Jobs/ProductionEventForm.tsx:93
@@ -9520,7 +9529,7 @@ msgstr "按类型的帕累托"
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:777
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1309
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:582
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:212
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:213
 #: apps/erp/app/modules/production/ui/Projection/DemandProjectionTable.tsx:194
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQLineForm.tsx:215
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:301
@@ -9762,14 +9771,14 @@ msgid "Picking"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:53
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:77
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:139
 msgid "Picking List"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:54
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:101
 #: apps/erp/app/routes/x+/inventory+/picking-lists.tsx:16
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:56
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:105
 #: apps/erp/app/routes/x+/picking-list+/$id.tsx:20
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:250
 msgid "Picking Lists"
@@ -10244,7 +10253,7 @@ msgstr "发布"
 msgid "Published by Carbon"
 msgstr "由 Carbon 发布"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:901
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:910
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:912
 msgid "Pull From"
 msgstr "从以下位置提取"
@@ -10262,8 +10271,8 @@ msgstr "从以下位置提取"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:415
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:435
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:91
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:192
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:912
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:193
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:921
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:193
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:923
 msgid "Pull from Inventory"
@@ -10362,8 +10371,8 @@ msgstr "采购数量"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:413
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:433
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:89
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:190
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:910
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:191
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:919
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:191
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:921
 msgid "Purchase to Order"
@@ -10506,7 +10515,7 @@ msgstr "数量"
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:568
 #: apps/erp/app/modules/items/ui/Item/ItemCostHistoryChart.tsx:298
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:385
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:850
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:859
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:3048
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:3180
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:428
@@ -11145,6 +11154,7 @@ msgid "Requires Inspection"
 msgstr "需要检查"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1093
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:989
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:240
 msgid "Requires picking"
 msgstr ""
@@ -11597,7 +11607,7 @@ msgstr "星期六"
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:59
 #: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:96
 #: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:114
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1098
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1114
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2861
 #: apps/erp/app/modules/production/ui/Jobs/ProductionEventForm.tsx:129
 #: apps/erp/app/modules/production/ui/Jobs/ProductionQuantityForm.tsx:111
@@ -11933,7 +11943,7 @@ msgstr "选择受理人"
 msgid "Select a default approver"
 msgstr "选择默认审批人"
 
-#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:178
+#: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:190
 msgid "Select a job and location to generate a picking list from its bill of materials."
 msgstr ""
 
@@ -12077,7 +12087,7 @@ msgstr "选择应该完成此培训的组"
 msgid "Selected"
 msgstr "已选择"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:998
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1014
 msgid "Selected Operation"
 msgstr "已选择的操作"
 
@@ -12173,7 +12183,7 @@ msgid "Serial or Batch Tracking Required"
 msgstr "序列号或批次跟踪必需"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1259
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:177
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:178
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:175
 msgid "Serial Tracking"
 msgstr "序列追踪"
@@ -12862,7 +12872,7 @@ msgstr "统计验收失败，因此整个批次被视为不符合要求 (ISO 900
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:115
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:158
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:90
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:80
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:142
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:659
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:810
 #: apps/erp/app/routes/x+/quality+/_index.tsx:977
@@ -12972,7 +12982,7 @@ msgstr "存储类型"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:609
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:458
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1012
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:966
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:975
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1077
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:682
 #: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:439
@@ -13014,8 +13024,8 @@ msgstr "子部门"
 
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1125
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1139
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1068
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1082
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1084
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1098
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1072
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:1086
 msgid "Subassembly"
@@ -14168,7 +14178,7 @@ msgstr "未批准的供应商"
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:116
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:178
 msgid "Unassigned"
 msgstr "未分配"
 
@@ -14194,7 +14204,7 @@ msgstr "单位"
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:310
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:322
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:314
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:873
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:882
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2385
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialForm.tsx:232
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:885
@@ -14524,6 +14534,10 @@ msgstr "使用 ... 获取下一个工具 ID"
 #: apps/erp/app/routes/_public+/verify.tsx:182
 msgid "Use a different email"
 msgstr "使用不同的电子邮件"
+
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:130
+msgid "Use Create Picking List to open the drawer and generate one for this job."
+msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/items.tsx:179
 msgid "Use metric system for default material dimensions."
@@ -15040,7 +15054,7 @@ msgstr "当库存工作完成时，谁应该收到通知？"
 msgid "Why is the expiration being changed?"
 msgstr "为什么要更改过期日期？"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:928
+#: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:937
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:244
 msgid "WIP"
 msgstr "在制品"

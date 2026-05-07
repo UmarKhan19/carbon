@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -11,12 +12,14 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { LuCirclePlus } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
-import { Link, redirect, useLoaderData } from "react-router";
+import { Link, redirect, useLoaderData, useNavigate } from "react-router";
 import { Empty } from "~/components";
-import { useDateFormatter } from "~/hooks";
+import { useDateFormatter, usePermissions } from "~/hooks";
 import { getPickingLists } from "~/modules/inventory";
 import { PickingListStatus } from "~/modules/inventory/ui/PickingLists";
+import { getJob } from "~/modules/production";
 import { path, requestReferrer } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -27,7 +30,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { jobId } = params;
   if (!jobId) throw new Error("Could not find jobId");
 
-  const pickingLists = await getPickingLists(client, companyId, { jobId });
+  const [pickingLists, job, settings] = await Promise.all([
+    getPickingLists(client, companyId, { jobId }),
+    getJob(client, jobId),
+    client.from("companySettings").select("*").eq("id", companyId).single()
+  ]);
 
   if (pickingLists.error) {
     throw redirect(
@@ -39,13 +46,55 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return { pickingLists: pickingLists.data ?? [] };
+  if (job.error) {
+    throw redirect(
+      requestReferrer(request) ?? path.to.job(jobId),
+      await flash(request, error(job.error, "Failed to fetch job"))
+    );
+  }
+
+  // Generated DB types are stale on companySettings.usePickingLists
+  // (added in 20260505000000_picking-lists.sql). The runtime SELECT
+  // returns the value fine — cast once at the read point.
+  // TODO: regenerate @carbon/database types and drop this cast.
+  const settingsRow = settings.data as unknown as {
+    usePickingLists?: boolean | null;
+  } | null;
+
+  return {
+    pickingLists: pickingLists.data ?? [],
+    job: job.data,
+    usePickingLists: settingsRow?.usePickingLists ?? true
+  };
 }
 
 export default function JobPickingListsRoute() {
-  const { pickingLists } = useLoaderData<typeof loader>();
+  const { pickingLists, job, usePickingLists } = useLoaderData<typeof loader>();
   const { t } = useLingui();
   const { formatDate } = useDateFormatter();
+  const permissions = usePermissions();
+  const navigate = useNavigate();
+  const jobMeta = job as {
+    id?: string | null;
+    locationId?: string | null;
+    autoGeneratePickingList?: boolean | null;
+    pickingStatus?: string | null;
+  };
+
+  const canManuallyCreate =
+    usePickingLists &&
+    permissions.can("create", "inventory") &&
+    pickingLists.length === 0;
+
+  const openCreatePickingList = () => {
+    if (!jobMeta.id || !jobMeta.locationId) return;
+    const params = new URLSearchParams({
+      jobId: jobMeta.id,
+      locationId: jobMeta.locationId,
+      returnTo: path.to.jobPickingLists(jobMeta.id)
+    });
+    navigate(`${path.to.newPickingList}?${params.toString()}`);
+  };
 
   return (
     <VStack spacing={4} className="p-4">
@@ -60,6 +109,14 @@ export default function JobPickingListsRoute() {
                 </span>
               )}
             </CardTitle>
+            {canManuallyCreate && (
+              <Button
+                leftIcon={<LuCirclePlus />}
+                onClick={openCreatePickingList}
+              >
+                <Trans>Create Picking List</Trans>
+              </Button>
+            )}
           </HStack>
         </CardHeader>
         <CardContent className="p-0">
@@ -68,6 +125,11 @@ export default function JobPickingListsRoute() {
               <span className="text-xs text-muted-foreground">
                 {t`No picking lists exist for this job yet.`}
               </span>
+              {usePickingLists && canManuallyCreate && (
+                <span className="mt-2 block text-xs text-muted-foreground">
+                  {t`Use Create Picking List to open the drawer and generate one for this job.`}
+                </span>
+              )}
             </Empty>
           ) : (
             <table className="w-full text-sm">

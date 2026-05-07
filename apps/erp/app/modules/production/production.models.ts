@@ -128,15 +128,6 @@ const baseJobValidator = z.object({
   configuration: z.any().optional()
 });
 
-// Standalone toggle for the per-job autoGeneratePickingList override.
-// Lives outside the main jobValidator so other update paths (status
-// changes, bulk creates, the API) don't accidentally clobber the column.
-// The DB trigger seeds the value at INSERT from companySettings; this
-// validator is used only by the dedicated toggle action route.
-export const jobAutoGeneratePickingListValidator = z.object({
-  autoGeneratePickingList: zfd.checkbox()
-});
-
 export const bulkJobValidator = z
   .object({
     itemId: z.string().min(1, { message: "Item is required" }),
