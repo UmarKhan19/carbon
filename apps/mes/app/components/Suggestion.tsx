@@ -51,7 +51,7 @@ const Suggestion = () => {
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [anonymous, setAnonymous] = useState(true);
   const mode = useMode();
-  const pickerTheme = mode === "system" ? "auto" : mode;
+  const pickerTheme = mode;
   const [attachment, setAttachment] = useState<{
     name: string;
     path: string;

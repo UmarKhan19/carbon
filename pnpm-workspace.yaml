@@ -29,8 +29,8 @@ catalog:
   '@shikijs/types': 4.0.2
   '@slack/web-api': 7.10.0
   '@supabase/functions-js': 2.1.5
-  '@supabase/postgrest-js': 1.9.2
-  '@supabase/storage-js': 2.5.5
+  '@supabase/postgrest-js': 2.80.0
+  '@supabase/storage-js': 2.80.0
   '@supabase/supabase-js': 2.80.0
   '@tailwindcss/container-queries': 0.1.1
   '@tailwindcss/forms': 0.5.11

@@ -30,7 +30,7 @@ const EmojiPicker = ({ name }: EmojiPickerProps) => {
   const [value, setValue] = useControlField<string>(name);
   const [open, setOpen] = useState(false);
   const mode = useMode();
-  const pickerTheme = mode === "system" ? "auto" : mode;
+  const pickerTheme = mode;
 
   const onEmojiSelect = (emoji: EmojiData) => {
     setValue(emoji.native);

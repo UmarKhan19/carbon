@@ -47,7 +47,7 @@ export default function SuggestionDetails({
   const fetcher = useFetcher();
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const mode = useMode();
-  const pickerTheme = mode === "system" ? "auto" : mode;
+  const pickerTheme = mode;
 
   const { onUpdateTags } = useTags({
     id: suggestion.id ?? "",

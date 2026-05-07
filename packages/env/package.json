@@ -15,7 +15,8 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
-    "@carbon/utils": "workspace:*"
+    "@carbon/utils": "workspace:*",
+    "@types/node": "20.19.39"
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",

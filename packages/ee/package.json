@@ -59,6 +59,8 @@
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",
+    "@types/nodemailer": "6.4.21",
+    "@types/react": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { Edition, isBrowser, parseBoolean } from "@carbon/utils";
 
 declare global {
