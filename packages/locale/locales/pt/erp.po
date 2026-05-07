@@ -1471,7 +1471,7 @@ msgstr "Voltar para casa"
 
 #: apps/erp/app/routes/x+/traceability+/graph.tsx:228
 msgid "Back to traceability"
-msgstr "Voltar para rastreabilidade<<<<<<< HEAD"
+msgstr "Voltar para rastreabilidade"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1001
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:992
@@ -5872,7 +5872,7 @@ msgstr "Finalizar"
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:194
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:1063
 msgid "Finish"
-msgstr "Acabamento<<<<<<< HEAD"
+msgstr "Acabamento"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:903
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:905
@@ -5898,7 +5898,7 @@ msgstr "Acabamentos"
 #: apps/erp/app/routes/onboarding+/user.tsx:102
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:155
 msgid "First Name"
-msgstr "Primeiro Nome<<<<<<< HEAD"
+msgstr "Primeiro Nome"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1012
 msgid "First Operation"
@@ -9953,7 +9953,7 @@ msgstr "Publicar"
 
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:617
 msgid "Published by Carbon"
-msgstr "Publicado pela Carbon<<<<<<< HEAD"
+msgstr "Publicado pela Carbon"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:910
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:912
@@ -11755,7 +11755,7 @@ msgstr "Selecione os grupos que devem concluir este treinamento"
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:202
 msgid "Selected"
-msgstr "Selecionado<<<<<<< HEAD"
+msgstr "Selecionado"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1011
 msgid "Selected Operation"
@@ -14657,7 +14657,7 @@ msgstr "Quem deve receber notificações quando um trabalho de inventário é co
 
 #: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:83
 msgid "Why is the expiration being changed?"
-msgstr "Por que a expiração está sendo alterada?<<<<<<< HEAD"
+msgstr "Por que a expiração está sendo alterada?"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:937
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:244

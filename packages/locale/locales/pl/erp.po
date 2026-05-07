@@ -1471,7 +1471,7 @@ msgstr "Powrót do strony głównej"
 
 #: apps/erp/app/routes/x+/traceability+/graph.tsx:228
 msgid "Back to traceability"
-msgstr "Wróć do śledzenia<<<<<<< HEAD"
+msgstr "Wróć do śledzenia"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1001
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:992
@@ -5872,7 +5872,7 @@ msgstr "Sfinalizuj"
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:194
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:1063
 msgid "Finish"
-msgstr "Wykończenie<<<<<<< HEAD"
+msgstr "Wykończenie"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:903
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:905
@@ -5898,7 +5898,7 @@ msgstr "Wykończenia"
 #: apps/erp/app/routes/onboarding+/user.tsx:102
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:155
 msgid "First Name"
-msgstr "Imię<<<<<<< HEAD"
+msgstr "Imię"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1012
 msgid "First Operation"
@@ -9953,7 +9953,7 @@ msgstr "Opublikuj"
 
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:617
 msgid "Published by Carbon"
-msgstr "Opublikowano przez Carbon<<<<<<< HEAD"
+msgstr "Opublikowano przez Carbon"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:910
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:912
@@ -11755,7 +11755,7 @@ msgstr "Wybierz grupy, które powinny ukończyć to szkolenie"
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:202
 msgid "Selected"
-msgstr "Wybrane<<<<<<< HEAD"
+msgstr "Wybrane"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1011
 msgid "Selected Operation"
@@ -14657,7 +14657,7 @@ msgstr "Kto powinien otrzymywać powiadomienia po zakończeniu zadania inwentary
 
 #: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:83
 msgid "Why is the expiration being changed?"
-msgstr "Dlaczego data wygaśnięcia jest zmieniana?<<<<<<< HEAD"
+msgstr "Dlaczego data wygaśnięcia jest zmieniana?"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:937
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:244

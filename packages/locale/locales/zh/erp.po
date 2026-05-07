@@ -1471,7 +1471,7 @@ msgstr "返回主页"
 
 #: apps/erp/app/routes/x+/traceability+/graph.tsx:228
 msgid "Back to traceability"
-msgstr "返回可追溯性<<<<<<< HEAD"
+msgstr "返回可追溯性"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1001
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:992
@@ -5872,7 +5872,7 @@ msgstr "完成"
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:194
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:1063
 msgid "Finish"
-msgstr "完成<<<<<<< HEAD"
+msgstr "完成"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:903
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:905
@@ -5898,7 +5898,7 @@ msgstr "表面处理"
 #: apps/erp/app/routes/onboarding+/user.tsx:102
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:155
 msgid "First Name"
-msgstr "名字<<<<<<< HEAD"
+msgstr "名字"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1012
 msgid "First Operation"
@@ -9953,7 +9953,7 @@ msgstr "发布"
 
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:617
 msgid "Published by Carbon"
-msgstr "由 Carbon 发布<<<<<<< HEAD"
+msgstr "由 Carbon 发布"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:910
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:912
@@ -11755,7 +11755,7 @@ msgstr "选择应该完成此培训的组"
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:202
 msgid "Selected"
-msgstr "已选择<<<<<<< HEAD"
+msgstr "已选择"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1011
 msgid "Selected Operation"
@@ -14657,7 +14657,7 @@ msgstr "当库存工作完成时，谁应该收到通知？"
 
 #: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:83
 msgid "Why is the expiration being changed?"
-msgstr "为什么要更改过期日期？<<<<<<< HEAD"
+msgstr "为什么要更改过期日期？"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:937
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:244
