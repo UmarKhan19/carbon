@@ -1,6 +1,16 @@
 import { Trans } from "@lingui/react/macro";
 import { LuWebhook } from "react-icons/lu";
-import { UpgradeOverlay } from "~/components/UpgradeOverlay";
+import {
+  UpgradeOverlay,
+  UpgradeOverlayActions,
+  UpgradeOverlayCard,
+  UpgradeOverlayContent,
+  UpgradeOverlayDescription,
+  UpgradeOverlayIcon,
+  UpgradeOverlayPreview,
+  UpgradeOverlayTitle,
+  UpgradeOverlayUpgradeButton
+} from "~/components/UpgradeOverlay";
 import type { Webhook } from "~/modules/settings";
 import WebhooksTable from "./WebhooksTable";
 
@@ -86,27 +96,27 @@ const mockWebhooks: Webhook[] = [
 export default function WebhooksUpgradeOverlay() {
   return (
     <UpgradeOverlay>
-      <UpgradeOverlay.Preview>
+      <UpgradeOverlayPreview>
         <WebhooksTable data={mockWebhooks} count={mockWebhooks.length} />
-      </UpgradeOverlay.Preview>
-      <UpgradeOverlay.Card>
-        <UpgradeOverlay.Icon>
+      </UpgradeOverlayPreview>
+      <UpgradeOverlayCard>
+        <UpgradeOverlayIcon>
           <LuWebhook className="size-6 text-muted-foreground" />
-        </UpgradeOverlay.Icon>
-        <UpgradeOverlay.Content>
-          <UpgradeOverlay.Title>
+        </UpgradeOverlayIcon>
+        <UpgradeOverlayContent>
+          <UpgradeOverlayTitle>
             <Trans>Webhooks</Trans>
-          </UpgradeOverlay.Title>
-          <UpgradeOverlay.Description>
+          </UpgradeOverlayTitle>
+          <UpgradeOverlayDescription>
             <Trans>
               Push record changes to external systems the moment they happen.
             </Trans>
-          </UpgradeOverlay.Description>
-        </UpgradeOverlay.Content>
-        <UpgradeOverlay.Actions>
-          <UpgradeOverlay.UpgradeButton />
-        </UpgradeOverlay.Actions>
-      </UpgradeOverlay.Card>
+          </UpgradeOverlayDescription>
+        </UpgradeOverlayContent>
+        <UpgradeOverlayActions>
+          <UpgradeOverlayUpgradeButton />
+        </UpgradeOverlayActions>
+      </UpgradeOverlayCard>
     </UpgradeOverlay>
   );
 }

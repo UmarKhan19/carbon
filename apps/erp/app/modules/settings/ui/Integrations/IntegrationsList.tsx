@@ -12,7 +12,15 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { LuPuzzle } from "react-icons/lu";
 import { SearchFilter } from "~/components";
-import { UpgradeOverlay } from "~/components/UpgradeOverlay";
+import {
+  UpgradeOverlayActions,
+  UpgradeOverlayContent,
+  UpgradeOverlayDescription,
+  UpgradeOverlayIcon,
+  UpgradeOverlayStickyGradient,
+  UpgradeOverlayTitle,
+  UpgradeOverlayUpgradeButton
+} from "~/components/UpgradeOverlay";
 import { usePlanGate } from "~/hooks/usePlanGate";
 import type { IntegrationHealth } from "./IntegrationCard";
 import { IntegrationCard } from "./IntegrationCard";
@@ -102,25 +110,25 @@ const IntegrationsList = ({
 
       {isGated && (
         <>
-          <UpgradeOverlay.StickyGradient>
-            <UpgradeOverlay.Icon>
+          <UpgradeOverlayStickyGradient>
+            <UpgradeOverlayIcon>
               <LuPuzzle className="size-6 text-muted-foreground" />
-            </UpgradeOverlay.Icon>
-            <UpgradeOverlay.Content>
-              <UpgradeOverlay.Title>
+            </UpgradeOverlayIcon>
+            <UpgradeOverlayContent>
+              <UpgradeOverlayTitle>
                 <Trans>Integrations</Trans>
-              </UpgradeOverlay.Title>
-              <UpgradeOverlay.Description>
+              </UpgradeOverlayTitle>
+              <UpgradeOverlayDescription>
                 <Trans>
                   Connect Carbon to your accounting, project, and CAD tools and
                   much more.
                 </Trans>
-              </UpgradeOverlay.Description>
-            </UpgradeOverlay.Content>
-            <UpgradeOverlay.Actions>
-              <UpgradeOverlay.UpgradeButton />
-            </UpgradeOverlay.Actions>
-          </UpgradeOverlay.StickyGradient>
+              </UpgradeOverlayDescription>
+            </UpgradeOverlayContent>
+            <UpgradeOverlayActions>
+              <UpgradeOverlayUpgradeButton />
+            </UpgradeOverlayActions>
+          </UpgradeOverlayStickyGradient>
         </>
       )}
     </div>

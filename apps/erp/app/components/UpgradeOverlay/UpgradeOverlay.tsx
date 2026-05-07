@@ -152,16 +152,19 @@ function UpgradeOverlayUpgradeButton({
   );
 }
 
-export const UpgradeOverlay = Object.assign(UpgradeOverlayRoot, {
-  Preview: UpgradeOverlayPreview,
-  Card: UpgradeOverlayCard,
-  Inline: UpgradeOverlayInline,
-  StickyGradient: UpgradeOverlayStickyGradient,
-  Dialog: UpgradeOverlayDialog,
-  Icon: UpgradeOverlayIcon,
-  Title: UpgradeOverlayTitle,
-  Description: UpgradeOverlayDescription,
-  Content: UpgradeOverlayContent,
-  Actions: UpgradeOverlayActions,
-  UpgradeButton: UpgradeOverlayUpgradeButton
-});
+const UpgradeOverlay = UpgradeOverlayRoot;
+
+export {
+  UpgradeOverlay,
+  UpgradeOverlayActions,
+  UpgradeOverlayCard,
+  UpgradeOverlayContent,
+  UpgradeOverlayDescription,
+  UpgradeOverlayDialog,
+  UpgradeOverlayIcon,
+  UpgradeOverlayInline,
+  UpgradeOverlayPreview,
+  UpgradeOverlayStickyGradient,
+  UpgradeOverlayTitle,
+  UpgradeOverlayUpgradeButton
+};

@@ -10,16 +10,23 @@ import {
 } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
 import { LuHistory } from "react-icons/lu";
-import { UpgradeOverlay } from "~/components/UpgradeOverlay";
+import {
+  UpgradeOverlay,
+  UpgradeOverlayActions,
+  UpgradeOverlayCard,
+  UpgradeOverlayContent,
+  UpgradeOverlayDescription,
+  UpgradeOverlayIcon,
+  UpgradeOverlayPreview,
+  UpgradeOverlayTitle,
+  UpgradeOverlayUpgradeButton
+} from "~/components/UpgradeOverlay";
 
 export default function AuditLogUpgradeOverlay() {
   return (
     <UpgradeOverlay>
-      <UpgradeOverlay.Preview>
-        <VStack
-          spacing={4}
-          className="py-12 px-4 max-w-[60rem] mx-auto gap-4"
-        >
+      <UpgradeOverlayPreview>
+        <VStack spacing={4} className="py-12 px-4 max-w-[60rem] mx-auto gap-4">
           <Card>
             <CardHeader>
               <CardTitle>Audit Logging</CardTitle>
@@ -70,26 +77,26 @@ export default function AuditLogUpgradeOverlay() {
             </CardContent>
           </Card>
         </VStack>
-      </UpgradeOverlay.Preview>
-      <UpgradeOverlay.Card>
-        <UpgradeOverlay.Icon>
+      </UpgradeOverlayPreview>
+      <UpgradeOverlayCard>
+        <UpgradeOverlayIcon>
           <LuHistory className="size-6 text-muted-foreground" />
-        </UpgradeOverlay.Icon>
-        <UpgradeOverlay.Content>
-          <UpgradeOverlay.Title>
+        </UpgradeOverlayIcon>
+        <UpgradeOverlayContent>
+          <UpgradeOverlayTitle>
             <Trans>Audit Logs</Trans>
-          </UpgradeOverlay.Title>
-          <UpgradeOverlay.Description>
+          </UpgradeOverlayTitle>
+          <UpgradeOverlayDescription>
             <Trans>
-              Track every change to your orders, invoices, customers,
-              suppliers, and more.
+              Track every change to your orders, invoices, customers, suppliers,
+              and more.
             </Trans>
-          </UpgradeOverlay.Description>
-        </UpgradeOverlay.Content>
-        <UpgradeOverlay.Actions>
-          <UpgradeOverlay.UpgradeButton />
-        </UpgradeOverlay.Actions>
-      </UpgradeOverlay.Card>
+          </UpgradeOverlayDescription>
+        </UpgradeOverlayContent>
+        <UpgradeOverlayActions>
+          <UpgradeOverlayUpgradeButton />
+        </UpgradeOverlayActions>
+      </UpgradeOverlayCard>
     </UpgradeOverlay>
   );
 }

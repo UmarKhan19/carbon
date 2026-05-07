@@ -1,6 +1,16 @@
 import { Trans } from "@lingui/react/macro";
 import { LuKeyRound } from "react-icons/lu";
-import { UpgradeOverlay } from "~/components/UpgradeOverlay";
+import {
+  UpgradeOverlay,
+  UpgradeOverlayActions,
+  UpgradeOverlayCard,
+  UpgradeOverlayContent,
+  UpgradeOverlayDescription,
+  UpgradeOverlayIcon,
+  UpgradeOverlayPreview,
+  UpgradeOverlayTitle,
+  UpgradeOverlayUpgradeButton
+} from "~/components/UpgradeOverlay";
 import type { ApiKey } from "~/modules/settings";
 import ApiKeysTable from "./ApiKeysTable";
 
@@ -79,28 +89,27 @@ const mockApiKeys: ApiKey[] = [
 export default function ApiKeysUpgradeOverlay() {
   return (
     <UpgradeOverlay>
-      <UpgradeOverlay.Preview>
+      <UpgradeOverlayPreview>
         <ApiKeysTable data={mockApiKeys} count={mockApiKeys.length} />
-      </UpgradeOverlay.Preview>
-      <UpgradeOverlay.Card>
-        <UpgradeOverlay.Icon>
+      </UpgradeOverlayPreview>
+      <UpgradeOverlayCard>
+        <UpgradeOverlayIcon>
           <LuKeyRound className="size-6 text-muted-foreground" />
-        </UpgradeOverlay.Icon>
-        <UpgradeOverlay.Content>
-          <UpgradeOverlay.Title>
+        </UpgradeOverlayIcon>
+        <UpgradeOverlayContent>
+          <UpgradeOverlayTitle>
             <Trans>API Keys</Trans>
-          </UpgradeOverlay.Title>
-          <UpgradeOverlay.Description>
+          </UpgradeOverlayTitle>
+          <UpgradeOverlayDescription>
             <Trans>
-              Issue scoped API keys for programmatic access to your Carbon
-              data.
+              Issue scoped API keys for programmatic access to your Carbon data.
             </Trans>
-          </UpgradeOverlay.Description>
-        </UpgradeOverlay.Content>
-        <UpgradeOverlay.Actions>
-          <UpgradeOverlay.UpgradeButton />
-        </UpgradeOverlay.Actions>
-      </UpgradeOverlay.Card>
+          </UpgradeOverlayDescription>
+        </UpgradeOverlayContent>
+        <UpgradeOverlayActions>
+          <UpgradeOverlayUpgradeButton />
+        </UpgradeOverlayActions>
+      </UpgradeOverlayCard>
     </UpgradeOverlay>
   );
 }
