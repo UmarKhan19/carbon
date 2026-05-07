@@ -547,20 +547,45 @@ async function confirmPickingList(client: any, payload: any) {
 
     const entityMap = new Map<string, any>((entities ?? []).map((e: any) => [e.id, e]));
 
-    const remainderInserts: any[] = [];
-    for (const { entityId, pickedQty } of entityConsumes) {
-      const entity = entityMap.get(entityId);
-      if (!entity) continue;
-      const remainderQty = Number(entity.quantity) - pickedQty;
-      if (remainderQty > 0) {
-        // Shrink the consumed entity to the actual picked quantity
-        await client
-          .from("trackedEntity")
-          .update({ quantity: pickedQty })
-          .eq("id", entityId)
-          .eq("companyId", companyId);
-        // Create a new Available entity for the remainder (same lot/batch info)
-        remainderInserts.push({
+    // Capture per-entity outcome: original qty, picked qty, and remainder
+    // entity id when a split happened. The new activity-write logic below
+    // needs all three, so collect everything before mutating the DB.
+    type EntityOp = {
+      entityId: string;
+      originalQty: number;
+      pickedQty: number;
+      remainderQty: number;
+      remainderEntityId?: string;
+    };
+    const ops: EntityOp[] = entityConsumes
+      .map(({ entityId, pickedQty }) => {
+        const entity = entityMap.get(entityId);
+        if (!entity) return null;
+        const originalQty = Number(entity.quantity);
+        return {
+          entityId,
+          originalQty,
+          pickedQty,
+          remainderQty: Math.max(originalQty - pickedQty, 0),
+        } satisfies EntityOp;
+      })
+      .filter((x): x is EntityOp => x !== null);
+
+    // 1) Shrink + create remainder entities for partial picks. Done one at
+    // a time so we can capture the new remainder id and link it through
+    // the Split activity below.
+    for (const op of ops) {
+      if (op.remainderQty <= 0) continue;
+      const entity = entityMap.get(op.entityId);
+      await client
+        .from("trackedEntity")
+        .update({ quantity: op.pickedQty })
+        .eq("id", op.entityId)
+        .eq("companyId", companyId);
+
+      const { data: inserted } = await client
+        .from("trackedEntity")
+        .insert({
           readableId: entity.readableId ?? null,
           itemId: entity.itemId ?? null,
           sourceDocument: entity.sourceDocument,
@@ -568,61 +593,95 @@ async function confirmPickingList(client: any, payload: any) {
           sourceDocumentReadableId: entity.sourceDocumentReadableId ?? null,
           attributes: entity.attributes ?? {},
           expirationDate: entity.expirationDate ?? null,
-          quantity: remainderQty,
+          quantity: op.remainderQty,
           status: "Available",
-          splitFromEntityId: entityId,
+          splitFromEntityId: op.entityId,
           companyId,
           createdBy: userId,
-        });
-      }
+        })
+        .select("id")
+        .single();
+      op.remainderEntityId = inserted?.id;
     }
 
-    if (remainderInserts.length > 0) {
-      await client.from("trackedEntity").insert(remainderInserts);
-    }
-
+    // 2) Mark every original entity as Consumed.
     await client
       .from("trackedEntity")
       .update({ status: "Consumed" })
       .in("id", entityIds)
       .eq("companyId", companyId);
 
-    const { data: activity } = await client
-      .from("trackedActivity")
-      .insert({
-        type: "Consume",
-        sourceDocument: "Picking List",
-        sourceDocumentId: pickingListId,
-        sourceDocumentReadableId: pl.pickingListId,
-        companyId,
-        createdBy: userId,
-      })
-      .select()
-      .single();
+    // 3) Write traceability activities. Mirrors the MES issue/index.ts
+    // pattern so the graph renderer can draw real edges:
+    //   Partial:  [original full qty] → Split → {remainder, original-shrunk}
+    //                                    then  → Consume({original-shrunk})
+    //   Full:     [original full qty] → Consume (no output)
+    // Consume activities deliberately have no output rows — the entity
+    // is gone after this event, there's nothing to render downstream.
+    for (const op of ops) {
+      if (op.remainderQty > 0 && op.remainderEntityId) {
+        const { data: splitAct } = await client
+          .from("trackedActivity")
+          .insert({
+            type: "Split",
+            sourceDocument: "Picking List",
+            sourceDocumentId: pickingListId,
+            sourceDocumentReadableId: pl.pickingListId,
+            companyId,
+            createdBy: userId,
+          })
+          .select()
+          .single();
 
-    if (activity) {
-      // Input: the entity as it existed before consumption (original quantity from DB)
-      const inputs = entityConsumes.map(({ entityId, pickedQty }) => {
-        const entity = entityMap.get(entityId);
-        return {
-          trackedActivityId: activity.id,
-          trackedEntityId: entityId,
-          quantity: entity ? Number(entity.quantity) : pickedQty,
+        if (splitAct) {
+          await client.from("trackedActivityInput").insert({
+            trackedActivityId: splitAct.id,
+            trackedEntityId: op.entityId,
+            quantity: op.originalQty,
+            companyId,
+            createdBy: userId,
+          });
+          await client.from("trackedActivityOutput").insert([
+            {
+              trackedActivityId: splitAct.id,
+              trackedEntityId: op.entityId,
+              quantity: op.pickedQty,
+              companyId,
+              createdBy: userId,
+            },
+            {
+              trackedActivityId: splitAct.id,
+              trackedEntityId: op.remainderEntityId,
+              quantity: op.remainderQty,
+              companyId,
+              createdBy: userId,
+            },
+          ]);
+        }
+      }
+
+      const { data: consumeAct } = await client
+        .from("trackedActivity")
+        .insert({
+          type: "Consume",
+          sourceDocument: "Picking List",
+          sourceDocumentId: pickingListId,
+          sourceDocumentReadableId: pl.pickingListId,
           companyId,
           createdBy: userId,
-        };
-      });
-      await client.from("trackedActivityInput").insert(inputs);
+        })
+        .select()
+        .single();
 
-      // Output: the consumed portion (what actually left inventory)
-      const outputs = entityConsumes.map(({ entityId, pickedQty }) => ({
-        trackedActivityId: activity.id,
-        trackedEntityId: entityId,
-        quantity: pickedQty,
-        companyId,
-        createdBy: userId,
-      }));
-      await client.from("trackedActivityOutput").insert(outputs);
+      if (consumeAct) {
+        await client.from("trackedActivityInput").insert({
+          trackedActivityId: consumeAct.id,
+          trackedEntityId: op.entityId,
+          quantity: op.pickedQty,
+          companyId,
+          createdBy: userId,
+        });
+      }
     }
   }
 
