@@ -5,12 +5,9 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
-  toast
+  CardTitle
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect } from "react";
-import { useFetcher } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { StorageUnit, Submit } from "~/components/Form";
@@ -35,15 +32,6 @@ const MakeMethodProperties = ({
   finishToStorageUnitId,
   isReadOnly = false
 }: MakeMethodPropertiesProps) => {
-  const { t } = useLingui();
-  const fetcher = useFetcher<{ success: boolean }>();
-
-  useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data?.success === true) {
-      toast.success(t`Finish-to storage unit saved`);
-    }
-  }, [fetcher.state, fetcher.data, t]);
-
   return (
     <Card>
       <ValidatedForm
@@ -53,7 +41,6 @@ const MakeMethodProperties = ({
         defaultValues={{
           finishToStorageUnitId: finishToStorageUnitId ?? undefined
         }}
-        fetcher={fetcher}
       >
         <CardHeader>
           <CardTitle>

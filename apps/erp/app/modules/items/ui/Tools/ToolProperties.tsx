@@ -472,7 +472,7 @@ const ToolProperties = () => {
                         key={method.id}
                         type="Make to Order"
                         text={`Version ${method.version}`}
-                        to={`${path.to.toolDetails(itemId)}?methodId=${method.id}`}
+                        to={path.to.toolMake(itemId, method.id)}
                       />
                     );
                   })

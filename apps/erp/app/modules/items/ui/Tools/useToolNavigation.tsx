@@ -35,7 +35,12 @@ export function useToolNavigation() {
       name: t`Details`,
       to: path.to.toolDetails(itemId),
       icon: LuFileText,
-      shortcut: "Command+Shift+d"
+      shortcut: "Command+Shift+d",
+      // Also light up on /make/<makeMethodId> drill-downs — make method
+      // editing belongs to the details lifecycle.
+      isActive: (pathname: string) =>
+        pathname.includes(path.to.toolDetails(itemId)) ||
+        pathname.includes(`/tool/${itemId}/make/`)
     },
     {
       name: t`Purchasing`,

@@ -36,7 +36,12 @@ export function usePartNavigation() {
       name: t`Details`,
       to: path.to.partDetails(itemId),
       icon: LuFileText,
-      shortcut: "Command+Shift+d"
+      shortcut: "Command+Shift+d",
+      // Also light up when the user drilled into a specific make-method
+      // page — make method editing is conceptually "details" lifecycle.
+      isActive: (pathname: string) =>
+        pathname.includes(path.to.partDetails(itemId)) ||
+        pathname.includes(`/part/${itemId}/make/`)
     },
     {
       name: t`Purchasing`,

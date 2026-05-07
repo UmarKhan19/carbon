@@ -249,8 +249,8 @@ msgstr "勘定科目タイプ"
 #: apps/erp/app/hooks/useModules.tsx:70
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:46
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:46
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:51
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:50
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:56
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:55
 #: apps/erp/app/routes/x+/accounting+/_layout.tsx:24
 msgid "Accounting"
 msgstr "会計"
@@ -3631,11 +3631,11 @@ msgstr "デフォルト承認者"
 msgid "Default CC Recipients"
 msgstr "デフォルトCC受信者"
 
-#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:63
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:50
 msgid "Default destination shelf for finished output of this make method. Drives `job.finishToStorageUnitId` for new jobs created from this method."
 msgstr ""
 
-#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:100
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:87
 msgid "Default destination storage unit for finished output. Optional."
 msgstr ""
 
@@ -5993,12 +5993,8 @@ msgstr "仕上げ"
 msgid "Finish To"
 msgstr "完成先"
 
-#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:99
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:86
 msgid "Finish To Storage Unit"
-msgstr ""
-
-#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:43
-msgid "Finish-to storage unit saved"
 msgstr ""
 
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:65
@@ -6593,12 +6589,12 @@ msgstr "無効な招待"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:387
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:402
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:98
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:67
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:72
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:169
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:365
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:380
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:98
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:66
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:71
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:82
 #: apps/erp/app/routes/x+/inventory+/_layout.tsx:19
 #: apps/erp/app/routes/x+/picking-list+/_layout.tsx:10
@@ -7615,7 +7611,7 @@ msgstr "非アクティブにする"
 msgid "Make items cannot be invoiced directly. Change method to Pick to continue."
 msgstr "製造品は直接請求できません。方法をピックに変更して続行してください。"
 
-#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:60
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:47
 msgid "Make Method Properties"
 msgstr ""
 
@@ -9822,8 +9818,8 @@ msgstr "計画開始時刻"
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:54
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:62
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:54
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:59
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:58
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:64
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:63
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:500
 #: apps/erp/app/modules/production/ui/useProductionSubmodules.tsx:42
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:580
@@ -10392,8 +10388,8 @@ msgstr "購入済み"
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:38
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:72
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:38
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:42
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:41
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:47
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:46
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:100
 #: apps/erp/app/routes/x+/purchase-invoice+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchase-invoice+/new.tsx:24
@@ -10458,8 +10454,8 @@ msgstr "数量。スクラップ"
 #: apps/erp/app/hooks/useModules.tsx:64
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:70
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:70
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:82
-#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:74
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:87
+#: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:79
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:112
 #: apps/erp/app/routes/x+/issue-workflow+/_layout.tsx:12
 #: apps/erp/app/routes/x+/issue+/_layout.tsx:12
@@ -11419,7 +11415,7 @@ msgid "Sale Price"
 msgstr "販売価格"
 
 #: apps/erp/app/hooks/useModules.tsx:34
-#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:75
+#: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:80
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:118
 #: apps/erp/app/routes/x+/customer+/_layout.tsx:15
 #: apps/erp/app/routes/x+/quote+/_layout.tsx:13
@@ -11578,7 +11574,7 @@ msgstr "土曜日"
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningForm.tsx:166
 #: apps/erp/app/modules/items/ui/Item/ItemPurchasingForm.tsx:102
 #: apps/erp/app/modules/items/ui/Item/ItemSalePriceForm.tsx:72
-#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:77
+#: apps/erp/app/modules/items/ui/Item/MakeMethodProperties.tsx:64
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:152
 #: apps/erp/app/modules/items/ui/Item/RevisionForm.tsx:122
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:104
