@@ -9,6 +9,9 @@ import {
   HStack,
   IconButton,
   Input,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -28,11 +31,22 @@ import { usePermissions, useRouteData } from "~/hooks";
 import type { PickingListDetail, PickingListLine } from "~/modules/inventory";
 import { path } from "~/utils/path";
 
+type IncidentTooltipRow = {
+  id: string;
+  incidentId: string | null;
+  itemId: string | null;
+  trackedEntityId: string | null;
+  quantityLost: number;
+  incidentDate: string;
+  incidentType: { name: string } | null;
+};
+
 interface PickingListLineRowProps {
   line: PickingListLine;
   isEditable: boolean;
   canApprove: boolean;
   allocatedElsewhere: number;
+  matchingIncidents: IncidentTooltipRow[];
   onPick: (
     line: PickingListLine,
     qty: number,
@@ -49,6 +63,7 @@ function PickingListLineRow({
   isEditable,
   canApprove,
   allocatedElsewhere,
+  matchingIncidents,
   onPick,
   onUnpick,
   onScan,
@@ -114,19 +129,57 @@ function PickingListLineRow({
             <div className="text-xs text-muted-foreground">
               <Trans>Required</Trans>
             </div>
-            <div
-              className={cn(
-                "text-sm font-medium",
-                line.adjustedQuantity != null &&
-                  "line-through text-muted-foreground"
-              )}
-            >
-              {line.estimatedQuantity} {line.unitOfMeasureCode}
-            </div>
-            {line.adjustedQuantity != null && (
-              <div className="text-sm font-medium text-orange-500">
-                {line.adjustedQuantity} {line.unitOfMeasureCode}
-              </div>
+            {line.adjustedQuantity != null && matchingIncidents.length > 0 ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="cursor-help">
+                    <div className="text-sm font-medium line-through text-muted-foreground">
+                      {line.estimatedQuantity} {line.unitOfMeasureCode}
+                    </div>
+                    <div className="text-sm font-medium text-orange-500">
+                      {line.adjustedQuantity} {line.unitOfMeasureCode}
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs">
+                  <div className="text-xs space-y-1">
+                    <div className="font-medium">
+                      <Trans>Reduced by incident:</Trans>
+                    </div>
+                    {matchingIncidents.map((inc) => (
+                      <div key={inc.id} className="flex flex-col">
+                        <span>
+                          {inc.incidentId ?? inc.id.slice(0, 8)}
+                          {inc.incidentType?.name
+                            ? ` — ${inc.incidentType.name}`
+                            : ""}
+                        </span>
+                        <span className="text-muted-foreground">
+                          {inc.quantityLost} {line.unitOfMeasureCode} lost on{" "}
+                          {new Date(inc.incidentDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <>
+                <div
+                  className={cn(
+                    "text-sm font-medium",
+                    line.adjustedQuantity != null &&
+                      "line-through text-muted-foreground"
+                  )}
+                >
+                  {line.estimatedQuantity} {line.unitOfMeasureCode}
+                </div>
+                {line.adjustedQuantity != null && (
+                  <div className="text-sm font-medium text-orange-500">
+                    {line.adjustedQuantity} {line.unitOfMeasureCode}
+                  </div>
+                )}
+              </>
             )}
           </div>
 
@@ -295,10 +348,12 @@ const PickingListLines = () => {
   const routeData = useRouteData<{
     pickingList: PickingListDetail;
     pickingListLines: PickingListLine[];
+    incidents?: IncidentTooltipRow[];
   }>(path.to.pickingList(id));
 
   const pl = routeData?.pickingList;
   const lines = routeData?.pickingListLines ?? [];
+  const incidents = routeData?.incidents ?? [];
 
   const { t } = useLingui();
   const permissions = usePermissions();
@@ -412,20 +467,32 @@ const PickingListLines = () => {
             </span>
           </Empty>
         ) : (
-          lines.map((line) => (
-            <PickingListLineRow
-              key={line.id}
-              line={line}
-              isEditable={isEditable}
-              canApprove={canApprove}
-              allocatedElsewhere={allocationMap[line.itemId ?? ""] ?? 0}
-              onPick={onPick}
-              onUnpick={onUnpick}
-              onScan={onScan}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
-          ))
+          lines.map((line) => {
+            const matching = incidents.filter((inc) => {
+              if (inc.itemId && inc.itemId !== line.itemId) return false;
+              if (
+                inc.trackedEntityId &&
+                inc.trackedEntityId !== line.pickedTrackedEntityId
+              )
+                return false;
+              return true;
+            });
+            return (
+              <PickingListLineRow
+                key={line.id}
+                line={line}
+                isEditable={isEditable}
+                canApprove={canApprove}
+                allocatedElsewhere={allocationMap[line.itemId ?? ""] ?? 0}
+                matchingIncidents={matching}
+                onPick={onPick}
+                onUnpick={onUnpick}
+                onScan={onScan}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            );
+          })
         )}
       </CardContent>
     </Card>

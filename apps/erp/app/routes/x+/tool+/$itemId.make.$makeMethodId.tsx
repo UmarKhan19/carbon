@@ -136,10 +136,7 @@ export default function ToolMakeMethodPage() {
       <MakeMethodProperties
         key={`props:${makeMethodId}`}
         makeMethodId={makeMethod.id}
-        finishToStorageUnitId={
-          (makeMethod as { finishToStorageUnitId?: string | null })
-            .finishToStorageUnitId ?? null
-        }
+        finishToStorageUnitId={makeMethod.finishToStorageUnitId ?? null}
         isReadOnly={
           !permissions.can("update", "parts") || makeMethod.status !== "Draft"
         }

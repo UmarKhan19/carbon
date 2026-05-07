@@ -3097,7 +3097,7 @@ export async function getProductionIncidentTypes(
   client: SupabaseClient<Database>,
   companyId: string
 ) {
-  return (client as any)
+  return client
     .from("productionIncidentType")
     .select("id, name")
     .eq("companyId", companyId)
@@ -3108,7 +3108,7 @@ export async function getProductionIncidents(
   client: SupabaseClient<Database>,
   jobId: string
 ) {
-  return (client as any)
+  return client
     .from("productionIncident")
     .select(
       `id, incidentId, jobId, itemId, trackedEntityId, incidentDate,
@@ -3127,7 +3127,7 @@ export async function getProductionIncident(
   incidentId: string,
   companyId: string
 ) {
-  return (client as any)
+  return client
     .from("productionIncident")
     .select(
       `id, incidentId, jobId, itemId, trackedEntityId, incidentDate,
@@ -3154,19 +3154,19 @@ export async function upsertProductionIncident(
       })
 ) {
   if ("createdBy" in incident) {
-    const { data: seq, error: seqError } = await (client as any).rpc(
+    const { data: seq, error: seqError } = await client.rpc(
       "get_next_sequence",
       { sequence_name: "productionIncident", company_id: incident.companyId }
     );
     if (seqError) return { data: null, error: seqError };
-    return (client as any)
+    return client
       .from("productionIncident")
       .insert([{ ...incident, incidentId: seq as string }])
       .select("id")
       .single();
   }
   const { id, ...update } = incident;
-  return (client as any)
+  return client
     .from("productionIncident")
     .update(sanitize(update))
     .eq("id", id)
@@ -3179,7 +3179,7 @@ export async function deleteProductionIncident(
   id: string,
   companyId: string
 ) {
-  return (client as any)
+  return client
     .from("productionIncident")
     .delete()
     .eq("id", id)

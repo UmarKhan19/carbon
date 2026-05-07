@@ -60,9 +60,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  // Pull active impacting incidents for this PL's job so the lines
+  // component can label any adjustedQuantity strikethrough with the
+  // incident that caused it.
+  const incidentRows = await serviceRole
+    .from("productionIncident")
+    .select(
+      `id, incidentId, itemId, trackedEntityId, quantityLost, incidentDate,
+       incidentType:incidentTypeId(name)`
+    )
+    .eq("jobId", pickingList.data.jobId)
+    .eq("companyId", companyId)
+    .eq("impactsPickingList", true);
+
   return {
     pickingList: pickingList.data,
-    pickingListLines: pickingListLines.data ?? []
+    pickingListLines: pickingListLines.data ?? [],
+    incidents: incidentRows.data ?? []
   };
 }
 

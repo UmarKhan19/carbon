@@ -53,18 +53,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  // Generated DB types are stale on companySettings.usePickingLists
-  // (added in 20260505000000_picking-lists.sql). The runtime SELECT
-  // returns the value fine — cast once at the read point.
-  // TODO: regenerate @carbon/database types and drop this cast.
-  const settingsRow = settings.data as unknown as {
-    usePickingLists?: boolean | null;
-  } | null;
-
   return {
     pickingLists: pickingLists.data ?? [],
     job: job.data,
-    usePickingLists: settingsRow?.usePickingLists ?? true
+    usePickingLists: settings.data?.usePickingLists ?? true
   };
 }
 

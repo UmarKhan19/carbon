@@ -482,7 +482,7 @@ msgstr "समूह जोड़ें"
 msgid "Add Item"
 msgstr "आइटम जोड़ें"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:402
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:457
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:352
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:171
 msgid "Add Line"
@@ -691,7 +691,7 @@ msgstr "सभी ऑडिट योग्य संस्थाओं मे�
 msgid "All Customers"
 msgstr "सभी ग्राहक"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:178
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:176
 msgid "All destinations"
 msgstr ""
 
@@ -716,7 +716,7 @@ msgstr "चयनित समूहों के सभी सदस्य औ�
 msgid "All Suppliers"
 msgstr "सभी आपूर्तिकर्ता"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:167
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:165
 msgid "All types"
 msgstr ""
 
@@ -1379,7 +1379,7 @@ msgstr "मुझे असाइन किया गया"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:179
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:384
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:134
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:148
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:140
 msgid "Assignee"
 msgstr "असाइनी"
 
@@ -1718,13 +1718,13 @@ msgstr "साइन इन करके, आप <0>सेवा की शर�
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:343
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:333
 #: apps/erp/app/routes/x+/part+/$itemId.details.tsx:334
-#: apps/erp/app/routes/x+/part+/$itemId.make.$makeMethodId.tsx:217
+#: apps/erp/app/routes/x+/part+/$itemId.make.$makeMethodId.tsx:214
 #: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:436
 #: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.make.$methodId.tsx:137
 #: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:278
 #: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:174
 #: apps/erp/app/routes/x+/tool+/$itemId.details.tsx:269
-#: apps/erp/app/routes/x+/tool+/$itemId.make.$makeMethodId.tsx:174
+#: apps/erp/app/routes/x+/tool+/$itemId.make.$makeMethodId.tsx:171
 msgid "CAD Model"
 msgstr "CAD मॉडल"
 
@@ -2042,7 +2042,7 @@ msgstr "वाहक"
 msgid "Carrier Account"
 msgstr "वाहक खाता"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:219
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:217
 msgid "Categories"
 msgstr ""
 
@@ -2509,7 +2509,7 @@ msgstr "पासवर्ड की पुष्टि करें"
 msgid "Confirm Picking List"
 msgstr ""
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:154
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:146
 msgid "Confirmed"
 msgstr ""
 
@@ -2969,7 +2969,7 @@ msgstr "नौकरियां बनाएं"
 msgid "Create Kanban"
 msgstr "कनबन बनाएं"
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:117
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:109
 msgid "Create Picking List"
 msgstr ""
 
@@ -3008,7 +3008,7 @@ msgstr "कार्य केंद्र बनाएं"
 #: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:245
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityDocuments.tsx:124
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineDocuments.tsx:470
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:225
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:223
 msgid "Created"
 msgstr "बनाया गया"
 
@@ -3319,7 +3319,7 @@ msgstr "कस्टम फील्ड्स"
 #: apps/erp/app/modules/users/ui/Customers/CreateCustomerModal.tsx:76
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:130
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:295
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:179
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:177
 #: apps/erp/app/routes/x+/issue+/$id.tsx:153
 #: apps/erp/app/routes/x+/sales+/_index.tsx:652
 #: apps/erp/app/routes/x+/sales+/_index.tsx:724
@@ -4076,7 +4076,7 @@ msgstr "आपूर्तिकर्ता उद्धरण हटाएं"
 msgid "Delete Supplier Type"
 msgstr "आपूर्तिकर्ता प्रकार हटाएं"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:376
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:431
 msgid "Delete this line?"
 msgstr ""
 
@@ -4426,7 +4426,7 @@ msgstr "अपनी फ़ाइल यहाँ ड्रॉप करें, 
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr ""
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:151
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:143
 msgid "Due"
 msgstr ""
 
@@ -6114,7 +6114,7 @@ msgstr "आवृत्ति"
 msgid "Friday"
 msgstr "शुक्रवार"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:213
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:211
 msgid "From"
 msgstr ""
 
@@ -6395,7 +6395,7 @@ msgstr "इस RFQ को उद्धरण में परिवर्ति�
 msgid "In order to send this RFQ to suppliers, you must first add suppliers to the RFQ."
 msgstr "इस RFQ को आपूर्तिकर्ताओं को भेजने के लिए, आपको पहले RFQ में आपूर्तिकर्ता जोड़ने होंगे।"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:105
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:120
 msgid "in other PLs"
 msgstr ""
 
@@ -6902,7 +6902,7 @@ msgstr "आइटम"
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:139
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:408
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteMakeMethodTools.tsx:581
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:207
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:205
 #: apps/erp/app/routes/x+/issue+/$id.tsx:104
 #: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:105
 #: apps/erp/app/routes/x+/job+/$jobId.staging.tsx:168
@@ -7341,7 +7341,7 @@ msgstr "लाइन स्थिति"
 msgid "Linear Team"
 msgstr "Linear Team"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:388
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:443
 msgid "Lines"
 msgstr ""
 
@@ -7487,7 +7487,7 @@ msgstr "लोड हो रहा है..."
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:168
 #: apps/erp/app/modules/users/ui/Employees/CreateEmployeeModal.tsx:83
 #: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:204
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:145
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:137
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:820
 #: apps/erp/app/routes/x+/schedule+/operations.tsx:451
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:158
@@ -8242,7 +8242,7 @@ msgstr "{0} को {1} बकेट में स्थानांतरित 
 
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:60
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:53
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:140
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:138
 msgid "Movements"
 msgstr ""
 
@@ -8759,7 +8759,7 @@ msgstr "कोई एक्सेस नहीं"
 msgid "No action needed"
 msgstr "कोई कार्रवाई की आवश्यकता नहीं है"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:193
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:191
 msgid "No active movements right now."
 msgstr ""
 
@@ -8941,7 +8941,7 @@ msgstr "कोई भाग ID नहीं"
 msgid "No parts added yet"
 msgstr "अभी तक कोई पार्ट जोड़ा नहीं गया"
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:126
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:118
 msgid "No picking lists exist for this job yet."
 msgstr ""
 
@@ -9476,7 +9476,7 @@ msgstr ""
 msgid "Outstanding quantities"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:276
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:329
 msgid "Outstanding:"
 msgstr ""
 
@@ -9496,7 +9496,7 @@ msgstr "ओवरहेड दर"
 msgid "Overhead Rate (Hourly)"
 msgstr "ओवरहेड दर (प्रति घंटा)"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:283
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:336
 msgid "Overpick:"
 msgstr ""
 
@@ -9805,11 +9805,11 @@ msgstr "पिक लिस्ट"
 msgid "Pick Shelf"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:391
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:446
 msgid "picked"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:248
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:301
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:132
 msgid "Picked"
 msgstr ""
@@ -9835,15 +9835,15 @@ msgid "Picking"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:53
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:169
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:139
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:167
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:131
 msgid "Picking List"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:54
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:101
 #: apps/erp/app/routes/x+/inventory+/picking-lists.tsx:16
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:105
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:97
 #: apps/erp/app/routes/x+/picking-list+/$id.tsx:20
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:250
 msgid "Picking Lists"
@@ -10512,7 +10512,7 @@ msgstr "इस कनबन के लिए {0} बनाने के लि�
 msgid "QR Code to start the next operation for this kanban"
 msgstr "इस कनबन के लिए अगली ऑपरेशन शुरू करने के लिए QR कोड"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:210
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:208
 msgid "Qty"
 msgstr ""
 
@@ -10772,7 +10772,7 @@ msgstr "उद्धरण"
 msgid "Rate Limit"
 msgstr "दर सीमा"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:143
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:196
 msgid "Re-scan"
 msgstr ""
 
@@ -10926,10 +10926,14 @@ msgstr "रिकॉर्ड"
 msgid "Redirecting to verification page..."
 msgstr "सत्यापन पृष्ठ पर पुनः निर्देशित किया जा रहा है..."
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:147
+msgid "Reduced by incident:"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:366
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:106
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:336
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:204
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:202
 msgid "Reference"
 msgstr "संदर्भ"
 
@@ -11203,7 +11207,7 @@ msgid "Require approval for quality documents in your workflow"
 msgstr "आपके वर्कफ़्लो में गुणवत्ता दस्तावेज़ों के लिए अनुमोदन की आवश्यकता है"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:115
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:130
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:422
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:854
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:226
@@ -11831,7 +11835,7 @@ msgstr "विधि सहेजें"
 msgid "Save View"
 msgstr "दृश्य सहेजें"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:145
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:198
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:125
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:378
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:498
@@ -11978,7 +11982,7 @@ msgstr "इतिहास खोजें"
 msgid "Search Job"
 msgstr "Job खोजें"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:155
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:153
 msgid "Search part / ref / shelf"
 msgstr ""
 
@@ -12460,7 +12464,7 @@ msgstr "ग्राहक को भेजें"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:285
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:729
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineShipments.tsx:94
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:170
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:168
 #: apps/erp/app/routes/x+/issue+/$id.tsx:132
 msgid "Shipment"
 msgstr "शिपमेंट"
@@ -12978,9 +12982,9 @@ msgstr "सांख्यिकीय स्वीकृति विफल ह
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:115
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:158
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:90
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:222
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:220
 #: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:111
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:142
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:134
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:659
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:810
 #: apps/erp/app/routes/x+/quality+/_index.tsx:977
@@ -13042,7 +13046,7 @@ msgstr "चरण रिकॉर्ड"
 msgid "Steps"
 msgstr "चरण"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:168
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:166
 msgid "Stock Transfer"
 msgstr ""
 
@@ -13766,7 +13770,7 @@ msgstr "यह जॉब इन्वेंटरी में प्राप�
 msgid "This job will no longer be available on the shop floor."
 msgstr "यह नौकरी अब शॉप फ्लोर पर उपलब्ध नहीं होगी।"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:411
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:466
 msgid "This picking list has no lines yet."
 msgstr ""
 
@@ -13876,7 +13880,7 @@ msgstr "समय क्षेत्र"
 msgid "Title"
 msgstr "शीर्षक"
 
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:216
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:214
 msgid "To"
 msgstr ""
 
@@ -14253,7 +14257,7 @@ msgstr "मंगलवार"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:92
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1046
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1314
-#: apps/erp/app/routes/x+/inventory+/movements.tsx:201
+#: apps/erp/app/routes/x+/inventory+/movements.tsx:199
 #: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:102
 msgid "Type"
 msgstr "प्रकार"
@@ -14296,7 +14300,7 @@ msgstr "अनुमोदित नहीं आपूर्तिकर्त�
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:178
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:170
 msgid "Unassigned"
 msgstr "अनुत्तरित"
 
@@ -14653,7 +14657,7 @@ msgstr "अगली टूल ID प्राप्त करने के ल�
 msgid "Use a different email"
 msgstr "एक अलग ईमेल का उपयोग करें"
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:130
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:122
 msgid "Use Create Picking List to open the drawer and generate one for this job."
 msgstr ""
 

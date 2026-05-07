@@ -64,9 +64,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const locationId = url.searchParams.get("location");
 
   // RPC returns the UNION of stockTransfer / pickingList / shipment lines.
-  // Generated DB types may not yet know about get_inventory_movements —
-  // cast around it. TODO: regenerate @carbon/database types.
-  const { data, error: rpcError } = await (client as any).rpc(
+  const { data, error: rpcError } = await client.rpc(
     "get_inventory_movements",
     { p_company_id: companyId, p_location_id: locationId ?? null }
   );

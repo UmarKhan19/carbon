@@ -36,13 +36,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       ? null
       : validation.data.finishToStorageUnitId;
 
-  // Generated DB types may not yet include finishToStorageUnitId on
-  // makeMethod (added in 20260507000003). Cast locally to keep TS happy
-  // without forcing a regenerate as part of this task.
-  // TODO: regenerate @carbon/database types so this cast can go away.
   const { error: updateError } = await client
     .from("makeMethod")
-    .update({ finishToStorageUnitId } as never)
+    .update({ finishToStorageUnitId })
     .eq("id", makeMethodId)
     .eq("companyId", companyId);
 

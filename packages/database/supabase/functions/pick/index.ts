@@ -760,7 +760,8 @@ async function reversePickingList(_client: any, payload: any) {
 
     const reversalEntries: any[] = [];
     const jobMaterialRollbacks: Array<{ id: string; pickedQty: number }> = [];
-    const entityRestorations: string[] = [];
+    const entityRestorations: Array<{ entityId: string; pickedQty: number }> =
+      [];
 
     for (const line of lines) {
       const pickedQty = Number(line.pickedQuantity ?? 0);
@@ -784,7 +785,10 @@ async function reversePickingList(_client: any, payload: any) {
       }
 
       if (line.pickedTrackedEntityId) {
-        entityRestorations.push(line.pickedTrackedEntityId);
+        entityRestorations.push({
+          entityId: line.pickedTrackedEntityId,
+          pickedQty,
+        });
       }
     }
 
@@ -815,10 +819,11 @@ async function reversePickingList(_client: any, payload: any) {
     }
 
     if (entityRestorations.length > 0) {
+      const restoredEntityIds = entityRestorations.map((r) => r.entityId);
       const remainders = await trx
         .selectFrom("trackedEntity")
         .select(["id", "quantity", "splitFromEntityId"])
-        .where("splitFromEntityId", "in", entityRestorations)
+        .where("splitFromEntityId", "in", restoredEntityIds)
         .where("companyId", "=", companyId)
         .where("status", "=", "Available")
         .execute();
@@ -858,10 +863,41 @@ async function reversePickingList(_client: any, payload: any) {
       await trx
         .updateTable("trackedEntity")
         .set({ status: "Available" })
-        .where("id", "in", entityRestorations)
+        .where("id", "in", restoredEntityIds)
         .where("companyId", "=", companyId)
         .where("status", "=", "Consumed")
         .execute();
+
+      // Traceability: emit one Reverse activity per restored entity so the
+      // graph shows the reversal event instead of stopping at the original
+      // Consume node. Modeled like a Receive — Output only, no Input — the
+      // entity comes back into being.
+      for (const { entityId, pickedQty } of entityRestorations) {
+        const reverseId = nanoid();
+        await trx
+          .insertInto("trackedActivity")
+          .values({
+            id: reverseId,
+            type: "Reverse",
+            sourceDocument: "Picking List",
+            sourceDocumentId: pickingListId,
+            sourceDocumentReadableId: pl.pickingListId,
+            companyId,
+            createdBy: userId,
+          } as any)
+          .execute();
+
+        await trx
+          .insertInto("trackedActivityOutput")
+          .values({
+            trackedActivityId: reverseId,
+            trackedEntityId: entityId,
+            quantity: pickedQty,
+            companyId,
+            createdBy: userId,
+          })
+          .execute();
+      }
     }
 
     await trx
