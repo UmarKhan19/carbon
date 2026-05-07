@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",
-    "@carbon/logger": "workspace:*",
     "@types/node": "20.19.39",
     "dotenv": "16.3.1",
     "rimraf": "catalog:",

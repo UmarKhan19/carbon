@@ -22,7 +22,6 @@
     "@carbon/locale": "workspace:*",
     "@carbon/notifications": "workspace:*",
     "@carbon/react": "workspace:*",
-    "@carbon/remix": "workspace:*",
     "@carbon/stripe": "workspace:*",
     "@carbon/utils": "workspace:*",
     "@dagrejs/dagre": "^1.1.4",

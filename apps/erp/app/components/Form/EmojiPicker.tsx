@@ -6,9 +6,9 @@ import {
   Popover,
   PopoverContent,
   PopoverFooter,
-  PopoverTrigger
+  PopoverTrigger,
+  useMode
 } from "@carbon/react";
-import { useMode } from "@carbon/remix";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { useState } from "react";

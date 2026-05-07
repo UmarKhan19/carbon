@@ -198,7 +198,7 @@ msgstr "Пользователь записывает дату истечени�
 msgid "Abilities"
 msgstr "Способности"
 
-#: apps/erp/app/components/AvatarMenu.tsx:256
+#: apps/erp/app/components/AvatarMenu.tsx:258
 #: apps/erp/app/modules/account/ui/Profile/ProfileForm.tsx:61
 msgid "About"
 msgstr "О программе"
@@ -212,8 +212,8 @@ msgstr "Принять партию"
 msgid "Accept lot?"
 msgstr "Принять партию?"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1311
-#: apps/erp/app/routes/share+/quote.$id.tsx:1354
+#: apps/erp/app/routes/share+/quote.$id.tsx:1310
+#: apps/erp/app/routes/share+/quote.$id.tsx:1353
 msgid "Accept Quote"
 msgstr "Принять предложение"
 
@@ -236,7 +236,7 @@ msgstr "Менеджер по работе с клиентами"
 msgid "Account Number"
 msgstr "Номер счета"
 
-#: apps/erp/app/components/AvatarMenu.tsx:216
+#: apps/erp/app/components/AvatarMenu.tsx:218
 #: apps/erp/app/routes/x+/account+/_layout.tsx:27
 msgid "Account Settings"
 msgstr "Параметры учетной записи"
@@ -761,7 +761,7 @@ msgstr "API и Webhooks"
 msgid "API Docs"
 msgstr "Документация API"
 
-#: apps/erp/app/components/AvatarMenu.tsx:122
+#: apps/erp/app/components/AvatarMenu.tsx:124
 msgid "API Documentation"
 msgstr "Документация API"
 
@@ -842,7 +842,7 @@ msgstr "Архивированные журналы"
 
 #. placeholder {0}: quote.quoteId
 #. placeholder {1}: formatter.format(total)
-#: apps/erp/app/routes/share+/quote.$id.tsx:1357
+#: apps/erp/app/routes/share+/quote.$id.tsx:1356
 msgid "Are you sure you want to accept quote {0} for {1}?"
 msgstr "Вы уверены, что хотите принять предложение {0} на сумму {1}?"
 
@@ -1273,7 +1273,7 @@ msgstr "Вы уверены, что хотите провести этот пр�
 msgid "Are you sure you want to post this shipment?"
 msgstr "Вы уверены, что хотите отправить эту партию?"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1458
+#: apps/erp/app/routes/share+/quote.$id.tsx:1457
 msgid "Are you sure you want to reject this quote?"
 msgstr "Вы уверены, что хотите отклонить это предложение?"
 
@@ -1455,7 +1455,7 @@ msgstr "Аудит логирования не включен"
 msgid "Audit Logs"
 msgstr "Журналы аудита"
 
-#: apps/erp/app/routes/_public+/login.tsx:292
+#: apps/erp/app/routes/_public+/login.tsx:293
 msgid "Authentication Error"
 msgstr "Ошибка аутентификации"
 
@@ -1704,7 +1704,7 @@ msgstr "от {byUser}"
 msgid "By accepting the invite, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
 msgstr "Принимая приглашение, вы соглашаетесь с <0>Условиями обслуживания</0> и <1>Политикой конфиденциальности</1>."
 
-#: apps/erp/app/routes/_public+/login.tsx:375
+#: apps/erp/app/routes/_public+/login.tsx:376
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "Подписываясь, вы соглашаетесь с <0>Условиями обслуживания</0> и <1>Политикой конфиденциальности.</1>"
 
@@ -1905,8 +1905,8 @@ msgstr "Невозможно отключить единственный акт�
 #: apps/erp/app/modules/users/ui/Employees/EmployeePermissionsForm.tsx:139
 #: apps/erp/app/modules/users/ui/EmployeeTypes/EmployeeTypeForm.tsx:115
 #: apps/erp/app/modules/users/ui/Groups/GroupsForm.tsx:77
-#: apps/erp/app/routes/share+/quote.$id.tsx:1414
-#: apps/erp/app/routes/share+/quote.$id.tsx:1476
+#: apps/erp/app/routes/share+/quote.$id.tsx:1413
+#: apps/erp/app/routes/share+/quote.$id.tsx:1475
 #: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:227
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:220
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:618
@@ -2010,7 +2010,7 @@ msgstr "Столбец Carbon"
 
 #: apps/erp/app/routes/_public+/invite.$code.tsx:124
 #: apps/erp/app/routes/_public+/invite.$code.tsx:156
-#: apps/erp/app/routes/_public+/login.tsx:234
+#: apps/erp/app/routes/_public+/login.tsx:235
 #: apps/erp/app/routes/_public+/magic-link.tsx:26
 #: apps/erp/app/routes/_public+/verify.tsx:147
 msgid "Carbon Logo"
@@ -2053,7 +2053,7 @@ msgstr "CC"
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:98
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
-#: apps/erp/app/routes/share+/quote.$id.tsx:1394
+#: apps/erp/app/routes/share+/quote.$id.tsx:1393
 msgid "Change"
 msgstr "Изменить"
 
@@ -2097,7 +2097,7 @@ msgstr "План счетов"
 msgid "Chat"
 msgstr "Чат"
 
-#: apps/erp/app/routes/_public+/login.tsx:243
+#: apps/erp/app/routes/_public+/login.tsx:244
 msgid "Check your email"
 msgstr "Проверьте вашу почту"
 
@@ -2495,7 +2495,7 @@ msgstr "Подтвердить импорт"
 msgid "Confirm Password"
 msgstr "Подтвердить пароль"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:122
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:121
 msgid "Connect Carbon to your accounting, project, and CAD tools and much more."
 msgstr ""
 
@@ -3464,11 +3464,11 @@ msgstr "Ежедневное использование"
 msgid "Dark"
 msgstr "Тёмный"
 
-#: apps/erp/app/components/AvatarMenu.tsx:132
+#: apps/erp/app/components/AvatarMenu.tsx:134
 msgid "Dark Mode"
 msgstr "Тёмный режим"
 
-#: apps/erp/app/components/AvatarMenu.tsx:114
+#: apps/erp/app/components/AvatarMenu.tsx:116
 #: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:134
 #: apps/erp/app/routes/x+/quality+/_index.tsx:81
 #: apps/erp/app/routes/x+/settings+/quality.tsx:268
@@ -3774,7 +3774,7 @@ msgstr "Удалить атрибут"
 msgid "Delete Category"
 msgstr "Удалить категорию"
 
-#: apps/erp/app/components/Chat/ChatHistory.tsx:128
+#: apps/erp/app/components/Chat/ChatHistory.tsx:127
 msgid "Delete chat"
 msgstr "Удалить чат"
 
@@ -4237,7 +4237,7 @@ msgid "Discard"
 msgstr "Отклонить"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:427
-#: apps/erp/app/routes/share+/quote.$id.tsx:664
+#: apps/erp/app/routes/share+/quote.$id.tsx:663
 msgid "Discount"
 msgstr "Скидка"
 
@@ -4349,7 +4349,7 @@ msgstr "Загрузить CSV"
 msgid "Draft"
 msgstr "Черновик"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1400
+#: apps/erp/app/routes/share+/quote.$id.tsx:1399
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Перетащите PDF-файл заказа на покупку сюда или нажмите, чтобы выбрать файл"
 
@@ -4893,7 +4893,7 @@ msgstr "Редактировать рабочий центр"
 msgid "Email"
 msgstr "Электронная почта"
 
-#: apps/erp/app/routes/_public+/login.tsx:331
+#: apps/erp/app/routes/_public+/login.tsx:332
 #: apps/erp/app/routes/x+/users+/operators.$operatorId.tsx:143
 msgid "Email Address"
 msgstr "Адрес электронной почты"
@@ -5335,7 +5335,7 @@ msgid "Expired batch"
 msgstr "Истекший срок партии"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:131
-#: apps/erp/app/routes/share+/quote.$id.tsx:240
+#: apps/erp/app/routes/share+/quote.$id.tsx:239
 msgid "Expires"
 msgstr "Истекает"
 
@@ -5380,7 +5380,7 @@ msgstr "Экспортировать строки в CSV"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:291
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:276
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:536
-#: apps/erp/app/routes/share+/quote.$id.tsx:783
+#: apps/erp/app/routes/share+/quote.$id.tsx:782
 msgid "Extended Price"
 msgstr "Расширенная цена"
 
@@ -5853,7 +5853,7 @@ msgid "Feedback"
 msgstr "Обратная связь"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:436
-#: apps/erp/app/routes/share+/quote.$id.tsx:674
+#: apps/erp/app/routes/share+/quote.$id.tsx:673
 msgid "Fees"
 msgstr "Сборы"
 
@@ -6500,7 +6500,7 @@ msgstr "Инструкции наследуются из процедуры."
 msgid "Integration not found"
 msgstr "Интеграция не найдена"
 
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:119
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:118
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:159
 msgid "Integrations"
 msgstr "Интеграции"
@@ -7104,7 +7104,7 @@ msgstr "Время труда"
 msgid "Labor Unit"
 msgstr "Единица труда"
 
-#: apps/erp/app/components/AvatarMenu.tsx:178
+#: apps/erp/app/components/AvatarMenu.tsx:180
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:41
 #: apps/erp/app/modules/account/ui/Profile/ProfileLanguageForm.tsx:48
 msgid "Language"
@@ -7154,7 +7154,7 @@ msgstr "Последнее обновление: {formattedDate}"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2068
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:440
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:621
-#: apps/erp/app/routes/share+/quote.$id.tsx:678
+#: apps/erp/app/routes/share+/quote.$id.tsx:677
 msgid "Lead Time"
 msgstr "Время поставки"
 
@@ -7217,7 +7217,7 @@ msgstr "Буква"
 msgid "Light"
 msgstr "Светлая"
 
-#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:33
+#: apps/erp/app/components/Layout/Topbar/ModeSwitcher.tsx:32
 msgid "Light Mode"
 msgstr "Светлый режим"
 
@@ -7404,7 +7404,7 @@ msgstr "Заблокировать"
 msgid "Log In"
 msgstr "Войти"
 
-#: apps/erp/app/routes/_public+/login.tsx:369
+#: apps/erp/app/routes/_public+/login.tsx:370
 msgid "Login or create a new account"
 msgstr "Войдите или создайте новый аккаунт"
 
@@ -7606,7 +7606,7 @@ msgstr "Управляйте отслеживанием, расчетом и п�
 msgid "Manage Ownership"
 msgstr "Управление правами собственности"
 
-#: apps/erp/app/components/AvatarMenu.tsx:225
+#: apps/erp/app/components/AvatarMenu.tsx:227
 #: apps/erp/app/routes/x+/settings+/billing.tsx:203
 #: apps/erp/app/routes/x+/settings+/billing.tsx:269
 msgid "Manage Subscription"
@@ -8280,7 +8280,7 @@ msgstr "Новый атрибут"
 msgid "New Attribute Category"
 msgstr "Новая категория атрибутов"
 
-#: apps/erp/app/components/Chat/ChatHistory.tsx:117
+#: apps/erp/app/components/Chat/ChatHistory.tsx:116
 msgid "New chat"
 msgstr "Новый чат"
 
@@ -8671,11 +8671,11 @@ msgstr "Записи о калибровке не найдены"
 msgid "No changes recorded"
 msgstr "Изменений не записано"
 
-#: apps/erp/app/components/Chat/ChatHistory.tsx:99
+#: apps/erp/app/components/Chat/ChatHistory.tsx:98
 msgid "No chat history"
 msgstr "Нет истории чатов"
 
-#: apps/erp/app/components/Chat/ChatHistory.tsx:97
+#: apps/erp/app/components/Chat/ChatHistory.tsx:96
 msgid "No chats found"
 msgstr "Чаты не найдены"
 
@@ -8832,7 +8832,7 @@ msgstr "Нет цен для выбранного количества"
 
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:798
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:341
-#: apps/erp/app/routes/share+/quote.$id.tsx:697
+#: apps/erp/app/routes/share+/quote.$id.tsx:696
 msgid "No pricing options found"
 msgstr "Нет доступных вариантов цен"
 
@@ -8987,7 +8987,7 @@ msgstr "Примечание"
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:111
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:118
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:219
-#: apps/erp/app/routes/share+/quote.$id.tsx:1191
+#: apps/erp/app/routes/share+/quote.$id.tsx:1190
 #: apps/erp/app/routes/x+/person+/$personId.notes.tsx:46
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.details.tsx:178
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.details.tsx:188
@@ -9085,12 +9085,12 @@ msgstr "На складском отделении"
 msgid "Onshape Status"
 msgstr "Статус Onshape"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1619
+#: apps/erp/app/routes/share+/quote.$id.tsx:1618
 msgid "Oops! The link you're trying to access has expired or is no longer valid."
 msgstr "Упс! Ссылка, которую вы пытаетесь открыть, истекла или больше не действительна."
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1612
-#: apps/erp/app/routes/share+/quote.$id.tsx:1626
+#: apps/erp/app/routes/share+/quote.$id.tsx:1611
+#: apps/erp/app/routes/share+/quote.$id.tsx:1625
 #: apps/erp/app/routes/share+/scar.$id.tsx:524
 #: apps/erp/app/routes/share+/scar.$id.tsx:531
 msgid "Oops! The link you're trying to access is not valid."
@@ -9104,7 +9104,7 @@ msgstr "Открыть"
 msgid "Open Actions"
 msgstr "Открытые действия"
 
-#: apps/erp/app/components/Chat/ChatHistory.tsx:73
+#: apps/erp/app/components/Chat/ChatHistory.tsx:72
 msgid "Open chat history"
 msgstr "Открыть историю чатов"
 
@@ -9268,7 +9268,7 @@ msgstr "Параметры"
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:281
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:287
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:305
-#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityState.tsx:144
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityState.tsx:149
 msgid "Order"
 msgstr "Заказ"
 
@@ -9547,7 +9547,7 @@ msgstr "Способ оплаты"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:83
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:896
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:85
-#: apps/erp/app/routes/share+/quote.$id.tsx:1221
+#: apps/erp/app/routes/share+/quote.$id.tsx:1220
 msgid "Payment Term"
 msgstr "Условие платежа"
 
@@ -9720,13 +9720,13 @@ msgstr "Планирование"
 msgid "Please contact your administrator to enable audit logging."
 msgstr "Пожалуйста, свяжитесь с администратором, чтобы включить логирование аудита."
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1375
-#: apps/erp/app/routes/share+/quote.$id.tsx:1470
+#: apps/erp/app/routes/share+/quote.$id.tsx:1374
+#: apps/erp/app/routes/share+/quote.$id.tsx:1469
 msgid "Please enter your email address"
 msgstr "Пожалуйста, введите ваш адрес электронной почты"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1371
-#: apps/erp/app/routes/share+/quote.$id.tsx:1466
+#: apps/erp/app/routes/share+/quote.$id.tsx:1370
+#: apps/erp/app/routes/share+/quote.$id.tsx:1465
 msgid "Please enter your name"
 msgstr "Пожалуйста, введите ваше имя"
 
@@ -9950,7 +9950,7 @@ msgstr "Приоритеты"
 msgid "Priority"
 msgstr "Приоритет"
 
-#: apps/erp/app/components/AvatarMenu.tsx:246
+#: apps/erp/app/components/AvatarMenu.tsx:248
 msgid "Privacy Policy"
 msgstr "Политика конфиденциальности"
 
@@ -10421,7 +10421,7 @@ msgstr "Количества"
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:485
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:224
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQLineForm.tsx:324
-#: apps/erp/app/routes/share+/quote.$id.tsx:657
+#: apps/erp/app/routes/share+/quote.$id.tsx:656
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:847
 #: apps/erp/app/routes/x+/schedule+/operations.tsx:475
 msgid "Quantity"
@@ -10476,7 +10476,7 @@ msgstr "Вопрос"
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:96
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:376
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionState.tsx:80
-#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityState.tsx:143
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityState.tsx:148
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:133
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineMethodForm.tsx:65
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:318
@@ -10493,7 +10493,7 @@ msgstr "Предложение принято"
 msgid "Quote Accepted By Email"
 msgstr "Письмо принято по электронной почте"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1618
+#: apps/erp/app/routes/share+/quote.$id.tsx:1617
 msgid "Quote expired"
 msgstr "Предложение истекло"
 
@@ -10520,8 +10520,8 @@ msgstr "Наценки на предложения"
 msgid "Quote Materials"
 msgstr "Материалы предложения"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1611
-#: apps/erp/app/routes/share+/quote.$id.tsx:1625
+#: apps/erp/app/routes/share+/quote.$id.tsx:1610
+#: apps/erp/app/routes/share+/quote.$id.tsx:1624
 msgid "Quote not found"
 msgstr "Предложение не найдено"
 
@@ -10702,7 +10702,7 @@ msgstr "Запись удалена"
 msgid "Records"
 msgstr "Записи"
 
-#: apps/erp/app/routes/_public+/login.tsx:261
+#: apps/erp/app/routes/_public+/login.tsx:262
 msgid "Redirecting to verification page..."
 msgstr "Перенаправление на страницу проверки..."
 
@@ -10739,8 +10739,8 @@ msgstr "Отклонить"
 msgid "Reject Lot"
 msgstr "Отклонить партию"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1318
-#: apps/erp/app/routes/share+/quote.$id.tsx:1455
+#: apps/erp/app/routes/share+/quote.$id.tsx:1317
+#: apps/erp/app/routes/share+/quote.$id.tsx:1454
 msgid "Reject Quote"
 msgstr "Отклонить предложение"
 
@@ -10787,7 +10787,7 @@ msgstr "Запомните этот PIN-код. Он потребуется ва
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:211
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:247
-#: apps/erp/app/routes/share+/quote.$id.tsx:928
+#: apps/erp/app/routes/share+/quote.$id.tsx:927
 msgid "Remove"
 msgstr "Удалить"
 
@@ -11143,7 +11143,7 @@ msgstr "Отозвать приглашения"
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:91
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQsTable.tsx:265
 #: apps/erp/app/modules/purchasing/ui/SupplierInteraction/SupplierInteractionState.tsx:79
-#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityState.tsx:142
+#: apps/erp/app/modules/sales/ui/Opportunity/OpportunityState.tsx:147
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQForm.tsx:122
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:259
 #: apps/erp/app/routes/x+/settings+/sales.tsx:552
@@ -11679,7 +11679,7 @@ msgstr "Причины брака"
 #: apps/erp/app/modules/items/ui/Item/ItemPlanningChart.tsx:554
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteExplorer.tsx:467
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderExplorer.tsx:369
-#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:75
+#: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:74
 msgid "Search"
 msgstr "Поиск"
 
@@ -11717,7 +11717,7 @@ msgstr ""
 msgid "Search for existing or create a new one"
 msgstr "Поиск существующей или создание новой"
 
-#: apps/erp/app/components/Chat/ChatHistory.tsx:84
+#: apps/erp/app/components/Chat/ChatHistory.tsx:83
 msgid "Search history"
 msgstr "Поиск в истории"
 
@@ -12305,8 +12305,8 @@ msgstr "Отправленное кол-во"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:617
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:992
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:106
-#: apps/erp/app/routes/share+/quote.$id.tsx:669
-#: apps/erp/app/routes/share+/quote.$id.tsx:1273
+#: apps/erp/app/routes/share+/quote.$id.tsx:668
+#: apps/erp/app/routes/share+/quote.$id.tsx:1272
 msgid "Shipping"
 msgstr "Доставка"
 
@@ -12350,7 +12350,7 @@ msgstr "Место доставки"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:1004
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:132
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:409
-#: apps/erp/app/routes/share+/quote.$id.tsx:1208
+#: apps/erp/app/routes/share+/quote.$id.tsx:1207
 msgid "Shipping Method"
 msgstr "Способ доставки"
 
@@ -12416,23 +12416,23 @@ msgstr "Показать параметры синхронизации"
 msgid "Shown to the user when this rule fails."
 msgstr ""
 
-#: apps/erp/app/routes/_public+/login.tsx:344
+#: apps/erp/app/routes/_public+/login.tsx:345
 msgid "Sign in with Email"
 msgstr "Войти с помощью электронной почты"
 
-#: apps/erp/app/routes/_public+/login.tsx:308
+#: apps/erp/app/routes/_public+/login.tsx:309
 msgid "Sign in with Google"
 msgstr "Войти с помощью Google"
 
-#: apps/erp/app/routes/_public+/login.tsx:321
+#: apps/erp/app/routes/_public+/login.tsx:322
 msgid "Sign in with Outlook"
 msgstr "Войти через Outlook"
 
-#: apps/erp/app/components/AvatarMenu.tsx:264
+#: apps/erp/app/components/AvatarMenu.tsx:266
 msgid "Sign Out"
 msgstr "Выход"
 
-#: apps/erp/app/components/AvatarMenu.tsx:109
+#: apps/erp/app/components/AvatarMenu.tsx:111
 msgid "Signed in as {name}"
 msgstr "Вы вошли как {name}"
 
@@ -12933,9 +12933,9 @@ msgstr "Вещества"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:443
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:594
-#: apps/erp/app/routes/share+/quote.$id.tsx:681
-#: apps/erp/app/routes/share+/quote.$id.tsx:841
-#: apps/erp/app/routes/share+/quote.$id.tsx:1230
+#: apps/erp/app/routes/share+/quote.$id.tsx:680
+#: apps/erp/app/routes/share+/quote.$id.tsx:840
+#: apps/erp/app/routes/share+/quote.$id.tsx:1229
 msgid "Subtotal"
 msgstr "Промежуточный итог"
 
@@ -13315,8 +13315,8 @@ msgstr "Задачи"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:306
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:364
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:575
-#: apps/erp/app/routes/share+/quote.$id.tsx:862
-#: apps/erp/app/routes/share+/quote.$id.tsx:1259
+#: apps/erp/app/routes/share+/quote.$id.tsx:861
+#: apps/erp/app/routes/share+/quote.$id.tsx:1258
 msgid "Tax"
 msgstr "Налог"
 
@@ -13353,11 +13353,11 @@ msgstr "Налог:"
 msgid "Temperature"
 msgstr "Температура"
 
-#: apps/erp/app/components/AvatarMenu.tsx:234
+#: apps/erp/app/components/AvatarMenu.tsx:236
 msgid "Terms and Privacy"
 msgstr "Условия и конфиденциальность"
 
-#: apps/erp/app/components/AvatarMenu.tsx:240
+#: apps/erp/app/components/AvatarMenu.tsx:242
 msgid "Terms of Service"
 msgstr "Условия обслуживания"
 
@@ -13444,7 +13444,7 @@ msgstr "Цена за единицу товара на момент покупк
 msgid "Theme"
 msgstr "Тема"
 
-#: apps/erp/app/components/AvatarMenu.tsx:145
+#: apps/erp/app/components/AvatarMenu.tsx:147
 msgid "Theme Color"
 msgstr "Цвет темы"
 
@@ -13750,8 +13750,8 @@ msgstr "Инструменты"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:327
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:312
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:637
-#: apps/erp/app/routes/share+/quote.$id.tsx:885
-#: apps/erp/app/routes/share+/quote.$id.tsx:1288
+#: apps/erp/app/routes/share+/quote.$id.tsx:884
+#: apps/erp/app/routes/share+/quote.$id.tsx:1287
 #: apps/erp/app/routes/x+/quality+/_index.tsx:644
 msgid "Total"
 msgstr "Итого"
@@ -14112,7 +14112,7 @@ msgstr "Единицы измерения"
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:321
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:424
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:614
-#: apps/erp/app/routes/share+/quote.$id.tsx:660
+#: apps/erp/app/routes/share+/quote.$id.tsx:659
 msgid "Unit Price"
 msgstr "Цена за единицу"
 
@@ -14377,7 +14377,7 @@ msgstr "Используйте ... для получения следующег�
 msgid "Use ... to get the next tool ID"
 msgstr "Используйте ... для получения следующего ID инструмента"
 
-#: apps/erp/app/routes/_public+/login.tsx:274
+#: apps/erp/app/routes/_public+/login.tsx:275
 #: apps/erp/app/routes/_public+/verify.tsx:182
 msgid "Use a different email"
 msgstr "Использовать другой адрес электронной почты"
@@ -14471,7 +14471,7 @@ msgstr "Номер НДС"
 msgid "Verification Error"
 msgstr "Ошибка проверки"
 
-#: apps/erp/app/routes/_public+/login.tsx:255
+#: apps/erp/app/routes/_public+/login.tsx:256
 #: apps/erp/app/routes/_public+/verify.tsx:162
 msgid "Verify your email"
 msgstr "Подтвердите вашу электронную почту"
@@ -14773,11 +14773,11 @@ msgstr "Мы сопоставили каждый столбец с тем, чт�
 msgid "We've sent a verification code to {email}"
 msgstr "Мы отправили код подтверждения на {email}"
 
-#: apps/erp/app/routes/_public+/login.tsx:258
+#: apps/erp/app/routes/_public+/login.tsx:259
 msgid "We've sent a verification code to {signupEmail}"
 msgstr "Мы отправили код подтверждения на {signupEmail}"
 
-#: apps/erp/app/routes/_public+/login.tsx:246
+#: apps/erp/app/routes/_public+/login.tsx:247
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Мы отправили вам волшебную ссылку для входа в ваш аккаунт."
 
@@ -14995,7 +14995,7 @@ msgstr "Год"
 msgid "Yes"
 msgstr "Да"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1427
+#: apps/erp/app/routes/share+/quote.$id.tsx:1426
 msgid "Yes, Accept"
 msgstr "Да, принять"
 
@@ -15003,7 +15003,7 @@ msgstr "Да, принять"
 msgid "Yes, also delete every nested storage unit."
 msgstr "Да, также удалить все вложенные единицы хранения."
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1485
+#: apps/erp/app/routes/share+/quote.$id.tsx:1484
 msgid "Yes, Reject"
 msgstr "Да, отклонить"
 

@@ -17,9 +17,9 @@ import {
   PopoverTrigger,
   SidebarMenuButton,
   toast,
+  useMode,
   VStack
 } from "@carbon/react";
-import { useMode } from "@carbon/remix";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { Trans, useLingui } from "@lingui/react/macro";

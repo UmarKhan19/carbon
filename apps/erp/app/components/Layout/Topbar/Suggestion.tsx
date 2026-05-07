@@ -16,9 +16,9 @@ import {
   PopoverContent,
   PopoverTrigger,
   toast,
+  useMode,
   VStack
 } from "@carbon/react";
-import { useMode } from "@carbon/remix";
 import data from "@emoji-mart/data";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
