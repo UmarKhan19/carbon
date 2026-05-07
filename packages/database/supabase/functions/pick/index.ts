@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
+import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/nanoid.ts";
 import { z } from "npm:zod@^3.24.1";
 
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
@@ -464,361 +465,412 @@ async function releasePickingList(client: any, payload: any) {
   return { success: true };
 }
 
-async function confirmPickingList(client: any, payload: any) {
+async function confirmPickingList(_client: any, payload: any) {
   const { pickingListId, shortageReason, companyId, userId } = payload;
   const now = new Date().toISOString();
 
-  const { data: pl } = await client
-    .from("pickingList")
-    .select("*, pickingListLine(*)")
-    .eq("id", pickingListId)
-    .eq("companyId", companyId)
-    .single();
+  // Wraps the entire operation in a single Postgres transaction via the
+  // shared Kysely pool. Mirrors apps/erp issue/index.ts so a partial
+  // failure rolls back ledger + jobMaterial + trackedEntity + activity
+  // writes together. companyId is enforced explicitly on every where
+  // clause since this connection bypasses RLS.
+  await db.transaction().execute(async (trx) => {
+    const pl = await trx
+      .selectFrom("pickingList")
+      .selectAll()
+      .where("id", "=", pickingListId)
+      .where("companyId", "=", companyId)
+      .executeTakeFirst();
 
-  if (!pl) throw new Error("Picking list not found");
-  if (!["Released", "In Progress"].includes(pl.status)) {
-    throw new Error(`Cannot confirm a ${pl.status} picking list`);
-  }
-
-  const lines: any[] = pl.pickingListLine ?? [];
-  const hasOutstanding = lines.some((l: any) => l.outstandingQuantity > 0);
-  if (hasOutstanding && !shortageReason) {
-    throw new Error("A shortage reason is required when confirming with outstanding quantities");
-  }
-
-  const ledgerEntries: any[] = [];
-  const jobMaterialUpdates: Array<{ id: string; pickedQty: number }> = [];
-  const entityConsumes: Array<{ entityId: string; pickedQty: number }> = [];
-
-  for (const line of lines) {
-    if (line.pickedQuantity <= 0) continue;
-
-    ledgerEntries.push({
-      entryType: "Consumption",
-      documentType: "Job Consumption",
-      documentId: pl.jobId,
-      documentLineId: line.jobMaterialId,
-      itemId: line.itemId,
-      quantity: -line.pickedQuantity,
-      trackedEntityId: line.pickedTrackedEntityId ?? null,
-      locationId: pl.locationId,
-      companyId,
-      createdBy: userId,
-    });
-
-    if (line.jobMaterialId) {
-      jobMaterialUpdates.push({ id: line.jobMaterialId, pickedQty: line.pickedQuantity });
+    if (!pl) throw new Error("Picking list not found");
+    if (!["Released", "In Progress"].includes(pl.status as string)) {
+      throw new Error(`Cannot confirm a ${pl.status} picking list`);
     }
 
-    if (line.pickedTrackedEntityId) {
-      entityConsumes.push({ entityId: line.pickedTrackedEntityId, pickedQty: line.pickedQuantity });
+    const lines = await trx
+      .selectFrom("pickingListLine")
+      .selectAll()
+      .where("pickingListId", "=", pickingListId)
+      .where("companyId", "=", companyId)
+      .execute();
+
+    const hasOutstanding = lines.some(
+      (l) => Number(l.outstandingQuantity ?? 0) > 0,
+    );
+    if (hasOutstanding && !shortageReason) {
+      throw new Error(
+        "A shortage reason is required when confirming with outstanding quantities",
+      );
     }
-  }
 
-  if (ledgerEntries.length > 0) {
-    const { error: ledgerError } = await client.from("itemLedger").insert(ledgerEntries);
-    if (ledgerError) throw new Error(ledgerError.message ?? "Failed to post ledger entries");
-  }
+    const ledgerEntries: any[] = [];
+    const jobMaterialUpdates: Array<{ id: string; pickedQty: number }> = [];
+    const entityConsumes: Array<{ entityId: string; pickedQty: number }> = [];
 
-  for (const { id, pickedQty } of jobMaterialUpdates) {
-    const { data: jm } = await client
-      .from("jobMaterial")
-      .select("quantityIssued")
-      .eq("id", id)
-      .eq("companyId", companyId)
-      .single();
+    for (const line of lines) {
+      const pickedQty = Number(line.pickedQuantity ?? 0);
+      if (pickedQty <= 0) continue;
 
-    if (jm) {
-      await client
-        .from("jobMaterial")
-        .update({ quantityIssued: (jm.quantityIssued ?? 0) + pickedQty })
-        .eq("id", id)
-        .eq("companyId", companyId);
-    }
-  }
+      ledgerEntries.push({
+        entryType: "Consumption",
+        documentType: "Job Consumption",
+        documentId: pl.jobId,
+        documentLineId: line.jobMaterialId,
+        itemId: line.itemId,
+        quantity: -pickedQty,
+        trackedEntityId: line.pickedTrackedEntityId ?? null,
+        locationId: pl.locationId,
+        companyId,
+        createdBy: userId,
+      });
 
-  if (entityConsumes.length > 0) {
-    const entityIds = entityConsumes.map((e) => e.entityId);
-    const { data: entities } = await client
-      .from("trackedEntity")
-      .select("*")
-      .in("id", entityIds)
-      .eq("companyId", companyId);
+      if (line.jobMaterialId) {
+        jobMaterialUpdates.push({ id: line.jobMaterialId, pickedQty });
+      }
 
-    const entityMap = new Map<string, any>((entities ?? []).map((e: any) => [e.id, e]));
-
-    // Capture per-entity outcome: original qty, picked qty, and remainder
-    // entity id when a split happened. The new activity-write logic below
-    // needs all three, so collect everything before mutating the DB.
-    type EntityOp = {
-      entityId: string;
-      originalQty: number;
-      pickedQty: number;
-      remainderQty: number;
-      remainderEntityId?: string;
-    };
-    const ops: EntityOp[] = entityConsumes
-      .map(({ entityId, pickedQty }) => {
-        const entity = entityMap.get(entityId);
-        if (!entity) return null;
-        const originalQty = Number(entity.quantity);
-        return {
-          entityId,
-          originalQty,
+      if (line.pickedTrackedEntityId) {
+        entityConsumes.push({
+          entityId: line.pickedTrackedEntityId,
           pickedQty,
-          remainderQty: Math.max(originalQty - pickedQty, 0),
-        } satisfies EntityOp;
-      })
-      .filter((x): x is EntityOp => x !== null);
-
-    // 1) Shrink + create remainder entities for partial picks. Done one at
-    // a time so we can capture the new remainder id and link it through
-    // the Split activity below.
-    for (const op of ops) {
-      if (op.remainderQty <= 0) continue;
-      const entity = entityMap.get(op.entityId);
-      await client
-        .from("trackedEntity")
-        .update({ quantity: op.pickedQty })
-        .eq("id", op.entityId)
-        .eq("companyId", companyId);
-
-      const { data: inserted } = await client
-        .from("trackedEntity")
-        .insert({
-          readableId: entity.readableId ?? null,
-          itemId: entity.itemId ?? null,
-          sourceDocument: entity.sourceDocument,
-          sourceDocumentId: entity.sourceDocumentId,
-          sourceDocumentReadableId: entity.sourceDocumentReadableId ?? null,
-          attributes: entity.attributes ?? {},
-          expirationDate: entity.expirationDate ?? null,
-          quantity: op.remainderQty,
-          status: "Available",
-          splitFromEntityId: op.entityId,
-          companyId,
-          createdBy: userId,
-        })
-        .select("id")
-        .single();
-      op.remainderEntityId = inserted?.id;
+        });
+      }
     }
 
-    // 2) Mark every original entity as Consumed.
-    await client
-      .from("trackedEntity")
-      .update({ status: "Consumed" })
-      .in("id", entityIds)
-      .eq("companyId", companyId);
+    if (ledgerEntries.length > 0) {
+      await trx.insertInto("itemLedger").values(ledgerEntries).execute();
+    }
 
-    // 3) Write traceability activities. Mirrors the MES issue/index.ts
-    // pattern so the graph renderer can draw real edges:
-    //   Partial:  [original full qty] → Split → {remainder, original-shrunk}
-    //                                    then  → Consume({original-shrunk})
-    //   Full:     [original full qty] → Consume (no output)
-    // Consume activities deliberately have no output rows — the entity
-    // is gone after this event, there's nothing to render downstream.
-    for (const op of ops) {
-      if (op.remainderQty > 0 && op.remainderEntityId) {
-        const { data: splitAct } = await client
-          .from("trackedActivity")
-          .insert({
-            type: "Split",
+    for (const { id, pickedQty } of jobMaterialUpdates) {
+      const jm = await trx
+        .selectFrom("jobMaterial")
+        .select("quantityIssued")
+        .where("id", "=", id)
+        .where("companyId", "=", companyId)
+        .executeTakeFirst();
+      if (jm) {
+        await trx
+          .updateTable("jobMaterial")
+          .set({ quantityIssued: Number(jm.quantityIssued ?? 0) + pickedQty })
+          .where("id", "=", id)
+          .where("companyId", "=", companyId)
+          .execute();
+      }
+    }
+
+    if (entityConsumes.length > 0) {
+      const entityIds = entityConsumes.map((e) => e.entityId);
+      const entities = await trx
+        .selectFrom("trackedEntity")
+        .selectAll()
+        .where("id", "in", entityIds)
+        .where("companyId", "=", companyId)
+        .execute();
+
+      const entityMap = new Map<string, any>(
+        entities.map((e: any) => [e.id, e]),
+      );
+
+      type EntityOp = {
+        entityId: string;
+        originalQty: number;
+        pickedQty: number;
+        remainderQty: number;
+        remainderEntityId?: string;
+      };
+      const ops: EntityOp[] = entityConsumes
+        .map(({ entityId, pickedQty }) => {
+          const entity = entityMap.get(entityId);
+          if (!entity) return null;
+          const originalQty = Number(entity.quantity);
+          return {
+            entityId,
+            originalQty,
+            pickedQty,
+            remainderQty: Math.max(originalQty - pickedQty, 0),
+          } satisfies EntityOp;
+        })
+        .filter((x): x is EntityOp => x !== null);
+
+      // 1) Shrink + create remainder entities for partial picks.
+      for (const op of ops) {
+        if (op.remainderQty <= 0) continue;
+        const entity = entityMap.get(op.entityId);
+
+        await trx
+          .updateTable("trackedEntity")
+          .set({ quantity: op.pickedQty })
+          .where("id", "=", op.entityId)
+          .where("companyId", "=", companyId)
+          .execute();
+
+        const remainderId = nanoid();
+        await trx
+          .insertInto("trackedEntity")
+          .values({
+            id: remainderId,
+            readableId: entity.readableId ?? null,
+            itemId: entity.itemId ?? null,
+            sourceDocument: entity.sourceDocument,
+            sourceDocumentId: entity.sourceDocumentId,
+            sourceDocumentReadableId: entity.sourceDocumentReadableId ?? null,
+            attributes: entity.attributes ?? {},
+            expirationDate: entity.expirationDate ?? null,
+            quantity: op.remainderQty,
+            status: "Available",
+            splitFromEntityId: op.entityId,
+            companyId,
+            createdBy: userId,
+          } as any)
+          .execute();
+        op.remainderEntityId = remainderId;
+      }
+
+      // 2) Mark every original entity as Consumed.
+      await trx
+        .updateTable("trackedEntity")
+        .set({ status: "Consumed" })
+        .where("id", "in", entityIds)
+        .where("companyId", "=", companyId)
+        .execute();
+
+      // 3) Traceability activities — Split (when partial) + Consume.
+      // Mirrors MES issue/index.ts: Consume has no output, Split lays
+      // down both the consumed-shrunk and remainder sides so the graph
+      // renders a real chain.
+      for (const op of ops) {
+        if (op.remainderQty > 0 && op.remainderEntityId) {
+          const splitId = nanoid();
+          await trx
+            .insertInto("trackedActivity")
+            .values({
+              id: splitId,
+              type: "Split",
+              sourceDocument: "Picking List",
+              sourceDocumentId: pickingListId,
+              sourceDocumentReadableId: pl.pickingListId,
+              companyId,
+              createdBy: userId,
+            } as any)
+            .execute();
+
+          await trx
+            .insertInto("trackedActivityInput")
+            .values({
+              trackedActivityId: splitId,
+              trackedEntityId: op.entityId,
+              quantity: op.originalQty,
+              companyId,
+              createdBy: userId,
+            })
+            .execute();
+
+          await trx
+            .insertInto("trackedActivityOutput")
+            .values([
+              {
+                trackedActivityId: splitId,
+                trackedEntityId: op.entityId,
+                quantity: op.pickedQty,
+                companyId,
+                createdBy: userId,
+              },
+              {
+                trackedActivityId: splitId,
+                trackedEntityId: op.remainderEntityId,
+                quantity: op.remainderQty,
+                companyId,
+                createdBy: userId,
+              },
+            ])
+            .execute();
+        }
+
+        const consumeId = nanoid();
+        await trx
+          .insertInto("trackedActivity")
+          .values({
+            id: consumeId,
+            type: "Consume",
             sourceDocument: "Picking List",
             sourceDocumentId: pickingListId,
             sourceDocumentReadableId: pl.pickingListId,
             companyId,
             createdBy: userId,
-          })
-          .select()
-          .single();
+          } as any)
+          .execute();
 
-        if (splitAct) {
-          await client.from("trackedActivityInput").insert({
-            trackedActivityId: splitAct.id,
+        await trx
+          .insertInto("trackedActivityInput")
+          .values({
+            trackedActivityId: consumeId,
             trackedEntityId: op.entityId,
-            quantity: op.originalQty,
+            quantity: op.pickedQty,
             companyId,
             createdBy: userId,
-          });
-          await client.from("trackedActivityOutput").insert([
-            {
-              trackedActivityId: splitAct.id,
-              trackedEntityId: op.entityId,
-              quantity: op.pickedQty,
-              companyId,
-              createdBy: userId,
-            },
-            {
-              trackedActivityId: splitAct.id,
-              trackedEntityId: op.remainderEntityId,
-              quantity: op.remainderQty,
-              companyId,
-              createdBy: userId,
-            },
-          ]);
-        }
-      }
-
-      const { data: consumeAct } = await client
-        .from("trackedActivity")
-        .insert({
-          type: "Consume",
-          sourceDocument: "Picking List",
-          sourceDocumentId: pickingListId,
-          sourceDocumentReadableId: pl.pickingListId,
-          companyId,
-          createdBy: userId,
-        })
-        .select()
-        .single();
-
-      if (consumeAct) {
-        await client.from("trackedActivityInput").insert({
-          trackedActivityId: consumeAct.id,
-          trackedEntityId: op.entityId,
-          quantity: op.pickedQty,
-          companyId,
-          createdBy: userId,
-        });
+          })
+          .execute();
       }
     }
-  }
 
-  const { error: plError } = await client
-    .from("pickingList")
-    .update({
-      status: "Confirmed",
-      confirmedAt: now,
-      confirmedBy: userId,
-      shortageReason: shortageReason ?? null,
-      updatedBy: userId,
-      updatedAt: now,
-    })
-    .eq("id", pickingListId)
-    .eq("companyId", companyId);
-
-  if (plError) throw new Error(plError.message ?? "Failed to confirm picking list");
+    await trx
+      .updateTable("pickingList")
+      .set({
+        status: "Confirmed",
+        confirmedAt: now,
+        confirmedBy: userId,
+        shortageReason: shortageReason ?? null,
+        updatedBy: userId,
+        updatedAt: now,
+      })
+      .where("id", "=", pickingListId)
+      .where("companyId", "=", companyId)
+      .execute();
+  });
 
   return { success: true };
 }
 
-async function reversePickingList(client: any, payload: any) {
+async function reversePickingList(_client: any, payload: any) {
   const { pickingListId, companyId, userId } = payload;
   const now = new Date().toISOString();
 
-  const { data: pl } = await client
-    .from("pickingList")
-    .select("*, pickingListLine(*)")
-    .eq("id", pickingListId)
-    .eq("companyId", companyId)
-    .single();
+  // Same atomicity guarantees as confirmPickingList — the reversal posts
+  // ledger + jobMaterial rollback + remainder merge + entity restore in
+  // one transaction. All scoped explicitly by companyId because the
+  // direct connection bypasses RLS.
+  await db.transaction().execute(async (trx) => {
+    const pl = await trx
+      .selectFrom("pickingList")
+      .selectAll()
+      .where("id", "=", pickingListId)
+      .where("companyId", "=", companyId)
+      .executeTakeFirst();
 
-  if (!pl) throw new Error("Picking list not found");
-  if (pl.status !== "Confirmed") throw new Error("Only Confirmed picking lists can be reversed");
-
-  const lines: any[] = pl.pickingListLine ?? [];
-
-  const reversalEntries: any[] = [];
-  const jobMaterialRollbacks: Array<{ id: string; pickedQty: number }> = [];
-  const entityRestorations: string[] = [];
-
-  for (const line of lines) {
-    if ((line.pickedQuantity ?? 0) <= 0) continue;
-
-    reversalEntries.push({
-      entryType: "Positive Adjmt.",
-      documentType: "Job Consumption", // reversal of a prior consumption entry
-      documentId: pl.jobId,
-      documentLineId: line.jobMaterialId ?? null,
-      itemId: line.itemId,
-      quantity: line.pickedQuantity,
-      trackedEntityId: line.pickedTrackedEntityId ?? null,
-      locationId: pl.locationId,
-      companyId,
-      createdBy: userId,
-    });
-
-    if (line.jobMaterialId) {
-      jobMaterialRollbacks.push({ id: line.jobMaterialId, pickedQty: line.pickedQuantity });
+    if (!pl) throw new Error("Picking list not found");
+    if (pl.status !== "Confirmed") {
+      throw new Error("Only Confirmed picking lists can be reversed");
     }
 
-    if (line.pickedTrackedEntityId) {
-      entityRestorations.push(line.pickedTrackedEntityId);
-    }
-  }
+    const lines = await trx
+      .selectFrom("pickingListLine")
+      .selectAll()
+      .where("pickingListId", "=", pickingListId)
+      .where("companyId", "=", companyId)
+      .execute();
 
-  if (reversalEntries.length > 0) {
-    const { error: ledgerError } = await client.from("itemLedger").insert(reversalEntries);
-    if (ledgerError) throw new Error(ledgerError.message ?? "Failed to post reversal ledger entries");
-  }
+    const reversalEntries: any[] = [];
+    const jobMaterialRollbacks: Array<{ id: string; pickedQty: number }> = [];
+    const entityRestorations: string[] = [];
 
-  for (const { id, pickedQty } of jobMaterialRollbacks) {
-    const { data: jm } = await client
-      .from("jobMaterial")
-      .select("quantityIssued")
-      .eq("id", id)
-      .eq("companyId", companyId)
-      .single();
-    if (jm) {
-      await client
-        .from("jobMaterial")
-        .update({ quantityIssued: Math.max(0, (jm.quantityIssued ?? 0) - pickedQty) })
-        .eq("id", id)
-        .eq("companyId", companyId);
-    }
-  }
+    for (const line of lines) {
+      const pickedQty = Number(line.pickedQuantity ?? 0);
+      if (pickedQty <= 0) continue;
 
-  // Restore tracked entities: merge split remainders back, then mark Available
-  if (entityRestorations.length > 0) {
-    // Find any remainder entities that were split off from these consumed entities
-    const { data: remainders } = await client
-      .from("trackedEntity")
-      .select("id, quantity, splitFromEntityId")
-      .in("splitFromEntityId", entityRestorations)
-      .eq("companyId", companyId)
-      .eq("status", "Available");
+      reversalEntries.push({
+        entryType: "Positive Adjmt.",
+        documentType: "Job Consumption",
+        documentId: pl.jobId,
+        documentLineId: line.jobMaterialId ?? null,
+        itemId: line.itemId,
+        quantity: pickedQty,
+        trackedEntityId: line.pickedTrackedEntityId ?? null,
+        locationId: pl.locationId,
+        companyId,
+        createdBy: userId,
+      });
 
-    if (remainders && remainders.length > 0) {
-      // Add remainder qty back to each original consumed entity
-      for (const remainder of remainders) {
-        const { data: original } = await client
-          .from("trackedEntity")
-          .select("quantity")
-          .eq("id", remainder.splitFromEntityId)
-          .eq("companyId", companyId)
-          .single();
-        if (original) {
-          await client
-            .from("trackedEntity")
-            .update({ quantity: Number(original.quantity) + Number(remainder.quantity) })
-            .eq("id", remainder.splitFromEntityId)
-            .eq("companyId", companyId);
-        }
+      if (line.jobMaterialId) {
+        jobMaterialRollbacks.push({ id: line.jobMaterialId, pickedQty });
       }
-      // Delete the remainder entities
-      await client
-        .from("trackedEntity")
-        .delete()
-        .in("id", remainders.map((r: any) => r.id))
-        .eq("companyId", companyId);
+
+      if (line.pickedTrackedEntityId) {
+        entityRestorations.push(line.pickedTrackedEntityId);
+      }
     }
 
-    await client
-      .from("trackedEntity")
-      .update({ status: "Available" })
-      .in("id", entityRestorations)
-      .eq("companyId", companyId)
-      .eq("status", "Consumed");
-  }
+    if (reversalEntries.length > 0) {
+      await trx.insertInto("itemLedger").values(reversalEntries).execute();
+    }
 
-  const { error: plError } = await client
-    .from("pickingList")
-    .update({ status: "Cancelled", updatedBy: userId, updatedAt: now })
-    .eq("id", pickingListId)
-    .eq("companyId", companyId);
+    for (const { id, pickedQty } of jobMaterialRollbacks) {
+      const jm = await trx
+        .selectFrom("jobMaterial")
+        .select("quantityIssued")
+        .where("id", "=", id)
+        .where("companyId", "=", companyId)
+        .executeTakeFirst();
+      if (jm) {
+        await trx
+          .updateTable("jobMaterial")
+          .set({
+            quantityIssued: Math.max(
+              0,
+              Number(jm.quantityIssued ?? 0) - pickedQty,
+            ),
+          })
+          .where("id", "=", id)
+          .where("companyId", "=", companyId)
+          .execute();
+      }
+    }
 
-  if (plError) throw new Error(plError.message ?? "Failed to reverse picking list");
+    if (entityRestorations.length > 0) {
+      const remainders = await trx
+        .selectFrom("trackedEntity")
+        .select(["id", "quantity", "splitFromEntityId"])
+        .where("splitFromEntityId", "in", entityRestorations)
+        .where("companyId", "=", companyId)
+        .where("status", "=", "Available")
+        .execute();
+
+      if (remainders.length > 0) {
+        for (const remainder of remainders) {
+          if (!remainder.splitFromEntityId) continue;
+          const original = await trx
+            .selectFrom("trackedEntity")
+            .select("quantity")
+            .where("id", "=", remainder.splitFromEntityId)
+            .where("companyId", "=", companyId)
+            .executeTakeFirst();
+          if (original) {
+            await trx
+              .updateTable("trackedEntity")
+              .set({
+                quantity:
+                  Number(original.quantity) + Number(remainder.quantity ?? 0),
+              })
+              .where("id", "=", remainder.splitFromEntityId)
+              .where("companyId", "=", companyId)
+              .execute();
+          }
+        }
+        await trx
+          .deleteFrom("trackedEntity")
+          .where(
+            "id",
+            "in",
+            remainders.map((r: any) => r.id),
+          )
+          .where("companyId", "=", companyId)
+          .execute();
+      }
+
+      await trx
+        .updateTable("trackedEntity")
+        .set({ status: "Available" })
+        .where("id", "in", entityRestorations)
+        .where("companyId", "=", companyId)
+        .where("status", "=", "Consumed")
+        .execute();
+    }
+
+    await trx
+      .updateTable("pickingList")
+      .set({ status: "Cancelled", updatedBy: userId, updatedAt: now })
+      .where("id", "=", pickingListId)
+      .where("companyId", "=", companyId)
+      .execute();
+  });
 
   return { success: true };
 }
