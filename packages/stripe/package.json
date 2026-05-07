@@ -3,7 +3,7 @@
   "dependencies": {
     "@carbon/auth": "workspace:*",
     "@carbon/database": "workspace:*",
-    "@carbon/jobs": "workspace:*",
+    "@carbon/env": "workspace:*",
     "@carbon/kv": "workspace:*",
     "@carbon/lib": "workspace:*",
     "@carbon/utils": "workspace:*",

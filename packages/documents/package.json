@@ -2,6 +2,7 @@
   "name": "@carbon/documents",
   "dependencies": {
     "@bwip-js/node": "4.9.0",
+    "@carbon/env": "workspace:*",
     "@carbon/react": "workspace:*",
     "@carbon/utils": "workspace:*",
     "@hookform/resolvers": "3.10.0",
@@ -15,7 +16,6 @@
     "sst": "catalog:"
   },
   "devDependencies": {
-    "@carbon/auth": "workspace:*",
     "@carbon/config": "workspace:*",
     "@carbon/database": "workspace:*",
     "@internationalized/date": "catalog:",

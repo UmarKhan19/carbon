@@ -1,5 +1,12 @@
 import type { JSONContent } from "@tiptap/react";
 
+export {
+  CarbonContext,
+  type ICarbonStore,
+  setCarbonHmrStore,
+  useCarbon
+} from "./CarbonContext";
+
 import {
   Accordion,
   AccordionContent,

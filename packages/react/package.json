@@ -1,6 +1,7 @@
 {
   "name": "@carbon/react",
   "dependencies": {
+    "@carbon/database": "workspace:*",
     "@carbon/tiptap": "workspace:*",
     "@carbon/utils": "workspace:*",
     "@radix-ui/react-accordion": "1.2.12",
@@ -84,7 +85,8 @@
     "sonner": "2.0.7",
     "tailwind-merge": "catalog:",
     "tailwindcss-animate": "catalog:",
-    "three": "0.163.0"
+    "three": "0.163.0",
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",

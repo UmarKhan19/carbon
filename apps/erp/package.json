@@ -126,7 +126,7 @@
     "zod": "catalog:",
     "zod-form-data": "catalog:",
     "zod-to-json-schema": "3.25.2",
-    "zustand": "5.0.12"
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",

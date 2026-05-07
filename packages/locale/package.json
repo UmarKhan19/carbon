@@ -1,6 +1,7 @@
 {
   "name": "@carbon/locale",
   "dependencies": {
+    "@carbon/env": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/react": "catalog:"
   },

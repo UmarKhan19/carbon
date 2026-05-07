@@ -1,6 +1,7 @@
 {
   "name": "@carbon/kv",
   "dependencies": {
+    "@carbon/env": "workspace:*",
     "cookie": "catalog:",
     "dompurify": "catalog:",
     "ioredis": "5.10.1",
