@@ -104,6 +104,7 @@ export default function WorkCenterRoute() {
     overheadRate: workCenter?.overheadRate ?? 0,
     processes: workCenter?.processes ?? [],
     requiredAbilityId: workCenter?.requiredAbilityId ?? undefined,
+    defaultStorageUnitId: workCenter?.defaultStorageUnitId ?? undefined,
     ...getCustomFields(workCenter?.customFields)
   };
 

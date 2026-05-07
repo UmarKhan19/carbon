@@ -77,7 +77,8 @@ export default function NewWorkCenterRoute() {
     machineRate: 0,
     name: "",
     overheadRate: 0,
-    processes: []
+    processes: [],
+    defaultStorageUnitId: undefined
   };
 
   return <WorkCenterForm onClose={onClose} initialValues={initialValues} />;

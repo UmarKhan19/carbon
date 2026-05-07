@@ -491,6 +491,10 @@ export const workCenterValidator = z.object({
   overheadRate: zfd.numeric(z.number().min(0)),
   processes: z
     .array(z.string().min(1, { message: "Invalid process" }))
-    .optional()
+    .optional(),
+  // Optional drop-off shelf for picked materials at this work centre.
+  // Feeds pickingListLine.destinationStorageUnitId via the multi-shelf
+  // RPC's COALESCE(workCenter.defaultStorageUnitId, pl.destinationStorageUnitId).
+  defaultStorageUnitId: zfd.text(z.string().optional())
   // requiredAbilityId: zfd.text(z.string().optional()),
 });

@@ -1,4 +1,4 @@
-import { ValidatedForm } from "@carbon/form";
+import { useControlField, ValidatedForm } from "@carbon/form";
 import {
   Button,
   HStack,
@@ -26,6 +26,7 @@ import {
   Number,
   Processes,
   StandardFactor,
+  StorageUnit,
   Submit,
   TextArea
 } from "~/components/Form";
@@ -113,6 +114,7 @@ const WorkCenterForm = ({
                 )}
                 <TextArea name="description" label={t`Description`} />
                 <Location name="locationId" label={t`Location`} />
+                <DefaultStorageUnitField />
 
                 <Number
                   name="laborRate"
@@ -170,3 +172,28 @@ const WorkCenterForm = ({
 };
 
 export default WorkCenterForm;
+
+// Inline so we can read the form's live locationId via useControlField
+// (which only works inside the ValidatedForm context). Filtering the
+// StorageUnit options by the currently-selected location keeps planners
+// from picking a shelf that lives in a different location.
+function DefaultStorageUnitField() {
+  const { t } = useLingui();
+  const [locationId] = useControlField<string>("locationId");
+  const [storageUnitId, setStorageUnitId] = useControlField<string | undefined>(
+    "defaultStorageUnitId"
+  );
+
+  return (
+    <StorageUnit
+      name="defaultStorageUnitId"
+      label={t`Default Storage Unit`}
+      helperText={t`Drop-off shelf for materials picked for this work centre. Optional.`}
+      isClearable
+      isOptional
+      locationId={locationId || undefined}
+      value={storageUnitId ?? ""}
+      onChange={(unit) => setStorageUnitId(unit?.id ?? undefined)}
+    />
+  );
+}

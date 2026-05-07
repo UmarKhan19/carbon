@@ -1861,7 +1861,7 @@ msgstr "Impossible de désactiver le seul palier actif. Ajoutez un autre palier 
 #: apps/erp/app/modules/resources/ui/Processes/ProcessForm.tsx:162
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:430
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:691
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:161
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:163
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:470
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:121
 #: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:100
@@ -3190,7 +3190,7 @@ msgstr "Unité de mesure créée"
 msgid "Created webhook"
 msgstr "Webhook créé"
 
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:63
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:64
 msgid "Created work center"
 msgstr "Centre de travail créé"
 
@@ -3678,13 +3678,14 @@ msgstr "Source par défaut"
 #: apps/erp/app/modules/items/ui/Item/PickMethodForm.tsx:134
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:929
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:245
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:190
 msgid "Default Storage Unit"
 msgstr "Unité de stockage par défaut"
 
 #: apps/erp/app/components/Form/StandardFactor.tsx:61
 #: apps/erp/app/modules/resources/ui/Processes/ProcessesTable.tsx:134
 #: apps/erp/app/modules/resources/ui/Processes/ProcessForm.tsx:139
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:144
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:146
 msgid "Default Unit"
 msgstr "Unité par défaut"
 
@@ -4158,7 +4159,7 @@ msgstr "Départements"
 #: apps/erp/app/modules/quality/ui/Issue/Linear/CreateIssue.tsx:77
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterForm.tsx:176
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchForm.tsx:147
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:114
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:115
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:193
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:95
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:875
@@ -4384,6 +4385,10 @@ msgstr "Statuts de livraison directe"
 #: apps/erp/app/components/ImportCSVModal/UploadCSV.tsx:170
 msgid "Drop your file here, or click to browse."
 msgstr "Déposez votre fichier ici, ou cliquez pour parcourir."
+
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:191
+msgid "Drop-off shelf for materials picked for this work centre. Optional."
+msgstr ""
 
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:89
 msgid "Due"
@@ -4878,7 +4883,7 @@ msgstr "Modifier la vue"
 msgid "Edit Webhook"
 msgstr "Modifier le Webhook"
 
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:100
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:101
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:281
 msgid "Edit Work Center"
 msgstr "Modifier le centre de travail"
@@ -5570,7 +5575,7 @@ msgid "Failed to create webhook: {0}"
 msgstr "Échec de la création du webhook : {0}"
 
 #. placeholder {0}: fetcher.data.error.message
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:66
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:67
 msgid "Failed to create work center: {0}"
 msgstr "Échec de la création du centre de travail : {0}"
 
@@ -7111,7 +7116,7 @@ msgstr "Travail"
 msgid "Labor Rate"
 msgstr "Taux de main-d'œuvre"
 
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:119
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:121
 msgid "Labor Rate (Hourly)"
 msgstr "Taux de main-d'œuvre (horaire)"
 
@@ -7409,7 +7414,7 @@ msgstr "Chargement..."
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:168
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceSchedulesTable.tsx:117
 #: apps/erp/app/modules/resources/ui/Partners/PartnersTable.tsx:58
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:115
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:116
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:162
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:108
 #: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:81
@@ -7520,7 +7525,7 @@ msgstr "Machine"
 msgid "Machine Rate"
 msgstr "Taux machine"
 
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:127
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:129
 msgid "Machine Rate (Hourly)"
 msgstr "Taux Machine (Horaire)"
 
@@ -8235,7 +8240,7 @@ msgstr "Ma vue enregistrée"
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:308
 #: apps/erp/app/modules/resources/ui/Training/TrainingForm.tsx:75
 #: apps/erp/app/modules/resources/ui/Training/TrainingsTable.tsx:50
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:110
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:111
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:115
 #: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:89
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:74
@@ -8616,7 +8621,7 @@ msgstr "Nouveau Transfert d'Entrepôt"
 msgid "New Webhook"
 msgstr "Nouveau Webhook"
 
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:102
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:103
 msgid "New Work Center"
 msgstr "Nouveau Centre de Travail"
 
@@ -9398,7 +9403,7 @@ msgstr "En retard"
 msgid "Overhead Rate"
 msgstr "Taux de frais généraux"
 
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:135
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:137
 msgid "Overhead Rate (Hourly)"
 msgstr "Taux de frais généraux (horaire)"
 
@@ -10105,7 +10110,7 @@ msgstr "Type de processus"
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:846
 #: apps/erp/app/modules/resources/ui/Processes/ProcessesTable.tsx:316
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:53
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:112
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:113
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:132
 #: apps/erp/app/routes/x+/resources+/processes.tsx:14
 msgid "Processes"
@@ -11619,7 +11624,7 @@ msgstr "Samedi"
 #: apps/erp/app/modules/resources/ui/Training/TrainingAssignmentForm.tsx:427
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:694
 #: apps/erp/app/modules/resources/ui/Training/TrainingForm.tsx:84
-#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:158
+#: apps/erp/app/modules/resources/ui/WorkCenters/WorkCenterForm.tsx:160
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:118
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:164
 #: apps/erp/app/modules/sales/ui/Customer/CustomerLocationForm.tsx:97
