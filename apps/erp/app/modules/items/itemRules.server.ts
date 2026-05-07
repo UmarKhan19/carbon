@@ -1,10 +1,9 @@
 // Server-side item-rules service. Single entry point for trigger surfaces
-// (receipt / shipment / stock-transfer / job-op / inventory adjustment),
-// edition gate, and the per-item Rules-tab loader.
+// (receipt / shipment / stock-transfer / inventory adjustment), plan gate,
+// and the per-item Rules-tab loader.
 //
 // All functions here are server-only. Never import from a client module.
 
-import { CarbonEdition } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
 import {
@@ -12,9 +11,9 @@ import {
   type Condition,
   type ConditionAst,
   compileWithCache,
-  Edition,
   evaluateRules,
   getFieldDef,
+  Plan,
   type RuleContext,
   type Severity,
   type TransactionSurface,
@@ -24,7 +23,8 @@ import {
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LoaderFunctionArgs } from "react-router";
 import { getStorageTypesList } from "~/modules/inventory";
-import { getLocationsList, getWorkCentersList } from "~/modules/resources";
+import { getLocationsList } from "~/modules/resources";
+import { companyHasPlan } from "~/utils/planGate.server";
 import {
   getActiveRulesForItems,
   getItemPostingGroupsList,
@@ -35,12 +35,17 @@ import {
 type Client = SupabaseClient<Database>;
 
 // ---------------------------------------------------------------------------
-// Edition gate
+// Plan gate
 // ---------------------------------------------------------------------------
 
-/** Rules eval is Enterprise/Business only — Community returns no violations. */
-export const isItemRulesEnabled = (): boolean =>
-  CarbonEdition !== Edition.Community;
+/**
+ * Item rules require a paid plan (Business). Self-hosted (non-Cloud) and
+ * bypass-listed companies always pass — `companyHasPlan` handles both.
+ */
+export const isItemRulesEnabledForCompany = (
+  client: Client,
+  companyId: string
+): Promise<boolean> => companyHasPlan(client, companyId, [Plan.Business]);
 
 // ---------------------------------------------------------------------------
 // Block decision
@@ -55,6 +60,26 @@ export const isBlocked = (
     if (violations[i]!.severity === "error") return true;
   }
   return violations.length > 0 && !acknowledged;
+};
+
+/**
+ * Collapse violations by `ruleId + message`. Same rule firing on N lines or
+ * across N surfaces (e.g. shipment + warehouseTransfer when posting an
+ * outbound transfer) yields N copies — operator only needs to see one.
+ * `evaluateLinesForSurface` dedups its own output; use this when a caller
+ * accumulates results from multiple `evaluateLinesForSurface` invocations.
+ */
+export const dedupeViolations = (violations: Violation[]): Violation[] => {
+  const seen = new Set<string>();
+  const out: Violation[] = [];
+  for (let i = 0; i < violations.length; i++) {
+    const v = violations[i]!;
+    const key = `${v.ruleId}\x00${v.message}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(v);
+  }
+  return out;
 };
 
 // ---------------------------------------------------------------------------
@@ -157,11 +182,6 @@ type LoaderFn = (
 const LOADERS: Record<ValueOptionsLoader, LoaderFn | null> = {
   locations: async (c, id) => (await getLocationsList(c, id)).data ?? [],
   storageTypes: async (c, id) => (await getStorageTypesList(c, id)).data ?? [],
-  workCenters: async (c, id) =>
-    ((await getWorkCentersList(c, id)).data ?? []) as {
-      id: string;
-      name: string;
-    }[],
   itemPostingGroups: async (c, id) =>
     (await getItemPostingGroupsList(c, id)).data ?? [],
   // Static enums — value is already the label.
@@ -288,7 +308,9 @@ export async function evaluateLinesForSurface({
   surface,
   lines
 }: EvaluateLinesForSurfaceArgs): Promise<EvaluateLinesForSurfaceResult> {
-  if (!isItemRulesEnabled() || lines.length === 0) return EMPTY_RESULT;
+  if (lines.length === 0) return EMPTY_RESULT;
+  if (!(await isItemRulesEnabledForCompany(client, companyId)))
+    return EMPTY_RESULT;
 
   // Single-pass extraction of unique itemIds + storageUnitIds. Avoids two
   // `pluckUnique` calls + intermediate arrays.
@@ -328,15 +350,19 @@ export async function evaluateLinesForSurface({
     });
   }
 
-  // Flatten `storageTypeIds[0]` → synthetic `storageTypeId` field declared
-  // in FIELD_REGISTRY.
+  // Expose the full `storageTypeIds[]` under the synthetic `storageTypeId`
+  // field (FIELD_REGISTRY entry is named singular for legacy reasons). Array
+  // shape lets the operator helpers do "any of" matching against rule values
+  // — a unit configured as both Hot + Cool should satisfy `in [Cool]`.
   const unitsById = new Map<string, StorageUnitCtxRow>();
   for (const u of storageUnitsRes.data ?? []) {
     const row = u as Record<string, unknown>;
     const ids = row.storageTypeIds as string[] | null | undefined;
     unitsById.set(row.id as string, {
       ...row,
-      storageTypeId: ids && ids.length > 0 ? ids[0] : undefined
+      // Empty/null → undefined so `isNotSet` fires correctly, otherwise the
+      // full array so the operator helpers handle "any of" semantics.
+      storageTypeId: ids && ids.length > 0 ? ids : undefined
     });
   }
 
@@ -377,8 +403,21 @@ export async function evaluateLinesForSurface({
     }
   }
 
-  if (violations.length === 0) {
-    return { violations, ruleNames: {} };
+  // Dedup. Same item + same rule across N lines yields N identical violations
+  // (e.g. 3 shipment lines of "Frozen peas" all break "Hot only"). Operator
+  // doesn't need to see the same message thrice — collapse by ruleId+message.
+  const seen = new Set<string>();
+  const deduped: Violation[] = [];
+  for (let i = 0; i < violations.length; i++) {
+    const v = violations[i]!;
+    const key = `${v.ruleId}\x00${v.message}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(v);
+  }
+
+  if (deduped.length === 0) {
+    return { violations: deduped, ruleNames: {} };
   }
 
   // Resolve human-readable rule names for the violations modal.

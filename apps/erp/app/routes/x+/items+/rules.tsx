@@ -5,8 +5,10 @@ import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
+import { usePlanGate } from "~/hooks/usePlanGate";
 import { getItemRules, getRuleAssignmentCounts } from "~/modules/items";
 import ItemRulesTable from "~/modules/items/ui/ItemRules/ItemRulesTable";
+import ItemRulesUpgradeOverlay from "~/modules/items/ui/ItemRules/ItemRulesUpgradeOverlay";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
@@ -59,6 +61,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function ItemRulesRoute() {
   const { rules, count } = useLoaderData<typeof loader>();
+  const { isGated } = usePlanGate();
+
+  if (isGated) {
+    return <ItemRulesUpgradeOverlay />;
+  }
 
   return (
     <VStack spacing={0} className="h-full">

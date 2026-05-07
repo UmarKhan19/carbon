@@ -6,6 +6,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { upsertDocument } from "~/modules/documents";
 import {
+  dedupeViolations,
   evaluateLinesForSurface,
   isBlocked
 } from "~/modules/items/itemRules.server";
@@ -34,26 +35,49 @@ export async function action({ request, params }: ActionFunctionArgs) {
     .eq("shipmentId", shipmentId)
     .eq("companyId", companyId);
 
-  const { violations, ruleNames } = await evaluateLinesForSurface({
-    client: serviceRole,
-    companyId,
-    userId,
-    surface: "shipment",
-    lines: (lines ?? []).map((l) => ({
-      lineId: l.id as string,
-      itemId: l.itemId as string | null,
-      storageUnitId: l.storageUnitId as string | null,
-      quantity: Number(l.shippedQuantity ?? 0),
-      locationId: l.locationId as string | null
-    }))
-  });
+  // Shipment source determines which surface(s) eval. Shipments leaving for
+  // an Outbound Transfer ALSO eval the `warehouseTransfer` surface — the post
+  // auto-completes the parent transfer, so warehouse-scoped rules need to
+  // fire here too.
+  const { data: shipmentForSurface } = await serviceRole
+    .from("shipment")
+    .select("sourceDocument")
+    .eq("id", shipmentId)
+    .single();
+  const surfaces: ("shipment" | "warehouseTransfer")[] = ["shipment"];
+  if (shipmentForSurface?.sourceDocument === "Outbound Transfer") {
+    surfaces.push("warehouseTransfer");
+  }
 
-  if (violations.length > 0 && isBlocked(violations, acknowledged)) {
+  const evalLines = (lines ?? []).map((l) => ({
+    lineId: l.id as string,
+    itemId: l.itemId as string | null,
+    storageUnitId: l.storageUnitId as string | null,
+    quantity: Number(l.shippedQuantity ?? 0),
+    locationId: l.locationId as string | null
+  }));
+
+  const allViolations = [];
+  const allRuleNames: Record<string, string> = {};
+  for (const surface of surfaces) {
+    const { violations, ruleNames } = await evaluateLinesForSurface({
+      client: serviceRole,
+      companyId,
+      userId,
+      surface,
+      lines: evalLines
+    });
+    allViolations.push(...violations);
+    Object.assign(allRuleNames, ruleNames);
+  }
+
+  const deduped = dedupeViolations(allViolations);
+  if (deduped.length > 0 && isBlocked(deduped, acknowledged)) {
     return {
       error: null,
       data: null,
-      violations,
-      ruleNames
+      violations: deduped,
+      ruleNames: allRuleNames
     };
   }
 

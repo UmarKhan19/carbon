@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import { useLocations } from "~/components/Form/Location";
 import { useStorageTypes } from "~/components/Form/StorageTypes";
-import { useWorkCenters } from "~/components/Form/WorkCenter";
 import { itemTypes } from "~/modules/inventory/inventory.models";
 import {
   itemReplenishmentSystems,
@@ -34,19 +33,17 @@ const REPLENISHMENT_SYSTEMS_OPTIONS = enumOptions(itemReplenishmentSystems);
 export function useValueOptions(): ValueOptionsByLoader {
   const locations = useLocations();
   const storageTypes = useStorageTypes();
-  const { options: workCenters } = useWorkCenters({});
   const itemPostingGroups = useItemPostingGroups();
 
   return useMemo<ValueOptionsByLoader>(
     () => ({
       locations,
       storageTypes,
-      workCenters,
       itemPostingGroups,
       itemTypes: ITEM_TYPES_OPTIONS,
       itemTrackingTypes: ITEM_TRACKING_TYPES_OPTIONS,
       replenishmentSystems: REPLENISHMENT_SYSTEMS_OPTIONS
     }),
-    [locations, storageTypes, workCenters, itemPostingGroups]
+    [locations, storageTypes, itemPostingGroups]
   );
 }

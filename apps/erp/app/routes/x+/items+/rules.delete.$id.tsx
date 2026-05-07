@@ -10,6 +10,7 @@ import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
 import { deleteItemRule, getItemRule } from "~/modules/items";
 import { path } from "~/utils/path";
+import { requirePlan } from "~/utils/planGate.server";
 import { getCompanyId } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -29,7 +30,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client } = await requirePermissions(request, { delete: "parts" });
+  const { client, companyId } = await requirePermissions(request, {
+    delete: "parts"
+  });
+
+  await requirePlan({
+    request,
+    client,
+    companyId,
+    redirectTo: path.to.itemRules
+  });
+
   const { id } = params;
   if (!id) {
     throw redirect(

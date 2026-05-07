@@ -12,6 +12,7 @@ import { itemRuleValidator, upsertItemRule } from "~/modules/items";
 import ItemRuleForm from "~/modules/items/ui/ItemRules/ItemRuleForm";
 import { setCustomFields } from "~/utils/form";
 import { getParams, path } from "~/utils/path";
+import { requirePlan } from "~/utils/planGate.server";
 import { getCompanyId, itemRulesQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -23,6 +24,13 @@ export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
     create: "parts"
+  });
+
+  await requirePlan({
+    request,
+    client,
+    companyId,
+    redirectTo: path.to.itemRules
   });
 
   const formData = await request.formData();

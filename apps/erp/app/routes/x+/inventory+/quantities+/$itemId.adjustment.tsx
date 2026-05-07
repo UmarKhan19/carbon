@@ -53,7 +53,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     ]
   });
 
-  console.log({ violations, ruleNames });
   if (violations.length > 0 && isBlocked(violations, acknowledged)) {
     return {
       error: null,

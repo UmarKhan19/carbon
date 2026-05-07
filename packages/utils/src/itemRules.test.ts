@@ -88,6 +88,86 @@ describe("operators", () => {
     );
   });
 
+  it("array-left semantics: eq matches if any element equals", () => {
+    const eqRule = compileRule(
+      ruleOf([{ field: "storageUnit.storageTypeId", op: "eq", value: "cold" }])
+    );
+    expect(
+      eqRule.predicate({ storageUnit: { storageTypeId: ["hot", "cold"] } })
+    ).toBe(true);
+    expect(
+      eqRule.predicate({ storageUnit: { storageTypeId: ["hot", "ambient"] } })
+    ).toBe(false);
+  });
+
+  it("array-left semantics: in matches if any element overlaps", () => {
+    const inRule = compileRule(
+      ruleOf([
+        {
+          field: "storageUnit.storageTypeId",
+          op: "in",
+          value: ["cold", "frozen"]
+        }
+      ])
+    );
+    expect(
+      inRule.predicate({ storageUnit: { storageTypeId: ["hot", "cold"] } })
+    ).toBe(true);
+    expect(
+      inRule.predicate({ storageUnit: { storageTypeId: ["hot", "ambient"] } })
+    ).toBe(false);
+  });
+
+  it("array-left semantics: neq is true only when no element equals", () => {
+    const neqRule = compileRule(
+      ruleOf([{ field: "storageUnit.storageTypeId", op: "neq", value: "cold" }])
+    );
+    expect(
+      neqRule.predicate({ storageUnit: { storageTypeId: ["hot", "ambient"] } })
+    ).toBe(true);
+    expect(
+      neqRule.predicate({ storageUnit: { storageTypeId: ["hot", "cold"] } })
+    ).toBe(false);
+  });
+
+  it("array-left semantics: notIn requires no overlap", () => {
+    const notInRule = compileRule(
+      ruleOf([
+        {
+          field: "storageUnit.storageTypeId",
+          op: "notIn",
+          value: ["cold", "frozen"]
+        }
+      ])
+    );
+    expect(
+      notInRule.predicate({
+        storageUnit: { storageTypeId: ["hot", "ambient"] }
+      })
+    ).toBe(true);
+    expect(
+      notInRule.predicate({ storageUnit: { storageTypeId: ["hot", "cold"] } })
+    ).toBe(false);
+  });
+
+  it("array-left semantics: isSet/isNotSet on empty vs populated array", () => {
+    const isSet = compileRule(
+      ruleOf([{ field: "storageUnit.storageTypeId", op: "isSet" }])
+    );
+    expect(isSet.predicate({ storageUnit: { storageTypeId: ["cold"] } })).toBe(
+      true
+    );
+    expect(isSet.predicate({ storageUnit: { storageTypeId: [] } })).toBe(false);
+
+    const isNot = compileRule(
+      ruleOf([{ field: "storageUnit.storageTypeId", op: "isNotSet" }])
+    );
+    expect(isNot.predicate({ storageUnit: { storageTypeId: [] } })).toBe(true);
+    expect(isNot.predicate({ storageUnit: { storageTypeId: ["cold"] } })).toBe(
+      false
+    );
+  });
+
   it("gt/lt only compare numbers", () => {
     const gt = compileRule(
       ruleOf([{ field: "transaction.quantity", op: "gt", value: 100 }])

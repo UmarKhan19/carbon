@@ -126,14 +126,9 @@ export default function ItemRuleAssignments({
                   placeholder={t`Add from library…`}
                 />
               )}
-              <Button
-                asChild
-                variant="secondary"
-                size="sm"
-                leftIcon={<LuPlus />}
-              >
+              <Button asChild variant="secondary" size="sm">
                 <Link to={path.to.newItemRule}>
-                  <Trans>Create rule</Trans>
+                  <Trans>Add rule</Trans>
                 </Link>
               </Button>
             </HStack>

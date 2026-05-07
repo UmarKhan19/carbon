@@ -19,7 +19,6 @@ import {
   LuBox,
   LuCheck,
   LuChevronDown,
-  LuFactory,
   LuPackage,
   LuReceipt
 } from "react-icons/lu";
@@ -33,19 +32,10 @@ const CONTEXT: Record<
   transaction: {
     label: "Transaction",
     icon: <LuReceipt className="h-3.5 w-3.5" />
-  },
-  manufacturing: {
-    label: "Manufacturing",
-    icon: <LuFactory className="h-3.5 w-3.5" />
   }
 };
 
-const CONTEXT_ORDER: FieldDef["context"][] = [
-  "item",
-  "storage",
-  "transaction",
-  "manufacturing"
-];
+const CONTEXT_ORDER: FieldDef["context"][] = ["item", "storage", "transaction"];
 
 type FieldComboboxProps = {
   value: string;

@@ -8,11 +8,21 @@ import type {
 import { redirect } from "react-router";
 import { unassignItemRule } from "~/modules/items";
 import { path } from "~/utils/path";
+import { requirePlan } from "~/utils/planGate.server";
 import { getCompanyId, itemRuleAssignmentsQuery } from "~/utils/react-query";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client } = await requirePermissions(request, { delete: "parts" });
+  const { client, companyId } = await requirePermissions(request, {
+    delete: "parts"
+  });
+
+  await requirePlan({
+    request,
+    client,
+    companyId,
+    redirectTo: path.to.itemRules
+  });
 
   const { itemId, ruleId } = params;
   if (!itemId || !ruleId) throw new Error("itemId and ruleId required");

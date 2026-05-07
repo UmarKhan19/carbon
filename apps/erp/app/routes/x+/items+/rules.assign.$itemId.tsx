@@ -8,12 +8,20 @@ import type {
 import { redirect } from "react-router";
 import { assignItemRule } from "~/modules/items";
 import { path } from "~/utils/path";
+import { requirePlan } from "~/utils/planGate.server";
 import { getCompanyId, itemRuleAssignmentsQuery } from "~/utils/react-query";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
     create: "parts"
+  });
+
+  await requirePlan({
+    request,
+    client,
+    companyId,
+    redirectTo: path.to.itemRules
   });
 
   const { itemId } = params;

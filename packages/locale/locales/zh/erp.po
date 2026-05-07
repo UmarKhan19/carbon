@@ -336,7 +336,7 @@ msgstr "激活工作中心"
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:244
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:183
 #: apps/erp/app/modules/items/ui/Item/MakeMethodVersionStatus.tsx:24
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:201
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:196
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:123
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:82
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:681
@@ -483,7 +483,7 @@ msgid "Add Entry"
 msgstr "添加条目"
 
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:126
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:278
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:273
 msgid "Add from library…"
 msgstr ""
 
@@ -584,6 +584,10 @@ msgstr "添加要求"
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterCard.tsx:113
 msgid "Add Risk"
 msgstr "添加风险"
+
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:131
+msgid "Add rule"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:53
 msgid "Add Shipment"
@@ -931,8 +935,8 @@ msgstr "你确定要删除 {0} 吗？"
 #. placeholder {0}: routeData?.document?.name
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:321
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:350
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:226
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:396
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:235
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:400
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:409
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:411
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableHeader.tsx:97
@@ -1265,7 +1269,7 @@ msgstr "您确定要永久删除供应商流程吗？"
 msgid "Are you sure you want to post this receipt?"
 msgstr "你确定要过账此收据吗？"
 
-#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:160
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:163
 msgid "Are you sure you want to post this shipment?"
 msgstr "你确定要过账此发货单吗？"
 
@@ -1645,7 +1649,7 @@ msgstr "物料清单同步成功"
 msgid "Breadcrumb"
 msgstr "面包屑"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:300
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:295
 msgid "Browse library"
 msgstr ""
 
@@ -1781,13 +1785,13 @@ msgstr "无法禁用唯一的活跃价格段。请添加另一个价格段或改
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:332
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:198
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptVoidModal.tsx:85
-#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:191
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:194
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:85
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:165
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypeForm.tsx:104
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:116
 #: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:89
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:213
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:217
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:184
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:283
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:154
@@ -1965,7 +1969,7 @@ msgid "Cannot upload to parts bucket without item ID"
 msgstr "无法在没有项目ID的情况下上传到零件存储桶"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:67
-#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:66
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:67
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:65
 msgid "Carbon client is not available"
 msgstr "Carbon 客户端不可用"
@@ -2171,7 +2175,7 @@ msgstr "自 {0} 起已打卡"
 
 #: apps/erp/app/components/Layout/Topbar/Search.tsx:395
 #: apps/erp/app/components/TrainingPanel.tsx:45
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1300
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1301
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:616
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:760
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:551
@@ -2313,7 +2317,7 @@ msgid "Compare Supplier Quotes"
 msgstr "比较供应商报价"
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:218
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:211
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:219
 #: apps/erp/app/modules/quality/ui/Issue/IssueHeader.tsx:180
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchHeader.tsx:151
 msgid "Complete"
@@ -2462,7 +2466,7 @@ msgstr "已配置"
 
 #: apps/erp/app/components/Form/ConversionFactor.tsx:324
 #: apps/erp/app/components/ItemRuleViolationModal.tsx:107
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:188
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:193
 #: apps/erp/app/modules/items/ui/Item/MakeMethodTools.tsx:535
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:448
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:573
@@ -2947,8 +2951,8 @@ msgstr "创建工作"
 msgid "Create Kanban"
 msgstr "创建看板"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:287
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:305
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:282
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:300
 msgid "Create new rule"
 msgstr ""
 
@@ -2960,10 +2964,6 @@ msgstr "创建报价修订"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:492
 msgid "Create Revision"
 msgstr "创建修订版"
-
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:136
-msgid "Create rule"
-msgstr ""
 
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:149
 msgid "Create Rule"
@@ -4009,7 +4009,7 @@ msgstr "删除配送方式"
 msgid "Delete Step"
 msgstr "删除步骤"
 
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:144
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:156
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:227
 msgid "Delete Stock Transfer"
 msgstr "删除库存转移"
@@ -4069,7 +4069,7 @@ msgstr "删除转移行"
 msgid "Delete View"
 msgstr "删除视图"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:153
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:162
 msgid "Delete Warehouse Transfer"
 msgstr "删除仓库转移"
 
@@ -5036,6 +5036,10 @@ msgstr "结束时间"
 msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
 msgstr ""
 
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesUpgradeOverlay.tsx:82
+msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
+msgstr ""
+
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteForm.tsx:181
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteProperties.tsx:282
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderForm.tsx:184
@@ -5089,7 +5093,7 @@ msgstr "实体为 {status}"
 msgid "ERP, MES, QMS"
 msgstr "ERP, MES, QMS"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:187
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:182
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:63
 #: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:27
 #: apps/erp/app/routes/_public+/callback.tsx:159
@@ -5299,7 +5303,7 @@ msgstr "展开子树"
 msgid "Expected Receipt"
 msgstr "预期收货"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:374
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:377
 msgid "Expected Receipt Date"
 msgstr "预期收货日期"
 
@@ -6043,7 +6047,7 @@ msgstr "频率"
 msgid "Friday"
 msgstr "星期五"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:367
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:370
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:90
 msgid "From Location"
 msgstr "从位置"
@@ -6328,7 +6332,7 @@ msgstr "在选定的时间段内"
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:338
 #: apps/erp/app/components/Contact.tsx:63
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:245
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:205
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:200
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:86
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:382
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:287
@@ -6436,7 +6440,7 @@ msgstr "从材料继承"
 msgid "Insert rows"
 msgstr "插入行"
 
-#: apps/erp/app/modules/items/ui/ItemRules/MessageWithTokens.tsx:172
+#: apps/erp/app/modules/items/ui/ItemRules/MessageWithTokens.tsx:167
 msgid "Insert token"
 msgstr ""
 
@@ -6865,7 +6869,8 @@ msgid "Item Master"
 msgstr "物料主数据"
 
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:144
-#: apps/erp/app/routes/x+/items+/rules.tsx:15
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRulesUpgradeOverlay.tsx:79
+#: apps/erp/app/routes/x+/items+/rules.tsx:17
 msgid "Item Rules"
 msgstr ""
 
@@ -7835,8 +7840,8 @@ msgstr "测量标准"
 msgid "Members"
 msgstr "成员"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:168
-#: apps/erp/app/modules/items/ui/ItemRules/MessageWithTokens.tsx:165
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:163
+#: apps/erp/app/modules/items/ui/ItemRules/MessageWithTokens.tsx:160
 msgid "Message"
 msgstr ""
 
@@ -7950,7 +7955,7 @@ msgid "Minutes/Piece"
 msgstr "分钟/件"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptPostModal.tsx:175
-#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:168
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:171
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferCompleteModal.tsx:142
 msgid "Missing Information"
 msgstr "缺少信息"
@@ -8055,8 +8060,8 @@ msgid "More actions"
 msgstr "更多操作"
 
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:175
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:101
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:112
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:113
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:121
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:210
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:198
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableHeader.tsx:62
@@ -8156,7 +8161,7 @@ msgstr "我的已保存视图"
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:107
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupForm.tsx:96
 #: apps/erp/app/modules/items/ui/ItemPostingGroups/ItemPostingGroupsTable.tsx:32
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:156
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:151
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRuleForm.tsx:120
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:47
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:96
@@ -8449,7 +8454,7 @@ msgstr "新报价"
 msgid "New Quote Line"
 msgstr "新报价行"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:302
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:305
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:416
 msgid "New Receipt"
 msgstr "新收据"
@@ -8500,7 +8505,7 @@ msgstr "新的定期维护"
 msgid "New Shift"
 msgstr "新班次"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:238
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:241
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:318
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:488
 msgid "New Shipment"
@@ -8560,7 +8565,7 @@ msgstr "新计量单位"
 msgid "New Version"
 msgstr "新版本"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:343
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:346
 msgid "New Warehouse Transfer"
 msgstr ""
 
@@ -8728,7 +8733,7 @@ msgstr "还未分配员工。添加组以查看状态。"
 msgid "No employees found"
 msgstr "未找到员工"
 
-#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:120
+#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:110
 msgid "No fields found."
 msgstr ""
 
@@ -8862,7 +8867,7 @@ msgstr "无结果"
 msgid "No results found"
 msgstr "未找到结果"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:259
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:254
 msgid "No rules assigned"
 msgstr ""
 
@@ -8960,7 +8965,7 @@ msgstr "未开始培训"
 msgid "Note"
 msgstr "备注"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:379
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:382
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:170
 #: apps/erp/app/modules/items/ui/Item/ItemNotes.tsx:82
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:28
@@ -9650,11 +9655,11 @@ msgstr ""
 msgid "Pick a date or leave blank to clear it."
 msgstr "选择日期或留空以清除。"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:262
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:257
 msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:164
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:176
 msgid "Pick List"
 msgstr "拣货单"
 
@@ -9799,7 +9804,7 @@ msgstr "过账发票"
 msgid "Post Receipt"
 msgstr "过账收据"
 
-#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:157
+#: apps/erp/app/modules/inventory/ui/Shipments/ShipmentPostModal.tsx:160
 msgid "Post Shipment"
 msgstr "发布货运"
 
@@ -10628,7 +10633,7 @@ msgstr "收货请求日期"
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:364
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:29
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:289
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:292
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:304
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:398
 #: apps/erp/app/routes/x+/inventory+/receipts.tsx:14
@@ -10640,7 +10645,7 @@ msgstr "收货请求日期"
 msgid "Receipts"
 msgstr "收据"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:335
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:338
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:452
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrdersTable.tsx:417
 msgid "Receive"
@@ -10702,7 +10707,7 @@ msgstr "记录"
 msgid "Redirecting to verification page..."
 msgstr "正在重定向到验证页面..."
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:366
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:369
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:106
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:336
 msgid "Reference"
@@ -10753,7 +10758,7 @@ msgid "Rejected Date"
 msgstr "拒绝日期"
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:438
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:186
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:195
 msgid "Release"
 msgstr "释放"
 
@@ -10813,7 +10818,7 @@ msgstr "移除筛选"
 msgid "Remove from Price List"
 msgstr "从价格列表中移除"
 
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1350
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:1351
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:672
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:715
 msgid "Remove item"
@@ -10852,8 +10857,8 @@ msgstr "从所有引用此存储类型的存储单元中移除它并将其删除
 msgid "Remove Transfer"
 msgstr "移除转移"
 
-#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:129
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:140
+#: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:141
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:149
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:199
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:133
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:176
@@ -11416,7 +11421,7 @@ msgstr "星期六"
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypeForm.tsx:101
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:113
 #: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:92
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:385
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:388
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceDeliveryForm.tsx:142
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:287
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:788
@@ -11704,7 +11709,7 @@ msgstr ""
 msgid "Search employees..."
 msgstr "搜索员工..."
 
-#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:115
+#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:105
 msgid "Search fields..."
 msgstr ""
 
@@ -11886,7 +11891,7 @@ msgstr "选择员工"
 msgid "Select Employee Type"
 msgstr "选择员工类型"
 
-#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:104
+#: apps/erp/app/modules/items/ui/ItemRules/FieldCombobox.tsx:94
 msgid "Select field"
 msgstr ""
 
@@ -12145,7 +12150,7 @@ msgstr "设置单位"
 msgid "Severities"
 msgstr "严重程度"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:159
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:154
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:59
 #: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:42
 #: apps/erp/app/modules/quality/ui/RiskRegister/RiskRegisterForm.tsx:181
@@ -12218,7 +12223,7 @@ msgstr "班次名称"
 msgid "Shifts"
 msgstr "班次"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:271
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:274
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:353
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:526
 msgid "Ship"
@@ -12265,7 +12270,7 @@ msgstr "发货地点"
 
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:381
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:35
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:225
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:228
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:287
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:301
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:471
@@ -12408,7 +12413,7 @@ msgstr "在报价单、销售订单、销售发票和发货单上显示零件缩
 msgid "Show sync options"
 msgstr "显示同步选项"
 
-#: apps/erp/app/modules/items/ui/ItemRules/MessageWithTokens.tsx:166
+#: apps/erp/app/modules/items/ui/ItemRules/MessageWithTokens.tsx:161
 msgid "Shown to the user when this rule fails. Use {item.name} or other tokens."
 msgstr ""
 
@@ -12698,7 +12703,7 @@ msgstr "统计验收失败，因此整个批次被视为不符合要求 (ISO 900
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:70
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:135
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:129
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:165
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:160
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:78
 #: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:142
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:315
@@ -12805,7 +12810,7 @@ msgstr "库存转移向导"
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:41
 #: apps/erp/app/routes/x+/inventory+/stock-transfers.tsx:17
 #: apps/erp/app/routes/x+/stock-transfer+/$id.tsx:18
-#: apps/erp/app/routes/x+/stock-transfer+/new.tsx:20
+#: apps/erp/app/routes/x+/stock-transfer+/new.tsx:25
 msgid "Stock Transfers"
 msgstr "库存转移"
 
@@ -13183,7 +13188,7 @@ msgstr "供应与需求"
 msgid "Supports {0} files"
 msgstr "支持 {0} 文件"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:162
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:157
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:73
 msgid "Surfaces"
 msgstr ""
@@ -13610,7 +13615,7 @@ msgstr "时区"
 msgid "Title"
 msgstr "标题"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:368
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:371
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:98
 msgid "To Location"
 msgstr "至位置"
@@ -13893,7 +13898,7 @@ msgstr "培训"
 msgid "Transfer"
 msgstr "转移"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:371
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:374
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:114
 msgid "Transfer Date"
 msgstr "转移日期"
@@ -13902,8 +13907,8 @@ msgstr "转移日期"
 msgid "Transfer From"
 msgstr "从以下位置转移"
 
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:355
-#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:362
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:358
+#: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferForm.tsx:365
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransfersTable.tsx:58
 msgid "Transfer ID"
 msgstr "转账ID"
@@ -14015,7 +14020,7 @@ msgstr "未采样的实体将保持\"待处理\"状态，以便您可以继续�
 msgid "Unapproved Supplier"
 msgstr "未批准的供应商"
 
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:222
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:217
 msgid "Unassign rule"
 msgstr ""
 
@@ -14748,7 +14753,7 @@ msgstr "当检查入库物品的人员与收货人员相同时发出警告。"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:61
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceVoidModal.tsx:61
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceVoidModal.tsx:62
-#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:191
+#: apps/erp/app/modules/items/ui/ItemRules/ItemRuleAssignments.tsx:186
 #: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:33
 msgid "Warning"
 msgstr "警告"

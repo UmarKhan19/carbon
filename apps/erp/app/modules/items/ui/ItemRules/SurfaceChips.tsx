@@ -2,10 +2,10 @@ import { cn } from "@carbon/react";
 import { TRANSACTION_SURFACES, type TransactionSurface } from "@carbon/utils";
 import {
   LuArrowRightLeft,
-  LuFactory,
   LuPackage,
   LuScale,
-  LuTruck
+  LuTruck,
+  LuWarehouse
 } from "react-icons/lu";
 
 const SURFACE_VISUALS: Record<
@@ -18,9 +18,9 @@ const SURFACE_VISUALS: Record<
     label: "Stock transfers",
     icon: <LuArrowRightLeft className="size-3.5" />
   },
-  jobOperation: {
-    label: "Job operations",
-    icon: <LuFactory className="size-3.5" />
+  warehouseTransfer: {
+    label: "Warehouse transfers",
+    icon: <LuWarehouse className="size-3.5" />
   },
   inventoryAdjustment: {
     label: "Inventory adjustments",

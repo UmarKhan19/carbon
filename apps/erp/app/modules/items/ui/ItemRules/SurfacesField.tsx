@@ -10,10 +10,10 @@ import { TRANSACTION_SURFACES, type TransactionSurface } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import {
   LuArrowRightLeft,
-  LuFactory,
   LuPackage,
   LuScale,
-  LuTruck
+  LuTruck,
+  LuWarehouse
 } from "react-icons/lu";
 
 const SURFACE_META: Record<
@@ -32,13 +32,13 @@ const SURFACE_META: Record<
   },
   stockTransfer: {
     title: "Stock transfers",
-    description: "When goods move between locations",
+    description: "When goods move between storage units",
     icon: <LuArrowRightLeft />
   },
-  jobOperation: {
-    title: "Job operations",
-    description: "Material consumption + operation finish",
-    icon: <LuFactory />
+  warehouseTransfer: {
+    title: "Warehouse transfers",
+    description: "When goods move between warehouses",
+    icon: <LuWarehouse />
   },
   inventoryAdjustment: {
     title: "Inventory adjustments",

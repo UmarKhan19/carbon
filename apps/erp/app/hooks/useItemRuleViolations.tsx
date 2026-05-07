@@ -65,30 +65,34 @@ export function useItemRuleViolations<T = unknown>({
   // `data` alone to detect "operation succeeded".
   const pendingSuccessRef = useRef(false);
   const [dismissed, setDismissed] = useState(false);
+  // Staged payload for the *current* submission. We can't read `fetcher.data`
+  // directly: on a redirect-throw, RR7 keeps the previous action's payload
+  // attached to the fetcher, so the violation modal would stay mounted
+  // forever (page reload was the only way out). Instead, we clear `staged`
+  // when a new submission starts and only re-stage if `fetcher.data` is a
+  // *different* reference than what we last consumed.
+  const [staged, setStaged] = useState<ItemRuleViolationPayload | undefined>(
+    undefined
+  );
+  const lastSeenDataRef = useRef<unknown>(undefined);
   // Track idle→submitting transitions so the hook resets correctly even when
   // the form submits via `fetcher={...}` prop directly (bypassing `submit()`).
   const prevIdleRef = useRef(true);
 
   const data = fetcher.data as ItemRuleViolationPayload | undefined;
-  const errorMessage = data?.error?.message;
-  // Only trust the payload once the fetcher has settled. While a request is
-  // in-flight `fetcher.data` still holds the *previous* response — reading
-  // it would briefly re-show stale violations between the user clicking
-  // submit and the new response arriving (the visible "flash"). Gate the
-  // surfaced state on `idle` so the modal stays put with the last good
-  // payload until the new one is committed.
   const idle = fetcher.state === "idle";
-  const violations = idle ? (data?.violations ?? []) : [];
-  const ruleNames = idle ? data?.ruleNames : undefined;
+  const violations = staged?.violations ?? [];
+  const ruleNames = staged?.ruleNames;
   const hasViolations = violations.length > 0 && !dismissed;
 
-  // Detect idle→submitting transition. Resets per-submission state even when
-  // the form drives the fetcher directly via the `fetcher` prop (not submit()).
+  // Detect idle→submitting. Clear the staged payload from the previous
+  // submission and reset per-submission flags. Works whether the form drives
+  // the fetcher via `fetcher={...}` prop or via `submit()`.
   useEffect(() => {
     if (!idle && prevIdleRef.current) {
       setDismissed(false);
+      setStaged(undefined);
       pendingSuccessRef.current = true;
-      // Capture FormData for acknowledge re-post when form uses fetcher prop.
       if (fetcher.formData) {
         lastSubmissionRef.current = fetcher.formData;
       }
@@ -96,25 +100,40 @@ export function useItemRuleViolations<T = unknown>({
     prevIdleRef.current = idle;
   }, [idle, fetcher.formData]);
 
-  // Toast any non-violation server error.
-  useEffect(() => {
-    if (!idle) return;
-    if (errorMessage) toast.error(errorMessage);
-  }, [idle, errorMessage]);
-
-  // Fire onSuccess when a submission settles cleanly. Trigger from the
-  // pending flag (set on submit, cleared after firing) so it works for both
-  // JSON-returning actions and ones that respond with `throw redirect(...)`
-  // — the latter leave `fetcher.data` undefined when settled.
+  // On settle: stage the payload (if changed) and decide success/error/block
+  // in one pass. Consolidated into a single effect so the success check reads
+  // the fresh `data` directly — splitting it caused the success effect to see
+  // a stale `staged` from the same render, firing `onSuccess` before the
+  // staging effect's setState had propagated.
   // biome-ignore lint/correctness/useExhaustiveDependencies: onSuccess identity is intentionally not tracked
   useEffect(() => {
     if (!idle) return;
+    const dataChanged = data !== lastSeenDataRef.current;
+    lastSeenDataRef.current = data;
+
+    if (dataChanged) {
+      setStaged(data);
+      if (data?.error?.message) {
+        toast.error(data.error.message);
+        pendingSuccessRef.current = false;
+        return;
+      }
+      if ((data?.violations ?? []).length > 0) {
+        // Violations — keep modal open, don't fire success.
+        return;
+      }
+      if (!pendingSuccessRef.current) return;
+      pendingSuccessRef.current = false;
+      onSuccess?.();
+      return;
+    }
+
+    // Data ref unchanged across the submission → redirect-throw success.
+    // `staged` was cleared at submit-start; nothing to render.
     if (!pendingSuccessRef.current) return;
-    if (errorMessage) return;
-    if ((data?.violations ?? []).length > 0) return;
     pendingSuccessRef.current = false;
     onSuccess?.();
-  }, [idle, data, errorMessage]);
+  }, [idle, data]);
 
   const submit = useCallback(
     (formData: FormData) => {

@@ -51,15 +51,14 @@ const CTX_KEYS_BY_SURFACE: Record<TransactionSurface, FieldDef["context"][]> = {
   receipt: ["storage", "transaction"],
   shipment: ["storage", "transaction"],
   stockTransfer: ["storage", "transaction"],
-  inventoryAdjustment: ["storage", "transaction"],
-  jobOperation: ["storage", "transaction", "manufacturing"]
+  warehouseTransfer: ["storage", "transaction"],
+  inventoryAdjustment: ["storage", "transaction"]
 };
 
 const CONTEXT_LABELS: Record<FieldDef["context"], string> = {
   item: "Item",
   storage: "Storage",
-  transaction: "Transaction",
-  manufacturing: "Manufacturing"
+  transaction: "Transaction"
 };
 
 export default function MessageWithTokens({
@@ -137,11 +136,7 @@ export default function MessageWithTokens({
     for (const s of surfaces) {
       for (const k of CTX_KEYS_BY_SURFACE[s] ?? []) allowedCtx.add(k);
     }
-    const orderedCtx: FieldDef["context"][] = [
-      "storage",
-      "transaction",
-      "manufacturing"
-    ];
+    const orderedCtx: FieldDef["context"][] = ["storage", "transaction"];
     for (const ctxKey of orderedCtx) {
       if (!allowedCtx.has(ctxKey)) continue;
       const fields = FIELD_REGISTRY.filter((f) => f.context === ctxKey);

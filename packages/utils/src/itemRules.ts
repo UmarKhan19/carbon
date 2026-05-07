@@ -1,6 +1,6 @@
 // Item Rules evaluator. AST → JIT-compiled closure with LRU cache.
-// Used server-side on transactions (receipt, shipment, stock transfer, job ops)
-// to enforce per-item validation/guideline rules.
+// Used server-side on transactions (receipt, shipment, stock transfer,
+// inventory adjustment) to enforce per-item validation/guideline rules.
 
 export type Operator =
   | "eq"
@@ -28,7 +28,7 @@ export const TRANSACTION_SURFACES = [
   "receipt",
   "shipment",
   "stockTransfer",
-  "jobOperation",
+  "warehouseTransfer",
   "inventoryAdjustment"
 ] as const;
 export type TransactionSurface = (typeof TRANSACTION_SURFACES)[number];
@@ -62,9 +62,6 @@ export type RuleContext = {
   shelf?: Record<string, unknown>;
   storageUnit?: Record<string, unknown>;
   transaction?: Record<string, unknown>;
-  workCenter?: Record<string, unknown>;
-  job?: Record<string, unknown>;
-  operation?: Record<string, unknown>;
 };
 
 export type ItemRuleRow = {
@@ -113,15 +110,7 @@ export type CompiledRule = {
 
 type Resolver = (ctx: RuleContext) => unknown;
 
-const ROOT_KEYS = new Set([
-  "item",
-  "shelf",
-  "storageUnit",
-  "transaction",
-  "workCenter",
-  "job",
-  "operation"
-]);
+const ROOT_KEYS = new Set(["item", "shelf", "storageUnit", "transaction"]);
 
 const buildResolver = (path: string): Resolver => {
   const segments = path.split(".");
@@ -144,16 +133,34 @@ const buildResolver = (path: string): Resolver => {
 
 const isNullish = (v: unknown): boolean => v === null || v === undefined;
 
+// Array-left helpers: treat the field's resolved array as "any of these
+// elements". Lets storage-unit fields with multiple types (e.g.
+// `storageUnit.storageTypeId` flattened from `storageTypeIds[]`) participate
+// in `eq` / `in` semantics naturally.
+const eqAnyArrayLeft = (l: unknown[], r: unknown): boolean => {
+  for (let i = 0; i < l.length; i++) if (l[i] === r) return true;
+  return false;
+};
+const inAnyArrayLeft = (l: unknown[], r: unknown[]): boolean => {
+  for (let i = 0; i < l.length; i++) if (r.includes(l[i])) return true;
+  return false;
+};
+
 const operatorFns: Record<
   Operator,
   (left: unknown, right: unknown) => boolean
 > = {
-  eq: (l, r) => l === r,
-  neq: (l, r) => l !== r,
-  in: (l, r) => Array.isArray(r) && r.includes(l),
-  notIn: (l, r) => Array.isArray(r) && !r.includes(l),
-  isSet: (l) => !isNullish(l) && l !== "",
-  isNotSet: (l) => isNullish(l) || l === "",
+  eq: (l, r) => (Array.isArray(l) ? eqAnyArrayLeft(l, r) : l === r),
+  neq: (l, r) => (Array.isArray(l) ? !eqAnyArrayLeft(l, r) : l !== r),
+  in: (l, r) =>
+    Array.isArray(r) &&
+    (Array.isArray(l) ? inAnyArrayLeft(l, r) : r.includes(l)),
+  notIn: (l, r) =>
+    Array.isArray(r) &&
+    (Array.isArray(l) ? !inAnyArrayLeft(l, r) : !r.includes(l)),
+  isSet: (l) => (Array.isArray(l) ? l.length > 0 : !isNullish(l) && l !== ""),
+  isNotSet: (l) =>
+    Array.isArray(l) ? l.length === 0 : isNullish(l) || l === "",
   gt: (l, r) => typeof l === "number" && typeof r === "number" && l > r,
   lt: (l, r) => typeof l === "number" && typeof r === "number" && l < r
 };
@@ -402,7 +409,14 @@ const findFirstMissingRequiredField = (
   for (let i = 0; i < checks.length; i++) {
     const c = checks[i]!;
     const value = c.resolve(ctx);
-    if (value === null || value === undefined || value === "") {
+    // Empty array counts as missing — synthetic fields like
+    // `storageUnit.storageTypeId` resolve to `string[]` from `storageTypeIds[]`.
+    if (
+      value === null ||
+      value === undefined ||
+      value === "" ||
+      (Array.isArray(value) && value.length === 0)
+    ) {
       return c.field;
     }
   }
@@ -483,7 +497,6 @@ export type FieldType = "string" | "number" | "enum" | "id";
 export type ValueOptionsLoader =
   | "locations"
   | "storageTypes"
-  | "workCenters"
   | "itemTypes"
   | "replenishmentSystems"
   | "itemTrackingTypes"
@@ -494,7 +507,7 @@ export type FieldDef = {
   label: string;
   type: FieldType;
   operators: Operator[];
-  context: "item" | "storage" | "transaction" | "manufacturing";
+  context: "item" | "storage" | "transaction";
   valueOptionsLoader?: ValueOptionsLoader;
   /**
    * `true` (default) — column is nullable; `isSet`/`isNotSet` are valid.
@@ -661,34 +674,12 @@ export const FIELD_REGISTRY: FieldDef[] = [
   }),
   fields.synthetic({
     path: "transaction.quantity",
-    derivedFrom: "line.quantity from receipt/shipment/transfer/op consumption",
+    derivedFrom: "line.quantity from receipt/shipment/transfer consumption",
     nullable: false,
     label: "Transaction quantity",
     type: "number",
     operators: NUMBER_OPS,
     context: "transaction"
-  }),
-
-  // ── Manufacturing ─────────────────────────────────────────────────────────
-  fields.database({
-    table: "workCenter",
-    column: "id",
-    nullable: false,
-    label: "Work center",
-    type: "id",
-    operators: ID_OPS,
-    context: "manufacturing",
-    valueOptionsLoader: "workCenters"
-  }),
-  fields.database({
-    table: "workCenter",
-    column: "locationId",
-    nullable: true,
-    label: "Work center location",
-    type: "id",
-    operators: ID_OPS,
-    context: "manufacturing",
-    valueOptionsLoader: "locations"
   })
 ];
 

@@ -4,7 +4,7 @@ CREATE TYPE "transactionSurface" AS ENUM (
   'receipt',
   'shipment',
   'stockTransfer',
-  'jobOperation',
+  'warehouseTransfer',
   'inventoryAdjustment'
 );
 
@@ -20,7 +20,7 @@ CREATE TABLE "itemRule" (
     'receipt',
     'shipment',
     'stockTransfer',
-    'jobOperation',
+    'warehouseTransfer',
     'inventoryAdjustment'
   ]::"transactionSurface"[],
   "active" BOOLEAN NOT NULL DEFAULT TRUE,
