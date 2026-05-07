@@ -180,7 +180,7 @@ msgstr "登录即表示您同意<0>服务条款</0>和<1>隐私政策。</1>"
 #: apps/mes/app/components/JobOperation/components/Step.tsx:557
 #: apps/mes/app/components/JobOperation/components/Step.tsx:605
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:658
-#: apps/mes/app/components/Suggestion.tsx:199
+#: apps/mes/app/components/Suggestion.tsx:202
 #: apps/mes/app/routes/x+/timecard.tsx:413
 #: apps/mes/app/routes/x+/timecard.tsx:510
 msgid "Cancel"
@@ -203,7 +203,7 @@ msgid "Check your email"
 msgstr "请查收邮件"
 
 #: apps/mes/app/components/Feedback.tsx:147
-#: apps/mes/app/components/Suggestion.tsx:207
+#: apps/mes/app/components/Suggestion.tsx:210
 msgid "Clear"
 msgstr "清除"
 
@@ -465,7 +465,7 @@ msgid "Failed to upload file: {0}"
 msgstr "文件上传失败：{0}"
 
 #: apps/mes/app/components/Feedback.tsx:74
-#: apps/mes/app/components/Suggestion.tsx:94
+#: apps/mes/app/components/Suggestion.tsx:97
 msgid "Failed to upload image"
 msgstr "图片上传失败"
 
@@ -474,7 +474,7 @@ msgid "Feedback"
 msgstr "反馈"
 
 #: apps/mes/app/components/Feedback.tsx:61
-#: apps/mes/app/components/Suggestion.tsx:80
+#: apps/mes/app/components/Suggestion.tsx:83
 msgid "File size exceeds 10MB limit"
 msgstr "文件大小超过 10MB 限制"
 
@@ -510,7 +510,7 @@ msgstr "我还在工作"
 msgid "Ideas, suggestions or problems with this page?"
 msgstr "对此页面有想法、建议或问题？"
 
-#: apps/mes/app/components/Suggestion.tsx:139
+#: apps/mes/app/components/Suggestion.tsx:142
 msgid "Ideas, suggestions or problems?"
 msgstr "有想法、建议或问题？"
 
@@ -1090,7 +1090,7 @@ msgstr "选择序列号"
 
 #: apps/mes/app/components/Feedback.tsx:160
 #: apps/mes/app/components/JobOperation/components/Chat.tsx:224
-#: apps/mes/app/components/Suggestion.tsx:220
+#: apps/mes/app/components/Suggestion.tsx:223
 msgid "Send"
 msgstr "发送"
 
@@ -1205,12 +1205,12 @@ msgstr "缺少步骤"
 msgid "Storage Unit"
 msgstr "存储单位"
 
-#: apps/mes/app/components/Suggestion.tsx:160
+#: apps/mes/app/components/Suggestion.tsx:163
 msgid "Submit anonymously"
 msgstr "匿名提交"
 
-#: apps/mes/app/components/Suggestion.tsx:114
 #: apps/mes/app/components/Suggestion.tsx:117
+#: apps/mes/app/components/Suggestion.tsx:120
 msgid "Suggestion"
 msgstr "建议"
 

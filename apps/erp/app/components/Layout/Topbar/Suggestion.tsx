@@ -18,6 +18,7 @@ import {
   toast,
   VStack
 } from "@carbon/react";
+import { useMode } from "@carbon/remix";
 import data from "@emoji-mart/data";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
@@ -50,6 +51,8 @@ const Suggestion = () => {
   const [emoji, setEmoji] = useState(defaultEmoji);
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false);
   const [anonymous, setAnonymous] = useState(true);
+  const mode = useMode();
+  const pickerTheme = mode === "system" ? "auto" : mode;
   const [attachment, setAttachment] = useState<{
     name: string;
     path: string;
@@ -169,7 +172,7 @@ const Suggestion = () => {
                   </button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-auto p-0 border-0 bg-white"
+                  className="w-auto p-0 border-0"
                   align="end"
                   sideOffset={8}
                 >
@@ -177,7 +180,7 @@ const Suggestion = () => {
                     <Picker
                       data={data}
                       onEmojiSelect={onEmojiSelect}
-                      theme="light"
+                      theme={pickerTheme}
                       previewPosition="none"
                       skinTonePosition="none"
                       navPosition="bottom"

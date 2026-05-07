@@ -1398,11 +1398,11 @@ msgid "At least one condition must match"
 msgstr ""
 
 #: apps/erp/app/components/Layout/Topbar/Feedback.tsx:147
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:212
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:215
 msgid "Attach File"
 msgstr "Прикрепить файл"
 
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:160
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:163
 msgid "Attachment"
 msgstr "Вложение"
 
@@ -1770,7 +1770,7 @@ msgstr "Невозможно отключить единственный акт�
 #: apps/erp/app/components/Form/Items.tsx:115
 #: apps/erp/app/components/ItemRuleViolationModal.tsx:96
 #: apps/erp/app/components/Layout/Topbar/Feedback.tsx:135
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:200
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:203
 #: apps/erp/app/components/Modals/ConfirmDelete/ConfirmDelete.tsx:62
 #: apps/erp/app/components/Table/components/TableHeader.tsx:209
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:195
@@ -2127,7 +2127,7 @@ msgid "Class"
 msgstr "Класс"
 
 #: apps/erp/app/components/Layout/Topbar/Feedback.tsx:143
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:208
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:211
 #: apps/erp/app/components/Select.tsx:73
 msgid "Clear"
 msgstr "Очистить"
@@ -3492,7 +3492,7 @@ msgstr "Тип данных не может быть изменен"
 #: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:72
 #: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:63
 #: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:100
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:145
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:148
 #: apps/erp/app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:110
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineShipments.tsx:97
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:525
@@ -4907,7 +4907,7 @@ msgstr "Уведомления по электронной почте не на�
 msgid "Emails"
 msgstr "Письма"
 
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:91
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:94
 msgid "Emoji"
 msgstr "Эмодзи"
 
@@ -5780,7 +5780,7 @@ msgid "Failed to upload file: {0}"
 msgstr "Ошибка загрузки файла: {0}"
 
 #: apps/erp/app/components/Layout/Topbar/Feedback.tsx:73
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:96
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:99
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentNotes.tsx:58
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferNotes.tsx:43
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:1814
@@ -5892,7 +5892,7 @@ msgid "File size exceeds {maxSizeMB}MB limit. Current size: {0}MB"
 msgstr "Размер файла превышает лимит {maxSizeMB}МБ. Текущий размер: {0}МБ"
 
 #: apps/erp/app/components/Layout/Topbar/Feedback.tsx:60
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:82
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:85
 msgid "File size exceeds 10MB limit"
 msgstr "Размер файла превышает лимит 10МБ"
 
@@ -6275,7 +6275,7 @@ msgstr "ID"
 msgid "Ideas, suggestions or problems with this page?"
 msgstr "Идеи, предложения или проблемы на этой странице?"
 
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:138
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:141
 msgid "Ideas, suggestions or problems?"
 msgstr "Идеи, предложения или проблемы?"
 
@@ -9512,7 +9512,7 @@ msgstr "Детали"
 msgid "Pass"
 msgstr "Пройти"
 
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:152
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:155
 msgid "Path"
 msgstr "Путь"
 
@@ -11971,7 +11971,7 @@ msgstr "Самоуправляемый"
 msgid "Self-Onboarding with Carbon Academy"
 msgstr "Самостоятельное внедрение с Carbon Academy"
 
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:221
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:224
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:3411
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteFinalizeModal.tsx:105
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:245
@@ -12892,7 +12892,7 @@ msgstr "Узел в сборке"
 msgid "Submit"
 msgstr "Отправить"
 
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:159
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:162
 msgid "Submit anonymously"
 msgstr "Отправить анонимно"
 
@@ -12904,7 +12904,7 @@ msgstr "Отправить на утверждение"
 msgid "Submit Inspection"
 msgstr "Отправить проверку"
 
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:131
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:134
 msgid "Submitted By"
 msgstr "Отправлено"
 
@@ -12964,9 +12964,9 @@ msgstr "Суффикс"
 msgid "Suggested Actions"
 msgstr "Предлагаемые действия"
 
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:117
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:84
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:122
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:120
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:87
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:125
 #: apps/erp/app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:42
 msgid "Suggestion"
 msgstr "Предложение"
@@ -13240,7 +13240,7 @@ msgstr "Действия таблицы"
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentProperties.tsx:231
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentsTable.tsx:104
 #: apps/erp/app/modules/quality/ui/Issue/IssueProperties.tsx:526
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:184
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:187
 #: apps/erp/app/modules/resources/ui/Suggestions/SuggestionsTable.tsx:86
 #: apps/erp/app/modules/resources/ui/Training/TrainingProperties.tsx:302
 #: apps/erp/app/modules/resources/ui/Training/TrainingsTable.tsx:150
@@ -14345,7 +14345,7 @@ msgstr "Загружено: {0}"
 msgid "Uploading {0}"
 msgstr "Загрузка {0}"
 
-#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:78
+#: apps/erp/app/components/Layout/Topbar/Suggestion.tsx:81
 msgid "Uploading {fileName}"
 msgstr "Загрузка {fileName}"
 
@@ -14525,7 +14525,7 @@ msgstr "Просмотреть все"
 msgid "View Assigned Jobs"
 msgstr "Просмотр назначенных заданий"
 
-#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:168
+#: apps/erp/app/modules/resources/ui/Suggestions/SuggestionDetails.tsx:171
 msgid "View Attachment"
 msgstr "Просмотреть вложение"
 
