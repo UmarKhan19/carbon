@@ -1,3 +1,5 @@
+import { getBrowserEnv } from "@carbon/auth";
+
 export const supportedLanguages = [
   "en",
   "fr",
@@ -12,7 +14,15 @@ export const supportedLanguages = [
   "hi"
 ] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
-export const defaultLanguage: SupportedLanguage = "en";
+
+const envDefaultLanguage = getBrowserEnv().DEFAULT_LANGUAGE;
+
+export const defaultLanguage: SupportedLanguage = supportedLanguages.includes(
+  envDefaultLanguage as SupportedLanguage
+)
+  ? (envDefaultLanguage as SupportedLanguage)
+  : "en";
+
 export const localeCookieName = "locale";
 
 export const resolveLanguage = (
@@ -25,3 +35,33 @@ export const resolveLanguage = (
   }
   return defaultLanguage;
 };
+
+/** Each language name written in that language (for pickers). */
+export const languageNativeLabels: Record<SupportedLanguage, string> = {
+  en: "English",
+  fr: "Français",
+  de: "Deutsch",
+  es: "Español",
+  it: "Italiano",
+  ja: "日本語",
+  pl: "Polski",
+  pt: "Português",
+  ru: "Русский",
+  zh: "中文",
+  hi: "हिन्दी"
+};
+
+/**
+ * Options for language `<Select>` UIs: native endonyms, sorted for the active UI locale.
+ */
+export function getSortedLanguageSelectOptions(
+  locale: string | null | undefined
+): { label: string; value: SupportedLanguage }[] {
+  const resolved = resolveLanguage(locale);
+  return supportedLanguages
+    .map((value) => ({
+      value,
+      label: languageNativeLabels[value]
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, resolved));
+}

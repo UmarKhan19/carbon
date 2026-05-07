@@ -82,6 +82,17 @@ export async function getEmployee(
     .single();
 }
 
+export async function getUnrevokedInviteEmails(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("invite")
+    .select("email")
+    .eq("companyId", companyId)
+    .is("revokedAt", null);
+}
+
 export async function getEmployees(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -96,6 +107,14 @@ export async function getEmployees(
 
   if (args.search) {
     query = query.ilike("name", `%${args.search}%`);
+  }
+
+  // Default to active employees when the user hasn't explicitly filtered on
+  // active status. The Active/Inactive dropdown still works because picking
+  // a value puts an `active:eq:...` filter in the URL, which overrides this.
+  const hasActiveFilter = args.filters?.some((f) => f.column === "active");
+  if (!hasActiveFilter) {
+    query = query.eq("active", true);
   }
 
   query = setGenericQueryFilters(query, args, [

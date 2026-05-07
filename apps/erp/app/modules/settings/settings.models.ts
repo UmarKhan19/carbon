@@ -89,7 +89,8 @@ export const customFieldValidator = z
       z.number().min(1, { message: "Data type is required" })
     ),
     listOptions: z.string().min(1).array().optional(),
-    tags: z.array(z.string()).optional()
+    tags: z.array(z.string()).optional(),
+    required: zfd.checkbox()
   })
   .refine((input) => {
     // allows bar to be optional only when foo is 'foo'
@@ -246,6 +247,12 @@ export const accountsReceivableEmailValidator = z.object({
 
 export const defaultCustomerCcValidator = z.object({
   defaultCustomerCc: z.array(z.string().email()).optional()
+});
+
+export const subsidiaryValidator = z.object({
+  ...company,
+  id: zfd.text(z.string().optional()),
+  parentCompanyId: zfd.text(z.string().optional())
 });
 
 export const sequenceValidator = z.object({

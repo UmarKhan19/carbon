@@ -26,6 +26,7 @@ scripts/test-get-stripe-customer.ts
 
 # local env files
 .env
+.envrc
 .env.local
 .env.dev
 .env.development.local

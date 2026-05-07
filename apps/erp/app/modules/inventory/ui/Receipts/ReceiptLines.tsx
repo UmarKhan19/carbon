@@ -76,7 +76,6 @@ import FileDropzone from "~/components/FileDropzone";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useRouteData, useUser } from "~/hooks";
-import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import type {
   BatchProperty,
   ItemTracking,
@@ -85,7 +84,6 @@ import type {
 } from "~/modules/inventory";
 import { StorageUnitForm, splitValidator } from "~/modules/inventory";
 import { getDocumentType } from "~/modules/shared/shared.service";
-import type { action as receiptLinesUpdateAction } from "~/routes/x+/receipt+/lines.update";
 import { useItems } from "~/stores";
 import type { StorageItem } from "~/types";
 import { path } from "~/utils/path";
@@ -97,11 +95,7 @@ const ReceiptLines = () => {
   const { receiptId } = useParams();
   if (!receiptId) throw new Error("receiptId not found");
 
-  const ruleViolations = useItemRuleViolations<typeof receiptLinesUpdateAction>(
-    {
-      action: path.to.bulkUpdateReceiptLine
-    }
-  );
+  const fetcher = useFetcher();
 
   const { upload, deleteFile, getPath } = useReceiptFiles(receiptId);
   const routeData = useRouteData<{
@@ -226,7 +220,10 @@ const ReceiptLines = () => {
       formData.append("ids", lineId);
       formData.append("field", field);
       formData.append("value", value.toString());
-      ruleViolations.submit(formData);
+      fetcher.submit(formData, {
+        method: "post",
+        action: path.to.bulkUpdateReceiptLine
+      });
     },
 
     []
@@ -238,7 +235,6 @@ const ReceiptLines = () => {
 
   return (
     <>
-      <ruleViolations.ViolationModal />
       <Card>
         <CardHeader>
           <CardTitle>

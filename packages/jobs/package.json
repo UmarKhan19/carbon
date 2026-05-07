@@ -39,7 +39,6 @@
     "sst": "4.6.9",
     "supabase": "2.84.5",
     "tsup": "8.5.1",
-    "inngest": "3.52.7",
     "zod": "3.25.76"
   },
   "devDependencies": {

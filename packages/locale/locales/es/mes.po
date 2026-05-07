@@ -132,7 +132,7 @@ msgstr "Responsable"
 msgid "Attach File"
 msgstr "Adjuntar archivo"
 
-#: apps/mes/app/routes/_public+/login.tsx:190
+#: apps/mes/app/routes/_public+/login.tsx:197
 msgid "Authentication Error"
 msgstr "Error de autenticación"
 
@@ -164,11 +164,11 @@ msgstr "Bloqueado por {0}"
 msgid "Blocking"
 msgstr "Bloqueando"
 
-#: apps/mes/app/routes/_public+/callback.tsx:153
+#: apps/mes/app/routes/_public+/callback.tsx:160
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
 msgstr "Pero no te preocupes. Puedes usar el flujo de contraseña olvidada para solicitar un nuevo enlace mágico."
 
-#: apps/mes/app/routes/_public+/login.tsx:249
+#: apps/mes/app/routes/_public+/login.tsx:256
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "Al iniciar sesión, acepta los <0>Términos de servicio</0> y la <1>Política de privacidad.</1>"
 
@@ -186,7 +186,7 @@ msgstr "Al iniciar sesión, acepta los <0>Términos de servicio</0> y la <1>Pol�
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: apps/mes/app/routes/_public+/login.tsx:159
+#: apps/mes/app/routes/_public+/login.tsx:166
 msgid "Carbon Logo"
 msgstr "Logotipo de Carbon"
 
@@ -198,7 +198,7 @@ msgstr "Tarjetas"
 msgid "Chat"
 msgstr "Chat"
 
-#: apps/mes/app/routes/_public+/login.tsx:168
+#: apps/mes/app/routes/_public+/login.tsx:175
 msgid "Check your email"
 msgstr "Revise su correo electrónico"
 
@@ -415,7 +415,7 @@ msgstr "Duración"
 msgid "Edit"
 msgstr "Editar"
 
-#: apps/mes/app/routes/_public+/login.tsx:229
+#: apps/mes/app/routes/_public+/login.tsx:236
 msgid "Email Address"
 msgstr "Correo electrónico"
 
@@ -435,7 +435,7 @@ msgstr "Finalizar operaciones"
 msgid "Enter PIN for {0}"
 msgstr "Ingrese el PIN para {0}"
 
-#: apps/mes/app/routes/_public+/callback.tsx:146
+#: apps/mes/app/routes/_public+/callback.tsx:153
 msgid "Error"
 msgstr "Error"
 
@@ -629,7 +629,7 @@ msgstr "Registrar desperdicio"
 msgid "Log scrap for {0}"
 msgstr "Registrar desperdicio para {0}"
 
-#: apps/mes/app/routes/_public+/callback.tsx:160
+#: apps/mes/app/routes/_public+/callback.tsx:167
 msgid "Login"
 msgstr "Iniciar sesión"
 
@@ -1031,7 +1031,7 @@ msgstr "Buscar operadores..."
 
 #: apps/mes/app/components/Filter/ActiveFilters.tsx:166
 #: apps/mes/app/components/Filter/Filter.tsx:163
-#: packages/react/src/Combobox.tsx:234
+#: packages/react/src/Combobox.tsx:235
 #: packages/react/src/CreateableCombobox.tsx:278
 #: packages/react/src/CreateableMultiSelect.tsx:177
 #: packages/react/src/CreateableMultiSelect.tsx:294
@@ -1044,7 +1044,7 @@ msgstr "Buscar..."
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1665
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:368
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:488
-#: packages/react/src/Combobox.tsx:147
+#: packages/react/src/Combobox.tsx:148
 #: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
 msgid "Select"
@@ -1133,15 +1133,15 @@ msgstr "Establecer hora de salida"
 msgid "Setup"
 msgstr "Preparación"
 
-#: apps/mes/app/routes/_public+/login.tsx:239
+#: apps/mes/app/routes/_public+/login.tsx:246
 msgid "Sign in with Email"
 msgstr "Iniciar sesión con correo electrónico"
 
-#: apps/mes/app/routes/_public+/login.tsx:206
+#: apps/mes/app/routes/_public+/login.tsx:213
 msgid "Sign in with Google"
 msgstr "Iniciar sesión con Google"
 
-#: apps/mes/app/routes/_public+/login.tsx:219
+#: apps/mes/app/routes/_public+/login.tsx:226
 msgid "Sign in with Outlook"
 msgstr "Iniciar sesión con Outlook"
 
@@ -1308,7 +1308,7 @@ msgstr "Subiendo {0}"
 msgid "View maintenance dispatch"
 msgstr "Ver despacho de mantenimiento"
 
-#: apps/mes/app/routes/_public+/login.tsx:171
+#: apps/mes/app/routes/_public+/login.tsx:178
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Le hemos enviado un enlace mágico para iniciar sesión en su cuenta."
 

@@ -64,17 +64,20 @@ export async function setAuthSession(
   return sessionStorage.commitSession(session, { maxAge: SESSION_MAX_AGE });
 }
 
-export async function destroyAuthSession(request: Request) {
+export async function clearAuthCookies(request: Request) {
   const session = await getSession(request);
-
   const sessionCookie = await sessionStorage.destroySession(session);
   const companyIdCookie = setCompanyId(null);
+  return [
+    ["Set-Cookie", sessionCookie] as [string, string],
+    ["Set-Cookie", companyIdCookie] as [string, string]
+  ];
+}
 
+export async function destroyAuthSession(request: Request) {
+  const headers = await clearAuthCookies(request);
   return redirect(path.to.login, {
-    headers: [
-      ["Set-Cookie", sessionCookie],
-      ["Set-Cookie", companyIdCookie]
-    ]
+    headers
   });
 }
 
@@ -168,7 +171,8 @@ export async function refreshAuthSession(
 
   const refreshedAuthSession = await refreshAccessToken(
     authSession?.refreshToken,
-    authSession?.companyId
+    authSession?.companyId,
+    authSession?.companyGroupId
   );
 
   // Preserve console mode across token refresh
@@ -228,7 +232,8 @@ export async function updateSessionConsole(
 
 export async function updateCompanySession(
   request: Request,
-  companyId: string
+  companyId: string,
+  companyGroupId: string
 ) {
   const session = await getSession(request);
   const authSession = await getAuthSession(request);
@@ -237,7 +242,8 @@ export async function updateCompanySession(
     await redis.del(getPermissionCacheKey(authSession?.userId!));
     session.set(SESSION_KEY, {
       ...authSession,
-      companyId
+      companyId,
+      companyGroupId
     });
   }
 

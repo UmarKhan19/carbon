@@ -22,6 +22,7 @@ declare global {
       VERCEL_ENV: string;
       QUICKBOOKS_CLIENT_ID: string;
       XERO_CLIENT_ID: string;
+      DEFAULT_LANGUAGE: string;
     };
   }
 }
@@ -79,6 +80,7 @@ declare global {
       INNGEST_EVENT_KEY: string;
       XERO_CLIENT_SECRET: string;
       XERO_WEBHOOK_SECRET: string;
+      DEFAULT_LANGUAGE: string;
     }
   }
 }
@@ -356,6 +358,12 @@ export const SUPABASE_ANON_KEY = getEnv("SUPABASE_ANON_KEY", {
   isSecret: false
 });
 
+export const DEFAULT_LANGUAGE =
+  getEnv("DEFAULT_LANGUAGE", {
+    isSecret: false,
+    isRequired: false
+  }) ?? "en";
+
 export const RATE_LIMIT = parseInt(
   getEnv("RATE_LIMIT", { isRequired: false, isSecret: false }) || "5",
   10
@@ -414,7 +422,8 @@ export function getBrowserEnv() {
     SUPABASE_URL,
     VERCEL_ENV,
     VERCEL_URL,
-    XERO_CLIENT_ID
+    XERO_CLIENT_ID,
+    DEFAULT_LANGUAGE
   };
 }
 

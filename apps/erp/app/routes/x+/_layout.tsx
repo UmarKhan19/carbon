@@ -120,14 +120,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
-    await destroyAuthSession(request);
+    throw await destroyAuthSession(request);
   }
 
   let company = companies.data?.find((c) => c.companyId === companyId);
 
   if (!company && companies.data?.length) {
     company = companies.data[0];
-    const sessionCookie = await updateCompanySession(request, company.id!);
+    const sessionCookie = await updateCompanySession(
+      request,
+      company.id!,
+      company.companyGroupId ?? ""
+    );
     const companyIdCookie = setCompanyId(company.id!);
     throw redirect(path.to.authenticatedRoot, {
       headers: [

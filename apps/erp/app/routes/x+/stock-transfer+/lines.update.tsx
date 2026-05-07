@@ -1,11 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { ActionFunctionArgs } from "react-router";
 import { getStockTransfer, isStockTransferLocked } from "~/modules/inventory";
-import {
-  evaluateLinesForSurface,
-  isBlocked
-} from "~/modules/items/itemRules.server";
 import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
 
@@ -18,7 +13,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const ids = formData.getAll("ids") as string[];
   const field = formData.get("field");
   const value = formData.get("value");
-  const acknowledged = formData.get("acknowledged") === "true";
 
   // Look up the stock transfer from the first line to check locked status.
   if (ids.length > 0) {
@@ -56,48 +50,8 @@ export async function action({ request }: ActionFunctionArgs) {
     return { error: { message: `Invalid field: ${field}` }, data: null };
   }
 
-  // Item Rule evaluation. The "side" being edited (from / to) determines which
-  // storage unit ctx the rule sees.
-  const serviceRole = getCarbonServiceRole();
-  const { data: lines } = await serviceRole
-    .from("stockTransferLine")
-    .select(
-      "id, itemId, fromStorageUnitId, toStorageUnitId, quantity, stockTransferId"
-    )
-    .in("id", ids)
-    .eq("companyId", companyId);
-
-  const { violations, ruleNames } = await evaluateLinesForSurface({
-    client: serviceRole,
-    companyId,
-    userId,
-    surface: "stockTransfer",
-    lines: (lines ?? []).map((l) => {
-      const candidateUnit =
-        field === "fromStorageUnitId"
-          ? (value ?? (l.fromStorageUnitId as string | null))
-          : (value ?? (l.toStorageUnitId as string | null));
-      return {
-        lineId: l.id as string,
-        itemId: l.itemId as string | null,
-        storageUnitId: candidateUnit,
-        quantity: Number(l.quantity ?? 0),
-        // Stock transfer lines have no direct location — let the helper
-        // derive it from the storage unit when one is in scope.
-        locationId: null
-      };
-    })
-  });
-
-  if (violations.length > 0 && isBlocked(violations, acknowledged)) {
-    return {
-      error: null,
-      data: null,
-      violations,
-      ruleNames
-    };
-  }
-
+  // Item Rule evaluation runs at commit time (when the transfer is posted),
+  // not on per-line edits. Saves go straight through.
   const update = await client
     .from("stockTransferLine")
     .update({

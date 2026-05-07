@@ -132,7 +132,7 @@ msgstr "负责人"
 msgid "Attach File"
 msgstr "附加文件"
 
-#: apps/mes/app/routes/_public+/login.tsx:190
+#: apps/mes/app/routes/_public+/login.tsx:197
 msgid "Authentication Error"
 msgstr "认证错误"
 
@@ -164,11 +164,11 @@ msgstr "被 {0} 阻塞"
 msgid "Blocking"
 msgstr "阻塞中"
 
-#: apps/mes/app/routes/_public+/callback.tsx:153
+#: apps/mes/app/routes/_public+/callback.tsx:160
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
 msgstr "但别担心。您可以使用忘记密码流程来请求新的魔法链接。"
 
-#: apps/mes/app/routes/_public+/login.tsx:249
+#: apps/mes/app/routes/_public+/login.tsx:256
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "登录即表示您同意<0>服务条款</0>和<1>隐私政策。</1>"
 
@@ -186,7 +186,7 @@ msgstr "登录即表示您同意<0>服务条款</0>和<1>隐私政策。</1>"
 msgid "Cancel"
 msgstr "取消"
 
-#: apps/mes/app/routes/_public+/login.tsx:159
+#: apps/mes/app/routes/_public+/login.tsx:166
 msgid "Carbon Logo"
 msgstr "Carbon 标志"
 
@@ -198,7 +198,7 @@ msgstr "卡片"
 msgid "Chat"
 msgstr "聊天"
 
-#: apps/mes/app/routes/_public+/login.tsx:168
+#: apps/mes/app/routes/_public+/login.tsx:175
 msgid "Check your email"
 msgstr "请查收邮件"
 
@@ -415,7 +415,7 @@ msgstr "时长"
 msgid "Edit"
 msgstr "编辑"
 
-#: apps/mes/app/routes/_public+/login.tsx:229
+#: apps/mes/app/routes/_public+/login.tsx:236
 msgid "Email Address"
 msgstr "电子邮箱"
 
@@ -435,7 +435,7 @@ msgstr "结束工序"
 msgid "Enter PIN for {0}"
 msgstr "输入 {0} 的 PIN 码"
 
-#: apps/mes/app/routes/_public+/callback.tsx:146
+#: apps/mes/app/routes/_public+/callback.tsx:153
 msgid "Error"
 msgstr "错误"
 
@@ -629,7 +629,7 @@ msgstr "记录报废"
 msgid "Log scrap for {0}"
 msgstr "记录 {0} 的报废"
 
-#: apps/mes/app/routes/_public+/callback.tsx:160
+#: apps/mes/app/routes/_public+/callback.tsx:167
 msgid "Login"
 msgstr "登录"
 
@@ -1031,7 +1031,7 @@ msgstr "搜索操作员..."
 
 #: apps/mes/app/components/Filter/ActiveFilters.tsx:166
 #: apps/mes/app/components/Filter/Filter.tsx:163
-#: packages/react/src/Combobox.tsx:234
+#: packages/react/src/Combobox.tsx:235
 #: packages/react/src/CreateableCombobox.tsx:278
 #: packages/react/src/CreateableMultiSelect.tsx:177
 #: packages/react/src/CreateableMultiSelect.tsx:294
@@ -1044,7 +1044,7 @@ msgstr "搜索..."
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1665
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:368
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:488
-#: packages/react/src/Combobox.tsx:147
+#: packages/react/src/Combobox.tsx:148
 #: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
 msgid "Select"
@@ -1133,15 +1133,15 @@ msgstr "设置下班打卡时间"
 msgid "Setup"
 msgstr "设置"
 
-#: apps/mes/app/routes/_public+/login.tsx:239
+#: apps/mes/app/routes/_public+/login.tsx:246
 msgid "Sign in with Email"
 msgstr "使用邮箱登录"
 
-#: apps/mes/app/routes/_public+/login.tsx:206
+#: apps/mes/app/routes/_public+/login.tsx:213
 msgid "Sign in with Google"
 msgstr "使用 Google 登录"
 
-#: apps/mes/app/routes/_public+/login.tsx:219
+#: apps/mes/app/routes/_public+/login.tsx:226
 msgid "Sign in with Outlook"
 msgstr "使用 Outlook 登录"
 
@@ -1308,7 +1308,7 @@ msgstr "正在上传 {0}"
 msgid "View maintenance dispatch"
 msgstr "查看维护工单"
 
-#: apps/mes/app/routes/_public+/login.tsx:171
+#: apps/mes/app/routes/_public+/login.tsx:178
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "我们已向您发送了登录链接，请查收。"
 

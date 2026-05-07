@@ -132,7 +132,7 @@ msgstr "असाइनी"
 msgid "Attach File"
 msgstr "फ़ाइल संलग्न करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:190
+#: apps/mes/app/routes/_public+/login.tsx:197
 msgid "Authentication Error"
 msgstr "प्रमाणीकरण त्रुटि"
 
@@ -164,11 +164,11 @@ msgstr "{0} द्वारा अवरुद्ध"
 msgid "Blocking"
 msgstr "अवरुद्ध"
 
-#: apps/mes/app/routes/_public+/callback.tsx:153
+#: apps/mes/app/routes/_public+/callback.tsx:160
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
 msgstr "लेकिन चिंता न करें। आप नया जादुई लिंक अनुरोध करने के लिए भूल गए पासवर्ड प्रवाह का उपयोग कर सकते हैं।"
 
-#: apps/mes/app/routes/_public+/login.tsx:249
+#: apps/mes/app/routes/_public+/login.tsx:256
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "साइन इन करके, आप <0>सेवा की शर्तें</0> और <1>गोपनीयता नीति</1> से सहमत हैं।"
 
@@ -186,7 +186,7 @@ msgstr "साइन इन करके, आप <0>सेवा की शर�
 msgid "Cancel"
 msgstr "रद्द करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:159
+#: apps/mes/app/routes/_public+/login.tsx:166
 msgid "Carbon Logo"
 msgstr "कार्बन लोगो"
 
@@ -198,7 +198,7 @@ msgstr "कार्ड"
 msgid "Chat"
 msgstr "चैट"
 
-#: apps/mes/app/routes/_public+/login.tsx:168
+#: apps/mes/app/routes/_public+/login.tsx:175
 msgid "Check your email"
 msgstr "अपना ईमेल जांचें"
 
@@ -415,7 +415,7 @@ msgstr "अवधि"
 msgid "Edit"
 msgstr "संपादित करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:229
+#: apps/mes/app/routes/_public+/login.tsx:236
 msgid "Email Address"
 msgstr "ईमेल पता"
 
@@ -435,7 +435,7 @@ msgstr "संचालन समाप्त करें"
 msgid "Enter PIN for {0}"
 msgstr "{0} के लिए PIN दर्ज करें"
 
-#: apps/mes/app/routes/_public+/callback.tsx:146
+#: apps/mes/app/routes/_public+/callback.tsx:153
 msgid "Error"
 msgstr "त्रुटि"
 
@@ -629,7 +629,7 @@ msgstr "स्क्रैप लॉग करें"
 msgid "Log scrap for {0}"
 msgstr "{0} के लिए स्क्रैप लॉग करें"
 
-#: apps/mes/app/routes/_public+/callback.tsx:160
+#: apps/mes/app/routes/_public+/callback.tsx:167
 msgid "Login"
 msgstr "लॉगिन"
 
@@ -1031,7 +1031,7 @@ msgstr "ऑपरेटर खोजें..."
 
 #: apps/mes/app/components/Filter/ActiveFilters.tsx:166
 #: apps/mes/app/components/Filter/Filter.tsx:163
-#: packages/react/src/Combobox.tsx:234
+#: packages/react/src/Combobox.tsx:235
 #: packages/react/src/CreateableCombobox.tsx:278
 #: packages/react/src/CreateableMultiSelect.tsx:177
 #: packages/react/src/CreateableMultiSelect.tsx:294
@@ -1044,7 +1044,7 @@ msgstr "खोजें..."
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1665
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:368
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:488
-#: packages/react/src/Combobox.tsx:147
+#: packages/react/src/Combobox.tsx:148
 #: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
 msgid "Select"
@@ -1133,15 +1133,15 @@ msgstr "घड़ी बंद करने का समय सेट करे
 msgid "Setup"
 msgstr "सेटअप"
 
-#: apps/mes/app/routes/_public+/login.tsx:239
+#: apps/mes/app/routes/_public+/login.tsx:246
 msgid "Sign in with Email"
 msgstr "ईमेल के साथ साइन इन करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:206
+#: apps/mes/app/routes/_public+/login.tsx:213
 msgid "Sign in with Google"
 msgstr "Google के साथ साइन इन करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:219
+#: apps/mes/app/routes/_public+/login.tsx:226
 msgid "Sign in with Outlook"
 msgstr "Outlook के साथ साइन इन करें"
 
@@ -1308,7 +1308,7 @@ msgstr "अपलोड किया जा रहा है {0}"
 msgid "View maintenance dispatch"
 msgstr "रखरखाव डिस्पैच देखें"
 
-#: apps/mes/app/routes/_public+/login.tsx:171
+#: apps/mes/app/routes/_public+/login.tsx:178
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "हमने आपके खाते में साइन इन करने के लिए आपको एक जादुई लिंक भेजा है।"
 
