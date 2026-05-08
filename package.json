@@ -1,5 +1,17 @@
 {
-  "name": "carbon",
+  "dependencies": {
+    "@opentelemetry/semantic-conventions": "1.40.0",
+    "@react-router/remix-routes-option-adapter": "catalog:",
+    "cookie": "catalog:",
+    "dompurify": "catalog:",
+    "fast-uri": "3.1.0",
+    "fdir": "6.5.0",
+    "nanoid": "catalog:",
+    "react-pdf": "catalog:",
+    "remix-flat-routes": "catalog:",
+    "sst": "catalog:",
+    "tsup": "catalog:"
+  },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
     "@lingui/cli": "catalog:",
@@ -27,13 +39,34 @@
       "biome check --write --no-errors-on-unmatched"
     ]
   },
+  "name": "carbon",
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.60.1"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@biomejs/biome",
+      "@swc/core",
+      "@tailwindcss/oxide",
+      "core-js",
+      "esbuild",
+      "protobufjs",
+      "supabase"
+    ],
+    "patchedDependencies": {
+      "@ai-sdk-tools/store@1.2.0": "patches/@ai-sdk-tools__store@1.2.0.patch",
+      "@react-router/dev@7.12.0": "patches/@react-router__dev@7.12.0.patch"
+    }
+  },
   "private": true,
   "scripts": {
+    "agent:new": "tsx scripts/create-agent.ts",
     "build": "turbo run build",
     "build:erp": "turbo run build --filter=erp",
     "build:mes": "turbo run build --filter=mes",
-    "ci:migrations": "pnpm --filter ci ci:migrations",
     "ci:deploy": "pnpm --filter ci ci:deploy",
+    "ci:migrations": "pnpm --filter ci ci:migrations",
     "clean": "turbo run clean && rimraf ./node_modules && rimraf ./pnpm-lock.yaml",
     "db:build": "run-s db:kill db:start setup",
     "db:function:new": "pnpm --filter @carbon/database db:function:new",
@@ -53,11 +86,11 @@
     "db:types": "pnpm --filter @carbon/database db:types",
     "deploy": "turbo run deploy",
     "dev": "run-p dev:docker dev:jobs dev:jobs-wait",
-    "dev:docker": "docker compose up -d redis || docker-compose up -d redis",
-    "dev:jobs-wait": "pnpm dlx wait-on tcp:8288 && run-p dev:erp dev:stripe",
     "dev:academy": "turbo run dev --filter=./apps/academy --filter=./packages/",
+    "dev:docker": "docker compose up -d redis || docker-compose up -d redis",
     "dev:erp": "turbo run dev --filter=./apps/erp --filter=./packages/ ",
     "dev:jobs": "pnpm --filter @carbon/jobs dev:jobs",
+    "dev:jobs-wait": "pnpm dlx wait-on tcp:8288 && run-p dev:erp dev:stripe",
     "dev:mes": "turbo run dev --filter=./apps/mes",
     "dev:packages": "turbo run dev --filter=./packages/*",
     "dev:starter": "turbo run dev --filter=./apps/starter --filter=./packages/",
@@ -66,11 +99,10 @@
     "generate:mcp": "tsx scripts/generate-mcp.ts",
     "generate:swagger": "tsx scripts/generate-swagger-docs.ts && pnpm exec biome format ./packages/database/src/swagger-docs-schema.ts --write --files-max-size=5000000",
     "generate:types": "tsx scripts/generate-db-types.ts",
-    "lint": "turbo run lint",
     "lingui:check": "pnpm run lingui:extract && pnpm run lingui:compile",
     "lingui:compile": "lingui compile --namespace es",
     "lingui:extract": "lingui extract --clean",
-    "novu:sync": "pnpm dlx novu@latest sync --bridge-url https://app.carbon.ms/api/novu --secret-key $NOVU_SECRET_KEY --api-url https://api.novu.co",
+    "lint": "turbo run lint",
     "postdb:build": "run-s generate:types generate:swagger",
     "predb:build": "tsx scripts/setup-env-files.ts",
     "prepare": "pnpm exec husky install",
@@ -78,47 +110,14 @@
     "test": "turbo run test",
     "tool:new": "tsx scripts/create-tool.ts",
     "translate": "pnpm dlx linguito translate --llm",
-    "agent:new": "tsx scripts/create-agent.ts",
-    "types": "turbo run types",
     "typecheck": "turbo run typecheck --filter='*'",
-    "typegen": "turbo run typegen"
+    "typegen": "turbo run typegen",
+    "types": "turbo run types"
   },
   "workspaces": [
     "apps/*",
     "ci",
     "examples/*",
     "packages/*"
-  ],
-  "packageManager": "pnpm@10.13.1",
-  "dependencies": {
-    "@opentelemetry/semantic-conventions": "1.40.0",
-    "@react-router/remix-routes-option-adapter": "catalog:",
-    "cookie": "catalog:",
-    "dompurify": "catalog:",
-    "fast-uri": "3.1.0",
-    "fdir": "6.5.0",
-    "nanoid": "catalog:",
-    "react-pdf": "catalog:",
-    "remix-flat-routes": "catalog:",
-    "sst": "catalog:",
-    "tsup": "catalog:"
-  },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.60.1"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@biomejs/biome",
-      "@swc/core",
-      "@tailwindcss/oxide",
-      "core-js",
-      "esbuild",
-      "protobufjs",
-      "supabase"
-    ],
-    "patchedDependencies": {
-      "@ai-sdk-tools/store@1.2.0": "patches/@ai-sdk-tools__store@1.2.0.patch",
-      "@react-router/dev@7.12.0": "patches/@react-router__dev@7.12.0.patch"
-    }
-  }
+  ]
 }

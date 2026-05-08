@@ -1,6 +1,4 @@
 {
-  "name": "erp",
-  "type": "module",
   "dependencies": {
     "@ai-sdk-tools/agents": "1.2.0",
     "@ai-sdk-tools/artifacts": "1.2.0",
@@ -38,9 +36,6 @@
     "@modelcontextprotocol/sdk": "1.29.0",
     "@monaco-editor/react": "4.7.0",
     "@nanostores/react": "catalog:",
-    "@novu/framework": "2.10.0",
-    "@novu/headless": "2.7.0-alpha.0",
-    "@novu/node": "2.6.6",
     "@paper-design/shaders-react": "^0.0.57",
     "@react-aria/i18n": "catalog:",
     "@react-email/components": "catalog:",
@@ -161,18 +156,18 @@
     "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:"
   },
+  "name": "erp",
   "private": true,
   "scripts": {
     "build": "react-router build",
     "clean": "rimraf .cache .turbo node_modules dist build",
     "dev": "react-router dev",
-    "dev:novu": "pnpm dlx novu@latest dev --port 3000",
-    "sync:novu": "pnpm dlx novu@latest sync ",
     "lint": "biome lint --write ",
     "start": "NODE_ENV=production react-router-serve ./build/server/index.js",
     "typecheck": "tsgo --noEmit",
-    "types": "tsgo --noEmit",
-    "typegen": "react-router typegen"
+    "typegen": "react-router typegen",
+    "types": "tsgo --noEmit"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "type": "module"
 }

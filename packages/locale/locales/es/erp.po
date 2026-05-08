@@ -824,11 +824,11 @@ msgstr "Aprobado por"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:465
 msgid "Archive"
 msgstr "Archivo"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:523
 msgid "Archive all"
 msgstr "Archivar todo"
 
@@ -6377,7 +6377,7 @@ msgstr "Inspecciones de Entrada"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "Inspecciones de Entrada: Requerir Inspector Diferente"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
 msgid "Inbox"
 msgstr "Bandeja de entrada"
 
@@ -8788,7 +8788,7 @@ msgstr ""
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "No hay coincidencias para \"{query}\". Intenta un término de búsqueda diferente."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:485
 msgid "No new notifications"
 msgstr "Sin notificaciones nuevas"
 
@@ -8814,7 +8814,7 @@ msgstr "No se encontraron opciones."
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "No se encontraron otros empleados. Agregue empleados para habilitar la transferencia de propiedad."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:537
 msgid "No outstanding trainings"
 msgstr "No hay capacitaciones pendientes"
 
@@ -9016,7 +9016,7 @@ msgstr "Notas"
 msgid "Notes (optional)"
 msgstr "Notas (opcional)"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:557
 msgid "Nothing in the archive"
 msgstr "Nada en el archivo"
 
@@ -13896,7 +13896,7 @@ msgstr "Capacitación"
 msgid "Training Assignments"
 msgstr "Asignaciones de Capacitación"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
 msgid "Trainings"
 msgstr "Capacitaciones"
 

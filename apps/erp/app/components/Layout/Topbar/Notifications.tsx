@@ -367,6 +367,9 @@ function GenericNotification({
           {...props}
         />
       );
+    case NotificationEvent.Digest:
+      // Digest rows have no single target document — clicking just dismisses.
+      return <Notification icon={<LuInbox />} to="#" {...props} />;
     default:
       return null;
   }
@@ -390,8 +393,8 @@ const Notifications = () => {
     markAllMessagesAsSeen,
     markAllMessagesAsRead
   } = useNotifications({
-    userId,
-    companyId
+    companyId,
+    userId
   });
 
   const unreadNotifications = notifications.filter(

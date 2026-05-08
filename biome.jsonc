@@ -1,9 +1,20 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.8/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on",
+        "useSortedKeys": "on",
+        "useSortedProperties": "on"
+      }
+    },
+    "enabled": true
+  },
+  "css": {
+    "parser": { "tailwindDirectives": true }
+  },
   "files": {
     "ignoreUnknown": false,
-    "maxSize": 1258291, // 1.2 MB
     "includes": [
       "!.vscode",
       "!sst.env.d.ts",
@@ -14,13 +25,24 @@
       "**/*.json",
       "!**/mcp*/lib/tool-metadata.json",
       "examples/**/*"
-    ]
+    ],
+    "maxSize": 1258291 // 1.2 MB
   },
   "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2 },
+  "javascript": {
+    "formatter": { "quoteStyle": "double", "trailingCommas": "none" }
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    },
+    "parser": {
+      "allowTrailingCommas": false
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": false,
       "a11y": {
         "noAccessKey": "warn",
         "noAriaUnsupportedElements": "warn",
@@ -61,9 +83,9 @@
         "noUndeclaredVariables": "error",
         "noUnreachable": "warn",
         "noUnreachableSuper": "warn",
+        "noUnusedImports": "error",
         "noUnusedLabels": "warn",
         "noUnusedVariables": "error",
-        "noUnusedImports": "error",
         "useExhaustiveDependencies": "warn",
         "useHookAtTopLevel": "error",
         "useIsNan": "warn",
@@ -71,6 +93,7 @@
         "useValidTypeof": "warn",
         "useYield": "warn"
       },
+      "recommended": false,
       "security": {
         "noDangerouslySetInnerHtmlWithChildren": "warn",
         "noGlobalEval": "error"
@@ -107,17 +130,6 @@
       }
     }
   },
-  "javascript": {
-    "formatter": { "quoteStyle": "double", "trailingCommas": "none" }
-  },
-  "json": {
-    "parser": {
-      "allowTrailingCommas": false
-    },
-    "formatter": {
-      "trailingCommas": "none"
-    }
-  },
   "overrides": [
     {
       "linter": {
@@ -148,11 +160,5 @@
       }
     }
   ],
-  "css": {
-    "parser": { "tailwindDirectives": true }
-  },
-  "assist": {
-    "enabled": true,
-    "actions": { "source": { "organizeImports": "on" } }
-  }
+  "vcs": { "clientKind": "git", "enabled": true, "useIgnoreFile": true }
 }
