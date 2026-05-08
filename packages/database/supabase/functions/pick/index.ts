@@ -505,7 +505,11 @@ async function confirmPickingList(_client: any, payload: any) {
 
     const ledgerEntries: any[] = [];
     const jobMaterialUpdates: Array<{ id: string; pickedQty: number }> = [];
-    const entityConsumes: Array<{ entityId: string; pickedQty: number }> = [];
+    const entityConsumes: Array<{
+      entityId: string;
+      pickedQty: number;
+      jobMaterialId: string | null;
+    }> = [];
 
     for (const line of lines) {
       const pickedQty = Number(line.pickedQuantity ?? 0);
@@ -532,6 +536,7 @@ async function confirmPickingList(_client: any, payload: any) {
         entityConsumes.push({
           entityId: line.pickedTrackedEntityId,
           pickedQty,
+          jobMaterialId: line.jobMaterialId ?? null,
         });
       }
     }
@@ -570,16 +575,53 @@ async function confirmPickingList(_client: any, payload: any) {
         entities.map((e: any) => [e.id, e]),
       );
 
+      // Resolve job parent batch per jobMaterial. Mirrors
+      // issue/index.ts: the Consume activity outputs into the parent
+      // tracked entity (jobMakeMethod.trackedEntityId) so traceability
+      // RPCs descend parent → Consume → child source entities. A
+      // synthetic per-pick output entity (the previous shape) is a
+      // dead-end leaf that never connects to the finished batch.
+      const jobMaterialIds = Array.from(
+        new Set(
+          entityConsumes
+            .map((e) => e.jobMaterialId)
+            .filter((id): id is string => !!id),
+        ),
+      );
+      const parentByMaterialId = new Map<string, string | null>();
+      if (jobMaterialIds.length > 0) {
+        const rows = await trx
+          .selectFrom("jobMaterial")
+          .innerJoin(
+            "jobMakeMethod",
+            "jobMakeMethod.id",
+            "jobMaterial.jobMakeMethodId",
+          )
+          .select([
+            "jobMaterial.id as jobMaterialId",
+            "jobMakeMethod.trackedEntityId as parentTrackedEntityId",
+          ])
+          .where("jobMaterial.id", "in", jobMaterialIds)
+          .where("jobMaterial.companyId", "=", companyId)
+          .execute();
+        for (const r of rows) {
+          parentByMaterialId.set(
+            r.jobMaterialId as string,
+            (r.parentTrackedEntityId as string | null) ?? null,
+          );
+        }
+      }
+
       type EntityOp = {
         entityId: string;
         originalQty: number;
         pickedQty: number;
         remainderQty: number;
         remainderEntityId?: string;
-        pickResultEntityId: string;
+        jobMaterialId: string | null;
       };
       const ops: EntityOp[] = entityConsumes
-        .map(({ entityId, pickedQty }) => {
+        .map(({ entityId, pickedQty, jobMaterialId }) => {
           const entity = entityMap.get(entityId);
           if (!entity) return null;
           const originalQty = Number(entity.quantity);
@@ -588,156 +630,58 @@ async function confirmPickingList(_client: any, payload: any) {
             originalQty,
             pickedQty,
             remainderQty: Math.max(originalQty - pickedQty, 0),
-            pickResultEntityId: nanoid(),
+            jobMaterialId,
           } satisfies EntityOp;
         })
         .filter((x): x is EntityOp => x !== null);
 
-      // Mirror MES issue/index.ts exactly:
-      //
-      //   Split   (only when partial): orig → [orig (shrunk), remainder]
-      //   Consume (always):            orig → pickResult
-      //
-      // The Consume bridges orig to a destination — same role MES gives
-      // its parent batch — so the lineage RPCs traverse the chain even
-      // though Split is filtered as a self-loop. Without that bridge the
-      // graph stays empty for picked entities.
-
+      // 1) Split (partial only) — shrink orig + materialise remainder.
       for (const op of ops) {
+        if (op.remainderQty <= 0) continue;
         const entity = entityMap.get(op.entityId);
 
-        // 1) Split (partial only) — shrink orig + materialise remainder.
-        if (op.remainderQty > 0) {
-          const remainderId = nanoid();
-          await trx
-            .insertInto("trackedEntity")
-            .values({
-              id: remainderId,
-              readableId: entity.readableId ?? null,
-              itemId: entity.itemId ?? null,
-              sourceDocument: entity.sourceDocument,
-              sourceDocumentId: entity.sourceDocumentId,
-              sourceDocumentReadableId: entity.sourceDocumentReadableId ?? null,
-              attributes: entity.attributes ?? {},
-              expirationDate: entity.expirationDate ?? null,
-              quantity: op.remainderQty,
-              status: "Available",
-              splitFromEntityId: op.entityId,
-              companyId,
-              createdBy: userId,
-            } as any)
-            .execute();
-          op.remainderEntityId = remainderId;
-
-          await trx
-            .updateTable("trackedEntity")
-            .set({ quantity: op.pickedQty })
-            .where("id", "=", op.entityId)
-            .where("companyId", "=", companyId)
-            .execute();
-
-          const splitId = nanoid();
-          await trx
-            .insertInto("trackedActivity")
-            .values({
-              id: splitId,
-              type: "Split",
-              sourceDocument: "Picking List",
-              sourceDocumentId: pickingListId,
-              sourceDocumentReadableId: pl.pickingListId,
-              attributes: {
-                "Original Quantity": op.originalQty,
-                "Consumed Quantity": op.pickedQty,
-                "Remaining Quantity": op.remainderQty,
-                "Split Entity ID": remainderId,
-              },
-              companyId,
-              createdBy: userId,
-            } as any)
-            .execute();
-
-          await trx
-            .insertInto("trackedActivityInput")
-            .values({
-              trackedActivityId: splitId,
-              trackedEntityId: op.entityId,
-              quantity: op.originalQty,
-              companyId,
-              createdBy: userId,
-            })
-            .execute();
-
-          await trx
-            .insertInto("trackedActivityOutput")
-            .values([
-              {
-                trackedActivityId: splitId,
-                trackedEntityId: op.entityId,
-                quantity: op.pickedQty,
-                companyId,
-                createdBy: userId,
-              },
-              {
-                trackedActivityId: splitId,
-                trackedEntityId: remainderId,
-                quantity: op.remainderQty,
-                companyId,
-                createdBy: userId,
-              },
-            ])
-            .execute();
-        }
-
-        // 2) PickResult — synthetic destination entity for the Consume.
-        // This is the equivalent of MES's parent batch: it gives the
-        // Consume activity an output so the strict lineage RPCs traverse.
+        const remainderId = nanoid();
         await trx
           .insertInto("trackedEntity")
           .values({
-            id: op.pickResultEntityId,
+            id: remainderId,
             readableId: entity.readableId ?? null,
             itemId: entity.itemId ?? null,
-            sourceDocument: "Picking List",
-            sourceDocumentId: pickingListId,
-            sourceDocumentReadableId: pl.pickingListId,
-            attributes: {
-              ...((entity.attributes as Record<string, unknown>) ?? {}),
-              "Picking List": pl.pickingListId,
-              "Picked From": op.entityId,
-            },
+            sourceDocument: entity.sourceDocument,
+            sourceDocumentId: entity.sourceDocumentId,
+            sourceDocumentReadableId: entity.sourceDocumentReadableId ?? null,
+            attributes: entity.attributes ?? {},
             expirationDate: entity.expirationDate ?? null,
-            quantity: op.pickedQty,
-            status: "Consumed",
+            quantity: op.remainderQty,
+            status: "Available",
             splitFromEntityId: op.entityId,
             companyId,
             createdBy: userId,
           } as any)
           .execute();
-      }
+        op.remainderEntityId = remainderId;
 
-      // 3) Mark every original Consumed in a single statement.
-      await trx
-        .updateTable("trackedEntity")
-        .set({ status: "Consumed" })
-        .where("id", "in", entityIds)
-        .where("companyId", "=", companyId)
-        .execute();
+        await trx
+          .updateTable("trackedEntity")
+          .set({ quantity: op.pickedQty })
+          .where("id", "=", op.entityId)
+          .where("companyId", "=", companyId)
+          .execute();
 
-      // 4) Consume activity per op — orig (input) → pickResult (output).
-      // No self-loop, RPC traverses cleanly.
-      for (const op of ops) {
-        const consumeId = nanoid();
+        const splitId = nanoid();
         await trx
           .insertInto("trackedActivity")
           .values({
-            id: consumeId,
-            type: "Consume",
+            id: splitId,
+            type: "Split",
             sourceDocument: "Picking List",
             sourceDocumentId: pickingListId,
             sourceDocumentReadableId: pl.pickingListId,
             attributes: {
-              "Picking List": pl.pickingListId,
-              "Pick Result Entity ID": op.pickResultEntityId,
+              "Original Quantity": op.originalQty,
+              "Consumed Quantity": op.pickedQty,
+              "Remaining Quantity": op.remainderQty,
+              "Split Entity ID": remainderId,
             },
             companyId,
             createdBy: userId,
@@ -747,9 +691,9 @@ async function confirmPickingList(_client: any, payload: any) {
         await trx
           .insertInto("trackedActivityInput")
           .values({
-            trackedActivityId: consumeId,
+            trackedActivityId: splitId,
             trackedEntityId: op.entityId,
-            quantity: op.pickedQty,
+            quantity: op.originalQty,
             companyId,
             createdBy: userId,
           })
@@ -757,10 +701,92 @@ async function confirmPickingList(_client: any, payload: any) {
 
         await trx
           .insertInto("trackedActivityOutput")
+          .values([
+            {
+              trackedActivityId: splitId,
+              trackedEntityId: op.entityId,
+              quantity: op.pickedQty,
+              companyId,
+              createdBy: userId,
+            },
+            {
+              trackedActivityId: splitId,
+              trackedEntityId: remainderId,
+              quantity: op.remainderQty,
+              companyId,
+              createdBy: userId,
+            },
+          ])
+          .execute();
+      }
+
+      // 2) Mark every original Consumed in a single statement.
+      await trx
+        .updateTable("trackedEntity")
+        .set({ status: "Consumed" })
+        .where("id", "in", entityIds)
+        .where("companyId", "=", companyId)
+        .execute();
+
+      // 3) One Consume activity per jobMaterial group.
+      // Inputs = picked source entities, output = job parent batch.
+      // Skip groups whose parent jobMakeMethod has no trackedEntity
+      // (non-tracked parent) — emitting an activity with no real
+      // output would just reproduce the prior dead-end bug.
+      const opsByMaterial = new Map<string, EntityOp[]>();
+      for (const op of ops) {
+        if (!op.jobMaterialId) continue;
+        const arr = opsByMaterial.get(op.jobMaterialId) ?? [];
+        arr.push(op);
+        opsByMaterial.set(op.jobMaterialId, arr);
+      }
+
+      for (const [jobMaterialId, materialOps] of opsByMaterial) {
+        const parentEntityId = parentByMaterialId.get(jobMaterialId);
+        if (!parentEntityId) continue;
+
+        const consumeId = nanoid();
+        const totalPicked = materialOps.reduce(
+          (sum, op) => sum + op.pickedQty,
+          0,
+        );
+
+        await trx
+          .insertInto("trackedActivity")
+          .values({
+            id: consumeId,
+            type: "Consume",
+            sourceDocument: "Job Material",
+            sourceDocumentId: jobMaterialId,
+            sourceDocumentReadableId: pl.pickingListId,
+            attributes: {
+              "Picking List": pl.pickingListId,
+              "Job Material": jobMaterialId,
+            },
+            companyId,
+            createdBy: userId,
+          } as any)
+          .execute();
+
+        await trx
+          .insertInto("trackedActivityInput")
+          .values(
+            materialOps.map((op) => ({
+              trackedActivityId: consumeId,
+              trackedEntityId: op.entityId,
+              quantity: op.pickedQty,
+              companyId,
+              createdBy: userId,
+            })),
+          )
+          .execute();
+
+        await trx
+          .insertInto("trackedActivityOutput")
           .values({
             trackedActivityId: consumeId,
-            trackedEntityId: op.pickResultEntityId,
-            quantity: op.pickedQty,
+            trackedEntityId: parentEntityId,
+            quantity: totalPicked,
             companyId,
             createdBy: userId,
           })
@@ -889,24 +915,19 @@ async function reversePickingList(_client: any, payload: any) {
         .where("status", "=", "Consumed")
         .execute();
 
-      // Pull every activity confirm wrote for this PL so we can identify
-      // pickResult entities (Consume outputs) and remainder entities
-      // (Split outputs other than orig).
-      const plActivities = await trx
+      // Pull Split activities for this PL so we can undo qty shrinkage
+      // and delete remainder entities. Consume outputs are now the job
+      // parent batch — they must NOT be touched here.
+      const splitActivities = await trx
         .selectFrom("trackedActivity")
-        .select(["id", "type"])
+        .select(["id"])
         .where("sourceDocument", "=", "Picking List")
         .where("sourceDocumentId", "=", pickingListId)
-        .where("type", "in", ["Split", "Consume"])
+        .where("type", "=", "Split")
         .where("companyId", "=", companyId)
         .execute();
 
-      const splitActivityIds = plActivities
-        .filter((a: any) => a.type === "Split")
-        .map((a: any) => a.id);
-      const consumeActivityIds = plActivities
-        .filter((a: any) => a.type === "Consume")
-        .map((a: any) => a.id);
+      const splitActivityIds = splitActivities.map((a: any) => a.id);
 
       // Restore originalQty on each orig from its Split input row, so a
       // partial pick that shrunk orig.quantity is undone. Full picks
@@ -927,48 +948,31 @@ async function reversePickingList(_client: any, payload: any) {
             .where("companyId", "=", companyId)
             .execute();
         }
-      }
 
-      // Collect entity ids to delete: every output of a PL Consume
-      // (pickResult), plus every Split output that isn't orig itself
-      // (remainders). Excluding orig is critical because pre-fix Splits
-      // had orig on both sides and we just restored it.
-      const childIds = new Set<string>();
-
-      if (consumeActivityIds.length > 0) {
-        const consumeOutputs = await trx
-          .selectFrom("trackedActivityOutput")
-          .select(["trackedEntityId"])
-          .where("trackedActivityId", "in", consumeActivityIds)
-          .where("companyId", "=", companyId)
-          .execute();
-        for (const row of consumeOutputs) {
-          if (!restoredEntityIds.includes(row.trackedEntityId)) {
-            childIds.add(row.trackedEntityId);
-          }
-        }
-      }
-
-      if (splitActivityIds.length > 0) {
+        // Delete Split remainder entities (every Split output that
+        // isn't orig itself). Consume outputs are job parent batches
+        // and are intentionally excluded.
         const splitOutputs = await trx
           .selectFrom("trackedActivityOutput")
           .select(["trackedEntityId"])
           .where("trackedActivityId", "in", splitActivityIds)
           .where("companyId", "=", companyId)
           .execute();
+
+        const remainderIds = new Set<string>();
         for (const row of splitOutputs) {
           if (!restoredEntityIds.includes(row.trackedEntityId)) {
-            childIds.add(row.trackedEntityId);
+            remainderIds.add(row.trackedEntityId);
           }
         }
-      }
 
-      if (childIds.size > 0) {
-        await trx
-          .deleteFrom("trackedEntity")
-          .where("id", "in", Array.from(childIds))
-          .where("companyId", "=", companyId)
-          .execute();
+        if (remainderIds.size > 0) {
+          await trx
+            .deleteFrom("trackedEntity")
+            .where("id", "in", Array.from(remainderIds))
+            .where("companyId", "=", companyId)
+            .execute();
+        }
       }
 
       // Traceability: emit one Reverse activity per restored entity so

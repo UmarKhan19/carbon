@@ -1,7 +1,17 @@
-import { Badge, cn, HStack, VStack } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
+import {
+  Badge,
+  Button,
+  HStack,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  VStack
+} from "@carbon/react";
+import { Trans, useLingui } from "@lingui/react/macro";
 import {
   LuCalendar,
+  LuCopy,
+  LuLink,
   LuMapPin,
   LuShoppingCart,
   LuUser,
@@ -9,20 +19,25 @@ import {
   LuWarehouse
 } from "react-icons/lu";
 import { useParams } from "react-router";
-import { EmployeeAvatar, Hyperlink } from "~/components";
-import { useDateFormatter, useRouteData } from "~/hooks";
+import {
+  Assignee,
+  EmployeeAvatar,
+  Hyperlink,
+  useOptimisticAssignment
+} from "~/components";
+import { useDateFormatter, usePermissions, useRouteData } from "~/hooks";
 import type { PickingListDetail, PickingListLine } from "~/modules/inventory";
 import { path } from "~/utils/path";
+import { copyToClipboard } from "~/utils/string";
 import PickingListStatus from "./PickingListStatus";
 
-// Right-hand properties panel: progress donut at the top, then a vertical
-// list of key metadata (status, job, sales order, customer, location,
-// assignee, due, created). Mirrors the mockup in screenshot 2.
 export default function PickingListProperties() {
   const { id } = useParams();
   if (!id) throw new Error("id required");
 
+  const { t } = useLingui();
   const { formatDate } = useDateFormatter();
+  const permissions = usePermissions();
 
   const routeData = useRouteData<{
     pickingList: PickingListDetail & {
@@ -35,6 +50,7 @@ export default function PickingListProperties() {
           salesOrderId?: string | null;
         } | null;
         customer?: { id?: string; name?: string | null } | null;
+        item?: { name?: string | null } | null;
       } | null;
       location?: { name?: string | null } | null;
       assigneeUser?: {
@@ -63,29 +79,87 @@ export default function PickingListProperties() {
     totals.required > 0 ? Math.min(totals.picked / totals.required, 1) : 0;
   const pctLabel = Math.round(pct * 100);
 
+  const optimisticAssignment = useOptimisticAssignment({
+    id,
+    table: "pickingList"
+  });
+  const assignee =
+    optimisticAssignment !== undefined ? optimisticAssignment : pl?.assignee;
+
+  const canUpdate = permissions.can("update", "inventory");
+
   if (!pl) return null;
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto bg-card border-l border-border px-4 py-3 text-sm">
-      <div className="text-xxs uppercase tracking-wide text-muted-foreground/70 font-medium">
-        <Trans>Properties</Trans>
-      </div>
+    <VStack
+      spacing={4}
+      className="w-96 bg-card h-full overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent border-l border-border px-4 py-2 text-sm"
+    >
+      <VStack spacing={4}>
+        <HStack className="w-full justify-between">
+          <h3 className="text-xxs text-foreground/70 uppercase font-light tracking-wide">
+            <Trans>Properties</Trans>
+          </h3>
+          <HStack spacing={1}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  aria-label={t`Link`}
+                  size="sm"
+                  className="p-1"
+                  onClick={() =>
+                    copyToClipboard(
+                      window.location.origin + path.to.pickingList(id)
+                    )
+                  }
+                >
+                  <LuLink className="w-3 h-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <Trans>Copy link to Picking List</Trans>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  aria-label={t`Copy`}
+                  size="sm"
+                  className="p-1"
+                  onClick={() => copyToClipboard(pl.pickingListId ?? "")}
+                >
+                  <LuCopy className="w-3 h-3" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <Trans>Copy Picking List number</Trans>
+              </TooltipContent>
+            </Tooltip>
+          </HStack>
+        </HStack>
+        <span className="text-sm">{pl.pickingListId}</span>
+      </VStack>
 
-      <h2 className="mt-1 text-base font-semibold">{pl.pickingListId}</h2>
-      {pl.job?.item?.name && (
-        <span className="text-xs text-muted-foreground">
-          {pl.job.item.name}
-        </span>
-      )}
-
-      {/* Donut */}
-      <div className="my-5 flex items-center justify-center">
-        <ProgressDonut pct={pct} label={`${pctLabel}%`} />
-      </div>
+      <Assignee
+        id={id}
+        table="pickingList"
+        value={assignee ?? ""}
+        variant="inline"
+        isReadOnly={!canUpdate}
+      />
 
       <VStack spacing={3}>
         <PropertyRow label={<Trans>Status</Trans>}>
           <PickingListStatus status={pl.status as any} />
+        </PropertyRow>
+
+        <PropertyRow label={<Trans>Progress</Trans>}>
+          <span className="text-xs tabular-nums">
+            {totals.picked}/{totals.required || 0}{" "}
+            <span className="text-muted-foreground">({pctLabel}%)</span>
+          </span>
         </PropertyRow>
 
         {pl.job?.jobId && (
@@ -130,12 +204,8 @@ export default function PickingListProperties() {
         )}
 
         <PropertyRow label={<Trans>Assignee</Trans>} icon={<LuUser />}>
-          {pl.assigneeUser?.fullName ? (
-            <EmployeeAvatar
-              name={pl.assigneeUser.fullName}
-              avatarUrl={pl.assigneeUser.avatarUrl}
-              size="sm"
-            />
+          {pl.assignee ? (
+            <EmployeeAvatar employeeId={pl.assignee} size="sm" />
           ) : (
             <span className="text-xs text-muted-foreground">
               <Trans>Unassigned</Trans>
@@ -159,7 +229,7 @@ export default function PickingListProperties() {
           )}
         </PropertyRow>
       </VStack>
-    </div>
+    </VStack>
   );
 }
 
@@ -180,26 +250,5 @@ function PropertyRow({
       </span>
       <span className="flex items-center">{children}</span>
     </HStack>
-  );
-}
-
-// CSS-only conic-gradient donut. Avoids pulling in a chart lib.
-function ProgressDonut({ pct, label }: { pct: number; label: string }) {
-  const deg = Math.round(pct * 360);
-  return (
-    <div
-      className="relative h-32 w-32 rounded-full"
-      style={{
-        background: `conic-gradient(rgb(16 185 129) 0deg, rgb(16 185 129) ${deg}deg, hsl(var(--muted)) ${deg}deg)`
-      }}
-    >
-      <div
-        className={cn(
-          "absolute inset-2 rounded-full bg-card flex items-center justify-center"
-        )}
-      >
-        <span className="text-2xl font-semibold tabular-nums">{label}</span>
-      </div>
-    </div>
   );
 }

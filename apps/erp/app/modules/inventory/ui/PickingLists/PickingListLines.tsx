@@ -2,10 +2,17 @@ import {
   Badge,
   Button,
   Card,
+  CardAction,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
   cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   HStack,
   IconButton,
   NumberDecrementStepper,
@@ -22,22 +29,23 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import {
+  LuArrowRight,
   LuChevronDown,
   LuChevronUp,
-  LuCircleCheck,
-  LuPencil,
-  LuPlus,
+  LuCirclePlus,
+  LuEllipsisVertical,
+  LuPencilLine,
   LuQrCode,
   LuTrash,
-  LuUndo2,
-  LuWarehouse
+  LuUndo2
 } from "react-icons/lu";
-import { useFetcher, useNavigate, useParams } from "react-router";
+import { Link, useFetcher, useNavigate, useParams } from "react-router";
 import { Empty, ItemThumbnail, TrackingTypeIcon } from "~/components";
+import { Enumerable } from "~/components/Enumerable";
+import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { PickingListDetail, PickingListLine } from "~/modules/inventory";
 import { path } from "~/utils/path";
-import PickingListStatCards from "./PickingListStatCards";
 
 type IncidentTooltipRow = {
   id: string;
@@ -51,8 +59,11 @@ type IncidentTooltipRow = {
 
 interface PickingListLineRowProps {
   line: PickingListLine;
+  index: number;
+  totalLines: number;
   isEditable: boolean;
   canApprove: boolean;
+  canManage: boolean;
   allocatedElsewhere: number;
   matchingIncidents: IncidentTooltipRow[];
   onPick: (
@@ -68,8 +79,11 @@ interface PickingListLineRowProps {
 
 function PickingListLineRow({
   line,
+  index,
+  totalLines,
   isEditable,
   canApprove,
+  canManage,
   allocatedElsewhere,
   matchingIncidents,
   onPick,
@@ -78,9 +92,13 @@ function PickingListLineRow({
   onEdit,
   onDelete
 }: PickingListLineRowProps) {
+  const { t } = useLingui();
+  const unitsOfMeasure = useUnitOfMeasure();
   const [qty, setQty] = useState<number>(line.pickedQuantity ?? 0);
+
   const item = (line as any).item;
   const storageUnit = (line as any).storageUnit;
+  const destinationStorageUnit = (line as any).destinationStorageUnit;
   const isTracked = line.requiresBatchTracking || line.requiresSerialTracking;
   const isPicked = (line.pickedQuantity ?? 0) > 0;
   const requiredQuantity = line.adjustedQuantity ?? line.estimatedQuantity ?? 0;
@@ -103,17 +121,16 @@ function PickingListLineRow({
     const hardBlockAt = required * 2;
     const uom = line.unitOfMeasureCode ?? "";
 
-    // Tier 1: above hard block (2x) -> approver override path or full block.
     if (required > 0 && n > hardBlockAt) {
       if (!canApprove) {
         window.alert(
-          `Cannot pick ${n} ${uom}: exceeds 2x the required quantity (${hardBlockAt}). Approver override required.`
+          t`Cannot pick ${n} ${uom}: exceeds 2x the required quantity (${hardBlockAt}). Approver override required.`
         );
         setQty(line.pickedQuantity ?? 0);
         return;
       }
       const ok = window.confirm(
-        `Approver override: pick ${n} ${uom}? This is more than 2x the required ${required} ${uom}.`
+        t`Approver override: pick ${n} ${uom}? This is more than 2x the required ${required} ${uom}.`
       );
       if (!ok) {
         setQty(line.pickedQuantity ?? 0);
@@ -123,10 +140,9 @@ function PickingListLineRow({
       return;
     }
 
-    // Tier 2: above soft tolerance but <= 2x -> confirm.
     if (required > 0 && n > warnAt) {
       const ok = window.confirm(
-        `Picking ${n} ${uom} exceeds the required ${required} by more than ${tolerance}%. Continue?`
+        t`Picking ${n} ${uom} exceeds the required ${required} by more than ${tolerance}%. Continue?`
       );
       if (!ok) {
         setQty(line.pickedQuantity ?? 0);
@@ -136,49 +152,57 @@ function PickingListLineRow({
     onPick(line, n);
   };
 
+  const uomLabel =
+    unitsOfMeasure?.find((u) => u.value === line.unitOfMeasureCode)?.label ??
+    line.unitOfMeasureCode ??
+    null;
+
   return (
     <div
       className={cn(
-        "flex flex-col border-b p-4 gap-3 last:border-none",
-        isPicked && "bg-muted/30"
+        "flex justify-between items-center w-full p-6 gap-6 border-b",
+        index === totalLines - 1 && "border-none",
+        isPicked && "opacity-60 hover:opacity-100"
       )}
     >
-      <div className="flex justify-between items-start">
-        <HStack spacing={3} className="flex-1">
+      <HStack spacing={4} className="w-1/2 justify-between">
+        <HStack spacing={4} className="min-w-0">
           <ItemThumbnail
             size="md"
             thumbnailPath={item?.thumbnailPath}
             type={(item?.type as "Part") ?? "Part"}
           />
-          <VStack spacing={1} className="min-w-0">
-            <span className="text-sm font-medium">{item?.name}</span>
-            <span className="text-xs text-muted-foreground">
-              {item?.readableId}
-            </span>
-            {storageUnit && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <LuWarehouse className="h-3 w-3" />
-                {storageUnit.name}
+          <VStack spacing={0} className="max-w-[380px] w-full min-w-0">
+            <div className="w-full overflow-hidden">
+              <span className="text-sm font-medium truncate block w-full">
+                {item?.name}
               </span>
-            )}
-            <HStack spacing={1} className="mt-1.5 flex-wrap items-center">
+              <span className="text-xs text-muted-foreground truncate block w-full">
+                {item?.readableId}
+              </span>
+              {line.pickedTrackedEntityId && (
+                <span className="flex gap-1 text-xs text-muted-foreground items-center w-full truncate">
+                  <LuQrCode className="shrink-0" />
+                  <span className="truncate">{line.pickedTrackedEntityId}</span>
+                </span>
+              )}
+            </div>
+            <HStack spacing={1} className="mt-2 flex-wrap">
+              <Enumerable value={uomLabel} />
               {line.requiresBatchTracking && (
-                <Badge variant="secondary" className="text-xs w-fit h-6 px-2">
+                <Badge variant="secondary" className="h-6 px-2">
                   <TrackingTypeIcon type="Batch" className="mr-1" />
                   <Trans>Batch</Trans>
                 </Badge>
               )}
               {line.requiresSerialTracking && (
-                <Badge variant="secondary" className="text-xs w-fit h-6 px-2">
+                <Badge variant="secondary" className="h-6 px-2">
                   <TrackingTypeIcon type="Serial" className="mr-1" />
                   <Trans>Serial</Trans>
                 </Badge>
               )}
               {allocatedElsewhere > 0 && (
-                <Badge
-                  variant="outline"
-                  className="text-xs w-fit h-6 px-2 text-amber-600 border-amber-300"
-                >
+                <Badge color="orange" className="h-6 px-2">
                   {allocatedElsewhere} {line.unitOfMeasureCode}{" "}
                   <Trans>in other PLs</Trans>
                 </Badge>
@@ -186,71 +210,99 @@ function PickingListLineRow({
             </HStack>
           </VStack>
         </HStack>
-
-        <HStack spacing={3} className="items-center">
-          <div className="text-right">
-            <div className="text-xs text-muted-foreground">
-              <Trans>Required</Trans>
-            </div>
-            {line.adjustedQuantity != null && matchingIncidents.length > 0 ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="cursor-help">
-                    <div className="text-sm font-medium line-through text-muted-foreground">
-                      {line.estimatedQuantity} {line.unitOfMeasureCode}
-                    </div>
-                    <div className="text-sm font-medium text-orange-500">
-                      {line.adjustedQuantity} {line.unitOfMeasureCode}
-                    </div>
+        <div className="flex flex-col items-end shrink-0">
+          <span className="text-xxs uppercase tracking-wide text-muted-foreground/70 font-medium">
+            <Trans>Required</Trans>
+          </span>
+          {line.adjustedQuantity != null && matchingIncidents.length > 0 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="cursor-help text-right">
+                  <div className="text-sm font-medium line-through text-muted-foreground tabular-nums">
+                    {line.estimatedQuantity} {line.unitOfMeasureCode}
                   </div>
-                </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs">
-                  <div className="text-xs space-y-1">
-                    <div className="font-medium">
-                      <Trans>Reduced by incident:</Trans>
-                    </div>
-                    {matchingIncidents.map((inc) => (
-                      <div key={inc.id} className="flex flex-col">
-                        <span>
-                          {inc.incidentId ?? inc.id.slice(0, 8)}
-                          {inc.incidentType?.name
-                            ? ` — ${inc.incidentType.name}`
-                            : ""}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {inc.quantityLost} {line.unitOfMeasureCode} lost on{" "}
-                          {new Date(inc.incidentDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <>
-                <div
-                  className={cn(
-                    "text-sm font-medium",
-                    line.adjustedQuantity != null &&
-                      "line-through text-muted-foreground"
-                  )}
-                >
-                  {line.estimatedQuantity} {line.unitOfMeasureCode}
-                </div>
-                {line.adjustedQuantity != null && (
-                  <div className="text-sm font-medium text-orange-500">
+                  <div className="text-base font-semibold text-orange-500 tabular-nums">
                     {line.adjustedQuantity} {line.unitOfMeasureCode}
                   </div>
-                )}
-              </>
-            )}
-          </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="left" className="max-w-xs">
+                <div className="text-xs space-y-1">
+                  <div className="font-medium">
+                    <Trans>Reduced by incident:</Trans>
+                  </div>
+                  {matchingIncidents.map((inc) => (
+                    <div key={inc.id} className="flex flex-col">
+                      <span>
+                        {inc.incidentId ?? inc.id.slice(0, 8)}
+                        {inc.incidentType?.name
+                          ? ` — ${inc.incidentType.name}`
+                          : ""}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {inc.quantityLost} {line.unitOfMeasureCode} lost on{" "}
+                        {new Date(inc.incidentDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          ) : line.adjustedQuantity != null ? (
+            <div className="text-right">
+              <div className="text-xs font-medium line-through text-muted-foreground tabular-nums">
+                {line.estimatedQuantity} {line.unitOfMeasureCode}
+              </div>
+              <div className="text-base font-semibold text-orange-500 tabular-nums">
+                {line.adjustedQuantity} {line.unitOfMeasureCode}
+              </div>
+            </div>
+          ) : (
+            <div className="text-base font-semibold tabular-nums">
+              {line.estimatedQuantity} {line.unitOfMeasureCode}
+            </div>
+          )}
+          {isProperQuantity && (
+            <span className="mt-1 text-xs text-emerald-500 tabular-nums">
+              {line.pickedQuantity} {line.unitOfMeasureCode}{" "}
+              <Trans>picked</Trans>
+            </span>
+          )}
+          {(line.outstandingQuantity ?? 0) > 0 && (
+            <span className="mt-1 text-xs text-orange-500 tabular-nums">
+              {line.outstandingQuantity} {line.unitOfMeasureCode}{" "}
+              <Trans>outstanding</Trans>
+            </span>
+          )}
+          {(line.overPickQuantity ?? 0) > 0 && (
+            <span className="mt-1 text-xs text-red-500 tabular-nums">
+              +{line.overPickQuantity} {line.unitOfMeasureCode}{" "}
+              <Trans>overpick</Trans>
+            </span>
+          )}
+        </div>
+      </HStack>
 
+      <div className="flex flex-grow items-center justify-between gap-4 pl-4 w-1/2">
+        <HStack spacing={3} className="text-left items-center min-w-0">
+          <span className="text-base font-medium whitespace-nowrap truncate">
+            {storageUnit?.name ?? <Trans>Unassigned</Trans>}
+          </span>
+          {destinationStorageUnit?.name && (
+            <>
+              <LuArrowRight className="size-4 text-muted-foreground shrink-0" />
+              <span className="text-base font-medium whitespace-nowrap truncate">
+                {destinationStorageUnit.name}
+              </span>
+            </>
+          )}
+        </HStack>
+
+        <HStack spacing={1} className="shrink-0">
           {isEditable && (
-            <div className="flex items-center gap-1">
+            <>
               {isTracked ? (
                 <Button
-                  size="sm"
                   variant={line.pickedTrackedEntityId ? "secondary" : "primary"}
                   leftIcon={<LuQrCode />}
                   onClick={() => onScan(line)}
@@ -262,83 +314,49 @@ function PickingListLineRow({
                   )}
                 </Button>
               ) : (
-                <div className="flex items-center gap-2">
-                  <NumberField
-                    value={qty}
-                    onChange={(value) =>
-                      setQty(Number.isFinite(value) ? value : 0)
-                    }
-                  >
-                    <NumberInputGroup className="relative">
-                      <NumberInput
-                        className="w-[86px] [&_input]:text-center"
-                        size="sm"
-                        min={0}
-                        step={0.01}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            (e.target as HTMLInputElement).blur();
-                          }
-                        }}
-                        onBlur={handlePickQuantityBlur}
-                      />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper>
-                          <LuChevronUp size="1em" strokeWidth="3" />
-                        </NumberIncrementStepper>
-                        <NumberDecrementStepper>
-                          <LuChevronDown size="1em" strokeWidth="3" />
-                        </NumberDecrementStepper>
-                      </NumberInputStepper>
-                    </NumberInputGroup>
-                  </NumberField>
-                  <span className="text-xs text-muted-foreground">
-                    {line.unitOfMeasureCode}
-                  </span>
-                </div>
+                <NumberField
+                  value={qty}
+                  onChange={(value) =>
+                    setQty(Number.isFinite(value) ? value : 0)
+                  }
+                  minValue={0}
+                >
+                  <NumberInputGroup className="relative">
+                    <NumberInput
+                      className="w-[110px] [&_input]:text-center"
+                      size="sm"
+                      step={0.01}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          (e.target as HTMLInputElement).blur();
+                        }
+                      }}
+                      onBlur={handlePickQuantityBlur}
+                    />
+                    <NumberInputStepper>
+                      <NumberIncrementStepper>
+                        <LuChevronUp size="1em" strokeWidth="3" />
+                      </NumberIncrementStepper>
+                      <NumberDecrementStepper>
+                        <LuChevronDown size="1em" strokeWidth="3" />
+                      </NumberDecrementStepper>
+                    </NumberInputStepper>
+                  </NumberInputGroup>
+                </NumberField>
               )}
-
-              {isPicked && (
-                <IconButton
-                  aria-label="Unpick"
-                  icon={<LuUndo2 />}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onUnpick(line)}
-                />
-              )}
-
-              <IconButton
-                aria-label="Edit line"
-                icon={<LuPencil />}
-                variant="ghost"
-                size="sm"
-                onClick={() => onEdit(line)}
-              />
-
-              {!isPicked && (
-                <IconButton
-                  aria-label="Delete line"
-                  icon={<LuTrash />}
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => onDelete(line)}
-                />
-              )}
-            </div>
+            </>
           )}
 
           {!isEditable && (
             <div className="text-right">
-              <div className="text-xs text-muted-foreground">
+              <span className="text-xxs uppercase tracking-wide text-muted-foreground/70 font-medium">
                 <Trans>Picked</Trans>
-              </div>
+              </span>
               <div
                 className={cn(
-                  "text-sm font-medium",
-                  isPicked ? "text-green-600" : "text-muted-foreground"
+                  "text-base font-semibold tabular-nums",
+                  isPicked ? "text-emerald-500" : "text-muted-foreground"
                 )}
               >
                 {line.pickedQuantity ?? 0} {line.unitOfMeasureCode}
@@ -346,39 +364,41 @@ function PickingListLineRow({
             </div>
           )}
 
-          {isPicked && (
-            <LuCircleCheck className="text-green-500 h-4 w-4 flex-shrink-0" />
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <IconButton
+                variant="secondary"
+                icon={<LuEllipsisVertical />}
+                aria-label={t`Line options`}
+                isDisabled={!isEditable && !canManage}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {isEditable && isPicked && (
+                <DropdownMenuItem onClick={() => onUnpick(line)}>
+                  <DropdownMenuIcon icon={<LuUndo2 />} />
+                  <Trans>Unpick</Trans>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                disabled={!canManage}
+                onClick={() => onEdit(line)}
+              >
+                <DropdownMenuIcon icon={<LuPencilLine />} />
+                <Trans>Edit Line</Trans>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={!canManage || isPicked}
+                destructive
+                onClick={() => onDelete(line)}
+              >
+                <DropdownMenuIcon icon={<LuTrash />} />
+                <Trans>Delete Line</Trans>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </HStack>
       </div>
-
-      {line.pickedTrackedEntityId && (
-        <div className="flex items-center gap-1 text-xs text-muted-foreground ml-12">
-          <LuQrCode className="h-3 w-3" />
-          {line.pickedTrackedEntityId}
-        </div>
-      )}
-
-      {(line.outstandingQuantity ?? 0) > 0 && (
-        <div className="ml-12 text-xs text-orange-500">
-          <Trans>Outstanding:</Trans> {line.outstandingQuantity}{" "}
-          {line.unitOfMeasureCode}
-        </div>
-      )}
-
-      {(line.overPickQuantity ?? 0) > 0 && (
-        <div className="ml-12 text-xs text-red-500">
-          <Trans>Overpick:</Trans> {line.overPickQuantity}{" "}
-          {line.unitOfMeasureCode}
-        </div>
-      )}
-
-      {isProperQuantity && (
-        <div className="ml-12 text-xs text-green-500">
-          <Trans>Proper quantity:</Trans> {line.pickedQuantity ?? 0}{" "}
-          {line.unitOfMeasureCode}
-        </div>
-      )}
     </div>
   );
 }
@@ -402,7 +422,6 @@ const PickingListLines = () => {
   const navigate = useNavigate();
   const pickFetcher = useFetcher();
 
-  // Soft allocation: fetch outstanding qty for these items across other active PLs
   const allocationFetcher = useFetcher<{
     data: Array<{ itemId: string; allocatedQuantity: number }>;
   }>();
@@ -437,6 +456,16 @@ const PickingListLines = () => {
   const canApprove = permissions.can("approve", "inventory");
 
   const pickedCount = lines.filter((l) => (l.pickedQuantity ?? 0) > 0).length;
+  const totals = lines.reduce(
+    (acc, l) => {
+      const required = Number(l.adjustedQuantity ?? l.estimatedQuantity ?? 0);
+      const picked = Number(l.pickedQuantity ?? 0);
+      acc.required += required;
+      acc.picked += Math.min(picked, required || picked);
+      return acc;
+    },
+    { required: 0, picked: 0 }
+  );
 
   const onPick = (
     line: PickingListLine,
@@ -478,32 +507,37 @@ const PickingListLines = () => {
   };
 
   return (
-    <>
-      <PickingListStatCards lines={lines} dueDate={pl?.dueDate ?? null} />
-      <Card>
+    <Card>
+      <HStack className="justify-between items-center">
         <CardHeader>
-          <HStack className="justify-between">
-            <CardTitle>
-              <Trans>Lines</Trans>
-              {lines.length > 0 && (
-                <span className="ml-2 text-muted-foreground font-normal text-sm">
-                  {pickedCount}/{lines.length} <Trans>picked</Trans>
-                </span>
-              )}
-            </CardTitle>
-            {canManageLines && (
-              <Button
-                size="sm"
-                variant="secondary"
-                leftIcon={<LuPlus />}
-                onClick={() => navigate(path.to.pickingListLineNew(id))}
-              >
-                <Trans>Add Line</Trans>
-              </Button>
+          <CardTitle>
+            <Trans>Lines</Trans>
+          </CardTitle>
+          <CardDescription>
+            <span className="tabular-nums">
+              {pickedCount}/{lines.length} <Trans>lines picked</Trans>
+            </span>
+            {totals.required > 0 && (
+              <span className="text-muted-foreground tabular-nums">
+                {" · "}
+                {totals.picked}/{totals.required} <Trans>units</Trans>
+              </span>
             )}
-          </HStack>
+          </CardDescription>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardAction>
+          {canManageLines && (
+            <Button variant="secondary" leftIcon={<LuCirclePlus />} asChild>
+              <Link to={path.to.pickingListLineNew(id)}>
+                <Trans>Add Line</Trans>
+              </Link>
+            </Button>
+          )}
+        </CardAction>
+      </HStack>
+
+      <CardContent>
+        <div className="border rounded-lg">
           {lines.length === 0 ? (
             <Empty className="py-6">
               <span className="text-xs text-muted-foreground">
@@ -511,7 +545,7 @@ const PickingListLines = () => {
               </span>
             </Empty>
           ) : (
-            lines.map((line) => {
+            lines.map((line, index) => {
               const matching = incidents.filter((inc) => {
                 if (inc.itemId && inc.itemId !== line.itemId) return false;
                 if (
@@ -525,8 +559,11 @@ const PickingListLines = () => {
                 <PickingListLineRow
                   key={line.id}
                   line={line}
+                  index={index}
+                  totalLines={lines.length}
                   isEditable={isEditable}
                   canApprove={canApprove}
+                  canManage={canManageLines}
                   allocatedElsewhere={allocationMap[line.itemId ?? ""] ?? 0}
                   matchingIncidents={matching}
                   onPick={onPick}
@@ -538,9 +575,9 @@ const PickingListLines = () => {
               );
             })
           )}
-        </CardContent>
-      </Card>
-    </>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

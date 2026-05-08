@@ -39,6 +39,13 @@ msgstr "{0} disponibili"
 msgid "{0} of {1}"
 msgstr "{0} di {1}"
 
+#. placeholder {0}: String(pickedQuantity)
+#. placeholder {1}: String(validatedEntity.quantity)
+#. placeholder {2}: line.unitOfMeasureCode ?? ""
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:482
+msgid "{0} of {1} {2}"
+msgstr ""
+
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:875
@@ -186,7 +193,7 @@ msgstr "Effettuando l'accesso, accetti i <0>Termini di Servizio</0> e l'<1>Infor
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:658
 #: apps/mes/app/components/Suggestion.tsx:199
 #: apps/mes/app/routes/x+/picking-list.$id.confirm.tsx:191
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:252
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:495
 #: apps/mes/app/routes/x+/timecard.tsx:413
 #: apps/mes/app/routes/x+/timecard.tsx:510
 msgid "Cancel"
@@ -460,7 +467,7 @@ msgstr "Centri di lavoro vuoti"
 msgid "End Operations"
 msgstr "Termina Operazioni"
 
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:214
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:413
 msgid "Enter or scan entity ID"
 msgstr ""
 
@@ -469,16 +476,24 @@ msgstr ""
 msgid "Enter PIN for {0}"
 msgstr "Inserisci il PIN per {0}"
 
-#. placeholder {0}: result.data.status
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:139
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:292
+msgid "Entity does not match this line's item"
+msgstr ""
+
+#. placeholder {0}: result.status
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:287
 msgid "Entity is {0}"
+msgstr ""
+
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:475
+msgid "Entity ready to pick"
 msgstr ""
 
 #: apps/mes/app/routes/_public+/callback.tsx:153
 msgid "Error"
 msgstr "Errore"
 
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:151
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:304
 msgid "Error validating entity"
 msgstr ""
 
@@ -973,7 +988,7 @@ msgstr "Ispezione Superata"
 msgid "Pause"
 msgstr "Pausa"
 
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:260
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:503
 #: apps/mes/app/routes/x+/picking-list.$id.tsx:494
 msgid "Pick"
 msgstr ""
@@ -982,15 +997,19 @@ msgstr ""
 msgid "Pick from"
 msgstr ""
 
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:352
+msgid "Pick tracked entity"
+msgstr ""
+
 #: apps/mes/app/routes/x+/picking-list.$id.tsx:438
 msgid "picked entity"
 msgstr ""
 
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:169
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:341
 msgid "Picked quantity cannot exceed entity quantity"
 msgstr ""
 
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:165
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:337
 msgid "Picked quantity must be greater than 0"
 msgstr ""
 
@@ -1145,12 +1164,9 @@ msgstr "Salva"
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1598
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:364
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:484
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:389
 msgid "Scan"
 msgstr "Scansiona"
-
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:160
-msgid "Scan and validate an entity first"
-msgstr ""
 
 #: apps/mes/app/routes/x+/picking-list.$id.tsx:459
 msgid "Scan entity"
@@ -1160,12 +1176,13 @@ msgstr ""
 msgid "Scan or enter serial number"
 msgstr "Scansiona o inserisci il numero di serie"
 
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:189
-msgid "Scan the serial or batch ID, then confirm the picked quantity."
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:332
+msgid "Scan or select an entity first"
 msgstr ""
 
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:186
-msgid "Scan tracking ID"
+#. placeholder {0}: trackingType === "Serial" ? "serial" : "batch"
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:360
+msgid "Scan or select the {0} entity, then confirm the picked quantity."
 msgstr ""
 
 #: apps/mes/app/components/AppSidebar.tsx:189
@@ -1214,6 +1231,7 @@ msgstr "Cerca..."
 #: apps/mes/app/components/JobOperation/JobOperation.tsx:1665
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:368
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:488
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:393
 #: packages/react/src/Combobox.tsx:148
 #: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
@@ -1249,10 +1267,18 @@ msgstr "Seleziona un articolo..."
 msgid "Select Batch {0}"
 msgstr "Seleziona Lotto {0}"
 
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:452
+msgid "Select batch number"
+msgstr ""
+
 #. placeholder {0}: index + 1
 #: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:440
 msgid "Select Serial {0}"
 msgstr "Seleziona Seriale {0}"
+
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:451
+msgid "Select serial number"
+msgstr ""
 
 #: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:52
 msgid "Select Serial Number"
@@ -1478,7 +1504,7 @@ msgstr "Totale: {0}"
 msgid "Tracked · scan required"
 msgstr ""
 
-#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:134
+#: apps/mes/app/routes/x+/picking-list.$id.scan.$lineId.tsx:282
 msgid "Tracked entity not found"
 msgstr ""
 

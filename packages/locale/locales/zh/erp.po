@@ -482,7 +482,7 @@ msgstr "添加组"
 msgid "Add Item"
 msgstr "添加项目"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:501
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:532
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:352
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:171
 msgid "Add Line"
@@ -815,6 +815,10 @@ msgstr "批准"
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordsTable.tsx:263
 msgid "Approved By"
 msgstr "批准人"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:133
+msgid "Approver override: pick {n} {uom}? This is more than 2x the required {required} {uom}."
+msgstr ""
 
 #: apps/erp/app/modules/quality/ui/SamplingPlan/SamplingPlanForm.tsx:229
 msgid "AQL"
@@ -1356,7 +1360,7 @@ msgid "Assigned to Me"
 msgstr "分配给我"
 
 #: apps/erp/app/components/Assignee.tsx:98
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:132
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:206
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:222
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:196
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:226
@@ -1546,7 +1550,7 @@ msgstr "基础价格"
 msgid "Basic Information"
 msgstr "基本信息"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:168
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:195
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:87
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:55
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:87
@@ -1969,6 +1973,10 @@ msgstr "无法将RFQ转换为报价"
 msgid "Cannot move to parts bucket without item ID"
 msgstr "无法在没有项目ID的情况下移动到零件桶"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:127
+msgid "Cannot pick {n} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
+msgstr ""
+
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:767
 msgid "Cannot place order - no supplier associated with this item"
 msgstr "无法下单 - 此项目没有关联的供应商"
@@ -2331,10 +2339,6 @@ msgstr "比较报价"
 msgid "Compare Supplier Quotes"
 msgstr "比较供应商报价"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:73
-msgid "complete"
-msgstr ""
-
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:218
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:211
 #: apps/erp/app/modules/quality/ui/Issue/IssueHeader.tsx:180
@@ -2665,6 +2669,7 @@ msgstr "已复制链接到剪贴板"
 msgid "Copied!"
 msgstr "已复制！"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:128
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:160
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:154
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:196
@@ -2766,6 +2771,10 @@ msgstr "复制材料链接"
 msgid "Copy link to part"
 msgstr "复制零件链接"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:121
+msgid "Copy link to Picking List"
+msgstr ""
+
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:104
 msgid "Copy link to procedure"
 msgstr "复制程序链接"
@@ -2797,6 +2806,10 @@ msgstr "复制零件号"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:210
 msgid "Copy part unique identifier"
 msgstr "复制零件唯一标识符"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:137
+msgid "Copy Picking List number"
+msgstr ""
 
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:177
 msgid "Copy PIN"
@@ -3007,7 +3020,7 @@ msgstr "创建工作中心"
 
 #: apps/erp/app/components/Documents.tsx:285
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:432
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:154
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:224
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:113
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:991
@@ -3300,7 +3313,7 @@ msgstr "自定义字段"
 
 #: apps/erp/app/components/Form/Customer.tsx:48
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:86
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:119
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:193
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:106
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:243
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:198
@@ -3887,6 +3900,7 @@ msgstr "删除假期"
 msgid "Delete Issue"
 msgstr "删除问题"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:396
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:213
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:237
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:235
@@ -4085,7 +4099,7 @@ msgstr "删除供应商报价"
 msgid "Delete Supplier Type"
 msgstr "删除供应商类型"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:473
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:502
 msgid "Delete this line?"
 msgstr ""
 
@@ -4435,9 +4449,8 @@ msgstr "将文件拖放到此处，或点击浏览。"
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:146
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:216
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:250
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:78
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:150
 msgid "Due"
 msgstr ""
@@ -4696,6 +4709,7 @@ msgstr "编辑项目组"
 msgid "Edit Kanban"
 msgstr "编辑看板"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:388
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:139
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:202
 #: apps/erp/app/routes/x+/picking-list+/$id.line.$lineId.tsx:100
@@ -6406,7 +6420,7 @@ msgstr "为了将此RFQ转换为报价，它必须有一个客户。"
 msgid "In order to send this RFQ to suppliers, you must first add suppliers to the RFQ."
 msgstr "为了将此RFQ发送给供应商，您必须先向RFQ添加供应商。"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:183
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:207
 msgid "in other PLs"
 msgstr ""
 
@@ -7014,7 +7028,7 @@ msgstr "此窗口内的项目会获得黄色徽章。"
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:92
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:166
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:67
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
@@ -7340,6 +7354,7 @@ msgstr "可能性"
 msgid "Line Item Comparison"
 msgstr "行项目比较"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:372
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:351
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
@@ -7355,7 +7370,7 @@ msgid "Linear Team"
 msgstr "Linear 团队"
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListExplorer.tsx:60
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:487
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:514
 msgid "Lines"
 msgstr ""
 
@@ -7368,6 +7383,7 @@ msgstr "行需要内部零件号"
 msgid "Lines need prices or lead times"
 msgstr "行需要价格或交期"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:518
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:202
 msgid "lines picked"
 msgstr ""
@@ -7376,10 +7392,7 @@ msgstr ""
 msgid "Lines picked"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:47
-msgid "Lines Picked"
-msgstr ""
-
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:108
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:139
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:133
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:173
@@ -9487,16 +9500,16 @@ msgstr "输出"
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "输出永远不会超过其原材料的保质期。当没有输入具有过期日期时，回退到固定期限。"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:274
+msgid "outstanding"
+msgstr ""
+
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:135
 msgid "Outstanding"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListConfirmModal.tsx:98
 msgid "Outstanding quantities"
-msgstr ""
-
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:364
-msgid "Outstanding:"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:203
@@ -9516,8 +9529,8 @@ msgstr "间接费率"
 msgid "Overhead Rate (Hourly)"
 msgstr "间接费率（每小时）"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:371
-msgid "Overpick:"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:280
+msgid "overpick"
 msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:453
@@ -9825,11 +9838,11 @@ msgstr "拣货单"
 msgid "Pick Shelf"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:490
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:268
 msgid "picked"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:336
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:354
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:132
 msgid "Picked"
 msgstr ""
@@ -9852,6 +9865,10 @@ msgstr ""
 
 #: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:572
 msgid "Picking"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:145
+msgid "Picking {n} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
 msgstr ""
 
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:167
@@ -10284,6 +10301,7 @@ msgstr "生产数量"
 msgid "Profile"
 msgstr "个人资料"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:158
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:138
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionLotView.tsx:217
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:197
@@ -10313,11 +10331,7 @@ msgstr "预测"
 msgid "Promised Date"
 msgstr "承诺日期"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:378
-msgid "Proper quantity:"
-msgstr ""
-
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:71
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:101
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:132
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:126
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:166
@@ -10801,7 +10815,7 @@ msgstr "报价"
 msgid "Rate Limit"
 msgstr "速率限制"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:259
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:311
 msgid "Re-scan"
 msgstr ""
 
@@ -10955,7 +10969,7 @@ msgstr "记录"
 msgid "Redirecting to verification page..."
 msgstr "正在重定向到验证页面..."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:210
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:232
 msgid "Reduced by incident:"
 msgstr ""
 
@@ -11236,7 +11250,7 @@ msgid "Require approval for quality documents in your workflow"
 msgstr "在您的工作流程中需要质量文件的批准"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:193
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:215
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:422
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:854
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:226
@@ -11598,7 +11612,7 @@ msgid "Sales Job Notifications"
 msgstr "销售工作通知"
 
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:101
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:101
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:175
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:120
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:383
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:248
@@ -11866,7 +11880,7 @@ msgstr "保存方法"
 msgid "Save View"
 msgstr "保存视图"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:261
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:313
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:125
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:378
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:498
@@ -12281,7 +12295,7 @@ msgstr "在文档激活前将其发送以供批准。"
 msgid "Sequences"
 msgstr "序列"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:174
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:201
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:86
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:54
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:86
@@ -12980,7 +12994,7 @@ msgstr "州/省"
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
 msgstr "统计验收失败，因此整个批次被视为不符合要求 (ISO 9001:2015 §8.7)。所有 {0} 个实体 — {passes} 个抽样合格品、{fails} 个不合格品和 {1} 个未检验品 — 将被标记为已拒收。不符合项报告 (NCR) 将自动开启以供物料评审委员会 (MRB) 处置。"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:87
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:154
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:184
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:152
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:162
@@ -13807,7 +13821,7 @@ msgstr "此工作将被接收到库存中。它将不再在车间可用。"
 msgid "This job will no longer be available on the shop floor."
 msgstr "此工作将不再在车间可用。"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:510
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:544
 msgid "This picking list has no lines yet."
 msgstr ""
 
@@ -14336,7 +14350,8 @@ msgstr "未批准的供应商"
 #: apps/erp/app/components/Assignee.tsx:110
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:141
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:289
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:211
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:177
 msgid "Unassigned"
@@ -14432,7 +14447,10 @@ msgstr "单价"
 msgid "Unit Sale Price"
 msgstr "单位销售价格"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:64
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:523
+msgid "units"
+msgstr ""
+
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:106
 msgid "Units"
 msgstr "单位"
@@ -14455,6 +14473,10 @@ msgstr "无限功能支持"
 #: apps/erp/app/modules/quality/ui/Issue/Linear/IssueDialog.tsx:157
 msgid "Unlink"
 msgstr "取消链接"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:380
+msgid "Unpick"
+msgstr ""
 
 #: apps/erp/app/components/Documents.tsx:161
 msgid "Unsupported source document type: {sourceDocument}"
@@ -15043,7 +15065,7 @@ msgstr "取消此货运将会："
 msgid "Walking order"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:127
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:201
 msgid "Warehouse"
 msgstr ""
 
