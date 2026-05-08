@@ -51,6 +51,28 @@ export function spawnStripeListener(root: string) {
   }).unref();
 }
 
+/**
+ * Run `pnpm install` in the worktree root. No-op when the lockfile + store
+ * are already in sync — pnpm short-circuits in ~1s. New worktrees (fresh
+ * `crbn checkout`) start empty, so this populates `node_modules/` before
+ * anything tries to spawn `tsx`/`turbo`/etc. from `node_modules/.bin`.
+ *
+ * `--prefer-offline` keeps subsequent runs fast even on flaky networks.
+ * stdio inherited so the user sees pnpm progress + can answer prompts
+ * (e.g. patch-package warnings).
+ */
+export async function installDeps(root: string) {
+  const r = await execa("pnpm", ["install", "--prefer-offline"], {
+    cwd: root,
+    stdio: "inherit",
+    reject: false,
+    extendEnv: true
+  });
+  if (r.exitCode !== 0) {
+    throw new Error(`pnpm install failed (exit ${r.exitCode})`);
+  }
+}
+
 /** Setup-env-files invocation — writes per-app .env / .env.local symlinks. */
 export async function syncEnvSymlinks(root: string) {
   const r = await execa("tsx", [join("scripts", "setup-env-files.ts")], {

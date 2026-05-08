@@ -109,40 +109,164 @@ export function startProxyDaemon(root: string) {
 }
 
 /**
- * Detect a privileged-setup mismatch: proxy is running but didn't get sudo,
- * so it fell back to `--port <high> --skip-trust` and didn't write
- * `/etc/resolver/dev`. Browsers see NXDOMAIN for `*.dev`. Returns null if
- * everything's fine, or a string explaining what's missing + how to fix.
+ * The TLD portless serves. Must match render-env.ts hostnames
+ * (`<sub>.<branch>.dev`) and the stable OAuth alias (`api.carbon.dev`).
  */
-export function diagnoseProxyPrivileges(): string | null {
+const PORTLESS_TLD = "dev";
+
+type PrivilegeIssue =
+  | { kind: "wrong_port"; port: number }
+  | { kind: "not_running" };
+
+function detectPrivilegeIssues(): PrivilegeIssue[] {
+  const issues: PrivilegeIssue[] = [];
   const portFile = `${homedir()}/.portless/proxy.port`;
-  const tldFile = `${homedir()}/.portless/proxy.tld`;
-  if (!existsSync(portFile) || !existsSync(tldFile)) return null;
+  const pidFile = `${homedir()}/.portless/proxy.pid`;
 
+  if (!existsSync(portFile) || !existsSync(pidFile)) {
+    issues.push({ kind: "not_running" });
+    return issues;
+  }
+  const pid = Number(readFileSync(pidFile, "utf8").trim());
+  if (!isProcessAlive(pid)) {
+    issues.push({ kind: "not_running" });
+    return issues;
+  }
   const port = Number(readFileSync(portFile, "utf8").trim());
-  const tld = readFileSync(tldFile, "utf8").trim();
-  if (!port || !tld) return null;
+  if (port && port !== 80 && port !== 443) {
+    issues.push({ kind: "wrong_port", port });
+  }
+  return issues;
+}
 
-  const isPrivilegedPort = port === 80 || port === 443;
-  const resolverFile = `/etc/resolver/${tld}`;
-  const hasResolver = existsSync(resolverFile);
+/**
+ * `kill(pid, 0)` returns:
+ *   - 0      → process exists, signal allowed (same uid).
+ *   - EPERM  → process exists, but we lack permission to signal it (different
+ *              uid, e.g. root-owned portless proxy when we're a normal user).
+ *   - ESRCH  → no such process.
+ * Treat EPERM as "alive" — a root-owned daemon is still serving.
+ */
+function isProcessAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (err) {
+    return (err as NodeJS.ErrnoException).code === "EPERM";
+  }
+}
 
-  if (isPrivilegedPort && hasResolver) return null;
+function describeIssues(issues: PrivilegeIssue[]): string {
+  return issues
+    .map((i) =>
+      i.kind === "not_running"
+        ? "portless proxy not running"
+        : `proxy on :${i.port} (not :443; URLs would need port suffix)`
+    )
+    .join("\n  • ");
+}
 
-  const issues: string[] = [];
-  if (!isPrivilegedPort) issues.push(`proxy on :${port} (not :443)`);
-  if (!hasResolver) issues.push(`no ${resolverFile}`);
+/**
+ * Halt-and-prompt before booting the stack. portless needs sudo to bind :443
+ * (the privileged port) and to write /etc/hosts entries (via `portless hosts
+ * sync`). If the proxy isn't running on a privileged port we ask the user
+ * whether to run the sudo commands now. Sudo's password prompt streams to
+ * the user's terminal directly via `stdio: "inherit"`.
+ *
+ * Note: portless doesn't use `/etc/resolver/<tld>` — `.dev` is a public TLD
+ * (Google-owned, HSTS-preloaded), so DNS routing happens via `/etc/hosts`
+ * entries that `portless hosts sync` writes. We trigger that sync here and
+ * also after every alias registration (see syncHostsFile).
+ */
+export async function ensureProxyPrivileges() {
+  const issues = detectPrivilegeIssues();
+  if (issues.length === 0) return;
 
-  return [
-    `portless proxy is up but missing sudo setup (${issues.join(", ")}).`,
-    "URLs like https://erp.<branch>.dev won't resolve until you run:",
-    "",
-    "    portless proxy stop",
-    `    sudo portless proxy start --tld ${tld}`,
-    "    sudo portless trust",
-    "",
-    "Then re-run `crbn up`."
-  ].join("\n");
+  log.warn(
+    [
+      "portless needs a privileged proxy to serve `*.dev` cleanly:",
+      "",
+      `  • ${describeIssues(issues)}`,
+      "",
+      "Without :443 + /etc/hosts entries, browsers hit the public `.dev` TLD",
+      "(NXDOMAIN) or you'd have to type `:<port>` after every URL."
+    ].join("\n")
+  );
+
+  const proceed = await confirm({
+    message:
+      "Set it up now? Will run sudo to bind :443, install the local CA, and write /etc/hosts entries.",
+    initialValue: true
+  });
+  if (isCancel(proceed) || !proceed) {
+    throw new Error(
+      "Aborted. Run manually: `sudo portless proxy stop && sudo portless proxy start --tld dev && sudo portless trust`. Then re-run `crbn up`."
+    );
+  }
+
+  log.info("running sudo commands — you'll be prompted for your password");
+
+  // sudo resets HOME to root's HOME by default. portless writes its daemon
+  // state (pid, port, certs) under $HOME/.portless, so we must preserve the
+  // invoking user's HOME — otherwise state lands in /var/root/.portless and
+  // our subsequent detection ("not running") fires even though it started.
+  const sudoEnvArg = `HOME=${homedir()}`;
+
+  await execa("sudo", [sudoEnvArg, "portless", "proxy", "stop"], {
+    stdio: "inherit",
+    reject: false
+  });
+
+  const start = await execa(
+    "sudo",
+    [sudoEnvArg, "portless", "proxy", "start", "--tld", PORTLESS_TLD],
+    { stdio: "inherit", reject: false }
+  );
+  if (start.exitCode !== 0) {
+    throw new Error(
+      `sudo portless proxy start failed (exit ${start.exitCode})`
+    );
+  }
+
+  const trust = await execa("sudo", [sudoEnvArg, "portless", "trust"], {
+    stdio: "inherit",
+    reject: false
+  });
+  if (trust.exitCode !== 0) {
+    log.warn(
+      `sudo portless trust failed (exit ${trust.exitCode}); browsers may show cert warnings until you run it manually.`
+    );
+  }
+
+  const remaining = detectPrivilegeIssues();
+  if (remaining.length > 0) {
+    throw new Error(
+      `portless setup still incomplete:\n  • ${describeIssues(remaining)}`
+    );
+  }
+
+  log.success("portless proxy on :443");
+}
+
+/**
+ * Push currently-registered portless routes into /etc/hosts so browsers can
+ * resolve them. Needs sudo (writes /etc/hosts). Idempotent — portless skips
+ * entries already present.
+ *
+ * Called after `registerAliases` so newly-added routes (e.g. our per-branch
+ * aliases + the stable `api.carbon` OAuth alias) are reachable.
+ */
+export async function syncHostsFile() {
+  const r = await execa(
+    "sudo",
+    [`HOME=${homedir()}`, "portless", "hosts", "sync"],
+    { stdio: "inherit", reject: false }
+  );
+  if (r.exitCode !== 0) {
+    throw new Error(
+      `sudo portless hosts sync failed (exit ${r.exitCode}). Run it manually to fix DNS.`
+    );
+  }
 }
 
 /** Block until the portless proxy PID file shows a live process. */
@@ -153,11 +277,10 @@ export async function waitForProxyReady(timeoutMs = 30_000) {
   while (Date.now() < deadline) {
     if (existsSync(tldFile) && existsSync(pidFile)) {
       const pid = Number(readFileSync(pidFile, "utf8").trim());
-      try {
-        process.kill(pid, 0);
+      if (isProcessAlive(pid)) {
         await sleep(500);
         return;
-      } catch {}
+      }
     }
     await sleep(500);
   }

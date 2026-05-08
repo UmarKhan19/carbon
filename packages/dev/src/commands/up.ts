@@ -13,6 +13,7 @@ import {
   slugifyBranch
 } from "../lib/slug.js";
 import {
+  installDeps,
   spawnAppsViaTurbo,
   spawnStripeListener,
   syncEnvSymlinks
@@ -24,11 +25,12 @@ import {
   waitForTcp
 } from "../services/migrations.js";
 import {
-  diagnoseProxyPrivileges,
   ensurePortlessInstalled,
+  ensureProxyPrivileges,
   pruneStaleRoutes,
   registerAliases,
   startProxyDaemon,
+  syncHostsFile,
   waitForProxyReady,
   writeAppPortlessConfig
 } from "../services/portless.js";
@@ -39,6 +41,7 @@ export async function up() {
   intro("Carbon · dev up");
 
   await ensurePortlessInstalled();
+  await ensureProxyPrivileges();
 
   const selectedApps = await pickApps();
 
@@ -47,6 +50,11 @@ export async function up() {
   await ensureSlugAvailable(slug, root);
   persistSlug(root, slug);
   log.info(`worktree: ${slug}  (project ${projectName(slug)})`);
+
+  // Install workspace deps first (no-op when in sync). Done outside the
+  // clack `tasks` block so pnpm's interactive output streams directly.
+  log.step("pnpm install");
+  await installDeps(root);
 
   let ports!: Awaited<ReturnType<typeof resolveSlot>>["ports"];
   let redisDb!: number;
@@ -143,13 +151,17 @@ export async function up() {
     }
   ]);
 
+  // Push the just-registered routes into /etc/hosts. Outside the clack
+  // tasks block because sudo's password prompt would clash with the
+  // spinner UI; sudo timestamp from ensureProxyPrivileges is usually still
+  // fresh so this is silent.
+  log.step("sudo portless hosts sync");
+  await syncHostsFile();
+
   if (process.env.CARBON_EDITION === "cloud") {
     spawnStripeListener(root);
     log.info("stripe listener spawned (CARBON_EDITION=cloud)");
   }
-
-  const proxyWarning = diagnoseProxyPrivileges();
-  if (proxyWarning) log.warn(proxyWarning);
 
   note(summaryLines(ports, branchSegment).join("\n"), `Carbon dev — ${slug}`);
   outro("apps starting (Ctrl+C to stop)");
