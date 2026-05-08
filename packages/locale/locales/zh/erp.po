@@ -138,7 +138,7 @@ msgstr "材料是用于制造零件的物理项目，可以在多个工作中使
 msgid "A name is required to save a view"
 msgstr "保存视图需要一个名称"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:705
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:734
 msgid "A new purchase order will be created for each supplier. Alternatively, you can choose an existing draft purchase order for the supplier to add the outside operations to."
 msgstr "将为每个供应商创建一个新的采购订单。或者，您可以为供应商选择现有的草稿采购订单，以添加外包操作。"
 
@@ -251,9 +251,20 @@ msgstr "账户类型"
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:46
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:51
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:50
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:83
 #: apps/erp/app/routes/x+/accounting+/_layout.tsx:24
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:31
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:108
 msgid "Accounting"
 msgstr "会计"
+
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:130
+msgid "Accounting is disabled"
+msgstr ""
+
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:128
+msgid "Accounting is enabled"
+msgstr ""
 
 #: apps/erp/app/modules/users/ui/useUsersSubmodules.tsx:16
 msgid "Accounts"
@@ -622,7 +633,7 @@ msgstr "添加供应商"
 msgid "Add Timecard"
 msgstr "添加工时卡"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1121
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1165
 msgid "Add to stock for future use"
 msgstr "添加到库存以供将来使用"
 
@@ -773,7 +784,7 @@ msgstr "API 密钥"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:101
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:135
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:142
 #: apps/erp/app/routes/x+/settings+/api-keys.tsx:18
 msgid "API Keys"
 msgstr "API 密钥"
@@ -803,7 +814,7 @@ msgid "Approval Requirements"
 msgstr "批准要求"
 
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:41
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:141
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:148
 #: apps/erp/app/routes/x+/settings+/approval-rules.tsx:14
 msgid "Approval Rules"
 msgstr "审批规则"
@@ -859,7 +870,7 @@ msgstr "您确定要激活此量规吗？"
 msgid "Are you sure you want to cancel {0}? This will also cancel all related supplier quotes."
 msgstr "您确定要取消 {0} 吗？这也将取消所有相关的供应商报价。"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:854
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:898
 msgid "Are you sure you want to cancel this job? It will no longer be available on the shop floor."
 msgstr "你确定要取消此工作吗？它将不再在车间可用。"
 
@@ -1277,7 +1288,7 @@ msgstr "你确定要过账此发货单吗？"
 msgid "Are you sure you want to reject this quote?"
 msgstr "你确定要拒绝此报价吗？"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:690
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:719
 msgid "Are you sure you want to release this job? It will become available to the shop floor, and drive purchasing and production."
 msgstr "你确定要发布此工作吗？它将在车间可用，并推动采购和生产。"
 
@@ -1450,7 +1461,7 @@ msgid "Audit logging is not enabled"
 msgstr "审计日志未启用"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:87
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:147
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:154
 #: apps/erp/app/routes/x+/settings+/audit-logs.tsx:167
 msgid "Audit Logs"
 msgstr "审计日志"
@@ -1512,7 +1523,7 @@ msgid "Backflush"
 msgstr "反冲"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:42
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:39
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:38
 msgid "Balance Sheet"
 msgstr ""
 
@@ -1604,7 +1615,7 @@ msgstr "工艺流程"
 msgid "Bill To"
 msgstr "账单收款人"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:57
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:58
 #: apps/erp/app/routes/x+/settings+/billing.tsx:196
 msgid "Billing"
 msgstr "账单"
@@ -1814,9 +1825,9 @@ msgstr "无法禁用唯一的活跃价格段。请添加另一个价格段或改
 #: apps/erp/app/modules/people/ui/Holidays/HolidayForm.tsx:82
 #: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:99
 #: apps/erp/app/modules/people/ui/Timecards/TimecardForm.tsx:117
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:791
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:850
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1208
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:835
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:894
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1252
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:442
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:563
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:619
@@ -1915,7 +1926,7 @@ msgstr "无法禁用唯一的活跃价格段。请添加另一个价格段或改
 msgid "Cancel"
 msgstr "取消"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:870
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:914
 msgid "Cancel Job"
 msgstr "取消工作"
 
@@ -2092,7 +2103,7 @@ msgstr "更改此项将覆盖现有方法"
 msgid "Changing this will update the part ID"
 msgstr "更改此项将更新零件ID"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:80
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:79
 #: apps/erp/app/routes/x+/accounting+/charts.tsx:16
 msgid "Chart of Accounts"
 msgstr "会计科目表"
@@ -2282,12 +2293,12 @@ msgstr "评论"
 
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:153
 #: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:46
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:51
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:52
 msgid "Companies"
 msgstr "公司"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:42
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:45
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:43
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:46
 #: apps/erp/app/routes/x+/settings+/company.tsx:30
 #: apps/erp/app/routes/x+/settings+/company.tsx:91
 msgid "Company"
@@ -2335,8 +2346,8 @@ msgstr "全部完成"
 msgid "Complete all quantities on barcode scan"
 msgstr "在条形码扫描时完成所有数量"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1018
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1212
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1062
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1256
 msgid "Complete Job"
 msgstr "完成工作"
 
@@ -2389,7 +2400,7 @@ msgstr "配置参数"
 msgid "Configurator"
 msgstr "配置器"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:77
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:76
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:85
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:524
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:840
@@ -2856,7 +2867,7 @@ msgstr "正确答案"
 msgid "Cost Center"
 msgstr ""
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:86
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:85
 msgid "Cost Centers"
 msgstr ""
 
@@ -3272,7 +3283,7 @@ msgid "Custom Field"
 msgstr "自定义字段"
 
 #: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:128
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:153
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:160
 #: apps/erp/app/routes/x+/settings+/custom-fields.tsx:15
 msgid "Custom Fields"
 msgstr "自定义字段"
@@ -3629,7 +3640,7 @@ msgid "Decide what an operator sees if they try to issue a batch or serial that'
 msgstr "决定操作员在尝试发放已过期的批次或序列号时看到的内容。"
 
 #: apps/erp/app/modules/accounting/ui/AccountDefaults/AccountDefaultsForm.tsx:466
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:92
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:91
 msgid "Default Accounts"
 msgstr "默认账户"
 
@@ -4218,7 +4229,7 @@ msgstr "数字报价"
 msgid "Dimension"
 msgstr "尺寸"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:98
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:97
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:278
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:566
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:60
@@ -4236,7 +4247,7 @@ msgstr ""
 msgid "Disabled"
 msgstr "已禁用"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1154
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1198
 msgid "Discard"
 msgstr "丢弃"
 
@@ -4314,7 +4325,7 @@ msgstr "文档："
 msgid "Documents"
 msgstr "文档"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:861
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:905
 msgid "Don't Cancel"
 msgstr "不要取消"
 
@@ -4965,6 +4976,10 @@ msgstr "在设置中启用审计日志以开始跟踪数据的更改。"
 msgid "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 msgstr "为您的公司启用数字报价。这将允许您向客户发送数字报价，并允许他们在线接受。"
 
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:117
+msgid "Enable full accrual accounting with journal entries, financial reports, and general ledger posting."
+msgstr ""
+
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:180
 msgid "Enable in Settings"
 msgstr "在设置中启用"
@@ -4996,6 +5011,10 @@ msgstr "启用以为原材料生成ID和描述。"
 #: apps/erp/app/routes/x+/settings+/production.tsx:233
 msgid "Enable to include work instructions on job traveler PDFs."
 msgstr "启用以在工作单据 PDF 上包含工作说明。"
+
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:140
+msgid "Enable to post journal entries when processing receipts, shipments, and invoices."
+msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:728
 msgid "Enable to show part thumbnails on purchase order PDFs."
@@ -5257,7 +5276,7 @@ msgid "Exchange Rate"
 msgstr "汇率"
 
 #: apps/erp/app/modules/accounting/ui/ExchangeRates/ExchangeRatesTable.tsx:86
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:104
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:103
 #: apps/erp/app/routes/x+/accounting+/exchange-rates.tsx:13
 msgid "Exchange Rates"
 msgstr ""
@@ -6000,7 +6019,7 @@ msgstr "名字"
 msgid "First Operation"
 msgstr "首次操作"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:110
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:109
 msgid "Fiscal Year"
 msgstr ""
 
@@ -6107,6 +6126,10 @@ msgstr "量规类型"
 #: apps/erp/app/routes/x+/quality+/gauges.tsx:13
 msgid "Gauges"
 msgstr "量规"
+
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:114
+msgid "General Ledger"
+msgstr ""
 
 #: apps/erp/app/routes/x+/users+/operators.reset-pin.$operatorId.tsx:118
 msgid "Generate a new 4-digit PIN. Share it with the operator so they can pin in at MES terminals."
@@ -6381,7 +6404,7 @@ msgstr "入库检验：需要不同的检验员"
 msgid "Inbox"
 msgstr "收件箱"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1103
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1147
 msgid "Include extra parts in shipment"
 msgstr "在发货中包含额外零件"
 
@@ -6395,7 +6418,7 @@ msgid "Includes tax and shipping costs"
 msgstr "包括税费和运费"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:43
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:45
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:44
 msgid "Income Statement"
 msgstr ""
 
@@ -6510,11 +6533,11 @@ msgid "Integration not found"
 msgstr "集成未找到"
 
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:118
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:159
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:166
 msgid "Integrations"
 msgstr "集成"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:62
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:61
 msgid "Intercompany"
 msgstr ""
 
@@ -6560,7 +6583,7 @@ msgstr "无效邀请"
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:380
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:98
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:66
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:82
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:89
 #: apps/erp/app/routes/x+/inventory+/_layout.tsx:19
 #: apps/erp/app/routes/x+/receipt+/_layout.tsx:12
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:54
@@ -6906,7 +6929,7 @@ msgstr "项目"
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:174
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:199
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:258
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:88
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:95
 #: apps/erp/app/routes/x+/consumable+/_layout.tsx:15
 #: apps/erp/app/routes/x+/issue+/$id.tsx:105
 #: apps/erp/app/routes/x+/items+/_layout.tsx:16
@@ -6926,7 +6949,7 @@ msgstr "此窗口内的项目会获得黄色徽章。"
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:101
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:104
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:682
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningOrderDrawer.tsx:366
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:932
@@ -7002,7 +7025,7 @@ msgstr "所需的工作"
 msgid "Join {0}"
 msgstr "加入 {0}"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:68
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:67
 msgid "Journal Entries"
 msgstr ""
 
@@ -7073,7 +7096,7 @@ msgid "Label to start the next operation for this kanban"
 msgstr ""
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:237
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:65
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:66
 #: apps/erp/app/routes/x+/settings+/labels.tsx:31
 #: apps/erp/app/routes/x+/settings+/labels.tsx:107
 msgid "Labels"
@@ -7201,7 +7224,7 @@ msgstr "留空以精确匹配"
 msgid "Left item"
 msgstr "左项"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1078
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1122
 msgid "Leftover Parts Detected"
 msgstr "检测到剩余零件"
 
@@ -7358,7 +7381,7 @@ msgstr "加载中..."
 #: apps/erp/app/modules/people/ui/Timecards/TimecardsTable.tsx:170
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:332
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:494
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1050
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1094
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:509
 #: apps/erp/app/modules/production/ui/Projection/DemandProjectionForm.tsx:116
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderDeliveryForm.tsx:165
@@ -7425,7 +7448,7 @@ msgstr "徽标已成功移除"
 msgid "Logo uploaded successfully"
 msgstr "徽标上传成功"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:71
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:72
 #: apps/erp/app/routes/x+/settings+/logos.tsx:32
 #: apps/erp/app/routes/x+/settings+/logos.tsx:83
 msgid "Logos"
@@ -7597,7 +7620,7 @@ msgstr "使此文档再次激活。"
 msgid "Makes this document active and visible."
 msgstr "使此文档处于活跃状态并可见。"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:59
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:58
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:26
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:28
 #: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:20
@@ -7785,7 +7808,7 @@ msgstr "材料类型"
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:643
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:660
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:37
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:91
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:94
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:510
 #: apps/erp/app/routes/x+/items+/materials.tsx:16
 #: apps/erp/app/routes/x+/material+/$itemId.tsx:36
@@ -7968,7 +7991,7 @@ msgstr "分钟/件"
 msgid "Missing Information"
 msgstr "缺少信息"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:760
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:789
 msgid "Missing Operations"
 msgstr "缺少操作"
 
@@ -7976,7 +7999,7 @@ msgstr "缺少操作"
 msgid "Missing Shipping Costs"
 msgstr "缺少运费"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:775
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:819
 msgid "Missing Suppliers"
 msgstr "缺少供应商"
 
@@ -8024,7 +8047,7 @@ msgstr "模型已从行中移除"
 msgid "Module"
 msgstr "模块"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:79
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:80
 msgid "Modules"
 msgstr "模块"
 
@@ -8076,7 +8099,7 @@ msgstr "更多操作"
 #: apps/erp/app/modules/items/ui/Materials/MaterialHeader.tsx:65
 #: apps/erp/app/modules/items/ui/Parts/PartHeader.tsx:61
 #: apps/erp/app/modules/items/ui/Tools/ToolHeader.tsx:59
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:173
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:176
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:80
 #: apps/erp/app/modules/production/ui/Schedule/Kanban/components/ItemCard.tsx:183
 #: apps/erp/app/modules/production/ui/Schedule/Kanban/components/JobCard.tsx:289
@@ -8643,7 +8666,7 @@ msgstr "未添加任何能力"
 msgid "No Access"
 msgstr "无权限"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1157
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1201
 msgid "No action needed"
 msgstr "无需操作"
 
@@ -9217,7 +9240,7 @@ msgstr "操作顺序"
 msgid "Operation Type"
 msgstr "操作类型"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:93
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:96
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationsTable.tsx:255
 #: apps/erp/app/modules/production/ui/Schedule/Kanban/ScheuleNavigation.tsx:104
 msgid "Operations"
@@ -9561,7 +9584,7 @@ msgid "Payment Term"
 msgstr "付款条款"
 
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermsTable.tsx:132
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:116
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:115
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:250
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:246
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderPaymentForm.tsx:91
@@ -9595,7 +9618,7 @@ msgstr "待处理"
 
 #: apps/erp/app/hooks/useModules.tsx:76
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:67
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:94
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:101
 #: apps/erp/app/routes/x+/people+/_layout.tsx:16
 #: apps/erp/app/routes/x+/person+/$personId.tsx:20
 #: apps/erp/app/routes/x+/settings+/people.tsx:42
@@ -10027,7 +10050,7 @@ msgstr "产品标签尺寸"
 
 #: apps/erp/app/hooks/useModules.tsx:40
 #: apps/erp/app/modules/production/ui/useProductionSubmodules.tsx:21
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:106
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:113
 #: apps/erp/app/routes/x+/job+/_layout.tsx:13
 #: apps/erp/app/routes/x+/procedure+/_layout.tsx:12
 #: apps/erp/app/routes/x+/production+/_layout.tsx:16
@@ -10041,7 +10064,7 @@ msgstr "生产"
 msgid "Production Event"
 msgstr "生产事件"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:97
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:100
 #: apps/erp/app/modules/production/ui/Jobs/ProductionEventsTable.tsx:238
 msgid "Production Events"
 msgstr "生产事件"
@@ -10050,7 +10073,7 @@ msgstr "生产事件"
 msgid "Production Qty"
 msgstr "生产数量"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:99
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:102
 #: apps/erp/app/modules/production/ui/Jobs/ProductionQuantitiesTable.tsx:220
 msgid "Production Quantities"
 msgstr "生产数量"
@@ -10225,7 +10248,7 @@ msgstr "采购订单已成功删除"
 msgid "Purchase Orders"
 msgstr "采购订单"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:702
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:731
 msgid "Purchase orders required"
 msgstr "采购订单必需"
 
@@ -10278,7 +10301,7 @@ msgstr "已购买"
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:38
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:42
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:41
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:100
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:107
 #: apps/erp/app/routes/x+/purchase-invoice+/_layout.tsx:12
 #: apps/erp/app/routes/x+/purchase-invoice+/new.tsx:24
 #: apps/erp/app/routes/x+/purchase-order+/_layout.tsx:12
@@ -10348,7 +10371,7 @@ msgstr "数量. 报废"
 #: apps/erp/app/modules/items/ui/Materials/useMaterialNavigation.tsx:70
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:82
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:74
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:112
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:119
 #: apps/erp/app/routes/x+/issue-workflow+/_layout.tsx:12
 #: apps/erp/app/routes/x+/issue+/_layout.tsx:12
 #: apps/erp/app/routes/x+/quality-document+/_layout.tsx:12
@@ -10436,11 +10459,11 @@ msgstr "数量"
 msgid "Quantity"
 msgstr "数量"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1062
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1106
 msgid "Quantity Completed"
 msgstr "完成数量"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1068
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1112
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "数量来自MES中已完成的序列号/批次，无法编辑。"
 
@@ -10660,12 +10683,12 @@ msgid "Receive"
 msgstr "接收"
 
 #. placeholder {0}: job.jobId
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1019
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1063
 msgid "Receive {0} to Inventory"
 msgstr "将 {0} 接收到库存"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1118
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1184
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1162
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1228
 msgid "Receive to Inventory"
 msgstr "接收到库存"
 
@@ -10770,8 +10793,8 @@ msgstr "拒绝日期"
 msgid "Release"
 msgstr "释放"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:671
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:816
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:700
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:860
 msgid "Release Job"
 msgstr "发布工作"
 
@@ -10949,7 +10972,7 @@ msgstr "补充系统"
 msgid "Report"
 msgstr "报告"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:36
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:35
 #: apps/erp/app/modules/quality/ui/Issue/IssueHeader.tsx:115
 msgid "Reports"
 msgstr "报告"
@@ -11059,7 +11082,7 @@ msgid "Resolved Price"
 msgstr "已解决价格"
 
 #: apps/erp/app/hooks/useModules.tsx:82
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:124
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:131
 #: apps/erp/app/routes/x+/maintenance+/_layout.tsx:12
 #: apps/erp/app/routes/x+/resources+/_layout.tsx:16
 #: apps/erp/app/routes/x+/settings+/resources.tsx:43
@@ -11286,7 +11309,7 @@ msgstr "销售价格"
 
 #: apps/erp/app/hooks/useModules.tsx:34
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:75
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:118
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:125
 #: apps/erp/app/routes/x+/customer+/_layout.tsx:15
 #: apps/erp/app/routes/x+/quote+/_layout.tsx:13
 #: apps/erp/app/routes/x+/sales-invoice+/_layout.tsx:12
@@ -12023,7 +12046,7 @@ msgid "Sends this document for approval before it can go active."
 msgstr "在文档激活前将其发送以供批准。"
 
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:113
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:165
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:172
 #: apps/erp/app/routes/x+/settings+/sequences.tsx:12
 msgid "Sequences"
 msgstr "序列"
@@ -12237,12 +12260,12 @@ msgstr "班次"
 msgid "Ship"
 msgstr "发货"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1139
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1183
 msgid "Ship some, stock some"
 msgstr "发货一些，库存一些"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1100
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1168
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1144
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1212
 msgid "Ship to Customer"
 msgstr "发货给客户"
 
@@ -12582,7 +12605,7 @@ msgstr "特定客户"
 msgid "Specific Items"
 msgstr "特定项目"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1136
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1180
 #: apps/erp/app/modules/quality/ui/Issue/AssociatedItemsList.tsx:656
 msgid "Split"
 msgstr "分割"
@@ -12785,7 +12808,7 @@ msgstr "状态"
 msgid "Step"
 msgstr "步骤"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:95
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:98
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationStepRecordsTable.tsx:234
 msgid "Step Records"
 msgstr "步骤记录"
@@ -12849,7 +12872,7 @@ msgstr "存储类型"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:458
 #: apps/erp/app/modules/items/ui/Item/BillOfMaterial.tsx:1011
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:971
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1056
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1100
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:682
 #: apps/erp/app/modules/quality/ui/Gauge/GaugeForm.tsx:439
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:978
@@ -13217,7 +13240,7 @@ msgstr "同步"
 
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:252
 #: apps/erp/app/components/EmployeeAvatar.tsx:29
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:132
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:139
 msgid "System"
 msgstr "系统"
 
@@ -13399,6 +13422,10 @@ msgstr "客户期望收到货物的日期"
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "接收表格更新时包含更新数据的POST请求的端点"
 
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:792
+msgid "The following assemblies have no operations. Please assign an operation to each before releasing."
+msgstr ""
+
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteHeader.tsx:470
 msgid "The following line items are missing prices or lead times:"
 msgstr "以下行项目缺少价格或交货期："
@@ -13457,15 +13484,11 @@ msgstr "主题"
 msgid "Theme Color"
 msgstr "主题颜色"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:763
-msgid "There are Bills of Processes associated with this job that have no operations. Please assign an operation to each make method before releasing it."
-msgstr "此工作关联的流程清单中没有操作。请在发布前为每个制造方法分配一个操作。"
-
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:257
 msgid "There are no active supplier quotes to compare for this RFQ."
 msgstr "此RFQ没有有效的供应商报价可比较。"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:778
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:822
 msgid "There are outside operations associated with this job that have no suppliers. Please assign a supplier to each outside operation before releasing it."
 msgstr "此工作有无供应商的外部操作。请在发布前为每个外部操作分配一个供应商。"
 
@@ -13509,11 +13532,11 @@ msgstr "这是您的税务年度开始的月份。"
 msgid "This item's bill of materials has no inputs with shelf-life enabled, so no expiry will be calculated from the BOM."
 msgstr "此项目的物料清单没有启用保质期的输入，因此不会从物料清单计算过期日期。"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1024
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1068
 msgid "This job will be received to inventory. It will no longer be available on the shop floor."
 msgstr "此工作将被接收到库存中。它将不再在车间可用。"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1023
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1067
 msgid "This job will no longer be available on the shop floor."
 msgstr "此工作将不再在车间可用。"
 
@@ -13680,7 +13703,7 @@ msgstr "切换持续时间"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:196
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:184
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:159
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:162
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:66
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:156
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:95
@@ -13699,7 +13722,7 @@ msgstr "切换级别"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceHeader.tsx:384
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:382
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:403
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:406
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureHeader.tsx:165
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:557
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:298
@@ -13900,6 +13923,10 @@ msgstr "培训分配"
 msgid "Trainings"
 msgstr "培训"
 
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:135
+msgid "Transactions will create journal entries and update the general ledger."
+msgstr ""
+
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:373
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:450
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:706
@@ -13945,7 +13972,7 @@ msgstr "转移"
 msgid "Trash"
 msgstr "垃圾桶"
 
-#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:51
+#: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:50
 msgid "Trial Balance"
 msgstr ""
 
@@ -14455,7 +14482,7 @@ msgstr "有效期"
 msgid "Valid To"
 msgstr "有效期至"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:679
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:708
 msgid "Validating job..."
 msgstr "正在验证工作..."
 
@@ -14806,7 +14833,7 @@ msgstr "Webhook 文档"
 msgid "Webhook URL"
 msgstr "Webhook URL"
 
-#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:171
+#: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:178
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:227
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksUpgradeOverlay.tsx:108
 #: apps/erp/app/routes/x+/settings+/webhooks.tsx:18
@@ -15035,7 +15062,7 @@ msgstr "您在 {0} 打卡入场。您可以在下方编辑打卡出场时间或�
 
 #. placeholder {0}: leftoverQuantity === 1 ? "part" : "parts"
 #. placeholder {1}: job.quantity
-#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1081
+#: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1125
 msgid ""
 "You completed {leftoverQuantity} more \n"
 "                        {0} than the\n"
