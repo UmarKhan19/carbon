@@ -61,21 +61,29 @@ export async function getPickingListsForOperator(
   companyId: string,
   args: { userId: string; locationId?: string }
 ) {
-  let query = client
+  // Show every status the operator might care about — Released/In Progress
+  // are pickable, Confirmed/Cancelled stay visible read-only so the operator
+  // can audit recently completed work without bouncing back to ERP.
+  //
+  // Note: locationId filter is intentionally NOT applied here. The "My Picks"
+  // screen lists everything assigned to (or available for) this operator
+  // across all locations they belong to — matching the design spec. Filter by
+  // location at the UI layer if needed.
+  const query = client
     .from("pickingList")
     .select(
       `id, pickingListId, jobId, locationId, status, assignee, dueDate,
        confirmedAt, createdAt,
        job:jobId(jobId, itemId, item:itemId(name, readableId)),
-       location:locationId(name)`
+       location:locationId(name),
+       pickingListLine(estimatedQuantity, adjustedQuantity, pickedQuantity)`
     )
     .eq("companyId", companyId)
-    .in("status", ["Released", "In Progress"])
+    .in("status", ["Released", "In Progress", "Confirmed", "Cancelled"])
     .or(`assignee.eq.${args.userId},assignee.is.null`)
     .order("dueDate", { ascending: true, nullsFirst: false })
     .order("createdAt", { ascending: false });
 
-  if (args.locationId) query = query.eq("locationId", args.locationId);
   return query;
 }
 

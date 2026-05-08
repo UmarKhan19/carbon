@@ -938,7 +938,11 @@ export async function getTrackedEntities(
       count: "exact"
     })
     .eq("companyId", companyId)
-    .neq("status", "Reserved");
+    .neq("status", "Reserved")
+    // Hide synthetic pickResult entities — they exist purely as Consume-activity
+    // outputs so the lineage RPCs traverse the picking-list chain. They aren't
+    // real inventory and would double-count the picked quantity in this list.
+    .neq("sourceDocument", "Picking List");
 
   if (args.search) {
     query = query.or(
