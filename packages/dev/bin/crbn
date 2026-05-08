@@ -1,0 +1,279 @@
+#!/usr/bin/env bash
+# Carbon dev CLI router. Bash for fast commands (`checkout`, `_go`); the rest
+# delegates to `tsx packages/dev/src/main.ts` (citty).
+#
+# Setup once:  ./setup.sh
+# Then:        crbn <command>
+
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Repo discovery
+# ---------------------------------------------------------------------------
+
+repo_root() {
+  # Each linked worktree has its own --show-toplevel. We want the *main*
+  # checkout (where packages/dev lives), which is `--git-common-dir`'s parent.
+  local common_dir
+  common_dir=$(git rev-parse --git-common-dir 2>/dev/null) || {
+    echo "crbn: not inside a git repository" >&2
+    return 1
+  }
+  if [[ "$common_dir" != /* ]]; then
+    common_dir="$PWD/$common_dir"
+  fi
+  dirname "$common_dir"
+}
+
+slugify_branch() {
+  # Mirrors packages/dev/src/lib/slug.ts:slugify — lowercase, replace
+  # non-[a-z0-9-] runs with `-`, trim/collapse `-`.
+  printf '%s' "$1" \
+    | tr '[:upper:]' '[:lower:]' \
+    | sed -E 's/[^a-z0-9-]+/-/g; s/^-+|-+$//g; s/-+/-/g'
+}
+
+delegate_ts() {
+  # Run citty entry through tsx via pnpm (project pins pnpm + catalog: tsx).
+  local main
+  main="$(repo_root)/packages/dev/src/main.ts"
+  exec pnpm exec tsx "$main" "$@"
+}
+
+# ---------------------------------------------------------------------------
+# checkout <ref> [--path PATH] [--up]
+# ---------------------------------------------------------------------------
+
+checkout_usage() {
+  cat <<'USAGE'
+Usage: crbn checkout <branch> [--path PATH] [--up]
+
+  Resolve <branch> as a local branch, then origin/<branch> (auto-fetch),
+  else fail. Creates a worktree at <repo>-<slug> beside the main checkout
+  (or at PATH if given), copies files listed in package.json#crbn.copy,
+  and prints `cd <path>`.
+
+  --up   After creation, run `crbn up` cd'd into the new worktree.
+USAGE
+}
+
+cmd_checkout() {
+  local ref="" custom_path="" do_up=0
+  while (( $# )); do
+    case "$1" in
+      --path)    custom_path="${2:-}"; shift 2 ;;
+      --path=*)  custom_path="${1#*=}"; shift ;;
+      --up)      do_up=1; shift ;;
+      -h|--help) checkout_usage; exit 0 ;;
+      --)        shift; break ;;
+      -*)        echo "crbn checkout: unknown flag $1" >&2; exit 2 ;;
+      *)
+        if [[ -z "$ref" ]]; then
+          ref="$1"
+        else
+          echo "crbn checkout: extra arg $1" >&2
+          exit 2
+        fi
+        shift
+        ;;
+    esac
+  done
+  if [[ -z "$ref" ]]; then
+    echo "crbn checkout: branch required" >&2
+    echo "Usage: crbn checkout <branch> [--path PATH] [--up]" >&2
+    exit 2
+  fi
+
+  local root parent base target
+  root="$(repo_root)"
+  parent="$(dirname "$root")"
+  base="$(basename "$root")"
+  base="${base%%-[a-z0-9-]*}"  # strip prior `-<slug>` suffix if main is named carbon-feat-x
+  if [[ -n "$custom_path" ]]; then
+    target="$custom_path"
+    [[ "$target" = /* ]] || target="$PWD/$target"
+  else
+    target="$parent/${base}-$(slugify_branch "$ref")"
+  fi
+
+  if [[ -e "$target" ]]; then
+    echo "crbn checkout: target path already exists: $target" >&2
+    exit 1
+  fi
+
+  # Resolve the ref: local first, else fetch + track origin.
+  local resolved=""
+  if git -C "$root" show-ref --verify --quiet "refs/heads/$ref"; then
+    resolved="$ref"
+  else
+    echo "crbn: fetching origin/$ref ..."
+    if git -C "$root" fetch origin "$ref" --quiet 2>/dev/null \
+       && git -C "$root" show-ref --verify --quiet "refs/remotes/origin/$ref"; then
+      # Create local tracking branch off the remote ref.
+      git -C "$root" branch --track "$ref" "origin/$ref" >/dev/null
+      resolved="$ref"
+    else
+      echo "crbn checkout: branch '$ref' not found locally or on origin" >&2
+      exit 1
+    fi
+  fi
+
+  echo "crbn: git worktree add $target $resolved"
+  git -C "$root" worktree add "$target" "$resolved"
+
+  # crbn copy inside the new worktree (so it picks up package.json#crbn.copy
+  # from the main checkout via --git-common-dir).
+  if ! ( cd "$target" && delegate_ts copy ); then
+    echo "crbn checkout: copy step failed (worktree was still created)" >&2
+  fi
+
+  echo
+  echo "  cd $target"
+  if (( do_up )); then
+    echo
+    echo "crbn: crbn up (in $target) ..."
+    cd "$target"
+    delegate_ts up
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# _go <branch>  — internal: prints `cd '<path>'` for the shell function in
+# setup.sh to eval. Allows `crbn go <branch>` to mutate caller's cwd.
+# ---------------------------------------------------------------------------
+
+cmd_go_internal() {
+  local query="${1:-}"
+
+  # Collect (branch, path) pairs from `git worktree list --porcelain`. blocks
+  # separated by blank lines: `worktree <path>` then optionally `branch <ref>`.
+  local -a branches paths
+  local current_path="" branch="" line=""
+  while IFS= read -r line; do
+    if [[ "$line" == worktree\ * ]]; then
+      current_path="${line#worktree }"
+    elif [[ "$line" == branch\ refs/heads/* ]]; then
+      branch="${line#branch refs/heads/}"
+      branches+=("$branch")
+      paths+=("$current_path")
+    fi
+  done < <(git worktree list --porcelain)
+
+  list_options() {
+    echo "Available worktrees:" >&2
+    local i
+    for i in "${!branches[@]}"; do
+      printf "  %-40s %s\n" "${branches[$i]}" "${paths[$i]}" >&2
+    done
+  }
+
+  # No query: list and bail.
+  if [[ -z "$query" ]]; then
+    list_options
+    echo >&2
+    echo "Usage: crbn go <branch>" >&2
+    return 2
+  fi
+
+  # Exact match.
+  local i match=""
+  for i in "${!branches[@]}"; do
+    if [[ "${branches[$i]}" == "$query" ]]; then
+      match="${paths[$i]}"
+      break
+    fi
+  done
+
+  if [[ -n "$match" ]]; then
+    printf "cd %q\n" "$match"
+    return 0
+  fi
+
+  # No exact match: list candidates that contain the query (case-insensitive)
+  # to nudge the user. Falls back to all branches if no fuzzy hits.
+  echo "crbn go: no worktree on branch '$query'" >&2
+  echo >&2
+  local lower_query
+  lower_query="$(printf '%s' "$query" | tr '[:upper:]' '[:lower:]')"
+  local -a fuzzy
+  for i in "${!branches[@]}"; do
+    local lower_b
+    lower_b="$(printf '%s' "${branches[$i]}" | tr '[:upper:]' '[:lower:]')"
+    if [[ "$lower_b" == *"$lower_query"* ]]; then
+      fuzzy+=("$i")
+    fi
+  done
+  if (( ${#fuzzy[@]} > 0 )); then
+    echo "Did you mean one of:" >&2
+    for i in "${fuzzy[@]}"; do
+      printf "  %-40s %s\n" "${branches[$i]}" "${paths[$i]}" >&2
+    done
+  else
+    list_options
+  fi
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# Top-level help
+# ---------------------------------------------------------------------------
+
+print_help() {
+  cat <<'USAGE'
+crbn — Carbon dev CLI
+
+  Worktrees:
+    crbn checkout <branch> [--path PATH] [--up]
+        Resolve an existing branch and create a sibling worktree.
+    crbn copy
+        Sync files (package.json#crbn.copy) from main checkout into cwd.
+    crbn go <branch>
+        Switch shell into the worktree on <branch>. (Requires shell function
+        from setup.sh — falls back to `_go` raw output if missing.)
+    crbn new
+        Interactive: create a worktree on a fresh branch.
+    crbn list
+        Show all worktrees with stack status.
+    crbn remove
+        Pick a worktree to delete (with stack teardown).
+
+  Stack:
+    crbn up        Boot per-worktree compose stack + apps.
+    crbn down      Stop the stack (volumes preserved).
+    crbn reset     Wipe volumes + redis, then `up`.
+    crbn status    Port assignment + container health.
+USAGE
+}
+
+# ---------------------------------------------------------------------------
+# Dispatch
+# ---------------------------------------------------------------------------
+
+cmd="${1:-}"
+[[ $# -gt 0 ]] && shift || true
+
+case "$cmd" in
+  ""|help|-h|--help)
+    print_help
+    ;;
+  checkout)
+    cmd_checkout "$@"
+    ;;
+  go)
+    # If a user runs `crbn go` outside the shell-function wrapper (i.e. without
+    # eval), fall through to `_go` so they at least see the suggested cd.
+    cmd_go_internal "$@"
+    ;;
+  _go)
+    cmd_go_internal "$@"
+    ;;
+  copy|up|down|reset|status|new|list|remove)
+    delegate_ts "$cmd" "$@"
+    ;;
+  *)
+    echo "crbn: unknown command '$cmd'" >&2
+    echo >&2
+    print_help >&2
+    exit 2
+    ;;
+esac

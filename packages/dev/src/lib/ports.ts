@@ -112,7 +112,7 @@ function pickRedisDb(taken: Set<number>): number {
     if (!taken.has(i)) return i;
   }
   throw new Error(
-    `Redis DB pool exhausted (max ${REDIS_DB_MAX}). Free a slot via \`carbon-dev remove\`.`
+    `Redis DB pool exhausted (max ${REDIS_DB_MAX}). Free a slot via \`crbn remove\`.`
   );
 }
 

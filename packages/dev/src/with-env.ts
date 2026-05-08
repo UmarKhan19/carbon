@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
-import { execa } from "execa";
 import { join } from "node:path";
+import { execa } from "execa";
 import { loadEnv } from "./lib/load-env.js";
 
 run().catch((err) => {
@@ -23,7 +23,9 @@ async function run() {
 
   const [cmd, ...args] = process.argv.slice(2);
   if (!cmd) {
-    console.error("Usage: tsx scripts/dev/with-env.ts <command> [args...]");
+    console.error(
+      "Usage: tsx packages/dev/src/with-env.ts <command> [args...]"
+    );
     process.exit(1);
   }
 
@@ -34,7 +36,7 @@ async function run() {
   const result = await execa(cmd, expanded, {
     stdio: "inherit",
     shell: cmd === "sh" || cmd === "bash",
-    reject: false,
+    reject: false
   });
   process.exit(result.exitCode ?? 0);
 }

@@ -1,10 +1,51 @@
+import net from "node:net";
 import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { execa } from "execa";
 
-/** wait-on the listed TCP targets (`tcp:<port>`). */
-export async function waitForTcp(targets: string[], cwd: string) {
-  await execStrict("wait-on", ["-t", "60000", ...targets], cwd);
+/**
+ * Block until each `tcp:<port>` target accepts a connection on 127.0.0.1.
+ * Inlined (instead of shelling out to `wait-on`) so we don't depend on a
+ * binary in node_modules/.bin — pnpm doesn't symlink workspace devDeps to
+ * the root `.bin/` consistently.
+ */
+export async function waitForTcp(targets: string[], _cwd: string) {
+  void _cwd; // signature kept for parity with the old wait-on shell-out
+  const ports = targets.map((t) => {
+    const m = t.match(/^tcp:(\d+)$/);
+    if (!m)
+      throw new Error(`waitForTcp: bad target "${t}" (expected tcp:<port>)`);
+    return Number(m[1]);
+  });
+  await Promise.all(ports.map((p) => waitForPort(p, 60_000)));
+}
+
+async function waitForPort(
+  port: number,
+  timeoutMs: number,
+  host = "127.0.0.1"
+) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const ok = await tryConnect(host, port);
+    if (ok) return;
+    await sleep(500);
+  }
+  throw new Error(`timed out waiting for tcp:${port} after ${timeoutMs}ms`);
+}
+
+function tryConnect(host: string, port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host, port });
+    const done = (ok: boolean) => {
+      socket.removeAllListeners();
+      socket.destroy();
+      resolve(ok);
+    };
+    socket.once("connect", () => done(true));
+    socket.once("error", () => done(false));
+    socket.setTimeout(2000, () => done(false));
+  });
 }
 
 /**
@@ -26,13 +67,22 @@ export async function waitForStorageTables(port: number) {
   throw new Error("storage.buckets did not appear within 60s");
 }
 
-/** Apply pending Supabase migrations against the worktree's compose postgres. */
+/**
+ * Apply pending Supabase migrations against the worktree's compose postgres.
+ *
+ * `--include-all` is required because the schema_migrations table on a fresh
+ * compose volume isn't truly empty — supabase's bootstrap inserts a sentinel
+ * row, after which the CLI considers any timestamp earlier than the sentinel
+ * "out of order" and refuses without this flag. Our local migrations folder
+ * is the authoritative source; apply everything.
+ */
 export async function applyMigrations(root: string, dbPort: number) {
   await execStrict(
     "supabase",
     [
       "migration",
       "up",
+      "--include-all",
       "--db-url",
       `postgresql://postgres:postgres@localhost:${dbPort}/postgres`
     ],

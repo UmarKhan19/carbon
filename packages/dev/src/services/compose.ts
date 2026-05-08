@@ -110,7 +110,7 @@ export async function dockerProjectStates(): Promise<Map<string, string>> {
   );
   for (const line of (r.stdout ?? "").split("\n")) {
     const [project, state] = line.split("\t");
-    if (!project) continue;
+    if (!project || !state) continue;
     if (state === "running") out.set(project, "running");
     else if (!out.has(project)) out.set(project, state);
   }

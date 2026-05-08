@@ -1,6 +1,6 @@
-import { execa } from "execa";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
+import { execa } from "execa";
 
 const SLUG_FILE = ".carbon-worktree";
 
@@ -45,12 +45,12 @@ export async function ensureSlugAvailable(slug: string, worktreeRoot: string) {
         "--filter",
         `label=com.docker.compose.project=${project}`,
         "--format",
-        '{{.Label "com.docker.compose.project.working_dir"}}',
+        '{{.Label "com.docker.compose.project.working_dir"}}'
       ],
       { reject: false }
     );
     const out = r.stdout.trim();
-    if (out) runningPath = out.split("\n")[0];
+    if (out) runningPath = out.split("\n")[0] ?? null;
   } catch {
     return;
   }

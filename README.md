@@ -169,6 +169,29 @@ $ pnpm install       # install dependencies
 $ pnpm run db:start  # pull and run the containers
 ```
 
+### Local dev CLI (`crbn`)
+
+The repo ships a small CLI at `packages/dev/bin/crbn` that wraps git worktrees + the per-worktree compose stack. Run `setup.sh` once to put it on your `$PATH` and install the `crbn` shell function (so `crbn go` can change cwd):
+
+```bash
+$ ./setup.sh                   # writes a sentinel block to ~/.zshrc or ~/.bashrc
+$ source ~/.zshrc              # or open a new shell
+$ crbn                         # shows commands
+```
+
+Common flows:
+
+```bash
+$ crbn checkout sid/cool-thing       # worktree on someone's branch (no resources)
+$ crbn checkout sid/cool-thing --up  # …and boot the stack inside it
+$ crbn copy                          # re-sync .env from main checkout
+$ crbn go sid/cool-thing             # cd into that worktree
+$ crbn up | down | reset | status    # per-worktree compose stack
+$ crbn new | list | remove           # interactive worktree management
+```
+
+Files synced by `crbn copy` are listed under `package.json#crbn.copy` (defaults to `[".env"]`). To uninstall the rc block: `./setup.sh --uninstall`.
+
 Create an `.env` file and copy the contents of `.env.example` file into it
 
 ```bash
@@ -179,8 +202,9 @@ $ cp ./.env.example ./.env
 
 - Email requires a Resend API key (you'll set this up later on)
 - Sign-in with Google requires a Google auth client with these variables. [See the Supabase docs for instructions on how to set this up](https://supabase.com/docs/guides/auth/social-login/auth-google):
-  - Set `Authorized JavaScript origins` to only `http://127.0.0.1:54321`
-  - Set `Authorized redirect URIs` to `http://127.0.0.1:54321/auth/v1/callback`
+  - Set `Authorized JavaScript origins` to `https://api.carbon.dev`
+  - Set `Authorized redirect URIs` to `https://api.carbon.dev/auth/v1/callback`
+  - The hostname `api.carbon.dev` is a stable, branch-independent alias `crbn up` registers via portless. Whichever worktree is currently `up` services the OAuth callback — one Google Console entry covers every worktree.
 - You should set environment variables like the following.
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID="******.apps.googleusercontent.com"`
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET="GOCSPX-****************"`

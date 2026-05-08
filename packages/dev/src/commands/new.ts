@@ -1,0 +1,68 @@
+import { copyFileSync, existsSync } from "node:fs";
+import { basename, dirname, join, relative, resolve } from "node:path";
+import { intro, note, outro, tasks } from "@clack/prompts";
+import pc from "picocolors";
+import { addWorktree, currentBranch } from "../lib/git.js";
+import { getWorktreeRoot, slugifyBranch } from "../lib/slug.js";
+import {
+  promptBaseRef,
+  promptBranch,
+  promptCopyEnv,
+  promptDirName
+} from "../ui/prompts.js";
+
+export async function newWorktree() {
+  intro("Carbon · new worktree");
+
+  const here = await getWorktreeRoot();
+  const parentDir = dirname(here);
+  const repoBaseName = basename(here).replace(/-[a-z0-9-]+$/i, "");
+
+  const branch = await promptBranch();
+
+  const defaultDir = `${repoBaseName}-${slugifyBranch(branch)}`;
+  const dirName = await promptDirName(parentDir, defaultDir);
+  const targetPath = resolve(parentDir, dirName);
+
+  const cur = await currentBranch(here);
+  const baseRef = await promptBaseRef(cur || null);
+
+  const copyEnv = await promptCopyEnv();
+
+  await tasks([
+    {
+      title: `git worktree add ${dirName}`,
+      task: async (msg) => {
+        msg(`branching from ${baseRef}`);
+        const r = await addWorktree({ path: targetPath, branch, baseRef });
+        if (!r.ok) throw new Error(r.error);
+        return `worktree at ${relative(here, targetPath)}`;
+      }
+    },
+    ...(copyEnv
+      ? [
+          {
+            title: "Copy .env",
+            task: async () => {
+              const src = join(here, ".env");
+              if (!existsSync(src)) return "no .env in source — skipped";
+              copyFileSync(src, join(targetPath, ".env"));
+              return ".env copied";
+            }
+          }
+        ]
+      : [])
+  ]);
+
+  note(
+    [
+      pc.bold("Next steps:"),
+      "",
+      `  ${pc.cyan("cd")} ${relative(here, targetPath)}`,
+      `  ${pc.cyan("npm install")}    ${pc.dim("# if needed")}`,
+      `  ${pc.cyan("crbn up")}`
+    ].join("\n"),
+    `worktree ready — ${branch}`
+  );
+  outro("done");
+}

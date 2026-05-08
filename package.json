@@ -54,14 +54,11 @@
     "db:stop": "pnpm dev:down",
     "db:types": "pnpm --filter @carbon/database db:types",
     "deploy": "turbo run deploy",
-    "dev": "carbon-dev up",
-    "dev:up": "carbon-dev up",
-    "dev:down": "carbon-dev down",
-    "dev:reset": "carbon-dev reset",
-    "dev:status": "carbon-dev status",
-    "dev:new": "carbon-dev new",
-    "dev:list": "carbon-dev list",
-    "dev:remove": "carbon-dev remove",
+    "dev": "./packages/dev/bin/crbn up",
+    "dev:up": "./packages/dev/bin/crbn up",
+    "dev:down": "./packages/dev/bin/crbn down",
+    "dev:reset": "./packages/dev/bin/crbn reset",
+    "dev:status": "./packages/dev/bin/crbn status",
     "dev:docker": "docker compose up -d redis || docker-compose up -d redis",
     "dev:jobs-wait": "pnpm dlx wait-on tcp:8288 && run-p dev:erp dev:stripe",
     "dev:academy": "turbo run dev --filter=./apps/academy --filter=./packages/",
@@ -114,6 +111,11 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "4.60.1"
+  },
+  "crbn": {
+    "copy": [
+      ".env"
+    ]
   },
   "pnpm": {
     "onlyBuiltDependencies": [

@@ -1,0 +1,204 @@
+#!/usr/bin/env bash
+# Idempotent one-time setup: adds <repo>/packages/dev/bin to PATH and installs
+# the `crbn()` shell function (so `crbn go <branch>` can mutate the caller's
+# cwd).
+#
+# Run from the repo root:
+#     ./setup.sh                # install
+#     source ./setup.sh         # install + activate in current shell
+#     ./setup.sh --uninstall    # remove
+#
+# When sourced we delegate to a child process for the actual install, then
+# source the rc back in the caller. This keeps `set -e`/`exit` from leaking
+# into the user's interactive shell (which closes the tab on the first
+# expected non-zero exit, e.g. when re-running on an already-installed rc).
+
+# ---------------------------------------------------------------------------
+# Sourced detection (bash + zsh)
+# ---------------------------------------------------------------------------
+
+__crbn_setup_sourced=0
+if [[ -n "${BASH_SOURCE[0]:-}" && "${BASH_SOURCE[0]}" != "${0:-}" ]]; then
+  __crbn_setup_sourced=1
+fi
+if [[ -n "${ZSH_EVAL_CONTEXT:-}" && "$ZSH_EVAL_CONTEXT" == *:file* ]]; then
+  __crbn_setup_sourced=1
+fi
+
+# When sourced: spawn child to install (no option/exit leakage), then source
+# the rc into THIS shell so PATH + crbn() take effect immediately.
+if (( __crbn_setup_sourced )); then
+  # In bash: BASH_SOURCE[0] is the sourced file. In zsh: $0 is the sourced
+  # file (when FUNCTION_ARGZERO is set, the default).
+  __crbn_setup_script="${BASH_SOURCE[0]:-$0}"
+
+  bash "$__crbn_setup_script" "$@"; __crbn_setup_rc=$?
+  if (( __crbn_setup_rc != 0 )); then
+    unset __crbn_setup_sourced __crbn_setup_script __crbn_setup_rc
+    return "$__crbn_setup_rc" 2>/dev/null
+  fi
+
+  # Activate in the current shell only on install paths (not --uninstall/help).
+  case "${1:-}" in
+    ""|install)
+      __crbn_setup_target="${RC_FILE:-}"
+      if [[ -z "$__crbn_setup_target" ]]; then
+        case "${SHELL:-}" in
+          */zsh)  __crbn_setup_target="$HOME/.zshrc"  ;;
+          */bash) __crbn_setup_target="$HOME/.bashrc" ;;
+          *)
+            if   [[ -f "$HOME/.zshrc"  ]]; then __crbn_setup_target="$HOME/.zshrc"
+            elif [[ -f "$HOME/.bashrc" ]]; then __crbn_setup_target="$HOME/.bashrc"
+            else __crbn_setup_target="$HOME/.zshrc"
+            fi
+            ;;
+        esac
+      fi
+      if [[ -f "$__crbn_setup_target" ]] && grep -qF "# >>> carbon dev cli (managed by setup.sh) >>>" "$__crbn_setup_target"; then
+        # shellcheck disable=SC1090
+        source "$__crbn_setup_target"
+        printf '\n  \033[1;36mcrbn\033[0m active in this shell. try: \033[1;36mcrbn\033[0m\n\n'
+      fi
+      unset __crbn_setup_target
+      ;;
+  esac
+
+  unset __crbn_setup_sourced __crbn_setup_script __crbn_setup_rc
+  return 0 2>/dev/null
+fi
+
+# ---------------------------------------------------------------------------
+# Direct invocation: real work happens here.
+# ---------------------------------------------------------------------------
+
+set -euo pipefail
+
+SENTINEL_OPEN="# >>> carbon dev cli (managed by setup.sh) >>>"
+SENTINEL_CLOSE="# <<< carbon dev cli <<<"
+
+# Output helpers — colors when stdout is a TTY.
+if [[ -t 1 ]] && command -v tput >/dev/null 2>&1 && [[ "$(tput colors 2>/dev/null || echo 0)" -ge 8 ]]; then
+  C_BOLD=$(tput bold); C_DIM=$(tput dim); C_RESET=$(tput sgr0)
+  C_GREEN=$(tput setaf 2); C_YELLOW=$(tput setaf 3); C_CYAN=$(tput setaf 6); C_RED=$(tput setaf 1)
+else
+  C_BOLD=""; C_DIM=""; C_RESET=""; C_GREEN=""; C_YELLOW=""; C_CYAN=""; C_RED=""
+fi
+
+ok()    { printf '%s✓%s %s\n' "$C_GREEN"  "$C_RESET" "$*"; }
+info()  { printf '%s•%s %s\n' "$C_CYAN"   "$C_RESET" "$*"; }
+warn()  { printf '%s!%s %s\n' "$C_YELLOW" "$C_RESET" "$*"; }
+fail()  { printf '%s✗%s %s\n' "$C_RED"    "$C_RESET" "$*" >&2; }
+hdr()   { printf '\n%s%s%s\n' "$C_BOLD" "$*" "$C_RESET"; }
+kbd()   { printf '%s%s%s' "$C_BOLD$C_CYAN" "$*" "$C_RESET"; }
+dim()   { printf '%s%s%s' "$C_DIM" "$*" "$C_RESET"; }
+
+repo_root() {
+  git rev-parse --show-toplevel 2>/dev/null \
+    || { fail "not inside a git repo (cd into the carbon checkout first)"; exit 1; }
+}
+
+detect_rc() {
+  if [[ -n "${RC_FILE:-}" ]]; then printf '%s\n' "$RC_FILE"; return; fi
+  case "${SHELL:-}" in
+    */zsh)  printf '%s\n' "$HOME/.zshrc" ;;
+    */bash) printf '%s\n' "$HOME/.bashrc" ;;
+    *)
+      if   [[ -f "$HOME/.zshrc"  ]]; then printf '%s\n' "$HOME/.zshrc"
+      elif [[ -f "$HOME/.bashrc" ]]; then printf '%s\n' "$HOME/.bashrc"
+      else printf '%s\n' "$HOME/.zshrc"
+      fi
+      ;;
+  esac
+}
+
+block_for() {
+  local repo="$1"
+  cat <<EOF
+$SENTINEL_OPEN
+export PATH="$repo/packages/dev/bin:\$PATH"
+crbn() {
+  if [[ "\${1:-}" == "go" ]]; then
+    shift
+    local out
+    out="\$(command crbn _go "\$@")" || return \$?
+    eval "\$out"
+  else
+    command crbn "\$@"
+  fi
+}
+$SENTINEL_CLOSE
+EOF
+}
+
+uninstall() {
+  local rc; rc="$(detect_rc)"
+  hdr "Uninstall"
+  if [[ ! -f "$rc" ]]; then info "no rc file at $(dim "$rc") — nothing to do"; return 0; fi
+  if ! grep -qF "$SENTINEL_OPEN" "$rc"; then
+    info "no crbn block found in $(dim "$rc") — nothing to do"
+    return 0
+  fi
+  local tmp; tmp="$(mktemp)"
+  awk -v sopen="$SENTINEL_OPEN" -v sclose="$SENTINEL_CLOSE" '
+    $0 == sopen { skip=1; next }
+    skip && $0 == sclose { skip=0; next }
+    !skip
+  ' "$rc" > "$tmp"
+  mv "$tmp" "$rc"
+  ok "removed crbn block from $(dim "$rc")"
+  info "open a new shell to clear PATH and the crbn() function"
+}
+
+install() {
+  local repo rc
+  repo="$(repo_root)"
+  rc="$(detect_rc)"
+  mkdir -p "$(dirname "$rc")"
+  touch "$rc"
+
+  hdr "Install"
+  info "repo: $(dim "$repo")"
+  info "rc:   $(dim "$rc")"
+
+  if grep -qF "$SENTINEL_OPEN" "$rc"; then
+    warn "crbn block already present — leaving it alone"
+    info "to remove: $(kbd "./setup.sh --uninstall")"
+    return 0
+  fi
+
+  {
+    printf '\n'
+    block_for "$repo"
+    printf '\n'
+  } >> "$rc"
+
+  ok "appended crbn block to $rc"
+
+  hdr "Activate"
+  printf '  Open a new shell, or run:\n\n'
+  printf '      %s\n\n' "$(kbd "source $rc")"
+  printf '  Or activate without re-running setup:\n\n'
+  printf '      %s\n' "$(kbd "source ./setup.sh")"
+
+  hdr "Verify"
+  printf '  %s\n' "$(dim "which crbn   # -> $repo/packages/dev/bin/crbn")"
+  printf '  %s\n\n' "$(dim "crbn         # -> help")"
+}
+
+case "${1:-}" in
+  ""|install) install ;;
+  --uninstall|uninstall) uninstall ;;
+  -h|--help)
+    cat <<'USAGE'
+Usage:
+  ./setup.sh                  install crbn into your shell rc
+  source ./setup.sh           install AND activate in the current shell
+  ./setup.sh --uninstall      remove the managed block
+  RC_FILE=/path/to/rc ./setup.sh    override target rc file
+USAGE
+    ;;
+  *)
+    fail "unknown arg '$1'"
+    exit 2
+    ;;
+esac

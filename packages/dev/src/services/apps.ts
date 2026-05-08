@@ -5,23 +5,41 @@ import { execa } from "execa";
  * Spawn `turbo run dev` filtered to the requested apps. Each app's `dev`
  * script invokes portless, which loads `apps/<id>/portless.json` and runs
  * `dev:app` (react-router dev) behind a stable URL.
+ *
+ * Signal handling note: terminal SIGINT is delivered to the whole process
+ * group, so turbo also receives it and runs its own graceful shutdown
+ * ("Finishing writing to cache..."). We swallow SIGINT/SIGTERM in the
+ * parent so Node's default handler doesn't exit code 130 mid-shutdown,
+ * which would otherwise cause turbo to print "run failed: command exited"
+ * because its children were killed before turbo could clean them up.
+ *
+ * Once turbo exits (clean or via signal), we resolve undefined; up()
+ * then returns and the process exits 0.
  */
 export function spawnAppsViaTurbo(opts: {
   root: string;
   apps: string[];
-  signal: AbortSignal;
 }): Promise<void> {
-  const { root, apps, signal } = opts;
+  const { root, apps } = opts;
   const filters = apps.flatMap((id) => ["--filter", `./apps/${id}`]);
   const child = execa("turbo", ["run", "dev", ...filters], {
     cwd: root,
     stdio: "inherit",
     preferLocal: true,
-    reject: false,
-    cancelSignal: signal,
-    forceKillAfterDelay: 10_000
+    reject: false
   });
-  return child.then(() => undefined).catch(() => undefined);
+
+  const swallow = () => {};
+  process.on("SIGINT", swallow);
+  process.on("SIGTERM", swallow);
+
+  return child
+    .then(() => undefined)
+    .catch(() => undefined)
+    .finally(() => {
+      process.off("SIGINT", swallow);
+      process.off("SIGTERM", swallow);
+    });
 }
 
 /** Detached stripe webhook listener (CARBON_EDITION=cloud only). */
