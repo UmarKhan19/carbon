@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
+  Badge,
   Card,
   CardContent,
   CardDescription,
@@ -76,7 +77,7 @@ export default function AccountingSettingsRoute() {
   const { companySettings } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
-  const isToggling = fetcher.state !== "idle";
+  // const isToggling = fetcher.state !== "idle";
 
   useEffect(() => {
     if (fetcher.data?.success === true && fetcher.data?.message) {
@@ -122,7 +123,7 @@ export default function AccountingSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {(companySettings as any).accountingEnabled ? (
                     <Trans>Accounting is enabled</Trans>
@@ -130,24 +131,30 @@ export default function AccountingSettingsRoute() {
                     <Trans>Accounting is disabled</Trans>
                   )}
                 </span>
-                <span className="text-sm text-muted-foreground">
-                  {(companySettings as any).accountingEnabled ? (
-                    <Trans>
-                      Transactions will create journal entries and update the
-                      general ledger.
-                    </Trans>
-                  ) : (
-                    <Trans>
-                      Enable to post journal entries when processing receipts,
-                      shipments, and invoices.
-                    </Trans>
-                  )}
-                </span>
+                <HStack className="items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {(companySettings as any).accountingEnabled ? (
+                      <Trans>
+                        Transactions will create journal entries and update the
+                        general ledger.
+                      </Trans>
+                    ) : (
+                      <Trans>
+                        Enable to automatically post transactions to the general
+                        ledger.
+                      </Trans>
+                    )}
+                  </span>
+                  <Badge variant="red">
+                    <Trans>Alpha</Trans>
+                  </Badge>
+                </HStack>
               </VStack>
               <Switch
                 checked={(companySettings as any).accountingEnabled ?? false}
                 onCheckedChange={handleAccountingToggle}
-                disabled={isToggling}
+                disabled
+                // disabled={isToggling}
               />
             </HStack>
           </CardContent>

@@ -253,16 +253,16 @@ msgstr "Account Type"
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:50
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:83
 #: apps/erp/app/routes/x+/accounting+/_layout.tsx:24
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:31
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:108
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:32
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:109
 msgid "Accounting"
 msgstr "Accounting"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:130
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:131
 msgid "Accounting is disabled"
 msgstr "Accounting is disabled"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:128
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:129
 msgid "Accounting is enabled"
 msgstr "Accounting is enabled"
 
@@ -736,6 +736,10 @@ msgstr "All Work Centers"
 #: apps/erp/app/modules/items/ui/ItemRules/SeveritySelect.tsx:34
 msgid "Allows acknowledge & continue"
 msgstr "Allows acknowledge & continue"
+
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:149
+msgid "Alpha"
+msgstr "Alpha"
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:244
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRulesTable.tsx:321
@@ -4976,7 +4980,7 @@ msgstr "Enable audit logging in settings to start tracking changes to your data.
 msgid "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 msgstr "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:117
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:118
 msgid "Enable full accrual accounting with journal entries, financial reports, and general ledger posting."
 msgstr "Enable full accrual accounting with journal entries, financial reports, and general ledger posting."
 
@@ -5004,6 +5008,10 @@ msgstr "Enable timecard tracking for work shifts."
 msgid "Enable to allow shared workstation mode."
 msgstr "Enable to allow shared workstation mode."
 
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:142
+msgid "Enable to automatically post transactions to the general ledger."
+msgstr "Enable to automatically post transactions to the general ledger."
+
 #: apps/erp/app/routes/x+/settings+/items.tsx:159
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Enable to generate IDs and descriptions for raw materials."
@@ -5011,10 +5019,6 @@ msgstr "Enable to generate IDs and descriptions for raw materials."
 #: apps/erp/app/routes/x+/settings+/production.tsx:233
 msgid "Enable to include work instructions on job traveler PDFs."
 msgstr "Enable to include work instructions on job traveler PDFs."
-
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:140
-msgid "Enable to post journal entries when processing receipts, shipments, and invoices."
-msgstr "Enable to post journal entries when processing receipts, shipments, and invoices."
 
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:728
 msgid "Enable to show part thumbnails on purchase order PDFs."
@@ -6127,7 +6131,7 @@ msgstr "Gauge Types"
 msgid "Gauges"
 msgstr "Gauges"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:114
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:115
 msgid "General Ledger"
 msgstr "General Ledger"
 
@@ -13923,7 +13927,7 @@ msgstr "Training Assignments"
 msgid "Trainings"
 msgstr "Trainings"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:135
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:137
 msgid "Transactions will create journal entries and update the general ledger."
 msgstr "Transactions will create journal entries and update the general ledger."
 
