@@ -39,7 +39,7 @@ import {
   UnitOfMeasure
 } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
-import { usePermissions, useRouteData } from "~/hooks";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 import type { TrackedEntity } from "~/modules/inventory/types";
 import type { MethodItemType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
@@ -151,6 +151,10 @@ const JobProperties = () => {
   );
 
   const permissions = usePermissions();
+  const companySettings = useSettings() as {
+    usePickingLists?: boolean | null;
+    defaultAutoGeneratePickingList?: boolean | null;
+  };
   const optimisticAssignment = useOptimisticAssignment({
     id: jobId,
     table: "job"
@@ -163,6 +167,15 @@ const JobProperties = () => {
   const canUpdate = permissions.can("update", "production");
   const isLocked = isJobLocked(routeData?.job?.status);
   const isDisabled = !canUpdate || isLocked;
+
+  const jobAutoGeneratePickingList = (routeData?.job as any)
+    ?.autoGeneratePickingList as boolean | null | undefined;
+  const effectiveAutoGeneratePickingList =
+    companySettings.usePickingLists === false
+      ? false
+      : (jobAutoGeneratePickingList ??
+        companySettings.defaultAutoGeneratePickingList ??
+        true);
 
   return (
     <VStack
@@ -559,7 +572,12 @@ const JobProperties = () => {
           <Trans>Picking</Trans>
         </span>
         <AutoGeneratePickingListDisplay
-          value={(routeData?.job as any)?.autoGeneratePickingList ?? true}
+          value={effectiveAutoGeneratePickingList}
+          jobValue={jobAutoGeneratePickingList}
+          companyDefault={
+            companySettings.defaultAutoGeneratePickingList ?? undefined
+          }
+          companyEnabled={companySettings.usePickingLists ?? true}
         />
       </VStack>
 
@@ -589,12 +607,29 @@ export default JobProperties;
 // trigger_default_auto_generate_picking_list at job INSERT, and there's
 // no per-job edit UI on purpose — planners change the default in
 // Settings → Inventory; the job page just shows the resulting status.
-function AutoGeneratePickingListDisplay({ value }: { value: boolean }) {
+function AutoGeneratePickingListDisplay({
+  value,
+  jobValue,
+  companyDefault,
+  companyEnabled
+}: {
+  value: boolean;
+  jobValue?: boolean | null;
+  companyDefault?: boolean | null;
+  companyEnabled: boolean;
+}) {
+  const sourceLabel = !companyEnabled
+    ? "Disabled at company level"
+    : jobValue === null || jobValue === undefined
+      ? `Inherits company default (${companyDefault ? "On" : "Off"})`
+      : "Job-level value";
+
   return (
     <div className="flex flex-col gap-1 text-sm">
       <Badge variant={value ? "secondary" : "outline"} className="w-fit">
         {value ? <Trans>On</Trans> : <Trans>Off</Trans>}
       </Badge>
+      <span className="text-xs text-muted-foreground">{sourceLabel}</span>
       <span className="text-xs text-muted-foreground">
         <Trans>
           Auto-generate picking list. Controlled at the company level in

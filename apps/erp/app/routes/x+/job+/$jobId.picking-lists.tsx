@@ -53,10 +53,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  // Generated DB types can lag behind companySettings.usePickingLists.
+  // Runtime SELECT still returns it; cast once at read point.
+  // TODO: regenerate @carbon/database types and remove this cast.
+  const settingsRow = settings.data as unknown as {
+    usePickingLists?: boolean | null;
+  } | null;
+
   return {
     pickingLists: pickingLists.data ?? [],
     job: job.data,
-    usePickingLists: settings.data?.usePickingLists ?? true
+    usePickingLists: settingsRow?.usePickingLists ?? true
   };
 }
 
