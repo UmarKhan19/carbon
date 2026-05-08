@@ -30,7 +30,10 @@ export default function PickingListProperties() {
         id?: string;
         jobId?: string;
         salesOrderId?: string | null;
-        salesOrderReadableId?: string | null;
+        salesOrder?: {
+          id?: string;
+          salesOrderId?: string | null;
+        } | null;
         customer?: { id?: string; name?: string | null } | null;
       } | null;
       location?: { name?: string | null } | null;
@@ -93,17 +96,21 @@ export default function PickingListProperties() {
           </PropertyRow>
         )}
 
-        {pl.job?.salesOrderReadableId && (
+        {(pl.job?.salesOrder?.salesOrderId ?? pl.job?.salesOrderId) && (
           <PropertyRow
             label={<Trans>Sales Order</Trans>}
             icon={<LuShoppingCart />}
           >
-            {pl.job.salesOrderId ? (
+            {pl.job?.salesOrderId ? (
               <Hyperlink to={path.to.salesOrder(pl.job.salesOrderId)}>
-                <Badge variant="outline">{pl.job.salesOrderReadableId}</Badge>
+                <Badge variant="outline">
+                  {pl.job.salesOrder?.salesOrderId ?? pl.job.salesOrderId}
+                </Badge>
               </Hyperlink>
             ) : (
-              <Badge variant="outline">{pl.job.salesOrderReadableId}</Badge>
+              <Badge variant="outline">
+                {pl.job?.salesOrder?.salesOrderId ?? ""}
+              </Badge>
             )}
           </PropertyRow>
         )}

@@ -120,16 +120,16 @@ const PickingListsTable = memo(
           header: t`Sales Order`,
           cell: ({ row }) => {
             const job = (row.original as any).job;
-            const so = job?.salesOrderReadableId;
-            return so ? (
-              <Hyperlink
-                to={
-                  job?.salesOrderId ? path.to.salesOrder(job.salesOrderId) : "#"
-                }
-              >
-                {so}
+            const readable =
+              job?.salesOrder?.salesOrderId ?? job?.salesOrderId ?? null;
+            if (!readable) return null;
+            return job?.salesOrderId ? (
+              <Hyperlink to={path.to.salesOrder(job.salesOrderId)}>
+                {readable}
               </Hyperlink>
-            ) : null;
+            ) : (
+              <span>{readable}</span>
+            );
           },
           meta: { icon: <LuShoppingCart /> }
         },

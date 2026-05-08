@@ -2032,9 +2032,10 @@ export async function getPickingLists(
       `id, pickingListId, jobId, locationId, status, assignee, dueDate,
        confirmedAt, confirmedBy, companyId, createdAt, updatedAt,
        job:jobId(
-         jobId, itemId, customerId, salesOrderId, salesOrderReadableId,
+         jobId, itemId, customerId, salesOrderId,
          item:itemId(name, readableId, thumbnailPath, type),
-         customer:customerId(id, name)
+         customer:customerId(id, name),
+         salesOrder:salesOrderId(id, salesOrderId)
        ),
        location:locationId(name),
        assigneeUser:assignee(id, fullName, avatarUrl),

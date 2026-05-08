@@ -1356,7 +1356,7 @@ msgid "Assigned to Me"
 msgstr "मुझे असाइन किया गया"
 
 #: apps/erp/app/components/Assignee.tsx:98
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:125
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:132
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:222
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:196
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:226
@@ -3007,7 +3007,7 @@ msgstr "कार्य केंद्र बनाएं"
 
 #: apps/erp/app/components/Documents.tsx:285
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:432
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:147
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:154
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:113
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:991
@@ -3300,7 +3300,7 @@ msgstr "कस्टम फील्ड्स"
 
 #: apps/erp/app/components/Form/Customer.tsx:48
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:86
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:112
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:119
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:106
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:243
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:198
@@ -4435,7 +4435,7 @@ msgstr "अपनी फ़ाइल यहाँ ड्रॉप करें, 
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:139
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:146
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:250
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:78
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:150
@@ -7014,7 +7014,7 @@ msgstr "इस विंडो के अंदर आइटम को एक �
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:89
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:92
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:67
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
@@ -10317,7 +10317,7 @@ msgstr "वादा की गई तारीख"
 msgid "Proper quantity:"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:68
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:71
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:132
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:126
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:166
@@ -11598,7 +11598,7 @@ msgid "Sales Job Notifications"
 msgstr "बिक्रय कार्य सूचनाएं"
 
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:101
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:98
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:101
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:120
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:383
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:248
@@ -12980,7 +12980,7 @@ msgstr "राज्य / प्रांत"
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
 msgstr "सांख्यिकीय स्वीकृति विफल हुई, इसलिए पूरा लॉट गैर-अनुरूप माना जाता है (ISO 9001:2015 §8.7)। सभी {0} इकाइयां — {passes} नमूना पास, {fails} विफलता(एं), और {1} निरीक्षण न किए गए — को अस्वीकृत के रूप में चिह्नित किया जाएगा। एक NCR स्वचालित रूप से MRB निपटान के लिए खोला जाएगा।"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:84
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:87
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:184
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:152
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:162
@@ -14336,7 +14336,7 @@ msgstr "अनुमोदित नहीं आपूर्तिकर्त�
 #: apps/erp/app/components/Assignee.tsx:110
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:134
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:141
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:177
 msgid "Unassigned"
@@ -15043,7 +15043,7 @@ msgstr "इस शिपमेंट को रद्द करने से:"
 msgid "Walking order"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:120
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:127
 msgid "Warehouse"
 msgstr ""
 
