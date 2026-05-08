@@ -5,8 +5,9 @@
 -- would still show quantityComplete = 0 on the job row when queried via API.
 --
 -- Fix: after every productionQuantity INSERT/UPDATE/DELETE, sync job.quantityComplete
--- to the MAX of quantityComplete from parent make method operations -- the same
--- logic used by the scheduling views (get_jobs_by_date_range, get_unscheduled_jobs).
+-- from the last top-level operation's quantityComplete. This keeps in-progress API
+-- values current while preventing intermediate top-level operations from driving
+-- job-level completion.
 -- Only applies to jobs that are not yet Completed or Cancelled.
 CREATE OR REPLACE FUNCTION sync_update_job_operation_quantities(
   p_table TEXT,
@@ -22,6 +23,7 @@ AS $$
 DECLARE
   v_job_operation_id TEXT;
   v_job_id TEXT;
+  v_is_last_top_level_operation BOOLEAN := FALSE;
 BEGIN
   IF p_operation = 'INSERT' THEN
     v_job_operation_id := p_new->>'jobOperationId';
@@ -66,21 +68,36 @@ BEGIN
     WHERE id = v_job_operation_id;
   END IF;
 
-  -- Sync job.quantityComplete from MAX of parent make method operations.
-  -- Mirrors the parent_quantity_complete CTE in get_jobs_by_date_range.
+  -- Sync job.quantityComplete only when this operation is the last top-level operation.
+  -- "Top-level" means operation belongs to the root make method (parentMaterialId IS NULL).
+  -- "Last" means no other top-level operation depends on it.
   -- Skip if job is already Completed or Cancelled (sync_finish_job_operation owns that).
   SELECT jo."jobId" INTO v_job_id
   FROM "jobOperation" jo
   WHERE jo.id = v_job_operation_id;
 
-  IF v_job_id IS NOT NULL THEN
+  SELECT EXISTS (
+    SELECT 1
+    FROM "jobOperation" jo
+    INNER JOIN "jobMakeMethod" jmm ON jmm.id = jo."jobMakeMethodId"
+    WHERE jo.id = v_job_operation_id
+      AND jmm."parentMaterialId" IS NULL
+      AND NOT EXISTS (
+        SELECT 1
+        FROM "jobOperationDependency" dep
+        INNER JOIN "jobOperation" child_jo ON child_jo.id = dep."operationId"
+        INNER JOIN "jobMakeMethod" child_jmm ON child_jmm.id = child_jo."jobMakeMethodId"
+        WHERE dep."dependsOnId" = jo.id
+          AND child_jmm."parentMaterialId" IS NULL
+      )
+  ) INTO v_is_last_top_level_operation;
+
+  IF v_job_id IS NOT NULL AND v_is_last_top_level_operation THEN
     UPDATE "job"
     SET "quantityComplete" = (
-      SELECT COALESCE(MAX(jo."quantityComplete"), 0)
+      SELECT COALESCE(jo."quantityComplete", 0)
       FROM "jobOperation" jo
-      INNER JOIN "jobMakeMethod" jmm ON jo."jobMakeMethodId" = jmm.id
-      WHERE jo."jobId" = v_job_id
-        AND jmm."parentMaterialId" IS NULL
+      WHERE jo.id = v_job_operation_id
     )
     WHERE id = v_job_id
       AND status NOT IN ('Completed', 'Cancelled');
