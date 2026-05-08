@@ -482,7 +482,7 @@ msgstr "Добавить группу"
 msgid "Add Item"
 msgstr "Добавить элемент"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:457
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:501
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:352
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:171
 msgid "Add Line"
@@ -1356,7 +1356,8 @@ msgid "Assigned to Me"
 msgstr "Назначено мне"
 
 #: apps/erp/app/components/Assignee.tsx:98
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:106
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:125
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:222
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:196
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:226
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:115
@@ -1545,6 +1546,7 @@ msgstr "Базовая цена"
 msgid "Basic Information"
 msgstr "Основная информация"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:168
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:87
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:55
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:87
@@ -2329,6 +2331,10 @@ msgstr "Сравнить предложения"
 msgid "Compare Supplier Quotes"
 msgstr "Сравнить предложения поставщиков"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:73
+msgid "complete"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:218
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:211
 #: apps/erp/app/modules/quality/ui/Issue/IssueHeader.tsx:180
@@ -3001,6 +3007,7 @@ msgstr "Создать рабочий центр"
 
 #: apps/erp/app/components/Documents.tsx:285
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:432
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:147
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:113
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:991
@@ -3293,6 +3300,8 @@ msgstr "Пользовательские поля"
 
 #: apps/erp/app/components/Form/Customer.tsx:48
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:86
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:112
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:106
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:243
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:198
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:87
@@ -4076,7 +4085,7 @@ msgstr "Удалить предложение поставщика"
 msgid "Delete Supplier Type"
 msgstr "Удалить тип поставщика"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:431
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:473
 msgid "Delete this line?"
 msgstr ""
 
@@ -4426,6 +4435,9 @@ msgstr "Перетащите файл сюда или нажмите для об
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr ""
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:139
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:250
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:78
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:150
 msgid "Due"
 msgstr ""
@@ -4435,7 +4447,6 @@ msgstr ""
 msgid "Due {0}"
 msgstr "Срок {0}"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:121
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceForm.tsx:245
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicesTable.tsx:190
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:241
@@ -6395,7 +6406,7 @@ msgstr "Чтобы преобразовать этот запрос предло
 msgid "In order to send this RFQ to suppliers, you must first add suppliers to the RFQ."
 msgstr "Чтобы отправить этот запрос коммерческих предложений поставщикам, необходимо сначала добавить поставщиков в запрос."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:120
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:183
 msgid "in other PLs"
 msgstr ""
 
@@ -6882,6 +6893,7 @@ msgstr "элемент"
 #: apps/erp/app/components/Form/Items.tsx:74
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:205
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:96
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:80
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:143
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:121
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:119
@@ -7002,7 +7014,8 @@ msgstr "Товары в этом диапазоне получают жёлты�
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:93
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:89
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:67
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:107
@@ -7341,7 +7354,8 @@ msgstr "Статус строки"
 msgid "Linear Team"
 msgstr "Команда Linear"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:443
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListExplorer.tsx:60
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:487
 msgid "Lines"
 msgstr ""
 
@@ -7360,6 +7374,10 @@ msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListConfirmModal.tsx:85
 msgid "Lines picked"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:47
+msgid "Lines Picked"
 msgstr ""
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:139
@@ -7443,7 +7461,7 @@ msgstr "Загрузка..."
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:348
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:277
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:80
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:237
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:258
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:287
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:73
@@ -8545,7 +8563,7 @@ msgstr "Новый пароль"
 msgid "New Payment Term"
 msgstr "Новый платежный срок"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:160
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:289
 #: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:184
 msgid "New Picking List"
 msgstr ""
@@ -8886,6 +8904,7 @@ msgstr ""
 msgid "No issue types configured"
 msgstr "Типы проблем не настроены"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListExplorer.tsx:85
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:188
 msgid "No lines"
 msgstr ""
@@ -9226,7 +9245,7 @@ msgstr "Упс! Ссылка, которую вы пытаетесь откры�
 msgid "Oops! The link you're trying to access is not valid."
 msgstr "Упс! Ссылка, которую вы пытаетесь открыть, недействительна."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:137
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:266
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteHeader.tsx:465
 msgid "Open"
 msgstr "Открыть"
@@ -9476,10 +9495,11 @@ msgstr ""
 msgid "Outstanding quantities"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:329
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:364
 msgid "Outstanding:"
 msgstr ""
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:203
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:115
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:314
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:182
@@ -9496,7 +9516,7 @@ msgstr "Ставка накладных расходов"
 msgid "Overhead Rate (Hourly)"
 msgstr "Ставка накладных расходов (в час)"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:336
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:371
 msgid "Overpick:"
 msgstr ""
 
@@ -9805,11 +9825,11 @@ msgstr "Список подбора"
 msgid "Pick Shelf"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:446
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:490
 msgid "picked"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:301
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:336
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:132
 msgid "Picked"
 msgstr ""
@@ -9834,7 +9854,6 @@ msgstr ""
 msgid "Picking"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:53
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:167
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:138
 msgid "Picking List"
@@ -9844,7 +9863,7 @@ msgstr ""
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:101
 #: apps/erp/app/routes/x+/inventory+/picking-lists.tsx:16
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:104
-#: apps/erp/app/routes/x+/picking-list+/$id.tsx:20
+#: apps/erp/app/routes/x+/picking-list+/$id.tsx:23
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:250
 msgid "Picking Lists"
 msgstr ""
@@ -9860,6 +9879,10 @@ msgstr "Деталей/Минуту"
 #: apps/erp/app/modules/documents/ui/useDocumentsSubmodules.tsx:34
 msgid "Pinned"
 msgstr "Закреплено"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:57
+msgid "PL ID"
+msgstr ""
 
 #: apps/erp/app/modules/production/ui/useProductionSubmodules.tsx:39
 #: apps/erp/app/modules/purchasing/ui/usePurchasingSubmodules.tsx:59
@@ -10261,6 +10284,7 @@ msgstr "Производственное количество"
 msgid "Profile"
 msgstr "Профиль"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:138
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionLotView.tsx:217
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:197
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:846
@@ -10289,6 +10313,11 @@ msgstr "Прогнозы"
 msgid "Promised Date"
 msgstr "Обещанная дата"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:378
+msgid "Proper quantity:"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:68
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:132
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:126
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:166
@@ -10772,7 +10801,7 @@ msgstr "Предложения"
 msgid "Rate Limit"
 msgstr "Ограничение скорости"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:196
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:259
 msgid "Re-scan"
 msgstr ""
 
@@ -10926,7 +10955,7 @@ msgstr "Записи"
 msgid "Redirecting to verification page..."
 msgstr "Перенаправление на страницу проверки..."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:147
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:210
 msgid "Reduced by incident:"
 msgstr ""
 
@@ -11207,7 +11236,7 @@ msgid "Require approval for quality documents in your workflow"
 msgstr "Требуется одобрение для документов качества в вашем рабочем процессе"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:130
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:193
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:422
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:854
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:226
@@ -11569,6 +11598,8 @@ msgid "Sales Job Notifications"
 msgstr "Уведомления о продажах"
 
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:101
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:98
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:120
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:383
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:248
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:288
@@ -11835,7 +11866,7 @@ msgstr "Сохранить метод"
 msgid "Save View"
 msgstr "Сохранить представление"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:198
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:261
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:125
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:378
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:498
@@ -12024,6 +12055,10 @@ msgstr "Поиск в интернете"
 #: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "Поиск..."
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListExplorer.tsx:76
+msgid "Search…"
+msgstr ""
 
 #: apps/erp/app/components/Form/StandardFactor.tsx:36
 msgid "Seconds/Piece"
@@ -12246,6 +12281,7 @@ msgstr "Отправляет этот документ на утверждени
 msgid "Sequences"
 msgstr "Последовательности"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:174
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:86
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:54
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:86
@@ -12944,7 +12980,8 @@ msgstr "Штат / Провинция"
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
 msgstr "Статистическая приемка не прошла, поэтому вся партия считается несоответствующей (ISO 9001:2015 §8.7). Все {0} единиц — {passes} проверенных прошедших, {fails} отказов и {1} непроверенных — будут отмечены как Отклонено. NCR будет открыт автоматически для диспозиции MRB."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:63
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:84
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:184
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:152
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:162
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:95
@@ -13005,7 +13042,7 @@ msgstr "Распределение статусов"
 msgid "Status:"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:75
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:217
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:165
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:180
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransfersTable.tsx:109
@@ -13770,7 +13807,7 @@ msgstr "Эта работа будет получена в инвентарь. �
 msgid "This job will no longer be available on the shop floor."
 msgstr "Эта работа больше не будет доступна на производственном участке."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:466
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:510
 msgid "This picking list has no lines yet."
 msgstr ""
 
@@ -14299,6 +14336,7 @@ msgstr "Неодобренный поставщик"
 #: apps/erp/app/components/Assignee.tsx:110
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:134
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:177
 msgid "Unassigned"
@@ -14394,6 +14432,7 @@ msgstr "Цена за единицу"
 msgid "Unit Sale Price"
 msgstr "Цена продажи за единицу"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListStatCards.tsx:64
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:106
 msgid "Units"
 msgstr "Единицы"
@@ -14999,6 +15038,14 @@ msgstr "Аннулирование этого чека приведет к:"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentVoidModal.tsx:64
 msgid "Voiding this shipment will:"
 msgstr "Отмена этой отправки приведет к:"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListExplorer.tsx:66
+msgid "Walking order"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:120
+msgid "Warehouse"
+msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:372
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:401

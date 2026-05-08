@@ -7,11 +7,14 @@ import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
 import { PanelProvider } from "~/components/Layout";
+import { ResizablePanels } from "~/components/Layout/Panels";
 import {
   getPickingList,
   getPickingListLines,
+  PickingListExplorer,
   PickingListHeader,
-  PickingListLines
+  PickingListLines,
+  PickingListProperties
 } from "~/modules/inventory";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -88,10 +91,18 @@ export default function PickingListRoute() {
     <PanelProvider>
       <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
         <PickingListHeader />
-        <div className="flex h-[calc(100dvh-99px)] overflow-y-auto scrollbar-hide w-full">
-          <VStack spacing={4} className="h-full p-4 w-full max-w-5xl mx-auto">
-            <PickingListLines />
-          </VStack>
+        <div className="flex h-[calc(100dvh-99px)] overflow-hidden w-full">
+          <ResizablePanels
+            explorer={<PickingListExplorer />}
+            content={
+              <div className="h-[calc(100dvh-99px)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent w-full">
+                <VStack spacing={4} className="p-4">
+                  <PickingListLines />
+                </VStack>
+              </div>
+            }
+            properties={<PickingListProperties key={id} />}
+          />
         </div>
       </div>
       <Outlet />

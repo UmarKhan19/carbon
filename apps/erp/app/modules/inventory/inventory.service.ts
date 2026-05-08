@@ -2031,9 +2031,14 @@ export async function getPickingLists(
     .select(
       `id, pickingListId, jobId, locationId, status, assignee, dueDate,
        confirmedAt, confirmedBy, companyId, createdAt, updatedAt,
-       job:jobId(jobId, itemId, item:itemId(name, readableId)),
+       job:jobId(
+         jobId, itemId, customerId, salesOrderId, salesOrderReadableId,
+         item:itemId(name, readableId, thumbnailPath, type),
+         customer:customerId(id, name)
+       ),
        location:locationId(name),
-       assigneeUser:assignee(id, fullName, avatarUrl)`,
+       assigneeUser:assignee(id, fullName, avatarUrl),
+       pickingListLine(estimatedQuantity, adjustedQuantity, pickedQuantity)`,
       { count: "exact" }
     )
     .eq("companyId", companyId)
