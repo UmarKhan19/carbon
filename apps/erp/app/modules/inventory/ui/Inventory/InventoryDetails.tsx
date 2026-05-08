@@ -21,6 +21,11 @@ type InventoryDetailsProps = {
   itemStorageUnitQuantities: ItemStorageUnitQuantities[];
   itemUnitOfMeasureCode: string;
   itemTrackingType: (typeof itemTrackingTypes)[number];
+  itemShelfLife: {
+    mode: string | null;
+    days: number | null;
+  } | null;
+  trackedEntityExpirations: Record<string, string | null>;
   pickMethod: z.infer<typeof pickMethodValidator>;
   quantities: ItemQuantities | null;
   storageUnits: { value: string; label: string }[];
@@ -30,6 +35,8 @@ const InventoryDetails = ({
   itemStorageUnitQuantities,
   itemUnitOfMeasureCode,
   itemTrackingType,
+  itemShelfLife,
+  trackedEntityExpirations,
   pickMethod,
   quantities,
   storageUnits
@@ -140,6 +147,8 @@ const InventoryDetails = ({
         itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode}
         itemTrackingType={itemTrackingType}
+        itemShelfLife={itemShelfLife}
+        trackedEntityExpirations={trackedEntityExpirations}
         pickMethod={pickMethod}
         storageUnits={storageUnits}
       />

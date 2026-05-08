@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    The operating system for manufacturing
+    The open core for manufacturing
     <br />
     <br />
     <a href="https://discord.gg/yGUJWhNqzy">Discord</a>
@@ -101,10 +101,10 @@ The monorepo follows the Turborepo convention of grouping packages into one of t
 
 | Package Name | Description     | Local Command         |
 | ------------ | --------------- | --------------------- |
-| `erp`        | ERP Application | `npm run dev`         |
-| `mes`        | MES             | `npm run dev:mes`     |
-| `academy`    | Academy         | `npm run dev:academy` |
-| `starter`    | Starter         | `npm run dev:starter` |
+| `erp`        | ERP Application | `pnpm run dev`         |
+| `mes`        | MES             | `pnpm run dev:mes`     |
+| `academy`    | Academy         | `pnpm run dev:academy` |
+| `starter`    | Starter         | `pnpm run dev:starter` |
 
 ### `/packages`
 
@@ -155,10 +155,18 @@ Posthog has a free tier which should be plenty to support local development. If 
 
 First download and initialize the repository dependencies.
 
+This repo uses **pnpm** as its package manager. Enable Corepack so the correct pnpm version (pinned via `packageManager` in `package.json`) is used automatically:
+
 ```bash
-$ nvm use           # use node v20
-$ npm install       # install dependencies
-$ npm run db:start  # pull and run the containers
+$ corepack enable    # one-time: activates pnpm shim from packageManager field
+```
+
+Then install + start the database:
+
+```bash
+$ nvm use            # use node v22
+$ pnpm install       # install dependencies
+$ pnpm run db:start  # pull and run the containers
 ```
 
 Create an `.env` file and copy the contents of `.env.example` file into it
@@ -177,10 +185,15 @@ $ cp ./.env.example ./.env
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID="******.apps.googleusercontent.com"`
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET="GOCSPX-****************"`
 
-2. **Supabase**: Start up the backend services using `npm run db:start`. Find the following values in its output to set the supabase entries:
+2. **Supabase**: Start up the backend services using `pnpm run db:start`. Set the Supabase entries from the CLI output:
 
-- `SUPABASE_SERVICE_ROLE_KEY=[service_role key]`
-- `SUPABASE_ANON_KEY=[anon key]`
+- `SUPABASE_URL` — **Project URL** (e.g. `http://127.0.0.1:54321`)
+- `SUPABASE_ANON_KEY` — the **Publishable** key (`sb_publishable_...`). Older CLI versions labeled this the anon key (`eyJ...`).
+- `SUPABASE_SERVICE_ROLE_KEY` — the **Secret** key (`sb_secret_...`). Older CLI versions labeled this the service_role key.
+
+Alternatively, run `supabase status -o env` in `packages/database` (or your Supabase project directory) for machine-readable lines, including legacy JWT-style anon/service keys if your CLI still prints them.
+
+See [Supabase API keys](https://supabase.com/docs/guides/api/api-keys) for how publishable and secret keys relate to the legacy names.
 
 3. **Redis** (Caching): Set up a Redis instance (local or cloud) and add the connection URL. You can set one up in the cloud easily using [Upstash](https://console.upstash.com/auth/sign-in):
 
@@ -211,7 +224,7 @@ Resend is used for transactional emails (user invitations, email verification, o
 Novu is used for in-app notifications and notification workflows. After standing up the application and tunnelling port 3000, sync your Novu workflows:
 
 ```bash
-npm run novu:sync
+pnpm run novu:sync
 ```
 
 This command syncs your Novu workflows with the Carbon application using the bridge URL.
@@ -219,8 +232,8 @@ This command syncs your Novu workflows with the Carbon application using the bri
 Finally, start the apps and packages:
 
 ```bash
-$ npm run dev
-$ npm run dev:mes        # npm run dev in all apps & packages
+$ pnpm run dev
+$ pnpm run dev:mes        # pnpm run dev in all apps & packages
 ```
 
 After installation you should be able run the apps locally.
@@ -257,37 +270,37 @@ This project uses [Biome](https://biomejs.dev/) for code formatting and linting.
 To add an edge function
 
 ```bash
-$ npm run db:function:new <name>
+$ pnpm run db:function:new <name>
 ```
 
 To add a database migration
 
 ```bash
-$ npm run db:migrate:new <name>
+$ pnpm run db:migrate:new <name>
 ```
 
 To add an AI agent
 
 ```bash
-$ npm run agent:new <name>
+$ pnpm run agent:new <name>
 ```
 
 To add an AI tool
 
 ```bash
-$ npm run tool:new <name>
+$ pnpm run tool:new <name>
 ```
 
 To kill the database containers in a non-recoverable way, you can run:
 
 ```bash
-$ npm run db:kill   # stop and delete all database containers
+$ pnpm run db:kill   # stop and delete all database containers
 ```
 
 To restart and reseed the database, you can run:
 
 ```bash
-$ npm run db:build # runs db:kill, db:start, and setup
+$ pnpm run db:build # runs db:kill, db:start, and setup
 ```
 
 To run a particular application, use the `-w workspace` flag.
@@ -295,7 +308,7 @@ To run a particular application, use the `-w workspace` flag.
 For example, to run test command in the `@carbon/react` package you can run:
 
 ```
-$ npm run test -w @carbon/react
+$ pnpm --filter @carbon/react test
 ```
 
 To restore a production database locally:
@@ -305,9 +318,9 @@ To restore a production database locally:
 3. Restore the database with the following command:
 
 ```bash
-$ npm run db:build # this should error out at the seed step
+$ pnpm run db:build # this should error out at the seed step
 $ PGPASSWORD=postgres psql -h localhost -p 54322 -U supabase_admin -d postgres < ~/Downloads/db_cluster-17-11-2025@09-03-36.backup
-$ npm run dev
+$ pnpm run dev
 ```
 
 4. Rename the `_migraitons` folder back to `migrations`
@@ -379,7 +392,7 @@ const { data, error } = await carbon
 
 ## Translations
 
-In order to run `npm run translate` you must first run:
+In order to run `pnpm run translate` you must first run:
 
 ```bash
 brew install ollama

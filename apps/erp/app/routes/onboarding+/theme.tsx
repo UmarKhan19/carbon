@@ -11,9 +11,9 @@ import {
   cn,
   HStack,
   useKeyboardShortcuts,
+  useMode,
   VStack
 } from "@carbon/react";
-import { useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
 import { themes } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
@@ -85,6 +85,10 @@ export default function OnboardingTheme() {
     Object.entries(variables).forEach(([key, value]) => {
       document.body.style.setProperty(`--${key}`, value);
     });
+
+    window.dispatchEvent(
+      new CustomEvent("onboarding-theme-change", { detail: t.name })
+    );
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration

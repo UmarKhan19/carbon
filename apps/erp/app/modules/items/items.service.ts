@@ -1,6 +1,12 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import type {
+  ConditionAst,
+  ItemRuleRow,
+  Severity,
+  TransactionSurface
+} from "@carbon/utils";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
@@ -18,41 +24,43 @@ import {
   type PriceBreak,
   type SupplierPriceMap
 } from "../shared";
-import type {
-  configurationParameterGroupOrderValidator,
-  configurationParameterGroupValidator,
-  configurationParameterOrderValidator,
-  configurationParameterValidator,
-  configurationRuleValidator,
-  consumableValidator,
-  customerPartValidator,
-  getMethodValidator,
-  itemCostValidator,
-  itemManufacturingValidator,
-  itemPlanningValidator,
-  itemPostingGroupValidator,
-  itemPurchasingValidator,
-  itemUnitSalePriceValidator,
-  itemValidator,
-  makeMethodVersionValidator,
-  materialDimensionValidator,
-  materialFinishValidator,
-  materialFormValidator,
-  materialGradeValidator,
-  materialSubstanceValidator,
-  materialTypeValidator,
-  materialValidator,
-  methodMaterialValidator,
-  methodOperationValidator,
-  partValidator,
-  pickMethodValidator,
-  serviceValidator,
-  shelfLifeModes,
-  shelfLifeTriggerTimings,
-  supplierPartValidator,
-  toolValidator,
-  unitOfMeasureValidator
+import {
+  type configurationParameterGroupOrderValidator,
+  type configurationParameterGroupValidator,
+  type configurationParameterOrderValidator,
+  type configurationParameterValidator,
+  type configurationRuleValidator,
+  type consumableValidator,
+  type customerPartValidator,
+  type getMethodValidator,
+  ItemTrackingType,
+  type itemCostValidator,
+  type itemManufacturingValidator,
+  type itemPlanningValidator,
+  type itemPostingGroupValidator,
+  type itemPurchasingValidator,
+  type itemUnitSalePriceValidator,
+  type itemValidator,
+  type makeMethodVersionValidator,
+  type materialDimensionValidator,
+  type materialFinishValidator,
+  type materialFormValidator,
+  type materialGradeValidator,
+  type materialSubstanceValidator,
+  type materialTypeValidator,
+  type materialValidator,
+  type methodMaterialValidator,
+  type methodOperationValidator,
+  type partValidator,
+  type pickMethodValidator,
+  type serviceValidator,
+  type shelfLifeModes,
+  type shelfLifeTriggerTimings,
+  type supplierPartValidator,
+  type toolValidator,
+  type unitOfMeasureValidator
 } from "./items.models";
+import type { InventoryItemType } from "./types";
 
 export async function activateMethodVersion(
   client: SupabaseClient<Database>,
@@ -2425,6 +2433,148 @@ export async function upsertPickMethodWithShelfLife(
   });
 }
 
+/**
+ * Cascades a change to item.itemTrackingType onto the snapshot columns
+ * `requiresSerialTracking` and `requiresBatchTracking` on child rows that
+ * belong to OPEN parents (jobs, receipts, shipments, stock transfers).
+ *
+ * Without this, snapshot flags drift from the live item value and leave the
+ * UI reading stale (often sticky-true) tracking flags after an item is
+ * flipped back to Inventory / Non-Inventory.
+ */
+export async function cascadeItemTrackingType(
+  db: Kysely<KyselyDatabase>,
+  args: {
+    itemIds: string[];
+    companyId: string;
+    newType: InventoryItemType;
+    userId: string;
+  }
+) {
+  if (args.itemIds.length === 0) return;
+
+  const requiresSerialTracking = args.newType === ItemTrackingType.Serial;
+  const requiresBatchTracking = args.newType === ItemTrackingType.Batch;
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  return db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("jobMakeMethod")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "jobId",
+          "in",
+          eb
+            .selectFrom("job")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "not in", ["Completed", "Closed", "Cancelled"])
+        )
+      )
+      .execute();
+
+    await trx
+      .updateTable("jobMaterial")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "jobId",
+          "in",
+          eb
+            .selectFrom("job")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "not in", ["Completed", "Closed", "Cancelled"])
+        )
+      )
+      .execute();
+
+    await trx
+      .updateTable("receiptLine")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "receiptId",
+          "in",
+          eb
+            .selectFrom("receipt")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "in", ["Draft", "Pending"])
+        )
+      )
+      .execute();
+
+    await trx
+      .updateTable("shipmentLine")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "shipmentId",
+          "in",
+          eb
+            .selectFrom("shipment")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "in", ["Draft", "Pending"])
+        )
+      )
+      .execute();
+
+    await trx
+      .updateTable("stockTransferLine")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "stockTransferId",
+          "in",
+          eb
+            .selectFrom("stockTransfer")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "in", ["Draft", "Released", "In Progress"])
+        )
+      )
+      .execute();
+  });
+}
+
 export async function upsertConsumable(
   client: SupabaseClient<Database>,
   consumable:
@@ -2539,7 +2689,7 @@ export async function upsertConsumable(
         ...sanitize(consumableUpdate),
         updatedAt: today(getLocalTimeZone()).toString()
       })
-      .eq("itemId", consumable.id)
+      .eq("id", consumable.id)
   ]);
 
   if (updateItem.error) return updateItem;
@@ -2693,7 +2843,7 @@ export async function upsertPart(
         ...sanitize(partUpdate),
         updatedAt: today(getLocalTimeZone()).toString()
       })
-      .eq("itemId", part.id)
+      .eq("id", part.id)
   ]);
 
   if (updateItem.error) return updateItem;
@@ -3372,7 +3522,7 @@ export async function upsertMaterial(
         ...sanitize(materialUpdate),
         updatedAt: today(getLocalTimeZone()).toString()
       })
-      .eq("itemId", material.id)
+      .eq("id", material.id)
   ]);
 
   if (updateItem.error) return updateItem;
@@ -3877,7 +4027,7 @@ export async function upsertTool(
         ...sanitize(toolUpdate),
         updatedAt: today(getLocalTimeZone()).toString()
       })
-      .eq("itemId", tool.id)
+      .eq("id", tool.id)
   ]);
 
   if (updateItem.error) return updateItem;
@@ -3998,4 +4148,219 @@ export async function getSupplierPartPriceBreaks(
     quantity: pb.quantity,
     unitPrice: pb.unitPrice
   }));
+}
+
+// ---------------------------------------------------------------------------
+// Item Rules
+// ---------------------------------------------------------------------------
+
+type ItemRuleInsert = {
+  name: string;
+  description?: string | null;
+  message: string;
+  severity: Severity;
+  conditionAst: ConditionAst;
+  active: boolean;
+  companyId: string;
+  createdBy: string;
+  customFields?: Json;
+};
+
+type ItemRuleUpdate = {
+  id: string;
+  name: string;
+  description?: string | null;
+  message: string;
+  severity: Severity;
+  conditionAst: ConditionAst;
+  active: boolean;
+  updatedBy: string;
+  customFields?: Json;
+};
+
+export async function getItemRules(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: GenericQueryFilters & { search: string | null }
+) {
+  let query = client
+    .from("itemRule")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId);
+
+  if (args?.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+
+  query = setGenericQueryFilters(query, args ?? {}, [
+    { column: "name", ascending: true }
+  ]);
+  return query;
+}
+
+export async function getItemRule(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("itemRule").select("*").eq("id", id).single();
+}
+
+export async function getItemRulesList(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return fetchAllFromTable<{
+    id: string;
+    name: string;
+    severity: Severity;
+    active: boolean;
+    surfaces: TransactionSurface[];
+  }>(client, "itemRule", "id, name, severity, active, surfaces", (query) =>
+    query.eq("companyId", companyId).order("name")
+  );
+}
+
+export async function upsertItemRule(
+  client: SupabaseClient<Database>,
+  rule: ItemRuleInsert | ItemRuleUpdate
+) {
+  if ("createdBy" in rule) {
+    return client
+      .from("itemRule")
+      .insert({ ...rule, conditionAst: rule.conditionAst as unknown as Json })
+      .select("id")
+      .single();
+  }
+  return client
+    .from("itemRule")
+    .update({
+      ...sanitize(rule),
+      conditionAst: rule.conditionAst as unknown as Json,
+      // Full timestamp (not date-only) so the LRU cache in
+      // `compileWithCache` invalidates on every edit, not once per day.
+      updatedAt: now(getLocalTimeZone()).toAbsoluteString()
+    })
+    .eq("id", rule.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteItemRule(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("itemRule").delete().eq("id", id);
+}
+
+/**
+ * Returns active rules assigned to a specific item.
+ * Single JOIN — never per-row lookups.
+ */
+export async function getActiveRulesForItem(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+): Promise<{ data: ItemRuleRow[]; error: unknown }> {
+  const batched = await getActiveRulesForItems(client, [itemId], companyId);
+  return { data: batched.data.get(itemId) ?? [], error: batched.error };
+}
+
+/**
+ * Batched variant — single round-trip + JOIN for N items. Use this when
+ * iterating over multiple items in one request (e.g. evaluating every line
+ * on a receipt) to avoid the N+1 round-trips you'd get from calling
+ * `getActiveRulesForItem` per item.
+ */
+export async function getActiveRulesForItems(
+  client: SupabaseClient<Database>,
+  itemIds: string[],
+  companyId: string
+): Promise<{ data: Map<string, ItemRuleRow[]>; error: unknown }> {
+  const out = new Map<string, ItemRuleRow[]>();
+  if (itemIds.length === 0) return { data: out, error: null };
+
+  const { data, error } = await client
+    .from("itemRuleAssignment")
+    .select(
+      `itemId, itemRule:ruleId(id, severity, message, conditionAst, surfaces, updatedAt, active)`
+    )
+    .in("itemId", itemIds)
+    .eq("companyId", companyId);
+
+  if (error) return { data: out, error };
+
+  for (const r of data ?? []) {
+    // supabase returns the joined row either as object or array depending on FK shape.
+    // Cast through `unknown` because the generated `Database` types don't yet
+    // know about the `surfaces` column (run `bun run db:types` after the
+    // migration applies to refresh).
+    const row = r as unknown as {
+      itemId: string;
+      itemRule: ItemRuleRow | ItemRuleRow[] | null;
+    };
+    const node = Array.isArray(row.itemRule) ? row.itemRule[0] : row.itemRule;
+    if (!node || node.active === false) continue;
+    const bucket = out.get(row.itemId);
+    if (bucket) bucket.push(node);
+    else out.set(row.itemId, [node]);
+  }
+  return { data: out, error: null };
+}
+
+export async function getRuleAssignmentsForItem(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+) {
+  return client
+    .from("itemRuleAssignment")
+    .select(
+      `itemId, ruleId, createdAt, itemRule:ruleId(id, name, severity, message, active, surfaces)`
+    )
+    .eq("itemId", itemId)
+    .eq("companyId", companyId);
+}
+
+export async function getRuleAssignmentCounts(
+  client: SupabaseClient<Database>,
+  ruleIds: string[]
+) {
+  if (ruleIds.length === 0) return { data: {}, error: null };
+  const { data, error } = await client
+    .from("itemRuleAssignment")
+    .select("ruleId")
+    .in("ruleId", ruleIds);
+  if (error) return { data: {}, error };
+  const counts: Record<string, number> = {};
+  for (const row of data ?? []) {
+    counts[row.ruleId] = (counts[row.ruleId] ?? 0) + 1;
+  }
+  return { data: counts, error: null };
+}
+
+export async function assignItemRule(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; ruleId: string; companyId: string; userId: string }
+) {
+  return client
+    .from("itemRuleAssignment")
+    .insert({
+      itemId: args.itemId,
+      ruleId: args.ruleId,
+      companyId: args.companyId,
+      createdBy: args.userId
+    })
+    .select("itemId, ruleId")
+    .single();
+}
+
+export async function unassignItemRule(
+  client: SupabaseClient<Database>,
+  args: { itemId: string; ruleId: string }
+) {
+  return client
+    .from("itemRuleAssignment")
+    .delete()
+    .eq("itemId", args.itemId)
+    .eq("ruleId", args.ruleId);
 }

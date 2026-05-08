@@ -125,8 +125,6 @@ export default function QuoteDetailsRoute() {
 
   if (!quoteData) throw new Error("Could not find quote data");
 
-  const isReadOnly = isQuoteLocked(quoteData?.quote?.status);
-
   const shipmentFormRef = useRef<QuoteShipmentFormRef>(null);
 
   const handleEditShippingCost = () => {
@@ -193,7 +191,6 @@ export default function QuoteDetailsRoute() {
             attachments={resolvedFiles}
             id={quoteId}
             type="Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

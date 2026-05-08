@@ -3,19 +3,16 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
-import { getPreferenceHeaders } from "@carbon/remix";
 import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData } from "react-router";
 import {
-  accountLanguageValidator,
   accountProfileValidator,
   getAccount,
   updateAvatar,
   updatePublicAccount
 } from "~/modules/account";
-import { ProfileForm, ProfileLanguageForm } from "~/modules/account/ui/Profile";
-import { setLocale } from "~/services/locale.server";
+import { ProfileForm } from "~/modules/account/ui/Profile";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
@@ -36,7 +33,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  return { user: user.data, locale: getPreferenceHeaders(request).locale };
+  return { user: user.data };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -53,13 +50,14 @@ export async function action({ request }: ActionFunctionArgs) {
       return validationError(validation.error);
     }
 
-    const { firstName, lastName, about } = validation.data;
+    const { firstName, lastName, about, phone } = validation.data;
 
     const updateAccount = await updatePublicAccount(client, {
       id: userId,
       firstName,
       lastName,
-      about
+      about,
+      phone
     });
     if (updateAccount.error)
       return data(
@@ -71,29 +69,6 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
     return data({}, await flash(request, success("Updated profile")));
-  }
-
-  if (formData.get("intent") === "locale") {
-    const validation = await validator(accountLanguageValidator).validate(
-      formData
-    );
-
-    if (validation.error) {
-      return validationError(validation.error);
-    }
-
-    const localeCookie = setLocale(validation.data.locale);
-    const flashHeaders = await flash(request, success("Updated language"));
-
-    return data(
-      {},
-      {
-        headers: [
-          ["Set-Cookie", localeCookie],
-          ["Set-Cookie", flashHeaders.headers["Set-Cookie"]]
-        ]
-      }
-    );
   }
 
   if (formData.get("intent") === "photo") {
@@ -129,12 +104,11 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AccountProfile() {
-  const { user, locale } = useLoaderData<typeof loader>();
+  const { user } = useLoaderData<typeof loader>();
 
   return (
     <VStack spacing={4}>
       <ProfileForm user={user} />
-      <ProfileLanguageForm locale={locale} />
     </VStack>
   );
 }

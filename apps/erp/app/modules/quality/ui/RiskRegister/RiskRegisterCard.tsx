@@ -62,7 +62,8 @@ export default function RiskRegisterCard({
       .from("riskRegister")
       .select("*, assignee:assignee(id, firstName, lastName, avatarUrl)")
       .eq("companyId", company.id)
-      .or(`source.eq.${source},sourceId.eq.${sourceId},itemId.eq.${itemId}`)
+      .eq("source", source)
+      .eq("sourceId", sourceId)
       .order("createdAt", { ascending: false });
 
     if (error) {
@@ -74,7 +75,7 @@ export default function RiskRegisterCard({
       setRisks(data as unknown as Risk[]);
     }
     setLoading(false);
-  }, [carbon, company?.id, sourceId, source, itemId, t]);
+  }, [carbon, company?.id, sourceId, source, t]);
 
   useEffect(() => {
     fetchRisks();
