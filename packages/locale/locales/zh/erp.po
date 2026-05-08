@@ -1379,7 +1379,7 @@ msgstr "分配给我"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotesTable.tsx:179
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:384
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:134
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:140
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:147
 msgid "Assignee"
 msgstr "被指派人"
 
@@ -1478,7 +1478,7 @@ msgstr "自动启动作业"
 msgid "Auto-generate on job release"
 msgstr ""
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:599
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:634
 msgid "Auto-generate picking list. Controlled at the company level in Settings → Inventory."
 msgstr ""
 
@@ -2509,7 +2509,7 @@ msgstr "确认密码"
 msgid "Confirm Picking List"
 msgstr ""
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:146
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:153
 msgid "Confirmed"
 msgstr ""
 
@@ -2668,7 +2668,7 @@ msgstr "已复制！"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:218
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:187
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:207
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:204
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:217
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:112
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:132
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:173
@@ -2724,7 +2724,7 @@ msgstr "复制问题编号"
 msgid "Copy issue unique identifier"
 msgstr "复制问题唯一标识符"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:214
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:227
 msgid "Copy Job number"
 msgstr "复制工作单号"
 
@@ -2748,7 +2748,7 @@ msgstr "复制文档链接"
 msgid "Copy link to issue"
 msgstr "复制问题链接"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:196
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:209
 msgid "Copy link to Job"
 msgstr "复制工作链接"
 
@@ -2969,7 +2969,7 @@ msgstr "创建工作"
 msgid "Create Kanban"
 msgstr "创建看板"
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:109
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:116
 msgid "Create Picking List"
 msgstr ""
 
@@ -3634,7 +3634,7 @@ msgstr "停用工作中心"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:341
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:497
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:457
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:470
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:384
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:250
 msgid "Deadline Type"
@@ -4426,7 +4426,7 @@ msgstr "将文件拖放到此处，或点击浏览。"
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr ""
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:143
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:150
 msgid "Due"
 msgstr ""
 
@@ -4441,7 +4441,7 @@ msgstr "截止日期 {0}"
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:241
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicesTable.tsx:184
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:336
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:435
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:448
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:376
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningOrderDrawer.tsx:390
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:637
@@ -5271,7 +5271,7 @@ msgid "Estimated Duration (minutes)"
 msgstr "预计时长（分钟）"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:319
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:393
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:406
 msgid "Estimated Scrap Quantity"
 msgstr "估计废料数量"
 
@@ -7022,7 +7022,7 @@ msgstr "工作"
 msgid "Job ID"
 msgstr "工作ID"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:526
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:539
 msgid "Job Location"
 msgstr "工作地点"
 
@@ -7368,7 +7368,7 @@ msgstr ""
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:272
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:178
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:165
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:182
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:195
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:90
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:152
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:162
@@ -7487,7 +7487,7 @@ msgstr "加载中..."
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:168
 #: apps/erp/app/modules/users/ui/Employees/CreateEmployeeModal.tsx:83
 #: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:204
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:137
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:144
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:820
 #: apps/erp/app/routes/x+/schedule+/operations.tsx:451
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:158
@@ -8941,7 +8941,7 @@ msgstr "无零件ID"
 msgid "No parts added yet"
 msgstr "还未添加零件"
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:118
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:125
 msgid "No picking lists exist for this job yet."
 msgstr ""
 
@@ -9158,7 +9158,7 @@ msgstr "OEE 影响"
 msgid "of"
 msgstr "的"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:596
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:630
 msgid "Off"
 msgstr ""
 
@@ -9176,7 +9176,7 @@ msgstr ""
 msgid "OK"
 msgstr "确定"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:596
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:630
 msgid "On"
 msgstr ""
 
@@ -9830,20 +9830,20 @@ msgstr ""
 msgid "Picker Signature"
 msgstr ""
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:559
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:572
 msgid "Picking"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:53
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:167
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:131
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:138
 msgid "Picking List"
 msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:54
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:101
 #: apps/erp/app/routes/x+/inventory+/picking-lists.tsx:16
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:97
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:104
 #: apps/erp/app/routes/x+/picking-list+/$id.tsx:20
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:250
 msgid "Picking Lists"
@@ -10295,7 +10295,7 @@ msgstr "承诺日期"
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:265
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:171
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:158
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:175
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:188
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:83
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderProperties.tsx:145
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:155
@@ -10602,7 +10602,7 @@ msgstr "数量"
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:428
 #: apps/erp/app/modules/production/ui/Jobs/JobForm.tsx:304
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationsTable.tsx:155
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:371
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:384
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:244
 #: apps/erp/app/modules/production/ui/Jobs/ProductionQuantitiesTable.tsx:119
 #: apps/erp/app/modules/production/ui/Jobs/ProductionQuantityForm.tsx:89
@@ -12884,7 +12884,7 @@ msgstr "开始向您的库存转移添加零件"
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:67
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:42
 #: apps/erp/app/modules/people/ui/Person/PersonPreview.tsx:79
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:415
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:428
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:368
 msgid "Start Date"
 msgstr "开始日期"
@@ -12984,7 +12984,7 @@ msgstr "统计验收失败，因此整个批次被视为不符合要求 (ISO 900
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQsTable.tsx:90
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:220
 #: apps/erp/app/routes/x+/job+/$jobId.incidents.tsx:111
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:134
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:141
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:659
 #: apps/erp/app/routes/x+/purchasing+/_index.tsx:810
 #: apps/erp/app/routes/x+/quality+/_index.tsx:977
@@ -13493,7 +13493,7 @@ msgstr "表格操作"
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:256
 #: apps/erp/app/modules/items/ui/Tools/ToolProperties.tsx:553
 #: apps/erp/app/modules/items/ui/Tools/ToolsTable.tsx:255
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:549
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:562
 #: apps/erp/app/modules/production/ui/Jobs/JobsTable.tsx:422
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:223
 #: apps/erp/app/modules/production/ui/Procedures/ProceduresTable.tsx:110
@@ -13519,7 +13519,7 @@ msgstr "采用消耗的材料中最短的剩余保质期来制造此物品。当
 msgid "Talk to Sales"
 msgstr "与销售团队联系"
 
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:278
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:291
 msgid "Target"
 msgstr "目标"
 
@@ -14300,7 +14300,7 @@ msgstr "未批准的供应商"
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:170
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:177
 msgid "Unassigned"
 msgstr "未分配"
 
@@ -14356,7 +14356,7 @@ msgstr "单位成本"
 #: apps/erp/app/modules/items/ui/UnitOfMeasure/UnitOfMeasuresTable.tsx:90
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1262
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:1543
-#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:508
+#: apps/erp/app/modules/production/ui/Jobs/JobProperties.tsx:521
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureExplorer.tsx:829
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:571
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentExplorer.tsx:606
@@ -14657,7 +14657,7 @@ msgstr "使用 ... 获取下一个工具 ID"
 msgid "Use a different email"
 msgstr "使用不同的电子邮件"
 
-#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:122
+#: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:129
 msgid "Use Create Picking List to open the drawer and generate one for this job."
 msgstr ""
 
