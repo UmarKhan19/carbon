@@ -304,9 +304,40 @@ async function filterHistoricalActivities(
     relevantActivityIds.has(o.trackedActivityId)
   );
 
+  // Split activities reuse the original entity ID as both input (qty=originalQty)
+  // and output (qty=pickedQty). This creates a cycle entity→Split→entity that
+  // the DAG layout marks as a back-edge (0.2 opacity), making connections invisible.
+  // Drop the self-loop input so the graph shows Split→entity cleanly.
+  const splitSelfLoopKeys = new Set<string>();
+  for (const a of relevantActivities) {
+    if (a.type !== "Split") continue;
+    const splitOutputEntityIds = new Set(
+      relevantOutputs
+        .filter((o) => o.trackedActivityId === a.id)
+        .map((o) => o.trackedEntityId)
+    );
+    for (const i of relevantInputs) {
+      if (
+        i.trackedActivityId === a.id &&
+        splitOutputEntityIds.has(i.trackedEntityId)
+      ) {
+        splitSelfLoopKeys.add(`${a.id}:${i.trackedEntityId}`);
+      }
+    }
+  }
+  const finalInputs =
+    splitSelfLoopKeys.size > 0
+      ? relevantInputs.filter(
+          (i) =>
+            !splitSelfLoopKeys.has(
+              `${i.trackedActivityId}:${i.trackedEntityId}`
+            )
+        )
+      : relevantInputs;
+
   const entityIdsWithEdges = new Set<string>();
   if (rootEntityId) entityIdsWithEdges.add(rootEntityId);
-  for (const i of relevantInputs) entityIdsWithEdges.add(i.trackedEntityId);
+  for (const i of finalInputs) entityIdsWithEdges.add(i.trackedEntityId);
   for (const o of relevantOutputs) entityIdsWithEdges.add(o.trackedEntityId);
 
   const relevantEntities =
@@ -318,7 +349,7 @@ async function filterHistoricalActivities(
 
   return {
     entities: relevantEntities,
-    inputs: relevantInputs,
+    inputs: finalInputs,
     outputs: relevantOutputs,
     activities: relevantActivities
   };
