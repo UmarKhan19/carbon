@@ -250,6 +250,80 @@ async function runLineageBfs(
   }
 }
 
+async function filterHistoricalActivities(
+  client: SupabaseClient<Database>,
+  state: LineageState,
+  rootEntityId?: string
+): Promise<{
+  entities: TrackedEntity[];
+  activities: Activity[];
+  inputs: ActivityInput[];
+  outputs: ActivityOutput[];
+}> {
+  // Collect readable PL IDs from picking-list-linked activities so we can
+  // check whether each PL is still active (Confirmed). Cancelled/reversed PLs
+  // produce Reverse activities and duplicate Consume/Split activities that
+  // inflate the graph with historical noise.
+  const plReadableIds = new Set<string>();
+  for (const activity of state.activities.values()) {
+    const src = activity.sourceDocument;
+    const rid = activity.sourceDocumentReadableId;
+    if ((src === "Picking List" || src === "Job Material") && rid) {
+      plReadableIds.add(rid);
+    }
+  }
+
+  const confirmedPlSet = new Set<string>();
+  if (plReadableIds.size > 0) {
+    const plData = await client
+      .from("pickingList")
+      .select("pickingListId")
+      .in("pickingListId", Array.from(plReadableIds))
+      .eq("status", "Confirmed");
+    for (const pl of plData.data ?? []) {
+      if (pl.pickingListId) confirmedPlSet.add(pl.pickingListId);
+    }
+  }
+
+  const relevantActivities = Array.from(state.activities.values()).filter(
+    (a) => {
+      if (a.type === "Reverse") return false;
+      const src = a.sourceDocument;
+      if (src === "Picking List" || src === "Job Material") {
+        return confirmedPlSet.has(a.sourceDocumentReadableId ?? "");
+      }
+      return true;
+    }
+  );
+
+  const relevantActivityIds = new Set(relevantActivities.map((a) => a.id));
+  const relevantInputs = Array.from(state.inputs.values()).filter((i) =>
+    relevantActivityIds.has(i.trackedActivityId)
+  );
+  const relevantOutputs = Array.from(state.outputs.values()).filter((o) =>
+    relevantActivityIds.has(o.trackedActivityId)
+  );
+
+  const entityIdsWithEdges = new Set<string>();
+  if (rootEntityId) entityIdsWithEdges.add(rootEntityId);
+  for (const i of relevantInputs) entityIdsWithEdges.add(i.trackedEntityId);
+  for (const o of relevantOutputs) entityIdsWithEdges.add(o.trackedEntityId);
+
+  const relevantEntities =
+    entityIdsWithEdges.size > 0
+      ? Array.from(state.entities.values()).filter((e) =>
+          entityIdsWithEdges.has(e.id)
+        )
+      : Array.from(state.entities.values());
+
+  return {
+    entities: relevantEntities,
+    inputs: relevantInputs,
+    outputs: relevantOutputs,
+    activities: relevantActivities
+  };
+}
+
 export async function fetchLineageSubgraph(
   client: SupabaseClient<Database>,
   rootEntityId: string,
@@ -296,12 +370,7 @@ export async function fetchLineageSubgraph(
 
   await runLineageBfs(client, state, [rootEntityId], direction, safeDepth);
 
-  return {
-    entities: Array.from(state.entities.values()),
-    inputs: Array.from(state.inputs.values()),
-    outputs: Array.from(state.outputs.values()),
-    activities: Array.from(state.activities.values())
-  };
+  return filterHistoricalActivities(client, state, rootEntityId);
 }
 
 export async function fetchJobStepRecords(
@@ -413,18 +482,14 @@ export async function fetchJobScopedLineage(
     );
   }
 
+  const filtered = await filterHistoricalActivities(client, state);
+
   const containments = await fetchContainmentsForEntities(
     client,
-    Array.from(state.entities.keys())
+    filtered.entities.map((e) => e.id)
   );
 
-  return {
-    entities: Array.from(state.entities.values()),
-    inputs: Array.from(state.inputs.values()),
-    outputs: Array.from(state.outputs.values()),
-    activities: Array.from(state.activities.values()),
-    containments
-  };
+  return { ...filtered, containments };
 }
 
 export function toGraphData(payload: LineagePayload): GraphData {
