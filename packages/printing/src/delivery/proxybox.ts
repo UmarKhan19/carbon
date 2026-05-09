@@ -15,10 +15,12 @@ export async function sendToProxyBox({
     headers["X-API-Key"] = apiKey;
   }
 
+  const body = typeof content === "string" ? content : new Uint8Array(content);
+
   const response = await fetch(url, {
     method: "POST",
     headers,
-    body: content,
+    body,
     signal: AbortSignal.timeout(30_000)
   });
 

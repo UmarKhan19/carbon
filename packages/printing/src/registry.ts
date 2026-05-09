@@ -34,7 +34,9 @@ export function getDocumentTypesForSource(
   sourceDocument: string
 ): DocumentTypeId[] {
   return documentTypeRegistry
-    .filter((dt) => dt.sourceDocuments.includes(sourceDocument))
+    .filter((dt) =>
+      (dt.sourceDocuments as readonly string[]).includes(sourceDocument)
+    )
     .map((dt) => dt.id) as DocumentTypeId[];
 }
 

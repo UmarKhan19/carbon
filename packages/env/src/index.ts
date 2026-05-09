@@ -118,6 +118,11 @@ export const AUTH_PROVIDERS =
     isSecret: false
   }) ?? "email,google,azure";
 
+export const BINDERY_PRESS_API_KEY = getEnv("BINDERY_PRESS_API_KEY", {
+  isRequired: false,
+  isSecret: true
+});
+
 const CARBON_EDITION = getEnv("CARBON_EDITION", {
   isRequired: false,
   isSecret: false
@@ -154,6 +159,7 @@ export const CLOUDFLARE_TURNSTILE_SECRET_KEY = getEnv(
 );
 
 export const DOMAIN = getEnv("DOMAIN", { isRequired: false }); // preview environments need no domain
+
 export const EXCHANGE_RATES_API_KEY = getEnv("EXCHANGE_RATES_API_KEY", {
   isRequired: false,
   isSecret: true

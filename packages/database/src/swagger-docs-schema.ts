@@ -45846,6 +45846,258 @@ export default {
         tags: ["costLedger"]
       }
     },
+    "/printJob": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.printJob.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.contentType"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.content"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.printerUrl"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocument"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocumentId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocumentReadableId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.origin"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.error"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.attempts"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.completedAt"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/order"
+          },
+          {
+            $ref: "#/parameters/range"
+          },
+          {
+            $ref: "#/parameters/rangeUnit"
+          },
+          {
+            $ref: "#/parameters/offset"
+          },
+          {
+            $ref: "#/parameters/limit"
+          },
+          {
+            $ref: "#/parameters/preferCount"
+          }
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/printJob"
+              },
+              type: "array"
+            }
+          },
+          "206": {
+            description: "Partial Content"
+          }
+        },
+        tags: ["printJob"]
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.printJob"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/preferPost"
+          }
+        ],
+        responses: {
+          "201": {
+            description: "Created"
+          }
+        },
+        tags: ["printJob"]
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.printJob.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.contentType"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.content"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.printerUrl"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocument"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocumentId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocumentReadableId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.origin"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.error"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.attempts"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.completedAt"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["printJob"]
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.printJob.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.status"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.contentType"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.content"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.printerUrl"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocument"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocumentId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.sourceDocumentReadableId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.description"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.origin"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.error"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.attempts"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.createdBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.updatedAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.updatedBy"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printJob.completedAt"
+          },
+          {
+            $ref: "#/parameters/body.printJob"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["printJob"]
+      }
+    },
     "/journalLine": {
       get: {
         parameters: [
@@ -57486,6 +57738,186 @@ export default {
         tags: ["nonConformanceJobOperation"]
       }
     },
+    "/printerRoute": {
+      get: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.locationId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.name"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.format"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.mediaSizeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.printerUrl"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.apiKey"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.updatedAt"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/order"
+          },
+          {
+            $ref: "#/parameters/range"
+          },
+          {
+            $ref: "#/parameters/rangeUnit"
+          },
+          {
+            $ref: "#/parameters/offset"
+          },
+          {
+            $ref: "#/parameters/limit"
+          },
+          {
+            $ref: "#/parameters/preferCount"
+          }
+        ],
+        responses: {
+          "200": {
+            description: "OK",
+            schema: {
+              items: {
+                $ref: "#/definitions/printerRoute"
+              },
+              type: "array"
+            }
+          },
+          "206": {
+            description: "Partial Content"
+          }
+        },
+        tags: ["printerRoute"]
+      },
+      post: {
+        parameters: [
+          {
+            $ref: "#/parameters/body.printerRoute"
+          },
+          {
+            $ref: "#/parameters/select"
+          },
+          {
+            $ref: "#/parameters/preferPost"
+          }
+        ],
+        responses: {
+          "201": {
+            description: "Created"
+          }
+        },
+        tags: ["printerRoute"]
+      },
+      delete: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.locationId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.name"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.format"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.mediaSizeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.printerUrl"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.apiKey"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.updatedAt"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["printerRoute"]
+      },
+      patch: {
+        parameters: [
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.id"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.companyId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.locationId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.name"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.format"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.mediaSizeId"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.printerUrl"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.apiKey"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.createdAt"
+          },
+          {
+            $ref: "#/parameters/rowFilter.printerRoute.updatedAt"
+          },
+          {
+            $ref: "#/parameters/body.printerRoute"
+          },
+          {
+            $ref: "#/parameters/preferReturn"
+          }
+        ],
+        responses: {
+          "204": {
+            description: "No Content"
+          }
+        },
+        tags: ["printerRoute"]
+      }
+    },
     "/salesInvoiceShipment": {
       get: {
         parameters: [
@@ -66955,6 +67387,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled"
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.printing"
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
           },
           {
@@ -67131,6 +67566,9 @@ export default {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled"
           },
           {
+            $ref: "#/parameters/rowFilter.companySettings.printing"
+          },
+          {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
           },
           {
@@ -67259,6 +67697,9 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.timeCardEnabled"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companySettings.printing"
           },
           {
             $ref: "#/parameters/rowFilter.companySettings.updateLeadTimesOnReceipt"
@@ -81426,7 +81867,7 @@ export default {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -81475,7 +81916,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -84490,7 +84931,8 @@ export default {
             "Sales",
             "Settings",
             "Users",
-            "Quality"
+            "Quality",
+            "Printing"
           ],
           format: "public.module",
           type: "string"
@@ -84789,7 +85231,8 @@ export default {
             "Sales",
             "Settings",
             "Users",
-            "Quality"
+            "Quality",
+            "Printing"
           ],
           format: "public.module",
           type: "string"
@@ -99087,6 +99530,106 @@ export default {
       },
       type: "object"
     },
+    printJob: {
+      required: [
+        "id",
+        "companyId",
+        "status",
+        "printerUrl",
+        "sourceDocument",
+        "sourceDocumentId",
+        "description",
+        "origin",
+        "attempts",
+        "createdBy",
+        "createdAt"
+      ],
+      properties: {
+        id: {
+          default: "public.id('pj'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string"
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        status: {
+          default: "generating",
+          format: "text",
+          type: "string"
+        },
+        contentType: {
+          format: "text",
+          type: "string"
+        },
+        content: {
+          format: "text",
+          type: "string"
+        },
+        printerUrl: {
+          format: "text",
+          type: "string"
+        },
+        sourceDocument: {
+          format: "text",
+          type: "string"
+        },
+        sourceDocumentId: {
+          format: "text",
+          type: "string"
+        },
+        sourceDocumentReadableId: {
+          format: "text",
+          type: "string"
+        },
+        description: {
+          format: "text",
+          type: "string"
+        },
+        origin: {
+          default: "auto",
+          format: "text",
+          type: "string"
+        },
+        error: {
+          format: "text",
+          type: "string"
+        },
+        attempts: {
+          default: 0,
+          format: "int32",
+          type: "integer"
+        },
+        createdBy: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        updatedBy: {
+          format: "text",
+          type: "string"
+        },
+        completedAt: {
+          format: "timestamp with time zone",
+          type: "string"
+        }
+      },
+      type: "object"
+    },
     journalLine: {
       required: [
         "id",
@@ -103571,7 +104114,8 @@ export default {
             "Sales",
             "Settings",
             "Users",
-            "Quality"
+            "Quality",
+            "Printing"
           ],
           format: "public.module",
           type: "string"
@@ -104759,6 +105303,66 @@ export default {
           description:
             "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
+          type: "string"
+        }
+      },
+      type: "object"
+    },
+    printerRoute: {
+      required: [
+        "id",
+        "companyId",
+        "name",
+        "format",
+        "printerUrl",
+        "createdAt"
+      ],
+      properties: {
+        id: {
+          default: "public.id('pr'::text)",
+          description: "Note:\nThis is a Primary Key.<pk/>",
+          format: "text",
+          type: "string"
+        },
+        companyId: {
+          description:
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `company.id`.<fk table='company' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        locationId: {
+          description:
+            "Note:\nThis is a Foreign Key to `location.id`.<fk table='location' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        name: {
+          format: "text",
+          type: "string"
+        },
+        format: {
+          format: "text",
+          type: "string"
+        },
+        mediaSizeId: {
+          format: "text",
+          type: "string"
+        },
+        printerUrl: {
+          format: "text",
+          type: "string"
+        },
+        apiKey: {
+          format: "text",
+          type: "string"
+        },
+        createdAt: {
+          default: "now()",
+          format: "timestamp with time zone",
+          type: "string"
+        },
+        updatedAt: {
+          format: "timestamp with time zone",
           type: "string"
         }
       },
@@ -109328,7 +109932,8 @@ export default {
             "Sales",
             "Settings",
             "Users",
-            "Quality"
+            "Quality",
+            "Printing"
           ],
           format: "public.module",
           type: "string"
@@ -109599,6 +110204,9 @@ export default {
           format: "boolean",
           type: "boolean"
         },
+        printing: {
+          format: "jsonb"
+        },
         updateLeadTimesOnReceipt: {
           default: false,
           format: "boolean",
@@ -109807,7 +110415,8 @@ export default {
             "Sales",
             "Settings",
             "Users",
-            "Quality"
+            "Quality",
+            "Printing"
           ],
           format: "public.module",
           type: "string"
@@ -134680,6 +135289,123 @@ export default {
       in: "query",
       type: "string"
     },
+    "body.printJob": {
+      name: "printJob",
+      description: "printJob",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/printJob"
+      }
+    },
+    "rowFilter.printJob.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.status": {
+      name: "status",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.contentType": {
+      name: "contentType",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.content": {
+      name: "content",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.printerUrl": {
+      name: "printerUrl",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.sourceDocument": {
+      name: "sourceDocument",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.sourceDocumentId": {
+      name: "sourceDocumentId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.sourceDocumentReadableId": {
+      name: "sourceDocumentReadableId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.description": {
+      name: "description",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.origin": {
+      name: "origin",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.error": {
+      name: "error",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.attempts": {
+      name: "attempts",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.createdBy": {
+      name: "createdBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.updatedBy": {
+      name: "updatedBy",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printJob.completedAt": {
+      name: "completedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.journalLine": {
       name: "journalLine",
       description: "journalLine",
@@ -141032,6 +141758,75 @@ export default {
       in: "query",
       type: "string"
     },
+    "body.printerRoute": {
+      name: "printerRoute",
+      description: "printerRoute",
+      required: false,
+      in: "body",
+      schema: {
+        $ref: "#/definitions/printerRoute"
+      }
+    },
+    "rowFilter.printerRoute.id": {
+      name: "id",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.companyId": {
+      name: "companyId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.locationId": {
+      name: "locationId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.name": {
+      name: "name",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.format": {
+      name: "format",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.mediaSizeId": {
+      name: "mediaSizeId",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.printerUrl": {
+      name: "printerUrl",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.apiKey": {
+      name: "apiKey",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.createdAt": {
+      name: "createdAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.printerRoute.updatedAt": {
+      name: "updatedAt",
+      required: false,
+      in: "query",
+      type: "string"
+    },
     "body.salesInvoiceShipment": {
       name: "salesInvoiceShipment",
       description: "salesInvoiceShipment",
@@ -146320,6 +147115,12 @@ export default {
     },
     "rowFilter.companySettings.timeCardEnabled": {
       name: "timeCardEnabled",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.companySettings.printing": {
+      name: "printing",
       required: false,
       in: "query",
       type: "string"

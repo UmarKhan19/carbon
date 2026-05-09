@@ -24,7 +24,9 @@ const taskToEvent = {
   "slack-document-created": "carbon/slack-document-created",
   "slack-document-status-update": "carbon/slack-document-status-update",
   "slack-document-task-update": "carbon/slack-document-task-update",
-  "slack-document-assignment-update": "carbon/slack-document-assignment-update"
+  "slack-document-assignment-update": "carbon/slack-document-assignment-update",
+  "print-job": "carbon/print-job",
+  "print-job-deliver": "carbon/print-job-deliver"
 } as const;
 
 type TaskMap = typeof taskToEvent;

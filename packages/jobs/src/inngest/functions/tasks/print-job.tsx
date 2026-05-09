@@ -1,10 +1,11 @@
 // This file is .tsx because the built-in kanban renderer uses JSX
 // to render a React PDF component (KanbanLabelPDF) via renderToStream.
-import { BINDERY_PRESS_API_KEY, ERP_URL } from "@carbon/auth";
+
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { KanbanLabelPDF } from "@carbon/documents/pdf";
 import { generateProductLabelZPL } from "@carbon/documents/zpl";
+import { BINDERY_PRESS_API_KEY, ERP_URL } from "@carbon/env";
 import type {
   DocumentTypeDefinition,
   PrintingSettings
@@ -180,8 +181,7 @@ async function processDocumentType(
 
   const printJobIds: string[] = [];
 
-  for (let i = 0; i < resolved.items.length; i++) {
-    const item = resolved.items[i];
+  for await (const item of resolved.items) {
     const parts = [resolved.readableId ?? sourceDocumentId];
     if (item?.itemId) parts.push(String(item.itemId));
     if (item?.number) parts.push(String(item.number));
@@ -333,8 +333,8 @@ async function resolveKanbanData(
         itemId: kanban.readableIdWithRevision || kanban.itemId,
         itemName: kanban.name || "",
         locationName: kanban.locationName || "",
-        shelfId: kanban.shelfId,
-        shelfName: kanban.shelfName,
+        storageUnitId: kanban.storageUnitId,
+        storageUnitName: kanban.storageUnitName,
         supplierName: kanban.supplierName,
         quantity: kanban.quantity ?? 0,
         unitOfMeasureCode: kanban.purchaseUnitOfMeasureCode,
@@ -458,8 +458,8 @@ async function renderBuiltInKanban(
           itemName: (item.itemName as string) || "",
           itemReadableId: item.itemId as string,
           locationName: (item.locationName as string) || "",
-          shelfId: item.shelfId as string | undefined,
-          shelfName: item.shelfName as string | undefined,
+          storageUnitId: item.storageUnitId as string | undefined,
+          storageUnitName: item.storageUnitName as string | undefined,
           supplierName: item.supplierName as string | undefined,
           quantity: (item.quantity as number) ?? 0,
           unitOfMeasureCode: item.unitOfMeasureCode as string | undefined,
