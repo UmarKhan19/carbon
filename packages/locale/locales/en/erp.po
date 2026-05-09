@@ -253,16 +253,16 @@ msgstr "Account Type"
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:50
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:83
 #: apps/erp/app/routes/x+/accounting+/_layout.tsx:24
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:32
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:109
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:33
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:111
 msgid "Accounting"
 msgstr "Accounting"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:131
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:134
 msgid "Accounting is disabled"
 msgstr "Accounting is disabled"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:129
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:132
 msgid "Accounting is enabled"
 msgstr "Accounting is enabled"
 
@@ -737,7 +737,7 @@ msgstr "All Work Centers"
 msgid "Allows acknowledge & continue"
 msgstr "Allows acknowledge & continue"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:149
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:138
 msgid "Alpha"
 msgstr "Alpha"
 
@@ -1591,8 +1591,8 @@ msgstr "Batch Size"
 msgid "Batch Tracking"
 msgstr "Batch Tracking"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:201
-#: apps/erp/app/routes/x+/settings+/people.tsx:242
+#: apps/erp/app/routes/x+/settings+/people.tsx:191
+#: apps/erp/app/routes/x+/settings+/people.tsx:236
 msgid "Beta"
 msgstr "Beta"
 
@@ -2534,15 +2534,15 @@ msgstr "Connected to"
 msgid "Console Mode"
 msgstr "Console Mode"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:268
+#: apps/erp/app/routes/x+/settings+/people.tsx:270
 msgid "Console mode has been enabled. Use this PIN to identify yourself at MES terminals."
 msgstr "Console mode has been enabled. Use this PIN to identify yourself at MES terminals."
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:186
+#: apps/erp/app/routes/x+/settings+/people.tsx:187
 msgid "Console mode is disabled"
 msgstr "Console mode is disabled"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:184
+#: apps/erp/app/routes/x+/settings+/people.tsx:185
 msgid "Console mode is enabled"
 msgstr "Console mode is enabled"
 
@@ -4333,7 +4333,7 @@ msgstr "Documents"
 msgid "Don't Cancel"
 msgstr "Don't Cancel"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:290
+#: apps/erp/app/routes/x+/settings+/people.tsx:292
 msgid "Done"
 msgstr "Done"
 
@@ -4980,7 +4980,7 @@ msgstr "Enable audit logging in settings to start tracking changes to your data.
 msgid "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 msgstr "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:118
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:120
 msgid "Enable full accrual accounting with journal entries, financial reports, and general ledger posting."
 msgstr "Enable full accrual accounting with journal entries, financial reports, and general ledger posting."
 
@@ -5000,15 +5000,15 @@ msgstr "Enable shared workstation mode for MES terminals. Operators identify the
 msgid "Enable this rule to automatically require approval for matching documents"
 msgstr "Enable this rule to automatically require approval for matching documents"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:220
+#: apps/erp/app/routes/x+/settings+/people.tsx:221
 msgid "Enable timecard tracking for work shifts."
 msgstr "Enable timecard tracking for work shifts."
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:197
+#: apps/erp/app/routes/x+/settings+/people.tsx:202
 msgid "Enable to allow shared workstation mode."
 msgstr "Enable to allow shared workstation mode."
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:142
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:148
 msgid "Enable to automatically post transactions to the general ledger."
 msgstr "Enable to automatically post transactions to the general ledger."
 
@@ -5032,7 +5032,7 @@ msgstr "Enable to show part thumbnails on sales PDFs."
 msgid "Enable to start tracking changes to your data."
 msgstr "Enable to start tracking changes to your data."
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:238
+#: apps/erp/app/routes/x+/settings+/people.tsx:244
 msgid "Enable to start tracking work shifts."
 msgstr "Enable to start tracking work shifts."
 
@@ -6136,7 +6136,7 @@ msgstr "Gauge Types"
 msgid "Gauges"
 msgstr "Gauges"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:115
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:117
 msgid "General Ledger"
 msgstr "General Ledger"
 
@@ -7007,7 +7007,7 @@ msgstr "Job traveler PDFs include work instructions."
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:203
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:293
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:489
-#: apps/erp/app/routes/x+/job+/$jobId.complete.tsx:15
+#: apps/erp/app/routes/x+/job+/$jobId.complete.tsx:13
 #: apps/erp/app/routes/x+/job+/$jobId.tsx:36
 #: apps/erp/app/routes/x+/job+/new.tsx:28
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:249
@@ -9277,7 +9277,7 @@ msgstr "Operator must pick a different batch/serial."
 msgid "Operators"
 msgstr "Operators"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:192
+#: apps/erp/app/routes/x+/settings+/people.tsx:197
 msgid "Operators can use shared workstations with PIN authentication."
 msgstr "Operators can use shared workstations with PIN authentication."
 
@@ -10815,7 +10815,7 @@ msgstr "Released"
 msgid "Remaining after split stays on the original row."
 msgstr "Remaining after split stays on the original row."
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:280
+#: apps/erp/app/routes/x+/settings+/people.tsx:282
 msgid "Remember this PIN. You will need it to exit console mode on MES terminals."
 msgstr "Remember this PIN. You will need it to exit console mode on MES terminals."
 
@@ -13629,15 +13629,15 @@ msgstr "Timecard"
 #: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:29
 #: apps/erp/app/routes/x+/people+/timecard.tsx:16
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:433
-#: apps/erp/app/routes/x+/settings+/people.tsx:217
+#: apps/erp/app/routes/x+/settings+/people.tsx:218
 msgid "Timecards"
 msgstr "Timecards"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:230
+#: apps/erp/app/routes/x+/settings+/people.tsx:232
 msgid "Timecards are disabled"
 msgstr "Timecards are disabled"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:228
+#: apps/erp/app/routes/x+/settings+/people.tsx:230
 msgid "Timecards are enabled"
 msgstr "Timecards are enabled"
 
@@ -13933,7 +13933,7 @@ msgstr "Training Assignments"
 msgid "Trainings"
 msgstr "Trainings"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:137
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:143
 msgid "Transactions will create journal entries and update the general ledger."
 msgstr "Transactions will create journal entries and update the general ledger."
 
@@ -15024,7 +15024,7 @@ msgstr "Work instructions are not included"
 msgid "Work Phone"
 msgstr "Work Phone"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:236
+#: apps/erp/app/routes/x+/settings+/people.tsx:242
 msgid "Work shift tracking is active."
 msgstr "Work shift tracking is active."
 
@@ -15108,7 +15108,7 @@ msgstr "You received this lot"
 msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
 msgstr "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:262
+#: apps/erp/app/routes/x+/settings+/people.tsx:264
 msgid "Your Console PIN"
 msgstr "Your Console PIN"
 

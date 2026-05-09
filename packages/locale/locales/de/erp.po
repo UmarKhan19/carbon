@@ -253,16 +253,16 @@ msgstr "Kontotyp"
 #: apps/erp/app/modules/items/ui/Tools/useToolNavigation.tsx:50
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:83
 #: apps/erp/app/routes/x+/accounting+/_layout.tsx:24
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:32
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:109
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:33
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:111
 msgid "Accounting"
 msgstr "Buchhaltung"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:131
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:134
 msgid "Accounting is disabled"
 msgstr "Buchhaltung ist deaktiviert"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:129
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:132
 msgid "Accounting is enabled"
 msgstr "Buchhaltung ist aktiviert"
 
@@ -737,7 +737,7 @@ msgstr "Alle Arbeitszentren"
 msgid "Allows acknowledge & continue"
 msgstr "Ermöglicht Bestätigung & Fortfahren"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:149
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:138
 msgid "Alpha"
 msgstr "Alpha"
 
@@ -1591,8 +1591,8 @@ msgstr "Chargengröße"
 msgid "Batch Tracking"
 msgstr "Chargenverfolgung"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:201
-#: apps/erp/app/routes/x+/settings+/people.tsx:242
+#: apps/erp/app/routes/x+/settings+/people.tsx:191
+#: apps/erp/app/routes/x+/settings+/people.tsx:236
 msgid "Beta"
 msgstr "Beta"
 
@@ -2534,15 +2534,15 @@ msgstr "Verbunden mit"
 msgid "Console Mode"
 msgstr "Konsolenmodus"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:268
+#: apps/erp/app/routes/x+/settings+/people.tsx:270
 msgid "Console mode has been enabled. Use this PIN to identify yourself at MES terminals."
 msgstr "Der Konsolenmodus wurde aktiviert. Verwenden Sie diese PIN, um sich an MES-Terminals zu identifizieren."
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:186
+#: apps/erp/app/routes/x+/settings+/people.tsx:187
 msgid "Console mode is disabled"
 msgstr "Konsolenmodus ist deaktiviert"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:184
+#: apps/erp/app/routes/x+/settings+/people.tsx:185
 msgid "Console mode is enabled"
 msgstr "Konsolenmodus ist aktiviert"
 
@@ -4333,7 +4333,7 @@ msgstr "Dokumente"
 msgid "Don't Cancel"
 msgstr "Nicht abbrechen"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:290
+#: apps/erp/app/routes/x+/settings+/people.tsx:292
 msgid "Done"
 msgstr "Fertig"
 
@@ -4980,7 +4980,7 @@ msgstr "Aktivieren Sie die Audit-Protokollierung in den Einstellungen, um Änder
 msgid "Enable digital quotes for your company. This will allow you to send digital quotes to your customers, and allow them to accept them online."
 msgstr "Aktivieren Sie digitale Angebote für Ihr Unternehmen. Dies ermöglicht es Ihnen, digitale Angebote an Ihre Kunden zu senden und ihnen, diese online zu akzeptieren."
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:118
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:120
 msgid "Enable full accrual accounting with journal entries, financial reports, and general ledger posting."
 msgstr "Aktivieren Sie die vollständige Periodenrechnung mit Journaleinträgen, Finanzberichten und Hauptbuchbuchungen."
 
@@ -5000,15 +5000,15 @@ msgstr "Aktivieren Sie den Modus für gemeinsame Arbeitsstationen für MES-Termi
 msgid "Enable this rule to automatically require approval for matching documents"
 msgstr "Aktivieren Sie diese Regel, um automatisch eine Genehmigung für übereinstimmende Dokumente zu verlangen"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:220
+#: apps/erp/app/routes/x+/settings+/people.tsx:221
 msgid "Enable timecard tracking for work shifts."
 msgstr "Zeiterfassung für Arbeitseinsätze aktivieren."
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:197
+#: apps/erp/app/routes/x+/settings+/people.tsx:202
 msgid "Enable to allow shared workstation mode."
 msgstr "Aktivieren Sie diese Option, um den Modus für gemeinsame Arbeitsstationen zu ermöglichen."
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:142
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:148
 msgid "Enable to automatically post transactions to the general ledger."
 msgstr "Aktivieren Sie diese Option, um Transaktionen automatisch ins Hauptbuch zu buchen."
 
@@ -5032,7 +5032,7 @@ msgstr "Aktivieren Sie diese Option, um Teilminiaturen in Verkaufs-PDFs anzuzeig
 msgid "Enable to start tracking changes to your data."
 msgstr "Aktivieren Sie diese Option, um Änderungen an Ihren Daten zu verfolgen."
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:238
+#: apps/erp/app/routes/x+/settings+/people.tsx:244
 msgid "Enable to start tracking work shifts."
 msgstr "Aktivieren Sie diese Option, um die Verfolgung von Arbeitszeiträumen zu starten."
 
@@ -6136,7 +6136,7 @@ msgstr "Messuhr-Typen"
 msgid "Gauges"
 msgstr "Messinstrumente"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:115
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:117
 msgid "General Ledger"
 msgstr "Hauptbuch"
 
@@ -7007,7 +7007,7 @@ msgstr "Job-Traveler-PDFs enthalten Arbeitsanweisungen."
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:203
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:293
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderSummary.tsx:489
-#: apps/erp/app/routes/x+/job+/$jobId.complete.tsx:15
+#: apps/erp/app/routes/x+/job+/$jobId.complete.tsx:13
 #: apps/erp/app/routes/x+/job+/$jobId.tsx:36
 #: apps/erp/app/routes/x+/job+/new.tsx:28
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:249
@@ -9277,7 +9277,7 @@ msgstr "Operator muss einen anderen Batch/eine andere Seriennummer auswählen."
 msgid "Operators"
 msgstr "Operatoren"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:192
+#: apps/erp/app/routes/x+/settings+/people.tsx:197
 msgid "Operators can use shared workstations with PIN authentication."
 msgstr "Operatoren können gemeinsame Arbeitsstationen mit PIN-Authentifizierung nutzen."
 
@@ -10815,7 +10815,7 @@ msgstr "Freigegeben"
 msgid "Remaining after split stays on the original row."
 msgstr "Verbleibende Menge bleibt in der ursprünglichen Zeile."
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:280
+#: apps/erp/app/routes/x+/settings+/people.tsx:282
 msgid "Remember this PIN. You will need it to exit console mode on MES terminals."
 msgstr "Merken Sie sich diese PIN. Sie benötigen sie, um den Konsolenmodus auf MES-Terminals zu beenden."
 
@@ -13629,15 +13629,15 @@ msgstr "Zeitkarte"
 #: apps/erp/app/modules/people/ui/usePeopleSubmodules.tsx:29
 #: apps/erp/app/routes/x+/people+/timecard.tsx:16
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:433
-#: apps/erp/app/routes/x+/settings+/people.tsx:217
+#: apps/erp/app/routes/x+/settings+/people.tsx:218
 msgid "Timecards"
 msgstr "Zeitkarten"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:230
+#: apps/erp/app/routes/x+/settings+/people.tsx:232
 msgid "Timecards are disabled"
 msgstr "Zeiterfassungen sind deaktiviert"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:228
+#: apps/erp/app/routes/x+/settings+/people.tsx:230
 msgid "Timecards are enabled"
 msgstr "Zeitkarten sind aktiviert"
 
@@ -13933,7 +13933,7 @@ msgstr "Schulungsaufträge"
 msgid "Trainings"
 msgstr "Schulungen"
 
-#: apps/erp/app/routes/x+/settings+/accounting.tsx:137
+#: apps/erp/app/routes/x+/settings+/accounting.tsx:143
 msgid "Transactions will create journal entries and update the general ledger."
 msgstr "Transaktionen erstellen Journaleinträge und aktualisieren das Hauptbuch."
 
@@ -15024,7 +15024,7 @@ msgstr "Arbeitsanweisungen sind nicht enthalten"
 msgid "Work Phone"
 msgstr "Geschäftstelefon"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:236
+#: apps/erp/app/routes/x+/settings+/people.tsx:242
 msgid "Work shift tracking is active."
 msgstr "Arbeitszeitverfolgung ist aktiv."
 
@@ -15104,7 +15104,7 @@ msgstr "Sie haben dieses Los erhalten"
 msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
 msgstr "Du bist seit {hoursElapsed} Stunden angemeldet. Hast du vergessen, dich abzumelden?"
 
-#: apps/erp/app/routes/x+/settings+/people.tsx:262
+#: apps/erp/app/routes/x+/settings+/people.tsx:264
 msgid "Your Console PIN"
 msgstr "Ihre Konsolen-PIN"
 
