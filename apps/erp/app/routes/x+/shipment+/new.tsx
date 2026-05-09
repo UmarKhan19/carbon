@@ -3,8 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { msg } from "@lingui/core/macro";
-import { FunctionRegion } from "@supabase/supabase-js";
-import type { LoaderFunctionArgs } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import type { ShipmentSourceDocument } from "~/modules/inventory";
 import { getUserDefaults } from "~/modules/users/users.server";
@@ -16,16 +15,15 @@ export const handle: Handle = {
   to: path.to.shipments
 };
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
     create: "inventory"
   });
 
-  const url = new URL(request.url);
+  const formData = await request.formData();
   const sourceDocument =
-    (url.searchParams.get("sourceDocument") as ShipmentSourceDocument) ??
-    undefined;
-  const sourceDocumentId = url.searchParams.get("sourceDocumentId") ?? "";
+    (formData.get("sourceDocument") as ShipmentSourceDocument) ?? undefined;
+  const sourceDocumentId = (formData.get("sourceDocumentId") as string) ?? "";
 
   const defaults = await getUserDefaults(client, userId, companyId);
   const serviceRole = getCarbonServiceRole();
@@ -42,8 +40,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           salesOrderId: sourceDocumentId,
           shipmentId: undefined,
           userId: userId
-        },
-        region: FunctionRegion.UsEast1
+        }
       });
       if (!salesOrderShipment.data || salesOrderShipment.error) {
         console.error(salesOrderShipment.error);
@@ -68,8 +65,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           purchaseOrderId: sourceDocumentId,
           shipmentId: undefined,
           userId: userId
-        },
-        region: FunctionRegion.UsEast1
+        }
       });
       if (!purchaseOrderShipment.data || purchaseOrderShipment.error) {
         console.error(purchaseOrderShipment.error);
@@ -93,8 +89,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           warehouseTransferId: sourceDocumentId,
           shipmentId: undefined,
           userId: userId
-        },
-        region: FunctionRegion.UsEast1
+        }
       });
       if (!warehouseTransferShipment.data || warehouseTransferShipment.error) {
         console.error(warehouseTransferShipment.error);
@@ -119,8 +114,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
           companyId,
           locationId: defaults.data?.locationId,
           userId: userId
-        },
-        region: FunctionRegion.UsEast1
+        }
       });
 
       if (!defaultShipment.data || defaultShipment.error) {

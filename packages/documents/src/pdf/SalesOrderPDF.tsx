@@ -11,7 +11,7 @@ import {
   getLineTotal,
   getTotal
 } from "../utils/sales-order";
-import { getCurrencyFormatter } from "../utils/shared";
+import { getCurrencyFormatter, getRegistrationFooter } from "../utils/shared";
 import {
   Header,
   Note,
@@ -20,10 +20,16 @@ import {
   Template
 } from "./components";
 
+type SalesOrderLocations =
+  Database["public"]["Views"]["salesOrderLocations"]["Row"] & {
+    customerTaxId?: string | null;
+    customerVatNumber?: string | null;
+  };
+
 interface SalesOrderPDFProps extends PDF {
   salesOrder: Database["public"]["Views"]["salesOrders"]["Row"];
   salesOrderLines: Database["public"]["Views"]["salesOrderLines"]["Row"][];
-  salesOrderLocations: Database["public"]["Views"]["salesOrderLocations"]["Row"];
+  salesOrderLocations: SalesOrderLocations;
   companySettings?:
     | Database["public"]["Tables"]["companySettings"]["Row"]
     | null;
@@ -57,7 +63,6 @@ const SalesOrderPDF = ({
   accountsReceivableBillingAddress,
   company,
   companySettings,
-  locale,
   meta,
   salesOrder,
   salesOrderLines,
@@ -66,6 +71,7 @@ const SalesOrderPDF = ({
   paymentTerms,
   shippingMethods,
   thumbnails,
+  locale,
   title = "Sales Order"
 }: SalesOrderPDFProps) => {
   const {
@@ -76,6 +82,9 @@ const SalesOrderPDF = ({
     customerStateProvince,
     customerPostalCode,
     customerCountryName,
+    customerTaxId,
+    customerVatNumber,
+    customerEori,
     paymentCustomerName,
     paymentAddressLine1,
     paymentAddressLine2,
@@ -106,6 +115,12 @@ const SalesOrderPDF = ({
         keywords: meta?.keywords ?? "sales order",
         subject: meta?.subject ?? "Sales Order"
       }}
+      footerLabel={getRegistrationFooter(
+        company.name,
+        company.countryCode,
+        company.taxId
+      )}
+      footerDocumentId={salesOrder?.salesOrderId}
     >
       <Header
         company={company}
@@ -113,6 +128,7 @@ const SalesOrderPDF = ({
         documentId={salesOrder?.salesOrderId}
         date={salesOrder?.orderDate}
         currencyCode={salesOrder?.currencyCode}
+        locale={locale}
       />
 
       <PartyDetails
@@ -138,7 +154,10 @@ const SalesOrderPDF = ({
           city: customerCity,
           stateProvince: customerStateProvince,
           postalCode: customerPostalCode,
-          countryCode: customerCountryName
+          countryCode: customerCountryName,
+          taxId: customerTaxId,
+          vatNumber: customerVatNumber,
+          eori: customerEori
         }}
         counterPartyLabel="Buyer"
         accountsReceivableEmail={companySettings?.accountsReceivableEmail}
@@ -176,24 +195,44 @@ const SalesOrderPDF = ({
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
               {salesOrder?.orderDate && (
-                <Text>Date: {formatDate(salesOrder.orderDate)}</Text>
+                <Text>
+                  Date: {formatDate(salesOrder.orderDate, undefined, locale)}
+                </Text>
               )}
               {salesOrder?.customerReference && (
                 <Text>Customer PO #: {salesOrder.customerReference}</Text>
               )}
               {salesOrder?.receiptRequestedDate && (
                 <Text>
-                  Requested: {formatDate(salesOrder.receiptRequestedDate)}
+                  Requested:{" "}
+                  {formatDate(
+                    salesOrder.receiptRequestedDate,
+                    undefined,
+                    locale
+                  )}
                 </Text>
               )}
               {salesOrder?.receiptPromisedDate && (
                 <Text>
-                  Promised: {formatDate(salesOrder.receiptPromisedDate)}
+                  Promised:{" "}
+                  {formatDate(
+                    salesOrder.receiptPromisedDate,
+                    undefined,
+                    locale
+                  )}
                 </Text>
               )}
               {shippingMethod && <Text>Shipping: {shippingMethod.name}</Text>}
               {salesOrder?.shippingTermName && (
                 <Text>Shipping Terms: {salesOrder.shippingTermName}</Text>
+              )}
+              {salesOrder?.incoterm && (
+                <Text>
+                  Incoterm: {salesOrder.incoterm}
+                  {salesOrder.incotermLocation
+                    ? ` - ${salesOrder.incotermLocation}`
+                    : ""}
+                </Text>
               )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
             </View>

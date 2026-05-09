@@ -9,7 +9,7 @@ import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { useUrlParams, useUser } from "~/hooks";
-import { getDefaultShelfForJob } from "~/modules/inventory";
+import { getDefaultStorageUnitForJob } from "~/modules/inventory";
 import { getItemReplenishment } from "~/modules/items";
 import {
   calculateJobPriority,
@@ -95,7 +95,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  const shelfId = await getDefaultShelfForJob(
+  const storageUnitId = await getDefaultStorageUnitForJob(
     client,
     validation.data.itemId,
     validation.data.locationId,
@@ -117,7 +117,7 @@ export async function action({ request }: ActionFunctionArgs) {
     // @ts-expect-error TS2353 - TODO: fix type
     priority,
     scrapQuantity,
-    shelfId: shelfId ?? undefined,
+    storageUnitId: storageUnitId ?? undefined,
     startDate: d.dueDate
       ? parseDate(d.dueDate).subtract({ days: leadTime }).toString()
       : undefined,

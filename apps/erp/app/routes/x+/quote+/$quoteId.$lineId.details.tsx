@@ -4,7 +4,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Spinner, VStack } from "@carbon/react";
+import { VStack } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import { Fragment, Suspense, useMemo } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -15,7 +15,7 @@ import {
   useLoaderData,
   useParams
 } from "react-router";
-import { CadModel } from "~/components";
+import { CadModel, DeferredFiles } from "~/components";
 import type { Tree } from "~/components/TreeView";
 import { usePermissions, useRealtime, useRouteData, useUser } from "~/hooks";
 import type {
@@ -39,6 +39,8 @@ import {
   getRootQuoteMakeMethod,
   isQuoteLocked,
   quoteLineValidator,
+  resolvePurchaseToOrderPrices,
+  resolveQuoteLinePrices,
   upsertQuoteLine
 } from "~/modules/sales";
 import {
@@ -148,7 +150,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyId, userId } = await requirePermissions(request, {
     create: "sales"
   });
 
@@ -195,7 +197,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  if (d.methodType === "Make to Order" && d.quantity?.length) {
+  // The pricing-seeding branches share the same shape: find quantities the
+  // user newly added to the row and invoke the method-specific resolver for
+  // just those. Surface any resolver failure via flash so the user knows the
+  // line saved but pricing didn't land.
+  const methodType = d.methodType;
+  const needsSeed =
+    (methodType === "Make to Order" ||
+      methodType === "Pull from Inventory" ||
+      methodType === "Purchase to Order") &&
+    !!d.quantity?.length;
+
+  if (needsSeed) {
     const serviceRole = getCarbonServiceRole();
     const existingPrices = await serviceRole
       .from("quoteLinePrice")
@@ -206,18 +219,50 @@ export async function action({ request, params }: ActionFunctionArgs) {
       (existingPrices.data ?? []).map((p) => p.quantity)
     );
 
-    const addedQuantities = d.quantity.filter(
+    const addedQuantities = (d.quantity ?? []).filter(
       (q) => !existingQuantities.has(q)
     );
 
     if (addedQuantities.length > 0) {
-      await calculatePricesForQuantities(
-        serviceRole,
-        quoteId,
-        lineId,
-        addedQuantities,
-        userId
-      );
+      const priceResult =
+        methodType === "Make to Order"
+          ? await calculatePricesForQuantities(
+              serviceRole,
+              quoteId,
+              lineId,
+              addedQuantities,
+              userId
+            )
+          : methodType === "Pull from Inventory"
+            ? await resolveQuoteLinePrices(
+                serviceRole,
+                companyId,
+                quoteId,
+                lineId,
+                addedQuantities,
+                userId
+              )
+            : await resolvePurchaseToOrderPrices(
+                serviceRole,
+                companyId,
+                quoteId,
+                lineId,
+                addedQuantities,
+                userId
+              );
+
+      if (priceResult?.error) {
+        throw redirect(
+          path.to.quoteLine(quoteId, lineId),
+          await flash(
+            request,
+            error(
+              priceResult.error,
+              `Failed to seed ${methodType} prices for new quantities`
+            )
+          )
+        );
+      }
     }
   }
 
@@ -251,8 +296,6 @@ export default function QuoteLine() {
     quote: Quotation;
     supplierPriceMap: SupplierPriceMap;
   }>(path.to.quote(quoteId));
-
-  const isReadOnly = isQuoteLocked(quoteData?.quote?.status);
 
   const methodTree = useMemo(
     () => quoteData?.methods?.find((m) => m.data.quoteLineId === line.id),
@@ -365,27 +408,18 @@ export default function QuoteLine() {
         </>
       )}
 
-      <Suspense
-        fallback={
-          <div className="flex w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
-            <Spinner className="h-10 w-10" />
-          </div>
-        }
-      >
-        <Await resolve={files}>
-          {(resolvedFiles) => (
-            <OpportunityLineDocuments
-              files={resolvedFiles ?? []}
-              id={quoteId}
-              lineId={lineId}
-              itemId={line?.itemId}
-              modelUpload={line ?? undefined}
-              type="Quote"
-              isReadOnly={isReadOnly}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <DeferredFiles resolve={files}>
+        {(resolvedFiles) => (
+          <OpportunityLineDocuments
+            files={resolvedFiles ?? []}
+            id={quoteId}
+            lineId={lineId}
+            itemId={line?.itemId}
+            modelUpload={line ?? undefined}
+            type="Quote"
+          />
+        )}
+      </DeferredFiles>
 
       {methodData ? (
         <Suspense fallback={null}>

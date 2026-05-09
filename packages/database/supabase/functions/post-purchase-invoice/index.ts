@@ -15,6 +15,7 @@ const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
 
 const payloadValidator = z.object({
+  type: z.enum(["post", "void"]).default("post"),
   invoiceId: z.string(),
   userId: z.string(),
   companyId: z.string(),
@@ -30,11 +31,12 @@ serve(async (req: Request) => {
   const today = format(new Date(), "yyyy-MM-dd");
 
   try {
-    const { invoiceId, userId, companyId, skipReceiptPost } =
+    const { type, invoiceId, userId, companyId, skipReceiptPost } =
       payloadValidator.parse(payload);
 
     console.log({
       function: "post-purchase-invoice",
+      type,
       invoiceId,
       userId,
       skipReceiptPost,
@@ -45,7 +47,362 @@ serve(async (req: Request) => {
       companyId
     );
 
-    const [purchaseInvoice, purchaseInvoiceLines, purchaseInvoiceDelivery] =
+    const accountingEnabled = await client
+      .from("companySettings")
+      .select("accountingEnabled")
+      .eq("id", companyId)
+      .single()
+      .then((r) => r.data?.accountingEnabled ?? false);
+
+    if (type === "void") {
+      const invoice = await client
+        .from("purchaseInvoice")
+        .select("*")
+        .eq("id", invoiceId)
+        .single();
+      if (invoice.error) throw new Error("Failed to fetch purchaseInvoice");
+
+      if (!invoice.data.postingDate) {
+        throw new Error("Can only void posted purchase invoices");
+      }
+
+      if (invoice.data.status === "Voided") {
+        throw new Error("Purchase invoice is already voided");
+      }
+
+      if (
+        invoice.data.status === "Paid" ||
+        invoice.data.status === "Partially Paid"
+      ) {
+        throw new Error(
+          "Cannot void a purchase invoice with payments applied. Reverse the payment first."
+        );
+      }
+
+      const [originalItemLedger, originalJournalLines, originalCostLedger] =
+        await Promise.all([
+          client
+            .from("itemLedger")
+            .select("*")
+            .eq("documentId", invoiceId)
+            .eq("companyId", companyId),
+          client
+            .from("journalLine")
+            .select("*")
+            .eq("documentId", invoiceId)
+            .eq("documentType", "Invoice")
+            .eq("companyId", companyId),
+          client
+            .from("costLedger")
+            .select("*")
+            .eq("documentId", invoiceId)
+            .eq("documentType", "Purchase Invoice")
+            .eq("companyId", companyId),
+        ]);
+
+      if (originalItemLedger.error)
+        throw new Error("Failed to fetch item ledger entries");
+      if (originalJournalLines.error)
+        throw new Error("Failed to fetch journal lines");
+      if (originalCostLedger.error)
+        throw new Error("Failed to fetch cost ledger entries");
+
+      const invoiceLinesVoid = await client
+        .from("purchaseInvoiceLine")
+        .select("*")
+        .eq("invoiceId", invoiceId);
+      if (invoiceLinesVoid.error)
+        throw new Error("Failed to fetch purchase invoice lines");
+
+      const purchaseOrderLineIdsVoid = invoiceLinesVoid.data.reduce<string[]>(
+        (acc, invoiceLine) => {
+          if (
+            invoiceLine.purchaseOrderLineId &&
+            !acc.includes(invoiceLine.purchaseOrderLineId)
+          ) {
+            acc.push(invoiceLine.purchaseOrderLineId);
+          }
+          return acc;
+        },
+        []
+      );
+
+      const affectedPurchaseOrderIdsVoid: string[] = [];
+
+      if (purchaseOrderLineIdsVoid.length > 0) {
+        const touchedLines = await client
+          .from("purchaseOrderLine")
+          .select("purchaseOrderId")
+          .in("id", purchaseOrderLineIdsVoid);
+        if (touchedLines.error)
+          throw new Error("Failed to fetch purchase order lines");
+        for (const { purchaseOrderId } of touchedLines.data) {
+          if (
+            purchaseOrderId &&
+            !affectedPurchaseOrderIdsVoid.includes(purchaseOrderId)
+          ) {
+            affectedPurchaseOrderIdsVoid.push(purchaseOrderId);
+          }
+        }
+      }
+
+      const purchaseOrderLinesVoid =
+        affectedPurchaseOrderIdsVoid.length > 0
+          ? await client
+              .from("purchaseOrderLine")
+              .select("*")
+              .in("purchaseOrderId", affectedPurchaseOrderIdsVoid)
+          : { data: [] as Database["public"]["Tables"]["purchaseOrderLine"]["Row"][], error: null };
+
+      if (purchaseOrderLinesVoid.error)
+        throw new Error("Failed to fetch purchase order lines");
+
+      const purchaseOrderLinesByIdVoid = purchaseOrderLinesVoid.data.reduce<
+        Record<string, Database["public"]["Tables"]["purchaseOrderLine"]["Row"]>
+      >((acc, purchaseOrderLine) => {
+        acc[purchaseOrderLine.id] = purchaseOrderLine;
+        return acc;
+      }, {});
+
+      const purchaseOrderLineUpdatesVoid = invoiceLinesVoid.data.reduce<
+        Record<
+          string,
+          Database["public"]["Tables"]["purchaseOrderLine"]["Update"] & {
+            purchaseOrderId: string;
+          }
+        >
+      >((acc, invoiceLine) => {
+        const purchaseOrderLine =
+          purchaseOrderLinesByIdVoid[invoiceLine.purchaseOrderLineId ?? ""];
+        if (
+          invoiceLine.purchaseOrderLineId &&
+          purchaseOrderLine &&
+          invoiceLine.quantity &&
+          purchaseOrderLine.purchaseQuantity &&
+          purchaseOrderLine.purchaseQuantity > 0
+        ) {
+          const invoicedQuantityInPurchaseUnit =
+            invoiceLine.quantity / (invoiceLine.conversionFactor ?? 1);
+
+          const newQuantityInvoiced = Math.max(
+            0,
+            (purchaseOrderLine.quantityInvoiced ?? 0) -
+              invoicedQuantityInPurchaseUnit
+          );
+
+          const invoicedComplete =
+            newQuantityInvoiced >= purchaseOrderLine.purchaseQuantity;
+
+          acc[invoiceLine.purchaseOrderLineId] = {
+            quantityInvoiced: newQuantityInvoiced,
+            invoicedComplete,
+            purchaseOrderId: purchaseOrderLine.purchaseOrderId,
+          };
+        }
+        return acc;
+      }, {});
+
+      const purchaseOrderStatusUpdatesVoid: Record<
+        string,
+        Database["public"]["Tables"]["purchaseOrder"]["Row"]["status"]
+      > = {};
+      for (const purchaseOrderId of affectedPurchaseOrderIdsVoid) {
+        const projectedLines = purchaseOrderLinesVoid.data
+          .filter((line) => line.purchaseOrderId === purchaseOrderId)
+          .map((line) => {
+            const update = purchaseOrderLineUpdatesVoid[line.id];
+            if (update && update.quantityInvoiced !== undefined) {
+              return { ...line, quantityInvoiced: update.quantityInvoiced };
+            }
+            return line;
+          });
+
+        const areAllLinesInvoicedProjected = projectedLines.every((line) => {
+          if (line.purchaseOrderLineType === "Comment") return true;
+          const target = line.purchaseQuantity ?? 0;
+          if (target <= 0) return true;
+          return (line.quantityInvoiced ?? 0) >= target;
+        });
+
+        const areAllLinesReceivedProjected = projectedLines.every((line) => {
+          if (line.purchaseOrderLineType === "Comment" || line.purchaseOrderLineType === "G/L Account") return true;
+          const target = line.purchaseQuantity ?? 0;
+          if (target <= 0) return true;
+          return (line.quantityReceived ?? 0) >= target;
+        });
+
+        let status: Database["public"]["Tables"]["purchaseOrder"]["Row"]["status"] =
+          "To Receive and Invoice";
+        if (areAllLinesInvoicedProjected && areAllLinesReceivedProjected) {
+          status = "Completed";
+        } else if (areAllLinesInvoicedProjected) {
+          status = "To Receive";
+        } else if (areAllLinesReceivedProjected) {
+          status = "To Invoice";
+        }
+
+        purchaseOrderStatusUpdatesVoid[purchaseOrderId] = status;
+      }
+
+      const reversingJournalLines: Omit<
+        Database["public"]["Tables"]["journalLine"]["Insert"],
+        "journalId"
+      >[] = accountingEnabled
+        ? originalJournalLines.data.map((entry) => ({
+            accountId: entry.accountId,
+            accrual: entry.accrual,
+            description: `VOID: ${entry.description}`,
+            amount: -entry.amount,
+            quantity: -entry.quantity,
+            documentType: entry.documentType,
+            documentId: entry.documentId,
+            externalDocumentId: entry.externalDocumentId,
+            documentLineReference: entry.documentLineReference,
+            journalLineReference: entry.journalLineReference,
+            companyId,
+          }))
+        : [];
+
+      const reversingItemLedger: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
+        originalItemLedger.data.map((entry) => ({
+          postingDate: today,
+          itemId: entry.itemId,
+          quantity: -entry.quantity,
+          locationId: entry.locationId,
+          storageUnitId: entry.storageUnitId,
+          trackedEntityId: entry.trackedEntityId,
+          entryType:
+            entry.entryType === "Positive Adjmt."
+              ? "Negative Adjmt."
+              : entry.entryType === "Negative Adjmt."
+              ? "Positive Adjmt."
+              : entry.entryType,
+          documentType: entry.documentType,
+          documentId: entry.documentId,
+          externalDocumentId: entry.externalDocumentId,
+          createdBy: userId,
+          companyId,
+        }));
+
+      const reversingCostLedger: Database["public"]["Tables"]["costLedger"]["Insert"][] =
+        originalCostLedger.data.map((entry) => ({
+          itemLedgerType: entry.itemLedgerType,
+          costLedgerType: entry.costLedgerType,
+          adjustment: entry.adjustment,
+          documentType: entry.documentType,
+          documentId: entry.documentId,
+          externalDocumentId: entry.externalDocumentId,
+          itemId: entry.itemId,
+          quantity: -entry.quantity,
+          nominalCost: -entry.nominalCost,
+          cost: -entry.cost,
+          supplierId: entry.supplierId,
+          companyId,
+        }));
+
+      const accountingPeriodIdVoid = accountingEnabled
+        ? await getCurrentAccountingPeriod(client, companyId, db)
+        : null;
+
+      await db.transaction().execute(async (trx) => {
+        for await (const [purchaseOrderLineId, update] of Object.entries(
+          purchaseOrderLineUpdatesVoid
+        )) {
+          const { purchaseOrderId: _purchaseOrderId, ...lineUpdate } = update;
+          await trx
+            .updateTable("purchaseOrderLine")
+            .set(lineUpdate)
+            .where("id", "=", purchaseOrderLineId)
+            .execute();
+        }
+
+        for await (const [purchaseOrderId, status] of Object.entries(
+          purchaseOrderStatusUpdatesVoid
+        )) {
+          await trx
+            .updateTable("purchaseOrder")
+            .set({ status })
+            .where("id", "=", purchaseOrderId)
+            .execute();
+        }
+
+        if (reversingJournalLines.length > 0) {
+          const voidJournalEntryId = await getNextSequence(
+            trx,
+            "journalEntry",
+            companyId
+          );
+
+          const journal = await trx
+            .insertInto("journal")
+            .values({
+              journalEntryId: voidJournalEntryId,
+              accountingPeriodId: accountingPeriodIdVoid,
+              description: `VOID Purchase Invoice ${invoice.data.invoiceId}`,
+              postingDate: today,
+              companyId,
+              sourceType: "Purchase Invoice",
+              status: "Posted",
+              postedAt: new Date().toISOString(),
+              postedBy: userId,
+              createdBy: userId,
+            })
+            .returning(["id"])
+            .execute();
+
+          const journalId = journal[0].id;
+          if (!journalId) throw new Error("Failed to insert journal");
+
+          await trx
+            .insertInto("journalLine")
+            .values(
+              reversingJournalLines.map((journalLine) => ({
+                ...journalLine,
+                journalId,
+              }))
+            )
+            .execute();
+        }
+
+        if (reversingItemLedger.length > 0) {
+          await trx
+            .insertInto("itemLedger")
+            .values(reversingItemLedger)
+            .execute();
+        }
+
+        if (reversingCostLedger.length > 0) {
+          await trx
+            .insertInto("costLedger")
+            .values(reversingCostLedger)
+            .execute();
+        }
+
+        await trx
+          .updateTable("purchaseInvoice")
+          .set({
+            status: "Voided",
+            updatedAt: today,
+            updatedBy: userId,
+          })
+          .where("id", "=", invoiceId)
+          .execute();
+      });
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const companyRecord = await client
+      .from("company")
+      .select("companyGroupId")
+      .eq("id", companyId)
+      .single();
+    if (companyRecord.error) throw new Error("Failed to fetch company");
+    const companyGroupId = companyRecord.data.companyGroupId;
+
+    const [purchaseInvoice, purchaseInvoiceLines, purchaseInvoiceDelivery, dimensions] =
       await Promise.all([
         client.from("purchaseInvoice").select("*").eq("id", invoiceId).single(),
         client
@@ -57,6 +414,17 @@ serve(async (req: Request) => {
           .select("supplierShippingCost")
           .eq("id", invoiceId)
           .single(),
+        client
+          .from("dimension")
+          .select("id, entityType")
+          .eq("companyGroupId", companyGroupId)
+          .eq("active", true)
+          .in("entityType", [
+            "SupplierType",
+            "ItemPostingGroup",
+            "Location",
+            "CostCenter",
+          ]),
       ]);
 
     if (purchaseInvoice.error)
@@ -65,6 +433,14 @@ serve(async (req: Request) => {
       throw new Error("Failed to fetch receipt lines");
     if (purchaseInvoiceDelivery.error)
       throw new Error("Failed to fetch purchase invoice delivery");
+    if (dimensions.error) {
+      console.error("Failed to fetch dimensions", dimensions.error);
+    }
+
+    const dimensionMap = new Map<string, string>();
+    for (const dim of dimensions.data ?? []) {
+      if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
+    }
 
     const shippingCost =
       (purchaseInvoiceDelivery.data?.supplierShippingCost ?? 0) *
@@ -156,6 +532,13 @@ serve(async (req: Request) => {
       Database["public"]["Tables"]["journalLine"]["Insert"],
       "journalId"
     >[] = [];
+
+    const journalLineDimensionsMeta: {
+      supplierTypeId: string | null;
+      itemPostingGroupId: string | null;
+      locationId: string | null;
+      costCenterId: string | null;
+    }[] = [];
 
     const receiptLineInserts: Omit<
       Database["public"]["Tables"]["receiptLine"]["Insert"],
@@ -254,8 +637,10 @@ serve(async (req: Request) => {
     }, {});
 
     // Get account defaults (once for all lines)
-    const accountDefaults = await getDefaultPostingGroup(client, companyId);
-    if (accountDefaults.error || !accountDefaults.data) {
+    const accountDefaults = accountingEnabled
+      ? await getDefaultPostingGroup(client, companyId)
+      : null;
+    if (accountingEnabled && (accountDefaults?.error || !accountDefaults?.data)) {
       throw new Error("Error getting account defaults");
     }
 
@@ -312,7 +697,7 @@ serve(async (req: Request) => {
                 outstandingQuantity: invoiceLineQuantityInInventoryUnit,
                 receivedQuantity: invoiceLineQuantityInInventoryUnit,
                 locationId: invoiceLine.locationId,
-                shelfId: invoiceLine.shelfId,
+                storageUnitId: invoiceLine.storageUnitId,
                 unitOfMeasure: invoiceLine.inventoryUnitOfMeasureCode ?? "EA",
                 unitPrice: invoiceLine.unitPrice ?? 0,
                 requiresSerialTracking: itemTrackingType === "Serial",
@@ -330,7 +715,7 @@ serve(async (req: Request) => {
                   itemId: invoiceLine.itemId!,
                   quantity: invoiceLineQuantityInInventoryUnit,
                   locationId: invoiceLine.locationId,
-                  shelfId: invoiceLine.shelfId,
+                  storageUnitId: invoiceLine.storageUnitId,
                   entryType: "Positive Adjmt.",
                   documentType: "Purchase Receipt",
                   documentId: purchaseInvoice.data?.id ?? undefined,
@@ -355,20 +740,32 @@ serve(async (req: Request) => {
                 nominalCost:
                   invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
                 cost: totalLineCostWithWeightedShipping,
+                remainingQuantity: invoiceLineQuantityInInventoryUnit,
                 supplierId: purchaseInvoice.data?.supplierId,
                 companyId,
               });
 
-              // create the normal GL entries for a part
-              // When skipReceiptPost is true, use overhead accounts since inventory hasn't been received yet
+              // create the GL entries for a direct invoice (no PO)
+              if (accountingEnabled && accountDefaults?.data) {
+                journalLineReference = nanoid();
 
-              journalLineReference = nanoid();
+                let debitAccount: string;
+                let debitDescription: string;
 
-              if (itemTrackingType === "Inventory" && !skipReceiptPost) {
-                // debit the inventory account
+                if (itemTrackingType === "Inventory" && !skipReceiptPost) {
+                  debitAccount = accountDefaults.data.inventoryAccount;
+                  debitDescription = "Inventory Account";
+                } else if (itemTrackingType === "Non-Inventory") {
+                  debitAccount = accountDefaults.data.indirectCostAccount;
+                  debitDescription = "Indirect Cost Account";
+                } else {
+                  debitAccount = accountDefaults.data.workInProgressAccount;
+                  debitDescription = "WIP Account";
+                }
+
                 journalLineInserts.push({
-                  accountNumber: accountDefaults.data.inventoryAccount,
-                  description: "Inventory Account",
+                  accountId: debitAccount,
+                  description: debitDescription,
                   amount: debit("asset", totalLineCostWithWeightedShipping),
                   quantity: invoiceLineQuantityInInventoryUnit,
                   documentType: "Invoice",
@@ -378,24 +775,10 @@ serve(async (req: Request) => {
                   companyId,
                 });
 
-                // creidt the direct cost applied account
                 journalLineInserts.push({
-                  accountNumber: accountDefaults.data.directCostAppliedAccount,
-                  description: "Direct Cost Applied",
-                  amount: credit("expense", totalLineCostWithWeightedShipping),
-                  quantity: invoiceLineQuantityInInventoryUnit,
-                  documentType: "Invoice",
-                  documentId: purchaseInvoice.data?.id,
-                  externalDocumentId: purchaseInvoice.data?.supplierReference,
-                  journalLineReference,
-                  companyId,
-                });
-              } else {
-                // debit the overhead account
-                journalLineInserts.push({
-                  accountNumber: accountDefaults.data.overheadAccount,
-                  description: "Overhead Account",
-                  amount: debit("asset", totalLineCostWithWeightedShipping),
+                  accountId: accountDefaults.data.payablesAccount,
+                  description: "Accounts Payable",
+                  amount: credit("liability", totalLineCostWithWeightedShipping),
                   quantity: invoiceLineQuantityInInventoryUnit,
                   documentType: "Invoice",
                   documentId: purchaseInvoice.data?.id,
@@ -404,54 +787,18 @@ serve(async (req: Request) => {
                   companyId,
                 });
 
-                // creidt the overhead cost applied account
-                journalLineInserts.push({
-                  accountNumber:
-                    accountDefaults.data.overheadCostAppliedAccount,
-                  description: "Overhead Cost Applied",
-                  amount: credit("expense", totalLineCostWithWeightedShipping),
-                  quantity: invoiceLineQuantityInInventoryUnit,
-                  documentType: "Invoice",
-                  documentId: purchaseInvoice.data?.id,
-                  externalDocumentId: purchaseInvoice.data?.supplierReference,
-                  journalLineReference,
-                  companyId,
-                });
+                const lineItemPostingGroupId =
+                  itemCosts.data.find(
+                    (cost) => cost.itemId === invoiceLine.itemId
+                  )?.itemPostingGroupId ?? null;
+                const itemDimMeta = {
+                  supplierTypeId: supplier.data.supplierTypeId ?? null,
+                  itemPostingGroupId: lineItemPostingGroupId,
+                  locationId: invoiceLine.locationId ?? null,
+                  costCenterId: null,
+                };
+                journalLineDimensionsMeta.push(itemDimMeta, itemDimMeta);
               }
-
-              journalLineReference = nanoid();
-
-              // debit the purchase account
-              journalLineInserts.push({
-                accountNumber: accountDefaults.data.purchaseAccount,
-                description: "Purchase Account",
-                amount: debit("expense", totalLineCostWithWeightedShipping),
-                quantity: invoiceLineQuantityInInventoryUnit,
-                documentType: "Invoice",
-                documentId: purchaseInvoice.data?.id,
-                externalDocumentId: purchaseInvoice.data?.supplierReference,
-                documentLineReference: journalReference.to.purchaseInvoice(
-                  invoiceLine.purchaseOrderLineId!
-                ),
-                journalLineReference,
-                companyId,
-              });
-
-              // credit the accounts payable account
-              journalLineInserts.push({
-                accountNumber: accountDefaults.data.payablesAccount,
-                description: "Accounts Payable",
-                amount: credit("liability", totalLineCostWithWeightedShipping),
-                quantity: invoiceLineQuantityInInventoryUnit,
-                documentType: "Invoice",
-                documentId: purchaseInvoice.data?.id,
-                externalDocumentId: purchaseInvoice.data?.supplierReference,
-                documentLineReference: journalReference.to.purchaseInvoice(
-                  invoiceLine.purchaseOrderLineId!
-                ),
-                journalLineReference,
-                companyId,
-              });
             } // if the line is associated with a purchase order line, we do accrual/reversing
             else {
               // create the cost entry
@@ -468,6 +815,7 @@ serve(async (req: Request) => {
                 nominalCost:
                   invoiceLine.quantity * (invoiceLine.unitPrice ?? 0),
                 cost: totalLineCostWithWeightedShipping,
+                remainingQuantity: invoiceLineQuantityInInventoryUnit,
                 supplierId: purchaseInvoice.data?.supplierId,
                 companyId,
               });
@@ -528,18 +876,19 @@ serve(async (req: Request) => {
               const quantityAlreadyReversed =
                 quantityReceived > quantityInvoiced ? quantityInvoiced : 0;
 
-              if (quantityToReverse > 0) {
+              const jlStartIdxReverse = journalLineInserts.length;
+
+              if (quantityToReverse > 0 && accountingEnabled && accountDefaults?.data) {
+                // Calculate receipt cost from existing journal lines for PPV
+                let receiptCostForReversedQty = 0;
                 let quantityCounted = 0;
-                let quantityReversed = 0;
+                let quantityReversedForVariance = 0;
 
                 existingJournalLineGroups.forEach((entry) => {
                   if (entry[0].quantity) {
                     const unitCostForEntry =
-                      (entry[0].amount ?? 0) / entry[0].quantity;
+                      Math.abs(entry[0].amount ?? 0) / entry[0].quantity;
 
-                    // we don't want to reverse an entry twice, so we need to keep track of what's been previously reversed
-
-                    // akin to supply
                     const quantityAvailableToReverseForEntry =
                       quantityAlreadyReversed > quantityCounted
                         ? entry[0].quantity +
@@ -547,11 +896,9 @@ serve(async (req: Request) => {
                           quantityAlreadyReversed
                         : entry[0].quantity;
 
-                    // akin to demand
                     const quantityRequiredToReverse =
-                      quantityToReverse - quantityReversed;
+                      quantityToReverse - quantityReversedForVariance;
 
-                    // we can't reverse more than what's available or what's required
                     const quantityToReverseForEntry = Math.max(
                       0,
                       Math.min(
@@ -560,145 +907,43 @@ serve(async (req: Request) => {
                       )
                     );
 
-                    if (quantityToReverseForEntry > 0) {
-                      journalLineReference = nanoid();
-
-                      // create the reversal entries
-                      journalLineInserts.push({
-                        accountNumber: entry[0].accountNumber!,
-                        description: entry[0].description,
-                        amount:
-                          entry[0].description === "Interim Inventory Accrual"
-                            ? credit(
-                                "asset",
-                                quantityToReverseForEntry * unitCostForEntry
-                              )
-                            : debit(
-                                "liability",
-                                quantityToReverseForEntry * unitCostForEntry
-                              ),
-                        quantity: quantityToReverseForEntry,
-                        documentType: "Invoice",
-                        documentId: purchaseInvoice.data?.id,
-                        externalDocumentId:
-                          purchaseInvoice?.data.supplierReference,
-                        documentLineReference: invoiceLine.purchaseOrderLineId
-                          ? journalReference.to.purchaseInvoice(
-                              invoiceLine.purchaseOrderLineId
-                            )
-                          : null,
-                        journalLineReference,
-                        companyId,
-                      });
-
-                      journalLineInserts.push({
-                        accountNumber: entry[1].accountNumber!,
-                        description: entry[1].description,
-                        amount:
-                          entry[1].description === "Interim Inventory Accrual"
-                            ? credit(
-                                "asset",
-                                quantityToReverseForEntry * unitCostForEntry
-                              )
-                            : debit(
-                                "liability",
-                                quantityToReverseForEntry * unitCostForEntry
-                              ),
-                        quantity: quantityToReverseForEntry,
-                        documentType: "Invoice",
-                        documentId: purchaseInvoice.data?.id,
-                        externalDocumentId:
-                          purchaseInvoice?.data.supplierReference,
-                        documentLineReference:
-                          journalReference.to.purchaseInvoice(
-                            invoiceLine.purchaseOrderLineId!
-                          ),
-                        journalLineReference,
-                        companyId,
-                      });
-                    }
-
+                    receiptCostForReversedQty +=
+                      quantityToReverseForEntry * unitCostForEntry;
                     quantityCounted += entry[0].quantity;
-                    quantityReversed += quantityToReverseForEntry;
+                    quantityReversedForVariance += quantityToReverseForEntry;
                   }
                 });
 
-                // create the normal GL entries for a part
+                const invoiceCostForReversedQty =
+                  quantityToReverse * invoiceLineUnitCostInInventoryUnit;
+                const variance =
+                  invoiceCostForReversedQty - receiptCostForReversedQty;
 
                 journalLineReference = nanoid();
 
-                if (itemTrackingType !== "Non-Inventory") {
-                  // debit the inventory account
-                  journalLineInserts.push({
-                    accountNumber: isOutsideProcessing
-                      ? accountDefaults.data.workInProgressAccount
-                      : accountDefaults.data.inventoryAccount,
-                    description: isOutsideProcessing
-                      ? "WIP Account"
-                      : "Inventory Account",
-                    amount: debit(
-                      "asset",
-                      quantityToReverse * invoiceLineUnitCostInInventoryUnit
-                    ),
-                    quantity: quantityToReverse,
-                    documentType: "Invoice",
-                    documentId: purchaseInvoice.data?.id,
-                    externalDocumentId: purchaseInvoice.data?.supplierReference,
-                    documentLineReference: journalReference.to.purchaseInvoice(
-                      invoiceLine.purchaseOrderLineId!
-                    ),
-                    journalLineReference,
-                    companyId,
-                  });
+                // DR GR/IR Clearing at receipt cost — clears the receipt's CR
+                journalLineInserts.push({
+                  accountId:
+                    accountDefaults.data.goodsReceivedNotInvoicedAccount,
+                  description: "GR/IR Clearing",
+                  amount: debit("liability", receiptCostForReversedQty),
+                  quantity: quantityToReverse,
+                  documentType: "Invoice",
+                  documentId: purchaseInvoice.data?.id,
+                  externalDocumentId: purchaseInvoice.data?.supplierReference,
+                  documentLineReference: journalReference.to.purchaseInvoice(
+                    invoiceLine.purchaseOrderLineId!
+                  ),
+                  journalLineReference,
+                  companyId,
+                });
 
-                  // creidt the direct cost applied account
+                // DR/CR Purchase Price Variance if invoice cost differs from receipt cost
+                if (Math.abs(variance) > 0.005) {
                   journalLineInserts.push({
-                    accountNumber:
-                      accountDefaults.data.directCostAppliedAccount,
-                    description: "Direct Cost Applied",
-                    amount: credit(
-                      "expense",
-                      quantityToReverse * invoiceLineUnitCostInInventoryUnit
-                    ),
-                    quantity: quantityToReverse,
-                    documentType: "Invoice",
-                    documentId: purchaseInvoice.data?.id,
-                    externalDocumentId: purchaseInvoice.data?.supplierReference,
-                    documentLineReference: journalReference.to.purchaseInvoice(
-                      invoiceLine.purchaseOrderLineId!
-                    ),
-                    journalLineReference,
-                    companyId,
-                  });
-                } else {
-                  // debit the overhead account
-                  journalLineInserts.push({
-                    accountNumber: accountDefaults.data.overheadAccount,
-                    description: "Overhead Account",
-                    amount: debit(
-                      "asset",
-                      quantityToReverse * invoiceLineUnitCostInInventoryUnit
-                    ),
-                    quantity: quantityToReverse,
-                    documentType: "Invoice",
-                    documentId: purchaseInvoice.data?.id,
-                    externalDocumentId: purchaseInvoice.data?.supplierReference,
-                    documentLineReference: journalReference.to.purchaseInvoice(
-                      invoiceLine.purchaseOrderLineId!
-                    ),
-                    journalLineReference,
-                    companyId,
-                  });
-
-                  // creidt the overhead cost applied account
-                  journalLineInserts.push({
-                    accountNumber:
-                      accountDefaults.data.overheadCostAppliedAccount,
-                    description: "Overhead Cost Applied",
-                    amount: credit(
-                      "expense",
-                      quantityToReverse * invoiceLineUnitCostInInventoryUnit
-                    ),
+                    accountId: accountDefaults.data.purchaseVarianceAccount,
+                    description: "Purchase Price Variance",
+                    amount: debit("expense", variance),
                     quantity: quantityToReverse,
                     documentType: "Invoice",
                     documentId: purchaseInvoice.data?.id,
@@ -711,35 +956,11 @@ serve(async (req: Request) => {
                   });
                 }
 
-                journalLineReference = nanoid();
-
-                // debit the purchase account
+                // CR Accounts Payable at invoice cost
                 journalLineInserts.push({
-                  accountNumber: accountDefaults.data.purchaseAccount,
-                  description: "Purchase Account",
-                  amount: debit(
-                    "expense",
-                    quantityToReverse * invoiceLineUnitCostInInventoryUnit
-                  ),
-                  quantity: quantityToReverse,
-                  documentType: "Invoice",
-                  documentId: purchaseInvoice.data?.id,
-                  externalDocumentId: purchaseInvoice.data?.supplierReference,
-                  documentLineReference: journalReference.to.purchaseInvoice(
-                    invoiceLine.purchaseOrderLineId!
-                  ),
-                  journalLineReference,
-                  companyId,
-                });
-
-                // credit the accounts payable account
-                journalLineInserts.push({
-                  accountNumber: accountDefaults.data.payablesAccount,
+                  accountId: accountDefaults.data.payablesAccount,
                   description: "Accounts Payable",
-                  amount: credit(
-                    "liability",
-                    quantityToReverse * invoiceLineUnitCostInInventoryUnit
-                  ),
+                  amount: credit("liability", invoiceCostForReversedQty),
                   quantity: quantityToReverse,
                   documentType: "Invoice",
                   documentId: purchaseInvoice.data?.id,
@@ -750,25 +971,39 @@ serve(async (req: Request) => {
                   journalLineReference,
                   companyId,
                 });
+
+                const reverseLineItemPostingGroupId =
+                  itemCosts.data.find(
+                    (cost) => cost.itemId === invoiceLine.itemId
+                  )?.itemPostingGroupId ?? null;
+                const reverseDimMeta = {
+                  supplierTypeId: supplier.data.supplierTypeId ?? null,
+                  itemPostingGroupId: reverseLineItemPostingGroupId,
+                  locationId: invoiceLine.locationId ?? null,
+                  costCenterId: null,
+                };
+                const reverseJlCount =
+                  journalLineInserts.length - jlStartIdxReverse;
+                for (let i = 0; i < reverseJlCount; i++) {
+                  journalLineDimensionsMeta.push(reverseDimMeta);
+                }
               }
 
-              if (invoiceLineQuantityInInventoryUnit > quantityToReverse) {
-                // create the accrual entries for invoiced not received
+              if (invoiceLineQuantityInInventoryUnit > quantityToReverse && accountingEnabled && accountDefaults?.data) {
                 const quantityToAccrue =
                   invoiceLineQuantityInInventoryUnit - quantityToReverse;
+                const accrualCost =
+                  quantityToAccrue * invoiceLineUnitCostInInventoryUnit;
 
                 journalLineReference = nanoid();
 
-                // debit the inventory invoiced not received account
+                // DR GR/IR Clearing — debit balance represents goods invoiced but not received
                 journalLineInserts.push({
-                  accountNumber:
-                    accountDefaults.data.inventoryInvoicedNotReceivedAccount,
-                  description: "Inventory Invoiced Not Received",
+                  accountId:
+                    accountDefaults.data.goodsReceivedNotInvoicedAccount,
+                  description: "GR/IR Clearing",
                   accrual: true,
-                  amount: debit(
-                    "asset",
-                    quantityToAccrue * invoiceLineUnitCostInInventoryUnit
-                  ),
+                  amount: debit("liability", accrualCost),
                   quantity: quantityToAccrue,
                   documentType: "Invoice",
                   documentId: purchaseInvoice.data?.id,
@@ -782,16 +1017,12 @@ serve(async (req: Request) => {
                   companyId,
                 });
 
-                // credit the inventory interim accrual account
+                // CR Accounts Payable
                 journalLineInserts.push({
-                  accountNumber:
-                    accountDefaults.data.inventoryInterimAccrualAccount,
+                  accountId: accountDefaults.data.payablesAccount,
+                  description: "Accounts Payable",
                   accrual: true,
-                  description: "Interim Inventory Accrual",
-                  amount: credit(
-                    "asset",
-                    quantityToAccrue * invoiceLineUnitCostInInventoryUnit
-                  ),
+                  amount: credit("liability", accrualCost),
                   quantity: quantityToAccrue,
                   documentType: "Invoice",
                   documentId: purchaseInvoice.data?.id,
@@ -804,6 +1035,18 @@ serve(async (req: Request) => {
                   journalLineReference,
                   companyId,
                 });
+
+                const accrualLineItemPostingGroupId =
+                  itemCosts.data.find(
+                    (cost) => cost.itemId === invoiceLine.itemId
+                  )?.itemPostingGroupId ?? null;
+                const accrualDimMeta = {
+                  supplierTypeId: supplier.data.supplierTypeId ?? null,
+                  itemPostingGroupId: accrualLineItemPostingGroupId,
+                  locationId: invoiceLine.locationId ?? null,
+                  costCenterId: null,
+                };
+                journalLineDimensionsMeta.push(accrualDimMeta, accrualDimMeta);
               }
             }
           }
@@ -815,97 +1058,62 @@ serve(async (req: Request) => {
         case "Comment":
           break;
         case "G/L Account": {
-          const [account, accountDefaults] = await Promise.all([
-            client
-              .from("accounts")
-              .select("name, number, directPosting")
-              .eq("number", invoiceLine.accountNumber ?? "")
-              .eq("companyId", companyId)
-              .single(),
-            client
-              .from("accountDefault")
-              .select(
-                "overheadCostAppliedAccount, payablesAccount, purchaseAccount"
-              )
-              .eq("companyId", companyId)
-              .single(),
-          ]);
-          if (account.error || !account.data)
-            throw new Error("Failed to fetch account");
-          if (!account.data.directPosting)
-            throw new Error("Account is not a direct posting account");
+          if (accountingEnabled && accountDefaults?.data) {
+            const account = await client
+              .from("account")
+              .select("id, name, isGroup")
+              .eq("id", invoiceLine.accountId ?? "")
+              .single();
 
-          if (accountDefaults.error || !accountDefaults.data)
-            throw new Error("Failed to fetch account defaults");
+            if (account.error || !account.data)
+              throw new Error("Failed to fetch account");
+            if (account.data.isGroup)
+              throw new Error("Cannot post to a group account");
 
-          journalLineReference = nanoid();
+            journalLineReference = nanoid();
 
-          // debit the G/L account
-          journalLineInserts.push({
-            accountNumber: account.data.number!,
-            description: account.data.name!,
-            // we limit the account to assets and expenses in the UI, so we don't need to check here
-            amount: debit("asset", totalLineCostWithWeightedShipping),
-            quantity: invoiceLineQuantityInInventoryUnit,
-            documentType: "Invoice",
-            documentId: purchaseInvoice.data?.id,
-            externalDocumentId: purchaseInvoice.data?.supplierReference,
-            documentLineReference: journalReference.to.purchaseInvoice(
-              invoiceLine.purchaseOrderLineId!
-            ),
-            journalLineReference,
-            companyId,
-          });
+            journalLineInserts.push({
+              accountId: account.data.id,
+              description: account.data.name!,
+              amount: debit("asset", totalLineCostWithWeightedShipping),
+              quantity: invoiceLineQuantityInInventoryUnit,
+              documentType: "Invoice",
+              documentId: purchaseInvoice.data?.id,
+              externalDocumentId: purchaseInvoice.data?.supplierReference,
+              documentLineReference: invoiceLine.purchaseOrderLineId
+                ? journalReference.to.purchaseInvoice(
+                    invoiceLine.purchaseOrderLineId
+                  )
+                : null,
+              journalLineReference,
+              companyId,
+            });
 
-          // credit the direct cost applied account
-          journalLineInserts.push({
-            accountNumber: accountDefaults.data.overheadCostAppliedAccount!,
-            description: "Overhead Cost Applied",
-            amount: credit("expense", totalLineCostWithWeightedShipping),
-            quantity: invoiceLineQuantityInInventoryUnit,
-            documentType: "Invoice",
-            documentId: purchaseInvoice.data?.id,
-            externalDocumentId: purchaseInvoice.data?.supplierReference,
-            documentLineReference: journalReference.to.purchaseInvoice(
-              invoiceLine.purchaseOrderLineId!
-            ),
-            journalLineReference,
-            companyId,
-          });
+            journalLineInserts.push({
+              accountId: accountDefaults.data.payablesAccount,
+              description: "Accounts Payable",
+              amount: credit("liability", totalLineCostWithWeightedShipping),
+              quantity: invoiceLineQuantityInInventoryUnit,
+              documentType: "Invoice",
+              documentId: purchaseInvoice.data?.id,
+              externalDocumentId: purchaseInvoice.data?.supplierReference,
+              documentLineReference: invoiceLine.purchaseOrderLineId
+                ? journalReference.to.purchaseInvoice(
+                    invoiceLine.purchaseOrderLineId
+                  )
+                : null,
+              journalLineReference,
+              companyId,
+            });
 
-          journalLineReference = nanoid();
-
-          // debit the purchase account
-          journalLineInserts.push({
-            accountNumber: accountDefaults.data.purchaseAccount!,
-            description: "Purchase Account",
-            amount: debit("expense", totalLineCostWithWeightedShipping),
-            quantity: invoiceLineQuantityInInventoryUnit,
-            documentType: "Invoice",
-            documentId: purchaseInvoice.data?.id,
-            externalDocumentId: purchaseInvoice.data?.supplierReference,
-            documentLineReference: journalReference.to.purchaseInvoice(
-              invoiceLine.purchaseOrderLineId!
-            ),
-            journalLineReference,
-            companyId,
-          });
-
-          // credit the accounts payable account
-          journalLineInserts.push({
-            accountNumber: accountDefaults.data.payablesAccount!,
-            description: "Accounts Payable",
-            amount: credit("liability", totalLineCostWithWeightedShipping),
-            quantity: invoiceLineQuantityInInventoryUnit,
-            documentType: "Invoice",
-            documentId: purchaseInvoice.data?.id,
-            externalDocumentId: purchaseInvoice.data?.supplierReference,
-            documentLineReference: journalReference.to.purchaseInvoice(
-              invoiceLine.purchaseOrderLineId!
-            ),
-            journalLineReference,
-            companyId,
-          });
+            const glDimMeta = {
+              supplierTypeId: null,
+              itemPostingGroupId: null,
+              locationId: invoiceLine.locationId ?? null,
+              costCenterId: invoiceLine.costCenterId ?? null,
+            };
+            journalLineDimensionsMeta.push(glDimMeta, glDimMeta);
+          }
           break;
         }
         default:
@@ -913,11 +1121,9 @@ serve(async (req: Request) => {
       }
     }
 
-    const accountingPeriodId = await getCurrentAccountingPeriod(
-      client,
-      companyId,
-      db
-    );
+    const accountingPeriodId = accountingEnabled
+      ? await getCurrentAccountingPeriod(client, companyId, db)
+      : null;
 
     const createdReceiptIds: string[] = [];
 
@@ -1020,7 +1226,9 @@ serve(async (req: Request) => {
 
         const areAllLinesReceived = purchaseOrderLines.every(
           (line) =>
-            line.purchaseOrderLineType === "Comment" || line.receivedComplete
+            line.purchaseOrderLineType === "Comment" ||
+            line.purchaseOrderLineType === "G/L Account" ||
+            line.receivedComplete
         );
 
         let status: Database["public"]["Tables"]["purchaseOrder"]["Row"]["status"] =
@@ -1043,30 +1251,104 @@ serve(async (req: Request) => {
           .execute();
       }
 
-      const journal = await trx
-        .insertInto("journal")
-        .values({
-          accountingPeriodId,
-          description: `Purchase Invoice ${purchaseInvoice.data?.invoiceId}`,
-          postingDate: today,
-          companyId,
-        })
-        .returning(["id"])
-        .execute();
+      if (accountingEnabled && journalLineInserts.length > 0) {
+        const journalEntryId = await getNextSequence(
+          trx,
+          "journalEntry",
+          companyId
+        );
 
-      const journalId = journal[0].id;
-      if (!journalId) throw new Error("Failed to insert journal");
+        const journal = await trx
+          .insertInto("journal")
+          .values({
+            journalEntryId,
+            accountingPeriodId,
+            description: `Purchase Invoice ${purchaseInvoice.data?.invoiceId}`,
+            postingDate: today,
+            companyId,
+            sourceType: "Purchase Invoice",
+            status: "Posted",
+            postedAt: new Date().toISOString(),
+            postedBy: userId,
+            createdBy: userId,
+          })
+          .returning(["id"])
+          .execute();
 
-      await trx
-        .insertInto("journalLine")
-        .values(
-          journalLineInserts.map((journalLine) => ({
-            ...journalLine,
-            journalId,
-          }))
-        )
-        .returning(["id"])
-        .execute();
+        const journalId = journal[0].id;
+        if (!journalId) throw new Error("Failed to insert journal");
+
+        const journalLineResults = await trx
+          .insertInto("journalLine")
+          .values(
+            journalLineInserts.map((journalLine) => ({
+              ...journalLine,
+              journalId,
+            }))
+          )
+          .returning(["id"])
+          .execute();
+
+        if (dimensionMap.size > 0) {
+          const journalLineDimensionInserts: {
+            journalLineId: string;
+            dimensionId: string;
+            valueId: string;
+            companyId: string;
+          }[] = [];
+
+          journalLineResults.forEach((jl, index) => {
+            const meta = journalLineDimensionsMeta[index];
+            if (!meta) return;
+
+            if (
+              meta.supplierTypeId &&
+              dimensionMap.has("SupplierType")
+            ) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("SupplierType")!,
+                valueId: meta.supplierTypeId,
+                companyId,
+              });
+            }
+            if (
+              meta.itemPostingGroupId &&
+              dimensionMap.has("ItemPostingGroup")
+            ) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("ItemPostingGroup")!,
+                valueId: meta.itemPostingGroupId,
+                companyId,
+              });
+            }
+            if (meta.locationId && dimensionMap.has("Location")) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("Location")!,
+                valueId: meta.locationId,
+                companyId,
+              });
+            }
+            if (meta.costCenterId && dimensionMap.has("CostCenter")) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("CostCenter")!,
+                valueId: meta.costCenterId,
+                companyId,
+              });
+            }
+          });
+
+          if (journalLineDimensionInserts.length > 0) {
+            await trx
+              .insertInto("journalLineDimension")
+              .values(journalLineDimensionInserts)
+              .execute();
+          }
+        }
+      }
 
       if (itemLedgerInserts.length > 0) {
         await trx
@@ -1089,7 +1371,7 @@ serve(async (req: Request) => {
         .set({
           datePaid: today, // TODO: remove this once we have payments working
           postingDate: today,
-          status: "Submitted",
+          status: "Open",
         })
         .where("id", "=", invoiceId)
         .execute();
@@ -1106,7 +1388,7 @@ serve(async (req: Request) => {
     );
   } catch (err) {
     console.error(err);
-    if ("invoiceId" in payload) {
+    if (payload.type !== "void" && "invoiceId" in payload) {
       const client = await getSupabaseServiceRole(
         req.headers.get("Authorization"),
         req.headers.get("carbon-key") ?? "",

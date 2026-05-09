@@ -3,11 +3,12 @@ import {
   CONTROLLED_ENVIRONMENT,
   callbackValidator,
   carbonClient,
-  error
+  error,
+  safeRedirect
 } from "@carbon/auth";
 import { refreshAccessToken } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { setCompanyId } from "@carbon/auth/company.server";
+import { getCompanyId, setCompanyId } from "@carbon/auth/company.server";
 import {
   destroyAuthSession,
   flash,
@@ -21,7 +22,13 @@ import { Trans } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { data, redirect, useFetcher, useLocation } from "react-router";
+import {
+  data,
+  redirect,
+  useFetcher,
+  useLocation,
+  useSearchParams
+} from "react-router";
 import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -45,17 +52,26 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const { refreshToken, userId } = validation.data;
+  const { refreshToken, userId, redirectTo } = validation.data;
   const serviceRole = getCarbonServiceRole();
 
   const companies = await serviceRole
     .from("userToCompany")
-    .select("companyId")
+    .select("companyId, ...company(companyGroupId)")
     .eq("userId", userId);
+
+  const cookieCompanyId = getCompanyId(request);
+  const match = (companies.data?.find((c) => c.companyId === cookieCompanyId) ??
+    companies.data?.[0]) as
+    | { companyId: string; companyGroupId: string | null }
+    | undefined;
+  const companyId = match?.companyId;
+  const companyGroupId = match?.companyGroupId ?? "";
 
   const authSession = await refreshAccessToken(
     refreshToken,
-    companies.data?.[0]?.companyId
+    companyId,
+    companyGroupId
   );
 
   if (!authSession) {
@@ -72,7 +88,7 @@ export async function action({ request }: ActionFunctionArgs) {
       authSession
     });
     const companyIdCookie = setCompanyId(authSession.companyId);
-    return redirect(path.to.authenticatedRoot, {
+    return redirect(safeRedirect(redirectTo, path.to.authenticatedRoot), {
       headers: [
         ["Set-Cookie", sessionCookie],
         ["Set-Cookie", companyIdCookie]
@@ -92,6 +108,8 @@ export default function AuthCallback() {
   const [error, setError] = useState<string | null>(null);
 
   const { hash } = useLocation();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo") ?? undefined;
 
   useEffect(() => {
     const hashParams = new URLSearchParams(hash.slice(1));
@@ -119,6 +137,7 @@ export default function AuthCallback() {
         const formData = new FormData();
         formData.append("refreshToken", refreshToken);
         formData.append("userId", userId);
+        if (redirectTo) formData.append("redirectTo", redirectTo);
 
         fetcher.submit(formData, { method: "post" });
       }
@@ -127,7 +146,7 @@ export default function AuthCallback() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [fetcher]);
+  }, [fetcher, redirectTo]);
 
   return (
     <div className="flex flex-col items-center justify-center">

@@ -167,12 +167,12 @@ function WarehouseTransferLineListItem({
               <Badge variant="secondary">
                 {Number(line.quantity).toLocaleString()}
               </Badge>
-              {line.fromShelf && (
-                <Badge variant="outline">{line.fromShelf.name}</Badge>
+              {line.fromStorageUnit && (
+                <Badge variant="outline">{line.fromStorageUnit.name}</Badge>
               )}
               <LuArrowRight className="size-4" />
-              {line.toShelf && (
-                <Badge variant="outline">{line.toShelf.name}</Badge>
+              {line.toStorageUnit && (
+                <Badge variant="outline">{line.toStorageUnit.name}</Badge>
               )}
             </div>
           </HStack>

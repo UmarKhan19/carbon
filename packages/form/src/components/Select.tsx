@@ -1,4 +1,5 @@
 import {
+  buttonVariants,
   Select as CarbonSelect,
   cn,
   FormControl,
@@ -26,6 +27,7 @@ export type SelectProps = Omit<SelectBaseProps, "onChange"> & {
   helperText?: string;
   isConfigured?: boolean;
   isOptional?: boolean;
+  isRequired?: boolean;
   onChange?: (
     newValue: { value: string; label: string | JSX.Element } | null
   ) => void;
@@ -42,6 +44,7 @@ const Select = ({
   helperText,
   isConfigured = false,
   isOptional,
+  isRequired,
   isLoading,
   options,
   onConfigure,
@@ -52,7 +55,8 @@ const Select = ({
   const formState = useFormStateContext();
   const isDisabled = formState.isDisabled || props.isDisabled;
   const isReadOnly = formState.isReadOnly || props.isReadOnly;
-  const resolvedIsOptional = isOptional ?? fieldIsOptional ?? false;
+  const resolvedIsOptional =
+    isOptional ?? (isRequired ? false : (fieldIsOptional ?? false));
 
   const onChange = (value: string) => {
     if (value) {
@@ -63,7 +67,11 @@ const Select = ({
   };
 
   return (
-    <FormControl isInvalid={!!error} className={props.className}>
+    <FormControl
+      isInvalid={!!error}
+      isRequired={isRequired}
+      className={props.className}
+    >
       {label && (
         <FormLabel
           htmlFor={name}
@@ -109,6 +117,9 @@ const Select = ({
 };
 
 Select.displayName = "Select";
+
+const iconSizeClass = (size: "sm" | "md" | "lg") =>
+  size === "lg" ? "size-5" : size === "md" ? "size-4" : "size-3.5";
 
 export default Select;
 
@@ -177,13 +188,23 @@ export const SelectBase = forwardRef<HTMLButtonElement, SelectBaseProps>(
             hideIcon={isLoading}
           >
             {isInlinePreview ? (
-              <IconButton
-                size={size ?? "sm"}
-                variant="secondary"
-                aria-label={value ? "Edit" : "Add"}
-                icon={value ? <LuSettings2 /> : <LuPlus />}
-                isDisabled={isNonInteractive}
-              />
+              <span
+                aria-hidden
+                className={cn(
+                  buttonVariants({
+                    variant: "secondary",
+                    size: size ?? "sm",
+                    isIcon: true,
+                    isDisabled: isNonInteractive
+                  })
+                )}
+              >
+                {value ? (
+                  <LuSettings2 className={iconSizeClass(size ?? "sm")} />
+                ) : (
+                  <LuPlus className={iconSizeClass(size ?? "sm")} />
+                )}
+              </span>
             ) : (
               <div>
                 <SelectValue placeholder={placeholder} />

@@ -183,6 +183,7 @@ const JobMaterialForm = ({
                 label={itemType}
                 type={itemType}
                 includeInactive
+                locationId={jobData?.job?.locationId ?? undefined}
                 onChange={(value) => {
                   onItemChange(value?.value as string);
                 }}

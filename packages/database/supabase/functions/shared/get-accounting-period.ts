@@ -1,5 +1,5 @@
+import { SupabaseClient } from "@supabase/supabase-js";
 import { format } from "https://deno.land/std@0.160.0/datetime/mod.ts";
-import { SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.33.1";
 import { Kysely } from "kysely";
 import { DB } from "../lib/database.ts";
 import { Database } from "../lib/types.ts";

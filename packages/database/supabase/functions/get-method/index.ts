@@ -5,7 +5,7 @@ import { z } from "npm:zod@^3.24.1";
 import type {
     PostgrestError,
     SupabaseClient,
-} from "https://esm.sh/@supabase/supabase-js@2.33.1";
+} from "@supabase/supabase-js";
 
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
@@ -29,13 +29,13 @@ import {
     traverseJobMethod,
     traverseQuoteMethod,
 } from "../lib/methods.ts";
+import { KyselyDatabase } from "../lib/postgres/index.ts";
 import { importTypeScript } from "../lib/sandbox.ee.ts";
-import { getShelfId } from "../lib/shelves.ts";
+import { getStorageUnitId } from "../lib/storage-units.ts";
 import {
     getNextRevisionSequence,
     getNextSequence,
 } from "../shared/get-next-sequence.ts";
-import { KyselyDatabase } from "../lib/postgres/index.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -396,6 +396,17 @@ serve(async (req: Request) => {
         }, {});
 
         await db.transaction().execute(async (trx) => {
+          if (isConfigured) {
+            await trx.updateTable("job")
+              .set({
+                configuration: JSON.stringify(configuration),
+                updatedAt: new Date().toISOString(),
+                updatedBy: userId,
+              })
+              .where("id", "=", jobId)
+              .execute();
+          }
+
           // Delete existing jobMakeMethod, jobMakeMethodOperation, jobMakeMethodMaterial
           await Promise.all([
             parts.billOfMaterial
@@ -605,6 +616,8 @@ serve(async (req: Request) => {
                   defaultValue: op.operationType,
                 }),
               ]);
+
+              if (processId === "") continue;
 
               jobOperationsInserts.push({
                 jobId,
@@ -824,6 +837,8 @@ serve(async (req: Request) => {
                 }),
               ]);
 
+              if (itemId === "") return null;
+
               let itemType = child.data.itemType;
               let unitCost = child.data.unitCost;
               let requiresSerialTracking =
@@ -893,13 +908,13 @@ serve(async (req: Request) => {
                 quantity,
                 scrapQuantity: childScrapQuantity,
                 estimatedQuantity: childEstimatedQuantity,
-                shelfId: locationId
-                  ? await getShelfId(
+                storageUnitId: locationId
+                  ? await getStorageUnitId(
                       trx,
                       child.data.itemId,
                       locationId,
                       // @ts-ignore
-                      child.data.shelfIds?.[locationId] as string
+                      child.data.storageUnitIds?.[locationId] as string
                     )
                   : undefined,
                 requiresSerialTracking,
@@ -913,9 +928,17 @@ serve(async (req: Request) => {
               };
             };
 
-            let materialsWithConfiguredFields = await Promise.all(
+            const jobMaterialResults = await Promise.all(
               node.children.map(mapMethodMaterialToJobMaterial)
             );
+            const validJobMaterialIndices = jobMaterialResults.reduce<number[]>((acc, m, i) => {
+              if (m !== null) acc.push(i);
+              return acc;
+            }, []);
+            let materialsWithConfiguredFields = jobMaterialResults.filter(
+              (m): m is NonNullable<typeof m> => m !== null
+            );
+            const configuredChildren = validJobMaterialIndices.map(i => node.children[i]);
 
             const bomConfigurationKey = `billOfMaterial:${nodeLevelConfigurationKey}`;
             let bomConfiguration: string[] | null = null;
@@ -953,7 +976,7 @@ serve(async (req: Request) => {
                 (material) => material.methodType !== "Make to Order"
               );
 
-            const madeChildren = node.children.filter(
+            const madeChildren = configuredChildren.filter(
               (child) => child.data.methodType === "Make to Order"
             );
 
@@ -1403,12 +1426,12 @@ serve(async (req: Request) => {
                 unitOfMeasureCode: child.data.unitOfMeasureCode,
                 unitCost: child.data.unitCost,
                 itemScrapPercentage,
-                shelfId: await getShelfId(
+                storageUnitId: await getStorageUnitId(
                   trx,
                   child.data.itemId,
                   job.data?.locationId ?? "",
-                  // @ts-ignore: shelfIds is a dynamic field
-                  child.data.shelfIds?.[job.data.locationId] ?? undefined
+                  // @ts-ignore: storageUnitIds is a dynamic field
+                  child.data.storageUnitIds?.[job.data.locationId] ?? undefined
                 ),
                 companyId,
                 createdBy: userId,
@@ -1519,7 +1542,7 @@ serve(async (req: Request) => {
             .eq("quoteLineId", quoteLineId)
             .is("parentMaterialId", null)
             .eq("companyId", companyId)
-            .single(),
+            .maybeSingle(),
           client.from("workCenters").select("*").eq("companyId", companyId),
           client.from("supplierProcess").select("*").eq("companyId", companyId),
           isConfigured
@@ -1554,6 +1577,25 @@ serve(async (req: Request) => {
           throw new Error("Failed to get quote make method");
         }
 
+        if (!quoteMakeMethod.data) {
+          const inserted = await client
+            .from("quoteMakeMethod")
+            .insert({
+              quoteId,
+              quoteLineId,
+              itemId,
+              companyId,
+              createdBy: userId,
+            })
+            .select("*")
+            .single();
+
+          if (inserted.error || !inserted.data) {
+            throw new Error("Failed to create quote make method");
+          }
+          quoteMakeMethod.data = inserted.data;
+        }
+
         if (workCenters.error) {
           throw new Error("Failed to get related work centers");
         }
@@ -1584,6 +1626,17 @@ serve(async (req: Request) => {
         );
 
         await db.transaction().execute(async (trx: Transaction<KyselyDatabase>) => {
+          if (isConfigured) {
+            await trx.updateTable("quoteLine")
+              .set({
+                configuration: JSON.stringify(configuration),
+                updatedAt: new Date().toISOString(),
+                updatedBy: userId,
+              })
+              .where("id", "=", quoteLineId)
+              .execute();
+          }
+
           // Delete existing quoteMakeMethod, quoteMakeMethodOperation, quoteMakeMethodMaterial
           await Promise.all([
             parts.billOfMaterial
@@ -1768,6 +1821,8 @@ serve(async (req: Request) => {
                   defaultValue: op.operationType,
                 }),
               ]);
+
+              if (processId === "") continue;
 
               const operationRates = getLaborAndOverheadRates(
                 processId,
@@ -1989,6 +2044,8 @@ serve(async (req: Request) => {
                 }),
               ]);
 
+              if (itemId === "") return null;
+
               let itemType = child.data.itemType;
               let unitCost = child.data.unitCost;
 
@@ -2028,9 +2085,9 @@ serve(async (req: Request) => {
                 methodType,
                 description,
                 quantity,
-                shelfId: quoteLocationId
-                  ? // @ts-ignore: shelfIds is a dynamic object with location keys
-                    (child.data.shelfIds?.[quoteLocationId] as string) || null
+                storageUnitId: quoteLocationId
+                  ? // @ts-ignore: storageUnitIds is a dynamic object with location keys
+                    (child.data.storageUnitIds?.[quoteLocationId] as string) || null
                   : null,
                 unitOfMeasureCode,
                 unitCost: unitCost ?? 0,
@@ -2040,9 +2097,17 @@ serve(async (req: Request) => {
               };
             };
 
-            let materialsWithConfiguredFields = await Promise.all(
+            const quoteMaterialResults = await Promise.all(
               node.children.map(mapMethodMaterialToQuoteMaterial)
             );
+            const validQuoteMaterialIndices = quoteMaterialResults.reduce<number[]>((acc, m, i) => {
+              if (m !== null) acc.push(i);
+              return acc;
+            }, []);
+            let materialsWithConfiguredFields = quoteMaterialResults.filter(
+              (m): m is NonNullable<typeof m> => m !== null
+            );
+            const configuredChildren = validQuoteMaterialIndices.map(i => node.children[i]);
 
             const bomConfigurationKey = `billOfMaterial:${nodeLevelConfigurationKey}`;
             let bomConfiguration: string[] | null = null;
@@ -2080,7 +2145,7 @@ serve(async (req: Request) => {
                 (material) => material.methodType !== "Make to Order"
               );
 
-            const madeChildren = node.children.filter(
+            const madeChildren = configuredChildren.filter(
               (child) => child.data.methodType === "Make to Order"
             );
 
@@ -2453,7 +2518,7 @@ serve(async (req: Request) => {
               order: child.data.order,
               description: child.data.description,
               quantity: child.data.quantity,
-              shelfId: (child.data as any).shelfId || null, // @ts-ignore: shelfId field exists in database but types may not be updated
+              storageUnitId: (child.data as any).storageUnitId || null, // @ts-ignore: storageUnitId field exists in database but types may not be updated
               unitOfMeasureCode: child.data.unitOfMeasureCode,
               unitCost: child.data.unitCost ?? 0,
               companyId,
@@ -2641,9 +2706,9 @@ serve(async (req: Request) => {
                 order: child.data.order,
                 quantity: child.data.quantity,
                 unitOfMeasureCode: child.data.unitOfMeasureCode,
-                shelfIds: job.data?.locationId
+                storageUnitIds: job.data?.locationId
                   ? {
-                      [job.data.locationId]: child.data.shelfId || null,
+                      [job.data.locationId]: child.data.storageUnitId || null,
                     }
                   : {},
                 companyId,
@@ -2941,9 +3006,9 @@ serve(async (req: Request) => {
                 order: child.data.order,
                 quantity: child.data.quantity,
                 unitOfMeasureCode: child.data.unitOfMeasureCode,
-                shelfIds: job.data?.locationId
+                storageUnitIds: job.data?.locationId
                   ? {
-                      [job.data.locationId]: child.data.shelfId || null,
+                      [job.data.locationId]: child.data.storageUnitId || null,
                     }
                   : {},
                 companyId,
@@ -3545,9 +3610,9 @@ serve(async (req: Request) => {
                   methodType: child.data.methodType,
                   order: child.data.order,
                   quantity: child.data.quantity,
-                  shelfIds: quote.data?.locationId
-                    ? // @ts-ignore: shelfIds is a dynamic object with location keys
-                      { [quote.data.locationId]: child.data.shelfId || null }
+                  storageUnitIds: quote.data?.locationId
+                    ? // @ts-ignore: storageUnitIds is a dynamic object with location keys
+                      { [quote.data.locationId]: child.data.storageUnitId || null }
                     : {},
                   unitOfMeasureCode: child.data.unitOfMeasureCode,
                   companyId,
@@ -4263,11 +4328,11 @@ serve(async (req: Request) => {
                   scrapQuantity: childScrapQuantity,
                   estimatedQuantity: childEstimatedQuantity,
                   itemScrapPercentage,
-                  shelfId: await getShelfId(
+                  storageUnitId: await getStorageUnitId(
                     trx,
                     child.data.itemId,
                     job.data.locationId,
-                    child.data.shelfId
+                    child.data.storageUnitId
                   ),
                   requiresBatchTracking:
                     child.data.itemTrackingType === "Batch",
@@ -4582,7 +4647,7 @@ serve(async (req: Request) => {
                           child.data.quoteMakeMethodId
                         ],
                   quantity: child.data.quantity,
-                  shelfId: child.data.shelfId,
+                  storageUnitId: child.data.storageUnitId,
                   unitOfMeasureCode: child.data.unitOfMeasureCode,
                   unitCost: child.data.unitCost, // TODO: get unit cost
                   companyId,
@@ -5064,7 +5129,7 @@ serve(async (req: Request) => {
                             child.data.quoteMakeMethodId
                           ],
                     quantity: child.data.quantity,
-                    shelfId: child.data.shelfId,
+                    storageUnitId: child.data.storageUnitId,
                     unitCost: child.data.unitCost, // TODO: get unit cost
                     unitOfMeasureCode: child.data.unitOfMeasureCode,
                     companyId,

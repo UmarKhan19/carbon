@@ -22,7 +22,6 @@ import {
   TabsTrigger,
   VStack
 } from "@carbon/react";
-import { formatRelativeTime } from "@carbon/utils";
 import { parseDate } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
@@ -44,11 +43,11 @@ import {
   Location,
   NumberControlled,
   SequenceOrCustomId,
-  Shelf,
+  StorageUnit,
   Submit,
   Supplier
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { useDateFormatter, usePermissions } from "~/hooks";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import { gaugeRole, gaugeValidator } from "../../quality.models";
@@ -75,6 +74,7 @@ const GaugeForm = ({
   onClose
 }: GaugeFormProps) => {
   const { t } = useLingui();
+  const { formatRelativeTime } = useDateFormatter();
   const permissions = usePermissions();
   const fetcher = useFetcher<{}>();
   const navigate = useNavigate();
@@ -434,9 +434,9 @@ function GaugeFormContent({
           }}
         />
         <Location name="locationId" label={t`Location`} />
-        <Shelf
-          name="shelfId"
-          label={t`Shelf`}
+        <StorageUnit
+          name="storageUnitId"
+          label={t`Storage Unit`}
           locationId={initialValues.locationId}
         />
         <CustomFormFields table="gauge" />

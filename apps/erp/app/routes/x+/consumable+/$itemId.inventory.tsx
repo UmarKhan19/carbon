@@ -3,23 +3,34 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
+import { pluckUnique } from "@carbon/utils";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
-import { InventoryDetails } from "~/modules/inventory";
+import {
+  getTrackedEntityExpirations,
+  InventoryDetails
+} from "~/modules/inventory";
 
 import type { Consumable, UnitOfMeasureListItem } from "~/modules/items";
 import {
+  getBomHasShelfLifeManagedInput,
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemShelfLife,
+  getItemStorageUnitQuantities,
   getPickMethod,
-  pickMethodValidator,
-  upsertPickMethod
+  pickMethodWithShelfLifeValidator,
+  type shelfLifeModes,
+  upsertPickMethod,
+  upsertPickMethodWithShelfLife
 } from "~/modules/items";
+import { getItemRulesDataForItem } from "~/modules/items/itemRules.server";
 import { PickMethodForm } from "~/modules/items/ui/Item";
+import ItemRuleAssignments from "~/modules/items/ui/ItemRules/ItemRuleAssignments";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
+import { getDatabaseClient } from "~/services/database.server";
 import { useItems } from "~/stores/items";
 import type { ListItem } from "~/types";
 import { getCustomFields, setCustomFields } from "~/utils/form";
@@ -125,34 +136,56 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const itemShelfQuantities = await getItemShelfQuantities(
+  const itemStorageUnitQuantities = await getItemStorageUnitQuantities(
     client,
     itemId,
     companyId,
     locationId
   );
-  if (itemShelfQuantities.error || !itemShelfQuantities.data) {
+  if (itemStorageUnitQuantities.error || !itemStorageUnitQuantities.data) {
     throw redirect(
       path.to.items,
       await flash(
         request,
-        error(itemShelfQuantities, "Failed to load consumable quantities")
+        error(itemStorageUnitQuantities, "Failed to load consumable quantities")
       )
     );
   }
 
+  const trackedEntityIds = pluckUnique(
+    itemStorageUnitQuantities.data,
+    (row) => row.trackedEntityId
+  );
+
+  const [
+    shelfLife,
+    bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
+    rulesData
+  ] = await Promise.all([
+    getItemShelfLife(client, itemId),
+    getBomHasShelfLifeManagedInput(client, itemId, companyId),
+    getTrackedEntityExpirations(client, trackedEntityIds),
+    getItemRulesDataForItem(client, itemId, companyId)
+  ]);
+
   return {
     consumableInventory: consumableInventory.data,
-    itemShelfQuantities: itemShelfQuantities.data,
+    itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
+    shelfLife: shelfLife.data,
+    bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
     itemId,
-    locationId
+    locationId,
+    ruleAssignments: rulesData.assignments,
+    ruleLibrary: rulesData.library
   };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { userId } = await requirePermissions(request, {
     update: "parts"
   });
 
@@ -160,33 +193,47 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!itemId) throw new Error("Could not find itemId");
 
   const formData = await request.formData();
-  // validate with consumablesValidator
-  const validation = await validator(pickMethodValidator).validate(formData);
+  const validation = await validator(pickMethodWithShelfLifeValidator).validate(
+    formData
+  );
 
   if (validation.error) {
     return validationError(validation.error);
   }
 
-  const { ...update } = validation.data;
+  const {
+    shelfLifeMode,
+    shelfLifeDays,
+    shelfLifeTriggerProcessId,
+    shelfLifeTriggerTiming,
+    shelfLifeCalculateFromBom,
+    ...pickMethodFields
+  } = validation.data;
 
-  const updatePickMethod = await upsertPickMethod(client, {
-    ...update,
-    itemId,
-    customFields: setCustomFields(formData),
-    updatedBy: userId
-  });
-  if (updatePickMethod.error) {
+  try {
+    await upsertPickMethodWithShelfLife(getDatabaseClient(), {
+      itemId,
+      locationId: pickMethodFields.locationId,
+      defaultStorageUnitId: pickMethodFields.defaultStorageUnitId,
+      customFields: setCustomFields(formData),
+      userId,
+      shelfLife: {
+        mode: shelfLifeMode,
+        days: shelfLifeDays,
+        triggerProcessId: shelfLifeTriggerProcessId,
+        triggerTiming: shelfLifeTriggerTiming,
+        calculateFromBom: shelfLifeCalculateFromBom
+      }
+    });
+  } catch (err) {
     throw redirect(
       path.to.consumable(itemId),
-      await flash(
-        request,
-        error(updatePickMethod.error, "Failed to update consumable inventory")
-      )
+      await flash(request, error(err, "Failed to update consumable inventory"))
     );
   }
 
   throw redirect(
-    path.to.consumableInventoryLocation(itemId, update.locationId),
+    path.to.consumableInventoryLocation(itemId, pickMethodFields.locationId),
     await flash(request, success("Updated consumable inventory"))
   );
 }
@@ -197,8 +244,17 @@ export default function ConsumableInventoryRoute() {
     unitOfMeasures: UnitOfMeasureListItem[];
   }>(path.to.consumableRoot);
 
-  const { consumableInventory, itemShelfQuantities, quantities, itemId } =
-    useLoaderData<typeof loader>();
+  const {
+    consumableInventory,
+    itemStorageUnitQuantities,
+    quantities,
+    shelfLife,
+    bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
+    itemId,
+    ruleAssignments,
+    ruleLibrary
+  } = useLoaderData<typeof loader>();
 
   const consumableData = useRouteData<{
     consumableSummary: Consumable;
@@ -209,31 +265,50 @@ export default function ConsumableInventoryRoute() {
 
   const initialValues = {
     ...consumableInventory,
-    defaultShelfId: consumableInventory.defaultShelfId ?? undefined,
+    defaultStorageUnitId: consumableInventory.defaultStorageUnitId ?? undefined,
+    shelfLifeMode: shelfLife?.mode as
+      | (typeof shelfLifeModes)[number]
+      | undefined,
+    shelfLifeDays: shelfLife?.days ?? undefined,
+    shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
+    shelfLifeTriggerTiming: shelfLife?.triggerTiming ?? undefined,
+    shelfLifeCalculateFromBom: shelfLife?.calculateFromBom ?? false,
     ...getCustomFields(consumableInventory.customFields ?? {})
   };
 
-  const shelves = useShelves(consumableInventory?.locationId);
+  const storageUnits = useStorageUnits(consumableInventory?.locationId);
 
   const [items] = useItems();
-  const itemTrackingType = items.find((i) => i.id === itemId)?.itemTrackingType;
+  const item = items.find((i) => i.id === itemId);
+  const itemTrackingType = item?.itemTrackingType;
+  const replenishmentSystem = item?.replenishmentSystem ?? null;
 
   return (
     <VStack spacing={2} className="p-2">
       <PickMethodForm
-        key={initialValues.itemId}
+        key={`${initialValues.itemId}-${itemTrackingType ?? "Inventory"}`}
         initialValues={initialValues}
         locations={sharedConsumablesData?.locations ?? []}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
         type="Part"
+        itemTrackingType={itemTrackingType ?? "Inventory"}
+        replenishmentSystem={replenishmentSystem}
+        bomHasShelfLifeManagedInput={bomHasShelfLifeManagedInput}
       />
       <InventoryDetails
-        itemShelfQuantities={itemShelfQuantities}
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
+        itemShelfLife={shelfLife ?? null}
+        trackedEntityExpirations={trackedEntityExpirations}
         pickMethod={initialValues}
         quantities={quantities}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
+      />
+      <ItemRuleAssignments
+        itemId={itemId}
+        assignments={ruleAssignments as never}
+        library={ruleLibrary as never}
       />
     </VStack>
   );

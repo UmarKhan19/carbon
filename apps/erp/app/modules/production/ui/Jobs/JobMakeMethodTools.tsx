@@ -166,7 +166,13 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
         type: "item",
         targetId: jobId,
         sourceId,
-        configuration: JSON.stringify(configuration)
+        configuration: JSON.stringify(configuration),
+        billOfMaterial: "on",
+        billOfProcess: "on",
+        parameters: "on",
+        tools: "on",
+        steps: "on",
+        workInstructions: "on"
       },
       {
         method: "post",
@@ -292,7 +298,12 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                       isConfigureLoading
                     }
                     isLoading={isConfigureLoading}
-                    onClick={configureSelectModal.onOpen}
+                    onClick={() => {
+                      setSelectedConfigureItemId(
+                        routeData?.job?.itemId ?? null
+                      );
+                      configureSelectModal.onOpen();
+                    }}
                   >
                     <Trans>Configure</Trans>
                   </MenubarItem>
@@ -396,6 +407,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                         type={(routeData?.job.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
+                        locationId={routeData?.job?.locationId ?? undefined}
                         replenishmentSystem="Make"
                       />
                       <div className="flex items-center space-x-2">
@@ -499,6 +511,7 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                     label={t`Target Method`}
                     type={(routeData?.job?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
+                    locationId={routeData?.job?.locationId ?? undefined}
                     onChange={(value) => {
                       if (value) {
                         getMakeMethods(value?.value);
@@ -587,14 +600,14 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                 <Item
                   name="sourceId"
                   label={t`Item`}
+                  value={selectedConfigureItemId ?? undefined}
                   type={(routeData?.job?.itemType ?? "Part") as "Part"}
                   includeInactive={includeInactive === true}
                   whitelist={configurableItemIds}
+                  locationId={routeData?.job?.locationId ?? undefined}
                   replenishmentSystem="Make"
                   onChange={(value) => {
-                    if (value) {
-                      handleConfigureItemSelect(value.value);
-                    }
+                    setSelectedConfigureItemId(value?.value ?? null);
                   }}
                 />
               </ModalBody>
@@ -605,6 +618,14 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
                 >
                   <Trans>Cancel</Trans>
                 </Button>
+                <Button
+                  isDisabled={!selectedConfigureItemId}
+                  onClick={() =>
+                    handleConfigureItemSelect(selectedConfigureItemId)
+                  }
+                >
+                  <Trans>Next</Trans>
+                </Button>
               </ModalFooter>
             </ValidatedForm>
           </ModalContent>
@@ -614,7 +635,11 @@ const JobMakeMethodTools = ({ makeMethod }: { makeMethod?: JobMakeMethod }) => {
         <ConfiguratorModal
           open
           destructive
-          initialValues={{}}
+          initialValues={
+            routeData?.job?.configuration
+              ? (routeData.job.configuration as Record<string, any>)
+              : {}
+          }
           groups={configurationParameters.groups}
           parameters={configurationParameters.parameters}
           onClose={() => {

@@ -5,6 +5,8 @@ import {
   LuListChecks,
   LuNetwork,
   LuQrCode,
+  LuScanQrCode,
+  LuTag,
   LuTally5,
   LuTruck,
   LuWarehouse
@@ -56,7 +58,7 @@ export default function useInventorySubmodules() {
           name: t`Kanbans`,
           to: path.to.kanbans,
           role: "employee",
-          icon: <LuQrCode />
+          icon: <LuScanQrCode />
         },
         {
           name: t`Quantities`,
@@ -83,11 +85,18 @@ export default function useInventorySubmodules() {
       name: t`Configure`,
       routes: [
         {
-          name: t`Shelves`,
-          to: path.to.shelves,
+          name: t`Storage Units`,
+          to: path.to.storageUnits,
           role: "employee",
           icon: <LuWarehouse />,
-          table: "shelf"
+          table: "storageUnit"
+        },
+        {
+          name: t`Storage Types`,
+          to: path.to.storageTypes,
+          role: "employee",
+          icon: <LuTag />,
+          table: "storageType"
         },
         {
           name: t`Shipping Methods`,

@@ -153,6 +153,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       await upsertSupplierQuoteLine(client, {
         supplierQuoteId,
+        supplierQuoteLineType: "Part",
         itemId: line.itemId,
         description: line.description ?? "",
         quantity: line.quantity ?? [1],
@@ -292,7 +293,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         htmlParts.push(`<br><br>${emailSignature.replace(/\n/g, "<br>")}`);
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [user.data.email, email.contactEmail],
           from: user.data.email,
           subject: emailSubject,

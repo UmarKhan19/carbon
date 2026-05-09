@@ -2,19 +2,26 @@
   "$schema": "https://turborepo.org/schema.json",
   "tasks": {
     "build": {
+      "dependsOn": ["^build", "//#lingui:compile"],
       "outputs": [
         "dist/**",
         "build/**",
         "api/**",
+        ".vercel/**",
         "public/build/**",
         ".next/**",
         "!.next/cache/**"
-      ],
-      "dependsOn": ["^build"]
+      ]
     },
-    "carbon#build": {
-      "dependsOn": ["^build"],
-      "outputs": ["api/index.js", "api/build/**", "public/build/**"]
+    "//#lingui:compile": {
+      "inputs": [
+        "lingui.config.js",
+        "apps/erp/app/**",
+        "apps/mes/app/**",
+        "packages/react/src/**",
+        "packages/locale/locales/**/*.po"
+      ],
+      "outputs": ["packages/locale/locales/**/*.mjs"]
     },
     "test": {
       "cache": false,

@@ -161,6 +161,15 @@ export default function IssueRoute() {
                           pluralName: t`Suppliers`,
                           module: "purchasing",
                           children: resolvedAssociations.suppliers
+                        },
+                        {
+                          key: "inboundInspections",
+                          name: t`Inbound Inspection`,
+                          pluralName: t`Inbound Inspections`,
+                          module: "quality",
+                          children:
+                            (resolvedAssociations as any).inboundInspections ??
+                            []
                         }
                       ];
                       return (
@@ -169,7 +178,7 @@ export default function IssueRoute() {
                           nonConformanceId={id}
                           items={
                             resolvedAssociations.items?.map(
-                              (i) => i.documentId
+                              (i: any) => i.documentId
                             ) ?? undefined
                           }
                         />

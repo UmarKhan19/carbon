@@ -11,10 +11,12 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { MCP_BLOCKED_TOOL_NAMES } from "../apps/erp/app/routes/api+/mcp+/lib/mcp-blocked-tools";
+import type { AuthField } from "../apps/erp/app/routes/api+/mcp+/lib/types";
 
 const ROOT = path.resolve(__dirname, "..");
 const MCP_LIB_DIR = path.join(ROOT, "apps/erp/app/routes/api+/mcp+/lib");
 const TOOLS_DIR = path.join(MCP_LIB_DIR, "tools");
+const MODULES_DIR = path.join(ROOT, "apps/erp/app/modules");
 const METADATA_FILE = path.join(MCP_LIB_DIR, "tool-metadata.json");
 
 interface ToolMetadata {
@@ -23,6 +25,100 @@ interface ToolMetadata {
   classification: "READ" | "WRITE" | "DESTRUCTIVE";
   description: string;
   paramCount: number;
+  serviceParams: string[];
+  injectAuth: AuthField[];
+}
+
+function computeInjectAuth(
+  funcName: string,
+  classification: ToolMetadata["classification"]
+): AuthField[] {
+  const lower = funcName.toLowerCase();
+
+  if (classification === "READ" || classification === "DESTRUCTIVE") {
+    return ["companyId"];
+  }
+  // upsertX uses `"createdBy" in payload` to pick INSERT vs UPDATE.
+  if (/^(upsert|create|insert|add|new|copy|duplicate|generate)/.test(lower)) {
+    return ["companyId", "createdBy", "updatedBy"];
+  }
+  // Don't stamp createdBy on updates — it'd overwrite the audit column.
+  if (/^(update|modify|set|change|edit|approve|reject|finalize|toggle|move|reorder|recalculate|sync|favorite|unfavorite)/.test(lower)) {
+    return ["companyId", "updatedBy"];
+  }
+  return ["companyId"];
+}
+
+function extractParamNames(paramsStr: string): string[] {
+  const params: string[] = [];
+  let depth = 0;
+  let current = "";
+
+  for (let i = 0; i < paramsStr.length; i++) {
+    const ch = paramsStr[i];
+    const prev = i > 0 ? paramsStr[i - 1] : "";
+
+    if ("({[".includes(ch)) {
+      depth++;
+      current += ch;
+    } else if (")}]".includes(ch)) {
+      depth--;
+      current += ch;
+    } else if (ch === "<") {
+      depth++;
+      current += ch;
+    } else if (ch === ">" && prev === "=") {
+      current += ch;
+    } else if (ch === ">") {
+      depth--;
+      current += ch;
+    } else if (ch === "," && depth === 0) {
+      const name = current.trim().split(/[?:\s]/)[0].trim();
+      if (name) params.push(name);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+
+  const lastName = current.trim().split(/[?:\s]/)[0].trim();
+  if (lastName) params.push(lastName);
+
+  return params;
+}
+
+function extractServiceParamNames(moduleName: string): Map<string, string[]> {
+  const serviceFile = path.join(MODULES_DIR, moduleName, `${moduleName}.service.ts`);
+
+  if (!fs.existsSync(serviceFile)) {
+    console.warn(`  ⚠ Service file not found: ${serviceFile}`);
+    return new Map();
+  }
+
+  const content = fs.readFileSync(serviceFile, "utf-8");
+  const result = new Map<string, string[]>();
+
+  const funcStartRegex = /export\s+(?:async\s+)?function\s+(\w+)\s*\(/g;
+  let match;
+
+  while ((match = funcStartRegex.exec(content)) !== null) {
+    const funcName = match[1];
+    const openParenPos = match.index + match[0].length - 1;
+
+    let depth = 1;
+    let pos = openParenPos + 1;
+    while (pos < content.length && depth > 0) {
+      const ch = content[pos];
+      if ("({[".includes(ch)) depth++;
+      else if (")}]".includes(ch)) depth--;
+      pos++;
+    }
+
+    const paramsStr = content.substring(openParenPos + 1, pos - 1);
+    result.set(funcName, extractParamNames(paramsStr));
+  }
+
+  return result;
 }
 
 // Parse a tool file to extract metadata
@@ -61,12 +157,18 @@ function extractToolsFromFile(filePath: string, moduleName: string): ToolMetadat
       paramCount = propMatches ? propMatches.length : 0;
     }
     
+    const funcName = toolName.startsWith(`${moduleName}_`)
+      ? toolName.slice(moduleName.length + 1)
+      : toolName;
+
     tools.push({
       name: toolName,
       module: moduleName,
       classification,
       description,
-      paramCount
+      paramCount,
+      serviceParams: [],
+      injectAuth: computeInjectAuth(funcName, classification)
     });
   }
   
@@ -91,6 +193,13 @@ export function generateToolMetadata(): void {
       const tools = extractToolsFromFile(file.path, file.module).filter(
         (t) => !MCP_BLOCKED_TOOL_NAMES.includes(t.name),
       );
+
+      const serviceParamMap = extractServiceParamNames(file.module);
+      for (const tool of tools) {
+        const funcName = tool.name.slice(file.module.length + 1);
+        tool.serviceParams = serviceParamMap.get(funcName) || [];
+      }
+
       allTools.push(...tools);
       console.log(`  ✓ ${file.module}: ${tools.length} tools`);
     } catch (error) {

@@ -5,16 +5,16 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { getSupplierPriceBreaksForItems } from "~/modules/items";
 import {
   getQuote,
   isQuoteLocked,
   quoteLineValidator,
+  recalculateQuoteLinePrices,
+  resolvePurchaseToOrderPrices,
+  resolveQuoteLinePrices,
   upsertQuoteLine,
-  upsertQuoteLineMethod,
-  upsertQuoteLinePrices
+  upsertQuoteLineMethod
 } from "~/modules/sales";
-import { lookupBuyPriceFromMap } from "~/modules/shared";
 import { setCustomFields } from "~/utils/form";
 import { requireUnlocked } from "~/utils/lockedGuard.server";
 import { path } from "~/utils/path";
@@ -83,22 +83,47 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (d.methodType === "Purchase to Order") {
     const quantities = d.quantity ?? [1];
-    const priceMap = await getSupplierPriceBreaksForItems(serviceRole, [
-      d.itemId
-    ]);
-    await upsertQuoteLinePrices(
+    const priceResult = await resolvePurchaseToOrderPrices(
       serviceRole,
+      companyId,
       quoteId,
       quoteLineId,
-      quantities.map((qty) => ({
-        quoteLineId,
-        quantity: qty,
-        unitPrice: lookupBuyPriceFromMap(d.itemId, qty, priceMap, 0),
-        leadTime: 0,
-        discountPercent: 0,
-        createdBy: userId
-      }))
+      quantities,
+      userId
     );
+    if (priceResult?.error) {
+      throw redirect(
+        path.to.quoteLine(quoteId, quoteLineId),
+        await flash(
+          request,
+          error(priceResult.error, "Failed to resolve Purchase to Order prices")
+        )
+      );
+    }
+  }
+
+  if (d.methodType === "Pull from Inventory") {
+    const quantities = d.quantity ?? [1];
+    const priceResult = await resolveQuoteLinePrices(
+      serviceRole,
+      companyId,
+      quoteId,
+      quoteLineId,
+      quantities,
+      userId
+    );
+    if (priceResult?.error) {
+      throw redirect(
+        path.to.quoteLine(quoteId, quoteLineId),
+        await flash(
+          request,
+          error(
+            priceResult.error,
+            "Failed to resolve Pull from Inventory prices"
+          )
+        )
+      );
+    }
   }
 
   if (d.methodType === "Make to Order") {
@@ -117,6 +142,21 @@ export async function action({ request, params }: ActionFunctionArgs) {
         await flash(
           request,
           error(upsertMethod.error, "Failed to create quote line method.")
+        )
+      );
+    }
+    const recalcResult = await recalculateQuoteLinePrices(
+      serviceRole,
+      quoteId,
+      quoteLineId,
+      userId
+    );
+    if (recalcResult?.error) {
+      throw redirect(
+        path.to.quoteLine(quoteId, quoteLineId),
+        await flash(
+          request,
+          error(recalcResult.error, "Failed to recalculate quote line prices")
         )
       );
     }

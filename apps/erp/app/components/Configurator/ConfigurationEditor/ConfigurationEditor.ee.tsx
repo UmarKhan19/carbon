@@ -11,9 +11,9 @@ import {
   ModalContent,
   ModalTitle,
   toast,
-  useDisclosure
+  useDisclosure,
+  useMode
 } from "@carbon/react";
-import { useMode } from "@carbon/remix";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { OnMount } from "@monaco-editor/react";
 import Editor from "@monaco-editor/react";
@@ -389,7 +389,7 @@ export default function Configurator({
               </div>
             </div>
 
-            <div className="w-1/3 flex flex-col">
+            <div className="w-1/3 flex flex-col bg-background">
               <ParameterPanel
                 parameters={parameters}
                 onChange={setParameters}

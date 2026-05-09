@@ -279,12 +279,30 @@ const Grid = <T extends object>({
 
         if (shiftKey) direction = [-direction[0], -direction[1]];
         const [x1, y1] = navigate(direction, code === "Tab");
+
+        // Commit any in-flight edit before navigating. Editors (NumberField,
+        // DatePicker, etc.) commit their value on blur — without this, Tab's
+        // preventDefault keeps focus on the input until it unmounts and the
+        // onChange never fires, silently dropping the typed value.
+        if (
+          isEditing &&
+          document.activeElement instanceof HTMLElement &&
+          document.activeElement !== document.body
+        ) {
+          document.activeElement.blur();
+        }
+
         setSelectedCell({
           row: y1,
           column: x1
         });
+        // On Tab, carry edit mode into the next editable cell so typing
+        // continues naturally. Otherwise (Enter) drop out of edit mode.
         if (isEditing) {
-          setIsEditing(false);
+          const carryEdit = Boolean(
+            canEdit && code === "Tab" && isColumnEditable(x1)
+          );
+          setIsEditing(carryEdit);
         }
       } else if (code in navigationCodes) {
         // arrow key navigation should't work if we're editing

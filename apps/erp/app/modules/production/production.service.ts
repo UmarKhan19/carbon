@@ -4,13 +4,12 @@ import type { JSONContent } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
 import type { FileObject, StorageError } from "@supabase/storage-js";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { StorageItem } from "~/types";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
-import { getDefaultShelfForJob } from "../inventory";
+import { getDefaultStorageUnitForJob } from "../inventory";
 import type {
   operationParameterValidator,
   operationStepValidator,
@@ -145,7 +144,7 @@ export async function convertSalesOrderLinesToJobs(
           }
         }
 
-        const shelfId = await getDefaultShelfForJob(
+        const storageUnitId = await getDefaultStorageUnitForJob(
           client,
           line.itemId,
           locationId!,
@@ -175,7 +174,7 @@ export async function convertSalesOrderLinesToJobs(
           salesOrderId: salesOrderId ?? undefined,
           salesOrderLineId: line.id,
           scrapQuantity,
-          shelfId: shelfId ?? undefined,
+          storageUnitId: storageUnitId ?? undefined,
           unitOfMeasureCode: line.unitOfMeasureCode ?? "EA"
         };
 
@@ -1169,7 +1168,7 @@ export async function getJobOperationStepRecords(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "type", ascending: true }
+    { column: "createdAt", ascending: false }
   ]);
 
   return query;
@@ -1760,6 +1759,7 @@ export async function getTrackedEntityByJobId(
     .select("*")
     .eq("attributes ->> Job Make Method", jobMakeMethod.data.id)
     .eq("companyId", jobMakeMethod.data.companyId)
+    .is("attributes ->> Split Entity ID", null)
     .limit(1);
 
   return {
@@ -1789,7 +1789,8 @@ export async function getTrackedEntitiesByJobId(
     .from("trackedEntity")
     .select("*")
     .eq("attributes ->> Job Make Method", jobMakeMethod.data.id)
-    .eq("companyId", jobMakeMethod.data.companyId);
+    .eq("companyId", jobMakeMethod.data.companyId)
+    .is("attributes ->> Split Entity ID", null);
 }
 
 /**
@@ -1811,8 +1812,7 @@ export async function recalculateJobOperationDependencies(
       userId: params.userId,
       mode: "reschedule",
       direction: "backward"
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 export async function recalculateJobRequirements(
@@ -1827,8 +1827,7 @@ export async function recalculateJobRequirements(
     body: {
       type: "jobRequirements",
       ...params
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -1844,8 +1843,7 @@ export async function recalculateJobMakeMethodRequirements(
     body: {
       type: "jobMakeMethodRequirements",
       ...params
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -1867,15 +1865,14 @@ export async function runMRP(
   return client.functions.invoke("mrp", {
     body: {
       ...params
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
 export async function updateJobBatchNumber(
   client: SupabaseClient<Database>,
   trackedEntityId: string,
-  value: string
+  value: string | null
 ) {
   return client
     .from("trackedEntity")
@@ -2156,7 +2153,7 @@ export async function upsertJob(
   job:
     | (Omit<z.infer<typeof jobValidator>, "id" | "jobId"> & {
         jobId: string;
-        shelfId?: string;
+        storageUnitId?: string;
         startDate?: string;
         companyId: string;
         createdBy: string;
@@ -2270,8 +2267,7 @@ export async function upsertJobOperation(
         targetId: operationId,
         companyId: jobOperation.companyId,
         userId: jobOperation.createdBy
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
     if (error) {
       return {
@@ -2428,8 +2424,7 @@ export async function upsertJobMethod(
   }
 
   const getMethodResult = await client.functions.invoke("get-method", {
-    body,
-    region: FunctionRegion.UsEast1
+    body
   });
   if (getMethodResult.error) {
     return getMethodResult;
@@ -2493,8 +2488,7 @@ export async function upsertJobMaterialMakeMethod(
   }
 
   const { error } = await client.functions.invoke("get-method", {
-    body,
-    region: FunctionRegion.UsEast1
+    body
   });
 
   if (error) {
@@ -2532,8 +2526,7 @@ export async function upsertMakeMethodFromJob(
       companyId: jobMethod.companyId,
       userId: jobMethod.userId,
       parts: jobMethod.parts
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -2562,8 +2555,7 @@ export async function upsertMakeMethodFromJobMethod(
       companyId: jobMethod.companyId,
       userId: jobMethod.userId,
       parts: jobMethod.parts
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 
   if (error) {

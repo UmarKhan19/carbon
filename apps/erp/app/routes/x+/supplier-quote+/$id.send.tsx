@@ -32,7 +32,7 @@ export async function action(args: ActionFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find supplier quote id");
 
-  const [quote] = await Promise.all([getSupplierQuote(client, id)]);
+  const quote = await getSupplierQuote(client, id);
   if (quote.error) {
     throw redirect(
       path.to.supplierQuote(id),
@@ -41,16 +41,14 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   // Reuse existing external link or create one if it doesn't exist
-  const [externalLink] = await Promise.all([
-    upsertExternalLink(client, {
-      id: quote.data.externalLinkId ?? undefined,
-      documentType: "SupplierQuote",
-      documentId: id,
-      supplierId: quote.data.supplierId,
-      expiresAt: quote.data.expirationDate,
-      companyId
-    })
-  ]);
+  const externalLink = await upsertExternalLink(client, {
+    id: quote.data.externalLinkId ?? undefined,
+    documentType: "SupplierQuote",
+    documentId: id,
+    supplierId: quote.data.supplierId,
+    expiresAt: quote.data.expirationDate,
+    companyId
+  });
 
   if (externalLink.data && quote.data.externalLinkId !== externalLink.data.id) {
     await client
@@ -177,7 +175,7 @@ export async function action(args: ActionFunctionArgs) {
         },\n\nPlease provide pricing and lead time(s) for the linked quote:`;
         const emailSignature = `Thanks,\n${user.data.firstName} ${user.data.lastName}\n${company.data.name}`;
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [user.data.email, supplierContact.data.contact?.email].filter(
             Boolean
           ) as string[],

@@ -34,7 +34,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const [gauge] = await Promise.all([getGauge(serviceRole, id)]);
+  const gauge = await getGauge(serviceRole, id);
 
   if (gauge.error) {
     throw redirect(
@@ -126,7 +126,7 @@ export default function GaugeRoute() {
     lastCalibrationDate: gauge.lastCalibrationDate ?? "",
     nextCalibrationDate: gauge.nextCalibrationDate ?? "",
     locationId: gauge.locationId ?? "",
-    shelfId: gauge.shelfId ?? "",
+    storageUnitId: gauge.storageUnitId ?? "",
     calibrationIntervalInMonths: gauge.calibrationIntervalInMonths ?? 6,
     ...getCustomFields(gauge.customFields)
   };

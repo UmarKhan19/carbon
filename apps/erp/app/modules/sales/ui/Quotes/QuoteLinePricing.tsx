@@ -766,33 +766,37 @@ const QuoteLinePricing = ({
                   const price = editableFields.prices[quantity]?.unitPrice ?? 0;
                   const cost = unitCostsByQuantity[index];
 
-                  const markup = price ? (price - cost) / cost : 0;
+                  const markup = cost > 0 ? (price - cost) / cost : 0;
 
                   return (
                     <Td key={quantity.toString()}>
-                      <NumberField
-                        value={markup}
-                        formatOptions={{
-                          style: "percent",
-                          maximumFractionDigits: 2
-                        }}
-                        onChange={(value) => {
-                          if (Number.isFinite(value) && value !== markup) {
-                            onUpdatePrice(
-                              "unitPrice",
-                              quantity,
-                              cost * (1 + value)
-                            );
-                          }
-                        }}
-                      >
-                        <NumberInput
-                          className="border-0 -ml-3 shadow-none disabled:bg-transparent disabled:opacity-100"
-                          isDisabled={!isEditable}
-                          size="sm"
-                          min={0}
-                        />
-                      </NumberField>
+                      {cost > 0 ? (
+                        <NumberField
+                          value={markup}
+                          formatOptions={{
+                            style: "percent",
+                            maximumFractionDigits: 2
+                          }}
+                          onChange={(value) => {
+                            if (Number.isFinite(value) && value !== markup) {
+                              onUpdatePrice(
+                                "unitPrice",
+                                quantity,
+                                cost * (1 + value)
+                              );
+                            }
+                          }}
+                        >
+                          <NumberInput
+                            className="border-0 -ml-3 shadow-none disabled:bg-transparent disabled:opacity-100"
+                            isDisabled={!isEditable}
+                            size="sm"
+                            min={0}
+                          />
+                        </NumberField>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
                     </Td>
                   );
                 })}

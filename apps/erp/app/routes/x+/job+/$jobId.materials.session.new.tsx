@@ -36,7 +36,7 @@ const jobMaterialsSessionValidator = z.object({
           quantity: z.number().optional(),
           requiresSerialTracking: z.boolean(),
           requiresBatchTracking: z.boolean(),
-          shelfId: z.string().nullable().optional()
+          storageUnitId: z.string().nullable().optional()
         })
       );
       return itemsSchema.parse(parsed);
@@ -148,13 +148,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const transferLines = [];
 
     for await (const item of transferItems) {
-      if (!item.shelfId || !item.quantity || !item.id) {
+      if (!item.storageUnitId || !item.quantity || !item.id) {
         continue;
       }
 
-      // Find available sources for this item (excluding the target shelf)
+      // Find available sources for this item (excluding the target storage unit)
       const { data: availableSources, error: sourcesError } = await client.rpc(
-        "get_item_shelf_requirements_by_location_and_item",
+        "get_item_storage_unit_requirements_by_location_and_item",
         {
           company_id: companyId,
           location_id: locationId,
@@ -166,22 +166,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
         continue;
       }
 
-      // Filter out the target shelf and only include shelves with available quantity
+      // Filter out the target storage unit and only include storage units with available quantity
       const validSources =
         availableSources?.filter(
           (source) =>
-            source.shelfId !== item.shelfId &&
-            source.quantityOnHandInShelf > source.quantityRequiredByShelf
+            source.storageUnitId !== item.storageUnitId &&
+            source.quantityOnHandInStorageUnit >
+              source.quantityRequiredByStorageUnit
         ) || [];
 
       if (validSources.length === 0) {
         continue;
       }
 
-      // Sort sources by available quantity (descending) to prioritize shelves with more stock
+      // Sort sources by available quantity (descending) to prioritize storage units with more stock
       validSources.sort((a, b) => {
-        const aAvailable = a.quantityOnHandInShelf - a.quantityRequiredByShelf;
-        const bAvailable = b.quantityOnHandInShelf - b.quantityRequiredByShelf;
+        const aAvailable =
+          a.quantityOnHandInStorageUnit - a.quantityRequiredByStorageUnit;
+        const bAvailable =
+          b.quantityOnHandInStorageUnit - b.quantityRequiredByStorageUnit;
         return bAvailable - aAvailable;
       });
 
@@ -192,14 +195,15 @@ export async function action({ request, params }: ActionFunctionArgs) {
         if (remainingQuantity <= 0) break;
 
         const availableQuantity =
-          source.quantityOnHandInShelf - source.quantityRequiredByShelf;
+          source.quantityOnHandInStorageUnit -
+          source.quantityRequiredByStorageUnit;
         const transferQuantity = Math.min(remainingQuantity, availableQuantity);
 
         if (transferQuantity > 0) {
           const transferLine = {
             itemId: item.itemId, // Use the actual item ID, not the job material ID
-            fromShelfId: source.shelfId,
-            toShelfId: item.shelfId,
+            fromStorageUnitId: source.storageUnitId,
+            toStorageUnitId: item.storageUnitId,
             quantity: transferQuantity,
             requiresSerialTracking: item.requiresSerialTracking,
             requiresBatchTracking: item.requiresBatchTracking

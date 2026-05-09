@@ -2,7 +2,7 @@ import type { CreatableComboboxProps } from "@carbon/form";
 import { CreatableCombobox } from "@carbon/form";
 import { useDisclosure } from "@carbon/react";
 import { useMemo, useRef, useState } from "react";
-import { useSettings, useUser } from "~/hooks";
+import { useSupplierApprovalRequired, useUser } from "~/hooks";
 import { SupplierForm } from "~/modules/purchasing/ui/Supplier";
 import { useSuppliers } from "~/stores";
 import SupplierAvatar from "../SupplierAvatar";
@@ -28,8 +28,7 @@ const Supplier = ({
   onlyApproved,
   ...props
 }: SupplierSelectProps) => {
-  const settings = useSettings();
-  const supplierApprovalRequired = settings?.supplierApproval ?? false;
+  const supplierApprovalRequired = useSupplierApprovalRequired();
   const [suppliers] = useSuppliers();
   const newSuppliersModal = useDisclosure();
   const [created, setCreated] = useState<string>("");

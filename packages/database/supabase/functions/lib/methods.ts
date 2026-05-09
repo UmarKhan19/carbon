@@ -1,4 +1,4 @@
-import SupabaseClient from "https://esm.sh/v135/@supabase/supabase-js@2.33.1/dist/module/SupabaseClient.d.ts";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "./types.ts";
 
 export type JobMethod = NonNullable<
@@ -783,7 +783,8 @@ export async function calculateQuoteLinePrices(
     };
   });
 
-  // 7. Insert quoteLinePrice rows
+  // 7. Delete existing and insert quoteLinePrice rows
+  await client.from("quoteLinePrice").delete().eq("quoteLineId", quoteLineId);
   const insertResult = await client.from("quoteLinePrice").insert(priceRows);
   if (insertResult.error) throw new Error("Failed to insert quote line prices");
 }

@@ -50,6 +50,7 @@ import {
   itemTrackingTypes,
   partValidator
 } from "../../items.models";
+import ItemStorageFields from "../Item/ItemStorageFields";
 
 type PartFormProps = {
   initialValues: z.infer<typeof partValidator> & { tags?: string[] };
@@ -276,12 +277,6 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                 <Input name="name" label={t`Short Description`} />
 
                 <Select
-                  name="itemTrackingType"
-                  label={t`Tracking Type`}
-                  options={itemTrackingTypeOptions}
-                />
-
-                <Select
                   name="replenishmentSystem"
                   label={t`Replenishment System`}
                   options={itemReplenishmentSystemOptions}
@@ -293,6 +288,11 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                       setDefaultMethodType("Make to Order");
                     }
                   }}
+                />
+                <Select
+                  name="itemTrackingType"
+                  label={t`Tracking Type`}
+                  options={itemTrackingTypeOptions}
                 />
                 <DefaultMethodType
                   name="defaultMethodType"
@@ -330,6 +330,8 @@ const PartForm = ({ initialValues, type = "card", onClose }: PartFormProps) => {
                 {!isEditing && replenishmentSystem !== "Buy" && (
                   <Number name="lotSize" label={t`Batch Size`} minValue={0} />
                 )}
+
+                <ItemStorageFields />
 
                 <CustomFormFields table="part" tags={initialValues.tags} />
               </div>

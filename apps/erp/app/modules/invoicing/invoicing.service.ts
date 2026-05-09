@@ -1,7 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import {
   getSupplierPayment,
@@ -40,8 +39,7 @@ export async function createPurchaseInvoiceFromPurchaseOrder(
       id: purchaseOrderId,
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -57,8 +55,7 @@ export async function createSalesInvoiceFromSalesOrder(
       id: salesOrderId,
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -74,8 +71,7 @@ export async function createSalesInvoiceFromShipment(
       id: shipmentId,
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -431,7 +427,8 @@ export async function upsertPurchaseInvoice(
 
   const { paymentTermId, invoiceSupplierId } = supplierPayment.data;
 
-  const { shippingMethodId, shippingTermId } = supplierShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    supplierShipping.data;
 
   if (purchaseInvoice.currencyCode) {
     const currency = await getCurrencyByCode(
@@ -474,6 +471,8 @@ export async function upsertPurchaseInvoice(
       locationId: locationId,
       shippingMethodId: shippingMethodId,
       shippingTermId: shippingTermId,
+      incoterm: incoterm,
+      incotermLocation: incotermLocation,
       companyId: purchaseInvoice.companyId
     }
   ]);
@@ -594,7 +593,8 @@ export async function upsertSalesInvoice(
   if (customerShipping.error) return customerShipping;
 
   const { paymentTermId, invoiceCustomerId } = customerPayment.data;
-  const { shippingMethodId, shippingTermId } = customerShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    customerShipping.data;
 
   if (salesInvoice.currencyCode) {
     const currency = await getCurrencyByCode(
@@ -637,6 +637,8 @@ export async function upsertSalesInvoice(
       locationId: locationId,
       shippingMethodId: shippingMethodId,
       shippingTermId: shippingTermId,
+      incoterm: incoterm,
+      incotermLocation: incotermLocation,
       companyId: salesInvoice.companyId,
       createdBy: salesInvoice.createdBy
     }

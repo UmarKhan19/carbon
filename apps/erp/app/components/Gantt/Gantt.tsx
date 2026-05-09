@@ -727,7 +727,7 @@ function CurrentTimeIndicator({ totalDuration }: { totalDuration: number }) {
           <div className="relative z-50 flex h-full flex-col">
             <div className="relative flex h-6 items-end">
               <div
-                className="absolute w-fit whitespace-nowrap rounded-sm border border-border bg-gray-700 px-1 py-0.5 text-xxs tabular-nums text-text-bright"
+                className="absolute w-fit whitespace-nowrap rounded-sm border border-border bg-gray-700 px-1 py-0.5 text-xxs text-text-bright"
                 style={{
                   left: `${offset * 100}%`,
                   transform: `translateX(-${offset * 100}%)`

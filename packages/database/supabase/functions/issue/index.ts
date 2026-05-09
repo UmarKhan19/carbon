@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
+import { getLocalTimeZone, parseDate, today } from "npm:@internationalized/date";
 import { Transaction } from "kysely";
 import { z } from "npm:zod@^3.24.1";
 
@@ -7,12 +8,99 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/nanoid.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import {
-  getShelfWithHighestQuantity,
-  updatePickMethodDefaultShelfIfNeeded,
-} from "../lib/shelves.ts";
+  getStorageUnitWithHighestQuantity,
+  updatePickMethodDefaultStorageUnitIfNeeded,
+} from "../lib/storage-units.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
-import { TrackedEntityAttributes } from "../lib/utils.ts";
+import { TrackedEntityAttributes, credit, debit, journalReference } from "../lib/utils.ts";
+
+import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
+import { getNextSequence } from "../shared/get-next-sequence.ts";
+import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
+import { calculateCOGS } from "../shared/calculate-cogs.ts";
+
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
+
+type InventoryShelfLifeSettings = {
+  expiredEntityPolicy?: ExpiredEntityPolicy;
+};
+
+/**
+ * Resolve the company's expired-entity policy from companySettings JSONB.
+ * Defaults to 'Block' when the row or key is absent so the safe behavior
+ * is the default.
+ */
+async function getExpiredEntityPolicy(
+  trx: Transaction<DB>,
+  companyId: string
+): Promise<ExpiredEntityPolicy> {
+  const row = await trx
+    .selectFrom("companySettings")
+    .select("inventoryShelfLife")
+    .where("id", "=", companyId)
+    .executeTakeFirst();
+  const blob = (row?.inventoryShelfLife ??
+    null) as InventoryShelfLifeSettings | null;
+  return blob?.expiredEntityPolicy ?? "Block";
+}
+
+/**
+ * Apply the policy to a list of trackedEntity rows about to be consumed.
+ * Returns:
+ *   { ok: true }                 - no expiries, or warn-only with no expired
+ *   { ok: true, warning }        - warn-only, with expired ids in the message
+ *   { ok: false, reason }        - block (or block-without-override), caller
+ *                                  should raise an error and refuse the op
+ *
+ * Caller is responsible for the override flow:
+ *   - In 'BlockWithOverride' mode, if the request payload supplies
+ *     overrideExpired=true + overrideReason, treat the result as ok and
+ *     emit an audit-log row.
+ */
+function checkExpiredEntities(
+  entities: { id: string; expirationDate: string | null }[],
+  policy: ExpiredEntityPolicy,
+  override: { allowed: boolean; reason: string | null }
+): { ok: true; warning?: string } | { ok: false; reason: string } {
+  const todayLocal = today(getLocalTimeZone());
+  const expired = entities.filter((e) => {
+    if (!e.expirationDate) return false;
+    try {
+      return parseDate(e.expirationDate).compare(todayLocal) < 0;
+    } catch {
+      return false;
+    }
+  });
+  if (expired.length === 0) return { ok: true };
+
+  const ids = expired.map((e) => e.id).join(", ");
+
+  if (policy === "Warn") {
+    return {
+      ok: true,
+      warning: `Consumed ${expired.length} expired tracked entit${
+        expired.length === 1 ? "y" : "ies"
+      }: ${ids}`,
+    };
+  }
+
+  if (
+    policy === "BlockWithOverride" &&
+    override.allowed &&
+    override.reason &&
+    override.reason.trim().length > 0
+  ) {
+    return { ok: true };
+  }
+
+  return {
+    ok: false,
+    reason: `Cannot consume expired tracked entit${
+      expired.length === 1 ? "y" : "ies"
+    }: ${ids}`,
+  };
+}
 
 async function issueJobOperationMaterials(
   trx: Transaction<DB>,
@@ -21,17 +109,26 @@ async function issueJobOperationMaterials(
     quantity,
     companyId,
     userId,
+    accountingEnabled,
+    accountDefaults,
+    dimensionMap,
+    client,
+    db,
   }: {
     jobOperationId: string;
     quantity: number;
     companyId: string;
     userId: string;
+    accountingEnabled: boolean;
+    accountDefaults: any;
+    dimensionMap: Map<string, string>;
+    client: any;
+    db: any;
   }
 ) {
   const materialsToIssue = await trx
     .selectFrom("jobMaterial")
     .where("jobOperationId", "=", jobOperationId)
-    .where("quantityToIssue", ">", 0)
     .where("itemType", "in", ["Material", "Part", "Consumable"])
     .where("methodType", "!=", "Make to Order")
     .where("estimatedQuantity", ">", 0)
@@ -57,7 +154,6 @@ async function issueJobOperationMaterials(
     const materialsToIssueFromKittedChildren = await trx
       .selectFrom("jobMaterial")
       .where("jobMakeMethodId", "in", jobMakeMethodIdsOfKittedChildren)
-      .where("quantityToIssue", ">", 0)
       .where("itemType", "in", ["Material", "Part", "Consumable"])
       .where("methodType", "!=", "Make to Order")
       .where("estimatedQuantity", ">", 0)
@@ -77,7 +173,7 @@ async function issueJobOperationMaterials(
     trx
       .selectFrom("job")
       .where("id", "=", jobId)
-      .select("locationId")
+      .select(["locationId", "jobId"])
       .executeTakeFirst(),
     trx
       .selectFrom("item")
@@ -102,33 +198,32 @@ async function issueJobOperationMaterials(
     [];
 
   for await (const material of materialsToIssue) {
-    if (!material.quantityToIssue) continue;
 
     const quantityToIssue = Number(material.quantity) * quantity;
 
-    let proposedShelfId = material.shelfId;
+    let proposedStorageUnitId = material.storageUnitId;
 
-    if (!proposedShelfId) {
-      if (material.defaultShelf) {
+    if (!proposedStorageUnitId) {
+      if (material.defaultStorageUnit) {
         const pickMethod = await trx
           .selectFrom("pickMethod")
           .where("itemId", "=", material.itemId)
           .where("locationId", "=", job.locationId!)
           .where("companyId", "=", companyId)
-          .select("defaultShelfId")
+          .select("defaultStorageUnitId")
           .executeTakeFirst();
 
-        proposedShelfId = pickMethod?.defaultShelfId;
+        proposedStorageUnitId = pickMethod?.defaultStorageUnitId;
 
-        if (!proposedShelfId) {
-          proposedShelfId = await getShelfWithHighestQuantity(
+        if (!proposedStorageUnitId) {
+          proposedStorageUnitId = await getStorageUnitWithHighestQuantity(
             trx,
             material.itemId,
             job.locationId!
           );
         }
       } else {
-        proposedShelfId = await getShelfWithHighestQuantity(
+        proposedStorageUnitId = await getStorageUnitWithHighestQuantity(
           trx,
           material.itemId,
           job.locationId!
@@ -136,37 +231,37 @@ async function issueJobOperationMaterials(
       }
     }
 
-    const currentShelfQuantity = await trx
+    const currentStorageUnitQuantity = await trx
       .selectFrom("itemLedger")
       .select((eb) => eb.fn.sum("quantity").as("quantity"))
       .where("itemId", "=", material.itemId)
       .where("locationId", "=", job.locationId!)
-      .where("shelfId", "=", proposedShelfId ?? "")
+      .where("storageUnitId", "=", proposedStorageUnitId ?? "")
       .executeTakeFirst();
 
-    const allShelfQuantities = await trx
+    const allStorageUnitQuantities = await trx
       .selectFrom("itemLedger")
       .select([
-        "shelfId",
+        "storageUnitId",
         (eb) => eb.fn.sum("quantity").as("quantity"),
       ])
       .where("itemId", "=", material.itemId)
       .where("locationId", "=", job.locationId!)
-      .groupBy("shelfId")
+      .groupBy("storageUnitId")
       .having((eb) => eb.fn.sum("quantity"), ">", 0)
       .execute();
 
-    let finalShelfId = proposedShelfId;
-    const currentQuantity = Number(currentShelfQuantity?.quantity ?? 0);
+    let finalStorageUnitId = proposedStorageUnitId;
+    const currentQuantity = Number(currentStorageUnitQuantity?.quantity ?? 0);
 
     if (
       currentQuantity < quantityToIssue &&
-      allShelfQuantities.length > 0
+      allStorageUnitQuantities.length > 0
     ) {
-      const bestShelf = allShelfQuantities.reduce((best, current) =>
+      const bestStorageUnit = allStorageUnitQuantities.reduce((best, current) =>
         Number(current.quantity) > Number(best.quantity) ? current : best
       );
-      finalShelfId = bestShelf.shelfId ?? null;
+      finalStorageUnitId = bestStorageUnit.storageUnitId ?? null;
     }
 
     const isTracked = itemIdIsTracked.get(material.itemId);
@@ -181,7 +276,7 @@ async function issueJobOperationMaterials(
         itemId: material.itemId,
         quantity: -quantityToIssue,
         locationId: job.locationId,
-        shelfId: finalShelfId,
+        storageUnitId: finalStorageUnitId,
         createdBy: userId,
       });
     }
@@ -200,14 +295,413 @@ async function issueJobOperationMaterials(
     await trx.insertInto("itemLedger").values(itemLedgerInserts).execute();
 
     for (const ledger of itemLedgerInserts) {
-      await updatePickMethodDefaultShelfIfNeeded(
+      await updatePickMethodDefaultStorageUnitIfNeeded(
         trx,
         ledger.itemId,
         ledger.locationId,
-        ledger.shelfId,
+        ledger.storageUnitId,
         companyId,
         userId
       );
+    }
+  }
+
+  if (accountingEnabled && accountDefaults?.data && itemLedgerInserts.length > 0) {
+    const journalLineInserts: {
+      accountId: string;
+      description: string;
+      amount: number;
+      quantity: number;
+      documentType: string;
+      documentId: string;
+      documentLineReference: string;
+      journalLineReference: string;
+      companyId: string;
+    }[] = [];
+
+    const journalLineDimensionsMeta: {
+      itemPostingGroupId: string | null;
+      locationId: string | null;
+    }[] = [];
+
+    const jobForLocation = await trx
+      .selectFrom("job")
+      .where("id", "=", jobId)
+      .select(["locationId"])
+      .executeTakeFirst();
+
+    const consumedItemIds = [...new Set(itemLedgerInserts.map((l) => l.itemId))];
+    const consumedItemCosts = consumedItemIds.length > 0
+      ? await trx
+          .selectFrom("itemCost")
+          .where("itemId", "in", consumedItemIds)
+          .where("companyId", "=", companyId)
+          .select(["itemId", "itemPostingGroupId"])
+          .execute()
+      : [];
+    const consumedPostingGroupMap = new Map(
+      consumedItemCosts.map((ic) => [ic.itemId, ic.itemPostingGroupId])
+    );
+
+    for (const ledger of itemLedgerInserts) {
+      const materialQuantity = Math.abs(Number(ledger.quantity));
+      if (materialQuantity === 0) continue;
+
+      const cogsResult = await calculateCOGS(trx, {
+        itemId: ledger.itemId,
+        quantity: materialQuantity,
+        companyId,
+      });
+
+      const journalLineReference = nanoid();
+
+      journalLineInserts.push({
+        accountId: accountDefaults.data.workInProgressAccount,
+        description: "WIP Account",
+        amount: debit("asset", cogsResult.totalCost),
+        quantity: materialQuantity,
+        documentType: "Job Consumption",
+        documentId: jobId,
+        documentLineReference: journalReference.to.materialIssue(jobOperationId),
+        journalLineReference,
+        companyId,
+      });
+
+      journalLineInserts.push({
+        accountId: accountDefaults.data.inventoryAccount,
+        description: "Inventory Account",
+        amount: credit("asset", cogsResult.totalCost),
+        quantity: materialQuantity,
+        documentType: "Job Consumption",
+        documentId: jobId,
+        documentLineReference: journalReference.to.materialIssue(jobOperationId),
+        journalLineReference,
+        companyId,
+      });
+
+      await trx
+        .insertInto("costLedger")
+        .values({
+          itemLedgerType: "Consumption",
+          costLedgerType: "Direct Cost",
+          adjustment: false,
+          documentType: "Job Consumption",
+          documentId: jobId,
+          itemId: ledger.itemId,
+          quantity: -materialQuantity,
+          cost: -cogsResult.totalCost,
+          remainingQuantity: 0,
+          companyId,
+        })
+        .execute();
+
+      for (let i = 0; i < 2; i++) {
+        journalLineDimensionsMeta.push({
+          itemPostingGroupId: consumedPostingGroupMap.get(ledger.itemId) ?? null,
+          locationId: jobForLocation?.locationId ?? null,
+        });
+      }
+    }
+
+    if (journalLineInserts.length > 0) {
+      const accountingPeriodId = await getCurrentAccountingPeriod(client, companyId, db);
+      const journalEntryId = await getNextSequence(trx, "journalEntry", companyId);
+
+      const journalResult = await trx
+        .insertInto("journal")
+        .values({
+          journalEntryId,
+          accountingPeriodId,
+          description: `Material Issue to Job ${job?.jobId ?? jobId}`,
+          postingDate: new Date().toISOString().slice(0, 10),
+          companyId,
+          sourceType: "Job Consumption",
+          status: "Posted",
+          postedAt: new Date().toISOString(),
+          postedBy: userId,
+          createdBy: userId,
+        })
+        .returning(["id"])
+        .executeTakeFirstOrThrow();
+
+      const journalLineResults = await trx
+        .insertInto("journalLine")
+        .values(
+          journalLineInserts.map((line) => ({
+            ...line,
+            journalId: journalResult.id,
+          }))
+        )
+        .returning(["id"])
+        .execute();
+
+      if (dimensionMap.size > 0) {
+        const dimensionInserts: {
+          journalLineId: string;
+          dimensionId: string;
+          valueId: string;
+          companyId: string;
+        }[] = [];
+
+        journalLineResults.forEach((jl, index) => {
+          const meta = journalLineDimensionsMeta[index];
+          if (!meta) return;
+
+          if (meta.itemPostingGroupId && dimensionMap.has("ItemPostingGroup")) {
+            dimensionInserts.push({
+              journalLineId: jl.id,
+              dimensionId: dimensionMap.get("ItemPostingGroup")!,
+              valueId: meta.itemPostingGroupId,
+              companyId,
+            });
+          }
+          if (meta.locationId && dimensionMap.has("Location")) {
+            dimensionInserts.push({
+              journalLineId: jl.id,
+              dimensionId: dimensionMap.get("Location")!,
+              valueId: meta.locationId,
+              companyId,
+            });
+          }
+        });
+
+        if (dimensionInserts.length > 0) {
+          await trx
+            .insertInto("journalLineDimension")
+            .values(dimensionInserts)
+            .execute();
+        }
+      }
+    }
+  }
+}
+
+async function createMaterialWipEntries(
+  trx: Transaction<DB>,
+  args: {
+    consumptionLedgers: Array<{ itemId: string; quantity: number }>;
+    jobId: string;
+    operationId: string;
+    description: string;
+    wipAccount: string;
+    inventoryAccount: string;
+    dimensionMap: Map<string, string>;
+    jobLocationId: string | null;
+    client: any;
+    db: any;
+    companyId: string;
+    userId: string;
+  }
+) {
+  const {
+    consumptionLedgers, jobId, operationId, description,
+    wipAccount, inventoryAccount,
+    dimensionMap, jobLocationId,
+    client, db, companyId, userId,
+  } = args;
+
+  const journalLineInserts: {
+    accountId: string;
+    description: string;
+    amount: number;
+    quantity: number;
+    documentType: string;
+    documentId: string;
+    documentLineReference: string;
+    journalLineReference: string;
+    companyId: string;
+  }[] = [];
+
+  const journalLineDimensionsMeta: {
+    itemPostingGroupId: string | null;
+    locationId: string | null;
+  }[] = [];
+
+  const uniqueItemIds = [...new Set(consumptionLedgers.map((l) => l.itemId))];
+  const consumedItemCosts = uniqueItemIds.length > 0
+    ? await trx
+        .selectFrom("itemCost")
+        .where("itemId", "in", uniqueItemIds)
+        .where("companyId", "=", companyId)
+        .select(["itemId", "itemPostingGroupId"])
+        .execute()
+    : [];
+  const consumedPostingGroupMap = new Map(
+    consumedItemCosts.map((ic) => [ic.itemId, ic.itemPostingGroupId])
+  );
+
+  for (const ledger of consumptionLedgers) {
+    const ledgerQty = Number(ledger.quantity);
+    if (ledgerQty === 0) continue;
+
+    const absQty = Math.abs(ledgerQty);
+    const isConsumption = ledgerQty < 0;
+
+    let cost: number;
+    if (isConsumption) {
+      const cogsResult = await calculateCOGS(trx, {
+        itemId: ledger.itemId,
+        quantity: absQty,
+        companyId,
+      });
+      cost = cogsResult.totalCost;
+    } else {
+      const itemCost = await trx
+        .selectFrom("itemCost")
+        .where("itemId", "=", ledger.itemId)
+        .where("companyId", "=", companyId)
+        .select("unitCost")
+        .executeTakeFirst();
+      cost = absQty * Number(itemCost?.unitCost ?? 0);
+    }
+
+    if (cost <= 0) continue;
+
+    const jlRef = nanoid();
+
+    if (isConsumption) {
+      journalLineInserts.push(
+        {
+          accountId: wipAccount,
+          description: "WIP Account",
+          amount: debit("asset", cost),
+          quantity: absQty,
+          documentType: "Job Consumption",
+          documentId: jobId,
+          documentLineReference: journalReference.to.materialIssue(operationId),
+          journalLineReference: jlRef,
+          companyId,
+        },
+        {
+          accountId: inventoryAccount,
+          description: "Inventory Account",
+          amount: credit("asset", cost),
+          quantity: absQty,
+          documentType: "Job Consumption",
+          documentId: jobId,
+          documentLineReference: journalReference.to.materialIssue(operationId),
+          journalLineReference: jlRef,
+          companyId,
+        }
+      );
+    } else {
+      journalLineInserts.push(
+        {
+          accountId: inventoryAccount,
+          description: "Inventory Account",
+          amount: debit("asset", cost),
+          quantity: absQty,
+          documentType: "Job Consumption",
+          documentId: jobId,
+          documentLineReference: journalReference.to.materialIssue(operationId),
+          journalLineReference: jlRef,
+          companyId,
+        },
+        {
+          accountId: wipAccount,
+          description: "WIP Account",
+          amount: credit("asset", cost),
+          quantity: absQty,
+          documentType: "Job Consumption",
+          documentId: jobId,
+          documentLineReference: journalReference.to.materialIssue(operationId),
+          journalLineReference: jlRef,
+          companyId,
+        }
+      );
+    }
+
+    await trx
+      .insertInto("costLedger")
+      .values({
+        itemLedgerType: "Consumption",
+        costLedgerType: "Direct Cost",
+        adjustment: false,
+        documentType: "Job Consumption",
+        documentId: jobId,
+        itemId: ledger.itemId,
+        quantity: isConsumption ? -absQty : absQty,
+        cost: isConsumption ? -cost : cost,
+        remainingQuantity: 0,
+        companyId,
+      })
+      .execute();
+
+    for (let i = 0; i < 2; i++) {
+      journalLineDimensionsMeta.push({
+        itemPostingGroupId: consumedPostingGroupMap.get(ledger.itemId) ?? null,
+        locationId: jobLocationId,
+      });
+    }
+  }
+
+  if (journalLineInserts.length === 0) return;
+
+  const accountingPeriodId = await getCurrentAccountingPeriod(client, companyId, db);
+  const journalEntryId = await getNextSequence(trx, "journalEntry", companyId);
+
+  const journalResult = await trx
+    .insertInto("journal")
+    .values({
+      journalEntryId,
+      accountingPeriodId,
+      description,
+      postingDate: new Date().toISOString().slice(0, 10),
+      companyId,
+      sourceType: "Job Consumption",
+      status: "Posted",
+      postedAt: new Date().toISOString(),
+      postedBy: userId,
+      createdBy: userId,
+    })
+    .returning(["id"])
+    .executeTakeFirstOrThrow();
+
+  const journalLineResults = await trx
+    .insertInto("journalLine")
+    .values(
+      journalLineInserts.map((line) => ({
+        ...line,
+        journalId: journalResult.id,
+      }))
+    )
+    .returning(["id"])
+    .execute();
+
+  if (dimensionMap.size > 0) {
+    const dimensionInserts: {
+      journalLineId: string;
+      dimensionId: string;
+      valueId: string;
+      companyId: string;
+    }[] = [];
+
+    journalLineResults.forEach((jl, index) => {
+      const meta = journalLineDimensionsMeta[index];
+      if (!meta) return;
+      if (meta.itemPostingGroupId && dimensionMap.has("ItemPostingGroup")) {
+        dimensionInserts.push({
+          journalLineId: jl.id,
+          dimensionId: dimensionMap.get("ItemPostingGroup")!,
+          valueId: meta.itemPostingGroupId,
+          companyId,
+        });
+      }
+      if (meta.locationId && dimensionMap.has("Location")) {
+        dimensionInserts.push({
+          journalLineId: jl.id,
+          dimensionId: dimensionMap.get("Location")!,
+          valueId: meta.locationId,
+          companyId,
+        });
+      }
+    });
+
+    if (dimensionInserts.length > 0) {
+      await trx
+        .insertInto("journalLineDimension")
+        .values(dimensionInserts)
+        .execute();
     }
   }
 }
@@ -221,15 +715,6 @@ const payloadValidator = z.discriminatedUnion("type", [
     trackedEntityId: z.string(),
     newRevision: z.string(),
     quantity: z.number().positive().default(1),
-    companyId: z.string(),
-    userId: z.string(),
-  }),
-  z.object({
-    type: z.literal("jobCompleteInventory"),
-    jobId: z.string(),
-    quantityComplete: z.number(),
-    shelfId: z.string().optional(),
-    locationId: z.string().optional(),
     companyId: z.string(),
     userId: z.string(),
   }),
@@ -305,6 +790,8 @@ const payloadValidator = z.discriminatedUnion("type", [
         quantity: z.number(),
       })
     ),
+    overrideExpired: z.boolean().optional(),
+    overrideReason: z.string().optional(),
     companyId: z.string(),
     userId: z.string(),
   }),
@@ -341,6 +828,8 @@ const payloadValidator = z.discriminatedUnion("type", [
         quantity: z.number(),
       })
     ),
+    overrideExpired: z.boolean().optional(),
+    overrideReason: z.string().optional(),
     companyId: z.string(),
     userId: z.string(),
   }),
@@ -383,15 +872,8 @@ serve(async (req: Request) => {
       [];
 
     switch (validatedPayload.type) {
-      case "jobCompleteInventory": {
-        const {
-          jobId,
-          quantityComplete,
-          shelfId,
-          locationId,
-          companyId,
-          userId,
-        } = validatedPayload;
+      case "jobOperation": {
+        const { id, companyId, quantity, userId } = validatedPayload;
 
         const client = await getSupabaseServiceRole(
           req.headers.get("Authorization"),
@@ -399,147 +881,51 @@ serve(async (req: Request) => {
           companyId
         );
 
-        await db.transaction().execute(async (trx) => {
-          const job = await trx
-            .selectFrom("job")
-            .where("id", "=", jobId)
-            .select(["itemId", "quantityReceivedToInventory"])
-            .executeTakeFirstOrThrow();
+        const [accountingSettings, companyRecord] = await Promise.all([
+          client
+            .from("companySettings")
+            .select("accountingEnabled")
+            .eq("id", companyId)
+            .single(),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecord.error) throw new Error("Failed to fetch company");
+        const accountingEnabled = accountingSettings.data?.accountingEnabled ?? false;
 
-          const jobMakeMethod = await trx
-            .selectFrom("jobMakeMethod")
-            .where("jobId", "=", jobId)
-            .where("parentMaterialId", "is", null)
-            .selectAll()
-            .executeTakeFirstOrThrow();
+        const accountDefaults = accountingEnabled
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (accountingEnabled && (accountDefaults?.error || !accountDefaults?.data)) {
+          throw new Error("Error getting account defaults");
+        }
 
-          const item = await trx
-            .selectFrom("item")
-            .where("id", "=", job?.itemId!)
-            .select(["readableIdWithRevision"])
-            .executeTakeFirstOrThrow();
+        const dimensions = accountingEnabled
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecord.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
 
-          const quantityReceivedToInventory =
-            quantityComplete - (job?.quantityReceivedToInventory ?? 0);
-
-          await trx
-            .updateTable("job")
-            .set({
-              status: "Completed" as const,
-              completedDate: new Date().toISOString(),
-              quantityComplete,
-              quantityReceivedToInventory,
-              updatedAt: new Date().toISOString(),
-              updatedBy: userId,
-            })
-            .where("id", "=", jobId)
-            .execute();
-
-          if (jobMakeMethod.requiresBatchTracking) {
-            const trackedEntity = await client
-              .from("trackedEntity")
-              .select("*")
-              .eq("attributes->>Job Make Method", jobMakeMethod.id!)
-              .single();
-
-            if (!trackedEntity.data) {
-              throw new Error("Tracked entity not found");
-            }
-
-            itemLedgerInserts.push({
-              entryType: "Assembly Output",
-              documentType: "Job Receipt",
-              documentId: jobId,
-              companyId,
-              itemId: job?.itemId!,
-              quantity: quantityReceivedToInventory,
-              locationId,
-              shelfId,
-              trackedEntityId: trackedEntity.data.id,
-              createdBy: userId,
-            });
-          } else if (jobMakeMethod.requiresSerialTracking) {
-            const trackedEntities = await client
-              .from("trackedEntity")
-              .select("*")
-              .eq("attributes->>Job Make Method", jobMakeMethod.id!)
-              .neq("status", "Consumed");
-
-            if (!trackedEntities.data) {
-              throw new Error("Tracked entities not found");
-            }
-
-            // TODO: we probably need some user input for determining which entities go into inventory
-            trackedEntities.data.forEach((trackedEntity) => {
-              itemLedgerInserts.push({
-                entryType: "Assembly Output",
-                documentType: "Job Receipt",
-                documentId: jobId,
-                companyId,
-                itemId: job?.itemId!,
-                quantity: 1,
-                locationId,
-                shelfId,
-                trackedEntityId: trackedEntity.id,
-                createdBy: userId,
-              });
-            });
-
-            await trx
-              .updateTable("trackedEntity")
-              .set({
-                status: "Available",
-              })
-              .where(
-                "id",
-                "in",
-                trackedEntities.data.map((trackedEntity) => trackedEntity.id)
-              )
-              .execute();
-          } else {
-            itemLedgerInserts.push({
-              entryType: "Assembly Output",
-              documentType: "Job Receipt",
-              documentId: jobId,
-              companyId,
-              itemId: job?.itemId!,
-              quantity: quantityReceivedToInventory,
-              locationId,
-              shelfId,
-              createdBy: userId,
-            });
+        const dimensionMap = new Map<string, string>();
+        if (dimensions?.data) {
+          for (const dim of dimensions.data) {
+            if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
           }
+        }
 
-          if (itemLedgerInserts.length > 0) {
-            await trx
-              .insertInto("itemLedger")
-              .values(itemLedgerInserts)
-              .execute();
-
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
-            for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
-                trx,
-                ledger.itemId,
-                ledger.locationId,
-                ledger.shelfId,
-                companyId,
-                userId
-              );
-            }
-          }
-        });
-
-        break;
-      }
-      case "jobOperation": {
-        const { id, companyId, quantity, userId } = validatedPayload;
         await db.transaction().execute(async (trx) => {
           await issueJobOperationMaterials(trx, {
             jobOperationId: id,
             quantity,
             companyId,
             userId,
+            accountingEnabled,
+            accountDefaults: accountDefaults?.data ? accountDefaults : null,
+            dimensionMap,
+            client,
+            db,
           });
         });
 
@@ -568,6 +954,40 @@ serve(async (req: Request) => {
 
         if (!jobOperation.data || !jobOperation.data.jobMakeMethodId) {
           throw new Error("Job operation not found");
+        }
+
+        const [accountingSettingsBatch, companyRecordBatch] = await Promise.all([
+          client
+            .from("companySettings")
+            .select("accountingEnabled")
+            .eq("id", companyId)
+            .single(),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecordBatch.error) throw new Error("Failed to fetch company");
+        const accountingEnabledBatch = accountingSettingsBatch.data?.accountingEnabled ?? false;
+
+        const accountDefaultsBatch = accountingEnabledBatch
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (accountingEnabledBatch && (accountDefaultsBatch?.error || !accountDefaultsBatch?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensionsBatch = accountingEnabledBatch
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecordBatch.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMapBatch = new Map<string, string>();
+        if (dimensionsBatch?.data) {
+          for (const dim of dimensionsBatch.data) {
+            if (dim.entityType) dimensionMapBatch.set(dim.entityType, dim.id);
+          }
         }
 
         await db.transaction().execute(async (trx) => {
@@ -643,6 +1063,11 @@ serve(async (req: Request) => {
             quantity: row.quantity,
             companyId,
             userId,
+            accountingEnabled: accountingEnabledBatch,
+            accountDefaults: accountDefaultsBatch?.data ? accountDefaultsBatch : null,
+            dimensionMap: dimensionMapBatch,
+            client,
+            db,
           });
         });
 
@@ -688,6 +1113,40 @@ serve(async (req: Request) => {
             `Operation ${row.jobOperationId}` in
             (trackedEntity.attributes as TrackedEntityAttributes)
         );
+
+        const [accountingSettingsSerial, companyRecordSerial] = await Promise.all([
+          client
+            .from("companySettings")
+            .select("accountingEnabled")
+            .eq("id", companyId)
+            .single(),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecordSerial.error) throw new Error("Failed to fetch company");
+        const accountingEnabledSerial = accountingSettingsSerial.data?.accountingEnabled ?? false;
+
+        const accountDefaultsSerial = accountingEnabledSerial
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (accountingEnabledSerial && (accountDefaultsSerial?.error || !accountDefaultsSerial?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensionsSerial = accountingEnabledSerial
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecordSerial.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMapSerial = new Map<string, string>();
+        if (dimensionsSerial?.data) {
+          for (const dim of dimensionsSerial.data) {
+            if (dim.entityType) dimensionMapSerial.set(dim.entityType, dim.id);
+          }
+        }
 
         let newEntityId: string | undefined;
         await db.transaction().execute(async (trx) => {
@@ -770,6 +1229,8 @@ serve(async (req: Request) => {
                 quantity: 1,
                 status: "Reserved",
                 attributes: trackedEntity.attributes,
+                itemId: trackedEntity.itemId ?? null,
+                expirationDate: trackedEntity.expirationDate ?? null,
                 companyId,
                 createdBy: userId,
               })
@@ -784,6 +1245,11 @@ serve(async (req: Request) => {
             quantity: row.quantity,
             companyId,
             userId,
+            accountingEnabled: accountingEnabledSerial,
+            accountDefaults: accountDefaultsSerial?.data ? accountDefaultsSerial : null,
+            dimensionMap: dimensionMapSerial,
+            client,
+            db,
           });
         });
 
@@ -808,6 +1274,47 @@ serve(async (req: Request) => {
           materialId,
           adjustmentType,
         } = validatedPayload;
+
+        const client = await getSupabaseServiceRole(
+          req.headers.get("Authorization"),
+          req.headers.get("carbon-key") ?? "",
+          companyId
+        );
+
+        const [accountingSettings, companyRecord] = await Promise.all([
+          client
+            .from("companySettings")
+            .select("accountingEnabled")
+            .eq("id", companyId)
+            .single(),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecord.error) throw new Error("Failed to fetch company");
+        const accountingEnabled = accountingSettings.data?.accountingEnabled ?? false;
+
+        const accountDefaults = accountingEnabled
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (accountingEnabled && (accountDefaults?.error || !accountDefaults?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensions = accountingEnabled
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecord.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMap = new Map<string, string>();
+        if (dimensions?.data) {
+          for (const dim of dimensions.data) {
+            if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
+          }
+        }
+
         await db.transaction().execute(async (trx) => {
           const jobOperation = await trx
             .selectFrom("jobOperation")
@@ -841,20 +1348,20 @@ serve(async (req: Request) => {
               .selectAll()
               .executeTakeFirst();
 
-            let shelfId: string | null | undefined;
-            // Prioritize material.shelfId if available
-            if (material?.shelfId) {
-              shelfId = material.shelfId;
-            } else if (material?.defaultShelf) {
+            let storageUnitId: string | null | undefined;
+            // Prioritize material.storageUnitId if available
+            if (material?.storageUnitId) {
+              storageUnitId = material.storageUnitId;
+            } else if (material?.defaultStorageUnit) {
               const pickMethod = await trx
                 .selectFrom("pickMethod")
                 .where("itemId", "=", itemId)
                 .where("locationId", "=", job?.locationId!)
-                .select("defaultShelfId")
+                .select("defaultStorageUnitId")
                 .executeTakeFirst();
-              shelfId = pickMethod?.defaultShelfId;
+              storageUnitId = pickMethod?.defaultStorageUnitId;
             } else {
-              shelfId = await getShelfWithHighestQuantity(
+              storageUnitId = await getStorageUnitWithHighestQuantity(
                 trx,
                 itemId,
                 job?.locationId!
@@ -880,7 +1387,7 @@ serve(async (req: Request) => {
                 companyId,
                 itemId: material?.itemId!,
                 locationId: job?.locationId,
-                shelfId,
+                storageUnitId,
                 quantity:
                   adjustmentType === "Positive Adjmt."
                     ? Number(quantityToIssue)
@@ -905,31 +1412,31 @@ serve(async (req: Request) => {
                 .values(itemLedgerInserts)
                 .execute();
 
-              // Update pickMethod defaultShelfId if needed for each inserted ledger
+              // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
               for (const ledger of itemLedgerInserts) {
-                await updatePickMethodDefaultShelfIfNeeded(
+                await updatePickMethodDefaultStorageUnitIfNeeded(
                   trx,
                   ledger.itemId,
                   ledger.locationId,
-                  ledger.shelfId,
+                  ledger.storageUnitId,
                   companyId,
                   userId
                 );
               }
             }
           } else {
-            let shelfId: string | null | undefined;
+            let storageUnitId: string | null | undefined;
             if (item?.itemTrackingType === "Inventory") {
               const pickMethod = await trx
                 .selectFrom("pickMethod")
                 .where("itemId", "=", itemId)
                 .where("locationId", "=", job?.locationId!)
-                .select("defaultShelfId")
+                .select("defaultStorageUnitId")
                 .executeTakeFirst();
 
-              shelfId =
-                pickMethod?.defaultShelfId ??
-                (await getShelfWithHighestQuantity(
+              storageUnitId =
+                pickMethod?.defaultStorageUnitId ??
+                (await getStorageUnitWithHighestQuantity(
                   trx,
                   itemId,
                   job?.locationId!
@@ -947,7 +1454,7 @@ serve(async (req: Request) => {
                     ? Number(quantity)
                     : -Number(quantity),
                 locationId: job?.locationId,
-                shelfId,
+                storageUnitId,
                 createdBy: userId,
               });
             }
@@ -970,7 +1477,7 @@ serve(async (req: Request) => {
                 jobId: jobOperation?.jobId!,
                 jobMakeMethodId: jobOperation?.jobMakeMethodId!,
                 jobOperationId: id,
-                shelfId: shelfId ?? undefined,
+                storageUnitId: storageUnitId ?? undefined,
                 methodType: "Pull from Inventory",
                 quantity: 0,
                 quantityIssued: Number(quantity ?? 0),
@@ -984,18 +1491,53 @@ serve(async (req: Request) => {
                 .values(itemLedgerInserts)
                 .execute();
 
-              // Update pickMethod defaultShelfId if needed for each inserted ledger
+              // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
               for (const ledger of itemLedgerInserts) {
-                await updatePickMethodDefaultShelfIfNeeded(
+                await updatePickMethodDefaultStorageUnitIfNeeded(
                   trx,
                   ledger.itemId,
                   ledger.locationId,
-                  ledger.shelfId,
+                  ledger.storageUnitId,
                   companyId,
                   userId
                 );
               }
             }
+          }
+
+          if (accountingEnabled && accountDefaults?.data && itemLedgerInserts.length > 0) {
+            const jobOperation = await trx
+              .selectFrom("jobOperation")
+              .where("id", "=", id)
+              .select(["jobId"])
+              .executeTakeFirst();
+
+            const jobRecord = jobOperation?.jobId
+              ? await trx
+                  .selectFrom("job")
+                  .where("id", "=", jobOperation.jobId)
+                  .select(["itemId", "locationId"])
+                  .executeTakeFirst()
+              : null;
+
+            await createMaterialWipEntries(trx, {
+              consumptionLedgers: itemLedgerInserts.map((l) => ({
+                itemId: l.itemId as string,
+                quantity: Number(l.quantity),
+              })),
+              jobId: jobOperation?.jobId!,
+              operationId: id,
+              description: "Manual Material Issue",
+              wipAccount: accountDefaults.data.workInProgressAccount,
+              inventoryAccount: accountDefaults.data.inventoryAccount,
+              dimensionMap,
+
+              jobLocationId: jobRecord?.locationId ?? null,
+              client,
+              db,
+              companyId,
+              userId,
+            });
           }
         });
         break;
@@ -1031,12 +1573,45 @@ serve(async (req: Request) => {
           throw new Error("Job material not found");
         }
 
+        const [accountingSettingsScrap, companyRecordScrap] = await Promise.all([
+          client
+            .from("companySettings")
+            .select("accountingEnabled")
+            .eq("id", companyId)
+            .single(),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecordScrap.error) throw new Error("Failed to fetch company");
+        const accountingEnabledScrap = accountingSettingsScrap.data?.accountingEnabled ?? false;
+
+        const accountDefaultsScrap = accountingEnabledScrap
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (accountingEnabledScrap && (accountDefaultsScrap?.error || !accountDefaultsScrap?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensionsScrap = accountingEnabledScrap
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecordScrap.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMapScrap = new Map<string, string>();
+        if (dimensionsScrap?.data) {
+          for (const dim of dimensionsScrap.data) {
+            if (dim.entityType) dimensionMapScrap.set(dim.entityType, dim.id);
+          }
+        }
+
         await db.transaction().execute(async (trx) => {
           const entity = trackedEntity.data!;
           const material = jobMaterial.data!;
           const quantity = Number(entity.quantity);
 
-          // Get item ledger to find location and shelf
           const itemLedger = await trx
             .selectFrom("itemLedger")
             .where("trackedEntityId", "=", trackedEntityId)
@@ -1044,21 +1619,18 @@ serve(async (req: Request) => {
             .selectAll()
             .executeTakeFirst();
 
-          // Get job to find location
           const job = await trx
             .selectFrom("job")
-            .select(["id", "locationId"])
+            .select(["id", "locationId", "itemId"])
             .where("id", "=", material.jobId!)
             .executeTakeFirst();
 
-          // Get item details
           const item = await trx
             .selectFrom("item")
             .where("id", "=", material.itemId!)
             .select(["readableIdWithRevision"])
             .executeTakeFirst();
 
-          // Create tracked activity for scrap
           const activityId = nanoid();
           await trx
             .insertInto("trackedActivity")
@@ -1080,7 +1652,6 @@ serve(async (req: Request) => {
             })
             .execute();
 
-          // Record tracked activity input
           await trx
             .insertInto("trackedActivityInput")
             .values({
@@ -1092,7 +1663,6 @@ serve(async (req: Request) => {
             })
             .execute();
 
-          // Record parent tracked entity as output if provided
           if (parentTrackedEntityId) {
             await trx
               .insertInto("trackedActivityOutput")
@@ -1106,7 +1676,6 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          // Update tracked entity status to consumed
           await trx
             .updateTable("trackedEntity")
             .set({
@@ -1115,7 +1684,6 @@ serve(async (req: Request) => {
             .where("id", "=", trackedEntityId)
             .execute();
 
-          // Create item ledger adjustment (negative for scrap)
           if (material.methodType !== "Make to Order") {
             await trx
               .insertInto("itemLedger")
@@ -1127,14 +1695,31 @@ serve(async (req: Request) => {
                 itemId: entity.sourceDocumentId!,
                 quantity: -quantity,
                 locationId: job?.locationId ?? itemLedger?.locationId,
-                shelfId: itemLedger?.shelfId,
+                storageUnitId: itemLedger?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               })
               .execute();
+
+            if (accountingEnabledScrap && accountDefaultsScrap?.data) {
+              await createMaterialWipEntries(trx, {
+                consumptionLedgers: [{ itemId: entity.sourceDocumentId!, quantity: -quantity }],
+                jobId: job?.id!,
+                operationId: material.jobOperationId!,
+                description: `Scrap — ${item?.readableIdWithRevision ?? ""}`,
+                wipAccount: accountDefaultsScrap.data.workInProgressAccount,
+                inventoryAccount: accountDefaultsScrap.data.inventoryAccount,
+                dimensionMap: dimensionMapScrap,
+  
+                jobLocationId: job?.locationId ?? null,
+                client,
+                db,
+                companyId,
+                userId,
+              });
+            }
           }
 
-          // Update job material quantity issued
           const currentQuantityIssued = Number(material.quantityIssued) || 0;
           const newQuantityIssued = currentQuantityIssued + quantity;
 
@@ -1164,6 +1749,8 @@ serve(async (req: Request) => {
           itemId,
           parentTrackedEntityId,
           children,
+          overrideExpired,
+          overrideReason,
           companyId,
           userId,
         } = validatedPayload;
@@ -1182,6 +1769,48 @@ serve(async (req: Request) => {
             "Either materialId or both jobOperationId and itemId must be provided"
           );
         }
+
+        const client = await getSupabaseServiceRole(
+          req.headers.get("Authorization"),
+          req.headers.get("carbon-key") ?? "",
+          companyId
+        );
+
+        const [accountingSettingsTracked, companyRecordTracked] = await Promise.all([
+          client
+            .from("companySettings")
+            .select("accountingEnabled")
+            .eq("id", companyId)
+            .single(),
+          client.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecordTracked.error) throw new Error("Failed to fetch company");
+        const accountingEnabledTracked = accountingSettingsTracked.data?.accountingEnabled ?? false;
+
+        const accountDefaultsTracked = accountingEnabledTracked
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (accountingEnabledTracked && (accountDefaultsTracked?.error || !accountDefaultsTracked?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensionsTracked = accountingEnabledTracked
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecordTracked.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMapTracked = new Map<string, string>();
+        if (dimensionsTracked?.data) {
+          for (const dim of dimensionsTracked.data) {
+            if (dim.entityType) dimensionMapTracked.set(dim.entityType, dim.id);
+          }
+        }
+
+        let expiredWarning: string | undefined;
 
         const splitEntities = await db.transaction().execute(async (trx) => {
           const trackedEntities = await trx
@@ -1209,6 +1838,23 @@ serve(async (req: Request) => {
 
           if (trackedEntities.some((entity) => entity.status !== "Available")) {
             throw new Error("Tracked entities are not available");
+          }
+
+          // Expiry policy gate. Reads companySettings.inventoryShelfLife.
+          const expiredPolicy = await getExpiredEntityPolicy(trx, companyId);
+          const expiredCheck = checkExpiredEntities(
+            trackedEntities.map((e) => ({
+              id: e.id,
+              expirationDate: e.expirationDate,
+            })),
+            expiredPolicy,
+            { allowed: !!overrideExpired, reason: overrideReason ?? null }
+          );
+          if (!expiredCheck.ok) {
+            throw new Error(expiredCheck.reason);
+          }
+          if (expiredCheck.warning) {
+            expiredWarning = expiredCheck.warning;
           }
 
           let jobMaterial: Awaited<
@@ -1492,6 +2138,8 @@ serve(async (req: Request) => {
                   quantity: remainingQuantity,
                   status: trackedEntity.status ?? "Available",
                   attributes: trackedEntity.attributes,
+                  itemId: trackedEntity.itemId ?? trackedEntity.sourceDocumentId,
+                  expirationDate: trackedEntity.expirationDate ?? null,
                   companyId,
                   createdBy: userId,
                 })
@@ -1549,10 +2197,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: -Number(trackedEntity.quantity),
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: trackedEntity.id!,
                     createdBy: userId,
                   },
@@ -1564,10 +2212,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: quantity,
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: trackedEntity.id!,
                     createdBy: userId,
                   },
@@ -1579,10 +2227,10 @@ serve(async (req: Request) => {
                     itemId: trackedEntity.sourceDocumentId,
                     quantity: remainingQuantity,
                     locationId: job?.locationId,
-                    shelfId: itemLedgers.find(
+                    storageUnitId: itemLedgers.find(
                       (itemLedger) =>
                         itemLedger.trackedEntityId === trackedEntityId
-                    )?.shelfId,
+                    )?.storageUnitId,
                     trackedEntityId: newTrackedEntityId,
                     createdBy: userId,
                   }
@@ -1616,9 +2264,9 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: -quantity,
                 locationId: job?.locationId,
-                shelfId: itemLedgers.find(
+                storageUnitId: itemLedgers.find(
                   (itemLedger) => itemLedger.trackedEntityId === trackedEntityId
-                )?.shelfId,
+                )?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               });
@@ -1638,16 +2286,40 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
+            // Update pickMethod defaultStorageUnitId if needed for each inserted ledger
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
+            }
+          }
+
+          if (accountingEnabledTracked && accountDefaultsTracked?.data && itemLedgerInserts.length > 0) {
+            const consumptionEntries = itemLedgerInserts
+              .filter((l) => l.entryType === "Consumption")
+              .map((l) => ({ itemId: l.itemId as string, quantity: Number(l.quantity) }));
+
+            if (consumptionEntries.length > 0) {
+              await createMaterialWipEntries(trx, {
+                consumptionLedgers: consumptionEntries,
+                jobId: job?.id!,
+                operationId: jobMaterial?.jobOperationId ?? actualMaterialId!,
+                description: "Tracked Entity Material Issue",
+                wipAccount: accountDefaultsTracked.data.workInProgressAccount,
+                inventoryAccount: accountDefaultsTracked.data.inventoryAccount,
+                dimensionMap: dimensionMapTracked,
+  
+                jobLocationId: job?.locationId ?? null,
+                client,
+                db,
+                companyId,
+                userId,
+              });
             }
           }
 
@@ -1683,6 +2355,7 @@ serve(async (req: Request) => {
           JSON.stringify({
             success: true,
             splitEntities,
+            warning: expiredWarning,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -1705,6 +2378,46 @@ serve(async (req: Request) => {
 
         if (children.length === 0) {
           throw new Error("Children are required");
+        }
+
+        const clientUnconsume = await getSupabaseServiceRole(
+          req.headers.get("Authorization"),
+          req.headers.get("carbon-key") ?? "",
+          companyId
+        );
+
+        const [accountingSettingsUnconsume, companyRecordUnconsume] = await Promise.all([
+          clientUnconsume
+            .from("companySettings")
+            .select("accountingEnabled")
+            .eq("id", companyId)
+            .single(),
+          clientUnconsume.from("company").select("companyGroupId").eq("id", companyId).single(),
+        ]);
+        if (companyRecordUnconsume.error) throw new Error("Failed to fetch company");
+        const accountingEnabledUnconsume = accountingSettingsUnconsume.data?.accountingEnabled ?? false;
+
+        const accountDefaultsUnconsume = accountingEnabledUnconsume
+          ? await getDefaultPostingGroup(clientUnconsume, companyId)
+          : null;
+        if (accountingEnabledUnconsume && (accountDefaultsUnconsume?.error || !accountDefaultsUnconsume?.data)) {
+          throw new Error("Error getting account defaults");
+        }
+
+        const dimensionsUnconsume = accountingEnabledUnconsume
+          ? await clientUnconsume
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyRecordUnconsume.data.companyGroupId)
+              .eq("active", true)
+              .in("entityType", ["ItemPostingGroup", "Location"])
+          : null;
+
+        const dimensionMapUnconsume = new Map<string, string>();
+        if (dimensionsUnconsume?.data) {
+          for (const dim of dimensionsUnconsume.data) {
+            if (dim.entityType) dimensionMapUnconsume.set(dim.entityType, dim.id);
+          }
         }
 
         await db.transaction().execute(async (trx) => {
@@ -1846,9 +2559,9 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: quantity,
                 locationId: job?.locationId,
-                shelfId: itemLedgers.find(
+                storageUnitId: itemLedgers.find(
                   (itemLedger) => itemLedger.trackedEntityId === trackedEntityId
-                )?.shelfId,
+                )?.storageUnitId,
                 trackedEntityId,
                 createdBy: userId,
               });
@@ -1868,16 +2581,38 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed for each inserted ledger
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
+            }
+
+            if (accountingEnabledUnconsume && accountDefaultsUnconsume?.data) {
+              const returnEntries = itemLedgerInserts.map((l) => ({
+                itemId: l.itemId as string,
+                quantity: Number(l.quantity),
+              }));
+
+              await createMaterialWipEntries(trx, {
+                consumptionLedgers: returnEntries,
+                jobId: job?.id!,
+                operationId: jobMaterial?.jobOperationId ?? materialId,
+                description: "Unconsume Material Return",
+                wipAccount: accountDefaultsUnconsume.data.workInProgressAccount,
+                inventoryAccount: accountDefaultsUnconsume.data.inventoryAccount,
+                dimensionMap: dimensionMapUnconsume,
+  
+                jobLocationId: job?.locationId ?? null,
+                client: clientUnconsume,
+                db,
+                companyId,
+                userId,
+              });
             }
           }
 
@@ -1896,11 +2631,6 @@ serve(async (req: Request) => {
             })
             .where("id", "=", materialId)
             .execute();
-
-          console.log("Job material quantity updated for unconsume:", {
-            materialId,
-            newQuantityIssued,
-          });
         });
 
         break;
@@ -2077,7 +2807,7 @@ serve(async (req: Request) => {
           const existingLedger = await trx
             .selectFrom("itemLedger")
             .where("trackedEntityId", "=", trackedEntityId)
-            .select(["locationId", "shelfId"])
+            .select(["locationId", "storageUnitId"])
             .orderBy("createdAt", "desc")
             .executeTakeFirst();
 
@@ -2095,7 +2825,7 @@ serve(async (req: Request) => {
                   itemId: oldItem.id,
                   quantity: -oldQuantity,
                   locationId: existingLedger?.locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId,
                   createdBy: userId,
                 },
@@ -2108,7 +2838,7 @@ serve(async (req: Request) => {
                   itemId: newItem.id,
                   quantity: quantity,
                   locationId: existingLedger?.locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId,
                   createdBy: userId,
                 },
@@ -2195,9 +2925,9 @@ serve(async (req: Request) => {
 
           // Only create item ledger entry for non-tracked items (not Serial or Batch)
           if (item.itemTrackingType !== "Serial" && item.itemTrackingType !== "Batch") {
-            // Get shelf with highest quantity for this item at this location
-            const shelfId = locationId
-              ? await getShelfWithHighestQuantity(
+            // Get storage unit with highest quantity for this item at this location
+            const storageUnitId = locationId
+              ? await getStorageUnitWithHighestQuantity(
                   trx,
                   itemId,
                   locationId
@@ -2215,18 +2945,18 @@ serve(async (req: Request) => {
                 itemId,
                 quantity: -quantity,
                 locationId,
-                shelfId,
+                storageUnitId,
                 createdBy: userId,
               })
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             if (locationId) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 itemId,
                 locationId,
-                shelfId,
+                storageUnitId,
                 companyId,
                 userId
               );
@@ -2251,6 +2981,8 @@ serve(async (req: Request) => {
           itemId,
           unitOfMeasureCode,
           children,
+          overrideExpired,
+          overrideReason,
           companyId,
           userId,
         } = validatedPayload;
@@ -2258,6 +2990,8 @@ serve(async (req: Request) => {
         if (children.length === 0) {
           throw new Error("At least one tracked entity is required");
         }
+
+        let expiredWarning: string | undefined;
 
         const splitEntities = await db.transaction().execute(async (trx) => {
           // Get the maintenance dispatch to find the location
@@ -2318,6 +3052,23 @@ serve(async (req: Request) => {
 
           if (trackedEntities.some((entity) => entity.status !== "Available")) {
             throw new Error("Some tracked entities are not available");
+          }
+
+          // Expiry policy gate.
+          const expiredPolicy = await getExpiredEntityPolicy(trx, companyId);
+          const expiredCheck = checkExpiredEntities(
+            trackedEntities.map((e) => ({
+              id: e.id,
+              expirationDate: e.expirationDate,
+            })),
+            expiredPolicy,
+            { allowed: !!overrideExpired, reason: overrideReason ?? null }
+          );
+          if (!expiredCheck.ok) {
+            throw new Error(expiredCheck.reason);
+          }
+          if (expiredCheck.warning) {
+            expiredWarning = expiredCheck.warning;
           }
 
           // Get item details
@@ -2436,6 +3187,8 @@ serve(async (req: Request) => {
                   quantity: remainingQuantity,
                   status: trackedEntity.status ?? "Available",
                   attributes: trackedEntity.attributes,
+                  itemId: trackedEntity.itemId ?? trackedEntity.sourceDocumentId,
+                  expirationDate: trackedEntity.expirationDate ?? null,
                   companyId,
                   createdBy: userId,
                 })
@@ -2490,7 +3243,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: -Number(trackedEntity.quantity),
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: trackedEntity.id!,
                   createdBy: userId,
                 },
@@ -2502,7 +3255,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: quantity,
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: trackedEntity.id!,
                   createdBy: userId,
                 },
@@ -2514,7 +3267,7 @@ serve(async (req: Request) => {
                   itemId: trackedEntity.sourceDocumentId,
                   quantity: remainingQuantity,
                   locationId,
-                  shelfId: existingLedger?.shelfId,
+                  storageUnitId: existingLedger?.storageUnitId,
                   trackedEntityId: newTrackedEntityId,
                   createdBy: userId,
                 }
@@ -2561,7 +3314,7 @@ serve(async (req: Request) => {
               itemId: trackedEntity.sourceDocumentId,
               quantity: -quantity,
               locationId,
-              shelfId: existingLedger?.shelfId,
+              storageUnitId: existingLedger?.storageUnitId,
               trackedEntityId,
               createdBy: userId,
             });
@@ -2587,13 +3340,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -2608,6 +3361,7 @@ serve(async (req: Request) => {
             success: true,
             message: "Material issued successfully",
             splitEntities,
+            warning: expiredWarning,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -2753,7 +3507,7 @@ serve(async (req: Request) => {
               itemId: trackedEntity.sourceDocumentId,
               quantity: quantity, // Positive to return to inventory
               locationId,
-              shelfId: existingLedger?.shelfId,
+              storageUnitId: existingLedger?.storageUnitId,
               trackedEntityId,
               createdBy: userId,
             });
@@ -2772,13 +3526,13 @@ serve(async (req: Request) => {
               .values(itemLedgerInserts)
               .execute();
 
-            // Update pickMethod defaultShelfId if needed
+            // Update pickMethod defaultStorageUnitId if needed
             for (const ledger of itemLedgerInserts) {
-              await updatePickMethodDefaultShelfIfNeeded(
+              await updatePickMethodDefaultStorageUnitIfNeeded(
                 trx,
                 ledger.itemId,
                 ledger.locationId,
-                ledger.shelfId,
+                ledger.storageUnitId,
                 companyId,
                 userId
               );
@@ -2934,7 +3688,7 @@ serve(async (req: Request) => {
                 itemId: trackedEntity.sourceDocumentId,
                 quantity: quantity, // Positive to return to inventory
                 locationId,
-                shelfId: existingLedger?.shelfId,
+                storageUnitId: existingLedger?.storageUnitId,
                 trackedEntityId: junction.trackedEntityId,
                 createdBy: userId,
               });
@@ -2967,7 +3721,7 @@ serve(async (req: Request) => {
             const quantity = Number(dispatchItem.quantity);
 
             if (quantity > 0) {
-              // Find the shelf from the original consumption ledger entry
+              // Find the storage unit from the original consumption ledger entry
               const originalLedger = await trx
                 .selectFrom("itemLedger")
                 .where("documentLineId", "=", maintenanceDispatchItemId)
@@ -2987,7 +3741,7 @@ serve(async (req: Request) => {
                   itemId: dispatchItem.itemId,
                   quantity: quantity, // Positive to return to inventory
                   locationId,
-                  shelfId: originalLedger?.shelfId,
+                  storageUnitId: originalLedger?.storageUnitId,
                   createdBy: userId,
                 })
                 .execute();
@@ -3026,9 +3780,22 @@ serve(async (req: Request) => {
     );
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify(err), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
-    });
+    // Error.prototype properties (message, name, stack) aren't enumerable,
+    // so a plain JSON.stringify(err) produces "{}" and clients lose the
+    // actual reason (e.g. "Cannot consume expired tracked entity ...").
+    // Pull the message out explicitly.
+    const message =
+      err instanceof Error
+        ? err.message
+        : typeof err === "string"
+          ? err
+          : "Unexpected error";
+    return new Response(
+      JSON.stringify({ success: false, message }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      }
+    );
   }
 });

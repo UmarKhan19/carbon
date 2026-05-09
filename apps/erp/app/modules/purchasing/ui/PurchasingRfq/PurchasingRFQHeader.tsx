@@ -61,7 +61,7 @@ const PurchasingRFQHeader = () => {
 
   const permissions = usePermissions();
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
   const finalizeFetcher = useFetcher<{ error: string | null }>();
 
   const routeData = useRouteData<{
@@ -88,7 +88,7 @@ const PurchasingRFQHeader = () => {
   const canCompareQuotes = activeLinkedQuotes.length > 1;
 
   return (
-    <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px] overflow-x-auto scrollbar-hide ">
+    <div className="flex flex-shrink-0 items-center justify-between p-2 bg-background border-b h-[50px] overflow-x-auto scrollbar-hide ">
       <HStack className="w-full justify-between">
         <HStack>
           <IconButton
@@ -113,6 +113,25 @@ const PurchasingRFQHeader = () => {
               />
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+              <DropdownMenuItem
+                disabled={
+                  status !== "Closed" ||
+                  statusFetcher.state !== "idle" ||
+                  !permissions.can("update", "purchasing")
+                }
+                onClick={() => {
+                  statusFetcher.submit(
+                    { status: "Draft" },
+                    {
+                      method: "post",
+                      action: path.to.purchasingRfqStatus(rfqId)
+                    }
+                  );
+                }}
+              >
+                <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                <Trans>Reopen</Trans>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={
                   isLocked ||
@@ -274,29 +293,6 @@ const PurchasingRFQHeader = () => {
               <Trans>Compare Quotes</Trans>
             </Button>
           )}
-
-          <statusFetcher.Form
-            method="post"
-            action={path.to.purchasingRfqStatus(rfqId)}
-          >
-            <input type="hidden" name="status" value="Draft" />
-            <Button
-              isDisabled={
-                status !== "Closed" ||
-                statusFetcher.state !== "idle" ||
-                !permissions.can("update", "purchasing")
-              }
-              isLoading={
-                statusFetcher.state !== "idle" &&
-                statusFetcher.formData?.get("status") === "Draft"
-              }
-              leftIcon={<LuLoaderCircle />}
-              type="submit"
-              variant="secondary"
-            >
-              <Trans>Reopen</Trans>
-            </Button>
-          </statusFetcher.Form>
 
           <IconButton
             aria-label={t`Toggle Properties`}

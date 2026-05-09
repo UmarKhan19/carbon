@@ -3,11 +3,11 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Spinner } from "@carbon/react";
 import type { FileObject } from "@supabase/storage-js";
-import { Suspense, useRef } from "react";
+import { useRef } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Await, redirect, useLoaderData, useParams } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
+import { DeferredFiles } from "~/components";
 import { useRouteData, useUser } from "~/hooks";
 import type {
   PurchaseOrder,
@@ -199,6 +199,8 @@ export default function PurchaseOrderBasicRoute() {
     customerId: orderData?.purchaseOrderDelivery.customerId ?? "",
     customerLocationId:
       orderData?.purchaseOrderDelivery.customerLocationId ?? "",
+    incoterm: orderData?.purchaseOrderDelivery.incoterm ?? undefined,
+    incotermLocation: orderData?.purchaseOrderDelivery.incotermLocation ?? "",
     ...getCustomFields(orderData?.purchaseOrderDelivery.customFields)
   };
   const paymentInitialValues = {
@@ -215,8 +217,6 @@ export default function PurchaseOrderBasicRoute() {
 
   const { company } = useUser();
 
-  const isReadOnly = isPurchaseOrderLocked(orderData.purchaseOrder.status);
-
   return (
     <>
       <SupplierInteractionState interaction={orderData.interaction} />
@@ -229,26 +229,16 @@ export default function PurchaseOrderBasicRoute() {
         internalNotes={internalNotes}
         externalNotes={externalNotes}
       />
-      <Suspense
-        key={`documents-${orderId}`}
-        fallback={
-          <div className="flex w-full min-h-[480px] h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
-            <Spinner className="h-10 w-10" />
-          </div>
-        }
-      >
-        <Await resolve={orderData.files}>
-          {(resolvedFiles) => (
-            <SupplierInteractionDocuments
-              attachments={resolvedFiles}
-              id={orderId}
-              interactionId={orderData.purchaseOrder.supplierInteractionId!}
-              type="Purchase Order"
-              isReadOnly={isReadOnly}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <DeferredFiles key={`documents-${orderId}`} resolve={orderData.files}>
+        {(resolvedFiles) => (
+          <SupplierInteractionDocuments
+            attachments={resolvedFiles}
+            id={orderId}
+            interactionId={orderData.purchaseOrder.supplierInteractionId!}
+            type="Purchase Order"
+          />
+        )}
+      </DeferredFiles>
       <PurchaseOrderDeliveryForm
         key={`delivery-${orderId}`}
         ref={deliveryFormRef}

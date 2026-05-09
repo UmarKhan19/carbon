@@ -5,7 +5,6 @@ import { SalesInvoiceEmail } from "@carbon/documents/email";
 import { validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import { renderAsync } from "@react-email/components";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { getPaymentTermsList } from "~/modules/accounting";
@@ -67,8 +66,7 @@ export async function action(args: ActionFunctionArgs) {
           invoiceId: invoiceId,
           userId: userId,
           companyId: companyId
-        },
-        region: FunctionRegion.UsEast1
+        }
       }
     );
 
@@ -100,9 +98,7 @@ export async function action(args: ActionFunctionArgs) {
     };
   }
 
-  const [salesInvoice] = await Promise.all([
-    getSalesInvoice(serviceRole, invoiceId)
-  ]);
+  const salesInvoice = await getSalesInvoice(serviceRole, invoiceId);
   if (salesInvoice.error) {
     return {
       success: false,
@@ -295,12 +291,11 @@ export async function action(args: ActionFunctionArgs) {
 
         const html = await renderAsync(emailTemplate);
         const text = await renderAsync(emailTemplate, { plainText: true });
-
         const { data: signedUrlData } = await serviceRole.storage
           .from("private")
           .createSignedUrl(documentFilePath, 3600);
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [seller.data.email, customer.data.contact.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: seller.data.email,

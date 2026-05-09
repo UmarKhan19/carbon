@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
 import { format } from "https://deno.land/std@0.205.0/datetime/mod.ts";
+import { getLocalTimeZone, parseDate, today } from "npm:@internationalized/date";
 import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/nanoid.ts";
 import { z } from "https://deno.land/x/zod@v3.21.4/mod.ts";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
@@ -8,6 +9,55 @@ import type { Database } from "../lib/types.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
+
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
+
+async function getExpiredEntityPolicy(companyId: string): Promise<ExpiredEntityPolicy> {
+  const row = await db
+    .selectFrom("companySettings")
+    .select("inventoryShelfLife")
+    .where("id", "=", companyId)
+    .executeTakeFirst();
+  const blob = row?.inventoryShelfLife as
+    | { expiredEntityPolicy?: ExpiredEntityPolicy }
+    | null;
+  return blob?.expiredEntityPolicy ?? "Block";
+}
+
+/**
+ * Reject expiry-violating consumption based on the company's policy.
+ * Returns the warning message when policy is 'Warn' so callers can echo
+ * it back in the response. Throws an Error in all reject cases so the
+ * outer try/catch surfaces it as a 400.
+ */
+function checkExpiredEntity(
+  entity: { id: string; expirationDate: string | null },
+  policy: ExpiredEntityPolicy,
+  override: { allowed: boolean; reason: string | null }
+): { warning?: string } {
+  if (!entity.expirationDate) return {};
+  const todayLocal = today(getLocalTimeZone());
+  try {
+    if (parseDate(entity.expirationDate).compare(todayLocal) >= 0) return {};
+  } catch {
+    return {};
+  }
+
+  if (policy === "Warn") {
+    return { warning: `Transferred expired tracked entity: ${entity.id}` };
+  }
+
+  if (
+    policy === "BlockWithOverride" &&
+    override.allowed &&
+    override.reason &&
+    override.reason.trim().length > 0
+  ) {
+    return {};
+  }
+
+  throw new Error(`Cannot transfer expired tracked entity: ${entity.id}`);
+}
 
 const payloadValidator = z.discriminatedUnion("type", [
   z.object({
@@ -32,7 +82,7 @@ const payloadValidator = z.discriminatedUnion("type", [
     stockTransferId: z.string(),
     stockTransferLineId: z.string(),
     trackedEntityId: z.string(),
-    fromShelfId: z.string().nullable(),
+    fromStorageUnitId: z.string().nullable(),
     locationId: z.string(),
     userId: z.string(),
     companyId: z.string(),
@@ -42,8 +92,10 @@ const payloadValidator = z.discriminatedUnion("type", [
     stockTransferId: z.string(),
     stockTransferLineId: z.string(),
     trackedEntityId: z.string(),
-    fromShelfId: z.string().nullable(),
+    fromStorageUnitId: z.string().nullable(),
     quantity: z.number().positive(),
+    overrideExpired: z.boolean().optional(),
+    overrideReason: z.string().optional(),
     locationId: z.string(),
     userId: z.string(),
     companyId: z.string(),
@@ -78,6 +130,7 @@ serve(async (req: Request) => {
 
   try {
     const validatedPayload = payloadValidator.parse(payload);
+    let expiredWarning: string | undefined;
 
     console.log({
       function: "post-stock-transfer",
@@ -113,7 +166,7 @@ serve(async (req: Request) => {
             itemId: stockTransferLine.itemId,
             quantity: -quantity,
             locationId: locationId,
-            shelfId: stockTransferLine.fromShelfId,
+            storageUnitId: stockTransferLine.fromStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -126,7 +179,7 @@ serve(async (req: Request) => {
             itemId: stockTransferLine.itemId,
             quantity: quantity,
             locationId: locationId,
-            shelfId: stockTransferLine.toShelfId,
+            storageUnitId: stockTransferLine.toStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -189,7 +242,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: currentPickedQuantity, // Positive to restore inventory at from shelf
               locationId: locationId,
-              shelfId: stockTransferLine.fromShelfId,
+              storageUnitId: stockTransferLine.fromStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -202,7 +255,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: -currentPickedQuantity, // Negative to remove inventory from to shelf
               locationId: locationId,
-              shelfId: stockTransferLine.toShelfId,
+              storageUnitId: stockTransferLine.toStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -238,7 +291,7 @@ serve(async (req: Request) => {
 
       case "serial": {
         const {
-          fromShelfId,
+          fromStorageUnitId,
           stockTransferId,
           stockTransferLineId,
           trackedEntityId,
@@ -273,8 +326,8 @@ serve(async (req: Request) => {
                 "Stock Transfer Line": stockTransferLineId,
                 "From Location": locationId,
                 "To Location": locationId,
-                "From Shelf": stockTransferLine.fromShelfId,
-                "To Shelf": stockTransferLine.toShelfId,
+                "From Shelf": stockTransferLine.fromStorageUnitId,
+                "To Shelf": stockTransferLine.toStorageUnitId,
               },
               companyId,
               createdBy: userId,
@@ -299,7 +352,7 @@ serve(async (req: Request) => {
             itemId: stockTransferLine.itemId,
             quantity: -1,
             locationId: locationId,
-            shelfId: fromShelfId,
+            storageUnitId: fromStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -313,7 +366,7 @@ serve(async (req: Request) => {
             itemId: stockTransferLine.itemId,
             quantity: 1,
             locationId: locationId,
-            shelfId: stockTransferLine.toShelfId,
+            storageUnitId: stockTransferLine.toStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -335,7 +388,7 @@ serve(async (req: Request) => {
             .updateTable("stockTransferLine")
             .set({
               trackedEntityId,
-              fromShelfId: fromShelfId,
+              fromStorageUnitId: fromStorageUnitId,
               pickedQuantity: (stockTransferLine.pickedQuantity ?? 0) + 1,
               updatedBy: userId,
               updatedAt: new Date().toISOString(),
@@ -350,15 +403,19 @@ serve(async (req: Request) => {
 
       case "batch": {
         const {
-          fromShelfId,
+          fromStorageUnitId,
           stockTransferId,
           stockTransferLineId,
           trackedEntityId,
           quantity,
+          overrideExpired,
+          overrideReason,
           locationId,
           userId,
           companyId,
         } = validatedPayload;
+
+        const policy = await getExpiredEntityPolicy(companyId);
 
         await db.transaction().execute(async (trx) => {
           // Get stock transfer line details
@@ -376,6 +433,16 @@ serve(async (req: Request) => {
             .where("companyId", "=", companyId)
             .selectAll()
             .executeTakeFirstOrThrow();
+
+          // Expiry policy gate (throws on hard reject; returns warning for 'Warn').
+          const expiredCheck = checkExpiredEntity(
+            { id: trackedEntity.id, expirationDate: trackedEntity.expirationDate },
+            policy,
+            { allowed: !!overrideExpired, reason: overrideReason ?? null }
+          );
+          if (expiredCheck.warning) {
+            expiredWarning = expiredCheck.warning;
+          }
 
           const entityQuantity = Number(trackedEntity.quantity);
           const transferQuantity = quantity;
@@ -432,6 +499,8 @@ serve(async (req: Request) => {
                 quantity: remainingQuantity,
                 status: "Available",
                 attributes: trackedEntity.attributes,
+                itemId: trackedEntity.itemId ?? null,
+                expirationDate: trackedEntity.expirationDate ?? null,
                 companyId,
                 createdBy: userId,
               })
@@ -478,7 +547,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: -entityQuantity,
                 locationId: locationId,
-                shelfId: fromShelfId,
+                storageUnitId: fromStorageUnitId,
                 entryType: "Negative Adjmt.",
                 documentType: "Batch Split",
                 documentId: splitActivityId,
@@ -491,7 +560,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: transferQuantity,
                 locationId: locationId,
-                shelfId: fromShelfId,
+                storageUnitId: fromStorageUnitId,
                 entryType: "Positive Adjmt.",
                 documentType: "Batch Split",
                 documentId: splitActivityId,
@@ -504,7 +573,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: remainingQuantity,
                 locationId: locationId,
-                shelfId: fromShelfId,
+                storageUnitId: fromStorageUnitId,
                 entryType: "Positive Adjmt.",
                 documentType: "Batch Split",
                 documentId: splitActivityId,
@@ -529,8 +598,8 @@ serve(async (req: Request) => {
                 "Stock Transfer Line": stockTransferLineId,
                 "From Location": locationId,
                 "To Location": locationId,
-                "From Shelf": stockTransferLine.fromShelfId,
-                "To Shelf": stockTransferLine.toShelfId,
+                "From Shelf": stockTransferLine.fromStorageUnitId,
+                "To Shelf": stockTransferLine.toStorageUnitId,
               },
               companyId,
               createdBy: userId,
@@ -565,7 +634,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: -transferQuantity,
               locationId: locationId,
-              shelfId: fromShelfId,
+              storageUnitId: fromStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -578,7 +647,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: transferQuantity,
               locationId: locationId,
-              shelfId: stockTransferLine.toShelfId,
+              storageUnitId: stockTransferLine.toStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -601,7 +670,7 @@ serve(async (req: Request) => {
             .updateTable("stockTransferLine")
             .set({
               trackedEntityId,
-              fromShelfId: fromShelfId,
+              fromStorageUnitId: fromStorageUnitId,
               pickedQuantity: transferQuantity,
               updatedBy: userId,
               updatedAt: new Date().toISOString(),
@@ -661,13 +730,13 @@ serve(async (req: Request) => {
             [];
 
           // Create reverse item ledger entries to undo the transfer
-          // First, remove the entity from the destination shelf (toShelfId)
+          // First, remove the entity from the destination shelf (toStorageUnitId)
           itemLedgerInserts.push({
             postingDate: today,
             itemId: stockTransferLine.itemId,
             quantity: -1, // Negative to remove inventory from to shelf
             locationId: locationId,
-            shelfId: stockTransferLine.toShelfId,
+            storageUnitId: stockTransferLine.toStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -676,13 +745,13 @@ serve(async (req: Request) => {
             companyId,
           });
 
-          // Then, restore the entity to the source shelf (fromShelfId)
+          // Then, restore the entity to the source shelf (fromStorageUnitId)
           itemLedgerInserts.push({
             postingDate: today,
             itemId: stockTransferLine.itemId,
             quantity: 1, // Positive to restore inventory at from shelf
             locationId: locationId,
-            shelfId: stockTransferLine.fromShelfId,
+            storageUnitId: stockTransferLine.fromStorageUnitId,
             entryType: "Transfer",
             documentType: "Direct Transfer",
             documentId: stockTransferId,
@@ -717,7 +786,7 @@ serve(async (req: Request) => {
               status: "Available",
               attributes: {
                 ...(trackedEntity.attributes as Record<string, unknown>),
-                Shelf: stockTransferLine.fromShelfId,
+                Shelf: stockTransferLine.fromStorageUnitId,
               },
             })
             .where("id", "=", trackedEntityId)
@@ -842,14 +911,14 @@ serve(async (req: Request) => {
               .execute();
 
             // Create item ledger entries for merge
-            // Both entities are on the fromShelfId during the merge operation
+            // Both entities are on the fromStorageUnitId during the merge operation
             itemLedgerInserts.push(
               {
                 postingDate: today,
                 itemId: stockTransferLine.itemId,
                 quantity: originalQuantity, // zero out the split entity
                 locationId: locationId,
-                shelfId: stockTransferLine.fromShelfId,
+                storageUnitId: stockTransferLine.fromStorageUnitId,
                 entryType: "Positive Adjmt.",
                 documentType: "Direct Transfer",
                 documentId: stockTransferId!,
@@ -862,7 +931,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: -transferQuantity, // Positive to restore to original entity
                 locationId: locationId,
-                shelfId: stockTransferLine.toShelfId, // Both entities are on the source shelf
+                storageUnitId: stockTransferLine.toStorageUnitId, // Both entities are on the source shelf
                 entryType: "Negative Adjmt.",
                 documentType: "Direct Transfer",
                 documentId: stockTransferId!,
@@ -875,7 +944,7 @@ serve(async (req: Request) => {
                 itemId: stockTransferLine.itemId,
                 quantity: -(originalQuantity - transferQuantity), // Positive to restore to original entity
                 locationId: locationId,
-                shelfId: stockTransferLine.fromShelfId, // Both entities are on the source shelf
+                storageUnitId: stockTransferLine.fromStorageUnitId, // Both entities are on the source shelf
                 entryType: "Negative Adjmt.",
                 documentType: "Direct Transfer",
                 documentId: stockTransferId!,
@@ -908,7 +977,7 @@ serve(async (req: Request) => {
                 status: "Available",
                 attributes: {
                   ...(trackedEntity.attributes as Record<string, unknown>),
-                  Shelf: stockTransferLine.fromShelfId,
+                  Shelf: stockTransferLine.fromStorageUnitId,
                 },
               })
               .where("id", "=", trackedEntityId)
@@ -925,7 +994,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: transferQuantity, // Positive to restore inventory at from shelf
               locationId: locationId,
-              shelfId: stockTransferLine.fromShelfId,
+              storageUnitId: stockTransferLine.fromStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -939,7 +1008,7 @@ serve(async (req: Request) => {
               itemId: stockTransferLine.itemId,
               quantity: -transferQuantity, // Negative to remove inventory from to shelf
               locationId: locationId,
-              shelfId: stockTransferLine.toShelfId,
+              storageUnitId: stockTransferLine.toStorageUnitId,
               entryType: "Transfer",
               documentType: "Direct Transfer",
               documentId: stockTransferId,
@@ -992,6 +1061,7 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
+        warning: expiredWarning,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

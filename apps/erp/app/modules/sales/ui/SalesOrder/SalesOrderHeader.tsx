@@ -80,7 +80,7 @@ const SalesOrderConfirmModal = ({
   if (!orderId) throw new Error("orderId not found");
 
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
 
   const [notificationType, setNotificationType] = useState<"Email" | "None">(
     canEmail ? "Email" : "None"
@@ -254,7 +254,7 @@ const SalesOrderHeader = () => {
 
   return (
     <>
-      <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px] overflow-x-auto scrollbar-hide">
+      <div className="flex flex-shrink-0 items-center justify-between p-2 bg-background border-b h-[50px] overflow-x-auto scrollbar-hide">
         <HStack className="w-full justify-between">
           <HStack>
             <IconButton
@@ -304,6 +304,26 @@ const SalesOrderHeader = () => {
                     <DropdownMenuIcon icon={<LuFile />} />
                     <Trans>Export Lines to CSV</Trans>
                   </CSVLink>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={
+                    ["Draft"].includes(routeData?.salesOrder?.status ?? "") ||
+                    statusFetcher.state !== "idle" ||
+                    !permissions.can("update", "sales")
+                  }
+                  onClick={() => {
+                    statusFetcher.submit(
+                      { status: "Draft" },
+                      {
+                        method: "post",
+                        action: path.to.salesOrderStatus(orderId)
+                      }
+                    );
+                  }}
+                >
+                  <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                  <Trans>Reopen</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   destructive
@@ -580,29 +600,6 @@ const SalesOrderHeader = () => {
                 }}
               </Await>
             </Suspense>
-
-            <statusFetcher.Form
-              method="post"
-              action={path.to.salesOrderStatus(orderId)}
-            >
-              <input type="hidden" name="status" value="Draft" />
-              <Button
-                type="submit"
-                variant="secondary"
-                leftIcon={<LuLoaderCircle />}
-                isDisabled={
-                  ["Draft"].includes(routeData?.salesOrder?.status ?? "") ||
-                  statusFetcher.state !== "idle" ||
-                  !permissions.can("update", "sales")
-                }
-                isLoading={
-                  statusFetcher.state !== "idle" &&
-                  statusFetcher.formData?.get("status") === "Draft"
-                }
-              >
-                <Trans>Reopen</Trans>
-              </Button>
-            </statusFetcher.Form>
 
             <IconButton
               aria-label={t`Toggle Properties`}

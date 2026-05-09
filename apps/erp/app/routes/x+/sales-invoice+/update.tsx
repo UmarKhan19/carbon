@@ -27,12 +27,15 @@ export async function action({ request }: ActionFunctionArgs) {
     .from("salesInvoice")
     .select("status")
     .in("id", ids as string[]);
-  const lockedError = requireUnlockedBulk({
-    statuses: (salesInvoices.data ?? []).map((si) => si.status),
-    checkFn: isSalesInvoiceLocked,
-    message: "Cannot modify a locked sales invoice."
-  });
-  if (lockedError) return lockedError;
+  const dateFields = ["dateIssued", "dateDue", "datePaid"];
+  if (!dateFields.includes(field)) {
+    const lockedError = requireUnlockedBulk({
+      statuses: (salesInvoices.data ?? []).map((si) => si.status),
+      checkFn: isSalesInvoiceLocked,
+      message: "Cannot modify a locked sales invoice."
+    });
+    if (lockedError) return lockedError;
+  }
 
   switch (field) {
     case "invoiceCustomerId":

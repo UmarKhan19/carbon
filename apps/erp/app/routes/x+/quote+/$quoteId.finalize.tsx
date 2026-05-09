@@ -40,7 +40,7 @@ export async function action(args: ActionFunctionArgs) {
   let fileName: string;
   let documentFilePath: string;
 
-  const [quote] = await Promise.all([getQuote(client, quoteId)]);
+  const quote = await getQuote(client, quoteId);
   if (quote.error) {
     throw redirect(
       path.to.quote(quoteId),
@@ -48,16 +48,14 @@ export async function action(args: ActionFunctionArgs) {
     );
   }
 
-  const [externalLink] = await Promise.all([
-    upsertExternalLink(client, {
-      id: quote.data.externalLinkId ?? undefined, // TODO
-      documentType: "Quote",
-      documentId: quoteId,
-      customerId: quote.data.customerId,
-      expiresAt: quote.data.expirationDate,
-      companyId
-    })
-  ]);
+  const externalLink = await upsertExternalLink(client, {
+    id: quote.data.externalLinkId ?? undefined, // TODO
+    documentType: "Quote",
+    documentId: quoteId,
+    customerId: quote.data.customerId,
+    expiresAt: quote.data.expirationDate,
+    companyId
+  });
 
   if (externalLink.data && quote.data.externalLinkId !== externalLink.data.id) {
     await client
@@ -191,12 +189,11 @@ export async function action(args: ActionFunctionArgs) {
 
         const html = await renderAsync(emailTemplate);
         const text = await renderAsync(emailTemplate, { plainText: true });
-
         const { data: signedUrlData } = await client.storage
           .from("private")
           .createSignedUrl(documentFilePath, 3600);
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [user.data.email, customerContact.data.contact!.email!],
           cc: ccSelections?.length ? ccSelections : undefined,
           from: user.data.email,

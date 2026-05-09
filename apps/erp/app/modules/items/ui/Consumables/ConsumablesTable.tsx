@@ -19,7 +19,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
+
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
@@ -49,7 +49,7 @@ import {
 import { Enumerable } from "~/components/Enumerable";
 import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import { ConfirmDelete } from "~/components/Modals";
-import { usePermissions } from "~/hooks";
+import { useDateFormatter, usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { methodType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
@@ -67,22 +67,29 @@ type ConsumablesTableProps = {
 const ConsumablesTable = memo(
   ({ data, count, tags }: ConsumablesTableProps) => {
     const { t } = useLingui();
-    const translateMethodType = (v: string) =>
-      v === "Purchase to Order"
-        ? t`Purchase to Order`
-        : v === "Pull from Inventory"
-          ? t`Pull from Inventory`
-          : t`Make to Order`;
-    const translateTrackingType = (v: string) =>
-      v === "Inventory"
-        ? t`Inventory`
-        : v === "Non-Inventory"
-          ? t`Non-Inventory`
-          : v === "Serial"
-            ? t`Serial`
-            : t`Batch`;
+    const translateMethodType = useCallback(
+      (v: string) =>
+        v === "Purchase to Order"
+          ? t`Purchase to Order`
+          : v === "Pull from Inventory"
+            ? t`Pull from Inventory`
+            : t`Make to Order`,
+      [t]
+    );
+    const translateTrackingType = useCallback(
+      (v: string) =>
+        v === "Inventory"
+          ? t`Inventory`
+          : v === "Non-Inventory"
+            ? t`Non-Inventory`
+            : v === "Serial"
+              ? t`Serial`
+              : t`Batch`,
+      [t]
+    );
     const navigate = useNavigate();
     const permissions = usePermissions();
+    const { formatDate } = useDateFormatter();
 
     const deleteItemModal = useDisclosure();
     const [selectedItem, setSelectedItem] = useState<Consumable | null>(null);
@@ -150,6 +157,31 @@ const ConsumablesTable = memo(
           }
         },
         {
+          accessorKey: "defaultMethodType",
+          header: t`Default Method`,
+          cell: (item) => (
+            <Badge variant="secondary">
+              <MethodIcon type={item.getValue<string>()} className="mr-2" />
+              <span>{translateMethodType(item.getValue<string>())}</span>
+            </Badge>
+          ),
+          meta: {
+            filter: {
+              type: "static",
+              options: methodType.map((value) => ({
+                value,
+                label: (
+                  <Badge variant="secondary">
+                    <MethodIcon type={value} className="mr-2" />
+                    <span>{translateMethodType(value)}</span>
+                  </Badge>
+                )
+              }))
+            },
+            icon: <RxCodesandboxLogo />
+          }
+        },
+        {
           accessorKey: "itemTrackingType",
           header: t`Tracking`,
           cell: (item) => (
@@ -175,31 +207,6 @@ const ConsumablesTable = memo(
               }))
             },
             icon: <TbTargetArrow />
-          }
-        },
-        {
-          accessorKey: "defaultMethodType",
-          header: t`Default Method`,
-          cell: (item) => (
-            <Badge variant="secondary">
-              <MethodIcon type={item.getValue<string>()} className="mr-2" />
-              <span>{translateMethodType(item.getValue<string>())}</span>
-            </Badge>
-          ),
-          meta: {
-            filter: {
-              type: "static",
-              options: methodType.map((value) => ({
-                value,
-                label: (
-                  <Badge variant="secondary">
-                    <MethodIcon type={value} className="mr-2" />
-                    <span>{translateMethodType(value)}</span>
-                  </Badge>
-                )
-              }))
-            },
-            icon: <RxCodesandboxLogo />
           }
         },
         {
@@ -310,7 +317,16 @@ const ConsumablesTable = memo(
         }
       ];
       return [...defaultColumns, ...customColumns];
-    }, [tags, people, customColumns, itemPostingGroups, t]);
+    }, [
+      tags,
+      people,
+      customColumns,
+      itemPostingGroups,
+      t,
+      translateMethodType,
+      translateTrackingType,
+      formatDate
+    ]);
 
     const fetcher = useFetcher<typeof action>();
     useEffect(() => {
@@ -422,7 +438,12 @@ const ConsumablesTable = memo(
           </DropdownMenuContent>
         );
       },
-      [onBulkUpdate, itemPostingGroups]
+      [
+        onBulkUpdate,
+        itemPostingGroups,
+        translateMethodType,
+        translateTrackingType
+      ]
     );
 
     const renderContextMenu = useMemo(() => {

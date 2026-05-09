@@ -9,11 +9,13 @@ import { validator } from "@carbon/form";
 import { LocaleProvider, resolveLanguage } from "@carbon/locale";
 import {
   Button,
+  getPreferenceHeaders,
   Heading,
   OperatingSystemContextProvider,
-  Toaster
+  Toaster,
+  TooltipProvider,
+  useMode
 } from "@carbon/react";
-import { getPreferenceHeaders, useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
 import { modeValidator, themes } from "@carbon/utils";
 import { I18nProvider } from "@react-aria/i18n";
@@ -210,14 +212,16 @@ export default function App() {
     <OperatingSystemContextProvider platform={prefs.platform}>
       <LocaleProvider locale={appLanguage} catalog={linguiCatalog}>
         <I18nProvider locale={prefs.locale}>
-          <Document mode={mode} theme={theme} lang={appLanguage}>
-            <Outlet />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.env = ${JSON.stringify(env)};`
-              }}
-            />
-          </Document>
+          <TooltipProvider delayDuration={200}>
+            <Document mode={mode} theme={theme} lang={appLanguage}>
+              <Outlet />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `window.env = ${JSON.stringify(env)};`
+                }}
+              />
+            </Document>
+          </TooltipProvider>
         </I18nProvider>
       </LocaleProvider>
     </OperatingSystemContextProvider>

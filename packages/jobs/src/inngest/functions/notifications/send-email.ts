@@ -1,18 +1,42 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { Resend as ResendConfig } from "@carbon/ee";
+import { Email as EmailConfig } from "@carbon/ee";
 import { NonRetriableError, serializeError } from "inngest";
 import { Resend } from "resend";
 import { inngest } from "../../client";
 
 export const sendEmailFunction = inngest.createFunction(
   {
-    id: "send-email-resend",
+    id: "send-email",
     retries: 3
   },
   { event: "carbon/send-email" },
   async ({ event, step }) => {
     const payload = event.data;
     const serviceRole = getCarbonServiceRole();
+
+    // Resend rejects the request if `to` or `cc` contain null/undefined
+    // entries, so strip falsy values regardless of what callers pass.
+    const sanitizeRecipients = (
+      value: string | string[] | undefined
+    ): string | string[] | undefined => {
+      if (Array.isArray(value)) {
+        const filtered = value.filter(
+          (entry): entry is string =>
+            typeof entry === "string" && entry.length > 0
+        );
+        return filtered.length ? filtered : undefined;
+      }
+      return value && typeof value === "string" ? value : undefined;
+    };
+
+    const toRecipients = sanitizeRecipients(payload.to);
+    const ccRecipients = sanitizeRecipients(payload.cc);
+
+    if (!toRecipients) {
+      throw new NonRetriableError(
+        "send-email called without any valid `to` recipients"
+      );
+    }
 
     const { companyName, integrationMetadata, integrationActive } =
       await step.run("fetch-company-integration", async () => {
@@ -26,7 +50,7 @@ export const sendEmailFunction = inngest.createFunction(
             .from("companyIntegration")
             .select("active, metadata")
             .eq("companyId", payload.companyId)
-            .eq("id", "resend")
+            .eq("id", "email")
             .maybeSingle()
         ]);
 
@@ -37,23 +61,77 @@ export const sendEmailFunction = inngest.createFunction(
         };
       });
 
-    const parsedMetadata = ResendConfig.schema.safeParse(integrationMetadata);
+    // Legacy installs predate the provider field — default them to Resend so
+    // existing configs keep working without any migration step on the caller.
+    const metadataWithProvider =
+      integrationMetadata && typeof integrationMetadata === "object"
+        ? {
+            provider: "resend",
+            ...(integrationMetadata as Record<string, unknown>)
+          }
+        : integrationMetadata;
 
-    console.info(parsedMetadata.data?.fromEmail ?? "No email found");
+    const parsedMetadata = EmailConfig.schema.safeParse(metadataWithProvider);
 
     if (!parsedMetadata.success || !integrationActive) {
       return { success: false, message: "Invalid or inactive integration" };
     }
 
+    const data = parsedMetadata.data as {
+      provider: "resend" | "smtp";
+      fromEmail: string;
+      apiKey?: string;
+      host?: string;
+      port?: number;
+      username?: string;
+      password?: string;
+      secure?: boolean;
+    };
+
+    const fromAddress = `${companyName} <${data.fromEmail}>`;
+
+    if (data.provider === "smtp") {
+      const result = await step.run("send-email", async () => {
+        const nodemailer = await import("nodemailer");
+        const transporter = nodemailer.createTransport({
+          host: data.host!,
+          port: data.port!,
+          secure: data.secure === true,
+          auth: {
+            user: data.username!,
+            pass: data.password!
+          }
+        });
+
+        console.info(`SMTP Email Job`);
+        return transporter.sendMail({
+          from: fromAddress,
+          to: toRecipients,
+          cc: ccRecipients,
+          replyTo: payload.from,
+          subject: payload.subject,
+          html: payload.html,
+          text: payload.text,
+          attachments: payload.attachments?.map(
+            (a: { filename: string; content: string }) => ({
+              filename: a.filename,
+              content: a.content,
+              encoding: "base64" as const
+            })
+          )
+        });
+      });
+
+      return { success: true, result };
+    }
+
     const result = await step.run("send-email", async () => {
-      const resend = new Resend(parsedMetadata.data.apiKey);
+      const resend = new Resend(data.apiKey!);
 
       const email = {
-        from: `${companyName} <${
-          parsedMetadata.data.fromEmail ?? "onboarding@resend.dev"
-        }>`,
-        to: payload.to,
-        cc: payload.cc,
+        from: fromAddress,
+        to: toRecipients,
+        cc: ccRecipients,
         reply_to: payload.from,
         subject: payload.subject,
         html: payload.html,

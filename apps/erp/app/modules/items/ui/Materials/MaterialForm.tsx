@@ -44,6 +44,7 @@ import {
   materialValidator,
   materialValidatorWithGeneratedIds
 } from "../../items.models";
+import ItemStorageFields from "../Item/ItemStorageFields";
 
 type MaterialFormProps = {
   initialValues: z.infer<typeof materialValidator> & { tags?: string[] };
@@ -320,6 +321,8 @@ const MaterialForm = ({
                   isClearable
                 />
                 <Array name="sizes" label={t`Sizes`} />
+
+                <ItemStorageFields />
 
                 <CustomFormFields table="material" tags={initialValues.tags} />
               </div>

@@ -3,6 +3,8 @@ import {
   LuBan,
   LuCreditCard,
   LuGlobe,
+  LuList,
+  LuPercent,
   LuShapes,
   LuSquareUser,
   LuStar
@@ -68,7 +70,19 @@ export default function useSalesSubmodules() {
       name: t`Configure`,
       routes: [
         {
-          name: t`No Quotes`,
+          name: t`Price Lists`,
+          to: path.to.salesPriceList,
+          role: "employee",
+          icon: <LuList />
+        },
+        {
+          name: t`Pricing Rules`,
+          to: path.to.salesPricingRules,
+          role: "employee",
+          icon: <LuPercent />
+        },
+        {
+          name: t`No Quote Reasons`,
           to: path.to.noQuoteReasons,
           role: "employee",
           icon: <LuBan />

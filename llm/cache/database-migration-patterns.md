@@ -57,31 +57,9 @@ CREATE TABLE "tableName" (
 
 ## 4. RLS (Row Level Security) Patterns
 
-### Evolution of RLS Policies
+**IMPORTANT: ALWAYS use the new pattern below. NEVER use the old `has_role`/`has_company_permission` pattern — it is deprecated.**
 
-#### Old Pattern (Pre-2025)
-
-Used descriptive policy names with has_role and has_company_permission functions:
-
-```sql
-ALTER TABLE "tableName" ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Employees can view items from their company" ON "tableName"
-  FOR SELECT USING (
-    has_role('employee', "companyId") AND
-    "companyId" IN (
-      SELECT "companyId" FROM "userToCompany" WHERE "userId" = auth.uid()::text
-    )
-  );
-
-CREATE POLICY "Employees with module_create can create items" ON "tableName"
-  FOR INSERT WITH CHECK (
-    has_role('employee', "companyId") AND
-    has_company_permission('module_create', "companyId")
-  );
-```
-
-#### New Pattern (2025+)
+### Current Pattern (REQUIRED)
 
 Uses standardized policy names (SELECT, INSERT, UPDATE, DELETE) with helper functions:
 
@@ -162,7 +140,7 @@ FOR SELECT USING (
 
 ### Standard Columns
 
-- `"id" TEXT NOT NULL DEFAULT xid()` - Primary key
+- `"id" TEXT NOT NULL DEFAULT id('prefix')` - Primary key
 - `"name" TEXT NOT NULL` - Common for most entities
 - `"description" TEXT` - Optional descriptions
 - `"active" BOOLEAN DEFAULT TRUE` - Soft delete pattern
@@ -264,5 +242,5 @@ CONSTRAINT "tableName_approvedBy_fkey" FOREIGN KEY ("approvedBy") REFERENCES "us
 
 - Timestamps: `DEFAULT NOW()`
 - Booleans: `DEFAULT TRUE` or `DEFAULT FALSE`
-- IDs: `DEFAULT xid()`
+- IDs: `DEFAULT id('prefix')`
 - Arrays: `DEFAULT ARRAY[]::text[]`

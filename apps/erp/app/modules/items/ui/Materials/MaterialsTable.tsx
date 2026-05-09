@@ -22,7 +22,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
+
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
@@ -62,7 +62,7 @@ import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useFilters } from "~/components/Table/components/Filter/useFilters";
-import { usePermissions } from "~/hooks";
+import { useDateFormatter, usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { methodType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
@@ -79,22 +79,29 @@ type MaterialsTableProps = {
 
 const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
   const { t } = useLingui();
-  const translateMethodType = (v: string) =>
-    v === "Purchase to Order"
-      ? t`Purchase to Order`
-      : v === "Pull from Inventory"
-        ? t`Pull from Inventory`
-        : t`Make to Order`;
-  const translateTrackingType = (v: string) =>
-    v === "Inventory"
-      ? t`Inventory`
-      : v === "Non-Inventory"
-        ? t`Non-Inventory`
-        : v === "Serial"
-          ? t`Serial`
-          : t`Batch`;
+  const translateMethodType = useCallback(
+    (v: string) =>
+      v === "Purchase to Order"
+        ? t`Purchase to Order`
+        : v === "Pull from Inventory"
+          ? t`Pull from Inventory`
+          : t`Make to Order`,
+    [t]
+  );
+  const translateTrackingType = useCallback(
+    (v: string) =>
+      v === "Inventory"
+        ? t`Inventory`
+        : v === "Non-Inventory"
+          ? t`Non-Inventory`
+          : v === "Serial"
+            ? t`Serial`
+            : t`Batch`,
+    [t]
+  );
   const navigate = useNavigate();
   const permissions = usePermissions();
+  const { formatDate } = useDateFormatter();
 
   const deleteItemModal = useDisclosure();
   const [selectedItem, setSelectedItem] = useState<Material | null>(null);
@@ -439,7 +446,10 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
     tags,
     people,
     customColumns,
-    t
+    t,
+    translateMethodType,
+    translateTrackingType,
+    formatDate
   ]);
 
   const fetcher = useFetcher<typeof action>();
@@ -554,7 +564,12 @@ const MaterialsTable = memo(({ data, tags, count }: MaterialsTableProps) => {
         </DropdownMenuContent>
       );
     },
-    [onBulkUpdate, itemPostingGroups]
+    [
+      onBulkUpdate,
+      itemPostingGroups,
+      translateMethodType,
+      translateTrackingType
+    ]
   );
 
   const renderContextMenu = useMemo(() => {

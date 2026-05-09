@@ -5,7 +5,6 @@ import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import type { PrintingSettings } from "@carbon/printing";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { nonScrapQuantityValidator } from "~/services/models";
@@ -71,8 +70,7 @@ export async function action({ request }: ActionFunctionArgs) {
         ...validation.data,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     const newTrackedEntityId = response.data?.newTrackedEntityId;
@@ -117,7 +115,8 @@ export async function action({ request }: ActionFunctionArgs) {
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
         jobOperationId: jobOperation.data.id,
-        userId
+        userId,
+        companyId
       });
 
       if (finishOperation.error) {
@@ -156,8 +155,7 @@ export async function action({ request }: ActionFunctionArgs) {
         ...validation.data,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (response.error) {
@@ -204,7 +202,8 @@ export async function action({ request }: ActionFunctionArgs) {
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
         jobOperationId: jobOperation.data.id,
-        userId
+        userId,
+        companyId
       });
 
       if (finishOperation.error) {
@@ -256,13 +255,12 @@ export async function action({ request }: ActionFunctionArgs) {
         quantity: validation.data.quantity,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (issue.error) {
-      throw data(
-        insertProduction.data,
+      return data(
+        {},
         await flash(request, {
           ...error(issue.error, "Failed to issue materials"),
           flash: "error"
@@ -273,7 +271,8 @@ export async function action({ request }: ActionFunctionArgs) {
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
         jobOperationId: jobOperation.data.id,
-        userId
+        userId,
+        companyId
       });
 
       if (finishOperation.error) {

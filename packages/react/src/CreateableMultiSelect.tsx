@@ -4,7 +4,7 @@ import { CommandEmpty } from "cmdk";
 import type { ComponentPropsWithoutRef } from "react";
 import { forwardRef, useId, useMemo, useRef, useState } from "react";
 import { FaRegSquare, FaSquareCheck } from "react-icons/fa6";
-import { LuCirclePlus, LuSettings2, LuX } from "react-icons/lu";
+import { LuCirclePlus, LuSettings2 } from "react-icons/lu";
 import { RxMagnifyingGlass } from "react-icons/rx";
 import { Badge, BadgeCloseButton } from "./Badge";
 import { Button } from "./Button";
@@ -18,6 +18,7 @@ import {
 import { HStack } from "./HStack";
 import { IconButton } from "./IconButton";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
+import { TruncatedTooltipText } from "./TruncatedTooltipText";
 import { cn } from "./utils/cn";
 import { reactNodeToString } from "./utils/react";
 
@@ -33,9 +34,9 @@ export type CreatableMultiSelectProps = Omit<
     helper?: string;
   }[];
   selected?: string[];
-  isClearable?: boolean;
   isReadOnly?: boolean;
   label?: string;
+  createLabel?: string;
   placeholder?: string;
   maxPreview?: number;
   itemHeight?: number;
@@ -60,10 +61,10 @@ const CreatableMultiSelect = forwardRef<
       value,
       options,
       selected,
-      isClearable,
       isReadOnly,
       placeholder,
       label,
+      createLabel,
       className,
       itemHeight = 40,
       maxPreview,
@@ -88,6 +89,19 @@ const CreatableMultiSelect = forwardRef<
 
     const hasSelections = value.length > 0;
     const isInlinePreview = !!inline;
+    const dropdownContentWidthCh = useMemo(() => {
+      if (options.length === 0) return undefined;
+
+      const maxOptionChars = options.reduce((longest, option) => {
+        const combined = [option.label, option.helper]
+          .filter(Boolean)
+          .join(" ");
+
+        return Math.max(longest, combined.length);
+      }, 0);
+
+      return Math.min(72, Math.max(36, maxOptionChars + 8));
+    }, [options]);
 
     return (
       <HStack
@@ -171,7 +185,12 @@ const CreatableMultiSelect = forwardRef<
           </PopoverTrigger>
           <PopoverContent
             align="end"
-            className="min-w-[--radix-popover-trigger-width] p-1"
+            className="min-w-[--radix-popover-trigger-width] max-w-[min(560px,calc(100vw-2rem))] p-1"
+            style={{
+              width: dropdownContentWidthCh
+                ? `min(560px, max(var(--radix-popover-trigger-width), ${dropdownContentWidthCh}ch))`
+                : "var(--radix-popover-trigger-width)"
+            }}
           >
             <VirtualizedCommand
               options={options}
@@ -181,21 +200,13 @@ const CreatableMultiSelect = forwardRef<
               itemHeight={itemHeight}
               setOpen={setOpen}
               label={label}
+              createLabel={createLabel}
               search={search}
               setSearch={setSearch}
               showCreateOptionOnEmpty={showCreateOptionOnEmpty}
             />
           </PopoverContent>
         </Popover>
-        {isClearable && !isReadOnly && value && (
-          <IconButton
-            variant={isInlinePreview ? "secondary" : "ghost"}
-            aria-label="Clear"
-            icon={<LuX />}
-            onClick={() => onChange?.([])}
-            size={isInlinePreview ? "sm" : size}
-          />
-        )}
       </HStack>
     );
   }
@@ -212,6 +223,7 @@ type VirtualizedCommandProps = {
   itemHeight: number;
   setOpen: (open: boolean) => void;
   label?: string;
+  createLabel?: string;
   search: string;
   setSearch: (search: string) => void;
   showCreateOptionOnEmpty?: boolean;
@@ -225,6 +237,7 @@ function VirtualizedCommand({
   itemHeight,
   setOpen,
   label,
+  createLabel,
   search,
   setSearch,
   showCreateOptionOnEmpty = false
@@ -300,6 +313,9 @@ function VirtualizedCommand({
             const item = filteredOptions[virtualRow.index]!;
             const isSelected = selected.includes(item.value);
             const isCreateOption = item.value === "create";
+            const itemHoverText = [item.label, item.helper]
+              .filter(Boolean)
+              .join(" - ");
 
             return (
               <CommandItem
@@ -332,28 +348,41 @@ function VirtualizedCommand({
                   transform: `translateY(${virtualRow.start}px)`
                 }}
               >
-                <div className="flex justify-start items-center gap-1 px-2">
+                <div className="flex justify-start items-center gap-1 px-2 min-w-0 flex-1">
                   {isCreateOption ? (
                     <>
-                      <LuCirclePlus className="mr-1.5" />
-                      <span>{t`Create ${search.trim() === "" ? label : search}`}</span>
+                      <LuCirclePlus className="mr-1.5 flex-shrink-0" />
+                      <span>{t`Create ${search.trim() === "" ? (createLabel ?? label) : search}`}</span>
                     </>
                   ) : (
                     <>
                       {isSelected ? (
-                        <FaSquareCheck className="mr-1.5 text-primary" />
+                        <FaSquareCheck className="mr-1.5 text-primary flex-shrink-0" />
                       ) : (
-                        <FaRegSquare className="mr-1.5 text-muted-foreground" />
+                        <FaRegSquare className="mr-1.5 text-muted-foreground flex-shrink-0" />
                       )}
                       {item.helper ? (
-                        <div className="flex flex-col">
-                          <p className="line-clamp-1">{item.label}</p>
-                          <p className="text-xs text-muted-foreground line-clamp-1">
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <TruncatedTooltipText
+                            className="block w-full truncate"
+                            tooltip={itemHoverText}
+                          >
+                            {item.label}
+                          </TruncatedTooltipText>
+                          <TruncatedTooltipText
+                            className="text-xs text-muted-foreground truncate"
+                            tooltip={itemHoverText}
+                          >
                             {item.helper}
-                          </p>
+                          </TruncatedTooltipText>
                         </div>
                       ) : (
-                        <span className="line-clamp-1">{item.label}</span>
+                        <TruncatedTooltipText
+                          className="truncate flex-1"
+                          tooltip={itemHoverText}
+                        >
+                          {item.label}
+                        </TruncatedTooltipText>
                       )}
                     </>
                   )}

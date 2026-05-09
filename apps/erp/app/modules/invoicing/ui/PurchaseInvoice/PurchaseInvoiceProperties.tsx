@@ -27,7 +27,12 @@ import {
   SupplierLocation
 } from "~/components/Form";
 import CustomFormInlineFields from "~/components/Form/CustomFormInlineFields";
-import { usePermissions, useRouteData, useSettings, useUser } from "~/hooks";
+import {
+  usePermissions,
+  useRouteData,
+  useSupplierApprovalRequired,
+  useUser
+} from "~/hooks";
 import type { action as exchangeRateAction } from "~/routes/x+/purchase-invoice+/$invoiceId.exchange-rate";
 import type { action } from "~/routes/x+/purchase-invoice+/update";
 import { path } from "~/utils/path";
@@ -102,7 +107,7 @@ const PurchaseInvoiceProperties = () => {
   );
 
   const permissions = usePermissions();
-  const settings = useSettings();
+  const supplierApprovalRequired = useSupplierApprovalRequired();
   const optimisticAssignment = useOptimisticAssignment({
     id: invoiceId,
     table: "purchaseInvoice"
@@ -190,7 +195,7 @@ const PurchaseInvoiceProperties = () => {
           name="supplierId"
           inline
           isReadOnly={isDisabled}
-          onlyApproved={settings?.supplierApproval ?? false}
+          onlyApproved={supplierApprovalRequired}
           onChange={(value) => {
             if (value?.value) {
               onUpdate("supplierId", value.value);
@@ -237,7 +242,7 @@ const PurchaseInvoiceProperties = () => {
           label={t`Invoice Supplier`}
           inline
           isReadOnly={isDisabled}
-          onlyApproved={settings?.supplierApproval ?? false}
+          onlyApproved={supplierApprovalRequired}
           onChange={(value) => {
             if (value?.value) {
               onUpdate("invoiceSupplierId", value.value);
@@ -306,7 +311,7 @@ const PurchaseInvoiceProperties = () => {
           name="dateIssued"
           label={t`Date Issued`}
           inline
-          isDisabled={isDisabled}
+          isDisabled={!canUpdate}
           onChange={(date) => {
             onUpdate("dateIssued", date);
           }}
@@ -326,7 +331,7 @@ const PurchaseInvoiceProperties = () => {
           name="dateDue"
           label={t`Date Due`}
           inline
-          isDisabled={isDisabled}
+          isDisabled={!canUpdate}
           onChange={(date) => {
             onUpdate("dateDue", date);
           }}
@@ -346,7 +351,7 @@ const PurchaseInvoiceProperties = () => {
           name="datePaid"
           label={t`Date Paid`}
           inline
-          isDisabled={isDisabled}
+          isDisabled={!canUpdate}
           onChange={(date) => {
             onUpdate("datePaid", date);
           }}

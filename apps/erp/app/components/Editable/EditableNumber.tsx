@@ -46,6 +46,7 @@ const EditableNumber =
           size="sm"
           className="w-full rounded-none outline-none border-none focus-visible:ring-0"
           autoFocus
+          onFocus={(e) => e.currentTarget.select()}
         />
       </NumberField>
     );

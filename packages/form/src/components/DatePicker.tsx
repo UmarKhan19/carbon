@@ -8,6 +8,7 @@ import {
 import { formatDate } from "@carbon/utils";
 import type { CalendarDate } from "@internationalized/date";
 import { parseDate } from "@internationalized/date";
+import { useLocale } from "@react-aria/i18n";
 import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useField } from "../hooks";
@@ -17,6 +18,7 @@ type DatePickerProps = {
   name: string;
   label?: string;
   isDisabled?: boolean;
+  isRequired?: boolean;
   minValue?: CalendarDate;
   maxValue?: CalendarDate;
   inline?: boolean;
@@ -29,6 +31,7 @@ const DatePicker = ({
   name,
   label,
   isDisabled: isDisabledProp = false,
+  isRequired,
   minValue,
   maxValue,
   inline = false,
@@ -36,6 +39,7 @@ const DatePicker = ({
   value,
   onChange
 }: DatePickerProps) => {
+  const { locale } = useLocale();
   const formState = useFormStateContext();
   const isDisabled =
     formState.isDisabled || formState.isReadOnly || isDisabledProp;
@@ -83,14 +87,17 @@ const DatePicker = ({
 
   const DatePickerPreview = (
     <span className="flex flex-grow line-clamp-1 items-center">
-      {formatDate(utcValue)}
+      {formatDate(utcValue, undefined, locale)}
     </span>
   );
 
   return (
-    <FormControl isInvalid={!!error}>
+    <FormControl isInvalid={!!error} isRequired={isRequired}>
       {label && (
-        <FormLabel htmlFor={name} isOptional={fieldIsOptional ?? false}>
+        <FormLabel
+          htmlFor={name}
+          isOptional={isRequired ? false : (fieldIsOptional ?? false)}
+        >
           {label}
         </FormLabel>
       )}

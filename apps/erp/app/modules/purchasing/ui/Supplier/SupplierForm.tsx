@@ -28,7 +28,7 @@ import {
   SupplierStatus,
   SupplierType
 } from "~/components/Form";
-import { usePermissions, useSettings } from "~/hooks";
+import { usePermissions, useSupplierApprovalRequired } from "~/hooks";
 import type { Supplier } from "~/modules/purchasing";
 import {
   supplierApprovalValidator,
@@ -50,8 +50,7 @@ const SupplierForm = ({
   const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher<PostgrestResponse<Supplier>>();
-  const settings = useSettings();
-  const supplierApprovalRequired = settings?.supplierApproval ?? false;
+  const supplierApprovalRequired = useSupplierApprovalRequired();
 
   useEffect(() => {
     if (type !== "modal") return;
@@ -59,11 +58,11 @@ const SupplierForm = ({
     if (fetcher.state === "loading" && fetcher.data?.data) {
       onClose?.();
       // @ts-ignore
-      toast.success(`Created supplier: ${fetcher.data.data.name}`);
+      toast.success(t`Created supplier: ${fetcher.data.data.name}`);
     } else if (fetcher.state === "idle" && fetcher.data?.error) {
-      toast.error(`Failed to create supplier: ${fetcher.data.error.message}`);
+      toast.error(t`Failed to create supplier: ${fetcher.data.error.message}`);
     }
-  }, [fetcher.data, fetcher.state, onClose, type]);
+  }, [fetcher.data, fetcher.state, onClose, t, type]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -89,12 +88,19 @@ const SupplierForm = ({
             >
               <ModalCardHeader>
                 <ModalCardTitle>
-                  {isEditing ? "Supplier Overview" : "New Supplier"}
+                  {isEditing ? (
+                    <Trans>Supplier Overview</Trans>
+                  ) : (
+                    <Trans>New Supplier</Trans>
+                  )}
                 </ModalCardTitle>
                 {!isEditing && (
                   <ModalCardDescription>
-                    A supplier is a business or person who sells you parts or
-                    services.
+                    <Trans>
+                      {" "}
+                      A supplier is a business or person who sells you parts or
+                      services.
+                    </Trans>
                   </ModalCardDescription>
                 )}
               </ModalCardHeader>
@@ -137,8 +143,6 @@ const SupplierForm = ({
                     </>
                   )}
                   <Currency name="currencyCode" label={t`Currency`} />
-                  <Input name="taxId" label={t`Tax ID`} />
-                  <Input name="vatNumber" label={t`VAT Number`} />
                   <Input name="website" label={t`Website`} />
 
                   {/* <EmailRecipients name="defaultCc" label={t`Default CC`} /> */}

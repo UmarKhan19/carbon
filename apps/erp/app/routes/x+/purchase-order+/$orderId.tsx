@@ -9,7 +9,6 @@ import { NotificationEvent } from "@carbon/notifications";
 import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import { renderAsync } from "@react-email/components";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
@@ -265,7 +264,7 @@ export async function action(args: ActionFunctionArgs) {
               .from("private")
               .createSignedUrl(documentFilePath!, 3600);
 
-            await trigger("send-email-resend", {
+            await trigger("send-email", {
               to: [buyer.data.email, supplierEmail],
               cc: ccSelections?.length ? ccSelections : undefined,
               from: buyer.data.email,
@@ -303,8 +302,7 @@ export async function action(args: ActionFunctionArgs) {
               source: "purchaseOrder",
               updatePrices: true,
               updateLeadTimes: false
-            },
-            region: FunctionRegion.UsEast1
+            }
           }
         );
 

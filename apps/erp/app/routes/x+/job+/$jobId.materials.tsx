@@ -2,6 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { useMount, VStack } from "@carbon/react";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { usePanels } from "~/components/Layout";
@@ -10,6 +11,7 @@ import {
   getJobMaterialsWithQuantityOnHand
 } from "~/modules/production";
 import { JobMaterialsTable } from "~/modules/production/ui/Jobs";
+import { getCompanySettings } from "~/modules/settings";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
@@ -60,14 +62,48 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  const settings = await getCompanySettings(client, companyId);
+  const inventoryShelfLife = settings.data?.inventoryShelfLife as {
+    nearExpiryWarningDays?: number | null;
+  } | null;
+  const nearExpiryWarningDays =
+    inventoryShelfLife?.nearExpiryWarningDays ?? null;
+
+  let expiredItemIds = new Set<string>();
+  if (nearExpiryWarningDays !== null && materials.data) {
+    const itemIds = materials.data
+      .map((m) => m.jobMaterialItemId)
+      .filter(Boolean) as string[];
+    if (itemIds.length > 0) {
+      const todayStr = today(getLocalTimeZone()).toString();
+      const { data: expired } = await client
+        .from("trackedEntity")
+        .select("sourceDocumentId")
+        .in("sourceDocumentId", itemIds)
+        .eq("companyId", companyId)
+        .not("expirationDate", "is", null)
+        .lt("expirationDate", todayStr);
+      expiredItemIds = new Set(
+        (expired ?? [])
+          .map((e) => e.sourceDocumentId)
+          .filter(Boolean) as string[]
+      );
+    }
+  }
+
   return {
     count: materials.count ?? 0,
-    materials: materials.data ?? []
+    materials: (materials.data ?? []).map((m) => ({
+      ...m,
+      hasExpiredBatch: expiredItemIds.has(m.jobMaterialItemId ?? "")
+    })),
+    nearExpiryWarningDays
   };
 }
 
 export default function JobMaterialsRoute() {
-  const { count, materials } = useLoaderData<typeof loader>();
+  const { count, materials, nearExpiryWarningDays } =
+    useLoaderData<typeof loader>();
   const { setIsExplorerCollapsed } = usePanels();
 
   useMount(() => {
@@ -76,7 +112,11 @@ export default function JobMaterialsRoute() {
 
   return (
     <VStack spacing={0} className="h-[calc(100dvh-99px)]">
-      <JobMaterialsTable data={materials} count={count} />
+      <JobMaterialsTable
+        data={materials}
+        count={count}
+        nearExpiryWarningDays={nearExpiryWarningDays}
+      />
     </VStack>
   );
 }

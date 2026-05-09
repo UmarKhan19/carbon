@@ -34,7 +34,7 @@ import {
   Customer,
   Item,
   Location,
-  Shelf,
+  StorageUnit,
   Tags,
   UnitOfMeasure
 } from "~/components/Form";
@@ -238,7 +238,7 @@ const JobProperties = () => {
                     const trackingNumber: string = entity?.readableId ?? "";
 
                     const label =
-                      trackingType === "Serial" && trackedEntities.length > 1
+                      trackedEntities.length > 1
                         ? `${trackingType} ${index + 1}`
                         : `${trackingType} Number`;
 
@@ -260,7 +260,9 @@ const JobProperties = () => {
                           size="sm"
                           inline
                           onBlur={(e) => {
-                            onUpdateBatchNumber(entity.id, e.target.value);
+                            const next = e.target.value.trim();
+                            if (next === (trackingNumber ?? "").trim()) return;
+                            onUpdateBatchNumber(entity.id, next);
                           }}
                         />
                       </ValidatedForm>
@@ -304,20 +306,22 @@ const JobProperties = () => {
           </HStack>
         ) : (
           <ValidatedForm
-            defaultValues={{ shelfId: routeData?.job?.shelfId ?? undefined }}
+            defaultValues={{
+              storageUnitId: routeData?.job?.storageUnitId ?? undefined
+            }}
             validator={z.object({
-              shelfId: zfd.text(z.string().optional())
+              storageUnitId: zfd.text(z.string().optional())
             })}
             className="w-full"
           >
-            <Shelf
+            <StorageUnit
               label=""
-              name="shelfId"
+              name="storageUnitId"
               inline
               locationId={routeData?.job?.locationId ?? undefined}
               isReadOnly={isDisabled}
               onChange={(value) => {
-                onUpdate("shelfId", value?.id ?? null);
+                onUpdate("storageUnitId", value?.id ?? null);
               }}
             />
           </ValidatedForm>
@@ -344,6 +348,7 @@ const JobProperties = () => {
           inline
           isReadOnly={isDisabled}
           type={type}
+          locationId={routeData?.job?.locationId ?? undefined}
           validItemTypes={["Part", "Tool"]}
           onChange={(value) => {
             onUpdate("itemId", value?.value ?? null);

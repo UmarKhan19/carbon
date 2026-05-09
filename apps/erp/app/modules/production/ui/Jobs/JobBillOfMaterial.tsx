@@ -55,17 +55,18 @@ import {
   Number,
   NumberControlled,
   Select,
-  Shelf,
+  StorageUnit,
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import type {
   Item as SortableItem,
   SortableItemRenderProps
 } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
 import { usePermissions, useRouteData, useUrlParams, useUser } from "~/hooks";
+import { ItemTrackingType } from "~/modules/items";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import type { Item as ItemType } from "~/stores";
@@ -81,7 +82,9 @@ import type { Job } from "../../types";
 type Material = z.infer<typeof jobMaterialValidator> & {
   requiresBatchTracking: boolean;
   requiresSerialTracking: boolean;
-  item?: { replenishmentSystem: string | null } | null;
+  item?: {
+    replenishmentSystem: string | null;
+  } | null;
 };
 
 type Operation = z.infer<typeof jobOperationValidator>;
@@ -699,7 +702,7 @@ function MaterialForm({
     kit: boolean;
     requiresBatchTracking: boolean;
     requiresSerialTracking: boolean;
-    shelfId?: string;
+    storageUnitId?: string;
     itemReplenishmentSystem: string;
   }>({
     itemId: item.data.itemId ?? "",
@@ -712,7 +715,7 @@ function MaterialForm({
     kit: item.data.kit ?? false,
     requiresBatchTracking: item.data.requiresBatchTracking ?? false,
     requiresSerialTracking: item.data.requiresSerialTracking ?? false,
-    shelfId: item.data.shelfId ?? undefined,
+    storageUnitId: item.data.storageUnitId ?? undefined,
     itemReplenishmentSystem: item.data.item?.replenishmentSystem ?? "Buy"
   });
 
@@ -731,7 +734,7 @@ function MaterialForm({
       kit: false,
       requiresBatchTracking: false,
       requiresSerialTracking: false,
-      shelfId: "",
+      storageUnitId: "",
       itemReplenishmentSystem: "Buy"
     });
   };
@@ -755,7 +758,7 @@ function MaterialForm({
       carbon.from("itemCost").select("unitCost").eq("itemId", itemId).single(),
       carbon
         .from("pickMethod")
-        .select("defaultShelfId")
+        .select("defaultStorageUnitId")
         .eq("itemId", itemId)
         .eq("companyId", company.id)
         .eq("locationId", locationId!)
@@ -774,9 +777,11 @@ function MaterialForm({
       unitCost: itemCost.data?.unitCost ?? 0,
       unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
       methodType: item.data?.defaultMethodType ?? "Pull from Inventory",
-      requiresBatchTracking: item.data?.itemTrackingType === "Batch",
-      requiresSerialTracking: item.data?.itemTrackingType === "Serial",
-      shelfId: pickMethod.data?.defaultShelfId ?? "",
+      requiresBatchTracking:
+        item.data?.itemTrackingType === ItemTrackingType.Batch,
+      requiresSerialTracking:
+        item.data?.itemTrackingType === ItemTrackingType.Serial,
+      storageUnitId: pickMethod.data?.defaultStorageUnitId ?? "",
       itemReplenishmentSystem: item.data?.replenishmentSystem ?? "Buy"
     }));
 
@@ -793,7 +798,7 @@ function MaterialForm({
     defaultIsOpen: isReleased
   });
   const locationId = routeData?.job?.locationId ?? undefined;
-  const shelves = useShelves(locationId);
+  const storageUnits = useStorageUnits(locationId);
 
   return (
     <ValidatedForm
@@ -838,6 +843,7 @@ function MaterialForm({
           name="itemId"
           label={itemType}
           includeInactive
+          locationId={locationId}
           validItemTypes={["Consumable", "Material", "Part"]}
           type={itemType}
           onChange={(value) => {
@@ -920,11 +926,12 @@ function MaterialForm({
             />
             <Badge variant="secondary">
               <LuGitPullRequest className="size-3 mr-1" />
-              {shelves.options?.find((s) => s.value === itemData.shelfId)
-                ?.label ??
+              {storageUnits.options?.find(
+                (s) => s.value === itemData.storageUnitId
+              )?.label ??
                 (itemData.methodType === "Make to Order"
                   ? t`WIP`
-                  : t`Default Shelf`)}
+                  : t`Default Storage Unit`)}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -959,14 +966,14 @@ function MaterialForm({
             }}
             replenishmentSystem={itemData.itemReplenishmentSystem}
           />
-          <Shelf
-            name="shelfId"
-            label={t`Shelf`}
-            value={itemData.shelfId}
+          <StorageUnit
+            name="storageUnitId"
+            label={t`Storage Unit`}
+            value={itemData.storageUnitId}
             onChange={(value) => {
               setItemData((d) => ({
                 ...d,
-                shelfId: value?.id ?? ""
+                storageUnitId: value?.id ?? ""
               }));
             }}
             locationId={locationId}
@@ -975,68 +982,73 @@ function MaterialForm({
         </div>
       </div>
 
-      <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
-        <HStack
-          className="w-full justify-between cursor-pointer"
-          onClick={backflushDisclosure.onToggle}
-        >
-          <HStack>
-            <LuGitPullRequestCreateArrow />
-            <Label>
-              <Trans>Backflush</Trans>
-            </Label>
+      {(itemData.requiresBatchTracking || itemData.requiresSerialTracking) && (
+        <Hidden name="jobOperationId" value={itemData.jobOperationId} />
+      )}
+      {!itemData.requiresBatchTracking && !itemData.requiresSerialTracking && (
+        <div className="border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 w-full">
+          <HStack
+            className="w-full justify-between cursor-pointer"
+            onClick={backflushDisclosure.onToggle}
+          >
+            <HStack>
+              <LuGitPullRequestCreateArrow />
+              <Label>
+                <Trans>Backflush</Trans>
+              </Label>
+            </HStack>
+            <HStack>
+              <Badge
+                variant={jobOperations.length > 0 ? "secondary" : "destructive"}
+              >
+                <LuCog className="size-3 mr-1" />
+                {itemData.jobOperationId
+                  ? jobOperations.find((o) => o.id === itemData.jobOperationId)
+                      ?.description || t`Selected Operation`
+                  : t`First Operation`}
+              </Badge>
+              <IconButton
+                icon={<LuChevronRight />}
+                aria-label={
+                  backflushDisclosure.isOpen
+                    ? "Collapse Backflush"
+                    : "Expand Backflush"
+                }
+                variant="ghost"
+                size="md"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  backflushDisclosure.onToggle();
+                }}
+                className={`transition-transform ${
+                  backflushDisclosure.isOpen ? "rotate-90" : ""
+                }`}
+              />
+            </HStack>
           </HStack>
-          <HStack>
-            <Badge
-              variant={jobOperations.length > 0 ? "secondary" : "destructive"}
-            >
-              <LuCog className="size-3 mr-1" />
-              {itemData.jobOperationId
-                ? jobOperations.find((o) => o.id === itemData.jobOperationId)
-                    ?.description || t`Selected Operation`
-                : t`First Operation`}
-            </Badge>
-            <IconButton
-              icon={<LuChevronRight />}
-              aria-label={
-                backflushDisclosure.isOpen
-                  ? "Collapse Backflush"
-                  : "Expand Backflush"
-              }
-              variant="ghost"
-              size="md"
-              onClick={(e) => {
-                e.stopPropagation();
-                backflushDisclosure.onToggle();
+          <div
+            className={`grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3 pb-4 ${
+              backflushDisclosure.isOpen ? "" : "hidden"
+            }`}
+          >
+            <Select
+              name="jobOperationId"
+              label={t`Operation`}
+              isClearable
+              options={jobOperations.map((o) => ({
+                value: o.id!,
+                label: o.description
+              }))}
+              onChange={(newValue) => {
+                setItemData((d) => ({
+                  ...d,
+                  jobOperationId: newValue?.value as string
+                }));
               }}
-              className={`transition-transform ${
-                backflushDisclosure.isOpen ? "rotate-90" : ""
-              }`}
             />
-          </HStack>
-        </HStack>
-        <div
-          className={`grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3 pb-4 ${
-            backflushDisclosure.isOpen ? "" : "hidden"
-          }`}
-        >
-          <Select
-            name="jobOperationId"
-            label={t`Operation`}
-            isClearable
-            options={jobOperations.map((o) => ({
-              value: o.id!,
-              label: o.description
-            }))}
-            onChange={(newValue) => {
-              setItemData((d) => ({
-                ...d,
-                jobOperationId: newValue?.value as string
-              }));
-            }}
-          />
+          </div>
         </div>
-      </div>
+      )}
 
       <motion.div
         className="flex flex-1 items-center justify-end w-full pt-2"

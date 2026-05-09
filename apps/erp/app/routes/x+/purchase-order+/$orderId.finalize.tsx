@@ -7,7 +7,6 @@ import { validationError, validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import { renderAsync } from "@react-email/components";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -76,17 +75,17 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   // Check supplier approval status
-  const companySettingsCheck = await getCompanySettings(serviceRole, companyId);
-  if (
-    companySettingsCheck.data?.supplierApproval &&
-    purchaseOrder.data.supplierId
-  ) {
+  const supplierApprovalRequired = await isApprovalRequired(
+    serviceRole,
+    "supplier",
+    companyId
+  );
+  if (supplierApprovalRequired && purchaseOrder.data.supplierId) {
     const supplier = await getSupplier(
       serviceRole,
       purchaseOrder.data.supplierId
     );
-    // @ts-expect-error TS2339 - TODO: fix type
-    if (supplier.data?.supplierStatus !== "Active") {
+    if (supplier.data?.status !== "Active") {
       throw redirect(
         path.to.purchaseOrder(orderId),
         await flash(
@@ -189,8 +188,7 @@ export async function action(args: ActionFunctionArgs) {
           source: "purchaseOrder",
           updatePrices: true,
           updateLeadTimes: false
-        },
-        region: FunctionRegion.UsEast1
+        }
       }
     );
 
@@ -337,7 +335,7 @@ export async function action(args: ActionFunctionArgs) {
             .createSignedUrl(documentFilePath, 3600);
 
           await Promise.all([
-            trigger("send-email-resend", {
+            trigger("send-email", {
               to: [buyer.data.email, supplier.data.contact.email],
               cc: ccSelections?.length ? ccSelections : undefined,
               from: buyer.data.email,

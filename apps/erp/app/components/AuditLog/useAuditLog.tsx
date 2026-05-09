@@ -5,10 +5,8 @@ import {
   DropdownMenuItem,
   useDisclosure
 } from "@carbon/react";
-import { usePlan } from "@carbon/remix";
-import { Plan } from "@carbon/utils";
 import { LuHistory } from "react-icons/lu";
-import { useFlags } from "~/hooks/useFlags";
+import { usePlanGate } from "~/hooks/usePlanGate";
 import AuditLogDrawer from "./AuditLogDrawer";
 
 type UseAuditLogOptions = {
@@ -34,10 +32,7 @@ export function useAuditLog({
   variant
 }: UseAuditLogOptions) {
   const disclosure = useDisclosure();
-  const plan = usePlan();
-  const { isCloud } = useFlags();
-
-  const isStarterTeaser = isCloud && plan === Plan.Starter;
+  const { isGated } = usePlanGate({ feature: "AUDIT_LOG" });
 
   const trigger =
     variant === "dropdown" ? (
@@ -64,7 +59,7 @@ export function useAuditLog({
       entityType={entityType}
       entityId={entityId}
       companyId={companyId}
-      planRestricted={isStarterTeaser}
+      planRestricted={isGated}
     />
   );
 

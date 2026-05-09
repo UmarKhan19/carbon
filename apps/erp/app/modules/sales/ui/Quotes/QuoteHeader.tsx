@@ -20,9 +20,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
   toast,
   useDisclosure
 } from "@carbon/react";
@@ -105,7 +102,7 @@ const QuoteHeader = () => {
 
   return (
     <>
-      <div className="flex flex-shrink-0 items-center justify-between p-2 bg-card border-b h-[50px] overflow-x-auto scrollbar-hide">
+      <div className="flex flex-shrink-0 items-center justify-between p-2 bg-background border-b h-[50px] overflow-x-auto scrollbar-hide">
         <HStack className="w-full justify-between">
           <HStack>
             <IconButton
@@ -157,6 +154,26 @@ const QuoteHeader = () => {
                 >
                   <DropdownMenuIcon icon={<LuGitBranchPlus />} />
                   <Trans>Create Quote Revision</Trans>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={
+                    routeData?.quote?.status === "Draft" ||
+                    (routeData?.opportunity?.salesOrders.length ?? 0) > 0 ||
+                    statusFetcher.state !== "idle" ||
+                    !permissions.can("update", "sales")
+                  }
+                  onClick={() => {
+                    statusFetcher.submit(
+                      { status: "Draft" },
+                      {
+                        method: "post",
+                        action: path.to.quoteStatus(quoteId)
+                      }
+                    );
+                  }}
+                >
+                  <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                  <Trans>Reopen</Trans>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   disabled={
@@ -286,7 +303,7 @@ const QuoteHeader = () => {
               </Button>
             </statusFetcher.Form>
 
-            {routeData?.quote?.status === "Draft" ? (
+            {routeData?.quote?.status === "Draft" && (
               <statusFetcher.Form
                 method="post"
                 action={path.to.quoteStatus(quoteId)}
@@ -307,49 +324,6 @@ const QuoteHeader = () => {
                 >
                   <Trans>Cancel</Trans>
                 </Button>
-              </statusFetcher.Form>
-            ) : (
-              <statusFetcher.Form
-                method="post"
-                action={path.to.quoteStatus(quoteId)}
-              >
-                <input type="hidden" name="status" value="Draft" />
-                {routeData?.opportunity?.salesOrders.length === 0 ? (
-                  <Button
-                    isDisabled={
-                      routeData?.opportunity?.salesOrders.length !== 0 ||
-                      statusFetcher.state !== "idle" ||
-                      !permissions.can("update", "sales")
-                    }
-                    isLoading={
-                      statusFetcher.state !== "idle" &&
-                      statusFetcher.formData?.get("status") === "Draft"
-                    }
-                    leftIcon={<LuLoaderCircle />}
-                    type="submit"
-                    variant="secondary"
-                  >
-                    <Trans>Reopen</Trans>
-                  </Button>
-                ) : (
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Button
-                        leftIcon={<LuLoaderCircle />}
-                        isDisabled
-                        variant="secondary"
-                      >
-                        <Trans>Reopen</Trans>
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <Trans>
-                        Quote is linked to a Sales Order. Delete the sales order
-                        to reopen.
-                      </Trans>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
               </statusFetcher.Form>
             )}
 

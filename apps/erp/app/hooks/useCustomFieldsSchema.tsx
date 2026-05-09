@@ -1,5 +1,5 @@
 import type { Json } from "@carbon/database";
-import { useRouteData } from "@carbon/remix";
+import { useRouteData } from "@carbon/react";
 import { useMemo } from "react";
 import { z } from "zod";
 import { path } from "~/utils/path";
@@ -33,6 +33,7 @@ const fieldValidator = z
       id: z.string(),
       listOptions: z.array(z.string()).nullable(),
       name: z.string(),
+      required: z.boolean().default(false),
       sortOrder: z.number(),
       tags: z.array(z.string()).nullable()
     })

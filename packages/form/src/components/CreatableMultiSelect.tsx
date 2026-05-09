@@ -84,7 +84,6 @@ const CreatableMultiSelect = forwardRef<
           setValue(newValue ?? []);
           onChange(newValue ?? []);
         }}
-        isClearable={resolvedIsOptional && !isReadOnly}
         isReadOnly={isReadOnly}
         label={label}
         className="w-full"
