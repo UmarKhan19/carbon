@@ -80,7 +80,7 @@ Operations:
 ## ERP Service Functions (inventory.service.ts)
 
 - `getPickingLists(client, companyId, filters)`
-- `getPickingList(client, id)`
+- `getPickingList(client, id)` — fetches `*, job(jobId,itemId,customerId,salesOrderId,item,customer,salesOrder), location, assigneeUser, createdByUser, destinationStorageUnit`
 - `getPickingListLines(client, pickingListId)`
 - `deletePickingList(client, id)`
 - `upsertPickingList(client, values)`
@@ -114,9 +114,14 @@ Delete PL: `delete.$id.tsx`
 
 - `PickingListsTable.tsx` — list table with filters
 - `PickingListHeader.tsx` — detail header with Release/Confirm/Cancel/Reverse/PDF actions. Confirm opens modal.
-- `PickingListLines.tsx` — lines list (qty input for non-tracked, scan button for tracked). Add/Edit/Delete per line. Soft allocation badge.
+- `PickingListLines.tsx` — hero section + 3 stat cards + active line detail card + compact lines table. Active line driven by `?lineId=` URL param. `onPickAllEligible` batch-picks all non-tracked outstanding lines.
+- `PickingListProperties.tsx` — right sidebar with donut chart, property rows (status, job, SO, customer, warehouse, tolerance, assignee, dates). Uses `w-full` to fill ResizablePanel.
 - `PickingListStatus.tsx` — status badge
 - `PickingListConfirmModal.tsx` — confirm dialog with shortage reason. Shows inline backend errors.
+
+## Layout (ResizablePanels)
+
+`apps/erp/app/components/Layout/Panels.tsx` — 3-panel layout: explorer (collapsible, order=1), content (order=2), properties (collapsible, order=3, id="properties-panel"). `ResizablePanelGroup` has `h-full w-full`. Properties is a proper ResizablePanel with its own ResizableHandle (drag to resize). Both explorer and properties use ImperativePanelHandle refs driven by PanelContext state.
 
 ## Navigation
 

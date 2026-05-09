@@ -268,6 +268,32 @@ export async function fetchLineageSubgraph(
   if (rootEntity.data)
     state.entities.set(rootEntity.data.id, rootEntity.data as TrackedEntity);
 
+  // Pre-seed activities the root entity directly participates in.
+  // The BFS batch RPCs require a peer entity on the other side of each
+  // activity (via INNER JOIN), so terminal nodes — e.g. a Consumed entity
+  // whose Consume activity has no output because the finished good is
+  // not tracked — would be silently skipped. Seeding direct activities
+  // first ensures they always appear regardless of output existence.
+  const [directInputRows, directOutputRows] = await Promise.all([
+    client
+      .from("trackedActivityInput")
+      .select("trackedActivityId")
+      .eq("trackedEntityId", rootEntityId),
+    client
+      .from("trackedActivityOutput")
+      .select("trackedActivityId")
+      .eq("trackedEntityId", rootEntityId)
+  ]);
+  const directActivityIds = Array.from(
+    new Set([
+      ...(directInputRows.data ?? []).map((r) => r.trackedActivityId),
+      ...(directOutputRows.data ?? []).map((r) => r.trackedActivityId)
+    ])
+  );
+  if (directActivityIds.length > 0) {
+    await expandActivitySiblings(client, state, directActivityIds);
+  }
+
   await runLineageBfs(client, state, [rootEntityId], direction, safeDepth);
 
   return {

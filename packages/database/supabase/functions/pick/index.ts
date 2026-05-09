@@ -729,10 +729,9 @@ async function confirmPickingList(_client: any, payload: any) {
         .execute();
 
       // 3) One Consume activity per jobMaterial group.
-      // Inputs = picked source entities, output = job parent batch.
-      // Skip groups whose parent jobMakeMethod has no trackedEntity
-      // (non-tracked parent) — emitting an activity with no real
-      // output would just reproduce the prior dead-end bug.
+      // Inputs = picked source entities, output = job parent batch (when tracked).
+      // Always write the activity + inputs so traceability can find the edge even
+      // when the finished good is not batch/serial tracked (no parent entity).
       const opsByMaterial = new Map<string, EntityOp[]>();
       for (const op of ops) {
         if (!op.jobMaterialId) continue;
@@ -742,8 +741,7 @@ async function confirmPickingList(_client: any, payload: any) {
       }
 
       for (const [jobMaterialId, materialOps] of opsByMaterial) {
-        const parentEntityId = parentByMaterialId.get(jobMaterialId);
-        if (!parentEntityId) continue;
+        const parentEntityId = parentByMaterialId.get(jobMaterialId) ?? null;
 
         const consumeId = nanoid();
         const totalPicked = materialOps.reduce(
@@ -781,16 +779,19 @@ async function confirmPickingList(_client: any, payload: any) {
           )
           .execute();
 
-        await trx
-          .insertInto("trackedActivityOutput")
-          .values({
-            trackedActivityId: consumeId,
-            trackedEntityId: parentEntityId,
-            quantity: totalPicked,
-            companyId,
-            createdBy: userId,
-          })
-          .execute();
+        // Only link to parent entity when the finished good is tracked.
+        if (parentEntityId) {
+          await trx
+            .insertInto("trackedActivityOutput")
+            .values({
+              trackedActivityId: consumeId,
+              trackedEntityId: parentEntityId,
+              quantity: totalPicked,
+              companyId,
+              createdBy: userId,
+            })
+            .execute();
+        }
       }
     }
 
@@ -935,41 +936,79 @@ async function reversePickingList(_client: any, payload: any) {
       if (splitActivityIds.length > 0) {
         const splitInputs = await trx
           .selectFrom("trackedActivityInput")
-          .select(["trackedEntityId", "quantity"])
+          .select(["trackedActivityId", "trackedEntityId", "quantity"])
           .where("trackedActivityId", "in", splitActivityIds)
           .where("companyId", "=", companyId)
           .execute();
-
-        for (const row of splitInputs) {
-          await trx
-            .updateTable("trackedEntity")
-            .set({ quantity: Number(row.quantity ?? 0) })
-            .where("id", "=", row.trackedEntityId)
-            .where("companyId", "=", companyId)
-            .execute();
-        }
 
         // Delete Split remainder entities (every Split output that
         // isn't orig itself). Consume outputs are job parent batches
         // and are intentionally excluded.
         const splitOutputs = await trx
           .selectFrom("trackedActivityOutput")
-          .select(["trackedEntityId"])
+          .select(["trackedActivityId", "trackedEntityId"])
           .where("trackedActivityId", "in", splitActivityIds)
           .where("companyId", "=", companyId)
           .execute();
 
-        const remainderIds = new Set<string>();
-        for (const row of splitOutputs) {
-          if (!restoredEntityIds.includes(row.trackedEntityId)) {
-            remainderIds.add(row.trackedEntityId);
+        const remainderRows = splitOutputs.filter(
+          (o) => !restoredEntityIds.includes(o.trackedEntityId as string),
+        );
+        const remainderEntityIds = remainderRows.map((r) => r.trackedEntityId as string);
+
+        // Check whether each remainder entity is still Available. If a later
+        // PL already consumed a remainder (status=Consumed) we must not delete
+        // it — doing so would corrupt that PL's history and create phantom qty.
+        const remainderStatusMap = new Map<string, string>();
+        if (remainderEntityIds.length > 0) {
+          const statuses = await trx
+            .selectFrom("trackedEntity")
+            .select(["id", "status"])
+            .where("id", "in", remainderEntityIds)
+            .where("companyId", "=", companyId)
+            .execute();
+          for (const e of statuses) {
+            remainderStatusMap.set(e.id as string, e.status as string);
           }
         }
 
-        if (remainderIds.size > 0) {
+        // Any split activity whose remainder has been consumed by another PL
+        // cannot be fully merged back — track which activities those are.
+        const activitiesWithUnsafeRemainder = new Set<string>();
+        for (const r of remainderRows) {
+          if (remainderStatusMap.get(r.trackedEntityId as string) !== "Available") {
+            activitiesWithUnsafeRemainder.add(r.trackedActivityId as string);
+          }
+        }
+
+        // Restore qty on each original entity.
+        // Safe case (remainder Available): restore full pre-split qty — the
+        //   remainder is about to be deleted so it's fine to absorb it back.
+        // Unsafe case (remainder Consumed): restore only what this PL picked
+        //   so we don't double-count the portion another PL already consumed.
+        for (const row of splitInputs) {
+          const qtyToRestore = activitiesWithUnsafeRemainder.has(row.trackedActivityId as string)
+            ? (entityRestorations.find((r) => r.entityId === row.trackedEntityId)?.pickedQty ??
+                Number(row.quantity ?? 0))
+            : Number(row.quantity ?? 0);
+
+          await trx
+            .updateTable("trackedEntity")
+            .set({ quantity: qtyToRestore })
+            .where("id", "=", row.trackedEntityId)
+            .where("companyId", "=", companyId)
+            .execute();
+        }
+
+        // Only delete remainders that are still Available (safe to reclaim).
+        const safeToDeleteIds = remainderRows
+          .filter((r) => remainderStatusMap.get(r.trackedEntityId as string) === "Available")
+          .map((r) => r.trackedEntityId as string);
+
+        if (safeToDeleteIds.length > 0) {
           await trx
             .deleteFrom("trackedEntity")
-            .where("id", "in", Array.from(remainderIds))
+            .where("id", "in", safeToDeleteIds)
             .where("companyId", "=", companyId)
             .execute();
         }
