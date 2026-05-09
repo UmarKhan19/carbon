@@ -2068,9 +2068,14 @@ export async function getPickingList(
   return client
     .from("pickingList")
     .select(
-      `*, job:jobId(jobId, itemId, item:itemId(name, readableId)),
+      `*, job:jobId(jobId, itemId, customerId, salesOrderId,
+         item:itemId(name, readableId),
+         customer:customerId(id, name),
+         salesOrder:salesOrderId(id, salesOrderId)
+       ),
        location:locationId(name),
        assigneeUser:assignee(id, fullName, avatarUrl),
+       createdByUser:createdBy(id, fullName),
        destinationStorageUnit:destinationStorageUnitId(id, name)`
     )
     .eq("id", pickingListId)

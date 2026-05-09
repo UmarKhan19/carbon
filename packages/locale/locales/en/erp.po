@@ -40,6 +40,13 @@ msgstr "{0} days"
 msgid "{0} deleted successfully"
 msgstr "{0} deleted successfully"
 
+#. placeholder {0}: String(pickedQuantity)
+#. placeholder {1}: String(validatedEntity.quantity)
+#. placeholder {2}: line.unitOfMeasureCode ?? ""
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:461
+msgid "{0} of {1} {2}"
+msgstr "{0} of {1} {2}"
+
 #. placeholder {0}: history.length
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:265
 msgid "{0} orders"
@@ -294,6 +301,7 @@ msgstr "Action Types"
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:348
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:255
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:600
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:372
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:174
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:406
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:166
@@ -482,7 +490,10 @@ msgstr "Add Group"
 msgid "Add Item"
 msgstr "Add Item"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:532
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1054
+msgid "Add line"
+msgstr "Add line"
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:352
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:171
 msgid "Add Line"
@@ -816,9 +827,10 @@ msgstr "Approve"
 msgid "Approved By"
 msgstr "Approved By"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:133
-msgid "Approver override: pick {n} {uom}? This is more than 2x the required {required} {uom}."
-msgstr "Approver override: pick {n} {uom}? This is more than 2x the required {required} {uom}."
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:163
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:469
+msgid "Approver override: pick {qty} {uom}? This is more than 2x the required {required} {uom}."
+msgstr "Approver override: pick {qty} {uom}? This is more than 2x the required {required} {uom}."
 
 #: apps/erp/app/modules/quality/ui/SamplingPlan/SamplingPlanForm.tsx:229
 msgid "AQL"
@@ -1360,7 +1372,7 @@ msgid "Assigned to Me"
 msgstr "Assigned to Me"
 
 #: apps/erp/app/components/Assignee.tsx:98
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:206
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:310
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:222
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:196
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:226
@@ -1550,7 +1562,6 @@ msgstr "Base Price"
 msgid "Basic Information"
 msgstr "Basic Information"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:195
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:87
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:55
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:87
@@ -1928,7 +1939,7 @@ msgstr "Can't disable the only active break. Add another break or toggle the ove
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:700
 #: apps/erp/app/routes/x+/picking-list+/$id.line.$lineId.tsx:133
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:168
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:289
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:474
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:368
 msgid "Cancel"
 msgstr "Cancel"
@@ -1973,9 +1984,10 @@ msgstr "Cannot convert RFQ to quote"
 msgid "Cannot move to parts bucket without item ID"
 msgstr "Cannot move to parts bucket without item ID"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:127
-msgid "Cannot pick {n} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
-msgstr "Cannot pick {n} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:157
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:463
+msgid "Cannot pick {qty} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
+msgstr "Cannot pick {qty} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:767
 msgid "Cannot place order - no supplier associated with this item"
@@ -2363,6 +2375,7 @@ msgstr "Complete Job"
 msgid "Complete Stock Transfer"
 msgstr "Complete Stock Transfer"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:77
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:32
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:38
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:274
@@ -2669,7 +2682,6 @@ msgstr "Copied link to clipboard"
 msgid "Copied!"
 msgstr "Copied!"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:128
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:160
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:154
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:196
@@ -2739,6 +2751,7 @@ msgstr "Copy issue unique identifier"
 msgid "Copy Job number"
 msgstr "Copy Job number"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:206
 #: apps/erp/app/modules/inventory/ui/Traceability/TraceabilitySidebar.tsx:220
 msgid "Copy link"
 msgstr "Copy link"
@@ -2771,10 +2784,6 @@ msgstr "Copy link to material"
 msgid "Copy link to part"
 msgstr "Copy link to part"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:121
-msgid "Copy link to Picking List"
-msgstr "Copy link to Picking List"
-
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:104
 msgid "Copy link to procedure"
 msgstr "Copy link to procedure"
@@ -2806,10 +2815,6 @@ msgstr "Copy part number"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:210
 msgid "Copy part unique identifier"
 msgstr "Copy part unique identifier"
-
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:137
-msgid "Copy Picking List number"
-msgstr "Copy Picking List number"
 
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:177
 msgid "Copy PIN"
@@ -3020,7 +3025,7 @@ msgstr "Create Work Center"
 
 #: apps/erp/app/components/Documents.tsx:285
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:432
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:224
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:344
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:113
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:991
@@ -3068,6 +3073,10 @@ msgstr "Created account"
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:157
 msgid "Created At"
 msgstr "Created At"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:861
+msgid "Created by"
+msgstr "Created by"
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:337
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:478
@@ -3313,7 +3322,7 @@ msgstr "Custom Fields"
 
 #: apps/erp/app/components/Form/Customer.tsx:48
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:86
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:193
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:271
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:106
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:243
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:198
@@ -3900,7 +3909,7 @@ msgstr "Delete Holiday"
 msgid "Delete Issue"
 msgstr "Delete Issue"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:396
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:632
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:213
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:237
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:235
@@ -4099,7 +4108,7 @@ msgstr "Delete Supplier Quote"
 msgid "Delete Supplier Type"
 msgstr "Delete Supplier Type"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:502
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:781
 msgid "Delete this line?"
 msgstr "Delete this line?"
 
@@ -4235,6 +4244,10 @@ msgstr "Description (optional)"
 #: apps/erp/app/routes/x+/issue+/$id.details.tsx:135
 msgid "Description of Issue"
 msgstr "Description of Issue"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:223
+msgid "Destination"
+msgstr "Destination"
 
 #: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:212
 msgid "Destination Storage Unit ID"
@@ -4449,7 +4462,8 @@ msgstr "Drop your file here, or click to browse."
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr "Drop-off shelf for materials picked for this work centre. Optional."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:216
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:980
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:323
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:250
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:150
 msgid "Due"
@@ -4709,7 +4723,11 @@ msgstr "Edit Item Group"
 msgid "Edit Kanban"
 msgstr "Edit Kanban"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:388
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:383
+msgid "Edit line"
+msgstr "Edit line"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:624
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:139
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:202
 #: apps/erp/app/routes/x+/picking-list+/$id.line.$lineId.tsx:100
@@ -5131,7 +5149,7 @@ msgstr "Engineering Contact"
 msgid "Enter a batch number before setting the expiration date"
 msgstr "Enter a batch number before setting the expiration date"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:243
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:392
 msgid "Enter or scan entity ID"
 msgstr "Enter or scan entity ID"
 
@@ -5166,14 +5184,18 @@ msgstr "Entities to split off"
 msgid "Entity"
 msgstr "Entity"
 
-#. placeholder {0}: result.data.status
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:152
+#. placeholder {0}: result.status
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:263
 msgid "Entity is {0}"
 msgstr "Entity is {0}"
 
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:249
 msgid "Entity is {status}"
 msgstr "Entity is {status}"
+
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:454
+msgid "Entity ready to pick"
+msgstr "Entity ready to pick"
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:35
 #: apps/erp/app/routes/onboarding+/plan.tsx:60
@@ -5271,7 +5293,7 @@ msgstr "Error removing model from sales invoice line"
 msgid "Error removing model from sales order line"
 msgstr "Error removing model from sales order line"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:181
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:282
 msgid "Error validating entity"
 msgstr "Error validating entity"
 
@@ -6139,6 +6161,7 @@ msgstr "Frequency"
 msgid "Friday"
 msgstr "Friday"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1076
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:211
 msgid "From"
 msgstr "From"
@@ -6420,14 +6443,11 @@ msgstr "In order to convert this RFQ to a quote, it must have a customer."
 msgid "In order to send this RFQ to suppliers, you must first add suppliers to the RFQ."
 msgstr "In order to send this RFQ to suppliers, you must first add suppliers to the RFQ."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:207
-msgid "in other PLs"
-msgstr "in other PLs"
-
 #: apps/erp/app/components/Gantt/Gantt.tsx:128
 msgid "In Process Only"
 msgstr "In Process Only"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:89
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:26
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:268
 msgid "In Progress"
@@ -6907,6 +6927,7 @@ msgstr "item"
 #: apps/erp/app/components/Form/Items.tsx:74
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:205
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:96
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1073
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:80
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:143
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:121
@@ -7028,7 +7049,7 @@ msgstr "Items inside this window get a yellow badge."
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:166
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:239
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:67
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
@@ -7354,7 +7375,7 @@ msgstr "Likelihood"
 msgid "Line Item Comparison"
 msgstr "Line Item Comparison"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:372
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:607
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:351
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
@@ -7370,7 +7391,6 @@ msgid "Linear Team"
 msgstr "Linear Team"
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListExplorer.tsx:60
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:514
 msgid "Lines"
 msgstr "Lines"
 
@@ -7383,7 +7403,6 @@ msgstr "Lines need internal part numbers"
 msgid "Lines need prices or lead times"
 msgstr "Lines need prices or lead times"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:518
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:202
 msgid "lines picked"
 msgstr "lines picked"
@@ -7392,7 +7411,10 @@ msgstr "lines picked"
 msgid "Lines picked"
 msgstr "Lines picked"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:108
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:925
+msgid "Lines Picked"
+msgstr "Lines Picked"
+
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:139
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:133
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:173
@@ -9106,6 +9128,10 @@ msgstr "Not Required"
 msgid "Not set"
 msgstr "Not set"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:94
+msgid "Not Started"
+msgstr "Not Started"
+
 #: apps/erp/app/modules/people/ui/Person/PersonAbilities.tsx:45
 msgid "Not started training for"
 msgstr "Not started training for"
@@ -9500,10 +9526,6 @@ msgstr "Output"
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:274
-msgid "outstanding"
-msgstr "outstanding"
-
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:135
 msgid "Outstanding"
 msgstr "Outstanding"
@@ -9512,6 +9534,7 @@ msgstr "Outstanding"
 msgid "Outstanding quantities"
 msgstr "Outstanding quantities"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:855
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:203
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:115
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:314
@@ -9529,9 +9552,9 @@ msgstr "Overhead Rate"
 msgid "Overhead Rate (Hourly)"
 msgstr "Overhead Rate (Hourly)"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:280
-msgid "overpick"
-msgstr "overpick"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:83
+msgid "Overpicked"
+msgstr "Overpicked"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:453
 msgid "Override needs the inventory:update permission and a reason."
@@ -9813,7 +9836,7 @@ msgstr "Photo removed successfully"
 msgid "Photo uploaded successfully"
 msgstr "Photo uploaded successfully"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:297
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:482
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:376
 msgid "Pick"
 msgstr "Pick"
@@ -9830,6 +9853,10 @@ msgstr "Pick a customer or customer type to view their pricing."
 msgid "Pick a date or leave blank to clear it."
 msgstr "Pick a date or leave blank to clear it."
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1043
+msgid "Pick all eligible"
+msgstr "Pick all eligible"
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:164
 msgid "Pick List"
 msgstr "Pick List"
@@ -9838,24 +9865,21 @@ msgstr "Pick List"
 msgid "Pick Shelf"
 msgstr "Pick Shelf"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:268
-msgid "picked"
-msgstr "picked"
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:331
+msgid "Pick tracked entity"
+msgstr "Pick tracked entity"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:354
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:293
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1082
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:132
 msgid "Picked"
 msgstr "Picked"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:273
-msgid "Picked quantity"
-msgstr "Picked quantity"
-
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:202
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:318
 msgid "Picked quantity cannot exceed entity quantity"
 msgstr "Picked quantity cannot exceed entity quantity"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:197
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:314
 msgid "Picked quantity must be greater than 0"
 msgstr "Picked quantity must be greater than 0"
 
@@ -9867,9 +9891,14 @@ msgstr "Picker Signature"
 msgid "Picking"
 msgstr "Picking"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:145
-msgid "Picking {n} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
-msgstr "Picking {n} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:174
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:480
+msgid "Picking {qty} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
+msgstr "Picking {qty} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1028
+msgid "Picking Lines"
+msgstr "Picking Lines"
 
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:167
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:138
@@ -10301,7 +10330,6 @@ msgstr "Production Quantity"
 msgid "Profile"
 msgstr "Profile"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:158
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:138
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionLotView.tsx:217
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:197
@@ -10331,7 +10359,7 @@ msgstr "Projections"
 msgid "Promised Date"
 msgstr "Promised Date"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:101
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:187
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:132
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:126
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:166
@@ -10815,9 +10843,13 @@ msgstr "Quotes"
 msgid "Rate Limit"
 msgstr "Rate Limit"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:311
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:582
 msgid "Re-scan"
 msgstr "Re-scan"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:330
+msgid "Re-scan entity"
+msgstr "Re-scan entity"
 
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentHeader.tsx:98
 msgid "Reactivate"
@@ -10969,7 +11001,7 @@ msgstr "Records"
 msgid "Redirecting to verification page..."
 msgstr "Redirecting to verification page..."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:232
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:266
 msgid "Reduced by incident:"
 msgstr "Reduced by incident:"
 
@@ -11043,6 +11075,10 @@ msgstr "Release Job"
 msgid "Released"
 msgstr "Released"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:306
+msgid "Remaining"
+msgstr "Remaining"
+
 #: apps/erp/app/modules/quality/ui/Issue/AssociatedItemsList.tsx:642
 msgid "Remaining after split stays on the original row."
 msgstr "Remaining after split stays on the original row."
@@ -11055,6 +11091,7 @@ msgstr "Remember this PIN. You will need it to exit console mode on MES terminal
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:115
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:150
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:871
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:395
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:368
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:358
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
@@ -11250,7 +11287,8 @@ msgid "Require approval for quality documents in your workflow"
 msgstr "Require approval for quality documents in your workflow"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:215
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:249
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1079
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:422
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:854
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:226
@@ -11612,7 +11650,7 @@ msgid "Sales Job Notifications"
 msgstr "Sales Job Notifications"
 
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:101
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:175
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:252
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:120
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:383
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:248
@@ -11880,10 +11918,11 @@ msgstr "Save Method"
 msgid "Save View"
 msgstr "Save View"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:313
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:584
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:125
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:378
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:498
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:368
 msgid "Scan"
 msgstr "Scan"
 
@@ -11891,9 +11930,9 @@ msgstr "Scan"
 msgid "Scan a label or search by ID, serial number, or batch number."
 msgstr "Scan a label or search by ID, serial number, or batch number."
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:191
-msgid "Scan and validate an entity first"
-msgstr "Scan and validate an entity first"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:332
+msgid "Scan entity"
+msgstr "Scan entity"
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:137
 msgid "Scan or enter tracked entity ID, serial, or batch"
@@ -11907,7 +11946,15 @@ msgstr "Scan or search..."
 msgid "Scan or select a tracked entity from this lot and record the inspection result."
 msgstr "Scan or select a tracked entity from this lot and record the inspection result."
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:219
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:309
+msgid "Scan or select an entity first"
+msgstr "Scan or select an entity first"
+
+#. placeholder {0}: trackingType === "Serial" ? "serial" : "batch"
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:339
+msgid "Scan or select the {0} entity, then confirm the picked quantity."
+msgstr "Scan or select the {0} entity, then confirm the picked quantity."
+
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:316
 msgid "Scan the tracking ID for this line"
 msgstr "Scan the tracking ID for this line"
@@ -12086,6 +12133,7 @@ msgstr "Seconds/Piece"
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:204
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:382
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:502
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:372
 #: packages/react/src/Combobox.tsx:148
 #: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
@@ -12164,6 +12212,10 @@ msgstr "Select an item to configure"
 msgid "Select an option"
 msgstr "Select an option"
 
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:431
+msgid "Select batch number"
+msgstr "Select batch number"
+
 #: apps/erp/app/components/Form/CustomerContact.tsx:67
 #: apps/erp/app/components/Form/SupplierContact.tsx:89
 msgid "Select Contact"
@@ -12227,6 +12279,10 @@ msgstr "Select Row"
 #: apps/erp/app/modules/sales/ui/Pricing/ScopePicker.tsx:93
 msgid "Select scope"
 msgstr "Select scope"
+
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:430
+msgid "Select serial number"
+msgstr "Select serial number"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:124
 msgid "Select Supplier Status"
@@ -12295,7 +12351,6 @@ msgstr "Sends this document for approval before it can go active."
 msgid "Sequences"
 msgstr "Sequences"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:201
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:86
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:54
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:86
@@ -12784,6 +12839,7 @@ msgstr "Sort by"
 msgid "Sort Descending"
 msgstr "Sort Descending"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:207
 #: apps/erp/app/modules/quality/ui/Issue/IssueForm.tsx:223
 #: apps/erp/app/modules/quality/ui/Issue/IssueProperties.tsx:333
 #: apps/erp/app/modules/quality/ui/Issue/IssuesTable.tsx:142
@@ -12885,6 +12941,10 @@ msgstr "Split receipt line"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:366
 msgid "Split shipment line"
 msgstr "Split shipment line"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:295
+msgid "Stage at"
+msgstr "Stage at"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:103
 msgid "Staging"
@@ -12994,7 +13054,8 @@ msgstr "State / Province"
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
 msgstr "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:154
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1085
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:233
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:184
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:152
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:162
@@ -13821,7 +13882,7 @@ msgstr "This job will be received to inventory. It will no longer be available o
 msgid "This job will no longer be available on the shop floor."
 msgstr "This job will no longer be available on the shop floor."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:544
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1064
 msgid "This picking list has no lines yet."
 msgstr "This picking list has no lines yet."
 
@@ -14028,6 +14089,10 @@ msgstr "Toggle Properties"
 msgid "Toggle views"
 msgstr "Toggle views"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:302
+msgid "Tolerance"
+msgstr "Tolerance"
+
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:682
 msgid "Tolerance (+/-)"
 msgstr "Tolerance (+/-)"
@@ -14149,7 +14214,7 @@ msgstr "Tracked entity already picked"
 msgid "Tracked entity ID is required but none was found"
 msgstr "Tracked entity ID is required but none was found"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:145
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:258
 msgid "Tracked entity not found"
 msgstr "Tracked entity not found"
 
@@ -14350,8 +14415,8 @@ msgstr "Unapproved Supplier"
 #: apps/erp/app/components/Assignee.tsx:110
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:289
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:211
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:216
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:317
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:177
 msgid "Unassigned"
@@ -14447,10 +14512,7 @@ msgstr "Unit Price"
 msgid "Unit Sale Price"
 msgstr "Unit Sale Price"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:523
-msgid "units"
-msgstr "units"
-
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:958
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:106
 msgid "Units"
 msgstr "Units"
@@ -14474,7 +14536,8 @@ msgstr "Unlimited Functional Support"
 msgid "Unlink"
 msgstr "Unlink"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:380
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:373
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:616
 msgid "Unpick"
 msgstr "Unpick"
 
@@ -14729,6 +14792,10 @@ msgstr "Use metric system for default material dimensions."
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:266
 msgid "Use picking lists"
 msgstr "Use picking lists"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:375
+msgid "Use the header menu to release, confirm, or reverse this picking list."
+msgstr "Use the header menu to release, confirm, or reverse this picking list."
 
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:166
 #: apps/erp/app/routes/x+/tool+/$itemId.tsx:162
@@ -15065,7 +15132,7 @@ msgstr "Voiding this shipment will:"
 msgid "Walking order"
 msgstr "Walking order"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:201
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:285
 msgid "Warehouse"
 msgstr "Warehouse"
 
@@ -15329,10 +15396,10 @@ msgstr "Workflow"
 msgid "Worst Performing Machines"
 msgstr "Worst Performing Machines"
 
-#. placeholder {0}: (line as any).item?.readableId
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:160
-msgid "Wrong item - expected {0}"
-msgstr "Wrong item - expected {0}"
+#. placeholder {0}: (line as any).item?.readableId ?? itemId
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:269
+msgid "Wrong item — expected {0}"
+msgstr "Wrong item — expected {0}"
 
 #: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:46
 msgid "Year"

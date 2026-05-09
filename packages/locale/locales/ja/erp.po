@@ -40,6 +40,13 @@ msgstr "{0}日"
 msgid "{0} deleted successfully"
 msgstr "{0}が正常に削除されました"
 
+#. placeholder {0}: String(pickedQuantity)
+#. placeholder {1}: String(validatedEntity.quantity)
+#. placeholder {2}: line.unitOfMeasureCode ?? ""
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:461
+msgid "{0} of {1} {2}"
+msgstr ""
+
 #. placeholder {0}: history.length
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:265
 msgid "{0} orders"
@@ -294,6 +301,7 @@ msgstr "アクションタイプ"
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:348
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:255
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:600
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:372
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:174
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:406
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:166
@@ -482,7 +490,10 @@ msgstr "グループを追加"
 msgid "Add Item"
 msgstr "アイテムを追加"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:532
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1054
+msgid "Add line"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:352
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:171
 msgid "Add Line"
@@ -816,8 +827,9 @@ msgstr "承認"
 msgid "Approved By"
 msgstr "承認者"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:133
-msgid "Approver override: pick {n} {uom}? This is more than 2x the required {required} {uom}."
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:163
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:469
+msgid "Approver override: pick {qty} {uom}? This is more than 2x the required {required} {uom}."
 msgstr ""
 
 #: apps/erp/app/modules/quality/ui/SamplingPlan/SamplingPlanForm.tsx:229
@@ -1360,7 +1372,7 @@ msgid "Assigned to Me"
 msgstr "私に割り当てられた"
 
 #: apps/erp/app/components/Assignee.tsx:98
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:206
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:310
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:222
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:196
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:226
@@ -1550,7 +1562,6 @@ msgstr "基本価格"
 msgid "Basic Information"
 msgstr "基本情報"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:195
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:87
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:55
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:87
@@ -1928,7 +1939,7 @@ msgstr "唯一のアクティブなブレークを無効にすることはでき
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:700
 #: apps/erp/app/routes/x+/picking-list+/$id.line.$lineId.tsx:133
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:168
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:289
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:474
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:368
 msgid "Cancel"
 msgstr "キャンセル"
@@ -1973,8 +1984,9 @@ msgstr "RFQを見積に変換できません"
 msgid "Cannot move to parts bucket without item ID"
 msgstr "アイテムIDなしでパーツバケットに移動することはできません"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:127
-msgid "Cannot pick {n} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:157
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:463
+msgid "Cannot pick {qty} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
 msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:767
@@ -2363,6 +2375,7 @@ msgstr "ジョブを完了"
 msgid "Complete Stock Transfer"
 msgstr "在庫移動を完了"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:77
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:32
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:38
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:274
@@ -2669,7 +2682,6 @@ msgstr "クリップボードにリンクをコピーしました"
 msgid "Copied!"
 msgstr "コピーしました!"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:128
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:160
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:154
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:196
@@ -2739,6 +2751,7 @@ msgstr "問題の一意の識別子をコピー"
 msgid "Copy Job number"
 msgstr "ジョブ番号をコピー"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:206
 #: apps/erp/app/modules/inventory/ui/Traceability/TraceabilitySidebar.tsx:220
 msgid "Copy link"
 msgstr "リンクをコピー"
@@ -2771,10 +2784,6 @@ msgstr "材料へのリンクをコピー"
 msgid "Copy link to part"
 msgstr "パーツへのリンクをコピー"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:121
-msgid "Copy link to Picking List"
-msgstr ""
-
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:104
 msgid "Copy link to procedure"
 msgstr "プロシージャへのリンクをコピー"
@@ -2806,10 +2815,6 @@ msgstr "部品番号をコピー"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:210
 msgid "Copy part unique identifier"
 msgstr "部品の一意の識別子をコピー"
-
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:137
-msgid "Copy Picking List number"
-msgstr ""
 
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:177
 msgid "Copy PIN"
@@ -3020,7 +3025,7 @@ msgstr "ワークセンターを作成"
 
 #: apps/erp/app/components/Documents.tsx:285
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:432
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:224
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:344
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:113
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:991
@@ -3068,6 +3073,10 @@ msgstr "アカウントを作成しました"
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:157
 msgid "Created At"
 msgstr "作成日時"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:861
+msgid "Created by"
+msgstr ""
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:337
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:478
@@ -3313,7 +3322,7 @@ msgstr "カスタムフィールド"
 
 #: apps/erp/app/components/Form/Customer.tsx:48
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:86
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:193
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:271
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:106
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:243
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:198
@@ -3900,7 +3909,7 @@ msgstr "休日を削除"
 msgid "Delete Issue"
 msgstr "問題を削除"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:396
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:632
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:213
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:237
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:235
@@ -4099,7 +4108,7 @@ msgstr "サプライヤー見積を削除"
 msgid "Delete Supplier Type"
 msgstr "サプライヤータイプを削除"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:502
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:781
 msgid "Delete this line?"
 msgstr ""
 
@@ -4235,6 +4244,10 @@ msgstr "説明（オプション）"
 #: apps/erp/app/routes/x+/issue+/$id.details.tsx:135
 msgid "Description of Issue"
 msgstr "問題の説明"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:223
+msgid "Destination"
+msgstr ""
 
 #: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:212
 msgid "Destination Storage Unit ID"
@@ -4449,7 +4462,8 @@ msgstr "ファイルをここにドラッグするか、クリックして参照
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:216
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:980
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:323
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:250
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:150
 msgid "Due"
@@ -4709,7 +4723,11 @@ msgstr "アイテムグループを編集"
 msgid "Edit Kanban"
 msgstr "カンバンを編集"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:388
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:383
+msgid "Edit line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:624
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:139
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:202
 #: apps/erp/app/routes/x+/picking-list+/$id.line.$lineId.tsx:100
@@ -5131,7 +5149,7 @@ msgstr "エンジニアリング担当者"
 msgid "Enter a batch number before setting the expiration date"
 msgstr "有効期限を設定する前にバッチ番号を入力してください"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:243
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:392
 msgid "Enter or scan entity ID"
 msgstr ""
 
@@ -5166,14 +5184,18 @@ msgstr "分割するエンティティ"
 msgid "Entity"
 msgstr "エンティティ"
 
-#. placeholder {0}: result.data.status
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:152
+#. placeholder {0}: result.status
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:263
 msgid "Entity is {0}"
 msgstr ""
 
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:249
 msgid "Entity is {status}"
 msgstr "エンティティは {status} です"
+
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:454
+msgid "Entity ready to pick"
+msgstr ""
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:35
 #: apps/erp/app/routes/onboarding+/plan.tsx:60
@@ -5271,7 +5293,7 @@ msgstr "販売請求書行からモデルを削除するエラー"
 msgid "Error removing model from sales order line"
 msgstr "販売注文行からモデルを削除するエラー"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:181
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:282
 msgid "Error validating entity"
 msgstr ""
 
@@ -6139,6 +6161,7 @@ msgstr "頻度"
 msgid "Friday"
 msgstr "金曜日"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1076
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:211
 msgid "From"
 msgstr ""
@@ -6420,14 +6443,11 @@ msgstr "このRFQを見積に変換するには、顧客が必要です。"
 msgid "In order to send this RFQ to suppliers, you must first add suppliers to the RFQ."
 msgstr "このRFQをサプライヤーに送信するには、まずRFQにサプライヤーを追加する必要があります。"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:207
-msgid "in other PLs"
-msgstr ""
-
 #: apps/erp/app/components/Gantt/Gantt.tsx:128
 msgid "In Process Only"
 msgstr "処理中のみ"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:89
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:26
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:268
 msgid "In Progress"
@@ -6907,6 +6927,7 @@ msgstr "アイテム"
 #: apps/erp/app/components/Form/Items.tsx:74
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:205
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:96
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1073
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:80
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:143
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:121
@@ -7028,7 +7049,7 @@ msgstr "このウィンドウ内のアイテムは黄色いバッジが表示さ
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:166
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:239
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:67
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
@@ -7354,7 +7375,7 @@ msgstr "可能性"
 msgid "Line Item Comparison"
 msgstr "明細項目の比較"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:372
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:607
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:351
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
@@ -7370,7 +7391,6 @@ msgid "Linear Team"
 msgstr "Linear Team"
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListExplorer.tsx:60
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:514
 msgid "Lines"
 msgstr ""
 
@@ -7383,7 +7403,6 @@ msgstr "ラインには内部部品番号が必要です"
 msgid "Lines need prices or lead times"
 msgstr "ラインには価格またはリードタイムが必要です"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:518
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:202
 msgid "lines picked"
 msgstr ""
@@ -7392,7 +7411,10 @@ msgstr ""
 msgid "Lines picked"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:108
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:925
+msgid "Lines Picked"
+msgstr ""
+
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:139
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:133
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:173
@@ -9106,6 +9128,10 @@ msgstr "不要"
 msgid "Not set"
 msgstr "未設定"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:94
+msgid "Not Started"
+msgstr ""
+
 #: apps/erp/app/modules/people/ui/Person/PersonAbilities.tsx:45
 msgid "Not started training for"
 msgstr "まだトレーニングを開始していません"
@@ -9500,10 +9526,6 @@ msgstr "出力"
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "出力は原材料より長く持ちません。入力に有効期限がない場合は、固定期間にフォールバックします。"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:274
-msgid "outstanding"
-msgstr ""
-
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:135
 msgid "Outstanding"
 msgstr ""
@@ -9512,6 +9534,7 @@ msgstr ""
 msgid "Outstanding quantities"
 msgstr ""
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:855
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:203
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:115
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:314
@@ -9529,8 +9552,8 @@ msgstr "オーバーヘッドレート"
 msgid "Overhead Rate (Hourly)"
 msgstr "オーバーヘッドレート（時間単位）"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:280
-msgid "overpick"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:83
+msgid "Overpicked"
 msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:453
@@ -9813,7 +9836,7 @@ msgstr "写真が正常に削除されました"
 msgid "Photo uploaded successfully"
 msgstr "写真が正常にアップロードされました"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:297
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:482
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:376
 msgid "Pick"
 msgstr "ピック"
@@ -9830,6 +9853,10 @@ msgstr "顧客または顧客タイプを選択して、その価格を表示し
 msgid "Pick a date or leave blank to clear it."
 msgstr "日付を選択するか、空白のままにしてクリアしてください。"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1043
+msgid "Pick all eligible"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:164
 msgid "Pick List"
 msgstr "ピッキングリスト"
@@ -9838,24 +9865,21 @@ msgstr "ピッキングリスト"
 msgid "Pick Shelf"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:268
-msgid "picked"
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:331
+msgid "Pick tracked entity"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:354
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:293
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1082
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:132
 msgid "Picked"
 msgstr ""
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:273
-msgid "Picked quantity"
-msgstr ""
-
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:202
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:318
 msgid "Picked quantity cannot exceed entity quantity"
 msgstr ""
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:197
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:314
 msgid "Picked quantity must be greater than 0"
 msgstr ""
 
@@ -9867,8 +9891,13 @@ msgstr ""
 msgid "Picking"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:145
-msgid "Picking {n} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:174
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:480
+msgid "Picking {qty} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1028
+msgid "Picking Lines"
 msgstr ""
 
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:167
@@ -10301,7 +10330,6 @@ msgstr "生産数量"
 msgid "Profile"
 msgstr "プロフィール"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:158
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:138
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionLotView.tsx:217
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:197
@@ -10331,7 +10359,7 @@ msgstr "予測"
 msgid "Promised Date"
 msgstr "約束日"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:101
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:187
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:132
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:126
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:166
@@ -10815,8 +10843,12 @@ msgstr "見積"
 msgid "Rate Limit"
 msgstr "レート制限"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:311
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:582
 msgid "Re-scan"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:330
+msgid "Re-scan entity"
 msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentHeader.tsx:98
@@ -10969,7 +11001,7 @@ msgstr "記録"
 msgid "Redirecting to verification page..."
 msgstr "検証ページにリダイレクト中..."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:232
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:266
 msgid "Reduced by incident:"
 msgstr ""
 
@@ -11043,6 +11075,10 @@ msgstr "ジョブをリリース"
 msgid "Released"
 msgstr "リリース済み"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:306
+msgid "Remaining"
+msgstr ""
+
 #: apps/erp/app/modules/quality/ui/Issue/AssociatedItemsList.tsx:642
 msgid "Remaining after split stays on the original row."
 msgstr "分割後の残りは元の行に留まります。"
@@ -11055,6 +11091,7 @@ msgstr "このPINを覚えておいてください。MES端末でコンソール
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:115
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:150
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:871
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:395
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:368
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:358
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
@@ -11250,7 +11287,8 @@ msgid "Require approval for quality documents in your workflow"
 msgstr "ワークフロー内の品質文書の承認が必要です"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:215
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:249
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1079
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:422
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:854
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:226
@@ -11612,7 +11650,7 @@ msgid "Sales Job Notifications"
 msgstr "営業ジョブ通知"
 
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:101
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:175
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:252
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:120
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:383
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:248
@@ -11880,10 +11918,11 @@ msgstr "メソッドを保存"
 msgid "Save View"
 msgstr "ビューを保存"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:313
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:584
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:125
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:378
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:498
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:368
 msgid "Scan"
 msgstr "スキャン"
 
@@ -11891,8 +11930,8 @@ msgstr "スキャン"
 msgid "Scan a label or search by ID, serial number, or batch number."
 msgstr "ラベルをスキャンするか、ID、シリアル番号、またはバッチ番号で検索してください。"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:191
-msgid "Scan and validate an entity first"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:332
+msgid "Scan entity"
 msgstr ""
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:137
@@ -11907,7 +11946,15 @@ msgstr "スキャンまたは検索..."
 msgid "Scan or select a tracked entity from this lot and record the inspection result."
 msgstr "このロットから追跡対象エンティティをスキャンまたは選択し、検査結果を記録してください。"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:219
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:309
+msgid "Scan or select an entity first"
+msgstr ""
+
+#. placeholder {0}: trackingType === "Serial" ? "serial" : "batch"
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:339
+msgid "Scan or select the {0} entity, then confirm the picked quantity."
+msgstr ""
+
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:316
 msgid "Scan the tracking ID for this line"
 msgstr "このラインのトラッキングIDをスキャンしてください"
@@ -12086,6 +12133,7 @@ msgstr "秒/個"
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:204
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:382
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:502
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:372
 #: packages/react/src/Combobox.tsx:148
 #: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
@@ -12164,6 +12212,10 @@ msgstr "設定するアイテムを選択"
 msgid "Select an option"
 msgstr "オプションを選択"
 
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:431
+msgid "Select batch number"
+msgstr ""
+
 #: apps/erp/app/components/Form/CustomerContact.tsx:67
 #: apps/erp/app/components/Form/SupplierContact.tsx:89
 msgid "Select Contact"
@@ -12227,6 +12279,10 @@ msgstr "行を選択"
 #: apps/erp/app/modules/sales/ui/Pricing/ScopePicker.tsx:93
 msgid "Select scope"
 msgstr "スコープを選択"
+
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:430
+msgid "Select serial number"
+msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:124
 msgid "Select Supplier Status"
@@ -12295,7 +12351,6 @@ msgstr "このドキュメントを承認のために送信してから、アク
 msgid "Sequences"
 msgstr "シーケンス"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:201
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:86
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:54
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:86
@@ -12784,6 +12839,7 @@ msgstr "並べ替え"
 msgid "Sort Descending"
 msgstr "降順でソート"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:207
 #: apps/erp/app/modules/quality/ui/Issue/IssueForm.tsx:223
 #: apps/erp/app/modules/quality/ui/Issue/IssueProperties.tsx:333
 #: apps/erp/app/modules/quality/ui/Issue/IssuesTable.tsx:142
@@ -12885,6 +12941,10 @@ msgstr "領収書行を分割"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:366
 msgid "Split shipment line"
 msgstr "出荷ラインを分割"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:295
+msgid "Stage at"
+msgstr ""
 
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:103
 msgid "Staging"
@@ -12994,7 +13054,8 @@ msgstr "都道府県"
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
 msgstr "統計的受け入れに失敗したため、ロット全体が不適合と見なされます（ISO 9001:2015 §8.7）。すべての{0}個のエンティティ — {passes}個のサンプル合格品、{fails}個の不良品、および{1}個の未検査品 — は「却下」とマークされます。NCRは自動的にMRB処置のために開かれます。"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:154
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1085
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:233
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:184
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:152
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:162
@@ -13821,7 +13882,7 @@ msgstr "このジョブはインベントリに受け取られます。ショッ
 msgid "This job will no longer be available on the shop floor."
 msgstr "このジョブはショップフロアで利用できなくなります。"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:544
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1064
 msgid "This picking list has no lines yet."
 msgstr ""
 
@@ -14028,6 +14089,10 @@ msgstr "プロパティを切り替え"
 msgid "Toggle views"
 msgstr "ビューを切り替える"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:302
+msgid "Tolerance"
+msgstr ""
+
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:682
 msgid "Tolerance (+/-)"
 msgstr "許容範囲 (+/-)"
@@ -14149,7 +14214,7 @@ msgstr "既に追跡対象が選択されています"
 msgid "Tracked entity ID is required but none was found"
 msgstr "追跡対象エンティティIDが必要ですが、見つかりませんでした"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:145
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:258
 msgid "Tracked entity not found"
 msgstr ""
 
@@ -14350,8 +14415,8 @@ msgstr "未承認サプライヤー"
 #: apps/erp/app/components/Assignee.tsx:110
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:289
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:211
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:216
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:317
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:177
 msgid "Unassigned"
@@ -14447,10 +14512,7 @@ msgstr "単価"
 msgid "Unit Sale Price"
 msgstr "単価販売価格"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:523
-msgid "units"
-msgstr ""
-
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:958
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:106
 msgid "Units"
 msgstr "単位"
@@ -14474,7 +14536,8 @@ msgstr "無制限の機能サポート"
 msgid "Unlink"
 msgstr "リンク解除"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:380
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:373
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:616
 msgid "Unpick"
 msgstr ""
 
@@ -14728,6 +14791,10 @@ msgstr "デフォルトの材料寸法にメートル法を使用します。"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:266
 msgid "Use picking lists"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:375
+msgid "Use the header menu to release, confirm, or reverse this picking list."
 msgstr ""
 
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:166
@@ -15065,7 +15132,7 @@ msgstr "この出荷をキャンセルすると、以下のようになります
 msgid "Walking order"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:201
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:285
 msgid "Warehouse"
 msgstr ""
 
@@ -15329,9 +15396,9 @@ msgstr "ワークフロー"
 msgid "Worst Performing Machines"
 msgstr "最も性能が低い機械"
 
-#. placeholder {0}: (line as any).item?.readableId
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:160
-msgid "Wrong item - expected {0}"
+#. placeholder {0}: (line as any).item?.readableId ?? itemId
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:269
+msgid "Wrong item — expected {0}"
 msgstr ""
 
 #: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:46

@@ -85,24 +85,39 @@ export function ResizablePanels({
   content,
   properties
 }: ResizablePanelsProps) {
-  const { isExplorerCollapsed, isPropertiesCollapsed, setIsExplorerCollapsed } =
-    usePanels();
-  const panelRef = useRef<ImperativePanelHandle>(null);
+  const {
+    isExplorerCollapsed,
+    isPropertiesCollapsed,
+    setIsExplorerCollapsed,
+    setIsPropertiesCollapsed
+  } = usePanels();
+  const explorerRef = useRef<ImperativePanelHandle>(null);
+  const propertiesRef = useRef<ImperativePanelHandle>(null);
 
   useEffect(() => {
     if (isExplorerCollapsed) {
-      panelRef.current?.collapse();
+      explorerRef.current?.collapse();
     } else {
-      panelRef.current?.expand();
+      explorerRef.current?.expand();
     }
   }, [isExplorerCollapsed]);
 
+  useEffect(() => {
+    if (!properties) return;
+    if (isPropertiesCollapsed) {
+      propertiesRef.current?.collapse();
+    } else {
+      propertiesRef.current?.expand();
+    }
+  }, [isPropertiesCollapsed, properties]);
+
   return (
-    <ResizablePanelGroup direction="horizontal">
+    <ResizablePanelGroup direction="horizontal" className="h-full w-full">
       <ResizablePanel
-        ref={panelRef}
+        ref={explorerRef}
         order={1}
         minSize={10}
+        maxSize={30}
         className="bg-card shadow-lg"
         collapsible
         defaultSize={isExplorerCollapsed ? 0 : 20}
@@ -113,12 +128,28 @@ export function ResizablePanels({
         {!isExplorerCollapsed && explorer}
       </ResizablePanel>
       <ResizableHandle withHandle />
-      <ResizablePanel order={2} className="z-1 relative">
-        <div className="flex h-[calc(100dvh-99px)] overflow-hidden w-full">
-          {content}
-          {!isPropertiesCollapsed && properties}
-        </div>
+      <ResizablePanel order={2} minSize={30} className="z-1 relative">
+        {content}
       </ResizablePanel>
+      {properties && (
+        <>
+          <ResizableHandle withHandle />
+          <ResizablePanel
+            ref={propertiesRef}
+            id="properties-panel"
+            order={3}
+            minSize={15}
+            maxSize={35}
+            defaultSize={isPropertiesCollapsed ? 0 : 22}
+            collapsedSize={0}
+            collapsible
+            onCollapse={() => setIsPropertiesCollapsed(true)}
+            onExpand={() => setIsPropertiesCollapsed(false)}
+          >
+            {!isPropertiesCollapsed && properties}
+          </ResizablePanel>
+        </>
+      )}
     </ResizablePanelGroup>
   );
 }

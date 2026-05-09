@@ -40,6 +40,13 @@ msgstr "{0} दिन"
 msgid "{0} deleted successfully"
 msgstr "{0} सफलतापूर्वक हटाया गया"
 
+#. placeholder {0}: String(pickedQuantity)
+#. placeholder {1}: String(validatedEntity.quantity)
+#. placeholder {2}: line.unitOfMeasureCode ?? ""
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:461
+msgid "{0} of {1} {2}"
+msgstr ""
+
 #. placeholder {0}: history.length
 #: apps/erp/app/modules/items/ui/Item/SupplierPartForm.tsx:265
 msgid "{0} orders"
@@ -294,6 +301,7 @@ msgstr "कार्रवाई प्रकार"
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:348
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:255
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:600
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:372
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:174
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:406
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:166
@@ -482,7 +490,10 @@ msgstr "समूह जोड़ें"
 msgid "Add Item"
 msgstr "आइटम जोड़ें"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:532
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1054
+msgid "Add line"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:352
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:171
 msgid "Add Line"
@@ -816,8 +827,9 @@ msgstr "मंजूरी दें"
 msgid "Approved By"
 msgstr "द्वारा अनुमोदित"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:133
-msgid "Approver override: pick {n} {uom}? This is more than 2x the required {required} {uom}."
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:163
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:469
+msgid "Approver override: pick {qty} {uom}? This is more than 2x the required {required} {uom}."
 msgstr ""
 
 #: apps/erp/app/modules/quality/ui/SamplingPlan/SamplingPlanForm.tsx:229
@@ -1360,7 +1372,7 @@ msgid "Assigned to Me"
 msgstr "मुझे असाइन किया गया"
 
 #: apps/erp/app/components/Assignee.tsx:98
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:206
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:310
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:222
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:196
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:226
@@ -1550,7 +1562,6 @@ msgstr "आधार मूल्य"
 msgid "Basic Information"
 msgstr "बुनियादी जानकारी"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:195
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:87
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:55
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:87
@@ -1928,7 +1939,7 @@ msgstr "केवल सक्रिय ब्रेक को अक्षम �
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:700
 #: apps/erp/app/routes/x+/picking-list+/$id.line.$lineId.tsx:133
 #: apps/erp/app/routes/x+/picking-list+/$id.line.new.tsx:168
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:289
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:474
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:368
 msgid "Cancel"
 msgstr "रद्द करें"
@@ -1973,8 +1984,9 @@ msgstr "RFQ को उद्धरण में परिवर्तित न�
 msgid "Cannot move to parts bucket without item ID"
 msgstr "आइटम आईडी के बिना पार्ट्स बकेट में नहीं जा सकते"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:127
-msgid "Cannot pick {n} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:157
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:463
+msgid "Cannot pick {qty} {uom}: exceeds 2x the required quantity ({hardBlockAt}). Approver override required."
 msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:767
@@ -2363,6 +2375,7 @@ msgstr "नौकरी पूरी करें"
 msgid "Complete Stock Transfer"
 msgstr "स्टॉक ट्रांसफर पूरा करें"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:77
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:32
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferStatus.tsx:38
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:274
@@ -2669,7 +2682,6 @@ msgstr "क्लिपबोर्ड में लिंक कॉपी क�
 msgid "Copied!"
 msgstr "कॉपी किया गया!"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:128
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:160
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:154
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:196
@@ -2739,6 +2751,7 @@ msgstr "समस्या की अद्वितीय पहचान क�
 msgid "Copy Job number"
 msgstr "जॉब नंबर कॉपी करें"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:206
 #: apps/erp/app/modules/inventory/ui/Traceability/TraceabilitySidebar.tsx:220
 msgid "Copy link"
 msgstr "लिंक कॉपी करें"
@@ -2771,10 +2784,6 @@ msgstr "सामग्री के लिए लिंक कॉपी कर�
 msgid "Copy link to part"
 msgstr "भाग के लिए लिंक कॉपी करें"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:121
-msgid "Copy link to Picking List"
-msgstr ""
-
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureProperties.tsx:104
 msgid "Copy link to procedure"
 msgstr "प्रक्रिया के लिए लिंक कॉपी करें"
@@ -2806,10 +2815,6 @@ msgstr "भाग संख्या कॉपी करें"
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:210
 msgid "Copy part unique identifier"
 msgstr "भाग के अद्वितीय पहचानकर्ता की प्रतिलिपि बनाएं"
-
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:137
-msgid "Copy Picking List number"
-msgstr ""
 
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:177
 msgid "Copy PIN"
@@ -3020,7 +3025,7 @@ msgstr "कार्य केंद्र बनाएं"
 
 #: apps/erp/app/components/Documents.tsx:285
 #: apps/erp/app/modules/inventory/ui/Batches/BatchPropertiesConfig.tsx:432
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:224
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:344
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLines.tsx:183
 #: apps/erp/app/modules/items/ui/Item/ItemDocuments.tsx:113
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:991
@@ -3068,6 +3073,10 @@ msgstr "खाता बनाया गया"
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:157
 msgid "Created At"
 msgstr "बनाया गया"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:861
+msgid "Created by"
+msgstr ""
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:337
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:478
@@ -3313,7 +3322,7 @@ msgstr "कस्टम फील्ड्स"
 
 #: apps/erp/app/components/Form/Customer.tsx:48
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:86
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:193
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:271
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:106
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:243
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceForm.tsx:198
@@ -3900,7 +3909,7 @@ msgstr "छुट्टी हटाएं"
 msgid "Delete Issue"
 msgstr "समस्या हटाएं"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:396
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:632
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:213
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceExplorer.tsx:237
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceExplorer.tsx:235
@@ -4099,7 +4108,7 @@ msgstr "आपूर्तिकर्ता उद्धरण हटाएं"
 msgid "Delete Supplier Type"
 msgstr "आपूर्तिकर्ता प्रकार हटाएं"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:502
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:781
 msgid "Delete this line?"
 msgstr ""
 
@@ -4235,6 +4244,10 @@ msgstr "विवरण (वैकल्पिक)"
 #: apps/erp/app/routes/x+/issue+/$id.details.tsx:135
 msgid "Description of Issue"
 msgstr "समस्या का विवरण"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:223
+msgid "Destination"
+msgstr ""
 
 #: apps/erp/app/routes/x+/inventory+/picking-lists.new.tsx:212
 msgid "Destination Storage Unit ID"
@@ -4449,7 +4462,8 @@ msgstr "अपनी फ़ाइल यहाँ ड्रॉप करें, 
 msgid "Drop-off shelf for materials picked for this work centre. Optional."
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:216
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:980
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:323
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:250
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:150
 msgid "Due"
@@ -4709,7 +4723,11 @@ msgstr "आइटम ग्रुप संपादित करें"
 msgid "Edit Kanban"
 msgstr "कनबन संपादित करें"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:388
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:383
+msgid "Edit line"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:624
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLineForm.tsx:139
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:202
 #: apps/erp/app/routes/x+/picking-list+/$id.line.$lineId.tsx:100
@@ -5131,7 +5149,7 @@ msgstr "इंजीनियरिंग संपर्क"
 msgid "Enter a batch number before setting the expiration date"
 msgstr "समाप्ति तारीख सेट करने से पहले एक बैच नंबर दर्ज करें"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:243
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:392
 msgid "Enter or scan entity ID"
 msgstr ""
 
@@ -5166,14 +5184,18 @@ msgstr "विभाजित करने के लिए इकाइया�
 msgid "Entity"
 msgstr "इकाई"
 
-#. placeholder {0}: result.data.status
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:152
+#. placeholder {0}: result.status
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:263
 msgid "Entity is {0}"
 msgstr ""
 
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:249
 msgid "Entity is {status}"
 msgstr "Entity {status} है"
+
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:454
+msgid "Entity ready to pick"
+msgstr ""
 
 #: apps/erp/app/routes/onboarding+/plan.tsx:35
 #: apps/erp/app/routes/onboarding+/plan.tsx:60
@@ -5271,7 +5293,7 @@ msgstr "बिक्री चालान लाइन से मॉडल ह�
 msgid "Error removing model from sales order line"
 msgstr "बिक्रय आदेश लाइन से मॉडल हटाने में त्रुटि"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:181
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:282
 msgid "Error validating entity"
 msgstr ""
 
@@ -6139,6 +6161,7 @@ msgstr "आवृत्ति"
 msgid "Friday"
 msgstr "शुक्रवार"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1076
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:211
 msgid "From"
 msgstr ""
@@ -6420,14 +6443,11 @@ msgstr "इस RFQ को उद्धरण में परिवर्ति�
 msgid "In order to send this RFQ to suppliers, you must first add suppliers to the RFQ."
 msgstr "इस RFQ को आपूर्तिकर्ताओं को भेजने के लिए, आपको पहले RFQ में आपूर्तिकर्ता जोड़ने होंगे।"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:207
-msgid "in other PLs"
-msgstr ""
-
 #: apps/erp/app/components/Gantt/Gantt.tsx:128
 msgid "In Process Only"
 msgstr "केवल प्रक्रिया में"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:89
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferStatus.tsx:26
 #: apps/erp/app/modules/quality/ui/Actions/ActionsTable.tsx:268
 msgid "In Progress"
@@ -6907,6 +6927,7 @@ msgstr "आइटम"
 #: apps/erp/app/components/Form/Items.tsx:74
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:205
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:96
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1073
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:80
 #: apps/erp/app/modules/inventory/ui/WarehouseTransfers/WarehouseTransferLineForm.tsx:143
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoicePostModal.tsx:121
@@ -7028,7 +7049,7 @@ msgstr "इस विंडो के अंदर आइटम को एक �
 
 #: apps/erp/app/components/Gantt/Gantt.tsx:233
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:54
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:166
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:239
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:67
 #: apps/erp/app/modules/people/ui/Person/PersonJob.tsx:36
 #: apps/erp/app/modules/people/ui/Person/PersonSidebar/usePersonSidebar.tsx:23
@@ -7354,7 +7375,7 @@ msgstr "संभावना"
 msgid "Line Item Comparison"
 msgstr "लाइन आइटम तुलना"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:372
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:607
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptLines.tsx:351
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:354
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferLines.tsx:185
@@ -7370,7 +7391,6 @@ msgid "Linear Team"
 msgstr "Linear Team"
 
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListExplorer.tsx:60
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:514
 msgid "Lines"
 msgstr ""
 
@@ -7383,7 +7403,6 @@ msgstr "लाइनों को आंतरिक भाग संख्य�
 msgid "Lines need prices or lead times"
 msgstr "लाइनों को कीमतों या लीड समय की आवश्यकता है"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:518
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:202
 msgid "lines picked"
 msgstr ""
@@ -7392,7 +7411,10 @@ msgstr ""
 msgid "Lines picked"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:108
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:925
+msgid "Lines Picked"
+msgstr ""
+
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:139
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:133
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:173
@@ -9106,6 +9128,10 @@ msgstr "आवश्यक नहीं"
 msgid "Not set"
 msgstr "सेट नहीं है"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:94
+msgid "Not Started"
+msgstr ""
+
 #: apps/erp/app/modules/people/ui/Person/PersonAbilities.tsx:45
 msgid "Not started training for"
 msgstr "प्रशिक्षण शुरू नहीं किया गया"
@@ -9500,10 +9526,6 @@ msgstr "आउटपुट"
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "आउटपुट कभी भी अपनी कच्ची सामग्री से अधिक समय तक नहीं रहता। जब किसी इनपुट की समाप्ति तारीख नहीं होती है तो निर्धारित अवधि पर वापस आता है।"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:274
-msgid "outstanding"
-msgstr ""
-
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:135
 msgid "Outstanding"
 msgstr ""
@@ -9512,6 +9534,7 @@ msgstr ""
 msgid "Outstanding quantities"
 msgstr ""
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:855
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:203
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:115
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:314
@@ -9529,8 +9552,8 @@ msgstr "ओवरहेड दर"
 msgid "Overhead Rate (Hourly)"
 msgstr "ओवरहेड दर (प्रति घंटा)"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:280
-msgid "overpick"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:83
+msgid "Overpicked"
 msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:453
@@ -9813,7 +9836,7 @@ msgstr "फ़ोटो सफलतापूर्वक हटा दी ग�
 msgid "Photo uploaded successfully"
 msgstr "फ़ोटो सफलतापूर्वक अपलोड हो गई"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:297
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:482
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:376
 msgid "Pick"
 msgstr "चुनें"
@@ -9830,6 +9853,10 @@ msgstr "उनकी मूल्य निर्धारण देखने �
 msgid "Pick a date or leave blank to clear it."
 msgstr "एक तारीख चुनें या इसे साफ करने के लिए खाली छोड़ें।"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1043
+msgid "Pick all eligible"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferHeader.tsx:164
 msgid "Pick List"
 msgstr "पिक लिस्ट"
@@ -9838,24 +9865,21 @@ msgstr "पिक लिस्ट"
 msgid "Pick Shelf"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:268
-msgid "picked"
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:331
+msgid "Pick tracked entity"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:354
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:293
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1082
 #: apps/erp/app/routes/x+/picking-list+/$id.pdf.tsx:132
 msgid "Picked"
 msgstr ""
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:273
-msgid "Picked quantity"
-msgstr ""
-
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:202
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:318
 msgid "Picked quantity cannot exceed entity quantity"
 msgstr ""
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:197
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:314
 msgid "Picked quantity must be greater than 0"
 msgstr ""
 
@@ -9867,8 +9891,13 @@ msgstr ""
 msgid "Picking"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:145
-msgid "Picking {n} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:174
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:480
+msgid "Picking {qty} {uom} exceeds the required {required} by more than {tolerance}%. Continue?"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1028
+msgid "Picking Lines"
 msgstr ""
 
 #: apps/erp/app/routes/x+/inventory+/movements.tsx:167
@@ -10301,7 +10330,6 @@ msgstr "उत्पादन मात्रा"
 msgid "Profile"
 msgstr "प्रोफ़ाइल"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:158
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:138
 #: apps/erp/app/modules/quality/ui/InboundInspections/InboundInspectionLotView.tsx:217
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:197
@@ -10331,7 +10359,7 @@ msgstr "अनुमान"
 msgid "Promised Date"
 msgstr "वादा की गई तारीख"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:101
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:187
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceProperties.tsx:132
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceProperties.tsx:126
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:166
@@ -10815,8 +10843,12 @@ msgstr "उद्धरण"
 msgid "Rate Limit"
 msgstr "दर सीमा"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:311
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:582
 msgid "Re-scan"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:330
+msgid "Re-scan entity"
 msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentHeader.tsx:98
@@ -10969,7 +11001,7 @@ msgstr "रिकॉर्ड"
 msgid "Redirecting to verification page..."
 msgstr "सत्यापन पृष्ठ पर पुनः निर्देशित किया जा रहा है..."
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:232
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:266
 msgid "Reduced by incident:"
 msgstr ""
 
@@ -11043,6 +11075,10 @@ msgstr "जॉब रिलीज़ करें"
 msgid "Released"
 msgstr "जारी किया गया"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:306
+msgid "Remaining"
+msgstr ""
+
 #: apps/erp/app/modules/quality/ui/Issue/AssociatedItemsList.tsx:642
 msgid "Remaining after split stays on the original row."
 msgstr "विभाजन के बाद शेष मूल पंक्ति पर रहता है।"
@@ -11055,6 +11091,7 @@ msgstr "इस PIN को याद रखें। MES टर्मिनल �
 #: apps/erp/app/components/Selectors/UserSelect/components/SelectionList.tsx:115
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:150
 #: apps/erp/app/modules/account/ui/UserAttributes/UserAttributesForm.tsx:871
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:395
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:368
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:358
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
@@ -11250,7 +11287,8 @@ msgid "Require approval for quality documents in your workflow"
 msgstr "आपके वर्कफ़्लो में गुणवत्ता दस्तावेज़ों के लिए अनुमोदन की आवश्यकता है"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:215
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:249
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1079
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:422
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:854
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:226
@@ -11612,7 +11650,7 @@ msgid "Sales Job Notifications"
 msgstr "बिक्रय कार्य सूचनाएं"
 
 #: apps/erp/app/components/Layout/Topbar/CreateMenu.tsx:101
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:175
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:252
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:120
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentForm/ShipmentForm.tsx:383
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceHeader.tsx:248
@@ -11880,10 +11918,11 @@ msgstr "विधि सहेजें"
 msgid "Save View"
 msgstr "दृश्य सहेजें"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:313
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:584
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:125
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:378
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:498
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:368
 msgid "Scan"
 msgstr "स्कैन करें"
 
@@ -11891,8 +11930,8 @@ msgstr "स्कैन करें"
 msgid "Scan a label or search by ID, serial number, or batch number."
 msgstr "एक लेबल स्कैन करें या ID, सीरियल नंबर, या बैच नंबर से खोजें।"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:191
-msgid "Scan and validate an entity first"
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:332
+msgid "Scan entity"
 msgstr ""
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:137
@@ -11907,7 +11946,15 @@ msgstr "स्कैन या खोजें..."
 msgid "Scan or select a tracked entity from this lot and record the inspection result."
 msgstr "इस लॉट से एक ट्रैक किए गए इकाई को स्कैन या चुनें और निरीक्षण परिणाम रिकॉर्ड करें।"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:219
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:309
+msgid "Scan or select an entity first"
+msgstr ""
+
+#. placeholder {0}: trackingType === "Serial" ? "serial" : "batch"
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:339
+msgid "Scan or select the {0} entity, then confirm the picked quantity."
+msgstr ""
+
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:316
 msgid "Scan the tracking ID for this line"
 msgstr "इस लाइन के लिए ट्रैकिंग आईडी स्कैन करें"
@@ -12086,6 +12133,7 @@ msgstr "सेकंड/पीस"
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:204
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:382
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:502
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:372
 #: packages/react/src/Combobox.tsx:148
 #: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
@@ -12164,6 +12212,10 @@ msgstr "कॉन्फ़िगर करने के लिए एक आइ�
 msgid "Select an option"
 msgstr "एक विकल्प चुनें"
 
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:431
+msgid "Select batch number"
+msgstr ""
+
 #: apps/erp/app/components/Form/CustomerContact.tsx:67
 #: apps/erp/app/components/Form/SupplierContact.tsx:89
 msgid "Select Contact"
@@ -12227,6 +12279,10 @@ msgstr "पंक्ति चुनें"
 #: apps/erp/app/modules/sales/ui/Pricing/ScopePicker.tsx:93
 msgid "Select scope"
 msgstr "स्कोप चुनें"
+
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:430
+msgid "Select serial number"
+msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:124
 msgid "Select Supplier Status"
@@ -12295,7 +12351,6 @@ msgstr "यह दस्तावेज़ सक्रिय होने स�
 msgid "Sequences"
 msgstr "अनुक्रम"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:201
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:86
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:54
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:86
@@ -12784,6 +12839,7 @@ msgstr "द्वारा क्रमबद्ध करें"
 msgid "Sort Descending"
 msgstr "अवरोही क्रम में सॉर्ट करें"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:207
 #: apps/erp/app/modules/quality/ui/Issue/IssueForm.tsx:223
 #: apps/erp/app/modules/quality/ui/Issue/IssueProperties.tsx:333
 #: apps/erp/app/modules/quality/ui/Issue/IssuesTable.tsx:142
@@ -12885,6 +12941,10 @@ msgstr "रसीद लाइन को विभाजित करें"
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:366
 msgid "Split shipment line"
 msgstr "शिपमेंट लाइन को विभाजित करें"
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:295
+msgid "Stage at"
+msgstr ""
 
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:103
 msgid "Staging"
@@ -12994,7 +13054,8 @@ msgstr "राज्य / प्रांत"
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
 msgstr "सांख्यिकीय स्वीकृति विफल हुई, इसलिए पूरा लॉट गैर-अनुरूप माना जाता है (ISO 9001:2015 §8.7)। सभी {0} इकाइयां — {passes} नमूना पास, {fails} विफलता(एं), और {1} निरीक्षण न किए गए — को अस्वीकृत के रूप में चिह्नित किया जाएगा। एक NCR स्वचालित रूप से MRB निपटान के लिए खोला जाएगा।"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:154
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1085
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:233
 #: apps/erp/app/modules/inventory/ui/PickingLists/PickingListsTable.tsx:184
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptsTable.tsx:152
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentsTable.tsx:162
@@ -13821,7 +13882,7 @@ msgstr "यह जॉब इन्वेंटरी में प्राप�
 msgid "This job will no longer be available on the shop floor."
 msgstr "यह नौकरी अब शॉप फ्लोर पर उपलब्ध नहीं होगी।"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:544
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:1064
 msgid "This picking list has no lines yet."
 msgstr ""
 
@@ -14028,6 +14089,10 @@ msgstr "गुण टॉगल करें"
 msgid "Toggle views"
 msgstr "दृश्य टॉगल करें"
 
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:302
+msgid "Tolerance"
+msgstr ""
+
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:682
 msgid "Tolerance (+/-)"
 msgstr "सहनशीलता (+/-)"
@@ -14149,7 +14214,7 @@ msgstr "ट्रैक किया गया इकाई पहले से 
 msgid "Tracked entity ID is required but none was found"
 msgstr "ट्रैक किया गया इकाई ID आवश्यक है लेकिन कोई नहीं मिला"
 
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:145
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:258
 msgid "Tracked entity not found"
 msgstr ""
 
@@ -14350,8 +14415,8 @@ msgstr "अनुमोदित नहीं आपूर्तिकर्त�
 #: apps/erp/app/components/Assignee.tsx:110
 #: apps/erp/app/components/Assignee.tsx:147
 #: apps/erp/app/components/Form/Employee.tsx:44
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:289
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:211
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:216
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:317
 #: apps/erp/app/modules/quality/ui/Issue/IssueTask.tsx:201
 #: apps/erp/app/routes/x+/job+/$jobId.picking-lists.tsx:177
 msgid "Unassigned"
@@ -14447,10 +14512,7 @@ msgstr "यूनिट मूल्य"
 msgid "Unit Sale Price"
 msgstr "यूनिट विक्रय मूल्य"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:523
-msgid "units"
-msgstr ""
-
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:958
 #: apps/erp/app/modules/items/ui/useItemsSubmodules.tsx:106
 msgid "Units"
 msgstr "इकाइयाँ"
@@ -14474,7 +14536,8 @@ msgstr "असीमित कार्यात्मक समर्थन"
 msgid "Unlink"
 msgstr "अनलिंक करें"
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:380
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:373
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListLines.tsx:616
 msgid "Unpick"
 msgstr ""
 
@@ -14728,6 +14791,10 @@ msgstr "डिफ़ॉल्ट सामग्री आयामों के
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:266
 msgid "Use picking lists"
+msgstr ""
+
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:375
+msgid "Use the header menu to release, confirm, or reverse this picking list."
 msgstr ""
 
 #: apps/erp/app/routes/x+/part+/$itemId.tsx:166
@@ -15065,7 +15132,7 @@ msgstr "इस शिपमेंट को रद्द करने से:"
 msgid "Walking order"
 msgstr ""
 
-#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:201
+#: apps/erp/app/modules/inventory/ui/PickingLists/PickingListProperties.tsx:285
 msgid "Warehouse"
 msgstr ""
 
@@ -15329,9 +15396,9 @@ msgstr "वर्कफ़्लो"
 msgid "Worst Performing Machines"
 msgstr "सबसे खराब प्रदर्शन करने वाली मशीनें"
 
-#. placeholder {0}: (line as any).item?.readableId
-#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:160
-msgid "Wrong item - expected {0}"
+#. placeholder {0}: (line as any).item?.readableId ?? itemId
+#: apps/erp/app/routes/x+/picking-list+/$id.scan.$lineId.tsx:269
+msgid "Wrong item — expected {0}"
 msgstr ""
 
 #: apps/erp/app/modules/people/ui/Holidays/HolidaysTable.tsx:46
