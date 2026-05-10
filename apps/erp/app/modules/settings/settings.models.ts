@@ -184,11 +184,8 @@ export const materialUnitsValidator = z.object({
 });
 
 export {
-  assignmentSettingsValidator,
-  autoPrintSettingsValidator,
-  locationOverrideValidator,
   printerRouteValidator,
-  workCenterOverrideValidator
+  updateAssignmentValidator
 } from "@carbon/printing";
 
 export const productLabelSizeValidator = z.object({

@@ -532,10 +532,6 @@ msgstr "Agregar Línea"
 msgid "Add Line Item"
 msgstr "Agregar Artículo de Línea"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1134
-msgid "Add Location Override"
-msgstr ""
-
 #: apps/erp/app/components/RichText.tsx:81
 msgid "Add Note"
 msgstr "Agregar Nota"
@@ -555,13 +551,6 @@ msgstr "Agregar Operación"
 msgid "Add options above first"
 msgstr "Agregue opciones arriba primero"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:824
-#: apps/erp/app/routes/x+/settings+/printing.tsx:914
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1166
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1228
-msgid "Add Override"
-msgstr ""
-
 #: apps/erp/app/modules/resources/ui/Training/TrainingExplorer.tsx:672
 msgid "Add Pair"
 msgstr "Agregar par"
@@ -579,9 +568,9 @@ msgstr "Agregar Socio"
 msgid "Add Permissions"
 msgstr "Agregar Permisos"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:672
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1050
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1104
+#: apps/erp/app/routes/x+/settings+/printing.tsx:442
+#: apps/erp/app/routes/x+/settings+/printing.tsx:579
+#: apps/erp/app/routes/x+/settings+/printing.tsx:632
 msgid "Add Printer"
 msgstr ""
 
@@ -653,10 +642,6 @@ msgstr "Agregar Tarjeta de Tiempo"
 #: apps/erp/app/modules/production/ui/Jobs/JobHeader.tsx:1165
 msgid "Add to stock for future use"
 msgstr "Agregar al inventario para uso futuro"
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1196
-msgid "Add Work Center Override"
-msgstr ""
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceLineForm.tsx:521
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:605
@@ -738,10 +723,6 @@ msgstr "Todos los artículos"
 msgid "All jobs completed"
 msgstr "Todos los trabajos completados"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1077
-msgid "All locations"
-msgstr ""
-
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleForm.tsx:121
 msgid "All members of selected groups and selected individuals will be able to approve requests"
 msgstr "Todos los miembros de los grupos seleccionados e individuos seleccionados podrán aprobar solicitudes"
@@ -808,13 +789,9 @@ msgstr "Documentación de API"
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:182
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:195
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:203
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1088
+#: apps/erp/app/routes/x+/settings+/printing.tsx:616
 msgid "API Key"
 msgstr "Clave API"
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:706
-msgid "API Key: ••••••"
-msgstr ""
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:101
@@ -1175,8 +1152,8 @@ msgid "Are you sure you want to delete the pricing rule: {0}? This cannot be und
 msgstr "¿Estás seguro de que deseas eliminar la regla de precios: {0}? Esto no se puede deshacer."
 
 #. placeholder {0}: printerToDelete.name
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1241
-msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments or overrides referencing this printer will be cleared. This cannot be undone."
+#: apps/erp/app/routes/x+/settings+/printing.tsx:646
+msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
 msgstr ""
 
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
@@ -1388,8 +1365,8 @@ msgstr "Pregunta cualquier cosa"
 msgid "Assembly:"
 msgstr "Ensamblaje:"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:778
-msgid "Assign each document type to a printer and choose the generation template. Leave template blank for the built-in generator, or enter a BinderyPress template ID."
+#: apps/erp/app/routes/x+/settings+/printing.tsx:524
+msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
 msgstr ""
 
 #: apps/erp/app/modules/quality/ui/Issue/Jira/CreateIssue.tsx:103
@@ -1444,6 +1421,7 @@ msgstr "Asignación"
 
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:76
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:47
+#: apps/erp/app/routes/x+/settings+/printing.tsx:521
 msgid "Assignments"
 msgstr "Asignaciones"
 
@@ -1528,14 +1506,6 @@ msgstr "Iniciar Trabajo Automáticamente"
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:322
 msgid "Auto-generated QR Code"
 msgstr "Código QR generado automáticamente"
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1000
-msgid "Auto-Print"
-msgstr ""
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1003
-msgid "Automatically print labels when business events occur."
-msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:304
 msgid "Automatically release the job when the kanban is scanned"
@@ -1973,9 +1943,7 @@ msgstr "No se puede desactivar el único intervalo activo. Agregue otro interval
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:220
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:618
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:700
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1101
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1163
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1225
+#: apps/erp/app/routes/x+/settings+/printing.tsx:629
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:368
 msgid "Cancel"
 msgstr "Cancelar"
@@ -2507,10 +2475,6 @@ msgstr "Configura notificaciones para cuando se crean despachos de mantenimiento
 #: apps/erp/app/routes/x+/settings+/resources.tsx:360
 msgid "Configure notifications for when new suggestions are submitted."
 msgstr "Configura notificaciones para cuando se envíen nuevas sugerencias."
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:661
-msgid "Configure physical printers. Each printer has a format, media size, and endpoint URL."
-msgstr ""
 
 #: apps/erp/app/routes/x+/settings+/production.tsx:214
 msgid "Configure the content displayed on job traveler PDFs."
@@ -3817,7 +3781,7 @@ msgstr "Define cuántas entidades rastreadas se inspeccionan por lote y cuántas
 #: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:236
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:234
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:747
-#: apps/erp/app/routes/x+/settings+/printing.tsx:746
+#: apps/erp/app/routes/x+/settings+/printing.tsx:500
 msgid "Delete"
 msgstr "Eliminar"
 
@@ -4377,11 +4341,6 @@ msgstr "Documento"
 msgid "Document Control"
 msgstr "Control de Documentos"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1146
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1208
-msgid "Document Type"
-msgstr ""
-
 #: apps/erp/app/components/OnshapeSync.tsx:260
 msgid "Document:"
 msgstr "Documento:"
@@ -4542,7 +4501,7 @@ msgstr "Duplicar a..."
 msgid "Duration"
 msgstr "Duración"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1059
+#: apps/erp/app/routes/x+/settings+/printing.tsx:588
 msgid "e.g. Zebra 2x1"
 msgstr ""
 
@@ -6132,7 +6091,7 @@ msgid "Forgot to Clock Out?"
 msgstr "¿Olvidaste marcar la salida?"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:461
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1063
+#: apps/erp/app/routes/x+/settings+/printing.tsx:592
 msgid "Format"
 msgstr "Formato"
 
@@ -7292,7 +7251,7 @@ msgstr "Más información"
 msgid "Leave any related receipts untouched"
 msgstr "Dejar los recibos relacionados sin tocar"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1279
+#: apps/erp/app/routes/x+/settings+/printing.tsx:605
 msgid "Leave blank for built-in"
 msgstr ""
 
@@ -7490,8 +7449,6 @@ msgstr "Cargando..."
 #: apps/erp/app/modules/users/ui/Employees/CreateEmployeeModal.tsx:83
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:820
 #: apps/erp/app/routes/x+/schedule+/operations.tsx:451
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1075
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1141
 #: apps/erp/app/routes/x+/users+/operators.new.tsx:158
 msgid "Location"
 msgstr "Ubicación"
@@ -7499,10 +7456,6 @@ msgstr "Ubicación"
 #: apps/erp/app/modules/resources/ui/Locations/LocationForm.tsx:99
 msgid "Location Name"
 msgstr "Nombre de Ubicación"
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:810
-msgid "Location Overrides"
-msgstr ""
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierLocations.tsx:84
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierSidebar/useSupplierSidebar.tsx:46
@@ -7954,7 +7907,7 @@ msgstr "Tiempo Medio de Reparación"
 msgid "Measurement Standard"
 msgstr "Estándar de Medición"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1070
+#: apps/erp/app/routes/x+/settings+/printing.tsx:599
 msgid "Media Size"
 msgstr ""
 
@@ -8173,9 +8126,7 @@ msgstr "Lunes"
 #: apps/erp/app/routes/x+/quality+/_index.tsx:522
 #: apps/erp/app/routes/x+/resources+/_index.tsx:496
 #: apps/erp/app/routes/x+/sales+/_index.tsx:521
-#: apps/erp/app/routes/x+/settings+/printing.tsx:717
-#: apps/erp/app/routes/x+/settings+/printing.tsx:857
-#: apps/erp/app/routes/x+/settings+/printing.tsx:947
+#: apps/erp/app/routes/x+/settings+/printing.tsx:471
 msgid "More"
 msgstr "Más"
 
@@ -8333,7 +8284,7 @@ msgstr "Mi Vista Guardada"
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:35
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:118
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:76
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1058
+#: apps/erp/app/routes/x+/settings+/printing.tsx:587
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:505
 #: apps/erp/app/routes/x+/settings+/sales.tsx:444
 msgid "Name"
@@ -8891,8 +8842,8 @@ msgstr "Sin imagen"
 msgid "No issue types configured"
 msgstr "No hay tipos de problemas configurados"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:889
-msgid "No location overrides configured."
+#: apps/erp/app/routes/x+/settings+/printing.tsx:554
+msgid "No locations found."
 msgstr ""
 
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:236
@@ -8966,7 +8917,7 @@ msgstr "Sin precios para la cantidad seleccionada"
 msgid "No pricing options found"
 msgstr "No se encontraron opciones de precios"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:756
+#: apps/erp/app/routes/x+/settings+/printing.tsx:509
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr ""
 
@@ -9025,10 +8976,6 @@ msgstr "No se necesita valor"
 msgid "No values available"
 msgstr "No hay valores disponibles"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:979
-msgid "No work center overrides configured."
-msgstr ""
-
 #: apps/erp/app/routes/x+/production+/_index.tsx:158
 msgid "No work center utilization data within range"
 msgstr "No hay datos de utilización del centro de trabajo dentro del rango"
@@ -9077,6 +9024,7 @@ msgstr "Costo de Complemento No Gravable"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:89
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteFinalizeModal.tsx:78
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:138
+#: apps/erp/app/routes/x+/settings+/printing.tsx:334
 msgid "None"
 msgstr "Ninguno"
 
@@ -9384,7 +9332,7 @@ msgstr "Oportunidad"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:257
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1089
+#: apps/erp/app/routes/x+/settings+/printing.tsx:617
 #: packages/react/src/Form/FormLabel.tsx:44
 msgid "Optional"
 msgstr "Opcional"
@@ -9516,14 +9464,6 @@ msgstr "Anular precio para un cliente individual"
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:166
 msgid "Override price for all customers of a type"
 msgstr "Anular precio para todos los clientes de un tipo"
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:813
-msgid "Override the default printer for specific locations. The generation template from the template assignment is preserved."
-msgstr ""
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:903
-msgid "Override the default printer for specific work centers. The generation template from the template assignment is preserved."
-msgstr ""
 
 #: apps/erp/app/modules/inventory/ui/Traceability/EditExpiryModal.tsx:68
 msgid "Override the expiration on {label}."
@@ -9717,7 +9657,7 @@ msgstr "Términos de Pago"
 msgid "PDF"
 msgstr "PDF"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:512
+#: apps/erp/app/routes/x+/settings+/printing.tsx:320
 msgid "PDF (Document)"
 msgstr ""
 
@@ -9792,6 +9732,10 @@ msgstr "Foto eliminada correctamente"
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:100
 msgid "Photo uploaded successfully"
 msgstr "Foto cargada exitosamente"
+
+#: apps/erp/app/routes/x+/settings+/printing.tsx:434
+msgid "Physical printers available for assignment."
+msgstr ""
 
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:376
 msgid "Pick"
@@ -10095,39 +10039,21 @@ msgstr ""
 msgid "Print Label"
 msgstr "Imprimir Etiqueta"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1012
-msgid "Print labels when receipts are posted"
-msgstr ""
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1016
-msgid "Print labels when shipments are posted"
-msgstr ""
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1020
-msgid "Print labels when tracked parts are completed"
-msgstr ""
-
 #. placeholder {0}: viewContent.contentType?.toUpperCase()
 #: apps/erp/app/modules/settings/ui/Printing/PrintJobsTable.tsx:450
 msgid "Print Output ({0})"
 msgstr ""
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1151
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1213
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1273
-msgid "Printer"
-msgstr ""
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1083
+#: apps/erp/app/routes/x+/settings+/printing.tsx:611
 msgid "Printer URL"
 msgstr ""
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:658
+#: apps/erp/app/routes/x+/settings+/printing.tsx:431
 msgid "Printers"
 msgstr ""
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:66
-#: apps/erp/app/routes/x+/settings+/printing.tsx:644
+#: apps/erp/app/routes/x+/settings+/printing.tsx:417
 msgid "Printing"
 msgstr ""
 
@@ -10988,8 +10914,6 @@ msgstr "Recuerda este PIN. Lo necesitarás para salir del modo consola en termin
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:211
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:247
 #: apps/erp/app/routes/share+/quote.$id.tsx:927
-#: apps/erp/app/routes/x+/settings+/printing.tsx:878
-#: apps/erp/app/routes/x+/settings+/printing.tsx:968
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -11752,8 +11676,6 @@ msgstr "Sábado"
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:202
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:262
 #: apps/erp/app/routes/x+/settings+/labels.tsx:146
-#: apps/erp/app/routes/x+/settings+/printing.tsx:799
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1026
 #: apps/erp/app/routes/x+/settings+/production.tsx:202
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:526
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:581
@@ -13568,12 +13490,8 @@ msgstr "Impuesto:"
 msgid "Temperature"
 msgstr "Temperatura"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1278
-msgid "Template"
-msgstr ""
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:775
-msgid "Templates"
+#: apps/erp/app/routes/x+/settings+/printing.tsx:604
+msgid "Template ID"
 msgstr ""
 
 #: apps/erp/app/components/AvatarMenu.tsx:236
@@ -13584,7 +13502,7 @@ msgstr "Términos y Privacidad"
 msgid "Terms of Service"
 msgstr "Términos de Servicio"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:733
+#: apps/erp/app/routes/x+/settings+/printing.tsx:487
 msgid "Test"
 msgstr ""
 
@@ -14850,7 +14768,7 @@ msgstr "Ver RFQs Abiertos"
 msgid "View Permissions"
 msgstr "Permisos de visualización"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:648
+#: apps/erp/app/routes/x+/settings+/printing.tsx:421
 msgid "View Prints"
 msgstr ""
 
@@ -15182,13 +15100,8 @@ msgstr "Marca de Texto Modo Claro"
 #: apps/erp/app/modules/resources/ui/WorkCenters/WorkCentersTable.tsx:322
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2082
 #: apps/erp/app/routes/x+/resources+/_index.tsx:739
-#: apps/erp/app/routes/x+/settings+/printing.tsx:1203
 msgid "Work Center"
 msgstr "Centro de Trabajo"
-
-#: apps/erp/app/routes/x+/settings+/printing.tsx:900
-msgid "Work Center Overrides"
-msgstr ""
 
 #: apps/erp/app/routes/x+/production+/_index.tsx:149
 msgid "Work Center Utilization"
@@ -15323,7 +15236,7 @@ msgstr "Tu Nombre"
 msgid "yourself"
 msgstr "ti mismo"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:511
+#: apps/erp/app/routes/x+/settings+/printing.tsx:319
 msgid "ZPL (Thermal Label)"
 msgstr ""
 

@@ -166,21 +166,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     // Auto-print labels if enabled
     try {
-      const printing = companySettings.data
-        ?.printing as PrintingSettings | null;
-      if (printing?.autoPrint?.receiptLabels) {
-        const { data: receipt } = await serviceRole
-          .from("receipt")
-          .select("locationId")
-          .eq("id", receiptId)
-          .single();
-        await trigger("print-job", {
-          sourceDocument: "Receipt",
-          sourceDocumentId: receiptId,
-          companyId,
-          userId,
-          locationId: receipt?.locationId ?? undefined
-        });
+      const { data: receipt } = await serviceRole
+        .from("receipt")
+        .select("locationId")
+        .eq("id", receiptId)
+        .single();
+      const locationId = receipt?.locationId as string | undefined;
+      if (locationId) {
+        const printing = companySettings.data
+          ?.printing as PrintingSettings | null;
+        if (printing?.assignments?.[locationId]?.receiving?.autoPrint) {
+          await trigger("print-job", {
+            sourceDocument: "Receipt",
+            sourceDocumentId: receiptId,
+            companyId,
+            userId,
+            locationId
+          });
+        }
       }
     } catch (e) {
       console.error("Auto-print failed:", e);

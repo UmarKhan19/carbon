@@ -80,30 +80,37 @@ export async function action({ request }: ActionFunctionArgs) {
     // Auto-print label if enabled
     if (completedEntityId) {
       try {
-        const { data: cs } = await serviceRole
-          .from("companySettings")
-          .select("printing")
-          .eq("id", companyId)
-          .single();
-        const printing = cs?.printing as PrintingSettings | null;
-        if (printing?.autoPrint?.operationLabels) {
-          let locationId: string | undefined;
-          if (jobOperation.data.workCenterId) {
-            const { data: wc } = await serviceRole
-              .from("workCenter")
-              .select("locationId")
-              .eq("id", jobOperation.data.workCenterId)
-              .single();
-            locationId = wc?.locationId ?? undefined;
+        let locationId: string | undefined;
+        const workCenterId = jobOperation.data.workCenterId ?? undefined;
+        if (workCenterId) {
+          const { data: wc } = await serviceRole
+            .from("workCenter")
+            .select("locationId")
+            .eq("id", workCenterId)
+            .single();
+          locationId = wc?.locationId ?? undefined;
+        }
+        if (locationId) {
+          const { data: cs } = await serviceRole
+            .from("companySettings")
+            .select("printing")
+            .eq("id", companyId)
+            .single();
+          const printing = cs?.printing as PrintingSettings | null;
+          const assignment = printing?.assignments?.[locationId];
+          const shouldAutoPrint = workCenterId
+            ? assignment?.workCenters?.[workCenterId]?.autoPrint
+            : assignment?.defaultAutoPrint;
+          if (shouldAutoPrint) {
+            await trigger("print-job", {
+              sourceDocument: "Entity",
+              sourceDocumentId: completedEntityId,
+              companyId,
+              userId,
+              locationId,
+              workCenterId
+            });
           }
-          await trigger("print-job", {
-            sourceDocument: "Entity",
-            sourceDocumentId: completedEntityId,
-            companyId,
-            userId,
-            locationId,
-            workCenterId: jobOperation.data.workCenterId ?? undefined
-          });
         }
       } catch (e) {
         console.error("Auto-print failed:", e);
@@ -170,30 +177,37 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Auto-print label if enabled (Batch)
     try {
-      const { data: cs } = await serviceRole
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-      const printing = cs?.printing as PrintingSettings | null;
-      if (printing?.autoPrint?.operationLabels) {
-        let batchLocationId: string | undefined;
-        if (jobOperation.data.workCenterId) {
-          const { data: wc } = await serviceRole
-            .from("workCenter")
-            .select("locationId")
-            .eq("id", jobOperation.data.workCenterId)
-            .single();
-          batchLocationId = wc?.locationId ?? undefined;
+      let batchLocationId: string | undefined;
+      const workCenterId = jobOperation.data.workCenterId ?? undefined;
+      if (workCenterId) {
+        const { data: wc } = await serviceRole
+          .from("workCenter")
+          .select("locationId")
+          .eq("id", workCenterId)
+          .single();
+        batchLocationId = wc?.locationId ?? undefined;
+      }
+      if (batchLocationId) {
+        const { data: cs } = await serviceRole
+          .from("companySettings")
+          .select("printing")
+          .eq("id", companyId)
+          .single();
+        const printing = cs?.printing as PrintingSettings | null;
+        const assignment = printing?.assignments?.[batchLocationId];
+        const shouldAutoPrint = workCenterId
+          ? assignment?.workCenters?.[workCenterId]?.autoPrint
+          : assignment?.defaultAutoPrint;
+        if (shouldAutoPrint) {
+          await trigger("print-job", {
+            sourceDocument: "Operation",
+            sourceDocumentId: validation.data.jobOperationId,
+            companyId,
+            userId,
+            locationId: batchLocationId,
+            workCenterId
+          });
         }
-        await trigger("print-job", {
-          sourceDocument: "Operation",
-          sourceDocumentId: validation.data.jobOperationId,
-          companyId,
-          userId,
-          locationId: batchLocationId,
-          workCenterId: jobOperation.data.workCenterId ?? undefined
-        });
       }
     } catch (e) {
       console.error("Auto-print failed:", e);

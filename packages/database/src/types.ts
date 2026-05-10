@@ -25093,6 +25093,7 @@ export type Database = {
           mediaSizeId: string | null
           name: string
           printerUrl: string
+          templateId: string | null
           updatedAt: string | null
         }
         Insert: {
@@ -25105,6 +25106,7 @@ export type Database = {
           mediaSizeId?: string | null
           name: string
           printerUrl: string
+          templateId?: string | null
           updatedAt?: string | null
         }
         Update: {
@@ -25117,6 +25119,7 @@ export type Database = {
           mediaSizeId?: string | null
           name?: string
           printerUrl?: string
+          templateId?: string | null
           updatedAt?: string | null
         }
         Relationships: [
@@ -36290,6 +36293,48 @@ export type Database = {
             referencedColumns: ["userId"]
           },
         ]
+      }
+      searchIndex_3RP494XycdZHzZwvB6g2As: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
       }
       searchIndexRegistry: {
         Row: {

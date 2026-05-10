@@ -2,12 +2,9 @@ export { sendToProxyBox } from "./delivery/proxybox";
 export { renderWithBinderyPress } from "./generation/binderypress";
 
 export {
-  assignmentSettingsValidator,
-  autoPrintSettingsValidator,
-  locationOverrideValidator,
   printerRouteValidator,
   reprintValidator,
-  workCenterOverrideValidator
+  updateAssignmentValidator
 } from "./models";
 export type {
   DocumentTypeDefinition,
@@ -36,11 +33,12 @@ export {
   upsertPrinterRoute
 } from "./service";
 export type {
+  ContextAssignment,
+  LocationAssignment,
   PrinterRoute,
   PrintingSettings,
   PrintJob,
   PrintJobContentType,
   PrintJobOrigin,
-  PrintJobStatus,
-  TemplateAssignment
+  PrintJobStatus
 } from "./types";

@@ -404,31 +404,15 @@ export async function seedPrinting(
     `UPDATE "companySettings" SET printing = $1, "productLabelSize" = 'label2x1', "kanbanOutput" = 'url' WHERE id = $2`,
     [
       JSON.stringify({
-        autoPrint: {
-          receiptLabels: true,
-          shipmentLabels: true,
-          operationLabels: true
-        },
-        assignments: {
-          productLabel: {
-            templateId: "carbon:product-label-2x1",
-            printerRouteId: null
-          },
-          kanbanCard: {
-            templateId: "carbon:kanban-letter",
-            printerRouteId: null
-          }
-        },
-        locationOverrides: {},
-        workCenterOverrides: {}
+        assignments: {}
       }),
       companyId
     ]
   );
   const printerRouteResult = await client.query(
-    `INSERT INTO "printerRoute" ("companyId", "name", "format", "mediaSizeId", "printerUrl")
-     VALUES ($1, 'Zebra 2x1', 'zpl', 'label2x1', 'https://your-proxybox-address.pbxz.cloud/api/v1/print/tag_2x1'),
-            ($1, 'Document Printer', 'pdf', NULL, 'https://your-proxybox-address.pbxz.cloud/api/v1/print/tag_BWLASER')
+    `INSERT INTO "printerRoute" ("companyId", "name", "format", "mediaSizeId", "printerUrl", "templateId")
+     VALUES ($1, 'Zebra 2x1', 'zpl', 'label2x1', 'https://your-proxybox-address.pbxz.cloud/api/v1/print/tag_2x1', 'carbon:product-label-2x1'),
+            ($1, 'Document Printer', 'pdf', NULL, 'https://your-proxybox-address.pbxz.cloud/api/v1/print/tag_BWLASER', NULL)
      RETURNING id, name`,
     [companyId]
   );
@@ -436,17 +420,24 @@ export async function seedPrinting(
   const zplRouteId = printerRouteResult.rows.find(
     (r: { name: string }) => r.name === "Zebra 2x1"
   )?.id;
-  const pdfRouteId = printerRouteResult.rows.find(
-    (r: { name: string }) => r.name === "Document Printer"
-  )?.id;
 
-  // Wire assignments to the seeded printer routes
+  // Wire the default location to use the ZPL printer with auto-print enabled
   await client.query(
-    `UPDATE "companySettings" SET printing = jsonb_set(
-      jsonb_set(printing, '{assignments,productLabel,printerRouteId}', to_jsonb($1::text)),
-      '{assignments,kanbanCard,printerRouteId}', to_jsonb($2::text)
-    ) WHERE id = $3`,
-    [zplRouteId, pdfRouteId, companyId]
+    `UPDATE "companySettings" SET printing = $1 WHERE id = $2`,
+    [
+      JSON.stringify({
+        assignments: {
+          [locationId]: {
+            defaultPrinterRouteId: zplRouteId,
+            defaultAutoPrint: true,
+            shipping: { printerRouteId: null, autoPrint: true },
+            receiving: { printerRouteId: null, autoPrint: true },
+            workCenters: {}
+          }
+        }
+      }),
+      companyId
+    ]
   );
 
   // --- Second location + receipt for testing location overrides ---
@@ -468,14 +459,18 @@ export async function seedPrinting(
   );
   const route2Id = route2Result.rows[0].id;
 
-  // Add a location override: Warehouse B -> productLabel -> Warehouse B Rollo
+  // Add Warehouse B assignment with the Rollo as default
   await client.query(
     `UPDATE "companySettings" SET printing = jsonb_set(
-      printing, '{locationOverrides}', $1::jsonb
+      printing, '{assignments,${location2Id}}', $1::jsonb
     ) WHERE id = $2`,
     [
       JSON.stringify({
-        [location2Id]: { productLabel: route2Id }
+        defaultPrinterRouteId: route2Id,
+        defaultAutoPrint: false,
+        shipping: { printerRouteId: null, autoPrint: false },
+        receiving: { printerRouteId: null, autoPrint: true },
+        workCenters: {}
       }),
       companyId
     ]

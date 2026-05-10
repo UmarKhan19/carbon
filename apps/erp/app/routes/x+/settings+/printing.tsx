@@ -1,20 +1,11 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { Input, Select, Submit, ValidatedForm, validator } from "@carbon/form";
+import type { LocationAssignment, PrintingSettings } from "@carbon/printing";
 import {
-  Boolean,
-  Input,
-  Select,
-  Submit,
-  ValidatedForm,
-  validator
-} from "@carbon/form";
-import type { PrintingSettings } from "@carbon/printing";
-import {
-  documentTypeRegistry,
-  getDocumentType,
-  getDocumentTypeOptions,
   getPrinterRoutes,
+  updateAssignmentValidator,
   upsertPrinterRoute
 } from "@carbon/printing";
 import {
@@ -23,7 +14,6 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   DropdownMenu,
@@ -41,13 +31,14 @@ import {
   ModalHeader,
   ModalTitle,
   ScrollArea,
+  Switch,
   toast,
   useDisclosure,
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuEllipsisVertical,
   LuPlay,
@@ -65,14 +56,7 @@ import {
 } from "react-router";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { getLocationsList, getWorkCentersList } from "~/modules/resources";
-import {
-  assignmentSettingsValidator,
-  autoPrintSettingsValidator,
-  getCompanySettings,
-  locationOverrideValidator,
-  printerRouteValidator,
-  workCenterOverrideValidator
-} from "~/modules/settings";
+import { getCompanySettings, printerRouteValidator } from "~/modules/settings";
 import { getUserDefaults } from "~/modules/users/users.server";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -157,88 +141,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
-    case "autoPrint": {
-      const validation = await validator(autoPrintSettingsValidator).validate(
-        formData
-      );
-
-      if (validation.error) {
-        return { success: false, message: "Invalid form data" };
-      }
-
-      const { data: existing } = await client
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-
-      const current = (existing?.printing as PrintingSettings | null) ?? {};
-
-      const settings: PrintingSettings = {
-        ...current,
-        autoPrint: {
-          receiptLabels: validation.data.receiptLabels,
-          shipmentLabels: validation.data.shipmentLabels,
-          operationLabels: validation.data.operationLabels
-        }
-      };
-
-      const result = await client
-        .from("companySettings")
-        .update({ printing: JSON.parse(JSON.stringify(settings)) })
-        .eq("id", companyId);
-
-      if (result.error)
-        return { success: false, message: result.error.message };
-
-      return { success: true, message: "Auto-print settings updated" };
-    }
-
-    case "assignments": {
-      const validation = await validator(assignmentSettingsValidator).validate(
-        formData
-      );
-
-      if (validation.error) {
-        return { success: false, message: "Invalid form data" };
-      }
-
-      const { data: existing } = await client
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-
-      const current = (existing?.printing as PrintingSettings | null) ?? {};
-
-      const assignments: Record<
-        string,
-        { printerRouteId: string | null; templateId: string | null }
-      > = {};
-      for (const dt of documentTypeRegistry) {
-        const printerRouteId =
-          (validation.data as any)[`${dt.id}_printerRouteId`] || null;
-        const templateId =
-          (validation.data as any)[`${dt.id}_templateId`] || null;
-        assignments[dt.id] = { printerRouteId, templateId };
-      }
-
-      const settings: PrintingSettings = {
-        ...current,
-        assignments
-      };
-
-      const result = await client
-        .from("companySettings")
-        .update({ printing: JSON.parse(JSON.stringify(settings)) })
-        .eq("id", companyId);
-
-      if (result.error)
-        return { success: false, message: result.error.message };
-
-      return { success: true, message: "Template assignments updated" };
-    }
-
     case "upsertRoute": {
       const validation = await validator(printerRouteValidator).validate(
         formData
@@ -256,7 +158,8 @@ export async function action({ request }: ActionFunctionArgs) {
         mediaSizeId: validation.data.mediaSizeId || null,
         printerUrl: validation.data.printerUrl,
         apiKey: validation.data.apiKey || null,
-        locationId: validation.data.locationId || null
+        locationId: validation.data.locationId || null,
+        templateId: validation.data.templateId || null
       });
 
       if (result.error)
@@ -322,16 +225,17 @@ export async function action({ request }: ActionFunctionArgs) {
       }
     }
 
-    case "addLocationOverride": {
-      const validation = await validator(locationOverrideValidator).validate(
+    case "updateAssignment": {
+      const validation = await validator(updateAssignmentValidator).validate(
         formData
       );
 
       if (validation.error) {
-        return { success: false, message: "All fields are required" };
+        return { success: false, message: "Invalid form data" };
       }
 
-      const { locationId, documentType, printerRouteId } = validation.data;
+      const { locationId, context, contextId, printerRouteId, autoPrint } =
+        validation.data;
 
       const { data: existing } = await client
         .from("companySettings")
@@ -339,153 +243,65 @@ export async function action({ request }: ActionFunctionArgs) {
         .eq("id", companyId)
         .single();
 
-      const current = (existing?.printing as PrintingSettings | null) ?? {};
-      const overrides = { ...current.locationOverrides };
-      overrides[locationId] = {
-        ...overrides[locationId],
-        [documentType]: printerRouteId
+      const current = (existing?.printing as PrintingSettings | null) ?? {
+        assignments: {}
       };
+      const assignments = { ...current.assignments };
 
-      const settings: PrintingSettings = {
-        ...current,
-        locationOverrides: overrides
-      };
+      const emptyContext = { printerRouteId: null, autoPrint: false };
+      const locationAssignment: LocationAssignment = assignments[locationId]
+        ? { ...assignments[locationId] }
+        : {
+            defaultPrinterRouteId: null,
+            defaultAutoPrint: false,
+            shipping: { ...emptyContext },
+            receiving: { ...emptyContext },
+            workCenters: {}
+          };
+
+      switch (context) {
+        case "default":
+          locationAssignment.defaultPrinterRouteId = printerRouteId || null;
+          locationAssignment.defaultAutoPrint = autoPrint;
+          break;
+        case "shipping":
+          locationAssignment.shipping = {
+            printerRouteId: printerRouteId || null,
+            autoPrint
+          };
+          break;
+        case "receiving":
+          locationAssignment.receiving = {
+            printerRouteId: printerRouteId || null,
+            autoPrint
+          };
+          break;
+        case "workCenter":
+          if (contextId) {
+            locationAssignment.workCenters = {
+              ...locationAssignment.workCenters,
+              [contextId]: {
+                printerRouteId: printerRouteId || null,
+                autoPrint
+              }
+            };
+          }
+          break;
+      }
+
+      assignments[locationId] = locationAssignment;
 
       const result = await client
         .from("companySettings")
-        .update({ printing: JSON.parse(JSON.stringify(settings)) })
+        .update({
+          printing: JSON.parse(JSON.stringify({ ...current, assignments }))
+        })
         .eq("id", companyId);
 
       if (result.error)
         return { success: false, message: result.error.message };
 
-      return { success: true, message: "Location override added" };
-    }
-
-    case "deleteLocationOverride": {
-      const locationId = formData.get("locationId") as string;
-      const documentType = formData.get("documentType") as string;
-
-      if (!locationId || !documentType) {
-        return { success: false, message: "Missing fields" };
-      }
-
-      const { data: existing } = await client
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-
-      const current = (existing?.printing as PrintingSettings | null) ?? {};
-      const overrides = { ...current.locationOverrides };
-
-      if (overrides[locationId]) {
-        const locOverride = { ...overrides[locationId] };
-        delete locOverride[documentType as keyof typeof locOverride];
-        if (Object.keys(locOverride).length === 0) {
-          delete overrides[locationId];
-        } else {
-          overrides[locationId] = locOverride;
-        }
-      }
-
-      const settings: PrintingSettings = {
-        ...current,
-        locationOverrides: overrides
-      };
-
-      const result = await client
-        .from("companySettings")
-        .update({ printing: JSON.parse(JSON.stringify(settings)) })
-        .eq("id", companyId);
-
-      if (result.error)
-        return { success: false, message: result.error.message };
-
-      return { success: true, message: "Location override removed" };
-    }
-
-    case "addOverride": {
-      const validation = await validator(workCenterOverrideValidator).validate(
-        formData
-      );
-
-      if (validation.error) {
-        return { success: false, message: "All fields are required" };
-      }
-
-      const { workCenterId, documentType, printerRouteId } = validation.data;
-
-      const { data: existing } = await client
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-
-      const current = (existing?.printing as PrintingSettings | null) ?? {};
-      const overrides = { ...current.workCenterOverrides };
-      overrides[workCenterId] = {
-        ...overrides[workCenterId],
-        [documentType]: printerRouteId
-      };
-
-      const settings: PrintingSettings = {
-        ...current,
-        workCenterOverrides: overrides
-      };
-
-      const result = await client
-        .from("companySettings")
-        .update({ printing: JSON.parse(JSON.stringify(settings)) })
-        .eq("id", companyId);
-
-      if (result.error)
-        return { success: false, message: result.error.message };
-
-      return { success: true, message: "Work center override added" };
-    }
-
-    case "deleteOverride": {
-      const workCenterId = formData.get("workCenterId") as string;
-      const documentType = formData.get("documentType") as string;
-
-      if (!workCenterId || !documentType) {
-        return { success: false, message: "Missing fields" };
-      }
-
-      const { data: existing } = await client
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-
-      const current = (existing?.printing as PrintingSettings | null) ?? {};
-      const overrides = { ...current.workCenterOverrides };
-
-      if (overrides[workCenterId]) {
-        const wcOverride = { ...overrides[workCenterId] };
-        delete wcOverride[documentType as keyof typeof wcOverride];
-        if (Object.keys(wcOverride).length === 0) {
-          delete overrides[workCenterId];
-        } else {
-          overrides[workCenterId] = wcOverride;
-        }
-      }
-
-      const settings: PrintingSettings = {
-        ...current,
-        workCenterOverrides: overrides
-      };
-
-      const result = await client
-        .from("companySettings")
-        .update({ printing: JSON.parse(JSON.stringify(settings)) })
-        .eq("id", companyId);
-
-      if (result.error)
-        return { success: false, message: result.error.message };
-
-      return { success: true, message: "Work center override removed" };
+      return { success: true, message: "Assignment updated" };
     }
   }
 
@@ -493,19 +309,11 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function PrintingSettingsRoute() {
-  const {
-    companySettings,
-    printerRoutes,
-    workCenters,
-    locations,
-    defaultLocationId
-  } = useLoaderData<typeof loader>();
+  const { companySettings, printerRoutes, workCenters, locations } =
+    useLoaderData<typeof loader>();
   const { t } = useLingui();
-  const autoPrintFetcher = useFetcher<typeof action>();
   const routeFetcher = useFetcher<typeof action>();
   const assignmentFetcher = useFetcher<typeof action>();
-  const locationOverrideFetcher = useFetcher<typeof action>();
-  const overrideFetcher = useFetcher<typeof action>();
 
   const formatOptions = [
     { value: "zpl", label: t`ZPL (Thermal Label)` },
@@ -513,8 +321,6 @@ export default function PrintingSettingsRoute() {
   ];
 
   const newPrinterDisclosure = useDisclosure();
-  const newLocationOverrideDisclosure = useDisclosure();
-  const newWorkCenterOverrideDisclosure = useDisclosure();
   const deletePrinterDisclosure = useDisclosure();
   const [printerToDelete, setPrinterToDelete] = useState<{
     id: string;
@@ -523,52 +329,35 @@ export default function PrintingSettingsRoute() {
 
   const printing = companySettings.printing as PrintingSettings | null;
 
-  const printerRouteOptions = printerRoutes.map((r) => ({
-    value: r.id,
-    label: r.name
-  }));
-
-  const workCenterOptions = workCenters.map((wc) => ({
-    value: wc.id,
-    label: wc.name
-  }));
-
-  const locationOptions = locations.map((loc) => ({
-    value: loc.id,
-    label: loc.name
-  }));
-
-  const documentTypeOptions = getDocumentTypeOptions();
-  const workCenterDocumentTypeOptions = documentTypeOptions.filter(
-    (opt) => opt.value !== "kanbanCard"
+  const printerRouteOptions = useMemo(
+    () => [
+      { value: "", label: t`None` },
+      ...printerRoutes.map((r) => ({
+        value: r.id,
+        label: r.name
+      }))
+    ],
+    [printerRoutes, t]
   );
 
-  const printerRouteMap = new Map(printerRoutes.map((r) => [r.id, r.name]));
-  const workCenterMap = new Map(workCenters.map((wc) => [wc.id, wc.name]));
-  const locationMap = new Map(locations.map((loc) => [loc.id, loc.name]));
+  const printerRouteMap = useMemo(
+    () => new Map(printerRoutes.map((r) => [r.id, r.name])),
+    [printerRoutes]
+  );
 
-  const assignmentDefaults: Record<string, string> = {};
-  for (const dt of documentTypeRegistry) {
-    assignmentDefaults[`${dt.id}_printerRouteId`] =
-      printing?.assignments?.[dt.id]?.printerRouteId ?? "";
-    assignmentDefaults[`${dt.id}_templateId`] =
-      printing?.assignments?.[dt.id]?.templateId ?? "";
-  }
-
-  useEffect(() => {
-    if (
-      autoPrintFetcher.data?.success === true &&
-      autoPrintFetcher.data?.message
-    ) {
-      toast.success(autoPrintFetcher.data.message);
+  const workCentersByLocation = useMemo(() => {
+    const map = new Map<
+      string,
+      { id: string; name: string; locationId: string | null }[]
+    >();
+    for (const wc of workCenters) {
+      if (!wc.locationId) continue;
+      const existing = map.get(wc.locationId) ?? [];
+      existing.push(wc);
+      map.set(wc.locationId, existing);
     }
-    if (
-      autoPrintFetcher.data?.success === false &&
-      autoPrintFetcher.data?.message
-    ) {
-      toast.error(autoPrintFetcher.data.message);
-    }
-  }, [autoPrintFetcher.data?.message, autoPrintFetcher.data?.success]);
+    return map;
+  }, [workCenters]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we don't need to re-run this effect when onClose changes
   useEffect(() => {
@@ -596,42 +385,26 @@ export default function PrintingSettingsRoute() {
     }
   }, [assignmentFetcher.data?.message, assignmentFetcher.data?.success]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we don't need to re-run this effect when onClose changes
-  useEffect(() => {
-    if (
-      locationOverrideFetcher.data?.success === true &&
-      locationOverrideFetcher.data?.message
-    ) {
-      toast.success(locationOverrideFetcher.data.message);
-      newLocationOverrideDisclosure.onClose();
-    }
-    if (
-      locationOverrideFetcher.data?.success === false &&
-      locationOverrideFetcher.data?.message
-    ) {
-      toast.error(locationOverrideFetcher.data.message);
-    }
-  }, [
-    locationOverrideFetcher.data?.message,
-    locationOverrideFetcher.data?.success
-  ]);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we don't need to re-run this effect when onClose changes
-  useEffect(() => {
-    if (
-      overrideFetcher.data?.success === true &&
-      overrideFetcher.data?.message
-    ) {
-      toast.success(overrideFetcher.data.message);
-      newWorkCenterOverrideDisclosure.onClose();
-    }
-    if (
-      overrideFetcher.data?.success === false &&
-      overrideFetcher.data?.message
-    ) {
-      toast.error(overrideFetcher.data.message);
-    }
-  }, [overrideFetcher.data?.message, overrideFetcher.data?.success]);
+  const submitAssignment = useCallback(
+    (data: {
+      locationId: string;
+      context: string;
+      contextId?: string;
+      printerRouteId?: string;
+      autoPrint?: boolean;
+    }) => {
+      const formData = new FormData();
+      formData.set("intent", "updateAssignment");
+      formData.set("locationId", data.locationId);
+      formData.set("context", data.context);
+      if (data.contextId) formData.set("contextId", data.contextId);
+      if (data.printerRouteId)
+        formData.set("printerRouteId", data.printerRouteId);
+      if (data.autoPrint) formData.set("autoPrint", "on");
+      assignmentFetcher.submit(formData, { method: "POST" });
+    },
+    [assignmentFetcher]
+  );
 
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
@@ -650,7 +423,7 @@ export default function PrintingSettingsRoute() {
           </Button>
         </div>
 
-        {/* Printer Routes */}
+        {/* Printers */}
         <Card>
           <HStack className="w-full justify-between items-start">
             <CardHeader>
@@ -658,10 +431,7 @@ export default function PrintingSettingsRoute() {
                 <Trans>Printers</Trans>
               </CardTitle>
               <CardDescription>
-                <Trans>
-                  Configure physical printers. Each printer has a format, media
-                  size, and endpoint URL.
-                </Trans>
+                <Trans>Physical printers available for assignment.</Trans>
               </CardDescription>
             </CardHeader>
             <CardAction className="py-6">
@@ -675,79 +445,62 @@ export default function PrintingSettingsRoute() {
           </HStack>
           <CardContent>
             {printerRoutes.length > 0 ? (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
                 {printerRoutes.map((route) => (
                   <div
                     key={route.id}
-                    className="rounded-lg border border-border p-4"
+                    className="flex items-center justify-between rounded-lg border border-border p-3"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-sm font-medium">
-                            {route.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground uppercase">
-                            {route.format}
-                          </span>
-                          {route.mediaSizeId && (
-                            <span className="text-xs text-muted-foreground">
-                              {route.mediaSizeId}
-                            </span>
-                          )}
-                          {route.locationId && (
-                            <span className="text-xs text-muted-foreground">
-                              {locationMap.get(route.locationId) ??
-                                route.locationId}
-                            </span>
-                          )}
-                          {route.apiKey && (
-                            <span className="text-xs text-muted-foreground">
-                              <Trans>API Key: ••••••</Trans>
-                            </span>
-                          )}
-                        </div>
-                        <div className="font-mono text-sm text-muted-foreground break-all">
-                          {route.printerUrl}
-                        </div>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <IconButton
-                            aria-label={t`More`}
-                            icon={<LuEllipsisVertical />}
-                            variant="ghost"
-                            size="sm"
-                          />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onSelect={() =>
-                              routeFetcher.submit(
-                                { intent: "testPrint", routeId: route.id },
-                                { method: "POST" }
-                              )
-                            }
-                          >
-                            <DropdownMenuIcon icon={<LuPlay />} />
-                            <Trans>Test</Trans>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            destructive
-                            onSelect={() => {
-                              setPrinterToDelete({
-                                id: route.id,
-                                name: route.name
-                              });
-                              deletePrinterDisclosure.onOpen();
-                            }}
-                          >
-                            <DropdownMenuIcon icon={<LuTrash />} />
-                            <Trans>Delete</Trans>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-sm font-medium">{route.name}</span>
+                      <span className="text-xs text-muted-foreground uppercase">
+                        {route.format}
+                      </span>
+                      {route.mediaSizeId && (
+                        <span className="text-xs text-muted-foreground">
+                          {route.mediaSizeId}
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground font-mono truncate max-w-[300px]">
+                        {route.printerUrl}
+                      </span>
                     </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <IconButton
+                          aria-label={t`More`}
+                          icon={<LuEllipsisVertical />}
+                          variant="ghost"
+                          size="sm"
+                        />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onSelect={() =>
+                            routeFetcher.submit(
+                              { intent: "testPrint", routeId: route.id },
+                              { method: "POST" }
+                            )
+                          }
+                        >
+                          <DropdownMenuIcon icon={<LuPlay />} />
+                          <Trans>Test</Trans>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          destructive
+                          onSelect={() => {
+                            setPrinterToDelete({
+                              id: route.id,
+                              name: route.name
+                            });
+                            deletePrinterDisclosure.onOpen();
+                          }}
+                        >
+                          <DropdownMenuIcon icon={<LuTrash />} />
+                          <Trans>Delete</Trans>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 ))}
               </div>
@@ -761,274 +514,50 @@ export default function PrintingSettingsRoute() {
           </CardContent>
         </Card>
 
-        {/* Templates */}
+        {/* Assignments */}
         <Card>
-          <ValidatedForm
-            method="post"
-            validator={assignmentSettingsValidator}
-            defaultValues={assignmentDefaults}
-            fetcher={assignmentFetcher}
-          >
-            <input type="hidden" name="intent" value="assignments" />
-            <CardHeader>
-              <CardTitle>
-                <Trans>Templates</Trans>
-              </CardTitle>
-              <CardDescription>
-                <Trans>
-                  Assign each document type to a printer and choose the
-                  generation template. Leave template blank for the built-in
-                  generator, or enter a BinderyPress template ID.
-                </Trans>
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-6">
-                {documentTypeRegistry.map((dt) => (
-                  <AssignmentRow
-                    key={dt.id}
-                    title={dt.displayName}
-                    prefix={dt.id}
-                    printerRouteOptions={printerRouteOptions}
-                  />
-                ))}
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit>
-                <Trans>Save</Trans>
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
-        </Card>
-
-        {/* Location Overrides */}
-        <Card>
-          <HStack className="w-full justify-between items-start">
-            <CardHeader>
-              <CardTitle>
-                <Trans>Location Overrides</Trans>
-              </CardTitle>
-              <CardDescription>
-                <Trans>
-                  Override the default printer for specific locations. The
-                  generation template from the template assignment is preserved.
-                </Trans>
-              </CardDescription>
-            </CardHeader>
-            <CardAction className="py-6">
-              <Button
-                leftIcon={<LuPlus />}
-                onClick={newLocationOverrideDisclosure.onOpen}
-              >
-                <Trans>Add Override</Trans>
-              </Button>
-            </CardAction>
-          </HStack>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Assignments</Trans>
+            </CardTitle>
+            <CardDescription>
+              <Trans>
+                Assign printers to locations. Shipping, receiving, and work
+                centers inherit the location default unless overridden.
+              </Trans>
+            </CardDescription>
+          </CardHeader>
           <CardContent>
-            {printing?.locationOverrides &&
-            Object.keys(printing.locationOverrides).length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {Object.entries(printing.locationOverrides).flatMap(
-                  ([locId, overrides]) =>
-                    Object.entries(overrides).map(
-                      ([docType, printerRouteId]) => (
-                        <div
-                          key={`${locId}-${docType}`}
-                          className="flex items-center justify-between rounded-lg border border-border p-3"
-                        >
-                          <div className="flex items-center gap-3 text-sm">
-                            <span className="font-medium">
-                              {locationMap.get(locId) ?? locId}
-                            </span>
-                            <span className="text-muted-foreground">→</span>
-                            <span className="text-muted-foreground">
-                              {getDocumentType(docType)?.displayName ?? docType}
-                            </span>
-                            <span className="text-muted-foreground">→</span>
-                            <span>
-                              {printerRouteMap.get(printerRouteId) ??
-                                printerRouteId}
-                            </span>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <IconButton
-                                aria-label={t`More`}
-                                icon={<LuEllipsisVertical />}
-                                variant="ghost"
-                                size="sm"
-                              />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                destructive
-                                onSelect={() =>
-                                  locationOverrideFetcher.submit(
-                                    {
-                                      intent: "deleteLocationOverride",
-                                      locationId: locId,
-                                      documentType: docType
-                                    },
-                                    { method: "POST" }
-                                  )
-                                }
-                              >
-                                <DropdownMenuIcon icon={<LuTrash />} />
-                                <Trans>Remove</Trans>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      )
-                    )
-                )}
+            {locations.length > 0 ? (
+              <div className="flex flex-col">
+                {locations.map((location) => {
+                  const assignment = printing?.assignments?.[location.id];
+                  const locationWCs =
+                    workCentersByLocation.get(location.id) ?? [];
+
+                  return (
+                    <LocationSection
+                      key={location.id}
+                      locationId={location.id}
+                      locationName={location.name}
+                      assignment={assignment ?? null}
+                      workCenters={locationWCs}
+                      printerRouteOptions={printerRouteOptions}
+                      printerRouteMap={printerRouteMap}
+                      onUpdate={submitAssignment}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                <Trans>No location overrides configured.</Trans>
+                <Trans>No locations found.</Trans>
               </p>
             )}
           </CardContent>
-        </Card>
-
-        {/* Work Center Overrides */}
-        <Card>
-          <HStack className="w-full justify-between items-start">
-            <CardHeader>
-              <CardTitle>
-                <Trans>Work Center Overrides</Trans>
-              </CardTitle>
-              <CardDescription>
-                <Trans>
-                  Override the default printer for specific work centers. The
-                  generation template from the template assignment is preserved.
-                </Trans>
-              </CardDescription>
-            </CardHeader>
-            <CardAction className="py-6">
-              <Button
-                leftIcon={<LuPlus />}
-                onClick={newWorkCenterOverrideDisclosure.onOpen}
-              >
-                <Trans>Add Override</Trans>
-              </Button>
-            </CardAction>
-          </HStack>
-          <CardContent>
-            {printing?.workCenterOverrides &&
-            Object.keys(printing.workCenterOverrides).length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {Object.entries(printing.workCenterOverrides).flatMap(
-                  ([wcId, overrides]) =>
-                    Object.entries(overrides).map(
-                      ([docType, printerRouteId]) => (
-                        <div
-                          key={`${wcId}-${docType}`}
-                          className="flex items-center justify-between rounded-lg border border-border p-3"
-                        >
-                          <div className="flex items-center gap-3 text-sm">
-                            <span className="font-medium">
-                              {workCenterMap.get(wcId) ?? wcId}
-                            </span>
-                            <span className="text-muted-foreground">→</span>
-                            <span className="text-muted-foreground">
-                              {getDocumentType(docType)?.displayName ?? docType}
-                            </span>
-                            <span className="text-muted-foreground">→</span>
-                            <span>
-                              {printerRouteMap.get(printerRouteId) ??
-                                printerRouteId}
-                            </span>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <IconButton
-                                aria-label={t`More`}
-                                icon={<LuEllipsisVertical />}
-                                variant="ghost"
-                                size="sm"
-                              />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                destructive
-                                onSelect={() =>
-                                  overrideFetcher.submit(
-                                    {
-                                      intent: "deleteOverride",
-                                      workCenterId: wcId,
-                                      documentType: docType
-                                    },
-                                    { method: "POST" }
-                                  )
-                                }
-                              >
-                                <DropdownMenuIcon icon={<LuTrash />} />
-                                <Trans>Remove</Trans>
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      )
-                    )
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                <Trans>No work center overrides configured.</Trans>
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Auto-Print Settings */}
-        <Card>
-          <ValidatedForm
-            method="post"
-            validator={autoPrintSettingsValidator}
-            defaultValues={{
-              receiptLabels: printing?.autoPrint?.receiptLabels ?? false,
-              shipmentLabels: printing?.autoPrint?.shipmentLabels ?? false,
-              operationLabels: printing?.autoPrint?.operationLabels ?? false
-            }}
-            fetcher={autoPrintFetcher}
-          >
-            <input type="hidden" name="intent" value="autoPrint" />
-            <CardHeader>
-              <CardTitle>
-                <Trans>Auto-Print</Trans>
-              </CardTitle>
-              <CardDescription>
-                <Trans>
-                  Automatically print labels when business events occur.
-                </Trans>
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-4 max-w-[400px]">
-                <Boolean
-                  name="receiptLabels"
-                  description={t`Print labels when receipts are posted`}
-                />
-                <Boolean
-                  name="shipmentLabels"
-                  description={t`Print labels when shipments are posted`}
-                />
-                <Boolean
-                  name="operationLabels"
-                  description={t`Print labels when tracked parts are completed`}
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit>
-                <Trans>Save</Trans>
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
         </Card>
       </VStack>
+
       {newPrinterDisclosure.isOpen && (
         <Modal
           open
@@ -1070,11 +599,10 @@ export default function PrintingSettingsRoute() {
                       label={t`Media Size`}
                       options={mediaSizeOptions}
                     />
-                    <Select
-                      name="locationId"
-                      label={t`Location`}
-                      options={locationOptions}
-                      placeholder={t`All locations`}
+                    <Input
+                      name="templateId"
+                      label={t`Template ID`}
+                      placeholder={t`Leave blank for built-in`}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -1109,136 +637,13 @@ export default function PrintingSettingsRoute() {
           </ModalContent>
         </Modal>
       )}
-      {newLocationOverrideDisclosure.isOpen && (
-        <Modal
-          open
-          onOpenChange={(open) => {
-            if (!open) newLocationOverrideDisclosure.onClose();
-          }}
-        >
-          <ModalContent>
-            <ValidatedForm
-              method="post"
-              validator={locationOverrideValidator}
-              fetcher={locationOverrideFetcher}
-              defaultValues={{
-                locationId: defaultLocationId ?? "",
-                documentType: "productLabel",
-                printerRouteId: ""
-              }}
-              className="flex flex-col h-full"
-            >
-              <input type="hidden" name="intent" value="addLocationOverride" />
-              <ModalHeader>
-                <ModalTitle>
-                  <Trans>Add Location Override</Trans>
-                </ModalTitle>
-              </ModalHeader>
-              <ModalBody>
-                <div className="flex flex-col gap-4">
-                  <Select
-                    name="locationId"
-                    label={t`Location`}
-                    options={locationOptions}
-                  />
-                  <Select
-                    name="documentType"
-                    label={t`Document Type`}
-                    options={documentTypeOptions}
-                  />
-                  <Select
-                    name="printerRouteId"
-                    label={t`Printer`}
-                    options={printerRouteOptions}
-                  />
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <HStack>
-                  <Button
-                    size="md"
-                    variant="solid"
-                    onClick={newLocationOverrideDisclosure.onClose}
-                  >
-                    <Trans>Cancel</Trans>
-                  </Button>
-                  <Submit>
-                    <Trans>Add Override</Trans>
-                  </Submit>
-                </HStack>
-              </ModalFooter>
-            </ValidatedForm>
-          </ModalContent>
-        </Modal>
-      )}
-      {newWorkCenterOverrideDisclosure.isOpen && (
-        <Modal
-          open
-          onOpenChange={(open) => {
-            if (!open) newWorkCenterOverrideDisclosure.onClose();
-          }}
-        >
-          <ModalContent>
-            <ValidatedForm
-              method="post"
-              validator={workCenterOverrideValidator}
-              fetcher={overrideFetcher}
-              defaultValues={{
-                workCenterId: "",
-                documentType: "productLabel",
-                printerRouteId: ""
-              }}
-              className="flex flex-col h-full"
-            >
-              <input type="hidden" name="intent" value="addOverride" />
-              <ModalHeader>
-                <ModalTitle>
-                  <Trans>Add Work Center Override</Trans>
-                </ModalTitle>
-              </ModalHeader>
-              <ModalBody>
-                <div className="flex flex-col gap-4">
-                  <Select
-                    name="workCenterId"
-                    label={t`Work Center`}
-                    options={workCenterOptions}
-                  />
-                  <Select
-                    name="documentType"
-                    label={t`Document Type`}
-                    options={workCenterDocumentTypeOptions}
-                  />
-                  <Select
-                    name="printerRouteId"
-                    label={t`Printer`}
-                    options={printerRouteOptions}
-                  />
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <HStack>
-                  <Button
-                    size="md"
-                    variant="solid"
-                    onClick={newWorkCenterOverrideDisclosure.onClose}
-                  >
-                    <Trans>Cancel</Trans>
-                  </Button>
-                  <Submit>
-                    <Trans>Add Override</Trans>
-                  </Submit>
-                </HStack>
-              </ModalFooter>
-            </ValidatedForm>
-          </ModalContent>
-        </Modal>
-      )}
+
       {deletePrinterDisclosure.isOpen && printerToDelete && (
         <ConfirmDelete
           action={path.to.deletePrinterRoute(printerToDelete.id)}
           isOpen={deletePrinterDisclosure.isOpen}
           name={printerToDelete.name}
-          text={t`Are you sure you want to delete the printer "${printerToDelete.name}"? Any assignments or overrides referencing this printer will be cleared. This cannot be undone.`}
+          text={t`Are you sure you want to delete the printer "${printerToDelete.name}"? Any assignments referencing this printer will be cleared. This cannot be undone.`}
           onCancel={() => {
             deletePrinterDisclosure.onClose();
             setPrinterToDelete(null);
@@ -1254,29 +659,258 @@ export default function PrintingSettingsRoute() {
   );
 }
 
-function AssignmentRow({
-  title,
-  prefix,
-  printerRouteOptions
+function LocationSection({
+  locationId,
+  locationName,
+  assignment,
+  workCenters,
+  printerRouteOptions,
+  printerRouteMap,
+  onUpdate
 }: {
-  title: string;
-  prefix: string;
+  locationId: string;
+  locationName: string;
+  assignment: LocationAssignment | null;
+  workCenters: { id: string; name: string }[];
   printerRouteOptions: { value: string; label: string }[];
+  printerRouteMap: Map<string, string>;
+  onUpdate: (data: {
+    locationId: string;
+    context: string;
+    contextId?: string;
+    printerRouteId?: string;
+    autoPrint?: boolean;
+  }) => void;
 }) {
-  const { t } = useLingui();
+  const defaultPrinterId = assignment?.defaultPrinterRouteId ?? null;
+  const defaultPrinterName = defaultPrinterId
+    ? (printerRouteMap.get(defaultPrinterId) ?? null)
+    : null;
+
   return (
-    <div>
-      <p className="text-sm font-medium mb-3">{title}</p>
-      <div className="grid grid-cols-2 gap-4">
-        <Select
-          name={`${prefix}_printerRouteId`}
-          label={t`Printer`}
-          options={printerRouteOptions}
-        />
-        <Input
-          name={`${prefix}_templateId`}
-          label={t`Template`}
-          placeholder={t`Leave blank for built-in`}
+    <div className="border-b border-border last:border-b-0">
+      {/* Location default */}
+      <AssignmentRow
+        label={locationName}
+        isBold
+        printerRouteId={defaultPrinterId}
+        printerName={defaultPrinterName}
+        inheritedName={null}
+        autoPrint={assignment?.defaultAutoPrint ?? false}
+        printerRouteOptions={printerRouteOptions}
+        onPrinterChange={(printerRouteId) =>
+          onUpdate({
+            locationId,
+            context: "default",
+            printerRouteId,
+            autoPrint: assignment?.defaultAutoPrint ?? false
+          })
+        }
+        onAutoPrintChange={(autoPrint) =>
+          onUpdate({
+            locationId,
+            context: "default",
+            printerRouteId: defaultPrinterId ?? undefined,
+            autoPrint
+          })
+        }
+      />
+
+      {/* Shipping */}
+      <AssignmentRow
+        label="Shipping"
+        isIndented
+        printerRouteId={assignment?.shipping?.printerRouteId ?? null}
+        printerName={
+          assignment?.shipping?.printerRouteId
+            ? (printerRouteMap.get(assignment.shipping.printerRouteId) ?? null)
+            : null
+        }
+        inheritedName={defaultPrinterName}
+        autoPrint={assignment?.shipping?.autoPrint ?? false}
+        printerRouteOptions={printerRouteOptions}
+        onPrinterChange={(printerRouteId) =>
+          onUpdate({
+            locationId,
+            context: "shipping",
+            printerRouteId,
+            autoPrint: assignment?.shipping?.autoPrint ?? false
+          })
+        }
+        onAutoPrintChange={(autoPrint) =>
+          onUpdate({
+            locationId,
+            context: "shipping",
+            printerRouteId: assignment?.shipping?.printerRouteId ?? undefined,
+            autoPrint
+          })
+        }
+      />
+
+      {/* Receiving */}
+      <AssignmentRow
+        label="Receiving"
+        isIndented
+        printerRouteId={assignment?.receiving?.printerRouteId ?? null}
+        printerName={
+          assignment?.receiving?.printerRouteId
+            ? (printerRouteMap.get(assignment.receiving.printerRouteId) ?? null)
+            : null
+        }
+        inheritedName={defaultPrinterName}
+        autoPrint={assignment?.receiving?.autoPrint ?? false}
+        printerRouteOptions={printerRouteOptions}
+        onPrinterChange={(printerRouteId) =>
+          onUpdate({
+            locationId,
+            context: "receiving",
+            printerRouteId,
+            autoPrint: assignment?.receiving?.autoPrint ?? false
+          })
+        }
+        onAutoPrintChange={(autoPrint) =>
+          onUpdate({
+            locationId,
+            context: "receiving",
+            printerRouteId: assignment?.receiving?.printerRouteId ?? undefined,
+            autoPrint
+          })
+        }
+      />
+
+      {/* Work Centers */}
+      {workCenters.map((wc) => {
+        const wcAssignment = assignment?.workCenters?.[wc.id];
+        return (
+          <AssignmentRow
+            key={wc.id}
+            label={wc.name}
+            prefix="WC"
+            isIndented
+            printerRouteId={wcAssignment?.printerRouteId ?? null}
+            printerName={
+              wcAssignment?.printerRouteId
+                ? (printerRouteMap.get(wcAssignment.printerRouteId) ?? null)
+                : null
+            }
+            inheritedName={defaultPrinterName}
+            autoPrint={wcAssignment?.autoPrint ?? false}
+            printerRouteOptions={printerRouteOptions}
+            onPrinterChange={(printerRouteId) =>
+              onUpdate({
+                locationId,
+                context: "workCenter",
+                contextId: wc.id,
+                printerRouteId,
+                autoPrint: wcAssignment?.autoPrint ?? false
+              })
+            }
+            onAutoPrintChange={(autoPrint) =>
+              onUpdate({
+                locationId,
+                context: "workCenter",
+                contextId: wc.id,
+                printerRouteId: wcAssignment?.printerRouteId ?? undefined,
+                autoPrint
+              })
+            }
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function AssignmentRow({
+  label,
+  prefix,
+  isBold,
+  isIndented,
+  printerRouteId,
+  printerName,
+  inheritedName,
+  autoPrint,
+  printerRouteOptions,
+  onPrinterChange,
+  onAutoPrintChange
+}: {
+  label: string;
+  prefix?: string;
+  isBold?: boolean;
+  isIndented?: boolean;
+  printerRouteId: string | null;
+  printerName: string | null;
+  inheritedName: string | null;
+  autoPrint: boolean;
+  printerRouteOptions: { value: string; label: string }[];
+  onPrinterChange: (printerRouteId: string) => void;
+  onAutoPrintChange: (autoPrint: boolean) => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  const displayState = printerRouteId
+    ? ("assigned" as const)
+    : inheritedName
+      ? ("inherited" as const)
+      : ("missing" as const);
+
+  return (
+    <div
+      className={`flex items-center justify-between py-2.5 ${isIndented ? "pl-7" : ""} ${!isBold ? "border-t border-border/50" : ""}`}
+    >
+      <div className="flex items-center gap-2">
+        {prefix && (
+          <span className="text-xs text-muted-foreground">{prefix}</span>
+        )}
+        <span
+          className={`text-sm ${isBold ? "font-medium" : "text-muted-foreground"}`}
+        >
+          {label}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-4">
+        {isEditing ? (
+          <select
+            className="text-sm border border-border rounded-md px-2 py-1 bg-background"
+            value={printerRouteId ?? ""}
+            onChange={(e) => {
+              onPrinterChange(e.target.value);
+              setIsEditing(false);
+            }}
+            onBlur={() => setIsEditing(false)}
+            autoFocus
+          >
+            {printerRouteOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <button
+            type="button"
+            className="text-sm cursor-pointer hover:underline"
+            onClick={() => setIsEditing(true)}
+          >
+            {displayState === "assigned" && (
+              <span className="text-foreground">{printerName}</span>
+            )}
+            {displayState === "inherited" && (
+              <span className="text-muted-foreground italic">
+                inherits {inheritedName}
+              </span>
+            )}
+            {displayState === "missing" && (
+              <span className="text-destructive">No printer</span>
+            )}
+          </button>
+        )}
+
+        <Switch
+          variant="small"
+          checked={autoPrint}
+          onCheckedChange={onAutoPrintChange}
         />
       </div>
     </div>

@@ -136,19 +136,29 @@ async function processDocumentType(
     mediaSizeId: fallbackMediaSizeId
   } = ctx;
 
-  const assignment = printing?.assignments?.[docType.id] ?? null;
-  const templateId = assignment?.templateId ?? null;
+  const locationAssignment = locationId
+    ? (printing?.assignments?.[locationId] ?? null)
+    : null;
 
-  const printerRouteId =
-    (workCenterId &&
-      printing?.workCenterOverrides?.[workCenterId]?.[docType.id]) ||
-    (locationId && printing?.locationOverrides?.[locationId]?.[docType.id]) ||
-    assignment?.printerRouteId ||
-    null;
+  let printerRouteId: string | null = null;
+  if (locationAssignment) {
+    if (sourceDocument === "Shipment") {
+      printerRouteId = locationAssignment.shipping.printerRouteId;
+    } else if (sourceDocument === "Receipt") {
+      printerRouteId = locationAssignment.receiving.printerRouteId;
+    } else if (workCenterId) {
+      printerRouteId =
+        locationAssignment.workCenters[workCenterId]?.printerRouteId ?? null;
+    }
+    if (!printerRouteId) {
+      printerRouteId = locationAssignment.defaultPrinterRouteId;
+    }
+  }
 
   let printerUrl = "";
   let format: "zpl" | "pdf" = docType.defaultFormat;
   let mediaSizeId = fallbackMediaSizeId;
+  let templateId: string | null = null;
 
   if (printerRouteId) {
     const { data: route } = await getPrinterRoute(
@@ -160,6 +170,7 @@ async function processDocumentType(
       printerUrl = route.printerUrl;
       format = route.format as "zpl" | "pdf";
       if (route.mediaSizeId) mediaSizeId = route.mediaSizeId;
+      templateId = route.templateId ?? null;
     }
   }
 

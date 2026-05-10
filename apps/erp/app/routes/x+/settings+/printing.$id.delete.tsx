@@ -40,51 +40,39 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     if (settings.assignments) {
       const assignments = { ...settings.assignments };
-      for (const [dtId, assignment] of Object.entries(assignments)) {
-        if (assignment?.printerRouteId === id) {
-          assignments[dtId] = { ...assignment, printerRouteId: null };
+      for (const [locId, location] of Object.entries(assignments)) {
+        if (!location) continue;
+        const loc = { ...location };
+
+        if (loc.defaultPrinterRouteId === id) {
+          loc.defaultPrinterRouteId = null;
           dirty = true;
         }
+
+        if (loc.shipping?.printerRouteId === id) {
+          loc.shipping = { ...loc.shipping, printerRouteId: null };
+          dirty = true;
+        }
+
+        if (loc.receiving?.printerRouteId === id) {
+          loc.receiving = { ...loc.receiving, printerRouteId: null };
+          dirty = true;
+        }
+
+        if (loc.workCenters) {
+          const workCenters = { ...loc.workCenters };
+          for (const [wcId, wc] of Object.entries(workCenters)) {
+            if (wc?.printerRouteId === id) {
+              workCenters[wcId] = { ...wc, printerRouteId: null };
+              dirty = true;
+            }
+          }
+          loc.workCenters = workCenters;
+        }
+
+        assignments[locId] = loc;
       }
       settings.assignments = assignments;
-    }
-
-    if (settings.locationOverrides) {
-      const overrides = { ...settings.locationOverrides };
-      for (const [locId, locOverride] of Object.entries(overrides)) {
-        const cleaned = { ...locOverride };
-        for (const [lt, prId] of Object.entries(cleaned)) {
-          if (prId === id) {
-            delete cleaned[lt as keyof typeof cleaned];
-            dirty = true;
-          }
-        }
-        if (Object.keys(cleaned).length === 0) {
-          delete overrides[locId];
-        } else {
-          overrides[locId] = cleaned;
-        }
-      }
-      settings.locationOverrides = overrides;
-    }
-
-    if (settings.workCenterOverrides) {
-      const overrides = { ...settings.workCenterOverrides };
-      for (const [wcId, wcOverride] of Object.entries(overrides)) {
-        const cleaned = { ...wcOverride };
-        for (const [lt, prId] of Object.entries(cleaned)) {
-          if (prId === id) {
-            delete cleaned[lt as keyof typeof cleaned];
-            dirty = true;
-          }
-        }
-        if (Object.keys(cleaned).length === 0) {
-          delete overrides[wcId];
-        } else {
-          overrides[wcId] = cleaned;
-        }
-      }
-      settings.workCenterOverrides = overrides;
     }
 
     if (dirty) {

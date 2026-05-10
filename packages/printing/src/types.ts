@@ -1,17 +1,18 @@
-export type TemplateAssignment = {
+export type ContextAssignment = {
   printerRouteId: string | null;
-  templateId: string | null; // null = built-in, string = BinderyPress template ID
+  autoPrint: boolean;
+};
+
+export type LocationAssignment = {
+  defaultPrinterRouteId: string | null;
+  defaultAutoPrint: boolean;
+  shipping: ContextAssignment;
+  receiving: ContextAssignment;
+  workCenters: Record<string, ContextAssignment>;
 };
 
 export type PrintingSettings = {
-  autoPrint: {
-    receiptLabels: boolean;
-    shipmentLabels: boolean;
-    operationLabels: boolean;
-  } | null;
-  assignments: Record<string, TemplateAssignment | null> | null;
-  locationOverrides: Record<string, Record<string, string>> | null;
-  workCenterOverrides: Record<string, Record<string, string>> | null;
+  assignments: Record<string, LocationAssignment>;
 };
 
 export type PrinterRoute = {
@@ -23,6 +24,7 @@ export type PrinterRoute = {
   mediaSizeId: string | null;
   printerUrl: string;
   apiKey: string | null;
+  templateId: string | null;
 };
 
 export type PrintJobStatus =
