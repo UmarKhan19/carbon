@@ -40,19 +40,19 @@ function QuantityEdgeImpl({
   const isBackEdge = !!data?.isBackEdge;
   const dimmed = !!data?.dimmed;
   const highlighted = !!data?.highlighted;
-  const strokeWidth = highlighted ? 2.5 : isReject ? 1.5 : 1;
+  const strokeWidth = highlighted ? 2.5 : isReject ? 1.75 : 1.5;
   const stroke = highlighted
     ? "hsl(0 0% 92%)"
     : isReject
       ? "hsl(0 72% 55%)"
-      : "hsl(0 0% 45%)";
+      : "hsl(0 0% 65%)";
   const baseOpacity = highlighted
     ? 1
     : isReject
-      ? 0.85
+      ? 0.9
       : isBackEdge
-        ? 0.2
-        : 0.4;
+        ? 0.25
+        : 0.75;
 
   return (
     <>

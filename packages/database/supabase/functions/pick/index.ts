@@ -787,9 +787,8 @@ async function confirmPickingList(_client: any, payload: any) {
         // MES Issue pattern so the traceability graph renders identically
         // for tracked and untracked jobs. pickResult entities are filtered
         // out of inventory listings by getTrackedEntities.
-        let outputEntityId = parentEntityId;
-        if (!outputEntityId) {
-          outputEntityId = nanoid();
+        const outputEntityId: string = parentEntityId ?? nanoid();
+        if (!parentEntityId) {
           await trx
             .insertInto("trackedEntity")
             .values({
