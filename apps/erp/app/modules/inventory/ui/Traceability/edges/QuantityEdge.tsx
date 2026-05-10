@@ -40,19 +40,23 @@ function QuantityEdgeImpl({
   const isBackEdge = !!data?.isBackEdge;
   const dimmed = !!data?.dimmed;
   const highlighted = !!data?.highlighted;
-  const strokeWidth = highlighted ? 2.5 : isReject ? 1.5 : 1;
+  const strokeWidth = highlighted ? 2.5 : isReject ? 1.75 : 1.5;
+  // Use the theme foreground so the stroke adapts to light/dark and renders
+  // with sufficient contrast on both Mac and Windows displays. The previous
+  // hardcoded hsl(0 0% 45%) at 0.4 opacity dropped below the perception
+  // threshold on most Windows monitors, making edges look invisible.
   const stroke = highlighted
-    ? "hsl(0 0% 92%)"
+    ? "hsl(var(--foreground))"
     : isReject
       ? "hsl(0 72% 55%)"
-      : "hsl(0 0% 45%)";
+      : "hsl(var(--foreground))";
   const baseOpacity = highlighted
     ? 1
     : isReject
-      ? 0.85
+      ? 0.9
       : isBackEdge
-        ? 0.2
-        : 0.4;
+        ? 0.3
+        : 0.65;
 
   return (
     <>
