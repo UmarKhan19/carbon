@@ -423,7 +423,7 @@ export default function PrintingSettingsRoute() {
           <Heading size="h3">
             <Trans>Printing</Trans>
           </Heading>
-          <Button leftIcon={<LuPrinter />} asChild>
+          <Button variant="secondary" leftIcon={<LuPrinter />} asChild>
             <Link to={path.to.printingSettingsJobs}>
               <Trans>View Prints</Trans>
             </Link>
@@ -704,7 +704,6 @@ function LocationSection({
         icon={<LuMapPin />}
         isBold
         printerRouteId={defaultPrinterId}
-        printerName={defaultPrinterName}
         inheritedName={null}
         autoPrint={assignment?.defaultAutoPrint ?? false}
         printerRouteOptions={printerRouteOptions}
@@ -713,7 +712,9 @@ function LocationSection({
             locationId,
             context: "default",
             printerRouteId,
-            autoPrint: assignment?.defaultAutoPrint ?? false
+            autoPrint: printerRouteId
+              ? true
+              : (assignment?.defaultAutoPrint ?? false)
           })
         }
         onAutoPrintChange={(autoPrint) =>
@@ -732,11 +733,6 @@ function LocationSection({
         icon={<LuTruck />}
         isIndented
         printerRouteId={assignment?.shipping?.printerRouteId ?? null}
-        printerName={
-          assignment?.shipping?.printerRouteId
-            ? (printerRouteMap.get(assignment.shipping.printerRouteId) ?? null)
-            : null
-        }
         inheritedName={defaultPrinterName}
         autoPrint={assignment?.shipping?.autoPrint ?? false}
         printerRouteOptions={printerRouteOptions}
@@ -745,7 +741,9 @@ function LocationSection({
             locationId,
             context: "shipping",
             printerRouteId,
-            autoPrint: assignment?.shipping?.autoPrint ?? false
+            autoPrint: printerRouteId
+              ? true
+              : (assignment?.shipping?.autoPrint ?? false)
           })
         }
         onAutoPrintChange={(autoPrint) =>
@@ -764,11 +762,6 @@ function LocationSection({
         icon={<LuHandCoins />}
         isIndented
         printerRouteId={assignment?.receiving?.printerRouteId ?? null}
-        printerName={
-          assignment?.receiving?.printerRouteId
-            ? (printerRouteMap.get(assignment.receiving.printerRouteId) ?? null)
-            : null
-        }
         inheritedName={defaultPrinterName}
         autoPrint={assignment?.receiving?.autoPrint ?? false}
         printerRouteOptions={printerRouteOptions}
@@ -777,7 +770,9 @@ function LocationSection({
             locationId,
             context: "receiving",
             printerRouteId,
-            autoPrint: assignment?.receiving?.autoPrint ?? false
+            autoPrint: printerRouteId
+              ? true
+              : (assignment?.receiving?.autoPrint ?? false)
           })
         }
         onAutoPrintChange={(autoPrint) =>
@@ -800,11 +795,6 @@ function LocationSection({
             icon={<LuWrench />}
             isIndented
             printerRouteId={wcAssignment?.printerRouteId ?? null}
-            printerName={
-              wcAssignment?.printerRouteId
-                ? (printerRouteMap.get(wcAssignment.printerRouteId) ?? null)
-                : null
-            }
             inheritedName={defaultPrinterName}
             autoPrint={wcAssignment?.autoPrint ?? false}
             printerRouteOptions={printerRouteOptions}
@@ -814,7 +804,9 @@ function LocationSection({
                 context: "workCenter",
                 contextId: wc.id,
                 printerRouteId,
-                autoPrint: wcAssignment?.autoPrint ?? false
+                autoPrint: printerRouteId
+                  ? true
+                  : (wcAssignment?.autoPrint ?? false)
               })
             }
             onAutoPrintChange={(autoPrint) =>
@@ -839,7 +831,6 @@ function AssignmentRow({
   isBold,
   isIndented,
   printerRouteId,
-  printerName,
   inheritedName,
   autoPrint,
   printerRouteOptions,
@@ -851,7 +842,6 @@ function AssignmentRow({
   isBold?: boolean;
   isIndented?: boolean;
   printerRouteId: string | null;
-  printerName: string | null;
   inheritedName: string | null;
   autoPrint: boolean;
   printerRouteOptions: { value: string; label: string }[];
@@ -887,20 +877,25 @@ function AssignmentRow({
       </div>
 
       <div className="flex items-center gap-4">
-        <Combobox
-          size="sm"
-          value={printerRouteId ?? ""}
-          options={printerRouteOptions}
-          onChange={(selected) => onPrinterChange(selected)}
-          isClearable
-          placeholder={placeholder}
-        />
+        <div className="w-[320px]">
+          <Combobox
+            size="sm"
+            value={printerRouteId ?? ""}
+            options={printerRouteOptions}
+            onChange={(selected) => onPrinterChange(selected)}
+            isClearable
+            placeholder={placeholder}
+          />
+        </div>
 
-        <Switch
-          variant="small"
-          checked={autoPrint}
-          onCheckedChange={onAutoPrintChange}
-        />
+        <div className="flex items-center gap-1.5">
+          <Switch
+            variant="small"
+            checked={autoPrint}
+            onCheckedChange={onAutoPrintChange}
+          />
+          <span className="text-xs text-muted-foreground">Auto-print</span>
+        </div>
       </div>
     </div>
   );

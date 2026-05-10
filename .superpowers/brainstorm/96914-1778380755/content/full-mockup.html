@@ -1,0 +1,288 @@
+<h2>Printing Settings — Full Design</h2>
+<p class="subtitle">Printers at top, assignment tree below. Click any printer name to edit inline. Review and let me know what feels off.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Printing Settings</div>
+  <div class="mockup-body" style="padding: 24px; font-size: 14px;">
+
+    <!-- Header -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
+      <div style="font-size: 20px; font-weight: 600;">Printing</div>
+      <div style="display:flex; gap: 8px;">
+        <button class="mock-button" style="font-size:12px; padding:6px 12px;">View Prints</button>
+      </div>
+    </div>
+
+    <!-- Printers Section -->
+    <div style="border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+        <div>
+          <div style="font-weight: 600; margin-bottom: 2px;">Printers</div>
+          <div style="font-size: 12px; color: #888;">Physical printers available for assignment</div>
+        </div>
+        <button class="mock-button" style="font-size: 12px; padding: 5px 12px;">+ Add Printer</button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#1a1a2e; border-radius:6px; padding:10px 14px;">
+          <div style="display:flex; align-items:center; gap: 12px;">
+            <span style="font-weight:500;">Zebra 4x6</span>
+            <span style="font-size:11px; color:#888; text-transform:uppercase;">ZPL</span>
+            <span style="font-size:11px; color:#888;">label4x6</span>
+            <span style="font-size:11px; color:#666; font-family:monospace;">https://pbx-001.pbxz.cloud/...</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 6px;">
+            <span style="font-size:11px; color:#888; cursor:pointer;">Test</span>
+            <span style="font-size:11px; color:#888; cursor:pointer;">Edit</span>
+            <span style="font-size:11px; color:#e74c3c; cursor:pointer;">Delete</span>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#1a1a2e; border-radius:6px; padding:10px 14px;">
+          <div style="display:flex; align-items:center; gap: 12px;">
+            <span style="font-weight:500;">Zebra 2x1</span>
+            <span style="font-size:11px; color:#888; text-transform:uppercase;">ZPL</span>
+            <span style="font-size:11px; color:#888;">label2x1</span>
+            <span style="font-size:11px; color:#666; font-family:monospace;">https://pbx-002.pbxz.cloud/...</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 6px;">
+            <span style="font-size:11px; color:#888; cursor:pointer;">Test</span>
+            <span style="font-size:11px; color:#888; cursor:pointer;">Edit</span>
+            <span style="font-size:11px; color:#e74c3c; cursor:pointer;">Delete</span>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#1a1a2e; border-radius:6px; padding:10px 14px;">
+          <div style="display:flex; align-items:center; gap: 12px;">
+            <span style="font-weight:500;">HP LaserJet</span>
+            <span style="font-size:11px; color:#888; text-transform:uppercase;">PDF</span>
+            <span style="font-size:11px; color:#888;">tmpl_abc123</span>
+            <span style="font-size:11px; color:#666; font-family:monospace;">https://pbx-003.pbxz.cloud/...</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 6px;">
+            <span style="font-size:11px; color:#888; cursor:pointer;">Test</span>
+            <span style="font-size:11px; color:#888; cursor:pointer;">Edit</span>
+            <span style="font-size:11px; color:#e74c3c; cursor:pointer;">Delete</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assignment Tree -->
+    <div style="border: 1px solid #333; border-radius: 8px; padding: 16px;">
+      <div style="margin-bottom: 16px;">
+        <div style="font-weight: 600; margin-bottom: 2px;">Assignments</div>
+        <div style="font-size: 12px; color: #888;">Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden.</div>
+      </div>
+
+      <!-- Location: Main Warehouse -->
+      <div style="margin-bottom: 16px;">
+        <!-- Location header row -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #222;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="font-weight: 600;">Main Warehouse</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #4ade80; cursor:pointer; text-decoration: underline dotted;">Zebra 4x6</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#4ade80; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:white;border-radius:50%;position:absolute;right:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px; border-bottom: 1px solid #1a1a1a;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #ccc;">Shipping</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #4ade80; cursor:pointer; text-decoration: underline dotted;">Zebra 2x1</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#4ade80; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:white;border-radius:50%;position:absolute;right:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receiving -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px; border-bottom: 1px solid #1a1a1a;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #ccc;">Receiving</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #888; font-style: italic; cursor:pointer;">inherits Zebra 4x6</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#333; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:#888;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Center: Assembly Line 1 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px; border-bottom: 1px solid #1a1a1a;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #aaa; font-size:11px;">WC</span>
+            <span style="color: #ccc;">Assembly Line 1</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #4ade80; cursor:pointer; text-decoration: underline dotted;">Zebra 2x1</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#4ade80; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:white;border-radius:50%;position:absolute;right:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Center: Pack Station (no override) -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #aaa; font-size:11px;">WC</span>
+            <span style="color: #ccc;">Pack Station</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #888; font-style: italic; cursor:pointer;">inherits Zebra 4x6</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#333; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:#888;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location: East Facility (no default) -->
+      <div style="margin-bottom: 16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #222;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="font-weight: 600;">East Facility</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #e74c3c; cursor:pointer;">⚠ No printer</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#333; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:#888;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shipping (no printer) -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px; border-bottom: 1px solid #1a1a1a;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #ccc;">Shipping</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #e74c3c; cursor:pointer;">⚠ No printer</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#333; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:#888;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receiving (no printer) -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px; border-bottom: 1px solid #1a1a1a;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #ccc;">Receiving</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #e74c3c; cursor:pointer;">⚠ No printer</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#333; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:#888;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Center: Inspection -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #aaa; font-size:11px;">WC</span>
+            <span style="color: #ccc;">Inspection</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #e74c3c; cursor:pointer;">⚠ No printer</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#333; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:#888;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location: South Plant (fully configured) -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid #222;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="font-weight: 600;">South Plant</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #4ade80; cursor:pointer; text-decoration: underline dotted;">HP LaserJet</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#333; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:#888;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px; border-bottom: 1px solid #1a1a1a;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #ccc;">Shipping</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #888; font-style: italic; cursor:pointer;">inherits HP LaserJet</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#333; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:#888;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 6px 0 6px 28px;">
+          <div style="display:flex; align-items:center; gap: 8px;">
+            <span style="color: #ccc;">Receiving</span>
+          </div>
+          <div style="display:flex; align-items:center; gap: 16px;">
+            <span style="font-size: 13px; color: #888; font-style: italic; cursor:pointer;">inherits HP LaserJet</span>
+            <div style="display:flex; align-items:center; gap:4px;">
+              <div style="width:28px; height:16px; background:#4ade80; border-radius:8px; position:relative;">
+                <div style="width:12px;height:12px;background:white;border-radius:50%;position:absolute;right:2px;top:2px;"></div>
+              </div>
+              <span style="font-size:11px; color:#888;">Auto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 20px; padding: 16px; border: 1px solid #333; border-radius: 8px;">
+  <h3>Key interactions</h3>
+  <ul style="line-height: 1.8; color: #ccc; font-size: 14px;">
+    <li><strong style="color:#4ade80;">Green printer name</strong> — explicitly assigned. Click to change via inline dropdown.</li>
+    <li><strong style="color:#888; font-style:italic;">Italic "inherits X"</strong> — no override, using location default. Click to set an explicit override.</li>
+    <li><strong style="color:#e74c3c;">⚠ No printer</strong> — nothing assigned and nothing to inherit. Click to assign.</li>
+    <li><strong>Auto toggle</strong> — per-row auto-print on/off.</li>
+    <li><strong>WC</strong> prefix — distinguishes work centers from shipping/receiving.</li>
+  </ul>
+</div>

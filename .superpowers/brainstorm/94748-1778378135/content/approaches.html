@@ -1,0 +1,74 @@
+<h2>Printing Settings — Layout Approaches</h2>
+<p class="subtitle">How should the printer assignment hierarchy be displayed?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Indented Tree List</h3>
+      <p>A flat list with indentation levels showing the hierarchy. Each row shows the context (location, shipping, receiving, work center) and the assigned printer — or a warning when none is set. Inline editing via dropdowns. Feels like a file tree.</p>
+      <div style="margin-top: 12px; font-family: monospace; font-size: 13px; line-height: 2; background: #1a1a2e; padding: 16px; border-radius: 8px; color: #ccc;">
+        <div><strong style="color:#fff;">Main Warehouse</strong> <span style="color:#888;">— Zebra 4x6</span></div>
+        <div style="padding-left: 24px;">Shipping <span style="color:#888;">— Zebra 2x1</span></div>
+        <div style="padding-left: 24px;">Receiving <span style="color:#888;">— inherits Zebra 4x6</span></div>
+        <div style="padding-left: 24px;">WC: Assembly Line 1 <span style="color:#888;">— Zebra 2x1</span></div>
+        <div style="padding-left: 24px;">WC: Pack Station <span style="color:#e74c3c;">— ⚠ No printer</span></div>
+        <div style="margin-top: 8px;"><strong style="color:#fff;">East Facility</strong> <span style="color:#e74c3c;">— ⚠ No printer</span></div>
+        <div style="padding-left: 24px;">Shipping <span style="color:#e74c3c;">— ⚠ No printer</span></div>
+        <div style="padding-left: 24px;">Receiving <span style="color:#e74c3c;">— ⚠ No printer</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Expandable Location Cards</h3>
+      <p>Each location is a collapsible card. Header shows location name + default printer status. Expand to see shipping, receiving, and work center overrides inside. More visual separation between locations, but takes more vertical space.</p>
+      <div style="margin-top: 12px; background: #1a1a2e; padding: 16px; border-radius: 8px; color: #ccc;">
+        <div style="border: 1px solid #333; border-radius: 6px; padding: 12px; margin-bottom: 8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:#fff;">▾ Main Warehouse</strong>
+            <span style="font-size:12px; background:#2a4a3a; color:#4ade80; padding:2px 8px; border-radius:4px;">Zebra 4x6</span>
+          </div>
+          <div style="margin-top:10px; padding-left:16px; font-size:13px; line-height:2;">
+            <div>Shipping → <span style="color:#4ade80;">Zebra 2x1</span></div>
+            <div>Receiving → <span style="color:#888; font-style:italic;">inherits default</span></div>
+            <div>Assembly Line 1 → <span style="color:#4ade80;">Zebra 2x1</span></div>
+            <div>Pack Station → <span style="color:#e74c3c;">⚠ not set</span></div>
+          </div>
+        </div>
+        <div style="border: 1px solid #333; border-radius: 6px; padding: 12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:#fff;">▸ East Facility</strong>
+            <span style="font-size:12px; background:#4a2a2a; color:#e74c3c; padding:2px 8px; border-radius:4px;">⚠ No default</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Hybrid: Printers List + Assignment Tree</h3>
+      <p>Split into two sections. Top section: simple list of physical printers (add/edit/delete/test). Bottom section: the assignment tree (either A or B style) where you assign those printers to locations and contexts. Separates "what printers exist" from "where are they used."</p>
+      <div style="margin-top: 12px; background: #1a1a2e; padding: 16px; border-radius: 8px; color: #ccc; font-size: 13px;">
+        <div style="margin-bottom: 12px;">
+          <div style="color:#888; text-transform:uppercase; font-size:11px; margin-bottom:6px;">Printers</div>
+          <div style="display:flex; gap:8px;">
+            <span style="background:#2a2a3e; padding:4px 10px; border-radius:4px;">Zebra 4x6</span>
+            <span style="background:#2a2a3e; padding:4px 10px; border-radius:4px;">Zebra 2x1</span>
+            <span style="background:#2a2a3e; padding:4px 10px; border-radius:4px; border:1px dashed #555;">+ Add</span>
+          </div>
+        </div>
+        <div style="color:#888; text-transform:uppercase; font-size:11px; margin-bottom:6px;">Assignments</div>
+        <div style="line-height:2;">
+          <div><strong style="color:#fff;">Main Warehouse</strong> <span style="color:#888;">— Zebra 4x6</span></div>
+          <div style="padding-left: 20px;">Shipping — Zebra 2x1</div>
+          <div style="padding-left: 20px;">Receiving — <span style="font-style:italic; color:#888;">inherits</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
