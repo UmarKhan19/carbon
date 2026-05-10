@@ -16,6 +16,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Combobox,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -846,13 +847,18 @@ function AssignmentRow({
   onPrinterChange: (printerRouteId: string) => void;
   onAutoPrintChange: (autoPrint: boolean) => void;
 }) {
-  const [isEditing, setIsEditing] = useState(false);
-
   const displayState = printerRouteId
     ? ("assigned" as const)
     : inheritedName
       ? ("inherited" as const)
       : ("missing" as const);
+
+  const placeholder =
+    displayState === "inherited"
+      ? `inherits ${inheritedName}`
+      : displayState === "missing"
+        ? "No printer"
+        : undefined;
 
   return (
     <div
@@ -870,42 +876,14 @@ function AssignmentRow({
       </div>
 
       <div className="flex items-center gap-4">
-        {isEditing ? (
-          <select
-            className="text-sm border border-border rounded-md px-2 py-1 bg-background"
-            value={printerRouteId ?? ""}
-            onChange={(e) => {
-              onPrinterChange(e.target.value);
-              setIsEditing(false);
-            }}
-            onBlur={() => setIsEditing(false)}
-            autoFocus
-          >
-            {printerRouteOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <button
-            type="button"
-            className="text-sm cursor-pointer hover:underline"
-            onClick={() => setIsEditing(true)}
-          >
-            {displayState === "assigned" && (
-              <span className="text-foreground">{printerName}</span>
-            )}
-            {displayState === "inherited" && (
-              <span className="text-muted-foreground italic">
-                inherits {inheritedName}
-              </span>
-            )}
-            {displayState === "missing" && (
-              <span className="text-destructive">No printer</span>
-            )}
-          </button>
-        )}
+        <Combobox
+          size="sm"
+          value={printerRouteId ?? ""}
+          options={printerRouteOptions}
+          onChange={(selected) => onPrinterChange(selected)}
+          isClearable
+          placeholder={placeholder}
+        />
 
         <Switch
           variant="small"

@@ -568,9 +568,9 @@ msgstr "Добавить партнера"
 msgid "Add Permissions"
 msgstr "Добавить разрешения"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:442
-#: apps/erp/app/routes/x+/settings+/printing.tsx:579
-#: apps/erp/app/routes/x+/settings+/printing.tsx:632
+#: apps/erp/app/routes/x+/settings+/printing.tsx:443
+#: apps/erp/app/routes/x+/settings+/printing.tsx:580
+#: apps/erp/app/routes/x+/settings+/printing.tsx:633
 msgid "Add Printer"
 msgstr ""
 
@@ -789,7 +789,7 @@ msgstr "Документация API"
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:182
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:195
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:203
-#: apps/erp/app/routes/x+/settings+/printing.tsx:616
+#: apps/erp/app/routes/x+/settings+/printing.tsx:617
 msgid "API Key"
 msgstr "API ключ"
 
@@ -1152,7 +1152,7 @@ msgid "Are you sure you want to delete the pricing rule: {0}? This cannot be und
 msgstr "Вы уверены, что хотите удалить правило ценообразования: {0}? Это действие невозможно отменить."
 
 #. placeholder {0}: printerToDelete.name
-#: apps/erp/app/routes/x+/settings+/printing.tsx:646
+#: apps/erp/app/routes/x+/settings+/printing.tsx:647
 msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
 msgstr ""
 
@@ -1365,7 +1365,7 @@ msgstr "Спросите что угодно"
 msgid "Assembly:"
 msgstr "Сборка:"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:524
+#: apps/erp/app/routes/x+/settings+/printing.tsx:525
 msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
 msgstr ""
 
@@ -1421,7 +1421,7 @@ msgstr "Назначение"
 
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:76
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:47
-#: apps/erp/app/routes/x+/settings+/printing.tsx:521
+#: apps/erp/app/routes/x+/settings+/printing.tsx:522
 msgid "Assignments"
 msgstr "Назначения"
 
@@ -1943,7 +1943,7 @@ msgstr "Невозможно отключить единственный акт�
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:220
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:618
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:700
-#: apps/erp/app/routes/x+/settings+/printing.tsx:629
+#: apps/erp/app/routes/x+/settings+/printing.tsx:630
 #: apps/erp/app/routes/x+/stock-transfer+/$id.scan.$lineId.tsx:368
 msgid "Cancel"
 msgstr "Отмена"
@@ -3781,7 +3781,7 @@ msgstr "Определяет, сколько отслеживаемых объе
 #: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:236
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:234
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:747
-#: apps/erp/app/routes/x+/settings+/printing.tsx:500
+#: apps/erp/app/routes/x+/settings+/printing.tsx:501
 msgid "Delete"
 msgstr "Удалить"
 
@@ -4501,7 +4501,7 @@ msgstr "Дублировать в..."
 msgid "Duration"
 msgstr "Продолжительность"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:588
+#: apps/erp/app/routes/x+/settings+/printing.tsx:589
 msgid "e.g. Zebra 2x1"
 msgstr ""
 
@@ -6091,7 +6091,7 @@ msgid "Forgot to Clock Out?"
 msgstr "Забыли отметить уход?"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:461
-#: apps/erp/app/routes/x+/settings+/printing.tsx:592
+#: apps/erp/app/routes/x+/settings+/printing.tsx:593
 msgid "Format"
 msgstr "Формат"
 
@@ -7251,7 +7251,7 @@ msgstr "Узнать больше"
 msgid "Leave any related receipts untouched"
 msgstr "Оставить все связанные квитанции без изменений"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:605
+#: apps/erp/app/routes/x+/settings+/printing.tsx:606
 msgid "Leave blank for built-in"
 msgstr ""
 
@@ -7907,7 +7907,7 @@ msgstr "Среднее время на ремонт"
 msgid "Measurement Standard"
 msgstr "Стандарт измерения"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:599
+#: apps/erp/app/routes/x+/settings+/printing.tsx:600
 msgid "Media Size"
 msgstr ""
 
@@ -8126,7 +8126,7 @@ msgstr "Понедельник"
 #: apps/erp/app/routes/x+/quality+/_index.tsx:522
 #: apps/erp/app/routes/x+/resources+/_index.tsx:496
 #: apps/erp/app/routes/x+/sales+/_index.tsx:521
-#: apps/erp/app/routes/x+/settings+/printing.tsx:471
+#: apps/erp/app/routes/x+/settings+/printing.tsx:472
 msgid "More"
 msgstr "Ещё"
 
@@ -8284,7 +8284,7 @@ msgstr "Мой сохраненный вид"
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:35
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:118
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:76
-#: apps/erp/app/routes/x+/settings+/printing.tsx:587
+#: apps/erp/app/routes/x+/settings+/printing.tsx:588
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:505
 #: apps/erp/app/routes/x+/settings+/sales.tsx:444
 msgid "Name"
@@ -8842,7 +8842,7 @@ msgstr "Нет изображения"
 msgid "No issue types configured"
 msgstr "Типы проблем не настроены"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:554
+#: apps/erp/app/routes/x+/settings+/printing.tsx:555
 msgid "No locations found."
 msgstr ""
 
@@ -8917,7 +8917,7 @@ msgstr "Нет цен для выбранного количества"
 msgid "No pricing options found"
 msgstr "Нет доступных вариантов цен"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:509
+#: apps/erp/app/routes/x+/settings+/printing.tsx:510
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr ""
 
@@ -9024,7 +9024,7 @@ msgstr "Не облагаемая налогом дополнительная с
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:89
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteFinalizeModal.tsx:78
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:138
-#: apps/erp/app/routes/x+/settings+/printing.tsx:334
+#: apps/erp/app/routes/x+/settings+/printing.tsx:335
 msgid "None"
 msgstr "Нет"
 
@@ -9332,7 +9332,7 @@ msgstr "Возможность"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:430
 #: apps/erp/app/modules/sales/ui/Pricing/PricingRuleForm.tsx:257
-#: apps/erp/app/routes/x+/settings+/printing.tsx:617
+#: apps/erp/app/routes/x+/settings+/printing.tsx:618
 #: packages/react/src/Form/FormLabel.tsx:44
 msgid "Optional"
 msgstr "Опционально"
@@ -9657,7 +9657,7 @@ msgstr "Условия платежа"
 msgid "PDF"
 msgstr "PDF"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:320
+#: apps/erp/app/routes/x+/settings+/printing.tsx:321
 msgid "PDF (Document)"
 msgstr ""
 
@@ -9733,7 +9733,7 @@ msgstr "Фото успешно удалено"
 msgid "Photo uploaded successfully"
 msgstr "Фото успешно загружено"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:434
+#: apps/erp/app/routes/x+/settings+/printing.tsx:435
 msgid "Physical printers available for assignment."
 msgstr ""
 
@@ -10044,16 +10044,16 @@ msgstr "Печать этикетки"
 msgid "Print Output ({0})"
 msgstr ""
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:611
+#: apps/erp/app/routes/x+/settings+/printing.tsx:612
 msgid "Printer URL"
 msgstr ""
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:431
+#: apps/erp/app/routes/x+/settings+/printing.tsx:432
 msgid "Printers"
 msgstr ""
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:66
-#: apps/erp/app/routes/x+/settings+/printing.tsx:417
+#: apps/erp/app/routes/x+/settings+/printing.tsx:418
 msgid "Printing"
 msgstr ""
 
@@ -13490,7 +13490,7 @@ msgstr "Налог:"
 msgid "Temperature"
 msgstr "Температура"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:604
+#: apps/erp/app/routes/x+/settings+/printing.tsx:605
 msgid "Template ID"
 msgstr ""
 
@@ -13502,7 +13502,7 @@ msgstr "Условия и конфиденциальность"
 msgid "Terms of Service"
 msgstr "Условия обслуживания"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:487
+#: apps/erp/app/routes/x+/settings+/printing.tsx:488
 msgid "Test"
 msgstr ""
 
@@ -14768,7 +14768,7 @@ msgstr "Просмотреть открытые РФП"
 msgid "View Permissions"
 msgstr "Разрешения на просмотр"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:421
+#: apps/erp/app/routes/x+/settings+/printing.tsx:422
 msgid "View Prints"
 msgstr ""
 
@@ -15236,7 +15236,7 @@ msgstr "Ваше имя"
 msgid "yourself"
 msgstr "себя"
 
-#: apps/erp/app/routes/x+/settings+/printing.tsx:319
+#: apps/erp/app/routes/x+/settings+/printing.tsx:320
 msgid "ZPL (Thermal Label)"
 msgstr ""
 
