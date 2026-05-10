@@ -39,13 +39,18 @@ import {
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LuEllipsisVertical,
+  LuHandCoins,
+  LuMapPin,
   LuPlay,
   LuPlus,
   LuPrinter,
-  LuTrash
+  LuTrash,
+  LuTruck,
+  LuWrench
 } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
@@ -55,6 +60,7 @@ import {
   useFetcher,
   useLoaderData
 } from "react-router";
+import { Empty } from "~/components";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { getLocationsList, getWorkCentersList } from "~/modules/resources";
 import { getCompanySettings, printerRouteValidator } from "~/modules/settings";
@@ -506,11 +512,13 @@ export default function PrintingSettingsRoute() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                <Trans>
-                  No printers configured. Click "Add Printer" to create one.
-                </Trans>
-              </p>
+              <Empty>
+                <p className="text-sm text-muted-foreground mt-10">
+                  <Trans>
+                    No printers configured. Click "Add Printer" to create one.
+                  </Trans>
+                </p>
+              </Empty>
             )}
           </CardContent>
         </Card>
@@ -693,6 +701,7 @@ function LocationSection({
       {/* Location default */}
       <AssignmentRow
         label={locationName}
+        icon={<LuMapPin />}
         isBold
         printerRouteId={defaultPrinterId}
         printerName={defaultPrinterName}
@@ -720,6 +729,7 @@ function LocationSection({
       {/* Shipping */}
       <AssignmentRow
         label="Shipping"
+        icon={<LuTruck />}
         isIndented
         printerRouteId={assignment?.shipping?.printerRouteId ?? null}
         printerName={
@@ -751,6 +761,7 @@ function LocationSection({
       {/* Receiving */}
       <AssignmentRow
         label="Receiving"
+        icon={<LuHandCoins />}
         isIndented
         printerRouteId={assignment?.receiving?.printerRouteId ?? null}
         printerName={
@@ -786,7 +797,7 @@ function LocationSection({
           <AssignmentRow
             key={wc.id}
             label={wc.name}
-            prefix="WC"
+            icon={<LuWrench />}
             isIndented
             printerRouteId={wcAssignment?.printerRouteId ?? null}
             printerName={
@@ -824,7 +835,7 @@ function LocationSection({
 
 function AssignmentRow({
   label,
-  prefix,
+  icon,
   isBold,
   isIndented,
   printerRouteId,
@@ -836,7 +847,7 @@ function AssignmentRow({
   onAutoPrintChange
 }: {
   label: string;
-  prefix?: string;
+  icon: ReactNode;
   isBold?: boolean;
   isIndented?: boolean;
   printerRouteId: string | null;
@@ -865,9 +876,9 @@ function AssignmentRow({
       className={`flex items-center justify-between py-2.5 ${isIndented ? "pl-7" : ""} ${!isBold ? "border-t border-border/50" : ""}`}
     >
       <div className="flex items-center gap-2">
-        {prefix && (
-          <span className="text-xs text-muted-foreground">{prefix}</span>
-        )}
+        <div className="size-7 bg-muted rounded-lg flex items-center justify-center shrink-0">
+          <span className="size-4 text-muted-foreground">{icon}</span>
+        </div>
         <span
           className={`text-sm ${isBold ? "font-medium" : "text-muted-foreground"}`}
         >
