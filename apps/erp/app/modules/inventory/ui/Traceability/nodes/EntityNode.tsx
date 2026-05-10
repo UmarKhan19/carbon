@@ -14,6 +14,7 @@ type Props = NodeProps & {
     canExpandUp?: boolean;
     canExpandDown?: boolean;
     containmentStatus?: "Contained" | "Uncontained";
+    direction?: "TB" | "LR";
     onExpand?: (id: string, direction: "up" | "down" | "both") => void;
     onCollapse?: (id: string) => void;
   };
@@ -33,6 +34,9 @@ function EntityNodeImpl({ data, selected, id }: Props) {
   const radius = NODE_RADIUS;
   const size = NODE_SIZE;
   const iconSize = 18;
+  const isLR = data.direction === "LR";
+  const targetPos = isLR ? Position.Left : Position.Top;
+  const sourcePos = isLR ? Position.Right : Position.Bottom;
 
   return (
     <div
@@ -41,12 +45,12 @@ function EntityNodeImpl({ data, selected, id }: Props) {
     >
       <Handle
         type="target"
-        position={Position.Top}
+        position={targetPos}
         className="!opacity-0 !pointer-events-none !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !w-1 !h-1 !min-w-0 !min-h-0 !border-0"
       />
       <Handle
         type="source"
-        position={Position.Bottom}
+        position={sourcePos}
         className="!opacity-0 !pointer-events-none !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !w-1 !h-1 !min-w-0 !min-h-0 !border-0"
       />
       <svg

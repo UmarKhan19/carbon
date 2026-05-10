@@ -455,6 +455,7 @@ function TraceabilityGraphInner({
           canExpandUp,
           canExpandDown,
           containmentStatus,
+          direction,
           onExpand: onExpandNode,
           onCollapse: onCollapseNode
         },
@@ -473,6 +474,7 @@ function TraceabilityGraphInner({
     selectionPath,
     containmentByEntity,
     excludedIds,
+    direction,
     onExpandNode,
     onCollapseNode
   ]);
