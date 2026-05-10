@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { execa } from "execa";
 
 export type Worktree = {
@@ -13,21 +14,24 @@ export async function gitRoot(): Promise<string> {
   return r.stdout.trim();
 }
 
-export async function isLinkedWorktree(): Promise<boolean> {
-  // Linked worktree: --absolute-git-dir points at .git/worktrees/<name>;
-  // --git-common-dir points at the shared .git of the main checkout.
+export async function isLinkedWorktree(cwd = process.cwd()): Promise<boolean> {
+  // Linked worktree: --git-dir points at .git/worktrees/<name>; --git-common-dir
+  // points at the shared .git of the main checkout. Both flags emit paths
+  // relative to cwd, so resolve before comparing — `--absolute-git-dir` would
+  // make --git-dir absolute while --git-common-dir stays relative ("./.git"),
+  // yielding a false positive in the main checkout.
   const [a, b] = await Promise.all([
-    execa("git", ["rev-parse", "--absolute-git-dir"], { reject: false }),
-    execa("git", ["rev-parse", "--git-common-dir"], { reject: false }),
+    execa("git", ["rev-parse", "--git-dir"], { cwd, reject: false }),
+    execa("git", ["rev-parse", "--git-common-dir"], { cwd, reject: false })
   ]);
   if (a.exitCode !== 0 || b.exitCode !== 0) return false;
-  return a.stdout.trim() !== b.stdout.trim();
+  return resolve(cwd, a.stdout.trim()) !== resolve(cwd, b.stdout.trim());
 }
 
 export async function currentBranch(cwd = process.cwd()): Promise<string> {
   try {
     const r = await execa("git", ["rev-parse", "--abbrev-ref", "HEAD"], {
-      cwd,
+      cwd
     });
     const out = r.stdout.trim();
     return out === "HEAD" ? "" : out;
@@ -54,7 +58,7 @@ export async function listWorktrees(): Promise<Worktree[]> {
       branch,
       head: get("HEAD"),
       bare: lines.includes("bare"),
-      current: path === cwd,
+      current: path === cwd
     };
   });
 }
@@ -92,7 +96,7 @@ export async function removeWorktree(
 export async function isDirty(path: string): Promise<boolean> {
   const r = await execa("git", ["status", "--porcelain"], {
     cwd: path,
-    reject: false,
+    reject: false
   });
   return r.exitCode === 0 && (r.stdout || "").trim().length > 0;
 }
@@ -104,4 +108,16 @@ export async function branchExists(branch: string): Promise<boolean> {
     { reject: false }
   );
   return r.exitCode === 0;
+}
+
+export async function deleteBranch(
+  branch: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  // -D forces deletion even when the branch has unmerged commits — caller is
+  // expected to confirm with the user before we get here.
+  const r = await execa("git", ["branch", "-D", branch], { reject: false });
+  if (r.exitCode !== 0) {
+    return { ok: false, error: (r.stderr || r.stdout || "").trim() };
+  }
+  return { ok: true };
 }

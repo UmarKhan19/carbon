@@ -1,11 +1,15 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { confirm, isCancel, log, spinner } from "@clack/prompts";
 import { execa } from "execa";
 import pc from "picocolors";
-import { ALIAS_SERVICES, PORTLESS_MIN_VERSION, TLD } from "../constants.js";
+import {
+  ALIAS_SERVICES,
+  type AppId,
+  PORTLESS_MIN_VERSION,
+  TLD
+} from "../constants.js";
 import type { PortMap } from "../lib/ports.js";
 
 /**
@@ -289,10 +293,10 @@ export async function waitForProxyReady(timeoutMs = 30_000) {
 /** Register compose-service host:port aliases with the portless proxy. */
 export async function registerAliases(
   root: string,
-  branchSegment: string,
+  branchPrefix: string | null,
   ports: PortMap
 ) {
-  const aliases = aliasMap(branchSegment, ports);
+  const aliases = aliasMap(branchPrefix, ports);
   await Promise.all(
     aliases.map((a) =>
       execa("portless", ["alias", a.name, String(a.port), "--force"], {
@@ -309,9 +313,12 @@ export async function registerAliases(
 }
 
 /** Remove this worktree's compose-service aliases (called by `dev down`). */
-export async function unregisterAliases(root: string, branchSegment: string) {
+export async function unregisterAliases(
+  root: string,
+  branchPrefix: string | null
+) {
   await Promise.all(
-    ALIAS_SERVICES.map((s) => `${s}.${branchSegment}`).map((name) =>
+    ALIAS_SERVICES.map((s) => withPrefix(s, branchPrefix)).map((name) =>
       execa("portless", ["alias", "--remove", name], {
         cwd: root,
         reject: false,
@@ -325,10 +332,87 @@ export async function unregisterAliases(root: string, branchSegment: string) {
 }
 
 /**
- * Drop alias entries from `~/.portless/routes.json` that match our branch
- * segment. Stale routes (different TLD, dead PID) accumulate across runs.
+ * Pre-empt `<prefix>.<app>.{dev,localhost}` hostnames before turbo spawns the
+ * app dev-servers. Orphan portless processes from a prior `crbn up` (Ctrl+C
+ * race, crashed turbo) keep the route registered with a still-alive PID, and
+ * the next `portless run` aborts with `RouteConflictError` unless the app's
+ * dev script passes `--force`. Older feature branches don't have that flag,
+ * so we have to do the equivalent out-of-band here.
+ *
+ * For each matching route with a non-zero PID, sends SIGTERM, polls briefly,
+ * escalates to SIGKILL once. Then drops every matching entry from the routes
+ * file unconditionally — the freshly-spawned app will reclaim the slot via
+ * its own `addRoute` call. Returns the number of PIDs we signalled.
  */
-export function pruneStaleRoutes(branchSegment: string) {
+export async function claimAppHosts(
+  branchPrefix: string | null,
+  appIds: readonly AppId[]
+): Promise<number> {
+  const path = `${homedir()}/.portless/routes.json`;
+  if (!existsSync(path)) return 0;
+
+  let routes: { hostname: string; port: number; pid: number }[];
+  try {
+    routes = JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return 0;
+  }
+
+  const ourHosts = new Set(
+    appIds.flatMap((id) => {
+      const name = withPrefix(id, branchPrefix);
+      return [`${name}.dev`, `${name}.localhost`];
+    })
+  );
+
+  const pidsToKill = new Set<number>();
+  for (const r of routes) {
+    if (ourHosts.has(r.hostname) && r.pid > 0 && isProcessAlive(r.pid)) {
+      pidsToKill.add(r.pid);
+    }
+  }
+
+  for (const pid of pidsToKill) {
+    try {
+      process.kill(pid, "SIGTERM");
+    } catch {}
+  }
+
+  // Poll up to ~400ms for graceful exit; escalate to SIGKILL on stragglers.
+  const deadline = Date.now() + 400;
+  while (Date.now() < deadline) {
+    let allGone = true;
+    for (const pid of pidsToKill) {
+      if (isProcessAlive(pid)) {
+        allGone = false;
+        break;
+      }
+    }
+    if (allGone) break;
+    await sleep(50);
+  }
+  for (const pid of pidsToKill) {
+    if (isProcessAlive(pid)) {
+      try {
+        process.kill(pid, "SIGKILL");
+      } catch {}
+    }
+  }
+
+  const filtered = routes.filter((r) => !ourHosts.has(r.hostname));
+  if (filtered.length !== routes.length) {
+    writeFileSync(path, JSON.stringify(filtered, null, 2));
+  }
+
+  return pidsToKill.size;
+}
+
+/**
+ * Drop stale alias entries from `~/.portless/routes.json` that match our
+ * worktree's compose-service hostname pattern. Stale routes (different TLD,
+ * dead PID) accumulate across runs.
+ */
+export function pruneStaleRoutes(branchPrefix: string | null) {
   const path = `${homedir()}/.portless/routes.json`;
   if (!existsSync(path)) return 0;
   let routes: { hostname: string; pid: number }[];
@@ -337,10 +421,10 @@ export function pruneStaleRoutes(branchSegment: string) {
   } catch {
     return 0;
   }
-  const ourHosts = ALIAS_SERVICES.flatMap((s) => [
-    `${s}.${branchSegment}.dev`,
-    `${s}.${branchSegment}.localhost`
-  ]);
+  const ourHosts = ALIAS_SERVICES.flatMap((s) => {
+    const name = withPrefix(s, branchPrefix);
+    return [`${name}.dev`, `${name}.localhost`];
+  });
   const before = routes.length;
   const filtered = routes.filter(
     (r) => !(r.pid === 0 && ourHosts.includes(r.hostname))
@@ -353,20 +437,6 @@ export function pruneStaleRoutes(branchSegment: string) {
 }
 
 /**
- * Write per-app `portless.json` so portless uses our `<app>.<branch>` naming
- * regardless of the current worktree's auto-detection.
- */
-export function writeAppPortlessConfig(
-  appDir: string,
-  cfg: { name: string; script: string }
-) {
-  writeFileSync(
-    join(appDir, "portless.json"),
-    JSON.stringify(cfg, null, 2) + "\n"
-  );
-}
-
-/**
  * Stable, branch-independent OAuth callback hostname. Lets a single redirect
  * URI live in the Google/Azure OAuth client config across all worktrees —
  * whichever worktree was last `up` owns this alias and services callbacks.
@@ -375,22 +445,62 @@ export function writeAppPortlessConfig(
  */
 export const STABLE_OAUTH_ALIAS = "api.carbon";
 
+const DEFAULT_BRANCHES = new Set(["main", "master", "trunk", "develop", "dev"]);
+
+/**
+ * Mirrors portless's worktree-prefix derivation
+ * (packages/portless/dist/cli.js:branchToPrefix). Returns null when:
+ *   - branch is missing/HEAD
+ *   - branch is a default trunk-like name (main/master/etc.)
+ *   - sanitized last-segment is empty
+ *
+ * Otherwise returns the last `/`-separated segment of the branch, sanitized
+ * for hostname use. e.g. `feat/boo` -> `boo`, `sid/local-dev` -> `local-dev`.
+ *
+ * Note: portless ALSO checks the working directory is a linked worktree
+ * before applying the prefix. Callers should combine this with that check
+ * (see isLinkedWorktree() in lib/git.ts).
+ */
+export function branchToPrefix(
+  branch: string | null | undefined
+): string | null {
+  if (!branch || branch === "HEAD" || DEFAULT_BRANCHES.has(branch)) return null;
+  const last = branch.split("/").pop() ?? "";
+  const sanitized = last
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-+/g, "-");
+  return sanitized || null;
+}
+
+/** Build hostname matching portless's `<prefix>.<name>.<tld>` shape. */
+function withPrefix(name: string, prefix: string | null): string {
+  return prefix ? `${prefix}.${name}` : name;
+}
+
+/**
+ * Per-worktree compose-service aliases. Hostnames mirror what portless
+ * registers for app dev-servers in the same worktree, so URLs are
+ * consistent: linked worktrees get `<prefix>.<service>.<tld>`, the main
+ * checkout gets bare `<service>.<tld>`.
+ */
 export function aliasMap(
-  branchSegment: string,
+  branchPrefix: string | null,
   ports: PortMap
 ): { name: string; port: number }[] {
   return [
-    { name: `api.${branchSegment}`, port: ports.PORT_API },
-    { name: `studio.${branchSegment}`, port: ports.PORT_STUDIO },
-    { name: `mail.${branchSegment}`, port: ports.PORT_INBUCKET },
-    { name: `inngest.${branchSegment}`, port: ports.PORT_INNGEST },
+    { name: withPrefix("api", branchPrefix), port: ports.PORT_API },
+    { name: withPrefix("studio", branchPrefix), port: ports.PORT_STUDIO },
+    { name: withPrefix("mail", branchPrefix), port: ports.PORT_INBUCKET },
+    { name: withPrefix("inngest", branchPrefix), port: ports.PORT_INNGEST },
     // Stable redirect target for OAuth providers. Last `crbn up` wins.
     { name: STABLE_OAUTH_ALIAS, port: ports.PORT_API }
   ];
 }
 
-export function host(sub: string, branchSegment: string) {
-  return `${sub}.${branchSegment}.${TLD}`;
+export function host(sub: string, branchPrefix: string | null) {
+  return `${withPrefix(sub, branchPrefix)}.${TLD}`;
 }
 
 async function detectPortlessVersion(): Promise<string | null> {

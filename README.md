@@ -171,7 +171,7 @@ $ pnpm run db:start  # pull and run the containers
 
 ### Local dev CLI (`crbn`)
 
-The repo ships a small CLI at `packages/dev/bin/crbn` that wraps git worktrees + the per-worktree compose stack. Run `setup.sh` once to put it on your `$PATH` and install the `crbn` shell function (so `crbn go` can change cwd):
+The repo ships a small CLI at `packages/dev/bin/crbn` that wraps git worktrees + the per-worktree compose stack. Run `setup.sh` once to put it on your `$PATH` and install the `crbn` shell function (so `crbn checkout` can change cwd):
 
 ```bash
 $ ./setup.sh                   # writes a sentinel block to ~/.zshrc or ~/.bashrc
@@ -182,10 +182,11 @@ $ crbn                         # shows commands
 Common flows:
 
 ```bash
-$ crbn checkout sid/cool-thing       # worktree on someone's branch (no resources)
+$ crbn checkout sid/cool-thing       # cd into worktree (creates if missing,
+                                     # auto-fetches from origin if needed)
+$ crbn checkout -b feat/new-thing    # new branch off origin/main + worktree
 $ crbn checkout sid/cool-thing --up  # …and boot the stack inside it
 $ crbn copy                          # re-sync .env from main checkout
-$ crbn go sid/cool-thing             # cd into that worktree
 $ crbn up | down | reset | status    # per-worktree compose stack
 $ crbn new | list | remove           # interactive worktree management
 ```

@@ -6,8 +6,14 @@ import { link } from "./link.js";
 type Color = (s: string) => string;
 
 /** Boxed list of URLs + DB DSN for the up-summary. */
-export function summaryLines(ports: PortMap, branchSegment: string): string[] {
-  const host = (sub: string) => `https://${sub}.${branchSegment}.${TLD}`;
+export function summaryLines(
+  ports: PortMap,
+  branchPrefix: string | null
+): string[] {
+  const host = (sub: string) =>
+    branchPrefix
+      ? `https://${branchPrefix}.${sub}.${TLD}`
+      : `https://${sub}.${TLD}`;
   const dbUrl = `postgresql://postgres:postgres@localhost:${ports.PORT_DB}/postgres`;
   return [
     row(pc.cyan, "ERP", host("erp")),

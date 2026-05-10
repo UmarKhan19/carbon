@@ -1,16 +1,19 @@
 import { join } from "node:path";
 import { intro, log, note, outro, tasks } from "@clack/prompts";
-import { currentBranch } from "../lib/git.js";
+import { currentBranch, isLinkedWorktree } from "../lib/git.js";
 import { loadEnv } from "../lib/load-env.js";
 import { resolveSlot, SHARED_REDIS_PORT } from "../lib/ports.js";
-import { renderEnv, writeEnv } from "../lib/render-env.js";
+import {
+  renderEnv,
+  syncAppPortlessConfigs,
+  writeEnv
+} from "../lib/render-env.js";
 import {
   ensureSlugAvailable,
   getWorktreeRoot,
   persistSlug,
   projectName,
-  resolveSlug,
-  slugifyBranch
+  resolveSlug
 } from "../lib/slug.js";
 import {
   installDeps,
@@ -25,14 +28,15 @@ import {
   waitForTcp
 } from "../services/migrations.js";
 import {
+  branchToPrefix,
+  claimAppHosts,
   ensurePortlessInstalled,
   ensureProxyPrivileges,
   pruneStaleRoutes,
   registerAliases,
   startProxyDaemon,
   syncHostsFile,
-  waitForProxyReady,
-  writeAppPortlessConfig
+  waitForProxyReady
 } from "../services/portless.js";
 import { pickApps } from "../ui/prompts.js";
 import { summaryLines } from "../ui/summary.js";
@@ -59,7 +63,7 @@ export async function up() {
   let ports!: Awaited<ReturnType<typeof resolveSlot>>["ports"];
   let redisDb!: number;
   let jwt!: Awaited<ReturnType<typeof resolveSlot>>["jwt"];
-  let branchSegment = "";
+  let branchPrefix: string | null = null;
 
   await tasks([
     {
@@ -70,20 +74,20 @@ export async function up() {
         redisDb = slot.redisDb;
         jwt = slot.jwt;
 
+        // Apply the prefix on every non-default branch, regardless of whether
+        // the cwd is a linked worktree. portless only auto-prefixes inside
+        // linked worktrees, so for the main checkout we additionally stamp
+        // each app's portless.json (see syncAppPortlessConfigs below) to
+        // force the same `<prefix>.<app>.dev` shape there.
         const branch = await currentBranch(root);
-        branchSegment = branch ? slugifyBranch(branch) : slug;
+        const linked = await isLinkedWorktree();
+        branchPrefix = branchToPrefix(branch);
 
-        for (const id of selectedApps) {
-          writeAppPortlessConfig(join(root, "apps", id), {
-            name: `${id}.${branchSegment}`,
-            script: "dev:app"
-          });
-        }
-
-        writeEnv(root, renderEnv({ slug, ports, redisDb, jwt, branchSegment }));
+        writeEnv(root, renderEnv({ slug, ports, redisDb, jwt, branchPrefix }));
+        syncAppPortlessConfigs({ worktreeRoot: root, branchPrefix, linked });
         loadEnv(join(root, ".env.local"));
         loadEnv(join(root, ".env"));
-        return `branch "${branchSegment}", redis db ${redisDb}`;
+        return `prefix "${branchPrefix ?? "(none)"}", redis db ${redisDb}`;
       }
     },
     {
@@ -135,7 +139,7 @@ export async function up() {
     {
       title: "Start portless proxy",
       task: async (msg) => {
-        pruneStaleRoutes(branchSegment);
+        pruneStaleRoutes(branchPrefix);
         startProxyDaemon(root);
         msg("waiting for proxy on :443");
         await waitForProxyReady();
@@ -145,8 +149,17 @@ export async function up() {
     {
       title: "Register service aliases",
       task: async () => {
-        const count = await registerAliases(root, branchSegment, ports);
+        const count = await registerAliases(root, branchPrefix, ports);
         return `${count} aliases registered`;
+      }
+    },
+    {
+      title: "Reserve app hostnames",
+      task: async () => {
+        const killed = await claimAppHosts(branchPrefix, selectedApps);
+        return killed > 0
+          ? `killed ${killed} orphan portless process${killed === 1 ? "" : "es"}`
+          : "no orphans found";
       }
     }
   ]);
@@ -163,11 +176,11 @@ export async function up() {
     log.info("stripe listener spawned (CARBON_EDITION=cloud)");
   }
 
-  note(summaryLines(ports, branchSegment).join("\n"), `Carbon dev — ${slug}`);
+  note(summaryLines(ports, branchPrefix).join("\n"), `Carbon dev — ${slug}`);
   outro("apps starting (Ctrl+C to stop)");
 
-  // SIGINT handling lives inside spawnAppsViaTurbo; turbo gets the signal
-  // via the process group and we swallow our default exit so it can clean
-  // up before we return.
+  // SIGINT handling lives inside spawnAppsViaTurbo; the spawned portless
+  // children get the signal via the process group and we swallow our default
+  // exit so they can clean up routes before we return.
   await spawnAppsViaTurbo({ root, apps: selectedApps });
 }

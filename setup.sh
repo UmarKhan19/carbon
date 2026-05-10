@@ -117,14 +117,31 @@ block_for() {
 $SENTINEL_OPEN
 export PATH="$repo/packages/dev/bin:\$PATH"
 crbn() {
-  if [[ "\${1:-}" == "go" ]]; then
-    shift
-    local out
-    out="\$(command crbn _go "\$@")" || return \$?
-    eval "\$out"
-  else
-    command crbn "\$@"
-  fi
+  # Wrap \`checkout\` and \`go\` so the trailing \`cd '<path>'\` line on stdout
+  # becomes an actual cd in the caller's shell. \`checkout --up\` execs into
+  # \`crbn up\` and would clobber the captured stdout, so bypass capture there.
+  case "\${1:-}" in
+    checkout)
+      local arg
+      for arg in "\$@"; do
+        if [[ "\$arg" == "--up" ]]; then
+          command crbn "\$@"
+          return \$?
+        fi
+      done
+      local out
+      out="\$(command crbn "\$@")" || return \$?
+      [[ -n "\$out" ]] && eval "\$out"
+      ;;
+    go)
+      local out
+      out="\$(command crbn "\$@")" || return \$?
+      [[ -n "\$out" ]] && eval "\$out"
+      ;;
+    *)
+      command crbn "\$@"
+      ;;
+  esac
 }
 $SENTINEL_CLOSE
 EOF
@@ -160,10 +177,19 @@ install() {
   info "repo: $(dim "$repo")"
   info "rc:   $(dim "$rc")"
 
+  local refreshed=0
   if grep -qF "$SENTINEL_OPEN" "$rc"; then
-    warn "crbn block already present — leaving it alone"
-    info "to remove: $(kbd "./setup.sh --uninstall")"
-    return 0
+    # Strip the existing managed block so we can rewrite it. Lets users pull
+    # newer setup.sh and re-run install to refresh wrapper logic without an
+    # explicit --uninstall step.
+    local tmp; tmp="$(mktemp)"
+    awk -v sopen="$SENTINEL_OPEN" -v sclose="$SENTINEL_CLOSE" '
+      $0 == sopen { skip=1; next }
+      skip && $0 == sclose { skip=0; next }
+      !skip
+    ' "$rc" > "$tmp"
+    mv "$tmp" "$rc"
+    refreshed=1
   fi
 
   {
@@ -172,7 +198,11 @@ install() {
     printf '\n'
   } >> "$rc"
 
-  ok "appended crbn block to $rc"
+  if (( refreshed )); then
+    ok "refreshed crbn block in $rc"
+  else
+    ok "appended crbn block to $rc"
+  fi
 
   hdr "Activate"
   printf '  Open a new shell, or run:\n\n'

@@ -11,7 +11,7 @@ import {
 } from "@clack/prompts";
 import pc from "picocolors";
 import { APP_CHOICES, type AppId } from "../constants.js";
-import { branchExists } from "../lib/git.js";
+import { branchExists, deleteBranch, listWorktrees } from "../lib/git.js";
 
 // Reference for git ref name rules: git-check-ref-format(1).
 const INVALID_BRANCH_RE =
@@ -59,10 +59,33 @@ export async function promptBranch(): Promise<string> {
     if (isCancel(value)) abort();
     const trimmed = (value as string).trim();
     if (await branchExists(trimmed)) {
-      log.error(
-        `Branch '${trimmed}' already exists locally — try another name`
+      const worktrees = await listWorktrees();
+      const onWorktree = worktrees.find((w) => w.branch === trimmed);
+      if (onWorktree) {
+        log.error(
+          `Branch '${trimmed}' already has a worktree at ${pc.dim(onWorktree.path)}\n` +
+            `  Jump in with:  ${pc.cyan(`crbn go ${trimmed}`)}`
+        );
+        continue;
+      }
+      // Branch exists, no worktree. Offer to nuke + recreate so the user
+      // doesn't have to drop out of the flow to run `git branch -D` manually.
+      log.warn(
+        `Branch '${trimmed}' exists locally but has no worktree.\n` +
+          `  Materialize the existing branch with:  ${pc.cyan(`crbn checkout ${trimmed}`)}`
       );
-      continue;
+      const recreate = await confirm({
+        message: `Delete '${trimmed}' (force) and create fresh branch?`,
+        initialValue: false
+      });
+      if (isCancel(recreate)) abort();
+      if (!recreate) continue;
+      const del = await deleteBranch(trimmed);
+      if (!del.ok) {
+        log.error(`Failed to delete branch: ${del.error}`);
+        continue;
+      }
+      log.success(`Deleted branch '${trimmed}'`);
     }
     return trimmed;
   }

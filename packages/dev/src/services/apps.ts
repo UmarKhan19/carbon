@@ -1,39 +1,73 @@
 import { join } from "node:path";
-import { execa } from "execa";
+import { type ExecaChildProcess, execa } from "execa";
+import pc from "picocolors";
+
+const APP_COLORS: Record<string, (s: string) => string> = {
+  erp: pc.cyan,
+  mes: pc.magenta
+};
 
 /**
- * Spawn `turbo run dev` filtered to the requested apps. Each app's `dev`
- * script invokes portless, which loads `apps/<id>/portless.json` and runs
- * `dev:app` (react-router dev) behind a stable URL.
+ * Spawn each app's portless wrapper directly, bypassing the per-app `dev`
+ * script. Branches lag behind the canonical script
+ * (`portless --script dev:app run --force`) — older revisions just have
+ * `dev: portless`, which sends portless into default mode where its child
+ * resolves to the same `dev` script and respawns portless infinitely. The
+ * recursion races to register `<prefix>.<app>.dev` and trips
+ * `RouteConflictError` on the loser.
  *
- * Signal handling note: terminal SIGINT is delivered to the whole process
- * group, so turbo also receives it and runs its own graceful shutdown
- * ("Finishing writing to cache..."). We swallow SIGINT/SIGTERM in the
- * parent so Node's default handler doesn't exit code 130 mid-shutdown,
- * which would otherwise cause turbo to print "run failed: command exited"
- * because its children were killed before turbo could clean them up.
+ * Calling portless ourselves with the canonical args keeps `crbn up`
+ * deterministic across branches. We also lose turbo's prefixed log output,
+ * so we prefix child output here and stream stderr through.
  *
- * Once turbo exits (clean or via signal), we resolve undefined; up()
- * then returns and the process exits 0.
+ * Signal handling: terminal SIGINT goes to the whole process group, so each
+ * spawned portless gets it directly and runs its own cleanup. We swallow
+ * SIGINT/SIGTERM in the parent so Node's default handler doesn't exit 130
+ * mid-shutdown (children would die before route cleanup).
  */
 export function spawnAppsViaTurbo(opts: {
   root: string;
   apps: string[];
 }): Promise<void> {
   const { root, apps } = opts;
-  const filters = apps.flatMap((id) => ["--filter", `./apps/${id}`]);
-  const child = execa("turbo", ["run", "dev", ...filters], {
-    cwd: root,
-    stdio: "inherit",
-    preferLocal: true,
-    reject: false
+
+  const children: ExecaChildProcess[] = apps.map((id) => {
+    const color = APP_COLORS[id] ?? ((s: string) => s);
+    const child = execa("portless", ["--script", "dev:app", "run", "--force"], {
+      cwd: join(root, "apps", id),
+      preferLocal: true,
+      reject: false,
+      stdin: "ignore"
+    });
+
+    const prefix = color(pc.bold(`${id.padEnd(3)} | `));
+    const pipe = (
+      stream: NodeJS.ReadableStream | null,
+      sink: NodeJS.WriteStream
+    ) => {
+      if (!stream) return;
+      let buf = "";
+      stream.on("data", (chunk) => {
+        buf += chunk.toString();
+        const lines = buf.split("\n");
+        buf = lines.pop() ?? "";
+        for (const line of lines) sink.write(`${prefix}${line}\n`);
+      });
+      stream.on("end", () => {
+        if (buf.length > 0) sink.write(`${prefix}${buf}\n`);
+      });
+    };
+    pipe(child.stdout, process.stdout);
+    pipe(child.stderr, process.stderr);
+
+    return child;
   });
 
   const swallow = () => {};
   process.on("SIGINT", swallow);
   process.on("SIGTERM", swallow);
 
-  return child
+  return Promise.all(children)
     .then(() => undefined)
     .catch(() => undefined)
     .finally(() => {
