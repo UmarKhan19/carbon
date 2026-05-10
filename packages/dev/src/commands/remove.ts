@@ -14,8 +14,7 @@ import {
   removeWorktree
 } from "../lib/git.js";
 import { getSlot, listSlugs, removeSlot } from "../lib/ports.js";
-import { destroyProjectVolumes } from "../services/compose.js";
-import { flushDb } from "../services/redis.js";
+import { destroyProjectVolumes, flushDb } from "../services/compose.js";
 import { confirmRemove } from "../ui/prompts.js";
 
 export async function removeWorktreeCmd() {

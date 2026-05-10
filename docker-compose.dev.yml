@@ -28,7 +28,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - pgconfig:/etc/postgresql-custom
-      - ./packages/dev/src/db-init/init.sql:/docker-entrypoint-initdb.d/zz-carbon-roles.sql:ro
+      - ./packages/dev/docker/init.sql:/docker-entrypoint-initdb.d/zz-carbon-roles.sql:ro
     command:
       - postgres
       - -c
@@ -216,7 +216,7 @@ services:
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_PLUGINS: request-transformer,cors,key-auth,acl,basic-auth
     volumes:
-      - ./packages/dev/src/kong.yml:/home/kong/kong.yml:ro
+      - ./packages/dev/docker/kong.yml:/home/kong/kong.yml:ro
 
   # Redis is shared across worktrees — see root docker-compose.yml.
   # Each worktree gets its own logical DB index (0-15) via REDIS_URL.

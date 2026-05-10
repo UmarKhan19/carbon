@@ -1,8 +1,8 @@
 import { copyFileSync, existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { intro, log, outro } from "@clack/prompts";
-import { execa } from "execa";
 import pc from "picocolors";
+import { mainCheckoutRoot } from "../lib/git.js";
 
 const DEFAULT_INCLUDES = [".env"];
 
@@ -57,19 +57,4 @@ function readIncludes(mainRoot: string): string[] {
     }
   } catch {}
   return DEFAULT_INCLUDES;
-}
-
-async function mainCheckoutRoot(): Promise<string> {
-  const r = await execa("git", ["rev-parse", "--git-common-dir"], {
-    reject: false
-  });
-  if (r.exitCode !== 0) {
-    throw new Error("not inside a git repository");
-  }
-  // --git-common-dir points at <main>/.git for linked worktrees, or `.git`
-  // (relative) for the main worktree itself. Resolve relative-to-cwd, then
-  // strip the trailing `.git` segment.
-  const gitDir = r.stdout.trim();
-  const abs = gitDir.startsWith("/") ? gitDir : join(process.cwd(), gitDir);
-  return dirname(abs);
 }

@@ -1,8 +1,7 @@
 import { cancel, intro, log } from "@clack/prompts";
 import { getSlot } from "../lib/ports.js";
 import { getWorktreeRoot, projectName, resolveSlug } from "../lib/slug.js";
-import { stopStack } from "../services/compose.js";
-import { flushDb } from "../services/redis.js";
+import { flushDb, stopStack } from "../services/compose.js";
 import { confirmReset } from "../ui/prompts.js";
 import { up } from "./up.js";
 

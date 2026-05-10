@@ -61,14 +61,10 @@ export async function ensureSlugAvailable(slug: string, worktreeRoot: string) {
   }
 }
 
-function slugify(input: string): string {
+export function slugify(input: string): string {
   return input
     .toLowerCase()
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .replace(/-+/g, "-");
-}
-
-export function slugifyBranch(branch: string): string {
-  return slugify(branch);
 }

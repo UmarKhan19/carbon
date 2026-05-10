@@ -3,7 +3,7 @@ import { basename, dirname, join, relative, resolve } from "node:path";
 import { intro, note, outro, tasks } from "@clack/prompts";
 import pc from "picocolors";
 import { addWorktree, currentBranch } from "../lib/git.js";
-import { getWorktreeRoot, slugifyBranch } from "../lib/slug.js";
+import { getWorktreeRoot, slugify } from "../lib/slug.js";
 import {
   promptBaseRef,
   promptBranch,
@@ -20,7 +20,7 @@ export async function newWorktree() {
 
   const branch = await promptBranch();
 
-  const defaultDir = `${repoBaseName}-${slugifyBranch(branch)}`;
+  const defaultDir = `${repoBaseName}-${slugify(branch)}`;
   const dirName = await promptDirName(parentDir, defaultDir);
   const targetPath = resolve(parentDir, dirName);
 

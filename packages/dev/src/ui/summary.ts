@@ -1,7 +1,15 @@
 import pc from "picocolors";
 import { TLD } from "../constants.js";
 import type { PortMap } from "../lib/ports.js";
-import { link } from "./link.js";
+
+/**
+ * OSC 8 hyperlink. Supported by iTerm2, Terminal.app, Warp, kitty, etc.
+ * Falls back to plain text in unsupported terminals.
+ */
+function link(url: string, text?: string): string {
+  const label = text ?? url;
+  return `\x1b]8;;${url}\x1b\\${label}\x1b]8;;\x1b\\`;
+}
 
 type Color = (s: string) => string;
 

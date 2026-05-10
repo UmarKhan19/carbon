@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { execa } from "execa";
 
 export type Worktree = {
@@ -9,9 +9,22 @@ export type Worktree = {
   current: boolean;
 };
 
-export async function gitRoot(): Promise<string> {
-  const r = await execa("git", ["rev-parse", "--show-toplevel"]);
-  return r.stdout.trim();
+/**
+ * Resolve to the root of the *main* checkout, even when called from inside a
+ * linked worktree. `--git-common-dir` always points at `<main>/.git`, so its
+ * parent is the main checkout's working tree.
+ */
+export async function mainCheckoutRoot(
+  cwd: string = process.cwd()
+): Promise<string> {
+  const r = await execa("git", ["rev-parse", "--git-common-dir"], {
+    cwd,
+    reject: false
+  });
+  if (r.exitCode !== 0) {
+    throw new Error("not inside a git repository");
+  }
+  return dirname(resolve(cwd, r.stdout.trim()));
 }
 
 export async function isLinkedWorktree(cwd = process.cwd()): Promise<boolean> {

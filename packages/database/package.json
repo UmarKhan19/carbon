@@ -30,7 +30,7 @@
     "clean": "rimraf .turbo node_modules dist",
     "db:function:new": "supabase functions new",
     "db:init": "supabase init",
-    "db:migrate": "tsx ../dev/src/with-env.ts supabase migration up --db-url \\$SUPABASE_DB_URL",
+    "db:migrate": "tsx src/migrate.ts",
     "db:migrate:new": "supabase migration new",
     "db:seed": "tsx src/seed.ts",
     "db:seed:dev": "tsx src/seed-dev.ts",

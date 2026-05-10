@@ -7,8 +7,7 @@ import pc from "picocolors";
 import {
   ALIAS_SERVICES,
   type AppId,
-  PORTLESS_MIN_VERSION,
-  TLD
+  PORTLESS_MIN_VERSION
 } from "../constants.js";
 import type { PortMap } from "../lib/ports.js";
 
@@ -485,7 +484,7 @@ export function pruneStaleRoutes(branchPrefix: string | null) {
  *
  * Keep in sync with SUPABASE_AUTH_EXTERNAL_*_REDIRECT_URI in render-env.ts.
  */
-export const STABLE_OAUTH_ALIAS = "api.carbon";
+const STABLE_OAUTH_ALIAS = "api.carbon";
 
 const DEFAULT_BRANCHES = new Set(["main", "master", "trunk", "develop", "dev"]);
 
@@ -527,7 +526,7 @@ function withPrefix(name: string, prefix: string | null): string {
  * consistent: linked worktrees get `<prefix>.<service>.<tld>`, the main
  * checkout gets bare `<service>.<tld>`.
  */
-export function aliasMap(
+function aliasMap(
   branchPrefix: string | null,
   ports: PortMap
 ): { name: string; port: number }[] {
@@ -539,10 +538,6 @@ export function aliasMap(
     // Stable redirect target for OAuth providers. Last `crbn up` wins.
     { name: STABLE_OAUTH_ALIAS, port: ports.PORT_API }
   ];
-}
-
-export function host(sub: string, branchPrefix: string | null) {
-  return `${withPrefix(sub, branchPrefix)}.${TLD}`;
 }
 
 async function detectPortlessVersion(): Promise<string | null> {

@@ -12,7 +12,7 @@ export const PORT_NAMES = [
   "PORT_INNGEST"
 ] as const;
 
-export type PortName = (typeof PORT_NAMES)[number];
+type PortName = (typeof PORT_NAMES)[number];
 export type PortMap = Record<PortName, number>;
 
 export const REDIS_DB_MAX = 16; // Default Redis databases setting
@@ -20,7 +20,7 @@ export const SHARED_REDIS_PORT = 6379;
 
 const REGISTRY_PATH = join(homedir(), ".carbon", "dev-ports.json");
 
-export type RegistryEntry = {
+type RegistryEntry = {
   worktreeRoot: string;
   ports: PortMap;
   redisDb: number;
@@ -90,10 +90,6 @@ export async function resolveSlot(
 
 export function getSlot(slug: string): RegistryEntry | null {
   return readRegistry()[slug] ?? null;
-}
-
-export function getPorts(slug: string): PortMap | null {
-  return readRegistry()[slug]?.ports ?? null;
 }
 
 export function listSlugs(): Registry {
