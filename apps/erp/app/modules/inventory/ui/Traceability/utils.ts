@@ -345,13 +345,13 @@ export function sourceLinkHref(
     case "Job":
       return `/x/job/${id}`;
     case "Receipt":
-      return `/x/inventory/receipts/${id}`;
+      return `/x/receipt/${id}`;
     case "Shipment":
-      return `/x/inventory/shipments/${id}`;
+      return `/x/shipment/${id}`;
     case "Purchase Order":
       return `/x/purchase-order/${id}`;
     case "Sales Order":
-      return `/x/sales/orders/${id}`;
+      return `/x/sales-order/${id}`;
     default:
       return null;
   }

@@ -11,6 +11,7 @@ import {
   LuHistory,
   LuImage,
   LuKey,
+  LuLandmark,
   LuLayoutDashboard,
   LuNetwork,
   LuSheet,
@@ -23,7 +24,7 @@ import {
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
 import { useFlags } from "~/hooks/useFlags";
-import type { AuthenticatedRouteGroup } from "~/types";
+import type { AuthenticatedRouteGroup, Role } from "~/types";
 import { path } from "~/utils/path";
 
 const internalOnlyRoutes = new Set<string>([path.to.companies]);
@@ -78,6 +79,12 @@ export default function useSettingsSubmodules() {
       {
         name: t`Modules`,
         routes: [
+          {
+            name: t`Accounting`,
+            to: path.to.accountingSettings,
+            role: "employee",
+            icon: <LuLandmark />
+          },
           {
             name: t`Inventory`,
             to: path.to.inventorySettings,
@@ -185,7 +192,7 @@ export default function useSettingsSubmodules() {
     requiresOwnership?: boolean;
     requiresCloudEnvironment?: boolean;
   }) => {
-    if (route.role && !permissions.is(route.role)) return false;
+    if (route.role && !permissions.is(route.role as Role)) return false;
     if (route.requiresOwnership && !permissions.isOwner()) return false;
     if (route.requiresCloudEnvironment && !isCloud) return false;
     if (!isInternal && internalOnlyRoutes.has(route.to)) return false;

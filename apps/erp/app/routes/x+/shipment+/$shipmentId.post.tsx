@@ -1,13 +1,21 @@
-import { error } from "@carbon/auth";
+import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { upsertDocument } from "~/modules/documents";
+import {
+  dedupeViolations,
+  evaluateLinesForSurface,
+  isBlocked
+} from "~/modules/items/itemRules.server";
 import { loader as pdfLoader } from "~/routes/file+/shipment+/$id[.]pdf";
 import { path } from "~/utils/path";
 import { stripSpecialCharacters } from "~/utils/string";
+
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -16,6 +24,115 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { shipmentId } = params;
   if (!shipmentId) throw new Error("shipmentId not found");
+
+  const formData = await request.formData();
+  const acknowledged = formData.get("acknowledged") === "true";
+
+  // Item Rule evaluation across every line on this shipment before posting.
+  const serviceRole = getCarbonServiceRole();
+  const { data: lines } = await serviceRole
+    .from("shipmentLine")
+    .select(
+      "id, itemId, storageUnitId, shippedQuantity, locationId, shipmentId"
+    )
+    .eq("shipmentId", shipmentId)
+    .eq("companyId", companyId);
+
+  // Shipment source determines which surface(s) eval. Shipments leaving for
+  // an Outbound Transfer ALSO eval the `warehouseTransfer` surface — the post
+  // auto-completes the parent transfer, so warehouse-scoped rules need to
+  // fire here too.
+  const { data: shipmentForSurface } = await serviceRole
+    .from("shipment")
+    .select("sourceDocument")
+    .eq("id", shipmentId)
+    .single();
+  const surfaces: ("shipment" | "warehouseTransfer")[] = ["shipment"];
+  if (shipmentForSurface?.sourceDocument === "Outbound Transfer") {
+    surfaces.push("warehouseTransfer");
+  }
+
+  const evalLines = (lines ?? []).map((l) => ({
+    lineId: l.id as string,
+    itemId: l.itemId as string | null,
+    storageUnitId: l.storageUnitId as string | null,
+    quantity: Number(l.shippedQuantity ?? 0),
+    locationId: l.locationId as string | null
+  }));
+
+  const allViolations = [];
+  const allRuleNames: Record<string, string> = {};
+  for (const surface of surfaces) {
+    const { violations, ruleNames } = await evaluateLinesForSurface({
+      client: serviceRole,
+      companyId,
+      userId,
+      surface,
+      lines: evalLines
+    });
+    allViolations.push(...violations);
+    Object.assign(allRuleNames, ruleNames);
+  }
+
+  const deduped = dedupeViolations(allViolations);
+  if (deduped.length > 0 && isBlocked(deduped, acknowledged)) {
+    return {
+      error: null,
+      data: null,
+      violations: deduped,
+      ruleNames: allRuleNames
+    };
+  }
+
+  // Expired-batch policy check. Mirrors post-stock-transfer / issue edge
+  // functions: pulls inventoryShelfLife.expiredEntityPolicy from
+  // companySettings and refuses to post when any tracked entity attached to
+  // the shipment is past its expirationDate (unless policy is "Warn").
+  const { data: companySettings } = await serviceRole
+    .from("companySettings")
+    .select("inventoryShelfLife")
+    .eq("id", companyId)
+    .single();
+  const shelfLifeBlob = companySettings?.inventoryShelfLife as {
+    expiredEntityPolicy?: ExpiredEntityPolicy;
+  } | null;
+  const expiredPolicy: ExpiredEntityPolicy =
+    shelfLifeBlob?.expiredEntityPolicy ?? "Block";
+
+  const { data: shipmentTrackedEntities } = await serviceRole
+    .from("trackedEntity")
+    .select("id, readableId, expirationDate")
+    .eq("attributes ->> Shipment", shipmentId)
+    .eq("companyId", companyId);
+
+  const todayLocal = today(getLocalTimeZone());
+  const expiredEntities = (shipmentTrackedEntities ?? []).filter((e) => {
+    if (!e.expirationDate) return false;
+    try {
+      return parseDate(e.expirationDate).compare(todayLocal) < 0;
+    } catch {
+      return false;
+    }
+  });
+
+  let expiredWarning: string | null = null;
+  if (expiredEntities.length > 0) {
+    const ids = expiredEntities.map((e) => e.readableId ?? e.id).join(", ");
+    const message = `Cannot post shipment with expired batch${
+      expiredEntities.length === 1 ? "" : "es"
+    }: ${ids}`;
+
+    if (expiredPolicy === "Block" || expiredPolicy === "BlockWithOverride") {
+      throw redirect(
+        path.to.shipmentDetails(shipmentId),
+        await flash(request, error(null, message))
+      );
+    }
+
+    expiredWarning = `Posted shipment with expired batch${
+      expiredEntities.length === 1 ? "" : "es"
+    }: ${ids}`;
+  }
 
   const setPendingState = await client
     .from("shipment")
@@ -35,8 +152,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   try {
-    const serviceRole = getCarbonServiceRole();
-
     // Get shipment details to check if it's related to a sales order
     const { data: shipment } = await serviceRole
       .from("shipment")
@@ -142,6 +257,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
         status: "Draft"
       })
       .eq("id", shipmentId);
+  }
+
+  if (expiredWarning) {
+    throw redirect(
+      path.to.shipmentDetails(shipmentId),
+      await flash(request, success(expiredWarning))
+    );
   }
 
   throw redirect(path.to.shipmentDetails(shipmentId));

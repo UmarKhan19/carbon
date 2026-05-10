@@ -2,10 +2,10 @@
  * Development seed script for Carbon
  *
  * This script creates a development user and company with all default seed data.
- * Run after `npm run db:build` to set up a fully functional local environment.
+ * Run after `pnpm run db:build` to set up a fully functional local environment.
  *
  * Usage:
- *   npm run db:seed:dev -- --email your@email.com
+ *   pnpm run db:seed:dev -- --email your@email.com
  */
 
 import process from "node:process";
@@ -55,6 +55,7 @@ function inferFirstNameFromEmail(email: string): string {
 
 // Parse CLI arguments
 const { values } = parseArgs({
+  args: process.argv.slice(2).filter((a) => a !== "--"),
   options: {
     email: {
       type: "string",
@@ -66,13 +67,13 @@ const { values } = parseArgs({
 
 function printUsage() {
   console.log(`
-Usage: npm run db:seed:dev -- --email <email>
+Usage: pnpm run db:seed:dev -- --email <email>
 
 Arguments:
   --email, -e    Required. The email address for the dev user.
 
 Example:
-  npm run db:seed:dev -- --email developer@example.com
+  pnpm run db:seed:dev -- --email developer@example.com
   `);
 }
 
@@ -377,7 +378,7 @@ async function seedDev() {
             acc.incomeBalance,
             acc.class,
             parentKey ? (accountIdByKey[parentKey] ?? null) : null,
-            "isSystem" in acc ? (acc.isSystem ?? false) : false,
+            ("isSystem" in acc ? acc.isSystem : false) ?? false,
             companyGroupId
           ]
         );

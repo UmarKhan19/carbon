@@ -4,7 +4,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
+import { useRouteData } from "@carbon/react";
 import { Fragment } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
@@ -143,10 +143,19 @@ export default function SupplierQuoteLine() {
     ...line,
     id: line.id ?? undefined,
     supplierQuoteId: line.supplierQuoteId ?? "",
+    supplierQuoteLineType: (line.supplierQuoteLineType ?? "Part") as
+      | "Consumable"
+      | "G/L Account"
+      | "Material"
+      | "Part"
+      | "Tool",
     supplierPartId: line.supplierPartId ?? "",
     supplierPartRevision: line.supplierPartRevision ?? "",
     description: line.description ?? "",
     itemId: line.itemId ?? "",
+    accountId: line.accountId ?? undefined,
+    costCenterId: line.costCenterId ?? undefined,
+    requiredDate: line.requiredDate ?? undefined,
     quantity: line.quantity ?? [1],
     inventoryUnitOfMeasureCode: line.inventoryUnitOfMeasureCode ?? "",
     purchaseUnitOfMeasureCode: line.purchaseUnitOfMeasureCode ?? "",
