@@ -250,6 +250,90 @@ async function runLineageBfs(
   }
 }
 
+function buildEntityPath(
+  rootEntityId: string,
+  activities: Activity[],
+  inputs: ActivityInput[],
+  outputs: ActivityOutput[]
+): { keepEntities: Set<string>; keepActivities: Set<string> } {
+  const activityById = new Map(activities.map((a) => [a.id, a]));
+
+  const producedBy = new Map<string, string[]>();
+  const consumedBy = new Map<string, string[]>();
+  const activityOutputMap = new Map<string, string[]>();
+  const activityInputMap = new Map<string, string[]>();
+
+  for (const o of outputs) {
+    (
+      producedBy.get(o.trackedEntityId) ??
+      (producedBy.set(o.trackedEntityId, []),
+      producedBy.get(o.trackedEntityId)!)
+    ).push(o.trackedActivityId);
+    (
+      activityOutputMap.get(o.trackedActivityId) ??
+      (activityOutputMap.set(o.trackedActivityId, []),
+      activityOutputMap.get(o.trackedActivityId)!)
+    ).push(o.trackedEntityId);
+  }
+  for (const i of inputs) {
+    (
+      consumedBy.get(i.trackedEntityId) ??
+      (consumedBy.set(i.trackedEntityId, []),
+      consumedBy.get(i.trackedEntityId)!)
+    ).push(i.trackedActivityId);
+    (
+      activityInputMap.get(i.trackedActivityId) ??
+      (activityInputMap.set(i.trackedActivityId, []),
+      activityInputMap.get(i.trackedActivityId)!)
+    ).push(i.trackedEntityId);
+  }
+
+  const keepEntities = new Set<string>([rootEntityId]);
+  const keepActivities = new Set<string>();
+
+  // Backward: find what produced the root entity.
+  // For Split activities, include sibling outputs (remainder) but not
+  // sibling outputs of other activity types (e.g. serial peers from a Receipt).
+  const bwQueue: string[] = [rootEntityId];
+  while (bwQueue.length > 0) {
+    const eId = bwQueue.pop()!;
+    for (const aId of producedBy.get(eId) ?? []) {
+      if (keepActivities.has(aId)) continue;
+      keepActivities.add(aId);
+      const a = activityById.get(aId);
+      if (a?.type === "Split") {
+        for (const sibId of activityOutputMap.get(aId) ?? []) {
+          if (!keepEntities.has(sibId)) keepEntities.add(sibId);
+        }
+      }
+      for (const upId of activityInputMap.get(aId) ?? []) {
+        if (!keepEntities.has(upId)) {
+          keepEntities.add(upId);
+          bwQueue.push(upId);
+        }
+      }
+    }
+  }
+
+  // Forward: find what consumed the root entity (and recursively downstream).
+  const fwQueue: string[] = [rootEntityId];
+  while (fwQueue.length > 0) {
+    const eId = fwQueue.pop()!;
+    for (const aId of consumedBy.get(eId) ?? []) {
+      if (keepActivities.has(aId)) continue;
+      keepActivities.add(aId);
+      for (const downId of activityOutputMap.get(aId) ?? []) {
+        if (!keepEntities.has(downId)) {
+          keepEntities.add(downId);
+          fwQueue.push(downId);
+        }
+      }
+    }
+  }
+
+  return { keepEntities, keepActivities };
+}
+
 async function filterHistoricalActivities(
   client: SupabaseClient<Database>,
   state: LineageState,
@@ -335,8 +419,42 @@ async function filterHistoricalActivities(
         )
       : relevantInputs;
 
+  // When a specific root entity is given (single-entity view), restrict the
+  // payload to entities on the direct lineage path. This removes "siblings"
+  // that share an upstream activity (e.g. serial entities from the same
+  // receipt) while still keeping Split remainder entities.
+  if (rootEntityId) {
+    const { keepEntities, keepActivities } = buildEntityPath(
+      rootEntityId,
+      relevantActivities,
+      finalInputs,
+      relevantOutputs
+    );
+    const pathEntities = Array.from(state.entities.values()).filter((e) =>
+      keepEntities.has(e.id)
+    );
+    const pathActivities = relevantActivities.filter((a) =>
+      keepActivities.has(a.id)
+    );
+    const pathInputs = finalInputs.filter(
+      (i) =>
+        keepEntities.has(i.trackedEntityId) &&
+        keepActivities.has(i.trackedActivityId)
+    );
+    const pathOutputs = relevantOutputs.filter(
+      (o) =>
+        keepEntities.has(o.trackedEntityId) &&
+        keepActivities.has(o.trackedActivityId)
+    );
+    return {
+      entities: pathEntities,
+      inputs: pathInputs,
+      outputs: pathOutputs,
+      activities: pathActivities
+    };
+  }
+
   const entityIdsWithEdges = new Set<string>();
-  if (rootEntityId) entityIdsWithEdges.add(rootEntityId);
   for (const i of finalInputs) entityIdsWithEdges.add(i.trackedEntityId);
   for (const o of relevantOutputs) entityIdsWithEdges.add(o.trackedEntityId);
 
