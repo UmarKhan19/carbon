@@ -53,3 +53,5 @@ packages/database/supabase/seed.sql
 **/build/
 !**/build/.gitkeep
 .orcka
+.superpowers
+**/supabase/snippets
