@@ -1583,7 +1583,7 @@ msgstr "Back"
 msgid "Back to home"
 msgstr "Back to home"
 
-#: apps/erp/app/routes/x+/traceability+/graph.tsx:228
+#: apps/erp/app/routes/x+/traceability+/graph.tsx:233
 msgid "Back to traceability"
 msgstr "Back to traceability"
 
@@ -14441,7 +14441,7 @@ msgstr "Total:"
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:90
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:25
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:152
-#: apps/erp/app/routes/x+/traceability+/graph.tsx:24
+#: apps/erp/app/routes/x+/traceability+/graph.tsx:29
 msgid "Traceability"
 msgstr "Traceability"
 

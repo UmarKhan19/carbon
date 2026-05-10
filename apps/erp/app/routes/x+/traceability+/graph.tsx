@@ -4,8 +4,9 @@ import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { ParentSize } from "@visx/responsive";
 import { ReactFlowProvider, useReactFlow, useStore } from "@xyflow/react";
+import XYFlowStyle from "@xyflow/react/dist/style.css?url";
 import { useCallback, useMemo, useState } from "react";
-import type { LoaderFunctionArgs } from "react-router";
+import type { LinksFunction, LoaderFunctionArgs } from "react-router";
 import { Link, redirect, useLoaderData, useNavigation } from "react-router";
 import { Empty } from "~/components";
 import type { Activity, TrackedEntity } from "~/modules/inventory";
@@ -19,6 +20,10 @@ import { TraceabilityGraph } from "~/modules/inventory/ui/Traceability/Traceabil
 import { TraceabilitySidebar } from "~/modules/inventory/ui/Traceability/TraceabilitySidebar";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: XYFlowStyle }
+];
 
 export const handle: Handle = {
   breadcrumb: msg`Traceability`,

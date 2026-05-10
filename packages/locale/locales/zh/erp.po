@@ -1583,7 +1583,7 @@ msgstr "返回"
 msgid "Back to home"
 msgstr "返回主页"
 
-#: apps/erp/app/routes/x+/traceability+/graph.tsx:228
+#: apps/erp/app/routes/x+/traceability+/graph.tsx:233
 msgid "Back to traceability"
 msgstr "返回可追溯性"
 
@@ -14441,7 +14441,7 @@ msgstr "总计："
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:90
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:25
 #: apps/erp/app/routes/x+/traceability+/_index.tsx:152
-#: apps/erp/app/routes/x+/traceability+/graph.tsx:24
+#: apps/erp/app/routes/x+/traceability+/graph.tsx:29
 msgid "Traceability"
 msgstr "可追溯性"
 
