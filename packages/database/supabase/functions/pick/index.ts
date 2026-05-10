@@ -779,19 +779,46 @@ async function confirmPickingList(_client: any, payload: any) {
           )
           .execute();
 
-        // Only link to parent entity when the finished good is tracked.
-        if (parentEntityId) {
+        // Consume MUST have an output for the strict descendants RPC to
+        // traverse forward from the picked entity. When the finished good is
+        // batch/serial-tracked, that output is the real parent batch. When
+        // it isn't, we synthesize a pickResult entity (sourceDocument =
+        // "Picking List") that acts as the destination — this matches the
+        // MES Issue pattern so the traceability graph renders identically
+        // for tracked and untracked jobs. pickResult entities are filtered
+        // out of inventory listings by getTrackedEntities.
+        let outputEntityId = parentEntityId;
+        if (!outputEntityId) {
+          outputEntityId = nanoid();
           await trx
-            .insertInto("trackedActivityOutput")
+            .insertInto("trackedEntity")
             .values({
-              trackedActivityId: consumeId,
-              trackedEntityId: parentEntityId,
+              id: outputEntityId,
               quantity: totalPicked,
+              status: "Consumed",
+              sourceDocument: "Picking List",
+              sourceDocumentId: pickingListId,
+              sourceDocumentReadableId: pl.pickingListId,
+              attributes: {
+                "Picking List": pl.pickingListId,
+                "Job Material": jobMaterialId,
+              },
               companyId,
               createdBy: userId,
-            })
+            } as any)
             .execute();
         }
+
+        await trx
+          .insertInto("trackedActivityOutput")
+          .values({
+            trackedActivityId: consumeId,
+            trackedEntityId: outputEntityId,
+            quantity: totalPicked,
+            companyId,
+            createdBy: userId,
+          })
+          .execute();
       }
     }
 
@@ -916,9 +943,23 @@ async function reversePickingList(_client: any, payload: any) {
         .where("status", "=", "Consumed")
         .execute();
 
+      // Delete pickResult entities — these are the synthetic Consume
+      // outputs created at confirm time when the finished good wasn't
+      // batch/serial-tracked (sourceDocument = "Picking List"). They
+      // exist only for this PL's traversal and are safe to drop on
+      // reverse. Real parent-batch Consume outputs (tracked jobs) are
+      // never selected here because their sourceDocument is not
+      // "Picking List".
+      await trx
+        .deleteFrom("trackedEntity")
+        .where("sourceDocument", "=", "Picking List")
+        .where("sourceDocumentId", "=", pickingListId)
+        .where("companyId", "=", companyId)
+        .execute();
+
       // Pull Split activities for this PL so we can undo qty shrinkage
-      // and delete remainder entities. Consume outputs are now the job
-      // parent batch — they must NOT be touched here.
+      // and delete remainder entities. Consume outputs for tracked jobs
+      // point at the job parent batch and must NOT be touched here.
       const splitActivities = await trx
         .selectFrom("trackedActivity")
         .select(["id"])
