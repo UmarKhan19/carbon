@@ -32,6 +32,7 @@ import {
   claimAppHosts,
   ensurePortlessInstalled,
   ensureProxyPrivileges,
+  hostsFileInSync,
   pruneStaleRoutes,
   registerAliases,
   startProxyDaemon,
@@ -55,10 +56,12 @@ export async function up() {
   persistSlug(root, slug);
   log.info(`worktree: ${slug}  (project ${projectName(slug)})`);
 
-  // Install workspace deps first (no-op when in sync). Done outside the
-  // clack `tasks` block so pnpm's interactive output streams directly.
-  log.step("pnpm install");
-  await installDeps(root);
+  // Install workspace deps first (skipped when node_modules/.modules.yaml is
+  // newer than pnpm-lock.yaml). Done outside the clack `tasks` block so
+  // pnpm's interactive output streams directly when it does run.
+  const ran = await installDeps(root);
+  if (ran) log.step("pnpm install");
+  else log.info("pnpm install skipped (lockfile in sync)");
 
   let ports!: Awaited<ReturnType<typeof resolveSlot>>["ports"];
   let redisDb!: number;
@@ -164,12 +167,17 @@ export async function up() {
     }
   ]);
 
-  // Push the just-registered routes into /etc/hosts. Outside the clack
-  // tasks block because sudo's password prompt would clash with the
-  // spinner UI; sudo timestamp from ensureProxyPrivileges is usually still
-  // fresh so this is silent.
-  log.step("sudo portless hosts sync");
-  await syncHostsFile();
+  // Push the just-registered routes into /etc/hosts. Skipped when every
+  // route hostname is already inside the # portless-* block — saves the
+  // sudo password prompt on repeat runs of an unchanged worktree. Outside
+  // the clack tasks block because sudo's password prompt would clash with
+  // the spinner UI when it does run.
+  if (hostsFileInSync()) {
+    log.info("/etc/hosts already in sync — skipping sudo");
+  } else {
+    log.step("sudo portless hosts sync");
+    await syncHostsFile();
+  }
 
   if (process.env.CARBON_EDITION === "cloud") {
     spawnStripeListener(root);

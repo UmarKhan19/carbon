@@ -1,3 +1,4 @@
+import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { type ExecaChildProcess, execa } from "execa";
 import pc from "picocolors";
@@ -86,16 +87,21 @@ export function spawnStripeListener(root: string) {
 }
 
 /**
- * Run `pnpm install` in the worktree root. No-op when the lockfile + store
- * are already in sync — pnpm short-circuits in ~1s. New worktrees (fresh
- * `crbn checkout`) start empty, so this populates `node_modules/` before
- * anything tries to spawn `tsx`/`turbo`/etc. from `node_modules/.bin`.
+ * Run `pnpm install` in the worktree root. Skipped when
+ * `node_modules/.modules.yaml` is at least as new as `pnpm-lock.yaml` — that's
+ * the marker pnpm itself stamps after a successful install, so a newer
+ * marker means deps already match the lockfile. Saves ~1s per `crbn up` and,
+ * more importantly, the noisy progress output.
+ *
+ * Returns true if install actually ran, false if skipped.
  *
  * `--prefer-offline` keeps subsequent runs fast even on flaky networks.
  * stdio inherited so the user sees pnpm progress + can answer prompts
  * (e.g. patch-package warnings).
  */
-export async function installDeps(root: string) {
+export async function installDeps(root: string): Promise<boolean> {
+  if (depsInSync(root)) return false;
+
   const r = await execa("pnpm", ["install", "--prefer-offline"], {
     cwd: root,
     stdio: "inherit",
@@ -104,6 +110,18 @@ export async function installDeps(root: string) {
   });
   if (r.exitCode !== 0) {
     throw new Error(`pnpm install failed (exit ${r.exitCode})`);
+  }
+  return true;
+}
+
+function depsInSync(root: string): boolean {
+  const lockfile = join(root, "pnpm-lock.yaml");
+  const marker = join(root, "node_modules", ".modules.yaml");
+  if (!existsSync(lockfile) || !existsSync(marker)) return false;
+  try {
+    return statSync(marker).mtimeMs >= statSync(lockfile).mtimeMs;
+  } catch {
+    return false;
   }
 }
 

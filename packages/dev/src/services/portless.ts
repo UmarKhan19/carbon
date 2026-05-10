@@ -273,6 +273,48 @@ export async function syncHostsFile() {
   }
 }
 
+/**
+ * Returns true when every hostname in `~/.portless/routes.json` is already
+ * present in /etc/hosts (within portless's `# portless-start`/`# portless-end`
+ * block). Lets `crbn up` skip the `sudo portless hosts sync` step — and the
+ * password prompt — when nothing changed since the last run.
+ */
+export function hostsFileInSync(): boolean {
+  const routesPath = `${homedir()}/.portless/routes.json`;
+  if (!existsSync(routesPath)) return true; // nothing to sync
+
+  let hosts: { hostname: string }[];
+  try {
+    hosts = JSON.parse(readFileSync(routesPath, "utf8"));
+  } catch {
+    return false;
+  }
+  const desired = new Set(hosts.map((h) => h.hostname));
+  if (desired.size === 0) return true;
+
+  let etcHosts: string;
+  try {
+    etcHosts = readFileSync("/etc/hosts", "utf8");
+  } catch {
+    return false;
+  }
+  // Only consider hostnames inside the portless-managed block — anything
+  // outside is user-controlled and shouldn't influence sync skip.
+  const startIdx = etcHosts.indexOf("# portless-start");
+  const endIdx = etcHosts.indexOf("# portless-end");
+  if (startIdx === -1 || endIdx === -1 || endIdx < startIdx) return false;
+  const block = etcHosts.slice(startIdx, endIdx);
+  const present = new Set<string>();
+  for (const line of block.split("\n")) {
+    const m = line.match(/^\s*\d+\.\d+\.\d+\.\d+\s+(\S+)/);
+    if (m && m[1]) present.add(m[1]);
+  }
+  for (const h of desired) {
+    if (!present.has(h)) return false;
+  }
+  return true;
+}
+
 /** Block until the portless proxy PID file shows a live process. */
 export async function waitForProxyReady(timeoutMs = 30_000) {
   const tldFile = `${homedir()}/.portless/proxy.tld`;
