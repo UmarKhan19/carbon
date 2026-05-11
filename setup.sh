@@ -117,31 +117,23 @@ block_for() {
 $SENTINEL_OPEN
 export PATH="$repo/packages/dev/bin:\$PATH"
 crbn() {
-  # Wrap \`checkout\` and \`go\` so the trailing \`cd '<path>'\` line on stdout
-  # becomes an actual cd in the caller's shell. \`checkout --up\` execs into
-  # \`crbn up\` and would clobber the captured stdout, so bypass capture there.
-  case "\${1:-}" in
-    checkout)
-      local arg
-      for arg in "\$@"; do
-        if [[ "\$arg" == "--up" ]]; then
-          command crbn "\$@"
-          return \$?
-        fi
-      done
-      local out
-      out="\$(command crbn "\$@")" || return \$?
-      [[ -n "\$out" ]] && eval "\$out"
-      ;;
-    go)
-      local out
-      out="\$(command crbn "\$@")" || return \$?
-      [[ -n "\$out" ]] && eval "\$out"
-      ;;
-    *)
-      command crbn "\$@"
-      ;;
-  esac
+  # Wrap \`checkout\` so the trailing \`cd '<path>'\` on stdout becomes an
+  # actual cd in the caller's shell. \`--up\` execs into \`crbn up\` and would
+  # clobber the captured stdout, so bypass capture there.
+  if [[ "\${1:-}" == "checkout" ]]; then
+    local arg
+    for arg in "\$@"; do
+      if [[ "\$arg" == "--up" ]]; then
+        command crbn "\$@"
+        return \$?
+      fi
+    done
+    local out
+    out="\$(command crbn "\$@")" || return \$?
+    [[ -n "\$out" ]] && eval "\$out"
+  else
+    command crbn "\$@"
+  fi
 }
 $SENTINEL_CLOSE
 EOF

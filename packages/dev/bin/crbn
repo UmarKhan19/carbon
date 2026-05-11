@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Carbon dev CLI router. Bash for fast commands (`checkout`, `_go`); the rest
-# delegates to `tsx packages/dev/src/main.ts` (citty).
+# Carbon dev CLI router. Bash for `checkout` (needs eval'd cd in parent
+# shell); the rest delegates to `tsx packages/dev/src/main.ts` (citty).
 #
 # Setup once:  ./setup.sh
 # Then:        crbn <command>
@@ -250,89 +250,6 @@ maybe_up() {
 }
 
 # ---------------------------------------------------------------------------
-# go <branch>  — jump-only: cd into an existing worktree. Never creates.
-# Use `checkout` when you want create-or-jump semantics.
-# ---------------------------------------------------------------------------
-
-go_usage() {
-  cat >&2 <<'USAGE'
-Usage: crbn go [<branch>]
-
-  cd into the worktree on <branch>. Branch must already have a worktree
-  (use `crbn checkout <branch>` to materialize one). With no arg, lists
-  all worktrees.
-USAGE
-}
-
-cmd_go() {
-  local query="${1:-}"
-
-  # Collect (branch, path) pairs from `git worktree list --porcelain`.
-  local -a branches paths
-  local current_path="" branch="" line=""
-  while IFS= read -r line; do
-    if [[ "$line" == worktree\ * ]]; then
-      current_path="${line#worktree }"
-    elif [[ "$line" == branch\ refs/heads/* ]]; then
-      branch="${line#branch refs/heads/}"
-      branches+=("$branch")
-      paths+=("$current_path")
-    fi
-  done < <(git worktree list --porcelain)
-
-  list_options() {
-    hdr "Worktrees"
-    local i
-    for i in "${!branches[@]}"; do
-      printf "  %-40s %s\n" "${branches[$i]}" "${paths[$i]}" >&2
-    done
-  }
-
-  if [[ -z "$query" ]]; then
-    list_options
-    printf '\n' >&2
-    go_usage
-    exit 2
-  fi
-
-  local i match=""
-  for i in "${!branches[@]}"; do
-    if [[ "${branches[$i]}" == "$query" ]]; then
-      match="${paths[$i]}"
-      break
-    fi
-  done
-
-  if [[ -n "$match" ]]; then
-    printf "cd %q\n" "$match"
-    return 0
-  fi
-
-  fail "no worktree on branch '$query'"
-  printf '\n' >&2
-  local lower_query
-  lower_query="$(printf '%s' "$query" | tr '[:upper:]' '[:lower:]')"
-  local -a fuzzy
-  for i in "${!branches[@]}"; do
-    local lower_b
-    lower_b="$(printf '%s' "${branches[$i]}" | tr '[:upper:]' '[:lower:]')"
-    if [[ "$lower_b" == *"$lower_query"* ]]; then
-      fuzzy+=("$i")
-    fi
-  done
-  if (( ${#fuzzy[@]} > 0 )); then
-    info "did you mean:"
-    for i in "${fuzzy[@]}"; do
-      printf "  %-40s %s\n" "${branches[$i]}" "${paths[$i]}" >&2
-    done
-  else
-    list_options
-  fi
-  info "create with: ${C_BOLD}crbn checkout $query${C_RESET}"
-  exit 1
-}
-
-# ---------------------------------------------------------------------------
 # Top-level help
 # ---------------------------------------------------------------------------
 
@@ -341,22 +258,22 @@ print_help() {
 crbn — Carbon dev CLI
 
   Worktrees:
-    crbn go <branch>                cd into the worktree on <branch>
-                                    (jump-only, no create). Lists worktrees
-                                    when called without an arg.
-    crbn checkout <branch>          Switch into the worktree for <branch>.
+    crbn checkout <branch>          Switch into worktree for <branch>.
                                     Creates one if missing (auto-fetches
                                     from origin if not local).
-    crbn checkout -b <branch>       Create a new branch + worktree from
+    crbn checkout -b <branch>       Create new branch + worktree from
                                     --base (default origin/main).
+    crbn new                        Interactive: pick branch + base ref,
+                                    create worktree, optionally copy .env.
+    crbn list                       Show all worktrees with stack status.
+    crbn remove                     Pick a worktree to delete (with stack
+                                    teardown).
     crbn copy                       Sync files (package.json#crbn.copy)
                                     from main checkout into cwd.
-    crbn list                       Show all worktrees with stack status.
-    crbn remove                     Pick a worktree to delete.
 
   Stack:
     crbn up                         Boot compose stack + apps.
-    crbn down                       Stop the stack (volumes preserved).
+    crbn down                       Stop stack (volumes preserved).
     crbn reset                      Wipe volumes + redis, then `up`.
     crbn status                     Port assignment + container health.
 
@@ -376,9 +293,6 @@ case "$cmd" in
     ;;
   checkout)
     cmd_checkout "$@"
-    ;;
-  go)
-    cmd_go "$@"
     ;;
   copy|up|down|reset|status|new|list|remove)
     delegate_ts "$cmd" "$@"
