@@ -92,6 +92,7 @@ checkout_usage() {
   cat >&2 <<'USAGE'
 Usage: crbn checkout <name> [--path PATH] [--up]
        crbn checkout -b <name> [--base REF] [--path PATH] [--up]
+       crbn checkout <pr-number> [--up]
 
   Without -b: resolve <name> as an existing branch (local first, then
   origin/<name> with auto-fetch). If a worktree on that branch exists,
@@ -99,6 +100,11 @@ Usage: crbn checkout <name> [--path PATH] [--up]
 
   With -b: create a new branch <name> from --base (default HEAD), add a
   worktree, cd in. Fails if the branch already exists.
+
+  PR shortcut: a purely-numeric <name> is treated as a GitHub PR number.
+  Fetches `pull/<num>/head` from origin, materializes a local branch
+  `pr-<num>` + worktree. Works for fork PRs too. If `gh` is on PATH it's
+  used for a nicer banner; not required.
 
   --path PATH    Override the default worktree directory.
   --base REF     (with -b) base ref for the new branch. Default: HEAD.
@@ -150,6 +156,15 @@ cmd_checkout() {
     fail "branch required"
     checkout_usage
     exit 2
+  fi
+
+  # PR shortcut: bare numeric arg → fetch GitHub PR head ref + worktree it.
+  if [[ "$name" =~ ^[0-9]+$ ]] && (( create_new == 0 )); then
+    if [[ -n "$custom_path" || "$base_ref" != "HEAD" ]]; then
+      warn "--path/--base ignored for PR checkout"
+    fi
+    _checkout_pr "$name" "$do_up"
+    return $?
   fi
 
   local root parent base target
@@ -228,6 +243,67 @@ cmd_checkout() {
   maybe_up "$target" "$do_up"
 }
 
+# Fetch a GitHub PR head into a local `pr-<num>` branch and worktree it.
+# Same stdout contract as cmd_checkout (only `cd '<path>'` goes to stdout).
+_checkout_pr() {
+  local num="$1" do_up="$2"
+  local root parent base target branch
+  root="$(repo_root)"
+  parent="$(dirname "$root")"
+  base="$(basename "$root")"
+  base="${base%%-[a-z0-9-]*}"
+  branch="pr-${num}"
+  target="$parent/${base}-${branch}"
+
+  # Fast-path: worktree already exists for this PR.
+  local existing
+  existing="$(worktree_path_for_branch "$branch")"
+  if [[ -n "$existing" ]]; then
+    info "worktree for PR #${num} exists at ${C_DIM}${existing}${C_RESET}"
+    printf "cd %q\n" "$existing"
+    maybe_up "$existing" "$do_up"
+    return 0
+  fi
+
+  # Optional banner via gh (purely cosmetic — pure-git path works without it).
+  local metadata="" title="" head_ref=""
+  if command -v gh >/dev/null 2>&1; then
+    if metadata=$(gh pr view "$num" --json headRefName,title \
+                    -q '.headRefName + "\t" + .title' 2>/dev/null); then
+      head_ref="${metadata%%$'\t'*}"
+      title="${metadata#*$'\t'}"
+      info "PR #${num} — ${C_BOLD}${title}${C_RESET} (${C_DIM}${head_ref}${C_RESET})"
+    fi
+  fi
+  if [[ -z "$metadata" ]]; then
+    info "fetching PR #${num} from ${C_BOLD}origin${C_RESET}"
+  fi
+
+  # If the local branch already exists, reuse it instead of re-fetching.
+  # Keeps `pr-<num>` stable across re-runs and avoids accidental overwrites
+  # of in-progress local edits on top of the PR ref.
+  if git -C "$root" show-ref --verify --quiet "refs/heads/${branch}"; then
+    info "local branch '${branch}' exists — skipping fetch"
+  else
+    if ! git -C "$root" fetch origin "pull/${num}/head:${branch}" --quiet; then
+      fail "could not fetch PR #${num} from origin (is the number correct? is the PR open on this repo?)"
+      exit 1
+    fi
+  fi
+
+  if [[ -e "$target" ]]; then
+    fail "target path already exists: $target"
+    exit 1
+  fi
+
+  info "git worktree add ${C_DIM}${target}${C_RESET}"
+  git -C "$root" worktree add "$target" "$branch" >&2
+  ok "worktree at $target"
+  do_post_create "$target"
+  printf "cd %q\n" "$target"
+  maybe_up "$target" "$do_up"
+}
+
 # crbn copy inside the new worktree (so it reads package.json#crbn.copy from
 # the main checkout via --git-common-dir). All output goes to stderr to keep
 # stdout reserved for the eval'd `cd` line.
@@ -263,6 +339,8 @@ crbn — Carbon dev CLI
                                     from origin if not local).
     crbn checkout -b <branch>       Create new branch + worktree from
                                     --base (default HEAD).
+    crbn checkout <pr-number>       Fetch the PR head from GitHub into a
+                                    new `pr-<num>` branch + worktree.
     crbn new                        Interactive: pick branch + base ref,
                                     create worktree, optionally copy .env.
     crbn list                       Show all worktrees with stack status.
