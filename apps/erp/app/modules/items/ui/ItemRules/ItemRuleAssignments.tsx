@@ -24,7 +24,16 @@ import { useMemo } from "react";
 import { LuLibrary, LuPlus, LuShieldCheck, LuTrash } from "react-icons/lu";
 import { Form, Link, useFetcher } from "react-router";
 import { Hyperlink } from "~/components";
+import {
+  UpgradeOverlayActions,
+  UpgradeOverlayContent,
+  UpgradeOverlayDescription,
+  UpgradeOverlayIcon,
+  UpgradeOverlayTitle,
+  UpgradeOverlayUpgradeButton
+} from "~/components/UpgradeOverlay";
 import { usePermissions } from "~/hooks";
+import { usePlanGate } from "~/hooks/usePlanGate";
 import { path } from "~/utils/path";
 import SurfaceChips from "./SurfaceChips";
 
@@ -61,6 +70,7 @@ export default function ItemRuleAssignments({
   const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher();
+  const { isGated } = usePlanGate({ feature: "ITEM_RULES" });
   const canCreate = permissions.can("create", "parts");
   const canDelete = permissions.can("delete", "parts");
 
@@ -75,7 +85,7 @@ export default function ItemRuleAssignments({
   );
 
   const availableOptions = useMemo(
-    () => available.map((r) => ({ value: r.id, label: r.name })),
+    () => available.map((r) => ({ label: r.name, value: r.id })),
     [available]
   );
 
@@ -84,12 +94,51 @@ export default function ItemRuleAssignments({
     const fd = new FormData();
     fd.set("ruleId", ruleId);
     fetcher.submit(fd, {
-      method: "post",
-      action: path.to.itemRuleAssign(itemId)
+      action: path.to.itemRuleAssign(itemId),
+      method: "post"
     });
   };
 
   const isEmpty = assignments.length === 0;
+
+  if (isGated) {
+    return (
+      <Card className="flex-grow">
+        <CardHeader>
+          <CardTitle>
+            <Trans>Rules</Trans>
+          </CardTitle>
+          <CardDescription>
+            <Trans>
+              Enforce constraints on receipts, shipments, transfers and job
+              operations for this item.
+            </Trans>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
+            <UpgradeOverlayIcon>
+              <LuShieldCheck className="size-6 text-muted-foreground" />
+            </UpgradeOverlayIcon>
+            <UpgradeOverlayContent>
+              <UpgradeOverlayTitle>
+                <Trans>Upgrade to unlock item rules</Trans>
+              </UpgradeOverlayTitle>
+              <UpgradeOverlayDescription>
+                <Trans>
+                  Enforce per-item validation across receipts, shipments,
+                  transfers and adjustments.
+                </Trans>
+              </UpgradeOverlayDescription>
+            </UpgradeOverlayContent>
+            <UpgradeOverlayActions>
+              <UpgradeOverlayUpgradeButton />
+            </UpgradeOverlayActions>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="flex-grow">

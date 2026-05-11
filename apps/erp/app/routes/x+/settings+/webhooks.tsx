@@ -32,11 +32,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const [webhooks, config] = await Promise.all([
     getWebhooks(client, companyId, {
+      filters,
       limit,
       offset,
-      sorts,
       search,
-      filters
+      sorts
     }),
     getConfig(client)
   ]);
@@ -62,15 +62,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   return {
-    webhooks: webhooks.data ?? [],
+    config: config.data ?? null,
     count: webhooks.count ?? 0,
-    config: config.data ?? null
+    webhooks: webhooks.data ?? []
   };
 }
 
 export default function WebhooksRoute() {
   const { webhooks, count } = useLoaderData<typeof loader>();
-  const { isGated } = usePlanGate();
+  const { isGated } = usePlanGate({ feature: "WEBHOOKS" });
 
   if (isGated) {
     return <WebhooksUpgradeOverlay />;

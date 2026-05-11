@@ -72,8 +72,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (intent === "timeCard") {
     const update = await updateTimeCardSetting(client, companyId, enabled);
-    if (update.error) return { success: false, message: update.error.message };
-    return { success: true, message: "Timecard settings updated" };
+    if (update.error) return { message: update.error.message, success: false };
+    return { message: "Timecard settings updated", success: true };
   }
 
   if (intent === "console") {
@@ -84,7 +84,7 @@ export async function action({ request }: ActionFunctionArgs) {
       userId
     );
 
-    if (update.error) return { success: false, message: update.error.message };
+    if (update.error) return { message: update.error.message, success: false };
 
     // Check if a PIN was auto-generated for the user
     if (enabled) {
@@ -98,17 +98,17 @@ export async function action({ request }: ActionFunctionArgs) {
       const pin = (userPin.data as any)?.pin;
       if (pin) {
         return {
-          success: true,
           message: "Console mode enabled",
-          pin
+          pin,
+          success: true
         };
       }
     }
 
-    return { success: true, message: "Console mode settings updated" };
+    return { message: "Console mode settings updated", success: true };
   }
 
-  return { success: false, message: "Unknown intent" };
+  return { message: "Unknown intent", success: false };
 }
 
 export default function PeopleSettingsRoute() {
@@ -137,7 +137,7 @@ export default function PeopleSettingsRoute() {
   const handleConsoleToggle = useCallback(
     (checked: boolean) => {
       fetcher.submit(
-        { intent: "console", enabled: String(checked) },
+        { enabled: String(checked), intent: "console" },
         { method: "POST" }
       );
     },
@@ -147,7 +147,7 @@ export default function PeopleSettingsRoute() {
   const handleTimeCardToggle = useCallback(
     (checked: boolean) => {
       fetcher.submit(
-        { intent: "timeCard", enabled: String(checked) },
+        { enabled: String(checked), intent: "timeCard" },
         { method: "POST" }
       );
     },
@@ -178,29 +178,30 @@ export default function PeopleSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
-                <span className="font-medium">
-                  {(companySettings as any).consoleEnabled ? (
-                    <Trans>Console mode is enabled</Trans>
-                  ) : (
-                    <Trans>Console mode is disabled</Trans>
-                  )}
-                </span>
+              <VStack className="items-start" spacing={1}>
                 <HStack className="items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+                  <span className="font-medium">
                     {(companySettings as any).consoleEnabled ? (
-                      <Trans>
-                        Operators can use shared workstations with PIN
-                        authentication.
-                      </Trans>
+                      <Trans>Console mode is enabled</Trans>
                     ) : (
-                      <Trans>Enable to allow shared workstation mode.</Trans>
+                      <Trans>Console mode is disabled</Trans>
                     )}
                   </span>
                   <Badge variant="yellow">
                     <Trans>Beta</Trans>
                   </Badge>
                 </HStack>
+
+                <span className="text-sm text-muted-foreground">
+                  {(companySettings as any).consoleEnabled ? (
+                    <Trans>
+                      Operators can use shared workstations with PIN
+                      authentication.
+                    </Trans>
+                  ) : (
+                    <Trans>Enable to allow shared workstation mode.</Trans>
+                  )}
+                </span>
               </VStack>
               <Switch
                 checked={(companySettings as any).consoleEnabled ?? false}
@@ -222,26 +223,27 @@ export default function PeopleSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
-                <span className="font-medium">
-                  {companySettings.timeCardEnabled ? (
-                    <Trans>Timecards are enabled</Trans>
-                  ) : (
-                    <Trans>Timecards are disabled</Trans>
-                  )}
-                </span>
+              <VStack className="items-start" spacing={1}>
                 <HStack className="items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+                  <span className="font-medium">
                     {companySettings.timeCardEnabled ? (
-                      <Trans>Work shift tracking is active.</Trans>
+                      <Trans>Timecards are enabled</Trans>
                     ) : (
-                      <Trans>Enable to start tracking work shifts.</Trans>
+                      <Trans>Timecards are disabled</Trans>
                     )}
                   </span>
                   <Badge variant="yellow">
                     <Trans>Beta</Trans>
                   </Badge>
                 </HStack>
+
+                <span className="text-sm text-muted-foreground">
+                  {companySettings.timeCardEnabled ? (
+                    <Trans>Work shift tracking is active.</Trans>
+                  ) : (
+                    <Trans>Enable to start tracking work shifts.</Trans>
+                  )}
+                </span>
               </VStack>
               <Switch
                 checked={companySettings.timeCardEnabled ?? false}

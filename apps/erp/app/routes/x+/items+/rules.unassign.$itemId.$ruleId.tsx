@@ -1,6 +1,7 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { requirePlan } from "@carbon/ee/plan.server";
 import type {
   ActionFunctionArgs,
   ClientActionFunctionArgs
@@ -8,7 +9,6 @@ import type {
 import { redirect } from "react-router";
 import { unassignItemRule } from "~/modules/items";
 import { path } from "~/utils/path";
-import { requirePlan } from "~/utils/planGate.server";
 import { getCompanyId, itemRuleAssignmentsQuery } from "~/utils/react-query";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -18,10 +18,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   await requirePlan({
-    request,
     client,
     companyId,
-    redirectTo: path.to.itemRules
+    feature: "ITEM_RULES",
+    redirectTo: path.to.itemRules,
+    request
   });
 
   const { itemId, ruleId } = params;

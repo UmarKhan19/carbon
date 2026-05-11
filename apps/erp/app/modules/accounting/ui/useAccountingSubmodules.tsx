@@ -14,13 +14,12 @@ import {
   LuSheet,
   LuTrendingUp
 } from "react-icons/lu";
-import { usePermissions, useRouteData } from "~/hooks";
-import { useFlags } from "~/hooks/useFlags";
+import { usePermissions, useRouteData, useSettings } from "~/hooks";
 import type { AuthenticatedRouteGroup, Role } from "~/types";
 import { path } from "~/utils/path";
 
 const multiCompanyRoutes = new Set<string>([path.to.intercompany]);
-const internalOnlyRoutes = new Set<string>([
+const accountingOnlyRoutes = new Set<string>([
   path.to.balanceSheet,
   path.to.incomeStatement,
   path.to.trialBalance,
@@ -36,22 +35,22 @@ export default function useAccountingSubmodules() {
         name: t`Reports`,
         routes: [
           {
+            icon: <LuScale />,
             name: t`Balance Sheet`,
-            to: path.to.balanceSheet,
             role: "employee",
-            icon: <LuScale />
+            to: path.to.balanceSheet
           },
           {
+            icon: <LuTrendingUp />,
             name: t`Income Statement`,
-            to: path.to.incomeStatement,
             role: "employee",
-            icon: <LuTrendingUp />
+            to: path.to.incomeStatement
           },
           {
+            icon: <LuFileSpreadsheet />,
             name: t`Trial Balance`,
-            to: path.to.trialBalance,
             role: "employee",
-            icon: <LuFileSpreadsheet />
+            to: path.to.trialBalance
           }
         ]
       },
@@ -59,16 +58,16 @@ export default function useAccountingSubmodules() {
         name: t`Manage`,
         routes: [
           {
+            icon: <LuArrowLeftRight />,
             name: t`Intercompany`,
-            to: path.to.intercompany,
             role: "employee",
-            icon: <LuArrowLeftRight />
+            to: path.to.intercompany
           },
           {
+            icon: <LuBookOpen />,
             name: t`Journal Entries`,
-            to: path.to.accountingJournals,
             role: "employee",
-            icon: <LuBookOpen />
+            to: path.to.accountingJournals
           }
         ]
       },
@@ -77,46 +76,46 @@ export default function useAccountingSubmodules() {
         name: t`Configure`,
         routes: [
           {
+            icon: <LuSheet />,
             name: t`Chart of Accounts`,
-            to: path.to.chartOfAccounts,
             role: "employee",
-            icon: <LuSheet />
+            to: path.to.chartOfAccounts
           },
           {
+            icon: <LuCoins />,
             name: t`Cost Centers`,
-            to: path.to.costCenters,
             role: "employee",
-            icon: <LuCoins />
+            to: path.to.costCenters
           },
           {
-            name: t`Default Accounts`,
-            to: path.to.accountingDefaults,
             icon: <LuBetweenHorizontalStart />,
-            role: "employee"
+            name: t`Default Accounts`,
+            role: "employee",
+            to: path.to.accountingDefaults
           },
           {
+            icon: <LuAxis3D />,
             name: t`Dimensions`,
-            to: path.to.dimensions,
             role: "employee",
-            icon: <LuAxis3D />
+            to: path.to.dimensions
           },
           {
+            icon: <LuEuro />,
             name: t`Exchange Rates`,
-            to: path.to.exchangeRates,
             role: "employee",
-            icon: <LuEuro />
+            to: path.to.exchangeRates
           },
           {
+            icon: <LuCalendar1 />,
             name: t`Fiscal Year`,
-            to: path.to.fiscalYears,
             role: "employee",
-            icon: <LuCalendar1 />
+            to: path.to.fiscalYears
           },
           {
+            icon: <LuHandCoins />,
             name: t`Payment Terms`,
-            to: path.to.paymentTerms,
             role: "employee",
-            icon: <LuHandCoins />
+            to: path.to.paymentTerms
           }
         ]
       }
@@ -124,7 +123,8 @@ export default function useAccountingSubmodules() {
     [t]
   );
 
-  const { isInternal } = useFlags();
+  const settings = useSettings();
+  const accountingEnabled = (settings as any).accountingEnabled ?? false;
   const permissions = usePermissions();
   const routeData = useRouteData<{ hasMultipleCompanies: boolean }>(
     path.to.accounting
@@ -134,7 +134,7 @@ export default function useAccountingSubmodules() {
   const isRouteVisible = (route: { to: string; role?: string }) => {
     if (route.role && !permissions.is(route.role as Role)) return false;
     if (!hasMultipleCompanies && multiCompanyRoutes.has(route.to)) return false;
-    if (!isInternal && internalOnlyRoutes.has(route.to)) return false;
+    if (!accountingEnabled && accountingOnlyRoutes.has(route.to)) return false;
     return true;
   };
 

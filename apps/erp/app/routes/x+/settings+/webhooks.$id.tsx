@@ -1,6 +1,7 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { requirePlan } from "@carbon/ee/plan.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useLoaderData, useNavigate } from "react-router";
@@ -11,7 +12,6 @@ import {
 } from "~/modules/settings";
 import { WebhookForm } from "~/modules/settings/ui/Webhooks";
 import { getParams, path } from "~/utils/path";
-import { requirePlan } from "~/utils/planGate.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
@@ -41,10 +41,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   await requirePlan({
-    request,
     client,
     companyId,
-    redirectTo: path.to.webhooks
+    feature: "WEBHOOKS",
+    redirectTo: path.to.webhooks,
+    request
   });
 
   const { id } = params;
@@ -83,14 +84,14 @@ export default function EditWebhookRoute() {
   const { webhook } = useLoaderData<typeof loader>();
 
   const initialValues = {
+    active: webhook?.active ?? false,
     id: webhook?.id ?? undefined,
     name: webhook?.name ?? "",
-    url: webhook?.url ?? "",
-    table: webhook?.table ?? "",
+    onDelete: webhook?.onDelete ?? false,
     onInsert: webhook?.onInsert ?? false,
     onUpdate: webhook?.onUpdate ?? false,
-    onDelete: webhook?.onDelete ?? false,
-    active: webhook?.active ?? false
+    table: webhook?.table ?? "",
+    url: webhook?.url ?? ""
   };
 
   return (

@@ -94,9 +94,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   return {
+    apBillingAddress: apBillingAddress.data,
     companySettings: companySettings.data,
-    terms: terms.data,
-    apBillingAddress: apBillingAddress.data
+    terms: terms.data
   };
 }
 
@@ -122,13 +122,13 @@ export async function action({ request }: ActionFunctionArgs) {
           apToggleResult.error
         );
         return {
-          success: false,
-          message: apToggleResult.error.message
+          message: apToggleResult.error.message,
+          success: false
         };
       }
       return {
-        success: true,
-        message: `Accounts payable billing address ${apToggleEnabled ? "enabled" : "disabled"}`
+        message: `Accounts payable billing address ${apToggleEnabled ? "enabled" : "disabled"}`,
+        success: true
       };
 
     case "purchasePriceUpdateTiming":
@@ -137,7 +137,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ).validate(formData);
 
       if (validation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const result = await updatePurchasePriceUpdateTimingSetting(
@@ -152,14 +152,14 @@ export async function action({ request }: ActionFunctionArgs) {
           result.error
         );
         return {
-          success: false,
-          message: result.error.message
+          message: result.error.message,
+          success: false
         };
       }
 
       return {
-        success: true,
-        message: "Purchase price update timing updated"
+        message: "Purchase price update timing updated",
+        success: true
       };
 
     case "updateLeadTimesOnReceipt":
@@ -176,14 +176,14 @@ export async function action({ request }: ActionFunctionArgs) {
           updateLeadTimesResult.error
         );
         return {
-          success: false,
-          message: updateLeadTimesResult.error.message
+          message: updateLeadTimesResult.error.message,
+          success: false
         };
       }
 
       return {
-        success: true,
-        message: `Lead time updates on receipt ${updateLeadTimesOnReceipt ? "enabled" : "disabled"}`
+        message: `Lead time updates on receipt ${updateLeadTimesOnReceipt ? "enabled" : "disabled"}`,
+        success: true
       };
 
     case "supplierQuoteNotification":
@@ -192,7 +192,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ).validate(formData);
 
       if (supplierQuoteValidation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const supplierQuoteResult = await updateSupplierQuoteNotificationSetting(
@@ -207,14 +207,14 @@ export async function action({ request }: ActionFunctionArgs) {
           supplierQuoteResult.error
         );
         return {
-          success: false,
-          message: supplierQuoteResult.error.message
+          message: supplierQuoteResult.error.message,
+          success: false
         };
       }
 
       return {
-        success: true,
-        message: "Supplier quote notification setting updated"
+        message: "Supplier quote notification setting updated",
+        success: true
       };
 
     case "pdfs": {
@@ -227,11 +227,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
       if (thumbnailsResult.error)
         return {
-          success: false,
-          message: thumbnailsResult.error.message
+          message: thumbnailsResult.error.message,
+          success: false
         };
 
-      return { success: true, message: "PDF settings updated" };
+      return { message: "PDF settings updated", success: true };
     }
 
     case "accountsPayableBillingAddress":
@@ -240,7 +240,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ).validate(formData);
 
       if (apBillingValidation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const apBillingResult = await updateAccountsPayableBillingAddress(
@@ -256,14 +256,14 @@ export async function action({ request }: ActionFunctionArgs) {
           apBillingResult.error
         );
         return {
-          success: false,
-          message: apBillingResult.error.message
+          message: apBillingResult.error.message,
+          success: false
         };
       }
 
       return {
-        success: true,
-        message: "Accounts payable billing address updated"
+        message: "Accounts payable billing address updated",
+        success: true
       };
 
     case "emails":
@@ -272,7 +272,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ).validate(formData);
 
       if (defaultSupplierCcValidation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const defaultSupplierCcResult = await updateDefaultSupplierCc(
@@ -287,18 +287,18 @@ export async function action({ request }: ActionFunctionArgs) {
           defaultSupplierCcResult.error
         );
         return {
-          success: false,
-          message: defaultSupplierCcResult.error.message
+          message: defaultSupplierCcResult.error.message,
+          success: false
         };
       }
 
       return {
-        success: true,
-        message: "Supplier email settings updated"
+        message: "Supplier email settings updated",
+        success: true
       };
   }
 
-  return { success: false, message: "Unknown intent" };
+  return { message: "Unknown intent", success: false };
 }
 
 export default function PurchasingSettingsRoute() {
@@ -338,7 +338,7 @@ export default function PurchasingSettingsRoute() {
     (checked: boolean) => {
       setApAddressEnabled(checked);
       toggleFetcher.submit(
-        { intent: "accountsPayableAddressToggle", enabled: checked.toString() },
+        { enabled: checked.toString(), intent: "accountsPayableAddressToggle" },
         { method: "POST" }
       );
     },
@@ -350,8 +350,8 @@ export default function PurchasingSettingsRoute() {
       setLeadTimesOnReceiptEnabled(checked);
       toggleFetcher.submit(
         {
-          intent: "updateLeadTimesOnReceipt",
-          enabled: checked.toString()
+          enabled: checked.toString(),
+          intent: "updateLeadTimesOnReceipt"
         },
         { method: "POST" }
       );
@@ -477,16 +477,16 @@ export default function PurchasingSettingsRoute() {
               method="post"
               validator={accountsPayableBillingAddressValidator}
               defaultValues={{
-                name: apBillingAddress?.name ?? "",
                 addressLine1: apBillingAddress?.addressLine1 ?? "",
                 addressLine2: apBillingAddress?.addressLine2 ?? "",
                 city: apBillingAddress?.city ?? "",
-                state: apBillingAddress?.state ?? "",
-                postalCode: apBillingAddress?.postalCode ?? "",
                 countryCode: apBillingAddress?.countryCode ?? "",
-                phone: apBillingAddress?.phone ?? "",
+                email: apBillingAddress?.email ?? "",
                 fax: apBillingAddress?.fax ?? "",
-                email: apBillingAddress?.email ?? ""
+                name: apBillingAddress?.name ?? "",
+                phone: apBillingAddress?.phone ?? "",
+                postalCode: apBillingAddress?.postalCode ?? "",
+                state: apBillingAddress?.state ?? ""
               }}
               fetcher={fetcher}
             >
@@ -711,7 +711,7 @@ export default function PurchasingSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {companySettings.includeThumbnailsOnPurchasingPdfs ? (
                     <Trans>Thumbnails are included</Trans>
@@ -737,7 +737,7 @@ export default function PurchasingSettingsRoute() {
                 }
                 onCheckedChange={(checked) => {
                   toggleFetcher.submit(
-                    { intent: "pdfs", enabled: String(checked) },
+                    { enabled: String(checked), intent: "pdfs" },
                     { method: "POST" }
                   );
                 }}

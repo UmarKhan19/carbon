@@ -28,7 +28,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (trackedEntityResponse.error) {
     return data(
-      { success: false, error: trackedEntityResponse.error.message },
+      { error: trackedEntityResponse.error.message, success: false },
       await flash(
         request,
         error(trackedEntityResponse.error, trackedEntityResponse.error.message)
@@ -41,8 +41,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (trackedEntity.status !== "Available") {
     return data(
       {
-        success: false,
-        error: `Tracked entity is not available. Current status: ${trackedEntity.status}`
+        error: `Tracked entity is not available. Current status: ${trackedEntity.status}`,
+        success: false
       },
       await flash(
         request,
@@ -64,7 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (trackedEntity.quantity < quantity) {
       return data(
-        { success: false, error: "Batch has insufficient quantity" },
+        { error: "Batch has insufficient quantity", success: false },
         await flash(request, error("Batch has insufficient quantity"))
       );
     }
@@ -72,8 +72,8 @@ export async function action({ request }: ActionFunctionArgs) {
     // Add batch-specific attributes
     newAttributes = {
       ...newAttributes,
-      "Shipment Line": shipmentLineId,
-      Shipment: shipmentId
+      Shipment: shipmentId,
+      "Shipment Line": shipmentLineId
     };
   } else if (trackingType === "serial") {
     const index = Number(formData.get("index"));
@@ -81,10 +81,46 @@ export async function action({ request }: ActionFunctionArgs) {
     // Add serial-specific attributes
     newAttributes = {
       ...newAttributes,
-      "Shipment Line": shipmentLineId,
       Shipment: shipmentId,
+      "Shipment Line": shipmentLineId,
       "Shipment Line Index": index
     };
+  }
+
+  // Clear stale shipment attrs from previously-assigned tracked entities for this line.
+  // Batch: any prior entity on this line. Serial: only the entity at this index.
+  let staleQuery = serviceRole
+    .from("trackedEntity")
+    .select("id, attributes")
+    .eq("companyId", companyId)
+    .eq("attributes ->> Shipment Line", shipmentLineId)
+    .neq("id", trackedEntityId);
+
+  if (trackingType === "serial") {
+    const index = Number(formData.get("index"));
+    staleQuery = staleQuery.eq(
+      "attributes ->> Shipment Line Index",
+      String(index)
+    );
+  }
+
+  const staleResponse = await staleQuery;
+
+  if (staleResponse.data && staleResponse.data.length > 0) {
+    await Promise.all(
+      staleResponse.data.map((stale) => {
+        const cleaned = {
+          ...((stale.attributes ?? {}) as Record<string, any>)
+        };
+        delete cleaned["Shipment Line"];
+        delete cleaned.Shipment;
+        delete cleaned["Shipment Line Index"];
+        return serviceRole
+          .from("trackedEntity")
+          .update({ attributes: cleaned })
+          .eq("id", stale.id);
+      })
+    );
   }
 
   // Update the trackedEntity record using service role to bypass RLS
@@ -98,7 +134,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (updateResponse.error) {
     return data(
-      { success: false, error: updateResponse.error.message },
+      { error: updateResponse.error.message, success: false },
       await flash(
         request,
         error(updateResponse.error, updateResponse.error.message)

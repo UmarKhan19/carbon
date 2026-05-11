@@ -68,7 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
 
     if (validation.error) {
-      return { success: false, message: "Invalid form data" };
+      return { message: "Invalid form data", success: false };
     }
 
     const update = await client
@@ -81,9 +81,9 @@ export async function action({ request }: ActionFunctionArgs) {
       })
       .eq("id", companyId);
 
-    if (update.error) return { success: false, message: update.error.message };
+    if (update.error) return { message: update.error.message, success: false };
 
-    return { success: true, message: "Job notification settings updated" };
+    return { message: "Job notification settings updated", success: true };
   }
 
   if (intent === "jobTraveler") {
@@ -94,12 +94,12 @@ export async function action({ request }: ActionFunctionArgs) {
       enabled
     );
 
-    if (update.error) return { success: false, message: update.error.message };
+    if (update.error) return { message: update.error.message, success: false };
 
-    return { success: true, message: "Job traveler settings updated" };
+    return { message: "Job traveler settings updated", success: true };
   }
 
-  return { success: false, message: "Unknown intent" };
+  return { message: "Unknown intent", success: false };
 }
 
 export default function ProductionSettingsRoute() {
@@ -130,7 +130,7 @@ export default function ProductionSettingsRoute() {
   const handleJobTravelerToggle = useCallback(
     (checked: boolean) => {
       toggleFetcher.submit(
-        { intent: "jobTraveler", enabled: String(checked) },
+        { enabled: String(checked), intent: "jobTraveler" },
         { method: "POST" }
       );
     },
@@ -218,7 +218,7 @@ export default function ProductionSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {companySettings.jobTravelerIncludeWorkInstructions ? (
                     <Trans>Work instructions are included</Trans>

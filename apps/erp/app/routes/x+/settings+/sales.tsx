@@ -86,9 +86,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
       )
     );
   return {
+    arBillingAddress: arBillingAddress.data,
     companySettings: companySettings.data,
-    terms: terms.data,
-    arBillingAddress: arBillingAddress.data
+    terms: terms.data
   };
 }
 
@@ -109,11 +109,11 @@ export async function action({ request }: ActionFunctionArgs) {
         arToggleEnabled
       );
       if (arToggleResult.error) {
-        return { success: false, message: arToggleResult.error.message };
+        return { message: arToggleResult.error.message, success: false };
       }
       return {
-        success: true,
-        message: `Accounts receivable billing address ${arToggleEnabled ? "enabled" : "disabled"}`
+        message: `Accounts receivable billing address ${arToggleEnabled ? "enabled" : "disabled"}`,
+        success: true
       };
 
     case "digitalQuote":
@@ -122,7 +122,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (validation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const digitalQuote = await updateDigitalQuoteSetting(
@@ -133,9 +133,9 @@ export async function action({ request }: ActionFunctionArgs) {
         validation.data.digitalQuoteIncludesPurchaseOrders
       );
       if (digitalQuote.error)
-        return { success: false, message: digitalQuote.error.message };
+        return { message: digitalQuote.error.message, success: false };
 
-      return { success: true, message: "Digital quote setting updated" };
+      return { message: "Digital quote setting updated", success: true };
 
     case "pdfs": {
       const pdfEnabled = formData.get("enabled") === "true";
@@ -146,9 +146,9 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (thumbnailsResult.error)
-        return { success: false, message: thumbnailsResult.error.message };
+        return { message: thumbnailsResult.error.message, success: false };
 
-      return { success: true, message: "PDF settings updated" };
+      return { message: "PDF settings updated", success: true };
     }
 
     case "rfq":
@@ -156,7 +156,7 @@ export async function action({ request }: ActionFunctionArgs) {
         await validator(rfqReadyValidator).validate(formData);
 
       if (rfqValidation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const rfqSettings = await updateRfqReadySetting(
@@ -166,9 +166,9 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (rfqSettings.error)
-        return { success: false, message: rfqSettings.error.message };
+        return { message: rfqSettings.error.message, success: false };
 
-      return { success: true, message: "RFQ setting updated" };
+      return { message: "RFQ setting updated", success: true };
 
     case "categoryMarkups":
       const categoryMarkupsValidation = await validator(
@@ -176,7 +176,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ).validate(formData);
 
       if (categoryMarkupsValidation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const categoryMarkupsResult = await updateQuoteLineCategoryMarkups(
@@ -187,13 +187,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
       if (categoryMarkupsResult.error)
         return {
-          success: false,
-          message: categoryMarkupsResult.error.message
+          message: categoryMarkupsResult.error.message,
+          success: false
         };
 
       return {
-        success: true,
-        message: "Default category markups updated"
+        message: "Default category markups updated",
+        success: true
       };
 
     case "accountsReceivableBillingAddress":
@@ -202,7 +202,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ).validate(formData);
 
       if (arBillingValidation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const arBillingResult = await updateAccountsReceivableBillingAddress(
@@ -213,12 +213,12 @@ export async function action({ request }: ActionFunctionArgs) {
       );
 
       if (arBillingResult.error) {
-        return { success: false, message: arBillingResult.error.message };
+        return { message: arBillingResult.error.message, success: false };
       }
 
       return {
-        success: true,
-        message: "Accounts receivable billing address updated"
+        message: "Accounts receivable billing address updated",
+        success: true
       };
 
     case "emails":
@@ -227,7 +227,7 @@ export async function action({ request }: ActionFunctionArgs) {
       ).validate(formData);
 
       if (defaultCustomerCcValidation.error) {
-        return { success: false, message: "Invalid form data" };
+        return { message: "Invalid form data", success: false };
       }
 
       const defaultCustomerCcResult = await updateDefaultCustomerCc(
@@ -238,18 +238,18 @@ export async function action({ request }: ActionFunctionArgs) {
 
       if (defaultCustomerCcResult.error) {
         return {
-          success: false,
-          message: defaultCustomerCcResult.error.message
+          message: defaultCustomerCcResult.error.message,
+          success: false
         };
       }
 
       return {
-        success: true,
-        message: "Customer email settings updated"
+        message: "Customer email settings updated",
+        success: true
       };
   }
 
-  return { success: false, message: "Unknown intent" };
+  return { message: "Unknown intent", success: false };
 }
 
 export default function SalesSettingsRoute() {
@@ -267,8 +267,8 @@ export default function SalesSettingsRoute() {
       setArAddressEnabled(checked);
       toggleFetcher.submit(
         {
-          intent: "accountsReceivableAddressToggle",
-          enabled: checked.toString()
+          enabled: checked.toString(),
+          intent: "accountsReceivableAddressToggle"
         },
         { method: "POST" }
       );
@@ -416,16 +416,16 @@ export default function SalesSettingsRoute() {
               method="post"
               validator={accountsReceivableBillingAddressValidator}
               defaultValues={{
-                name: arBillingAddress?.name ?? "",
                 addressLine1: arBillingAddress?.addressLine1 ?? "",
                 addressLine2: arBillingAddress?.addressLine2 ?? "",
                 city: arBillingAddress?.city ?? "",
-                state: arBillingAddress?.state ?? "",
-                postalCode: arBillingAddress?.postalCode ?? "",
                 countryCode: arBillingAddress?.countryCode ?? "",
-                phone: arBillingAddress?.phone ?? "",
+                email: arBillingAddress?.email ?? "",
                 fax: arBillingAddress?.fax ?? "",
-                email: arBillingAddress?.email ?? ""
+                name: arBillingAddress?.name ?? "",
+                phone: arBillingAddress?.phone ?? "",
+                postalCode: arBillingAddress?.postalCode ?? "",
+                state: arBillingAddress?.state ?? ""
               }}
               fetcher={fetcher}
             >
@@ -474,10 +474,10 @@ export default function SalesSettingsRoute() {
             validator={digitalQuoteValidator}
             defaultValues={{
               digitalQuoteEnabled: companySettings.digitalQuoteEnabled ?? false,
-              digitalQuoteNotificationGroup:
-                companySettings.digitalQuoteNotificationGroup ?? [],
               digitalQuoteIncludesPurchaseOrders:
-                companySettings.digitalQuoteIncludesPurchaseOrders ?? false
+                companySettings.digitalQuoteIncludesPurchaseOrders ?? false,
+              digitalQuoteNotificationGroup:
+                companySettings.digitalQuoteNotificationGroup ?? []
             }}
             fetcher={fetcher}
           >
@@ -641,7 +641,7 @@ export default function SalesSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {companySettings.includeThumbnailsOnSalesPdfs ? (
                     <Trans>Thumbnails are included</Trans>
@@ -661,7 +661,7 @@ export default function SalesSettingsRoute() {
                 checked={companySettings.includeThumbnailsOnSalesPdfs ?? true}
                 onCheckedChange={(checked) => {
                   toggleFetcher.submit(
-                    { intent: "pdfs", enabled: String(checked) },
+                    { enabled: String(checked), intent: "pdfs" },
                     { method: "POST" }
                   );
                 }}
@@ -691,37 +691,37 @@ const costCategoryKeys = [
 ] as const;
 
 const categoryLabels: Record<string, { label: string; description: string }> = {
-  materialCost: {
-    label: "Material",
-    description: "Raw materials"
-  },
-  partCost: {
-    label: "Part",
-    description: "Made and purchased parts"
-  },
-  toolCost: {
-    label: "Tool",
-    description: "Jigs, fixtures, and other tools"
-  },
   consumableCost: {
-    label: "Consumable",
-    description: "Consumables like lubricants, gloves, and other small items"
+    description: "Consumables like lubricants, gloves, and other small items",
+    label: "Consumable"
   },
   laborCost: {
-    label: "Labor",
-    description: "Service and labor costs"
+    description: "Service and labor costs",
+    label: "Labor"
   },
   machineCost: {
-    label: "Machine",
-    description: "Time the machine is running"
+    description: "Time the machine is running",
+    label: "Machine"
   },
-  overheadCost: {
-    label: "Overhead",
-    description: "Administrative and other operational costs"
+  materialCost: {
+    description: "Raw materials",
+    label: "Material"
   },
   outsideCost: {
-    label: "Outside",
-    description: "Services performed by third parties"
+    description: "Services performed by third parties",
+    label: "Outside"
+  },
+  overheadCost: {
+    description: "Administrative and other operational costs",
+    label: "Overhead"
+  },
+  partCost: {
+    description: "Made and purchased parts",
+    label: "Part"
+  },
+  toolCost: {
+    description: "Jigs, fixtures, and other tools",
+    label: "Tool"
   }
 };
 
@@ -743,14 +743,14 @@ function CategoryMarkupsCard({
         method="post"
         validator={quoteLineCategoryMarkupsSettingsValidator}
         defaultValues={{
-          materialCost: saved?.materialCost ?? 0,
-          partCost: saved?.partCost ?? 0,
-          toolCost: saved?.toolCost ?? 0,
           consumableCost: saved?.consumableCost ?? 0,
           laborCost: saved?.laborCost ?? 0,
           machineCost: saved?.machineCost ?? 0,
+          materialCost: saved?.materialCost ?? 0,
+          outsideCost: saved?.outsideCost ?? 0,
           overheadCost: saved?.overheadCost ?? 0,
-          outsideCost: saved?.outsideCost ?? 0
+          partCost: saved?.partCost ?? 0,
+          toolCost: saved?.toolCost ?? 0
         }}
         fetcher={fetcher}
       >
@@ -790,9 +790,9 @@ function CategoryMarkupsCard({
                     name={key}
                     label=""
                     formatOptions={{
-                      style: "percent",
+                      maximumFractionDigits: 2,
                       minimumFractionDigits: 0,
-                      maximumFractionDigits: 2
+                      style: "percent"
                     }}
                     minValue={0}
                   />

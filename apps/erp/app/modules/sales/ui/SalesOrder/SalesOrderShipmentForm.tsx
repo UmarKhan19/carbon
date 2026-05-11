@@ -114,10 +114,10 @@ const SalesOrderShipmentForm = forwardRef<
               label={t`Shipping Cost`}
               minValue={0}
               formatOptions={{
-                style: "currency",
                 currency:
                   routeData?.salesOrder?.currencyCode ??
-                  company?.baseCurrencyCode
+                  company?.baseCurrencyCode,
+                style: "currency"
               }}
               ref={shippingCostRef}
             />
@@ -135,7 +135,7 @@ const SalesOrderShipmentForm = forwardRef<
               name="incoterm"
               label={t`Incoterm`}
               isClearable
-              options={incoterms.map((i) => ({ value: i, label: i }))}
+              options={incoterms.map((i) => ({ label: i, value: i }))}
               onChange={(v) => setIncoterm(v?.value as string)}
             />
             {incoterm && (
@@ -147,11 +147,14 @@ const SalesOrderShipmentForm = forwardRef<
             <DatePicker name="shipmentDate" label={t`Shipment Date`} />
 
             <Input name="trackingNumber" label={t`Tracking Number`} />
-            <Boolean
-              name="dropShipment"
-              label={t`Drop Shipment`}
-              onChange={setDropShip}
-            />
+            <div className="col-span-3">
+              <Boolean
+                name="dropShipment"
+                label={t`Drop Shipment`}
+                bordered
+                onChange={setDropShip}
+              />
+            </div>
             {dropShip && (
               <>
                 <Customer

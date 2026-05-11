@@ -1,5 +1,5 @@
 import type { Database, Json } from "@carbon/database";
-import { getIntegrationConfigById } from "@carbon/ee";
+import { getIntegrationConfigById, type IntegrationID } from "@carbon/ee";
 import { getIntegrationServerHooks } from "@carbon/ee/hooks.server";
 import { redis } from "@carbon/kv";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -69,8 +69,8 @@ export async function deactivateIntegration(
     .from("companyIntegration")
     .update({
       active: false,
-      updatedBy,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      updatedBy
     })
     .eq("id", id)
     .eq("companyId", companyId);
@@ -129,10 +129,10 @@ export async function getCompanyIntegrations(
     if (cached !== null && cached !== undefined) {
       // Log the type and content for debugging
       console.log(`Cache hit for ${cacheKey}:`, {
-        type: typeof cached,
+        constructor: cached?.constructor?.name,
         isArray: Array.isArray(cached),
-        value: cached,
-        constructor: cached?.constructor?.name
+        type: typeof cached,
+        value: cached
       });
 
       // Handle different response types from Upstash
@@ -242,8 +242,8 @@ export async function getSlackIntegration(
   }
 
   return {
-    token: metadata.access_token,
-    channelId: metadata.channel_id || metadata.default_channel_id
+    channelId: metadata.channel_id || metadata.default_channel_id,
+    token: metadata.access_token
   };
 }
 
@@ -353,7 +353,7 @@ export async function getIntegrationHealth(
   }
 
   const serverHooks = getIntegrationServerHooks(integration.id!);
-  const config = getIntegrationConfigById(integration.id!);
+  const config = getIntegrationConfigById(integration.id as IntegrationID);
   const healthcheck = serverHooks?.onHealthcheck ?? config?.onHealthcheck;
 
   if (!healthcheck) {

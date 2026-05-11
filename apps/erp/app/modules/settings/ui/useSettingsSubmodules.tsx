@@ -11,6 +11,7 @@ import {
   LuHistory,
   LuImage,
   LuKey,
+  LuLandmark,
   LuLayoutDashboard,
   LuNetwork,
   LuSheet,
@@ -42,36 +43,36 @@ export default function useSettingsSubmodules() {
         name: t`Company`,
         routes: [
           {
+            icon: <LuFactory />,
             name: t`Company`,
-            to: path.to.company,
             role: "employee",
-            icon: <LuFactory />
+            to: path.to.company
           },
           {
+            icon: <LuNetwork />,
             name: t`Companies`,
-            to: path.to.companies,
             role: "employee",
-            icon: <LuNetwork />
+            to: path.to.companies
           },
           {
-            name: t`Billing`,
-            to: path.to.billing,
-            role: "employee",
             icon: <LuCreditCard />,
+            name: t`Billing`,
+            requiresCloudEnvironment: true,
             requiresOwnership: true,
-            requiresCloudEnvironment: true
+            role: "employee",
+            to: path.to.billing
           },
           {
+            icon: <LuBarcode />,
             name: t`Labels`,
-            to: path.to.labelsSettings,
             role: "employee",
-            icon: <LuBarcode />
+            to: path.to.labelsSettings
           },
           {
+            icon: <LuImage />,
             name: t`Logos`,
-            to: path.to.logos,
             role: "employee",
-            icon: <LuImage />
+            to: path.to.logos
           }
         ]
       },
@@ -79,52 +80,58 @@ export default function useSettingsSubmodules() {
         name: t`Modules`,
         routes: [
           {
+            icon: <LuLandmark />,
+            name: t`Accounting`,
+            role: "employee",
+            to: path.to.accountingSettings
+          },
+          {
+            icon: <LuBox />,
             name: t`Inventory`,
-            to: path.to.inventorySettings,
             role: "employee",
-            icon: <LuBox />
+            to: path.to.inventorySettings
           },
           {
+            icon: <LuSquareStack />,
             name: t`Items`,
-            to: path.to.itemsSettings,
             role: "employee",
-            icon: <LuSquareStack />
+            to: path.to.itemsSettings
           },
           {
+            icon: <LuUsers />,
             name: t`People`,
-            to: path.to.peopleSettings,
             role: "employee",
-            icon: <LuUsers />
+            to: path.to.peopleSettings
           },
           {
+            icon: <LuShoppingCart />,
             name: t`Purchasing`,
-            to: path.to.purchasingSettings,
             role: "employee",
-            icon: <LuShoppingCart />
+            to: path.to.purchasingSettings
           },
           {
+            icon: <LuFactory />,
             name: t`Production`,
-            to: path.to.productionSettings,
             role: "employee",
-            icon: <LuFactory />
+            to: path.to.productionSettings
           },
           {
+            icon: <LuClipboardCheck />,
             name: t`Quality`,
-            to: path.to.qualitySettings,
             role: "employee",
-            icon: <LuClipboardCheck />
+            to: path.to.qualitySettings
           },
           {
+            icon: <LuCrown />,
             name: t`Sales`,
-            to: path.to.salesSettings,
             role: "employee",
-            icon: <LuCrown />
+            to: path.to.salesSettings
           },
           {
+            icon: <LuWrench />,
             name: t`Resources`,
-            to: path.to.resourcesSettings,
             role: "employee",
-            icon: <LuWrench />
+            to: path.to.resourcesSettings
           }
         ]
       },
@@ -132,46 +139,46 @@ export default function useSettingsSubmodules() {
         name: t`System`,
         routes: [
           {
+            icon: <LuKey />,
             name: t`API Keys`,
-            to: path.to.apiKeys,
             role: "employee",
-            icon: <LuKey />
+            to: path.to.apiKeys
           },
           {
+            icon: <LuCircleCheck />,
             name: t`Approval Rules`,
-            to: path.to.approvalRules,
             role: "employee",
-            icon: <LuCircleCheck />
+            to: path.to.approvalRules
           },
           {
+            icon: <LuHistory />,
             name: t`Audit Logs`,
-            to: path.to.auditLog,
             role: "employee",
-            icon: <LuHistory />
+            to: path.to.auditLog
           },
           {
+            icon: <LuLayoutDashboard />,
             name: t`Custom Fields`,
-            to: path.to.customFields,
             role: "employee",
-            icon: <LuLayoutDashboard />
+            to: path.to.customFields
           },
           {
+            icon: <LuWorkflow />,
             name: t`Integrations`,
-            to: path.to.integrations,
             role: "employee",
-            icon: <LuWorkflow />
+            to: path.to.integrations
           },
           {
+            icon: <LuSheet />,
             name: t`Sequences`,
-            to: path.to.sequences,
             role: "employee",
-            icon: <LuSheet />
+            to: path.to.sequences
           },
           {
+            icon: <LuWebhook />,
             name: t`Webhooks`,
-            to: path.to.webhooks,
             role: "employee",
-            icon: <LuWebhook />
+            to: path.to.webhooks
           }
         ]
       }

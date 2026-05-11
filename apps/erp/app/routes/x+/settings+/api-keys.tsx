@@ -31,11 +31,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getGenericQueryFilters(searchParams);
 
   const apiKeys = await getApiKeys(client, companyId, {
+    filters,
     limit,
     offset,
-    sorts,
     search,
-    filters
+    sorts
   });
   if (apiKeys.error) {
     throw redirect(
@@ -46,14 +46,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   return {
     apiKeys: apiKeys.data?.map(({ keyHash, ...rest }: any) => rest) ?? [],
-    count: apiKeys.count ?? 0,
-    companyId
+    companyId,
+    count: apiKeys.count ?? 0
   };
 }
 
 export default function ApiKeysRoute() {
   const { apiKeys, count } = useLoaderData<typeof loader>();
-  const { isGated } = usePlanGate();
+  const { isGated } = usePlanGate({ feature: "API_KEYS" });
 
   if (isGated) {
     return <ApiKeysUpgradeOverlay />;

@@ -36,6 +36,7 @@ import {
 import { parseMentionsFromDocument } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
+import { nanoid } from "nanoid";
 import { useEffect, useMemo, useState } from "react";
 import {
   LuChevronDown,
@@ -373,7 +374,7 @@ export function RecordModal({
     setFile(fileUpload);
     toast.info(t`Uploading ${fileUpload.name}`);
 
-    const fileName = `${company.id}/job/${attribute.operationId}/${fileUpload.name}`;
+    const fileName = `${company.id}/job/${attribute.operationId}/${attribute.id}/${nanoid()}/${fileUpload.name}`;
 
     const upload = await carbon?.storage
       .from("private")
@@ -422,11 +423,11 @@ export function RecordModal({
           defaultValues={{
             index: activeStep,
             jobOperationStepId: attribute.id,
+            numericValue: record?.numericValue ?? 0,
+            userValue: record?.userValue ?? "",
             value:
               record?.value ??
-              (attribute.type === "Timestamp" ? new Date().toISOString() : ""),
-            numericValue: record?.numericValue ?? 0,
-            userValue: record?.userValue ?? ""
+              (attribute.type === "Timestamp" ? new Date().toISOString() : "")
           }}
           fetcher={fetcher}
         >

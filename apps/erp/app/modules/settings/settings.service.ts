@@ -111,7 +111,7 @@ export async function getApiKeys(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "createdAt", ascending: true }
+      { ascending: true, column: "createdAt" }
     ]);
   }
 
@@ -136,17 +136,17 @@ export async function getCompanies(
     data: companies.data.map(({ companyGroup, ...company }) => ({
       ...company,
       companyGroupName: (companyGroup as { name: string } | null)?.name ?? null,
-      logoLightIcon: company.logoLightIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLightIcon}`
+      logoDark: company.logoDark
+        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDark}`
         : null,
       logoDarkIcon: company.logoDarkIcon
         ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDarkIcon}`
         : null,
-      logoDark: company.logoDark
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDark}`
-        : null,
       logoLight: company.logoLight
         ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLight}`
+        : null,
+      logoLightIcon: company.logoLightIcon
+        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLightIcon}`
         : null
     })),
     error: null
@@ -169,17 +169,17 @@ export async function getCompany(
   return {
     data: {
       ...company.data,
-      logoLightIcon: company.data.logoLightIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLightIcon}`
+      logoDark: company.data.logoDark
+        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDark}`
         : null,
       logoDarkIcon: company.data.logoDarkIcon
         ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDarkIcon}`
         : null,
-      logoDark: company.data.logoDark
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDark}`
-        : null,
       logoLight: company.data.logoLight
         ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLight}`
+        : null,
+      logoLightIcon: company.data.logoLightIcon
+        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLightIcon}`
         : null
     },
     error: null
@@ -279,7 +279,7 @@ export async function getCustomFieldsTables(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "name", ascending: true }
+    { ascending: true, column: "name" }
   ]);
   return query;
 }
@@ -321,8 +321,8 @@ export async function getNextSequence(
   companyId: string
 ) {
   return client.rpc("get_next_sequence", {
-    sequence_name: table,
-    company_id: companyId
+    company_id: companyId,
+    sequence_name: table
   });
 }
 
@@ -366,7 +366,7 @@ export async function getSequences(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "name", ascending: true }
+    { ascending: true, column: "name" }
   ]);
   return query;
 }
@@ -433,7 +433,7 @@ export async function getWebhooks(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "createdAt", ascending: true }
+      { ascending: true, column: "createdAt" }
     ]);
   }
 
@@ -488,8 +488,8 @@ export async function seedCompany(
   return client.functions.invoke("seed-company", {
     body: {
       companyId,
-      userId,
-      parentCompanyId
+      parentCompanyId,
+      userId
     }
   });
 }
@@ -549,10 +549,10 @@ export async function updateShelfLifeSettings(
     .from("companySettings")
     .update({
       inventoryShelfLife: {
-        nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null,
-        defaultShelfLifeDays: settings.defaultShelfLifeDays,
         calculatedInputScope: settings.calculatedInputScope,
-        expiredEntityPolicy: settings.expiredEntityPolicy
+        defaultShelfLifeDays: settings.defaultShelfLifeDays,
+        expiredEntityPolicy: settings.expiredEntityPolicy,
+        nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null
       }
     })
     .eq("id", companyId);
@@ -570,8 +570,8 @@ export async function updateDigitalQuoteSetting(
     .update(
       sanitize({
         digitalQuoteEnabled,
-        digitalQuoteNotificationGroup,
-        digitalQuoteIncludesPurchaseOrders
+        digitalQuoteIncludesPurchaseOrders,
+        digitalQuoteNotificationGroup
       })
     )
     .eq("id", companyId);
@@ -605,6 +605,17 @@ export async function updateJobTravelerWorkInstructions(
   return client
     .from("companySettings")
     .update(sanitize({ jobTravelerIncludeWorkInstructions }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountingEnabledSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountingEnabled: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountingEnabled }))
     .eq("id", companyId);
 }
 
@@ -911,9 +922,9 @@ export async function upsertApiKey(
       .insert(
         sanitize({
           ...rest,
+          expiresAt: expiresAt || null,
           keyHash,
-          scopes: scopes as any,
-          expiresAt: expiresAt || null
+          scopes: scopes as any
         }) as any
       )
       .select("id")
@@ -924,7 +935,7 @@ export async function upsertApiKey(
     }
 
     // Return the raw key (shown to user once, never stored)
-    return { data: { key: rawKey, id: result.data.id }, error: null };
+    return { data: { id: result.data.id, key: rawKey }, error: null };
   }
 
   // Update: update name, scopes, expiration (never the key itself)
@@ -941,8 +952,8 @@ export async function upsertApiKey(
     .update(
       sanitize({
         ...rest,
-        scopes: scopes as any,
-        expiresAt: expiresAt || null
+        expiresAt: expiresAt || null,
+        scopes: scopes as any
       }) as any
     )
     .eq("id", apiKey.id);
@@ -972,8 +983,8 @@ export async function updateConsoleSetting(
       const newType = await client
         .from("employeeType")
         .insert({
-          name: "Console Operator",
           companyId,
+          name: "Console Operator",
           protected: true,
           systemType: "Console Operator"
         })
@@ -985,55 +996,55 @@ export async function updateConsoleSetting(
       if (newType.data) {
         const mesModules = [
           {
+            create: true,
+            delete: false,
             module: "Production",
-            create: true,
             update: true,
-            delete: false,
             view: true
           },
           {
+            create: true,
+            delete: false,
             module: "Inventory",
-            create: true,
             update: true,
-            delete: false,
             view: true
           },
           {
+            create: false,
+            delete: false,
             module: "Resources",
-            create: false,
             update: false,
-            delete: false,
             view: true
           },
           {
+            create: false,
+            delete: false,
             module: "Items",
-            create: false,
             update: false,
-            delete: false,
             view: true
           },
           {
-            module: "Quality",
             create: true,
-            update: true,
             delete: false,
+            module: "Quality",
+            update: true,
             view: true
           },
           {
-            module: "People",
             create: false,
-            update: false,
             delete: false,
+            module: "People",
+            update: false,
             view: true
           }
         ];
 
         const permissions = mesModules.map((m) => ({
+          create: m.create ? [companyId] : [],
+          delete: m.delete ? [companyId] : [],
           employeeTypeId: newType.data.id,
           module: m.module as "Accounting",
-          create: m.create ? [companyId] : [],
           update: m.update ? [companyId] : [],
-          delete: m.delete ? [companyId] : [],
           view: m.view ? [companyId] : []
         }));
 

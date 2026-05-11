@@ -6,6 +6,7 @@
 
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
+import { companyHasPlan } from "@carbon/ee/plan.server";
 import {
   type CompiledRule,
   type Condition,
@@ -13,7 +14,6 @@ import {
   compileWithCache,
   evaluateRules,
   getFieldDef,
-  Plan,
   type RuleContext,
   type Severity,
   type TransactionSurface,
@@ -24,7 +24,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LoaderFunctionArgs } from "react-router";
 import { getStorageTypesList } from "~/modules/inventory";
 import { getLocationsList } from "~/modules/resources";
-import { companyHasPlan } from "~/utils/planGate.server";
 import {
   getActiveRulesForItems,
   getItemPostingGroupsList,
@@ -38,14 +37,11 @@ type Client = SupabaseClient<Database>;
 // Plan gate
 // ---------------------------------------------------------------------------
 
-/**
- * Item rules require a paid plan (Business). Self-hosted (non-Cloud) and
- * bypass-listed companies always pass — `companyHasPlan` handles both.
- */
 export const isItemRulesEnabledForCompany = (
   client: Client,
   companyId: string
-): Promise<boolean> => companyHasPlan(client, companyId, [Plan.Business]);
+): Promise<boolean> =>
+  companyHasPlan(client, companyId, { feature: "ITEM_RULES" });
 
 // ---------------------------------------------------------------------------
 // Block decision
@@ -114,7 +110,7 @@ export async function getItemRulesDataForItem(
     ).itemRule;
     const rule = Array.isArray(joined) ? joined[0] : joined;
     if (!rule) continue;
-    assignments.push({ ruleId: row.ruleId as string, rule });
+    assignments.push({ rule, ruleId: row.ruleId as string });
   }
 
   return { assignments, library: libraryRes.data ?? [] };
@@ -128,8 +124,8 @@ export async function loadRulesTabData({
   itemId: string;
 }) {
   const { client, companyId } = await requirePermissions(request, {
-    view: "parts",
-    role: "employee"
+    role: "employee",
+    view: "parts"
   });
   return getItemRulesDataForItem(client, itemId, companyId);
 }
@@ -180,14 +176,14 @@ type LoaderFn = (
 ) => Promise<{ id: string; name: string }[]>;
 
 const LOADERS: Record<ValueOptionsLoader, LoaderFn | null> = {
-  locations: async (c, id) => (await getLocationsList(c, id)).data ?? [],
-  storageTypes: async (c, id) => (await getStorageTypesList(c, id)).data ?? [],
   itemPostingGroups: async (c, id) =>
     (await getItemPostingGroupsList(c, id)).data ?? [],
+  itemTrackingTypes: null,
   // Static enums — value is already the label.
   itemTypes: null,
+  locations: async (c, id) => (await getLocationsList(c, id)).data ?? [],
   replenishmentSystems: null,
-  itemTrackingTypes: null
+  storageTypes: async (c, id) => (await getStorageTypesList(c, id)).data ?? []
 };
 
 const EMPTY_RESOLVER = (): undefined => undefined;
@@ -290,8 +286,8 @@ export type EvaluateLinesForSurfaceResult = {
 };
 
 const EMPTY_RESULT: EvaluateLinesForSurfaceResult = {
-  violations: [],
-  ruleNames: {}
+  ruleNames: {},
+  violations: []
 };
 
 type ItemCtxRow = Record<string, unknown> & {
@@ -417,7 +413,7 @@ export async function evaluateLinesForSurface({
   }
 
   if (deduped.length === 0) {
-    return { violations: deduped, ruleNames: {} };
+    return { ruleNames: {}, violations: deduped };
   }
 
   // Resolve human-readable rule names for the violations modal.
@@ -435,7 +431,7 @@ export async function evaluateLinesForSurface({
     ruleNames[r.id as string] = r.name as string;
   }
 
-  return { violations, ruleNames };
+  return { ruleNames, violations };
 }
 
 /** Lazy-iterate every condition across every compiled rule. No allocations. */

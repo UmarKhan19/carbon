@@ -1,6 +1,7 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { requirePlan } from "@carbon/ee/plan.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect, useNavigate, useParams } from "react-router";
@@ -8,7 +9,6 @@ import { useRouteData } from "~/hooks";
 import type { ApiKey } from "~/modules/settings";
 import { ApiKeyForm, apiKeyValidator, upsertApiKey } from "~/modules/settings";
 import { getParams, path } from "~/utils/path";
-import { requirePlan } from "~/utils/planGate.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -17,10 +17,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   await requirePlan({
-    request,
     client,
     companyId,
-    redirectTo: path.to.apiKeys
+    feature: "API_KEYS",
+    redirectTo: path.to.apiKeys,
+    request
   });
 
   const { id } = params;
@@ -41,8 +42,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const updateApiKey = await upsertApiKey(client, {
     id,
     ...d,
-    scopes,
-    expiresAt: expiresAt || undefined
+    expiresAt: expiresAt || undefined,
+    scopes
   });
 
   if (updateApiKey.error) {
@@ -72,9 +73,9 @@ export default function EditApiKeyRoute() {
   if (!apiKey) throw new Error("API key not found");
 
   const initialValues = {
+    expiresAt: (apiKey as any)?.expiresAt ?? undefined,
     id: apiKey?.id ?? undefined,
-    name: apiKey?.name ?? "",
-    expiresAt: (apiKey as any)?.expiresAt ?? undefined
+    name: apiKey?.name ?? ""
   };
 
   return (

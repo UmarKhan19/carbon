@@ -68,19 +68,19 @@ export async function action({ request }: ActionFunctionArgs) {
         enabled
       );
       if (result.error)
-        return { success: false, message: result.error.message };
-      return { success: true, message: "Material IDs setting updated" };
+        return { message: result.error.message, success: false };
+      return { message: "Material IDs setting updated", success: true };
     }
 
     case "materialUnits": {
       const result = await updateMetricSettings(client, companyId, enabled);
       if (result.error)
-        return { success: false, message: result.error.message };
-      return { success: true, message: "Material units setting updated" };
+        return { message: result.error.message, success: false };
+      return { message: "Material units setting updated", success: true };
     }
   }
 
-  return { success: false, message: "Invalid form data" };
+  return { message: "Invalid form data", success: false };
 }
 
 export default function ItemsSettingsRoute() {
@@ -102,7 +102,7 @@ export default function ItemsSettingsRoute() {
   const handleMaterialIdsToggle = useCallback(
     (checked: boolean) => {
       fetcher.submit(
-        { intent: "materialIds", enabled: String(checked) },
+        { enabled: String(checked), intent: "materialIds" },
         { method: "POST" }
       );
     },
@@ -112,7 +112,7 @@ export default function ItemsSettingsRoute() {
   const handleMetricToggle = useCallback(
     (checked: boolean) => {
       fetcher.submit(
-        { intent: "materialUnits", enabled: String(checked) },
+        { enabled: String(checked), intent: "materialUnits" },
         { method: "POST" }
       );
     },
@@ -142,7 +142,7 @@ export default function ItemsSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {companySettings.materialGeneratedIds ? (
                     <Trans>Generated IDs are enabled</Trans>
@@ -181,7 +181,7 @@ export default function ItemsSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {(companySettings as any).useMetric ? (
                     <Trans>Metric units are enabled</Trans>

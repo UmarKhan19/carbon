@@ -9,6 +9,8 @@ import {
   type XeroProvider
 } from "@carbon/ee/accounting";
 import { getIntegrationServerHooks } from "@carbon/ee/hooks.server";
+import { isIntegrationWhitelisted } from "@carbon/ee/plan";
+import { requirePlan } from "@carbon/ee/plan.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
@@ -18,7 +20,6 @@ import {
   upsertCompanyIntegration
 } from "~/modules/settings/settings.server";
 import { path } from "~/utils/path";
-import { requirePlan } from "~/utils/planGate.server";
 
 /**
  * Transforms flat owner settings (customerOwner, vendorOwner, etc.) into
@@ -30,11 +31,11 @@ function buildIntegrationMetadata(
 ): Record<string, unknown> {
   // Extract owner settings from form data
   const ownerSettings = {
+    billOwner: formData.billOwner as string | undefined,
     customerOwner: formData.customerOwner as string | undefined,
-    vendorOwner: formData.vendorOwner as string | undefined,
-    itemOwner: formData.itemOwner as string | undefined,
     invoiceOwner: formData.invoiceOwner as string | undefined,
-    billOwner: formData.billOwner as string | undefined
+    itemOwner: formData.itemOwner as string | undefined,
+    vendorOwner: formData.vendorOwner as string | undefined
   };
 
   // Check if any owner settings are present
@@ -126,9 +127,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (integrationData.error || !integrationData.data) {
     return {
+      dynamicOptions: {},
       installed: false,
-      metadata: {},
-      dynamicOptions: {}
+      metadata: {}
     };
   }
 
@@ -163,16 +164,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       const accounts = await provider.listChartOfAccounts();
 
       const accountOptions = accounts.map((account) => ({
-        value: account.Code ?? account.AccountID,
+        description: account.Type,
         label: account.Code
           ? `${account.Code} - ${account.Name}`
           : account.Name,
-        description: account.Type
+        value: account.Code ?? account.AccountID
       }));
 
       dynamicOptions = {
-        defaultSalesAccountCode: accountOptions,
-        defaultPurchaseAccountCode: accountOptions
+        defaultPurchaseAccountCode: accountOptions,
+        defaultSalesAccountCode: accountOptions
       };
     } catch (error) {
       console.error("Failed to fetch Xero accounts for settings:", error);
@@ -181,9 +182,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return {
+    dynamicOptions,
     installed: integrationData.data.active,
-    metadata: flattenedMetadata,
-    dynamicOptions
+    metadata: flattenedMetadata
   };
 }
 
@@ -205,11 +206,11 @@ function flattenSyncConfigToOwnerSettings(
 
   return {
     ...metadata,
+    billOwner: entities.bill?.owner,
     customerOwner: entities.customer?.owner,
-    vendorOwner: entities.vendor?.owner,
-    itemOwner: entities.item?.owner,
     invoiceOwner: entities.invoice?.owner,
-    billOwner: entities.bill?.owner
+    itemOwner: entities.item?.owner,
+    vendorOwner: entities.vendor?.owner
   };
 }
 
@@ -219,15 +220,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     update: "settings"
   });
 
-  await requirePlan({
-    request,
-    client,
-    companyId,
-    redirectTo: path.to.integrations
-  });
-
   const { id: integrationId } = params;
   if (!integrationId) throw new Error("Integration ID not found");
+
+  if (!isIntegrationWhitelisted(integrationId)) {
+    await requirePlan({
+      client,
+      companyId,
+      feature: "INTEGRATIONS",
+      redirectTo: path.to.integrations,
+      request
+    });
+  }
 
   const integration = availableIntegrations.find((i) => i.id === integrationId);
 
@@ -259,11 +263,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const wasInstalled = existing.data?.active === true;
 
   const update = await upsertCompanyIntegration(client, {
-    id: integrationId,
     active: true,
+    companyId,
+    id: integrationId,
     // @ts-expect-error TS2322 - TODO: fix type
     metadata,
-    companyId,
     updatedBy: userId
   });
   if (update.error) {

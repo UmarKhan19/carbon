@@ -1,6 +1,7 @@
 import { assertIsPost, error } from "@carbon/auth";
 import { hashApiKey, requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { requirePlan } from "@carbon/ee/plan.server";
 import { validationError, validator } from "@carbon/form";
 import { nanoid } from "nanoid";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -8,7 +9,6 @@ import { data, useNavigate } from "react-router";
 import { useRouteData } from "~/hooks";
 import { ApiKeyForm, apiKeyValidator, upsertApiKey } from "~/modules/settings";
 import { path } from "~/utils/path";
-import { requirePlan } from "~/utils/planGate.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermissions(request, {
@@ -25,10 +25,11 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   await requirePlan({
-    request,
     client,
     companyId,
-    redirectTo: path.to.apiKeys
+    feature: "API_KEYS",
+    redirectTo: path.to.apiKeys,
+    request
   });
 
   const formData = await request.formData();
@@ -51,13 +52,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const insertApiKey = await upsertApiKey(client, {
     ...d,
-    scopes,
+    companyId,
+    createdBy: userId,
     expiresAt: expiresAt || undefined,
-    rawKey,
     keyHash,
     keyPreview,
-    companyId,
-    createdBy: userId
+    rawKey,
+    scopes
   });
   if (insertApiKey.error) {
     return data(

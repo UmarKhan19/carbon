@@ -1,6 +1,7 @@
 import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { requirePlan } from "@carbon/ee/plan.server";
 import { validationError, validator } from "@carbon/form";
 import type { ConditionAst } from "@carbon/utils";
 import type {
@@ -17,13 +18,12 @@ import {
 import ItemRuleForm from "~/modules/items/ui/ItemRules/ItemRuleForm";
 import { getCustomFields, setCustomFields } from "~/utils/form";
 import { getParams, path } from "~/utils/path";
-import { requirePlan } from "~/utils/planGate.server";
 import { getCompanyId, itemRulesQuery } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, {
-    view: "parts",
-    role: "employee"
+    role: "employee",
+    view: "parts"
   });
 
   const { id } = params;
@@ -41,10 +41,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   await requirePlan({
-    request,
     client,
     companyId,
-    redirectTo: path.to.itemRules
+    feature: "ITEM_RULES",
+    redirectTo: path.to.itemRules,
+    request
   });
 
   const { id } = params;
@@ -59,9 +60,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const update = await upsertItemRule(client, {
     id,
     ...validation.data,
+    customFields: setCustomFields(formData),
     description: validation.data.description ?? null,
-    updatedBy: userId,
-    customFields: setCustomFields(formData)
+    updatedBy: userId
   });
 
   if (update.error) {
@@ -90,16 +91,16 @@ export default function EditItemRuleRoute() {
   const navigate = useNavigate();
 
   const initialValues = {
-    id: rule?.id ?? undefined,
-    name: rule?.name ?? "",
-    description: rule?.description ?? "",
-    message: rule?.message ?? "",
-    severity: (rule?.severity as "error" | "warn") ?? "error",
     active: rule?.active ?? true,
     conditionAst: (rule?.conditionAst as ConditionAst | undefined) ?? {
-      kind: "all" as const,
-      conditions: []
+      conditions: [],
+      kind: "all" as const
     },
+    description: rule?.description ?? "",
+    id: rule?.id ?? undefined,
+    message: rule?.message ?? "",
+    name: rule?.name ?? "",
+    severity: (rule?.severity as "error" | "warn") ?? "error",
     ...getCustomFields(rule?.customFields)
   };
 

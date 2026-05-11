@@ -43,9 +43,10 @@ const withServerOnly = () => {
  * });
  * ```
  */
-export function defineIntegration<T extends IntegrationOptions>(
-  options: T
-): Integration<T> {
+export function defineIntegration<
+  const ID extends string,
+  T extends IntegrationOptions & { id: ID }
+>(options: T): Integration<T> {
   // Validate required fields at definition time
   if (!options.id) {
     throw new Error(`Integration must have an 'id' defined`);
@@ -77,6 +78,10 @@ export function defineIntegration<T extends IntegrationOptions>(
 
       return isActive;
     },
+    get onHealthcheck() {
+      withServerOnly();
+      return options.onHealthcheck;
+    },
     get onInstall() {
       withServerOnly();
       return options.onInstall;
@@ -84,10 +89,6 @@ export function defineIntegration<T extends IntegrationOptions>(
     get onUninstall() {
       withServerOnly();
       return options.onUninstall;
-    },
-    get onHealthcheck() {
-      withServerOnly();
-      return options.onHealthcheck;
     }
   } as Integration<T>;
 }

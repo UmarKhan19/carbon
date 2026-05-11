@@ -1,13 +1,13 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { requirePlan } from "@carbon/ee/plan.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, redirect, useNavigate } from "react-router";
 import { upsertWebhook, webhookValidator } from "~/modules/settings";
 import { WebhookForm } from "~/modules/settings/ui/Webhooks";
 import { getParams, path } from "~/utils/path";
-import { requirePlan } from "~/utils/planGate.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requirePermissions(request, {
@@ -24,10 +24,11 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   await requirePlan({
-    request,
     client,
     companyId,
-    redirectTo: path.to.webhooks
+    feature: "WEBHOOKS",
+    redirectTo: path.to.webhooks,
+    request
   });
 
   const formData = await request.formData();
@@ -61,13 +62,13 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function NewWebhookRoute() {
   const navigate = useNavigate();
   const initialValues = {
+    active: false,
     name: "",
-    url: "",
-    table: "",
+    onDelete: false,
     onInsert: false,
     onUpdate: false,
-    onDelete: false,
-    active: false
+    table: "",
+    url: ""
   };
 
   return (

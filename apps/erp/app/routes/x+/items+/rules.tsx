@@ -20,8 +20,8 @@ export const handle: Handle = {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
-    view: "parts",
-    role: "employee"
+    role: "employee",
+    view: "parts"
   });
 
   const url = new URL(request.url);
@@ -31,11 +31,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getGenericQueryFilters(searchParams);
 
   const rules = await getItemRules(client, companyId, {
+    filters,
     limit,
     offset,
-    sorts,
     search,
-    filters
+    sorts
   });
 
   if (rules.error) {
@@ -51,17 +51,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const countMap = (counts.data ?? {}) as Record<string, number>;
 
   return {
+    count: rules.count ?? 0,
     rules: (rules.data ?? []).map((r) => ({
       ...r,
       assignmentCount: countMap[r.id] ?? 0
-    })),
-    count: rules.count ?? 0
+    }))
   };
 }
 
 export default function ItemRulesRoute() {
   const { rules, count } = useLoaderData<typeof loader>();
-  const { isGated } = usePlanGate();
+  const { isGated } = usePlanGate({ feature: "ITEM_RULES" });
 
   if (isGated) {
     return <ItemRulesUpgradeOverlay />;
