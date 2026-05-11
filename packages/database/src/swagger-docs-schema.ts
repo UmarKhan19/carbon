@@ -3,7 +3,7 @@ export default {
   info: {
     description: "",
     title: "standard public schema",
-    version: "14.8"
+    version: "13.0.8"
   },
   host: "0.0.0.0:3000",
   basePath: "/",
@@ -69047,7 +69047,7 @@ export default {
       get: {
         parameters: [
           {
-            format: "vector",
+            format: "extensions.vector",
             in: "query",
             name: "query_embedding",
             required: true,
@@ -69061,7 +69061,7 @@ export default {
             type: "number"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "match_count",
             required: true,
@@ -69096,7 +69096,7 @@ export default {
             schema: {
               properties: {
                 match_count: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 match_threshold: {
@@ -69108,7 +69108,7 @@ export default {
                   type: "string"
                 },
                 query_embedding: {
-                  format: "vector",
+                  format: "extensions.vector",
                   type: "string"
                 }
               },
@@ -69795,42 +69795,42 @@ export default {
             type: "string"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "p_reorder_point",
             required: true,
             type: "integer"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "p_reorder_quantity",
             required: true,
             type: "integer"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "p_minimum_order_quantity",
             required: true,
             type: "integer"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "p_maximum_order_quantity",
             required: true,
             type: "integer"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "p_order_multiple",
             required: true,
             type: "integer"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "p_lot_size",
             required: true,
@@ -69844,7 +69844,7 @@ export default {
             type: "number"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "p_demand_accumulation_period",
             required: true,
@@ -69886,7 +69886,7 @@ export default {
             schema: {
               properties: {
                 p_demand_accumulation_period: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_demand_accumulation_safety_stock: {
@@ -69894,7 +69894,7 @@ export default {
                   type: "number"
                 },
                 p_lot_size: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_maximum_inventory_quantity: {
@@ -69902,15 +69902,15 @@ export default {
                   type: "number"
                 },
                 p_maximum_order_quantity: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_minimum_order_quantity: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_order_multiple: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_projections: {
@@ -69921,11 +69921,11 @@ export default {
                   type: "array"
                 },
                 p_reorder_point: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_reorder_quantity: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_reordering_policy: {
@@ -70431,7 +70431,7 @@ export default {
                   type: "string"
                 },
                 p_index: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_receipt_id: {
@@ -71351,7 +71351,7 @@ export default {
                   type: "string"
                 },
                 p_limit: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_window: {
@@ -71437,15 +71437,15 @@ export default {
                   type: "string"
                 },
                 mask: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 size: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 step: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 }
               },
@@ -72067,11 +72067,11 @@ export default {
                   type: "string"
                 },
                 p_limit: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_offset: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_record_id: {
@@ -73143,11 +73143,11 @@ export default {
                   type: "string"
                 },
                 p_limit: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_offset: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_operation: {
@@ -75055,7 +75055,7 @@ export default {
                   type: "string"
                 },
                 size: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 }
               },
@@ -75475,7 +75475,7 @@ export default {
                   type: "array"
                 },
                 p_limit: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 p_query: {
@@ -77102,7 +77102,7 @@ export default {
       get: {
         parameters: [
           {
-            format: "vector",
+            format: "extensions.vector",
             in: "query",
             name: "query_embedding",
             required: true,
@@ -77116,7 +77116,7 @@ export default {
             type: "number"
           },
           {
-            format: "int32",
+            format: "integer",
             in: "query",
             name: "match_count",
             required: true,
@@ -77151,7 +77151,7 @@ export default {
             schema: {
               properties: {
                 match_count: {
-                  format: "int32",
+                  format: "integer",
                   type: "integer"
                 },
                 match_threshold: {
@@ -77163,7 +77163,7 @@ export default {
                   type: "string"
                 },
                 query_embedding: {
-                  format: "vector",
+                  format: "extensions.vector",
                   type: "string"
                 }
               },
@@ -77773,7 +77773,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         supplierIds: {
@@ -77859,7 +77859,7 @@ export default {
         },
         quoteRevisionId: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -77975,7 +77975,7 @@ export default {
         },
         unitPricePrecision: {
           default: 2,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         externalNotes: {
@@ -78143,7 +78143,7 @@ export default {
         },
         quantity: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -78521,7 +78521,7 @@ export default {
           format: "json"
         },
         sortOrder: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         tags: {
@@ -78943,17 +78943,17 @@ export default {
         },
         users: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         tasks: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         aiTokens: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         nextResetDatetime: {
@@ -79915,7 +79915,7 @@ export default {
           type: "string"
         },
         sampleSize: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         percentage: {
@@ -80271,7 +80271,7 @@ export default {
         },
         sortOrder: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         columnOrder: {
@@ -80473,11 +80473,11 @@ export default {
           type: "string"
         },
         rowCount: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         sizeBytes: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         createdAt: {
@@ -80537,7 +80537,7 @@ export default {
         },
         sortOrder: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         tags: {
@@ -80820,7 +80820,7 @@ export default {
         },
         supplierQuoteRevisionId: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         quantity: {
@@ -81426,12 +81426,12 @@ export default {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string"
         },
         hoursPerWeek: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         abilityId: {
@@ -81475,7 +81475,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -81826,7 +81826,7 @@ export default {
           type: "string"
         },
         calibrationIntervalInMonths: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         lastCalibrationDate: {
@@ -82479,7 +82479,7 @@ export default {
     holidayYears: {
       properties: {
         year: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -82731,7 +82731,7 @@ export default {
           type: "string"
         },
         leadTime: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         }
       },
@@ -82777,7 +82777,7 @@ export default {
         },
         minimumOrderQuantity: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         conversionFactor: {
@@ -82854,7 +82854,7 @@ export default {
         },
         hoursPerWeek: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         abilityId: {
@@ -83095,7 +83095,7 @@ export default {
         },
         index: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         }
       },
@@ -83519,7 +83519,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         salesOrderReadableId: {
@@ -83830,7 +83830,7 @@ export default {
           type: "string"
         },
         entryNumber: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         postingDate: {
@@ -84061,7 +84061,7 @@ export default {
         },
         sortOrder: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         tags: {
@@ -84292,7 +84292,7 @@ export default {
           type: "string"
         },
         orderCount: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         phone: {
@@ -84836,17 +84836,17 @@ export default {
         },
         tasksLimit: {
           default: 10000,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         aiTokensLimit: {
           default: 1000000,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         stripeTrialPeriodDays: {
           default: 7,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         public: {
@@ -84908,7 +84908,7 @@ export default {
         },
         priority: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         minQuantity: {
@@ -85104,7 +85104,7 @@ export default {
           type: "string"
         },
         quantity: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         locationId: {
@@ -85224,7 +85224,7 @@ export default {
         },
         requestCount: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         }
       },
@@ -85584,7 +85584,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -85813,7 +85813,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         trainingAssignmentId: {
@@ -86192,7 +86192,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -86371,7 +86371,7 @@ export default {
         },
         quantity: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -86780,7 +86780,7 @@ export default {
           type: "string"
         },
         revisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -87530,7 +87530,7 @@ export default {
           type: "string"
         },
         leadTime: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         locationId: {
@@ -87610,11 +87610,11 @@ export default {
           type: "number"
         },
         sampleSize: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         defectsFound: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         outcome: {
@@ -87742,17 +87742,17 @@ export default {
         },
         next: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         size: {
           default: 5,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         step: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -89228,7 +89228,7 @@ export default {
           type: "number"
         },
         lineCount: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         }
       },
@@ -89823,7 +89823,7 @@ export default {
           type: "string"
         },
         revisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -89898,7 +89898,7 @@ export default {
           type: "string"
         },
         supplierCount: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         supplierIds: {
@@ -90280,7 +90280,7 @@ export default {
           type: "string"
         },
         duration: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         nonConformanceId: {
@@ -90399,7 +90399,7 @@ export default {
           type: "string"
         },
         leadTime: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         locationId: {
@@ -91416,7 +91416,7 @@ export default {
           type: "number"
         },
         decimalPlaces: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         active: {
@@ -91579,7 +91579,7 @@ export default {
           type: "string"
         },
         size: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         extension: {
@@ -91779,7 +91779,7 @@ export default {
           type: "string"
         },
         supplierQuoteRevisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         quantity: {
@@ -91944,7 +91944,7 @@ export default {
         },
         hoursPerWeek: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         active: {
@@ -92023,7 +92023,7 @@ export default {
           type: "string"
         },
         quantity: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         unitOfMeasureCode: {
@@ -92286,7 +92286,7 @@ export default {
         },
         sortOrder: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         userAttributeCategoryId: {
@@ -92298,7 +92298,7 @@ export default {
         attributeDataTypeId: {
           description:
             "Note:\nThis is a Foreign Key to `attributeDataType.id`.<fk table='attributeDataType' column='id'/>",
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         listOptions: {
@@ -93099,11 +93099,11 @@ export default {
           type: "string"
         },
         orderCount: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         partCount: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         phone: {
@@ -93811,7 +93811,7 @@ export default {
           type: "string"
         },
         rn: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         }
       },
@@ -94229,7 +94229,7 @@ export default {
           type: "string"
         },
         duration: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -94274,7 +94274,7 @@ export default {
           type: "string"
         },
         revisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         quotedDate: {
@@ -94805,7 +94805,7 @@ export default {
           type: "boolean"
         },
         hoursPerWeek: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -94864,7 +94864,7 @@ export default {
           type: "string"
         },
         revisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         dueDate: {
@@ -95049,11 +95049,11 @@ export default {
           type: "string"
         },
         lines: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         completedLines: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         shippingCost: {
@@ -95216,11 +95216,11 @@ export default {
           type: "string"
         },
         severity: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         likelihood: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         itemId: {
@@ -95437,7 +95437,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         name: {
@@ -95641,15 +95641,15 @@ export default {
           type: "string"
         },
         sampleSize: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         acceptanceNumber: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         rejectionNumber: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         aql: {
@@ -95740,7 +95740,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         groupId: {
@@ -96427,7 +96427,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         quotedDate: {
@@ -96918,7 +96918,7 @@ export default {
           type: "string"
         },
         duration: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         nonConformanceId: {
@@ -97413,7 +97413,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -97840,7 +97840,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         unitCost: {
@@ -98007,17 +98007,17 @@ export default {
         },
         tasksLimit: {
           default: 10000,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         aiTokensLimit: {
           default: 1000000,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         usersLimit: {
           default: 10,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         subscriptionStartDate: {
@@ -98259,7 +98259,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         thumbnailPath: {
@@ -98309,7 +98309,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -98518,7 +98518,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         supplierIds: {
@@ -98605,7 +98605,7 @@ export default {
         },
         decimalPlaces: {
           default: 2,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         active: {
@@ -98791,7 +98791,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         supplierIds: {
@@ -98897,7 +98897,7 @@ export default {
           type: "string"
         },
         size: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         modelPath: {
@@ -98966,7 +98966,7 @@ export default {
           type: "string"
         },
         entryNumber: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         postingDate: {
@@ -99323,7 +99323,7 @@ export default {
         },
         lotSize: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -99370,7 +99370,7 @@ export default {
         },
         leadTime: {
           default: 7,
-          format: "int32",
+          format: "integer",
           type: "integer"
         }
       },
@@ -99507,7 +99507,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         supplierIds: {
@@ -99859,7 +99859,7 @@ export default {
         },
         quantity: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -99946,7 +99946,7 @@ export default {
           type: "string"
         },
         estimatedDuration: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         active: {
@@ -100058,7 +100058,7 @@ export default {
           type: "string"
         },
         quoteRevisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -100169,7 +100169,7 @@ export default {
           type: "array"
         },
         unitPricePrecision: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         externalNotes: {
@@ -100203,7 +100203,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         unitCost: {
@@ -100633,7 +100633,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         label: {
@@ -101264,7 +101264,7 @@ export default {
           type: "string"
         },
         quantity: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         unitOfMeasureCode: {
@@ -102985,7 +102985,7 @@ export default {
           type: "string"
         },
         size: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         extension: {
@@ -103269,12 +103269,12 @@ export default {
         },
         daysDue: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         daysDiscount: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         discountPercentage: {
@@ -103383,7 +103383,7 @@ export default {
         },
         demandAccumulationPeriod: {
           default: 4,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         demandAccumulationIncludesInventory: {
@@ -103393,27 +103393,27 @@ export default {
         },
         reorderPoint: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         reorderQuantity: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         minimumOrderQuantity: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         maximumOrderQuantity: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         orderMultiple: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -103584,7 +103584,7 @@ export default {
       properties: {
         id: {
           description: "Note:\nThis is a Primary Key.<pk/>",
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         userId: {
@@ -103766,7 +103766,7 @@ export default {
           type: "string"
         },
         revisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -104674,7 +104674,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         unitCost: {
@@ -105127,7 +105127,7 @@ export default {
         },
         rateLimit: {
           default: 60,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         rateLimitWindow: {
@@ -105598,7 +105598,7 @@ export default {
           type: "string"
         },
         revisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -105905,7 +105905,7 @@ export default {
           type: "string"
         },
         leadTime: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         }
       },
@@ -106492,7 +106492,7 @@ export default {
           type: "string"
         },
         entryNumber: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         postingDate: {
@@ -106963,7 +106963,7 @@ export default {
           type: "string"
         },
         estimatedDuration: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         active: {
@@ -107164,7 +107164,7 @@ export default {
           type: "string"
         },
         quoteRevisionId: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         status: {
@@ -107275,7 +107275,7 @@ export default {
           type: "array"
         },
         unitPricePrecision: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         externalNotes: {
@@ -107309,7 +107309,7 @@ export default {
           type: "string"
         },
         modelSize: {
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         unitCost: {
@@ -107377,7 +107377,7 @@ export default {
           type: "string"
         },
         year: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -107458,7 +107458,7 @@ export default {
           type: "string"
         },
         duration: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         employeeId: {
@@ -107685,7 +107685,7 @@ export default {
         },
         successCount: {
           default: 0,
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         lastSuccess: {
@@ -107694,7 +107694,7 @@ export default {
         },
         errorCount: {
           default: 0,
-          format: "int64",
+          format: "bigint",
           type: "integer"
         },
         lastError: {
@@ -108023,7 +108023,7 @@ export default {
         },
         calibrationIntervalInMonths: {
           default: 6,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         lastCalibrationDate: {
@@ -108124,11 +108124,11 @@ export default {
           type: "string"
         },
         severity: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         likelihood: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         itemId: {
@@ -108480,7 +108480,7 @@ export default {
           type: "string"
         },
         quantity: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         unitOfMeasureCode: {
@@ -108776,7 +108776,7 @@ export default {
         },
         sortOrder: {
           default: 1,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         table: {
@@ -108788,7 +108788,7 @@ export default {
         dataTypeId: {
           description:
             "Note:\nThis is a Foreign Key to `attributeDataType.id`.<fk table='attributeDataType' column='id'/>",
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         listOptions: {
@@ -108922,7 +108922,7 @@ export default {
         },
         revisionId: {
           default: 0,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         dueDate: {
@@ -109503,7 +109503,7 @@ export default {
         },
         maintenanceAdvanceDays: {
           default: 3,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         maintenanceDispatchNotificationGroup: {
@@ -109586,7 +109586,7 @@ export default {
         },
         qualityIssueTarget: {
           default: 20,
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         consoleEnabled: {
@@ -109740,7 +109740,7 @@ export default {
           type: "number"
         },
         escalationDays: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         companyId: {
@@ -109890,7 +109890,7 @@ export default {
           type: "string"
         },
         depth: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         ancestorPath: {
@@ -109951,7 +109951,7 @@ export default {
           type: "string"
         },
         quantity: {
-          format: "int32",
+          format: "integer",
           type: "integer"
         },
         locationId: {
@@ -146822,6 +146822,6 @@ export default {
   },
   externalDocs: {
     description: "PostgREST Documentation",
-    url: "https://postgrest.org/en/v14/references/api.html"
+    url: "https://postgrest.org/en/v13/references/api.html"
   }
 };

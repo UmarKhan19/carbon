@@ -17,7 +17,24 @@ const main = defineCommand({
   subCommands: {
     up: defineCommand({
       meta: { description: "Boot the per-worktree compose stack and apps" },
-      run: () => up()
+      args: {
+        migrate: {
+          type: "boolean",
+          default: true,
+          description: "Apply database migrations (use --no-migrate to skip)"
+        },
+        regen: {
+          type: "boolean",
+          default: true,
+          description:
+            "Regenerate db types + swagger after migrations (use --no-regen to skip)"
+        }
+      },
+      run: ({ args }) =>
+        up({
+          migrate: args.migrate !== false,
+          regen: args.regen !== false
+        })
     }),
     down: defineCommand({
       meta: { description: "Stop the compose stack (volumes preserved)" },

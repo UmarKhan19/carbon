@@ -1,6 +1,7 @@
 import { join } from "node:path";
 import { box, intro, log, outro, tasks } from "@clack/prompts";
 import { config as loadDotenv } from "dotenv";
+import { execa } from "execa";
 import { currentBranch, isLinkedWorktree } from "../lib/git.js";
 import { resolveSlot, SHARED_REDIS_PORT } from "../lib/ports.js";
 import {
@@ -44,7 +45,11 @@ import { pickApps } from "../ui/prompts.js";
 import { summaryLines } from "../ui/summary.js";
 import { down } from "./down.js";
 
-export async function up() {
+export async function up(opts: { migrate?: boolean; regen?: boolean } = {}) {
+  const shouldMigrate = opts.migrate ?? true;
+  // Type/swagger regen depends on a freshly-migrated schema. If migrations
+  // were skipped, schema is unchanged — skip regen too.
+  const shouldRegen = shouldMigrate && (opts.regen ?? true);
   intro("Carbon · dev up");
 
   await ensurePortlessInstalled();
@@ -127,13 +132,34 @@ export async function up() {
         return "all services responding";
       }
     },
-    {
-      title: "Apply database migrations",
-      task: async () => {
-        await applyMigrations(root, ports.PORT_DB);
-        return "migrations applied";
-      }
-    },
+    ...(shouldMigrate
+      ? [
+          {
+            title: "Apply database migrations",
+            task: async () => {
+              await applyMigrations(root, ports.PORT_DB);
+              return "migrations applied";
+            }
+          }
+        ]
+      : [
+          {
+            title: "Skip database migrations (--no-migrate)",
+            task: async () => "skipped"
+          }
+        ]),
+    ...(shouldRegen
+      ? [
+          {
+            title: "Regenerate types & swagger",
+            task: async () => {
+              await execa("pnpm", ["db:types"], { cwd: root });
+              await execa("pnpm", ["generate:swagger"], { cwd: root });
+              return "types + swagger refreshed";
+            }
+          }
+        ]
+      : []),
     {
       title: "Start portless proxy",
       task: async (msg) => {

@@ -172,7 +172,6 @@
     "lint": "biome lint --write ",
     "start": "NODE_ENV=production react-router-serve ./build/server/index.js",
     "typecheck": "tsgo --noEmit",
-    "types": "tsgo --noEmit",
     "typegen": "react-router typegen"
   },
   "sideEffects": false
