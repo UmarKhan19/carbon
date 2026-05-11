@@ -1,3 +1,4 @@
+import tab from "@bomb.sh/tab/citty";
 import { defineCommand, runMain } from "citty";
 import { copy } from "./commands/copy.js";
 import { down } from "./commands/down.js";
@@ -11,8 +12,7 @@ import { up } from "./commands/up.js";
 const main = defineCommand({
   meta: {
     name: "crbn",
-    description:
-      "Carbon dev CLI (heavy commands; bash router handles checkout/go)"
+    description: "Carbon dev CLI (heavy commands; bash router handles checkout)"
   },
   subCommands: {
     up: defineCommand({
@@ -49,8 +49,21 @@ const main = defineCommand({
           "Copy files listed in package.json#crbn.copy from main checkout into cwd"
       },
       run: () => copy()
+    }),
+    // Stubs so shell completion lists these — the bash router (`bin/crbn`)
+    // intercepts them before tsx is invoked. Direct invocation lands here.
+    checkout: defineCommand({
+      meta: {
+        description:
+          "Switch into worktree for <branch> (handled by bash router)"
+      },
+      run: () => {
+        console.error("checkout is handled by the bash router (bin/crbn)");
+        process.exit(1);
+      }
     })
   }
 });
 
+await tab(main);
 await runMain(main);

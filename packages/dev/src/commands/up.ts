@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { box, intro, log, outro, tasks } from "@clack/prompts";
+import { config as loadDotenv } from "dotenv";
 import { currentBranch, isLinkedWorktree } from "../lib/git.js";
-import { loadEnv } from "../lib/load-env.js";
 import { resolveSlot, SHARED_REDIS_PORT } from "../lib/ports.js";
 import {
   renderEnv,
@@ -86,8 +86,8 @@ export async function up() {
 
         writeEnv(root, renderEnv({ slug, ports, redisDb, jwt, branchPrefix }));
         syncAppPortlessConfigs({ worktreeRoot: root, branchPrefix, linked });
-        loadEnv(join(root, ".env.local"));
-        loadEnv(join(root, ".env"));
+        loadDotenv({ path: join(root, ".env.local"), override: false });
+        loadDotenv({ path: join(root, ".env"), override: false });
         return `prefix "${branchPrefix ?? "(none)"}", redis db ${redisDb}`;
       }
     },

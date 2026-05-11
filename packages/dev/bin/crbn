@@ -294,7 +294,7 @@ case "$cmd" in
   checkout)
     cmd_checkout "$@"
     ;;
-  copy|up|down|reset|status|new|list|remove)
+  copy|up|down|reset|status|new|list|remove|complete)
     delegate_ts "$cmd" "$@"
     ;;
   *)
