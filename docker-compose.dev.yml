@@ -193,10 +193,13 @@ services:
     volumes:
       - ./packages/database/supabase/functions:/home/deno/functions:ro
       - ./packages/database/src:/home/src:ro
+      # Dev-only dispatcher; lives outside supabase/functions/ so prod
+      # `supabase functions deploy --all` can't pick it up.
+      - ./packages/dev/docker/edge-main:/home/deno/main:ro
     command:
       - start
       - --main-service
-      - /home/deno/functions/main
+      - /home/deno/main
 
   kong:
     image: kong:2.8.1

@@ -1,6 +1,6 @@
 import { copyFileSync, existsSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
-import { intro, note, outro, tasks } from "@clack/prompts";
+import { intro, outro, tasks } from "@clack/prompts";
 import pc from "picocolors";
 import { addWorktree, currentBranch } from "../lib/git.js";
 import { getWorktreeRoot, slugify } from "../lib/slug.js";
@@ -54,15 +54,7 @@ export async function newWorktree() {
       : [])
   ]);
 
-  note(
-    [
-      pc.bold("Next steps:"),
-      "",
-      `  ${pc.cyan("cd")} ${relative(here, targetPath)}`,
-      `  ${pc.cyan("npm install")}    ${pc.dim("# if needed")}`,
-      `  ${pc.cyan("crbn up")}`
-    ].join("\n"),
-    `worktree ready — ${branch}`
+  outro(
+    `worktree ready — ${pc.cyan(`crbn checkout ${branch} --up`)} to boot it`
   );
-  outro("done");
 }
