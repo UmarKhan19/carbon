@@ -150,20 +150,122 @@ EOF
 uninstall() {
   local rc; rc="$(detect_rc)"
   hdr "Uninstall"
-  if [[ ! -f "$rc" ]]; then info "no rc file at $(dim "$rc") — nothing to do"; return 0; fi
-  if ! grep -qF "$SENTINEL_OPEN" "$rc"; then
+  if [[ ! -f "$rc" ]]; then info "no rc file at $(dim "$rc") — nothing to do";
+  elif ! grep -qF "$SENTINEL_OPEN" "$rc"; then
     info "no crbn block found in $(dim "$rc") — nothing to do"
+  else
+    local tmp; tmp="$(mktemp)"
+    awk -v sopen="$SENTINEL_OPEN" -v sclose="$SENTINEL_CLOSE" '
+      $0 == sopen { skip=1; next }
+      skip && $0 == sclose { skip=0; next }
+      !skip
+    ' "$rc" > "$tmp"
+    mv "$tmp" "$rc"
+    ok "removed crbn block from $(dim "$rc")"
+    info "open a new shell to clear PATH and the crbn() function"
+  fi
+
+  uninstall_proxy_daemon
+}
+
+LAUNCHD_PLIST="/Library/LaunchDaemons/dev.portless.proxy.plist"
+
+# Install portless as a LaunchDaemon (macOS) so the :443 proxy starts at boot
+# and crash-restarts. Sidesteps the per-`crbn up` sudo prompt cycle for
+# `proxy start` (writing /etc/hosts via `portless hosts sync` still needs
+# sudo on first run only — our CLI skips it when hosts are already in sync).
+install_proxy_daemon() {
+  if [[ "$(uname -s)" != "Darwin" ]]; then
+    info "non-macOS — skipping LaunchDaemon install"
     return 0
   fi
-  local tmp; tmp="$(mktemp)"
-  awk -v sopen="$SENTINEL_OPEN" -v sclose="$SENTINEL_CLOSE" '
-    $0 == sopen { skip=1; next }
-    skip && $0 == sclose { skip=0; next }
-    !skip
-  ' "$rc" > "$tmp"
-  mv "$tmp" "$rc"
-  ok "removed crbn block from $(dim "$rc")"
-  info "open a new shell to clear PATH and the crbn() function"
+
+  if [[ -f "$LAUNCHD_PLIST" ]]; then
+    info "LaunchDaemon already installed at $(dim "$LAUNCHD_PLIST")"
+    return 0
+  fi
+
+  local portless_bin
+  portless_bin="$(command -v portless || true)"
+  if [[ -z "$portless_bin" ]]; then
+    warn "portless not on PATH — run \`crbn up\` once to install it, then \`./setup.sh\` again to enable boot-start"
+    return 0
+  fi
+
+  hdr "Boot-start portless proxy"
+  info "Installs $(dim "$LAUNCHD_PLIST") so :443 survives reboots."
+  info "One sudo prompt now, none on every \`crbn up\` after that."
+  printf '\n  %s\n' "$(kbd "ctrl-c to skip")"
+  read -r -p "  press enter to continue " _
+
+  local plist_tmp
+  plist_tmp="$(mktemp)"
+  cat > "$plist_tmp" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>dev.portless.proxy</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$portless_bin</string>
+    <string>proxy</string>
+    <string>start</string>
+    <string>--foreground</string>
+    <string>--port</string>
+    <string>443</string>
+    <string>--https</string>
+    <string>--tld</string>
+    <string>dev</string>
+    <string>--skip-trust</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>/var/log/portless.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/var/log/portless.err.log</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>$HOME</string>
+    <key>PATH</key>
+    <string>$(dirname "$portless_bin"):/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
+</dict>
+</plist>
+EOF
+
+  # Stop any current foreground/daemon proxy first so the LaunchDaemon can
+  # bind :443 cleanly. Ignore errors — proxy may not be running.
+  sudo "HOME=$HOME" portless proxy stop >/dev/null 2>&1 || true
+
+  if ! sudo install -m 644 -o root -g wheel "$plist_tmp" "$LAUNCHD_PLIST"; then
+    rm -f "$plist_tmp"
+    fail "failed to write $LAUNCHD_PLIST"
+    return 1
+  fi
+  rm -f "$plist_tmp"
+
+  if ! sudo launchctl bootstrap system "$LAUNCHD_PLIST"; then
+    fail "launchctl bootstrap failed — proxy may still be running; check \`sudo launchctl print system/dev.portless.proxy\`"
+    return 1
+  fi
+
+  ok "portless LaunchDaemon installed; proxy starts at boot"
+}
+
+uninstall_proxy_daemon() {
+  if [[ "$(uname -s)" != "Darwin" ]] || [[ ! -f "$LAUNCHD_PLIST" ]]; then
+    return 0
+  fi
+  info "removing LaunchDaemon"
+  sudo launchctl bootout "system/dev.portless.proxy" 2>/dev/null || true
+  sudo rm -f "$LAUNCHD_PLIST"
+  ok "LaunchDaemon removed"
 }
 
 install() {
@@ -203,6 +305,8 @@ install() {
   else
     ok "appended crbn block to $rc"
   fi
+
+  install_proxy_daemon || true
 
   hdr "Activate"
   printf '  Open a new shell, or run:\n\n'

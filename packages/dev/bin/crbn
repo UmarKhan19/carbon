@@ -55,11 +55,16 @@ slugify_branch() {
 }
 
 delegate_ts() {
-  # Run citty entry through tsx via pnpx (pnpm dlx). Independent of cwd's
-  # node_modules — works from any worktree, even fresh ones without an
-  # install. pnpm caches the fetched binary in its store after first run.
+  # Run citty entry through tsx. Prefer the locally-installed binary in the
+  # main checkout (single process under the shell — keeps Ctrl+C / SIGTERM
+  # semantics clean for the `crbn up` → graceful-`down` teardown flow).
+  # Falls back to `pnpx tsx` for fresh checkouts where node_modules isn't
+  # populated yet (e.g. immediately after `crbn checkout`).
   local root
   root="$(repo_root)"
+  if [[ -x "$root/node_modules/.bin/tsx" ]]; then
+    exec "$root/node_modules/.bin/tsx" "$root/packages/dev/src/main.ts" "$@"
+  fi
   exec pnpx tsx "$root/packages/dev/src/main.ts" "$@"
 }
 

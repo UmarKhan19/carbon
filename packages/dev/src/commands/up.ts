@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { intro, log, note, outro, tasks } from "@clack/prompts";
+import { box, intro, log, outro, tasks } from "@clack/prompts";
 import { currentBranch, isLinkedWorktree } from "../lib/git.js";
 import { loadEnv } from "../lib/load-env.js";
 import { resolveSlot, SHARED_REDIS_PORT } from "../lib/ports.js";
@@ -33,6 +33,7 @@ import {
   ensurePortlessInstalled,
   ensureProxyPrivileges,
   hostsFileInSync,
+  proxyRunsAsRoot,
   pruneStaleRoutes,
   registerAliases,
   startProxyDaemon,
@@ -41,6 +42,7 @@ import {
 } from "../services/portless.js";
 import { pickApps } from "../ui/prompts.js";
 import { summaryLines } from "../ui/summary.js";
+import { down } from "./down.js";
 
 export async function up() {
   intro("Carbon · dev up");
@@ -167,12 +169,15 @@ export async function up() {
     }
   ]);
 
-  // Push the just-registered routes into /etc/hosts. Skipped when every
-  // route hostname is already inside the # portless-* block — saves the
-  // sudo password prompt on repeat runs of an unchanged worktree. Outside
-  // the clack tasks block because sudo's password prompt would clash with
-  // the spinner UI when it does run.
-  if (hostsFileInSync()) {
+  // /etc/hosts sync: skipped in two cases:
+  //   1. proxy daemon runs as root (LaunchDaemon or `sudo portless proxy
+  //      start`) — it watches routes.json via fs.watch and writes /etc/hosts
+  //      itself when our aliasing call mutates the file.
+  //   2. every route hostname already appears inside the # portless-* block.
+  // Both branches avoid the sudo prompt entirely.
+  if (proxyRunsAsRoot()) {
+    log.info("/etc/hosts auto-synced by root proxy daemon");
+  } else if (hostsFileInSync()) {
     log.info("/etc/hosts already in sync — skipping sudo");
   } else {
     log.step("sudo portless hosts sync");
@@ -184,11 +189,34 @@ export async function up() {
     log.info("stripe listener spawned (CARBON_EDITION=cloud)");
   }
 
-  note(summaryLines(ports, branchPrefix).join("\n"), `Carbon dev — ${slug}`);
+  box(summaryLines(ports, branchPrefix).join("\n"), `Carbon dev — ${slug}`);
   outro("apps starting (Ctrl+C to stop)");
 
   // SIGINT handling lives inside spawnAppsViaTurbo; the spawned portless
   // children get the signal via the process group and we swallow our default
   // exit so they can clean up routes before we return.
   await spawnAppsViaTurbo({ root, apps: selectedApps });
+
+  // Apps only exit when the user hits Ctrl+C (dev servers run forever).
+  // Treat that as `crbn down` automatically — tear the compose stack down,
+  // unregister aliases, and drop the generated portless.json. Avoids leaving
+  // postgres/kong/etc orphaned after the foreground process dies.
+  //
+  // spawnAppsViaTurbo removes its signal swallow in `finally`, so a second
+  // Ctrl+C (or SIGTERM from a parent supervisor, SIGHUP from terminal close,
+  // SIGBREAK on Windows) during `docker compose stop` would land on Node's
+  // default handler and exit 130 mid-teardown. Reinstall a swallow here for
+  // the duration of `down()`; clear it afterwards.
+  const swallow = () => {
+    process.stderr.write("\nfinishing teardown — please wait\n");
+  };
+  const SIGNALS = ["SIGINT", "SIGTERM", "SIGHUP", "SIGBREAK"] as const;
+  for (const s of SIGNALS) process.on(s, swallow);
+  try {
+    // silent: stdin's TTY raw-mode is fried post-SIGINT; clack's spinner
+    // would crash with EIO from readline. Plain printf path stays safe.
+    await down({ silent: true });
+  } finally {
+    for (const s of SIGNALS) process.off(s, swallow);
+  }
 }

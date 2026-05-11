@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { setTimeout as sleep } from "node:timers/promises";
 import { confirm, isCancel, log, spinner } from "@clack/prompts";
-import { execa } from "execa";
+import { execa, execaSync } from "execa";
 import pc from "picocolors";
 import {
   ALIAS_SERVICES,
@@ -269,6 +269,30 @@ export async function syncHostsFile() {
     throw new Error(
       `sudo portless hosts sync failed (exit ${r.exitCode}). Run it manually to fix DNS.`
     );
+  }
+}
+
+/**
+ * True when the portless proxy daemon is running as root. In that case it has
+ * an `fs.watch` on `routes.json` and writes `/etc/hosts` itself (default
+ * `PORTLESS_SYNC_HOSTS=1`), so our manual `sudo portless hosts sync` is
+ * redundant — skipping it avoids the password prompt.
+ *
+ * Detected via the owner of the daemon's PID. setup.sh installs a
+ * LaunchDaemon that runs the proxy as root; `sudo portless proxy start` does
+ * the same. Anything else (e.g. user-mode proxy on a high port) returns
+ * false and our CLI falls back to invoking `sudo portless hosts sync`.
+ */
+export function proxyRunsAsRoot(): boolean {
+  const pidFile = `${homedir()}/.portless/proxy.pid`;
+  if (!existsSync(pidFile)) return false;
+  const pid = Number(readFileSync(pidFile, "utf8").trim());
+  if (!pid) return false;
+  try {
+    const r = execaSync("ps", ["-p", String(pid), "-o", "user="]);
+    return r.stdout.trim() === "root";
+  } catch {
+    return false;
   }
 }
 
