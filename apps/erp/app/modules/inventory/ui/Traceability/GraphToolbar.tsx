@@ -10,6 +10,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useReactFlow } from "@xyflow/react";
+import { memo } from "react";
 import {
   LuFocus,
   LuMaximize,
@@ -45,7 +46,14 @@ type Props = {
 const PANEL =
   "rounded-lg border border-border bg-card/95 backdrop-blur shadow-sm";
 
-export function GraphToolbar({
+// Memoized so it doesn't re-render on every drag-tick re-render of the
+// parent. Open HoverCards inside contain Radix PopperContent, which uses
+// `useComposedRefs(forwardedRef, (node) => setContent(node))` — the inline
+// callback is a new function each render, forcing a setContent(null) →
+// setContent(node) ref churn per parent render. At 60Hz drag frequency
+// this saturates React's nested-update budget. None of these props change
+// during a node drag, so memo skips the re-render entirely.
+export const GraphToolbar = memo(function GraphToolbar({
   depth,
   onDepthChange,
   direction,
@@ -79,7 +87,7 @@ export function GraphToolbar({
       />
     </>
   );
-}
+});
 
 function ViewModeChip({
   view,
@@ -376,35 +384,22 @@ function SpacingSlider({
 }) {
   return (
     <Popover>
-      <HoverCard openDelay={150} closeDelay={50}>
-        <HoverCardTrigger asChild>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              aria-label="Layout spacing"
-              className={cn(
-                "h-7 px-2 rounded-md flex items-center gap-1 transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                "text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              )}
-            >
-              <span className="text-[10px] uppercase tracking-wide">
-                Spacing
-              </span>
-              <span className="text-xs tabular-nums font-medium text-foreground">
-                {value}
-              </span>
-            </button>
-          </PopoverTrigger>
-        </HoverCardTrigger>
-        <HoverCardContent
-          side="top"
-          sideOffset={8}
-          className="!w-auto !p-2 text-xs"
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label="Layout spacing"
+          className={cn(
+            "h-7 px-2 rounded-md flex items-center gap-1 transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+          )}
         >
-          Spacing
-        </HoverCardContent>
-      </HoverCard>
+          <span className="text-[10px] uppercase tracking-wide">Spacing</span>
+          <span className="text-xs tabular-nums font-medium text-foreground">
+            {value}
+          </span>
+        </button>
+      </PopoverTrigger>
       <PopoverContent
         side="bottom"
         align="end"

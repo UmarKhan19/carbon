@@ -65,7 +65,14 @@ function QuantityEdgeImpl({
           strokeWidth,
           opacity: dimmed ? 0.08 : baseOpacity,
           strokeDasharray: isBackEdge ? "8 4" : undefined,
-          fill: "none"
+          fill: "none",
+          // Render the stroke at a constant pixel width regardless of the
+          // SVG viewport zoom. Without this, fitView(maxZoom: 1) zooms a
+          // small graph out to ~0.6-0.8x, which compresses a 1.5-unit
+          // stroke below 1 device pixel and anti-aliases it to invisible
+          // on Windows displays. The bezier coordinates still scale with
+          // the viewport, only the stroke geometry is held constant.
+          vectorEffect: "non-scaling-stroke"
         }}
       />
       {!dimmed && data?.quantity != null && (

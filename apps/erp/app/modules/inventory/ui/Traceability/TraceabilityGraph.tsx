@@ -193,6 +193,7 @@ function TraceabilityGraphInner({
   const handleRelayout = useCallback(() => {
     setLayoutVersion((v) => v + 1);
   }, []);
+  const handleOpenSearch = useCallback(() => setSearchOpen(true), []);
 
   const [draggedIds, setDraggedIds] = useState<Set<string>>(new Set());
   const [fitted, setFitted] = useState(false);
@@ -553,7 +554,7 @@ function TraceabilityGraphInner({
           isolate={isolate}
           onIsolateChange={setIsolate}
           hasSelection={selectedIds.length > 0 || additionalRootIds.size > 0}
-          onOpenSearch={() => setSearchOpen(true)}
+          onOpenSearch={handleOpenSearch}
           spacing={spacing}
           onSpacingChange={setSpacing}
         />
@@ -657,7 +658,7 @@ function TraceabilityGraphInner({
         onIsolateChange={setIsolate}
         hasSelection={selectedIds.length > 0 || additionalRootIds.size > 0}
         onRelayout={handleRelayout}
-        onOpenSearch={() => setSearchOpen(true)}
+        onOpenSearch={handleOpenSearch}
         spacing={spacing}
         onSpacingChange={setSpacing}
       />
