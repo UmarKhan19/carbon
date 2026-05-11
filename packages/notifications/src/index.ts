@@ -1,3 +1,5 @@
+import type { Database } from "@carbon/database";
+
 // Notification event taxonomy. Kept as a standalone package because the
 // enums are referenced from app routes, scheduled jobs, and the inngest
 // notify function. The previous Novu trigger helpers have been removed —
@@ -6,7 +8,6 @@
 
 export enum NotificationEvent {
   ApprovalApproved = "approval-approved",
-  Digest = "digest",
   ApprovalRejected = "approval-rejected",
   ApprovalRequested = "approval-requested",
   DigitalQuoteResponse = "digital-quote-response",
@@ -34,8 +35,8 @@ export enum NotificationEvent {
   TrainingAssignment = "training-assignment"
 }
 
-// Coarse buckets used for digest grouping. Each event maps to exactly one
-// topic via getNotificationTopic. The string values are persisted in the
+// Coarse topic buckets. Each event maps to exactly one topic via
+// getNotificationTopic. The string values are persisted in the
 // `notification.topic` column, so renaming any of these is a migration.
 export enum NotificationTopic {
   Approval = "approval",
@@ -56,8 +57,7 @@ export enum NotificationTopic {
 // every notification. email and slack are opt-in extras.
 export enum NotificationDestination {
   InApp = "inApp",
-  Email = "email",
-  Slack = "slack"
+  Email = "email"
 }
 
 export function getNotificationTopic(
@@ -100,13 +100,12 @@ export function getNotificationTopic(
     case NotificationEvent.ApprovalRejected:
     case NotificationEvent.ApprovalRequested:
       return NotificationTopic.Approval;
-    case NotificationEvent.Digest:
     default:
       return NotificationTopic.General;
   }
 }
 
-type ApprovalDocumentType = "purchaseOrder" | "qualityDocument";
+type ApprovalDocumentType = Database["public"]["Enums"]["approvalDocumentType"];
 
 const x = "x";
 // Path templates for ERP records that notifications can deep-link to. These
@@ -115,32 +114,50 @@ const x = "x";
 // graph. If a route changes in path.ts, update the matching builder here.
 export const notificationPath = {
   gauge: (id: string) => `/${x}/quality/gauges/${id}`,
-  job: (id: string) => `/${x}/job/${id}`,
-  jobOperation: (jobId: string, operationId: string) =>
-    `/${x}/job/methods/${jobId}/operation/${operationId}`,
+  job: (id: string) => `/${x}/job/${id}/details`,
+  jobOperation: (
+    jobId: string,
+    makeMethodId: string,
+    operationId: string,
+    materialId?: string
+  ) => {
+    const base = materialId
+      ? `/${x}/job/${jobId}/make/${makeMethodId}`
+      : `/${x}/job/${jobId}/method/${makeMethodId}`;
+    return `${base}?selectedOperation=${operationId}`;
+  },
   maintenanceDispatch: (id: string) => `/${x}/maintenance/${id}`,
   nonConformance: (id: string) => `/${x}/issue/${id}`,
   procedure: (id: string) => `/${x}/procedure/${id}`,
-  purchaseInvoice: (id: string) => `/${x}/purchase-invoice/${id}`,
-  purchaseOrder: (id: string) => `/${x}/purchase-order/${id}`,
+  purchaseInvoice: (id: string) => `/${x}/purchase-invoice/${id}/details`,
+  purchaseOrder: (id: string) => `/${x}/purchase-order/${id}/details`,
   qualityDocument: (id: string) => `/${x}/quality-document/${id}`,
-  quote: (id: string) => `/${x}/quote/${id}`,
+  quote: (id: string) => `/${x}/quote/${id}/details`,
   risk: (id: string) => `/${x}/quality/risks/${id}`,
-  salesOrder: (id: string) => `/${x}/sales-order/${id}`,
+  salesOrder: (id: string) => `/${x}/sales-order/${id}/details`,
   salesRfq: (id: string) => `/${x}/sales-rfq/${id}`,
   stockTransfer: (id: string) => `/${x}/stock-transfer/${id}`,
   suggestion: (id: string) => `/${x}/resources/suggestions/${id}`,
-  supplierQuote: (id: string) => `/${x}/supplier-quote/${id}`,
-  training: (id: string) => `/${x}/training/${id}`
+  supplierApproval: (id: string) => `/${x}/supplier/${id}/approval`,
+  supplierQuote: (id: string) => `/${x}/supplier-quote/${id}/details`,
+  training: (id: string) => `/share/training/${id}`
 } as const;
 
 // Relative path that the notification deep-links to in the ERP app. Used for
 // email CTA buttons and (in future) topbar click handlers. Returns null if
 // the event doesn't correspond to a single navigable record.
+export type NotificationLinkContext = {
+  documentType?: ApprovalDocumentType;
+  jobId?: string;
+  operationId?: string;
+  makeMethodId?: string;
+  materialId?: string;
+};
+
 export function getNotificationLink(
   event: NotificationEvent,
   recordId: string,
-  documentType?: ApprovalDocumentType
+  context?: NotificationLinkContext
 ): string | null {
   switch (event) {
     case NotificationEvent.JobAssignment:
@@ -148,9 +165,14 @@ export function getNotificationLink(
       return notificationPath.job(recordId);
     case NotificationEvent.JobOperationAssignment:
     case NotificationEvent.JobOperationMessage: {
-      const [jobId, operationId] = recordId.split(":");
-      if (!jobId || !operationId) return null;
-      return notificationPath.jobOperation(jobId, operationId);
+      const { jobId, operationId, makeMethodId, materialId } = context ?? {};
+      if (!jobId || !operationId || !makeMethodId) return null;
+      return notificationPath.jobOperation(
+        jobId,
+        makeMethodId,
+        operationId,
+        materialId
+      );
     }
     case NotificationEvent.PurchaseInvoiceAssignment:
       return notificationPath.purchaseInvoice(recordId);
@@ -188,23 +210,26 @@ export function getNotificationLink(
     case NotificationEvent.ApprovalApproved:
     case NotificationEvent.ApprovalRejected:
     case NotificationEvent.ApprovalRequested:
-      if (documentType === "purchaseOrder") {
+      if (context?.documentType === "purchaseOrder") {
         return notificationPath.purchaseOrder(recordId);
       }
-      if (documentType === "qualityDocument") {
+      if (context?.documentType === "qualityDocument") {
         return notificationPath.qualityDocument(recordId);
       }
+      if (context?.documentType === "supplier") {
+        return notificationPath.supplierApproval(recordId);
+      }
       return null;
-    case NotificationEvent.Digest:
     default:
       return null;
   }
 }
 
-// Short, human-readable subject line used for the email per event. The body
-// of the email is the full description; the subject is a category label so
-// users can scan their inbox quickly.
-export function getNotificationEmailSubject(event: NotificationEvent): string {
+// Generic category label rendered as the in-email heading (sits under the
+// "New notification" eyebrow). The inbox subject is the per-event description
+// so users can scan their inbox; this gives the email body a stable category
+// title regardless of the record specifics in the description.
+export function getNotificationEmailHeading(event: NotificationEvent): string {
   switch (event) {
     case NotificationEvent.JobAssignment:
       return "Job assigned to you";
@@ -258,14 +283,13 @@ export function getNotificationEmailSubject(event: NotificationEvent): string {
       return "Your request was approved";
     case NotificationEvent.ApprovalRejected:
       return "Your request was rejected";
-    case NotificationEvent.Digest:
     default:
       return "You have a new notification";
   }
 }
 
 // Action label shown on the email's CTA button. Falls back to "View" when no
-// link is available. Tone matches the subject — short, imperative.
+// link is available. Tone matches the heading — short, imperative.
 export function getNotificationEmailCtaLabel(event: NotificationEvent): string {
   switch (event) {
     case NotificationEvent.ApprovalRequested:
@@ -286,44 +310,5 @@ export function getNotificationEmailCtaLabel(event: NotificationEvent): string {
       return "View response";
     default:
       return "View details";
-  }
-}
-
-// English phrase used as the digest row's title. Persisted in
-// `notification.title`, so changing the wording does not require a migration
-// but does change what existing digest rows display on next render.
-//
-// Not currently localized — same limitation as the per-event description in
-// the notify function. Future i18n work should move both into the topbar
-// renderer and store stable identifiers in the row instead.
-export function getNotificationTopicPhrase(
-  topic: NotificationTopic,
-  count: number
-): string {
-  const plural = count === 1 ? "notification" : "notifications";
-  switch (topic) {
-    case NotificationTopic.Job:
-      return `${count} job ${plural}`;
-    case NotificationTopic.Purchasing:
-      return `${count} purchasing ${plural}`;
-    case NotificationTopic.Quote:
-      return `${count} quote ${plural}`;
-    case NotificationTopic.Sales:
-      return `${count} sales ${plural}`;
-    case NotificationTopic.Maintenance:
-      return `${count} maintenance ${plural}`;
-    case NotificationTopic.Quality:
-      return `${count} quality ${plural}`;
-    case NotificationTopic.Training:
-      return `${count} training ${plural}`;
-    case NotificationTopic.Inventory:
-      return `${count} inventory ${plural}`;
-    case NotificationTopic.Suggestion:
-      return `${count} suggestion ${plural}`;
-    case NotificationTopic.Approval:
-      return `${count} approval ${plural}`;
-    case NotificationTopic.General:
-    default:
-      return `${count} unread ${plural}`;
   }
 }

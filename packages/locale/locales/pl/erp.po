@@ -824,11 +824,11 @@ msgstr "Zatwierdzone przez"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:465
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
 msgid "Archive"
 msgstr "Archiwum"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:523
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
 msgid "Archive all"
 msgstr "Archiwizuj wszystko"
 
@@ -6377,7 +6377,7 @@ msgstr "Inspekcje przychodzące"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "Inspekcje przychodzące: Wymagaj innego inspektora"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
 msgid "Inbox"
 msgstr "Skrzynka odbiorcza"
 
@@ -8788,7 +8788,7 @@ msgstr ""
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Brak wyników dla „{query}\". Spróbuj innego terminu wyszukiwania."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:485
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
 msgid "No new notifications"
 msgstr "Brak nowych powiadomień"
 
@@ -8814,7 +8814,7 @@ msgstr "Nie znaleziono opcji."
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "Nie znaleziono innych pracowników. Dodaj pracowników, aby umożliwić transfer własności."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:537
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
 msgid "No outstanding trainings"
 msgstr "Brak zaległych szkoleń"
 
@@ -9016,7 +9016,7 @@ msgstr "Notatki"
 msgid "Notes (optional)"
 msgstr "Notatki (opcjonalnie)"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:557
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
 msgid "Nothing in the archive"
 msgstr "Nic w archiwum"
 
@@ -13896,7 +13896,7 @@ msgstr "Szkolenie"
 msgid "Training Assignments"
 msgstr "Przypisania szkoleniowe"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
 msgid "Trainings"
 msgstr "Szkolenia"
 

@@ -8,7 +8,7 @@ import {
 import { ERP_URL } from "@carbon/env";
 import {
   getNotificationEmailCtaLabel,
-  getNotificationEmailSubject,
+  getNotificationEmailHeading,
   getNotificationLink,
   getNotificationTopic,
   NotificationDestination,
@@ -442,6 +442,7 @@ export const notifyFunction = inngest.createFunction(
     const destinations: NotificationDestination[] = Array.from(
       new Set<NotificationDestination>([
         NotificationDestination.InApp,
+        NotificationDestination.Email,
         ...(payload.destinations ?? [])
       ])
     );
@@ -555,8 +556,6 @@ export const notifyFunction = inngest.createFunction(
           userId
         }));
 
-        // Cast until @carbon/database types are regenerated against the new
-        // notification table migration.
         const { data, error } = await (client.from as any)("notification")
           .insert(rows)
           .select("id");
@@ -582,13 +581,34 @@ export const notifyFunction = inngest.createFunction(
             throw error;
           }
 
-          const subject = getNotificationEmailSubject(payload.event);
+          const subject = description;
+          const heading = getNotificationEmailHeading(payload.event);
           const ctaLabel = getNotificationEmailCtaLabel(payload.event);
-          const link = getNotificationLink(
-            payload.event,
-            payload.documentId,
-            payload.documentType
-          );
+          const isJobOperationEvent =
+            payload.event === NotificationEvent.JobOperationAssignment ||
+            payload.event === NotificationEvent.JobOperationMessage;
+          let jobOperationContext: {
+            jobId?: string;
+            operationId?: string;
+            makeMethodId?: string;
+            materialId?: string;
+          } = {};
+          if (isJobOperationEvent) {
+            const [jobId, operationId, makeMethodId, materialId] =
+              payload.documentId.split(":");
+
+            jobOperationContext = {
+              jobId: jobId,
+              makeMethodId: makeMethodId,
+              materialId: materialId,
+              operationId: operationId
+            };
+          }
+
+          const link = getNotificationLink(payload.event, payload.documentId, {
+            documentType: payload.documentType,
+            ...jobOperationContext
+          });
           const ctaUrl = link ? `${ERP_URL}${link}` : undefined;
 
           const recipients = (users ?? []).filter((u) => u.email);
@@ -603,9 +623,10 @@ export const notifyFunction = inngest.createFunction(
                 NotificationEmail({
                   ctaLabel,
                   ctaUrl,
+                  heading,
                   message: description,
-                  recipientName: u.fullName ?? undefined,
-                  subject
+                  preview: heading,
+                  recipientName: u.fullName ?? undefined
                 })
               );
               return {
@@ -631,27 +652,27 @@ export const notifyFunction = inngest.createFunction(
     }
 
     // ---- Slack fan-out ----
-    if (destinations.includes(NotificationDestination.Slack)) {
-      const slackEvent = await step.run("resolve-slack-channel", async () => {
-        const { data: company } = await client
-          .from("company")
-          .select("slackChannel")
-          .eq("id", payload.companyId)
-          .single();
-        const channel = company?.slackChannel;
-        if (!channel) return null;
-        return {
-          data: {
-            channel,
-            companyId: payload.companyId,
-            text: description
-          },
-          name: "carbon/send-slack" as const
-        };
-      });
-      if (slackEvent) {
-        await step.sendEvent("fan-out-slack", slackEvent);
-      }
-    }
+    // if (destinations.includes(NotificationDestination.Slack)) {
+    //   const slackEvent = await step.run("resolve-slack-channel", async () => {
+    //     const { data: company } = await client
+    //       .from("company")
+    //       .select("slackChannel")
+    //       .eq("id", payload.companyId)
+    //       .single();
+    //     const channel = company?.slackChannel;
+    //     if (!channel) return null;
+    //     return {
+    //       data: {
+    //         channel,
+    //         companyId: payload.companyId,
+    //         text: description
+    //       },
+    //       name: "carbon/send-slack" as const
+    //     };
+    //   });
+    //   if (slackEvent) {
+    //     await step.sendEvent("fan-out-slack", slackEvent);
+    //   }
+    // }
   }
 );

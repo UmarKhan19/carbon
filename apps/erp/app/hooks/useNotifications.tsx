@@ -59,7 +59,6 @@ export function useNotifications({
         .select("id, userId, companyId, readAt, seenAt, createdAt, payload")
         .eq("userId", userId)
         .eq("companyId", companyId)
-        .is("digestedInto", null)
         .order("createdAt", { ascending: false })
         .limit(100);
 
@@ -106,22 +105,11 @@ export function useNotifications({
               ...prev
             ]);
           } else if (payload.eventType === "UPDATE") {
-            // A row that just got attached to a digest disappears from the
-            // topbar — it's now represented by its digest parent.
-            const newRow = payload.new as NotificationRow & {
-              digestedInto?: string | null;
-            };
-            if (newRow.digestedInto) {
-              setNotifications((prev) =>
-                prev.filter((n) => n._id !== newRow.id)
-              );
-            } else {
-              setNotifications((prev) =>
-                prev.map((n) =>
-                  n._id === newRow.id ? rowToNotification(newRow) : n
-                )
-              );
-            }
+            setNotifications((prev) =>
+              prev.map((n) =>
+                n._id === payload.new.id ? rowToNotification(payload.new) : n
+              )
+            );
           } else if (payload.eventType === "DELETE") {
             setNotifications((prev) =>
               prev.filter((n) => n._id !== (payload.old as NotificationRow).id)
@@ -139,17 +127,9 @@ export function useNotifications({
         prev.map((n) => (n._id === messageId ? { ...n, read: true } : n))
       );
       if (!carbon) return;
-      const now = new Date().toISOString();
       await (carbon.from as any)("notification")
-        .update({ readAt: now })
+        .update({ readAt: new Date().toISOString() })
         .eq("id", messageId);
-      // If this is a digest row, sweep its children read too. RLS scopes
-      // both updates to auth.uid()::text = userId, so a malicious id won't
-      // affect anyone else.
-      await (carbon.from as any)("notification")
-        .update({ readAt: now })
-        .eq("digestedInto", messageId)
-        .is("readAt", null);
     },
     [carbon]
   );

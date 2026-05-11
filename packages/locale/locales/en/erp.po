@@ -824,11 +824,11 @@ msgstr "Approved By"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:465
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
 msgid "Archive"
 msgstr "Archive"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:523
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
 msgid "Archive all"
 msgstr "Archive all"
 
@@ -6377,7 +6377,7 @@ msgstr "Inbound Inspections"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "Inbound Inspections: Require Different Inspector"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
 msgid "Inbox"
 msgstr "Inbox"
 
@@ -8788,7 +8788,7 @@ msgstr "No matches"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "No matches for \"{query}\". Try a different search term."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:485
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
 msgid "No new notifications"
 msgstr "No new notifications"
 
@@ -8814,7 +8814,7 @@ msgstr "No options found."
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "No other employees found. Add employees to enable ownership transfer."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:537
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
 msgid "No outstanding trainings"
 msgstr "No outstanding trainings"
 
@@ -9016,7 +9016,7 @@ msgstr "Notes"
 msgid "Notes (optional)"
 msgstr "Notes (optional)"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:557
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
 msgid "Nothing in the archive"
 msgstr "Nothing in the archive"
 
@@ -13896,7 +13896,7 @@ msgstr "Training"
 msgid "Training Assignments"
 msgstr "Training Assignments"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
 msgid "Trainings"
 msgstr "Trainings"
 

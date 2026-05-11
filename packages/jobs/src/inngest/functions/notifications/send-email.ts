@@ -74,7 +74,7 @@ export const sendEmailFunction = inngest.createFunction(
     const parsedMetadata = EmailConfig.schema.safeParse(metadataWithProvider);
 
     if (!parsedMetadata.success || !integrationActive) {
-      return { success: false, message: "Invalid or inactive integration" };
+      return { message: "Invalid or inactive integration", success: false };
     }
 
     const data = parsedMetadata.data as {
@@ -94,49 +94,49 @@ export const sendEmailFunction = inngest.createFunction(
       const result = await step.run("send-email", async () => {
         const nodemailer = await import("nodemailer");
         const transporter = nodemailer.createTransport({
+          auth: {
+            pass: data.password!,
+            user: data.username!
+          },
           host: data.host!,
           port: data.port!,
-          secure: data.secure === true,
-          auth: {
-            user: data.username!,
-            pass: data.password!
-          }
+          secure: data.secure === true
         });
 
         console.info(`SMTP Email Job`);
         return transporter.sendMail({
-          from: fromAddress,
-          to: toRecipients,
-          cc: ccRecipients,
-          replyTo: payload.from,
-          subject: payload.subject,
-          html: payload.html,
-          text: payload.text,
           attachments: payload.attachments?.map(
             (a: { filename: string; content: string }) => ({
-              filename: a.filename,
               content: a.content,
-              encoding: "base64" as const
+              encoding: "base64" as const,
+              filename: a.filename
             })
-          )
+          ),
+          cc: ccRecipients,
+          from: fromAddress,
+          html: payload.html,
+          replyTo: payload.from,
+          subject: payload.subject,
+          text: payload.text,
+          to: toRecipients
         });
       });
 
-      return { success: true, result };
+      return { result, success: true };
     }
 
     const result = await step.run("send-email", async () => {
       const resend = new Resend(data.apiKey!);
 
       const email = {
-        from: fromAddress,
-        to: toRecipients,
+        attachments: payload.attachments,
         cc: ccRecipients,
+        from: fromAddress,
+        html: payload.html,
         reply_to: payload.from,
         subject: payload.subject,
-        html: payload.html,
         text: payload.text,
-        attachments: payload.attachments
+        to: toRecipients
       };
 
       console.info(`Resend Email Job`);
@@ -152,6 +152,6 @@ export const sendEmailFunction = inngest.createFunction(
       return response.data;
     });
 
-    return { success: true, result };
+    return { result, success: true };
   }
 );

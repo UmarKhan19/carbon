@@ -824,11 +824,11 @@ msgstr "批准人"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:465
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
 msgid "Archive"
 msgstr "存档"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:523
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
 msgid "Archive all"
 msgstr "全部存档"
 
@@ -6377,7 +6377,7 @@ msgstr "入站检验"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "入库检验：需要不同的检验员"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
 msgid "Inbox"
 msgstr "收件箱"
 
@@ -8788,7 +8788,7 @@ msgstr ""
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "没有匹配\"{query}\"的结果。请尝试不同的搜索词。"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:485
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
 msgid "No new notifications"
 msgstr "没有新通知"
 
@@ -8814,7 +8814,7 @@ msgstr "未找到选项。"
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "未找到其他员工。添加员工以启用所有权转移。"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:537
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
 msgid "No outstanding trainings"
 msgstr "没有未完成的培训"
 
@@ -9016,7 +9016,7 @@ msgstr "备注"
 msgid "Notes (optional)"
 msgstr "备注（可选）"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:557
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
 msgid "Nothing in the archive"
 msgstr "存档中没有任何内容"
 
@@ -13896,7 +13896,7 @@ msgstr "培训"
 msgid "Training Assignments"
 msgstr "培训分配"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
 msgid "Trainings"
 msgstr "培训"
 

@@ -33,7 +33,6 @@ import {
   cleanupFunction,
   dispatchFunction,
   mrpFunction,
-  notificationDigestFunction,
   notificationPurgeFunction,
   updateExchangeRatesFunction,
   weeklyFunction
@@ -77,7 +76,6 @@ export const functions = [
   mrpFunction,
   weeklyFunction,
   updateExchangeRatesFunction,
-  notificationDigestFunction,
   notificationPurgeFunction,
   // Integrations
   jiraSyncFunction,

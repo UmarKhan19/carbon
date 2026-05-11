@@ -824,11 +824,11 @@ msgstr "Одобрено"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:465
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
 msgid "Archive"
 msgstr "Архив"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:523
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
 msgid "Archive all"
 msgstr "Архивировать все"
 
@@ -6377,7 +6377,7 @@ msgstr "Входящие проверки"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "Входящие проверки: требовать другого инспектора"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
 msgid "Inbox"
 msgstr "Входящие"
 
@@ -8788,7 +8788,7 @@ msgstr ""
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Нет совпадений для \"{query}\". Попробуйте другой поисковый запрос."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:485
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
 msgid "No new notifications"
 msgstr "Нет новых уведомлений"
 
@@ -8814,7 +8814,7 @@ msgstr "Нет доступных вариантов."
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "Других сотрудников не найдено. Добавьте сотрудников, чтобы включить передачу прав собственности."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:537
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
 msgid "No outstanding trainings"
 msgstr "Нет невыполненных обучений"
 
@@ -9016,7 +9016,7 @@ msgstr "Примечания"
 msgid "Notes (optional)"
 msgstr "Примечания (опционально)"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:557
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
 msgid "Nothing in the archive"
 msgstr "Ничего в архиве"
 
@@ -13896,7 +13896,7 @@ msgstr "Обучение"
 msgid "Training Assignments"
 msgstr "Назначения обучения"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
 msgid "Trainings"
 msgstr "Обучение"
 

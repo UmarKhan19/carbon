@@ -13,7 +13,8 @@ import { Logo } from "./components/Logo";
 import { EmailThemeProvider, getEmailThemeClasses } from "./components/Theme";
 
 interface Props {
-  subject?: string;
+  preview?: string;
+  heading?: string;
   message?: string;
   recipientName?: string;
   ctaLabel?: string;
@@ -168,7 +169,8 @@ const notificationStyles = `
 `;
 
 export const NotificationEmail = ({
-  subject = "Job assigned to you",
+  preview = "Job J-1024 assigned to you",
+  heading = "Job assigned to you",
   message = "Job J-1024 assigned to you",
   recipientName = "Huckleberry",
   ctaLabel = "View details",
@@ -178,7 +180,7 @@ export const NotificationEmail = ({
 
   return (
     <EmailThemeProvider
-      preview={<Preview>{subject}</Preview>}
+      preview={<Preview>{preview}</Preview>}
       additionalHeadContent={<style>{notificationStyles}</style>}
     >
       <Body
@@ -204,7 +206,7 @@ export const NotificationEmail = ({
           <Heading
             className={`text-[26px] font-medium text-center tracking-tight p-0 mt-0 mb-[32px] mx-0 ${themeClasses.heading}`}
           >
-            {subject}
+            {heading}
           </Heading>
 
           <Section>

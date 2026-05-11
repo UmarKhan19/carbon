@@ -1,5 +1,4 @@
 {
-  "name": "@carbon/documents",
   "dependencies": {
     "@bwip-js/node": "4.9.0",
     "@carbon/env": "workspace:*",
@@ -19,6 +18,7 @@
     "@carbon/config": "workspace:*",
     "@carbon/database": "workspace:*",
     "@internationalized/date": "catalog:",
+    "@react-email/ui": "6.1.1",
     "@testing-library/dom": "8.20.1",
     "@types/dompurify": "2.4.0",
     "@types/react": "catalog:",
@@ -30,9 +30,10 @@
   "exports": {
     "./email": "./src/email/index.ts",
     "./pdf": "./src/pdf/index.ts",
-    "./zpl": "./src/zpl/index.ts",
-    "./qr": "./src/qr/qr-code.ts"
+    "./qr": "./src/qr/qr-code.ts",
+    "./zpl": "./src/zpl/index.ts"
   },
+  "name": "@carbon/documents",
   "private": true,
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",

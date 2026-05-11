@@ -824,11 +824,11 @@ msgstr "द्वारा अनुमोदित"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:465
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
 msgid "Archive"
 msgstr "संग्रह"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:523
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
 msgid "Archive all"
 msgstr "सभी को संग्रहित करें"
 
@@ -6377,7 +6377,7 @@ msgstr "इनबाउंड निरीक्षण"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "इनबाउंड निरीक्षण: विभिन्न निरीक्षक की आवश्यकता"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
 msgid "Inbox"
 msgstr "इनबॉक्स"
 
@@ -8788,7 +8788,7 @@ msgstr ""
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "\"{query}\" के लिए कोई मिलान नहीं। एक अलग खोज शब्द आजमाएं।"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:485
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
 msgid "No new notifications"
 msgstr "कोई नई सूचनाएं नहीं"
 
@@ -8814,7 +8814,7 @@ msgstr "कोई विकल्प नहीं मिला।"
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "कोई अन्य कर्मचारी नहीं मिला। स्वामित्व हस्तांतरण सक्षम करने के लिए कर्मचारियों को जोड़ें।"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:537
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
 msgid "No outstanding trainings"
 msgstr "कोई बकाया प्रशिक्षण नहीं"
 
@@ -9016,7 +9016,7 @@ msgstr "नोट्स"
 msgid "Notes (optional)"
 msgstr "नोट्स (वैकल्पिक)"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:557
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
 msgid "Nothing in the archive"
 msgstr "आर्काइव में कुछ नहीं है"
 
@@ -13896,7 +13896,7 @@ msgstr "प्रशिक्षण"
 msgid "Training Assignments"
 msgstr "प्रशिक्षण असाइनमेंट"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
 msgid "Trainings"
 msgstr "प्रशिक्षण"
 

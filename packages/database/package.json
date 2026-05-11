@@ -1,5 +1,16 @@
 {
-  "name": "@carbon/database",
+  "dependencies": {
+    "@supabase/postgrest-js": "catalog:",
+    "cookie": "catalog:",
+    "dompurify": "catalog:",
+    "kysely": "catalog:",
+    "kysely-supabase": "0.2.1",
+    "nanoid": "catalog:",
+    "pg": "8.20.0",
+    "react-pdf": "catalog:",
+    "sst": "catalog:",
+    "zod": "catalog:"
+  },
   "devDependencies": {
     "@carbon/config": "workspace:*",
     "@supabase/supabase-js": "catalog:",
@@ -17,14 +28,15 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./client": "./src/client.ts",
-    "./event": "./src/event.ts",
-    "./ratelimit": "./src/ratelimit.ts",
     "./audit": "./src/audit.ts",
     "./audit.config": "./src/audit.config.ts",
     "./audit.types": "./src/audit.types.ts",
+    "./client": "./src/client.ts",
+    "./event": "./src/event.ts",
+    "./ratelimit": "./src/ratelimit.ts",
     "./swagger-docs-schema": "./src/swagger-docs-schema.ts"
   },
+  "name": "@carbon/database",
   "private": true,
   "scripts": {
     "clean": "rimraf .turbo node_modules dist",
@@ -35,6 +47,7 @@
     "db:migrate": "supabase migration up",
     "db:migrate:new": "supabase migration new",
     "db:seed": "tsx src/seed.ts",
+    "db:seed:demo": "tsx src/seed-demo.ts",
     "db:seed:dev": "tsx src/seed-dev.ts",
     "db:setup": "supabase db reset",
     "db:start": "supabase start",
@@ -46,17 +59,5 @@
     "typecheck": "tsgo --noEmit"
   },
   "sideEffects": false,
-  "version": "0.0.0",
-  "dependencies": {
-    "@supabase/postgrest-js": "catalog:",
-    "cookie": "catalog:",
-    "dompurify": "catalog:",
-    "kysely": "catalog:",
-    "kysely-supabase": "0.2.1",
-    "nanoid": "catalog:",
-    "pg": "8.20.0",
-    "react-pdf": "catalog:",
-    "sst": "catalog:",
-    "zod": "catalog:"
-  }
+  "version": "0.0.0"
 }
