@@ -80,7 +80,7 @@ delegate_ts() {
 #                               No match → error.
 #
 #   crbn checkout -b <name>     Branch must NOT exist. Creates new branch
-#                               from --base (default origin/main) + worktree.
+#                               from --base (default HEAD) + worktree.
 #
 # All progress logs go to stderr; the only stdout is `cd '<path>'` for the
 # shell function in setup.sh to eval. Pass --up to chain `crbn up` after
@@ -97,11 +97,11 @@ Usage: crbn checkout <name> [--path PATH] [--up]
   origin/<name> with auto-fetch). If a worktree on that branch exists,
   cd into it. Otherwise create one + cd.
 
-  With -b: create a new branch <name> from --base (default origin/main),
-  add a worktree, cd in. Fails if the branch already exists.
+  With -b: create a new branch <name> from --base (default HEAD), add a
+  worktree, cd in. Fails if the branch already exists.
 
   --path PATH    Override the default worktree directory.
-  --base REF     (with -b) base ref for the new branch. Default: origin/main.
+  --base REF     (with -b) base ref for the new branch. Default: HEAD.
   --up           After creation, exec `crbn up` in the new worktree.
 USAGE
 }
@@ -123,7 +123,7 @@ worktree_path_for_branch() {
 }
 
 cmd_checkout() {
-  local name="" custom_path="" base_ref="origin/main" do_up=0 create_new=0
+  local name="" custom_path="" base_ref="HEAD" do_up=0 create_new=0
   while (( $# )); do
     case "$1" in
       -b)        create_new=1; shift ;;
@@ -262,7 +262,7 @@ crbn — Carbon dev CLI
                                     Creates one if missing (auto-fetches
                                     from origin if not local).
     crbn checkout -b <branch>       Create new branch + worktree from
-                                    --base (default origin/main).
+                                    --base (default HEAD).
     crbn new                        Interactive: pick branch + base ref,
                                     create worktree, optionally copy .env.
     crbn list                       Show all worktrees with stack status.
