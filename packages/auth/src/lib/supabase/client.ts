@@ -65,6 +65,13 @@ export const getCarbonAPIKeyClient = (apiKey: string) => {
     SUPABASE_URL!,
     SUPABASE_ANON_KEY!,
     {
+      // Without this, GoTrueClient spins up an AUTO_REFRESH_TICK setInterval
+      // that retains the client across requests — a real leak when this is
+      // called per-request from API-key auth paths.
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      },
       global: {
         fetch: fetchWithRetry,
         headers: {

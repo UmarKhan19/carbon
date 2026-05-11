@@ -31,6 +31,15 @@ class SlackClient {
   }
 }
 
+declare global {
+  var __slackClient: SlackClient | undefined;
+}
+
 export function getSlackClient(): SlackClient {
-  return new SlackClient(process.env.SLACK_BOT_TOKEN ?? SLACK_BOT_TOKEN ?? "");
+  if (!globalThis.__slackClient) {
+    globalThis.__slackClient = new SlackClient(
+      process.env.SLACK_BOT_TOKEN ?? SLACK_BOT_TOKEN ?? ""
+    );
+  }
+  return globalThis.__slackClient;
 }
