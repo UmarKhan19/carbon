@@ -18,18 +18,7 @@ const InspectionDocumentEditor = lazy(
 );
 
 export const handle: Handle = {
-  breadcrumb: (
-    _params: unknown,
-    data?: {
-      diagram?: {
-        name?: string | null;
-        content?: { drawingNumber?: string | null } | null;
-      };
-    }
-  ) =>
-    data?.diagram?.name ??
-    data?.diagram?.content?.drawingNumber ??
-    msg`Inspection Document`,
+  breadcrumb: (_params: unknown) => msg`Inspection Document`,
   to: path.to.inspectionDocuments,
   module: "quality"
 };
