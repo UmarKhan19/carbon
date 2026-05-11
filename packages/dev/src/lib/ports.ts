@@ -15,7 +15,7 @@ export const PORT_NAMES = [
 type PortName = (typeof PORT_NAMES)[number];
 export type PortMap = Record<PortName, number>;
 
-export const REDIS_DB_MAX = 16; // Default Redis databases setting
+const REDIS_DB_MAX = 16;
 export const SHARED_REDIS_PORT = 6379;
 
 const REGISTRY_PATH = join(homedir(), ".carbon", "dev-ports.json");
@@ -79,8 +79,8 @@ export async function resolveSlot(
       ? existing.redisDb
       : pickRedisDb(claimedDbs);
 
-  // JWT creds: regenerate only if missing — they're tied to data already
-  // signed/stored in postgres; rotating them invalidates existing sessions.
+  // JWT creds tied to data signed/stored in postgres — rotating invalidates
+  // existing sessions, so reuse when present.
   const jwt = existing?.jwt?.secret ? existing.jwt : generateJwtCreds();
 
   registry[slug] = { worktreeRoot, ports, redisDb, jwt };
@@ -121,8 +121,8 @@ async function pickPorts(claimed: Set<number>): Promise<PortMap> {
 }
 
 async function pickFreePort(taken: Set<number>): Promise<number> {
-  // OS-assigned ephemeral port via listen(0). Retry if it collides with our
-  // registry's claimed-set (other worktrees we know about).
+  // OS-assigned ephemeral via listen(0); retry on collision with other
+  // worktrees' claimed-set.
   for (let attempt = 0; attempt < 100; attempt++) {
     const port = await new Promise<number>((resolve, reject) => {
       const server = net.createServer();

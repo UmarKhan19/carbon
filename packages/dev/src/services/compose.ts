@@ -4,7 +4,6 @@ import { COMPOSE_DEV_FILE, COMPOSE_SHARED_FILE } from "../constants.js";
 import { SHARED_REDIS_PORT } from "../lib/ports.js";
 import { projectName } from "../lib/slug.js";
 
-/** Bring up the per-worktree compose stack (postgres + supabase services). */
 export async function bootStack(root: string, slug: string) {
   await execStrict(
     "docker",
@@ -23,7 +22,6 @@ export async function bootStack(root: string, slug: string) {
   );
 }
 
-/** Stop the per-worktree compose stack. */
 export async function stopStack(
   root: string,
   slug: string,
@@ -41,10 +39,7 @@ export async function stopStack(
   await execa("docker", args, { cwd: root, stdio: "ignore", reject: false });
 }
 
-/**
- * Boot the shared redis container (one per host). Recovers from a stale
- * `carbon-redis` container left over from a previous compose project.
- */
+// One redis per host; recover from stale `carbon-redis` leftovers.
 export async function bootSharedRedis(root: string) {
   const args = ["compose", "-f", COMPOSE_SHARED_FILE, "up", "-d", "redis"];
   let r = await execa("docker", args, { cwd: root, reject: false });
@@ -61,7 +56,6 @@ export async function bootSharedRedis(root: string) {
   }
 }
 
-/** Tear down the named compose project's volumes (used by `dev remove`). */
 export async function destroyProjectVolumes(cwd: string, project: string) {
   await execa(
     "docker",
@@ -70,7 +64,6 @@ export async function destroyProjectVolumes(cwd: string, project: string) {
   );
 }
 
-/** Read NDJSON output of `docker compose ps -a --format json` for a project. */
 export async function listContainers(
   root: string,
   slug: string
@@ -97,7 +90,6 @@ export async function listContainers(
     .map((l) => JSON.parse(l) as Container);
 }
 
-/** docker ps → map<compose-project, state>. */
 export async function dockerProjectStates(): Promise<Map<string, string>> {
   const out = new Map<string, string>();
   const r = await execa(
@@ -128,10 +120,7 @@ export type Container = {
   Publishers?: { PublishedPort: number; TargetPort: number }[] | null;
 };
 
-/**
- * Wipe one logical Redis DB on the shared instance. Tries host `redis-cli`
- * first, falls back to `docker exec` into the carbon-redis container.
- */
+// Wipe one logical DB on shared redis. Host redis-cli, fallback docker exec.
 export async function flushDb(db: number) {
   let r = await execa(
     "redis-cli",

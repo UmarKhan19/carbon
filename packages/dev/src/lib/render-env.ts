@@ -9,13 +9,7 @@ export function renderEnv(opts: {
   ports: PortMap;
   redisDb: number;
   jwt: JwtCreds;
-  /**
-   * Worktree-aware hostname prefix matching what portless registers for
-   * app dev-servers. `null` on the main checkout (portless skips prefixing
-   * there), the sanitized last branch segment otherwise — e.g. for branch
-   * `feat/boo` in a linked worktree, prefix is `boo` and hostnames look like
-   * `boo.erp.dev`. Mirrors `branchToPrefix` in services/portless.ts.
-   */
+  // Sanitized branch segment, e.g. `feat/boo` → `boo`. Null on default branch.
   branchPrefix: string | null;
 }): string {
   const { slug, ports, redisDb, jwt, branchPrefix } = opts;
@@ -51,11 +45,8 @@ export function renderEnv(opts: {
   lines.push(`SUPABASE_JWT_SECRET=${jwt.secret}`);
   lines.push(`SUPABASE_ANON_KEY=${jwt.anonKey}`);
   lines.push(`SUPABASE_SERVICE_ROLE_KEY=${jwt.serviceKey}`);
-  // Stable, branch-independent OAuth callback hostname (api.carbon.dev). Lets
-  // a single redirect URI live in the Google/Azure OAuth client config across
-  // all worktrees. crbn up registers `api.carbon` as a portless alias to the
-  // current worktree's PORT_API, so whichever worktree is `up` services
-  // OAuth callbacks.
+  // Branch-independent OAuth callback host (api.carbon.dev). Last `crbn up`
+  // wins — registers `api.carbon` alias to its PORT_API.
   lines.push(
     `SUPABASE_AUTH_EXTERNAL_GOOGLE_REDIRECT_URI=https://api.carbon.dev/auth/v1/callback`
   );
@@ -75,21 +66,9 @@ export function writeEnv(worktreeRoot: string, content: string) {
   writeFileSync(join(worktreeRoot, ".env.local"), content);
 }
 
-/**
- * Write `apps/<id>/portless.json` so portless serves the app under the
- * worktree-prefixed hostname even from the main checkout.
- *
- * Portless's auto-prefixing only fires inside a linked git worktree (it
- * compares `--git-dir` against `--git-common-dir`). When a non-default branch
- * is checked out in the main checkout we still want `<prefix>.<app>.dev`, so
- * we stamp the full name explicitly. In linked worktrees we leave the file
- * absent — portless detects the prefix itself, and stamping a literal name
- * here would double-prefix (`<prefix>.<prefix>.<app>`).
- *
- * Removes any prior portless.json when the prefix is gone, so stale configs
- * from a previous `crbn up` on a feature branch don't leak into a default
- * branch run.
- */
+// Stamp `apps/<id>/portless.json` so main-checkout gets `<prefix>.<app>.dev`
+// too (portless auto-prefixes only in linked worktrees). Linked worktrees
+// leave the file absent — stamping would double-prefix.
 export function syncAppPortlessConfigs(opts: {
   worktreeRoot: string;
   branchPrefix: string | null;

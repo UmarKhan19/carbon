@@ -6,15 +6,8 @@ import { getWorktreeRoot, projectName, resolveSlug } from "../lib/slug.js";
 import { stopStack } from "../services/compose.js";
 import { branchToPrefix, unregisterAliases } from "../services/portless.js";
 
-/**
- * Tear down the per-worktree stack.
- *
- * Called both standalone (`crbn down`) and from `up()`'s post-Ctrl+C cleanup.
- * In the post-Ctrl+C path clack's `tasks`/`spinner` would call
- * `process.stdin.setRawMode(true)` and the terminal — which just received
- * SIGINT — throws EIO from the readline interface. We detect that path via
- * the `silent` flag and fall back to a plain printf-style progress log.
- */
+// silent: post-SIGINT path. clack tasks/spinner would EIO via setRawMode on
+// the freshly-interrupted stdin; fall back to plain printf progress.
 export async function down(opts: { silent?: boolean } = {}) {
   const root = await getWorktreeRoot();
   const slug = resolveSlug(root);

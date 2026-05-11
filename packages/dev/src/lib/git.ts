@@ -9,11 +9,7 @@ export type Worktree = {
   current: boolean;
 };
 
-/**
- * Resolve to the root of the *main* checkout, even when called from inside a
- * linked worktree. `--git-common-dir` always points at `<main>/.git`, so its
- * parent is the main checkout's working tree.
- */
+// Main checkout root — `--git-common-dir`'s parent. Works from any worktree.
 export async function mainCheckoutRoot(
   cwd: string = process.cwd()
 ): Promise<string> {
@@ -28,11 +24,8 @@ export async function mainCheckoutRoot(
 }
 
 export async function isLinkedWorktree(cwd = process.cwd()): Promise<boolean> {
-  // Linked worktree: --git-dir points at .git/worktrees/<name>; --git-common-dir
-  // points at the shared .git of the main checkout. Both flags emit paths
-  // relative to cwd, so resolve before comparing — `--absolute-git-dir` would
-  // make --git-dir absolute while --git-common-dir stays relative ("./.git"),
-  // yielding a false positive in the main checkout.
+  // Linked when --git-dir differs from --git-common-dir. Resolve both first —
+  // --absolute-git-dir would compare absolute vs relative and false-positive.
   const [a, b] = await Promise.all([
     execa("git", ["rev-parse", "--git-dir"], { cwd, reject: false }),
     execa("git", ["rev-parse", "--git-common-dir"], { cwd, reject: false })
@@ -126,8 +119,7 @@ export async function branchExists(branch: string): Promise<boolean> {
 export async function deleteBranch(
   branch: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  // -D forces deletion even when the branch has unmerged commits — caller is
-  // expected to confirm with the user before we get here.
+  // -D forces even on unmerged; caller confirms.
   const r = await execa("git", ["branch", "-D", branch], { reject: false });
   if (r.exitCode !== 0) {
     return { ok: false, error: (r.stderr || r.stdout || "").trim() };

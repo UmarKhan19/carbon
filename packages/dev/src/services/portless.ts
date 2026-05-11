@@ -11,16 +11,9 @@ import {
 } from "../constants.js";
 import type { PortMap } from "../lib/ports.js";
 
-/**
- * Env passed to every spawned `portless`. Strips `npm_*` / `PNPM_*` so
- * portless doesn't self-detect pnpm-managed invocation and refuse with
- * "should not be run via npx or pnpm dlx" — we delegate to portless from
- * inside `pnpm exec tsx`, which sets vars like `npm_command=exec` and
- * `PNPM_SCRIPT_SRC_DIR` even though portless itself was installed globally.
- *
- * Use with `extendEnv: false` on the execa call — otherwise execa merges
- * `env` on top of process.env and the original vars come back.
- */
+// Strip npm_* / PNPM_* so portless doesn't refuse with "should not be run via
+// npx or pnpm dlx" when invoked from `pnpm exec tsx`. Pair with
+// `extendEnv: false` on the execa call.
 function portlessEnv(): NodeJS.ProcessEnv {
   const out: NodeJS.ProcessEnv = {};
   for (const [k, v] of Object.entries(process.env)) {
@@ -30,10 +23,6 @@ function portlessEnv(): NodeJS.ProcessEnv {
   return out;
 }
 
-/**
- * Make sure portless is on the user's PATH at the required version.
- * Per upstream guidance portless lives global, not as a project dep.
- */
 export async function ensurePortlessInstalled() {
   const installed = await detectPortlessVersion();
   if (installed && cmpSemver(installed, PORTLESS_MIN_VERSION) >= 0) return;
@@ -69,8 +58,7 @@ export async function ensurePortlessInstalled() {
     const stdout = r.stdout ?? "";
     const combined = `${stderr}\n${stdout}`;
 
-    // Most common failure on a fresh dev box: pnpm has no global bin dir
-    // configured. Surface the exact pnpm-recommended fix instead of a stack.
+    // Fresh dev box: pnpm has no global bin dir. Surface pnpm's setup fix.
     if (/ERR_PNPM_NO_GLOBAL_BIN_DIR/.test(combined)) {
       log.error("pnpm has no global bin directory configured.");
       log.message(
@@ -99,7 +87,6 @@ export async function ensurePortlessInstalled() {
   s.stop(`portless v${after ?? "?"} installed`);
 }
 
-/** Start the portless proxy daemon (idempotent). */
 export function startProxyDaemon(root: string) {
   execa("portless", ["proxy", "start"], {
     cwd: root,
@@ -111,10 +98,7 @@ export function startProxyDaemon(root: string) {
   }).unref();
 }
 
-/**
- * The TLD portless serves. Must match render-env.ts hostnames
- * (`<sub>.<branch>.dev`) and the stable OAuth alias (`api.carbon.dev`).
- */
+// Must match render-env.ts hostnames + the api.carbon.dev OAuth alias.
 const PORTLESS_TLD = "dev";
 
 type PrivilegeIssue =
@@ -142,14 +126,8 @@ function detectPrivilegeIssues(): PrivilegeIssue[] {
   return issues;
 }
 
-/**
- * `kill(pid, 0)` returns:
- *   - 0      → process exists, signal allowed (same uid).
- *   - EPERM  → process exists, but we lack permission to signal it (different
- *              uid, e.g. root-owned portless proxy when we're a normal user).
- *   - ESRCH  → no such process.
- * Treat EPERM as "alive" — a root-owned daemon is still serving.
- */
+// Treat EPERM as alive — root-owned portless daemon is still serving even
+// when we (normal user) can't signal it.
 function isProcessAlive(pid: number): boolean {
   try {
     process.kill(pid, 0);
@@ -169,18 +147,9 @@ function describeIssues(issues: PrivilegeIssue[]): string {
     .join("\n  • ");
 }
 
-/**
- * Halt-and-prompt before booting the stack. portless needs sudo to bind :443
- * (the privileged port) and to write /etc/hosts entries (via `portless hosts
- * sync`). If the proxy isn't running on a privileged port we ask the user
- * whether to run the sudo commands now. Sudo's password prompt streams to
- * the user's terminal directly via `stdio: "inherit"`.
- *
- * Note: portless doesn't use `/etc/resolver/<tld>` — `.dev` is a public TLD
- * (Google-owned, HSTS-preloaded), so DNS routing happens via `/etc/hosts`
- * entries that `portless hosts sync` writes. We trigger that sync here and
- * also after every alias registration (see syncHostsFile).
- */
+// portless needs sudo to bind :443 and write /etc/hosts. `.dev` is a public
+// HSTS-preloaded TLD so we rely on /etc/hosts (no /etc/resolver/<tld> for
+// public TLDs).
 export async function ensureProxyPrivileges() {
   const issues = detectPrivilegeIssues();
   if (issues.length === 0) return;
@@ -209,10 +178,8 @@ export async function ensureProxyPrivileges() {
 
   log.info("running sudo commands — you'll be prompted for your password");
 
-  // sudo resets HOME to root's HOME by default. portless writes its daemon
-  // state (pid, port, certs) under $HOME/.portless, so we must preserve the
-  // invoking user's HOME — otherwise state lands in /var/root/.portless and
-  // our subsequent detection ("not running") fires even though it started.
+  // Preserve user HOME — sudo resets to root's HOME otherwise, sending
+  // portless state (~/.portless) into /var/root/.portless.
   const sudoEnvArg = `HOME=${homedir()}`;
 
   await execa("sudo", [sudoEnvArg, "portless", "proxy", "stop"], {
@@ -251,14 +218,7 @@ export async function ensureProxyPrivileges() {
   log.success("portless proxy on :443");
 }
 
-/**
- * Push currently-registered portless routes into /etc/hosts so browsers can
- * resolve them. Needs sudo (writes /etc/hosts). Idempotent — portless skips
- * entries already present.
- *
- * Called after `registerAliases` so newly-added routes (e.g. our per-branch
- * aliases + the stable `api.carbon` OAuth alias) are reachable.
- */
+// Push registered routes into /etc/hosts. Needs sudo; idempotent.
 export async function syncHostsFile() {
   const r = await execa(
     "sudo",
@@ -272,17 +232,8 @@ export async function syncHostsFile() {
   }
 }
 
-/**
- * True when the portless proxy daemon is running as root. In that case it has
- * an `fs.watch` on `routes.json` and writes `/etc/hosts` itself (default
- * `PORTLESS_SYNC_HOSTS=1`), so our manual `sudo portless hosts sync` is
- * redundant — skipping it avoids the password prompt.
- *
- * Detected via the owner of the daemon's PID. setup.sh installs a
- * LaunchDaemon that runs the proxy as root; `sudo portless proxy start` does
- * the same. Anything else (e.g. user-mode proxy on a high port) returns
- * false and our CLI falls back to invoking `sudo portless hosts sync`.
- */
+// Root proxy daemon watches routes.json (fs.watch) and writes /etc/hosts
+// itself — skip our manual sudo sync.
 export function proxyRunsAsRoot(): boolean {
   const pidFile = `${homedir()}/.portless/proxy.pid`;
   if (!existsSync(pidFile)) return false;
@@ -296,12 +247,8 @@ export function proxyRunsAsRoot(): boolean {
   }
 }
 
-/**
- * Returns true when every hostname in `~/.portless/routes.json` is already
- * present in /etc/hosts (within portless's `# portless-start`/`# portless-end`
- * block). Lets `crbn up` skip the `sudo portless hosts sync` step — and the
- * password prompt — when nothing changed since the last run.
- */
+// True when every routes.json hostname appears inside /etc/hosts's
+// portless-managed block. Lets `crbn up` skip the sudo sync on unchanged runs.
 export function hostsFileInSync(): boolean {
   const routesPath = `${homedir()}/.portless/routes.json`;
   if (!existsSync(routesPath)) return true; // nothing to sync
@@ -321,8 +268,7 @@ export function hostsFileInSync(): boolean {
   } catch {
     return false;
   }
-  // Only consider hostnames inside the portless-managed block — anything
-  // outside is user-controlled and shouldn't influence sync skip.
+  // Only check inside portless-managed block; outside is user-controlled.
   const startIdx = etcHosts.indexOf("# portless-start");
   const endIdx = etcHosts.indexOf("# portless-end");
   if (startIdx === -1 || endIdx === -1 || endIdx < startIdx) return false;
@@ -338,7 +284,6 @@ export function hostsFileInSync(): boolean {
   return true;
 }
 
-/** Block until the portless proxy PID file shows a live process. */
 export async function waitForProxyReady(timeoutMs = 30_000) {
   const tldFile = `${homedir()}/.portless/proxy.tld`;
   const pidFile = `${homedir()}/.portless/proxy.pid`;
@@ -355,7 +300,6 @@ export async function waitForProxyReady(timeoutMs = 30_000) {
   }
 }
 
-/** Register compose-service host:port aliases with the portless proxy. */
 export async function registerAliases(
   root: string,
   branchPrefix: string | null,
@@ -377,7 +321,6 @@ export async function registerAliases(
   return aliases.length;
 }
 
-/** Remove this worktree's compose-service aliases (called by `dev down`). */
 export async function unregisterAliases(
   root: string,
   branchPrefix: string | null
@@ -396,19 +339,10 @@ export async function unregisterAliases(
   );
 }
 
-/**
- * Pre-empt `<prefix>.<app>.{dev,localhost}` hostnames before turbo spawns the
- * app dev-servers. Orphan portless processes from a prior `crbn up` (Ctrl+C
- * race, crashed turbo) keep the route registered with a still-alive PID, and
- * the next `portless run` aborts with `RouteConflictError` unless the app's
- * dev script passes `--force`. Older feature branches don't have that flag,
- * so we have to do the equivalent out-of-band here.
- *
- * For each matching route with a non-zero PID, sends SIGTERM, polls briefly,
- * escalates to SIGKILL once. Then drops every matching entry from the routes
- * file unconditionally — the freshly-spawned app will reclaim the slot via
- * its own `addRoute` call. Returns the number of PIDs we signalled.
- */
+// Pre-empt `<prefix>.<app>.{dev,localhost}` routes before spawning apps.
+// Orphan portless processes from a prior `crbn up` keep entries alive,
+// causing `RouteConflictError` on the next run. SIGTERM → 400ms poll →
+// SIGKILL stragglers, then drop matching entries.
 export async function claimAppHosts(
   branchPrefix: string | null,
   appIds: readonly AppId[]
@@ -443,7 +377,6 @@ export async function claimAppHosts(
     } catch {}
   }
 
-  // Poll up to ~400ms for graceful exit; escalate to SIGKILL on stragglers.
   const deadline = Date.now() + 400;
   while (Date.now() < deadline) {
     let allGone = true;
@@ -472,11 +405,7 @@ export async function claimAppHosts(
   return pidsToKill.size;
 }
 
-/**
- * Drop stale alias entries from `~/.portless/routes.json` that match our
- * worktree's compose-service hostname pattern. Stale routes (different TLD,
- * dead PID) accumulate across runs.
- */
+// Drop stale alias entries (pid=0, our hostname pattern) from routes.json.
 export function pruneStaleRoutes(branchPrefix: string | null) {
   const path = `${homedir()}/.portless/routes.json`;
   if (!existsSync(path)) return 0;
@@ -501,31 +430,14 @@ export function pruneStaleRoutes(branchPrefix: string | null) {
   return 0;
 }
 
-/**
- * Stable, branch-independent OAuth callback hostname. Lets a single redirect
- * URI live in the Google/Azure OAuth client config across all worktrees —
- * whichever worktree was last `up` owns this alias and services callbacks.
- *
- * Keep in sync with SUPABASE_AUTH_EXTERNAL_*_REDIRECT_URI in render-env.ts.
- */
+// Branch-independent OAuth callback host. Last `crbn up` wins. Keep in sync
+// with SUPABASE_AUTH_EXTERNAL_*_REDIRECT_URI in render-env.ts.
 const STABLE_OAUTH_ALIAS = "api.carbon";
 
 const DEFAULT_BRANCHES = new Set(["main", "master", "trunk", "develop", "dev"]);
 
-/**
- * Mirrors portless's worktree-prefix derivation
- * (packages/portless/dist/cli.js:branchToPrefix). Returns null when:
- *   - branch is missing/HEAD
- *   - branch is a default trunk-like name (main/master/etc.)
- *   - sanitized last-segment is empty
- *
- * Otherwise returns the last `/`-separated segment of the branch, sanitized
- * for hostname use. e.g. `feat/boo` -> `boo`, `sid/local-dev` -> `local-dev`.
- *
- * Note: portless ALSO checks the working directory is a linked worktree
- * before applying the prefix. Callers should combine this with that check
- * (see isLinkedWorktree() in lib/git.ts).
- */
+// Mirrors portless's branchToPrefix: last `/`-segment, sanitized.
+// Null when branch missing/HEAD/default. e.g. `feat/boo` → `boo`.
 export function branchToPrefix(
   branch: string | null | undefined
 ): string | null {
@@ -539,17 +451,11 @@ export function branchToPrefix(
   return sanitized || null;
 }
 
-/** Build hostname matching portless's `<prefix>.<name>.<tld>` shape. */
 function withPrefix(name: string, prefix: string | null): string {
   return prefix ? `${prefix}.${name}` : name;
 }
 
-/**
- * Per-worktree compose-service aliases. Hostnames mirror what portless
- * registers for app dev-servers in the same worktree, so URLs are
- * consistent: linked worktrees get `<prefix>.<service>.<tld>`, the main
- * checkout gets bare `<service>.<tld>`.
- */
+// Compose-service host:port aliases mirroring portless's app-host shape.
 function aliasMap(
   branchPrefix: string | null,
   ports: PortMap
@@ -559,7 +465,6 @@ function aliasMap(
     { name: withPrefix("studio", branchPrefix), port: ports.PORT_STUDIO },
     { name: withPrefix("mail", branchPrefix), port: ports.PORT_INBUCKET },
     { name: withPrefix("inngest", branchPrefix), port: ports.PORT_INNGEST },
-    // Stable redirect target for OAuth providers. Last `crbn up` wins.
     { name: STABLE_OAUTH_ALIAS, port: ports.PORT_API }
   ];
 }

@@ -13,11 +13,10 @@ import pc from "picocolors";
 import { APP_CHOICES, type AppId } from "../constants.js";
 import { branchExists, deleteBranch, listWorktrees } from "../lib/git.js";
 
-// Reference for git ref name rules: git-check-ref-format(1).
+// git-check-ref-format(1) rules.
 const INVALID_BRANCH_RE =
   /(^[/-])|([/-]$)|(\.\.)|(@\{)|([\s~^:?*[\\])|(\/{2,})/;
 
-/** Multi-select for which apps to spawn. Honours CARBON_DEV_APPS + non-TTY. */
 export async function pickApps(): Promise<AppId[]> {
   const fromEnv = process.env.CARBON_DEV_APPS;
   if (fromEnv) {
@@ -42,7 +41,6 @@ export async function pickApps(): Promise<AppId[]> {
   return picked as AppId[];
 }
 
-/** Prompt for a new branch name with validation + dupe-check loop. */
 export async function promptBranch(): Promise<string> {
   while (true) {
     const value = await text({
@@ -68,8 +66,7 @@ export async function promptBranch(): Promise<string> {
         );
         continue;
       }
-      // Branch exists, no worktree. Offer to nuke + recreate so the user
-      // doesn't have to drop out of the flow to run `git branch -D` manually.
+      // Branch without worktree → offer in-flow nuke + recreate.
       log.warn(
         `Branch '${trimmed}' exists locally but has no worktree.\n` +
           `  Materialize the existing branch with:  ${pc.cyan(`crbn checkout ${trimmed}`)}`
@@ -91,7 +88,6 @@ export async function promptBranch(): Promise<string> {
   }
 }
 
-/** Prompt for a worktree directory name + collision-check loop. */
 export async function promptDirName(
   parentDir: string,
   initial: string
@@ -116,7 +112,6 @@ export async function promptDirName(
   }
 }
 
-/** Pick a base ref (main / current branch / origin/main) for `worktree add`. */
 export async function promptBaseRef(
   currentBranch: string | null
 ): Promise<string> {
@@ -137,7 +132,6 @@ export async function promptBaseRef(
   return baseRef as string;
 }
 
-/** Yes/no for copying .env into the new worktree. */
 export async function promptCopyEnv(): Promise<boolean> {
   const ok = await confirm({
     message: "Copy .env from current worktree?",
@@ -147,7 +141,6 @@ export async function promptCopyEnv(): Promise<boolean> {
   return ok as boolean;
 }
 
-/** Hard confirm for destructive `dev reset`. */
 export async function confirmReset(projectName: string): Promise<boolean> {
   if (process.env.CARBON_DEV_YES === "1") return true;
   const ok = await confirm({
@@ -158,7 +151,6 @@ export async function confirmReset(projectName: string): Promise<boolean> {
   return ok as boolean;
 }
 
-/** Hard confirm for destructive `dev remove`. */
 export async function confirmRemove(opts: {
   branchOrPath: string;
   hasStack: boolean;

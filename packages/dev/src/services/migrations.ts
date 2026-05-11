@@ -3,14 +3,8 @@ import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import { execa } from "execa";
 
-/**
- * Block until each `tcp:<port>` target accepts a connection on 127.0.0.1.
- * Inlined (instead of shelling out to `wait-on`) so we don't depend on a
- * binary in node_modules/.bin — pnpm doesn't symlink workspace devDeps to
- * the root `.bin/` consistently.
- */
-export async function waitForTcp(targets: string[], _cwd: string) {
-  void _cwd; // signature kept for parity with the old wait-on shell-out
+// Block until each tcp:<port> accepts on 127.0.0.1.
+export async function waitForTcp(targets: string[]) {
   const ports = targets.map((t) => {
     const m = t.match(/^tcp:(\d+)$/);
     if (!m)
@@ -48,10 +42,7 @@ function tryConnect(host: string, port: number): Promise<boolean> {
   });
 }
 
-/**
- * Block until Supabase storage-api has finished its bootstrap migrations and
- * `storage.buckets` exists in postgres.
- */
+// Block until supabase storage-api bootstraps `storage.buckets`.
 export async function waitForStorageTables(port: number) {
   const url = `postgresql://postgres:postgres@localhost:${port}/postgres`;
   const deadline = Date.now() + 60_000;
@@ -67,15 +58,8 @@ export async function waitForStorageTables(port: number) {
   throw new Error("storage.buckets did not appear within 60s");
 }
 
-/**
- * Apply pending Supabase migrations against the worktree's compose postgres.
- *
- * `--include-all` is required because the schema_migrations table on a fresh
- * compose volume isn't truly empty — supabase's bootstrap inserts a sentinel
- * row, after which the CLI considers any timestamp earlier than the sentinel
- * "out of order" and refuses without this flag. Our local migrations folder
- * is the authoritative source; apply everything.
- */
+// --include-all: supabase bootstrap inserts a sentinel into schema_migrations
+// that makes earlier-timestamp migrations look "out of order" without it.
 export async function applyMigrations(root: string, dbPort: number) {
   await execStrict(
     "supabase",

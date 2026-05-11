@@ -6,14 +6,7 @@ import { mainCheckoutRoot } from "../lib/git.js";
 
 const DEFAULT_INCLUDES = [".env"];
 
-/**
- * Sync files from the main checkout into the current worktree.
- *
- * Source: the worktree that owns `.git/` directly (i.e. `--git-common-dir`'s
- * parent). For linked worktrees this is the original checkout. Reading
- * `package.json#crbn.copy` from the main checkout — not cwd — keeps the
- * include list version-controlled and stable across worktrees.
- */
+// Copy files listed in package.json#crbn.copy from main checkout into cwd.
 export async function copy() {
   intro("Carbon · copy");
 

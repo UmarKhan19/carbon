@@ -17,7 +17,7 @@ import {
 } from "../lib/slug.js";
 import {
   installDeps,
-  spawnAppsViaTurbo,
+  spawnApps,
   spawnStripeListener,
   syncEnvSymlinks
 } from "../services/apps.js";
@@ -58,9 +58,7 @@ export async function up() {
   persistSlug(root, slug);
   log.info(`worktree: ${slug}  (project ${projectName(slug)})`);
 
-  // Install workspace deps first (skipped when node_modules/.modules.yaml is
-  // newer than pnpm-lock.yaml). Done outside the clack `tasks` block so
-  // pnpm's interactive output streams directly when it does run.
+  // Outside `tasks` so pnpm progress streams directly when install runs.
   const ran = await installDeps(root);
   if (ran) log.step("pnpm install");
   else log.info("pnpm install skipped (lockfile in sync)");
@@ -79,11 +77,9 @@ export async function up() {
         redisDb = slot.redisDb;
         jwt = slot.jwt;
 
-        // Apply the prefix on every non-default branch, regardless of whether
-        // the cwd is a linked worktree. portless only auto-prefixes inside
-        // linked worktrees, so for the main checkout we additionally stamp
-        // each app's portless.json (see syncAppPortlessConfigs below) to
-        // force the same `<prefix>.<app>.dev` shape there.
+        // Prefix every non-default branch. Portless auto-prefixes only in
+        // linked worktrees; main checkout gets the same shape via per-app
+        // portless.json stamped below.
         const branch = await currentBranch(root);
         const linked = await isLinkedWorktree();
         branchPrefix = branchToPrefix(branch);
@@ -121,14 +117,11 @@ export async function up() {
       title: "Wait for services",
       task: async (msg) => {
         msg("postgres + kong + inngest");
-        await waitForTcp(
-          [
-            `tcp:${ports.PORT_DB}`,
-            `tcp:${ports.PORT_API}`,
-            `tcp:${ports.PORT_INNGEST}`
-          ],
-          root
-        );
+        await waitForTcp([
+          `tcp:${ports.PORT_DB}`,
+          `tcp:${ports.PORT_API}`,
+          `tcp:${ports.PORT_INNGEST}`
+        ]);
         msg("storage tables");
         await waitForStorageTables(ports.PORT_DB);
         return "all services responding";
@@ -169,12 +162,7 @@ export async function up() {
     }
   ]);
 
-  // /etc/hosts sync: skipped in two cases:
-  //   1. proxy daemon runs as root (LaunchDaemon or `sudo portless proxy
-  //      start`) — it watches routes.json via fs.watch and writes /etc/hosts
-  //      itself when our aliasing call mutates the file.
-  //   2. every route hostname already appears inside the # portless-* block.
-  // Both branches avoid the sudo prompt entirely.
+  // Skip sudo sync when root daemon already auto-syncs, or hosts unchanged.
   if (proxyRunsAsRoot()) {
     log.info("/etc/hosts auto-synced by root proxy daemon");
   } else if (hostsFileInSync()) {
@@ -192,29 +180,18 @@ export async function up() {
   box(summaryLines(ports, branchPrefix).join("\n"), `Carbon dev — ${slug}`);
   outro("apps starting (Ctrl+C to stop)");
 
-  // SIGINT handling lives inside spawnAppsViaTurbo; the spawned portless
-  // children get the signal via the process group and we swallow our default
-  // exit so they can clean up routes before we return.
-  await spawnAppsViaTurbo({ root, apps: selectedApps });
+  await spawnApps({ root, apps: selectedApps });
 
-  // Apps only exit when the user hits Ctrl+C (dev servers run forever).
-  // Treat that as `crbn down` automatically — tear the compose stack down,
-  // unregister aliases, and drop the generated portless.json. Avoids leaving
-  // postgres/kong/etc orphaned after the foreground process dies.
-  //
-  // spawnAppsViaTurbo removes its signal swallow in `finally`, so a second
-  // Ctrl+C (or SIGTERM from a parent supervisor, SIGHUP from terminal close,
-  // SIGBREAK on Windows) during `docker compose stop` would land on Node's
-  // default handler and exit 130 mid-teardown. Reinstall a swallow here for
-  // the duration of `down()`; clear it afterwards.
+  // Apps exit on Ctrl+C; auto-`down` so compose stack isn't orphaned.
+  // Swallow further signals so a second Ctrl+C during teardown doesn't
+  // exit 130 mid-`docker compose stop`.
   const swallow = () => {
     process.stderr.write("\nfinishing teardown — please wait\n");
   };
   const SIGNALS = ["SIGINT", "SIGTERM", "SIGHUP", "SIGBREAK"] as const;
   for (const s of SIGNALS) process.on(s, swallow);
   try {
-    // silent: stdin's TTY raw-mode is fried post-SIGINT; clack's spinner
-    // would crash with EIO from readline. Plain printf path stays safe.
+    // silent: post-SIGINT stdin raw-mode triggers EIO in clack's spinner.
     await down({ silent: true });
   } finally {
     for (const s of SIGNALS) process.off(s, swallow);
