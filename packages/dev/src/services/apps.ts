@@ -13,6 +13,7 @@ const APP_COLORS: Record<string, (s: string) => string> = {
 const NOISE_PATTERNS: RegExp[] = [/^\s*--\s/, /^\s*>\s/, /^\s*$/];
 
 function isNoiseLine(line: string): boolean {
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: ignored using `--suppress`
   const plain = line.replace(/\x1b\[[0-9;]*m/g, "");
   return NOISE_PATTERNS.some((re) => re.test(plain));
 }
@@ -80,6 +81,7 @@ export function spawnApps(opts: {
       } catch {
         try {
           c.kill(signal);
+          // biome-ignore lint/suspicious/noEmptyBlockStatements: ignored using `--suppress`
         } catch {}
       }
     }

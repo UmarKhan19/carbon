@@ -37,14 +37,21 @@ export async function ensurePortlessInstalled() {
     );
   }
 
-  const ok = await confirm({
-    message: "Install portless@latest globally now?",
-    initialValue: true
-  });
-  if (isCancel(ok) || !ok) {
-    throw new Error(
-      `Aborted. Install manually: ${pc.cyan("npm install -g portless@latest")} (or bun/pnpm equivalent).`
-    );
+  // Auto-yes paths: non-TTY stdin (we were invoked from a script/pipe) or
+  // explicit env override. Otherwise interactive confirm.
+  const autoYes = process.env.CARBON_DEV_YES === "1" || !process.stdin.isTTY;
+  if (!autoYes) {
+    const ok = await confirm({
+      message: "Install portless@latest globally now?",
+      initialValue: true
+    });
+    if (isCancel(ok) || !ok) {
+      throw new Error(
+        `Aborted. Install manually: ${pc.cyan("npm install -g portless@latest")} (or bun/pnpm equivalent).`
+      );
+    }
+  } else {
+    log.info("auto-installing portless (non-interactive / CARBON_DEV_YES=1)");
   }
 
   const s = spinner();
@@ -374,6 +381,7 @@ export async function claimAppHosts(
   for (const pid of pidsToKill) {
     try {
       process.kill(pid, "SIGTERM");
+      // biome-ignore lint/suspicious/noEmptyBlockStatements: ignored using `--suppress`
     } catch {}
   }
 
@@ -393,6 +401,7 @@ export async function claimAppHosts(
     if (isProcessAlive(pid)) {
       try {
         process.kill(pid, "SIGKILL");
+        // biome-ignore lint/suspicious/noEmptyBlockStatements: ignored using `--suppress`
       } catch {}
     }
   }

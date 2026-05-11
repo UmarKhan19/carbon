@@ -48,6 +48,7 @@ function readIncludes(mainRoot: string): string[] {
     if (Array.isArray(list) && list.every((s) => typeof s === "string")) {
       return list as string[];
     }
+    // biome-ignore lint/suspicious/noEmptyBlockStatements: ignored using `--suppress`
   } catch {}
   return DEFAULT_INCLUDES;
 }

@@ -167,6 +167,41 @@ uninstall() {
 
 LAUNCHD_PLIST="/Library/LaunchDaemons/dev.portless.proxy.plist"
 
+# Install portless globally. Prefer pnpm, fall back to npm. Surface pnpm's
+# missing-global-bin-dir hint the CLI does in packages/dev/src/services/portless.ts
+# so the user gets the same actionable error in both entry points.
+install_portless_global() {
+  hdr "Installing portless"
+  info "Required for *.dev hostname routing on :443."
+
+  if command -v pnpm >/dev/null 2>&1; then
+    local out
+    if out=$(pnpm add -g portless@latest 2>&1); then
+      ok "portless installed via pnpm"
+      return 0
+    fi
+    if grep -q "ERR_PNPM_NO_GLOBAL_BIN_DIR" <<<"$out"; then
+      warn "pnpm has no global bin dir configured. Run \`pnpm setup\`, open a new shell, then re-run \`./setup.sh\`."
+      printf '%s\n' "$out" >&2
+      return 1
+    fi
+    printf '%s\n' "$out" >&2
+    warn "pnpm install failed — falling back to npm"
+  fi
+
+  if command -v npm >/dev/null 2>&1; then
+    if npm install -g portless@latest; then
+      ok "portless installed via npm"
+      return 0
+    fi
+    fail "npm install -g portless@latest failed"
+    return 1
+  fi
+
+  fail "no pnpm or npm on PATH — install one of them and re-run"
+  return 1
+}
+
 # Install portless as a LaunchDaemon (macOS) so the :443 proxy starts at boot
 # and crash-restarts. Sidesteps the per-`crbn up` sudo prompt cycle for
 # `proxy start` (writing /etc/hosts via `portless hosts sync` still needs
@@ -185,8 +220,12 @@ install_proxy_daemon() {
   local portless_bin
   portless_bin="$(command -v portless || true)"
   if [[ -z "$portless_bin" ]]; then
-    warn "portless not on PATH — run \`crbn up\` once to install it, then \`./setup.sh\` again to enable boot-start"
-    return 0
+    install_portless_global
+    portless_bin="$(command -v portless || true)"
+    if [[ -z "$portless_bin" ]]; then
+      warn "portless still not on PATH after install attempt — skipping boot-start. Install manually, then re-run \`./setup.sh\`."
+      return 0
+    fi
   fi
 
   hdr "Boot-start portless proxy"
