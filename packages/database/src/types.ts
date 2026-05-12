@@ -2219,6 +2219,7 @@ export type Database = {
           countryCode: string | null
           createdAt: string
           email: string | null
+          eori: string | null
           fax: string | null
           id: string
           isEliminationEntity: boolean
@@ -2226,6 +2227,7 @@ export type Database = {
           logoDarkIcon: string | null
           logoLight: string | null
           logoLightIcon: string | null
+          logoWatermark: string | null
           name: string
           parentCompanyId: string | null
           phone: string | null
@@ -2249,6 +2251,7 @@ export type Database = {
           countryCode?: string | null
           createdAt?: string
           email?: string | null
+          eori?: string | null
           fax?: string | null
           id?: string
           isEliminationEntity?: boolean
@@ -2256,6 +2259,7 @@ export type Database = {
           logoDarkIcon?: string | null
           logoLight?: string | null
           logoLightIcon?: string | null
+          logoWatermark?: string | null
           name: string
           parentCompanyId?: string | null
           phone?: string | null
@@ -2279,6 +2283,7 @@ export type Database = {
           countryCode?: string | null
           createdAt?: string
           email?: string | null
+          eori?: string | null
           fax?: string | null
           id?: string
           isEliminationEntity?: boolean
@@ -2286,6 +2291,7 @@ export type Database = {
           logoDarkIcon?: string | null
           logoLight?: string | null
           logoLightIcon?: string | null
+          logoWatermark?: string | null
           name?: string
           parentCompanyId?: string | null
           phone?: string | null
@@ -51184,14 +51190,14 @@ export type Database = {
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["supplierLocationId"]
+            columns: ["id"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "partner_id_fkey"
-            columns: ["id"]
+            columns: ["supplierLocationId"]
             isOneToOne: false
             referencedRelation: "supplierLocation"
             referencedColumns: ["id"]
@@ -56008,7 +56014,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56022,7 +56028,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -61764,10 +61770,20 @@ export type Database = {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined
       }
-      sync_finish_job_operation: {
-        Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
-        Returns: undefined
-      }
+      sync_finish_job_operation:
+        | {
+            Args: { p_new: Json; p_old: Json; p_operation: string }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_new: Json
+              p_old: Json
+              p_operation: string
+              p_table: string
+            }
+            Returns: undefined
+          }
       sync_insert_company_related_records: {
         Args: { p_new: Json; p_old: Json; p_operation: string; p_table: string }
         Returns: undefined

@@ -147,6 +147,12 @@ export async function getCompanies(
         : null,
       logoLight: company.logoLight
         ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLight}`
+        : null,
+      logoWatermark: (company as { logoWatermark?: string | null })
+        .logoWatermark
+        ? `${SUPABASE_URL}/storage/v1/object/public/public/${
+            (company as { logoWatermark?: string | null }).logoWatermark
+          }`
         : null
     })),
     error: null
@@ -180,6 +186,12 @@ export async function getCompany(
         : null,
       logoLight: company.data.logoLight
         ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLight}`
+        : null,
+      logoWatermark: (company.data as { logoWatermark?: string | null })
+        .logoWatermark
+        ? `${SUPABASE_URL}/storage/v1/object/public/public/${
+            (company.data as { logoWatermark?: string | null }).logoWatermark
+          }`
         : null
     },
     error: null
@@ -686,6 +698,17 @@ export async function updateLogoLightIcon(
   return client
     .from("company")
     .update(sanitize({ logoLightIcon }))
+    .eq("id", companyId);
+}
+
+export async function updateLogoWatermark(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoWatermark: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoWatermark }))
     .eq("id", companyId);
 }
 

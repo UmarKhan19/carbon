@@ -52615,6 +52615,12 @@ export default {
             $ref: "#/parameters/rowFilter.company.vatNumber"
           },
           {
+            $ref: "#/parameters/rowFilter.company.eori"
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.logoWatermark"
+          },
+          {
             $ref: "#/parameters/select"
           },
           {
@@ -52758,6 +52764,12 @@ export default {
             $ref: "#/parameters/rowFilter.company.vatNumber"
           },
           {
+            $ref: "#/parameters/rowFilter.company.eori"
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.logoWatermark"
+          },
+          {
             $ref: "#/parameters/preferReturn"
           }
         ],
@@ -52853,6 +52865,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.company.vatNumber"
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.eori"
+          },
+          {
+            $ref: "#/parameters/rowFilter.company.logoWatermark"
           },
           {
             $ref: "#/parameters/body.company"
@@ -102596,6 +102614,14 @@ export default {
         vatNumber: {
           format: "text",
           type: "string"
+        },
+        eori: {
+          format: "text",
+          type: "string"
+        },
+        logoWatermark: {
+          format: "text",
+          type: "string"
         }
       },
       type: "object"
@@ -138575,6 +138601,18 @@ export default {
     },
     "rowFilter.company.vatNumber": {
       name: "vatNumber",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.company.eori": {
+      name: "eori",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.company.logoWatermark": {
+      name: "logoWatermark",
       required: false,
       in: "query",
       type: "string"

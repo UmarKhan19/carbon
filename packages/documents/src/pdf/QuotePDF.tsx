@@ -6,7 +6,7 @@ import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { getLineDescription, getLineDescriptionDetails } from "../utils/quote";
-import { getCurrencyFormatter, getRegistrationFooter } from "../utils/shared";
+import { getCurrencyFormatter } from "../utils/shared";
 import { Header, Note, PartyDetails, Template } from "./components";
 
 type QuoteCustomerDetails =
@@ -217,6 +217,9 @@ const QuotePDF = ({
     getTotalSubtotal() + getTotalShipping() + getTotalFees() + getTotalTaxes();
 
   const maxLeadTime = getMaxLeadTime();
+  const watermarkSrc = (company as { logoWatermark?: string | null })
+    .logoWatermark;
+
   let rowIndex = 0;
 
   return (
@@ -227,13 +230,25 @@ const QuotePDF = ({
         keywords: meta?.keywords ?? "quote",
         subject: meta?.subject ?? "Quote"
       }}
-      footerLabel={getRegistrationFooter(
-        company.name,
-        company.countryCode,
-        company.taxId
-      )}
       footerDocumentId={quote?.quoteId}
     >
+      {watermarkSrc && (
+        <View
+          fixed
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            alignItems: "center",
+            marginTop: 100,
+            opacity: 0.07
+          }}
+        >
+          <Image src={watermarkSrc} style={{ width: "50%" }} />
+        </View>
+      )}
       <Header
         company={company}
         title="Quote"
@@ -642,7 +657,11 @@ const QuotePDF = ({
         )}
       </View>
 
-      <Note title="Standard Terms & Conditions" content={terms} />
+      {terms?.content && terms.content.length > 0 && (
+        <View break>
+          <Note title="Standard Terms & Conditions" content={terms} />
+        </View>
+      )}
     </Template>
   );
 };
