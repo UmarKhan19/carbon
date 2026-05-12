@@ -18,7 +18,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse, SupabaseClient } from "@supabase/supabase-js";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { LuInfo, LuMoveRight } from "react-icons/lu";
+import { LuCheck, LuInfo, LuMoveRight } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { Submit } from "~/components/Form";
 import { useCurrencyFormatter, useDateFormatter, useUser } from "~/hooks";
@@ -64,6 +64,7 @@ export function FieldMapping({
   const [columnMappings, setColumnMappings] = useState<Record<string, string>>(
     {}
   );
+  const [allExactMatched, setAllExactMatched] = useState(false);
   const [enumMappings, setEnumMappings] = useState<
     Record<string, Record<string, string>>
   >(() =>
@@ -105,6 +106,7 @@ export function FieldMapping({
     ) {
       initialized.current = true;
       setColumnMappings(exactMatches);
+      setAllExactMatched(true);
       return;
     }
 
@@ -196,35 +198,66 @@ export function FieldMapping({
 
         <ModalDescription>
           {currentStep === 0
-            ? t`We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate.`
+            ? allExactMatched
+              ? t`Every column in your file matches the template.`
+              : t`We've mapped each column to what we believe is correct, but please review the data below to confirm it's accurate.`
             : enumFields[currentStep - 1][1].enumData.description}
         </ModalDescription>
       </ModalHeader>
       <ModalBody>
         <div className="mt-6">
           {currentStep === 0 ? (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-              <div className="text-sm">
-                <Trans>CSV column</Trans>
+            allExactMatched ? (
+              <>
+                <div className="flex items-start gap-3 rounded-md border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm">
+                  <LuCheck className="mt-0.5 size-5 shrink-0 text-emerald-600" />
+                  <div className="flex flex-col gap-1">
+                    <span className="font-medium text-foreground">
+                      <Trans>All columns matched</Trans>
+                    </span>
+                    <span className="text-muted-foreground">
+                      {steps > 1 ? (
+                        <Trans>
+                          We recognized every column from the template. Continue
+                          to confirm the values for dropdown fields.
+                        </Trans>
+                      ) : (
+                        <Trans>
+                          We recognized every column from the template. You're
+                          ready to import.
+                        </Trans>
+                      )}
+                    </span>
+                  </div>
+                </div>
+                {Object.entries(columnMappings).map(([name, value]) => (
+                  <input type="hidden" key={name} name={name} value={value} />
+                ))}
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div className="text-sm">
+                  <Trans>CSV column</Trans>
+                </div>
+                <div className="text-sm">
+                  <Trans>Carbon column</Trans>
+                </div>
+                {Object.entries(mappableFields).map(
+                  ([name, { label, required, type }]) => (
+                    <FieldRow
+                      key={name}
+                      label={label}
+                      type={type}
+                      required={required}
+                      name={name}
+                      mappedColumn={columnMappings[name]}
+                      isLoading={fetcher.state !== "idle"}
+                      onColumnMappingChange={onColumnMappingChange}
+                    />
+                  )
+                )}
               </div>
-              <div className="text-sm">
-                <Trans>Carbon column</Trans>
-              </div>
-              {Object.entries(mappableFields).map(
-                ([name, { label, required, type }]) => (
-                  <FieldRow
-                    key={name}
-                    label={label}
-                    type={type}
-                    required={required}
-                    name={name}
-                    mappedColumn={columnMappings[name]}
-                    isLoading={fetcher.state !== "idle"}
-                    onColumnMappingChange={onColumnMappingChange}
-                  />
-                )
-              )}
-            </div>
+            )
           ) : (
             <>
               {Object.entries(columnMappings).map(([name, value]) => (

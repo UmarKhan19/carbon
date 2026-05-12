@@ -29,20 +29,22 @@ import type {
   ColumnPinningState
 } from "@tanstack/react-table";
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import {
   LuCheck,
   LuDownload,
   LuFilePen,
   LuLayers,
-  LuLock
+  LuLock,
+  LuUpload
 } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { SearchFilter } from "~/components";
 import { ImportCSVModal } from "~/components/ImportCSVModal";
+import { downloadTemplate } from "~/components/ImportCSVModal/downloadTemplate";
 import { CollapsibleSidebarTrigger } from "~/components/Layout/Navigation";
 import { useUrlParams } from "~/hooks";
 import { useSavedViews } from "~/hooks/useSavedViews";
@@ -245,20 +247,27 @@ const TableHeader = <T extends object>({
                     />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>
-                      <Trans>Bulk Import</Trans>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {importCSV.map(({ table, label }) => (
-                      <DropdownMenuItem
-                        key={table}
-                        onClick={() => {
-                          setImportCSVTable(table);
-                        }}
-                      >
-                        <DropdownMenuIcon icon={<LuDownload />} />
-                        {t`Import ${label} CSV`}
-                      </DropdownMenuItem>
+                    {importCSV.map(({ table, label }, index) => (
+                      <Fragment key={table}>
+                        {index > 0 && <DropdownMenuSeparator />}
+                        <DropdownMenuLabel>{label}</DropdownMenuLabel>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setImportCSVTable(table);
+                          }}
+                        >
+                          <DropdownMenuIcon icon={<LuUpload />} />
+                          <Trans>Import CSV</Trans>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            downloadTemplate(table);
+                          }}
+                        >
+                          <DropdownMenuIcon icon={<LuDownload />} />
+                          <Trans>Download Template</Trans>
+                        </DropdownMenuItem>
+                      </Fragment>
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>

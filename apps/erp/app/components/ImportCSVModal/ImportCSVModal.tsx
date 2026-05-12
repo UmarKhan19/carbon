@@ -1,7 +1,6 @@
 import { Hidden, ValidatedForm } from "@carbon/form";
 import { Button, Modal, ModalContent, ModalFooter, toast } from "@carbon/react";
-import Papa from "papaparse";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useFetcher } from "react-router";
 import { z } from "zod";
@@ -10,6 +9,7 @@ import { fieldMappings, importSchemas } from "~/modules/shared";
 import type { action } from "~/routes/x+/shared+/import.$tableId";
 import { path } from "~/utils/path";
 import { AnimatedSizeContainer } from "../AnimatedSizeContainer";
+import { downloadTemplate } from "./downloadTemplate";
 import { FieldMapping } from "./FieldMappings";
 import { UploadCSV } from "./UploadCSV";
 import { ImportCsvContext } from "./useCsvContext";
@@ -57,19 +57,6 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
       setPage(ImportCSVPage.FieldMappings);
     }
   }, [file, fileColumns, page]);
-
-  const downloadTemplate = useCallback(() => {
-    const mapping = fieldMappings[table];
-    const headers = Object.values(mapping).map((field) => field.label);
-    const csv = Papa.unparse({ fields: headers, data: [] });
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${table}-template.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  }, [table]);
 
   return (
     <Modal
@@ -137,7 +124,7 @@ export const ImportCSVModal = ({ table, onClose }: ImportCSVModalProps) => {
         </div>
         {page === ImportCSVPage.UploadCSV && (
           <ModalFooter>
-            <Button variant="secondary" onClick={downloadTemplate}>
+            <Button variant="secondary" onClick={() => downloadTemplate(table)}>
               Download Template
             </Button>
           </ModalFooter>

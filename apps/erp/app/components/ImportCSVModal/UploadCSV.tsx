@@ -41,6 +41,7 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
+      comments: "#",
       error: (error) => {
         setError(error.message);
         setFileColumns(null);
@@ -100,6 +101,18 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
     setFilePath(data.path);
   };
 
+  // Strip leading "#" comment lines so the server-side parser only sees CSV data.
+  // Templates we generate include comment lines with enum hints.
+  const stripCommentLines = async (file: File): Promise<File> => {
+    const text = await file.text();
+    const cleaned = text
+      .split(/\r?\n/)
+      .filter((line) => !line.startsWith("#"))
+      .join("\n");
+    if (cleaned === text) return file;
+    return new File([cleaned], file.name, { type: file.type || "text/csv" });
+  };
+
   const onDrop = async (acceptedFiles: File[]) => {
     if (!carbon) {
       toast.error(t`Carbon client not available`);
@@ -112,11 +125,9 @@ export const UploadCSV = ({ table }: { table: keyof typeof importSchemas }) => {
       });
 
       if (acceptedFiles[0]) {
-        setFile(acceptedFiles[0]);
-        await Promise.all([
-          processFile(acceptedFiles[0]),
-          uploadFile(acceptedFiles[0])
-        ]);
+        const cleaned = await stripCommentLines(acceptedFiles[0]);
+        setFile(cleaned);
+        await Promise.all([processFile(cleaned), uploadFile(cleaned)]);
       }
 
       setUploading(false);
