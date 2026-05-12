@@ -75,6 +75,7 @@ import {
 } from "~/modules/sales";
 import QuoteStatus from "~/modules/sales/ui/Quotes/QuoteStatus";
 import { getCompany, getCompanySettings } from "~/modules/settings";
+import { getBase64ImageFromSupabase } from "~/modules/shared";
 import type { action } from "~/routes/api+/sales.digital-quote.$id";
 import { path } from "~/utils/path";
 
@@ -168,23 +169,16 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const thumbnails: Record<string, string | null> =
     (thumbnailPaths
       ? await Promise.all(
-          Object.entries(thumbnailPaths).map(async ([id, path]) => {
+          Object.entries(thumbnailPaths).map(([id, path]) => {
             if (!path) {
               return null;
             }
-
-            const { data, error } = await serviceRole.storage
-              .from("private")
-              .createSignedUrl(path, 60 * 60);
-
-            if (error || !data?.signedUrl) {
-              return null;
-            }
-
-            return {
-              id,
-              data: data.signedUrl
-            };
+            return getBase64ImageFromSupabase(serviceRole, path).then(
+              (data) => ({
+                id,
+                data
+              })
+            );
           })
         )
       : []

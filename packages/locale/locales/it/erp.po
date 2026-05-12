@@ -212,8 +212,8 @@ msgstr "Accetta Lotto"
 msgid "Accept lot?"
 msgstr "Accettare il lotto?"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1310
-#: apps/erp/app/routes/share+/quote.$id.tsx:1353
+#: apps/erp/app/routes/share+/quote.$id.tsx:1318
+#: apps/erp/app/routes/share+/quote.$id.tsx:1361
 msgid "Accept Quote"
 msgstr "Accetta Preventivo"
 
@@ -857,7 +857,7 @@ msgstr "Log archiviati"
 
 #. placeholder {0}: quote.quoteId
 #. placeholder {1}: formatter.format(total)
-#: apps/erp/app/routes/share+/quote.$id.tsx:1356
+#: apps/erp/app/routes/share+/quote.$id.tsx:1364
 msgid "Are you sure you want to accept quote {0} for {1}?"
 msgstr "Sei sicuro di voler accettare l'offerta {0} per {1}?"
 
@@ -1288,7 +1288,7 @@ msgstr "Sei sicuro di voler registrare questa ricevuta?"
 msgid "Are you sure you want to post this shipment?"
 msgstr "Sei sicuro di voler registrare questa spedizione?"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1457
+#: apps/erp/app/routes/share+/quote.$id.tsx:1465
 msgid "Are you sure you want to reject this quote?"
 msgstr "Sei sicuro di voler rifiutare questa offerta?"
 
@@ -1920,8 +1920,8 @@ msgstr "Non è possibile disabilitare l'unico break attivo. Aggiungi un altro br
 #: apps/erp/app/modules/users/ui/Employees/EmployeePermissionsForm.tsx:139
 #: apps/erp/app/modules/users/ui/EmployeeTypes/EmployeeTypeForm.tsx:115
 #: apps/erp/app/modules/users/ui/Groups/GroupsForm.tsx:77
-#: apps/erp/app/routes/share+/quote.$id.tsx:1413
-#: apps/erp/app/routes/share+/quote.$id.tsx:1475
+#: apps/erp/app/routes/share+/quote.$id.tsx:1421
+#: apps/erp/app/routes/share+/quote.$id.tsx:1483
 #: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:227
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:220
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:618
@@ -2072,7 +2072,7 @@ msgstr "CC"
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:98
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
-#: apps/erp/app/routes/share+/quote.$id.tsx:1393
+#: apps/erp/app/routes/share+/quote.$id.tsx:1401
 msgid "Change"
 msgstr "Cambia"
 
@@ -4256,7 +4256,7 @@ msgid "Discard"
 msgstr "Scarta"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:427
-#: apps/erp/app/routes/share+/quote.$id.tsx:663
+#: apps/erp/app/routes/share+/quote.$id.tsx:671
 msgid "Discount"
 msgstr "Sconto"
 
@@ -4368,7 +4368,7 @@ msgstr "Scarica CSV"
 msgid "Draft"
 msgstr "Bozza"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1399
+#: apps/erp/app/routes/share+/quote.$id.tsx:1407
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Trascina e rilascia un PDF di ordine di acquisto qui, oppure fai clic per selezionare un file"
 
@@ -5417,7 +5417,7 @@ msgstr "Esporta Righe in CSV"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:291
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:276
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:536
-#: apps/erp/app/routes/share+/quote.$id.tsx:782
+#: apps/erp/app/routes/share+/quote.$id.tsx:790
 msgid "Extended Price"
 msgstr "Prezzo Esteso"
 
@@ -5890,7 +5890,7 @@ msgid "Feedback"
 msgstr "Feedback"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:436
-#: apps/erp/app/routes/share+/quote.$id.tsx:673
+#: apps/erp/app/routes/share+/quote.$id.tsx:681
 msgid "Fees"
 msgstr "Commissioni"
 
@@ -7195,7 +7195,7 @@ msgstr "Ultimo aggiornamento: {formattedDate}"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2068
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:440
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:621
-#: apps/erp/app/routes/share+/quote.$id.tsx:677
+#: apps/erp/app/routes/share+/quote.$id.tsx:685
 msgid "Lead Time"
 msgstr "Tempo di consegna"
 
@@ -8873,7 +8873,7 @@ msgstr "Nessun prezzo per la quantità selezionata"
 
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:798
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:341
-#: apps/erp/app/routes/share+/quote.$id.tsx:696
+#: apps/erp/app/routes/share+/quote.$id.tsx:704
 msgid "No pricing options found"
 msgstr "Nessuna opzione di prezzo trovata"
 
@@ -9028,7 +9028,7 @@ msgstr "Nota"
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:111
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:118
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:219
-#: apps/erp/app/routes/share+/quote.$id.tsx:1190
+#: apps/erp/app/routes/share+/quote.$id.tsx:1198
 #: apps/erp/app/routes/x+/person+/$personId.notes.tsx:46
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.details.tsx:178
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.details.tsx:188
@@ -9126,12 +9126,12 @@ msgstr "Su Unità di Stoccaggio"
 msgid "Onshape Status"
 msgstr "Stato Onshape"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1618
+#: apps/erp/app/routes/share+/quote.$id.tsx:1626
 msgid "Oops! The link you're trying to access has expired or is no longer valid."
 msgstr "Oops! Il link che stai cercando di accedere è scaduto o non è più valido."
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1611
-#: apps/erp/app/routes/share+/quote.$id.tsx:1625
+#: apps/erp/app/routes/share+/quote.$id.tsx:1619
+#: apps/erp/app/routes/share+/quote.$id.tsx:1633
 #: apps/erp/app/routes/share+/scar.$id.tsx:524
 #: apps/erp/app/routes/share+/scar.$id.tsx:531
 msgid "Oops! The link you're trying to access is not valid."
@@ -9584,7 +9584,7 @@ msgstr "Metodo di Pagamento"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:83
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:896
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:85
-#: apps/erp/app/routes/share+/quote.$id.tsx:1220
+#: apps/erp/app/routes/share+/quote.$id.tsx:1228
 msgid "Payment Term"
 msgstr "Condizione di Pagamento"
 
@@ -9757,13 +9757,13 @@ msgstr "Pianificazione"
 msgid "Please contact your administrator to enable audit logging."
 msgstr "Contatta il tuo amministratore per abilitare la registrazione di audit."
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1374
-#: apps/erp/app/routes/share+/quote.$id.tsx:1469
+#: apps/erp/app/routes/share+/quote.$id.tsx:1382
+#: apps/erp/app/routes/share+/quote.$id.tsx:1477
 msgid "Please enter your email address"
 msgstr "Inserisci il tuo indirizzo email"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1370
-#: apps/erp/app/routes/share+/quote.$id.tsx:1465
+#: apps/erp/app/routes/share+/quote.$id.tsx:1378
+#: apps/erp/app/routes/share+/quote.$id.tsx:1473
 msgid "Please enter your name"
 msgstr "Per favore, inserisci il tuo nome"
 
@@ -10458,7 +10458,7 @@ msgstr "Quantità"
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:485
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:224
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQLineForm.tsx:324
-#: apps/erp/app/routes/share+/quote.$id.tsx:656
+#: apps/erp/app/routes/share+/quote.$id.tsx:664
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:847
 #: apps/erp/app/routes/x+/schedule+/operations.tsx:475
 msgid "Quantity"
@@ -10530,7 +10530,7 @@ msgstr "Preventivo Accettato Da"
 msgid "Quote Accepted By Email"
 msgstr "Email di accettazione preventivo"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1617
+#: apps/erp/app/routes/share+/quote.$id.tsx:1625
 msgid "Quote expired"
 msgstr "Preventivo scaduto"
 
@@ -10557,8 +10557,8 @@ msgstr "Markup Preventivi"
 msgid "Quote Materials"
 msgstr "Materiali Preventivo"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1610
-#: apps/erp/app/routes/share+/quote.$id.tsx:1624
+#: apps/erp/app/routes/share+/quote.$id.tsx:1618
+#: apps/erp/app/routes/share+/quote.$id.tsx:1632
 msgid "Quote not found"
 msgstr "Preventivo non trovato"
 
@@ -10776,8 +10776,8 @@ msgstr "Rifiuta"
 msgid "Reject Lot"
 msgstr "Rifiuta Lotto"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1317
-#: apps/erp/app/routes/share+/quote.$id.tsx:1454
+#: apps/erp/app/routes/share+/quote.$id.tsx:1325
+#: apps/erp/app/routes/share+/quote.$id.tsx:1462
 msgid "Reject Quote"
 msgstr "Rifiuta Preventivo"
 
@@ -10824,7 +10824,7 @@ msgstr "Ricorda questo PIN. Ne avrai bisogno per uscire dalla modalità console 
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:211
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:247
-#: apps/erp/app/routes/share+/quote.$id.tsx:927
+#: apps/erp/app/routes/share+/quote.$id.tsx:935
 msgid "Remove"
 msgstr "Rimuovi"
 
@@ -12343,8 +12343,8 @@ msgstr "Qtà Spedita"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:617
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:992
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:106
-#: apps/erp/app/routes/share+/quote.$id.tsx:668
-#: apps/erp/app/routes/share+/quote.$id.tsx:1272
+#: apps/erp/app/routes/share+/quote.$id.tsx:676
+#: apps/erp/app/routes/share+/quote.$id.tsx:1280
 msgid "Shipping"
 msgstr "Spedizione"
 
@@ -12388,7 +12388,7 @@ msgstr "Ubicazione di spedizione"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:1004
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:132
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:409
-#: apps/erp/app/routes/share+/quote.$id.tsx:1207
+#: apps/erp/app/routes/share+/quote.$id.tsx:1215
 msgid "Shipping Method"
 msgstr "Metodo di spedizione"
 
@@ -12971,9 +12971,9 @@ msgstr "Sostanze"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:443
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:594
-#: apps/erp/app/routes/share+/quote.$id.tsx:680
-#: apps/erp/app/routes/share+/quote.$id.tsx:840
-#: apps/erp/app/routes/share+/quote.$id.tsx:1229
+#: apps/erp/app/routes/share+/quote.$id.tsx:688
+#: apps/erp/app/routes/share+/quote.$id.tsx:848
+#: apps/erp/app/routes/share+/quote.$id.tsx:1237
 msgid "Subtotal"
 msgstr "Subtotale"
 
@@ -13353,8 +13353,8 @@ msgstr "Attività"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:306
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:364
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:575
-#: apps/erp/app/routes/share+/quote.$id.tsx:861
-#: apps/erp/app/routes/share+/quote.$id.tsx:1258
+#: apps/erp/app/routes/share+/quote.$id.tsx:869
+#: apps/erp/app/routes/share+/quote.$id.tsx:1266
 msgid "Tax"
 msgstr "Imposta"
 
@@ -13788,8 +13788,8 @@ msgstr "Strumenti"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:327
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:312
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:637
-#: apps/erp/app/routes/share+/quote.$id.tsx:884
-#: apps/erp/app/routes/share+/quote.$id.tsx:1287
+#: apps/erp/app/routes/share+/quote.$id.tsx:892
+#: apps/erp/app/routes/share+/quote.$id.tsx:1295
 #: apps/erp/app/routes/x+/quality+/_index.tsx:644
 msgid "Total"
 msgstr "Totale"
@@ -14154,7 +14154,7 @@ msgstr "Unità di Misura"
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:321
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:424
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:614
-#: apps/erp/app/routes/share+/quote.$id.tsx:659
+#: apps/erp/app/routes/share+/quote.$id.tsx:667
 msgid "Unit Price"
 msgstr "Prezzo Unitario"
 
@@ -15045,7 +15045,7 @@ msgstr "Anno"
 msgid "Yes"
 msgstr "Sì"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1426
+#: apps/erp/app/routes/share+/quote.$id.tsx:1434
 msgid "Yes, Accept"
 msgstr "Sì, Accetta"
 
@@ -15053,7 +15053,7 @@ msgstr "Sì, Accetta"
 msgid "Yes, also delete every nested storage unit."
 msgstr "Sì, elimina anche ogni unità di archiviazione nidificata."
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1484
+#: apps/erp/app/routes/share+/quote.$id.tsx:1492
 msgid "Yes, Reject"
 msgstr "Sì, Rifiuta"
 

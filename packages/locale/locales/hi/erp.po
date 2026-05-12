@@ -212,8 +212,8 @@ msgstr "लॉट स्वीकार करें"
 msgid "Accept lot?"
 msgstr "लॉट स्वीकार करें?"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1310
-#: apps/erp/app/routes/share+/quote.$id.tsx:1353
+#: apps/erp/app/routes/share+/quote.$id.tsx:1318
+#: apps/erp/app/routes/share+/quote.$id.tsx:1361
 msgid "Accept Quote"
 msgstr "उद्धरण स्वीकार करें"
 
@@ -857,7 +857,7 @@ msgstr "संग्रहीत लॉग"
 
 #. placeholder {0}: quote.quoteId
 #. placeholder {1}: formatter.format(total)
-#: apps/erp/app/routes/share+/quote.$id.tsx:1356
+#: apps/erp/app/routes/share+/quote.$id.tsx:1364
 msgid "Are you sure you want to accept quote {0} for {1}?"
 msgstr "क्या आप सुनिश्चित हैं कि आप उद्धरण {0} को {1} के लिए स्वीकार करना चाहते हैं?"
 
@@ -1288,7 +1288,7 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 msgid "Are you sure you want to post this shipment?"
 msgstr "क्या आप सुनिश्चित हैं कि आप इस शिपमेंट को पोस्ट करना चाहते हैं?"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1457
+#: apps/erp/app/routes/share+/quote.$id.tsx:1465
 msgid "Are you sure you want to reject this quote?"
 msgstr "क्या आप सुनिश्चित हैं कि आप इस उद्धरण को अस्वीकार करना चाहते हैं?"
 
@@ -1920,8 +1920,8 @@ msgstr "केवल सक्रिय ब्रेक को अक्षम �
 #: apps/erp/app/modules/users/ui/Employees/EmployeePermissionsForm.tsx:139
 #: apps/erp/app/modules/users/ui/EmployeeTypes/EmployeeTypeForm.tsx:115
 #: apps/erp/app/modules/users/ui/Groups/GroupsForm.tsx:77
-#: apps/erp/app/routes/share+/quote.$id.tsx:1413
-#: apps/erp/app/routes/share+/quote.$id.tsx:1475
+#: apps/erp/app/routes/share+/quote.$id.tsx:1421
+#: apps/erp/app/routes/share+/quote.$id.tsx:1483
 #: apps/erp/app/routes/x+/inventory+/storage-types.delete.$id.tsx:227
 #: apps/erp/app/routes/x+/inventory+/storage-units.delete.$storageUnitId.tsx:220
 #: apps/erp/app/routes/x+/person+/$personId.timecard.tsx:618
@@ -2072,7 +2072,7 @@ msgstr "CC"
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:98
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
-#: apps/erp/app/routes/share+/quote.$id.tsx:1393
+#: apps/erp/app/routes/share+/quote.$id.tsx:1401
 msgid "Change"
 msgstr "बदलें"
 
@@ -4256,7 +4256,7 @@ msgid "Discard"
 msgstr "त्यागें"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:427
-#: apps/erp/app/routes/share+/quote.$id.tsx:663
+#: apps/erp/app/routes/share+/quote.$id.tsx:671
 msgid "Discount"
 msgstr "छूट"
 
@@ -4368,7 +4368,7 @@ msgstr "CSV डाउनलोड करें"
 msgid "Draft"
 msgstr "ड्राफ्ट"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1399
+#: apps/erp/app/routes/share+/quote.$id.tsx:1407
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "यहाँ एक खरीद आदेश PDF को ड्रैग और ड्रॉप करें, या एक फ़ाइल चुनने के लिए क्लिक करें"
 
@@ -5417,7 +5417,7 @@ msgstr "CSV में लाइनें निर्यात करें"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:291
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:276
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:536
-#: apps/erp/app/routes/share+/quote.$id.tsx:782
+#: apps/erp/app/routes/share+/quote.$id.tsx:790
 msgid "Extended Price"
 msgstr "विस्तारित मूल्य"
 
@@ -5890,7 +5890,7 @@ msgid "Feedback"
 msgstr "प्रतिक्रिया"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:436
-#: apps/erp/app/routes/share+/quote.$id.tsx:673
+#: apps/erp/app/routes/share+/quote.$id.tsx:681
 msgid "Fees"
 msgstr "शुल्क"
 
@@ -7195,7 +7195,7 @@ msgstr "अंतिम अपडेट: {formattedDate}"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:2068
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:440
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:621
-#: apps/erp/app/routes/share+/quote.$id.tsx:677
+#: apps/erp/app/routes/share+/quote.$id.tsx:685
 msgid "Lead Time"
 msgstr "लीड टाइम"
 
@@ -8873,7 +8873,7 @@ msgstr "चयनित मात्रा के लिए कोई मूल�
 
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteCompareDrawer.tsx:798
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:341
-#: apps/erp/app/routes/share+/quote.$id.tsx:696
+#: apps/erp/app/routes/share+/quote.$id.tsx:704
 msgid "No pricing options found"
 msgstr "कोई मूल्य निर्धारण विकल्प नहीं मिला"
 
@@ -9028,7 +9028,7 @@ msgstr "नोट"
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:111
 #: apps/erp/app/modules/sales/ui/Opportunity/OpportunityLineNotes.tsx:118
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:219
-#: apps/erp/app/routes/share+/quote.$id.tsx:1190
+#: apps/erp/app/routes/share+/quote.$id.tsx:1198
 #: apps/erp/app/routes/x+/person+/$personId.notes.tsx:46
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.details.tsx:178
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.details.tsx:188
@@ -9126,12 +9126,12 @@ msgstr "स्टोरेज यूनिट पर"
 msgid "Onshape Status"
 msgstr "Onshape स्थिति"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1618
+#: apps/erp/app/routes/share+/quote.$id.tsx:1626
 msgid "Oops! The link you're trying to access has expired or is no longer valid."
 msgstr "अरे! आप जिस लिंक को एक्सेस करने का प्रयास कर रहे हैं वह समाप्त हो गया है या अब वैध नहीं है।"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1611
-#: apps/erp/app/routes/share+/quote.$id.tsx:1625
+#: apps/erp/app/routes/share+/quote.$id.tsx:1619
+#: apps/erp/app/routes/share+/quote.$id.tsx:1633
 #: apps/erp/app/routes/share+/scar.$id.tsx:524
 #: apps/erp/app/routes/share+/scar.$id.tsx:531
 msgid "Oops! The link you're trying to access is not valid."
@@ -9584,7 +9584,7 @@ msgstr "भुगतान विधि"
 #: apps/erp/app/modules/sales/ui/Quotes/QuotePaymentForm.tsx:83
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:896
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:85
-#: apps/erp/app/routes/share+/quote.$id.tsx:1220
+#: apps/erp/app/routes/share+/quote.$id.tsx:1228
 msgid "Payment Term"
 msgstr "भुगतान अवधि"
 
@@ -9757,13 +9757,13 @@ msgstr "योजना"
 msgid "Please contact your administrator to enable audit logging."
 msgstr "कृपया ऑडिट लॉगिंग सक्षम करने के लिए अपने प्रशासक से संपर्क करें।"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1374
-#: apps/erp/app/routes/share+/quote.$id.tsx:1469
+#: apps/erp/app/routes/share+/quote.$id.tsx:1382
+#: apps/erp/app/routes/share+/quote.$id.tsx:1477
 msgid "Please enter your email address"
 msgstr "कृपया अपना ईमेल पता दर्ज करें"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1370
-#: apps/erp/app/routes/share+/quote.$id.tsx:1465
+#: apps/erp/app/routes/share+/quote.$id.tsx:1378
+#: apps/erp/app/routes/share+/quote.$id.tsx:1473
 msgid "Please enter your name"
 msgstr "कृपया अपना नाम दर्ज करें"
 
@@ -10458,7 +10458,7 @@ msgstr "मात्रा"
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:485
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineJobs.tsx:224
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQLineForm.tsx:324
-#: apps/erp/app/routes/share+/quote.$id.tsx:656
+#: apps/erp/app/routes/share+/quote.$id.tsx:664
 #: apps/erp/app/routes/x+/schedule+/dates.tsx:847
 #: apps/erp/app/routes/x+/schedule+/operations.tsx:475
 msgid "Quantity"
@@ -10530,7 +10530,7 @@ msgstr "उद्धरण स्वीकृत"
 msgid "Quote Accepted By Email"
 msgstr "उद्धरण स्वीकृत ईमेल द्वारा"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1617
+#: apps/erp/app/routes/share+/quote.$id.tsx:1625
 msgid "Quote expired"
 msgstr "उद्धरण समाप्त हो गया"
 
@@ -10557,8 +10557,8 @@ msgstr "उद्धरण मार्कअप"
 msgid "Quote Materials"
 msgstr "उद्धरण सामग्री"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1610
-#: apps/erp/app/routes/share+/quote.$id.tsx:1624
+#: apps/erp/app/routes/share+/quote.$id.tsx:1618
+#: apps/erp/app/routes/share+/quote.$id.tsx:1632
 msgid "Quote not found"
 msgstr "उद्धरण नहीं मिला"
 
@@ -10776,8 +10776,8 @@ msgstr "अस्वीकार करें"
 msgid "Reject Lot"
 msgstr "लॉट को अस्वीकार करें"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1317
-#: apps/erp/app/routes/share+/quote.$id.tsx:1454
+#: apps/erp/app/routes/share+/quote.$id.tsx:1325
+#: apps/erp/app/routes/share+/quote.$id.tsx:1462
 msgid "Reject Quote"
 msgstr "उद्धरण अस्वीकार करें"
 
@@ -10824,7 +10824,7 @@ msgstr "इस PIN को याद रखें। MES टर्मिनल �
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:211
 #: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:247
-#: apps/erp/app/routes/share+/quote.$id.tsx:927
+#: apps/erp/app/routes/share+/quote.$id.tsx:935
 msgid "Remove"
 msgstr "हटाएं"
 
@@ -12343,8 +12343,8 @@ msgstr "भेजी गई मात्रा"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:617
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:992
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:106
-#: apps/erp/app/routes/share+/quote.$id.tsx:668
-#: apps/erp/app/routes/share+/quote.$id.tsx:1272
+#: apps/erp/app/routes/share+/quote.$id.tsx:676
+#: apps/erp/app/routes/share+/quote.$id.tsx:1280
 msgid "Shipping"
 msgstr "शिपिंग"
 
@@ -12388,7 +12388,7 @@ msgstr "शिपिंग स्थान"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:1004
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderShipmentForm.tsx:132
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrdersTable.tsx:409
-#: apps/erp/app/routes/share+/quote.$id.tsx:1207
+#: apps/erp/app/routes/share+/quote.$id.tsx:1215
 msgid "Shipping Method"
 msgstr "शिपिंग विधि"
 
@@ -12971,9 +12971,9 @@ msgstr "पदार्थ"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:443
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:594
-#: apps/erp/app/routes/share+/quote.$id.tsx:680
-#: apps/erp/app/routes/share+/quote.$id.tsx:840
-#: apps/erp/app/routes/share+/quote.$id.tsx:1229
+#: apps/erp/app/routes/share+/quote.$id.tsx:688
+#: apps/erp/app/routes/share+/quote.$id.tsx:848
+#: apps/erp/app/routes/share+/quote.$id.tsx:1237
 msgid "Subtotal"
 msgstr "उप-कुल"
 
@@ -13353,8 +13353,8 @@ msgstr "कार्य"
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteLineForm.tsx:306
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:364
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderLineForm.tsx:575
-#: apps/erp/app/routes/share+/quote.$id.tsx:861
-#: apps/erp/app/routes/share+/quote.$id.tsx:1258
+#: apps/erp/app/routes/share+/quote.$id.tsx:869
+#: apps/erp/app/routes/share+/quote.$id.tsx:1266
 msgid "Tax"
 msgstr "कर"
 
@@ -13788,8 +13788,8 @@ msgstr "उपकरण"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceSummary.tsx:327
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoiceSummary.tsx:312
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:637
-#: apps/erp/app/routes/share+/quote.$id.tsx:884
-#: apps/erp/app/routes/share+/quote.$id.tsx:1287
+#: apps/erp/app/routes/share+/quote.$id.tsx:892
+#: apps/erp/app/routes/share+/quote.$id.tsx:1295
 #: apps/erp/app/routes/x+/quality+/_index.tsx:644
 msgid "Total"
 msgstr "कुल"
@@ -14154,7 +14154,7 @@ msgstr "माप की इकाइयाँ"
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:321
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteSummary.tsx:424
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:614
-#: apps/erp/app/routes/share+/quote.$id.tsx:659
+#: apps/erp/app/routes/share+/quote.$id.tsx:667
 msgid "Unit Price"
 msgstr "यूनिट मूल्य"
 
@@ -15045,7 +15045,7 @@ msgstr "साल"
 msgid "Yes"
 msgstr "हाँ"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1426
+#: apps/erp/app/routes/share+/quote.$id.tsx:1434
 msgid "Yes, Accept"
 msgstr "हाँ, स्वीकार करें"
 
@@ -15053,7 +15053,7 @@ msgstr "हाँ, स्वीकार करें"
 msgid "Yes, also delete every nested storage unit."
 msgstr "हाँ, हर नेस्टेड स्टोरेज यूनिट को भी हटाएं।"
 
-#: apps/erp/app/routes/share+/quote.$id.tsx:1484
+#: apps/erp/app/routes/share+/quote.$id.tsx:1492
 msgid "Yes, Reject"
 msgstr "हाँ, अस्वीकार करें"
 
