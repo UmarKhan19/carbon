@@ -2070,8 +2070,8 @@ msgstr "CC"
 
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:98
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:223
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:257
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:222
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:254
 #: apps/erp/app/routes/share+/quote.$id.tsx:1393
 msgid "Change"
 msgstr "बदलें"
@@ -5731,7 +5731,7 @@ msgstr "आपूर्तिकर्ता भाग विवरण लोड
 msgid "Failed to load tracked entities"
 msgstr "ट्रैक किए गए इकाइयों को लोड करने में विफल"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:181
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:180
 msgid "Failed to remove image: {errorMessage}"
 msgstr "छवि हटाने में विफल: {errorMessage}"
 
@@ -5751,7 +5751,7 @@ msgstr "थंबनेल हटाने में विफल"
 msgid "Failed to resize image"
 msgstr "छवि को पुनः आकार देने में विफल"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:130
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:129
 msgid "Failed to resize image: {errorMessage}"
 msgstr "छवि को पुनः आकार देने में विफल: {errorMessage}"
 
@@ -5847,7 +5847,7 @@ msgstr "फ़ाइल अपलोड करने में विफल: {0}
 msgid "Failed to upload image"
 msgstr "छवि अपलोड करने में विफल"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:148
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:147
 msgid "Failed to upload logo: {errorMessage}"
 msgstr "लोगो अपलोड करने में विफल: {errorMessage}"
 
@@ -5928,7 +5928,7 @@ msgid "File is already in the selected bucket"
 msgstr "फ़ाइल पहले से ही चयनित बकेट में है"
 
 #. placeholder {0}: ( logo.size / 1024 / 1024 ).toFixed(2)
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:87
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:86
 msgid "File size exceeds {maxSizeMB}MB limit. Current size: {0}MB"
 msgstr "फ़ाइल का आकार {maxSizeMB}MB सीमा से अधिक है। वर्तमान आकार: {0}MB"
 
@@ -5952,7 +5952,7 @@ msgstr "फ़ाइल का आकार बहुत बड़ा है (�
 msgid "File type not supported"
 msgstr "फ़ाइल प्रकार समर्थित नहीं है"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:79
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:78
 msgid "File type not supported. Please use JPG, PNG, WebP, or GIF."
 msgstr "फ़ाइल प्रकार समर्थित नहीं है। कृपया JPG, PNG, WebP, या GIF का उपयोग करें।"
 
@@ -7453,11 +7453,11 @@ msgstr "लॉग इन करें"
 msgid "Login or create a new account"
 msgstr "लॉगिन करें या नया खाता बनाएं"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:185
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:184
 msgid "Logo removed successfully"
 msgstr "लोगो सफलतापूर्वक हटाया गया"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:164
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:163
 msgid "Logo uploaded successfully"
 msgstr "लोगो सफलतापूर्वक अपलोड हो गया"
 
@@ -8810,7 +8810,7 @@ msgstr "कोई छवि नहीं"
 msgid "No issue types configured"
 msgstr "कोई समस्या प्रकार कॉन्फ़िगर नहीं किया गया"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:251
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:248
 msgid "No logo uploaded"
 msgstr "कोई लोगो अपलोड नहीं किया गया"
 
@@ -10830,8 +10830,8 @@ msgstr "इस PIN को याद रखें। MES टर्मिनल �
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:368
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:358
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:228
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:262
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:227
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:259
 #: apps/erp/app/routes/share+/quote.$id.tsx:927
 msgid "Remove"
 msgstr "हटाएं"
@@ -14366,8 +14366,8 @@ msgstr "आइटम नियमों को अनलॉक करने क�
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/documents/ui/Documents/DocumentCreateForm.tsx:70
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:300
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:223
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:257
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:222
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:254
 msgid "Upload"
 msgstr "अपलोड करें"
 

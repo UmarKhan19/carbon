@@ -2070,8 +2070,8 @@ msgstr "DW"
 
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:98
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:223
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:257
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:222
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:254
 #: apps/erp/app/routes/share+/quote.$id.tsx:1393
 msgid "Change"
 msgstr "Zmień"
@@ -5731,7 +5731,7 @@ msgstr "Nie udało się załadować szczegółów części dostawcy"
 msgid "Failed to load tracked entities"
 msgstr "Nie udało się załadować śledzonych jednostek"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:181
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:180
 msgid "Failed to remove image: {errorMessage}"
 msgstr "Nie udało się usunąć obrazu: {errorMessage}"
 
@@ -5751,7 +5751,7 @@ msgstr "Nie udało się usunąć miniatury"
 msgid "Failed to resize image"
 msgstr "Nie udało się zmienić rozmiaru obrazu"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:130
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:129
 msgid "Failed to resize image: {errorMessage}"
 msgstr "Nie udało się zmienić rozmiaru obrazu: {errorMessage}"
 
@@ -5847,7 +5847,7 @@ msgstr "Nie udało się przesłać pliku: {0}"
 msgid "Failed to upload image"
 msgstr "Nie udalo sie przeslac obrazu"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:148
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:147
 msgid "Failed to upload logo: {errorMessage}"
 msgstr "Nie udało się przesłać logo: {errorMessage}"
 
@@ -5928,7 +5928,7 @@ msgid "File is already in the selected bucket"
 msgstr "Plik znajduje się już w wybranym zasobniku"
 
 #. placeholder {0}: ( logo.size / 1024 / 1024 ).toFixed(2)
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:87
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:86
 msgid "File size exceeds {maxSizeMB}MB limit. Current size: {0}MB"
 msgstr "Rozmiar pliku przekracza limit {maxSizeMB}MB. Obecny rozmiar: {0}MB"
 
@@ -5952,7 +5952,7 @@ msgstr "Rozmiar pliku zbyt duży (maks. {0})"
 msgid "File type not supported"
 msgstr "Typ pliku nie jest obsługiwany"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:79
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:78
 msgid "File type not supported. Please use JPG, PNG, WebP, or GIF."
 msgstr "Typ pliku nie jest obsługiwany. Użyj JPG, PNG, WebP lub GIF."
 
@@ -7453,11 +7453,11 @@ msgstr "Zaloguj się"
 msgid "Login or create a new account"
 msgstr "Zaloguj się lub utwórz nowe konto"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:185
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:184
 msgid "Logo removed successfully"
 msgstr "Logo usunięty pomyślnie"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:164
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:163
 msgid "Logo uploaded successfully"
 msgstr "Logo został pomyślnie przesłany"
 
@@ -8810,7 +8810,7 @@ msgstr "Brak obrazu"
 msgid "No issue types configured"
 msgstr "Brak skonfigurowanych typów problemów"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:251
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:248
 msgid "No logo uploaded"
 msgstr "Nie przesłano logo"
 
@@ -10830,8 +10830,8 @@ msgstr "Zapamiętaj ten PIN. Będziesz go potrzebować, aby wyjść z trybu kons
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:368
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:358
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:228
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:262
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:227
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:259
 #: apps/erp/app/routes/share+/quote.$id.tsx:927
 msgid "Remove"
 msgstr "Usuń"
@@ -14366,8 +14366,8 @@ msgstr "Uaktualnij, aby odblokować reguły elementów"
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/documents/ui/Documents/DocumentCreateForm.tsx:70
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:300
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:223
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:257
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:222
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:254
 msgid "Upload"
 msgstr "Prześlij"
 

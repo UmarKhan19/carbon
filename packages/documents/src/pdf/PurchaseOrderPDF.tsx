@@ -102,8 +102,7 @@ const PurchaseOrderPDF = ({
     (term) => term.id === purchaseOrder?.paymentTermId
   );
 
-  const watermarkSrc = (company as { logoWatermark?: string | null })
-    .logoWatermark;
+  const watermarkSrc = company.logoWatermark;
 
   const shipAddress = dropShipment
     ? {

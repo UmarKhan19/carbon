@@ -105,8 +105,7 @@ const SalesOrderPDF = ({
     (method) => method.id === salesOrder?.shippingMethodId
   );
 
-  const watermarkSrc = (company as { logoWatermark?: string | null })
-    .logoWatermark;
+  const watermarkSrc = company.logoWatermark;
 
   let rowIndex = 0;
 

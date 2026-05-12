@@ -111,9 +111,7 @@ const PartyDetails = ({
             )}
             <Text>Tax ID: {company.taxId}</Text>
             <Text>VAT Number: {company.vatNumber}</Text>
-            {"eori" in company && company.eori ? (
-              <Text>EORI: {company.eori as string}</Text>
-            ) : null}
+            {company.eori && <Text>EORI: {company.eori}</Text>}
             <Text>Contact: {createdByFullName}</Text>
             <Text>Email: {createdByEmail}</Text>
             <Text>Phone: {createdByPhone}</Text>

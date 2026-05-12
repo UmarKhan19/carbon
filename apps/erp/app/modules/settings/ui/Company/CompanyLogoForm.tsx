@@ -61,8 +61,7 @@ const CompanyLogoForm = ({ company, target }: CompanyLogoFormProps) => {
     }`;
   };
 
-  const currentLogoPath =
-    (company as Record<LogoTarget, string | null>)[target] ?? null;
+  const currentLogoPath = company[target] ?? null;
 
   const uploadImage = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && carbon) {
@@ -203,7 +202,7 @@ const CompanyLogoForm = ({ company, target }: CompanyLogoFormProps) => {
     <VStack className="items-center py-4" spacing={4}>
       <div
         className={cn(
-          "flex items-center justify-center h-[156px] w-[156px] rounded-lg",
+          "flex items-center justify-center h-[156px] w-[156px] rounded-lg overflow-hidden",
           isDark ? "bg-black text-white" : "bg-zinc-200/90 text-black"
         )}
       >
@@ -211,7 +210,7 @@ const CompanyLogoForm = ({ company, target }: CompanyLogoFormProps) => {
           <img
             alt={altText}
             src={currentLogoPath}
-            className="w-auto mx-auto rounded-lg"
+            className="max-h-full max-w-full object-contain rounded-lg"
           />
         ) : (
           <Avatar name={company?.name ?? undefined} size="2xl" />
@@ -234,17 +233,15 @@ const CompanyLogoForm = ({ company, target }: CompanyLogoFormProps) => {
     <VStack className="items-center py-4" spacing={4}>
       <div
         className={cn(
-          "flex items-center justify-center w-full h-[156px] rounded-lg border border-input",
+          "flex items-center justify-center w-full h-[156px] rounded-lg border border-input overflow-hidden",
           isDark ? "bg-black/90 text-white" : "bg-zinc-200/90 text-black"
         )}
       >
         {currentLogoPath ? (
           <img
             alt={altText}
-            width="auto"
-            height="128"
             src={currentLogoPath}
-            className="rounded-lg"
+            className="max-h-full max-w-full object-contain rounded-lg"
           />
         ) : (
           <p className="font-mono uppercase text-sm">

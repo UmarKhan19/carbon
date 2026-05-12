@@ -16585,7 +16585,10 @@ export default {
             $ref: "#/parameters/rowFilter.companies.vatNumber"
           },
           {
-            $ref: "#/parameters/rowFilter.companies.countryName"
+            $ref: "#/parameters/rowFilter.companies.eori"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.logoWatermark"
           },
           {
             $ref: "#/parameters/rowFilter.companies.userId"
@@ -16598,6 +16601,12 @@ export default {
           },
           {
             $ref: "#/parameters/rowFilter.companies.employeeType"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.companyGroupName"
+          },
+          {
+            $ref: "#/parameters/rowFilter.companies.ownerId"
           },
           {
             $ref: "#/parameters/select"
@@ -81496,7 +81505,7 @@ export default {
       properties: {
         id: {
           description:
-            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -81545,7 +81554,7 @@ export default {
         },
         supplierLocationId: {
           description:
-            "Note:\nThis is a Primary Key.<pk/>\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
+            "Note:\nThis is a Foreign Key to `supplierLocation.id`.<fk table='supplierLocation' column='id'/>",
           format: "text",
           type: "string"
         },
@@ -85426,7 +85435,11 @@ export default {
           format: "text",
           type: "string"
         },
-        countryName: {
+        eori: {
+          format: "text",
+          type: "string"
+        },
+        logoWatermark: {
           format: "text",
           type: "string"
         },
@@ -85448,6 +85461,16 @@ export default {
           type: "string"
         },
         employeeType: {
+          format: "text",
+          type: "string"
+        },
+        companyGroupName: {
+          format: "text",
+          type: "string"
+        },
+        ownerId: {
+          description:
+            "Note:\nThis is a Foreign Key to `user.id`.<fk table='user' column='id'/>",
           format: "text",
           type: "string"
         }
@@ -119470,8 +119493,14 @@ export default {
       in: "query",
       type: "string"
     },
-    "rowFilter.companies.countryName": {
-      name: "countryName",
+    "rowFilter.companies.eori": {
+      name: "eori",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.companies.logoWatermark": {
+      name: "logoWatermark",
       required: false,
       in: "query",
       type: "string"
@@ -119496,6 +119525,18 @@ export default {
     },
     "rowFilter.companies.employeeType": {
       name: "employeeType",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.companies.companyGroupName": {
+      name: "companyGroupName",
+      required: false,
+      in: "query",
+      type: "string"
+    },
+    "rowFilter.companies.ownerId": {
+      name: "ownerId",
       required: false,
       in: "query",
       type: "string"

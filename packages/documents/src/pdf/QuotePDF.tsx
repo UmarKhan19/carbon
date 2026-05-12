@@ -217,8 +217,7 @@ const QuotePDF = ({
     getTotalSubtotal() + getTotalShipping() + getTotalFees() + getTotalTaxes();
 
   const maxLeadTime = getMaxLeadTime();
-  const watermarkSrc = (company as { logoWatermark?: string | null })
-    .logoWatermark;
+  const watermarkSrc = company.logoWatermark;
 
   let rowIndex = 0;
 
