@@ -75,7 +75,6 @@ import {
 } from "~/modules/sales";
 import QuoteStatus from "~/modules/sales/ui/Quotes/QuoteStatus";
 import { getCompany, getCompanySettings } from "~/modules/settings";
-import { getBase64ImageFromSupabase } from "~/modules/shared";
 import type { action } from "~/routes/api+/sales.digital-quote.$id";
 import { path } from "~/utils/path";
 
@@ -169,16 +168,23 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const thumbnails: Record<string, string | null> =
     (thumbnailPaths
       ? await Promise.all(
-          Object.entries(thumbnailPaths).map(([id, path]) => {
+          Object.entries(thumbnailPaths).map(async ([id, path]) => {
             if (!path) {
               return null;
             }
-            return getBase64ImageFromSupabase(serviceRole, path).then(
-              (data) => ({
-                id,
-                data
-              })
-            );
+
+            const { data, error } = await serviceRole.storage
+              .from("private")
+              .createSignedUrl(path, 60 * 60);
+
+            if (error || !data?.signedUrl) {
+              return null;
+            }
+
+            return {
+              id,
+              data: data.signedUrl
+            };
           })
         )
       : []
@@ -227,8 +233,8 @@ const Header = ({
   customer: QuoteData["customerDetails"];
   locale: string;
 }) => (
-  <div className="flex justify-between">
-    <div className="flex items-center space-x-4 tracking-tight">
+  <div className="flex flex-col gap-4 sm:flex-row sm:justify-between">
+    <div className="flex min-w-0 items-center space-x-4 tracking-tight">
       <div>
         <CardTitle className="text-3xl">{company?.name ?? ""}</CardTitle>
         {quote?.quoteId && (
@@ -242,7 +248,7 @@ const Header = ({
         )}
       </div>
     </div>
-    <div className="flex flex-col gap-2 items-end justify-start">
+    <div className="flex flex-col gap-2 items-start justify-start sm:items-end">
       <p className="text-xl font-medium">{customer?.customerName ?? ""}</p>
       {customer?.contactName && (
         <p className="text-base text-muted-foreground">
@@ -250,7 +256,7 @@ const Header = ({
         </p>
       )}
       {customer?.customerAddressLine1 && (
-        <div className="text-right">
+        <div className="sm:text-right">
           <p className="text-xs text-muted-foreground">
             {customer.customerAddressLine1}
           </p>
@@ -378,29 +384,37 @@ const LineItems = ({
             transition={{ duration: 0.5 }}
             className="border-b border-input py-6 w-full"
           >
-            <HStack spacing={4} className="items-start">
+            <HStack
+              spacing={4}
+              className="items-start flex-wrap sm:flex-nowrap"
+            >
               {thumbnails[line.id!] ? (
                 <img
                   alt={line.itemReadableId!}
-                  className="w-24 h-24 bg-gradient-to-bl from-muted to-muted/40 rounded-lg"
+                  className="size-24 shrink-0 bg-gradient-to-bl from-muted to-muted/40 rounded-lg"
                   src={thumbnails[line.id!] ?? undefined}
                 />
               ) : (
-                <div className="w-24 h-24 bg-gradient-to-bl from-muted to-muted/40 rounded-lg p-4">
+                <div className="size-24 shrink-0 bg-gradient-to-bl from-muted to-muted/40 rounded-lg p-4">
                   <LuImage className="w-16 h-16 text-muted-foreground" />
                 </div>
               )}
 
-              <VStack spacing={0} className="w-full">
+              <VStack spacing={0} className="min-w-0 flex-1">
                 <div
                   className="flex flex-col cursor-pointer w-full"
                   onClick={() => toggleOpen(line.id!)}
                 >
-                  <div className="flex items-center gap-x-4 justify-between flex-grow">
-                    <Heading>{line.itemReadableId}</Heading>
-                    <HStack spacing={4}>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-x-4">
+                    <Heading className="min-w-0 break-words">
+                      {line.itemReadableId}
+                    </Heading>
+                    <HStack
+                      spacing={4}
+                      className="w-full justify-between sm:w-auto sm:shrink-0 sm:justify-start"
+                    >
                       <MotionNumber
-                        className="font-bold text-xl"
+                        className="whitespace-nowrap font-bold text-xl"
                         value={
                           (selectedLines[line.id!]?.convertedNetUnitPrice ??
                             0) *
@@ -433,7 +447,7 @@ const LineItems = ({
                       </motion.div>
                     </HStack>
                   </div>
-                  <span className="text-muted-foreground text-base truncate">
+                  <span className="text-muted-foreground text-base break-words sm:truncate sm:max-w-[30rem]">
                     {line.description}
                   </span>
                   {Object.keys(line.externalNotes ?? {}).length > 0 && (
