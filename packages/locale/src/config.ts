@@ -11,8 +11,7 @@ export const supportedLanguages = [
   "pt",
   "ru",
   "zh",
-  "hi",
-  "nl"
+  "hi"
 ] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
 
@@ -49,8 +48,7 @@ export const languageNativeLabels: Record<SupportedLanguage, string> = {
   pt: "Português",
   ru: "Русский",
   zh: "中文",
-  hi: "हिन्दी",
-  nl: "Nederlands"
+  hi: "हिन्दी"
 };
 
 /**
