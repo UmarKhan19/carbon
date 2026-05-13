@@ -1356,15 +1356,15 @@ msgstr "Montagem:"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:492
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:533
 msgid "Asset"
-msgstr ""
+msgstr "Ativo"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:91
 msgid "Asset Classes"
-msgstr ""
+msgstr "Classes de Ativos"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:82
 msgid "Assets"
-msgstr ""
+msgstr "Ativos"
 
 #: apps/erp/app/modules/quality/ui/Issue/Jira/CreateIssue.tsx:103
 #: apps/erp/app/modules/quality/ui/Issue/Linear/CreateIssue.tsx:83
@@ -4163,7 +4163,7 @@ msgstr "Departamentos"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:97
 msgid "Depreciation Runs"
-msgstr ""
+msgstr "Execuções de Depreciação"
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentForm.tsx:63
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:530
@@ -6073,11 +6073,11 @@ msgstr "Fixo"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:783
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:853
 msgid "Fixed Asset"
-msgstr ""
+msgstr "Ativo Fixo"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:85
 msgid "Fixed Assets"
-msgstr ""
+msgstr "Ativos Fixos"
 
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
@@ -13403,7 +13403,7 @@ msgstr "Imposto e Custos Adicionais"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:715
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:937
 msgid "Tax & Shipping"
-msgstr ""
+msgstr "Imposto e Envio"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:705
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:922

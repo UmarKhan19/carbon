@@ -1356,15 +1356,15 @@ msgstr "アセンブリ:"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:492
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:533
 msgid "Asset"
-msgstr ""
+msgstr "資産"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:91
 msgid "Asset Classes"
-msgstr ""
+msgstr "資産クラス"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:82
 msgid "Assets"
-msgstr ""
+msgstr "資産"
 
 #: apps/erp/app/modules/quality/ui/Issue/Jira/CreateIssue.tsx:103
 #: apps/erp/app/modules/quality/ui/Issue/Linear/CreateIssue.tsx:83
@@ -4163,7 +4163,7 @@ msgstr "部門"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:97
 msgid "Depreciation Runs"
-msgstr ""
+msgstr "減価償却実行"
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentForm.tsx:63
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:530
@@ -6073,11 +6073,11 @@ msgstr "固定"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:783
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:853
 msgid "Fixed Asset"
-msgstr ""
+msgstr "固定資産"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:85
 msgid "Fixed Assets"
-msgstr ""
+msgstr "固定資産"
 
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
@@ -13403,7 +13403,7 @@ msgstr "税金と追加費用"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:715
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:937
 msgid "Tax & Shipping"
-msgstr ""
+msgstr "税金と配送"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:705
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:922

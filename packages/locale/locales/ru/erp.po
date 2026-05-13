@@ -1356,15 +1356,15 @@ msgstr "Сборка:"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:492
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:533
 msgid "Asset"
-msgstr ""
+msgstr "Актив"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:91
 msgid "Asset Classes"
-msgstr ""
+msgstr "Классы активов"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:82
 msgid "Assets"
-msgstr ""
+msgstr "Активы"
 
 #: apps/erp/app/modules/quality/ui/Issue/Jira/CreateIssue.tsx:103
 #: apps/erp/app/modules/quality/ui/Issue/Linear/CreateIssue.tsx:83
@@ -4163,7 +4163,7 @@ msgstr "Отделы"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:97
 msgid "Depreciation Runs"
-msgstr ""
+msgstr "Запуски амортизации"
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentForm.tsx:63
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:530
@@ -6073,11 +6073,11 @@ msgstr "Фиксированный"
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:783
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:853
 msgid "Fixed Asset"
-msgstr ""
+msgstr "Основное средство"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:85
 msgid "Fixed Assets"
-msgstr ""
+msgstr "Основные средства"
 
 #: apps/erp/app/modules/items/ui/Item/ItemReorderPolicy.tsx:40
 msgid "Fixed Reorder"
@@ -13403,7 +13403,7 @@ msgstr "Налог и дополнительные расходы"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:715
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:937
 msgid "Tax & Shipping"
-msgstr ""
+msgstr "Налог и доставка"
 
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:705
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:922
