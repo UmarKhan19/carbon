@@ -1,0 +1,110 @@
+import { assertIsPost, error, notFound, success } from "@carbon/auth";
+import { requirePermissions } from "@carbon/auth/auth.server";
+import { flash } from "@carbon/auth/session.server";
+import { validationError, validator } from "@carbon/form";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect, useLoaderData, useNavigate } from "react-router";
+import {
+  fixedAssetValidator,
+  getFixedAsset,
+  getFixedAssetClassesList,
+  upsertFixedAsset
+} from "~/modules/accounting";
+import { FixedAssetForm } from "~/modules/accounting/ui/FixedAssets";
+import { path } from "~/utils/path";
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const { client, companyId } = await requirePermissions(request, {
+    view: "accounting"
+  });
+
+  const { fixedAssetId } = params;
+  if (!fixedAssetId) throw notFound("fixedAssetId not found");
+
+  const [asset, assetClasses] = await Promise.all([
+    getFixedAsset(client, fixedAssetId),
+    getFixedAssetClassesList(client, companyId)
+  ]);
+
+  if (asset.error) {
+    throw redirect(
+      path.to.fixedAssets,
+      await flash(request, error(asset.error, "Failed to get fixed asset"))
+    );
+  }
+
+  return {
+    asset: asset.data,
+    assetClasses: assetClasses.data ?? []
+  };
+}
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  assertIsPost(request);
+  const { client, userId } = await requirePermissions(request, {
+    update: "accounting"
+  });
+
+  const formData = await request.formData();
+  const validation = await validator(fixedAssetValidator).validate(formData);
+
+  if (validation.error) {
+    return validationError(validation.error);
+  }
+
+  const { id, ...d } = validation.data;
+  if (!id) throw notFound("Fixed Asset ID was not found");
+
+  const result = await upsertFixedAsset(client, {
+    id,
+    ...d,
+    updatedBy: userId
+  });
+
+  if (result.error) {
+    throw redirect(
+      path.to.fixedAssets,
+      await flash(request, error(result.error, "Failed to update fixed asset"))
+    );
+  }
+
+  const { fixedAssetId } = params;
+  throw redirect(
+    path.to.fixedAsset(fixedAssetId!),
+    await flash(request, success("Fixed asset updated"))
+  );
+}
+
+export default function FixedAssetDetailsRoute() {
+  const { asset, assetClasses } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+
+  const initialValues = {
+    id: asset.id,
+    fixedAssetClassId: asset.fixedAssetClassId,
+    name: asset.name,
+    description: asset.description ?? "",
+    serialNumber: asset.serialNumber ?? "",
+    depreciationMethod: asset.depreciationMethod,
+    usefulLifeMonths: asset.usefulLifeMonths,
+    residualValuePercent: Number(asset.residualValuePercent),
+    acquisitionCost: Number(asset.acquisitionCost),
+    acquisitionDate: asset.acquisitionDate ?? undefined,
+    depreciationStartDate: asset.depreciationStartDate ?? undefined,
+    accumulatedDepreciation: Number(asset.accumulatedDepreciation),
+    assetLifetimeUsage: asset.assetLifetimeUsage
+      ? Number(asset.assetLifetimeUsage)
+      : undefined,
+    locationId: asset.locationId ?? undefined,
+    custodianId: asset.custodianId ?? undefined
+  };
+
+  return (
+    <FixedAssetForm
+      onClose={() => navigate(-1)}
+      key={initialValues.id}
+      initialValues={initialValues}
+      assetClasses={assetClasses}
+    />
+  );
+}

@@ -416,6 +416,26 @@ export const path = {
     accountingGroupsPurchasing: `${x}/accounting/groups/purchasing`,
     accountingGroupsSales: `${x}/accounting/groups/sales`,
     accountingRoot: `${x}/accounting`,
+    fixedAssets: `${x}/accounting/fixed-assets`,
+    fixedAsset: (id: string) => generatePath(`${x}/fixed-asset/${id}`),
+    fixedAssetDetails: (id: string) =>
+      generatePath(`${x}/fixed-asset/${id}/details`),
+    fixedAssetDispose: (id: string) =>
+      generatePath(`${x}/fixed-asset/${id}/dispose`),
+    newFixedAsset: `${x}/accounting/fixed-assets/new`,
+    deleteFixedAsset: (id: string) =>
+      generatePath(`${x}/fixed-asset/${id}/delete`),
+    assetClasses: `${x}/accounting/asset-classes`,
+    assetClass: (id: string) =>
+      generatePath(`${x}/accounting/asset-class/${id}`),
+    newAssetClass: `${x}/accounting/asset-classes/new`,
+    deleteAssetClass: (id: string) =>
+      generatePath(`${x}/accounting/asset-class/${id}/delete`),
+    depreciationRuns: `${x}/accounting/depreciation-runs`,
+    depreciationRun: (id: string) =>
+      generatePath(`${x}/accounting/depreciation-run/${id}`),
+    newDepreciationRun: `${x}/accounting/depreciation-runs/new`,
+    fixedAssetImport: `${x}/accounting/fixed-asset-import`,
     intercompany: `${x}/accounting/intercompany`,
     newIntercompanyTransaction: `${x}/accounting/intercompany/new`,
     activeMethodVersion: (id: string) =>

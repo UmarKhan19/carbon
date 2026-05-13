@@ -309,7 +309,8 @@ serve(async (req: Request) => {
         (line) => {
           if (
             line.purchaseOrderLineType === "Comment" ||
-            line.purchaseOrderLineType === "G/L Account"
+            line.purchaseOrderLineType === "G/L Account" ||
+            line.purchaseOrderLineType === "Fixed Asset"
           )
             return true;
           const target = line.purchaseQuantity ?? 0;
@@ -841,11 +842,48 @@ serve(async (req: Request) => {
 
             const journalLineReference = nanoid();
 
+            // Find the PO line for this receipt line
+            const poLine = purchaseOrderLines.data.find(
+              (pol) => pol.id === receiptLine.lineId
+            );
+
             // Determine the debit account based on item type
             let debitAccount: string;
             let debitDescription: string;
 
-            if (itemTrackingType !== "Non-Inventory" && !isOutsideProcessing) {
+            if (poLine?.purchaseOrderLineType === "Fixed Asset" && poLine.assetId) {
+              // Fixed Asset line — debit the asset's class account
+              const assetRecord = await client
+                .from("fixedAsset")
+                .select("id, status, acquisitionDate, depreciationStartDate, acquisitionCost, fixedAssetClass:fixedAssetClassId(assetAccountId)")
+                .eq("id", poLine.assetId)
+                .single();
+
+              if (assetRecord.error) throw new Error("Failed to fetch fixed asset");
+
+              debitAccount = (assetRecord.data.fixedAssetClass as any).assetAccountId;
+              debitDescription = "Fixed Asset Acquisition";
+
+              // Update the asset master
+              const updateData: Record<string, any> = {
+                acquisitionCost: (Number(assetRecord.data.acquisitionCost) ?? 0) + cost,
+                updatedBy: userId,
+              };
+              if (!assetRecord.data.acquisitionDate) {
+                updateData.acquisitionDate = today;
+              }
+              if (!assetRecord.data.depreciationStartDate) {
+                updateData.depreciationStartDate = today;
+              }
+              if (assetRecord.data.status === "Draft") {
+                updateData.status = "Active";
+              }
+
+              await client
+                .from("fixedAsset")
+                .update(updateData)
+                .eq("id", poLine.assetId);
+            } else if (itemTrackingType !== "Non-Inventory" && !isOutsideProcessing) {
               debitAccount = accountDefaults.data.inventoryAccount;
               debitDescription = "Inventory Account";
             } else if (isOutsideProcessing) {
@@ -987,7 +1025,11 @@ serve(async (req: Request) => {
             }
           }
 
-          if (itemTrackingType === "Inventory" && !isOutsideProcessing) {
+          const isFixedAssetLine = purchaseOrderLines.data.find(
+            (pol) => pol.id === receiptLine.lineId
+          )?.purchaseOrderLineType === "Fixed Asset";
+
+          if (itemTrackingType === "Inventory" && !isOutsideProcessing && !isFixedAssetLine) {
             // For inventory entries, use the appropriate entry type based on quantity sign
             const entryType =
               receivedQuantity < 0 ? "Negative Adjmt." : "Positive Adjmt.";
@@ -1007,7 +1049,7 @@ serve(async (req: Request) => {
             });
           }
 
-          if (receiptLine.requiresBatchTracking && !isOutsideProcessing) {
+          if (receiptLine.requiresBatchTracking && !isOutsideProcessing && !isFixedAssetLine) {
             const entryType =
               receivedQuantity < 0 ? "Negative Adjmt." : "Positive Adjmt.";
 
@@ -1032,7 +1074,7 @@ serve(async (req: Request) => {
             });
           }
 
-          if (receiptLine.requiresSerialTracking && !isOutsideProcessing) {
+          if (receiptLine.requiresSerialTracking && !isOutsideProcessing && !isFixedAssetLine) {
             const lineTracking = receiptLineTracking.data?.filter(
               (tracking) =>
                 (tracking.attributes as TrackedEntityAttributes | undefined)?.[
@@ -1138,6 +1180,7 @@ serve(async (req: Request) => {
             (line) =>
               line.purchaseOrderLineType === "Comment" ||
               line.purchaseOrderLineType === "G/L Account" ||
+              line.purchaseOrderLineType === "Fixed Asset" ||
               line.receivedComplete
           );
 

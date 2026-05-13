@@ -7058,6 +7058,225 @@ export type Database = {
           },
         ]
       }
+      depreciationRun: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          depreciationRunId: string
+          id: string
+          periodEnd: string
+          postedAt: string | null
+          postedBy: string | null
+          status: string
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          depreciationRunId: string
+          id?: string
+          periodEnd: string
+          postedAt?: string | null
+          postedBy?: string | null
+          status?: string
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          depreciationRunId?: string
+          id?: string
+          periodEnd?: string
+          postedAt?: string | null
+          postedBy?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "depreciationRun_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "depreciationRun_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "depreciationRun_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "depreciationRun_postedBy_fkey"
+            columns: ["postedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_postedBy_fkey"
+            columns: ["postedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_postedBy_fkey"
+            columns: ["postedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_postedBy_fkey"
+            columns: ["postedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRun_postedBy_fkey"
+            columns: ["postedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      depreciationRunLine: {
+        Row: {
+          amount: number
+          companyId: string
+          depreciationRunId: string
+          fixedAssetId: string
+          id: string
+          journalId: string | null
+        }
+        Insert: {
+          amount: number
+          companyId: string
+          depreciationRunId: string
+          fixedAssetId: string
+          id?: string
+          journalId?: string | null
+        }
+        Update: {
+          amount?: number
+          companyId?: string
+          depreciationRunId?: string
+          fixedAssetId?: string
+          id?: string
+          journalId?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "depreciationRunLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRunLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRunLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "depreciationRunLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "depreciationRunLine_depreciationRunId_fkey"
+            columns: ["depreciationRunId"]
+            isOneToOne: false
+            referencedRelation: "depreciationRun"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRunLine_fixedAssetId_fkey"
+            columns: ["fixedAssetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRunLine_journalId_fkey"
+            columns: ["journalId"]
+            isOneToOne: false
+            referencedRelation: "journal"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "depreciationRunLine_journalId_fkey"
+            columns: ["journalId"]
+            isOneToOne: false
+            referencedRelation: "journalEntries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dimension: {
         Row: {
           active: boolean
@@ -8680,6 +8899,721 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+        ]
+      }
+      fixedAsset: {
+        Row: {
+          accumulatedDepreciation: number
+          acquisitionCost: number
+          acquisitionDate: string | null
+          assetLifetimeUsage: number | null
+          companyId: string
+          createdAt: string
+          createdBy: string
+          custodianId: string | null
+          customFields: Json | null
+          depreciationMethod: Database["public"]["Enums"]["depreciationMethod"]
+          depreciationStartDate: string | null
+          description: string | null
+          disposalDate: string | null
+          disposalMethod: Database["public"]["Enums"]["disposalMethod"] | null
+          fixedAssetClassId: string
+          fixedAssetId: string
+          id: string
+          locationId: string | null
+          name: string
+          notes: Json | null
+          residualValuePercent: number
+          saleProceeds: number | null
+          serialNumber: string | null
+          status: Database["public"]["Enums"]["fixedAssetStatus"]
+          updatedAt: string | null
+          updatedBy: string | null
+          usefulLifeMonths: number
+        }
+        Insert: {
+          accumulatedDepreciation?: number
+          acquisitionCost?: number
+          acquisitionDate?: string | null
+          assetLifetimeUsage?: number | null
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          custodianId?: string | null
+          customFields?: Json | null
+          depreciationMethod?: Database["public"]["Enums"]["depreciationMethod"]
+          depreciationStartDate?: string | null
+          description?: string | null
+          disposalDate?: string | null
+          disposalMethod?: Database["public"]["Enums"]["disposalMethod"] | null
+          fixedAssetClassId: string
+          fixedAssetId: string
+          id?: string
+          locationId?: string | null
+          name: string
+          notes?: Json | null
+          residualValuePercent?: number
+          saleProceeds?: number | null
+          serialNumber?: string | null
+          status?: Database["public"]["Enums"]["fixedAssetStatus"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+          usefulLifeMonths?: number
+        }
+        Update: {
+          accumulatedDepreciation?: number
+          acquisitionCost?: number
+          acquisitionDate?: string | null
+          assetLifetimeUsage?: number | null
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          custodianId?: string | null
+          customFields?: Json | null
+          depreciationMethod?: Database["public"]["Enums"]["depreciationMethod"]
+          depreciationStartDate?: string | null
+          description?: string | null
+          disposalDate?: string | null
+          disposalMethod?: Database["public"]["Enums"]["disposalMethod"] | null
+          fixedAssetClassId?: string
+          fixedAssetId?: string
+          id?: string
+          locationId?: string | null
+          name?: string
+          notes?: Json | null
+          residualValuePercent?: number
+          saleProceeds?: number | null
+          serialNumber?: string | null
+          status?: Database["public"]["Enums"]["fixedAssetStatus"]
+          updatedAt?: string | null
+          updatedBy?: string | null
+          usefulLifeMonths?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fixedAsset_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "fixedAsset_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "fixedAsset_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "fixedAsset_custodianId_fkey"
+            columns: ["custodianId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_custodianId_fkey"
+            columns: ["custodianId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_custodianId_fkey"
+            columns: ["custodianId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_custodianId_fkey"
+            columns: ["custodianId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_custodianId_fkey"
+            columns: ["custodianId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "fixedAsset_fixedAssetClassId_fkey"
+            columns: ["fixedAssetClassId"]
+            isOneToOne: false
+            referencedRelation: "fixedAssetClass"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAsset_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      fixedAssetClass: {
+        Row: {
+          accumulatedDepreciationAccountId: string
+          assetAccountId: string
+          companyId: string
+          createdAt: string
+          createdBy: string
+          customFields: Json | null
+          depreciationExpenseAccountId: string
+          depreciationMethod: Database["public"]["Enums"]["depreciationMethod"]
+          description: string | null
+          disposalAccountId: string
+          id: string
+          name: string
+          residualValuePercent: number
+          updatedAt: string | null
+          updatedBy: string | null
+          usefulLifeMonths: number
+          writeDownAccountId: string
+          writeOffAccountId: string
+        }
+        Insert: {
+          accumulatedDepreciationAccountId: string
+          assetAccountId: string
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          customFields?: Json | null
+          depreciationExpenseAccountId: string
+          depreciationMethod?: Database["public"]["Enums"]["depreciationMethod"]
+          description?: string | null
+          disposalAccountId: string
+          id?: string
+          name: string
+          residualValuePercent?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+          usefulLifeMonths?: number
+          writeDownAccountId: string
+          writeOffAccountId: string
+        }
+        Update: {
+          accumulatedDepreciationAccountId?: string
+          assetAccountId?: string
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          customFields?: Json | null
+          depreciationExpenseAccountId?: string
+          depreciationMethod?: Database["public"]["Enums"]["depreciationMethod"]
+          description?: string | null
+          disposalAccountId?: string
+          id?: string
+          name?: string
+          residualValuePercent?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+          usefulLifeMonths?: number
+          writeDownAccountId?: string
+          writeOffAccountId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fixedAssetClass_accumulatedDepreciationAccountId_fkey"
+            columns: ["accumulatedDepreciationAccountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_accumulatedDepreciationAccountId_fkey"
+            columns: ["accumulatedDepreciationAccountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_assetAccountId_fkey"
+            columns: ["assetAccountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_assetAccountId_fkey"
+            columns: ["assetAccountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_depreciationExpenseAccountId_fkey"
+            columns: ["depreciationExpenseAccountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_depreciationExpenseAccountId_fkey"
+            columns: ["depreciationExpenseAccountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_disposalAccountId_fkey"
+            columns: ["disposalAccountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_disposalAccountId_fkey"
+            columns: ["disposalAccountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_writeDownAccountId_fkey"
+            columns: ["writeDownAccountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_writeDownAccountId_fkey"
+            columns: ["writeDownAccountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_writeOffAccountId_fkey"
+            columns: ["writeOffAccountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetClass_writeOffAccountId_fkey"
+            columns: ["writeOffAccountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fixedAssetDisposal: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          disposalDate: string
+          disposalMethod: Database["public"]["Enums"]["disposalMethod"]
+          fixedAssetId: string
+          gainLoss: number
+          id: string
+          journalId: string | null
+          netBookValueAtDisposal: number
+          saleProceeds: number
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          disposalDate: string
+          disposalMethod: Database["public"]["Enums"]["disposalMethod"]
+          fixedAssetId: string
+          gainLoss: number
+          id?: string
+          journalId?: string | null
+          netBookValueAtDisposal: number
+          saleProceeds?: number
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          disposalDate?: string
+          disposalMethod?: Database["public"]["Enums"]["disposalMethod"]
+          fixedAssetId?: string
+          gainLoss?: number
+          id?: string
+          journalId?: string | null
+          netBookValueAtDisposal?: number
+          saleProceeds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fixedAssetDisposal_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_fixedAssetId_fkey"
+            columns: ["fixedAssetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_journalId_fkey"
+            columns: ["journalId"]
+            isOneToOne: false
+            referencedRelation: "journal"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetDisposal_journalId_fkey"
+            columns: ["journalId"]
+            isOneToOne: false
+            referencedRelation: "journalEntries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fixedAssetUsageLog: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          fixedAssetId: string
+          id: string
+          periodEnd: string
+          periodStart: string
+          unitsProduced: number
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          fixedAssetId: string
+          id?: string
+          periodEnd: string
+          periodStart: string
+          unitsProduced: number
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          fixedAssetId?: string
+          id?: string
+          periodEnd?: string
+          periodStart?: string
+          unitsProduced?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fixedAssetUsageLog_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "fixedAssetUsageLog_fixedAssetId_fkey"
+            columns: ["fixedAssetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -27969,6 +28903,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_assetId_fkey"
+            columns: ["assetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
             referencedColumns: ["id"]
           },
           {
@@ -51635,6 +52576,7 @@ export type Database = {
           accountId: string | null
           accountName: string | null
           assetId: string | null
+          assetName: string | null
           companyId: string | null
           conversionFactor: number | null
           costCenterId: string | null
@@ -52260,6 +53202,7 @@ export type Database = {
           accountId: string | null
           accountName: string | null
           assetId: string | null
+          assetName: string | null
           autodeskUrn: string | null
           companyId: string | null
           conversionFactor: number | null
@@ -52334,6 +53277,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_assetId_fkey"
+            columns: ["assetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
             referencedColumns: ["id"]
           },
           {
@@ -62005,6 +62955,10 @@ export type Database = {
         | "Total"
       deadlineType: "No Deadline" | "ASAP" | "Soft Deadline" | "Hard Deadline"
       demandSourceType: "Sales Order" | "Job Material"
+      depreciationMethod:
+        | "Straight Line"
+        | "Declining Balance"
+        | "Units of Production"
       dimensionEntityType:
         | "Custom"
         | "Location"
@@ -62014,6 +62968,7 @@ export type Database = {
         | "Department"
         | "Employee"
         | "CostCenter"
+      disposalMethod: "Sale" | "Scrapping"
       disposition:
         | "Conditional Acceptance"
         | "Deviation Accepted"
@@ -62094,6 +63049,7 @@ export type Database = {
         | "Seconds/Piece"
         | "Total Hours"
         | "Total Minutes"
+      fixedAssetStatus: "Draft" | "Active" | "Fully Depreciated" | "Disposed"
       fulfillmentType: "Inventory" | "Job"
       gaugeCalibrationStatus:
         | "Pending"
@@ -62214,6 +63170,8 @@ export type Database = {
         | "Job Receipt"
         | "Production Event"
         | "Job Close"
+        | "Asset Depreciation"
+        | "Asset Disposal"
       journalEntryStatus: "Draft" | "Posted" | "Reversed"
       journalLineDocumentType:
         | "Receipt"
@@ -63252,6 +64210,11 @@ export const Constants = {
       ],
       deadlineType: ["No Deadline", "ASAP", "Soft Deadline", "Hard Deadline"],
       demandSourceType: ["Sales Order", "Job Material"],
+      depreciationMethod: [
+        "Straight Line",
+        "Declining Balance",
+        "Units of Production",
+      ],
       dimensionEntityType: [
         "Custom",
         "Location",
@@ -63262,6 +64225,7 @@ export const Constants = {
         "Employee",
         "CostCenter",
       ],
+      disposalMethod: ["Sale", "Scrapping"],
       disposition: [
         "Conditional Acceptance",
         "Deviation Accepted",
@@ -63349,6 +64313,7 @@ export const Constants = {
         "Total Hours",
         "Total Minutes",
       ],
+      fixedAssetStatus: ["Draft", "Active", "Fully Depreciated", "Disposed"],
       fulfillmentType: ["Inventory", "Job"],
       gaugeCalibrationStatus: [
         "Pending",
@@ -63479,6 +64444,8 @@ export const Constants = {
         "Job Receipt",
         "Production Event",
         "Job Close",
+        "Asset Depreciation",
+        "Asset Disposal",
       ],
       journalEntryStatus: ["Draft", "Posted", "Reversed"],
       journalLineDocumentType: [

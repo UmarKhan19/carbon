@@ -345,6 +345,24 @@ export const sequences = [
     next: 0,
     size: 6,
     step: 1
+  },
+  {
+    table: "fixedAsset",
+    name: "Fixed Asset",
+    prefix: "FA",
+    suffix: null,
+    next: 1,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "depreciationRun",
+    name: "Depreciation Run",
+    prefix: "DR",
+    suffix: null,
+    next: 1,
+    size: 6,
+    step: 1
   }
 ] as const;
 

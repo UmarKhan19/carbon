@@ -450,7 +450,9 @@ export const journalEntrySourceTypes = [
   "Job Consumption",
   "Job Receipt",
   "Production Event",
-  "Job Close"
+  "Job Close",
+  "Asset Depreciation",
+  "Asset Disposal"
 ] as const;
 
 export const journalEntryStatuses = ["Draft", "Posted", "Reversed"] as const;

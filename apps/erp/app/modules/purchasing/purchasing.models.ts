@@ -190,11 +190,14 @@ export const purchaseOrderLineValidator = z
   .object({
     id: zfd.text(z.string().optional()),
     purchaseOrderId: z.string().min(1, { message: "Order is required" }),
-    purchaseOrderLineType: z.enum([...methodItemType, "G/L Account"], {
-      errorMap: (issue, ctx) => ({
-        message: "Type is required"
-      })
-    }),
+    purchaseOrderLineType: z.enum(
+      [...methodItemType, "G/L Account", "Fixed Asset"],
+      {
+        errorMap: (issue, ctx) => ({
+          message: "Type is required"
+        })
+      }
+    ),
     itemId: zfd.text(z.string().optional()),
     accountId: zfd.text(z.string().optional()),
     costCenterId: zfd.text(z.string().optional()),
