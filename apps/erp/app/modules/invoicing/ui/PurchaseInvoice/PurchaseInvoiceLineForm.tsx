@@ -7,6 +7,7 @@ import {
 } from "@carbon/form";
 import {
   Badge,
+  Button,
   cn,
   FormControl,
   FormLabel,
@@ -33,7 +34,7 @@ import {
 import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
-import { LuBox, LuChevronRight, LuReceipt } from "react-icons/lu";
+import { LuBox, LuChevronRight, LuLandmark, LuReceipt } from "react-icons/lu";
 import { useParams } from "react-router";
 import type { z } from "zod";
 import {
@@ -66,6 +67,8 @@ import { path } from "~/utils/path";
 type PurchaseInvoiceLineFormProps = {
   initialValues: z.infer<typeof purchaseInvoiceLineValidator> & {
     taxPercent?: number;
+    assetReadableId?: string;
+    assetName?: string;
   };
   type?: "card" | "modal";
   onClose?: () => void;
@@ -151,13 +154,9 @@ const PurchaseInvoiceLineForm = ({
   const isEditing = initialValues.id !== undefined;
   const isGLAccount = initialValues.invoiceLineType === "G/L Account";
   const isFixedAsset = initialValues.invoiceLineType === "Fixed Asset";
-  const [activeTab, setActiveTab] = useState<"direct" | "indirect">(
-    isGLAccount || isFixedAsset ? "indirect" : "direct"
+  const [activeTab, setActiveTab] = useState<"item" | "gl-account" | "asset">(
+    isFixedAsset ? "asset" : isGLAccount ? "gl-account" : "item"
   );
-
-  const [indirectType, setIndirectType] = useState<
-    "G/L Account" | "Fixed Asset"
-  >(isFixedAsset ? "Fixed Asset" : "G/L Account");
 
   const [assetOptions, setAssetOptions] = useState<
     { value: string; label: string }[]
@@ -390,7 +389,7 @@ const PurchaseInvoiceLineForm = ({
   return (
     <Tabs
       value={activeTab}
-      onValueChange={(v) => setActiveTab(v as "direct" | "indirect")}
+      onValueChange={(v) => setActiveTab(v as "item" | "gl-account" | "asset")}
       className="w-full"
     >
       <ModalCardProvider type={type}>
@@ -432,16 +431,25 @@ const PurchaseInvoiceLineForm = ({
                     )}
                   >
                     {isEditing
-                      ? isGLAccount || isFixedAsset
-                        ? indirectData.description ||
-                          (isFixedAsset ? "Fixed Asset" : "G/L Account")
-                        : (getItemReadableId(items, itemData?.itemId) ?? "...")
+                      ? isFixedAsset
+                        ? initialValues.assetReadableId || "Fixed Asset"
+                        : isGLAccount
+                          ? indirectData.description || "G/L Account"
+                          : (getItemReadableId(items, itemData?.itemId) ??
+                            "...")
                       : "New Purchase Invoice Line"}
                   </ModalCardTitle>
                   <ModalCardDescription>
                     {isEditing ? (
                       <div className="flex flex-col items-start gap-1">
-                        <span>{itemData?.description}</span>
+                        <span>
+                          {isFixedAsset
+                            ? initialValues.assetName ||
+                              indirectData.description
+                            : isGLAccount
+                              ? "G/L Account"
+                              : itemData?.description}
+                        </span>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">
                             {initialValues?.quantity}
@@ -471,13 +479,17 @@ const PurchaseInvoiceLineForm = ({
                 <div className="flex-shrink-0">
                   {!isEditing && (
                     <TabsList>
-                      <TabsTrigger value="direct">
+                      <TabsTrigger value="item">
                         <LuBox className="mr-1" />
-                        <Trans>Direct</Trans>
+                        <Trans>Item</Trans>
                       </TabsTrigger>
-                      <TabsTrigger value="indirect">
+                      <TabsTrigger value="gl-account">
                         <LuReceipt className="mr-1" />
-                        <Trans>Indirect</Trans>
+                        <Trans>GL Account</Trans>
+                      </TabsTrigger>
+                      <TabsTrigger value="asset">
+                        <LuLandmark className="mr-1" />
+                        <Trans>Asset</Trans>
                       </TabsTrigger>
                     </TabsList>
                   )}
@@ -491,7 +503,7 @@ const PurchaseInvoiceLineForm = ({
                   value={routeData?.purchaseInvoice?.exchangeRate ?? 1}
                 />
 
-                <TabsContent value="direct">
+                <TabsContent value="item">
                   <Hidden name="invoiceLineType" value={itemType} />
                   <Hidden name="description" value={itemData.description} />
                   <Hidden
@@ -737,161 +749,92 @@ const PurchaseInvoiceLineForm = ({
                   </VStack>
                 </TabsContent>
 
-                <TabsContent value="indirect">
-                  <Hidden name="invoiceLineType" value={indirectType} />
-                  <Hidden name="description" value={indirectData.description} />
-                  <VStack>
-                    <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
-                      {!isEditing && (
-                        <FormControl>
-                          <FormLabel>
-                            <Trans>Type</Trans>
-                          </FormLabel>
-                          <select
-                            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            value={indirectType}
-                            onChange={(e) =>
-                              setIndirectType(
-                                e.target.value as "G/L Account" | "Fixed Asset"
-                              )
-                            }
-                          >
-                            <option value="G/L Account">G/L Account</option>
-                            <option value="Fixed Asset">Fixed Asset</option>
-                          </select>
-                        </FormControl>
-                      )}
-                      {indirectType === "G/L Account" ? (
-                        <>
-                          <Account
-                            name="accountId"
-                            label={t`GL Account`}
-                            classes={["Asset", "Expense"]}
+                {(activeTab === "gl-account" || activeTab === "asset") && (
+                  <>
+                    <Hidden
+                      name="invoiceLineType"
+                      value={
+                        activeTab === "asset" ? "Fixed Asset" : "G/L Account"
+                      }
+                    />
+                    <Hidden
+                      name="description"
+                      value={indirectData.description}
+                    />
+                    <VStack>
+                      <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
+                        {activeTab === "gl-account" ? (
+                          <>
+                            <Account
+                              name="accountId"
+                              label={t`GL Account`}
+                              classes={["Expense"]}
+                              isOptional={false}
+                            />
+                            <CostCenter
+                              name="costCenterId"
+                              label={t`Cost Center`}
+                              isOptional
+                            />
+                          </>
+                        ) : (
+                          <Combobox
+                            name="assetId"
+                            label={t`Fixed Asset`}
+                            isOptional={false}
+                            options={assetOptions}
+                            value={indirectData.assetId}
+                            onChange={(selected) => {
+                              setIndirectData((d) => ({
+                                ...d,
+                                assetId: (selected?.value as string) ?? ""
+                              }));
+                            }}
                           />
-                          <CostCenter
-                            name="costCenterId"
-                            label={t`Cost Center`}
-                            isOptional
-                          />
-                        </>
-                      ) : (
-                        <Combobox
-                          name="assetId"
-                          label={t`Fixed Asset`}
-                          options={assetOptions}
-                          value={indirectData.assetId}
-                          onChange={(selected) => {
+                        )}
+                        <InputControlled
+                          className={
+                            activeTab === "asset" ? "col-span-2" : "col-span-3"
+                          }
+                          label={t`Description`}
+                          name="description"
+                          value={indirectData.description}
+                          isOptional={false}
+                          onChange={(newValue) =>
                             setIndirectData((d) => ({
                               ...d,
-                              assetId: (selected?.value as string) ?? ""
+                              description: newValue
+                            }))
+                          }
+                        />
+                        <DatePicker
+                          name="requiredDate"
+                          label={t`Required Date`}
+                          value={indirectData.requiredDate ?? undefined}
+                          onChange={(date) => {
+                            setIndirectData((d) => ({
+                              ...d,
+                              requiredDate: date
                             }));
                           }}
                         />
-                      )}
-                      <InputControlled
-                        className="col-span-2"
-                        label={t`Description`}
-                        name="description"
-                        value={indirectData.description}
-                        isOptional={false}
-                        onChange={(newValue) =>
-                          setIndirectData((d) => ({
-                            ...d,
-                            description: newValue
-                          }))
-                        }
-                      />
-                      <DatePicker
-                        name="requiredDate"
-                        label={t`Required Date`}
-                        value={indirectData.requiredDate ?? undefined}
-                        onChange={(date) => {
-                          setIndirectData((d) => ({
-                            ...d,
-                            requiredDate: date
-                          }));
-                        }}
-                      />
-                      <NumberControlled
-                        name="quantity"
-                        label={t`Quantity`}
-                        value={indirectData.quantity}
-                        onChange={(value) =>
-                          setIndirectData((d) => ({
-                            ...d,
-                            quantity: value
-                          }))
-                        }
-                      />
-                      <NumberControlled
-                        name="supplierUnitPrice"
-                        label={t`Unit Price`}
-                        value={indirectData.supplierUnitPrice}
-                        formatOptions={{
-                          style: "currency",
-                          currency:
-                            routeData?.purchaseInvoice?.currencyCode ??
-                            company.baseCurrencyCode
-                        }}
-                        onChange={(value) =>
-                          setIndirectData((d) => ({
-                            ...d,
-                            supplierUnitPrice: value
-                          }))
-                        }
-                      />
-                      <CustomFormFields table="purchaseInvoiceLine" />
-                    </div>
-
-                    <div className="w-full border border-border rounded-md shadow-sm p-4 flex flex-col gap-4 mt-4">
-                      <HStack
-                        className="w-full justify-between cursor-pointer"
-                        onClick={indirectCostsDisclosure.onToggle}
-                      >
-                        <Label>
-                          <Trans>Tax &amp; Shipping</Trans>
-                        </Label>
-                        <HStack>
-                          {indirectData.taxPercent > 0 && (
-                            <Badge variant="red">
-                              {percentFormatter.format(indirectData.taxPercent)}{" "}
-                              <Trans>Tax</Trans>
-                            </Badge>
-                          )}
-                          {indirectData.supplierShippingCost > 0 && (
-                            <Badge variant="secondary">
-                              {currencyFormatter.format(
-                                indirectData.supplierShippingCost
-                              )}
-                            </Badge>
-                          )}
-                          <IconButton
-                            icon={<LuChevronRight />}
-                            aria-label={
-                              indirectCostsDisclosure.isOpen
-                                ? t`Collapse Costs`
-                                : t`Expand Costs`
-                            }
-                            variant="ghost"
-                            size="md"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              indirectCostsDisclosure.onToggle();
-                            }}
-                            className={`transition-transform ${indirectCostsDisclosure.isOpen ? "rotate-90" : ""}`}
-                          />
-                        </HStack>
-                      </HStack>
-                      <div
-                        className={`grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3 pb-4 ${
-                          indirectCostsDisclosure.isOpen ? "" : "hidden"
-                        }`}
-                      >
                         <NumberControlled
-                          name="supplierShippingCost"
-                          label={t`Shipping`}
-                          minValue={0}
-                          value={indirectData.supplierShippingCost}
+                          name="quantity"
+                          label={t`Quantity`}
+                          isOptional={false}
+                          value={indirectData.quantity}
+                          onChange={(value) =>
+                            setIndirectData((d) => ({
+                              ...d,
+                              quantity: value
+                            }))
+                          }
+                        />
+                        <NumberControlled
+                          name="supplierUnitPrice"
+                          label={t`Unit Price`}
+                          isOptional={false}
+                          value={indirectData.supplierUnitPrice}
                           formatOptions={{
                             style: "currency",
                             currency:
@@ -901,65 +844,142 @@ const PurchaseInvoiceLineForm = ({
                           onChange={(value) =>
                             setIndirectData((d) => ({
                               ...d,
-                              supplierShippingCost: value
+                              supplierUnitPrice: value
                             }))
                           }
                         />
-                        <NumberControlled
-                          name="supplierTaxAmount"
-                          label={t`Tax Amount`}
-                          value={indirectData.taxAmount}
-                          formatOptions={{
-                            style: "currency",
-                            currency:
-                              routeData?.purchaseInvoice?.currencyCode ??
-                              company.baseCurrencyCode
-                          }}
-                          onChange={(value) => {
-                            const subtotal =
-                              indirectData.supplierUnitPrice *
-                                indirectData.quantity +
-                              indirectData.supplierShippingCost;
-                            setIndirectData((d) => ({
-                              ...d,
-                              taxAmount: value,
-                              taxPercent: subtotal > 0 ? value / subtotal : 0
-                            }));
-                          }}
-                        />
-                        <NumberControlled
-                          name="taxPercent"
-                          label={t`Tax Percent`}
-                          value={indirectData.taxPercent}
-                          minValue={0}
-                          maxValue={1}
-                          step={0.0001}
-                          formatOptions={{
-                            style: "percent",
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 2
-                          }}
-                          onChange={(value) => {
-                            const subtotal =
-                              indirectData.supplierUnitPrice *
-                                indirectData.quantity +
-                              indirectData.supplierShippingCost;
-                            setIndirectData((d) => ({
-                              ...d,
-                              taxPercent: value,
-                              taxAmount: subtotal * value
-                            }));
-                          }}
-                        />
+                        <CustomFormFields table="purchaseInvoiceLine" />
                       </div>
-                    </div>
-                  </VStack>
-                </TabsContent>
+
+                      <div className="h-4" />
+
+                      <div className="w-full border border-border rounded-md shadow-sm p-4 flex flex-col gap-4">
+                        <HStack
+                          className="w-full justify-between cursor-pointer"
+                          onClick={indirectCostsDisclosure.onToggle}
+                        >
+                          <Label>
+                            <Trans>Tax &amp; Shipping</Trans>
+                          </Label>
+                          <HStack>
+                            {indirectData.taxPercent > 0 && (
+                              <Badge variant="red">
+                                {percentFormatter.format(
+                                  indirectData.taxPercent
+                                )}{" "}
+                                <Trans>Tax</Trans>
+                              </Badge>
+                            )}
+                            {indirectData.supplierShippingCost > 0 && (
+                              <Badge variant="secondary">
+                                {currencyFormatter.format(
+                                  indirectData.supplierShippingCost
+                                )}
+                              </Badge>
+                            )}
+                            <IconButton
+                              icon={<LuChevronRight />}
+                              aria-label={
+                                indirectCostsDisclosure.isOpen
+                                  ? t`Collapse Costs`
+                                  : t`Expand Costs`
+                              }
+                              variant="ghost"
+                              size="md"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                indirectCostsDisclosure.onToggle();
+                              }}
+                              className={`transition-transform ${indirectCostsDisclosure.isOpen ? "rotate-90" : ""}`}
+                            />
+                          </HStack>
+                        </HStack>
+                        <div
+                          className={`grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3 pb-4 ${
+                            indirectCostsDisclosure.isOpen ? "" : "hidden"
+                          }`}
+                        >
+                          <NumberControlled
+                            name="supplierShippingCost"
+                            label={t`Shipping`}
+                            minValue={0}
+                            value={indirectData.supplierShippingCost}
+                            formatOptions={{
+                              style: "currency",
+                              currency:
+                                routeData?.purchaseInvoice?.currencyCode ??
+                                company.baseCurrencyCode
+                            }}
+                            onChange={(value) =>
+                              setIndirectData((d) => ({
+                                ...d,
+                                supplierShippingCost: value
+                              }))
+                            }
+                          />
+                          <NumberControlled
+                            name="supplierTaxAmount"
+                            label={t`Tax Amount`}
+                            value={indirectData.taxAmount}
+                            formatOptions={{
+                              style: "currency",
+                              currency:
+                                routeData?.purchaseInvoice?.currencyCode ??
+                                company.baseCurrencyCode
+                            }}
+                            onChange={(value) => {
+                              const subtotal =
+                                indirectData.supplierUnitPrice *
+                                  indirectData.quantity +
+                                indirectData.supplierShippingCost;
+                              setIndirectData((d) => ({
+                                ...d,
+                                taxAmount: value,
+                                taxPercent: subtotal > 0 ? value / subtotal : 0
+                              }));
+                            }}
+                          />
+                          <NumberControlled
+                            name="taxPercent"
+                            label={t`Tax Percent`}
+                            value={indirectData.taxPercent}
+                            minValue={0}
+                            maxValue={1}
+                            step={0.0001}
+                            formatOptions={{
+                              style: "percent",
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 2
+                            }}
+                            onChange={(value) => {
+                              const subtotal =
+                                indirectData.supplierUnitPrice *
+                                  indirectData.quantity +
+                                indirectData.supplierShippingCost;
+                              setIndirectData((d) => ({
+                                ...d,
+                                taxPercent: value,
+                                taxAmount: subtotal * value
+                              }));
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </VStack>
+                  </>
+                )}
               </ModalCardBody>
               <ModalCardFooter>
-                <Submit isDisabled={isDisabled} withBlocker={false}>
-                  <Trans>Save</Trans>
-                </Submit>
+                <HStack className="justify-end gap-2">
+                  {onClose && (
+                    <Button variant="ghost" onClick={onClose}>
+                      <Trans>Cancel</Trans>
+                    </Button>
+                  )}
+                  <Submit isDisabled={isDisabled} withBlocker={false}>
+                    <Trans>Save</Trans>
+                  </Submit>
+                </HStack>
               </ModalCardFooter>
             </ValidatedForm>
           </ModalCardContent>
