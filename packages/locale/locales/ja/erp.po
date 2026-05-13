@@ -6855,6 +6855,9 @@ msgstr "配送サプライヤー"
 msgid "Shipping:"
 msgstr "配送:"
 
+msgid "Shop Floor"
+msgstr ""
+
 msgid "Short Description"
 msgstr "短い説明"
 

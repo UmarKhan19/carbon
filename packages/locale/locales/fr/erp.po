@@ -6855,6 +6855,9 @@ msgstr "Fournisseur d'expédition"
 msgid "Shipping:"
 msgstr "Expédition :"
 
+msgid "Shop Floor"
+msgstr ""
+
 msgid "Short Description"
 msgstr "Description courte"
 

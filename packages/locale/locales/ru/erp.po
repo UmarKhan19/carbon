@@ -6855,6 +6855,9 @@ msgstr "Поставщик доставки"
 msgid "Shipping:"
 msgstr "Доставка:"
 
+msgid "Shop Floor"
+msgstr ""
+
 msgid "Short Description"
 msgstr "Краткое описание"
 

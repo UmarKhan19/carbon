@@ -6855,6 +6855,9 @@ msgstr "运输供应商"
 msgid "Shipping:"
 msgstr "运费："
 
+msgid "Shop Floor"
+msgstr ""
+
 msgid "Short Description"
 msgstr "简短描述"
 

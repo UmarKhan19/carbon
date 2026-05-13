@@ -61,13 +61,13 @@ export function SortableNavItem({
       </div>
 
       {/* Module icon */}
-      <module.icon className="absolute left-3 top-3 flex items-center justify-center" />
+      <module.icon className="absolute left-8 top-3 flex items-center justify-center" />
 
       {/* Module name */}
       <span
         className={cn(
           "min-w-[128px] text-sm",
-          "absolute left-7 group-data-[state=expanded]:left-12",
+          "absolute left-12 group-data-[state=expanded]:left-16",
           "opacity-0 group-data-[state=expanded]:opacity-100"
         )}
       >

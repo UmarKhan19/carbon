@@ -12,8 +12,8 @@ import {
   verticalListSortingStrategy
 } from "@dnd-kit/sortable";
 import type { AnchorHTMLAttributes } from "react";
-import { forwardRef, memo, useCallback, useEffect } from "react";
-import { LuWrench } from "react-icons/lu";
+import { forwardRef, memo, useEffect } from "react";
+import { LuSettings2 } from "react-icons/lu";
 import { Link, useMatches } from "react-router";
 import { useModules, useOptimisticLocation } from "~/hooks";
 import type { Authenticated, NavItem } from "~/types";
@@ -44,19 +44,14 @@ const PrimaryNavigation = () => {
     useSensor(KeyboardSensor)
   );
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape" && editMode.isEditing) {
-        editMode.cancelEditMode();
-      }
-    },
-    [editMode]
-  );
-
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
+    if (!editMode.isEditing) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") editMode.cancelEditMode();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [editMode.isEditing, editMode.cancelEditMode]);
 
   const isOpen = navigationPanel.isOpen || editMode.isEditing;
 
@@ -78,15 +73,6 @@ const PrimaryNavigation = () => {
           className="flex flex-col justify-between h-full px-2"
         >
           <VStack spacing={1}>
-            {editMode.isEditing && (
-              <NavigationEditBar
-                isSaving={editMode.isSaving}
-                isDirty={editMode.isDirty}
-                onSave={editMode.save}
-                onCancel={editMode.cancelEditMode}
-              />
-            )}
-
             {editMode.isEditing ? (
               <DndContext
                 sensors={sensors}
@@ -132,7 +118,14 @@ const PrimaryNavigation = () => {
             )}
           </VStack>
 
-          {!editMode.isEditing && (
+          {editMode.isEditing ? (
+            <NavigationEditBar
+              isSaving={editMode.isSaving}
+              isDirty={editMode.isDirty}
+              onSave={editMode.save}
+              onCancel={editMode.cancelEditMode}
+            />
+          ) : (
             <button
               type="button"
               onClick={editMode.enterEditMode}
@@ -145,13 +138,16 @@ const PrimaryNavigation = () => {
                 "font-medium shrink-0 inline-flex select-none",
                 "text-muted-foreground",
                 "hover:bg-accent hover:text-accent-foreground",
-                "transition-[background-color,color,width] duration-100 ease-out"
+                "transition-[background-color,color,width] duration-100 ease-out",
+                "focus:!outline-none focus:!ring-0 active:!outline-none active:!ring-0",
+                "after:pointer-events-none after:absolute after:-inset-[3px] after:rounded-lg after:border after:border-blue-500 after:opacity-0 after:ring-2 after:ring-blue-500/20 after:transition-opacity focus-visible:after:opacity-100 active:after:opacity-0",
+                "group/item"
               )}
             >
-              <LuWrench className="absolute left-3 top-3 flex items-center justify-center" />
+              <LuSettings2 className="absolute left-3 top-3 flex items-center justify-center" />
               <span
                 className={cn(
-                  "min-w-[128px] text-sm",
+                  "min-w-[128px] text-sm text-left",
                   "absolute left-7 group-data-[state=expanded]:left-12",
                   "opacity-0 group-data-[state=expanded]:opacity-100"
                 )}

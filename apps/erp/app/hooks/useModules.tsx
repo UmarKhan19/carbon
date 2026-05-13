@@ -27,30 +27,44 @@ type ModulePreference = {
   hidden: boolean;
 };
 
-function getModuleDefinitions(
-  t: ReturnType<typeof useLingui>["t"]
-): ModuleDefinition[] {
+function filterByPermissions(
+  modules: ModuleDefinition[],
+  permissions: ReturnType<typeof usePermissions>
+) {
+  return modules.filter((item) => {
+    if (item.permission) {
+      return permissions.can("view", item.permission);
+    } else if (item.role) {
+      return permissions.is(item.role);
+    } else {
+      return true;
+    }
+  });
+}
+
+function useModuleDefinitions(): ModuleDefinition[] {
+  const { t } = useLingui();
   return [
     {
-      key: "shopFloor",
-      name: t`Shop Floor`,
-      to: path.to.external.mes,
-      icon: LuTvMinimalPlay,
-      role: "employee"
+      key: "accounting",
+      permission: "accounting",
+      name: t`Accounting`,
+      to: path.to.chartOfAccounts,
+      icon: LuLandmark
     },
     {
-      key: "sales",
-      permission: "sales",
-      name: t`Sales`,
-      to: path.to.sales,
-      icon: LuCrown
+      key: "documents",
+      permission: "documents",
+      name: t`Documents`,
+      to: path.to.documents,
+      icon: LuFiles
     },
     {
-      key: "production",
-      permission: "production",
-      name: t`Production`,
-      to: path.to.production,
-      icon: LuFactory
+      key: "inventory",
+      permission: "inventory",
+      name: t`Inventory`,
+      to: path.to.inventory,
+      icon: LuBox
     },
     {
       key: "parts",
@@ -60,11 +74,18 @@ function getModuleDefinitions(
       icon: LuSquareStack
     },
     {
-      key: "inventory",
-      permission: "inventory",
-      name: t`Inventory`,
-      to: path.to.inventory,
-      icon: LuBox
+      key: "people",
+      permission: "people",
+      name: t`People`,
+      to: path.to.people,
+      icon: LuUsers
+    },
+    {
+      key: "production",
+      permission: "production",
+      name: t`Production`,
+      to: path.to.production,
+      icon: LuFactory
     },
     {
       key: "purchasing",
@@ -81,20 +102,6 @@ function getModuleDefinitions(
       icon: LuFolderCheck
     },
     {
-      key: "accounting",
-      permission: "accounting",
-      name: t`Accounting`,
-      to: path.to.chartOfAccounts,
-      icon: LuLandmark
-    },
-    {
-      key: "people",
-      permission: "people",
-      name: t`People`,
-      to: path.to.people,
-      icon: LuUsers
-    },
-    {
       key: "resources",
       permission: "resources",
       name: t`Resources`,
@@ -102,18 +109,11 @@ function getModuleDefinitions(
       icon: LuWrench
     },
     {
-      key: "documents",
-      permission: "documents",
-      name: t`Documents`,
-      to: path.to.documents,
-      icon: LuFiles
-    },
-    {
-      key: "users",
-      permission: "users",
-      name: t`Users`,
-      to: path.to.employeeAccounts,
-      icon: LuShield
+      key: "sales",
+      permission: "sales",
+      name: t`Sales`,
+      to: path.to.sales,
+      icon: LuCrown
     },
     {
       key: "settings",
@@ -121,30 +121,27 @@ function getModuleDefinitions(
       name: t`Settings`,
       to: path.to.company,
       icon: LuSettings
+    },
+    {
+      key: "shopFloor",
+      name: t`Shop Floor`,
+      to: path.to.external.mes,
+      icon: LuTvMinimalPlay,
+      role: "employee"
+    },
+    {
+      key: "users",
+      permission: "users",
+      name: t`Users`,
+      to: path.to.employeeAccounts,
+      icon: LuShield
     }
   ];
 }
 
-function filterByPermissions(
-  modules: ModuleDefinition[],
-  permissions: ReturnType<typeof usePermissions>
-) {
-  return modules.filter((item) => {
-    if (item.permission) {
-      return permissions.can("view", item.permission);
-    } else if (item.role) {
-      return permissions.is(item.role);
-    } else {
-      return true;
-    }
-  });
-}
-
 export function useModules() {
   const permissions = usePermissions();
-  const { t } = useLingui();
-
-  const modules = getModuleDefinitions(t);
+  const modules = useModuleDefinitions();
 
   const routeData = useRouteData<{
     modulePreferences: ModulePreference[];
@@ -153,13 +150,15 @@ export function useModules() {
   const modulePreferences = routeData?.modulePreferences ?? [];
   const permitted = filterByPermissions(modules, permissions);
 
+  const alphabetical = permitted.sort((a, b) => a.name.localeCompare(b.name));
+
   if (modulePreferences.length === 0) {
-    return permitted;
+    return alphabetical;
   }
 
   const prefMap = new Map(modulePreferences.map((p) => [p.module, p]));
 
-  const visible = permitted.filter((m) => {
+  const visible = alphabetical.filter((m) => {
     const pref = prefMap.get(m.key);
     return !pref?.hidden;
   });
@@ -173,16 +172,16 @@ export function useModules() {
 
 export function useAllModules() {
   const permissions = usePermissions();
-  const { t } = useLingui();
-
-  const modules = getModuleDefinitions(t);
+  const modules = useModuleDefinitions();
 
   const routeData = useRouteData<{
     modulePreferences: ModulePreference[];
   }>(path.to.authenticatedRoot);
 
   const modulePreferences = routeData?.modulePreferences ?? [];
-  const permitted = filterByPermissions(modules, permissions);
+  const permitted = filterByPermissions(modules, permissions).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   const prefMap = new Map(modulePreferences.map((p) => [p.module, p]));
 
