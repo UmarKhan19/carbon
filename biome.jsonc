@@ -4,8 +4,8 @@
     "actions": {
       "source": {
         "organizeImports": "on",
-        "useSortedKeys": "on",
-        "useSortedProperties": "on"
+        // "useSortedKeys": "on",
+        // "useSortedProperties": "on"
       }
     },
     "enabled": true
