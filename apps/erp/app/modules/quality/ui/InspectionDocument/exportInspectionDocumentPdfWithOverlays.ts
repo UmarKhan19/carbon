@@ -2,7 +2,6 @@ import { PDFDocument } from "pdf-lib";
 import { pdfjs } from "react-pdf";
 
 const CALLOUT_STROKE = "#f97316";
-const CALLOUT_TEXT = "#171717";
 
 function liangBarskySegmentRect(
   x0: number,
@@ -117,6 +116,10 @@ function drawMarkupOnPageCanvas(
     const balloonCenterX = balloonX + bw / 2;
     const balloonCenterY = balloonY + bh / 2;
     const radius = Math.max(8, Math.min(bw, bh) / 2);
+    const balloonLabelFontSize = Math.max(
+      14,
+      Math.min(26, Math.round(radius * 1.15))
+    );
 
     const linkedSelector = anchorRects.find((s) => s.id === b.balloonAnchorId);
     let linePoints: [number, number, number, number] | null = null;
@@ -154,8 +157,8 @@ function drawMarkupOnPageCanvas(
     ctx.fill();
     ctx.stroke();
 
-    ctx.font = "bold 12px ui-sans-serif, system-ui, sans-serif";
-    ctx.fillStyle = CALLOUT_TEXT;
+    ctx.font = `bold ${balloonLabelFontSize}px ui-sans-serif, system-ui, sans-serif`;
+    ctx.fillStyle = CALLOUT_STROKE;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(b.label, balloonCenterX, balloonCenterY);

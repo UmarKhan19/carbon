@@ -54,6 +54,10 @@ export const path = {
       gauges: `${api}/quality/gauges`,
       generateCsvColumns: (table: string) =>
         generatePath(`${api}/ai/csv/${table}/columns`),
+      inspectionDocumentBalloonAnalyze: (inspectionDocumentId: string) =>
+        generatePath(
+          `${api}/quality/inspection-document/${inspectionDocumentId}/balloon-analyze`
+        ),
       groupsByType: (type?: string) =>
         generatePath(`${api}/users/groups?type=${type}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
