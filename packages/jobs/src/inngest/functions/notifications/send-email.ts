@@ -1,5 +1,4 @@
-import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { Email as EmailConfig } from "@carbon/ee";
+import { RESEND_DOMAIN } from "@carbon/env";
 import { NonRetriableError, serializeError } from "inngest";
 import { Resend } from "resend";
 import { inngest } from "../../client";
@@ -12,7 +11,6 @@ export const sendEmailFunction = inngest.createFunction(
   { event: "carbon/send-email" },
   async ({ event, step }) => {
     const payload = event.data;
-    const serviceRole = getCarbonServiceRole();
 
     // Resend rejects the request if `to` or `cc` contain null/undefined
     // entries, so strip falsy values regardless of what callers pass.
@@ -38,95 +36,15 @@ export const sendEmailFunction = inngest.createFunction(
       );
     }
 
-    const { companyName, integrationMetadata, integrationActive } =
-      await step.run("fetch-company-integration", async () => {
-        const [companyResult, integrationResult] = await Promise.all([
-          serviceRole
-            .from("company")
-            .select("name")
-            .eq("id", payload.companyId)
-            .single(),
-          serviceRole
-            .from("companyIntegration")
-            .select("active, metadata")
-            .eq("companyId", payload.companyId)
-            .eq("id", "email")
-            .maybeSingle()
-        ]);
-
-        return {
-          companyName: companyResult.data?.name ?? null,
-          integrationActive: integrationResult.data?.active ?? false,
-          integrationMetadata: integrationResult.data?.metadata ?? null
-        };
-      });
-
-    // Legacy installs predate the provider field — default them to Resend so
-    // existing configs keep working without any migration step on the caller.
-    const metadataWithProvider =
-      integrationMetadata && typeof integrationMetadata === "object"
-        ? {
-            provider: "resend",
-            ...(integrationMetadata as Record<string, unknown>)
-          }
-        : integrationMetadata;
-
-    const parsedMetadata = EmailConfig.schema.safeParse(metadataWithProvider);
-
-    if (!parsedMetadata.success || !integrationActive) {
-      return { message: "Invalid or inactive integration", success: false };
-    }
-
-    const data = parsedMetadata.data as {
-      provider: "resend" | "smtp";
-      fromEmail: string;
-      apiKey?: string;
-      host?: string;
-      port?: number;
-      username?: string;
-      password?: string;
-      secure?: boolean;
-    };
-
-    const fromAddress = `${companyName} <${data.fromEmail}>`;
-
-    if (data.provider === "smtp") {
-      const result = await step.run("send-email", async () => {
-        const nodemailer = await import("nodemailer");
-        const transporter = nodemailer.createTransport({
-          auth: {
-            pass: data.password!,
-            user: data.username!
-          },
-          host: data.host!,
-          port: data.port!,
-          secure: data.secure === true
-        });
-
-        console.info(`SMTP Email Job`);
-        return transporter.sendMail({
-          attachments: payload.attachments?.map(
-            (a: { filename: string; content: string }) => ({
-              content: a.content,
-              encoding: "base64" as const,
-              filename: a.filename
-            })
-          ),
-          cc: ccRecipients,
-          from: fromAddress,
-          html: payload.html,
-          replyTo: payload.from,
-          subject: payload.subject,
-          text: payload.text,
-          to: toRecipients
-        });
-      });
-
-      return { result, success: true };
-    }
+    const fromAddress = `Carbon <no-reply@${RESEND_DOMAIN}>`;
 
     const result = await step.run("send-email", async () => {
-      const resend = new Resend(data.apiKey!);
+      if (process.env.DISABLE_RESEND) {
+        console.info(`Resend disabled — skipping send to`, toRecipients);
+        return null;
+      }
+
+      const resend = new Resend(process.env.RESEND_API_KEY!);
 
       const email = {
         attachments: payload.attachments,

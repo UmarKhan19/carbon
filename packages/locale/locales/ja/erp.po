@@ -839,11 +839,11 @@ msgstr "承認者"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:581
 msgid "Archive"
 msgstr "アーカイブ"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:658
 msgid "Archive all"
 msgstr "すべてアーカイブ"
 
@@ -1711,7 +1711,7 @@ msgstr "購入と製造"
 msgid "Buyer"
 msgstr "購入者"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:155
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:159
 msgid "by {byUser}"
 msgstr "{byUser}による"
 
@@ -6409,7 +6409,7 @@ msgstr "受け入れ検査"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "受入検査：異なる検査官が必要"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:575
 msgid "Inbox"
 msgstr "受信トレイ"
 
@@ -7373,6 +7373,10 @@ msgstr "アイテムの詳細を読み込み中..."
 msgid "Loading..."
 msgstr "読み込み中..."
 
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+msgid "Loading…"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:352
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:277
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:258
@@ -7681,7 +7685,8 @@ msgstr "製造"
 msgid "Mark as Planned"
 msgstr "計画済みとしてマーク"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:165
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:169
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:445
 msgid "Mark as read"
 msgstr "読み取り済みにマーク"
 
@@ -8794,6 +8799,10 @@ msgstr "ファイルがアップロードされていません"
 msgid "No Gauge Selected"
 msgstr "ゲージが選択されていません"
 
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:464
+msgid "No grouped notifications"
+msgstr ""
+
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:73
 msgid "No groups assigned"
 msgstr "グループが割り当てられていません"
@@ -8820,7 +8829,7 @@ msgstr "一致するものがありません"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "\"{query}\"に一致するものがありません。別の検索用語を試してください。"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:601
 msgid "No new notifications"
 msgstr "新しい通知はありません"
 
@@ -8846,7 +8855,7 @@ msgstr "オプションが見つかりません。"
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "他の従業員が見つかりません。所有権の譲渡を有効にするために従業員を追加してください。"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:672
 msgid "No outstanding trainings"
 msgstr "未処理のトレーニングはありません"
 
@@ -9048,7 +9057,7 @@ msgstr "メモ"
 msgid "Notes (optional)"
 msgstr "メモ（オプション）"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:692
 msgid "Nothing in the archive"
 msgstr "アーカイブに何もありません"
 
@@ -13925,7 +13934,7 @@ msgstr "トレーニング"
 msgid "Training Assignments"
 msgstr "研修割り当て"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:578
 msgid "Trainings"
 msgstr "トレーニング"
 
@@ -15118,6 +15127,6 @@ msgstr "ご招待が無効であるか、既に受け入れられています。
 msgid "Your Name"
 msgstr "お名前"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:136
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:140
 msgid "yourself"
 msgstr "自分自身"

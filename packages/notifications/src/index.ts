@@ -32,7 +32,8 @@ export enum NotificationEvent {
   SuggestionResponse = "suggestion-response",
   SupplierQuoteAssignment = "supplier-quote-assignment",
   SupplierQuoteResponse = "supplier-quote-response",
-  TrainingAssignment = "training-assignment"
+  TrainingAssignment = "training-assignment",
+  Digest = "digest"
 }
 
 // Coarse topic buckets. Each event maps to exactly one topic via
@@ -57,7 +58,8 @@ export enum NotificationTopic {
 // every notification. email and slack are opt-in extras.
 export enum NotificationDestination {
   InApp = "inApp",
-  Email = "email"
+  Email = "email",
+  Slack = "slack"
 }
 
 export function getNotificationTopic(
@@ -310,5 +312,37 @@ export function getNotificationEmailCtaLabel(event: NotificationEvent): string {
       return "View response";
     default:
       return "View details";
+  }
+}
+
+export function getNotificationTopicPhrase(
+  topic: NotificationTopic,
+  count: number
+): string {
+  const plural = count === 1 ? "notification" : "notifications";
+  switch (topic) {
+    case NotificationTopic.Job:
+      return `${count} job ${plural}`;
+    case NotificationTopic.Purchasing:
+      return `${count} purchasing ${plural}`;
+    case NotificationTopic.Quote:
+      return `${count} quote ${plural}`;
+    case NotificationTopic.Sales:
+      return `${count} sales ${plural}`;
+    case NotificationTopic.Maintenance:
+      return `${count} maintenance ${plural}`;
+    case NotificationTopic.Quality:
+      return `${count} quality ${plural}`;
+    case NotificationTopic.Training:
+      return `${count} training ${plural}`;
+    case NotificationTopic.Inventory:
+      return `${count} inventory ${plural}`;
+    case NotificationTopic.Suggestion:
+      return `${count} suggestion ${plural}`;
+    case NotificationTopic.Approval:
+      return `${count} approval ${plural}`;
+    case NotificationTopic.General:
+    default:
+      return `${count} unread ${plural}`;
   }
 }

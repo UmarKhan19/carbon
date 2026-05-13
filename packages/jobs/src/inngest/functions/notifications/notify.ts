@@ -442,7 +442,6 @@ export const notifyFunction = inngest.createFunction(
     const destinations: NotificationDestination[] = Array.from(
       new Set<NotificationDestination>([
         NotificationDestination.InApp,
-        NotificationDestination.Email,
         ...(payload.destinations ?? [])
       ])
     );
@@ -556,7 +555,8 @@ export const notifyFunction = inngest.createFunction(
           userId
         }));
 
-        const { data, error } = await (client.from as any)("notification")
+        const { data, error } = await client
+          .from("notification")
           .insert(rows)
           .select("id");
         if (error) {

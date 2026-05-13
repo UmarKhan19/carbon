@@ -839,11 +839,11 @@ msgstr "Approvato da"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:581
 msgid "Archive"
 msgstr "Archivio"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:658
 msgid "Archive all"
 msgstr "Archivia tutto"
 
@@ -1711,7 +1711,7 @@ msgstr "Acquista e Produci"
 msgid "Buyer"
 msgstr "Acquirente"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:155
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:159
 msgid "by {byUser}"
 msgstr "da {byUser}"
 
@@ -6409,7 +6409,7 @@ msgstr "Ispezioni in Entrata"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "Ispezioni in Entrata: Richiedi Ispettore Diverso"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:575
 msgid "Inbox"
 msgstr "Posta in arrivo"
 
@@ -7373,6 +7373,10 @@ msgstr "Caricamento dettagli articolo..."
 msgid "Loading..."
 msgstr "Caricamento..."
 
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+msgid "Loading…"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:352
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:277
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:258
@@ -7681,7 +7685,8 @@ msgstr "Produzione"
 msgid "Mark as Planned"
 msgstr "Contrassegna come Pianificato"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:165
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:169
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:445
 msgid "Mark as read"
 msgstr "Segna come letto"
 
@@ -8794,6 +8799,10 @@ msgstr "Nessun file caricato"
 msgid "No Gauge Selected"
 msgstr "Nessun Calibro Selezionato"
 
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:464
+msgid "No grouped notifications"
+msgstr ""
+
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:73
 msgid "No groups assigned"
 msgstr "Nessun gruppo assegnato"
@@ -8820,7 +8829,7 @@ msgstr "Nessuna corrispondenza"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Nessuna corrispondenza per \"{query}\". Prova un termine di ricerca diverso."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:601
 msgid "No new notifications"
 msgstr "Nessuna nuova notifica"
 
@@ -8846,7 +8855,7 @@ msgstr "Nessuna opzione trovata."
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "Nessun altro dipendente trovato. Aggiungi dipendenti per abilitare il trasferimento della proprietà."
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:672
 msgid "No outstanding trainings"
 msgstr "Nessun corso di formazione in sospeso"
 
@@ -9048,7 +9057,7 @@ msgstr "Note"
 msgid "Notes (optional)"
 msgstr "Note (facoltativo)"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:692
 msgid "Nothing in the archive"
 msgstr "Niente nell'archivio"
 
@@ -13925,7 +13934,7 @@ msgstr "Formazione"
 msgid "Training Assignments"
 msgstr "Assegnazioni di Formazione"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:578
 msgid "Trainings"
 msgstr "Corsi di formazione"
 
@@ -15118,6 +15127,6 @@ msgstr "Il tuo invito non è valido o è già stato accettato. Contatta il suppo
 msgid "Your Name"
 msgstr "Il tuo nome"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:136
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:140
 msgid "yourself"
 msgstr "te stesso"

@@ -17,6 +17,7 @@ CREATE TABLE "notification" (
   "payload" JSONB NOT NULL DEFAULT '{}'::jsonb,
   "readAt" TIMESTAMP WITH TIME ZONE,
   "seenAt" TIMESTAMP WITH TIME ZONE,
+  "digestedInto" TEXT REFERENCES "notification"("id") ON DELETE SET NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
@@ -24,10 +25,10 @@ CREATE TABLE "notification" (
 CREATE INDEX "notification_user_company_created_idx"
   ON "notification" ("userId", "companyId", "createdAt" DESC);
 
--- Unread count query.
+-- Unread count / digest aggregator query.
 CREATE INDEX "notification_user_unread_idx"
   ON "notification" ("userId", "companyId", "topic")
-  WHERE "readAt" IS NULL;
+  WHERE "readAt" IS NULL AND "digestedInto" IS NULL;
 
 ALTER TABLE "notification" ENABLE ROW LEVEL SECURITY;
 

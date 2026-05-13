@@ -839,11 +839,11 @@ msgstr "批准人"
 msgid "AQL"
 msgstr "AQL"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:462
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:581
 msgid "Archive"
 msgstr "存档"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:520
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:658
 msgid "Archive all"
 msgstr "全部存档"
 
@@ -1711,7 +1711,7 @@ msgstr "购买和制造"
 msgid "Buyer"
 msgstr "采购员"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:155
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:159
 msgid "by {byUser}"
 msgstr "由 {byUser}"
 
@@ -6409,7 +6409,7 @@ msgstr "入站检验"
 msgid "Inbound Inspections: Require Different Inspector"
 msgstr "入库检验：需要不同的检验员"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:456
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:575
 msgid "Inbox"
 msgstr "收件箱"
 
@@ -7373,6 +7373,10 @@ msgstr "正在加载项目详情..."
 msgid "Loading..."
 msgstr "加载中..."
 
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+msgid "Loading…"
+msgstr ""
+
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:352
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:277
 #: apps/erp/app/modules/inventory/ui/Receipts/ReceiptForm/ReceiptForm.tsx:258
@@ -7681,7 +7685,8 @@ msgstr "制造"
 msgid "Mark as Planned"
 msgstr "标记为已计划"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:165
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:169
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:445
 msgid "Mark as read"
 msgstr "标记为已读"
 
@@ -8794,6 +8799,10 @@ msgstr "未上传任何文件"
 msgid "No Gauge Selected"
 msgstr "未选择量具"
 
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:464
+msgid "No grouped notifications"
+msgstr ""
+
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRuleDetails.tsx:73
 msgid "No groups assigned"
 msgstr "未分配任何组"
@@ -8820,7 +8829,7 @@ msgstr "没有匹配项"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "没有匹配\"{query}\"的结果。请尝试不同的搜索词。"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:482
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:601
 msgid "No new notifications"
 msgstr "没有新通知"
 
@@ -8846,7 +8855,7 @@ msgstr "未找到选项。"
 msgid "No other employees found. Add employees to enable ownership transfer."
 msgstr "未找到其他员工。添加员工以启用所有权转移。"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:534
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:672
 msgid "No outstanding trainings"
 msgstr "没有未完成的培训"
 
@@ -9048,7 +9057,7 @@ msgstr "备注"
 msgid "Notes (optional)"
 msgstr "备注（可选）"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:554
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:692
 msgid "Nothing in the archive"
 msgstr "存档中没有任何内容"
 
@@ -13925,7 +13934,7 @@ msgstr "培训"
 msgid "Training Assignments"
 msgstr "培训分配"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:578
 msgid "Trainings"
 msgstr "培训"
 
@@ -15118,6 +15127,6 @@ msgstr "您的邀请无效或已被接受。如果您认为这是一个错误，
 msgid "Your Name"
 msgstr "你的名字"
 
-#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:136
+#: apps/erp/app/components/Layout/Topbar/Notifications.tsx:140
 msgid "yourself"
 msgstr "你自己"

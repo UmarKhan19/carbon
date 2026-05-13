@@ -55,10 +55,12 @@ export function useNotifications({
     let cancelled = false;
 
     (async () => {
-      const { data, error } = await (carbon.from as any)("notification")
+      const { data, error } = await carbon
+        .from("notification")
         .select("id, userId, companyId, readAt, seenAt, createdAt, payload")
         .eq("userId", userId)
         .eq("companyId", companyId)
+        .is("digestedInto", null)
         .order("createdAt", { ascending: false })
         .limit(100);
 
@@ -85,7 +87,6 @@ export function useNotifications({
     dependencies: [userId, companyId],
     setup(channel) {
       return channel.on(
-        // biome-ignore lint/suspicious/noExplicitAny: realtime types lag schema
         "postgres_changes" as any,
         {
           event: "*",
@@ -105,11 +106,22 @@ export function useNotifications({
               ...prev
             ]);
           } else if (payload.eventType === "UPDATE") {
-            setNotifications((prev) =>
-              prev.map((n) =>
-                n._id === payload.new.id ? rowToNotification(payload.new) : n
-              )
-            );
+            // A row that just got attached to a digest disappears from the
+            // topbar — it's now represented by its digest parent.
+            const newRow = payload.new as NotificationRow & {
+              digestedInto?: string | null;
+            };
+            if (newRow.digestedInto) {
+              setNotifications((prev) =>
+                prev.filter((n) => n._id !== newRow.id)
+              );
+            } else {
+              setNotifications((prev) =>
+                prev.map((n) =>
+                  n._id === newRow.id ? rowToNotification(newRow) : n
+                )
+              );
+            }
           } else if (payload.eventType === "DELETE") {
             setNotifications((prev) =>
               prev.filter((n) => n._id !== (payload.old as NotificationRow).id)
@@ -127,9 +139,39 @@ export function useNotifications({
         prev.map((n) => (n._id === messageId ? { ...n, read: true } : n))
       );
       if (!carbon) return;
-      await (carbon.from as any)("notification")
-        .update({ readAt: new Date().toISOString() })
+      const now = new Date().toISOString();
+      await carbon
+        .from("notification")
+        .update({ readAt: now })
         .eq("id", messageId);
+      // If this is a digest row, sweep its children read too. RLS scopes
+      // both updates to auth.uid()::text = userId, so a malicious id won't
+      // affect anyone else.
+      await carbon
+        .from("notification")
+        .update({ readAt: now })
+        .eq("digestedInto", messageId)
+        .is("readAt", null);
+    },
+    [carbon]
+  );
+
+  // Lazily loads child rows for a digest parent. The topbar query filters out
+  // anything with `digestedInto` set, so children aren't in `notifications` —
+  // we fetch them on demand when the user expands a digest.
+  const fetchDigestChildren = useCallback(
+    async (digestId: string): Promise<Notification[]> => {
+      if (!carbon) return [];
+      const { data, error } = await carbon
+        .from("notification")
+        .select("id, userId, companyId, readAt, seenAt, createdAt, payload")
+        .eq("digestedInto", digestId)
+        .order("createdAt", { ascending: false });
+      if (error) {
+        console.error("Failed to load digest children", error);
+        return [];
+      }
+      return ((data ?? []) as NotificationRow[]).map(rowToNotification);
     },
     [carbon]
   );
@@ -137,7 +179,8 @@ export function useNotifications({
   const markAllMessagesAsRead = useCallback(async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     if (!carbon) return;
-    await (carbon.from as any)("notification")
+    await carbon
+      .from("notification")
       .update({ readAt: new Date().toISOString() })
       .eq("userId", userId)
       .eq("companyId", companyId)
@@ -147,7 +190,8 @@ export function useNotifications({
   const markAllMessagesAsSeen = useCallback(async () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, seen: true })));
     if (!carbon) return;
-    await (carbon.from as any)("notification")
+    await carbon
+      .from("notification")
       .update({ seenAt: new Date().toISOString() })
       .eq("userId", userId)
       .eq("companyId", companyId)
@@ -160,6 +204,7 @@ export function useNotifications({
   );
 
   return {
+    fetchDigestChildren,
     hasUnseenNotifications,
     isLoading,
     markAllMessagesAsRead,

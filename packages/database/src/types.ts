@@ -23851,6 +23851,134 @@ export type Database = {
           },
         ]
       }
+      notification: {
+        Row: {
+          companyId: string
+          createdAt: string
+          description: string | null
+          digestedInto: string | null
+          documentType: string | null
+          event: string
+          from: string | null
+          href: string | null
+          id: string
+          payload: Json
+          readAt: string | null
+          recordId: string | null
+          seenAt: string | null
+          title: string
+          topic: string
+          userId: string
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          description?: string | null
+          digestedInto?: string | null
+          documentType?: string | null
+          event: string
+          from?: string | null
+          href?: string | null
+          id?: string
+          payload?: Json
+          readAt?: string | null
+          recordId?: string | null
+          seenAt?: string | null
+          title: string
+          topic: string
+          userId: string
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          description?: string | null
+          digestedInto?: string | null
+          documentType?: string | null
+          event?: string
+          from?: string | null
+          href?: string | null
+          id?: string
+          payload?: Json
+          readAt?: string | null
+          recordId?: string | null
+          seenAt?: string | null
+          title?: string
+          topic?: string
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "notification_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "notification_digestedInto_fkey"
+            columns: ["digestedInto"]
+            isOneToOne: false
+            referencedRelation: "notification"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       oauthClient: {
         Row: {
           clientId: string
@@ -36086,7 +36214,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_WBammHTt6NdE6hCgdhZbWC: {
+      searchIndex_2hx7zEtGhsDnXYuEu3b2XW: {
         Row: {
           createdAt: string
           description: string | null
@@ -52643,14 +52771,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
