@@ -72,6 +72,22 @@ const IssueHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem
+                  disabled={
+                    !["In Progress", "Closed"].includes(status ?? "") ||
+                    statusFetcher.state !== "idle" ||
+                    !permissions.can("update", "quality")
+                  }
+                  onClick={() => {
+                    statusFetcher.submit(
+                      { status: "Registered" },
+                      { method: "post", action: path.to.issueStatus(id) }
+                    );
+                  }}
+                >
+                  <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                  <Trans>Reopen</Trans>
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   destructive
                   disabled={
                     !permissions.can("delete", "quality") ||
@@ -146,8 +162,7 @@ const IssueHeader = () => {
             </Button>
           </statusFetcher.Form>
 
-          <statusFetcher.Form method="post" action={path.to.issueStatus(id)}>
-            <input type="hidden" name="status" value="Closed" />
+          <statusFetcher.Form method="post" action={path.to.closeIssue(id)}>
             <Button
               type="submit"
               leftIcon={<LuCircleCheck />}
@@ -159,26 +174,10 @@ const IssueHeader = () => {
               }
               isLoading={
                 statusFetcher.state !== "idle" &&
-                statusFetcher.formData?.get("status") === "Closed"
+                statusFetcher.formAction === path.to.closeIssue(id)
               }
             >
               <Trans>Complete</Trans>
-            </Button>
-          </statusFetcher.Form>
-
-          <statusFetcher.Form method="post" action={path.to.issueStatus(id)}>
-            <input type="hidden" name="status" value="Registered" />
-            <Button
-              type="submit"
-              leftIcon={<LuLoaderCircle />}
-              variant={status === "Closed" ? "primary" : "secondary"}
-              isDisabled={
-                !["In Progress", "Closed"].includes(status ?? "") ||
-                statusFetcher.state !== "idle" ||
-                !permissions.can("update", "quality")
-              }
-            >
-              <Trans>Reopen</Trans>
             </Button>
           </statusFetcher.Form>
         </HStack>

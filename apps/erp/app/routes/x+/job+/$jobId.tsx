@@ -116,7 +116,7 @@ export default function JobRoute() {
                   <Outlet />
                 </div>
               }
-              properties={<JobProperties />}
+              properties={<JobProperties key={jobId} />}
             />
           </div>
         </div>

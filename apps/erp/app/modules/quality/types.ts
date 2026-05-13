@@ -5,6 +5,8 @@ import type {
   getGaugeCalibrationRecords,
   getGauges,
   getGaugeTypes,
+  getInboundInspection,
+  getInboundInspections,
   getInspectionDocument,
   getInspectionDocuments,
   getIssueActionTasks,
@@ -15,6 +17,7 @@ import type {
   getIssueReviewers,
   getIssues,
   getIssueTypes,
+  getIssueTypesList,
   getIssueWorkflow,
   getQualityActions,
   getQualityDocument,
@@ -81,6 +84,19 @@ export type IssueAssociationNode = {
     documentLineId: string;
     type: string;
     quantity?: number;
+    disposition?: string | null;
+    links?: {
+      id: string;
+      quantity: number;
+      trackedEntityId: string;
+      trackedEntity: {
+        id: string;
+        readableId: string | null;
+        status: string;
+        quantity: number;
+        attributes: Record<string, unknown> | null;
+      } | null;
+    }[];
   }[];
 };
 
@@ -148,4 +164,37 @@ export type QualityDocumentStep = NonNullable<
 
 export type Risk = NonNullable<
   Awaited<ReturnType<typeof getRisks>>["data"]
+>[number];
+
+export type InboundInspection = NonNullable<
+  Awaited<ReturnType<typeof getInboundInspections>>["data"]
+>[number];
+
+export type InboundInspectionDetail = NonNullable<
+  Awaited<ReturnType<typeof getInboundInspection>>["data"]
+>;
+
+export type InboundInspectionStatus =
+  Database["public"]["Enums"]["inboundInspectionStatus"];
+
+export type InboundInspectionSampleStatus =
+  Database["public"]["Enums"]["inboundInspectionSampleStatus"];
+
+export type InboundInspectionRow =
+  Database["public"]["Tables"]["inboundInspection"]["Row"];
+
+export type InboundInspectionSampleRow =
+  Database["public"]["Tables"]["inboundInspectionSample"]["Row"];
+
+export type InspectionTrackedEntity = Pick<
+  Database["public"]["Tables"]["trackedEntity"]["Row"],
+  "id" | "readableId" | "attributes" | "status" | "sourceDocumentReadableId"
+>;
+
+export type InboundInspectionSample = InboundInspectionSampleRow & {
+  trackedEntity: InspectionTrackedEntity | null;
+};
+
+export type IssueTypeListItem = NonNullable<
+  Awaited<ReturnType<typeof getIssueTypesList>>["data"]
 >[number];

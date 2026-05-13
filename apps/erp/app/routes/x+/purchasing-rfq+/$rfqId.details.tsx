@@ -3,11 +3,11 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Spinner, VStack } from "@carbon/react";
+import { VStack } from "@carbon/react";
 import type { FileObject } from "@supabase/storage-js";
-import { Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Await, redirect, useLoaderData, useParams } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
+import { DeferredFiles } from "~/components";
 import { useRouteData } from "~/hooks";
 import type { PurchasingRFQ, PurchasingRFQLine } from "~/modules/purchasing";
 import {
@@ -120,8 +120,6 @@ export default function PurchasingRFQDetailsRoute() {
 
   if (!rfqData) throw new Error("Could not find rfq data");
 
-  const isReadOnly = isRfqLocked(rfqData.rfqSummary.status);
-
   return (
     <VStack spacing={2}>
       <SupplierInteractionState
@@ -139,26 +137,16 @@ export default function PurchasingRFQDetailsRoute() {
         title="Notes"
         internalNotes={internalNotes}
       />
-      <Suspense
-        key={`documents-${rfqId}`}
-        fallback={
-          <div className="flex w-full min-h-[480px] h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
-            <Spinner className="h-10 w-10" />
-          </div>
-        }
-      >
-        <Await resolve={rfqData.files}>
-          {(resolvedFiles) => (
-            <SupplierInteractionDocuments
-              interactionId={rfqId}
-              attachments={resolvedFiles}
-              id={rfqId}
-              type="Purchasing Request for Quote"
-              isReadOnly={isReadOnly}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <DeferredFiles key={`documents-${rfqId}`} resolve={rfqData.files}>
+        {(resolvedFiles) => (
+          <SupplierInteractionDocuments
+            interactionId={rfqId}
+            attachments={resolvedFiles}
+            id={rfqId}
+            type="Purchasing Request for Quote"
+          />
+        )}
+      </DeferredFiles>
     </VStack>
   );
 }

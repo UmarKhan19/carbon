@@ -139,15 +139,15 @@ function StockTransferLineComponent({
         </HStack>
         <div className="flex flex-grow items-center justify-between gap-4 pl-4 w-1/2">
           <HStack spacing={4} className="text-left items-center">
-            {"fromShelfId" in line && (
+            {"fromStorageUnitId" in line && (
               <span className="text-base font-medium  whitespace-nowrap">
-                {line.fromShelfName ?? ""}
+                {line.fromStorageUnitName ?? ""}
               </span>
             )}
             <LuArrowRight className="size-4" />
-            {"toShelfId" in line && (
+            {"toStorageUnitId" in line && (
               <span className="text-base font-medium  whitespace-nowrap">
-                {line.toShelfName ?? ""}
+                {line.toStorageUnitName ?? ""}
               </span>
             )}
           </HStack>
@@ -258,14 +258,16 @@ export default function StockTransferLines() {
     );
     if (itemComparison !== 0) return itemComparison;
 
-    // Then sort by toShelfName
-    const toShelfComparison = (a.toShelfName ?? "").localeCompare(
-      b.toShelfName ?? ""
+    // Then sort by toStorageUnitName
+    const toStorageUnitComparison = (a.toStorageUnitName ?? "").localeCompare(
+      b.toStorageUnitName ?? ""
     );
-    if (toShelfComparison !== 0) return toShelfComparison;
+    if (toStorageUnitComparison !== 0) return toStorageUnitComparison;
 
-    // Finally sort by fromShelfName
-    return (a.fromShelfName ?? "").localeCompare(b.fromShelfName ?? "");
+    // Finally sort by fromStorageUnitName
+    return (a.fromStorageUnitName ?? "").localeCompare(
+      b.fromStorageUnitName ?? ""
+    );
   });
 
   const pickedQuantitiesById = new Map<string, number>();

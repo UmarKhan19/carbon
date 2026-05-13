@@ -1,7 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import {
   getSupplierPayment,
@@ -40,8 +39,7 @@ export async function createPurchaseInvoiceFromPurchaseOrder(
       id: purchaseOrderId,
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -57,8 +55,7 @@ export async function createSalesInvoiceFromSalesOrder(
       id: salesOrderId,
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -74,8 +71,7 @@ export async function createSalesInvoiceFromShipment(
       id: shipmentId,
       companyId,
       userId
-    },
-    region: FunctionRegion.UsEast1
+    }
   });
 }
 
@@ -388,6 +384,7 @@ export async function upsertPurchaseInvoice(
     | (Omit<z.infer<typeof purchaseInvoiceValidator>, "id" | "invoiceId"> & {
         invoiceId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -431,12 +428,13 @@ export async function upsertPurchaseInvoice(
 
   const { paymentTermId, invoiceSupplierId } = supplierPayment.data;
 
-  const { shippingMethodId, shippingTermId } = supplierShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    supplierShipping.data;
 
   if (purchaseInvoice.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      purchaseInvoice.companyId,
+      purchaseInvoice.companyGroupId,
       purchaseInvoice.currencyCode
     );
     if (currency.data) {
@@ -451,11 +449,14 @@ export async function upsertPurchaseInvoice(
   const locationId =
     purchaseInvoice.locationId ?? purchaser?.data?.locationId ?? null;
 
+  const { companyGroupId: _companyGroupId, ...purchaseInvoiceData } =
+    purchaseInvoice;
+
   const invoice = await client
     .from("purchaseInvoice")
     .insert([
       {
-        ...purchaseInvoice,
+        ...purchaseInvoiceData,
         invoiceSupplierId: invoiceSupplierId ?? purchaseInvoice.supplierId,
         supplierInteractionId: supplierInteraction.data?.id,
         currencyCode: purchaseInvoice.currencyCode ?? "USD",
@@ -474,6 +475,8 @@ export async function upsertPurchaseInvoice(
       locationId: locationId,
       shippingMethodId: shippingMethodId,
       shippingTermId: shippingTermId,
+      incoterm: incoterm,
+      incotermLocation: incotermLocation,
       companyId: purchaseInvoice.companyId
     }
   ]);
@@ -551,6 +554,7 @@ export async function upsertSalesInvoice(
     | (Omit<z.infer<typeof salesInvoiceValidator>, "id" | "invoiceId"> & {
         invoiceId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -594,12 +598,13 @@ export async function upsertSalesInvoice(
   if (customerShipping.error) return customerShipping;
 
   const { paymentTermId, invoiceCustomerId } = customerPayment.data;
-  const { shippingMethodId, shippingTermId } = customerShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    customerShipping.data;
 
   if (salesInvoice.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      salesInvoice.companyId,
+      salesInvoice.companyGroupId,
       salesInvoice.currencyCode
     );
     if (currency.data) {
@@ -614,11 +619,13 @@ export async function upsertSalesInvoice(
   const locationId =
     salesInvoice.locationId ?? salesPerson?.data?.locationId ?? null;
 
+  const { companyGroupId: _companyGroupId, ...salesInvoiceData } = salesInvoice;
+
   const invoice = await client
     .from("salesInvoice")
     .insert([
       {
-        ...salesInvoice,
+        ...salesInvoiceData,
         invoiceCustomerId: invoiceCustomerId ?? salesInvoice.customerId,
         opportunityId: opportunity.data?.id,
         currencyCode: salesInvoice.currencyCode ?? "USD",
@@ -637,6 +644,8 @@ export async function upsertSalesInvoice(
       locationId: locationId,
       shippingMethodId: shippingMethodId,
       shippingTermId: shippingTermId,
+      incoterm: incoterm,
+      incotermLocation: incotermLocation,
       companyId: salesInvoice.companyId,
       createdBy: salesInvoice.createdBy
     }

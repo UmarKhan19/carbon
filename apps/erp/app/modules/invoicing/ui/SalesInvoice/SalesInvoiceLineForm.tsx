@@ -38,7 +38,7 @@ import {
   Number,
   NumberControlled,
   SelectControlled,
-  Shelf,
+  StorageUnit,
   Submit
 } from "~/components/Form";
 import {
@@ -100,7 +100,7 @@ const SalesInvoiceLineForm = ({
     unitPrice: number;
     shippingCost: number;
     unitOfMeasureCode: string;
-    shelfId: string | null;
+    storageUnitId: string | null;
     taxAmount: number;
     taxPercent: number;
   }>({
@@ -111,7 +111,7 @@ const SalesInvoiceLineForm = ({
     unitPrice: initialValues.unitPrice ?? 0,
     shippingCost: initialValues.shippingCost ?? 0,
     unitOfMeasureCode: initialValues.unitOfMeasureCode ?? "",
-    shelfId: initialValues.shelfId ?? "",
+    storageUnitId: initialValues.storageUnitId ?? "",
     taxAmount:
       ((initialValues.unitPrice ?? 0) * (initialValues.quantity ?? 1) +
         (initialValues.shippingCost ?? 0)) *
@@ -159,7 +159,7 @@ const SalesInvoiceLineForm = ({
       unitPrice: 0,
       shippingCost: 0,
       unitOfMeasureCode: "",
-      shelfId: "",
+      storageUnitId: "",
       taxAmount: 0,
       taxPercent: 0
     });
@@ -185,7 +185,7 @@ const SalesInvoiceLineForm = ({
             .single(),
           carbon
             .from("pickMethod")
-            .select("defaultShelfId")
+            .select("defaultStorageUnitId")
             .eq("itemId", itemId)
             .eq("companyId", company.id)
             .eq("locationId", locationId!)
@@ -210,7 +210,7 @@ const SalesInvoiceLineForm = ({
             unitPrice: 0,
             shippingCost: 0,
             unitOfMeasureCode: "",
-            shelfId: "",
+            storageUnitId: "",
             taxAmount: 0,
             taxPercent: 0
           });
@@ -227,7 +227,7 @@ const SalesInvoiceLineForm = ({
             (routeData?.salesInvoice?.exchangeRate ?? 1),
           shippingCost: 0,
           unitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-          shelfId: inventory.data?.defaultShelfId ?? null,
+          storageUnitId: inventory.data?.defaultStorageUnitId ?? null,
           taxAmount: 0,
           taxPercent: 0
         }));
@@ -251,9 +251,9 @@ const SalesInvoiceLineForm = ({
 
     setLocationId(newLocation.value);
     if (!itemData.itemId) return;
-    const shelf = await carbon
+    const storageUnit = await carbon
       .from("pickMethod")
-      .select("defaultShelfId")
+      .select("defaultStorageUnitId")
       .eq("itemId", itemData.itemId)
       .eq("companyId", company.id)
       .eq("locationId", newLocation.value)
@@ -261,7 +261,7 @@ const SalesInvoiceLineForm = ({
 
     setItemData((d) => ({
       ...d,
-      shelfId: shelf?.data?.defaultShelfId ?? ""
+      storageUnitId: storageUnit?.data?.defaultStorageUnitId ?? ""
     }));
   };
 
@@ -366,6 +366,7 @@ const SalesInvoiceLineForm = ({
                     label={itemType}
                     // @ts-ignore
                     type={itemType}
+                    locationId={locationId}
                     onChange={(value) => {
                       onItemChange(value?.value as string);
                     }}
@@ -373,7 +374,9 @@ const SalesInvoiceLineForm = ({
                   />
 
                   <FormControl className="col-span-2">
-                    <FormLabel>{t`Description`}</FormLabel>
+                    <FormLabel isOptional>
+                      <Trans>Description</Trans>
+                    </FormLabel>
                     <Input
                       value={itemData.description}
                       onChange={(e) =>
@@ -446,20 +449,20 @@ const SalesInvoiceLineForm = ({
                       />
                       <Location
                         name="locationId"
-                        label={t`Location`}
+                        label={t`Shipping Location`}
                         value={locationId}
                         onChange={onLocationChange}
                       />
-                      <Shelf
-                        name="shelfId"
-                        label={t`Shelf`}
+                      <StorageUnit
+                        name="storageUnitId"
+                        label={t`Storage Unit`}
                         locationId={locationId}
-                        value={itemData.shelfId ?? undefined}
+                        value={itemData.storageUnitId ?? undefined}
                         onChange={(newValue) => {
                           if (newValue) {
                             setItemData((d) => ({
                               ...d,
-                              shelfId: newValue?.id
+                              storageUnitId: newValue?.id
                             }));
                           }
                         }}

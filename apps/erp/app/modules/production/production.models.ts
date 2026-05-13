@@ -41,12 +41,17 @@ export const jobStatus = [
   "In Progress",
   "Paused",
   "Completed",
+  "Closed",
   "Cancelled",
   "Overdue", // deprecated
   "Due Today" // deprecated
 ] as const;
 
-export const JOB_LOCKED_STATUSES = ["Completed", "Cancelled"] as const;
+export const JOB_LOCKED_STATUSES = [
+  "Completed",
+  "Closed",
+  "Cancelled"
+] as const;
 
 export function isJobLocked(status: string | null | undefined): boolean {
   return JOB_LOCKED_STATUSES.includes(
@@ -204,7 +209,7 @@ export const jobCompleteValidator = z.object({
   salesOrderId: zfd.text(z.string().optional()),
   salesOrderLineId: zfd.text(z.string().optional()),
   locationId: zfd.text(z.string().optional()),
-  shelfId: zfd.text(z.string().optional()),
+  storageUnitId: zfd.text(z.string().optional()),
   // Leftover handling fields - for when quantityComplete > job.quantity
   leftoverAction: zfd.text(z.enum(leftoverAction).optional()),
   leftoverShipQuantity: zfd.numeric(z.number().min(0).optional()),
@@ -636,7 +641,7 @@ const baseMaterialValidator = z.object({
   unitOfMeasureCode: z
     .string()
     .min(1, { message: "Unit of Measure is required" }),
-  shelfId: zfd.text(z.string().optional())
+  storageUnitId: zfd.text(z.string().optional())
 });
 
 export const jobMaterialValidator = baseMaterialValidator

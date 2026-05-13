@@ -179,7 +179,7 @@ export default function SalesOrderRoute() {
                   </VStack>
                 </div>
               }
-              properties={<SalesOrderProperties />}
+              properties={<SalesOrderProperties key={orderId} />}
             />
           </div>
         </div>

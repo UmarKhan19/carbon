@@ -2,7 +2,7 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useRouteData } from "@carbon/remix";
+import { useRouteData } from "@carbon/react";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect, useNavigate, useParams } from "react-router";
 import {
@@ -96,8 +96,8 @@ export default function NewStockTransferLinesRoute() {
     stockTransferId: id,
     itemId: line?.itemId ?? "",
     quantity: line?.quantity ?? 1,
-    fromShelfId: line?.fromShelfId ?? "",
-    toShelfId: line?.toShelfId ?? ""
+    fromStorageUnitId: line?.fromStorageUnitId ?? "",
+    toStorageUnitId: line?.toStorageUnitId ?? ""
   };
 
   return (

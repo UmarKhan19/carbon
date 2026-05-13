@@ -94,7 +94,7 @@ export const createPurchaseOrderTool = tool({
     if (supplier.data?.currencyCode) {
       const currency = await getCurrencyByCode(
         context.client,
-        context.companyId,
+        context.companyGroupId,
         supplier.data?.currencyCode ?? ""
       );
       if (currency.data) {
@@ -211,7 +211,7 @@ export const createPurchaseOrderTool = tool({
               itemReplenishment?.data?.conversionFactor ??
               1,
             locationId: locationId,
-            shelfId: null,
+            storageUnitId: null,
             supplierTaxAmount: 0,
             companyId: context.companyId,
             createdBy: context.userId

@@ -1,3 +1,4 @@
+import { Email } from "./email/config";
 import { ExchangeRates } from "./exchange-rates/config";
 import { Jira } from "./jira/config";
 import { Linear } from "./linear/config";
@@ -5,15 +6,14 @@ import { Onshape } from "./onshape/config";
 import { PaperlessParts } from "./paperless-parts/config";
 import { QuickBooks } from "./quickbooks/config";
 // import { Radan } from "./radan/config";
-import { Resend } from "./resend/config";
 import { Sage } from "./sage/config";
 import { Slack } from "./slack/config";
 
 import { Xero } from "./xero/config";
 import { Zapier } from "./zapier/config";
 
+export { Email } from "./email/config";
 export { defineIntegration } from "./fns";
-export { Resend } from "./resend/config";
 export type {
   Integration,
   IntegrationAction,
@@ -29,18 +29,20 @@ export type {
 
 export const integrations = [
   // Radan,
+  Email,
   ExchangeRates,
   Jira,
   Linear,
   Onshape,
   PaperlessParts,
   QuickBooks,
-  Resend,
   Sage,
   Slack,
   Xero,
   Zapier
 ];
+
+export type IntegrationID = (typeof integrations)[number]["id"];
 
 export { Jira } from "./jira/config";
 export { Logo as OnshapeLogo, Onshape } from "./onshape/config";
@@ -56,6 +58,6 @@ export { Xero } from "./xero/config";
  * @param id - The unique identifier of the integration
  * @returns The integration configuration if found, undefined otherwise
  */
-export const getIntegrationConfigById = (id: string) => {
+export const getIntegrationConfigById = (id: IntegrationID) => {
   return integrations.find((integration) => integration.id === id);
 };

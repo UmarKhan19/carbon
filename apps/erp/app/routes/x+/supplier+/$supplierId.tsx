@@ -9,7 +9,8 @@ import {
   getSupplier,
   getSupplierApprovalContext,
   getSupplierContacts,
-  getSupplierLocations
+  getSupplierLocations,
+  getSupplierTax
 } from "~/modules/purchasing";
 import SupplierHeader from "~/modules/purchasing/ui/Supplier/SupplierHeader";
 import SupplierSidebar from "~/modules/purchasing/ui/Supplier/SupplierSidebar";
@@ -30,12 +31,28 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { supplierId } = params;
   if (!supplierId) throw new Error("Could not find supplierId");
 
-  const [supplier, contacts, locations, tags] = await Promise.all([
-    getSupplier(client, supplierId),
-    getSupplierContacts(client, supplierId),
-    getSupplierLocations(client, supplierId),
-    getTagsList(client, companyId, "supplier")
-  ]);
+  const serviceRole = getCarbonServiceRole();
+  // Kick off approval in parallel — it only needs supplier.status, so we chain
+  // off the supplier fetch rather than waiting for the whole Promise.all to
+  // settle.
+  const supplierPromise = getSupplier(client, supplierId);
+  const [supplier, contacts, locations, tags, supplierTax, approval] =
+    await Promise.all([
+      supplierPromise,
+      getSupplierContacts(client, supplierId),
+      getSupplierLocations(client, supplierId),
+      getTagsList(client, companyId, "supplier"),
+      getSupplierTax(client, supplierId),
+      supplierPromise.then((s) =>
+        getSupplierApprovalContext(
+          serviceRole,
+          supplierId,
+          s.data?.status ?? null,
+          companyId,
+          userId
+        )
+      )
+    ]);
 
   if (supplier.error) {
     throw redirect(
@@ -47,21 +64,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const serviceRole = getCarbonServiceRole();
-  const status = supplier.data?.status ?? null;
-  const approval = await getSupplierApprovalContext(
-    serviceRole,
-    supplierId,
-    status,
-    companyId,
-    userId
-  );
-
   return {
     supplier: supplier.data,
     contacts: contacts.data ?? [],
     locations: locations.data ?? [],
     tags: tags.data ?? [],
+    supplierTax: supplierTax.data,
     ...approval
   };
 }

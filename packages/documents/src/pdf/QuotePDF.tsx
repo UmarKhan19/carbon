@@ -1,6 +1,6 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { pluralize } from "@carbon/utils";
+import { formatDate, pluralize } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
@@ -9,11 +9,17 @@ import { getLineDescription, getLineDescriptionDetails } from "../utils/quote";
 import { getCurrencyFormatter } from "../utils/shared";
 import { Header, Note, PartyDetails, Template } from "./components";
 
+type QuoteCustomerDetails =
+  Database["public"]["Views"]["quoteCustomerDetails"]["Row"] & {
+    customerTaxId?: string | null;
+    customerVatNumber?: string | null;
+  };
+
 interface QuotePDFProps extends PDF {
   exchangeRate: number;
   quote: Database["public"]["Views"]["quotes"]["Row"];
   quoteLines: Database["public"]["Views"]["quoteLines"]["Row"][];
-  quoteCustomerDetails: Database["public"]["Views"]["quoteCustomerDetails"]["Row"];
+  quoteCustomerDetails: QuoteCustomerDetails;
   quoteLinePrices: Database["public"]["Tables"]["quoteLinePrice"]["Row"][];
   payment?: Database["public"]["Tables"]["quotePayment"]["Row"] | null;
   shipment?: Database["public"]["Tables"]["quoteShipment"]["Row"] | null;
@@ -50,7 +56,6 @@ const QuotePDF = ({
   accountsReceivableBillingAddress,
   company,
   companySettings,
-  locale,
   meta,
   exchangeRate,
   quote,
@@ -62,6 +67,7 @@ const QuotePDF = ({
   shipment,
   terms,
   thumbnails,
+  locale,
   title = "Quote"
 }: QuotePDFProps) => {
   const {
@@ -72,6 +78,9 @@ const QuotePDF = ({
     customerStateProvince,
     customerPostalCode,
     customerCountryCode,
+    customerTaxId,
+    customerVatNumber,
+    customerEori,
     contactName,
     contactEmail
   } = quoteCustomerDetails;
@@ -207,21 +216,9 @@ const QuotePDF = ({
   const getTotal = () =>
     getTotalSubtotal() + getTotalShipping() + getTotalFees() + getTotalTaxes();
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) return null;
-    try {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
-      });
-    } catch {
-      return dateStr;
-    }
-  };
-
   const maxLeadTime = getMaxLeadTime();
+  const watermarkSrc = company.logoWatermark;
+
   let rowIndex = 0;
 
   return (
@@ -232,12 +229,31 @@ const QuotePDF = ({
         keywords: meta?.keywords ?? "quote",
         subject: meta?.subject ?? "Quote"
       }}
+      footerDocumentId={quote?.quoteId}
     >
+      {watermarkSrc && (
+        <View
+          fixed
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            alignItems: "center",
+            marginTop: 100,
+            opacity: 0.07
+          }}
+        >
+          <Image src={watermarkSrc} style={{ width: "50%" }} />
+        </View>
+      )}
       <Header
         company={company}
         title="Quote"
         documentId={quote?.quoteId}
         currencyCode={quote?.currencyCode}
+        locale={locale}
       />
 
       <PartyDetails
@@ -264,6 +280,9 @@ const QuotePDF = ({
           stateProvince: customerStateProvince,
           postalCode: customerPostalCode,
           countryCode: customerCountryCode,
+          taxId: customerTaxId,
+          vatNumber: customerVatNumber,
+          eori: customerEori,
           contactName: contactName,
           contactEmail: contactEmail
         }}
@@ -282,10 +301,17 @@ const QuotePDF = ({
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
               <Text>
-                Date: {formatDate(today(getLocalTimeZone()).toString())}
+                Date:{" "}
+                {formatDate(
+                  today(getLocalTimeZone()).toString(),
+                  undefined,
+                  locale
+                )}
               </Text>
               {quote.expirationDate && (
-                <Text>Expires: {formatDate(quote.expirationDate)}</Text>
+                <Text>
+                  Expires: {formatDate(quote.expirationDate, undefined, locale)}
+                </Text>
               )}
               {quote.customerReference && (
                 <Text>Reference: {quote.customerReference}</Text>
@@ -296,6 +322,14 @@ const QuotePDF = ({
                 </Text>
               )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
+              {shipment?.incoterm && (
+                <Text>
+                  Incoterm: {shipment.incoterm}
+                  {shipment.incotermLocation
+                    ? ` - ${shipment.incotermLocation}`
+                    : ""}
+                </Text>
+              )}
             </View>
           </View>
           <View style={tw("w-1/2 p-3")}>
@@ -622,7 +656,11 @@ const QuotePDF = ({
         )}
       </View>
 
-      <Note title="Standard Terms & Conditions" content={terms} />
+      {terms?.content && terms.content.length > 0 && (
+        <View break>
+          <Note title="Standard Terms & Conditions" content={terms} />
+        </View>
+      )}
     </Template>
   );
 };

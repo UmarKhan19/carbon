@@ -109,6 +109,7 @@ const DemandProjectionsForm = ({
                 type="Part"
                 replenishmentSystem="Make"
                 isReadOnly={isEditing}
+                locationId={initialValues.locationId || undefined}
               />
               <Location
                 name="locationId"

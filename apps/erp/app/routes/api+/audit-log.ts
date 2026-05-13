@@ -10,6 +10,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const entityType = url.searchParams.get("entityType");
   const entityId = url.searchParams.get("entityId");
+  const recordId = url.searchParams.get("recordId");
 
   if (!entityType || !entityId) {
     return Response.json(
@@ -36,7 +37,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       companyId,
       entityType,
       entityId,
-      { limit: 50, offset: 0 }
+      { limit: 50, offset: 0, recordId: recordId ?? undefined }
     );
     return Response.json({ entries });
   } catch (err) {

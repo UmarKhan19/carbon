@@ -1,3 +1,4 @@
+import { supportedLanguages } from "@carbon/locale";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
@@ -11,11 +12,12 @@ export const onboardingUserValidator = z.object({
 export const accountProfileValidator = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
-  about: z.string()
+  about: z.string(),
+  phone: zfd.text(z.string().optional())
 });
 
 export const accountLanguageValidator = z.object({
-  locale: z.enum(["en", "pl"])
+  locale: z.enum(supportedLanguages)
 });
 
 export const accountPasswordValidator = z

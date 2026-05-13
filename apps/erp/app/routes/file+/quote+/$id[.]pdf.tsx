@@ -1,6 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { QuotePDF } from "@carbon/documents/pdf";
 import type { JSONContent } from "@carbon/react";
+import { getPreferenceHeaders } from "@carbon/react";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
 import { getCurrencyByCode, getPaymentTermsList } from "~/modules/accounting";
@@ -20,17 +21,19 @@ import {
   getCompanySettings
 } from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
-import { getLocale } from "~/utils/request";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "sales"
-  });
+  const { client, companyId, companyGroupId } = await requirePermissions(
+    request,
+    {
+      view: "sales"
+    }
+  );
 
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const locale = getLocale(request);
+  const { locale } = getPreferenceHeaders(request);
 
   const [
     company,
@@ -125,7 +128,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (quote.data?.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      companyId,
+      companyGroupId,
       quote.data.currencyCode
     );
     if (currency.data?.exchangeRate) {

@@ -15,7 +15,7 @@ import {
   Tr,
   VStack
 } from "@carbon/react";
-import { formatDate, getItemReadableId } from "@carbon/utils";
+import { getItemReadableId } from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
 import { motion } from "framer-motion";
@@ -23,8 +23,14 @@ import { useMemo, useState } from "react";
 import { LuChevronRight, LuImage } from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { SupplierAvatar } from "~/components";
+import { useAccounts } from "~/components/Form/Account";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
-import { useCurrencyFormatter, useRouteData, useUser } from "~/hooks";
+import {
+  useCurrencyFormatter,
+  useDateFormatter,
+  useRouteData,
+  useUser
+} from "~/hooks";
 import { useItems } from "~/stores";
 import { getPrivateUrl, path } from "~/utils/path";
 import type {
@@ -44,6 +50,7 @@ const LineItems = ({
   locale: string;
 }) => {
   const { company } = useUser();
+  const accounts = useAccounts();
   const { id } = useParams();
   if (!id) throw new Error("Could not find quote id");
 
@@ -90,7 +97,10 @@ const LineItems = ({
       {routeData?.lines?.map((line) => {
         const prices = pricingByLine[line.id!];
 
-        const itemReadableId = getItemReadableId(items, line.itemId);
+        const isGlAccount = line.supplierQuoteLineType === "G/L Account";
+        const itemReadableId = isGlAccount
+          ? line.description || "Indirect Expense"
+          : getItemReadableId(items, line.itemId);
         if (!line || !prices || !line.id) {
           return null;
         }
@@ -147,7 +157,10 @@ const LineItems = ({
                     </HStack>
                   </div>
                   <span className="text-muted-foreground text-base truncate">
-                    {line.description}
+                    {isGlAccount
+                      ? (accounts.find((a) => a.id === line.accountId)?.name ??
+                        "G/L Account")
+                      : line.description}
                   </span>
                 </div>
               </VStack>
@@ -298,6 +311,7 @@ const LinePricingOptions = ({
 const SupplierQuoteSummary = () => {
   const { id } = useParams();
   if (!id) throw new Error("Could not find quote id");
+  const { formatDate } = useDateFormatter();
   const routeData = useRouteData<{
     quote: SupplierQuote;
     lines: SupplierQuoteLine[];

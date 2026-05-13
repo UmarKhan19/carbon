@@ -19,7 +19,12 @@ export type UserProps = {
 } & UserSelectProps;
 
 const User = ({ name, label, type, helperText, ...props }: UserProps) => {
-  const { error, defaultValue, validate } = useField(name);
+  const {
+    error,
+    defaultValue,
+    validate,
+    isOptional: fieldIsOptional
+  } = useField(name);
   const [selection, setSelection] = useState<string>(defaultValue);
 
   const handleChange = (items: IndividualOrGroup[]) => {
@@ -34,7 +39,11 @@ const User = ({ name, label, type, helperText, ...props }: UserProps) => {
 
   return (
     <FormControl isInvalid={!!error}>
-      {label && <FormLabel htmlFor={name}>{label}</FormLabel>}
+      {label && (
+        <FormLabel htmlFor={name} isOptional={fieldIsOptional}>
+          {label}
+        </FormLabel>
+      )}
       <input type="hidden" name={name} value={selection} />
       <UserSelect
         {...props}

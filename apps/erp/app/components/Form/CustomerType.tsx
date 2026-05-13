@@ -8,7 +8,9 @@ import type { getCustomerTypesList } from "~/modules/sales";
 import { CustomerTypeForm } from "~/modules/sales/ui/CustomerTypes";
 import { path } from "~/utils/path";
 
-type CustomerTypeSelectProps = Omit<ComboboxProps, "options">;
+type CustomerTypeSelectProps = Omit<ComboboxProps, "options"> & {
+  exclude?: string[];
+};
 
 const CustomerType = (props: CustomerTypeSelectProps) => {
   const newCustomerTypeModal = useDisclosure();
@@ -21,12 +23,13 @@ const CustomerType = (props: CustomerTypeSelectProps) => {
     <>
       <CreatableCombobox
         ref={triggerRef}
-        options={
-          options.map((o) => ({
-            value: o.value,
-            label: <Enumerable value={o.label} />
-          })) ?? []
-        }
+        options={(props.exclude?.length
+          ? options.filter((o) => !props.exclude!.includes(o.value))
+          : options
+        ).map((o) => ({
+          value: o.value,
+          label: <Enumerable value={o.label} />
+        }))}
         {...props}
         label={props?.label ?? "CustomerType"}
         onCreateOption={(option) => {

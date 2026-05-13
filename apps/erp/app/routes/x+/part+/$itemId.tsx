@@ -10,9 +10,9 @@ import {
   Tabs,
   TabsContent,
   TabsList,
-  TabsTrigger
+  TabsTrigger,
+  useRouteData
 } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense, useState } from "react";
@@ -250,7 +250,7 @@ export default function PartRoute() {
                                   module: "production",
                                   children: jobs.map((job) => ({
                                     ...job,
-                                    methodType: "Make"
+                                    methodType: "Make to Order"
                                   }))
                                 },
                                 {
@@ -396,7 +396,7 @@ export default function PartRoute() {
                                 module: "production",
                                 children: jobs.map((job) => ({
                                   ...job,
-                                  methodType: "Make"
+                                  methodType: "Make to Order"
                                 }))
                               },
                               {
@@ -503,7 +503,7 @@ export default function PartRoute() {
                 <Outlet />
               </div>
             }
-            properties={<PartProperties />}
+            properties={<PartProperties key={itemId} />}
           />
         </div>
       </div>

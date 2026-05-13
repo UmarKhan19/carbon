@@ -4,17 +4,11 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Spinner } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
-import { Fragment, Suspense } from "react";
+import { useRouteData } from "@carbon/react";
+import { Fragment } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import {
-  Await,
-  Outlet,
-  redirect,
-  useLoaderData,
-  useParams
-} from "react-router";
+import { Outlet, redirect, useLoaderData, useParams } from "react-router";
+import { DeferredFiles } from "~/components";
 import type {
   SupplierQuote,
   SupplierQuoteLinePrice
@@ -144,16 +138,24 @@ export default function SupplierQuoteLine() {
   }>(path.to.supplierQuote(id));
 
   const exchangeRate = routeData?.quote?.exchangeRate ?? 1;
-  const isReadOnly = isSupplierQuoteLocked(routeData?.quote?.status);
 
   const initialValues = {
     ...line,
     id: line.id ?? undefined,
     supplierQuoteId: line.supplierQuoteId ?? "",
+    supplierQuoteLineType: (line.supplierQuoteLineType ?? "Part") as
+      | "Consumable"
+      | "G/L Account"
+      | "Material"
+      | "Part"
+      | "Tool",
     supplierPartId: line.supplierPartId ?? "",
     supplierPartRevision: line.supplierPartRevision ?? "",
     description: line.description ?? "",
     itemId: line.itemId ?? "",
+    accountId: line.accountId ?? undefined,
+    costCenterId: line.costCenterId ?? undefined,
+    requiredDate: line.requiredDate ?? undefined,
     quantity: line.quantity ?? [1],
     inventoryUnitOfMeasureCode: line.inventoryUnitOfMeasureCode ?? "",
     purchaseUnitOfMeasureCode: line.purchaseUnitOfMeasureCode ?? "",
@@ -178,25 +180,16 @@ export default function SupplierQuoteLine() {
         exchangeRate={exchangeRate}
       />
 
-      <Suspense
-        fallback={
-          <div className="flex w-full h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
-            <Spinner className="h-10 w-10" />
-          </div>
-        }
-      >
-        <Await resolve={files}>
-          {(resolvedFiles) => (
-            <SupplierInteractionLineDocuments
-              files={resolvedFiles ?? []}
-              id={id}
-              lineId={lineId}
-              type="Supplier Quote"
-              isReadOnly={isReadOnly}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <DeferredFiles resolve={files}>
+        {(resolvedFiles) => (
+          <SupplierInteractionLineDocuments
+            files={resolvedFiles ?? []}
+            id={id}
+            lineId={lineId}
+            type="Supplier Quote"
+          />
+        )}
+      </DeferredFiles>
 
       <Outlet />
     </Fragment>

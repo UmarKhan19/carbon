@@ -142,7 +142,7 @@ const ProfilePhotoForm = ({ user }: ProfilePhotoFormProps) => {
         name={user?.fullName ?? undefined}
       />
       <FileUpload accept="image/*" onChange={uploadImage}>
-        {user.avatarUrl ? "Change" : "Upload"}
+        {user.avatarUrl ? t`Change` : t`Upload`}
       </FileUpload>
 
       {user.avatarUrl && (
@@ -150,7 +150,7 @@ const ProfilePhotoForm = ({ user }: ProfilePhotoFormProps) => {
           <Trans>Remove</Trans>
         </Button>
       )}
-      <Badge variant="outline">{maxSizeMB}MB limit</Badge>
+      <Badge variant="outline">{t`${maxSizeMB}MB limit`}</Badge>
     </VStack>
   );
 };

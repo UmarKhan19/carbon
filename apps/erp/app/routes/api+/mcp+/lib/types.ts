@@ -5,10 +5,13 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export interface McpContext {
   client: SupabaseClient<Database>;
   companyId: string;
+  companyGroupId: string;
   userId: string;
 }
 
 export type RegisterTools = (server: McpServer, ctx: McpContext) => void;
+
+export type AuthField = "companyId" | "createdBy" | "updatedBy";
 
 export const READ_ONLY_ANNOTATIONS = {
   readOnlyHint: true,
@@ -58,8 +61,21 @@ export function withErrorHandling<T extends Record<string, unknown>>(
 ) {
   return async (params: T) => {
     try {
-      return await handler(params);
+      console.log(
+        `[withErrorHandling] Executing handler for: ${fallbackMessage}`
+      );
+      const result = await handler(params);
+      console.log(`[withErrorHandling] Handler completed successfully`);
+      return result;
     } catch (error) {
+      console.error(
+        `[withErrorHandling] Error in handler (${fallbackMessage}):`,
+        error
+      );
+      console.error(
+        `[withErrorHandling] Error stack:`,
+        error instanceof Error ? error.stack : "No stack"
+      );
       return {
         content: [
           {

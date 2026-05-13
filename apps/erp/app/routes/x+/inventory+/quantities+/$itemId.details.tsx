@@ -3,14 +3,19 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
 import { VStack } from "@carbon/react";
+import { pluckUnique } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { useShelves } from "~/components/Form/Shelf";
-import { InventoryDetails } from "~/modules/inventory";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
+import {
+  getTrackedEntityExpirations,
+  InventoryDetails
+} from "~/modules/inventory";
 import {
   getItem,
   getItemQuantities,
-  getItemShelfQuantities,
+  getItemShelfLife,
+  getItemStorageUnitQuantities,
   getMakeMethodById,
   getMakeMethods,
   getMethodMaterialsByMakeMethod,
@@ -122,21 +127,35 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const itemShelfQuantities = await getItemShelfQuantities(
+  const itemStorageUnitQuantities = await getItemStorageUnitQuantities(
     client,
     itemId,
     companyId,
     locationId
   );
-  if (itemShelfQuantities.error || !itemShelfQuantities.data) {
+  if (itemStorageUnitQuantities.error || !itemStorageUnitQuantities.data) {
     throw redirect(
       path.to.inventory,
       await flash(
         request,
-        error(itemShelfQuantities.error, "Failed to load item shelf quantities")
+        error(
+          itemStorageUnitQuantities.error,
+          "Failed to load item storage unit quantities"
+        )
       )
     );
   }
+
+  // Pull shelf-life policy + current expiration dates so the adjustment modal
+  // can pre-fill / surface the existing value when the user edits a batch.
+  const trackedEntityIds = pluckUnique(
+    itemStorageUnitQuantities.data,
+    (row) => row.trackedEntityId
+  );
+  const [itemShelfLife, trackedEntityExpirations] = await Promise.all([
+    getItemShelfLife(client, itemId),
+    getTrackedEntityExpirations(client, trackedEntityIds)
+  ]);
 
   // Load manufacturing data for manufactured parts
   let methodData = null;
@@ -188,36 +207,46 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   return {
     pickMethod: pickMethod.data,
     quantities: quantities.data,
-    itemShelfQuantities: itemShelfQuantities.data,
+    itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     item: item.data,
+    itemShelfLife: itemShelfLife.data ?? null,
+    trackedEntityExpirations,
     methodData,
     tags
   };
 }
 
 export default function ItemInventoryRoute() {
-  const { pickMethod, quantities, itemShelfQuantities, item } =
-    useLoaderData<typeof loader>();
+  const {
+    pickMethod,
+    quantities,
+    itemStorageUnitQuantities,
+    item,
+    itemShelfLife,
+    trackedEntityExpirations
+  } = useLoaderData<typeof loader>();
 
   const [items] = useItems();
   const itemTrackingType = items.find(
     (i) => i.id === item.id
   )?.itemTrackingType;
 
-  const shelves = useShelves(pickMethod?.locationId);
+  const storageUnits = useStorageUnits(pickMethod?.locationId);
 
   return (
     <VStack spacing={2}>
       <InventoryDetails
-        itemShelfQuantities={itemShelfQuantities}
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={item.unitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
+        itemShelfLife={itemShelfLife}
+        trackedEntityExpirations={trackedEntityExpirations}
         pickMethod={{
           ...pickMethod,
-          defaultShelfId: pickMethod.defaultShelfId ?? undefined
+          defaultStorageUnitId: pickMethod.defaultStorageUnitId ?? undefined
         }}
         quantities={quantities}
-        shelves={shelves.options}
+        storageUnits={storageUnits.options}
       />
     </VStack>
   );

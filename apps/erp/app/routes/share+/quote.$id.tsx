@@ -31,10 +31,9 @@ import {
   Tr,
   toast,
   useDisclosure,
+  useMode,
   VStack
 } from "@carbon/react";
-
-import { useMode } from "@carbon/remix";
 import { formatCityStatePostalCode, formatDate } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useLocale } from "@react-aria/i18n";
@@ -220,11 +219,13 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 const Header = ({
   company,
   quote,
-  customer
+  customer,
+  locale
 }: {
   company: QuoteData["company"];
   quote: QuoteData["quote"];
   customer: QuoteData["customerDetails"];
+  locale: string;
 }) => (
   <div className="flex justify-between">
     <div className="flex items-center space-x-4 tracking-tight">
@@ -235,7 +236,8 @@ const Header = ({
         )}
         {quote?.expirationDate && (
           <p className="text-lg text-muted-foreground">
-            <Trans>Expires</Trans> {formatDate(quote.expirationDate)}
+            <Trans>Expires</Trans>{" "}
+            {formatDate(quote.expirationDate, undefined, locale)}
           </p>
         )}
       </div>
@@ -324,20 +326,15 @@ const LineItems = ({
   const { company, quote, quoteLines, quoteLinePrices, thumbnails } =
     useLoaderData<typeof loader>().data!;
 
-  const [openItems, setOpenItems] = useState<string[]>(() =>
-    Array.isArray(quoteLines) && quoteLines.length > 0
-      ? quoteLines.map((line) => line.id!).filter(Boolean)
-      : []
-  );
-  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
-  useEffect(() => {
-    Object.entries(selectedLines).forEach(([lineId, line]) => {
-      if (line.quantity === 0 && openItems.includes(lineId)) {
-        setOpenItems((prev) => prev.filter((item) => item !== lineId));
-      }
-    });
-  }, [selectedLines]);
-
+  const [openItems, setOpenItems] = useState<string[]>(() => {
+    if (!Array.isArray(quoteLines) || quoteLines.length === 0) {
+      return [];
+    }
+    if (["Ordered", "Partial", "Expired", "Cancelled"].includes(quote.status)) {
+      return [];
+    }
+    return quoteLines.filter((line) => !!line.id).map((line) => line.id!);
+  });
   const pricingByLine = useMemo(
     () =>
       quoteLines?.reduce<Record<string, QuotationPrice[]>>((acc, line) => {
@@ -471,6 +468,9 @@ const LineItems = ({
                 locale={locale}
                 selectedLine={selectedLines[line.id!]}
                 setSelectedLines={setSelectedLines}
+                onDeselect={(lineId) =>
+                  setOpenItems((prev) => prev.filter((item) => item !== lineId))
+                }
               />
             </motion.div>
           </motion.div>
@@ -490,6 +490,7 @@ type LinePricingOptionsProps = {
   formatter: Intl.NumberFormat;
   selectedLine: SelectedLine;
   setSelectedLines: Dispatch<SetStateAction<Record<string, SelectedLine>>>;
+  onDeselect?: (lineId: string) => void;
 };
 
 const LinePricingOptions = ({
@@ -501,7 +502,8 @@ const LinePricingOptions = ({
   locale,
   formatter,
   selectedLine,
-  setSelectedLines
+  setSelectedLines,
+  onDeselect
 }: LinePricingOptionsProps) => {
   const percentFormatter = usePercentFormatter();
   const { quote, salesOrderLines } = useLoaderData<typeof loader>().data!;
@@ -917,6 +919,9 @@ const LinePricingOptions = ({
                 ...prev,
                 [line.id!]: deselectedLine
               }));
+              if (line.id) {
+                onDeselect?.(line.id);
+              }
             }}
           >
             <Trans>Remove</Trans>
@@ -1163,7 +1168,12 @@ const Quote = ({ data }: { data: QuoteData }) => {
             {quote?.status === "Lost" && <Badge variant="red">Rejected</Badge>}
           </div>
 
-          <Header company={company} quote={quote} customer={customerDetails} />
+          <Header
+            company={company}
+            quote={quote}
+            customer={customerDetails}
+            locale={locale}
+          />
         </CardHeader>
         <CardContent>
           <LineItems

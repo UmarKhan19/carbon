@@ -7,7 +7,6 @@ import { validationError, validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
 import { renderAsync } from "@react-email/components";
-import { FunctionRegion } from "@supabase/supabase-js";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -50,6 +49,7 @@ export async function action(args: ActionFunctionArgs) {
 
   let file: ArrayBuffer;
   let fileName: string;
+  let documentFilePath: string;
 
   const serviceRole = getCarbonServiceRole();
 
@@ -75,17 +75,17 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   // Check supplier approval status
-  const companySettingsCheck = await getCompanySettings(serviceRole, companyId);
-  if (
-    companySettingsCheck.data?.supplierApproval &&
-    purchaseOrder.data.supplierId
-  ) {
+  const supplierApprovalRequired = await isApprovalRequired(
+    serviceRole,
+    "supplier",
+    companyId
+  );
+  if (supplierApprovalRequired && purchaseOrder.data.supplierId) {
     const supplier = await getSupplier(
       serviceRole,
       purchaseOrder.data.supplierId
     );
-    // @ts-expect-error TS2339 - TODO: fix type
-    if (supplier.data?.supplierStatus !== "Active") {
+    if (supplier.data?.status !== "Active") {
       throw redirect(
         path.to.purchaseOrder(orderId),
         await flash(
@@ -188,8 +188,7 @@ export async function action(args: ActionFunctionArgs) {
           source: "purchaseOrder",
           updatePrices: true,
           updateLeadTimes: false
-        },
-        region: FunctionRegion.UsEast1
+        }
       }
     );
 
@@ -216,7 +215,7 @@ export async function action(args: ActionFunctionArgs) {
         .slice(0, -5)}.pdf`
     );
 
-    const documentFilePath = `${companyId}/supplier-interaction/${purchaseOrder.data.supplierInteractionId}/${fileName}`;
+    documentFilePath = `${companyId}/supplier-interaction/${purchaseOrder.data.supplierInteractionId}/${fileName}`;
 
     const documentFileUpload = await serviceRole.storage
       .from("private")
@@ -331,20 +330,26 @@ export async function action(args: ActionFunctionArgs) {
           const html = await renderAsync(emailTemplate);
           const text = await renderAsync(emailTemplate, { plainText: true });
 
+          const { data: signedUrlData } = await serviceRole.storage
+            .from("private")
+            .createSignedUrl(documentFilePath, 3600);
+
           await Promise.all([
-            trigger("send-email-resend", {
+            trigger("send-email", {
               to: [buyer.data.email, supplier.data.contact.email],
               cc: ccSelections?.length ? ccSelections : undefined,
               from: buyer.data.email,
               subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
               html,
               text,
-              attachments: [
-                {
-                  content: Buffer.from(file).toString("base64"),
-                  filename: fileName
-                }
-              ],
+              attachments: signedUrlData?.signedUrl
+                ? [
+                    {
+                      path: signedUrlData.signedUrl,
+                      filename: fileName
+                    }
+                  ]
+                : undefined,
               companyId
             })
           ]);

@@ -6,6 +6,7 @@ import CadModel from "./CadModel";
 import Contact from "./Contact";
 import CustomerAvatar from "./CustomerAvatar";
 import { DateSelect } from "./DateSelect";
+import { DeferredFiles } from "./DeferredFiles";
 import { DirectionAwareTabs } from "./DirectionAwareTabs";
 import DocumentPreview from "./DocumentPreview";
 import Documents from "./Documents";
@@ -29,6 +30,7 @@ import Location from "./Location";
 import New from "./New";
 import RealtimeDataProvider from "./RealtimeDataProvider";
 import SearchFilter from "./SearchFilter";
+import { SearchLandingPage } from "./SearchLandingPage";
 import Select from "./Select";
 import SupplierAvatar from "./SupplierAvatar";
 import Table from "./Table";
@@ -44,6 +46,7 @@ export {
   Contact,
   CustomerAvatar,
   DateSelect,
+  DeferredFiles,
   DirectionAwareTabs,
   DocumentPreview,
   Documents,
@@ -62,6 +65,7 @@ export {
   OperationStatusIcon,
   RealtimeDataProvider,
   SearchFilter,
+  SearchLandingPage,
   Select,
   SourcingTypeIcon,
   SupplierAvatar,

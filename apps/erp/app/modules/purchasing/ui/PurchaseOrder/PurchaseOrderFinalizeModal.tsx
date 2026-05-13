@@ -42,7 +42,7 @@ const PurchaseOrderFinalizeModal = ({
 
   const { t } = useLingui();
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
 
   const [notificationType, setNotificationType] = useState(
     canEmail ? "Email" : "Download"
@@ -103,6 +103,7 @@ const PurchaseOrderFinalizeModal = ({
               {notificationType === "Email" && (
                 <>
                   <SupplierContact
+                    isOptional={false}
                     name="supplierContact"
                     supplier={purchaseOrder?.supplierId ?? undefined}
                   />

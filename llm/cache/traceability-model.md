@@ -18,7 +18,7 @@ Represents a physical item, batch, or lot that needs to be tracked through the s
 **Schema:**
 ```sql
 CREATE TABLE "trackedEntity" (
-  "id" TEXT NOT NULL DEFAULT xid(),
+  "id" TEXT NOT NULL DEFAULT id('te'),
   "quantity" NUMERIC NOT NULL,
   "status" "trackedEntityStatus" NOT NULL DEFAULT 'Available',
   "sourceDocument" TEXT NOT NULL,
@@ -58,7 +58,7 @@ Represents a transformation or process that converts input entities into output 
 **Schema:**
 ```sql
 CREATE TABLE "trackedActivity" (
-  "id" TEXT NOT NULL DEFAULT xid(),
+  "id" TEXT NOT NULL DEFAULT id('ta'),
   "type" TEXT NOT NULL,
   "sourceDocument" TEXT,
   "sourceDocumentId" TEXT,

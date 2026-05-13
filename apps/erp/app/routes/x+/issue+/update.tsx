@@ -1,6 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { isIssueLocked } from "~/modules/quality";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
@@ -65,8 +64,7 @@ export async function action({ request }: ActionFunctionArgs) {
               id,
               companyId,
               userId
-            },
-            region: FunctionRegion.UsEast1
+            }
           });
         })
       );

@@ -44,6 +44,7 @@ import {
   LuCircleAlert,
   LuEllipsisVertical,
   LuGroup,
+  LuInfo,
   LuQrCode,
   LuSplit,
   LuTrash
@@ -57,7 +58,7 @@ import {
 } from "react-router";
 import { Empty, ItemThumbnail } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useRouteData } from "~/hooks";
@@ -195,7 +196,7 @@ const ShipmentLines = () => {
         }
       | {
           lineId: string;
-          field: "shelfId";
+          field: "storageUnitId";
           value: string;
         }) => {
       const formData = new FormData();
@@ -321,7 +322,7 @@ function ShipmentLineItem({
       }
     | {
         lineId: string;
-        field: "shelfId";
+        field: "storageUnitId";
         value: string;
       }) => Promise<void>;
 }) {
@@ -495,16 +496,16 @@ function ShipmentLineItem({
           </HStack>
           {line.fulfillment?.type !== "Job" &&
             shipment?.sourceDocument !== "Purchase Order" && (
-              <Shelf
+              <StorageUnit
                 locationId={line.locationId}
-                shelfId={line.shelfId}
+                storageUnitId={line.storageUnitId}
                 itemId={line.itemId}
                 isReadOnly={isReadOnly}
-                onChange={(shelf) => {
+                onChange={(storageUnit) => {
                   onUpdate({
                     lineId: line.id!,
-                    field: "shelfId",
-                    value: shelf
+                    field: "storageUnitId",
+                    value: storageUnit
                   });
                 }}
               />
@@ -565,7 +566,7 @@ function BatchForm({
     value
   }: {
     lineId: string;
-    field: "shelfId";
+    field: "storageUnitId";
     value: string;
   }) => Promise<void>;
 }) {
@@ -577,7 +578,7 @@ function BatchForm({
   }>(() => {
     if (tracking) {
       return {
-        number: tracking.readableId || tracking.id || "",
+        number: tracking.readableId || "",
         properties: Object.entries(
           (tracking.attributes ?? {}) as TrackedEntityAttributes
         )
@@ -639,26 +640,26 @@ function BatchForm({
     }
   }, [line.shippedQuantity]);
 
-  const getShelfFromBatchNumber = async (trackedEntityId: string) => {
+  const getStorageUnitFromBatchNumber = async (trackedEntityId: string) => {
     if (!carbon) return;
 
     const response = await carbon
       .from("itemLedger")
-      .select("shelfId")
+      .select("storageUnitId")
       .eq("trackedEntityId", trackedEntityId)
       .order("createdAt", { ascending: false })
       .single();
 
-    if (response?.data?.shelfId) {
+    if (response?.data?.storageUnitId) {
       onUpdate({
         lineId: line.id!,
-        field: "shelfId",
-        value: response.data.shelfId
+        field: "storageUnitId",
+        value: response.data.storageUnitId
       });
     }
   };
 
-  // Fetch the latest shelf for the selected batch number
+  // Fetch the latest storage unit for the selected batch number
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
     if (values.number && values.number.trim()) {
@@ -667,7 +668,7 @@ function BatchForm({
         batchNumbers?.data ?? []
       );
       if (resolved) {
-        getShelfFromBatchNumber(resolved.id);
+        getStorageUnitFromBatchNumber(resolved.id);
       }
     }
   }, [values.number]);
@@ -738,6 +739,7 @@ function BatchForm({
       const attributes = batchNumber.attributes as TrackedEntityAttributes;
       if (
         attributes["Shipment Line"] &&
+        attributes["Shipment Line"] !== line.id &&
         // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
         attributes["Shipment"] === shipment?.id
       ) {
@@ -837,31 +839,30 @@ function BatchForm({
                 )}
               </InputRightElement>
             </InputGroup>
-            {values.number &&
-              batchNumbers?.data &&
-              (() => {
-                const batchNumber = resolveTrackedEntity(
-                  values.number,
-                  batchNumbers.data
-                );
-                if (batchNumber) {
-                  // @ts-expect-error TS2339 - TODO: fix type
-                  if ((line.shippedQuantity || 0) < batchNumber.quantity) {
-                    return (
-                      <span className="text-xs text-muted-foreground">
-                        Shipped quantity is less than batch quantity. A new
-                        batch will be created for the remaining quantity when
-                        posted.
-                      </span>
-                    );
-                  }
-                }
-                return null;
-              })()}
             {error && <span className="text-xs text-destructive">{error}</span>}
           </div>
         </div>
       </div>
+      {values.number &&
+        batchNumbers?.data &&
+        (() => {
+          const batchNumber = resolveTrackedEntity(
+            values.number,
+            batchNumbers.data
+          );
+          if (!batchNumber) return null;
+          // @ts-expect-error TS2339 - TODO: fix type
+          if ((line.shippedQuantity || 0) >= batchNumber.quantity) return null;
+          return (
+            <div className="flex items-center gap-2 rounded-md border border-border bg-muted/40 px-2.5 py-1.5 text-xs text-muted-foreground">
+              <LuInfo className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>
+                Shipped quantity is less than batch quantity. A new batch will
+                be created for the remaining quantity when posted.
+              </span>
+            </div>
+          );
+        })()}
     </div>
   );
 }
@@ -1172,29 +1173,34 @@ function SplitShipmentLineModal({
   );
 }
 
-function Shelf({
+function StorageUnit({
   locationId,
-  shelfId,
+  storageUnitId,
   itemId,
   isReadOnly,
   onChange
 }: {
   locationId: string | null;
-  shelfId: string | null;
+  storageUnitId: string | null;
   itemId: string | null;
   isReadOnly: boolean;
-  onChange: (shelf: string) => void;
+  onChange: (storageUnit: string) => void;
 }) {
-  const { options } = useShelves(locationId ?? undefined, itemId ?? undefined);
+  const { options } = useStorageUnits(
+    locationId ?? undefined,
+    itemId ?? undefined
+  );
 
   if (!locationId) return null;
 
   return (
     <VStack spacing={1} className="min-w-[140px] text-sm">
-      <label className="text-xs text-muted-foreground">Shelf</label>
+      <label className="text-xs text-muted-foreground">
+        <Trans>Storage Unit</Trans>
+      </label>
       <div className="py-1">
         <Combobox
-          value={shelfId ?? undefined}
+          value={storageUnitId ?? undefined}
           onChange={(newValue) => {
             onChange(newValue);
           }}

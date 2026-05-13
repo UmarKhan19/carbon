@@ -26,6 +26,12 @@ const ReceiptStatus = ({ status }: ReceiptStatusProps) => {
           <Trans>Posted</Trans>
         </Status>
       );
+    case "Voided":
+      return (
+        <Status color="red">
+          <Trans>Voided</Trans>
+        </Status>
+      );
     default:
       return null;
   }

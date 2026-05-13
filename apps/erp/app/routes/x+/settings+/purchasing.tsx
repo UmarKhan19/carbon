@@ -1,7 +1,14 @@
 import { error, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Input, Select, Submit, ValidatedForm, validator } from "@carbon/form";
+import {
+  Input,
+  PhoneInput,
+  Select,
+  Submit,
+  ValidatedForm,
+  validator
+} from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import {
   Badge,
@@ -48,7 +55,6 @@ import {
   updateLeadTimesOnReceiptSetting,
   updatePurchasePriceUpdateTimingSetting,
   updatePurchasingPdfThumbnails,
-  updateSupplierApprovalSetting,
   updateSupplierQuoteNotificationSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -103,31 +109,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
-    case "supplierApproval":
-      const supplierApprovalEnabled =
-        formData.get("supplierApproval") === "true";
-      const supplierApprovalResult = await updateSupplierApprovalSetting(
-        client,
-        companyId,
-        supplierApprovalEnabled
-      );
-
-      if (supplierApprovalResult.error) {
-        console.error(
-          "Failed to update supplier approval setting:",
-          supplierApprovalResult.error
-        );
-        return {
-          success: false,
-          message: supplierApprovalResult.error.message
-        };
-      }
-
-      return {
-        success: true,
-        message: `Supplier approval ${supplierApprovalEnabled ? "enabled" : "disabled"}`
-      };
-
     case "accountsPayableAddressToggle":
       const apToggleEnabled = formData.get("enabled") === "true";
       const apToggleResult = await updateAccountsPayableAddressSetting(
@@ -344,21 +325,6 @@ export default function PurchasingSettingsRoute() {
 
   const toggleFetcher = useFetcher<typeof action>();
 
-  const [supplierApprovalEnabled, setSupplierApprovalEnabled] = useState(
-    companySettings.supplierApproval ?? false
-  );
-
-  const handleSupplierApprovalToggle = useCallback(
-    (checked: boolean) => {
-      setSupplierApprovalEnabled(checked);
-      toggleFetcher.submit(
-        { intent: "supplierApproval", supplierApproval: checked.toString() },
-        { method: "POST" }
-      );
-    },
-    [toggleFetcher]
-  );
-
   const [apAddressEnabled, setApAddressEnabled] = useState(
     companySettings.accountsPayableAddress ?? false
   );
@@ -544,8 +510,8 @@ export default function PurchasingSettingsRoute() {
                   <Input name="state" label={t`State / Province`} />
                   <Input name="postalCode" label={t`Postal Code`} />
                   <Country name="countryCode" />
-                  <Input name="phone" label={t`Phone`} />
-                  <Input name="fax" label={t`Fax`} />
+                  <PhoneInput name="phone" label={t`Phone`} />
+                  <PhoneInput name="fax" label={t`Fax`} />
                 </div>
               </CardContent>
               <CardFooter>
@@ -633,27 +599,6 @@ export default function PurchasingSettingsRoute() {
               <Switch
                 checked={leadTimesOnReceiptEnabled}
                 onCheckedChange={handleLeadTimesOnReceiptToggle}
-                disabled={toggleFetcher.state !== "idle"}
-              />
-            </HStack>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <HStack className="justify-between items-center">
-              <div>
-                <CardTitle>
-                  <Trans>Supplier Approval Required</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>
-                    Require approval before suppliers can be set to Active
-                  </Trans>
-                </CardDescription>
-              </div>
-              <Switch
-                checked={supplierApprovalEnabled}
-                onCheckedChange={handleSupplierApprovalToggle}
                 disabled={toggleFetcher.state !== "idle"}
               />
             </HStack>
@@ -766,7 +711,7 @@ export default function PurchasingSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {companySettings.includeThumbnailsOnPurchasingPdfs ? (
                     <Trans>Thumbnails are included</Trans>

@@ -1,7 +1,6 @@
 import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
@@ -71,8 +70,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         children,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (issue.error) {
@@ -93,8 +91,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         quantity: totalQuantity,
         companyId,
         userId
-      },
-      region: FunctionRegion.UsEast1
+      }
     });
 
     if (issue.error) {

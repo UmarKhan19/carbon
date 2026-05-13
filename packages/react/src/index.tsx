@@ -1,5 +1,12 @@
 import type { JSONContent } from "@tiptap/react";
 
+export {
+  CarbonContext,
+  type ICarbonStore,
+  setCarbonHmrStore,
+  useCarbon
+} from "./CarbonContext";
+
 import {
   Accordion,
   AccordionContent,
@@ -36,6 +43,10 @@ import {
   CardTitle
 } from "./Card";
 import { Checkbox } from "./Checkbox";
+import type { ChoiceCardOption } from "./ChoiceCard";
+import { ChoiceCardGroup } from "./ChoiceCard";
+import type { ChoiceSelectOption } from "./ChoiceSelect";
+import { ChoiceSelect } from "./ChoiceSelect";
 import { ClientOnly } from "./ClientOnly";
 import { CodeBlock } from "./CodeBlock";
 import {
@@ -302,11 +313,14 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "./Tooltip";
+import { TruncatedTooltipText } from "./TruncatedTooltipText";
 import { cn } from "./utils/cn";
 import { copyToClipboard } from "./utils/dom";
 import { getValidChildren, reactNodeToString } from "./utils/react";
 import { VStack } from "./VStack";
 
+export * from "./Acknowledge";
+export * from "./getPreferenceHeaders";
 export * from "./hooks";
 export {
   Accordion,
@@ -341,6 +355,8 @@ export {
   CardHeader,
   CardTitle,
   Checkbox,
+  ChoiceCardGroup,
+  ChoiceSelect,
   ClientOnly,
   CodeBlock,
   Collapsible,
@@ -560,6 +576,7 @@ export {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
+  TruncatedTooltipText,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -584,6 +601,8 @@ export type {
   AvatarProps,
   BadgeProps,
   ButtonProps,
+  ChoiceCardOption,
+  ChoiceSelectOption,
   ComboboxProps,
   CreatableComboboxProps,
   CreatableMultiSelectProps,

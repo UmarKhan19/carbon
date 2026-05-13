@@ -12,10 +12,11 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
   LuBox,
+  LuBoxes,
   LuCalculator,
   LuCheck,
   LuCircleCheck,
@@ -32,7 +33,8 @@ import {
   LuRuler,
   LuShapes,
   LuStar,
-  LuTag
+  LuTag,
+  LuWarehouse
 } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import {
@@ -44,6 +46,7 @@ import {
 } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { useFilters } from "~/components/Table/components/Filter/useFilters";
 import { useUrlParams } from "~/hooks";
@@ -68,6 +71,7 @@ type InventoryTableProps = {
   forms: ListItem[];
   substances: ListItem[];
   tags: string[];
+  storageTypes: { id: string; name: string }[];
 };
 
 const InventoryTable = memo(
@@ -77,16 +81,21 @@ const InventoryTable = memo(
     locationId,
     forms,
     substances,
-    tags
+    tags,
+    storageTypes
   }: InventoryTableProps) => {
     const [params] = useUrlParams();
     const { t } = useLingui();
 
-    const translateReplenishment = (v: string) =>
-      v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`;
+    const translateReplenishment = useCallback(
+      (v: string) =>
+        v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`,
+      [t]
+    );
 
     const locations = useLocations();
     const unitOfMeasures = useUnitOfMeasure();
+    const { options: storageUnitOptions } = useStorageUnits(locationId);
 
     const filters = useFilters();
     const materialSubstanceId = filters.getFilter("materialSubstanceId")?.[0];
@@ -463,6 +472,68 @@ const InventoryTable = memo(
           }
         },
         {
+          accessorKey: "storageTypeIds",
+          header: t`Storage Type`,
+          cell: ({ row }) => {
+            const ids =
+              (
+                row.original as InventoryItem & {
+                  storageTypeIds?: string[] | null;
+                }
+              ).storageTypeIds ?? [];
+            return (
+              <HStack spacing={0} className="gap-1">
+                {ids.map((id) => {
+                  const st = (storageTypes ?? []).find((s) => s.id === id);
+                  return <Enumerable key={id} value={st?.name ?? null} />;
+                })}
+              </HStack>
+            );
+          },
+          meta: {
+            filter: {
+              type: "static",
+              options: (storageTypes ?? []).map((st) => ({
+                value: st.id,
+                label: <Enumerable value={st.name} />
+              })),
+              isArray: true
+            },
+            pluralHeader: t`Storage Types`,
+            icon: <LuWarehouse />
+          }
+        },
+        {
+          accessorKey: "storageUnitIds",
+          header: t`Storage Unit`,
+          cell: ({ row }) => {
+            const ids =
+              (
+                row.original as InventoryItem & {
+                  storageUnitIds?: string[] | null;
+                }
+              ).storageUnitIds ?? [];
+            return (
+              <HStack spacing={0} className="gap-1">
+                {ids.map((id) => {
+                  const opt = storageUnitOptions.find((o) => o.value === id);
+                  const label = typeof opt?.label === "string" ? opt.label : id;
+                  return <Enumerable key={id} value={label} />;
+                })}
+              </HStack>
+            );
+          },
+          meta: {
+            filter: {
+              type: "fetcher",
+              endpoint: path.to.api.storageUnits(locationId),
+              isArray: true
+            },
+            pluralHeader: t`Storage Units`,
+            icon: <LuBoxes />
+          }
+        },
+        {
           accessorKey: "active",
           header: t`Active`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
@@ -481,14 +552,18 @@ const InventoryTable = memo(
       ];
     }, [
       forms,
+      locationId,
       materialFormId,
       materialSubstanceId,
       formatNumber,
       params,
       substances,
       tags,
+      storageTypes,
+      storageUnitOptions,
       unitOfMeasures,
-      t
+      t,
+      translateReplenishment
     ]);
 
     const defaultColumnVisibility = {
@@ -498,7 +573,9 @@ const InventoryTable = memo(
       finish: false,
       grade: false,
       dimension: false,
-      materialType: false
+      materialType: false,
+      storageTypeIds: false,
+      storageUnitIds: false
     };
 
     const defaultColumnPinning = {

@@ -20,10 +20,16 @@ import {
   Template
 } from "./components";
 
+type SalesOrderLocations =
+  Database["public"]["Views"]["salesOrderLocations"]["Row"] & {
+    customerTaxId?: string | null;
+    customerVatNumber?: string | null;
+  };
+
 interface SalesOrderPDFProps extends PDF {
   salesOrder: Database["public"]["Views"]["salesOrders"]["Row"];
   salesOrderLines: Database["public"]["Views"]["salesOrderLines"]["Row"][];
-  salesOrderLocations: Database["public"]["Views"]["salesOrderLocations"]["Row"];
+  salesOrderLocations: SalesOrderLocations;
   companySettings?:
     | Database["public"]["Tables"]["companySettings"]["Row"]
     | null;
@@ -57,7 +63,6 @@ const SalesOrderPDF = ({
   accountsReceivableBillingAddress,
   company,
   companySettings,
-  locale,
   meta,
   salesOrder,
   salesOrderLines,
@@ -66,6 +71,7 @@ const SalesOrderPDF = ({
   paymentTerms,
   shippingMethods,
   thumbnails,
+  locale,
   title = "Sales Order"
 }: SalesOrderPDFProps) => {
   const {
@@ -76,6 +82,9 @@ const SalesOrderPDF = ({
     customerStateProvince,
     customerPostalCode,
     customerCountryName,
+    customerTaxId,
+    customerVatNumber,
+    customerEori,
     paymentCustomerName,
     paymentAddressLine1,
     paymentAddressLine2,
@@ -96,6 +105,8 @@ const SalesOrderPDF = ({
     (method) => method.id === salesOrder?.shippingMethodId
   );
 
+  const watermarkSrc = company.logoWatermark;
+
   let rowIndex = 0;
 
   return (
@@ -106,13 +117,32 @@ const SalesOrderPDF = ({
         keywords: meta?.keywords ?? "sales order",
         subject: meta?.subject ?? "Sales Order"
       }}
+      footerDocumentId={salesOrder?.salesOrderId}
     >
+      {watermarkSrc && (
+        <View
+          fixed
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            alignItems: "center",
+            marginTop: 100,
+            opacity: 0.07
+          }}
+        >
+          <Image src={watermarkSrc} style={{ width: "50%" }} />
+        </View>
+      )}
       <Header
         company={company}
         title="Sales Order"
         documentId={salesOrder?.salesOrderId}
         date={salesOrder?.orderDate}
         currencyCode={salesOrder?.currencyCode}
+        locale={locale}
       />
 
       <PartyDetails
@@ -138,7 +168,10 @@ const SalesOrderPDF = ({
           city: customerCity,
           stateProvince: customerStateProvince,
           postalCode: customerPostalCode,
-          countryCode: customerCountryName
+          countryCode: customerCountryName,
+          taxId: customerTaxId,
+          vatNumber: customerVatNumber,
+          eori: customerEori
         }}
         counterPartyLabel="Buyer"
         accountsReceivableEmail={companySettings?.accountsReceivableEmail}
@@ -176,24 +209,44 @@ const SalesOrderPDF = ({
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
               {salesOrder?.orderDate && (
-                <Text>Date: {formatDate(salesOrder.orderDate)}</Text>
+                <Text>
+                  Date: {formatDate(salesOrder.orderDate, undefined, locale)}
+                </Text>
               )}
               {salesOrder?.customerReference && (
                 <Text>Customer PO #: {salesOrder.customerReference}</Text>
               )}
               {salesOrder?.receiptRequestedDate && (
                 <Text>
-                  Requested: {formatDate(salesOrder.receiptRequestedDate)}
+                  Requested:{" "}
+                  {formatDate(
+                    salesOrder.receiptRequestedDate,
+                    undefined,
+                    locale
+                  )}
                 </Text>
               )}
               {salesOrder?.receiptPromisedDate && (
                 <Text>
-                  Promised: {formatDate(salesOrder.receiptPromisedDate)}
+                  Promised:{" "}
+                  {formatDate(
+                    salesOrder.receiptPromisedDate,
+                    undefined,
+                    locale
+                  )}
                 </Text>
               )}
               {shippingMethod && <Text>Shipping: {shippingMethod.name}</Text>}
               {salesOrder?.shippingTermName && (
                 <Text>Shipping Terms: {salesOrder.shippingTermName}</Text>
+              )}
+              {salesOrder?.incoterm && (
+                <Text>
+                  Incoterm: {salesOrder.incoterm}
+                  {salesOrder.incotermLocation
+                    ? ` - ${salesOrder.incotermLocation}`
+                    : ""}
+                </Text>
               )}
               {paymentTerm && <Text>Payment Terms: {paymentTerm.name}</Text>}
             </View>
@@ -431,7 +484,11 @@ const SalesOrderPDF = ({
       </View>
 
       {/* Terms */}
-      <Note title="Standard Terms & Conditions" content={terms} />
+      {terms?.content && terms.content.length > 0 && (
+        <View break>
+          <Note title="Standard Terms & Conditions" content={terms} />
+        </View>
+      )}
     </Template>
   );
 };

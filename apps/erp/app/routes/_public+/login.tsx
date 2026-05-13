@@ -11,7 +11,11 @@ import {
   RATE_LIMIT
 } from "@carbon/auth";
 import { sendMagicLink, verifyAuthSession } from "@carbon/auth/auth.server";
-import { flash, getAuthSession } from "@carbon/auth/session.server";
+import {
+  clearAuthCookies,
+  flash,
+  getAuthSession
+} from "@carbon/auth/session.server";
 import { getUserByEmail } from "@carbon/auth/users.server";
 import { sendVerificationCode } from "@carbon/auth/verification.server";
 import { Hidden, Input, Submit, ValidatedForm, validator } from "@carbon/form";
@@ -22,11 +26,12 @@ import {
   AlertTitle,
   Button,
   Heading,
+  ItarLoginDisclaimer,
   Separator,
   toast,
+  useMode,
   VStack
 } from "@carbon/react";
-import { ItarLoginDisclaimer, useMode } from "@carbon/remix";
 import { Edition } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Turnstile } from "@marsidev/react-turnstile";
@@ -53,15 +58,18 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const authSession = await getAuthSession(request);
-  if (authSession && (await verifyAuthSession(authSession))) {
-    throw redirect(path.to.authenticatedRoot);
+  if (authSession) {
+    if (await verifyAuthSession(authSession)) {
+      throw redirect(path.to.authenticatedRoot);
+    }
+    const cookieHeaders = await clearAuthCookies(request);
+    return data(
+      { providers: AUTH_PROVIDERS.split(",") },
+      { headers: cookieHeaders }
+    );
   }
 
-  const providers = AUTH_PROVIDERS.split(",");
-
-  return {
-    providers
-  };
+  return { providers: AUTH_PROVIDERS.split(",") };
 }
 
 const ratelimit = new Ratelimit({

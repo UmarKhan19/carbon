@@ -127,9 +127,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_activateWorkCenter",
     {
       description: "activate work center",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -142,10 +142,10 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteAbility",
     {
       description: "delete ability",
-      inputSchema: {
+      inputSchema: z.object({
       abilityId: z.string(),
       hardDelete: z.boolean().optional(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -158,9 +158,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteContractor",
     {
       description: "delete contractor",
-      inputSchema: {
+      inputSchema: z.object({
       contractorId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -173,9 +173,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteEmployeeAbility",
     {
       description: "delete employee ability",
-      inputSchema: {
+      inputSchema: z.object({
       employeeAbilityId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -188,9 +188,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteFailureMode",
     {
       description: "delete failure mode",
-      inputSchema: {
+      inputSchema: z.object({
       failureModeId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -203,9 +203,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteLocation",
     {
       description: "delete location",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -218,9 +218,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteMaintenanceDispatch",
     {
       description: "delete maintenance dispatch",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -233,9 +233,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteMaintenanceDispatchComment",
     {
       description: "delete maintenance dispatch comment",
-      inputSchema: {
+      inputSchema: z.object({
       commentId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -248,9 +248,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteMaintenanceDispatchEvent",
     {
       description: "delete maintenance dispatch event",
-      inputSchema: {
+      inputSchema: z.object({
       eventId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -263,9 +263,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteMaintenanceDispatchItem",
     {
       description: "delete maintenance dispatch item",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -278,9 +278,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteMaintenanceDispatchWorkCenter",
     {
       description: "delete maintenance dispatch work center",
-      inputSchema: {
+      inputSchema: z.object({
       workCenterId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -293,9 +293,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteMaintenanceSchedule",
     {
       description: "delete maintenance schedule",
-      inputSchema: {
+      inputSchema: z.object({
       scheduleId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -308,9 +308,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteMaintenanceScheduleItem",
     {
       description: "delete maintenance schedule item",
-      inputSchema: {
+      inputSchema: z.object({
       itemId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -323,9 +323,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deletePartner",
     {
       description: "delete partner",
-      inputSchema: {
+      inputSchema: z.object({
       partnerId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -338,9 +338,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_activateProcess",
     {
       description: "activate process",
-      inputSchema: {
+      inputSchema: z.object({
       processId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -353,9 +353,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_processDeactivate",
     {
       description: "process deactivate",
-      inputSchema: {
+      inputSchema: z.object({
       processId: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -368,9 +368,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteProcess",
     {
       description: "delete process",
-      inputSchema: {
+      inputSchema: z.object({
       processId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -383,9 +383,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteShift",
     {
       description: "delete shift",
-      inputSchema: {
+      inputSchema: z.object({
       shiftId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -398,9 +398,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteSuggestion",
     {
       description: "delete suggestion",
-      inputSchema: {
+      inputSchema: z.object({
       suggestionId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -413,9 +413,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteTraining",
     {
       description: "delete training",
-      inputSchema: {
+      inputSchema: z.object({
       trainingId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -428,9 +428,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteTrainingAssignment",
     {
       description: "delete training assignment",
-      inputSchema: {
+      inputSchema: z.object({
       assignmentId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -443,9 +443,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteTrainingQuestion",
     {
       description: "delete training question",
-      inputSchema: {
+      inputSchema: z.object({
       trainingQuestionId: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -458,9 +458,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_deleteWorkCenter",
     {
       description: "delete work center",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: DESTRUCTIVE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -473,13 +473,13 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getAbilities",
     {
       description: "get abilities",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -492,7 +492,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getAbilitiesList",
     {
       description: "get abilities list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -505,9 +505,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getAbility",
     {
       description: "get ability",
-      inputSchema: {
+      inputSchema: z.object({
       abilityId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -520,9 +520,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getContractor",
     {
       description: "get contractor",
-      inputSchema: {
+      inputSchema: z.object({
       contractorId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -535,13 +535,13 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getContractors",
     {
       description: "get contractors",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -554,9 +554,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getEmployeeAbilities",
     {
       description: "get employee abilities",
-      inputSchema: {
+      inputSchema: z.object({
       employeeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -569,9 +569,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getFailureMode",
     {
       description: "get failure mode",
-      inputSchema: {
+      inputSchema: z.object({
       failureModeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -584,13 +584,13 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getFailureModes",
     {
       description: "get failure modes",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -603,7 +603,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getFailureModesList",
     {
       description: "get failure modes list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -616,9 +616,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getLocation",
     {
       description: "get location",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -631,13 +631,13 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getLocations",
     {
       description: "get locations",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -650,7 +650,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getLocationsList",
     {
       description: "get locations list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -663,9 +663,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceDispatch",
     {
       description: "get maintenance dispatch",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -678,9 +678,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceDispatchComments",
     {
       description: "get maintenance dispatch comments",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -693,9 +693,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceDispatchEvents",
     {
       description: "get maintenance dispatch events",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -708,9 +708,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceDispatchItems",
     {
       description: "get maintenance dispatch items",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -723,9 +723,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceDispatchItemTrackedEntities",
     {
       description: "get maintenance dispatch item tracked entities",
-      inputSchema: {
+      inputSchema: z.object({
       maintenanceDispatchItemId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -738,14 +738,14 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceDispatches",
     {
       description: "get maintenance dispatches",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     status: z.string().optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -758,7 +758,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceDispatchesByLocation",
     {
       description: "get maintenance dispatches by location",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
@@ -766,7 +766,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     search: z.string().nullable(),
     status: z.string().optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -779,9 +779,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceDispatchWorkCenters",
     {
       description: "get maintenance dispatch work centers",
-      inputSchema: {
+      inputSchema: z.object({
       dispatchId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -794,9 +794,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceSchedule",
     {
       description: "get maintenance schedule",
-      inputSchema: {
+      inputSchema: z.object({
       scheduleId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -809,9 +809,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceScheduleItems",
     {
       description: "get maintenance schedule items",
-      inputSchema: {
+      inputSchema: z.object({
       scheduleId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -824,14 +824,14 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceSchedules",
     {
       description: "get maintenance schedules",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable(),
     active: z.boolean().optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -844,7 +844,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getMaintenanceSchedulesByLocation",
     {
       description: "get maintenance schedules by location",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
       args: z.object({
     limit: z.number().int().default(100),
@@ -852,7 +852,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     search: z.string().nullable(),
     active: z.boolean().optional()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -865,9 +865,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getOutstandingTrainingsForUser",
     {
       description: "get outstanding trainings for user",
-      inputSchema: {
+      inputSchema: z.object({
       employeeId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -880,10 +880,10 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getPartner",
     {
       description: "get partner",
-      inputSchema: {
+      inputSchema: z.object({
       partnerId: z.string(),
       abilityId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -896,9 +896,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getPartnerBySupplierId",
     {
       description: "get partner by supplier id",
-      inputSchema: {
+      inputSchema: z.object({
       partnerId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -911,13 +911,13 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getPartners",
     {
       description: "get partners",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -930,9 +930,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getProcess",
     {
       description: "get process",
-      inputSchema: {
+      inputSchema: z.object({
       processId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -945,13 +945,13 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getProcesses",
     {
       description: "get processes",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -964,7 +964,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getProcessesList",
     {
       description: "get processes list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -977,9 +977,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getSuggestion",
     {
       description: "get suggestion",
-      inputSchema: {
+      inputSchema: z.object({
       suggestionId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -992,13 +992,13 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getSuggestions",
     {
       description: "get suggestions",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0),
     search: z.string().nullable()
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1011,9 +1011,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTraining",
     {
       description: "get training",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1026,9 +1026,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTrainingAssignment",
     {
       description: "get training assignment",
-      inputSchema: {
+      inputSchema: z.object({
       assignmentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1041,9 +1041,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTrainingAssignmentForCompletion",
     {
       description: "get training assignment for completion",
-      inputSchema: {
+      inputSchema: z.object({
       assignmentId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1056,9 +1056,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTrainingAssignments",
     {
       description: "get training assignments",
-      inputSchema: {
+      inputSchema: z.object({
       trainingId: z.string().optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1071,12 +1071,12 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTrainingAssignmentStatus",
     {
       description: "get training assignment status",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1089,7 +1089,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTrainingAssignmentSummary",
     {
       description: "get training assignment summary",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1102,9 +1102,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTrainingQuestions",
     {
       description: "get training questions",
-      inputSchema: {
+      inputSchema: z.object({
       trainingId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1117,12 +1117,12 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTrainings",
     {
       description: "get trainings",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1135,7 +1135,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getTrainingsList",
     {
       description: "get trainings list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1148,9 +1148,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getWorkCenter",
     {
       description: "get work center",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1163,12 +1163,12 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getWorkCenters",
     {
       description: "get work centers",
-      inputSchema: {
+      inputSchema: z.object({
       args: z.object({
     limit: z.number().int().default(100),
     offset: z.number().int().default(0)
   }).optional(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1181,9 +1181,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getWorkCentersByLocation",
     {
       description: "get work centers by location",
-      inputSchema: {
+      inputSchema: z.object({
       locationId: z.string(),
-    },
+    }),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1196,7 +1196,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getWorkCentersList",
     {
       description: "get work centers list",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1209,7 +1209,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_getWorkCentersListWithBlockingStatus",
     {
       description: "get work centers list with blocking status",
-      inputSchema: {},
+      inputSchema: z.object({}),
       annotations: READ_ONLY_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1222,7 +1222,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_insertAbility",
     {
       description: "insert ability",
-      inputSchema: {
+      inputSchema: z.object({
       ability: z.object({
     name: z.string(),
     curve: z.any(),
@@ -1231,7 +1231,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     value: z.number(),
     shadowWeeks: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1244,10 +1244,10 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_insertEmployeeAbilities",
     {
       description: "insert employee abilities",
-      inputSchema: {
+      inputSchema: z.object({
       abilityId: z.string(),
       employeeIds: z.array(z.string()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1260,14 +1260,14 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_insertTrainingCompletion",
     {
       description: "insert training completion",
-      inputSchema: {
+      inputSchema: z.object({
       completion: z.object({
     trainingAssignmentId: z.string(),
     employeeId: z.string(),
     period: z.string().nullable(),
     completedBy: z.string()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1280,10 +1280,10 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_updateAbility",
     {
       description: "update ability",
-      inputSchema: {
+      inputSchema: z.object({
       id: z.string(),
       ability: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1296,10 +1296,10 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_updateSuggestionEmoji",
     {
       description: "update suggestion emoji",
-      inputSchema: {
+      inputSchema: z.object({
       suggestionId: z.string(),
       emoji: z.string(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1312,10 +1312,10 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_updateSuggestionTags",
     {
       description: "update suggestion tags",
-      inputSchema: {
+      inputSchema: z.object({
       suggestionId: z.string(),
       tags: z.array(z.string()),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1328,12 +1328,12 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_updateTrainingQuestionOrder",
     {
       description: "update training question order",
-      inputSchema: {
+      inputSchema: z.object({
       updates: z.object({
     id: z.string(),
     sortOrder: z.number()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1346,9 +1346,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertContractor",
     {
       description: "upsert contractor",
-      inputSchema: {
+      inputSchema: z.object({
       contractorWithAbilities: z.any(),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1361,7 +1361,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertEmployeeAbility",
     {
       description: "upsert employee ability",
-      inputSchema: {
+      inputSchema: z.object({
       employeeAbility: z.object({
     id: z.string().optional(),
     abilityId: z.string(),
@@ -1369,7 +1369,7 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     trainingCompleted: z.boolean(),
     trainingDays: z.number().optional()
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1382,9 +1382,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertFailureMode",
     {
       description: "upsert failure mode",
-      inputSchema: {
+      inputSchema: z.object({
       failureMode: failureModeValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1397,9 +1397,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertLocation",
     {
       description: "upsert location",
-      inputSchema: {
+      inputSchema: z.object({
       location: locationValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1412,9 +1412,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertMaintenanceDispatch",
     {
       description: "upsert maintenance dispatch",
-      inputSchema: {
+      inputSchema: z.object({
       dispatch: maintenanceDispatchValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1427,9 +1427,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertMaintenanceDispatchComment",
     {
       description: "upsert maintenance dispatch comment",
-      inputSchema: {
+      inputSchema: z.object({
       comment: maintenanceDispatchCommentValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1442,9 +1442,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertMaintenanceDispatchEvent",
     {
       description: "upsert maintenance dispatch event",
-      inputSchema: {
+      inputSchema: z.object({
       event: maintenanceDispatchEventValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1457,9 +1457,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertMaintenanceDispatchItem",
     {
       description: "upsert maintenance dispatch item",
-      inputSchema: {
+      inputSchema: z.object({
       item: maintenanceDispatchItemValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1472,9 +1472,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertMaintenanceDispatchWorkCenter",
     {
       description: "upsert maintenance dispatch work center",
-      inputSchema: {
+      inputSchema: z.object({
       workCenter: maintenanceDispatchWorkCenterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1487,9 +1487,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertMaintenanceSchedule",
     {
       description: "upsert maintenance schedule",
-      inputSchema: {
+      inputSchema: z.object({
       schedule: maintenanceScheduleValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1502,9 +1502,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertMaintenanceScheduleItem",
     {
       description: "upsert maintenance schedule item",
-      inputSchema: {
+      inputSchema: z.object({
       item: maintenanceScheduleItemValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1517,9 +1517,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertPartner",
     {
       description: "upsert partner",
-      inputSchema: {
+      inputSchema: z.object({
       partner: partnerValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1532,9 +1532,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertProcess",
     {
       description: "upsert process",
-      inputSchema: {
+      inputSchema: z.object({
       process: processValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1547,9 +1547,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertTraining",
     {
       description: "upsert training",
-      inputSchema: {
+      inputSchema: z.object({
       training: trainingValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1562,13 +1562,13 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertTrainingAssignment",
     {
       description: "upsert training assignment",
-      inputSchema: {
+      inputSchema: z.object({
       assignment: z.object({
     id: z.string().optional(),
     trainingId: z.string(),
     groupIds: z.array(z.string())
   }),
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1581,9 +1581,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertTrainingQuestion",
     {
       description: "upsert training question",
-      inputSchema: {
+      inputSchema: z.object({
       trainingQuestion: trainingQuestionValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
@@ -1596,9 +1596,9 @@ export const registerResourcesTools: RegisterTools = (server, ctx) => {
     "resources_upsertWorkCenter",
     {
       description: "upsert work center",
-      inputSchema: {
+      inputSchema: z.object({
       workCenter: workCenterValidator,
-    },
+    }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {

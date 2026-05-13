@@ -1,7 +1,6 @@
 import { SUPABASE_URL } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
@@ -15,8 +14,11 @@ import type {
   kanbanOutputTypes,
   purchasePriceUpdateTimingTypes,
   sequenceValidator,
+  subsidiaryValidator,
   webhookValidator
 } from "./settings.models";
+
+const PUBLIC_STORAGE_URL_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/public/`;
 
 export async function getAccountsPayableBillingAddress(
   client: SupabaseClient<Database>,
@@ -64,20 +66,6 @@ export async function updateAccountsReceivableBillingAddress(
     .eq("id", companyId);
 }
 
-export async function deleteApiKey(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("apiKey").delete().eq("id", id);
-}
-
-export async function deleteWebhook(
-  client: SupabaseClient<Database>,
-  id: string
-) {
-  return client.from("webhook").delete().eq("id", id);
-}
-
 export async function deactivateWebhooks(
   client: SupabaseClient<Database>,
   companyId: string
@@ -86,6 +74,27 @@ export async function deactivateWebhooks(
     .from("webhook")
     .update({ active: false })
     .eq("companyId", companyId);
+}
+
+export async function deleteApiKey(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("apiKey").delete().eq("id", id);
+}
+
+export async function deleteSubsidiary(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client.from("company").delete().eq("id", companyId);
+}
+
+export async function deleteWebhook(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("webhook").delete().eq("id", id);
 }
 
 export async function getApiKeys(
@@ -117,7 +126,7 @@ export async function getCompanies(
 ) {
   const companies = await client
     .from("companies")
-    .select("*")
+    .select("*, companyGroup(name)")
     .eq("userId", userId)
     .order("name");
 
@@ -126,19 +135,23 @@ export async function getCompanies(
   }
 
   return {
-    data: companies.data.map((company) => ({
+    data: companies.data.map(({ companyGroup, ...company }) => ({
       ...company,
-      logoLightIcon: company.logoLightIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLightIcon}`
-        : null,
-      logoDarkIcon: company.logoDarkIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDarkIcon}`
+      companyGroupName: (companyGroup as { name: string } | null)?.name ?? null,
+      logoLight: company.logoLight
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoLight}`
         : null,
       logoDark: company.logoDark
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDark}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoDark}`
         : null,
-      logoLight: company.logoLight
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLight}`
+      logoLightIcon: company.logoLightIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoLightIcon}`
+        : null,
+      logoDarkIcon: company.logoDarkIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoDarkIcon}`
+        : null,
+      logoWatermark: company.logoWatermark
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoWatermark}`
         : null
     })),
     error: null
@@ -161,21 +174,34 @@ export async function getCompany(
   return {
     data: {
       ...company.data,
-      logoLightIcon: company.data.logoLightIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLightIcon}`
-        : null,
-      logoDarkIcon: company.data.logoDarkIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDarkIcon}`
+      logoLight: company.data.logoLight
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoLight}`
         : null,
       logoDark: company.data.logoDark
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDark}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoDark}`
         : null,
-      logoLight: company.data.logoLight
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLight}`
+      logoLightIcon: company.data.logoLightIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoLightIcon}`
+        : null,
+      logoDarkIcon: company.data.logoDarkIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoDarkIcon}`
+        : null,
+      logoWatermark: company.data.logoWatermark
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoWatermark}`
         : null
     },
     error: null
   };
+}
+
+export async function getCompanyIntegrations(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyIntegration")
+    .select("*")
+    .eq("companyId", companyId);
 }
 
 export async function getCompanyPlan(
@@ -194,16 +220,6 @@ export async function getCompanySettings(
     .select("*")
     .eq("id", companyId)
     .single();
-}
-
-export async function getCompanyIntegrations(
-  client: SupabaseClient<Database>,
-  companyId: string
-) {
-  return client
-    .from("companyIntegration")
-    .select("*")
-    .eq("companyId", companyId);
 }
 
 export async function getConfig(client: SupabaseClient<Database>) {
@@ -307,14 +323,6 @@ export async function getKanbanOutputSetting(
     .single();
 }
 
-export async function getPlanById(client: SupabaseClient, planId: string) {
-  return client.from("plan").select("*").eq("id", planId).single();
-}
-
-export async function getPlans(client: SupabaseClient) {
-  return client.from("plan").select("*");
-}
-
 export async function getNextSequence(
   client: SupabaseClient<Database>,
   table: string,
@@ -324,6 +332,14 @@ export async function getNextSequence(
     sequence_name: table,
     company_id: companyId
   });
+}
+
+export async function getPlanById(client: SupabaseClient, planId: string) {
+  return client.from("plan").select("*").eq("id", planId).single();
+}
+
+export async function getPlans(client: SupabaseClient) {
+  return client.from("plan").select("*");
 }
 
 export async function getSequence(
@@ -376,6 +392,26 @@ export async function getSequencesList(
     .order("table");
 }
 
+export async function getSubsidiaries(
+  client: SupabaseClient<Database>,
+  companyGroupId: string
+) {
+  return client
+    .from("company")
+    .select(
+      "id, name, baseCurrencyCode, countryCode, parentCompanyId, isEliminationEntity, active"
+    )
+    .eq("companyGroupId", companyGroupId)
+    .order("name");
+}
+
+export async function getSubsidiary(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client.from("company").select("*").eq("id", companyId).single();
+}
+
 export async function getTerms(
   client: SupabaseClient<Database>,
   companyId: string
@@ -385,10 +421,6 @@ export async function getTerms(
 
 export async function getWebhook(client: SupabaseClient<Database>, id: string) {
   return client.from("webhook").select("*").eq("id", id).single();
-}
-
-export async function getWebhookTables(client: SupabaseClient<Database>) {
-  return client.from("webhookTable").select("*").order("name");
 }
 
 export async function getWebhooks(
@@ -416,16 +448,58 @@ export async function getWebhooks(
   return query;
 }
 
+export async function getWebhookTables(client: SupabaseClient<Database>) {
+  return client.from("webhookTable").select("*").order("name");
+}
+
 export async function insertCompany(
   client: SupabaseClient<Database>,
   company: z.infer<typeof companyValidator>,
-  ownerId?: string
+  companyGroupId?: string
 ) {
   return client
     .from("company")
-    .insert({ ...company, ownerId })
+    .insert({ ...company, companyGroupId })
     .select("id")
     .single();
+}
+
+export async function insertSubsidiary(
+  client: SupabaseClient<Database>,
+  subsidiary: z.infer<typeof subsidiaryValidator> & {
+    companyGroupId: string;
+    createdBy: string;
+    isEliminationEntity?: boolean;
+  }
+) {
+  const { id: _, ...data } = subsidiary;
+  return client.from("company").insert(data).select("id").single();
+}
+
+export async function updateSubsidiary(
+  client: SupabaseClient<Database>,
+  id: string,
+  subsidiary: Partial<z.infer<typeof subsidiaryValidator>> & {
+    updatedBy: string;
+  }
+) {
+  const { id: _, ...data } = subsidiary;
+  return client.from("company").update(data).eq("id", id);
+}
+
+export async function seedCompany(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  userId: string,
+  parentCompanyId?: string
+) {
+  return client.functions.invoke("seed-company", {
+    body: {
+      companyId,
+      userId,
+      parentCompanyId
+    }
+  });
 }
 
 export async function updateCompanyPlan(
@@ -444,18 +518,15 @@ export async function updateCompanyPlan(
   return client.from("companyPlan").update(updateData).eq("id", companyId);
 }
 
-export async function seedCompany(
+export async function updateDefaultCustomerCc(
   client: SupabaseClient<Database>,
   companyId: string,
-  userId: string
+  defaultCustomerCc: string[]
 ) {
-  return client.functions.invoke("seed-company", {
-    body: {
-      companyId,
-      userId
-    },
-    region: FunctionRegion.UsEast1
-  });
+  return client
+    .from("companySettings")
+    .update({ defaultCustomerCc })
+    .eq("companyId", companyId);
 }
 
 export async function updateCompany(
@@ -466,6 +537,105 @@ export async function updateCompany(
   }
 ) {
   return client.from("company").update(sanitize(company)).eq("id", companyId);
+}
+
+export async function updateShelfLifeSettings(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  settings: {
+    /** undefined disables expiry badges company-wide. */
+    nearExpiryWarningDays: number | undefined;
+    /** Seed for the "Shelf-life (days)" input on new items. */
+    defaultShelfLifeDays: number;
+    /** MIN expiry scope for Calculated-mode finished products. */
+    calculatedInputScope: "AllInputs" | "ManagedInputsOnly";
+    /** Policy enforced when an operator consumes an expired entity. */
+    expiredEntityPolicy: "Warn" | "Block" | "BlockWithOverride";
+  }
+) {
+  return client
+    .from("companySettings")
+    .update({
+      inventoryShelfLife: {
+        nearExpiryWarningDays: settings.nearExpiryWarningDays ?? null,
+        defaultShelfLifeDays: settings.defaultShelfLifeDays,
+        calculatedInputScope: settings.calculatedInputScope,
+        expiredEntityPolicy: settings.expiredEntityPolicy
+      }
+    })
+    .eq("id", companyId);
+}
+
+export async function updateDigitalQuoteSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  digitalQuoteEnabled: boolean,
+  digitalQuoteNotificationGroup: string[],
+  digitalQuoteIncludesPurchaseOrders: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(
+      sanitize({
+        digitalQuoteEnabled,
+        digitalQuoteNotificationGroup,
+        digitalQuoteIncludesPurchaseOrders
+      })
+    )
+    .eq("id", companyId);
+}
+
+export async function updateIntegrationMetadata(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  integrationId: string,
+  metadata: any,
+  updatedBy?: string
+) {
+  return client
+    .from("companyIntegration")
+    .update(
+      sanitize({
+        metadata,
+        updatedAt: new Date().toISOString(),
+        updatedBy
+      })
+    )
+    .eq("companyId", companyId)
+    .eq("id", integrationId);
+}
+
+export async function updateJobTravelerWorkInstructions(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  jobTravelerIncludeWorkInstructions: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ jobTravelerIncludeWorkInstructions }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountingEnabledSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountingEnabled: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountingEnabled }))
+    .eq("id", companyId);
+}
+
+export async function updateTimeCardSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  timeCardEnabled: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ timeCardEnabled }))
+    .eq("id", companyId);
 }
 
 export async function updateKanbanOutputSetting(
@@ -479,6 +649,92 @@ export async function updateKanbanOutputSetting(
     .eq("id", companyId);
 }
 
+export async function updateLogoDark(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoDark: string | null
+) {
+  return client
+    .from("company")
+    .update(
+      sanitize({
+        logoDark
+      })
+    )
+    .eq("id", companyId);
+}
+
+export async function updateLogoDarkIcon(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoDarkIcon: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoDarkIcon }))
+    .eq("id", companyId);
+}
+
+export async function updateLogoLight(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoLight: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoLight }))
+    .eq("id", companyId);
+}
+
+export async function updateLogoLightIcon(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoLightIcon: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoLightIcon }))
+    .eq("id", companyId);
+}
+
+export async function updateLogoWatermark(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoWatermark: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoWatermark }))
+    .eq("id", companyId);
+}
+
+export async function updateMaintenanceDispatchNotificationSettings(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  settings: {
+    maintenanceDispatchNotificationGroup?: string[];
+    qualityDispatchNotificationGroup?: string[];
+    operationsDispatchNotificationGroup?: string[];
+    otherDispatchNotificationGroup?: string[];
+  }
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize(settings))
+    .eq("id", companyId);
+}
+
+export async function updateMaterialGeneratedIdsSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  materialGeneratedIds: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ materialGeneratedIds }))
+    .eq("id", companyId);
+}
+
 export async function updateMetricSettings(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -487,6 +743,165 @@ export async function updateMetricSettings(
   return client
     .from("companySettings")
     .update(sanitize({ useMetric }))
+    .eq("id", companyId);
+}
+
+export async function updateProductLabelSize(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  productLabelSize: string
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ productLabelSize }))
+    .eq("id", companyId);
+}
+
+export async function updatePurchasePriceUpdateTimingSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  purchasePriceUpdateTiming: (typeof purchasePriceUpdateTimingTypes)[number]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ purchasePriceUpdateTiming }))
+    .eq("id", companyId);
+}
+
+export async function updateLeadTimesOnReceiptSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  updateLeadTimesOnReceipt: boolean
+) {
+  return (client.from("companySettings") as any)
+    .update(sanitize({ updateLeadTimesOnReceipt }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsPayableAddressSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableAddress: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableAddress }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableAddressSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableAddress: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsReceivableAddress }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsPayableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsPayableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ accountsPayableEmail: accountsPayableEmail ?? null }))
+    .eq("id", companyId);
+}
+
+export async function updateAccountsReceivableEmail(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  accountsReceivableEmail: string | undefined
+) {
+  return client
+    .from("companySettings")
+    .update(
+      sanitize({ accountsReceivableEmail: accountsReceivableEmail ?? null })
+    )
+    .eq("id", companyId);
+}
+
+export async function updateQuoteLineCategoryMarkups(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  quoteLineCategoryMarkups: Record<string, number>
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ quoteLineCategoryMarkups }))
+    .eq("id", companyId);
+}
+
+export async function updatePurchasingPdfThumbnails(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  includeThumbnailsOnPurchasingPdfs: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ includeThumbnailsOnPurchasingPdfs }))
+    .eq("id", companyId);
+}
+
+export async function updateRfqReadySetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  rfqReadyNotificationGroup: string[]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ rfqReadyNotificationGroup }))
+    .eq("id", companyId);
+}
+
+export async function updateSalesPdfThumbnails(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  includeThumbnailsOnSalesPdfs: boolean
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ includeThumbnailsOnSalesPdfs }))
+    .eq("id", companyId);
+}
+
+export async function updateSequence(
+  client: SupabaseClient<Database>,
+  table: string,
+  companyId: string,
+  sequence: Partial<z.infer<typeof sequenceValidator>> & {
+    updatedBy: string;
+  }
+) {
+  return client
+    .from("sequence")
+    .update(sanitize(sequence))
+    .eq("companyId", companyId)
+    .eq("table", table);
+}
+
+export async function updateSuggestionNotificationSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  suggestionNotificationGroup: string[]
+) {
+  return client
+    .from("company")
+    .update(sanitize({ suggestionNotificationGroup }))
+    .eq("id", companyId);
+}
+
+export async function updateSupplierQuoteNotificationSetting(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  supplierQuoteNotificationGroup: string[]
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize({ supplierQuoteNotificationGroup }))
     .eq("id", companyId);
 }
 
@@ -563,149 +978,6 @@ export async function upsertApiKey(
     .eq("id", apiKey.id);
 }
 
-export async function updateDigitalQuoteSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  digitalQuoteEnabled: boolean,
-  digitalQuoteNotificationGroup: string[],
-  digitalQuoteIncludesPurchaseOrders: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(
-      sanitize({
-        digitalQuoteEnabled,
-        digitalQuoteNotificationGroup,
-        digitalQuoteIncludesPurchaseOrders
-      })
-    )
-    .eq("id", companyId);
-}
-
-export async function updateLogoDark(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  logoDark: string | null
-) {
-  return client
-    .from("company")
-    .update(
-      sanitize({
-        logoDark
-      })
-    )
-    .eq("id", companyId);
-}
-
-export async function updateLogoLight(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  logoLight: string | null
-) {
-  return client
-    .from("company")
-    .update(sanitize({ logoLight }))
-    .eq("id", companyId);
-}
-
-export async function updateLogoDarkIcon(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  logoDarkIcon: string | null
-) {
-  return client
-    .from("company")
-    .update(sanitize({ logoDarkIcon }))
-    .eq("id", companyId);
-}
-
-export async function updateLogoLightIcon(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  logoLightIcon: string | null
-) {
-  return client
-    .from("company")
-    .update(sanitize({ logoLightIcon }))
-    .eq("id", companyId);
-}
-
-export async function updateMaterialGeneratedIdsSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  materialGeneratedIds: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ materialGeneratedIds }))
-    .eq("id", companyId);
-}
-
-export async function updateMaterialUnitsSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  useMetric: boolean
-) {
-  return (client.from("companySettings") as any)
-    .update(sanitize({ useMetric }))
-    .eq("id", companyId);
-}
-
-export async function updateProductLabelSize(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  productLabelSize: string
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ productLabelSize }))
-    .eq("id", companyId);
-}
-
-export async function updatePurchasingPdfThumbnails(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  includeThumbnailsOnPurchasingPdfs: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ includeThumbnailsOnPurchasingPdfs }))
-    .eq("id", companyId);
-}
-
-export async function updateSalesPdfThumbnails(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  includeThumbnailsOnSalesPdfs: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ includeThumbnailsOnSalesPdfs }))
-    .eq("id", companyId);
-}
-
-export async function updateJobTravelerWorkInstructions(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  jobTravelerIncludeWorkInstructions: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ jobTravelerIncludeWorkInstructions }))
-    .eq("id", companyId);
-}
-
-export async function updateTimeCardSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  timeCardEnabled: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ timeCardEnabled }))
-    .eq("id", companyId);
-}
-
 export async function updateConsoleSetting(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -742,7 +1014,6 @@ export async function updateConsoleSetting(
       // Only grant what's needed for MES operations — not ERP modules.
       if (newType.data) {
         const mesModules = [
-          // Production: start/end operations, complete, scrap, rework
           {
             module: "Production",
             create: true,
@@ -750,7 +1021,6 @@ export async function updateConsoleSetting(
             delete: false,
             view: true
           },
-          // Inventory: issue materials, adjustments
           {
             module: "Inventory",
             create: true,
@@ -758,7 +1028,6 @@ export async function updateConsoleSetting(
             delete: false,
             view: true
           },
-          // Resources: view work centers, locations
           {
             module: "Resources",
             create: false,
@@ -766,7 +1035,6 @@ export async function updateConsoleSetting(
             delete: false,
             view: true
           },
-          // Items/Parts: view items for operations
           {
             module: "Items",
             create: false,
@@ -774,7 +1042,6 @@ export async function updateConsoleSetting(
             delete: false,
             view: true
           },
-          // Quality: record defects, non-conformances
           {
             module: "Quality",
             create: true,
@@ -782,7 +1049,6 @@ export async function updateConsoleSetting(
             delete: false,
             view: true
           },
-          // People: view employees (for console operator list)
           {
             module: "People",
             create: false,
@@ -829,133 +1095,6 @@ export async function updateConsoleSetting(
   return update;
 }
 
-export async function updateRfqReadySetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  rfqReadyNotificationGroup: string[]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ rfqReadyNotificationGroup }))
-    .eq("id", companyId);
-}
-
-export async function updateSuggestionNotificationSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  suggestionNotificationGroup: string[]
-) {
-  return client
-    .from("company")
-    .update(sanitize({ suggestionNotificationGroup }))
-    .eq("id", companyId);
-}
-
-export async function updateMaintenanceDispatchNotificationSettings(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  settings: {
-    maintenanceDispatchNotificationGroup?: string[];
-    qualityDispatchNotificationGroup?: string[];
-    operationsDispatchNotificationGroup?: string[];
-    otherDispatchNotificationGroup?: string[];
-  }
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize(settings))
-    .eq("id", companyId);
-}
-
-export async function updateSupplierQuoteNotificationSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  supplierQuoteNotificationGroup: string[]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ supplierQuoteNotificationGroup }))
-    .eq("id", companyId);
-}
-
-export async function updatePurchasePriceUpdateTimingSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  purchasePriceUpdateTiming: (typeof purchasePriceUpdateTimingTypes)[number]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ purchasePriceUpdateTiming }))
-    .eq("id", companyId);
-}
-
-export async function updateLeadTimesOnReceiptSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  updateLeadTimesOnReceipt: boolean
-) {
-  return (client.from("companySettings") as any)
-    .update(sanitize({ updateLeadTimesOnReceipt }))
-    .eq("id", companyId);
-}
-
-export async function updateSupplierApprovalSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  supplierApproval: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ supplierApproval }))
-    .eq("id", companyId);
-}
-
-export async function updateAccountsPayableAddressSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  accountsPayableAddress: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ accountsPayableAddress }))
-    .eq("id", companyId);
-}
-
-export async function updateAccountsReceivableAddressSetting(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  accountsReceivableAddress: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ accountsReceivableAddress }))
-    .eq("id", companyId);
-}
-
-export async function updateAccountsPayableEmail(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  accountsPayableEmail: string | undefined
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ accountsPayableEmail: accountsPayableEmail ?? null }))
-    .eq("id", companyId);
-}
-
-export async function updateAccountsReceivableEmail(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  accountsReceivableEmail: string | undefined
-) {
-  return client
-    .from("companySettings")
-    .update(
-      sanitize({ accountsReceivableEmail: accountsReceivableEmail ?? null })
-    )
-    .eq("id", companyId);
-}
-
 export async function updateDefaultSupplierCc(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -965,63 +1104,6 @@ export async function updateDefaultSupplierCc(
     .from("companySettings")
     .update(sanitize({ defaultSupplierCc }))
     .eq("id", companyId);
-}
-
-export async function updateDefaultCustomerCc(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  defaultCustomerCc: string[]
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ defaultCustomerCc }))
-    .eq("id", companyId);
-}
-
-export async function updateQuoteLineCategoryMarkups(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  quoteLineCategoryMarkups: Record<string, number>
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ quoteLineCategoryMarkups }))
-    .eq("id", companyId);
-}
-
-export async function updateSequence(
-  client: SupabaseClient<Database>,
-  table: string,
-  companyId: string,
-  sequence: Partial<z.infer<typeof sequenceValidator>> & {
-    updatedBy: string;
-  }
-) {
-  return client
-    .from("sequence")
-    .update(sanitize(sequence))
-    .eq("companyId", companyId)
-    .eq("table", table);
-}
-
-export async function updateIntegrationMetadata(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  integrationId: string,
-  metadata: any,
-  updatedBy?: string
-) {
-  return client
-    .from("companyIntegration")
-    .update(
-      sanitize({
-        metadata,
-        updatedAt: new Date().toISOString(),
-        updatedBy
-      })
-    )
-    .eq("companyId", companyId)
-    .eq("id", integrationId);
 }
 
 export async function upsertWebhook(

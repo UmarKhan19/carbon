@@ -1,7 +1,7 @@
-import { EXCHANGE_RATES_API_KEY } from "@carbon/auth";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Rates } from "@carbon/ee/exchange-rates.server";
 import { getExchangeRatesClient } from "@carbon/ee/exchange-rates.server";
+import { EXCHANGE_RATES_API_KEY } from "@carbon/env";
 import { inngest } from "../../client";
 
 type CurrencyCode =
@@ -171,10 +171,16 @@ export const updateExchangeRatesFunction = inngest.createFunction(
         const updatedAt = new Date().toISOString();
 
         try {
+          if (!company.data.companyGroupId) {
+            console.warn(
+              `Company ${integration.companyId} has no companyGroupId, skipping`
+            );
+            continue;
+          }
           const { data, error } = await serviceRole
             .from("currency")
             .select("*")
-            .eq("companyId", integration.companyId);
+            .eq("companyGroupId", company.data.companyGroupId);
 
           if (error) {
             console.error(

@@ -30,7 +30,7 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   LuChevronRight,
   LuGitBranch,
@@ -168,7 +168,13 @@ const QuoteMakeMethodTools = () => {
         type: "item",
         targetId: `${quoteId}:${lineId}`,
         sourceId,
-        configuration: JSON.stringify(configuration)
+        configuration: JSON.stringify(configuration),
+        billOfMaterial: "on",
+        billOfProcess: "on",
+        parameters: "on",
+        tools: "on",
+        steps: "on",
+        workInstructions: "on"
       },
       {
         method: "post",
@@ -202,8 +208,12 @@ const QuoteMakeMethodTools = () => {
       toast.error(error.message);
     }
 
+    // Only Draft versions can be overwritten - Active and Archived are read-only
+    const availableVersions =
+      data?.filter(({ status }) => status === "Draft") ?? [];
+
     setMakeMethods(
-      data?.map(({ id, version, status }) => ({
+      availableVersions.map(({ id, version, status }) => ({
         label: (
           <div className="flex items-center gap-2">
             <Badge variant="outline">V{version}</Badge>{" "}
@@ -211,11 +221,11 @@ const QuoteMakeMethodTools = () => {
           </div>
         ),
         value: id
-      })) ?? []
+      }))
     );
 
-    if (data?.length === 1) {
-      setSelectedMakeMethod(data[0].id);
+    if (availableVersions.length === 1) {
+      setSelectedMakeMethod(availableVersions[0].id);
     }
   };
 
@@ -226,7 +236,7 @@ const QuoteMakeMethodTools = () => {
   });
 
   return (
-    <>
+    <Fragment key={lineId}>
       {line &&
         permissions.can("update", "sales") &&
         (isQuoteLineMethod || isQuoteMakeMethod) && (
@@ -258,7 +268,10 @@ const QuoteMakeMethodTools = () => {
                       !permissions.can("update", "sales") || isConfigureLoading
                     }
                     isLoading={isConfigureLoading}
-                    onClick={configureSelectModal.onOpen}
+                    onClick={() => {
+                      setSelectedConfigureItemId(line?.itemId ?? null);
+                      configureSelectModal.onOpen();
+                    }}
                   >
                     Configure
                   </MenubarItem>
@@ -333,6 +346,7 @@ const QuoteMakeMethodTools = () => {
                           type={(line?.itemType ?? "Part") as "Part"}
                           blacklist={configurableItemIds}
                           includeInactive={includeInactive === true}
+                          locationId={routeData?.quote?.locationId ?? undefined}
                           replenishmentSystem="Make"
                         />
                         <div className="flex items-center space-x-2">
@@ -379,6 +393,7 @@ const QuoteMakeMethodTools = () => {
                         type={(line?.itemType ?? "Part") as "Part"}
                         blacklist={configurableItemIds}
                         includeInactive={includeInactive === true}
+                        locationId={routeData?.quote?.locationId ?? undefined}
                         replenishmentSystem="Make"
                       />
                       <div className="flex items-center space-x-2">
@@ -480,6 +495,7 @@ const QuoteMakeMethodTools = () => {
                     label={t`Target Method`}
                     type={(line?.itemType ?? "Part") as "Part"}
                     blacklist={configurableItemIds}
+                    locationId={routeData?.quote?.locationId ?? undefined}
                     onChange={(value) => {
                       if (value) {
                         getMakeMethods(value?.value);
@@ -503,6 +519,11 @@ const QuoteMakeMethodTools = () => {
                         setSelectedMakeMethod(null);
                       }
                     }}
+                    placeholder={
+                      makeMethods.length === 0
+                        ? t`No draft versions available`
+                        : undefined
+                    }
                   />
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -558,14 +579,14 @@ const QuoteMakeMethodTools = () => {
                 <Item
                   name="sourceId"
                   label={t`Item`}
+                  value={selectedConfigureItemId ?? undefined}
                   type={(line?.itemType ?? "Part") as "Part"}
                   includeInactive={includeInactive === true}
                   whitelist={configurableItemIds}
+                  locationId={routeData?.quote?.locationId ?? undefined}
                   replenishmentSystem="Make"
                   onChange={(value) => {
-                    if (value) {
-                      handleConfigureItemSelect(value.value);
-                    }
+                    setSelectedConfigureItemId(value?.value ?? null);
                   }}
                 />
               </ModalBody>
@@ -576,6 +597,14 @@ const QuoteMakeMethodTools = () => {
                 >
                   <Trans>Cancel</Trans>
                 </Button>
+                <Button
+                  isDisabled={!selectedConfigureItemId}
+                  onClick={() =>
+                    handleConfigureItemSelect(selectedConfigureItemId)
+                  }
+                >
+                  <Trans>Next</Trans>
+                </Button>
               </ModalFooter>
             </ValidatedForm>
           </ModalContent>
@@ -585,7 +614,11 @@ const QuoteMakeMethodTools = () => {
         <ConfiguratorModal
           open
           destructive
-          initialValues={{}}
+          initialValues={
+            line?.configuration
+              ? (line.configuration as Record<string, any>)
+              : {}
+          }
           groups={configurationParameters.groups}
           parameters={configurationParameters.parameters}
           onClose={() => {
@@ -598,7 +631,7 @@ const QuoteMakeMethodTools = () => {
           }}
         />
       )}
-    </>
+    </Fragment>
   );
 };
 

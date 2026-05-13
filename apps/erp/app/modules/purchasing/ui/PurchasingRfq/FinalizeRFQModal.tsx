@@ -44,7 +44,7 @@ const FinalizeRFQModal = ({
 }: FinalizeRFQModalProps) => {
   const { t } = useLingui();
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
   const fetcher = useFetcher<{ error: string | null }>();
   const isLoading = fetcher.state !== "idle";
 

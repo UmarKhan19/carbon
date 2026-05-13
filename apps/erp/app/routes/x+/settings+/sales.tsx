@@ -5,6 +5,7 @@ import {
   Boolean,
   Input,
   Number,
+  PhoneInput,
   Submit,
   ValidatedForm,
   validator
@@ -448,8 +449,8 @@ export default function SalesSettingsRoute() {
                   <Input name="state" label={t`State / Province`} />
                   <Input name="postalCode" label={t`Postal Code`} />
                   <Country name="countryCode" />
-                  <Input name="phone" label={t`Phone`} />
-                  <Input name="fax" label={t`Fax`} />
+                  <PhoneInput name="phone" label={t`Phone`} />
+                  <PhoneInput name="fax" label={t`Fax`} />
                 </div>
               </CardContent>
               <CardFooter>
@@ -640,7 +641,7 @@ export default function SalesSettingsRoute() {
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {companySettings.includeThumbnailsOnSalesPdfs ? (
                     <Trans>Thumbnails are included</Trans>

@@ -59,7 +59,7 @@ const SalesInvoicePostModal = ({
   const { t } = useLingui();
   const hasLinesToShip = linesToShip.length > 0;
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
 
   const [notificationType, setNotificationType] = useState(
     canEmail ? "Email" : "None"

@@ -2,6 +2,7 @@ import { useLingui } from "@lingui/react/macro";
 import {
   LuBox,
   LuChartLine,
+  LuClipboardCheck,
   LuFileText,
   LuShoppingCart,
   LuTags
@@ -68,6 +69,15 @@ export function useToolNavigation() {
       role: ["employee", "supplier"],
       icon: LuBox,
       shortcut: "Command+Shift+i"
+    },
+    {
+      name: t`Quality`,
+      to: path.to.toolQuality(itemId),
+      isDisabled: !routeData?.toolSummary?.requiresInspection,
+      role: ["employee"],
+      permission: "quality",
+      icon: LuClipboardCheck,
+      shortcut: "Command+Shift+q"
     }
   ].filter(
     (item) =>

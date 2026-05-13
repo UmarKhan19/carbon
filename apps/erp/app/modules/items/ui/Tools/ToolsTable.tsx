@@ -22,7 +22,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
+
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
@@ -54,7 +54,7 @@ import {
 import { useItemPostingGroups } from "~/components/Form/ItemPostingGroup";
 import { ReplenishmentSystemIcon } from "~/components/Icons";
 import { ConfirmDelete } from "~/components/Modals";
-import { usePermissions } from "~/hooks";
+import { useDateFormatter, usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { methodType } from "~/modules/shared";
 import type { action } from "~/routes/x+/items+/update";
@@ -76,23 +76,33 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
   const { t } = useLingui();
   const navigate = useNavigate();
   const permissions = usePermissions();
+  const { formatDate } = useDateFormatter();
 
-  const translateReplenishment = (v: string) =>
-    v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`;
-  const translateMethodType = (v: string) =>
-    v === "Purchase to Order"
-      ? t`Purchase to Order`
-      : v === "Pull from Inventory"
-        ? t`Pull from Inventory`
-        : t`Make to Order`;
-  const translateTrackingType = (v: string) =>
-    v === "Inventory"
-      ? t`Inventory`
-      : v === "Non-Inventory"
-        ? t`Non-Inventory`
-        : v === "Serial"
-          ? t`Serial`
-          : t`Batch`;
+  const translateReplenishment = useCallback(
+    (v: string) =>
+      v === "Buy" ? t`Buy` : v === "Make" ? t`Make` : t`Buy and Make`,
+    [t]
+  );
+  const translateMethodType = useCallback(
+    (v: string) =>
+      v === "Purchase to Order"
+        ? t`Purchase to Order`
+        : v === "Pull from Inventory"
+          ? t`Pull from Inventory`
+          : t`Make to Order`,
+    [t]
+  );
+  const translateTrackingType = useCallback(
+    (v: string) =>
+      v === "Inventory"
+        ? t`Inventory`
+        : v === "Non-Inventory"
+          ? t`Non-Inventory`
+          : v === "Serial"
+            ? t`Serial`
+            : t`Batch`,
+    [t]
+  );
 
   const deleteItemModal = useDisclosure();
   const [selectedItem, setSelectedItem] = useState<Tool | null>(null);
@@ -161,57 +171,7 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
           icon: <LuGroup />
         }
       },
-      {
-        accessorKey: "itemTrackingType",
-        header: t`Tracking`,
-        cell: (item) => (
-          <Badge variant="secondary">
-            <TrackingTypeIcon type={item.getValue<string>()} className="mr-2" />
-            <span>{translateTrackingType(item.getValue<string>())}</span>
-          </Badge>
-        ),
-        meta: {
-          filter: {
-            type: "static",
-            options: itemTrackingTypes.map((type) => ({
-              value: type,
-              label: (
-                <Badge variant="secondary">
-                  <TrackingTypeIcon type={type} className="mr-2" />
-                  <span>{translateTrackingType(type)}</span>
-                </Badge>
-              )
-            }))
-          },
-          icon: <TbTargetArrow />
-        }
-      },
 
-      {
-        accessorKey: "defaultMethodType",
-        header: t`Default Method`,
-        cell: (item) => (
-          <Badge variant="secondary">
-            <MethodIcon type={item.getValue<string>()} className="mr-2" />
-            <span>{translateMethodType(item.getValue<string>())}</span>
-          </Badge>
-        ),
-        meta: {
-          filter: {
-            type: "static",
-            options: methodType.map((value) => ({
-              value,
-              label: (
-                <Badge variant="secondary">
-                  <MethodIcon type={value} className="mr-2" />
-                  <span>{translateMethodType(value)}</span>
-                </Badge>
-              )
-            }))
-          },
-          icon: <RxCodesandboxLogo />
-        }
-      },
       {
         accessorKey: "replenishmentSystem",
         header: t`Replenishment`,
@@ -238,6 +198,56 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
             }))
           },
           icon: <LuLoaderCircle />
+        }
+      },
+      {
+        accessorKey: "defaultMethodType",
+        header: t`Default Method`,
+        cell: (item) => (
+          <Badge variant="secondary">
+            <MethodIcon type={item.getValue<string>()} className="mr-2" />
+            <span>{translateMethodType(item.getValue<string>())}</span>
+          </Badge>
+        ),
+        meta: {
+          filter: {
+            type: "static",
+            options: methodType.map((value) => ({
+              value,
+              label: (
+                <Badge variant="secondary">
+                  <MethodIcon type={value} className="mr-2" />
+                  <span>{translateMethodType(value)}</span>
+                </Badge>
+              )
+            }))
+          },
+          icon: <RxCodesandboxLogo />
+        }
+      },
+      {
+        accessorKey: "itemTrackingType",
+        header: t`Tracking`,
+        cell: (item) => (
+          <Badge variant="secondary">
+            <TrackingTypeIcon type={item.getValue<string>()} className="mr-2" />
+            <span>{translateTrackingType(item.getValue<string>())}</span>
+          </Badge>
+        ),
+        meta: {
+          filter: {
+            type: "static",
+            options: itemTrackingTypes.map((type) => ({
+              value: type,
+              label: (
+                <Badge variant="secondary">
+                  <TrackingTypeIcon type={type} className="mr-2" />
+                  <span>{translateTrackingType(type)}</span>
+                </Badge>
+              )
+            }))
+          },
+          icon: <TbTargetArrow />
         }
       },
       {
@@ -348,7 +358,17 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
       }
     ];
     return [...defaultColumns, ...customColumns];
-  }, [customColumns, people, tags, itemPostingGroups, t]);
+  }, [
+    customColumns,
+    people,
+    tags,
+    itemPostingGroups,
+    t,
+    translateMethodType,
+    translateReplenishment,
+    translateTrackingType,
+    formatDate
+  ]);
 
   const fetcher = useFetcher<typeof action>();
   useEffect(() => {
@@ -461,7 +481,12 @@ const ToolsTable = memo(({ data, tags, count }: ToolsTableProps) => {
         </DropdownMenuContent>
       );
     },
-    [onBulkUpdate, itemPostingGroups]
+    [
+      onBulkUpdate,
+      itemPostingGroups,
+      translateMethodType,
+      translateTrackingType
+    ]
   );
 
   const renderContextMenu = useMemo(() => {

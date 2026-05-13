@@ -3,12 +3,12 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Spinner } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
 import type { FileObject } from "@supabase/storage-js";
-import { Suspense, useRef } from "react";
+import { useRef } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Await, redirect, useLoaderData, useParams } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
+import { DeferredFiles } from "~/components";
 import { useRouteData } from "~/hooks";
 import type {
   Opportunity,
@@ -61,7 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -93,6 +93,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     id,
     quoteId,
     ...d,
+    companyGroupId,
     customFields: setCustomFields(formData),
     updatedBy: userId
   });
@@ -125,8 +126,6 @@ export default function QuoteDetailsRoute() {
 
   if (!quoteData) throw new Error("Could not find quote data");
 
-  const isReadOnly = isQuoteLocked(quoteData?.quote?.status);
-
   const shipmentFormRef = useRef<QuoteShipmentFormRef>(null);
 
   const handleEditShippingCost = () => {
@@ -157,7 +156,9 @@ export default function QuoteDetailsRoute() {
     shippingMethodId: quoteData?.shipment?.shippingMethodId ?? "",
     shippingTermId: quoteData?.shipment?.shippingTermId ?? "",
     receiptRequestedDate: quoteData?.shipment?.receiptRequestedDate ?? "",
-    shippingCost: quoteData?.shipment?.shippingCost ?? 0
+    shippingCost: quoteData?.shipment?.shippingCost ?? 0,
+    incoterm: quoteData?.shipment?.incoterm ?? undefined,
+    incotermLocation: quoteData?.shipment?.incotermLocation ?? ""
   };
 
   const paymentInitialValues = {
@@ -184,26 +185,16 @@ export default function QuoteDetailsRoute() {
         internalNotes={internalNotes}
         externalNotes={externalNotes}
       />
-      <Suspense
-        key={`documents-${quoteId}`}
-        fallback={
-          <div className="flex w-full min-h-[480px] h-full rounded bg-gradient-to-tr from-background to-card items-center justify-center">
-            <Spinner className="h-10 w-10" />
-          </div>
-        }
-      >
-        <Await resolve={quoteData.files}>
-          {(resolvedFiles) => (
-            <OpportunityDocuments
-              opportunity={quoteData.opportunity}
-              attachments={resolvedFiles}
-              id={quoteId}
-              type="Quote"
-              isReadOnly={isReadOnly}
-            />
-          )}
-        </Await>
-      </Suspense>
+      <DeferredFiles key={`documents-${quoteId}`} resolve={quoteData.files}>
+        {(resolvedFiles) => (
+          <OpportunityDocuments
+            opportunity={quoteData.opportunity}
+            attachments={resolvedFiles}
+            id={quoteId}
+            type="Quote"
+          />
+        )}
+      </DeferredFiles>
       <QuotePaymentForm
         key={`payment-${initialValues.id}`}
         initialValues={paymentInitialValues}

@@ -4,7 +4,6 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { FunctionRegion } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect, useParams } from "react-router";
 import { useRouteData } from "~/hooks";
@@ -69,8 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
             salesOrderId: d.sourceDocumentId,
             shipmentId: id,
             userId: userId
-          },
-          region: FunctionRegion.UsEast1
+          }
         });
         if (!salesOrderShipment.data || salesOrderShipment.error) {
           console.error(salesOrderShipment.error);
@@ -94,8 +92,7 @@ export async function action({ request }: ActionFunctionArgs) {
             purchaseOrderId: d.sourceDocumentId,
             shipmentId: id,
             userId: userId
-          },
-          region: FunctionRegion.UsEast1
+          }
         });
         if (!purchaseOrderShipment.data || purchaseOrderShipment.error) {
           console.error(purchaseOrderShipment.error);
@@ -118,8 +115,7 @@ export async function action({ request }: ActionFunctionArgs) {
             warehouseTransferId: d.sourceDocumentId,
             shipmentId: id,
             userId: userId
-          },
-          region: FunctionRegion.UsEast1
+          }
         });
         if (
           !warehouseTransferShipment.data ||
@@ -196,7 +192,7 @@ export default function ShipmentDetailsRoute() {
   };
 
   return (
-    <div className="flex flex-col gap-2 pb-16 w-full">
+    <>
       <ShipmentForm
         key={initialValues.sourceDocumentId}
         // @ts-ignore
@@ -213,6 +209,6 @@ export default function ShipmentDetailsRoute() {
         internalNotes={routeData.shipment.internalNotes as JSONContent}
         externalNotes={routeData.shipment.externalNotes as JSONContent}
       />
-    </div>
+    </>
   );
 }

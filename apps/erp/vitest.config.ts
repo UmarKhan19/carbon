@@ -1,10 +1,10 @@
+import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  plugins: [tsconfigPaths()],
   test: {
-    environment: "node",
-    globals: false,
-    include: ["test/**/*.test.ts"],
-    exclude: ["node_modules", "dist", ".turbo"]
+    include: ["app/**/*.test.ts", "app/**/*.test.tsx", "test/**/*.test.ts"],
+    passWithNoTests: true
   }
 });

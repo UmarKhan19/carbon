@@ -375,6 +375,7 @@ const QuoteLineForm = ({
                         type="Part"
                         value={itemData.itemId}
                         includeInactive
+                        locationId={routeData?.quote?.locationId ?? undefined}
                         onChange={(value) => {
                           onItemChange(value?.value as string);
                         }}

@@ -152,8 +152,6 @@ const CustomerForm = ({
                     }}
                   />
 
-                  <Input name="taxId" label={t`Tax ID`} />
-                  <Input name="vatNumber" label={t`VAT Number`} />
                   <Input name="website" label={t`Website`} />
 
                   {/* <EmailRecipients name="defaultCc" label="Default CC" /> */}

@@ -1,3 +1,9 @@
+# NOTE: For local dev, only `project_id` and `[functions.*]` sections are
+# authoritative. Runtime services (db/api/auth/storage/studio/inbucket/realtime)
+# are managed by docker-compose.dev.yml (see scripts/dev/cli.ts). The other
+# sections here are kept for `supabase functions deploy` and reference parity
+# with what `supabase start` used to provide.
+
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
 project_id = "carbon-database"
@@ -155,7 +161,6 @@ verify_jwt = true
 [functions.pick]
 enabled = true
 verify_jwt = true
-import_map = "./functions/pick/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/pick/index.ts"
@@ -166,7 +171,6 @@ entrypoint = "./functions/pick/index.ts"
 [functions.post-stock-transfer]
 enabled = true
 verify_jwt = true
-import_map = "./functions/post-stock-transfer/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/post-stock-transfer/index.ts"
@@ -175,11 +179,9 @@ entrypoint = "./functions/post-stock-transfer/index.ts"
 # static_files = [ "./functions/post-stock-transfer/*.html" ]
 
 
-
 [functions.transcription]
 enabled = true
 verify_jwt = true
-import_map = "./functions/transcription/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/transcription/index.ts"
@@ -190,7 +192,6 @@ entrypoint = "./functions/transcription/index.ts"
 [functions.embedding]
 enabled = true
 verify_jwt = true
-import_map = "./functions/embedding/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
 entrypoint = "./functions/embedding/index.ts"

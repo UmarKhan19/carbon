@@ -21,12 +21,13 @@ import {
   ModalCardHeader,
   ModalCardProvider,
   ModalCardTitle,
+  useDebounce,
   useDisclosure,
   VStack
 } from "@carbon/react";
 import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { LuChevronRight, LuPlus, LuTrash, LuTruck } from "react-icons/lu";
 import { useParams } from "react-router";
@@ -42,9 +43,8 @@ import {
   Number,
   NumberControlled,
   SelectControlled,
-  Shelf,
-  Submit,
-  UnitOfMeasure
+  StorageUnit,
+  Submit
 } from "~/components/Form";
 import {
   useCurrencyFormatter,
@@ -53,7 +53,7 @@ import {
   useRouteData,
   useUser
 } from "~/hooks";
-import { getDefaultShelfForJob } from "~/modules/inventory/inventory.service";
+import { getDefaultStorageUnitForJob } from "~/modules/inventory/inventory.service";
 import { methodType } from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
@@ -62,10 +62,12 @@ import {
   salesOrderLineValidator
 } from "../../sales.models";
 import type {
+  PriceTraceStep,
   SalesOrder,
   SalesOrderLine,
   SalesOrderLineType
 } from "../../types";
+import { PriceTracePopover } from "../Pricing/PriceTracePopover";
 import DeleteSalesOrderLine from "./DeleteSalesOrderLine";
 
 type SalesOrderLineFormProps = {
@@ -98,25 +100,55 @@ const SalesOrderLineForm = ({
 
   const [lineType, setLineType] = useState(initialValues.salesOrderLineType);
   const [locationId, setLocationId] = useState(initialValues.locationId ?? "");
+  const [saleQuantity, setSaleQuantity] = useState(
+    initialValues.saleQuantity ?? 1
+  );
+  const [isPriceResolving, setIsPriceResolving] = useState(false);
   const [itemData, setItemData] = useState<{
     itemId: string;
     methodType: string;
     description: string;
     unitPrice: number;
     uom: string;
-    shelfId: string;
+    storageUnitId: string;
     modelUploadId: string | null;
+    priceListId: string | null;
+    priceListName: string | null;
+    priceTrace: PriceTraceStep[] | null;
   }>({
     itemId: initialValues.itemId ?? "",
     description: initialValues.description ?? "",
     methodType: initialValues.methodType ?? "",
     unitPrice: initialValues.unitPrice ?? 0,
     uom: initialValues.unitOfMeasureCode ?? "",
-    shelfId: initialValues.shelfId ?? "",
-    modelUploadId: initialValues.modelUploadId ?? null
+    storageUnitId: initialValues.storageUnitId ?? "",
+    modelUploadId: initialValues.modelUploadId ?? null,
+    priceListId:
+      (initialValues as { priceListId?: string | null }).priceListId ?? null,
+    priceListName: null,
+    priceTrace:
+      (initialValues as { priceTrace?: PriceTraceStep[] | null }).priceTrace ??
+      null
   });
 
   const isEditing = initialValues.id !== undefined;
+
+  const pricingRuleId = (initialValues as { priceListId?: string | null })
+    .priceListId;
+
+  useEffect(() => {
+    if (!pricingRuleId || !carbon) return;
+    carbon
+      .from("pricingRule")
+      .select("name")
+      .eq("id", pricingRuleId)
+      .single()
+      .then(({ data }) => {
+        if (data?.name) {
+          setItemData((d) => ({ ...d, priceListName: data.name }));
+        }
+      });
+  }, [pricingRuleId, carbon]);
 
   const onTypeChange = (t: SalesOrderLineType) => {
     // @ts-ignore
@@ -127,17 +159,73 @@ const SalesOrderLineForm = ({
       unitPrice: 0,
       methodType: "",
       uom: "EA",
-      shelfId: "",
-      modelUploadId: null
+      storageUnitId: "",
+      modelUploadId: null,
+      priceListId: null,
+      priceListName: null,
+      priceTrace: null
     });
   };
 
   const currencyFormatter = useCurrencyFormatter();
   const percentFormatter = usePercentFormatter();
 
+  const resolvePrice = useCallback(
+    async (itemId: string, quantity: number) => {
+      const customerId = routeData?.salesOrder?.customerId;
+      if (!customerId) return null;
+
+      try {
+        const response = await fetch(path.to.api.salesResolvePrice, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ customerId, itemId, quantity })
+        });
+        if (response.ok) {
+          const result = await response.json();
+          return {
+            finalPrice: result.finalPrice as number,
+            priceListId: null as string | null,
+            priceListName: "Pricing Rules" as string | null,
+            trace: result.trace ?? null
+          };
+        }
+      } catch {
+        // Fall back to itemUnitSalePrice on any error
+      }
+      return null;
+    },
+    [routeData?.salesOrder?.customerId]
+  );
+
+  const debouncedQuantityResolve = useDebounce(async (qty: number) => {
+    if (!itemData.itemId) {
+      setIsPriceResolving(false);
+      return;
+    }
+    const result = await resolvePrice(itemData.itemId, qty);
+    if (result) {
+      setItemData((d) => ({
+        ...d,
+        unitPrice: result.finalPrice,
+        priceListId: result.priceListId,
+        priceListName: result.priceListName,
+        priceTrace: result.trace
+      }));
+    }
+    setIsPriceResolving(false);
+  }, 400);
+
+  const onQuantityChange = (qty: number) => {
+    setSaleQuantity(qty);
+    setIsPriceResolving(true);
+    debouncedQuantityResolve(qty);
+  };
+
   const onChange = async (itemId: string) => {
     if (!itemId) return;
     if (!carbon || !company.id) return;
+    setIsPriceResolving(true);
     const [item, price] = await Promise.all([
       carbon
         .from("item")
@@ -155,20 +243,38 @@ const SalesOrderLineForm = ({
         .maybeSingle()
     ]);
 
-    // Get default shelf or shelf with highest quantity
-    const defaultShelfId = locationId
-      ? await getDefaultShelfForJob(carbon, itemId, locationId, company.id)
+    // Get default storage unit or storage unit with highest quantity
+    const defaultStorageUnitId = locationId
+      ? await getDefaultStorageUnitForJob(
+          carbon,
+          itemId,
+          locationId,
+          company.id
+        )
       : null;
+
+    let resolvedPrice = price.data?.unitSalePrice ?? 0;
+    let priceListId: string | null = null;
+
+    const result = await resolvePrice(itemId, saleQuantity);
+    if (result) {
+      resolvedPrice = result.finalPrice;
+      priceListId = result.priceListId;
+    }
 
     setItemData({
       itemId,
       description: item.data?.name ?? "",
       methodType: item.data?.defaultMethodType ?? "",
-      unitPrice: price.data?.unitSalePrice ?? 0,
+      unitPrice: resolvedPrice,
       uom: item.data?.unitOfMeasureCode ?? "EA",
-      shelfId: defaultShelfId ?? "",
-      modelUploadId: item.data?.modelUploadId ?? null
+      storageUnitId: defaultStorageUnitId ?? "",
+      modelUploadId: item.data?.modelUploadId ?? null,
+      priceListId,
+      priceListName: result?.priceListName ?? null,
+      priceTrace: result?.trace ?? null
     });
+    setIsPriceResolving(false);
   };
 
   const onLocationChange = async (newLocation: { value: string } | null) => {
@@ -179,8 +285,8 @@ const SalesOrderLineForm = ({
     setLocationId(newLocation.value);
     if (!itemData.itemId) return;
 
-    // Get default shelf or shelf with highest quantity for the new location
-    const defaultShelfId = await getDefaultShelfForJob(
+    // Get default storage unit or storage unit with highest quantity for the new location
+    const defaultStorageUnitId = await getDefaultStorageUnitForJob(
       carbon,
       itemData.itemId,
       newLocation.value,
@@ -189,7 +295,7 @@ const SalesOrderLineForm = ({
 
     setItemData((d) => ({
       ...d,
-      shelfId: defaultShelfId ?? ""
+      storageUnitId: defaultStorageUnitId ?? ""
     }));
   };
 
@@ -228,11 +334,9 @@ const SalesOrderLineForm = ({
                       isEditing && !itemData?.itemId && "text-muted-foreground"
                     )}
                   >
-                    {isEditing ? (
-                      getItemReadableId(items, itemData?.itemId) || "..."
-                    ) : (
-                      <Trans>New Sales Order Line</Trans>
-                    )}
+                    {isEditing
+                      ? getItemReadableId(items, itemData?.itemId) || "..."
+                      : t`New Sales Order Line`}
                   </ModalCardTitle>
                   <ModalCardDescription>
                     {isEditing ? (
@@ -309,6 +413,19 @@ const SalesOrderLineForm = ({
                   name="modelUploadId"
                   value={itemData?.modelUploadId ?? undefined}
                 />
+                <Hidden
+                  name="priceListId"
+                  value={itemData?.priceListId ?? undefined}
+                />
+                <Hidden
+                  name="priceTrace"
+                  value={
+                    itemData?.priceTrace
+                      ? JSON.stringify(itemData.priceTrace)
+                      : undefined
+                  }
+                />
+                <Hidden name="unitOfMeasureCode" value={itemData.uom} />
                 <VStack>
                   <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
                     <Item
@@ -317,6 +434,7 @@ const SalesOrderLineForm = ({
                       type={lineType as "Part"}
                       typeFieldName="salesOrderLineType"
                       value={itemData.itemId}
+                      locationId={locationId}
                       onChange={(value) => {
                         onChange(value?.value as string);
                       }}
@@ -362,27 +480,37 @@ const SalesOrderLineForm = ({
                               }));
                           }}
                         />
-                        <Number name="saleQuantity" label={t`Quantity`} />
-                        <UnitOfMeasure
-                          name="unitOfMeasureCode"
-                          label={t`Unit of Measure`}
-                          value={itemData.uom}
-                        />
                         <NumberControlled
-                          name="unitPrice"
-                          label={t`Unit Price`}
-                          value={itemData.unitPrice}
-                          formatOptions={{
-                            style: "currency",
-                            currency: baseCurrency
-                          }}
-                          onChange={(value) =>
-                            setItemData((d) => ({
-                              ...d,
-                              unitPrice: value
-                            }))
-                          }
+                          name="saleQuantity"
+                          label={t`Quantity`}
+                          value={saleQuantity}
+                          onChange={onQuantityChange}
                         />
+                        <div className="flex flex-col gap-y-2 w-full">
+                          <div className="flex items-center justify-between min-h-[16px]">
+                            <span className="text-xs font-medium text-muted-foreground">
+                              Unit Price
+                            </span>
+                            <PriceTracePopover
+                              trace={itemData.priceTrace}
+                              currencyCode={baseCurrency}
+                            />
+                          </div>
+                          <NumberControlled
+                            name="unitPrice"
+                            value={itemData.unitPrice}
+                            formatOptions={{
+                              style: "currency",
+                              currency: baseCurrency
+                            }}
+                            onChange={(value) =>
+                              setItemData((d) => ({
+                                ...d,
+                                unitPrice: value
+                              }))
+                            }
+                          />
+                        </div>
                         <DatePicker
                           name="promisedDate"
                           label={t`Promised Date`}
@@ -396,7 +524,7 @@ const SalesOrderLineForm = ({
                         ].includes(lineType) && (
                           <Location
                             name="locationId"
-                            label={t`Location`}
+                            label={t`Shipping Location`}
                             onChange={onLocationChange}
                           />
                         )}
@@ -407,17 +535,17 @@ const SalesOrderLineForm = ({
                           "Fixture",
                           "Consumable"
                         ].includes(lineType) && (
-                          <Shelf
-                            name="shelfId"
-                            label={t`Shelf`}
+                          <StorageUnit
+                            name="storageUnitId"
+                            label={t`Storage Unit`}
                             locationId={locationId}
                             itemId={itemData.itemId}
-                            value={itemData.shelfId ?? undefined}
+                            value={itemData.storageUnitId ?? undefined}
                             onChange={(newValue) => {
                               if (newValue) {
                                 setItemData((d) => ({
                                   ...d,
-                                  shelfId: newValue?.id
+                                  storageUnitId: newValue?.id
                                 }));
                               }
                             }}
@@ -436,7 +564,7 @@ const SalesOrderLineForm = ({
                           onClick={costsDisclosure.onToggle}
                         >
                           <Label>
-                            <Trans>Tax & Additional Costs</Trans>
+                            <Trans>Tax &amp; Additional Costs</Trans>
                           </Label>
                           <HStack>
                             {(initialValues?.taxPercent ?? 0) > 0 && (
@@ -549,6 +677,7 @@ const SalesOrderLineForm = ({
               <ModalCardFooter>
                 <Submit
                   isDisabled={
+                    isPriceResolving ||
                     !isEditable ||
                     (isEditing
                       ? !permissions.can("update", "sales")

@@ -96,7 +96,8 @@ const ConsumableProperties = () => {
         | "itemTrackingType"
         | "itemPostingGroupId"
         | "consumableId"
-        | "active",
+        | "active"
+        | "requiresInspection",
       value: string | null
     ) => {
       const formData = new FormData();
@@ -422,6 +423,28 @@ const ConsumableProperties = () => {
           }}
         />
       </ValidatedForm>
+      {(routeData?.consumableSummary?.itemTrackingType === "Serial" ||
+        routeData?.consumableSummary?.itemTrackingType === "Batch") && (
+        <ValidatedForm
+          defaultValues={{
+            requiresInspection:
+              (routeData?.consumableSummary as any)?.requiresInspection ?? false
+          }}
+          validator={z.object({
+            requiresInspection: zfd.checkbox()
+          })}
+          className="w-full"
+        >
+          <Boolean
+            label={t`Requires Inspection`}
+            name="requiresInspection"
+            variant="small"
+            onChange={(value) => {
+              onUpdate("requiresInspection", value ? "on" : "off");
+            }}
+          />
+        </ValidatedForm>
+      )}
       <ValidatedForm
         defaultValues={{
           tags: routeData?.consumableSummary?.tags ?? []

@@ -98,9 +98,9 @@ export default function NewPurchaseOrderLineRoute() {
     purchaseOrderLineType: "Item" as MethodItemType,
     purchaseQuantity: 1,
     purchaseUnitOfMeasureCode: "",
-    requestedDate: undefined,
+    requiredDate: undefined,
     setupPrice: 0,
-    shelfId: "",
+    storageUnitId: "",
     supplierShippingCost: 0,
     supplierTaxAmount: 0,
     supplierUnitPrice: 0

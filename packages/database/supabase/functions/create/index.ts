@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
+import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/mod.ts";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 
 import z from "npm:zod@^3.24.1";
@@ -103,6 +104,11 @@ const payloadValidator = z.discriminatedUnion("type", [
     locationId: z.string(),
     shipmentId: z.string(),
     shipmentLineId: z.string(),
+    companyId: z.string(),
+    userId: z.string(),
+  }),
+  z.object({
+    type: z.literal("journalEntry"),
     companyId: z.string(),
     userId: z.string(),
   }),
@@ -490,13 +496,20 @@ serve(async (req: Request) => {
               .filter(Boolean) as string[]
           );
 
+          const companyRecord = await client
+            .from("company")
+            .select("companyGroupId")
+            .eq("id", companyId)
+            .single();
+          if (companyRecord.error) throw new Error(companyRecord.error.message);
+
           const exchangeRates = await Promise.all(
             Array.from(currencyCodes).map(async (currencyCode) => {
               const exchangeRate = await client
                 .from("currency")
                 .select("*")
                 .eq("code", currencyCode)
-                .eq("companyId", companyId)
+                .eq("companyGroupId", companyRecord.data.companyGroupId)
                 .single();
               return {
                 currencyCode,
@@ -824,6 +837,31 @@ serve(async (req: Request) => {
             .map((d) => d.id)
         );
 
+        // Map (itemId, locationId) -> defaultStorageUnitId. Receipt lines
+        // fall back to the pickMethod-configured storage unit for their
+        // destination location when the purchase order line doesn't pin
+        // one explicitly. Scoped by locationId because a single item can
+        // be stocked across multiple locations with different defaults
+        // per location (that's why pickMethod exists).
+        const receiptItemIds = purchaseOrderLines.data
+          .filter((d): d is typeof d & { itemId: string } => !!d.itemId)
+          .map((d) => d.itemId);
+        const pickMethods = await client
+          .from("pickMethod")
+          .select("itemId, locationId, defaultStorageUnitId")
+          .in("itemId", receiptItemIds);
+        const pickMethodKey = (itemId: string, loc: string | null) =>
+          `${itemId}::${loc ?? ""}`;
+        const defaultStorageUnitByItemLocation = new Map<string, string>();
+        for (const row of pickMethods.data ?? []) {
+          if (row.defaultStorageUnitId) {
+            defaultStorageUnitByItemLocation.set(
+              pickMethodKey(row.itemId, row.locationId),
+              row.defaultStorageUnitId
+            );
+          }
+        }
+
         const hasReceipt = !!receipt.data?.id;
         const isOutsideOperation =
           purchaseOrder.data.purchaseOrderType === "Outside Processing";
@@ -841,13 +879,13 @@ serve(async (req: Request) => {
           if (
             !d.itemId ||
             !d.purchaseQuantity ||
-            d.unitPrice === null ||
             d.purchaseOrderLineType === "Service" ||
-            isNaN(d.unitPrice)
+            d.purchaseOrderLineType === "G/L Account"
           ) {
             return acc;
           }
 
+          const unitPrice = d.unitPrice ?? 0;
           const outstandingQuantity =
             d.purchaseQuantity -
             (previouslyReceivedQuantitiesByLine[d.id!] ?? 0);
@@ -870,10 +908,15 @@ serve(async (req: Request) => {
             requiresBatchTracking:
               batchItems.has(d.itemId) && !isOutsideOperation,
             unitPrice:
-              d.unitPrice / (d.conversionFactor ?? 1) + shippingAndTaxUnitCost,
+              unitPrice / (d.conversionFactor ?? 1) + shippingAndTaxUnitCost,
             unitOfMeasure: d.inventoryUnitOfMeasureCode ?? "EA",
-            locationId: d.locationId,
-            shelfId: d.shelfId,
+            locationId: d.locationId ?? null,
+            storageUnitId:
+              d.storageUnitId ??
+              defaultStorageUnitByItemLocation.get(
+                pickMethodKey(d.itemId!, d.locationId ?? null)
+              ) ??
+              null,
             createdBy: userId ?? "",
           });
 
@@ -1057,7 +1100,7 @@ serve(async (req: Request) => {
             lineId: d.id,
             itemId: d.itemId,
             locationId: d.toLocationId ?? locationId,
-            shelfId: d.toShelfId,
+            storageUnitId: d.toStorageUnitId,
             requiresSerialTracking: serialTracking,
             requiresBatchTracking: batchTracking,
             receivedQuantity: quantityToReceive,
@@ -1235,7 +1278,7 @@ serve(async (req: Request) => {
             lineId: d.id,
             itemId: d.itemId,
             locationId: d.toLocationId ?? locationId,
-            shelfId: d.toShelfId,
+            storageUnitId: d.toStorageUnitId,
             requiresSerialTracking: serialTracking,
             requiresBatchTracking: batchTracking,
             receivedQuantity: quantityToReceive,
@@ -1299,7 +1342,7 @@ serve(async (req: Request) => {
                 lineId: d.lineId,
                 itemId: d.itemId,
                 locationId: d.locationId,
-                shelfId: d.shelfId,
+                storageUnitId: d.storageUnitId,
                 requiresSerialTracking: d.requiresSerialTracking,
                 requiresBatchTracking: d.requiresBatchTracking,
                 receivedQuantity: d.receivedQuantity,
@@ -1380,7 +1423,7 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          await trx
+          const newReceiptLineRows = await trx
             .insertInto("receiptLine")
             .values({
               ...data,
@@ -1389,7 +1432,10 @@ serve(async (req: Request) => {
               receivedQuantity: quantity,
               createdBy: userId,
             })
+            .returning(["id"])
             .execute();
+
+          const newReceiptLineId = newReceiptLineRows[0]?.id;
 
           await trx
             .updateTable("receiptLine")
@@ -1402,6 +1448,50 @@ serve(async (req: Request) => {
             })
             .where("id", "=", receiptLineId)
             .execute();
+
+          // Carry batch tracking onto the new line: clone each existing
+          // trackedEntity (batch number + expirationDate + attributes) and
+          // shrink the original entity's quantity by the split amount.
+          if (
+            !receiptLine.data.requiresSerialTracking &&
+            newReceiptLineId &&
+            trackedEntities.data?.length
+          ) {
+            for (const entity of trackedEntities.data) {
+              const attrs = (entity.attributes ?? {}) as Record<string, unknown>;
+              const { ["Receipt Line Index"]: _ignored, ...rest } = attrs;
+              const newAttributes = {
+                ...rest,
+                "Receipt Line": newReceiptLineId,
+              };
+
+              await trx
+                .insertInto("trackedEntity")
+                .values({
+                  id: nanoid(),
+                  quantity: quantity,
+                  status: entity.status,
+                  sourceDocument: entity.sourceDocument,
+                  sourceDocumentId: entity.sourceDocumentId,
+                  sourceDocumentReadableId: entity.sourceDocumentReadableId,
+                  readableId: entity.readableId,
+                  attributes: newAttributes,
+                  companyId: entity.companyId,
+                  createdBy: userId,
+                  itemId: entity.itemId,
+                  expirationDate: entity.expirationDate,
+                })
+                .execute();
+
+              await trx
+                .updateTable("trackedEntity")
+                .set({
+                  quantity: Math.max(0, (entity.quantity ?? 0) - quantity),
+                })
+                .where("id", "=", entity.id)
+                .execute();
+            }
+          }
         });
 
         return new Response(
@@ -1559,7 +1649,7 @@ serve(async (req: Request) => {
             lineId: d.id,
             itemId: d.itemId,
             locationId: d.fromLocationId ?? locationId,
-            shelfId: d.fromShelfId,
+            storageUnitId: d.fromStorageUnitId,
             requiresSerialTracking: serialTracking,
             requiresBatchTracking: batchTracking,
             shippedQuantity: quantityToShip,
@@ -1796,9 +1886,8 @@ serve(async (req: Request) => {
             if (
               !purchaseOrderLine.itemId ||
               !purchaseOrderLine.purchaseQuantity ||
-              purchaseOrderLine.unitPrice === null ||
               purchaseOrderLine.purchaseOrderLineType === "Service" ||
-              isNaN(purchaseOrderLine.unitPrice)
+              purchaseOrderLine.purchaseOrderLineType === "G/L Account"
             ) {
               continue;
             }
@@ -1832,7 +1921,7 @@ serve(async (req: Request) => {
                 unitOfMeasure:
                   purchaseOrderLine.purchaseUnitOfMeasureCode ?? "EA",
                 locationId: purchaseOrderLine.locationId,
-                shelfId: purchaseOrderLine.shelfId,
+                storageUnitId: purchaseOrderLine.storageUnitId,
                 createdBy: userId ?? "",
               })
               .execute();
@@ -2023,9 +2112,7 @@ serve(async (req: Request) => {
             if (
               !salesOrderLine.itemId ||
               !salesOrderLine.saleQuantity ||
-              salesOrderLine.unitPrice === null ||
-              salesOrderLine.salesOrderLineType === "Service" ||
-              isNaN(salesOrderLine.unitPrice)
+              salesOrderLine.salesOrderLineType === "Service"
             ) {
               continue;
             }
@@ -2156,7 +2243,7 @@ serve(async (req: Request) => {
                   unitPrice: shippingAndTaxUnitCost,
                   unitOfMeasure: salesOrderLine.unitOfMeasureCode ?? "EA",
                   locationId: salesOrderLine.locationId,
-                  shelfId: salesOrderLine.shelfId,
+                  storageUnitId: salesOrderLine.storageUnitId,
                   createdBy: userId ?? "",
                 })
                 .execute();
@@ -2446,7 +2533,7 @@ serve(async (req: Request) => {
                 unitPrice: shippingAndTaxUnitCost,
                 unitOfMeasure: salesOrderLine.data.unitOfMeasureCode ?? "EA",
                 locationId: salesOrderLine.data.locationId!,
-                shelfId: salesOrderLine.data.shelfId!,
+                storageUnitId: salesOrderLine.data.storageUnitId!,
                 createdBy: userId ?? "",
               })
               .execute();
@@ -2530,6 +2617,51 @@ serve(async (req: Request) => {
         return new Response(
           JSON.stringify({
             id: shipmentLineId,
+          }),
+          {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: 201,
+          }
+        );
+      } catch (err) {
+        console.error(err);
+        return new Response(JSON.stringify(err), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        });
+      }
+    }
+    case "journalEntry": {
+      let createdDocumentId;
+      try {
+        await db.transaction().execute(async (trx) => {
+          const journalEntryId = await getNextSequence(
+            trx,
+            "journalEntry",
+            companyId
+          );
+
+          const newJournalEntry = await trx
+            .insertInto("journal")
+            .values({
+              journalEntryId,
+              postingDate: new Date().toISOString().split("T")[0],
+              companyId,
+              sourceType: "Manual",
+              status: "Draft",
+              createdBy: userId,
+            })
+            .returning(["id"])
+            .execute();
+
+          createdDocumentId = newJournalEntry?.[0]?.id;
+          if (!createdDocumentId)
+            throw new Error("Failed to create journal entry");
+        });
+
+        return new Response(
+          JSON.stringify({
+            id: createdDocumentId,
           }),
           {
             headers: { ...corsHeaders, "Content-Type": "application/json" },

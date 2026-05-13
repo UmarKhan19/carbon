@@ -26,11 +26,12 @@ import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing",
-    role: "employee",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      create: "purchasing",
+      role: "employee",
+      bypassRls: true
+    });
 
   const { rfqId } = params;
   if (!rfqId) throw new Error("Could not find rfqId");
@@ -132,6 +133,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       supplierId,
       quotedDate: new Date().toISOString().split("T")[0],
       companyId,
+      companyGroupId,
       createdBy: userId
     });
 
@@ -153,6 +155,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
       await upsertSupplierQuoteLine(client, {
         supplierQuoteId,
+        supplierQuoteLineType: "Part",
         itemId: line.itemId,
         description: line.description ?? "",
         quantity: line.quantity ?? [1],
@@ -225,7 +228,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // Send emails if we have any contacts (using same format as supplier quote send)
   if (emailsToSend.length > 0 && company.data && user.data) {
     // Build attachments: RFQ-level documents + line-level documents
-    const attachments: Array<{ filename: string; content: string }> = [];
+    const attachments: Array<{ filename: string; path: string }> = [];
 
     // Fetch RFQ-level supplier interaction documents
     const rfqDocs = await getSupplierInteractionDocuments(
@@ -235,14 +238,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
 
     for (const doc of rfqDocs) {
-      const { data: fileData } = await client.storage
+      const storagePath = `${companyId}/supplier-interaction/${rfqId}/${doc.name}`;
+      const { data: signedUrlData } = await client.storage
         .from("private")
-        .download(`${companyId}/supplier-interaction/${rfqId}/${doc.name}`);
+        .createSignedUrl(storagePath, 3600);
 
-      if (fileData) {
-        const arrayBuffer = await fileData.arrayBuffer();
-        const base64 = Buffer.from(arrayBuffer).toString("base64");
-        attachments.push({ filename: doc.name, content: base64 });
+      if (signedUrlData?.signedUrl) {
+        attachments.push({ filename: doc.name, path: signedUrlData.signedUrl });
       }
     }
 
@@ -257,16 +259,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
       );
 
       for (const doc of lineDocs) {
-        const { data: fileData } = await client.storage
+        const storagePath = `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`;
+        const { data: signedUrlData } = await client.storage
           .from("private")
-          .download(
-            `${companyId}/supplier-interaction-line/${line.id}/${doc.name}`
-          );
+          .createSignedUrl(storagePath, 3600);
 
-        if (fileData) {
-          const arrayBuffer = await fileData.arrayBuffer();
-          const base64 = Buffer.from(arrayBuffer).toString("base64");
-          attachments.push({ filename: doc.name, content: base64 });
+        if (signedUrlData?.signedUrl) {
+          attachments.push({
+            filename: doc.name,
+            path: signedUrlData.signedUrl
+          });
         }
       }
     }
@@ -293,7 +295,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
         htmlParts.push(`<br><br>${emailSignature.replace(/\n/g, "<br>")}`);
 
-        await trigger("send-email-resend", {
+        await trigger("send-email", {
           to: [user.data.email, email.contactEmail],
           from: user.data.email,
           subject: emailSubject,

@@ -16,6 +16,7 @@ export type ComboboxProps = Omit<ComboboxBaseProps, "onChange"> & {
   label?: string;
   isLoading?: boolean;
   isOptional?: boolean;
+  isRequired?: boolean;
   helperText?: string;
   onChange?: (
     newValue: { value: string; label: string | React.ReactNode } | null
@@ -34,15 +35,18 @@ const Combobox = ({
   name,
   label,
   isLoading = false,
-  isOptional = false,
+  isOptional,
+  isRequired,
   helperText,
   ...props
 }: ComboboxProps) => {
-  const { getInputProps, error } = useField(name);
+  const { getInputProps, error, isOptional: fieldIsOptional } = useField(name);
   const [value, setValue] = useControlField<string | undefined>(name);
   const formState = useFormStateContext();
   const isReadOnly =
     formState.isReadOnly || formState.isDisabled || props.isReadOnly;
+  const resolvedIsOptional =
+    isOptional ?? (isRequired ? false : (fieldIsOptional ?? false));
 
   useEffect(() => {
     if (props.value !== null && props.value !== undefined)
@@ -58,9 +62,9 @@ const Combobox = ({
   };
 
   return (
-    <FormControl isInvalid={!!error}>
+    <FormControl isInvalid={!!error} isRequired={isRequired}>
       {label && (
-        <FormLabel htmlFor={name} isOptional={isOptional}>
+        <FormLabel htmlFor={name} isOptional={resolvedIsOptional}>
           {label}
         </FormLabel>
       )}
@@ -82,7 +86,7 @@ const Combobox = ({
           });
           onChange(newValue?.replace(/"/g, '\\"') ?? "");
         }}
-        isClearable={isOptional && !isReadOnly}
+        isClearable={resolvedIsOptional && !isReadOnly}
         isReadOnly={isReadOnly}
         isLoading={isLoading}
         className="w-full"

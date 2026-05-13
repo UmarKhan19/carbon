@@ -5,7 +5,7 @@ import { validationError, validator } from "@carbon/form";
 import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
-import { useSettings, useUser } from "~/hooks";
+import { useSupplierApprovalRequired, useUser } from "~/hooks";
 import { supplierValidator, upsertSupplier } from "~/modules/purchasing";
 import SupplierForm from "~/modules/purchasing/ui/Supplier/SupplierForm";
 import { setCustomFields } from "~/utils/form";
@@ -67,8 +67,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function SuppliersNewRoute() {
   const { company } = useUser();
-  const settings = useSettings();
-  const supplierApprovalRequired = settings?.supplierApproval ?? false;
+  const supplierApprovalRequired = useSupplierApprovalRequired();
 
   const initialValues = {
     name: "",

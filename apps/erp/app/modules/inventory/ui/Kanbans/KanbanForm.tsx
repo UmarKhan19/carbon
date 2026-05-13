@@ -23,7 +23,7 @@ import {
   Location,
   Number,
   SequenceOrCustomId,
-  Shelf,
+  StorageUnit,
   Submit,
   Supplier,
   UnitOfMeasure
@@ -50,8 +50,8 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
 
   const isEditing = !!initialValues.id;
 
-  const [shelfId, setShelfId] = useState<string | null>(
-    initialValues.shelfId || null
+  const [storageUnitId, setStorageUnitId] = useState<string | null>(
+    initialValues.storageUnitId || null
   );
   const [itemType, setItemType] = useState<MethodItemType | "Item">("Item");
   const [itemId, setItemId] = useState<string>(initialValues.itemId || "");
@@ -75,7 +75,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
 
     setItemId(value.value);
 
-    const [item, shelf] = await Promise.all([
+    const [item, storageUnit] = await Promise.all([
       carbon
         .from("item")
         .select("replenishmentSystem, unitOfMeasureCode")
@@ -83,7 +83,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
         .single(),
       carbon
         .from("pickMethod")
-        .select("defaultShelfId")
+        .select("defaultStorageUnitId")
         .eq("itemId", value.value)
         .eq("companyId", company.id)
         .eq("locationId", locationId)
@@ -94,8 +94,8 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
       return;
     }
     setSelectedReplenishmentSystem(item.data?.replenishmentSystem || "Buy");
-    if (shelf.data?.defaultShelfId) {
-      setShelfId(shelf.data.defaultShelfId);
+    if (storageUnit.data?.defaultStorageUnitId) {
+      setStorageUnitId(storageUnit.data.defaultStorageUnitId);
     }
 
     // Set inventory unit of measure from item
@@ -168,7 +168,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
 
   const onLocationChange = (value: { value: string } | null) => {
     setLocationId(value?.value || "");
-    setShelfId(null);
+    setStorageUnitId(null);
   };
 
   return (
@@ -204,6 +204,7 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
                   name="itemId"
                   label={t`Item`}
                   type={itemType}
+                  locationId={locationId || undefined}
                   onTypeChange={(t) => setItemType(t as MethodItemType)}
                   onChange={onItemChange}
                   isReadOnly={isEditing}
@@ -278,13 +279,13 @@ const KanbanForm = ({ initialValues, onClose }: KanbanFormProps) => {
                   isReadOnly={isEditing}
                 />
 
-                <Shelf
-                  name="shelfId"
-                  label={t`Shelf`}
+                <StorageUnit
+                  name="storageUnitId"
+                  label={t`Storage Unit`}
                   locationId={locationId}
-                  value={shelfId ?? undefined}
+                  value={storageUnitId ?? undefined}
                   onChange={(value) => {
-                    if (value) setShelfId(value?.id ?? null);
+                    if (value) setStorageUnitId(value?.id ?? null);
                   }}
                 />
 

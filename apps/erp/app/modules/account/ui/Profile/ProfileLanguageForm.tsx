@@ -1,13 +1,29 @@
 import { ValidatedForm } from "@carbon/form";
-import { resolveLanguage } from "@carbon/locale";
-import { VStack } from "@carbon/react";
+import {
+  getSortedLanguageSelectOptions,
+  resolveLanguage
+} from "@carbon/locale";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { useMemo } from "react";
 import { Hidden, Select, Submit } from "~/components/Form";
 import { path } from "~/utils/path";
 import { accountLanguageValidator } from "../../account.models";
 
 const ProfileLanguageForm = ({ locale }: { locale: string }) => {
   const { t } = useLingui();
+
+  const options = useMemo(
+    () => getSortedLanguageSelectOptions(locale),
+    [locale]
+  );
 
   return (
     <ValidatedForm
@@ -19,26 +35,25 @@ const ProfileLanguageForm = ({ locale }: { locale: string }) => {
       }}
       className="w-full"
     >
-      <VStack spacing={4}>
-        <Select
-          name="locale"
-          label={t`Language`}
-          options={[
-            {
-              label: t`English`,
-              value: "en"
-            },
-            { label: t`Polish`, value: "pl" }
-          ]}
-        />
-        <p className="text-sm text-muted-foreground">
-          <Trans>Choose your preferred language for the interface.</Trans>
-        </p>
-        <Hidden name="intent" value="locale" />
-        <Submit>
-          <Trans>Save</Trans>
-        </Submit>
-      </VStack>
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <Trans>Language</Trans>
+          </CardTitle>
+          <CardDescription>
+            <Trans>Choose your preferred language for the interface.</Trans>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Select name="locale" label={t`Language`} options={options} />
+          <Hidden name="intent" value="locale" />
+        </CardContent>
+        <CardFooter>
+          <Submit>
+            <Trans>Save</Trans>
+          </Submit>
+        </CardFooter>
+      </Card>
     </ValidatedForm>
   );
 };

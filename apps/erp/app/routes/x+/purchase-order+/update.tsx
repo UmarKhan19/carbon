@@ -5,7 +5,7 @@ import { isPurchaseOrderLocked } from "~/modules/purchasing";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "purchasing"
   });
 
@@ -25,18 +25,20 @@ export async function action({ request }: ActionFunctionArgs) {
       .in("id", ids as string[]);
   }
 
-  // Check if any of the POs are locked
-  const purchaseOrders = await client
-    .from("purchaseOrder")
-    .select("status")
-    .in("id", ids as string[]);
-  const lockedError = requireUnlockedBulk({
-    statuses: (purchaseOrders.data ?? []).map((d) => d.status),
-    checkFn: isPurchaseOrderLocked,
-    message: "Cannot modify a confirmed purchase order."
-  });
-  if (lockedError) {
-    return lockedError;
+  // Check if any of the POs are locked except for deliveryDate
+  if (field !== "deliveryDate") {
+    const purchaseOrders = await client
+      .from("purchaseOrder")
+      .select("status")
+      .in("id", ids as string[]);
+    const lockedError = requireUnlockedBulk({
+      statuses: (purchaseOrders.data ?? []).map((d) => d.status),
+      checkFn: isPurchaseOrderLocked,
+      message: "Cannot modify a confirmed purchase order."
+    });
+    if (lockedError) {
+      return lockedError;
+    }
   }
 
   if (typeof value !== "string" && value !== null) {
@@ -57,7 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
           currencyCode = supplier.data.currencyCode;
           const currency = await getCurrencyByCode(
             client,
-            companyId,
+            companyGroupId,
             currencyCode
           );
           return await client
@@ -119,7 +121,7 @@ export async function action({ request }: ActionFunctionArgs) {
       if (value) {
         const currency = await getCurrencyByCode(
           client,
-          companyId,
+          companyGroupId,
           value as string
         );
         if (currency.data) {

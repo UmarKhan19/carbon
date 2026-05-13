@@ -1,5 +1,6 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
+import { pluckUnique } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";
 import type { FlatTreeItem } from "~/components/TreeView";
 import { flattenTree } from "~/components/TreeView";
@@ -35,11 +36,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     methodTree.data.length > 0 ? flattenTree(methodTree.data[0]) : []
   ) satisfies FlatTreeItem<Method>[];
 
-  const makeMethodIds = [
-    ...new Set(methods.map((method) => method.data.makeMethodId))
-  ];
+  const makeMethodIds = pluckUnique(methods, (m) => m.data.makeMethodId);
 
-  const itemIds = [...new Set(methods.map((m) => m.data.itemId))];
+  const itemIds = pluckUnique(methods, (m) => m.data.itemId);
 
   const [methodOperations, workCentersResult, lotSizesResult] =
     await Promise.all([

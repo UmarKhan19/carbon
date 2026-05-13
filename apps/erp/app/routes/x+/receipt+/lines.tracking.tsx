@@ -19,20 +19,29 @@ export async function action({ request, context }: ActionFunctionArgs) {
     const batchNumber = formData.get("batchNumber") as string;
     const quantity = Number(formData.get("quantity"));
     const properties = formData.get("properties") as string | null;
-    // First, get or create the batch number record
-    const { data: trackedEntity, error: batchQueryError } = await client
-      .from("trackedEntity")
-      .select("*")
-      .eq("attributes ->> Receipt", receiptId)
-      .eq("readableId", batchNumber)
-      .eq("companyId", companyId)
-      .maybeSingle();
+    const passedTrackedEntityId = formData.get("trackedEntityId") as
+      | string
+      | null;
 
-    if (batchQueryError) {
-      return data({ error: "Failed to query batch number" }, { status: 500 });
+    // Resolve the tracked entity id. Prefer the id passed from the form (the
+    // existing entity for this receipt line). Fall back to lookup by Receipt
+    // Line so a stale batch-number rename never orphans the prior entity.
+    let trackedEntityId: string | undefined =
+      passedTrackedEntityId ?? undefined;
+    if (!trackedEntityId) {
+      const { data: existing, error: batchQueryError } = await client
+        .from("trackedEntity")
+        .select("id")
+        .eq("attributes ->> Receipt Line", receiptLineId)
+        .eq("companyId", companyId)
+        .maybeSingle();
+
+      if (batchQueryError) {
+        return data({ error: "Failed to query batch number" }, { status: 500 });
+      }
+      trackedEntityId = existing?.id;
     }
 
-    const trackedEntityId = trackedEntity?.id;
     let propertiesJson = {};
     try {
       propertiesJson = properties ? JSON.parse(properties) : {};
@@ -61,6 +70,7 @@ export async function action({ request, context }: ActionFunctionArgs) {
   } else if (trackingType === "serial") {
     const serialNumber = formData.get("serialNumber") as string;
     const index = Number(formData.get("index"));
+    const expiryDate = formData.get("expiryDate") as string | null;
 
     // Check if the serial number is already used for a different receipt line or index
     const { data: existingEntityWithIndex, error: indexQueryError } =
@@ -120,7 +130,8 @@ export async function action({ request, context }: ActionFunctionArgs) {
         p_receipt_line_id: receiptLineId,
         p_receipt_id: receiptId,
         p_serial_number: serialNumber,
-        p_index: index
+        p_index: index,
+        p_expiry_date: expiryDate || undefined
       }
     );
 

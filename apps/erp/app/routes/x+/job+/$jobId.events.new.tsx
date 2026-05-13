@@ -1,5 +1,6 @@
 import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -23,7 +24,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { jobId } = params;
   if (!jobId) throw notFound("jobId not found");
 
-  const [jobOperations] = await Promise.all([getJobOperations(client, jobId)]);
+  const jobOperations = await getJobOperations(client, jobId);
 
   const operationOptions =
     jobOperations.data?.map((operation) => ({
@@ -83,6 +84,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
         error(insert.error, "Failed to insert production event")
       )
     );
+  }
+
+  if (d.endTime) {
+    const serviceRole = await getCarbonServiceRole();
+    await serviceRole.functions.invoke("post-production-event", {
+      body: {
+        productionEventId: insert.data.id,
+        userId,
+        companyId
+      }
+    });
   }
 
   return modal

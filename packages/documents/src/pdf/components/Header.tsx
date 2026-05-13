@@ -9,6 +9,7 @@ type HeaderProps = {
   documentId?: string | null;
   date?: string | null;
   currencyCode?: string | null;
+  locale?: string;
 };
 
 const tw = createTw({
@@ -30,13 +31,7 @@ const tw = createTw({
   }
 });
 
-const Header = ({
-  company,
-  title,
-  documentId,
-  date,
-  currencyCode
-}: HeaderProps) => {
+const Header = ({ company, title, documentId, date, locale }: HeaderProps) => {
   return (
     <>
       <View style={tw("flex flex-row justify-between mb-1")}>
@@ -71,12 +66,7 @@ const Header = ({
           )}
           {date && (
             <Text style={tw("text-sm font-bold text-gray-600 tracking-tight")}>
-              Date: {formatDate(date)}
-            </Text>
-          )}
-          {currencyCode && (
-            <Text style={tw("text-sm font-bold text-gray-600 tracking-tight")}>
-              Currency: {currencyCode}
+              {formatDate(date, undefined, locale)}
             </Text>
           )}
         </View>

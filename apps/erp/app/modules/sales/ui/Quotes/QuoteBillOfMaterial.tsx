@@ -55,11 +55,11 @@ import {
   Item,
   NumberControlled,
   Select,
-  Shelf,
+  StorageUnit,
   Submit,
   UnitOfMeasure
 } from "~/components/Form";
-import { useShelves } from "~/components/Form/Shelf";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import type {
   Item as SortableItem,
   SortableItemRenderProps
@@ -693,7 +693,7 @@ function MaterialForm({
     unitOfMeasureCode: string;
     quantity: number;
     kit: boolean;
-    shelfId?: string;
+    storageUnitId?: string;
     quoteOperationId?: string;
     itemReplenishmentSystem: string;
   }>({
@@ -704,7 +704,7 @@ function MaterialForm({
     unitOfMeasureCode: item.data.unitOfMeasureCode ?? "EA",
     quantity: item.data.quantity ?? 1,
     kit: item.data.kit ?? false,
-    shelfId: item.data.shelfId,
+    storageUnitId: item.data.storageUnitId,
     quoteOperationId: item.data.quoteOperationId,
     itemReplenishmentSystem: item.data.item?.replenishmentSystem ?? "Buy"
   });
@@ -813,7 +813,7 @@ function MaterialForm({
   const sourceDisclosure = useDisclosure();
   const backflushDisclosure = useDisclosure();
   const locationId = routeData?.quote?.locationId ?? undefined;
-  const shelves = useShelves(locationId);
+  const storageUnits = useStorageUnits(locationId);
 
   return (
     <ValidatedForm
@@ -845,6 +845,7 @@ function MaterialForm({
           name="itemId"
           label={itemType}
           includeInactive
+          locationId={locationId}
           validItemTypes={["Consumable", "Material", "Part"]}
           type={itemType}
           onChange={(value) => {
@@ -931,11 +932,12 @@ function MaterialForm({
             />
             <Badge variant="secondary">
               <LuGitPullRequest className="size-3 mr-1" />
-              {shelves.options?.find((s) => s.value === itemData.shelfId)
-                ?.label ??
+              {storageUnits.options?.find(
+                (s) => s.value === itemData.storageUnitId
+              )?.label ??
                 (itemData.methodType === "Make to Order"
                   ? "WIP"
-                  : "Default Shelf")}
+                  : "Default Storage Unit")}
             </Badge>
             <IconButton
               icon={<LuChevronRight />}
@@ -971,9 +973,9 @@ function MaterialForm({
             }}
             replenishmentSystem={itemData.itemReplenishmentSystem}
           />
-          <Shelf
-            name="shelfId"
-            label={t`Shelf`}
+          <StorageUnit
+            name="storageUnitId"
+            label={t`Storage Unit`}
             locationId={locationId}
             itemId={itemData.itemId}
           />

@@ -20,10 +20,16 @@ import {
   Template
 } from "./components";
 
+type SalesInvoiceLocations =
+  Database["public"]["Views"]["salesInvoiceLocations"]["Row"] & {
+    customerTaxId?: string | null;
+    customerVatNumber?: string | null;
+  };
+
 interface SalesInvoicePDFProps extends PDF {
   salesInvoice: Database["public"]["Views"]["salesInvoices"]["Row"];
   salesInvoiceLines: Database["public"]["Views"]["salesInvoiceLines"]["Row"][];
-  salesInvoiceLocations: Database["public"]["Views"]["salesInvoiceLocations"]["Row"];
+  salesInvoiceLocations: SalesInvoiceLocations;
   salesInvoiceShipment: Database["public"]["Tables"]["salesInvoiceShipment"]["Row"];
   accountsReceivableBillingAddress?: AccountsReceivableBillingAddress | null;
   companySettings?:
@@ -58,7 +64,6 @@ const SalesInvoicePDF = ({
   accountsReceivableBillingAddress,
   company,
   companySettings,
-  locale,
   meta,
   salesInvoice,
   salesInvoiceShipment,
@@ -68,6 +73,7 @@ const SalesInvoicePDF = ({
   paymentTerms,
   shippingMethods,
   thumbnails,
+  locale,
   title = "Invoice"
 }: SalesInvoicePDFProps) => {
   const {
@@ -78,6 +84,9 @@ const SalesInvoicePDF = ({
     customerStateProvince,
     customerPostalCode,
     customerCountryName,
+    customerTaxId,
+    customerVatNumber,
+    customerEori,
     invoiceCustomerName,
     invoiceAddressLine1,
     invoiceAddressLine2,
@@ -105,6 +114,8 @@ const SalesInvoicePDF = ({
     (method) => method.id === salesInvoiceShipment?.shippingMethodId
   );
 
+  const watermarkSrc = company.logoWatermark;
+
   let rowIndex = 0;
 
   return (
@@ -115,13 +126,32 @@ const SalesInvoicePDF = ({
         keywords: meta?.keywords ?? "sales invoice",
         subject: meta?.subject ?? "Invoice"
       }}
+      footerDocumentId={salesInvoice?.invoiceId}
     >
+      {watermarkSrc && (
+        <View
+          fixed
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            alignItems: "center",
+            marginTop: 100,
+            opacity: 0.07
+          }}
+        >
+          <Image src={watermarkSrc} style={{ width: "50%" }} />
+        </View>
+      )}
       <Header
         company={company}
         title="Invoice"
         documentId={salesInvoice?.invoiceId}
         date={salesInvoice?.dateIssued}
         currencyCode={salesInvoice?.currencyCode}
+        locale={locale}
       />
 
       <PartyDetails
@@ -147,7 +177,10 @@ const SalesInvoicePDF = ({
           city: customerCity,
           stateProvince: customerStateProvince,
           postalCode: customerPostalCode,
-          countryCode: customerCountryName
+          countryCode: customerCountryName,
+          taxId: customerTaxId,
+          vatNumber: customerVatNumber,
+          eori: customerEori
         }}
         counterPartyLabel="Buyer"
         accountsReceivableEmail={companySettings?.accountsReceivableEmail}
@@ -185,10 +218,16 @@ const SalesInvoicePDF = ({
             </Text>
             <View style={tw("text-[10px] text-gray-800")}>
               {salesInvoice?.dateIssued && (
-                <Text>Date Issued: {formatDate(salesInvoice.dateIssued)}</Text>
+                <Text>
+                  Date Issued:{" "}
+                  {formatDate(salesInvoice.dateIssued, undefined, locale)}
+                </Text>
               )}
               {salesInvoice?.dateDue && (
-                <Text>Due Date: {formatDate(salesInvoice.dateDue)}</Text>
+                <Text>
+                  Due Date:{" "}
+                  {formatDate(salesInvoice.dateDue, undefined, locale)}
+                </Text>
               )}
               {salesInvoice?.customerReference && (
                 <Text>Customer Ref: {salesInvoice.customerReference}</Text>
@@ -198,6 +237,14 @@ const SalesInvoicePDF = ({
               {salesInvoiceShipment?.shippingTermId && (
                 <Text>
                   Shipping Terms: {salesInvoiceShipment.shippingTermId}
+                </Text>
+              )}
+              {salesInvoiceShipment?.incoterm && (
+                <Text>
+                  Incoterm: {salesInvoiceShipment.incoterm}
+                  {salesInvoiceShipment.incotermLocation
+                    ? ` - ${salesInvoiceShipment.incotermLocation}`
+                    : ""}
                 </Text>
               )}
             </View>
@@ -435,7 +482,11 @@ const SalesInvoicePDF = ({
         </View>
       </View>
 
-      <Note title="Standard Terms & Conditions" content={terms} />
+      {terms?.content && terms.content.length > 0 && (
+        <View break>
+          <Note title="Standard Terms & Conditions" content={terms} />
+        </View>
+      )}
     </Template>
   );
 };

@@ -20,6 +20,7 @@ import {
   Input,
   Location,
   Number,
+  Select,
   ShippingMethod,
   Submit
 } from "~/components/Form";
@@ -29,6 +30,7 @@ import {
   isPurchaseOrderLocked,
   purchaseOrderDeliveryValidator
 } from "~/modules/purchasing";
+import { incoterms } from "~/modules/shared";
 import type { action } from "~/routes/x+/purchase-order+/$orderId.delivery";
 import { path } from "~/utils/path";
 
@@ -67,6 +69,9 @@ const PurchaseOrderDeliveryForm = forwardRef<
     initialValues.customerId
   );
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  const [incoterm, setIncoterm] = useState<string | undefined>(
+    initialValues.incoterm || undefined
+  );
 
   const shippingCostRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -127,17 +132,30 @@ const PurchaseOrderDeliveryForm = forwardRef<
               name="shippingMethodId"
               label={t`Shipping Method`}
             />
+            <Select
+              name="incoterm"
+              label={t`Incoterm`}
+              isClearable
+              options={incoterms.map((i) => ({ value: i, label: i }))}
+              onChange={(v) => setIncoterm(v?.value as string)}
+            />
+            {incoterm && (
+              <Input name="incotermLocation" label={t`Incoterm Location`} />
+            )}
 
             <DatePicker name="receiptRequestedDate" label={t`Requested Date`} />
             <DatePicker name="receiptPromisedDate" label={t`Promised Date`} />
             <DatePicker name="deliveryDate" label={t`Delivery Date`} />
 
             <Input name="trackingNumber" label={t`Tracking Number`} />
-            <Boolean
-              name="dropShipment"
-              label={t`Drop Shipment`}
-              onChange={setDropShip}
-            />
+            <div className="col-span-3">
+              <Boolean
+                name="dropShipment"
+                label={t`Drop Shipment`}
+                bordered
+                onChange={setDropShip}
+              />
+            </div>
             {dropShip && (
               <>
                 <Customer

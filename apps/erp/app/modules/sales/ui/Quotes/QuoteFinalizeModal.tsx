@@ -62,7 +62,7 @@ const QuotationFinalizeModal = ({
   if (!quoteId) throw new Error("quoteId not found");
 
   const integrations = useIntegrations();
-  const canEmail = integrations.has("resend");
+  const canEmail = integrations.has("email");
   const { carbon } = useCarbon();
 
   const [loading, setLoading] = useState(true);

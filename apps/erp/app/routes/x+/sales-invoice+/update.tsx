@@ -6,7 +6,7 @@ import { isSalesInvoiceLocked } from "~/modules/invoicing";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -27,12 +27,15 @@ export async function action({ request }: ActionFunctionArgs) {
     .from("salesInvoice")
     .select("status")
     .in("id", ids as string[]);
-  const lockedError = requireUnlockedBulk({
-    statuses: (salesInvoices.data ?? []).map((si) => si.status),
-    checkFn: isSalesInvoiceLocked,
-    message: "Cannot modify a locked sales invoice."
-  });
-  if (lockedError) return lockedError;
+  const dateFields = ["dateIssued", "dateDue", "datePaid"];
+  if (!dateFields.includes(field)) {
+    const lockedError = requireUnlockedBulk({
+      statuses: (salesInvoices.data ?? []).map((si) => si.status),
+      checkFn: isSalesInvoiceLocked,
+      message: "Cannot modify a locked sales invoice."
+    });
+    if (lockedError) return lockedError;
+  }
 
   switch (field) {
     case "invoiceCustomerId":
@@ -48,7 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
           currencyCode = customer.data.currencyCode;
           const currency = await getCurrencyByCode(
             client,
-            companyId,
+            companyGroupId,
             currencyCode
           );
           return await client
@@ -110,7 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
       if (value) {
         const currency = await getCurrencyByCode(
           client,
-          companyId,
+          companyGroupId,
           value as string
         );
         if (currency.data) {

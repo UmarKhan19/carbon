@@ -39,7 +39,8 @@ import {
 import {
   convertDateStringToIsoString,
   formatDurationMilliseconds,
-  formatRelativeTime
+  formatRelativeTime,
+  pluckUnique
 } from "@carbon/utils";
 import { now, toCalendarDateTime } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -702,8 +703,7 @@ function WorkCenterCards({
 
     const jobOperationId = firstEvent.jobOperationId;
 
-    const employeeIds =
-      Array.from(new Set(wcEvents.map((event) => event.employeeId))) ?? [];
+    const employeeIds = pluckUnique(wcEvents, (event) => event.employeeId);
 
     // Count unique jobs and descriptions
     const uniqueJobs = new Set(

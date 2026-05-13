@@ -11,28 +11,35 @@ import { LuMoveDown, LuMoveUp } from "react-icons/lu";
 import type { z } from "zod";
 import type {
   ItemQuantities,
-  ItemShelfQuantities,
+  ItemStorageUnitQuantities,
   itemTrackingTypes,
   pickMethodValidator
 } from "~/modules/items";
-import InventoryShelves from "./InventoryShelves";
+import InventoryStorageUnits from "./InventoryStorageUnits";
 
 type InventoryDetailsProps = {
-  itemShelfQuantities: ItemShelfQuantities[];
+  itemStorageUnitQuantities: ItemStorageUnitQuantities[];
   itemUnitOfMeasureCode: string;
   itemTrackingType: (typeof itemTrackingTypes)[number];
+  itemShelfLife: {
+    mode: string | null;
+    days: number | null;
+  } | null;
+  trackedEntityExpirations: Record<string, string | null>;
   pickMethod: z.infer<typeof pickMethodValidator>;
   quantities: ItemQuantities | null;
-  shelves: { value: string; label: string }[];
+  storageUnits: { value: string; label: string }[];
 };
 
 const InventoryDetails = ({
-  itemShelfQuantities,
+  itemStorageUnitQuantities,
   itemUnitOfMeasureCode,
   itemTrackingType,
+  itemShelfLife,
+  trackedEntityExpirations,
   pickMethod,
   quantities,
-  shelves
+  storageUnits
 }: InventoryDetailsProps) => {
   const { locale } = useLocale();
   const formatter = Intl.NumberFormat(locale, {
@@ -136,12 +143,14 @@ const InventoryDetails = ({
           </CardContent>
         </Card>
       </div>
-      <InventoryShelves
-        itemShelfQuantities={itemShelfQuantities}
+      <InventoryStorageUnits
+        itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode}
         itemTrackingType={itemTrackingType}
+        itemShelfLife={itemShelfLife}
+        trackedEntityExpirations={trackedEntityExpirations}
         pickMethod={pickMethod}
-        shelves={shelves}
+        storageUnits={storageUnits}
       />
     </VStack>
   );
