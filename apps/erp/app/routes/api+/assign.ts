@@ -2,10 +2,7 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { trigger } from "@carbon/jobs";
-import {
-  NotificationDestination,
-  NotificationEvent
-} from "@carbon/notifications";
+import { NotificationEvent } from "@carbon/notifications";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { assign } from "~/modules/shared/shared.server";
@@ -61,7 +58,6 @@ export async function action({ request }: ActionFunctionArgs) {
         try {
           await trigger("notify", {
             companyId,
-            destinations: [NotificationDestination.Email],
             documentId: id,
             event: notificationEvent,
             from: userId,

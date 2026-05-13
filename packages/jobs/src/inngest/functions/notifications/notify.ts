@@ -428,6 +428,46 @@ async function getDescription(
   }
 }
 
+// Per-event default destinations. Callers can override by passing
+// `destinations` in the payload; otherwise these defaults apply.
+// InApp is always added separately and cannot be opted out of.
+const defaultDestinations: Partial<
+  Record<NotificationEvent, NotificationDestination[]>
+> = {
+  [NotificationEvent.ApprovalApproved]: [NotificationDestination.Email],
+  [NotificationEvent.ApprovalRejected]: [NotificationDestination.Email],
+  [NotificationEvent.ApprovalRequested]: [NotificationDestination.Email],
+  [NotificationEvent.DigitalQuoteResponse]: [NotificationDestination.Email],
+  [NotificationEvent.GaugeCalibrationExpired]: [NotificationDestination.Email],
+  [NotificationEvent.JobAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.JobCompleted]: [NotificationDestination.Email],
+  [NotificationEvent.JobOperationAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.JobOperationMessage]: [NotificationDestination.Email],
+  [NotificationEvent.MaintenanceDispatchAssignment]: [
+    NotificationDestination.Email
+  ],
+  [NotificationEvent.MaintenanceDispatchCreated]: [
+    NotificationDestination.Email
+  ],
+  [NotificationEvent.NonConformanceAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.ProcedureAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.PurchaseInvoiceAssignment]: [
+    NotificationDestination.Email
+  ],
+  [NotificationEvent.PurchaseOrderAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.QuoteAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.QuoteExpired]: [NotificationDestination.Email],
+  [NotificationEvent.RiskAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.SalesOrderAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.SalesRfqAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.SalesRfqReady]: [NotificationDestination.Email],
+  [NotificationEvent.StockTransferAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.SuggestionResponse]: [NotificationDestination.Email],
+  [NotificationEvent.SupplierQuoteAssignment]: [NotificationDestination.Email],
+  [NotificationEvent.SupplierQuoteResponse]: [NotificationDestination.Email],
+  [NotificationEvent.TrainingAssignment]: [NotificationDestination.Email]
+};
+
 export const notifyFunction = inngest.createFunction(
   {
     id: "notify",
@@ -442,7 +482,7 @@ export const notifyFunction = inngest.createFunction(
     const destinations: NotificationDestination[] = Array.from(
       new Set<NotificationDestination>([
         NotificationDestination.InApp,
-        ...(payload.destinations ?? [])
+        ...(payload.destinations ?? defaultDestinations[payload.event] ?? [])
       ])
     );
 
@@ -650,29 +690,5 @@ export const notifyFunction = inngest.createFunction(
         await step.sendEvent("fan-out-emails", emailEvents);
       }
     }
-
-    // ---- Slack fan-out ----
-    // if (destinations.includes(NotificationDestination.Slack)) {
-    //   const slackEvent = await step.run("resolve-slack-channel", async () => {
-    //     const { data: company } = await client
-    //       .from("company")
-    //       .select("slackChannel")
-    //       .eq("id", payload.companyId)
-    //       .single();
-    //     const channel = company?.slackChannel;
-    //     if (!channel) return null;
-    //     return {
-    //       data: {
-    //         channel,
-    //         companyId: payload.companyId,
-    //         text: description
-    //       },
-    //       name: "carbon/send-slack" as const
-    //     };
-    //   });
-    //   if (slackEvent) {
-    //     await step.sendEvent("fan-out-slack", slackEvent);
-    //   }
-    // }
   }
 );
