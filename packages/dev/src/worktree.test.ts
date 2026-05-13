@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { slugify } from "./worktree.js";
+import { sameWorktreePath, slugify } from "./worktree.js";
 
 describe("slugify", () => {
   it("lowercases", () => {
@@ -31,5 +31,11 @@ describe("slugify", () => {
   it("returns empty string when input is empty or all-symbol", () => {
     expect(slugify("")).toBe("");
     expect(slugify("///")).toBe("");
+  });
+});
+
+describe("ensureSlugAvailable path identity", () => {
+  it("ignores trailing slashes", async () => {
+    expect(sameWorktreePath("/tmp/carbon", "/tmp/carbon/")).toBe(true);
   });
 });

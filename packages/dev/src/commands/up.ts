@@ -101,7 +101,7 @@ export async function up(opts: UpOpts = {}) {
   await waitForServices(ctx);
   await runDatabaseMigrations(ctx, { shouldMigrate, shouldRegen });
   await setupPortless(ctx, selectedApps);
-  ensureHostsFile();
+  await ensureHostsFile();
 
   if (process.env.CARBON_EDITION === "cloud") {
     spawnStripeListener(root);
@@ -339,7 +339,7 @@ async function setupPortless(ctx: Ctx, selectedApps: AppId[]) {
 }
 
 // Skip sudo sync when root daemon already auto-syncs, or hosts unchanged.
-function ensureHostsFile() {
+async function ensureHostsFile() {
   if (proxyRunsAsRoot()) {
     log.info("/etc/hosts auto-synced by root proxy daemon");
     return;
@@ -348,8 +348,22 @@ function ensureHostsFile() {
     log.info("/etc/hosts already in sync — skipping sudo");
     return;
   }
-  log.step("sudo portless hosts sync");
-  return syncHostsFile();
+  log.step(
+    process.platform === "win32"
+      ? "portless hosts sync (requires Administrator terminal)"
+      : "sudo portless hosts sync"
+  );
+  try {
+    await syncHostsFile();
+  } catch (err) {
+    if (process.platform === "win32") {
+      log.warn(
+        "Could not update hosts file from this terminal. Re-run from an Administrator terminal: `portless hosts sync`."
+      );
+      return;
+    }
+    throw err;
+  }
 }
 
 async function runAppsThenTeardown(root: string, selectedApps: AppId[]) {

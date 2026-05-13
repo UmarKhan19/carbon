@@ -8,6 +8,13 @@ const APP_COLORS: Record<string, (s: string) => string> = {
   mes: pc.magenta
 };
 
+const APP_COMMANDS: Record<string, string[]> = {
+  // Explicit command mode lets portless auto-inject --port/--host for
+  // frameworks (like React Router) that don't reliably honor PORT/HOST env.
+  erp: ["run", "react-router", "dev"],
+  mes: ["run", "react-router", "dev"]
+};
+
 // Drop portless banners (`-- ...`), pnpm script-echo (`> ...`), blanks.
 // Vite "Local:", "ready in …", and errors pass through.
 const NOISE_PATTERNS: RegExp[] = [/^\s*--\s/, /^\s*>\s/, /^\s*$/];
@@ -33,7 +40,8 @@ export function spawnApps(opts: {
     const color = APP_COLORS[id] ?? ((s: string) => s);
     // detached: own process group so `process.kill(-pid, sig)` reaches the
     // whole subtree (portless → react-router → vite → esbuild).
-    const child = execa("portless", ["--script", "dev:app", "run", "--force"], {
+    const args = APP_COMMANDS[id] ?? ["--script", "dev:app", "run", "--force"];
+    const child = execa("portless", args, {
       cwd: join(root, "apps", id),
       preferLocal: true,
       reject: false,
