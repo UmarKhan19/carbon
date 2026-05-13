@@ -8,6 +8,7 @@ import type { IntegrationID } from "./index";
 export const FEATURE_PLANS = {
   API_KEYS: [Plan.Starter, Plan.Business],
   AUDIT_LOG: [Plan.Business],
+  EMAIL_NOTIFICATIONS: [Plan.Business],
   INTEGRATIONS: [Plan.Starter, Plan.Business],
   ITEM_RULES: [Plan.Business],
   WEBHOOKS: [Plan.Starter, Plan.Business]

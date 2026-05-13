@@ -5,6 +5,7 @@ import {
   type CompanyIntegration,
   notifyTaskAssigned
 } from "@carbon/ee/notifications";
+import { companyHasPlan } from "@carbon/ee/plan.server";
 import { ERP_URL } from "@carbon/env";
 import {
   getNotificationEmailCtaLabel,
@@ -609,6 +610,15 @@ export const notifyFunction = inngest.createFunction(
 
     // ---- Email fan-out ----
     if (destinations.includes(NotificationDestination.Email)) {
+      const emailAllowed = await step.run("check-email-plan", () =>
+        companyHasPlan(client, payload.companyId, {
+          feature: "EMAIL_NOTIFICATIONS"
+        })
+      );
+      if (!emailAllowed) {
+        console.warn("Email not allowed");
+        return;
+      }
       const emailEvents = await step.run(
         "resolve-email-recipients",
         async () => {
