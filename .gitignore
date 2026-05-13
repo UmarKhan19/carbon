@@ -52,4 +52,9 @@ packages/database/supabase/seed.sql
 # C++ (cad-engine)
 **/build/
 !**/build/.gitkeep
-.orcka
+
+# Worktree-isolated dev environment
+.carbon-worktree
+.superpowers
+llm/tasks
+apps/*/portless.json

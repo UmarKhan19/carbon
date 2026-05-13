@@ -5,7 +5,7 @@ import { isSalesOrderLocked } from "~/modules/sales";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -18,7 +18,7 @@ export async function action({ request }: ActionFunctionArgs) {
     typeof field !== "string" ||
     (typeof value !== "string" && value !== null)
   ) {
-    return { error: { message: "Invalid form data" }, data: null };
+    return { data: null, error: { message: "Invalid form data" } };
   }
 
   // Check if any of the selected orders are locked
@@ -28,9 +28,9 @@ export async function action({ request }: ActionFunctionArgs) {
     .in("id", ids as string[]);
 
   const lockedError = requireUnlockedBulk({
-    statuses: (salesOrders.data ?? []).map((o) => o.status),
     checkFn: isSalesOrderLocked,
-    message: "Cannot modify a confirmed sales order."
+    message: "Cannot modify a confirmed sales order.",
+    statuses: (salesOrders.data ?? []).map((o) => o.status)
   });
   if (lockedError) return lockedError;
 
@@ -48,17 +48,17 @@ export async function action({ request }: ActionFunctionArgs) {
           currencyCode = customer.data.currencyCode;
           const currency = await getCurrencyByCode(
             client,
-            companyId,
+            companyGroupId,
             currencyCode
           );
           return await client
             .from("salesOrder")
             .update({
-              customerId: value ?? undefined,
               currencyCode: currencyCode ?? undefined,
+              customerId: value ?? undefined,
               exchangeRate: currency.data?.exchangeRate ?? 1,
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId
             })
             .in("id", ids as string[]);
         }
@@ -68,15 +68,15 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("salesOrder")
         .update({
           customerId: value ?? undefined,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
     case "currencyCode":
       if (value) {
         const currency = await getCurrencyByCode(
           client,
-          companyId,
+          companyGroupId,
           value as string
         );
         if (currency.data) {
@@ -85,8 +85,8 @@ export async function action({ request }: ActionFunctionArgs) {
             .update({
               currencyCode: value as string,
               exchangeRate: currency.data.exchangeRate,
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId
             })
             .in("id", ids as string[]);
         }
@@ -106,8 +106,8 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("salesOrder")
         .update({
           [field]: value ? value : null,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
     case "receiptPromisedDate":
@@ -116,11 +116,11 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("salesOrderShipment")
         .update({
           [field]: value ? value : null,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
     default:
-      return { error: { message: "Invalid field" }, data: null };
+      return { data: null, error: { message: "Invalid field" } };
   }
 }

@@ -11,7 +11,7 @@ import {
   getLineTotal,
   getTotal
 } from "../utils/sales-invoice";
-import { getCurrencyFormatter, getRegistrationFooter } from "../utils/shared";
+import { getCurrencyFormatter } from "../utils/shared";
 import {
   Header,
   Note,
@@ -43,9 +43,6 @@ interface SalesInvoicePDFProps extends PDF {
 
 const tw = createTw({
   theme: {
-    fontFamily: {
-      sans: ["Inter", "Helvetica", "Arial", "sans-serif"]
-    },
     extend: {
       colors: {
         gray: {
@@ -56,6 +53,9 @@ const tw = createTw({
           800: "#1f2937"
         }
       }
+    },
+    fontFamily: {
+      sans: ["Inter", "Helvetica", "Arial", "sans-serif"]
     }
   }
 });
@@ -114,6 +114,8 @@ const SalesInvoicePDF = ({
     (method) => method.id === salesInvoiceShipment?.shippingMethodId
   );
 
+  const watermarkSrc = company.logoWatermark;
+
   let rowIndex = 0;
 
   return (
@@ -124,13 +126,25 @@ const SalesInvoicePDF = ({
         keywords: meta?.keywords ?? "sales invoice",
         subject: meta?.subject ?? "Invoice"
       }}
-      footerLabel={getRegistrationFooter(
-        company.name,
-        company.countryCode,
-        company.taxId
-      )}
       footerDocumentId={salesInvoice?.invoiceId}
     >
+      {watermarkSrc && (
+        <View
+          fixed
+          style={{
+            alignItems: "center",
+            bottom: 0,
+            left: 0,
+            marginTop: 100,
+            opacity: 0.07,
+            position: "absolute",
+            right: 0,
+            top: 0
+          }}
+        >
+          <Image src={watermarkSrc} style={{ width: "50%" }} />
+        </View>
+      )}
       <Header
         company={company}
         title="Invoice"
@@ -145,28 +159,28 @@ const SalesInvoicePDF = ({
         companyAddressOverride={
           accountsReceivableBillingAddress
             ? {
-                name: accountsReceivableBillingAddress.name,
                 addressLine1: accountsReceivableBillingAddress.addressLine1,
                 addressLine2: accountsReceivableBillingAddress.addressLine2,
                 city: accountsReceivableBillingAddress.city,
-                stateProvince: accountsReceivableBillingAddress.state,
+                countryCode: accountsReceivableBillingAddress.countryCode,
+                name: accountsReceivableBillingAddress.name,
                 postalCode: accountsReceivableBillingAddress.postalCode,
-                countryCode: accountsReceivableBillingAddress.countryCode
+                stateProvince: accountsReceivableBillingAddress.state
               }
             : undefined
         }
         companyLabel="Seller"
         counterParty={{
-          name: customerName,
           addressLine1: customerAddressLine1,
           addressLine2: customerAddressLine2,
           city: customerCity,
-          stateProvince: customerStateProvince,
-          postalCode: customerPostalCode,
           countryCode: customerCountryName,
+          eori: customerEori,
+          name: customerName,
+          postalCode: customerPostalCode,
+          stateProvince: customerStateProvince,
           taxId: customerTaxId,
-          vatNumber: customerVatNumber,
-          eori: customerEori
+          vatNumber: customerVatNumber
         }}
         counterPartyLabel="Buyer"
         accountsReceivableEmail={companySettings?.accountsReceivableEmail}
@@ -174,22 +188,22 @@ const SalesInvoicePDF = ({
 
       <ShipBillDetails
         shipTo={{
-          name: shipmentCustomerName,
           addressLine1: shipmentAddressLine1,
           addressLine2: shipmentAddressLine2,
           city: shipmentCity,
-          stateProvince: shipmentStateProvince,
+          countryCode: shipmentCountryName,
+          name: shipmentCustomerName,
           postalCode: shipmentPostalCode,
-          countryCode: shipmentCountryName
+          stateProvince: shipmentStateProvince
         }}
         billTo={{
-          name: invoiceCustomerName,
           addressLine1: invoiceAddressLine1,
           addressLine2: invoiceAddressLine2,
           city: invoiceCity,
-          stateProvince: invoiceStateProvince,
+          countryCode: invoiceCountryName,
+          name: invoiceCustomerName,
           postalCode: invoicePostalCode,
-          countryCode: invoiceCountryName
+          stateProvince: invoiceStateProvince
         }}
       />
 
@@ -468,7 +482,11 @@ const SalesInvoicePDF = ({
         </View>
       </View>
 
-      <Note title="Standard Terms & Conditions" content={terms} />
+      {terms?.content && terms.content.length > 0 && (
+        <View break>
+          <Note title="Standard Terms & Conditions" content={terms} />
+        </View>
+      )}
     </Template>
   );
 };

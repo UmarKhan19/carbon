@@ -6,7 +6,7 @@ import { isPurchaseInvoiceLocked } from "~/modules/invoicing";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -19,7 +19,7 @@ export async function action({ request }: ActionFunctionArgs) {
     typeof field !== "string" ||
     (typeof value !== "string" && value !== null)
   ) {
-    return { error: { message: "Invalid form data" }, data: null };
+    return { data: null, error: { message: "Invalid form data" } };
   }
 
   // Check if any of the PIs are locked
@@ -31,9 +31,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const editableFields = ["dateIssued", "dateDue", "datePaid"];
   if (!editableFields.includes(field)) {
     const lockedError = requireUnlockedBulk({
-      statuses: (data ?? []).map((d) => d.status),
       checkFn: isPurchaseInvoiceLocked,
-      message: "Cannot modify a confirmed purchase invoice."
+      message: "Cannot modify a confirmed purchase invoice.",
+      statuses: (data ?? []).map((d) => d.status)
     });
     if (lockedError) return lockedError;
   }
@@ -52,19 +52,19 @@ export async function action({ request }: ActionFunctionArgs) {
           currencyCode = supplier.data.currencyCode;
           const currency = await getCurrencyByCode(
             client,
-            companyId,
+            companyGroupId,
             currencyCode
           );
           return await client
             .from("purchaseInvoice")
             .update({
-              invoiceSupplierId: value ?? undefined,
-              invoiceSupplierContactId: null,
-              invoiceSupplierLocationId: null,
               currencyCode: currencyCode ?? undefined,
               exchangeRate: currency.data?.exchangeRate ?? 1,
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
+              invoiceSupplierContactId: null,
+              invoiceSupplierId: value ?? undefined,
+              invoiceSupplierLocationId: null,
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId
             })
             .in("id", ids as string[]);
         }
@@ -74,8 +74,8 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("purchaseInvoice")
         .update({
           supplierId: value ?? undefined,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
     case "dateIssued":
@@ -89,12 +89,12 @@ export async function action({ request }: ActionFunctionArgs) {
           return await client
             .from("purchaseInvoice")
             .update({
-              dateIssued: value,
               dateDue: parseDate(value as string)
                 .add({ days: paymentTerms.data.daysDue })
                 .toString(),
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
+              dateIssued: value,
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId
             })
             .eq("id", ids[0] as string);
         } else {
@@ -102,8 +102,8 @@ export async function action({ request }: ActionFunctionArgs) {
             .from("purchaseInvoice")
             .update({
               [field]: value ? value : null,
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId
             })
             .in("id", ids as string[]);
         }
@@ -114,7 +114,7 @@ export async function action({ request }: ActionFunctionArgs) {
       if (value) {
         const currency = await getCurrencyByCode(
           client,
-          companyId,
+          companyGroupId,
           value as string
         );
         if (currency.data) {
@@ -123,8 +123,8 @@ export async function action({ request }: ActionFunctionArgs) {
             .update({
               currencyCode: value as string,
               exchangeRate: currency.data.exchangeRate ?? 1,
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId
             })
             .in("id", ids as string[]);
         }
@@ -143,12 +143,12 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("purchaseInvoice")
         .update({
           [field]: value ? value : null,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
 
     default:
-      return { error: { message: "Invalid field" }, data: null };
+      return { data: null, error: { message: "Invalid field" } };
   }
 }

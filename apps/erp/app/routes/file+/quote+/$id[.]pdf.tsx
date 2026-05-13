@@ -23,9 +23,12 @@ import {
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "sales"
-  });
+  const { client, companyId, companyGroupId } = await requirePermissions(
+    request,
+    {
+      view: "sales"
+    }
+  );
 
   const { id } = params;
   if (!id) throw new Error("Could not find id");
@@ -107,8 +110,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
                 return null;
               }
               return getBase64ImageFromSupabase(client, path).then((data) => ({
-                id,
-                data
+                data,
+                id
               }));
             })
           )
@@ -125,7 +128,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (quote.data?.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      companyId,
+      companyGroupId,
       quote.data.currencyCode
     );
     if (currency.data?.exchangeRate) {
@@ -169,8 +172,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   });
 
   const headers = new Headers({
-    "Content-Type": "application/pdf",
-    "Content-Disposition": `inline; filename="${company.data.name} - ${quote.data.quoteId}.pdf"`
+    "Content-Disposition": `inline; filename="${company.data.name} - ${quote.data.quoteId}.pdf"`,
+    "Content-Type": "application/pdf"
   });
-  return new Response(new Uint8Array(body), { status: 200, headers });
+  return new Response(new Uint8Array(body), { headers, status: 200 });
 }

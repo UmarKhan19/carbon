@@ -30,11 +30,13 @@ import { path } from "~/utils/path";
 async function handleKanban({
   client,
   companyId,
+  companyGroupId,
   userId,
   id
 }: {
   client: SupabaseClient<Database>;
   companyId: string;
+  companyGroupId: string;
   userId: string;
   id: string;
 }): Promise<{ data: string; error: null } | { data: null; error: string }> {
@@ -111,18 +113,18 @@ async function handleKanban({
       kanban.data.storageUnitId || defaultStorageUnit || undefined;
 
     const createdJob = await upsertJob(client, {
-      jobId: jobReadableId,
-      itemId: kanban.data.itemId!,
-      quantity: kanban.data.quantity!,
-      locationId: kanban.data.locationId!,
-      storageUnitId,
-      unitOfMeasureCode: kanban.data.purchaseUnitOfMeasureCode!,
+      companyId,
+      createdBy: userId,
       deadlineType: "Hard Deadline",
+      dueDate,
+      itemId: kanban.data.itemId!,
+      jobId: jobReadableId,
+      locationId: kanban.data.locationId!,
+      quantity: kanban.data.quantity!,
       scrapQuantity: 0,
       startDate: startDate.toString(),
-      dueDate,
-      companyId,
-      createdBy: userId
+      storageUnitId,
+      unitOfMeasureCode: kanban.data.purchaseUnitOfMeasureCode!
     });
 
     const id = createdJob.data?.id!;
@@ -138,16 +140,16 @@ async function handleKanban({
 
     const [upsertMethod, associateKanban] = await Promise.all([
       upsertJobMethod(serviceRole, "itemToJob", {
+        companyId,
+        configuration: undefined,
         sourceId: kanban.data.itemId!,
         targetId: id,
-        companyId,
-        userId,
-        configuration: undefined
+        userId
       }),
       updateKanbanJob(serviceRole, {
+        companyId,
         id: kanban.data.id!,
         jobId: id,
-        companyId,
         userId
       })
     ]);
@@ -163,24 +165,24 @@ async function handleKanban({
     if (!upsertMethod.error && kanban.data.autoRelease) {
       await Promise.all([
         trigger("recalculate", {
-          type: "jobRequirements",
-          id,
           companyId,
+          id,
+          type: "jobRequirements",
           userId
         }),
         runMRP(serviceRole, {
-          type: "job",
-          id,
           companyId,
+          id,
+          type: "job",
           userId
         }),
         serviceRole.functions.invoke("schedule", {
           body: {
-            jobId: id,
             companyId,
-            userId,
+            direction: "backward",
+            jobId: id,
             mode: "initial",
-            direction: "backward"
+            userId
           }
         }),
         serviceRole
@@ -257,12 +259,13 @@ async function handleKanban({
       }
 
       const newPurchaseOrder = await upsertPurchaseOrder(client, {
-        purchaseOrderId: nextSequence.data!,
-        supplierId: kanban.data.supplierId!,
-        status: "Draft",
-        purchaseOrderType: "Purchase",
+        companyGroupId,
         companyId,
-        createdBy: userId
+        createdBy: userId,
+        purchaseOrderId: nextSequence.data!,
+        purchaseOrderType: "Purchase",
+        status: "Draft",
+        supplierId: kanban.data.supplierId!
       });
 
       if (newPurchaseOrder.error || !newPurchaseOrder.data?.[0]) {
@@ -313,31 +316,31 @@ async function handleKanban({
     }
 
     const createPurchaseOrderLine = await upsertPurchaseOrderLine(client, {
-      purchaseOrderId: purchaseOrderId!,
-      // @ts-expect-error
-      purchaseOrderLineType: item.data?.type,
-      itemId: kanban.data.itemId!,
-      purchaseQuantity: kanban.data.quantity!,
-      supplierUnitPrice:
-        supplierPart?.data?.unitPrice ?? itemCost?.unitCost ?? 0,
-      supplierShippingCost: 0,
-      supplierTaxAmount: 0,
-      exchangeRate: 1,
-      setupPrice: 0,
-      purchaseUnitOfMeasureCode: kanban.data.purchaseUnitOfMeasureCode!,
-      inventoryUnitOfMeasureCode:
-        item.data?.unitOfMeasureCode || kanban.data.purchaseUnitOfMeasureCode!,
+      companyId,
       conversionFactor:
         kanban.data.conversionFactor ||
         itemReplenishment?.conversionFactor ||
         1,
+      createdBy: userId,
+      exchangeRate: 1,
+      inventoryUnitOfMeasureCode:
+        item.data?.unitOfMeasureCode || kanban.data.purchaseUnitOfMeasureCode!,
+      itemId: kanban.data.itemId!,
       locationId: kanban.data.locationId!,
+      purchaseOrderId: purchaseOrderId!,
+      // @ts-expect-error
+      purchaseOrderLineType: item.data?.type,
+      purchaseQuantity: kanban.data.quantity!,
+      purchaseUnitOfMeasureCode: kanban.data.purchaseUnitOfMeasureCode!,
+      setupPrice: 0,
       storageUnitId:
         kanban.data.storageUnitId ||
         inventory.data?.defaultStorageUnitId ||
         undefined,
-      companyId,
-      createdBy: userId
+      supplierShippingCost: 0,
+      supplierTaxAmount: 0,
+      supplierUnitPrice:
+        supplierPart?.data?.unitPrice ?? itemCost?.unitCost ?? 0
     });
 
     if (createPurchaseOrderLine.error) {
@@ -361,12 +364,13 @@ async function handleKanban({
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {});
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {});
 
   const { id } = params;
   if (!id) throw notFound("id not found");
 
-  return await handleKanban({ client, companyId, userId, id });
+  return await handleKanban({ client, companyGroupId, companyId, id, userId });
 }
 
 export default function KanbanRedirectRoute() {

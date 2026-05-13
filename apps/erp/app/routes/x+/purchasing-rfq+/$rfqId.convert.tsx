@@ -16,9 +16,10 @@ import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing"
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      create: "purchasing"
+    });
 
   const { rfqId } = params;
   if (!rfqId) throw new Error("Could not find rfqId");
@@ -87,12 +88,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     // Create the supplier quote
     const quoteResult = await upsertSupplierQuote(client, {
-      supplierQuoteId: sequence.data,
-      supplierQuoteType: "Purchase",
-      supplierId,
-      quotedDate: new Date().toISOString().split("T")[0],
+      companyGroupId,
       companyId,
-      createdBy: userId
+      createdBy: userId,
+      quotedDate: new Date().toISOString().split("T")[0],
+      supplierId,
+      supplierQuoteId: sequence.data,
+      supplierQuoteType: "Purchase"
     });
 
     if (quoteResult.error || !quoteResult.data) {
@@ -115,23 +117,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
       const uom = line.unitOfMeasureCode ?? "EA";
 
       await upsertSupplierQuoteLine(client, {
-        supplierQuoteId,
-        supplierQuoteLineType: "Part",
-        itemId: line.itemId,
-        description: line.description ?? "",
-        quantity: line.quantity ?? [1],
-        inventoryUnitOfMeasureCode: uom,
-        purchaseUnitOfMeasureCode: uom,
         companyId,
-        createdBy: userId
+        createdBy: userId,
+        description: line.description ?? "",
+        inventoryUnitOfMeasureCode: uom,
+        itemId: line.itemId,
+        purchaseUnitOfMeasureCode: uom,
+        quantity: line.quantity ?? [1],
+        supplierQuoteId,
+        supplierQuoteLineType: "Part"
       });
     }
 
     // Link RFQ to supplier quote
     await client.from("purchasingRfqToSupplierQuote").insert({
+      companyId,
       purchasingRfqId: rfqId,
-      supplierQuoteId,
-      companyId
+      supplierQuoteId
     });
   }
 

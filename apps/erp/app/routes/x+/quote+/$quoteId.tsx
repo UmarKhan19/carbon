@@ -43,15 +43,18 @@ import { path } from "~/utils/path";
 
 export const handle: Handle = {
   breadcrumb: msg`Quotes`,
-  to: path.to.quotes,
-  module: "sales"
+  module: "sales",
+  to: path.to.quotes
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "sales",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId } = await requirePermissions(
+    request,
+    {
+      bypassRls: true,
+      view: "sales"
+    }
+  );
 
   const { quoteId } = params;
   if (!quoteId) throw new Error("Could not find quoteId");
@@ -118,7 +121,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (quote.data?.currencyCode) {
     const presentationCurrency = await getCurrencyByCode(
       client,
-      companyId,
+      companyGroupId,
       quote.data.currencyCode
     );
     if (presentationCurrency.data?.exchangeRate) {
@@ -167,18 +170,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   );
 
   return {
-    quote: quote.data,
     customer: customer.data,
+    defaultCc,
+    exchangeRate,
+    files: opportunityDocuments,
     lines: lines.data ?? [],
     methods: methodTrees,
-    files: opportunityDocuments,
-    prices: prices.data ?? [],
-    shipment: shipment.data,
-    payment: payment.data,
     opportunity: opportunity.data,
-    exchangeRate,
+    payment: payment.data,
+    prices: prices.data ?? [],
+    quote: quote.data,
     salesOrderLines: salesOrderLines?.data ?? null,
-    defaultCc,
+    shipment: shipment.data,
     supplierPriceMap
   };
 }
@@ -203,21 +206,21 @@ export default function QuoteRoute() {
     const formData = new FormData();
     const payload = {
       id: document.id,
-      name: document.name,
-      size: document.metadata?.size || 0,
-      path: document.path,
       lineId: targetId.startsWith("quote-line-")
         ? targetId.replace("quote-line-", "")
-        : undefined
+        : undefined,
+      name: document.name,
+      path: document.path,
+      size: document.metadata?.size || 0
     };
 
     formData.append("payload", JSON.stringify(payload));
 
     submit(formData, {
-      method: "post",
       action: path.to.quoteDrag(quoteId),
-      navigate: false,
-      fetcherKey: `quote-drag:${document.name}`
+      fetcherKey: `quote-drag:${document.name}`,
+      method: "post",
+      navigate: false
     });
   };
 

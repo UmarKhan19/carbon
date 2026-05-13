@@ -26,11 +26,12 @@ import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing",
-    role: "employee",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      bypassRls: true,
+      create: "purchasing",
+      role: "employee"
+    });
 
   const { rfqId } = params;
   if (!rfqId) throw new Error("Could not find rfqId");
@@ -127,12 +128,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     // Create the supplier quote
     const quoteResult = await upsertSupplierQuote(client, {
-      supplierQuoteId: sequence.data,
-      supplierQuoteType: "Purchase",
-      supplierId,
-      quotedDate: new Date().toISOString().split("T")[0],
+      companyGroupId,
       companyId,
-      createdBy: userId
+      createdBy: userId,
+      quotedDate: new Date().toISOString().split("T")[0],
+      supplierId,
+      supplierQuoteId: sequence.data,
+      supplierQuoteType: "Purchase"
     });
 
     if (quoteResult.error || !quoteResult.data) {
@@ -152,24 +154,24 @@ export async function action({ request, params }: ActionFunctionArgs) {
       }
 
       await upsertSupplierQuoteLine(client, {
-        supplierQuoteId,
-        supplierQuoteLineType: "Part",
-        itemId: line.itemId,
-        description: line.description ?? "",
-        quantity: line.quantity ?? [1],
-        inventoryUnitOfMeasureCode: line.inventoryUnitOfMeasureCode ?? "EA",
-        purchaseUnitOfMeasureCode: line.purchaseUnitOfMeasureCode ?? "EA",
-        conversionFactor: line.conversionFactor ?? 1,
         companyId,
-        createdBy: userId
+        conversionFactor: line.conversionFactor ?? 1,
+        createdBy: userId,
+        description: line.description ?? "",
+        inventoryUnitOfMeasureCode: line.inventoryUnitOfMeasureCode ?? "EA",
+        itemId: line.itemId,
+        purchaseUnitOfMeasureCode: line.purchaseUnitOfMeasureCode ?? "EA",
+        quantity: line.quantity ?? [1],
+        supplierQuoteId,
+        supplierQuoteLineType: "Part"
       });
     }
 
     // Link RFQ to supplier quote
     await client.from("purchasingRfqToSupplierQuote").insert({
+      companyId,
       purchasingRfqId: rfqId,
-      supplierQuoteId,
-      companyId
+      supplierQuoteId
     });
 
     // Create or get external link for the supplier quote (required for sharing/email)
@@ -183,11 +185,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .maybeSingle();
 
     const externalLinkResult = await upsertExternalLink(client, {
-      id: existingLink.data?.id,
-      documentType: "SupplierQuote",
+      companyId,
       documentId: supplierQuoteId,
-      supplierId,
-      companyId
+      documentType: "SupplierQuote",
+      id: existingLink.data?.id,
+      supplierId
     });
 
     // Update quote with external link ID
@@ -209,8 +211,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
         emailsToSend.push({
           contactEmail: supplierContact.data.contact.email,
           contactFirstName: supplierContact.data.contact.firstName ?? "there",
-          supplierQuoteId: sequence.data,
-          externalLinkId: externalLinkResult.data.id
+          externalLinkId: externalLinkResult.data.id,
+          supplierQuoteId: sequence.data
         });
       }
     }
@@ -294,13 +296,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
         htmlParts.push(`<br><br>${emailSignature.replace(/\n/g, "<br>")}`);
 
         await trigger("send-email", {
-          to: [user.data.email, email.contactEmail],
-          from: user.data.email,
-          subject: emailSubject,
-          html: htmlParts.join(""),
-          text: `${emailBody}\n\n${externalQuoteUrl}\n\n${emailSignature}`,
           attachments,
-          companyId
+          companyId,
+          from: user.data.email,
+          html: htmlParts.join(""),
+          subject: emailSubject,
+          text: `${emailBody}\n\n${externalQuoteUrl}\n\n${emailSignature}`,
+          to: [user.data.email, email.contactEmail]
         });
       } catch (err) {
         console.error("Failed to send email:", err);

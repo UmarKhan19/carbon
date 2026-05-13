@@ -14,9 +14,6 @@ type HeaderProps = {
 
 const tw = createTw({
   theme: {
-    fontFamily: {
-      sans: ["Inter", "Helvetica", "Arial", "sans-serif"]
-    },
     extend: {
       colors: {
         gray: {
@@ -27,18 +24,14 @@ const tw = createTw({
           800: "#1f2937"
         }
       }
+    },
+    fontFamily: {
+      sans: ["Inter", "Helvetica", "Arial", "sans-serif"]
     }
   }
 });
 
-const Header = ({
-  company,
-  title,
-  documentId,
-  date,
-  currencyCode,
-  locale
-}: HeaderProps) => {
+const Header = ({ company, title, documentId, date, locale }: HeaderProps) => {
   return (
     <>
       <View style={tw("flex flex-row justify-between mb-1")}>
@@ -47,7 +40,7 @@ const Header = ({
             <View style={{ alignSelf: "flex-start" }}>
               <Image
                 src={company.logoLightIcon}
-                style={{ height: 50, width: "auto", marginBottom: 4 }}
+                style={{ height: 50, marginBottom: 4, width: "auto" }}
               />
             </View>
           ) : (
@@ -73,12 +66,7 @@ const Header = ({
           )}
           {date && (
             <Text style={tw("text-sm font-bold text-gray-600 tracking-tight")}>
-              Date: {formatDate(date, undefined, locale)}
-            </Text>
-          )}
-          {currencyCode && (
-            <Text style={tw("text-sm font-bold text-gray-600 tracking-tight")}>
-              Currency: {currencyCode}
+              {formatDate(date, undefined, locale)}
             </Text>
           )}
         </View>

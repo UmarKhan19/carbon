@@ -64,9 +64,9 @@ const PurchaseOrderFinalizeModal = ({
           action={path.to.purchaseOrderFinalize(orderId)}
           onSubmit={onClose}
           defaultValues={{
+            cc: defaultCc,
             notification: notificationType as "Email" | "None",
-            supplierContact: purchaseOrder?.supplierContactId ?? undefined,
-            cc: defaultCc
+            supplierContact: purchaseOrder?.supplierContactId ?? undefined
           }}
           fetcher={fetcher}
         >
@@ -103,6 +103,7 @@ const PurchaseOrderFinalizeModal = ({
               {notificationType === "Email" && (
                 <>
                   <SupplierContact
+                    isOptional={false}
                     name="supplierContact"
                     supplier={purchaseOrder?.supplierId ?? undefined}
                   />

@@ -1,6 +1,5 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-04-09 13:22-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,6 +11,7 @@ msgstr ""
 "Last-Translator: \n"
 "Language-Team: \n"
 "Plural-Forms: \n"
+"POT-Creation-Date: \n"
 
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierForm.tsx:99
 msgid " A supplier is a business or person who sells you parts or services."
@@ -105,8 +105,8 @@ msgstr "1日"
 msgid "3D Model"
 msgstr "3Dモデル"
 
-#: apps/erp/app/routes/onboarding+/plan.tsx:46
-#: apps/erp/app/routes/onboarding+/plan.tsx:59
+#: apps/erp/app/routes/onboarding+/plan.tsx:32
+#: apps/erp/app/routes/onboarding+/plan.tsx:45
 msgid "5 User Minimum"
 msgstr "5ユーザー最小"
 
@@ -244,7 +244,7 @@ msgstr "アカウント設定"
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountForm.tsx:141
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/GroupAccountForm.tsx:160
 msgid "Account Type"
-msgstr "勘定科目タイプ"
+msgstr "勘定科目タイプ<<<<<<< HEAD"
 
 #: apps/erp/app/hooks/useModules.tsx:70
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:46
@@ -340,7 +340,7 @@ msgstr "ワークセンターを有効化"
 
 #: apps/erp/app/components/Configurator/ConfigurationEditor/ConfigurationEditor.ee.tsx:338
 #: apps/erp/app/components/Contact.tsx:57
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:505
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:539
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:287
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:418
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:238
@@ -388,7 +388,7 @@ msgstr "有効"
 msgid "Active Jobs"
 msgstr "アクティブなジョブ"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:515
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:549
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:297
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:248
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:385
@@ -439,7 +439,7 @@ msgstr "実際の開始"
 msgid "Add"
 msgstr "追加"
 
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:681
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:684
 msgid "Add & Issue"
 msgstr "追加して発行"
 
@@ -612,7 +612,7 @@ msgstr "配送を追加"
 msgid "Add Shipping"
 msgstr "配送を追加"
 
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:316
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:318
 msgid "Add Spare Part"
 msgstr "スペアパーツを追加"
 
@@ -765,8 +765,8 @@ msgstr "アイテムをそれ自体に追加することはできません。"
 msgid "and {remaining} more"
 msgstr "そして{remaining}件以上"
 
+#: apps/erp/app/routes/onboarding+/plan.tsx:34
 #: apps/erp/app/routes/onboarding+/plan.tsx:48
-#: apps/erp/app/routes/onboarding+/plan.tsx:62
 msgid "API and Webhooks"
 msgstr "APIとWebhooks"
 
@@ -784,7 +784,7 @@ msgstr "APIドキュメント"
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:195
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:203
 msgid "API Key"
-msgstr "APIキー"
+msgstr "APIキー<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysTable.tsx:215
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysUpgradeOverlay.tsx:101
@@ -815,7 +815,7 @@ msgstr "承認日"
 #: apps/erp/app/modules/quality/ui/Issue/ReviewersList.tsx:61
 #: apps/erp/app/modules/quality/ui/IssueWorkflows/IssueWorkflowForm.tsx:302
 msgid "Approval Requirements"
-msgstr "承認要件"
+msgstr "承認要件<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/Approvals/ApprovalRules.tsx:41
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:149
@@ -837,11 +837,11 @@ msgstr "承認者"
 
 #: apps/erp/app/modules/quality/ui/SamplingPlan/SamplingPlanForm.tsx:229
 msgid "AQL"
-msgstr "AQL"
+msgstr "AQL<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:581
 msgid "Archive"
-msgstr "アーカイブ"
+msgstr "アーカイブ>>>>>>> main"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:658
 msgid "Archive all"
@@ -1462,7 +1462,7 @@ msgstr "監査ログが有効です"
 
 #: apps/erp/app/components/AuditLog/AuditLogDrawer.tsx:168
 msgid "Audit logging is not enabled"
-msgstr "監査ログが有効になっていません"
+msgstr "監査ログが有効になっていません<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/AuditLog/AuditLogUpgradeOverlay.tsx:87
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:155
@@ -1524,7 +1524,7 @@ msgstr "トレーサビリティに戻る"
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:997
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:992
 msgid "Backflush"
-msgstr "バックフラッシュ"
+msgstr "バックフラッシュ<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:42
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:39
@@ -1532,7 +1532,7 @@ msgid "Balance Sheet"
 msgstr "貸借対照表"
 
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:288
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:34
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:38
 #: apps/erp/app/routes/onboarding+/company.tsx:227
 msgid "Base Currency"
 msgstr "基本通貨"
@@ -1541,7 +1541,7 @@ msgstr "基本通貨"
 msgid "Base Price"
 msgstr "基本価格"
 
-#: apps/erp/app/routes/x+/settings+/company.tsx:96
+#: apps/erp/app/routes/x+/settings+/company.tsx:97
 msgid "Basic Information"
 msgstr "基本情報"
 
@@ -1617,7 +1617,7 @@ msgstr "プロセスの部品表"
 
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:886
 msgid "Bill To"
-msgstr "請求先"
+msgstr "請求先<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:59
 #: apps/erp/app/routes/x+/settings+/billing.tsx:196
@@ -1680,7 +1680,7 @@ msgstr "一括インポート"
 msgid "Bulk Jobs"
 msgstr "一括ジョブ"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:90
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:92
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:91
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:200
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:343
@@ -1693,7 +1693,7 @@ msgstr "一括ジョブ"
 msgid "Buy"
 msgstr "購入"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:90
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:92
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:94
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:203
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:346
@@ -1709,7 +1709,7 @@ msgstr "購入と製造"
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQForm.tsx:87
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQProperties.tsx:320
 msgid "Buyer"
-msgstr "購入者"
+msgstr "購入者<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:159
 msgid "by {byUser}"
@@ -1836,7 +1836,7 @@ msgstr "唯一のアクティブなブレークを無効にすることはでき
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:563
 #: apps/erp/app/modules/production/ui/Jobs/JobMakeMethodTools.tsx:619
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:129
-#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:116
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:117
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:553
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/FinalizeRFQModal.tsx:153
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:284
@@ -1877,7 +1877,7 @@ msgstr "唯一のアクティブなブレークを無効にすることはでき
 #: apps/erp/app/modules/resources/ui/Contractors/ContractorForm.tsx:113
 #: apps/erp/app/modules/resources/ui/FailureModes/FailureModeForm.tsx:122
 #: apps/erp/app/modules/resources/ui/Locations/LocationForm.tsx:113
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:672
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:675
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:459
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchExplorer.tsx:530
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchProperties.tsx:657
@@ -2060,7 +2060,7 @@ msgstr "カテゴリー名"
 
 #: apps/erp/app/modules/invoicing/ui/SalesInvoice/SalesInvoicePostModal.tsx:172
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderApprovalModal.tsx:122
-#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:109
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:110
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:170
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteFinalizeModal.tsx:215
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteToOrderDrawer.tsx:1074
@@ -2070,8 +2070,8 @@ msgstr "CC"
 
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/sales/ui/Pricing/PriceTracePopover.tsx:98
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:222
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:254
 #: apps/erp/app/routes/share+/quote.$id.tsx:1393
 msgid "Change"
 msgstr "変更"
@@ -2105,7 +2105,7 @@ msgstr "これを変更すると、既存のメソッドが上書きされます
 
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:828
 msgid "Changing this will update the part ID"
-msgstr "これを変更するとパーツIDが更新されます"
+msgstr "これを変更するとパーツIDが更新されます<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:80
 #: apps/erp/app/routes/x+/accounting+/charts.tsx:16
@@ -2219,8 +2219,8 @@ msgstr "終了日"
 msgid "Closure blocked"
 msgstr "完了がブロックされています"
 
-#: apps/erp/app/routes/onboarding+/plan.tsx:36
-#: apps/erp/app/routes/onboarding+/plan.tsx:61
+#: apps/erp/app/routes/onboarding+/plan.tsx:47
+#: apps/erp/app/routes/onboarding+/plan.tsx:60
 msgid "Cloud-Hosted"
 msgstr "クラウドホスト"
 
@@ -2293,23 +2293,23 @@ msgstr "コメント"
 
 #: apps/erp/app/routes/x+/maintenance+/$dispatchId.comments.tsx:107
 msgid "Comments"
-msgstr "コメント"
+msgstr "コメント<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:153
 #: apps/erp/app/components/Layout/Topbar/CompanySwitcher.tsx:46
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:53
 msgid "Companies"
-msgstr "企業"
+msgstr "企業>>>>>>> main"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:43
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:47
 #: apps/erp/app/routes/x+/settings+/company.tsx:30
-#: apps/erp/app/routes/x+/settings+/company.tsx:91
+#: apps/erp/app/routes/x+/settings+/company.tsx:92
 msgid "Company"
 msgstr "会社"
 
 #: apps/erp/app/components/Layout/Topbar/Breadcrumbs.tsx:284
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:28
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:29
 #: apps/erp/app/routes/onboarding+/company.tsx:224
 msgid "Company Name"
 msgstr "会社名"
@@ -2869,7 +2869,7 @@ msgstr "正解"
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:754
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteLineForm.tsx:406
 msgid "Cost Center"
-msgstr "コストセンター"
+msgstr "コストセンター<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:86
 msgid "Cost Centers"
@@ -3284,7 +3284,7 @@ msgstr "カスタム {label}"
 
 #: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTableDetail.tsx:226
 msgid "Custom Field"
-msgstr "カスタムフィールド"
+msgstr "カスタムフィールド<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldsTable.tsx:128
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:161
@@ -3553,7 +3553,7 @@ msgstr "日付範囲"
 msgid "Dates"
 msgstr "日付"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:152
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:156
 #: apps/erp/app/modules/people/ui/Shifts/ShiftForm.tsx:78
 #: apps/erp/app/modules/people/ui/Shifts/ShiftsTable.tsx:99
 #: apps/erp/app/modules/resources/ui/MaintenanceSchedule/MaintenanceScheduleForm.tsx:76
@@ -3641,7 +3641,7 @@ msgstr "期限タイプ"
 
 #: apps/erp/app/routes/x+/settings+/inventory.tsx:254
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
-msgstr "オペレーターが既に期限切れのバッチまたはシリアルを発行しようとした場合に表示される内容を決定します。"
+msgstr "オペレーターが既に期限切れのバッチまたはシリアルを発行しようとした場合に表示される内容を決定します。<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/AccountDefaults/AccountDefaultsForm.tsx:466
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:92
@@ -4114,7 +4114,7 @@ msgstr "配送先"
 msgid "Demand"
 msgstr "需要"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:284
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:288
 msgid "Demand Forecast"
 msgstr "需要予測"
 
@@ -4226,12 +4226,12 @@ msgstr "デジタル見積"
 msgid "Digital Quotes"
 msgstr "デジタル見積"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:385
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:389
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:55
 #: apps/erp/app/modules/items/ui/Materials/MaterialsTable.tsx:228
 #: apps/erp/app/modules/items/ui/Parts/ConfigurationParameters.tsx:1047
 msgid "Dimension"
-msgstr "寸法"
+msgstr "寸法<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:98
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:278
@@ -4900,7 +4900,7 @@ msgstr "ワークセンターを編集"
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteSendModal.tsx:135
 #: apps/erp/app/modules/sales/ui/Customer/CustomerContactForm.tsx:98
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:142
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:39
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:43
 #: apps/erp/app/modules/users/ui/Customers/CreateCustomerModal.tsx:90
 #: apps/erp/app/modules/users/ui/Customers/CustomerAccountsTable.tsx:142
 #: apps/erp/app/modules/users/ui/Employees/CreateEmployeeModal.tsx:72
@@ -5120,8 +5120,12 @@ msgstr "エンティティ"
 msgid "Entity is {status}"
 msgstr "エンティティは {status} です"
 
-#: apps/erp/app/routes/onboarding+/plan.tsx:35
-#: apps/erp/app/routes/onboarding+/plan.tsx:60
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:33
+msgid "EORI"
+msgstr "EORI"
+
+#: apps/erp/app/routes/onboarding+/plan.tsx:46
+#: apps/erp/app/routes/onboarding+/plan.tsx:59
 msgid "ERP, MES, QMS"
 msgstr "ERP、MES、QMS"
 
@@ -5274,7 +5278,7 @@ msgstr "イベント"
 msgid "Every condition must match"
 msgstr "すべての条件が一致する必要があります"
 
-#: apps/erp/app/routes/onboarding+/plan.tsx:47
+#: apps/erp/app/routes/onboarding+/plan.tsx:33
 msgid "Everything from Starter"
 msgstr "スターターのすべての機能"
 
@@ -5282,7 +5286,7 @@ msgstr "スターターのすべての機能"
 #: apps/erp/app/components/Form/ExchangeRate.tsx:76
 #: apps/erp/app/modules/accounting/ui/ExchangeRates/ExchangeRatesTable.tsx:49
 msgid "Exchange Rate"
-msgstr "為替レート"
+msgstr "為替レート<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/ExchangeRates/ExchangeRatesTable.tsx:86
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:104
@@ -5727,7 +5731,7 @@ msgstr "サプライヤー部品の詳細の読み込みに失敗しました"
 msgid "Failed to load tracked entities"
 msgstr "追跡対象エンティティの読み込みに失敗しました"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:158
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:180
 msgid "Failed to remove image: {errorMessage}"
 msgstr "画像の削除に失敗しました: {errorMessage}"
 
@@ -5747,7 +5751,7 @@ msgstr "サムネイルの削除に失敗しました"
 msgid "Failed to resize image"
 msgstr "画像のリサイズに失敗しました"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:122
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:129
 msgid "Failed to resize image: {errorMessage}"
 msgstr "画像のリサイズに失敗しました: {errorMessage}"
 
@@ -5843,7 +5847,7 @@ msgstr "ファイルのアップロードに失敗しました: {0}"
 msgid "Failed to upload image"
 msgstr "画像のアップロードに失敗しました"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:138
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:147
 msgid "Failed to upload logo: {errorMessage}"
 msgstr "ロゴのアップロードに失敗しました: {errorMessage}"
 
@@ -5881,7 +5885,7 @@ msgstr "お気に入り"
 msgid "Fax"
 msgstr "ファックス"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:38
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:42
 msgid "Fax Number"
 msgstr "ファックス番号"
 
@@ -5924,7 +5928,7 @@ msgid "File is already in the selected bucket"
 msgstr "ファイルは既に選択されたバケットに存在しています"
 
 #. placeholder {0}: ( logo.size / 1024 / 1024 ).toFixed(2)
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:80
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:86
 msgid "File size exceeds {maxSizeMB}MB limit. Current size: {0}MB"
 msgstr "ファイルサイズが{maxSizeMB}MB制限を超えています。現在のサイズ: {0}MB"
 
@@ -5948,7 +5952,7 @@ msgstr "ファイルサイズが大きすぎます (最大 {0})"
 msgid "File type not supported"
 msgstr "ファイル形式がサポートされていません"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:70
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:78
 msgid "File type not supported. Please use JPG, PNG, WebP, or GIF."
 msgstr "ファイル形式がサポートされていません。JPG、PNG、WebP、またはGIFを使用してください。"
 
@@ -5976,7 +5980,7 @@ msgstr "フィルター"
 msgid "Filtering"
 msgstr "フィルタリング"
 
-#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:119
+#: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderFinalizeModal.tsx:120
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:289
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:221
 #: apps/erp/app/modules/purchasing/ui/PurchasingRfq/PurchasingRFQHeader.tsx:255
@@ -5989,7 +5993,7 @@ msgstr "フィルタリング"
 msgid "Finalize"
 msgstr "確定"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:351
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:355
 #: apps/erp/app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:55
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:267
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:586
@@ -6026,7 +6030,7 @@ msgstr "名"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfMaterial.tsx:1008
 msgid "First Operation"
-msgstr "最初の操作"
+msgstr "最初の操作<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:110
 msgid "Fiscal Year"
@@ -6052,11 +6056,11 @@ msgstr "固定再注文"
 msgid "Fixed Shelf Life"
 msgstr "固定棚卸し期間"
 
-#: apps/erp/app/routes/onboarding+/plan.tsx:44
+#: apps/erp/app/routes/onboarding+/plan.tsx:30
 msgid "For growing businesses that need support"
 msgstr "成長中のビジネスをサポートするために"
 
-#: apps/erp/app/routes/onboarding+/plan.tsx:57
+#: apps/erp/app/routes/onboarding+/plan.tsx:43
 msgid "For US companies handling ITAR data"
 msgstr "ITAR データを扱う米国企業向け"
 
@@ -6194,7 +6198,7 @@ msgstr "おはようございます、{0}"
 msgid "Google Places API key not configured"
 msgstr "Google Places APIキーが設定されていません"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:368
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:372
 #: apps/erp/app/modules/items/ui/MaterialGrades/MaterialGradesTable.tsx:55
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:227
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:546
@@ -6332,8 +6336,8 @@ msgstr "アイテムが既に存在する場合"
 msgid "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
 msgstr "部品番号を変更したい場合は、[キャンセル]をクリックして、変換する前に各行アイテムの部品を手動で割り当ててください。"
 
+#: apps/erp/app/routes/onboarding+/plan.tsx:35
 #: apps/erp/app/routes/onboarding+/plan.tsx:49
-#: apps/erp/app/routes/onboarding+/plan.tsx:63
 msgid "Implementation Support"
 msgstr "実装サポート"
 
@@ -6407,7 +6411,7 @@ msgstr "受け入れ検査"
 
 #: apps/erp/app/routes/x+/settings+/quality.tsx:305
 msgid "Inbound Inspections: Require Different Inspector"
-msgstr "受入検査：異なる検査官が必要"
+msgstr "受入検査：異なる検査官が必要<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:575
 msgid "Inbox"
@@ -6424,7 +6428,7 @@ msgstr "非アクティブを含める"
 
 #: apps/erp/app/modules/items/ui/Item/ItemCostHistoryChart.tsx:292
 msgid "Includes tax and shipping costs"
-msgstr "税金と送料を含みます"
+msgstr "税金と送料を含みます<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/ChartOfAccounts/ChartOfAccountsTableFilters.tsx:43
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:45
@@ -6539,12 +6543,12 @@ msgstr "手順から継承された指示。"
 
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationForm.tsx:581
 msgid "Integration not found"
-msgstr "統合が見つかりません"
+msgstr "統合が見つかりません<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/Integrations/IntegrationsList.tsx:136
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:167
 msgid "Integrations"
-msgstr "統合"
+msgstr "統合>>>>>>> main"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:62
 msgid "Intercompany"
@@ -6566,12 +6570,12 @@ msgstr "内部メモ"
 
 #: apps/erp/app/routes/_public+/invite.$code.tsx:130
 msgid "Invalid Invite"
-msgstr "無効な招待"
+msgstr "無効な招待<<<<<<< HEAD"
 
 #: apps/erp/app/components/Form/ConversionFactor.tsx:274
 #: apps/erp/app/components/Form/ConversionFactor.tsx:299
 #: apps/erp/app/hooks/useModules.tsx:52
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:590
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:626
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:82
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:50
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:82
@@ -6895,7 +6899,7 @@ msgstr "品目グループ"
 msgid "Item Groups"
 msgstr "アイテムグループ"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:107
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:131
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:373
 #: apps/erp/app/modules/inventory/ui/StockTransfers/StockTransferWizard.tsx:705
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:535
@@ -6919,7 +6923,7 @@ msgstr "アイテムルール"
 msgid "Item Scope"
 msgstr "アイテムスコープ"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:422
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:432
 #: apps/erp/app/modules/items/ui/Item/BoMExplorer.tsx:587
 #: apps/erp/app/modules/production/ui/Jobs/JobBoMExplorer.tsx:445
 msgid "Item Type"
@@ -6927,7 +6931,7 @@ msgstr "アイテムタイプ"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:595
 msgid "items"
-msgstr "アイテム"
+msgstr "アイテム<<<<<<< HEAD"
 
 #: apps/erp/app/hooks/useModules.tsx:46
 #: apps/erp/app/modules/items/ui/ItemRules/ItemRulesTable.tsx:92
@@ -7032,7 +7036,7 @@ msgstr "ジョブが必要です"
 #. placeholder {0}: company?.name ?? "Company"
 #: apps/erp/app/routes/_public+/invite.$code.tsx:176
 msgid "Join {0}"
-msgstr "{0}に参加"
+msgstr "{0}に参加<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:68
 msgid "Journal Entries"
@@ -7102,7 +7106,7 @@ msgstr "このカンバンの{0}を作成するためのラベル"
 
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:197
 msgid "Label to start the next operation for this kanban"
-msgstr "このカンバンの次の操作を開始するためのラベル"
+msgstr "このカンバンの次の操作を開始するためのラベル<<<<<<< HEAD"
 
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:237
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:67
@@ -7185,7 +7189,7 @@ msgstr "最後に同期: {0}"
 msgid "Last updated: {formattedDate}"
 msgstr "最終更新: {formattedDate}"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:162
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:166
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:1231
 #: apps/erp/app/modules/production/ui/Jobs/JobBillOfProcess.tsx:2401
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:356
@@ -7359,7 +7363,7 @@ msgstr "テンプレートを読み込む"
 msgid "Loader"
 msgstr "ローダー"
 
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:347
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:350
 msgid "Loading item details..."
 msgstr "アイテムの詳細を読み込み中..."
 
@@ -7371,7 +7375,7 @@ msgstr "アイテムの詳細を読み込み中..."
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderHeader.tsx:446
 #: apps/erp/app/routes/x+/quality+/_index.tsx:927
 msgid "Loading..."
-msgstr "読み込み中..."
+msgstr "読み込み中...<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:459
 msgid "Loading…"
@@ -7453,16 +7457,16 @@ msgstr "ログイン"
 msgid "Login or create a new account"
 msgstr "ログインするか新しいアカウントを作成してください"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:162
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:184
 msgid "Logo removed successfully"
 msgstr "ロゴが正常に削除されました"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:143
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:163
 msgid "Logo uploaded successfully"
-msgstr "ロゴが正常にアップロードされました"
+msgstr "ロゴが正常にアップロードされました<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:73
-#: apps/erp/app/routes/x+/settings+/logos.tsx:32
+#: apps/erp/app/routes/x+/settings+/logos.tsx:33
 #: apps/erp/app/routes/x+/settings+/logos.tsx:83
 msgid "Logos"
 msgstr "ロゴ"
@@ -7557,7 +7561,7 @@ msgstr "メンテナンススケジューリング"
 msgid "Maintenance Type"
 msgstr "メンテナンスタイプ"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:90
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:92
 #: apps/erp/app/modules/items/ui/Item/ItemForm.tsx:93
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:202
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:345
@@ -7683,7 +7687,7 @@ msgstr "製造"
 
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderHeader.tsx:277
 msgid "Mark as Planned"
-msgstr "計画済みとしてマーク"
+msgstr "計画済みとしてマーク<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:169
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:445
@@ -8169,7 +8173,7 @@ msgstr "ゴミ箱に移動"
 msgid "Moved {0} to {1} bucket"
 msgstr "{0}を{1}バケットに移動しました"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:584
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:620
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:490
 msgid "MRP runs automatically every 3 hours, but you can run it manually here."
 msgstr "MRPは3時間ごとに自動的に実行されますが、ここで手動で実行することもできます。"
@@ -8797,7 +8801,7 @@ msgstr "ファイルがアップロードされていません"
 
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:210
 msgid "No Gauge Selected"
-msgstr "ゲージが選択されていません"
+msgstr "ゲージが選択されていません<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:464
 msgid "No grouped notifications"
@@ -8815,7 +8819,7 @@ msgstr "画像なし"
 msgid "No issue types configured"
 msgstr "問題タイプが設定されていません"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:236
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:248
 msgid "No logo uploaded"
 msgstr "ロゴがアップロードされていません"
 
@@ -8827,7 +8831,7 @@ msgstr "一致するものがありません"
 
 #: apps/erp/app/components/Layout/Topbar/Search/SearchEmptyState.tsx:46
 msgid "No matches for \"{query}\". Try a different search term."
-msgstr "\"{query}\"に一致するものがありません。別の検索用語を試してください。"
+msgstr "\"{query}\"に一致するものがありません。別の検索用語を試してください。<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:601
 msgid "No new notifications"
@@ -8853,7 +8857,7 @@ msgstr "オプションが見つかりません。"
 
 #: apps/erp/app/routes/x+/settings+/billing.tsx:323
 msgid "No other employees found. Add employees to enable ownership transfer."
-msgstr "他の従業員が見つかりません。所有権の譲渡を有効にするために従業員を追加してください。"
+msgstr "他の従業員が見つかりません。所有権の譲渡を有効にするために従業員を追加してください。<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:672
 msgid "No outstanding trainings"
@@ -9042,11 +9046,11 @@ msgstr "メモ"
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.$lineId.details.tsx:178
 #: apps/erp/app/routes/x+/purchase-invoice+/$invoiceId.details.tsx:188
 #: apps/erp/app/routes/x+/quote+/$quoteId.$lineId.details.tsx:338
-#: apps/erp/app/routes/x+/quote+/$quoteId.details.tsx:182
+#: apps/erp/app/routes/x+/quote+/$quoteId.details.tsx:183
 #: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.$lineId.details.tsx:173
 #: apps/erp/app/routes/x+/sales-invoice+/$invoiceId.details.tsx:179
 #: apps/erp/app/routes/x+/sales-order+/$orderId.$lineId.details.tsx:208
-#: apps/erp/app/routes/x+/sales-order+/$orderId.details.tsx:207
+#: apps/erp/app/routes/x+/sales-order+/$orderId.details.tsx:208
 #: apps/erp/app/routes/x+/sales-rfq+/$rfqId.$lineId.details.tsx:149
 #: apps/erp/app/routes/x+/sales-rfq+/$rfqId.details.tsx:128
 msgid "Notes"
@@ -9055,7 +9059,7 @@ msgstr "メモ"
 #: apps/erp/app/modules/purchasing/ui/Supplier/SupplierApprovalModal.tsx:73
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentApprovalModal.tsx:78
 msgid "Notes (optional)"
-msgstr "メモ（オプション）"
+msgstr "メモ（オプション）<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:692
 msgid "Nothing in the archive"
@@ -9100,7 +9104,7 @@ msgstr "の"
 msgid "OK"
 msgstr "OK"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:136
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:145
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:303
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:325
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:402
@@ -9111,16 +9115,16 @@ msgstr "手持在庫"
 msgid "On Hold"
 msgstr "保留中"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:252
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:263
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:257
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:268
 msgid "On Jobs"
 msgstr "ジョブ上"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:242
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:246
 msgid "On Purchase Order"
 msgstr "購買注文中"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:274
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:278
 msgid "On Sales Order"
 msgstr "販売注文中"
 
@@ -9595,7 +9599,7 @@ msgstr "支払い方法"
 #: apps/erp/app/modules/sales/ui/SalesOrder/SalesOrderPaymentForm.tsx:85
 #: apps/erp/app/routes/share+/quote.$id.tsx:1220
 msgid "Payment Term"
-msgstr "支払条件"
+msgstr "支払条件<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/PaymentTerms/PaymentTermsTable.tsx:132
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:116
@@ -9616,6 +9620,10 @@ msgstr "支払条件"
 msgid "PDF"
 msgstr "PDF"
 
+#: apps/erp/app/routes/x+/settings+/logos.tsx:147
+msgid "PDF Watermark"
+msgstr "PDF透かし"
+
 #: apps/erp/app/routes/x+/settings+/purchasing.tsx:706
 #: apps/erp/app/routes/x+/settings+/sales.tsx:633
 msgid "PDFs"
@@ -9628,7 +9636,7 @@ msgstr "PDF"
 #: apps/erp/app/routes/x+/resources+/assignments.$trainingId.tsx:304
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:167
 msgid "Pending"
-msgstr "保留中"
+msgstr "保留中<<<<<<< HEAD"
 
 #: apps/erp/app/hooks/useModules.tsx:76
 #: apps/erp/app/modules/resources/ui/useResourcesSubmodules.tsx:67
@@ -9648,7 +9656,7 @@ msgstr "単位あたり"
 msgid "Percentage of Lot"
 msgstr "ロットの割合"
 
-#: apps/erp/app/routes/onboarding+/plan.tsx:33
+#: apps/erp/app/routes/onboarding+/plan.tsx:57
 msgid "Perfect for low-cost evaluation"
 msgstr "低コスト評価に最適"
 
@@ -9672,7 +9680,7 @@ msgstr "権限"
 msgid "Phone"
 msgstr "電話"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:37
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:41
 msgid "Phone Number"
 msgstr "電話番号"
 
@@ -9792,7 +9800,7 @@ msgstr "操作を保存してからステップを追加してください。"
 msgid "Please save the operation before adding tools."
 msgstr "操作を保存してからツールを追加してください。"
 
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:207
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:208
 msgid "Please select an item"
 msgstr "アイテムを選択してください"
 
@@ -10060,7 +10068,7 @@ msgstr "プロセス"
 #: apps/erp/app/routes/x+/settings+/labels.tsx:121
 #: apps/erp/app/routes/x+/settings+/labels.tsx:135
 msgid "Product Label Size"
-msgstr "製品ラベルサイズ"
+msgstr "製品ラベルサイズ<<<<<<< HEAD"
 
 #: apps/erp/app/hooks/useModules.tsx:40
 #: apps/erp/app/modules/production/ui/useProductionSubmodules.tsx:21
@@ -10307,7 +10315,7 @@ msgstr "購入単位:"
 #: apps/erp/app/components/Form/ConversionFactor.tsx:261
 #: apps/erp/app/components/Form/ConversionFactor.tsx:312
 msgid "Purchased"
-msgstr "購入済み"
+msgstr "購入済み<<<<<<< HEAD"
 
 #: apps/erp/app/hooks/useModules.tsx:58
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:38
@@ -10378,7 +10386,7 @@ msgstr "数量。再加工"
 
 #: apps/erp/app/modules/production/ui/Jobs/JobOperationsTable.tsx:172
 msgid "Qty. Scrapped"
-msgstr "数量。スクラップ"
+msgstr "数量。スクラップ<<<<<<< HEAD"
 
 #: apps/erp/app/hooks/useModules.tsx:64
 #: apps/erp/app/modules/items/ui/Consumables/useConsumableNavigation.tsx:70
@@ -10455,7 +10463,7 @@ msgstr "数量"
 #: apps/erp/app/modules/purchasing/ui/SupplierQuote/SupplierQuoteToOrderDrawer.tsx:318
 #: apps/erp/app/modules/quality/ui/Issue/AssociatedItemsList.tsx:356
 #: apps/erp/app/modules/quality/ui/Issue/IssueAssociations.tsx:344
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:358
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:361
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverrideForm.tsx:351
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:371
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfMaterial.tsx:859
@@ -10481,7 +10489,7 @@ msgstr "完了数量"
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "数量はMESで完了したシリアル/バッチから導出されており、編集することはできません。"
 
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:269
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:270
 msgid "Quantity must be greater than 0"
 msgstr "数量は0より大きい必要があります"
 
@@ -10633,7 +10641,7 @@ msgstr "理由"
 msgid "Reassign specific tracked entities from this row to another disposition row."
 msgstr "このロウから別の処分ロウに特定の追跡対象エンティティを再割り当てします。"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:580
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:616
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:98
 #: apps/erp/app/modules/items/ui/Item/ItemCostingForm.tsx:108
 #: apps/erp/app/modules/production/ui/Jobs/JobMaterialsTable.tsx:504
@@ -10831,8 +10839,8 @@ msgstr "このPINを覚えておいてください。MES端末でコンソール
 #: apps/erp/app/modules/items/ui/Parts/PartForm.tsx:368
 #: apps/erp/app/modules/items/ui/Tools/ToolForm.tsx:358
 #: apps/erp/app/modules/quality/ui/Calibrations/GaugeCalibrationRecordForm.tsx:357
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:211
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:247
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:227
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:259
 #: apps/erp/app/routes/share+/quote.$id.tsx:927
 msgid "Remove"
 msgstr "削除"
@@ -10934,7 +10942,7 @@ msgstr "再注文ポイント"
 msgid "Reorder Point:"
 msgstr "再注文ポイント:"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:172
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:191
 #: apps/erp/app/modules/production/ui/Planning/ProductionPlanningTable.tsx:295
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningTable.tsx:372
 msgid "Reorder Policy"
@@ -10965,7 +10973,7 @@ msgstr "再注文ポリシー"
 msgid "Replace existing pricing with source values"
 msgstr "既存の価格を元の値に置き換える"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:202
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:210
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:396
 #: apps/erp/app/modules/items/ui/Parts/PartProperties.tsx:337
 #: apps/erp/app/modules/items/ui/Parts/PartsTable.tsx:177
@@ -11093,7 +11101,7 @@ msgstr "NCRを完了する前にこれらを解決してください。すべて
 
 #: apps/erp/app/modules/sales/ui/Pricing/PriceOverridesTable.tsx:201
 msgid "Resolved Price"
-msgstr "解決済み価格"
+msgstr "解決済み価格<<<<<<< HEAD"
 
 #: apps/erp/app/hooks/useModules.tsx:82
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:132
@@ -11320,7 +11328,7 @@ msgstr "安全在庫:"
 
 #: apps/erp/app/modules/items/ui/Item/ItemSalePriceForm.tsx:33
 msgid "Sale Price"
-msgstr "販売価格"
+msgstr "販売価格<<<<<<< HEAD"
 
 #: apps/erp/app/hooks/useModules.tsx:34
 #: apps/erp/app/modules/items/ui/Parts/usePartNavigation.tsx:75
@@ -11575,7 +11583,7 @@ msgstr "土曜日"
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQHeader.tsx:362
 #: apps/erp/app/modules/sales/ui/SalesRFQ/SalesRFQLineForm.tsx:340
 #: apps/erp/app/modules/settings/ui/ApiKeys/ApiKeysForm.tsx:136
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:43
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:47
 #: apps/erp/app/modules/settings/ui/CustomFields/CustomFieldForm.tsx:143
 #: apps/erp/app/modules/settings/ui/Sequences/SequenceForm.tsx:116
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:136
@@ -11628,8 +11636,8 @@ msgid "Save View"
 msgstr "ビューを保存"
 
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:125
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:378
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:498
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:381
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:501
 msgid "Scan"
 msgstr "スキャン"
 
@@ -11827,8 +11835,8 @@ msgstr "秒/個"
 #: apps/erp/app/modules/purchasing/ui/Planning/PurchasingPlanningOrderDrawer.tsx:396
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:129
 #: apps/erp/app/modules/quality/ui/InboundInspections/ScanInspectionSample.tsx:204
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:382
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:502
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:385
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:505
 #: packages/react/src/Combobox.tsx:148
 #: packages/react/src/CreateableCombobox.tsx:157
 #: packages/react/src/MultiSelect.tsx:178
@@ -11885,7 +11893,7 @@ msgstr "担当者を選択"
 msgid "Select an issue type"
 msgstr "問題タイプを選択"
 
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:319
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:321
 msgid "Select an item and specify the quantity to issue"
 msgstr "アイテムを選択し、発行する数量を指定してください"
 
@@ -12014,7 +12022,7 @@ msgstr "選択済み: {selectedSum} / 分割後の残数: {0}"
 msgid "Self Managed"
 msgstr "自己管理"
 
-#: apps/erp/app/routes/onboarding+/plan.tsx:37
+#: apps/erp/app/routes/onboarding+/plan.tsx:61
 msgid "Self-Onboarding with Carbon Academy"
 msgstr "Carbon Academyによるセルフオンボーディング"
 
@@ -12058,7 +12066,7 @@ msgstr "経由で送信"
 
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentHeader.tsx:96
 msgid "Sends this document for approval before it can go active."
-msgstr "このドキュメントを承認のために送信してから、アクティブにすることができます。"
+msgstr "このドキュメントを承認のために送信してから、アクティブにすることができます。<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/Sequences/SequencesTable.tsx:113
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:173
@@ -12207,7 +12215,7 @@ msgstr "重大度"
 msgid "Severity"
 msgstr "重大度"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:311
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:320
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionForm.tsx:95
 #: apps/erp/app/modules/items/ui/MaterialDimensions/MaterialDimensionsTable.tsx:40
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:238
@@ -12458,6 +12466,10 @@ msgstr "見積書、販売注文、販売請求書、および出荷に部品の
 #: apps/erp/app/components/OnshapeSync.tsx:247
 msgid "Show sync options"
 msgstr "同期オプションを表示"
+
+#: apps/erp/app/routes/x+/settings+/logos.tsx:150
+msgid "Shown as a faint background behind every page of generated PDFs"
+msgstr "生成されたPDFの各ページの背景に薄く表示されます"
 
 #: apps/erp/app/modules/items/ui/ItemRules/MessageWithTokens.tsx:279
 msgid "Shown to the user when this rule fails."
@@ -12860,12 +12872,12 @@ msgstr "在庫転送ウィザード"
 msgid "Stock Transfers"
 msgstr "在庫移動"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:473
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:492
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypesTable.tsx:92
 msgid "Storage Type"
 msgstr "ストレージタイプ"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:499
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:503
 #: apps/erp/app/modules/inventory/ui/StorageTypes/StorageTypesTable.tsx:98
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitForm.tsx:105
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:258
@@ -12877,6 +12889,7 @@ msgstr "ストレージタイプ"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:218
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:356
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:525
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbanForm.tsx:284
 #: apps/erp/app/modules/inventory/ui/Kanbans/KanbansTable.tsx:430
 #: apps/erp/app/modules/inventory/ui/Shipments/ShipmentLines.tsx:1199
@@ -12896,6 +12909,7 @@ msgid "Storage Unit"
 msgstr "保管単位"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:196
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:533
 #: apps/erp/app/modules/inventory/ui/StorageUnits/StorageUnitsTable.tsx:394
 #: apps/erp/app/modules/inventory/ui/useInventorySubmodules.tsx:88
 #: apps/erp/app/routes/x+/inventory+/storage-units.tsx:22
@@ -12959,7 +12973,7 @@ msgstr "提出者"
 msgid "Subscribe to changes"
 msgstr "変更を購読"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:331
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:340
 #: apps/erp/app/modules/items/ui/MaterialFinishes/MaterialFinishesTable.tsx:40
 #: apps/erp/app/modules/items/ui/MaterialFinishes/MaterialFinishForm.tsx:95
 #: apps/erp/app/modules/items/ui/MaterialGrades/MaterialGradeForm.tsx:95
@@ -13269,7 +13283,7 @@ msgstr "テーブル"
 msgid "Table actions"
 msgstr "テーブルアクション"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:448
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:461
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:458
 #: apps/erp/app/modules/items/ui/Consumables/ConsumablesTable.tsx:214
 #: apps/erp/app/modules/items/ui/Materials/MaterialProperties.tsx:721
@@ -13376,7 +13390,7 @@ msgstr "税金と追加費用"
 msgid "Tax Amount"
 msgstr "税額"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:29
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:30
 msgid "Tax ID"
 msgstr "税務ID"
 
@@ -13523,7 +13537,7 @@ msgstr "これらのメールアドレスは、顧客に送信されるすべて
 msgid "These jobs have operations assigned to this work center:"
 msgstr "これらのジョブにはこのワークセンターに割り当てられた操作があります:"
 
-#: apps/erp/app/routes/x+/settings+/company.tsx:99
+#: apps/erp/app/routes/x+/settings+/company.tsx:100
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"
 
@@ -13932,7 +13946,7 @@ msgstr "トレーニング"
 
 #: apps/erp/app/routes/x+/resources+/assignments.tsx:265
 msgid "Training Assignments"
-msgstr "研修割り当て"
+msgstr "研修割り当て<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:578
 msgid "Trainings"
@@ -13985,7 +13999,7 @@ msgstr "転送"
 
 #: apps/erp/app/modules/documents/ui/useDocumentsSubmodules.tsx:40
 msgid "Trash"
-msgstr "ゴミ箱"
+msgstr "ゴミ箱<<<<<<< HEAD"
 
 #: apps/erp/app/modules/accounting/ui/useAccountingSubmodules.tsx:51
 msgid "Trial Balance"
@@ -13997,7 +14011,7 @@ msgstr "火曜日"
 
 #: apps/erp/app/modules/api/ui/TableDocs.tsx:436
 #: apps/erp/app/modules/documents/ui/Documents/DocumentsTable.tsx:302
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:402
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:406
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:1880
 #: apps/erp/app/modules/items/ui/Item/BillOfProcess.tsx:2165
 #: apps/erp/app/modules/items/ui/Materials/MaterialForm.tsx:251
@@ -14114,7 +14128,7 @@ msgid "Unit Cost"
 msgstr "単価"
 
 #: apps/erp/app/modules/inventory/ui/Inventory/InventoryStorageUnits.tsx:418
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:294
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:307
 #: apps/erp/app/modules/invoicing/ui/PurchaseInvoice/PurchaseInvoiceLineForm.tsx:519
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableForm.tsx:171
 #: apps/erp/app/modules/items/ui/Consumables/ConsumableProperties.tsx:374
@@ -14138,7 +14152,7 @@ msgstr "単価"
 #: apps/erp/app/modules/production/ui/Procedures/ProcedureExplorer.tsx:829
 #: apps/erp/app/modules/purchasing/ui/PurchaseOrder/PurchaseOrderLineForm.tsx:571
 #: apps/erp/app/modules/quality/ui/Documents/QualityDocumentExplorer.tsx:606
-#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:365
+#: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceAddPartModal.tsx:368
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1075
 #: apps/erp/app/modules/sales/ui/Quotes/QuoteBillOfProcess.tsx:1342
 msgid "Unit of Measure"
@@ -14184,8 +14198,8 @@ msgstr "不明"
 msgid "unknown location"
 msgstr "不明な場所"
 
+#: apps/erp/app/routes/onboarding+/plan.tsx:36
 #: apps/erp/app/routes/onboarding+/plan.tsx:50
-#: apps/erp/app/routes/onboarding+/plan.tsx:64
 msgid "Unlimited Functional Support"
 msgstr "無制限の機能サポート"
 
@@ -14363,8 +14377,8 @@ msgstr "アイテムルールのロックを解除するにはアップグレー
 #: apps/erp/app/modules/account/ui/Profile/ProfilePhotoForm.tsx:145
 #: apps/erp/app/modules/documents/ui/Documents/DocumentCreateForm.tsx:70
 #: apps/erp/app/modules/resources/ui/Maintenance/MaintenanceDispatchNotes.tsx:300
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:206
-#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:242
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:222
+#: apps/erp/app/modules/settings/ui/Company/CompanyLogoForm.tsx:254
 msgid "Upload"
 msgstr "アップロード"
 
@@ -14412,11 +14426,11 @@ msgstr "アップロード中 {fileName}"
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "変換をクリックすると、以下の内部部品番号で部品が作成されます:"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:222
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:226
 msgid "Usage/Day (30d)"
 msgstr "使用量/日 (30日)"
 
-#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:232
+#: apps/erp/app/modules/inventory/ui/Inventory/InventoryTable.tsx:236
 msgid "Usage/Day (90d)"
 msgstr "使用量/日 (90日)"
 
@@ -14522,7 +14536,7 @@ msgstr "ジョブを検証中..."
 msgid "Value"
 msgstr "値"
 
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:30
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:31
 msgid "VAT Number"
 msgstr "VAT番号"
 
@@ -14854,7 +14868,7 @@ msgstr "Webhook ドキュメント"
 
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhookForm.tsx:124
 msgid "Webhook URL"
-msgstr "Webhook URL"
+msgstr "Webhook URL<<<<<<< HEAD"
 
 #: apps/erp/app/modules/settings/ui/useSettingsSubmodules.tsx:179
 #: apps/erp/app/modules/settings/ui/Webhooks/WebhooksTable.tsx:227
@@ -14871,7 +14885,7 @@ msgstr "Webhooks ドキュメント"
 #: apps/erp/app/modules/purchasing/ui/Supplier/SuppliersTable.tsx:186
 #: apps/erp/app/modules/sales/ui/Customer/CustomerForm.tsx:155
 #: apps/erp/app/modules/sales/ui/Customers/CustomersTable.tsx:192
-#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:40
+#: apps/erp/app/modules/settings/ui/Company/CompanyForm.tsx:44
 #: apps/erp/app/routes/onboarding+/company.tsx:226
 msgid "Website"
 msgstr "ウェブサイト"
@@ -15125,7 +15139,7 @@ msgstr "ご招待が無効であるか、既に受け入れられています。
 #: apps/erp/app/routes/share+/supplier-quote.$id.tsx:981
 #: apps/erp/app/routes/share+/supplier-quote.$id.tsx:1041
 msgid "Your Name"
-msgstr "お名前"
+msgstr "お名前<<<<<<< HEAD"
 
 #: apps/erp/app/components/Layout/Topbar/Notifications.tsx:140
 msgid "yourself"

@@ -1,6 +1,4 @@
 {
-  "name": "academy",
-  "type": "module",
   "dependencies": {
     "@carbon/auth": "workspace:*",
     "@carbon/database": "workspace:*",
@@ -57,6 +55,7 @@
     "vite-tsconfig-paths": "catalog:",
     "wait-on": "catalog:"
   },
+  "name": "academy",
   "private": true,
   "scripts": {
     "build": "react-router build",
@@ -65,8 +64,8 @@
     "lint": "biome lint --write",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "tsgo --noEmit",
-    "types": "tsgo --noEmit",
     "typegen": "react-router typegen"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "type": "module"
 }

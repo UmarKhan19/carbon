@@ -5,7 +5,7 @@ import { isPurchaseOrderLocked } from "~/modules/purchasing";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "purchasing"
   });
 
@@ -15,7 +15,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const value = formData.get("value");
 
   if (typeof field !== "string") {
-    return { error: { message: "Invalid form data" }, data: null };
+    return { data: null, error: { message: "Invalid form data" } };
   }
 
   if (field === "delete") {
@@ -32,9 +32,9 @@ export async function action({ request }: ActionFunctionArgs) {
       .select("status")
       .in("id", ids as string[]);
     const lockedError = requireUnlockedBulk({
-      statuses: (purchaseOrders.data ?? []).map((d) => d.status),
       checkFn: isPurchaseOrderLocked,
-      message: "Cannot modify a confirmed purchase order."
+      message: "Cannot modify a confirmed purchase order.",
+      statuses: (purchaseOrders.data ?? []).map((d) => d.status)
     });
     if (lockedError) {
       return lockedError;
@@ -42,7 +42,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   if (typeof value !== "string" && value !== null) {
-    return { error: { message: "Invalid form data" }, data: null };
+    return { data: null, error: { message: "Invalid form data" } };
   }
 
   switch (field) {
@@ -59,17 +59,17 @@ export async function action({ request }: ActionFunctionArgs) {
           currencyCode = supplier.data.currencyCode;
           const currency = await getCurrencyByCode(
             client,
-            companyId,
+            companyGroupId,
             currencyCode
           );
           return await client
             .from("purchaseOrder")
             .update({
-              supplierId: value ?? undefined,
               currencyCode: currencyCode ?? undefined,
               exchangeRate: currency.data?.exchangeRate ?? 1,
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
+              supplierId: value ?? undefined,
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId
             })
             .in("id", ids as string[]);
         }
@@ -79,8 +79,8 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("purchaseOrder")
         .update({
           supplierId: value ?? undefined,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
     case "receiptRequestedDate":
@@ -90,8 +90,8 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("purchaseOrderDelivery")
         .update({
           [field]: value ?? undefined,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
     case "receiptPromisedDate":
@@ -99,8 +99,8 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("purchaseOrderLine")
         .update({
           promisedDate: value ?? undefined,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("purchaseOrderId", ids as string[])
         .is("promisedDate", null);
@@ -113,15 +113,15 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("purchaseOrderDelivery")
         .update({
           [field]: value ?? undefined,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
     case "currencyCode":
       if (value) {
         const currency = await getCurrencyByCode(
           client,
-          companyId,
+          companyGroupId,
           value as string
         );
         if (currency.data) {
@@ -130,8 +130,8 @@ export async function action({ request }: ActionFunctionArgs) {
             .update({
               currencyCode: value as string,
               exchangeRate: currency.data.exchangeRate,
-              updatedBy: userId,
-              updatedAt: new Date().toISOString()
+              updatedAt: new Date().toISOString(),
+              updatedBy: userId
             })
             .in("id", ids as string[]);
         }
@@ -146,11 +146,11 @@ export async function action({ request }: ActionFunctionArgs) {
         .from("purchaseOrder")
         .update({
           [field]: value ? value : null,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .in("id", ids as string[]);
     default:
-      return { error: { message: "Invalid field" }, data: null };
+      return { data: null, error: { message: "Invalid field" } };
   }
 }

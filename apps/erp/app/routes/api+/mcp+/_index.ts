@@ -5,9 +5,9 @@ import { createMcpServer } from "./lib/server";
 
 export async function action({ request }: ActionFunctionArgs) {
   console.log("[MCP] Received request:", {
+    headers: Object.fromEntries(request.headers.entries()),
     method: request.method,
-    url: request.url,
-    headers: Object.fromEntries(request.headers.entries())
+    url: request.url
   });
 
   const authHeader = request.headers.get("Authorization");
@@ -21,13 +21,14 @@ export async function action({ request }: ActionFunctionArgs) {
     console.log("[MCP] Added carbon-key header from Bearer token");
   }
 
-  const { client, companyId, userId } = await requirePermissions(request, {});
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {});
   console.log("[MCP] Auth successful:", { companyId, userId });
 
-  const server = createMcpServer({ client, companyId, userId });
+  const server = createMcpServer({ client, companyGroupId, companyId, userId });
   const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: undefined,
-    enableJsonResponse: true
+    enableJsonResponse: true,
+    sessionIdGenerator: undefined
   });
 
   await server.connect(transport);
@@ -51,13 +52,13 @@ export async function action({ request }: ActionFunctionArgs) {
 export async function loader() {
   return new Response(
     JSON.stringify({
-      jsonrpc: "2.0",
       error: { code: -32000, message: "Method not allowed. Use POST." },
-      id: null
+      id: null,
+      jsonrpc: "2.0"
     }),
     {
-      status: 405,
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
+      status: 405
     }
   );
 }

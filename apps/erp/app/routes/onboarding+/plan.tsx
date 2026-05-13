@@ -26,21 +26,7 @@ import { path } from "~/utils/path";
 function usePlans() {
   const { t } = useLingui();
   return {
-    STARTER: {
-      price: 33,
-      userMinimum: 0,
-      talkToSales: false,
-      description: t`Perfect for low-cost evaluation`,
-      features: [
-        t`ERP, MES, QMS`,
-        t`Cloud-Hosted`,
-        t`Self-Onboarding with Carbon Academy`
-      ]
-    },
     BUSINESS: {
-      price: 92,
-      userMinimum: 5,
-      talkToSales: true,
       description: t`For growing businesses that need support`,
       features: [
         t`5 User Minimum`,
@@ -48,12 +34,12 @@ function usePlans() {
         t`API and Webhooks`,
         t`Implementation Support`,
         t`Unlimited Functional Support`
-      ]
+      ],
+      price: 100,
+      talkToSales: true,
+      userMinimum: 5
     },
     GOVCLOUD: {
-      price: 92,
-      userMinimum: 5,
-      talkToSales: true,
       description: t`For US companies handling ITAR data`,
       features: [
         t`5 User Minimum`,
@@ -62,7 +48,21 @@ function usePlans() {
         t`API and Webhooks`,
         t`Implementation Support`,
         t`Unlimited Functional Support`
-      ]
+      ],
+      price: 100,
+      talkToSales: true,
+      userMinimum: 5
+    },
+    STARTER: {
+      description: t`Perfect for low-cost evaluation`,
+      features: [
+        t`ERP, MES, QMS`,
+        t`Cloud-Hosted`,
+        t`Self-Onboarding with Carbon Academy`
+      ],
+      price: 40,
+      talkToSales: false,
+      userMinimum: 0
     }
   };
 }
@@ -83,7 +83,7 @@ export async function loader({ request }: ActionFunctionArgs) {
     throw new Error("Failed to load plans");
   }
 
-  return { plans: plans.data?.filter((p) => p.public), companyId };
+  return { companyId, plans: plans.data?.filter((p) => p.public) };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -114,11 +114,11 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const url = await getCheckoutUrl({
-    planId,
-    userId,
     companyId,
+    email: user.data?.email,
     name: company.data?.name,
-    email: user.data?.email
+    planId,
+    userId
   });
 
   throw redirect(url);
@@ -132,10 +132,10 @@ export default function OnboardingPlan() {
   const formatter = useMemo(
     () =>
       new Intl.NumberFormat(locale, {
-        style: "currency",
         currency: "USD",
+        maximumFractionDigits: 0,
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        style: "currency"
       }),
     [locale]
   );

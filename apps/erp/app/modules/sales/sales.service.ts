@@ -84,11 +84,11 @@ export function applyPriceRules(
   if (discountRules.length > 0) {
     const ranked = discountRules
       .map((rule) => ({
-        rule,
         effective:
           rule.amountType === "Percentage"
             ? finalPrice * rule.amount
-            : rule.amount
+            : rule.amount,
+        rule
       }))
       .sort((a, b) => {
         if (b.rule.priority !== a.rule.priority) {
@@ -101,11 +101,11 @@ export function applyPriceRules(
     if (winner && winner.effective > 0) {
       finalPrice = finalPrice - winner.effective;
       appendedTrace.push({
-        step: "Discount",
-        source: `Rule: ${winner.rule.name}`,
-        amount: finalPrice,
         adjustment: -winner.effective,
-        ruleId: winner.rule.id
+        amount: finalPrice,
+        ruleId: winner.rule.id,
+        source: `Rule: ${winner.rule.name}`,
+        step: "Discount"
       });
     }
   }
@@ -120,25 +120,25 @@ export function applyPriceRules(
       rule.amountType === "Percentage" ? finalPrice * rule.amount : rule.amount;
     finalPrice = finalPrice + adjustment;
     appendedTrace.push({
-      step: "Markup",
-      source: `Rule: ${rule.name}`,
-      amount: finalPrice,
       adjustment,
-      ruleId: rule.id
+      amount: finalPrice,
+      ruleId: rule.id,
+      source: `Rule: ${rule.name}`,
+      step: "Markup"
     });
   }
 
   if (finalPrice < 0) {
     appendedTrace.push({
-      step: "Floor",
-      source: "Clamped to 0 (rules drove price negative)",
+      adjustment: -finalPrice,
       amount: 0,
-      adjustment: -finalPrice
+      source: "Clamped to 0 (rules drove price negative)",
+      step: "Floor"
     });
     finalPrice = 0;
   }
 
-  return { finalPrice, appendedTrace };
+  return { appendedTrace, finalPrice };
 }
 
 export async function closeSalesOrder(
@@ -204,15 +204,15 @@ export async function copyQuoteLine(
   return client.functions.invoke<{ copiedId: string }>("get-method", {
     body: {
       ...payload,
-      type: "quoteLineToQuoteLine",
       parts: {
         billOfMaterial: payload.billOfMaterial,
         billOfProcess: payload.billOfProcess,
         parameters: payload.parameters,
-        tools: payload.tools,
         steps: payload.steps,
+        tools: payload.tools,
         workInstructions: payload.workInstructions
-      }
+      },
+      type: "quoteLineToQuoteLine"
     }
   });
 }
@@ -242,22 +242,22 @@ export async function createPricingRule(
     .from("pricingRule")
     .insert([
       {
-        name: data.name,
-        ruleType: data.ruleType,
-        amountType: data.amountType,
+        active: data.active ?? true,
         amount: data.amount,
-        minQuantity: data.minQuantity ?? null,
-        maxQuantity: data.maxQuantity ?? null,
+        amountType: data.amountType,
+        companyId,
+        createdBy: userId,
         customerIds: data.customerIds ?? [],
         customerTypeIds: data.customerTypeIds ?? [],
         itemIds: data.itemIds ?? [],
         itemPostingGroupId: data.itemPostingGroupId ?? null,
-        validFrom: data.validFrom || null,
-        validTo: data.validTo || null,
+        maxQuantity: data.maxQuantity ?? null,
+        minQuantity: data.minQuantity ?? null,
+        name: data.name,
         priority: data.priority ?? 0,
-        active: data.active ?? true,
-        companyId,
-        createdBy: userId
+        ruleType: data.ruleType,
+        validFrom: data.validFrom || null,
+        validTo: data.validTo || null
       }
     ])
     .select("id")
@@ -448,22 +448,22 @@ export async function duplicatePricingRule(
     .from("pricingRule")
     .insert([
       {
-        name: `Copy of ${original.name}`,
-        ruleType: original.ruleType,
-        amountType: original.amountType,
+        active: false,
         amount: original.amount,
-        minQuantity: original.minQuantity,
-        maxQuantity: original.maxQuantity,
+        amountType: original.amountType,
+        companyId,
+        createdBy: userId,
         customerIds: original.customerIds,
         customerTypeIds: original.customerTypeIds,
         itemIds: original.itemIds,
         itemPostingGroupId: original.itemPostingGroupId,
-        validFrom: original.validFrom,
-        validTo: original.validTo,
+        maxQuantity: original.maxQuantity,
+        minQuantity: original.minQuantity,
+        name: `Copy of ${original.name}`,
         priority: original.priority,
-        active: false,
-        companyId,
-        createdBy: userId
+        ruleType: original.ruleType,
+        validFrom: original.validFrom,
+        validTo: original.validTo
       }
     ])
     .select("id")
@@ -711,13 +711,13 @@ function applyBreakToParent(
   if (!best) return null;
 
   return {
+    applyRulesOnTop: parent.applyRulesOnTop,
     id: parent.id,
-    quantity: best.quantity,
-    overridePrice: best.overridePrice,
     notes: parent.notes,
+    overridePrice: best.overridePrice,
+    quantity: best.quantity,
     validFrom: parent.validFrom,
-    validTo: parent.validTo,
-    applyRulesOnTop: parent.applyRulesOnTop
+    validTo: parent.validTo
   };
 }
 
@@ -754,7 +754,7 @@ export async function getCustomers(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "name", ascending: true }
+    { ascending: true, column: "name" }
   ]);
   return query;
 }
@@ -798,7 +798,7 @@ export async function getCustomerStatuses(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -843,7 +843,7 @@ export async function getCustomerTypes(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -882,7 +882,7 @@ export async function getExternalSalesOrderLines(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "orderDate", ascending: true }
+      { ascending: true, column: "orderDate" }
     ]);
   }
 
@@ -910,8 +910,8 @@ export async function getModelByQuoteLineId(
   if (!item.data || !item.data.modelUploadId) {
     return {
       itemId: item.data?.id ?? null,
-      type: item.data?.type ?? null,
-      modelPath: null
+      modelPath: null,
+      type: item.data?.type ?? null
     };
   }
 
@@ -924,8 +924,8 @@ export async function getModelByQuoteLineId(
   if (!model.data) {
     return {
       itemId: item.data?.id ?? null,
-      type: item.data?.type ?? null,
-      modelSize: null
+      modelSize: null,
+      type: item.data?.type ?? null
     };
   }
 
@@ -974,7 +974,7 @@ export async function getNoQuoteReasons(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -1148,7 +1148,7 @@ export async function getQuotes(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "quoteId", ascending: false }
+    { ascending: false, column: "quoteId" }
   ]);
   return query;
 }
@@ -1286,7 +1286,7 @@ function getQuoteMethodTreeArrayToTree(
 
     if (!Object.prototype.hasOwnProperty.call(lookup, itemId)) {
       // @ts-ignore
-      lookup[itemId] = { id: itemId, children: [] };
+      lookup[itemId] = { children: [], id: itemId };
     }
 
     // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
@@ -1299,7 +1299,7 @@ function getQuoteMethodTreeArrayToTree(
     } else {
       if (!Object.prototype.hasOwnProperty.call(lookup, parentId)) {
         // @ts-ignore
-        lookup[parentId] = { id: parentId, children: [] };
+        lookup[parentId] = { children: [], id: parentId };
       }
 
       // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
@@ -1594,9 +1594,9 @@ export async function getSalesOrderRelatedItems(
   ]);
 
   return {
+    invoices: invoices.data ?? [],
     jobs: jobs.data ?? [],
-    shipments: shipments.data ?? [],
-    invoices: invoices.data ?? []
+    shipments: shipments.data ?? []
   };
 }
 
@@ -1625,7 +1625,7 @@ export async function getSalesOrders(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "createdAt", ascending: false }
+    { ascending: false, column: "createdAt" }
   ]);
 
   return query;
@@ -1792,7 +1792,7 @@ export async function getSalesRFQs(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "rfqId", ascending: false }
+    { ascending: false, column: "rfqId" }
   ]);
   return query;
 }
@@ -1830,8 +1830,8 @@ export async function insertCustomerContact(
     .insert([
       {
         ...customerContact.contact,
-        isCustomer: true,
-        companyId: customerContact.companyId
+        companyId: customerContact.companyId,
+        isCustomer: true
       }
     ])
     .select("id")
@@ -1849,8 +1849,8 @@ export async function insertCustomerContact(
     .from("customerContact")
     .insert([
       {
-        customerId: customerContact.customerId,
         contactId,
+        customerId: customerContact.customerId,
         customerLocationId: customerContact.customerLocationId,
         customFields: customerContact.customFields
       }
@@ -1896,10 +1896,10 @@ export async function insertCustomerLocation(
     .from("customerLocation")
     .insert([
       {
-        customerId: customerLocation.customerId,
         addressId,
-        name: customerLocation.name,
-        customFields: customerLocation.customFields
+        customerId: customerLocation.customerId,
+        customFields: customerLocation.customFields,
+        name: customerLocation.name
       }
     ])
     .select("id")
@@ -2006,9 +2006,9 @@ export async function resolvePrice(
   }
 
   trace.push({
-    step: "Base Price",
+    amount: basePrice,
     source: "Item Unit Sale Price",
-    amount: basePrice
+    step: "Base Price"
   });
 
   // Precedence: customer > type > all-customers > base. We commit to the
@@ -2032,12 +2032,12 @@ export async function resolvePrice(
       overrideApplied = true;
       skipRules = override.applyRulesOnTop === false;
       trace.push({
-        step: "Override",
+        adjustment: override.overridePrice - basePrice,
+        amount: override.overridePrice,
         source: override.notes
           ? `Customer Price Override: ${override.notes}`
           : "Customer Price Override",
-        amount: override.overridePrice,
-        adjustment: override.overridePrice - basePrice
+        step: "Override"
       });
     }
   }
@@ -2057,12 +2057,12 @@ export async function resolvePrice(
       overrideApplied = true;
       skipRules = typeOverride.applyRulesOnTop === false;
       trace.push({
-        step: "Type Override",
+        adjustment: typeOverride.overridePrice - basePrice,
+        amount: typeOverride.overridePrice,
         source: typeOverride.notes
           ? `Customer Type Override: ${typeOverride.notes}`
           : "Customer Type Override",
-        amount: typeOverride.overridePrice,
-        adjustment: typeOverride.overridePrice - basePrice
+        step: "Type Override"
       });
     }
   }
@@ -2081,12 +2081,12 @@ export async function resolvePrice(
       overrideApplied = true;
       skipRules = allOverride.applyRulesOnTop === false;
       trace.push({
-        step: "All Override",
+        adjustment: allOverride.overridePrice - basePrice,
+        amount: allOverride.overridePrice,
         source: allOverride.notes
           ? `All Customers Override: ${allOverride.notes}`
           : "All Customers Override",
-        amount: allOverride.overridePrice,
-        adjustment: allOverride.overridePrice - basePrice
+        step: "All Override"
       });
     }
   }
@@ -2143,12 +2143,12 @@ export async function resolvePrice(
   }
 
   trace.push({
-    step: "Final Price",
+    amount: finalPrice,
     source: "Resolved",
-    amount: finalPrice
+    step: "Final Price"
   });
 
-  return { finalPrice, basePrice, trace };
+  return { basePrice, finalPrice, trace };
 }
 
 // itemPostingGroupId is stored on itemCost, not item. The generic filter
@@ -2165,14 +2165,14 @@ async function resolvePostingGroupFilter(
   filters: GenericQueryFilters["filters"];
 }> {
   if (!filters || filters.length === 0) {
-    return { itemIds: null, filters };
+    return { filters, itemIds: null };
   }
   const postingGroupFilters = filters.filter(
     (f): f is { column: string; operator: string; value: string } =>
       f.column === "itemPostingGroupId" && Boolean(f.value)
   );
   if (postingGroupFilters.length === 0) {
-    return { itemIds: null, filters };
+    return { filters, itemIds: null };
   }
   const remaining = filters.filter((f) => f.column !== "itemPostingGroupId");
   const groupIds = postingGroupFilters.flatMap((f) =>
@@ -2184,7 +2184,7 @@ async function resolvePostingGroupFilter(
     .eq("companyId", companyId)
     .in("itemPostingGroupId", groupIds);
   const itemIds = (data ?? []).map((r) => r.itemId);
-  return { itemIds, filters: remaining };
+  return { filters: remaining, itemIds };
 }
 
 export async function resolvePriceList(
@@ -2211,13 +2211,13 @@ export async function resolvePriceList(
   } else if (args.customerTypeId) {
     scopeQuery = scopeQuery.eq("customerTypeId", args.customerTypeId);
   } else {
-    return { data: [], count: 0 };
+    return { count: 0, data: [] };
   }
 
   const { data: scopedOverrides } = await scopeQuery;
   const overriddenItemIds = (scopedOverrides ?? []).map((r) => r.itemId);
   if (overriddenItemIds.length === 0) {
-    return { data: [], count: 0 };
+    return { count: 0, data: [] };
   }
 
   let itemQuery = client
@@ -2239,7 +2239,7 @@ export async function resolvePriceList(
     await resolvePostingGroupFilter(client, companyId, args.filters);
   if (postingGroupItemIds !== null) {
     if (postingGroupItemIds.length === 0) {
-      return { data: [], count: 0 };
+      return { count: 0, data: [] };
     }
     itemQuery = itemQuery.in("id", postingGroupItemIds);
   }
@@ -2251,7 +2251,7 @@ export async function resolvePriceList(
 
   const { data: items, count } = await itemQuery;
   if (!items || items.length === 0) {
-    return { data: [], count: count ?? 0 };
+    return { count: count ?? 0, data: [] };
   }
 
   const itemIds = items.map((i) => i.id);
@@ -2360,9 +2360,9 @@ export async function resolvePriceList(
     let skipRules = false;
 
     trace.push({
-      step: "Base Price",
+      amount: basePrice,
       source: "Item Unit Sale Price",
-      amount: basePrice
+      step: "Base Price"
     });
 
     const override = overrideMap.get(item.id);
@@ -2383,32 +2383,32 @@ export async function resolvePriceList(
       if (override) {
         overrideSource = "Override";
         trace.push({
-          step: "Override",
+          adjustment: override.overridePrice - basePrice,
+          amount: override.overridePrice,
           source: override.notes
             ? `Customer Price Override: ${override.notes}`
             : "Customer Price Override",
-          amount: override.overridePrice,
-          adjustment: override.overridePrice - basePrice
+          step: "Override"
         });
       } else if (typeOverride) {
         overrideSource = "Type Override";
         trace.push({
-          step: "Type Override",
+          adjustment: typeOverride.overridePrice - basePrice,
+          amount: typeOverride.overridePrice,
           source: typeOverride.notes
             ? `Customer Type Override: ${typeOverride.notes}`
             : "Customer Type Override",
-          amount: typeOverride.overridePrice,
-          adjustment: typeOverride.overridePrice - basePrice
+          step: "Type Override"
         });
       } else if (allOverride) {
         overrideSource = "All Override";
         trace.push({
-          step: "All Override",
+          adjustment: allOverride.overridePrice - basePrice,
+          amount: allOverride.overridePrice,
           source: allOverride.notes
             ? `All Customers Override: ${allOverride.notes}`
             : "All Customers Override",
-          amount: allOverride.overridePrice,
-          adjustment: allOverride.overridePrice - basePrice
+          step: "All Override"
         });
       }
     }
@@ -2462,9 +2462,9 @@ export async function resolvePriceList(
     }
 
     trace.push({
-      step: "Final Price",
+      amount: finalPrice,
       source: "Resolved",
-      amount: finalPrice
+      step: "Final Price"
     });
 
     const source: PriceSource = isOverridden
@@ -2474,27 +2474,27 @@ export async function resolvePriceList(
         : "Base";
 
     return {
+      basePrice,
+      isOverridden,
       itemId: item.id,
-      partId: item.readableId,
       itemName: item.name,
       itemPostingGroupId,
-      thumbnailPath: item.thumbnailPath ?? null,
-      basePrice,
-      resolvedPrice: finalPrice,
-      isOverridden,
-      source,
-      trace,
       overrideId,
-      overrideQuantity,
       overrideNotes,
+      overrideQuantity,
       overrideValidFrom,
-      overrideValidTo
+      overrideValidTo,
+      partId: item.readableId,
+      resolvedPrice: finalPrice,
+      source,
+      thumbnailPath: item.thumbnailPath ?? null,
+      trace
     };
   });
 
   return {
-    data: rows,
-    count: count ?? 0
+    count: count ?? 0,
+    data: rows
   };
 }
 
@@ -2522,7 +2522,7 @@ export async function getBaseCatalog(
     await resolvePostingGroupFilter(client, companyId, args.filters);
   if (postingGroupItemIds !== null) {
     if (postingGroupItemIds.length === 0) {
-      return { data: [], count: 0 };
+      return { count: 0, data: [] };
     }
     query = query.in("id", postingGroupItemIds);
   }
@@ -2534,7 +2534,7 @@ export async function getBaseCatalog(
 
   const { data: items, count } = await query;
   if (!items || items.length === 0) {
-    return { data: [], count: count ?? 0 };
+    return { count: count ?? 0, data: [] };
   }
 
   const rows: PriceListRow[] = items.map((item) => {
@@ -2546,25 +2546,25 @@ export async function getBaseCatalog(
       ? item.itemCost[0]
       : item.itemCost;
     return {
+      basePrice,
+      isOverridden: false,
       itemId: item.id,
-      partId: item.readableId,
       itemName: item.name,
       itemPostingGroupId: itemCostRow?.itemPostingGroupId ?? null,
-      thumbnailPath: item.thumbnailPath ?? null,
-      basePrice,
-      resolvedPrice: basePrice,
-      isOverridden: false,
-      source: "Base" as PriceSource,
-      trace: [],
       overrideId: null,
-      overrideQuantity: null,
       overrideNotes: null,
+      overrideQuantity: null,
       overrideValidFrom: null,
-      overrideValidTo: null
+      overrideValidTo: null,
+      partId: item.readableId,
+      resolvedPrice: basePrice,
+      source: "Base" as PriceSource,
+      thumbnailPath: item.thumbnailPath ?? null,
+      trace: []
     };
   });
 
-  return { data: rows, count: count ?? 0 };
+  return { count: count ?? 0, data: rows };
 }
 
 export async function upsertCustomer(
@@ -2626,11 +2626,11 @@ export async function upsertCustomerItemPriceOverride(
   const sortedBreaks = [...data.breaks].sort((a, b) => a.quantity - b.quantity);
 
   const parentFields = {
+    active: data.active,
+    applyRulesOnTop: data.applyRulesOnTop,
     notes: data.notes ?? null,
     validFrom: data.validFrom ?? null,
-    validTo: data.validTo ?? null,
-    active: data.active,
-    applyRulesOnTop: data.applyRulesOnTop
+    validTo: data.validTo ?? null
   };
 
   let parentId: string | null = null;
@@ -2644,8 +2644,8 @@ export async function upsertCustomerItemPriceOverride(
         customerId: data.customerId ?? null,
         customerTypeId: data.customerTypeId ?? null,
         itemId: data.itemId,
-        updatedBy: userId,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        updatedBy: userId
       })
       .eq("id", data.id)
       .eq("companyId", companyId)
@@ -2674,8 +2674,8 @@ export async function upsertCustomerItemPriceOverride(
         .from("customerItemPriceOverride")
         .update({
           ...parentFields,
-          updatedBy: userId,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          updatedBy: userId
         })
         .eq("id", existing.id)
         .select("id")
@@ -2687,11 +2687,11 @@ export async function upsertCustomerItemPriceOverride(
         .from("customerItemPriceOverride")
         .insert({
           ...parentFields,
+          companyId,
+          createdBy: userId,
           customerId: data.customerId ?? null,
           customerTypeId: data.customerTypeId ?? null,
-          itemId: data.itemId,
-          companyId,
-          createdBy: userId
+          itemId: data.itemId
         })
         .select("id")
         .single();
@@ -2744,11 +2744,11 @@ export async function upsertCustomerItemPriceOverride(
     const { error } = await client
       .from("customerItemPriceOverrideBreak")
       .update({
-        quantity: b.quantity,
-        overridePrice: b.overridePrice,
         active: b.active,
-        updatedBy: userId,
-        updatedAt: updateTimestamp
+        overridePrice: b.overridePrice,
+        quantity: b.quantity,
+        updatedAt: updateTimestamp,
+        updatedBy: userId
       })
       .eq("id", b.id)
       .eq("companyId", companyId);
@@ -2761,12 +2761,12 @@ export async function upsertCustomerItemPriceOverride(
       .from("customerItemPriceOverrideBreak")
       .insert(
         toInsert.map((b) => ({
-          customerItemPriceOverrideId: parentId as string,
-          quantity: b.quantity,
-          overridePrice: b.overridePrice,
           active: b.active,
           companyId,
-          createdBy: userId
+          createdBy: userId,
+          customerItemPriceOverrideId: parentId as string,
+          overridePrice: b.overridePrice,
+          quantity: b.quantity
         }))
       );
     if (error) return { data: null, error };
@@ -2850,7 +2850,7 @@ export async function getCustomerItemPriceOverridesList(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "createdAt", ascending: false }
+    { ascending: false, column: "createdAt" }
   ]);
 
   return query;
@@ -2881,8 +2881,8 @@ export async function updateCustomerContact(
     const customFieldUpdate = await client
       .from("customerContact")
       .update({
-        customFields: customerContact.customFields,
-        customerLocationId: customerContact.customerLocationId
+        customerLocationId: customerContact.customerLocationId,
+        customFields: customerContact.customFields
       })
       .eq("contactId", customerContact.contactId);
 
@@ -2918,8 +2918,8 @@ export async function updateCustomerLocation(
     const customFieldUpdate = await client
       .from("customerLocation")
       .update({
-        name: customerLocation.name,
-        customFields: customerLocation.customFields
+        customFields: customerLocation.customFields,
+        name: customerLocation.name
       })
       .eq("addressId", customerLocation.addressId);
 
@@ -2982,8 +2982,8 @@ export async function updatePricingRule(
     .update(
       sanitize({
         ...data,
-        updatedBy: userId,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        updatedBy: userId
       })
     )
     .eq("id", id)
@@ -3107,9 +3107,9 @@ export async function updateQuoteExchangeRate(
   }
 ) {
   const update = {
-    id: data.id,
     exchangeRate: data.exchangeRate,
-    exchangeRateUpdatedAt: new Date().toISOString()
+    exchangeRateUpdatedAt: new Date().toISOString(),
+    id: data.id
   };
 
   return client.from("quote").update(update).eq("id", update.id);
@@ -3136,9 +3136,9 @@ export async function updateSalesOrderExchangeRate(
   }
 ) {
   const update = {
-    id: data.id,
     exchangeRate: data.exchangeRate,
-    exchangeRateUpdatedAt: new Date().toISOString()
+    exchangeRateUpdatedAt: new Date().toISOString(),
+    id: data.id
   };
 
   return client.from("salesOrder").update(update).eq("id", update.id);
@@ -3260,12 +3260,12 @@ export async function upsertMakeMethodFromQuoteLine(
 ) {
   return client.functions.invoke("get-method", {
     body: {
-      type: "quoteLineToItem",
+      companyId: lineMethod.companyId,
+      parts: lineMethod.parts,
       sourceId: `${lineMethod.quoteId}:${lineMethod.quoteLineId}`,
       targetId: lineMethod.itemId,
-      companyId: lineMethod.companyId,
-      userId: lineMethod.userId,
-      parts: lineMethod.parts
+      type: "quoteLineToItem",
+      userId: lineMethod.userId
     }
   });
 }
@@ -3289,12 +3289,12 @@ export async function upsertMakeMethodFromQuoteMethod(
 ) {
   const { error } = await client.functions.invoke("get-method", {
     body: {
-      type: "quoteMakeMethodToItem",
+      companyId: quoteMethod.companyId,
+      parts: quoteMethod.parts,
       sourceId: quoteMethod.sourceId,
       targetId: quoteMethod.targetId,
-      companyId: quoteMethod.companyId,
-      userId: quoteMethod.userId,
-      parts: quoteMethod.parts
+      type: "quoteMakeMethodToItem",
+      userId: quoteMethod.userId
     }
   });
 
@@ -3314,12 +3314,14 @@ export async function upsertQuote(
     | (Omit<z.infer<typeof quoteValidator>, "id" | "quoteId"> & {
         quoteId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
     | (Omit<z.infer<typeof quoteValidator>, "id" | "quoteId"> & {
         id: string;
         quoteId: string;
+        companyGroupId: string;
         updatedBy: string;
         customFields?: Json;
       })
@@ -3355,7 +3357,7 @@ export async function upsertQuote(
     if (quote.currencyCode) {
       const currency = await getCurrencyByCode(
         client,
-        quote.companyId,
+        quote.companyGroupId,
         quote.currencyCode
       );
       if (currency.data) {
@@ -3368,11 +3370,12 @@ export async function upsertQuote(
     }
 
     const locationId = employee?.data?.locationId ?? null;
+    const { companyGroupId: _companyGroupId, ...quoteData } = quote;
     const insert = await client
       .from("quote")
       .insert([
         {
-          ...quote,
+          ...quoteData,
           opportunityId: opportunity.data?.id
         }
       ])
@@ -3387,31 +3390,31 @@ export async function upsertQuote(
     const [shipment, payment, externalLink] = await Promise.all([
       client.from("quoteShipment").insert([
         {
+          companyId: quote.companyId,
           id: quoteId,
-          locationId: locationId,
-          shippingMethodId: shippingMethodId,
-          shippingTermId: shippingTermId,
           incoterm: incoterm,
           incotermLocation: incotermLocation,
-          companyId: quote.companyId
+          locationId: locationId,
+          shippingMethodId: shippingMethodId,
+          shippingTermId: shippingTermId
         }
       ]),
       client.from("quotePayment").insert([
         {
+          companyId: quote.companyId,
           id: quoteId,
-          invoiceCustomerId: invoiceCustomerId,
           invoiceCustomerContactId: invoiceCustomerContactId,
+          invoiceCustomerId: invoiceCustomerId,
           invoiceCustomerLocationId: invoiceCustomerLocationId,
-          paymentTermId: paymentTermId,
-          companyId: quote.companyId
+          paymentTermId: paymentTermId
         }
       ]),
       upsertExternalLink(client, {
-        documentType: "Quote",
-        documentId: quoteId,
+        companyId: quote.companyId,
         customerId: quote.customerId,
-        expiresAt: quote.expirationDate,
-        companyId: quote.companyId
+        documentId: quoteId,
+        documentType: "Quote",
+        expiresAt: quote.expirationDate
       })
     ]);
 
@@ -3445,12 +3448,12 @@ export async function upsertQuote(
 
     if (existingQuote.error) return existingQuote;
 
-    const { companyId, currencyCode, opportunityId } = existingQuote.data;
+    const { currencyCode, opportunityId } = existingQuote.data;
 
     if (quote.currencyCode && currencyCode !== quote.currencyCode) {
       const currency = await getCurrencyByCode(
         client,
-        companyId,
+        quote.companyGroupId,
         quote.currencyCode
       );
       if (currency.data) {
@@ -3467,10 +3470,11 @@ export async function upsertQuote(
         .eq("id", opportunityId);
     }
 
+    const { companyGroupId: _cgId, ...quoteUpdateData } = quote;
     return client
       .from("quote")
       .update({
-        ...sanitize(quote),
+        ...sanitize(quoteUpdateData),
         updatedAt: today(getLocalTimeZone()).toString()
       })
       .eq("id", quote.id);
@@ -3579,12 +3583,12 @@ export async function upsertQuoteLinePrices(
 
     return {
       ...p,
-      unitPrice: roundedUnitPrice,
-      discountPercent: existing?.discountPercent ?? p.discountPercent,
-      leadTime: existing?.leadTime ?? p.leadTime,
       categoryMarkups: p.categoryMarkups ?? existing?.categoryMarkups ?? {},
+      discountPercent: existing?.discountPercent ?? p.discountPercent,
+      exchangeRate: quoteExchangeRate.data?.exchangeRate ?? 1,
+      leadTime: existing?.leadTime ?? p.leadTime,
       quoteId: quoteId,
-      exchangeRate: quoteExchangeRate.data?.exchangeRate ?? 1
+      unitPrice: roundedUnitPrice
     };
   });
 
@@ -3660,9 +3664,9 @@ async function buildCostEffects(
 
     if (!lookup[itemId]) {
       lookup[itemId] = {
-        id: itemId,
         children: [],
-        data: item
+        data: item,
+        id: itemId
       };
     } else {
       lookup[itemId].data = item;
@@ -3673,9 +3677,9 @@ async function buildCostEffects(
     } else {
       if (!lookup[parentId]) {
         lookup[parentId] = {
-          id: parentId,
           children: [],
-          data: {} as (typeof treeResult.data)[number]
+          data: {} as (typeof treeResult.data)[number],
+          id: parentId
         };
       }
       lookup[parentId].children.push(lookup[itemId]);
@@ -3862,7 +3866,7 @@ async function buildCostEffects(
     walkTree(root, 1);
   }
 
-  return { effects, costCategoryKeys };
+  return { costCategoryKeys, effects };
 }
 
 export async function calculatePricesForQuantities(
@@ -3940,32 +3944,32 @@ export async function calculatePricesForQuantities(
     const finalPrice = itemId
       ? (
           await resolvePrice(client, companyId, {
-            itemId,
-            quantity: qty,
             customerId,
-            existingBasePrice: rollupPrice
+            existingBasePrice: rollupPrice,
+            itemId,
+            quantity: qty
           })
         ).finalPrice
       : rollupPrice;
 
     priceRows.push({
+      categoryMarkups: defaultMarkups,
+      createdBy: userId,
+      discountPercent: 0,
+      exchangeRate,
+      leadTime: 0,
+      quantity: qty,
       quoteId,
       quoteLineId,
-      quantity: qty,
-      unitPrice: Number(finalPrice.toFixed(precision)),
-      categoryMarkups: defaultMarkups,
-      exchangeRate,
-      createdBy: userId,
-      leadTime: 0,
-      discountPercent: 0
+      unitPrice: Number(finalPrice.toFixed(precision))
     });
   }
 
   const insertResult = await client.from("quoteLinePrice").insert(priceRows);
   if (insertResult.error) {
     console.error("[qpricing][MtO calc] INSERT ERROR", {
-      quoteLineId,
-      error: insertResult.error
+      error: insertResult.error,
+      quoteLineId
     });
     return { error: insertResult.error };
   }
@@ -4008,28 +4012,28 @@ export async function resolveQuoteLinePrices(
   const priceRows = [];
   for (const qty of quantities) {
     const resolved = await resolvePrice(client, companyId, {
+      customerId,
       itemId,
-      quantity: qty,
-      customerId
+      quantity: qty
     });
 
     priceRows.push({
+      createdBy: userId,
+      discountPercent: 0,
+      exchangeRate,
+      leadTime: 0,
+      quantity: qty,
       quoteId,
       quoteLineId,
-      quantity: qty,
-      unitPrice: Number(resolved.finalPrice.toFixed(precision)),
-      exchangeRate,
-      createdBy: userId,
-      leadTime: 0,
-      discountPercent: 0
+      unitPrice: Number(resolved.finalPrice.toFixed(precision))
     });
   }
 
   const insertResult = await client.from("quoteLinePrice").insert(priceRows);
   if (insertResult.error) {
     console.error("[qpricing][Pull] INSERT ERROR", {
-      quoteLineId,
-      error: insertResult.error
+      error: insertResult.error,
+      quoteLineId
     });
     return { error: insertResult.error };
   }
@@ -4074,29 +4078,29 @@ export async function resolvePurchaseToOrderPrices(
   for (const qty of quantities) {
     const supplierPrice = lookupBuyPriceFromMap(itemId, qty, priceMap, 0);
     const resolved = await resolvePrice(client, companyId, {
-      itemId,
-      quantity: qty,
       customerId,
-      existingBasePrice: supplierPrice
+      existingBasePrice: supplierPrice,
+      itemId,
+      quantity: qty
     });
 
     priceRows.push({
+      createdBy: userId,
+      discountPercent: 0,
+      exchangeRate,
+      leadTime: 0,
+      quantity: qty,
       quoteId,
       quoteLineId,
-      quantity: qty,
-      unitPrice: Number(resolved.finalPrice.toFixed(precision)),
-      exchangeRate,
-      createdBy: userId,
-      leadTime: 0,
-      discountPercent: 0
+      unitPrice: Number(resolved.finalPrice.toFixed(precision))
     });
   }
 
   const insertResult = await client.from("quoteLinePrice").insert(priceRows);
   if (insertResult.error) {
     console.error("[qpricing][P2O] INSERT ERROR", {
-      quoteLineId,
-      error: insertResult.error
+      error: insertResult.error,
+      quoteLineId
     });
     return { error: insertResult.error };
   }
@@ -4185,25 +4189,25 @@ export async function recalculateQuoteLinePrices(
       itemId && companyId
         ? (
             await resolvePrice(client, companyId, {
-              itemId,
-              quantity: qty,
               customerId,
-              existingBasePrice: rollupPrice
+              existingBasePrice: rollupPrice,
+              itemId,
+              quantity: qty
             })
           ).finalPrice
         : rollupPrice;
 
     updatedRows.push({
+      categoryMarkups: markups,
+      createdBy: row.createdBy,
+      discountPercent: row.discountPercent,
+      exchangeRate: row.exchangeRate,
+      leadTime: row.leadTime,
+      quantity: row.quantity,
       quoteId: row.quoteId,
       quoteLineId: row.quoteLineId,
-      quantity: row.quantity,
       unitPrice: Number(finalPrice.toFixed(precision)),
-      categoryMarkups: markups,
-      exchangeRate: row.exchangeRate,
-      createdBy: row.createdBy,
-      updatedBy: userId,
-      leadTime: row.leadTime,
-      discountPercent: row.discountPercent
+      updatedBy: userId
     });
   }
 
@@ -4215,8 +4219,8 @@ export async function recalculateQuoteLinePrices(
 
   if (deleteResult.error) {
     console.error("[qpricing][recalc] DELETE ERROR", {
-      quoteLineId,
-      error: deleteResult.error
+      error: deleteResult.error,
+      quoteLineId
     });
     return { error: deleteResult.error };
   }
@@ -4224,8 +4228,8 @@ export async function recalculateQuoteLinePrices(
   const insertResult = await client.from("quoteLinePrice").insert(updatedRows);
   if (insertResult.error) {
     console.error("[qpricing][recalc] INSERT ERROR", {
-      quoteLineId,
-      error: insertResult.error
+      error: insertResult.error,
+      quoteLineId
     });
     return { error: insertResult.error };
   }
@@ -4267,10 +4271,10 @@ export async function upsertQuoteLineMethod(
       workInstructions: boolean;
     };
   } = {
-    type: "itemToQuoteLine",
+    companyId: lineMethod.companyId,
     sourceId: lineMethod.itemId,
     targetId: `${lineMethod.quoteId}:${lineMethod.quoteLineId}`,
-    companyId: lineMethod.companyId,
+    type: "itemToQuoteLine",
     userId: lineMethod.userId
   };
 
@@ -4357,10 +4361,10 @@ export async function upsertQuoteMaterialMakeMethod(
       workInstructions: boolean;
     };
   } = {
-    type: "itemToQuoteMakeMethod",
+    companyId: quoteMethod.companyId,
     sourceId: quoteMethod.sourceId,
     targetId: quoteMethod.targetId,
-    companyId: quoteMethod.companyId,
+    type: "itemToQuoteMakeMethod",
     userId: quoteMethod.userId
   };
 
@@ -4625,12 +4629,14 @@ export async function upsertSalesOrder(
     | (Omit<z.infer<typeof salesOrderValidator>, "id" | "salesOrderId"> & {
         salesOrderId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
     | (Omit<z.infer<typeof salesOrderValidator>, "id" | "salesOrderId"> & {
         id: string;
         salesOrderId: string;
+        companyGroupId: string;
         updatedBy: string;
         customFields?: Json;
       })
@@ -4645,12 +4651,12 @@ export async function upsertSalesOrder(
 
     if (existingSalesOrder.error) return existingSalesOrder;
 
-    const { companyId, currencyCode, opportunityId } = existingSalesOrder.data;
+    const { currencyCode, opportunityId } = existingSalesOrder.data;
 
     if (salesOrder.currencyCode && currencyCode !== salesOrder.currencyCode) {
       const currency = await getCurrencyByCode(
         client,
-        companyId,
+        salesOrder.companyGroupId,
         salesOrder.currencyCode
       );
       if (currency.data) {
@@ -4667,9 +4673,10 @@ export async function upsertSalesOrder(
         .eq("id", opportunityId);
     }
 
+    const { companyGroupId: _cgId, ...salesOrderUpdateData } = salesOrder;
     return client
       .from("salesOrder")
-      .update(sanitize(salesOrder))
+      .update(sanitize(salesOrderUpdateData))
       .eq("id", salesOrder.id)
       .select("id, salesOrderId");
   }
@@ -4709,7 +4716,7 @@ export async function upsertSalesOrder(
   if (salesOrder.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      salesOrder.companyId,
+      salesOrder.companyGroupId,
       salesOrder.currencyCode
     );
     if (currency.data) {
@@ -4721,7 +4728,12 @@ export async function upsertSalesOrder(
     salesOrder.exchangeRateUpdatedAt = new Date().toISOString();
   }
 
-  const { requestedDate, promisedDate, ...orderData } = salesOrder;
+  const {
+    requestedDate,
+    promisedDate,
+    companyGroupId: _companyGroupId,
+    ...orderData
+  } = salesOrder;
 
   const order = await client
     .from("salesOrder")
@@ -4734,12 +4746,12 @@ export async function upsertSalesOrder(
 
   if (!order.data || order.data.length === 0) {
     return {
+      data: null,
       error: {
-        message: "Sales order insert returned no data",
         details:
-          "The insert operation completed but returned an empty result set"
-      } as PostgrestError,
-      data: null
+          "The insert operation completed but returned an empty result set",
+        message: "Sales order insert returned no data"
+      } as PostgrestError
     };
   }
 
@@ -4748,25 +4760,25 @@ export async function upsertSalesOrder(
   const [shipment, payment] = await Promise.all([
     client.from("salesOrderShipment").insert([
       {
+        companyId: salesOrder.companyId,
         id: salesOrderId,
-        locationId: locationId,
-        shippingMethodId: shippingMethodId,
-        receiptRequestedDate: requestedDate,
-        receiptPromisedDate: promisedDate,
-        shippingTermId: shippingTermId,
         incoterm: incoterm,
         incotermLocation: incotermLocation,
-        companyId: salesOrder.companyId
+        locationId: locationId,
+        receiptPromisedDate: promisedDate,
+        receiptRequestedDate: requestedDate,
+        shippingMethodId: shippingMethodId,
+        shippingTermId: shippingTermId
       }
     ]),
     client.from("salesOrderPayment").insert([
       {
+        companyId: salesOrder.companyId,
         id: salesOrderId,
-        invoiceCustomerId: invoiceCustomerId,
         invoiceCustomerContactId: invoiceCustomerContactId,
+        invoiceCustomerId: invoiceCustomerId,
         invoiceCustomerLocationId: invoiceCustomerLocationId,
-        paymentTermId: paymentTermId,
-        companyId: salesOrder.companyId
+        paymentTermId: paymentTermId
       }
     ])
   ]);

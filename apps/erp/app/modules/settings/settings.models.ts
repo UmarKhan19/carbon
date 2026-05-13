@@ -44,9 +44,6 @@ export const apiKeyPermissionModules = {
 export type ApiKeyPermissionModule = keyof typeof apiKeyPermissionModules;
 
 export const apiKeyValidator = z.object({
-  id: zfd.text(z.string().optional()),
-  name: z.string().min(1, { message: "Name is required" }),
-  scopes: zfd.text(z.string().optional()),
   expiresAt: zfd.text(
     z
       .string()
@@ -54,24 +51,28 @@ export const apiKeyValidator = z.object({
       .refine((val) => !val || new Date(val) > new Date(), {
         message: "Expiration date must be in the future"
       })
-  )
+  ),
+  id: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  scopes: zfd.text(z.string().optional())
 });
 
 const company = {
-  name: z.string().min(1, { message: "Name is required" }),
-  taxId: zfd.text(z.string().optional()),
   addressLine1: z.string().min(1, { message: "Address is required" }),
   addressLine2: zfd.text(z.string().optional()),
-  city: z.string().min(1, { message: "City is required" }),
-  stateProvince: z.string().min(1, { message: "State / Province is required" }),
-  postalCode: z.string().min(1, { message: "Postal Code is required" }),
-  countryCode: z.string().min(1, { message: "Country is required" }),
   baseCurrencyCode: zfd.text(z.string()),
-  phone: zfd.text(z.string().optional()),
-  fax: zfd.text(z.string().optional()),
+  city: z.string().min(1, { message: "City is required" }),
+  countryCode: z.string().min(1, { message: "Country is required" }),
   email: zfd.text(z.string().optional()),
-  website: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional())
+  eori: zfd.text(z.string().optional()),
+  fax: zfd.text(z.string().optional()),
+  name: z.string().min(1, { message: "Name is required" }),
+  phone: zfd.text(z.string().optional()),
+  postalCode: z.string().min(1, { message: "Postal Code is required" }),
+  stateProvince: z.string().min(1, { message: "State / Province is required" }),
+  taxId: zfd.text(z.string().optional()),
+  vatNumber: zfd.text(z.string().optional()),
+  website: zfd.text(z.string().optional())
 };
 
 export const companyValidator = z.object(company);
@@ -82,15 +83,15 @@ export const onboardingCompanyValidator = z.object({
 
 export const customFieldValidator = z
   .object({
-    id: zfd.text(z.string().optional()),
-    name: z.string().min(1, { message: "Name is required" }),
-    table: z.string().min(1, { message: "Table is required" }),
     dataTypeId: zfd.numeric(
       z.number().min(1, { message: "Data type is required" })
     ),
+    id: zfd.text(z.string().optional()),
     listOptions: z.string().min(1).array().optional(),
-    tags: z.array(z.string()).optional(),
-    required: zfd.checkbox()
+    name: z.string().min(1, { message: "Name is required" }),
+    required: zfd.checkbox(),
+    table: z.string().min(1, { message: "Table is required" }),
+    tags: z.array(z.string()).optional()
   })
   .refine((input) => {
     // allows bar to be optional only when foo is 'foo'
@@ -107,10 +108,10 @@ export const customFieldValidator = z
 
 export const digitalQuoteValidator = z.object({
   digitalQuoteEnabled: zfd.checkbox(),
+  digitalQuoteIncludesPurchaseOrders: zfd.checkbox(),
   digitalQuoteNotificationGroup: z
     .array(z.string().min(1, { message: "Invalid selection" }))
-    .optional(),
-  digitalQuoteIncludesPurchaseOrders: zfd.checkbox()
+    .optional()
 });
 
 export const jobCompletedValidator = z.object({
@@ -141,17 +142,6 @@ export const expiredEntityPolicies = [
 // JSONB blob. The validator below reads/writes that single object so the
 // settings form can submit one cohesive structure.
 export const shelfLifeSettingsValidator = z.object({
-  // Empty input -> undefined -> persisted as null in JSONB, which disables
-  // expiry badges company-wide. Any value 0..365 drives the amber
-  // "expiring soon" badge plus the red "expired" badge.
-  nearExpiryWarningDays: zfd.numeric(
-    z.number().int().min(0).max(365).optional()
-  ),
-  // Seed value for the "Shelf-life (days)" input when a new item is first
-  // configured for Fixed Duration. Defaults to 7.
-  defaultShelfLifeDays: zfd.numeric(
-    z.number().int().min(1).max(3650).default(7)
-  ),
   // Calculated-mode MIN expiry scope. 'AllInputs' = MIN over every input
   // carrying an expiry (food/perishable default). 'ManagedInputsOnly' =
   // only inputs whose own item has a Fixed Duration / Calculated policy
@@ -159,11 +149,22 @@ export const shelfLifeSettingsValidator = z.object({
   calculatedInputScope: z
     .enum(calculatedShelfLifeInputScopes)
     .default("AllInputs"),
+  // Seed value for the "Shelf-life (days)" input when a new item is first
+  // configured for Fixed Duration. Defaults to 7.
+  defaultShelfLifeDays: zfd.numeric(
+    z.number().int().min(1).max(3650).default(7)
+  ),
   // What happens when an operator tries to consume an expired tracked
   // entity. 'Warn' lets it through with a banner; 'Block' rejects;
   // 'BlockWithOverride' rejects unless the caller has inventory:update
   // and supplies an override reason that gets audit-logged.
-  expiredEntityPolicy: z.enum(expiredEntityPolicies).default("Block")
+  expiredEntityPolicy: z.enum(expiredEntityPolicies).default("Block"),
+  // Empty input -> undefined -> persisted as null in JSONB, which disables
+  // expiry badges company-wide. Any value 0..365 drives the amber
+  // "expiring soon" badge plus the red "expired" badge.
+  nearExpiryWarningDays: zfd.numeric(
+    z.number().int().min(0).max(365).optional()
+  )
 });
 
 export const updateLeadTimesOnReceiptValidator = z.object({
@@ -171,8 +172,8 @@ export const updateLeadTimesOnReceiptValidator = z.object({
 });
 
 export const maintenanceSettingsValidator = z.object({
-  maintenanceGenerateInAdvance: zfd.checkbox(),
-  maintenanceAdvanceDays: zfd.numeric(z.number().min(1).max(90).default(7))
+  maintenanceAdvanceDays: zfd.numeric(z.number().min(1).max(90).default(7)),
+  maintenanceGenerateInAdvance: zfd.checkbox()
 });
 
 export const materialIdsValidator = z.object({
@@ -216,13 +217,13 @@ export const maintenanceDispatchNotificationValidator = z.object({
   maintenanceDispatchNotificationGroup: z
     .array(z.string().min(1, { message: "Invalid selection" }))
     .optional(),
-  qualityDispatchNotificationGroup: z
-    .array(z.string().min(1, { message: "Invalid selection" }))
-    .optional(),
   operationsDispatchNotificationGroup: z
     .array(z.string().min(1, { message: "Invalid selection" }))
     .optional(),
   otherDispatchNotificationGroup: z
+    .array(z.string().min(1, { message: "Invalid selection" }))
+    .optional(),
+  qualityDispatchNotificationGroup: z
     .array(z.string().min(1, { message: "Invalid selection" }))
     .optional()
 });
@@ -256,12 +257,12 @@ export const subsidiaryValidator = z.object({
 });
 
 export const sequenceValidator = z.object({
-  table: z.string().min(1, { message: "Table is required" }),
-  prefix: zfd.text(z.string().optional()),
-  suffix: zfd.text(z.string().optional()),
   next: zfd.numeric(z.number().min(0)),
+  prefix: zfd.text(z.string().optional()),
+  size: zfd.numeric(z.number().min(1).max(20)),
   step: zfd.numeric(z.number().min(1)),
-  size: zfd.numeric(z.number().min(1).max(20))
+  suffix: zfd.text(z.string().optional()),
+  table: z.string().min(1, { message: "Table is required" })
 });
 
 export const themes = [
@@ -285,14 +286,14 @@ export const themeValidator = z.object({
 
 export const webhookValidator = z
   .object({
+    active: zfd.checkbox(),
     id: zfd.text(z.string().optional()),
     name: z.string().min(1, { message: "Name is required" }),
-    table: z.string().min(1, { message: "Table is required" }),
-    url: z.string().url({ message: "Must be a valid URL" }),
+    onDelete: zfd.checkbox(),
     onInsert: zfd.checkbox(),
     onUpdate: zfd.checkbox(),
-    onDelete: zfd.checkbox(),
-    active: zfd.checkbox()
+    table: z.string().min(1, { message: "Table is required" }),
+    url: z.string().url({ message: "Must be a valid URL" })
   })
   .refine(
     (input) => {
@@ -314,27 +315,27 @@ export const consoleSettingsValidator = z.object({
 });
 
 export const quoteLineCategoryMarkupsSettingsValidator = z.object({
-  materialCost: zfd.numeric(z.number().min(0).default(0)),
-  partCost: zfd.numeric(z.number().min(0).default(0)),
-  toolCost: zfd.numeric(z.number().min(0).default(0)),
   consumableCost: zfd.numeric(z.number().min(0).default(0)),
   laborCost: zfd.numeric(z.number().min(0).default(0)),
   machineCost: zfd.numeric(z.number().min(0).default(0)),
+  materialCost: zfd.numeric(z.number().min(0).default(0)),
+  outsideCost: zfd.numeric(z.number().min(0).default(0)),
   overheadCost: zfd.numeric(z.number().min(0).default(0)),
-  outsideCost: zfd.numeric(z.number().min(0).default(0))
+  partCost: zfd.numeric(z.number().min(0).default(0)),
+  toolCost: zfd.numeric(z.number().min(0).default(0))
 });
 
 const billingAddress = {
-  name: zfd.text(z.string().optional()),
   addressLine1: zfd.text(z.string().optional()),
   addressLine2: zfd.text(z.string().optional()),
   city: zfd.text(z.string().optional()),
-  state: zfd.text(z.string().optional()),
-  postalCode: zfd.text(z.string().optional()),
   countryCode: zfd.text(z.string().optional()),
-  phone: zfd.text(z.string().optional()),
+  email: zfd.text(z.string().email().optional()),
   fax: zfd.text(z.string().optional()),
-  email: zfd.text(z.string().email().optional())
+  name: zfd.text(z.string().optional()),
+  phone: zfd.text(z.string().optional()),
+  postalCode: zfd.text(z.string().optional()),
+  state: zfd.text(z.string().optional())
 };
 
 export const accountsPayableBillingAddressValidator = z.object(billingAddress);

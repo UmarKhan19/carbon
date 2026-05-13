@@ -35,9 +35,9 @@ export async function createPurchaseInvoiceFromPurchaseOrder(
 ) {
   return client.functions.invoke<{ id: string }>("convert", {
     body: {
-      type: "purchaseOrderToPurchaseInvoice",
-      id: purchaseOrderId,
       companyId,
+      id: purchaseOrderId,
+      type: "purchaseOrderToPurchaseInvoice",
       userId
     }
   });
@@ -51,9 +51,9 @@ export async function createSalesInvoiceFromSalesOrder(
 ) {
   return client.functions.invoke<{ id: string }>("convert", {
     body: {
-      type: "salesOrderToSalesInvoice",
-      id: salesOrderId,
       companyId,
+      id: salesOrderId,
+      type: "salesOrderToSalesInvoice",
       userId
     }
   });
@@ -67,9 +67,9 @@ export async function createSalesInvoiceFromShipment(
 ) {
   return client.functions.invoke<{ id: string }>("convert", {
     body: {
-      type: "shipmentToSalesInvoice",
-      id: shipmentId,
       companyId,
+      id: shipmentId,
+      type: "shipmentToSalesInvoice",
       userId
     }
   });
@@ -94,8 +94,8 @@ export async function deletePurchaseInvoice(
     return {
       data: null,
       error: {
-        message: `Cannot delete purchase invoice with status "${invoice.data.status}". Only Draft invoices can be deleted.`,
-        code: "INVOICE_NOT_DRAFT"
+        code: "INVOICE_NOT_DRAFT",
+        message: `Cannot delete purchase invoice with status "${invoice.data.status}". Only Draft invoices can be deleted.`
       }
     };
   }
@@ -132,8 +132,8 @@ export async function deleteSalesInvoice(
     return {
       data: null,
       error: {
-        message: `Cannot delete sales invoice with status "${invoice.data.status}". Only Draft invoices can be deleted.`,
-        code: "INVOICE_NOT_DRAFT"
+        code: "INVOICE_NOT_DRAFT",
+        message: `Cannot delete sales invoice with status "${invoice.data.status}". Only Draft invoices can be deleted.`
       }
     };
   }
@@ -181,7 +181,7 @@ export async function getPurchaseInvoices(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "invoiceId", ascending: false }
+    { ascending: false, column: "invoiceId" }
   ]);
   return query;
 }
@@ -263,7 +263,7 @@ export async function getSalesInvoices(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "invoiceId", ascending: false }
+    { ascending: false, column: "invoiceId" }
   ]);
   return query;
 }
@@ -309,9 +309,9 @@ export async function updatePurchaseInvoiceExchangeRate(
   }
 ) {
   const update = {
-    id: data.id,
     exchangeRate: data.exchangeRate,
-    exchangeRateUpdatedAt: new Date().toISOString()
+    exchangeRateUpdatedAt: new Date().toISOString(),
+    id: data.id
   };
 
   return client.from("purchaseInvoice").update(update).eq("id", update.id);
@@ -348,9 +348,9 @@ export async function updateSalesInvoiceExchangeRate(
   }
 ) {
   const update = {
-    id: data.id,
     exchangeRate: data.exchangeRate,
-    exchangeRateUpdatedAt: new Date().toISOString()
+    exchangeRateUpdatedAt: new Date().toISOString(),
+    id: data.id
   };
 
   return client.from("salesInvoice").update(update).eq("id", update.id);
@@ -384,6 +384,7 @@ export async function upsertPurchaseInvoice(
     | (Omit<z.infer<typeof purchaseInvoiceValidator>, "id" | "invoiceId"> & {
         invoiceId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -433,7 +434,7 @@ export async function upsertPurchaseInvoice(
   if (purchaseInvoice.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      purchaseInvoice.companyId,
+      purchaseInvoice.companyGroupId,
       purchaseInvoice.currencyCode
     );
     if (currency.data) {
@@ -448,15 +449,18 @@ export async function upsertPurchaseInvoice(
   const locationId =
     purchaseInvoice.locationId ?? purchaser?.data?.locationId ?? null;
 
+  const { companyGroupId: _companyGroupId, ...purchaseInvoiceData } =
+    purchaseInvoice;
+
   const invoice = await client
     .from("purchaseInvoice")
     .insert([
       {
-        ...purchaseInvoice,
-        invoiceSupplierId: invoiceSupplierId ?? purchaseInvoice.supplierId,
-        supplierInteractionId: supplierInteraction.data?.id,
+        ...purchaseInvoiceData,
         currencyCode: purchaseInvoice.currencyCode ?? "USD",
-        paymentTermId: purchaseInvoice.paymentTermId ?? paymentTermId
+        invoiceSupplierId: invoiceSupplierId ?? purchaseInvoice.supplierId,
+        paymentTermId: purchaseInvoice.paymentTermId ?? paymentTermId,
+        supplierInteractionId: supplierInteraction.data?.id
       }
     ])
     .select("id, invoiceId");
@@ -467,13 +471,13 @@ export async function upsertPurchaseInvoice(
 
   const delivery = await client.from("purchaseInvoiceDelivery").insert([
     {
+      companyId: purchaseInvoice.companyId,
       id: invoiceId,
-      locationId: locationId,
-      shippingMethodId: shippingMethodId,
-      shippingTermId: shippingTermId,
       incoterm: incoterm,
       incotermLocation: incotermLocation,
-      companyId: purchaseInvoice.companyId
+      locationId: locationId,
+      shippingMethodId: shippingMethodId,
+      shippingTermId: shippingTermId
     }
   ]);
 
@@ -550,6 +554,7 @@ export async function upsertSalesInvoice(
     | (Omit<z.infer<typeof salesInvoiceValidator>, "id" | "invoiceId"> & {
         invoiceId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -599,7 +604,7 @@ export async function upsertSalesInvoice(
   if (salesInvoice.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      salesInvoice.companyId,
+      salesInvoice.companyGroupId,
       salesInvoice.currencyCode
     );
     if (currency.data) {
@@ -614,14 +619,16 @@ export async function upsertSalesInvoice(
   const locationId =
     salesInvoice.locationId ?? salesPerson?.data?.locationId ?? null;
 
+  const { companyGroupId: _companyGroupId, ...salesInvoiceData } = salesInvoice;
+
   const invoice = await client
     .from("salesInvoice")
     .insert([
       {
-        ...salesInvoice,
+        ...salesInvoiceData,
+        currencyCode: salesInvoice.currencyCode ?? "USD",
         invoiceCustomerId: invoiceCustomerId ?? salesInvoice.customerId,
         opportunityId: opportunity.data?.id,
-        currencyCode: salesInvoice.currencyCode ?? "USD",
         paymentTermId: salesInvoice.paymentTermId ?? paymentTermId
       }
     ])
@@ -633,14 +640,14 @@ export async function upsertSalesInvoice(
 
   const delivery = await client.from("salesInvoiceShipment").insert([
     {
+      companyId: salesInvoice.companyId,
+      createdBy: salesInvoice.createdBy,
       id: invoiceId,
-      locationId: locationId,
-      shippingMethodId: shippingMethodId,
-      shippingTermId: shippingTermId,
       incoterm: incoterm,
       incotermLocation: incotermLocation,
-      companyId: salesInvoice.companyId,
-      createdBy: salesInvoice.createdBy
+      locationId: locationId,
+      shippingMethodId: shippingMethodId,
+      shippingTermId: shippingTermId
     }
   ]);
 

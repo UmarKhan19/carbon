@@ -12,7 +12,7 @@ const convertTiptapJSON = (
   switch (node.type) {
     case "doc":
       return (
-        <View style={{ fontSize: 9 }}>
+        <View style={{ fontSize: 9, width: "100%" }}>
           {args?.title && (
             <View style={styles.thead}>
               <Text>{args?.title}</Text>
@@ -29,7 +29,8 @@ const convertTiptapJSON = (
           style={{
             fontSize: 13,
             fontWeight: "bold",
-            marginBottom: 10
+            marginBottom: 10,
+            width: "100%"
           }}
         >
           {node?.content?.map((child) => convertTiptapJSON(child))}
@@ -38,7 +39,14 @@ const convertTiptapJSON = (
 
     case "paragraph":
       return (
-        <Text key="paragraph" style={{ marginBottom: 10, fontSize: 9 }}>
+        <Text
+          key="paragraph"
+          style={{
+            fontSize: 9,
+            marginBottom: 10,
+            width: "100%"
+          }}
+        >
           {node.content?.map((child) => convertTiptapJSON(child)) || ""}
         </Text>
       );
@@ -77,8 +85,8 @@ const convertTiptapJSON = (
           key={`listItem-${args?.index}`}
           style={{ flexDirection: "row", marginBottom: 5 }}
         >
-          <Text style={{ marginRight: 5, fontSize: 9 }}> {indicator} </Text>
-          <View>
+          <Text style={{ fontSize: 9, marginRight: 5 }}> {indicator} </Text>
+          <View style={{ flex: 1, minWidth: 0 }}>
             {node?.content?.map((child, index) => convertTiptapJSON(child))}
           </View>
         </View>
@@ -99,8 +107,8 @@ const convertTiptapJSON = (
           key={`taskItem-${args?.index}`}
           style={{ flexDirection: "row", marginBottom: 5 }}
         >
-          <Text style={{ marginRight: 5, fontSize: 9 }}>•</Text>
-          <View>
+          <Text style={{ fontSize: 9, marginRight: 5 }}>•</Text>
+          <View style={{ flex: 1, minWidth: 0 }}>
             {node?.content?.map((child, index) => convertTiptapJSON(child))}
           </View>
         </View>
@@ -124,42 +132,46 @@ const Note = ({ title, content }: { title?: string; content: JSONContent }) => {
   if (!Array.isArray(content.content) || content.content.length === 0)
     return null;
 
-  return <View>{convertTiptapJSON(content, { title })}</View>;
+  return (
+    <View style={{ width: "100%" }}>
+      {convertTiptapJSON(content, { title })}
+    </View>
+  );
 };
 
 export default Note;
 
 const styles = StyleSheet.create({
-  thead: {
-    flexGrow: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
+  tfoot: {
     alignItems: "center",
-    marginTop: "20px",
-    marginBottom: "10px",
+    borderBottom: 1,
+    borderBottomColor: "#CCCCCC",
+    borderBottomStyle: "solid",
+    borderTopStyle: "solid",
+    color: "#7d7d7d",
+    flexDirection: "row",
+    flexGrow: 1,
+    fontWeight: 700,
+    justifyContent: "space-between",
     padding: "6px 3px 6px 3px",
+    textTransform: "uppercase"
+  },
+  thead: {
+    alignItems: "center",
+    borderBottom: 1,
+    borderBottomColor: "#CCCCCC",
+    borderBottomStyle: "solid",
     borderTop: 1,
     borderTopColor: "#CCCCCC",
     borderTopStyle: "solid",
-    borderBottom: 1,
-    borderBottomColor: "#CCCCCC",
-    borderBottomStyle: "solid",
+    flexDirection: "row",
+    flexGrow: 1,
     fontSize: 9,
     fontWeight: 700,
-    textTransform: "uppercase"
-  },
-  tfoot: {
-    flexGrow: 1,
-    flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    marginBottom: "10px",
+    marginTop: "20px",
     padding: "6px 3px 6px 3px",
-    borderTopStyle: "solid",
-    borderBottom: 1,
-    borderBottomColor: "#CCCCCC",
-    borderBottomStyle: "solid",
-    fontWeight: 700,
-    color: "#7d7d7d",
     textTransform: "uppercase"
   }
 });

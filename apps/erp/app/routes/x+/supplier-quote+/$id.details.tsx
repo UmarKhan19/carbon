@@ -45,14 +45,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return {
-    internalNotes: (quote.data?.internalNotes ?? {}) as JSONContent,
-    externalNotes: (quote.data?.externalNotes ?? {}) as JSONContent
+    externalNotes: (quote.data?.externalNotes ?? {}) as JSONContent,
+    internalNotes: (quote.data?.internalNotes ?? {}) as JSONContent
   };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "purchasing"
   });
 
@@ -64,10 +64,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
   const quote = await getSupplierQuote(viewClient, id);
   await requireUnlocked({
-    request,
     isLocked: isSupplierQuoteLocked(quote.data?.status),
+    message: "Cannot modify a locked supplier quote. Reopen it first.",
     redirectTo: path.to.supplierQuote(id),
-    message: "Cannot modify a locked supplier quote. Reopen it first."
+    request
   });
 
   const formData = await request.formData();
@@ -84,6 +84,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     id,
     supplierQuoteId,
     ...d,
+    companyGroupId,
     customFields: setCustomFields(formData),
     updatedBy: userId
   });
@@ -123,18 +124,18 @@ export default function SupplierQuoteDetailsRoute() {
 
   if (!routeData) throw new Error("Could not find quote data");
   const initialValues = {
-    id: routeData?.quote?.id ?? "",
-    supplierId: routeData?.quote?.supplierId ?? "",
-    supplierLocationId: routeData?.quote?.supplierLocationId ?? "",
-    supplierContactId: routeData?.quote?.supplierContactId ?? "",
-    supplierReference: routeData?.quote?.supplierReference ?? "",
-    quotedDate: routeData?.quote?.quotedDate ?? "",
-    expirationDate: routeData?.quote?.expirationDate ?? "",
-    supplierQuoteId: routeData?.quote?.supplierQuoteId ?? "",
-    status: routeData?.quote?.status ?? "Active",
     currencyCode: routeData?.quote?.currencyCode ?? undefined,
     exchangeRate: routeData?.quote?.exchangeRate ?? undefined,
-    exchangeRateUpdatedAt: routeData?.quote?.exchangeRateUpdatedAt ?? ""
+    exchangeRateUpdatedAt: routeData?.quote?.exchangeRateUpdatedAt ?? "",
+    expirationDate: routeData?.quote?.expirationDate ?? "",
+    id: routeData?.quote?.id ?? "",
+    quotedDate: routeData?.quote?.quotedDate ?? "",
+    status: routeData?.quote?.status ?? "Active",
+    supplierContactId: routeData?.quote?.supplierContactId ?? "",
+    supplierId: routeData?.quote?.supplierId ?? "",
+    supplierLocationId: routeData?.quote?.supplierLocationId ?? "",
+    supplierQuoteId: routeData?.quote?.supplierQuoteId ?? "",
+    supplierReference: routeData?.quote?.supplierReference ?? ""
   };
 
   return (

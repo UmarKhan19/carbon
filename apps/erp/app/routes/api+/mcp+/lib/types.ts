@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export interface McpContext {
   client: SupabaseClient<Database>;
   companyId: string;
+  companyGroupId: string;
   userId: string;
 }
 
@@ -13,24 +14,24 @@ export type RegisterTools = (server: McpServer, ctx: McpContext) => void;
 export type AuthField = "companyId" | "createdBy" | "updatedBy";
 
 export const READ_ONLY_ANNOTATIONS = {
-  readOnlyHint: true,
   destructiveHint: false,
   idempotentHint: true,
-  openWorldHint: false
+  openWorldHint: false,
+  readOnlyHint: true
 } as const;
 
 export const WRITE_ANNOTATIONS = {
-  readOnlyHint: false,
   destructiveHint: false,
   idempotentHint: false,
-  openWorldHint: false
+  openWorldHint: false,
+  readOnlyHint: false
 } as const;
 
 export const DESTRUCTIVE_ANNOTATIONS = {
-  readOnlyHint: false,
   destructiveHint: true,
   idempotentHint: true,
-  openWorldHint: false
+  openWorldHint: false,
+  readOnlyHint: false
 } as const;
 
 export function toMcpResult(result: { data: unknown; error: unknown }) {
@@ -42,12 +43,12 @@ export function toMcpResult(result: { data: unknown; error: unknown }) {
         ? (result.error as { message: string }).message
         : JSON.stringify(result.error);
     return {
-      content: [{ type: "text" as const, text: message }],
+      content: [{ text: message, type: "text" as const }],
       isError: true
     };
   }
   return {
-    content: [{ type: "text" as const, text: JSON.stringify(result.data) }]
+    content: [{ text: JSON.stringify(result.data), type: "text" as const }]
   };
 }
 
@@ -78,8 +79,8 @@ export function withErrorHandling<T extends Record<string, unknown>>(
       return {
         content: [
           {
-            type: "text" as const,
-            text: error instanceof Error ? error.message : fallbackMessage
+            text: error instanceof Error ? error.message : fallbackMessage,
+            type: "text" as const
           }
         ],
         isError: true

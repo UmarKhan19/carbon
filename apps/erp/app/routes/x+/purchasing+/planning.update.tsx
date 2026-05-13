@@ -19,19 +19,20 @@ const itemsValidator = z
   .array();
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing",
-    role: "employee",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      bypassRls: true,
+      create: "purchasing",
+      role: "employee"
+    });
 
   const { items, action, locationId } = await request.json();
 
   if (typeof locationId !== "string") {
     return data(
       {
-        success: false,
-        message: "Location ID is required and must be a valid string"
+        message: "Location ID is required and must be a valid string",
+        success: false
       },
       { status: 500 }
     );
@@ -40,8 +41,8 @@ export async function action({ request }: ActionFunctionArgs) {
   if (typeof action !== "string") {
     return data(
       {
-        success: false,
-        message: "Action parameter is required and must be a valid string"
+        message: "Action parameter is required and must be a valid string",
+        success: false
       },
       { status: 500 }
     );
@@ -82,9 +83,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
         return data(
           {
-            success: false,
+            errors: errorMessages,
             message: `Validation failed: ${errorMessages.join(", ")}`,
-            errors: errorMessages
+            success: false
           },
           { status: 500 }
         );
@@ -94,8 +95,8 @@ export async function action({ request }: ActionFunctionArgs) {
       if (itemsToOrder.length === 0) {
         return data(
           {
-            success: false,
-            message: "No items were provided to create purchase orders"
+            message: "No items were provided to create purchase orders",
+            success: false
           },
           { status: 500 }
         );
@@ -165,8 +166,8 @@ export async function action({ request }: ActionFunctionArgs) {
           console.error("Failed to fetch suppliers:", suppliers.error);
           return data(
             {
-              success: false,
-              message: "Failed to retrieve supplier information from database"
+              message: "Failed to retrieve supplier information from database",
+              success: false
             },
             { status: 500 }
           );
@@ -176,9 +177,9 @@ export async function action({ request }: ActionFunctionArgs) {
           console.error("Failed to fetch supplier parts:", supplierParts.error);
           return data(
             {
-              success: false,
               message:
-                "Failed to retrieve supplier part information from database"
+                "Failed to retrieve supplier part information from database",
+              success: false
             },
             { status: 500 }
           );
@@ -188,8 +189,8 @@ export async function action({ request }: ActionFunctionArgs) {
           console.error("Failed to fetch periods:", periods.error);
           return data(
             {
-              success: false,
-              message: "Failed to retrieve period information from database"
+              message: "Failed to retrieve period information from database",
+              success: false
             },
             { status: 500 }
           );
@@ -199,8 +200,8 @@ export async function action({ request }: ActionFunctionArgs) {
           console.error("Failed to fetch company:", company.error);
           return data(
             {
-              success: false,
-              message: "Failed to retrieve company information from database"
+              message: "Failed to retrieve company information from database",
+              success: false
             },
             { status: 500 }
           );
@@ -268,7 +269,7 @@ export async function action({ request }: ActionFunctionArgs) {
             if (supplier.currencyCode !== baseCurrencyCode) {
               const currency = await getCurrencyByCode(
                 client,
-                companyId,
+                companyGroupId,
                 supplier.currencyCode ?? baseCurrencyCode
               );
 
@@ -287,14 +288,15 @@ export async function action({ request }: ActionFunctionArgs) {
             const createPurchaseOrder = await upsertPurchaseOrder(
               client,
               {
-                purchaseOrderId: purchaseOrderIdValue,
-                status: "Planned" as const,
-                supplierId,
-                purchaseOrderType: "Purchase",
+                companyGroupId,
+                companyId,
+                createdBy: userId,
                 currencyCode: supplier.currencyCode ?? baseCurrencyCode,
                 exchangeRate: exchangeRate,
-                companyId,
-                createdBy: userId
+                purchaseOrderId: purchaseOrderIdValue,
+                purchaseOrderType: "Purchase",
+                status: "Planned" as const,
+                supplierId
               },
               undefined
             );
@@ -397,25 +399,25 @@ export async function action({ request }: ActionFunctionArgs) {
             const createPurchaseOrderLine = await upsertPurchaseOrderLine(
               client,
               {
-                purchaseOrderId: purchaseOrderId!,
-                itemId: itemId,
+                companyId,
+                conversionFactor: supplierPart?.conversionFactor ?? 1,
+                createdBy: userId,
                 description: description,
+                inventoryUnitOfMeasureCode: unitOfMeasureCode,
+                itemId: itemId,
+                locationId,
+                purchaseOrderId: purchaseOrderId!,
                 purchaseOrderLineType: "Part",
                 purchaseQuantity: adjustedQuantity,
                 purchaseUnitOfMeasureCode:
                   supplierPart?.supplierUnitOfMeasureCode ?? unitOfMeasureCode,
-                inventoryUnitOfMeasureCode: unitOfMeasureCode,
-                conversionFactor: supplierPart?.conversionFactor ?? 1,
-                supplierUnitPrice: supplierPart?.unitPrice ?? 0,
+                requiredDate: earliestDueDate ?? undefined,
+                supplierShippingCost: 0,
                 supplierTaxAmount:
                   ((supplierPart?.unitPrice ?? 0) *
                     (supplier.taxPercent ?? 0)) /
                   100,
-                supplierShippingCost: 0,
-                requiredDate: earliestDueDate ?? undefined,
-                locationId,
-                companyId,
-                createdBy: userId
+                supplierUnitPrice: supplierPart?.unitPrice ?? 0
               }
             );
 
@@ -441,13 +443,13 @@ export async function action({ request }: ActionFunctionArgs) {
               const inventoryQuantityDelta = quantity * conversionFactor;
 
               allSupplyForecasts.push({
-                itemId: itemId,
-                locationId,
-                sourceType: "Purchase Order" as const,
-                forecastQuantity: inventoryQuantityDelta,
-                periodId,
                 companyId,
                 createdBy: userId,
+                forecastQuantity: inventoryQuantityDelta,
+                itemId: itemId,
+                locationId,
+                periodId,
+                sourceType: "Purchase Order" as const,
                 updatedBy: userId
               });
             }
@@ -490,8 +492,8 @@ export async function action({ request }: ActionFunctionArgs) {
           const insertForecasts = await client
             .from("supplyForecast")
             .upsert(uniqueSupplyForecasts, {
-              onConflict: "itemId,locationId,periodId",
-              ignoreDuplicates: false
+              ignoreDuplicates: false,
+              onConflict: "itemId,locationId,periodId"
             });
 
           if (insertForecasts.error) {
@@ -504,13 +506,13 @@ export async function action({ request }: ActionFunctionArgs) {
         if (errors.length > 0 && processedItems === 0) {
           return data(
             {
-              success: false,
+              errors: errors,
               message: `Failed to process any items. Errors: ${errors
                 .slice(0, 3)
                 .join("; ")}${
                 errors.length > 3 ? ` and ${errors.length - 3} more...` : ""
               }`,
-              errors: errors
+              success: false
             },
             { status: 500 }
           );
@@ -526,20 +528,20 @@ export async function action({ request }: ActionFunctionArgs) {
               }`;
 
         return {
-          success: processedItems > 0,
+          errors: errors.length > 0 ? errors : undefined,
           message,
           processedItems,
-          totalItems: itemsToOrder.length,
-          errors: errors.length > 0 ? errors : undefined
+          success: processedItems > 0,
+          totalItems: itemsToOrder.length
         };
       } catch (error) {
         console.error("Unexpected error processing purchase orders:", error);
         return data(
           {
-            success: false,
             message: `Unexpected error occurred while processing purchase orders: ${
               error instanceof Error ? error.message : "Unknown error"
-            }`
+            }`,
+            success: false
           },
           { status: 500 }
         );
@@ -548,8 +550,8 @@ export async function action({ request }: ActionFunctionArgs) {
     default:
       return data(
         {
-          success: false,
-          message: `Unknown action '${action}'. Expected action: 'order'`
+          message: `Unknown action '${action}'. Expected action: 'order'`,
+          success: false
         },
         { status: 500 }
       );

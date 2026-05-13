@@ -19,16 +19,17 @@ import { path } from "~/utils/path";
 
 export const handle: Handle = {
   breadcrumb: msg`Supplier Quote`,
-  to: path.to.supplierQuotes,
-  module: "purchasing"
+  module: "purchasing",
+  to: path.to.supplierQuotes
 };
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      bypassRls: true,
+      create: "purchasing"
+    });
 
   const formData = await request.formData();
   const validation = await validator(supplierQuoteValidator).validate(formData);
@@ -62,10 +63,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const createSupplierQuote = await upsertSupplierQuote(client, {
     ...validation.data,
-    supplierQuoteId,
+    companyGroupId,
     companyId,
     createdBy: userId,
-    customFields: setCustomFields(formData)
+    customFields: setCustomFields(formData),
+    supplierQuoteId
   });
 
   if (createSupplierQuote.error || !createSupplierQuote.data?.id) {
@@ -86,17 +88,17 @@ export default function SupplierQuoteNewRoute() {
   const { company } = useUser();
   const supplierId = params.get("supplierId");
   const initialValues = {
-    supplierContactId: "",
-    supplierId: supplierId ?? "",
-    supplierReference: "",
-    expirationDate: "",
-    quotedDate: today(getLocalTimeZone()).toString(),
-    supplierQuoteId: undefined,
-    status: "Draft" as const,
     currencyCode: company.baseCurrencyCode,
     exchangeRate: undefined,
     exchangeRateUpdatedAt: "",
-    supplierQuoteType: "Purchase" as const
+    expirationDate: "",
+    quotedDate: today(getLocalTimeZone()).toString(),
+    status: "Draft" as const,
+    supplierContactId: "",
+    supplierId: supplierId ?? "",
+    supplierQuoteId: undefined,
+    supplierQuoteType: "Purchase" as const,
+    supplierReference: ""
   };
 
   return (

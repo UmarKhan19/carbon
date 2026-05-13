@@ -17,6 +17,7 @@ import {
   ModalContent,
   ModalDescription,
   ModalFooter,
+  ModalHeader,
   ModalTitle,
   NumberDecrementStepper,
   NumberField,
@@ -45,12 +46,12 @@ import type { MethodItemType } from "~/modules/shared/types";
 import { path } from "~/utils/path";
 
 export const maintenanceAddPartValidator = z.object({
+  children: z.string().optional(),
   itemId: z.string().min(1, { message: "Item is required" }),
+  quantity: z.coerce.number().optional(),
   unitOfMeasureCode: z
     .string()
-    .min(1, { message: "Unit of measure is required" }),
-  quantity: z.coerce.number().optional(),
-  children: z.string().optional()
+    .min(1, { message: "Unit of measure is required" })
 });
 
 interface ItemDetails {
@@ -81,7 +82,7 @@ export function MaintenanceAddPartModal({
   // For serial tracking
   const [selectedSerialNumbers, setSelectedSerialNumbers] = useState<
     Array<{ index: number; id: string }>
-  >([{ index: 0, id: "" }]);
+  >([{ id: "", index: 0 }]);
   const [serialErrors, setSerialErrors] = useState<Record<number, string>>({});
   const [serialOptions, setSerialOptions] = useState<
     Array<{ label: string; value: string; helper?: string }>
@@ -90,7 +91,7 @@ export function MaintenanceAddPartModal({
   // For batch tracking
   const [selectedBatches, setSelectedBatches] = useState<
     Array<{ index: number; id: string; quantity: number }>
-  >([{ index: 0, id: "", quantity: 1 }]);
+  >([{ id: "", index: 0, quantity: 1 }]);
   const [batchErrors, setBatchErrors] = useState<Record<number, string>>({});
   const [batchOptions, setBatchOptions] = useState<
     Array<{ label: string; value: string; helper?: string; quantity: number }>
@@ -104,8 +105,8 @@ export function MaintenanceAddPartModal({
       setSelectedItemId(itemId);
       setItemDetails(null);
       setQuantity(1);
-      setSelectedSerialNumbers([{ index: 0, id: "" }]);
-      setSelectedBatches([{ index: 0, id: "", quantity: 1 }]);
+      setSelectedSerialNumbers([{ id: "", index: 0 }]);
+      setSelectedBatches([{ id: "", index: 0, quantity: 1 }]);
       setSerialErrors({});
       setBatchErrors({});
       setSerialOptions([]);
@@ -133,9 +134,9 @@ export function MaintenanceAddPartModal({
 
             setSerialOptions(
               serials?.map((sn) => ({
+                helper: sn.readableId ? `Serial ${sn.readableId}` : undefined,
                 label: sn.id ?? "",
-                value: sn.id,
-                helper: sn.readableId ? `Serial ${sn.readableId}` : undefined
+                value: sn.id
               })) ?? []
             );
           }
@@ -150,12 +151,12 @@ export function MaintenanceAddPartModal({
 
             setBatchOptions(
               batches?.map((batch) => ({
-                label: batch.id ?? "",
-                value: batch.id,
                 helper: batch.readableId
                   ? `Batch ${batch.readableId} (${batch.quantity} available)`
                   : `${batch.quantity} available`,
-                quantity: batch.quantity ?? 0
+                label: batch.id ?? "",
+                quantity: batch.quantity ?? 0,
+                value: batch.id
               })) ?? []
             );
           }
@@ -224,18 +225,18 @@ export function MaintenanceAddPartModal({
         if (hasErrors) return;
 
         const payload = {
-          itemId: selectedItemId,
-          unitOfMeasureCode,
           children: selectedSerialNumbers.map((sn) => ({
-            trackedEntityId: sn.id,
-            quantity: 1
-          }))
+            quantity: 1,
+            trackedEntityId: sn.id
+          })),
+          itemId: selectedItemId,
+          unitOfMeasureCode
         };
 
         fetcher.submit(JSON.stringify(payload), {
-          method: "post",
           action: path.to.addAndIssueMaintenanceDispatchItem(dispatchId),
-          encType: "application/json"
+          encType: "application/json",
+          method: "post"
         });
       } else if (trackingType === "Batch") {
         let hasErrors = false;
@@ -251,18 +252,18 @@ export function MaintenanceAddPartModal({
         if (hasErrors) return;
 
         const payload = {
-          itemId: selectedItemId,
-          unitOfMeasureCode,
           children: selectedBatches.map((batch) => ({
-            trackedEntityId: batch.id,
-            quantity: batch.quantity
-          }))
+            quantity: batch.quantity,
+            trackedEntityId: batch.id
+          })),
+          itemId: selectedItemId,
+          unitOfMeasureCode
         };
 
         fetcher.submit(JSON.stringify(payload), {
-          method: "post",
           action: path.to.addAndIssueMaintenanceDispatchItem(dispatchId),
-          encType: "application/json"
+          encType: "application/json",
+          method: "post"
         });
       } else {
         if (quantity <= 0) {
@@ -272,14 +273,14 @@ export function MaintenanceAddPartModal({
 
         const payload = {
           itemId: selectedItemId,
-          unitOfMeasureCode,
-          quantity
+          quantity,
+          unitOfMeasureCode
         };
 
         fetcher.submit(JSON.stringify(payload), {
-          method: "post",
           action: path.to.addAndIssueMaintenanceDispatchItem(dispatchId),
-          encType: "application/json"
+          encType: "application/json",
+          method: "post"
         });
       }
     },
@@ -312,12 +313,14 @@ export function MaintenanceAddPartModal({
   return (
     <Modal open onOpenChange={onClose}>
       <ModalContent>
-        <ModalTitle>
-          <Trans>Add Spare Part</Trans>
-        </ModalTitle>
-        <ModalDescription>
-          <Trans>Select an item and specify the quantity to issue</Trans>
-        </ModalDescription>
+        <ModalHeader>
+          <ModalTitle>
+            <Trans>Add Spare Part</Trans>
+          </ModalTitle>
+          <ModalDescription>
+            <Trans>Select an item and specify the quantity to issue</Trans>
+          </ModalDescription>
+        </ModalHeader>
         <ValidatedForm
           method="post"
           action={path.to.addAndIssueMaintenanceDispatchItem(dispatchId)}
@@ -325,12 +328,12 @@ export function MaintenanceAddPartModal({
           onSubmit={handleSubmit}
           defaultValues={{
             itemId: "",
-            unitOfMeasureCode: "EA",
-            quantity: 1
+            quantity: 1,
+            unitOfMeasureCode: "EA"
           }}
         >
           <ModalBody>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col">
               <Hidden name="itemId" value={selectedItemId} />
               <Hidden name="unitOfMeasureCode" value={unitOfMeasureCode} />
               {/* Item Selection */}
@@ -399,7 +402,7 @@ export function MaintenanceAddPartModal({
                                     const newValue = e.target.value;
                                     setSelectedSerialNumbers((prev) => {
                                       const updated = [...prev];
-                                      updated[index] = { index, id: newValue };
+                                      updated[index] = { id: newValue, index };
                                       return updated;
                                     });
                                   }}
@@ -456,7 +459,7 @@ export function MaintenanceAddPartModal({
                                 onChange={(value) => {
                                   setSelectedSerialNumbers((prev) => {
                                     const updated = [...prev];
-                                    updated[index] = { index, id: value };
+                                    updated[index] = { id: value, index };
                                     return updated;
                                   });
                                   const error = validateSerialNumber(

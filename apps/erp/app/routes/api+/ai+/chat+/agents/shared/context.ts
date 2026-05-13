@@ -5,6 +5,7 @@ export interface ChatContext {
   client: SupabaseClient<Database>;
   userId: string;
   companyId: string;
+  companyGroupId: string;
   fullName: string;
   companyName: string;
   baseCurrency: string;
@@ -21,6 +22,7 @@ export interface ChatContext {
 export function createChatContext(params: {
   userId: string;
   companyId: string;
+  companyGroupId: string;
   client: SupabaseClient<Database>;
   fullName: string;
   companyName: string;
@@ -32,18 +34,19 @@ export function createChatContext(params: {
   timezone?: string;
 }) {
   return {
-    userId: params.userId,
-    companyId: params.companyId,
+    baseCurrency: params.baseCurrency || "USD",
+    chatId: params.chatId,
+    city: params.city,
     client: params.client,
-    fullName: params.fullName,
+    companyGroupId: params.companyGroupId,
+    companyId: params.companyId,
     companyName: params.companyName,
     country: params.country,
-    city: params.city,
-    chatId: params.chatId,
-    baseCurrency: params.baseCurrency || "USD",
-    locale: params.locale || "en-US",
     currentDateTime: new Date().toISOString(),
+    fullName: params.fullName,
+    locale: params.locale || "en-US",
     timezone:
-      params.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
+      params.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    userId: params.userId
   };
 }

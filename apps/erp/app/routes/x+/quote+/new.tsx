@@ -17,16 +17,17 @@ import { path } from "~/utils/path";
 
 export const handle: Handle = {
   breadcrumb: msg`Quotes`,
-  to: path.to.quotes,
-  module: "sales"
+  module: "sales",
+  to: path.to.quotes
 };
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "sales",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      bypassRls: true,
+      create: "sales"
+    });
 
   const formData = await request.formData();
   const validation = await validator(quoteValidator).validate(formData);
@@ -56,10 +57,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const createQuote = await upsertQuote(client, {
     ...validation.data,
-    quoteId,
+    companyGroupId,
     companyId,
     createdBy: userId,
-    customFields: setCustomFields(formData)
+    customFields: setCustomFields(formData),
+    quoteId
   });
 
   if (createQuote.error || !createQuote.data?.[0]) {
@@ -79,20 +81,20 @@ export default function QuoteNewRoute() {
   const [params] = useUrlParams();
   const customerId = params.get("customerId");
   const initialValues = {
+    currencyCode: undefined,
     customerContactId: "",
     customerId: customerId ?? "",
     customerReference: "",
+    dueDate: "",
+    exchangeRate: undefined,
+    exchangeRateUpdatedAt: "",
     expirationDate: toCalendarDate(
       now(getLocalTimeZone()).add({ days: 30 })
     ).toString(),
-    dueDate: "",
     locationId: defaults?.locationId ?? "",
     quoteId: undefined,
-    status: "Draft" as QuotationStatusType,
     salesPersonId: userId,
-    currencyCode: undefined,
-    exchangeRate: undefined,
-    exchangeRateUpdatedAt: ""
+    status: "Draft" as QuotationStatusType
   };
 
   return (

@@ -1,6 +1,4 @@
 {
-  "name": "mes",
-  "type": "module",
   "dependencies": {
     "@carbon/auth": "workspace:*",
     "@carbon/database": "workspace:*",
@@ -96,16 +94,18 @@
     "vite-tsconfig-paths": "catalog:",
     "wait-on": "catalog:"
   },
+  "name": "mes",
   "private": true,
   "scripts": {
     "build": "react-router build",
     "clean": "rimraf .cache .turbo node_modules dist build",
-    "dev": "react-router dev",
+    "dev": "portless --script dev:app run --force",
+    "dev:app": "react-router dev --port $PORT --host $HOST",
     "lint": "biome lint --write ",
     "start": "NODE_ENV=production react-router-serve ./build/server/index.js",
     "typecheck": "tsgo --noEmit",
-    "types": "tsgo --noEmit",
     "typegen": "react-router typegen"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "type": "module"
 }

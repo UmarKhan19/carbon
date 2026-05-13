@@ -21,9 +21,6 @@ type ShipBillDetailsProps = {
 
 const tw = createTw({
   theme: {
-    fontFamily: {
-      sans: ["Inter", "Helvetica", "Arial", "sans-serif"]
-    },
     extend: {
       colors: {
         gray: {
@@ -34,6 +31,9 @@ const tw = createTw({
           800: "#1f2937"
         }
       }
+    },
+    fontFamily: {
+      sans: ["Inter", "Helvetica", "Arial", "sans-serif"]
     }
   }
 });
@@ -65,7 +65,7 @@ const AddressBlock = ({ address }: { address: Address }) => (
 
 const ShipBillDetails = ({
   shipTo,
-  shipToLabel = "Ship To",
+  shipToLabel = "Deliver To",
   billTo,
   billToLabel = "Bill To"
 }: ShipBillDetailsProps) => {

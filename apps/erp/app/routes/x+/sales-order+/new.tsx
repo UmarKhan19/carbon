@@ -20,10 +20,11 @@ export const handle: Handle = {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "sales",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      bypassRls: true,
+      create: "sales"
+    });
 
   const formData = await request.formData();
   const validation = await validator(salesOrderValidator).validate(formData);
@@ -55,10 +56,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const createSalesOrder = await upsertSalesOrder(client, {
     ...d,
-    salesOrderId,
+    companyGroupId,
     companyId,
     createdBy: userId,
-    customFields: setCustomFields(formData)
+    customFields: setCustomFields(formData),
+    salesOrderId
   });
 
   if (createSalesOrder.error || !createSalesOrder.data?.[0]) {
@@ -82,19 +84,19 @@ export default function SalesOrderNewRoute() {
   const { id: userId, company, defaults } = useUser();
 
   const initialValues = {
-    id: undefined,
-    salesOrderId: undefined,
-    customerId: customerId ?? "",
-    orderDate: "",
-    status: "Draft" as const,
     currencyCode: company?.baseCurrencyCode ?? "USD",
-    locationId: defaults?.locationId ?? "",
-    salesPersonId: userId,
+    customerId: customerId ?? "",
+    digitalQuoteAcceptedBy: undefined,
+    digitalQuoteAcceptedByEmail: undefined,
     exchangeRate: undefined,
     exchangeRateUpdatedAt: "",
+    id: undefined,
+    locationId: defaults?.locationId ?? "",
+    orderDate: "",
     originatedFromQuote: false,
-    digitalQuoteAcceptedBy: undefined,
-    digitalQuoteAcceptedByEmail: undefined
+    salesOrderId: undefined,
+    salesPersonId: userId,
+    status: "Draft" as const
   };
 
   return (

@@ -18,6 +18,8 @@ import type {
   webhookValidator
 } from "./settings.models";
 
+const PUBLIC_STORAGE_URL_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/public/`;
+
 export async function getAccountsPayableBillingAddress(
   client: SupabaseClient<Database>,
   companyId: string
@@ -137,16 +139,19 @@ export async function getCompanies(
       ...company,
       companyGroupName: (companyGroup as { name: string } | null)?.name ?? null,
       logoDark: company.logoDark
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDark}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoDark}`
         : null,
       logoDarkIcon: company.logoDarkIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDarkIcon}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoDarkIcon}`
         : null,
       logoLight: company.logoLight
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLight}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoLight}`
         : null,
       logoLightIcon: company.logoLightIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLightIcon}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoLightIcon}`
+        : null,
+      logoWatermark: company.logoWatermark
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoWatermark}`
         : null
     })),
     error: null
@@ -170,16 +175,19 @@ export async function getCompany(
     data: {
       ...company.data,
       logoDark: company.data.logoDark
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDark}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoDark}`
         : null,
       logoDarkIcon: company.data.logoDarkIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDarkIcon}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoDarkIcon}`
         : null,
       logoLight: company.data.logoLight
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLight}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoLight}`
         : null,
       logoLightIcon: company.data.logoLightIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLightIcon}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoLightIcon}`
+        : null,
+      logoWatermark: company.data.logoWatermark
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoWatermark}`
         : null
     },
     error: null
@@ -686,6 +694,17 @@ export async function updateLogoLightIcon(
   return client
     .from("company")
     .update(sanitize({ logoLightIcon }))
+    .eq("id", companyId);
+}
+
+export async function updateLogoWatermark(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoWatermark: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoWatermark }))
     .eq("id", companyId);
 }
 

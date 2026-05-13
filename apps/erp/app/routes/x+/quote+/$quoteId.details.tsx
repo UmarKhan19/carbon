@@ -54,14 +54,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return {
-    internalNotes: (quote.data?.internalNotes ?? {}) as JSONContent,
-    externalNotes: (quote.data?.externalNotes ?? {}) as JSONContent
+    externalNotes: (quote.data?.externalNotes ?? {}) as JSONContent,
+    internalNotes: (quote.data?.internalNotes ?? {}) as JSONContent
   };
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -73,10 +73,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
   const quote = await getQuote(viewClient, id);
   await requireUnlocked({
-    request,
     isLocked: isQuoteLocked(quote.data?.status),
+    message: "Cannot modify a locked quote. Reopen it first.",
     redirectTo: path.to.quote(id),
-    message: "Cannot modify a locked quote. Reopen it first."
+    request
   });
 
   const formData = await request.formData();
@@ -93,6 +93,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     id,
     quoteId,
     ...d,
+    companyGroupId,
     customFields: setCustomFields(formData),
     updatedBy: userId
   });
@@ -132,40 +133,40 @@ export default function QuoteDetailsRoute() {
   };
 
   const initialValues = {
-    id: quoteData?.quote?.id ?? "",
+    currencyCode: quoteData?.quote?.currencyCode ?? undefined,
+    customerContactId: quoteData?.quote?.customerContactId ?? "",
     customerId: quoteData?.quote?.customerId ?? "",
     customerLocationId: quoteData?.quote?.customerLocationId ?? "",
-    customerContactId: quoteData?.quote?.customerContactId ?? "",
     customerReference: quoteData?.quote?.customerReference ?? "",
     dueDate: quoteData?.quote?.dueDate ?? "",
     estimatorId: quoteData?.quote?.estimatorId ?? "",
+    exchangeRate: quoteData?.quote?.exchangeRate ?? undefined,
+    exchangeRateUpdatedAt: quoteData?.quote?.exchangeRateUpdatedAt ?? "",
     expirationDate: quoteData?.quote?.expirationDate ?? "",
+    id: quoteData?.quote?.id ?? "",
     locationId: quoteData?.quote?.locationId ?? "",
     quoteId: quoteData?.quote?.quoteId ?? "",
     salesPersonId: quoteData?.quote?.salesPersonId ?? "",
-    status: quoteData?.quote?.status ?? "Draft",
-    currencyCode: quoteData?.quote?.currencyCode ?? undefined,
-    exchangeRate: quoteData?.quote?.exchangeRate ?? undefined,
-    exchangeRateUpdatedAt: quoteData?.quote?.exchangeRateUpdatedAt ?? ""
+    status: quoteData?.quote?.status ?? "Draft"
   };
 
   const shipmentInitialValues = {
     id: quoteData?.shipment.id!,
+    incoterm: quoteData?.shipment?.incoterm ?? undefined,
+    incotermLocation: quoteData?.shipment?.incotermLocation ?? "",
     locationId: quoteData?.shipment?.locationId ?? "",
-    shippingMethodId: quoteData?.shipment?.shippingMethodId ?? "",
-    shippingTermId: quoteData?.shipment?.shippingTermId ?? "",
     receiptRequestedDate: quoteData?.shipment?.receiptRequestedDate ?? "",
     shippingCost: quoteData?.shipment?.shippingCost ?? 0,
-    incoterm: quoteData?.shipment?.incoterm ?? undefined,
-    incotermLocation: quoteData?.shipment?.incotermLocation ?? ""
+    shippingMethodId: quoteData?.shipment?.shippingMethodId ?? "",
+    shippingTermId: quoteData?.shipment?.shippingTermId ?? ""
   };
 
   const paymentInitialValues = {
     ...quoteData?.payment,
+    invoiceCustomerContactId: quoteData?.payment.invoiceCustomerContactId ?? "",
     invoiceCustomerId: quoteData?.payment.invoiceCustomerId ?? "",
     invoiceCustomerLocationId:
       quoteData?.payment.invoiceCustomerLocationId ?? "",
-    invoiceCustomerContactId: quoteData?.payment.invoiceCustomerContactId ?? "",
     paymentTermId: quoteData?.payment.paymentTermId ?? ""
   };
 

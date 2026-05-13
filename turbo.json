@@ -1,6 +1,16 @@
 {
   "$schema": "https://turborepo.org/schema.json",
   "tasks": {
+    "//#lingui:compile": {
+      "inputs": [
+        "lingui.config.js",
+        "apps/erp/app/**",
+        "apps/mes/app/**",
+        "packages/react/src/**",
+        "packages/locale/locales/**/*.po"
+      ],
+      "outputs": ["packages/locale/locales/**/*.mjs"]
+    },
     "build": {
       "dependsOn": ["^build", "//#lingui:compile"],
       "outputs": [
@@ -13,15 +23,36 @@
         "!.next/cache/**"
       ]
     },
-    "//#lingui:compile": {
-      "inputs": [
-        "lingui.config.js",
-        "apps/erp/app/**",
-        "apps/mes/app/**",
-        "packages/react/src/**",
-        "packages/locale/locales/**/*.po"
-      ],
-      "outputs": ["packages/locale/locales/**/*.mjs"]
+    "clean": {
+      "cache": false
+    },
+    "db:init": {
+      "outputs": []
+    },
+    "db:migrate": {
+      "cache": false,
+      "outputs": []
+    },
+    "db:seed": {
+      "cache": false,
+      "outputs": []
+    },
+    "db:types": {
+      "cache": true,
+      "outputs": []
+    },
+    "deploy": {
+      "cache": false,
+      "dependsOn": ["^build"]
+    },
+    "dev": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^build"],
+      "outputs": []
     },
     "test": {
       "cache": false,
@@ -30,56 +61,6 @@
     "typecheck": {
       "cache": false,
       "dependsOn": []
-    },
-    "lint": {
-      "dependsOn": ["^build"],
-      "outputs": []
-    },
-    "dev": {
-      "dependsOn": ["^build"],
-      "cache": false,
-      "persistent": true
-    },
-    "clean": {
-      "cache": false
-    },
-    "deploy": {
-      "dependsOn": ["^build"],
-      "cache": false
-    },
-    "db:start": {
-      "outputs": []
-    },
-    "db:kill": {
-      "outputs": []
-    },
-    "db:types": {
-      "outputs": [],
-      "cache": true
-    },
-    "db:init": {
-      "outputs": []
-    },
-    "db:migrate": {
-      "outputs": [],
-      "cache": false
-    },
-    "db:push": {
-      "outputs": []
-    },
-    "db:pull": {
-      "outputs": []
-    },
-    "db:seed": {
-      "outputs": [],
-      "cache": false
-    },
-    "db:migrate:force": {
-      "outputs": []
-    },
-    "setup": {
-      "cache": false,
-      "outputs": []
     },
     "typegen": {
       "cache": false,

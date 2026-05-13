@@ -17,7 +17,6 @@ import { createPurchaseOrderSchema } from "./create-purchase-order";
 
 export const createPurchaseOrderTool = tool({
   description: "Create a purchase order from a list of parts and a supplier",
-  inputSchema: createPurchaseOrderSchema,
   execute: async function (args, executionOptions) {
     const context = executionOptions.experimental_context as ChatContext;
 
@@ -73,13 +72,13 @@ export const createPurchaseOrderTool = tool({
     }
 
     const purchaseOrder = {
-      purchaseOrderId: nextSequence.data ?? "",
-      supplierId: args.supplierId,
-      supplierInteractionId: supplierInteraction.data?.id ?? null,
+      companyId: context.companyId,
+      createdBy: context.userId,
       exchangeRate: 1,
       exchangeRateUpdatedAt: new Date().toISOString(),
-      companyId: context.companyId,
-      createdBy: context.userId
+      purchaseOrderId: nextSequence.data ?? "",
+      supplierId: args.supplierId,
+      supplierInteractionId: supplierInteraction.data?.id ?? null
     };
 
     const {
@@ -94,7 +93,7 @@ export const createPurchaseOrderTool = tool({
     if (supplier.data?.currencyCode) {
       const currency = await getCurrencyByCode(
         context.client,
-        context.companyId,
+        context.companyGroupId,
         supplier.data?.currencyCode ?? ""
       );
       if (currency.data) {
@@ -128,23 +127,23 @@ export const createPurchaseOrderTool = tool({
         context.client
           .from("purchaseOrderDelivery")
           .insert({
+            companyId: context.companyId,
             id: purchaseOrderId,
             locationId: locationId,
             shippingMethodId: shippingMethodId ?? null,
-            shippingTermId: shippingTermId ?? null,
-            companyId: context.companyId
+            shippingTermId: shippingTermId ?? null
           })
           .select("id")
           .single(),
         context.client
           .from("purchaseOrderPayment")
           .insert({
+            companyId: context.companyId,
             id: purchaseOrderId,
-            invoiceSupplierId: invoiceSupplierId,
             invoiceSupplierContactId: invoiceSupplierContactId,
+            invoiceSupplierId: invoiceSupplierId,
             invoiceSupplierLocationId: invoiceSupplierLocationId,
-            paymentTermId: paymentTermId,
-            companyId: context.companyId
+            paymentTermId: paymentTermId
           })
           .select("id")
           .single()
@@ -191,30 +190,30 @@ export const createPurchaseOrderTool = tool({
           ]);
 
           const lineData = {
-            purchaseOrderId: purchaseOrderId,
-            itemId: part.partId,
+            companyId: context.companyId,
+            conversionFactor:
+              supplierPart?.data?.conversionFactor ??
+              itemReplenishment?.data?.conversionFactor ??
+              1,
+            createdBy: context.userId,
             description: item.data?.name,
+            inventoryUnitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
+            itemId: part.partId,
+            locationId: locationId,
+            purchaseOrderId: purchaseOrderId,
             purchaseOrderLineType: item.data?.type,
             purchaseQuantity: part.quantity,
-            supplierUnitPrice:
-              (supplierPart?.data?.unitPrice ?? itemCost?.data?.unitCost ?? 0) /
-              purchaseOrder.exchangeRate,
-            supplierShippingCost: 0,
             purchaseUnitOfMeasureCode:
               supplierPart?.data?.supplierUnitOfMeasureCode ??
               itemReplenishment?.data?.purchasingUnitOfMeasureCode ??
               item.data?.unitOfMeasureCode ??
               "EA",
-            inventoryUnitOfMeasureCode: item.data?.unitOfMeasureCode ?? "EA",
-            conversionFactor:
-              supplierPart?.data?.conversionFactor ??
-              itemReplenishment?.data?.conversionFactor ??
-              1,
-            locationId: locationId,
             storageUnitId: null,
+            supplierShippingCost: 0,
             supplierTaxAmount: 0,
-            companyId: context.companyId,
-            createdBy: context.userId
+            supplierUnitPrice:
+              (supplierPart?.data?.unitPrice ?? itemCost?.data?.unitCost ?? 0) /
+              purchaseOrder.exchangeRate
           };
 
           // Create the purchase order line
@@ -240,5 +239,6 @@ export const createPurchaseOrderTool = tool({
         }`
       };
     }
-  }
+  },
+  inputSchema: createPurchaseOrderSchema
 });

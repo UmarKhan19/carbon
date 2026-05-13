@@ -6,7 +6,7 @@ import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { getLineDescription, getLineDescriptionDetails } from "../utils/quote";
-import { getCurrencyFormatter, getRegistrationFooter } from "../utils/shared";
+import { getCurrencyFormatter } from "../utils/shared";
 import { Header, Note, PartyDetails, Template } from "./components";
 
 type QuoteCustomerDetails =
@@ -35,9 +35,6 @@ interface QuotePDFProps extends PDF {
 
 const tw = createTw({
   theme: {
-    fontFamily: {
-      sans: ["Inter", "Helvetica", "Arial", "sans-serif"]
-    },
     extend: {
       colors: {
         gray: {
@@ -48,6 +45,9 @@ const tw = createTw({
           800: "#1f2937"
         }
       }
+    },
+    fontFamily: {
+      sans: ["Inter", "Helvetica", "Arial", "sans-serif"]
     }
   }
 });
@@ -217,6 +217,8 @@ const QuotePDF = ({
     getTotalSubtotal() + getTotalShipping() + getTotalFees() + getTotalTaxes();
 
   const maxLeadTime = getMaxLeadTime();
+  const watermarkSrc = company.logoWatermark;
+
   let rowIndex = 0;
 
   return (
@@ -227,13 +229,25 @@ const QuotePDF = ({
         keywords: meta?.keywords ?? "quote",
         subject: meta?.subject ?? "Quote"
       }}
-      footerLabel={getRegistrationFooter(
-        company.name,
-        company.countryCode,
-        company.taxId
-      )}
       footerDocumentId={quote?.quoteId}
     >
+      {watermarkSrc && (
+        <View
+          fixed
+          style={{
+            alignItems: "center",
+            bottom: 0,
+            left: 0,
+            marginTop: 100,
+            opacity: 0.07,
+            position: "absolute",
+            right: 0,
+            top: 0
+          }}
+        >
+          <Image src={watermarkSrc} style={{ width: "50%" }} />
+        </View>
+      )}
       <Header
         company={company}
         title="Quote"
@@ -247,30 +261,30 @@ const QuotePDF = ({
         companyAddressOverride={
           accountsReceivableBillingAddress
             ? {
-                name: accountsReceivableBillingAddress.name,
                 addressLine1: accountsReceivableBillingAddress.addressLine1,
                 addressLine2: accountsReceivableBillingAddress.addressLine2,
                 city: accountsReceivableBillingAddress.city,
-                stateProvince: accountsReceivableBillingAddress.state,
+                countryCode: accountsReceivableBillingAddress.countryCode,
+                name: accountsReceivableBillingAddress.name,
                 postalCode: accountsReceivableBillingAddress.postalCode,
-                countryCode: accountsReceivableBillingAddress.countryCode
+                stateProvince: accountsReceivableBillingAddress.state
               }
             : undefined
         }
         companyLabel="Seller"
         counterParty={{
-          name: customerName,
           addressLine1: customerAddressLine1,
           addressLine2: customerAddressLine2,
           city: customerCity,
-          stateProvince: customerStateProvince,
-          postalCode: customerPostalCode,
-          countryCode: customerCountryCode,
-          taxId: customerTaxId,
-          vatNumber: customerVatNumber,
-          eori: customerEori,
+          contactEmail: contactEmail,
           contactName: contactName,
-          contactEmail: contactEmail
+          countryCode: customerCountryCode,
+          eori: customerEori,
+          name: customerName,
+          postalCode: customerPostalCode,
+          stateProvince: customerStateProvince,
+          taxId: customerTaxId,
+          vatNumber: customerVatNumber
         }}
         counterPartyLabel="Buyer"
         accountsReceivableEmail={companySettings?.accountsReceivableEmail}
@@ -441,7 +455,7 @@ const QuotePDF = ({
                                 <View style={tw("mt-2")}>
                                   <Image
                                     src={thumbnails[line.id]!}
-                                    style={{ width: 60, height: 60 }}
+                                    style={{ height: 60, width: 60 }}
                                   />
                                 </View>
                               )}
@@ -642,7 +656,11 @@ const QuotePDF = ({
         )}
       </View>
 
-      <Note title="Standard Terms & Conditions" content={terms} />
+      {terms?.content && terms.content.length > 0 && (
+        <View break>
+          <Note title="Standard Terms & Conditions" content={terms} />
+        </View>
+      )}
     </Template>
   );
 };

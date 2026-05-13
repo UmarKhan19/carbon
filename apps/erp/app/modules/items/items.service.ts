@@ -87,19 +87,19 @@ export async function copyItem(
 ) {
   return client.functions.invoke("get-method", {
     body: {
-      type: "itemToItem",
-      sourceId: args.sourceId,
-      targetId: args.targetId,
       companyId: args.companyId,
-      userId: args.userId,
       parts: {
         billOfMaterial: args.billOfMaterial,
         billOfProcess: args.billOfProcess,
         parameters: args.parameters,
-        tools: args.tools,
         steps: args.steps,
+        tools: args.tools,
         workInstructions: args.workInstructions
-      }
+      },
+      sourceId: args.sourceId,
+      targetId: args.targetId,
+      type: "itemToItem",
+      userId: args.userId
     }
   });
 }
@@ -113,10 +113,10 @@ export async function copyMakeMethod(
 ) {
   return client.functions.invoke("get-method", {
     body: {
-      type: "makeMethodToMakeMethod",
+      companyId: args.companyId,
       sourceId: args.sourceId,
       targetId: args.targetId,
-      companyId: args.companyId,
+      type: "makeMethodToMakeMethod",
       userId: args.userId
     }
   });
@@ -134,18 +134,18 @@ export async function createRevision(
   const itemInsert = await client
     .from("item")
     .insert({
-      readableId: item.readableId,
-      revision: revision,
-      name: item.name,
-      type: item.type,
-      replenishmentSystem: item.replenishmentSystem,
+      active: true,
+      companyId: item.companyId,
+      createdBy: createdBy,
       defaultMethodType: item.defaultMethodType,
       itemTrackingType: item.itemTrackingType,
-      unitOfMeasureCode: item.unitOfMeasureCode,
-      active: true,
       modelUploadId: item.modelUploadId,
-      companyId: item.companyId,
-      createdBy: createdBy
+      name: item.name,
+      readableId: item.readableId,
+      replenishmentSystem: item.replenishmentSystem,
+      revision: revision,
+      type: item.type,
+      unitOfMeasureCode: item.unitOfMeasureCode
     })
     .select("id")
     .single();
@@ -157,10 +157,10 @@ export async function createRevision(
   if (item.replenishmentSystem !== "Buy") {
     await client.functions.invoke("get-method", {
       body: {
-        type: "itemToItem",
+        companyId: item.companyId,
         sourceId: item.id,
         targetId: itemInsert.data.id,
-        companyId: item.companyId,
+        type: "itemToItem",
         userId: createdBy
       }
     });
@@ -418,7 +418,7 @@ export async function getConsumables(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "readableIdWithRevision", ascending: true }
+    { ascending: true, column: "readableIdWithRevision" }
   ]);
   return query;
 }
@@ -573,7 +573,7 @@ export async function getItemPostingGroups(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -627,8 +627,8 @@ export async function getItemQuantities(
 ) {
   return client
     .rpc("get_inventory_quantities", {
-      location_id: locationId,
-      company_id: companyId
+      company_id: companyId,
+      location_id: locationId
     })
     .eq("id", itemId)
     .maybeSingle();
@@ -654,8 +654,8 @@ export async function getItemStorageUnitQuantities(
   locationId: string
 ) {
   return client.rpc("get_item_quantities_by_tracking_id", {
-    item_id: itemId,
     company_id: companyId,
+    item_id: itemId,
     location_id: locationId
   });
 }
@@ -818,8 +818,8 @@ export async function getMaterialUsedIn(
     maintenanceDispatchItems: maintenanceDispatchItems.data ?? [],
     methodMaterials: methodMaterials.data ?? [],
     purchaseOrderLines: purchaseOrderLines.data ?? [],
-    receiptLines: receiptLines.data ?? [],
     quoteMaterials: quoteMaterials.data ?? [],
+    receiptLines: receiptLines.data ?? [],
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
     supplierQuotes: supplierQuotes.data ?? []
@@ -889,7 +889,7 @@ export async function getMaterials(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "readableIdWithRevision", ascending: true }
+    { ascending: true, column: "readableIdWithRevision" }
   ]);
   return query;
 }
@@ -937,8 +937,8 @@ export async function getMaterialDimensions(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "formName", ascending: true },
-      { column: "name", ascending: true }
+      { ascending: true, column: "formName" },
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -984,8 +984,8 @@ export async function getMaterialFinishes(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "substanceName", ascending: true },
-      { column: "name", ascending: true }
+      { ascending: true, column: "substanceName" },
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -1029,7 +1029,7 @@ export async function getMaterialForms(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -1065,8 +1065,8 @@ export async function getMaterialGrades(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "substanceName", ascending: true },
-      { column: "name", ascending: true }
+      { ascending: true, column: "substanceName" },
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -1117,7 +1117,7 @@ export async function getMaterialSubstances(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -1204,7 +1204,7 @@ export async function getMethodOperations(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "order", ascending: true }
+      { ascending: true, column: "order" }
     ]);
   }
 
@@ -1274,7 +1274,7 @@ function getMethodTreeArrayToTree(items: Method[]): MethodTreeItem[] {
 
     if (!Object.prototype.hasOwnProperty.call(lookup, itemId)) {
       // @ts-ignore
-      lookup[itemId] = { id: itemId, children: [] };
+      lookup[itemId] = { children: [], id: itemId };
     }
 
     // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
@@ -1287,7 +1287,7 @@ function getMethodTreeArrayToTree(items: Method[]): MethodTreeItem[] {
     } else {
       if (!Object.prototype.hasOwnProperty.call(lookup, parentId)) {
         // @ts-ignore
-        lookup[parentId] = { id: parentId, children: [] };
+        lookup[parentId] = { children: [], id: parentId };
       }
 
       // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
@@ -1408,7 +1408,7 @@ export async function getParts(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "readableIdWithRevision", ascending: true }
+    { ascending: true, column: "readableIdWithRevision" }
   ]);
   return query;
 }
@@ -1557,9 +1557,9 @@ export async function getPartUsedIn(
     maintenanceDispatchItems: maintenanceDispatchItems.data ?? [],
     methodMaterials: methodMaterials.data ?? [],
     purchaseOrderLines: purchaseOrderLines.data ?? [],
-    receiptLines: receiptLines.data ?? [],
     quoteLines: quoteLines.data ?? [],
     quoteMaterials: quoteMaterials.data ?? [],
+    receiptLines: receiptLines.data ?? [],
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
     supplierQuotes: supplierQuotes.data ?? []
@@ -1632,7 +1632,7 @@ export async function getServices(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "readableIdWithRevision", ascending: true }
+    { ascending: true, column: "readableIdWithRevision" }
   ]);
   return query;
 }
@@ -1717,7 +1717,7 @@ export async function getTools(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "readableIdWithRevision", ascending: true }
+    { ascending: true, column: "readableIdWithRevision" }
   ]);
   return query;
 }
@@ -1769,7 +1769,7 @@ export async function getUnitOfMeasures(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "name", ascending: true }
+    { ascending: true, column: "name" }
   ]);
   return query;
 }
@@ -1926,8 +1926,8 @@ export async function upsertConfigurationParameter(
       .update(
         sanitize({
           ...data,
-          updatedBy: userId,
-          updatedAt: now(getLocalTimeZone()).toAbsoluteString()
+          updatedAt: now(getLocalTimeZone()).toAbsoluteString(),
+          updatedBy: userId
         })
       )
       .eq("id", configurationParameter.id);
@@ -1954,11 +1954,11 @@ export async function upsertConfigurationParameter(
     const ungroupedGroupInsert = await client
       .from("configurationParameterGroup")
       .insert({
+        companyId: data.companyId,
+        isUngrouped: true,
         itemId: data.itemId,
         name: "Ungrouped",
-        isUngrouped: true,
-        sortOrder: maxSortOrder + 1,
-        companyId: data.companyId
+        sortOrder: maxSortOrder + 1
       })
       .select("id")
       .single();
@@ -1968,9 +1968,9 @@ export async function upsertConfigurationParameter(
 
   return client.from("configurationParameter").insert({
     ...data,
-    key: data.key ?? "",
+    configurationParameterGroupId: ungroupedGroupId,
     createdBy: userId,
-    configurationParameterGroupId: ungroupedGroupId
+    key: data.key ?? ""
   });
 }
 
@@ -2086,13 +2086,13 @@ export async function upsertItemDefaultPickMethod(
 
   return client.from("pickMethod").upsert(
     {
-      itemId: args.itemId,
-      locationId: storageUnit.data.locationId,
-      defaultStorageUnitId: args.storageUnitId,
       companyId: storageUnit.data.companyId,
       createdBy: args.userId,
-      updatedBy: args.userId,
-      updatedAt: today(getLocalTimeZone()).toString()
+      defaultStorageUnitId: args.storageUnitId,
+      itemId: args.itemId,
+      locationId: storageUnit.data.locationId,
+      updatedAt: today(getLocalTimeZone()).toString(),
+      updatedBy: args.userId
     },
     { onConflict: "itemId,locationId" }
   );
@@ -2240,11 +2240,11 @@ export async function upsertItemShelfLife(
       return {
         data: null,
         error: {
-          message:
-            "Shelf-life trigger process must be one of the operations on this item's recipe",
+          code: "shelf_life_trigger_process_not_in_recipe",
           details: "",
           hint: "",
-          code: "shelf_life_trigger_process_not_in_recipe"
+          message:
+            "Shelf-life trigger process must be one of the operations on this item's recipe"
         }
       } as any;
     }
@@ -2262,13 +2262,13 @@ export async function upsertItemShelfLife(
     return client
       .from("itemShelfLife")
       .update({
-        mode: args.mode,
+        calculateFromBom,
         days,
+        mode: args.mode,
         triggerProcessId,
         triggerTiming,
-        calculateFromBom,
-        updatedBy: args.userId,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        updatedBy: args.userId
       })
       .eq("itemId", args.itemId);
   }
@@ -2285,14 +2285,14 @@ export async function upsertItemShelfLife(
   }
 
   return client.from("itemShelfLife").insert({
-    itemId: args.itemId,
-    mode: args.mode!,
-    days,
-    triggerProcessId,
-    triggerTiming,
     calculateFromBom,
     companyId: companyId!,
-    createdBy: args.userId
+    createdBy: args.userId,
+    days,
+    itemId: args.itemId,
+    mode: args.mode!,
+    triggerProcessId,
+    triggerTiming
   });
 }
 
@@ -2328,10 +2328,10 @@ export async function upsertPickMethodWithShelfLife(
     await trx
       .updateTable("pickMethod")
       .set({
-        defaultStorageUnitId: args.defaultStorageUnitId ?? null,
         customFields: args.customFields ?? null,
-        updatedBy: args.userId,
-        updatedAt
+        defaultStorageUnitId: args.defaultStorageUnitId ?? null,
+        updatedAt,
+        updatedBy: args.userId
       })
       .where("itemId", "=", args.itemId)
       .where("locationId", "=", args.locationId)
@@ -2394,13 +2394,13 @@ export async function upsertPickMethodWithShelfLife(
       await trx
         .updateTable("itemShelfLife")
         .set({
-          mode,
+          calculateFromBom: normalizedCalcFromBom,
           days: normalizedDays,
+          mode,
           triggerProcessId: normalizedTriggerProcess,
           triggerTiming: normalizedTriggerTiming,
-          calculateFromBom: normalizedCalcFromBom,
-          updatedBy: args.userId,
-          updatedAt
+          updatedAt,
+          updatedBy: args.userId
         })
         .where("itemId", "=", args.itemId)
         .execute();
@@ -2420,14 +2420,14 @@ export async function upsertPickMethodWithShelfLife(
     await trx
       .insertInto("itemShelfLife")
       .values({
-        itemId: args.itemId,
-        mode,
-        days: normalizedDays,
-        triggerProcessId: normalizedTriggerProcess,
-        triggerTiming: normalizedTriggerTiming,
         calculateFromBom: normalizedCalcFromBom,
         companyId: itemRow.companyId,
-        createdBy: args.userId
+        createdBy: args.userId,
+        days: normalizedDays,
+        itemId: args.itemId,
+        mode,
+        triggerProcessId: normalizedTriggerProcess,
+        triggerTiming: normalizedTriggerTiming
       })
       .execute();
   });
@@ -2461,10 +2461,10 @@ export async function cascadeItemTrackingType(
     await trx
       .updateTable("jobMakeMethod")
       .set({
-        requiresSerialTracking,
         requiresBatchTracking,
-        updatedBy: args.userId,
-        updatedAt
+        requiresSerialTracking,
+        updatedAt,
+        updatedBy: args.userId
       })
       .where("itemId", "in", args.itemIds)
       .where("companyId", "=", args.companyId)
@@ -2476,7 +2476,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("job")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "not in", ["Completed", "Closed", "Cancelled"])
+            .where("status", "in", ["Draft", "Planned"])
         )
       )
       .execute();
@@ -2484,10 +2484,10 @@ export async function cascadeItemTrackingType(
     await trx
       .updateTable("jobMaterial")
       .set({
-        requiresSerialTracking,
         requiresBatchTracking,
-        updatedBy: args.userId,
-        updatedAt
+        requiresSerialTracking,
+        updatedAt,
+        updatedBy: args.userId
       })
       .where("itemId", "in", args.itemIds)
       .where("companyId", "=", args.companyId)
@@ -2499,7 +2499,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("job")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "not in", ["Completed", "Closed", "Cancelled"])
+            .where("status", "in", ["Draft", "Planned"])
         )
       )
       .execute();
@@ -2507,10 +2507,10 @@ export async function cascadeItemTrackingType(
     await trx
       .updateTable("receiptLine")
       .set({
-        requiresSerialTracking,
         requiresBatchTracking,
-        updatedBy: args.userId,
-        updatedAt
+        requiresSerialTracking,
+        updatedAt,
+        updatedBy: args.userId
       })
       .where("itemId", "in", args.itemIds)
       .where("companyId", "=", args.companyId)
@@ -2522,7 +2522,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("receipt")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "in", ["Draft", "Pending"])
+            .where("status", "=", "Draft")
         )
       )
       .execute();
@@ -2530,10 +2530,10 @@ export async function cascadeItemTrackingType(
     await trx
       .updateTable("shipmentLine")
       .set({
-        requiresSerialTracking,
         requiresBatchTracking,
-        updatedBy: args.userId,
-        updatedAt
+        requiresSerialTracking,
+        updatedAt,
+        updatedBy: args.userId
       })
       .where("itemId", "in", args.itemIds)
       .where("companyId", "=", args.companyId)
@@ -2545,7 +2545,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("shipment")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "in", ["Draft", "Pending"])
+            .where("status", "=", "Draft")
         )
       )
       .execute();
@@ -2553,10 +2553,10 @@ export async function cascadeItemTrackingType(
     await trx
       .updateTable("stockTransferLine")
       .set({
-        requiresSerialTracking,
         requiresBatchTracking,
-        updatedBy: args.userId,
-        updatedAt
+        requiresSerialTracking,
+        updatedAt,
+        updatedBy: args.userId
       })
       .where("itemId", "in", args.itemIds)
       .where("companyId", "=", args.companyId)
@@ -2568,7 +2568,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("stockTransfer")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "in", ["Draft", "Released", "In Progress"])
+            .where("status", "=", "Draft")
         )
       )
       .execute();
@@ -2592,16 +2592,16 @@ export async function upsertConsumable(
     const itemInsert = await client
       .from("item")
       .insert({
-        readableId: consumable.id,
-        name: consumable.name,
-        type: "Consumable",
-        replenishmentSystem: consumable.replenishmentSystem,
-        defaultMethodType: consumable.defaultMethodType,
-        itemTrackingType: consumable.itemTrackingType,
-        unitOfMeasureCode: consumable.unitOfMeasureCode,
         active: true,
         companyId: consumable.companyId,
-        createdBy: consumable.createdBy
+        createdBy: consumable.createdBy,
+        defaultMethodType: consumable.defaultMethodType,
+        itemTrackingType: consumable.itemTrackingType,
+        name: consumable.name,
+        readableId: consumable.id,
+        replenishmentSystem: consumable.replenishmentSystem,
+        type: "Consumable",
+        unitOfMeasureCode: consumable.unitOfMeasureCode
       })
       .select("id")
       .single();
@@ -2610,10 +2610,10 @@ export async function upsertConsumable(
 
     const [consumableInsert, itemCostUpdate] = await Promise.all([
       client.from("consumable").upsert({
-        id: consumable.id,
         companyId: consumable.companyId,
         createdBy: consumable.createdBy,
-        customFields: consumable.customFields
+        customFields: consumable.customFields,
+        id: consumable.id
       }),
       client
         .from("itemCost")
@@ -2632,20 +2632,20 @@ export async function upsertConsumable(
     if (itemId) {
       const pickMethod = await upsertItemDefaultPickMethod(client, {
         itemId,
-        userId: consumable.createdBy,
-        storageUnitId: consumable.defaultStorageUnitId
+        storageUnitId: consumable.defaultStorageUnitId,
+        userId: consumable.createdBy
       });
       if (pickMethod.error) return pickMethod;
 
       const shelfLife = await upsertItemShelfLife(client, {
-        itemId,
-        userId: consumable.createdBy,
+        calculateFromBom: consumable.shelfLifeCalculateFromBom,
         companyId: consumable.companyId,
-        mode: consumable.shelfLifeMode,
         days: consumable.shelfLifeDays,
+        itemId,
+        mode: consumable.shelfLifeMode,
         triggerProcessId: consumable.shelfLifeTriggerProcessId,
         triggerTiming: consumable.shelfLifeTriggerTiming,
-        calculateFromBom: consumable.shelfLifeCalculateFromBom
+        userId: consumable.createdBy
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -2661,14 +2661,14 @@ export async function upsertConsumable(
   }
 
   const itemUpdate = {
-    id: consumable.id,
-    name: consumable.name,
-    description: consumable.description,
-    replenishmentSystem: consumable.replenishmentSystem,
+    active: true,
     defaultMethodType: consumable.defaultMethodType,
+    description: consumable.description,
+    id: consumable.id,
     itemTrackingType: consumable.itemTrackingType,
-    unitOfMeasureCode: consumable.unitOfMeasureCode,
-    active: true
+    name: consumable.name,
+    replenishmentSystem: consumable.replenishmentSystem,
+    unitOfMeasureCode: consumable.unitOfMeasureCode
   };
 
   const consumableUpdate = {
@@ -2696,19 +2696,19 @@ export async function upsertConsumable(
 
   const pickMethod = await upsertItemDefaultPickMethod(client, {
     itemId: consumable.id,
-    userId: consumable.updatedBy,
-    storageUnitId: consumable.defaultStorageUnitId
+    storageUnitId: consumable.defaultStorageUnitId,
+    userId: consumable.updatedBy
   });
   if (pickMethod.error) return pickMethod;
 
   const shelfLife = await upsertItemShelfLife(client, {
-    itemId: consumable.id,
-    userId: consumable.updatedBy,
-    mode: consumable.shelfLifeMode,
+    calculateFromBom: consumable.shelfLifeCalculateFromBom,
     days: consumable.shelfLifeDays,
+    itemId: consumable.id,
+    mode: consumable.shelfLifeMode,
     triggerProcessId: consumable.shelfLifeTriggerProcessId,
     triggerTiming: consumable.shelfLifeTriggerTiming,
-    calculateFromBom: consumable.shelfLifeCalculateFromBom
+    userId: consumable.updatedBy
   });
   if (shelfLife.error) return shelfLife;
 
@@ -2732,18 +2732,18 @@ export async function upsertPart(
     const itemInsert = await client
       .from("item")
       .insert({
-        readableId: part.id,
-        revision: part.revision ?? "0",
-        name: part.name,
-        type: "Part",
-        replenishmentSystem: part.replenishmentSystem,
+        active: true,
+        companyId: part.companyId,
+        createdBy: part.createdBy,
         defaultMethodType: part.defaultMethodType,
         itemTrackingType: part.itemTrackingType,
-        unitOfMeasureCode: part.unitOfMeasureCode,
-        active: true,
         modelUploadId: part.modelUploadId,
-        companyId: part.companyId,
-        createdBy: part.createdBy
+        name: part.name,
+        readableId: part.id,
+        replenishmentSystem: part.replenishmentSystem,
+        revision: part.revision ?? "0",
+        type: "Part",
+        unitOfMeasureCode: part.unitOfMeasureCode
       })
       .select("id")
       .single();
@@ -2752,10 +2752,10 @@ export async function upsertPart(
 
     const [partInsert, itemCostUpdate] = await Promise.all([
       client.from("part").upsert({
-        id: part.id,
         companyId: part.companyId,
         createdBy: part.createdBy,
-        customFields: part.customFields
+        customFields: part.customFields,
+        id: part.id
       }),
       client
         .from("itemCost")
@@ -2786,20 +2786,20 @@ export async function upsertPart(
     if (itemId) {
       const pickMethod = await upsertItemDefaultPickMethod(client, {
         itemId,
-        userId: part.createdBy,
-        storageUnitId: part.defaultStorageUnitId
+        storageUnitId: part.defaultStorageUnitId,
+        userId: part.createdBy
       });
       if (pickMethod.error) return pickMethod;
 
       const shelfLife = await upsertItemShelfLife(client, {
-        itemId,
-        userId: part.createdBy,
+        calculateFromBom: part.shelfLifeCalculateFromBom,
         companyId: part.companyId,
-        mode: part.shelfLifeMode,
         days: part.shelfLifeDays,
+        itemId,
+        mode: part.shelfLifeMode,
         triggerProcessId: part.shelfLifeTriggerProcessId,
         triggerTiming: part.shelfLifeTriggerTiming,
-        calculateFromBom: part.shelfLifeCalculateFromBom
+        userId: part.createdBy
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -2815,14 +2815,14 @@ export async function upsertPart(
   }
 
   const itemUpdate = {
-    id: part.id,
-    name: part.name,
-    description: part.description,
-    replenishmentSystem: part.replenishmentSystem,
+    active: true,
     defaultMethodType: part.defaultMethodType,
+    description: part.description,
+    id: part.id,
     itemTrackingType: part.itemTrackingType,
-    unitOfMeasureCode: part.unitOfMeasureCode,
-    active: true
+    name: part.name,
+    replenishmentSystem: part.replenishmentSystem,
+    unitOfMeasureCode: part.unitOfMeasureCode
   };
 
   const partUpdate = {
@@ -2850,19 +2850,19 @@ export async function upsertPart(
 
   const pickMethod = await upsertItemDefaultPickMethod(client, {
     itemId: part.id,
-    userId: part.updatedBy,
-    storageUnitId: part.defaultStorageUnitId
+    storageUnitId: part.defaultStorageUnitId,
+    userId: part.updatedBy
   });
   if (pickMethod.error) return pickMethod;
 
   const shelfLife = await upsertItemShelfLife(client, {
-    itemId: part.id,
-    userId: part.updatedBy,
-    mode: part.shelfLifeMode,
+    calculateFromBom: part.shelfLifeCalculateFromBom,
     days: part.shelfLifeDays,
+    itemId: part.id,
+    mode: part.shelfLifeMode,
     triggerProcessId: part.shelfLifeTriggerProcessId,
     triggerTiming: part.shelfLifeTriggerTiming,
-    calculateFromBom: part.shelfLifeCalculateFromBom
+    userId: part.updatedBy
   });
   if (shelfLife.error) return shelfLife;
 
@@ -3093,9 +3093,9 @@ export async function upsertMakeMethodVersion(
     .from("makeMethod")
     .insert({
       ...data,
+      createdBy: makeMethodVersion.createdBy,
       status: "Draft",
-      version: makeMethodVersion.version,
-      createdBy: makeMethodVersion.createdBy
+      version: makeMethodVersion.version
     })
     .select("id, ...item(itemId:id, type)")
     .single();
@@ -3185,10 +3185,10 @@ export async function upsertMethodMaterial(
     const seededStorageUnitIds = await resolveMethodMaterialStorageUnitIds(
       client,
       {
-        itemId: methodMaterial.itemId,
         current: methodMaterial.storageUnitIds as
           | Record<string, string>
-          | undefined
+          | undefined,
+        itemId: methodMaterial.itemId
       }
     );
     return client
@@ -3197,8 +3197,8 @@ export async function upsertMethodMaterial(
         {
           ...methodMaterial,
           itemId: methodMaterial.itemId!,
-          storageUnitIds: seededStorageUnitIds,
-          materialMakeMethodId
+          materialMakeMethodId,
+          storageUnitIds: seededStorageUnitIds
         }
       ])
       .select("id")
@@ -3364,17 +3364,17 @@ export async function upsertMaterial(
           client
             .from("item")
             .insert({
-              readableId: material.id,
-              name: material.name,
-              type: "Material",
-              replenishmentSystem: material.replenishmentSystem,
+              active: true,
+              companyId: material.companyId,
+              createdBy: material.createdBy,
               defaultMethodType: material.defaultMethodType,
               itemTrackingType: material.itemTrackingType,
-              unitOfMeasureCode: material.unitOfMeasureCode,
-              active: true,
+              name: material.name,
+              readableId: material.id,
+              replenishmentSystem: material.replenishmentSystem,
               revision: size,
-              companyId: material.companyId,
-              createdBy: material.createdBy
+              type: "Material",
+              unitOfMeasureCode: material.unitOfMeasureCode
             })
             .select("id")
             .single()
@@ -3409,16 +3409,16 @@ export async function upsertMaterial(
       const itemInsert = await client
         .from("item")
         .insert({
-          readableId: material.id,
-          name: material.name,
-          type: "Material",
-          replenishmentSystem: material.replenishmentSystem,
-          defaultMethodType: material.defaultMethodType,
-          itemTrackingType: material.itemTrackingType,
-          unitOfMeasureCode: material.unitOfMeasureCode,
           active: true,
           companyId: material.companyId,
-          createdBy: material.createdBy
+          createdBy: material.createdBy,
+          defaultMethodType: material.defaultMethodType,
+          itemTrackingType: material.itemTrackingType,
+          name: material.name,
+          readableId: material.id,
+          replenishmentSystem: material.replenishmentSystem,
+          type: "Material",
+          unitOfMeasureCode: material.unitOfMeasureCode
         })
         .select("id")
         .single();
@@ -3442,35 +3442,35 @@ export async function upsertMaterial(
     for (const itemId of newItemIds) {
       const pickMethod = await upsertItemDefaultPickMethod(client, {
         itemId,
-        userId: material.createdBy,
-        storageUnitId: material.defaultStorageUnitId
+        storageUnitId: material.defaultStorageUnitId,
+        userId: material.createdBy
       });
       if (pickMethod.error) return pickMethod;
 
       const shelfLife = await upsertItemShelfLife(client, {
-        itemId,
-        userId: material.createdBy,
+        calculateFromBom: material.shelfLifeCalculateFromBom,
         companyId: material.companyId,
-        mode: material.shelfLifeMode,
         days: material.shelfLifeDays,
+        itemId,
+        mode: material.shelfLifeMode,
         triggerProcessId: material.shelfLifeTriggerProcessId,
         triggerTiming: material.shelfLifeTriggerTiming,
-        calculateFromBom: material.shelfLifeCalculateFromBom
+        userId: material.createdBy
       });
       if (shelfLife.error) return shelfLife;
     }
 
     const materialInsert = await client.from("material").upsert({
+      companyId: material.companyId,
+      createdBy: material.createdBy,
+      customFields: material.customFields,
+      dimensionId: material.dimensionId,
+      finishId: material.finishId,
+      gradeId: material.gradeId,
       id: material.id,
       materialFormId: material.materialFormId,
       materialSubstanceId: material.materialSubstanceId,
-      finishId: material.finishId,
-      gradeId: material.gradeId,
-      dimensionId: material.dimensionId,
-      materialTypeId: material.materialTypeId,
-      companyId: material.companyId,
-      createdBy: material.createdBy,
-      customFields: material.customFields
+      materialTypeId: material.materialTypeId
     });
 
     if (materialInsert.error) return materialInsert;
@@ -3488,24 +3488,24 @@ export async function upsertMaterial(
   }
 
   const itemUpdate = {
-    id: material.id,
-    name: material.name,
-    description: material.description,
-    replenishmentSystem: material.replenishmentSystem,
+    active: true,
     defaultMethodType: material.defaultMethodType,
+    description: material.description,
+    id: material.id,
     itemTrackingType: material.itemTrackingType,
-    unitOfMeasureCode: material.unitOfMeasureCode,
-    active: true
+    name: material.name,
+    replenishmentSystem: material.replenishmentSystem,
+    unitOfMeasureCode: material.unitOfMeasureCode
   };
 
   const materialUpdate = {
-    materialFormId: material.materialFormId,
-    materialSubstanceId: material.materialSubstanceId,
+    customFields: material.customFields,
+    dimensionId: material.dimensionId,
     finishId: material.finishId,
     gradeId: material.gradeId,
-    dimensionId: material.dimensionId,
-    materialTypeId: material.materialTypeId,
-    customFields: material.customFields
+    materialFormId: material.materialFormId,
+    materialSubstanceId: material.materialSubstanceId,
+    materialTypeId: material.materialTypeId
   };
 
   const [updateItem, updateMaterial] = await Promise.all([
@@ -3529,19 +3529,19 @@ export async function upsertMaterial(
 
   const pickMethod = await upsertItemDefaultPickMethod(client, {
     itemId: material.id,
-    userId: material.updatedBy,
-    storageUnitId: material.defaultStorageUnitId
+    storageUnitId: material.defaultStorageUnitId,
+    userId: material.updatedBy
   });
   if (pickMethod.error) return pickMethod;
 
   const shelfLife = await upsertItemShelfLife(client, {
-    itemId: material.id,
-    userId: material.updatedBy,
-    mode: material.shelfLifeMode,
+    calculateFromBom: material.shelfLifeCalculateFromBom,
     days: material.shelfLifeDays,
+    itemId: material.id,
+    mode: material.shelfLifeMode,
     triggerProcessId: material.shelfLifeTriggerProcessId,
     triggerTiming: material.shelfLifeTriggerTiming,
-    calculateFromBom: material.shelfLifeCalculateFromBom
+    userId: material.updatedBy
   });
   if (shelfLife.error) return shelfLife;
 
@@ -3790,20 +3790,20 @@ export async function upsertService(
     const itemInsert = await client
       .from("item")
       .insert({
-        readableId: service.id,
-        name: service.name,
-        type: "Service",
-        replenishmentSystem:
-          service.serviceType === "External" ? "Buy" : "Make",
+        active: true,
+        companyId: service.companyId,
+        createdBy: service.createdBy,
         defaultMethodType:
           service.serviceType === "External"
             ? "Purchase to Order"
             : "Make to Order",
         itemTrackingType: service.itemTrackingType,
-        unitOfMeasureCode: "EA",
-        active: true,
-        companyId: service.companyId,
-        createdBy: service.createdBy
+        name: service.name,
+        readableId: service.id,
+        replenishmentSystem:
+          service.serviceType === "External" ? "Buy" : "Make",
+        type: "Service",
+        unitOfMeasureCode: "EA"
       })
       .select("id")
       .single();
@@ -3813,11 +3813,11 @@ export async function upsertService(
     const serviceInsert = await client
       .from("service")
       .insert({
-        id: service.id,
-        serviceType: service.serviceType,
         companyId: service.companyId,
         createdBy: service.createdBy,
-        customFields: service.customFields
+        customFields: service.customFields,
+        id: service.id,
+        serviceType: service.serviceType
       })
       .select("*")
       .single();
@@ -3842,18 +3842,18 @@ export async function upsertService(
     return newService;
   }
   const itemUpdate = {
-    id: service.id,
-    name: service.name,
-    description: service.description,
-    replenishmentSystem:
-      service.serviceType === "External" ? "Buy" : ("Make" as "Buy"),
+    active: true,
     defaultMethodType:
       service.serviceType === "External"
         ? "Purchase to Order"
         : ("Make to Order" as "Purchase to Order"),
+    description: service.description,
+    id: service.id,
     itemTrackingType: service.itemTrackingType,
-    unitOfMeasureCode: null,
-    active: true
+    name: service.name,
+    replenishmentSystem:
+      service.serviceType === "External" ? "Buy" : ("Make" as "Buy"),
+    unitOfMeasureCode: null
   };
 
   const serviceUpdate = {
@@ -3928,18 +3928,18 @@ export async function upsertTool(
     const itemInsert = await client
       .from("item")
       .insert({
-        readableId: tool.id,
-        revision: tool.revision ?? "0",
-        name: tool.name,
-        type: "Tool",
-        replenishmentSystem: tool.replenishmentSystem,
+        active: true,
+        companyId: tool.companyId,
+        createdBy: tool.createdBy,
         defaultMethodType: tool.defaultMethodType,
         itemTrackingType: tool.itemTrackingType,
-        unitOfMeasureCode: tool.unitOfMeasureCode,
-        active: true,
         modelUploadId: tool.modelUploadId,
-        companyId: tool.companyId,
-        createdBy: tool.createdBy
+        name: tool.name,
+        readableId: tool.id,
+        replenishmentSystem: tool.replenishmentSystem,
+        revision: tool.revision ?? "0",
+        type: "Tool",
+        unitOfMeasureCode: tool.unitOfMeasureCode
       })
       .select("id")
       .single();
@@ -3948,10 +3948,10 @@ export async function upsertTool(
 
     const [toolInsert, itemCostUpdate] = await Promise.all([
       client.from("tool").upsert({
-        id: tool.id,
         companyId: tool.companyId,
         createdBy: tool.createdBy,
-        customFields: tool.customFields
+        customFields: tool.customFields,
+        id: tool.id
       }),
       client
         .from("itemCost")
@@ -3970,20 +3970,20 @@ export async function upsertTool(
     if (itemId) {
       const pickMethod = await upsertItemDefaultPickMethod(client, {
         itemId,
-        userId: tool.createdBy,
-        storageUnitId: tool.defaultStorageUnitId
+        storageUnitId: tool.defaultStorageUnitId,
+        userId: tool.createdBy
       });
       if (pickMethod.error) return pickMethod;
 
       const shelfLife = await upsertItemShelfLife(client, {
-        itemId,
-        userId: tool.createdBy,
+        calculateFromBom: tool.shelfLifeCalculateFromBom,
         companyId: tool.companyId,
-        mode: tool.shelfLifeMode,
         days: tool.shelfLifeDays,
+        itemId,
+        mode: tool.shelfLifeMode,
         triggerProcessId: tool.shelfLifeTriggerProcessId,
         triggerTiming: tool.shelfLifeTriggerTiming,
-        calculateFromBom: tool.shelfLifeCalculateFromBom
+        userId: tool.createdBy
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -3999,14 +3999,14 @@ export async function upsertTool(
   }
 
   const itemUpdate = {
-    id: tool.id,
-    name: tool.name,
-    description: tool.description,
-    replenishmentSystem: tool.replenishmentSystem,
+    active: true,
     defaultMethodType: tool.defaultMethodType,
+    description: tool.description,
+    id: tool.id,
     itemTrackingType: tool.itemTrackingType,
-    unitOfMeasureCode: tool.unitOfMeasureCode,
-    active: true
+    name: tool.name,
+    replenishmentSystem: tool.replenishmentSystem,
+    unitOfMeasureCode: tool.unitOfMeasureCode
   };
 
   const toolUpdate = {
@@ -4034,19 +4034,19 @@ export async function upsertTool(
 
   const pickMethod = await upsertItemDefaultPickMethod(client, {
     itemId: tool.id,
-    userId: tool.updatedBy,
-    storageUnitId: tool.defaultStorageUnitId
+    storageUnitId: tool.defaultStorageUnitId,
+    userId: tool.updatedBy
   });
   if (pickMethod.error) return pickMethod;
 
   const shelfLife = await upsertItemShelfLife(client, {
-    itemId: tool.id,
-    userId: tool.updatedBy,
-    mode: tool.shelfLifeMode,
+    calculateFromBom: tool.shelfLifeCalculateFromBom,
     days: tool.shelfLifeDays,
+    itemId: tool.id,
+    mode: tool.shelfLifeMode,
     triggerProcessId: tool.shelfLifeTriggerProcessId,
     triggerTiming: tool.shelfLifeTriggerTiming,
-    calculateFromBom: tool.shelfLifeCalculateFromBom
+    userId: tool.updatedBy
   });
   if (shelfLife.error) return shelfLife;
 
@@ -4092,7 +4092,7 @@ export async function getSupplierPriceBreaksForItems(
   // Initialize entries with fallback prices
   for (const sp of supplierParts.data) {
     if (!result[sp.itemId]) {
-      result[sp.itemId] = { priceBreaks: [], fallbackUnitPrice: null };
+      result[sp.itemId] = { fallbackUnitPrice: null, priceBreaks: [] };
     }
     const current = result[sp.itemId].fallbackUnitPrice;
     if (sp.unitPrice != null && (current === null || sp.unitPrice < current)) {
@@ -4193,7 +4193,7 @@ export async function getItemRules(
   }
 
   query = setGenericQueryFilters(query, args ?? {}, [
-    { column: "name", ascending: true }
+    { ascending: true, column: "name" }
   ]);
   return query;
 }
@@ -4345,10 +4345,10 @@ export async function assignItemRule(
   return client
     .from("itemRuleAssignment")
     .insert({
-      itemId: args.itemId,
-      ruleId: args.ruleId,
       companyId: args.companyId,
-      createdBy: args.userId
+      createdBy: args.userId,
+      itemId: args.itemId,
+      ruleId: args.ruleId
     })
     .select("itemId, ruleId")
     .single();

@@ -16,6 +16,7 @@ import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
   LuBox,
+  LuBoxes,
   LuCalculator,
   LuCheck,
   LuCircleCheck,
@@ -45,6 +46,7 @@ import {
 } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
+import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { useFilters } from "~/components/Table/components/Filter/useFilters";
 import { useUrlParams } from "~/hooks";
@@ -93,6 +95,7 @@ const InventoryTable = memo(
 
     const locations = useLocations();
     const unitOfMeasures = useUnitOfMeasure();
+    const { options: storageUnitOptions } = useStorageUnits(locationId);
 
     const filters = useFilters();
     const materialSubstanceId = filters.getFilter("materialSubstanceId")?.[0];
@@ -104,7 +107,6 @@ const InventoryTable = memo(
       return [
         {
           accessorKey: "readableIdWithRevision",
-          header: t`Item ID`,
           cell: ({ row }) => (
             <HStack className="py-1">
               <ItemThumbnail
@@ -126,6 +128,7 @@ const InventoryTable = memo(
               </Hyperlink>
             </HStack>
           ),
+          header: t`Item ID`,
           meta: {
             icon: <LuBookMarked />
           }
@@ -133,43 +136,42 @@ const InventoryTable = memo(
 
         {
           accessorKey: "quantityOnHand",
-          header: t`On Hand`,
           cell: ({ row }) =>
             row.original.itemTrackingType === "Non-Inventory" ? (
               <TrackingTypeIcon type="Non-Inventory" />
             ) : (
               formatNumber(row.original.quantityOnHand)
             ),
+          header: t`On Hand`,
           meta: {
+            formatter: formatNumber,
             icon: <LuPackage />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
 
         {
           accessorKey: "daysRemaining",
-          header: t`Days`,
           cell: ({ row }) => formatNumber(row.original.daysRemaining),
+          header: t`Days`,
           meta: {
+            formatter: formatNumber,
             icon: <LuClock />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "leadTime",
-          header: t`Lead Time`,
           cell: ({ row }) => formatNumber(row.original.leadTime),
+          header: t`Lead Time`,
           meta: {
+            formatter: formatNumber,
             icon: <LuClock />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "reorderingPolicy",
-          header: t`Reorder Policy`,
           cell: ({ row }) => {
             return (
               <HStack>
@@ -186,32 +188,33 @@ const InventoryTable = memo(
               </HStack>
             );
           },
+          header: t`Reorder Policy`,
           meta: {
             filter: {
-              type: "static",
               options: itemReorderingPolicies.map((policy) => ({
                 label: <ItemReorderPolicy reorderingPolicy={policy} />,
                 value: policy
-              }))
+              })),
+              type: "static"
             },
             icon: <LuCircleCheck />
           }
         },
         {
           accessorKey: "replenishmentSystem",
-          header: t`Replenishment`,
           cell: (item) => (
             <Enumerable
               value={translateReplenishment(item.getValue<string>())}
             />
           ),
+          header: t`Replenishment`,
           meta: {
             filter: {
-              type: "static",
               options: itemReplenishmentSystems.map((type) => ({
-                value: type,
-                label: <Enumerable value={translateReplenishment(type)} />
-              }))
+                label: <Enumerable value={translateReplenishment(type)} />,
+                value: type
+              })),
+              type: "static"
             },
             icon: <LuLoaderCircle />
           }
@@ -219,79 +222,78 @@ const InventoryTable = memo(
 
         {
           accessorKey: "usageLast30Days",
-          header: t`Usage/Day (30d)`,
           cell: ({ row }) => formatNumber(row.original.usageLast30Days),
+          header: t`Usage/Day (30d)`,
           meta: {
+            formatter: formatNumber,
             icon: <LuCalculator />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "usageLast90Days",
-          header: t`Usage/Day (90d)`,
           cell: ({ row }) => formatNumber(row.original.usageLast90Days),
+          header: t`Usage/Day (90d)`,
           meta: {
+            formatter: formatNumber,
             icon: <LuCalculator />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "quantityOnPurchaseOrder",
-          header: t`On Purchase Order`,
           cell: ({ row }) => formatNumber(row.original.quantityOnPurchaseOrder),
+          header: t`On Purchase Order`,
           meta: {
+            formatter: formatNumber,
             icon: <LuMoveUp className="text-emerald-500" />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "quantityOnProductionOrder",
-          header: t`On Jobs`,
           cell: ({ row }) =>
             formatNumber(row.original.quantityOnProductionOrder),
+          header: t`On Jobs`,
           meta: {
+            formatter: formatNumber,
             icon: <LuMoveUp className="text-emerald-500" />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "quantityOnProductionDemand",
-          header: t`On Jobs`,
           cell: ({ row }) =>
             formatNumber(row.original.quantityOnProductionDemand),
+          header: t`On Jobs`,
           meta: {
+            formatter: formatNumber,
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "quantityOnSalesOrder",
-          header: t`On Sales Order`,
           cell: ({ row }) => formatNumber(row.original.quantityOnSalesOrder),
+          header: t`On Sales Order`,
           meta: {
+            formatter: formatNumber,
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "demandForecast",
-          header: t`Demand Forecast`,
           cell: ({ row }) => formatNumber(row.original.demandForecast),
+          header: t`Demand Forecast`,
           meta: {
+            formatter: formatNumber,
             icon: <LuMoveDown className="text-red-500" />,
-            renderTotal: true,
-            formatter: formatNumber
+            renderTotal: true
           }
         },
         {
           accessorKey: "unitOfMeasureCode",
-          header: t`Unit of Measure`,
           cell: ({ row }) => {
             const unitOfMeasure = unitOfMeasures.find(
               (uom) => uom.value === row.original.unitOfMeasureCode
@@ -302,124 +304,124 @@ const InventoryTable = memo(
               />
             );
           },
+          header: t`Unit of Measure`,
           meta: {
             icon: <LuRuler />
           }
         },
         {
           accessorKey: "materialFormId",
-          header: t`Shape`,
           cell: ({ row }) => {
             const form = forms.find(
               (f) => f.id === row.original.materialFormId
             );
             return <Enumerable value={form?.name ?? null} />;
           },
+          header: t`Shape`,
           meta: {
             filter: {
-              type: "static",
               options: forms.map((form) => ({
                 label: <Enumerable value={form.name} />,
                 value: form.id
-              }))
+              })),
+              type: "static"
             },
             icon: <LuShapes />
           }
         },
         {
           accessorKey: "materialSubstanceId",
-          header: t`Substance`,
           cell: ({ row }) => {
             const substance = substances.find(
               (s) => s.id === row.original.materialSubstanceId
             );
             return <Enumerable value={substance?.name ?? null} />;
           },
+          header: t`Substance`,
           meta: {
             filter: {
-              type: "static",
               options: substances.map((substance) => ({
                 label: <Enumerable value={substance.name ?? null} />,
                 value: substance.id
-              }))
+              })),
+              type: "static"
             },
             icon: <LuGlassWater />
           }
         },
         {
           accessorKey: "finish",
-          header: t`Finish`,
           cell: (item) => item.getValue(),
+          header: t`Finish`,
           meta: {
-            icon: <LuPaintBucket />,
             filter: {
-              type: "fetcher",
               endpoint: path.to.api.materialFinishes(materialSubstanceId),
               transform: (data: { id: string; name: string }[] | null) =>
                 data?.map(({ name }) => ({
-                  value: name,
-                  label: name
-                })) ?? []
-            }
+                  label: name,
+                  value: name
+                })) ?? [],
+              type: "fetcher"
+            },
+            icon: <LuPaintBucket />
           }
         },
         {
           accessorKey: "grade",
-          header: t`Grade`,
           cell: (item) => item.getValue(),
+          header: t`Grade`,
           meta: {
-            icon: <LuStar />,
             filter: {
-              type: "fetcher",
               endpoint: path.to.api.materialGrades(materialSubstanceId),
               transform: (data: { id: string; name: string }[] | null) =>
                 data?.map(({ name }) => ({
-                  value: name,
-                  label: name
-                })) ?? []
-            }
+                  label: name,
+                  value: name
+                })) ?? [],
+              type: "fetcher"
+            },
+            icon: <LuStar />
           }
         },
         {
           accessorKey: "dimension",
-          header: t`Dimension`,
           cell: (item) => item.getValue(),
+          header: t`Dimension`,
           meta: {
-            icon: <LuExpand />,
             filter: {
-              type: "fetcher",
               endpoint: path.to.api.materialDimensions(materialFormId),
               transform: (data: { id: string; name: string }[] | null) =>
                 data?.map(({ name }) => ({
-                  value: name,
-                  label: name
-                })) ?? []
-            }
+                  label: name,
+                  value: name
+                })) ?? [],
+              type: "fetcher"
+            },
+            icon: <LuExpand />
           }
         },
         {
           accessorKey: "materialType",
-          header: t`Type`,
           cell: (item) => item.getValue(),
+          header: t`Type`,
           meta: {
-            icon: <LuPuzzle />,
             filter: {
-              type: "fetcher",
               endpoint: path.to.api.materialTypes(
                 materialSubstanceId,
                 materialFormId
               ),
               transform: (data: { id: string; name: string }[] | null) =>
                 data?.map(({ id, name }) => ({
-                  value: id,
-                  label: name
-                })) ?? []
-            }
+                  label: name,
+                  value: id
+                })) ?? [],
+              type: "fetcher"
+            },
+            icon: <LuPuzzle />
           }
         },
         {
           accessorKey: "type",
-          header: t`Item Type`,
           cell: ({ row }) =>
             row.original.type && (
               <HStack>
@@ -427,9 +429,9 @@ const InventoryTable = memo(
                 <span>{row.original.type}</span>
               </HStack>
             ),
+          header: t`Item Type`,
           meta: {
             filter: {
-              type: "static",
               options: itemTypes.map((type) => ({
                 label: (
                   <HStack spacing={2}>
@@ -438,14 +440,14 @@ const InventoryTable = memo(
                   </HStack>
                 ),
                 value: type
-              }))
+              })),
+              type: "static"
             },
             icon: <LuBox />
           }
         },
         {
           accessorKey: "tags",
-          header: t`Tags`,
           cell: ({ row }) => (
             <HStack spacing={0} className="gap-1">
               {/* @ts-expect-error TS2339 */}
@@ -456,21 +458,21 @@ const InventoryTable = memo(
               ))}
             </HStack>
           ),
+          header: t`Tags`,
           meta: {
             filter: {
-              type: "static",
+              isArray: true,
               options: tags?.map((tag) => ({
-                value: tag,
-                label: <Badge variant="secondary">{tag}</Badge>
+                label: <Badge variant="secondary">{tag}</Badge>,
+                value: tag
               })),
-              isArray: true
+              type: "static"
             },
             icon: <LuTag />
           }
         },
         {
           accessorKey: "storageTypeIds",
-          header: t`Storage Type`,
           cell: ({ row }) => {
             const ids =
               (
@@ -487,38 +489,70 @@ const InventoryTable = memo(
               </HStack>
             );
           },
+          header: t`Storage Type`,
           meta: {
             filter: {
-              type: "static",
+              isArray: true,
               options: (storageTypes ?? []).map((st) => ({
-                value: st.id,
-                label: <Enumerable value={st.name} />
+                label: <Enumerable value={st.name} />,
+                value: st.id
               })),
-              isArray: true
+              type: "static"
             },
-            pluralHeader: t`Storage Types`,
-            icon: <LuWarehouse />
+            icon: <LuWarehouse />,
+            pluralHeader: t`Storage Types`
+          }
+        },
+        {
+          accessorKey: "storageUnitIds",
+          cell: ({ row }) => {
+            const ids =
+              (
+                row.original as InventoryItem & {
+                  storageUnitIds?: string[] | null;
+                }
+              ).storageUnitIds ?? [];
+            return (
+              <HStack spacing={0} className="gap-1">
+                {ids.map((id) => {
+                  const opt = storageUnitOptions.find((o) => o.value === id);
+                  const label = typeof opt?.label === "string" ? opt.label : id;
+                  return <Enumerable key={id} value={label} />;
+                })}
+              </HStack>
+            );
+          },
+          header: t`Storage Unit`,
+          meta: {
+            filter: {
+              endpoint: path.to.api.storageUnits(locationId),
+              isArray: true,
+              type: "fetcher"
+            },
+            icon: <LuBoxes />,
+            pluralHeader: t`Storage Units`
           }
         },
         {
           accessorKey: "active",
-          header: t`Active`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
+          header: t`Active`,
           meta: {
             filter: {
-              type: "static",
               options: [
-                { value: "true", label: "Active" },
-                { value: "false", label: "Inactive" }
-              ]
+                { label: "Active", value: "true" },
+                { label: "Inactive", value: "false" }
+              ],
+              type: "static"
             },
-            pluralHeader: t`Active Statuses`,
-            icon: <LuCheck />
+            icon: <LuCheck />,
+            pluralHeader: t`Active Statuses`
           }
         }
       ];
     }, [
       forms,
+      locationId,
       materialFormId,
       materialSubstanceId,
       formatNumber,
@@ -526,6 +560,7 @@ const InventoryTable = memo(
       substances,
       tags,
       storageTypes,
+      storageUnitOptions,
       unitOfMeasures,
       t,
       translateReplenishment
@@ -533,13 +568,14 @@ const InventoryTable = memo(
 
     const defaultColumnVisibility = {
       active: false,
-      tags: false,
-      type: false,
+      dimension: false,
       finish: false,
       grade: false,
-      dimension: false,
       materialType: false,
-      storageTypeIds: false
+      storageTypeIds: false,
+      storageUnitIds: false,
+      tags: false,
+      type: false
     };
 
     const defaultColumnPinning = {

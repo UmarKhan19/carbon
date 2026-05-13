@@ -66,18 +66,19 @@ export default function Company() {
   if (!company) throw new Error("Company not found");
 
   const initialValues = {
-    name: company.name,
-    taxId: company.taxId ?? undefined,
-    vatNumber: company.vatNumber ?? undefined,
     addressLine1: company.addressLine1 ?? "",
     addressLine2: company.addressLine2 ?? undefined,
-    city: company.city ?? "",
-    stateProvince: company.stateProvince ?? "",
-    postalCode: company.postalCode ?? "",
-    countryCode: company.countryCode ?? "",
     baseCurrencyCode: company.baseCurrencyCode ?? undefined,
-    phone: company.phone ?? undefined,
+    city: company.city ?? "",
+    countryCode: company.countryCode ?? "",
     email: company.email ?? undefined,
+    eori: company.eori ?? undefined,
+    name: company.name,
+    phone: company.phone ?? undefined,
+    postalCode: company.postalCode ?? "",
+    stateProvince: company.stateProvince ?? "",
+    taxId: company.taxId ?? undefined,
+    vatNumber: company.vatNumber ?? undefined,
     website: company.website ?? undefined
   };
 

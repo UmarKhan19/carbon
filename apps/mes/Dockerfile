@@ -18,11 +18,14 @@ RUN pnpm run build:mes
 
 FROM node:22-slim
 WORKDIR /repo
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable
 ENV NODE_ENV=production
 ENV PORT=3000
 # Install curl for health checks
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Copy workspace root files so pnpm/corepack resolve correctly
+COPY --from=deps /repo/package.json /repo/pnpm-lock.yaml /repo/pnpm-workspace.yaml /repo/.npmrc ./
 # Production needs built app, node_modules, and packages (for workspace deps)
 COPY --from=deps /repo/node_modules ./node_modules
 COPY --from=deps /repo/packages ./packages

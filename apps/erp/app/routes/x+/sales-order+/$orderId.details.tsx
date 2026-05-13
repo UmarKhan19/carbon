@@ -73,8 +73,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return {
-    internalNotes: (order.data?.internalNotes ?? {}) as JSONContent,
     externalNotes: (order.data?.externalNotes ?? {}) as JSONContent,
+    internalNotes: (order.data?.internalNotes ?? {}) as JSONContent,
     payment: payment.data || null,
     shipment: shipment.data || null
   };
@@ -101,13 +101,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   await requireUnlocked({
-    request,
     isLocked: isSalesOrderLocked(salesOrder.data?.status),
+    message: "Cannot modify a locked sales order. Reopen it first.",
     redirectTo: path.to.salesOrder(id),
-    message: "Cannot modify a locked sales order. Reopen it first."
+    request
   });
 
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -125,6 +125,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     id,
     salesOrderId,
     ...d,
+    companyGroupId,
     customFields: setCustomFields(formData),
     updatedBy: userId
   });
@@ -164,31 +165,31 @@ export default function SalesOrderDetailsRoute() {
   };
 
   const shipmentInitialValues = {
+    customerId: shipment?.customerId ?? "",
+    customerLocationId: shipment?.customerLocationId ?? "",
+    deliveryDate: shipment?.deliveryDate ?? "",
+    dropShipment: shipment?.dropShipment ?? false,
     id: shipment.id,
+    incoterm: shipment?.incoterm ?? undefined,
+    incotermLocation: shipment?.incotermLocation ?? "",
     locationId: shipment?.locationId ?? "",
+    notes: shipment?.notes ?? "",
+    receiptPromisedDate: shipment?.receiptPromisedDate ?? "",
+    receiptRequestedDate: shipment?.receiptRequestedDate ?? "",
+    shippingCost: shipment?.shippingCost ?? 0,
     shippingMethodId: shipment?.shippingMethodId ?? "",
     shippingTermId: shipment?.shippingTermId ?? "",
     trackingNumber: shipment?.trackingNumber ?? "",
-    receiptRequestedDate: shipment?.receiptRequestedDate ?? "",
-    receiptPromisedDate: shipment?.receiptPromisedDate ?? "",
-    deliveryDate: shipment?.deliveryDate ?? "",
-    notes: shipment?.notes ?? "",
-    dropShipment: shipment?.dropShipment ?? false,
-    customerId: shipment?.customerId ?? "",
-    customerLocationId: shipment?.customerLocationId ?? "",
-    shippingCost: shipment?.shippingCost ?? 0,
-    incoterm: shipment?.incoterm ?? undefined,
-    incotermLocation: shipment?.incotermLocation ?? "",
     ...getCustomFields(shipment?.customFields)
   };
 
   const paymentInitialValues = {
     id: payment.id,
+    invoiceCustomerContactId: payment?.invoiceCustomerContactId ?? "",
     invoiceCustomerId: payment?.invoiceCustomerId ?? "",
     invoiceCustomerLocationId: payment?.invoiceCustomerLocationId ?? "",
-    invoiceCustomerContactId: payment?.invoiceCustomerContactId ?? "",
-    paymentTermId: payment?.paymentTermId ?? "",
     paymentComplete: payment?.paymentComplete ?? undefined,
+    paymentTermId: payment?.paymentTermId ?? "",
     ...getCustomFields(payment?.customFields)
   };
 

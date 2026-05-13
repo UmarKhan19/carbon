@@ -235,7 +235,7 @@ export async function getPurchaseOrders(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "purchaseOrderId", ascending: false }
+    { ascending: false, column: "purchaseOrderId" }
   ]);
 
   return query;
@@ -360,8 +360,8 @@ export async function getPurchasingPlanning(
   let query = client.rpc(
     "get_purchasing_planning",
     {
-      location_id: locationId,
       company_id: companyId,
+      location_id: locationId,
       periods
     },
     {
@@ -376,7 +376,7 @@ export async function getPurchasingPlanning(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "quantityToOrder", ascending: false }
+    { ascending: false, column: "quantityToOrder" }
   ]);
 
   return query;
@@ -429,8 +429,8 @@ export async function getSupplierApprovalContext(
     serviceRole,
     {
       amount: req?.amount ?? null,
-      documentType: "supplier",
-      companyId
+      companyId,
+      documentType: "supplier"
     },
     userId
   );
@@ -454,9 +454,9 @@ export async function getSupplierApprovalContext(
       terminalRequest.data.status === "Rejected")
   ) {
     decision = {
-      status: terminalRequest.data.status,
+      decisionAt: terminalRequest.data.decisionAt,
       decisionBy: terminalRequest.data.decisionBy,
-      decisionAt: terminalRequest.data.decisionAt
+      status: terminalRequest.data.status
     };
   }
 
@@ -707,7 +707,7 @@ export async function getSupplierQuotes(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "supplierQuoteId", ascending: false }
+    { ascending: false, column: "supplierQuoteId" }
   ]);
   return query;
 }
@@ -809,7 +809,7 @@ export async function getSuppliers(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "name", ascending: true }
+    { ascending: true, column: "name" }
   ]);
   return query;
 }
@@ -853,7 +853,7 @@ export async function getSupplierTypes(
 
   if (args) {
     query = setGenericQueryFilters(query, args, [
-      { column: "name", ascending: true }
+      { ascending: true, column: "name" }
     ]);
   }
 
@@ -917,10 +917,10 @@ export async function insertSupplierContact(
     .from("supplierContact")
     .insert([
       {
-        supplierId: supplierContact.supplierId,
         contactId,
-        supplierLocationId: supplierContact.supplierLocationId,
-        customFields: supplierContact.customFields
+        customFields: supplierContact.customFields,
+        supplierId: supplierContact.supplierId,
+        supplierLocationId: supplierContact.supplierLocationId
       }
     ])
     .select("id")
@@ -976,10 +976,10 @@ export async function insertSupplierLocation(
     .from("supplierLocation")
     .insert([
       {
-        supplierId: supplierLocation.supplierId,
         addressId,
+        customFields: supplierLocation.customFields,
         name: supplierLocation.name,
-        customFields: supplierLocation.customFields
+        supplierId: supplierLocation.supplierId
       }
     ])
     .select("id")
@@ -1057,9 +1057,9 @@ export async function updatePurchaseOrderExchangeRate(
   }
 ) {
   const update = {
-    id: data.id,
     exchangeRate: data.exchangeRate,
-    exchangeRateUpdatedAt: new Date().toISOString()
+    exchangeRateUpdatedAt: new Date().toISOString(),
+    id: data.id
   };
 
   return client.from("purchaseOrder").update(update).eq("id", update.id);
@@ -1161,8 +1161,8 @@ export async function updateSupplierLocation(
     const customFieldUpdate = await client
       .from("supplierLocation")
       .update({
-        name: supplierLocation.name,
-        customFields: supplierLocation.customFields
+        customFields: supplierLocation.customFields,
+        name: supplierLocation.name
       })
       .eq("addressId", supplierLocation.addressId);
 
@@ -1199,9 +1199,9 @@ export async function updateSupplierQuoteExchangeRate(
   }
 ) {
   const update = {
-    id: data.id,
     exchangeRate: data.exchangeRate,
-    exchangeRateUpdatedAt: new Date().toISOString()
+    exchangeRateUpdatedAt: new Date().toISOString(),
+    id: data.id
   };
 
   return client.from("supplierQuote").update(update).eq("id", update.id);
@@ -1289,6 +1289,7 @@ export async function upsertPurchaseOrder(
         purchaseOrderId: string;
         status?: (typeof purchaseOrderStatusType)[number];
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -1340,7 +1341,7 @@ export async function upsertPurchaseOrder(
   if (purchaseOrder.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      purchaseOrder.companyId,
+      purchaseOrder.companyGroupId,
       purchaseOrder.currencyCode
     );
     if (currency.data) {
@@ -1356,15 +1357,19 @@ export async function upsertPurchaseOrder(
     purchaseOrder.locationId ?? purchaser?.data?.locationId ?? null;
 
   // locationId is not a column on purchaseOrder -- it belongs on the delivery record
-  const { locationId: _locationId, ...purchaseOrderData } = purchaseOrder;
+  const {
+    locationId: _locationId,
+    companyGroupId: _companyGroupId,
+    ...purchaseOrderData
+  } = purchaseOrder;
 
   const order = await client
     .from("purchaseOrder")
     .insert([
       {
         ...purchaseOrderData,
-        supplierInteractionId: supplierInteraction.data?.id,
-        status: purchaseOrder.status ?? "Draft"
+        status: purchaseOrder.status ?? "Draft",
+        supplierInteractionId: supplierInteraction.data?.id
       }
     ])
     .select("id, purchaseOrderId");
@@ -1376,24 +1381,24 @@ export async function upsertPurchaseOrder(
   const [delivery, payment] = await Promise.all([
     client.from("purchaseOrderDelivery").insert([
       {
+        companyId: purchaseOrder.companyId,
         id: purchaseOrderId,
-        receiptRequestedDate: receiptRequestedDate ?? null,
-        locationId: locationId,
-        shippingMethodId: shippingMethodId,
-        shippingTermId: shippingTermId,
         incoterm: incoterm,
         incotermLocation: incotermLocation,
-        companyId: purchaseOrder.companyId
+        locationId: locationId,
+        receiptRequestedDate: receiptRequestedDate ?? null,
+        shippingMethodId: shippingMethodId,
+        shippingTermId: shippingTermId
       }
     ]),
     client.from("purchaseOrderPayment").insert([
       {
+        companyId: purchaseOrder.companyId,
         id: purchaseOrderId,
-        invoiceSupplierId: invoiceSupplierId,
         invoiceSupplierContactId: invoiceSupplierContactId,
+        invoiceSupplierId: invoiceSupplierId,
         invoiceSupplierLocationId: invoiceSupplierLocationId,
-        paymentTermId: paymentTermId,
-        companyId: purchaseOrder.companyId
+        paymentTermId: paymentTermId
       }
     ])
   ]);
@@ -1566,6 +1571,7 @@ export async function upsertSupplierQuote(
       > & {
         supplierQuoteId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -1575,6 +1581,7 @@ export async function upsertSupplierQuote(
       > & {
         id: string;
         supplierQuoteId: string;
+        companyGroupId: string;
         updatedBy: string;
         customFields?: Json;
       })
@@ -1583,7 +1590,7 @@ export async function upsertSupplierQuote(
     if (supplierQuote.currencyCode) {
       const currency = await getCurrencyByCode(
         client,
-        supplierQuote.companyId,
+        supplierQuote.companyGroupId,
         supplierQuote.currencyCode
       );
       if (currency.data) {
@@ -1603,12 +1610,14 @@ export async function upsertSupplierQuote(
 
     if (supplierInteraction.error) return supplierInteraction;
 
+    const { companyGroupId: _companyGroupId, ...supplierQuoteData } =
+      supplierQuote;
     const insert = await client
       .from("supplierQuote")
       .insert([
         {
-          ...supplierQuote,
-          status: supplierQuote.status ?? "Draft",
+          ...supplierQuoteData,
+          status: supplierQuoteData.status ?? "Draft",
           supplierInteractionId: supplierInteraction.data?.id
         }
       ])
@@ -1625,11 +1634,11 @@ export async function upsertSupplierQuote(
     // Only create external link if one doesn't exist
     if (!insert.data.externalLinkId) {
       const externalLink = await upsertExternalLink(client, {
-        documentType: "SupplierQuote",
+        companyId: supplierQuote.companyId,
         documentId: supplierQuoteId,
-        supplierId: supplierQuote.supplierId,
+        documentType: "SupplierQuote",
         expiresAt: supplierQuote.expirationDate,
-        companyId: supplierQuote.companyId
+        supplierId: supplierQuote.supplierId
       });
 
       if (externalLink.data) {
@@ -1649,17 +1658,13 @@ export async function upsertSupplierQuote(
     // Only update the exchange rate if the currency code has changed
     const existingQuote = await client
       .from("supplierQuote")
-      .select("companyId, currencyCode, status")
+      .select("currencyCode, status")
       .eq("id", supplierQuote.id)
       .single();
 
     if (existingQuote.error) return existingQuote;
 
-    const {
-      companyId,
-      currencyCode,
-      status: existingStatus
-    } = existingQuote.data;
+    const { currencyCode, status: existingStatus } = existingQuote.data;
 
     if (
       supplierQuote.currencyCode &&
@@ -1667,7 +1672,7 @@ export async function upsertSupplierQuote(
     ) {
       const currency = await getCurrencyByCode(
         client,
-        companyId,
+        supplierQuote.companyGroupId,
         supplierQuote.currencyCode
       );
       if (currency.data) {
@@ -1675,10 +1680,12 @@ export async function upsertSupplierQuote(
         supplierQuote.exchangeRateUpdatedAt = new Date().toISOString();
       }
     }
+    const { companyGroupId: _companyGroupId2, ...supplierQuoteUpdateData } =
+      supplierQuote;
     return client
       .from("supplierQuote")
       .update({
-        ...sanitize(supplierQuote),
+        ...sanitize(supplierQuoteUpdateData),
         status:
           supplierQuote.expirationDate &&
           today(getLocalTimeZone()).toString() > supplierQuote.expirationDate
@@ -1794,7 +1801,7 @@ export async function getPurchasingRFQs(
   }
 
   query = setGenericQueryFilters(query, args, [
-    { column: "rfqId", ascending: false }
+    { ascending: false, column: "rfqId" }
   ]);
   return query;
 }
@@ -1927,10 +1934,10 @@ export async function upsertPurchasingRFQSuppliers(
   }
 
   const suppliersToInsert = supplierIds.map((supplierId) => ({
-    purchasingRfqId,
-    supplierId,
     companyId,
-    createdBy
+    createdBy,
+    purchasingRfqId,
+    supplierId
   }));
 
   return client
@@ -1951,10 +1958,10 @@ export async function updatePurchasingRFQStatus(
   return client
     .from("purchasingRfq")
     .update({
-      status: args.status,
       assignee: args.assignee,
-      updatedBy: args.updatedBy,
-      updatedAt: new Date().toISOString()
+      status: args.status,
+      updatedAt: new Date().toISOString(),
+      updatedBy: args.updatedBy
     })
     .eq("id", args.id)
     .select("id")
@@ -2081,7 +2088,7 @@ export async function getSupplierQuotesForComparison(
     .eq("purchasingRfqId", purchasingRfqId);
 
   if (linksError || !links?.length) {
-    return { data: { quotes: [], lines: [], prices: [] }, error: linksError };
+    return { data: { lines: [], prices: [], quotes: [] }, error: linksError };
   }
 
   // Extract all quotes (for comparison header count)
@@ -2090,7 +2097,7 @@ export async function getSupplierQuotesForComparison(
     .filter((q): q is NonNullable<typeof q> => q !== null);
 
   if (allQuotes.length === 0) {
-    return { data: { quotes: [], lines: [], prices: [] }, error: null };
+    return { data: { lines: [], prices: [], quotes: [] }, error: null };
   }
 
   // Get IDs of Active quotes only (for fetching lines/prices)
@@ -2102,7 +2109,7 @@ export async function getSupplierQuotesForComparison(
   // 2. Fetch lines and pricing for active quotes only (if any)
   if (activeQuoteIds.length === 0) {
     return {
-      data: { quotes: allQuotes, lines: [], prices: [] },
+      data: { lines: [], prices: [], quotes: allQuotes },
       error: null
     };
   }
@@ -2119,9 +2126,9 @@ export async function getSupplierQuotesForComparison(
 
   return {
     data: {
-      quotes: allQuotes,
       lines: lines.data ?? [],
-      prices: prices.data ?? []
+      prices: prices.data ?? [],
+      quotes: allQuotes
     },
     error: lines.error || prices.error
   };

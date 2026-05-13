@@ -30,10 +30,11 @@ export const handle: Handle = {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "purchasing",
-    bypassRls: true
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      bypassRls: true,
+      create: "purchasing"
+    });
 
   const formData = await request.formData();
   const validation = await validator(newPurchaseOrderValidator).validate(
@@ -69,10 +70,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const createPurchaseOrder = await upsertPurchaseOrder(client, {
     ...validation.data,
-    purchaseOrderId,
+    companyGroupId,
     companyId,
     createdBy: userId,
-    customFields: setCustomFields(formData)
+    customFields: setCustomFields(formData),
+    purchaseOrderId
   });
 
   if (createPurchaseOrder.error || !createPurchaseOrder.data?.[0]) {
@@ -96,12 +98,12 @@ export default function PurchaseOrderNewRoute() {
   const { defaults } = useUser();
   const initialValues = {
     id: undefined,
-    purchaseOrderId: undefined,
-    supplierId: supplierId ?? "",
     locationId: defaults?.locationId ?? "",
     orderDate: today(getLocalTimeZone()).toString(),
+    purchaseOrderId: undefined,
+    purchaseOrderType: "Purchase" as const,
     status: "Draft" as PurchaseOrderStatus,
-    purchaseOrderType: "Purchase" as const
+    supplierId: supplierId ?? ""
   };
 
   return (

@@ -5,7 +5,8 @@ import { orchestrationAgent } from "./agents/orchestration-agent";
 import { createChatContext } from "./agents/shared/context";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, userId, companyId } = await requirePermissions(request, {});
+  const { client, userId, companyId, companyGroupId } =
+    await requirePermissions(request, {});
 
   const payload = await request.json();
 
@@ -24,30 +25,31 @@ export async function action({ request }: ActionFunctionArgs) {
   } = payload;
 
   const context = createChatContext({
-    userId,
-    companyId,
+    baseCurrency,
+    chatId: id,
+    city,
     client,
-    fullName,
+    companyGroupId,
+    companyId,
     companyName,
     country,
-    city,
-    chatId: id,
-    timezone,
+    fullName,
     locale,
-    baseCurrency
+    timezone,
+    userId
   });
 
   return orchestrationAgent.toUIMessageStream({
-    message,
-    context,
     agentChoice,
-    toolChoice,
-    strategy: "auto",
-    maxRounds: 5,
-    maxSteps: 20,
+    context,
     experimental_transform: smoothStream({
       chunking: "word"
     }),
-    sendSources: true
+    maxRounds: 5,
+    maxSteps: 20,
+    message,
+    sendSources: true,
+    strategy: "auto",
+    toolChoice
   });
 }

@@ -23,8 +23,8 @@ import { path } from "~/utils/path";
 
 export const handle: Handle = {
   breadcrumb: msg`Sales`,
-  to: path.to.sales,
-  module: "sales"
+  module: "sales",
+  to: path.to.sales
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -90,9 +90,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    create: "invoicing"
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      create: "invoicing"
+    });
 
   const formData = await request.formData();
   const validation = await validator(salesInvoiceValidator).validate(formData);
@@ -128,10 +129,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const createSalesInvoice = await upsertSalesInvoice(client, {
     ...d,
-    invoiceId,
+    companyGroupId,
     companyId,
     createdBy: userId,
-    customFields: setCustomFields(formData)
+    customFields: setCustomFields(formData),
+    invoiceId
   });
 
   if (createSalesInvoice.error || !createSalesInvoice.data?.[0]) {
@@ -156,11 +158,11 @@ export default function SalesInvoiceNewRoute() {
   const { defaults } = useUser();
 
   const initialValues = {
+    customerId: customerId ?? "",
+    dateIssued: today(getLocalTimeZone()).toString(),
     id: undefined,
     invoiceId: undefined,
-    customerId: customerId ?? "",
-    locationId: defaults?.locationId ?? "",
-    dateIssued: today(getLocalTimeZone()).toString()
+    locationId: defaults?.locationId ?? ""
   };
 
   return (
