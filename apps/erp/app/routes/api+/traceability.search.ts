@@ -35,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
             .limit(50);
           if (pattern) {
             return query.or(
-              `id.ilike.${pattern},sourceDocumentReadableId.ilike.${pattern},readableId.ilike.${pattern},attributes->>Batch Number.ilike.${pattern},attributes->>Serial Number.ilike.${pattern},attributes->>VIN.ilike.${pattern},attributes->>Vin.ilike.${pattern},attributes->>vin.ilike.${pattern},attributes->>VIN Number.ilike.${pattern},attributes->>Vehicle Identification Number.ilike.${pattern}`
+              `id.ilike.${pattern},sourceDocumentReadableId.ilike.${pattern},readableId.ilike.${pattern},attributes->>Batch Number.ilike.${pattern},attributes->>Serial Number.ilike.${pattern}`
             );
           }
           return query;

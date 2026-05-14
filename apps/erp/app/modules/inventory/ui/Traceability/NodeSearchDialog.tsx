@@ -91,8 +91,11 @@ export function NodeSearchDialog({
       onSelect?.(id);
       return;
     }
+
+    const params = new URLSearchParams();
     const param = kind === "entity" ? "trackedEntityId" : "trackedActivityId";
-    navigate(`/x/traceability/graph?${param}=${encodeURIComponent(id)}`);
+    params.set(param, id);
+    navigate(`/x/traceability/graph?${params.toString()}`);
   }
 
   const isLoading = fetcher.state !== "idle";
@@ -100,7 +103,7 @@ export function NodeSearchDialog({
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput
-        placeholder="Search entities, activities, status, source doc, VIN..."
+        placeholder="Search entities, activities, status, source doc, serial, batch..."
         value={query}
         onValueChange={setQuery}
       />
@@ -131,17 +134,15 @@ export function NodeSearchDialog({
               const meta = entityStatusMeta(entity.status);
               const Icon = meta.icon;
               const inGraph = localIds.e.has(entity.id);
-              const vin = pickStringAttribute(entity.attributes, [
-                "VIN",
-                "Vin",
-                "vin",
-                "VIN Number",
-                "Vehicle Identification Number"
+              const serialOrBatch = pickStringAttribute(entity.attributes, [
+                "Serial Number",
+                "Batch Number"
               ]);
+              const jobId = pickStringAttribute(entity.attributes, ["Job"]);
               return (
                 <CommandItem
                   key={entity.id}
-                  value={`${label} ${entity.id} ${vin ?? ""} ${entity.sourceDocument ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""} ${entity.status ?? ""}`}
+                  value={`${label} ${entity.id} ${serialOrBatch ?? ""} ${entity.sourceDocument ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""} ${entity.status ?? ""} ${jobId ?? ""}`}
                   onSelect={() => focusOrNavigate("entity", entity.id)}
                   className="!py-2 !px-2 gap-3"
                 >
