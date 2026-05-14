@@ -191,7 +191,11 @@ const SalesInvoicePDF = ({
           {/* RIGHT — Invoice Details + Ship To stacked */}
           <View style={tw("w-1/2 flex flex-col")}>
             {/* Invoice Details — Due Date prominent */}
-            <View style={tw("p-3 border-b border-gray-200")}>
+            <View
+              style={tw(
+                shipmentCustomerName ? "p-3 border-b border-gray-200" : "p-3"
+              )}
+            >
               <Text
                 style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
               >
@@ -231,8 +235,8 @@ const SalesInvoicePDF = ({
               </View>
             </View>
 
-            {/* Ship To */}
-            {(shipmentCustomerName || customerName) && (
+            {/* Ship To — only when shipment has a distinct address (not falling back to customer's main address) */}
+            {shipmentCustomerName && (
               <View style={tw("p-3")}>
                 <Text
                   style={tw(
@@ -243,15 +247,13 @@ const SalesInvoicePDF = ({
                 </Text>
                 <View style={tw("text-[9px] text-gray-800")}>
                   <AddressBlock
-                    name={shipmentCustomerName ?? customerName}
-                    addressLine1={shipmentAddressLine1 ?? customerAddressLine1}
-                    addressLine2={shipmentAddressLine2 ?? customerAddressLine2}
-                    city={shipmentCity ?? customerCity}
-                    stateProvince={
-                      shipmentStateProvince ?? customerStateProvince
-                    }
-                    postalCode={shipmentPostalCode ?? customerPostalCode}
-                    countryCode={shipmentCountryName ?? customerCountryName}
+                    name={shipmentCustomerName}
+                    addressLine1={shipmentAddressLine1}
+                    addressLine2={shipmentAddressLine2}
+                    city={shipmentCity}
+                    stateProvince={shipmentStateProvince}
+                    postalCode={shipmentPostalCode}
+                    countryCode={shipmentCountryName}
                   />
                 </View>
               </View>

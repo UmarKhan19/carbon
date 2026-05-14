@@ -181,7 +181,11 @@ const SalesOrderPDF = ({
           {/* RIGHT — Order Details + Ship To + Bill To stacked */}
           <View style={tw("w-1/2 flex flex-col")}>
             {/* Order Details */}
-            <View style={tw("p-3 border-b border-gray-200")}>
+            <View
+              style={tw(
+                paymentCustomerName ? "p-3 border-b border-gray-200" : "p-3"
+              )}
+            >
               <Text
                 style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
               >
@@ -194,9 +198,7 @@ const SalesOrderPDF = ({
                   </Text>
                 )}
                 {salesOrder?.customerReference && (
-                  <Text style={tw("font-bold")}>
-                    Customer PO #: {salesOrder.customerReference}
-                  </Text>
+                  <Text>Customer Ref: {salesOrder.customerReference}</Text>
                 )}
                 {salesOrder?.receiptRequestedDate && (
                   <Text>
@@ -234,27 +236,7 @@ const SalesOrderPDF = ({
               </View>
             </View>
 
-            {/* Ship To */}
-            <View style={tw("p-3 border-b border-gray-200")}>
-              <Text
-                style={tw("text-[9px] font-bold text-gray-600 mb-1 uppercase")}
-              >
-                Ship To
-              </Text>
-              <View style={tw("text-[9px] text-gray-800")}>
-                <AddressBlock
-                  name={customerName}
-                  addressLine1={customerAddressLine1}
-                  addressLine2={customerAddressLine2}
-                  city={customerCity}
-                  stateProvince={customerStateProvince}
-                  postalCode={customerPostalCode}
-                  countryCode={customerCountryName}
-                />
-              </View>
-            </View>
-
-            {/* Bill To (only if different from Ship To) */}
+            {/* Bill To (only if a separate billing customer is set) */}
             {paymentCustomerName && (
               <View style={tw("p-3")}>
                 <Text
