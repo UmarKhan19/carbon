@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { getPurchaseOrderStatus } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type {
@@ -1487,20 +1488,18 @@ export async function upsertPurchaseOrderLine(
 }
 
 export async function updatePurchaseOrderLineOrder(
-  client: SupabaseClient<Database>,
-  updates: {
-    id: string;
-    sortOrder: number;
-    updatedBy: string;
-  }[]
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
 ) {
-  const updatePromises = updates.map(({ id, sortOrder, updatedBy }) =>
-    client
-      .from("purchaseOrderLine")
-      .update({ sortOrder, updatedBy })
-      .eq("id", id)
-  );
-  return Promise.all(updatePromises);
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchaseOrderLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertPurchaseOrderPayment(
@@ -1774,17 +1773,18 @@ export async function upsertSupplierQuoteLine(
 }
 
 export async function updateSupplierQuoteLineOrder(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   updates: { id: string; sortOrder: number; updatedBy: string }[]
 ) {
-  return Promise.all(
-    updates.map(({ id, sortOrder, updatedBy }) =>
-      client
-        .from("supplierQuoteLine")
-        .update({ sortOrder, updatedBy })
-        .eq("id", id)
-    )
-  );
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("supplierQuoteLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertSupplierType(
@@ -1975,17 +1975,18 @@ export async function upsertPurchasingRFQLine(
 }
 
 export async function updatePurchasingRFQLineOrder(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   updates: { id: string; sortOrder: number; updatedBy: string }[]
 ) {
-  return Promise.all(
-    updates.map(({ id, sortOrder, updatedBy }) =>
-      client
-        .from("purchasingRfqLine")
-        .update({ order: sortOrder, updatedBy })
-        .eq("id", id)
-    )
-  );
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchasingRfqLine")
+        .set({ order: sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertPurchasingRFQSuppliers(

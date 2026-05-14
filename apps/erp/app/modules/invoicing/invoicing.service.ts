@@ -1,4 +1,5 @@
 import type { Database, Json } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
@@ -561,17 +562,18 @@ export async function upsertPurchaseInvoiceLine(
 }
 
 export async function updatePurchaseInvoiceLineOrder(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   updates: { id: string; sortOrder: number; updatedBy: string }[]
 ) {
-  return Promise.all(
-    updates.map(({ id, sortOrder, updatedBy }) =>
-      client
-        .from("purchaseInvoiceLine")
-        .update({ sortOrder, updatedBy })
-        .eq("id", id)
-    )
-  );
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchaseInvoiceLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertSalesInvoice(
@@ -755,15 +757,16 @@ export async function upsertSalesInvoiceLine(
 }
 
 export async function updateSalesInvoiceLineOrder(
-  client: SupabaseClient<Database>,
+  db: Kysely<KyselyDatabase>,
   updates: { id: string; sortOrder: number; updatedBy: string }[]
 ) {
-  return Promise.all(
-    updates.map(({ id, sortOrder, updatedBy }) =>
-      client
-        .from("salesInvoiceLine")
-        .update({ sortOrder, updatedBy })
-        .eq("id", id)
-    )
-  );
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("salesInvoiceLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }

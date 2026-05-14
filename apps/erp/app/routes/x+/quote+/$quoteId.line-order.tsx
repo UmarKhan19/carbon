@@ -4,10 +4,11 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { updateQuoteLineOrder } from "~/modules/sales";
+import { getDatabaseClient } from "~/services/database.server";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -29,15 +30,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     })
   );
 
-  const updateSortOrders = await updateQuoteLineOrder(client, updates);
-  if (updateSortOrders.some((u) => u.error))
+  try {
+    await updateQuoteLineOrder(getDatabaseClient(), updates);
+  } catch (err) {
     return data(
       { success: false },
-      await flash(
-        request,
-        error(updateSortOrders, "Failed to update sort order")
-      )
+      await flash(request, error(err, "Failed to update sort order"))
     );
+  }
 
   return { success: true };
 }
