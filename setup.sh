@@ -97,6 +97,22 @@ repo_root() {
     || { fail "not inside a git repo (cd into the carbon checkout first)"; exit 1; }
 }
 
+to_shell_path() {
+  local path="$1"
+  case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*)
+      if command -v cygpath >/dev/null 2>&1; then
+        cygpath -u "$path"
+      else
+        printf '%s\n' "$path"
+      fi
+      ;;
+    *)
+      printf '%s\n' "$path"
+      ;;
+  esac
+}
+
 detect_rc() {
   if [[ -n "${RC_FILE:-}" ]]; then printf '%s\n' "$RC_FILE"; return; fi
   case "${SHELL:-}" in
@@ -292,6 +308,26 @@ EOF
   fi
 
   ok "portless LaunchDaemon installed; proxy starts at boot"
+
+  run_portless_trust
+}
+
+# LaunchDaemon plist runs with --skip-trust, and the CLI's ensureProxyPrivileges
+# only triggers trust as a side-effect of fixing a privilege issue — neither
+# path runs trust on its own. Users who pre-installed portless never end up
+# with the CA in their keychain, so *.dev TLS fails in the browser.
+# `portless trust` is idempotent.
+run_portless_trust() {
+  if [[ "$(uname -s)" != "Darwin" ]]; then
+    return 0
+  fi
+  hdr "Trust portless CA"
+  info "Installs root CA into system keychain so *.dev TLS is trusted."
+  if ! sudo "HOME=$HOME" portless trust; then
+    warn "portless trust failed — browsers may show cert warnings until you run \`sudo portless trust\` manually."
+    return 0
+  fi
+  ok "portless CA trusted"
 }
 
 uninstall_proxy_daemon() {
@@ -305,8 +341,17 @@ uninstall_proxy_daemon() {
 }
 
 install() {
-  local repo rc
+  case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*|Linux*|Darwin*) ;;
+    *)
+      fail "Unsupported environment: $(uname -s). crbn requires WSL or Git Bash on Windows; macOS/Linux otherwise."
+      exit 1
+      ;;
+  esac
+
+  local repo repo_shell rc
   repo="$(repo_root)"
+  repo_shell="$(to_shell_path "$repo")"
   rc="$(detect_rc)"
   mkdir -p "$(dirname "$rc")"
   touch "$rc"
@@ -338,7 +383,7 @@ install() {
 
   {
     printf '\n'
-    block_for "$repo" "$shell"
+    block_for "$repo_shell" "$shell"
     printf '\n'
   } >> "$rc"
 
@@ -357,7 +402,7 @@ install() {
   printf '      %s\n' "$(kbd "source ./setup.sh")"
 
   hdr "Verify"
-  printf '  %s\n' "$(dim "which crbn   # -> $repo/packages/dev/bin/crbn")"
+  printf '  %s\n' "$(dim "which crbn   # -> $repo_shell/packages/dev/bin/crbn")"
   printf '  %s\n\n' "$(dim "crbn         # -> help")"
 }
 
