@@ -21,10 +21,22 @@ import {
 import { useDroppable } from "@dnd-kit/core";
 import { Trans } from "@lingui/react/macro";
 import { useRef, useState } from "react";
-import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuArrowUpDown,
+  LuCirclePlus,
+  LuEllipsisVertical,
+  LuTrash
+} from "react-icons/lu";
 import { Link, useFetchers, useParams } from "react-router";
 import type { z } from "zod";
 import { Empty, ItemThumbnail } from "~/components";
+import type { DragHandleBindings } from "~/components/LineReorder";
+import {
+  ReorderableLineList,
+  ReorderableRow,
+  ReorderEditBar,
+  useLineOrderEditMode
+} from "~/components/LineReorder";
 import { usePermissions, useRealtime, useRouteData } from "~/hooks";
 import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
@@ -104,6 +116,16 @@ export default function SalesRFQExplorer() {
   }
 
   const lines = Array.from(linesByCustomerPartId.values());
+  const realLines = (salesRfqData?.lines ?? []) as SalesRFQLine[];
+
+  const canReorder =
+    !isDisabled && permissions.can("update", "sales") && realLines.length > 1;
+
+  const editMode = useLineOrderEditMode<SalesRFQLine>({
+    actionPath: path.to.salesRfqLineOrder(rfqId),
+    lines: realLines,
+    getSortOrder: (line) => line.order ?? 0
+  });
 
   return (
     <div
@@ -121,19 +143,34 @@ export default function SalesRFQExplorer() {
         >
           {(salesRfqData?.lines && salesRfqData?.lines?.length > 0) ||
           lines.length > 0 ? (
-            lines.map((line) =>
-              !isSalesRFQLine(line) ? (
-                <OptimisticSalesRFQLineItem
-                  key={line.id}
-                  line={line as z.infer<typeof salesRfqDragValidator>}
-                />
-              ) : (
-                <DroppableSalesRFQLineItem
-                  key={line.id}
-                  line={line as SalesRFQLine}
-                  isDisabled={isDisabled}
-                  onDelete={onDeleteLine}
-                />
+            editMode.isEditing ? (
+              <ReorderableLineList<SalesRFQLine>
+                lines={editMode.draft}
+                activeLine={editMode.activeLine}
+                onDragStart={editMode.handleDragStart}
+                onDragEnd={editMode.handleDragEnd}
+                renderRow={(line, dragHandle) => (
+                  <SalesRFQLineBody line={line} dragHandle={dragHandle} />
+                )}
+                renderOverlay={(line) => (
+                  <SalesRFQLineBody line={line} isOverlay />
+                )}
+              />
+            ) : (
+              lines.map((line) =>
+                !isSalesRFQLine(line) ? (
+                  <OptimisticSalesRFQLineItem
+                    key={line.id}
+                    line={line as z.infer<typeof salesRfqDragValidator>}
+                  />
+                ) : (
+                  <DroppableSalesRFQLineItem
+                    key={line.id}
+                    line={line as SalesRFQLine}
+                    isDisabled={isDisabled}
+                    onDelete={onDeleteLine}
+                  />
+                )
               )
             )
           ) : (
@@ -151,13 +188,38 @@ export default function SalesRFQExplorer() {
             </Empty>
           )}
         </VStack>
+        {canReorder && realLines.length > 0 && (
+          <div className="w-full px-4 pt-2">
+            {editMode.isEditing ? (
+              <ReorderEditBar
+                isSaving={editMode.isSaving}
+                isDirty={editMode.isDirty}
+                onSave={editMode.save}
+                onCancel={editMode.cancelEditMode}
+              />
+            ) : (
+              <Button
+                variant="ghost"
+                leftIcon={<LuArrowUpDown />}
+                className="w-full h-8 justify-start text-muted-foreground"
+                onClick={editMode.enterEditMode}
+              >
+                <Trans>Reorder lines</Trans>
+              </Button>
+            )}
+          </div>
+        )}
         <div className="w-full flex flex-0 sm:flex-row border-t border-border p-4 sm:justify-start sm:space-x-2">
           <Tooltip>
             <TooltipTrigger className="w-full">
               <Button
                 ref={newButtonRef}
                 className="w-full"
-                isDisabled={isDisabled || !permissions.can("update", "sales")}
+                isDisabled={
+                  isDisabled ||
+                  editMode.isEditing ||
+                  !permissions.can("update", "sales")
+                }
                 leftIcon={<LuCirclePlus />}
                 variant="secondary"
                 onClick={newSalesRFQLineDisclosure.onOpen}
@@ -194,6 +256,36 @@ function isSalesRFQLine(
   line: SalesRFQLine | z.infer<typeof salesRfqDragValidator>
 ) {
   return "id" in line && "order" in line && "unitOfMeasureCode" in line;
+}
+
+function SalesRFQLineBody({
+  line,
+  dragHandle,
+  isOverlay
+}: {
+  line: SalesRFQLine;
+  dragHandle?: DragHandleBindings;
+  isOverlay?: boolean;
+}) {
+  return (
+    <ReorderableRow dragHandle={dragHandle} isOverlay={isOverlay}>
+      <HStack spacing={2} className="flex-grow min-w-0 p-2 pr-10">
+        <ItemThumbnail
+          thumbnailPath={line.thumbnailPath}
+          type={line.itemType as MethodItemType}
+        />
+        <VStack spacing={0} className="min-w-0">
+          <span className="font-semibold line-clamp-1">
+            {line.customerPartId}
+            {line.customerPartRevision && `-${line.customerPartRevision}`}
+          </span>
+          <span className="font-medium text-muted-foreground text-xs line-clamp-1">
+            {line.itemReadableId}
+          </span>
+        </VStack>
+      </HStack>
+    </ReorderableRow>
+  );
 }
 
 type DroppableSalesRFQLineItemProps = {

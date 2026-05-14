@@ -21,9 +21,21 @@ import {
 import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
-import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuArrowUpDown,
+  LuCirclePlus,
+  LuEllipsisVertical,
+  LuTrash
+} from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { Empty, ItemThumbnail, MethodItemTypeIcon } from "~/components";
+import type { DragHandleBindings } from "~/components/LineReorder";
+import {
+  ReorderableLineList,
+  ReorderableRow,
+  ReorderEditBar,
+  useLineOrderEditMode
+} from "~/components/LineReorder";
 import { useOptimisticLocation, usePermissions, useRouteData } from "~/hooks";
 import { getLinkToItemDetails } from "~/modules/items/ui/Item/ItemForm";
 import type { MethodItemType } from "~/modules/shared";
@@ -82,6 +94,15 @@ export default function SupplierQuoteExplorer() {
     }
   });
 
+  const lines = routeData?.lines ?? [];
+  const canReorder =
+    !isDisabled && permissions.can("update", "purchasing") && lines.length > 1;
+
+  const editMode = useLineOrderEditMode<SupplierQuoteLine>({
+    actionPath: path.to.supplierQuoteLineOrder(id),
+    lines
+  });
+
   return (
     <>
       <VStack className="w-full h-[calc(100dvh-99px)] justify-between">
@@ -89,15 +110,30 @@ export default function SupplierQuoteExplorer() {
           className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent"
           spacing={0}
         >
-          {routeData?.lines && routeData?.lines?.length > 0 ? (
-            routeData?.lines.map((line) => (
-              <SupplierQuoteLineItem
-                key={line.id}
-                isDisabled={isDisabled}
-                line={line}
-                onDelete={onDeleteLine}
+          {lines.length > 0 ? (
+            editMode.isEditing ? (
+              <ReorderableLineList<SupplierQuoteLine>
+                lines={editMode.draft}
+                activeLine={editMode.activeLine}
+                onDragStart={editMode.handleDragStart}
+                onDragEnd={editMode.handleDragEnd}
+                renderRow={(line, dragHandle) => (
+                  <SupplierQuoteLineBody line={line} dragHandle={dragHandle} />
+                )}
+                renderOverlay={(line) => (
+                  <SupplierQuoteLineBody line={line} isOverlay />
+                )}
               />
-            ))
+            ) : (
+              lines.map((line) => (
+                <SupplierQuoteLineItem
+                  key={line.id}
+                  isDisabled={isDisabled}
+                  line={line}
+                  onDelete={onDeleteLine}
+                />
+              ))
+            )
           ) : (
             <Empty>
               {permissions.can("update", "sales") && (
@@ -113,13 +149,38 @@ export default function SupplierQuoteExplorer() {
             </Empty>
           )}
         </VStack>
+        {canReorder && lines.length > 0 && (
+          <div className="w-full px-4 pt-2">
+            {editMode.isEditing ? (
+              <ReorderEditBar
+                isSaving={editMode.isSaving}
+                isDirty={editMode.isDirty}
+                onSave={editMode.save}
+                onCancel={editMode.cancelEditMode}
+              />
+            ) : (
+              <Button
+                variant="ghost"
+                leftIcon={<LuArrowUpDown />}
+                className="w-full h-8 justify-start text-muted-foreground"
+                onClick={editMode.enterEditMode}
+              >
+                <Trans>Reorder lines</Trans>
+              </Button>
+            )}
+          </div>
+        )}
         <div className="w-full flex flex-0 sm:flex-row border-t border-border p-4 sm:justify-start sm:space-x-2">
           <Tooltip>
             <TooltipTrigger className="w-full">
               <Button
                 ref={newButtonRef}
                 className="w-full"
-                isDisabled={isDisabled || !permissions.can("update", "sales")}
+                isDisabled={
+                  isDisabled ||
+                  editMode.isEditing ||
+                  !permissions.can("update", "sales")
+                }
                 leftIcon={<LuCirclePlus />}
                 variant="secondary"
                 onClick={newSupplierQuoteLineDisclosure.onOpen}
@@ -155,6 +216,37 @@ export default function SupplierQuoteExplorer() {
         />
       )}
     </>
+  );
+}
+
+function SupplierQuoteLineBody({
+  line,
+  dragHandle,
+  isOverlay
+}: {
+  line: SupplierQuoteLine;
+  dragHandle?: DragHandleBindings;
+  isOverlay?: boolean;
+}) {
+  const [items] = useItems();
+  return (
+    <ReorderableRow dragHandle={dragHandle} isOverlay={isOverlay}>
+      <HStack spacing={2} className="flex-grow min-w-0 p-2 pr-10">
+        <ItemThumbnail thumbnailPath={line.thumbnailPath} type="Part" />
+        <VStack spacing={0} className="min-w-0">
+          <span className="font-semibold line-clamp-1">
+            {line.supplierQuoteLineType === "G/L Account"
+              ? line.description || "Indirect Expense"
+              : getItemReadableId(items, line.itemId)}
+          </span>
+          <span className="text-muted-foreground text-xs truncate line-clamp-1">
+            {line.supplierQuoteLineType === "G/L Account"
+              ? "G/L Account"
+              : line.description}
+          </span>
+        </VStack>
+      </HStack>
+    </ReorderableRow>
   );
 }
 

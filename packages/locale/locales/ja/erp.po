@@ -2499,6 +2499,9 @@ msgstr "購入発注書のPDFをここにドラッグアンドドロップする
 msgid "Drag handle"
 msgstr "ドラッグハンドル"
 
+msgid "Drag to reorder"
+msgstr ""
+
 msgid "Drop Shipment"
 msgstr "ドロップシップメント"
 
@@ -2924,7 +2927,7 @@ msgid "Entity is {status}"
 msgstr "エンティティは {status} です"
 
 msgid "EORI"
-msgstr "EORI"
+msgstr ""
 
 msgid "ERP, MES, QMS"
 msgstr "ERP、MES、QMS"
@@ -5412,7 +5415,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF Watermark"
-msgstr "PDF透かし"
+msgstr ""
 
 msgid "PDFs"
 msgstr "PDF"
@@ -6100,6 +6103,9 @@ msgstr "並び替え"
 
 msgid "Reorder Group"
 msgstr "グループを並べ替え"
+
+msgid "Reorder lines"
+msgstr ""
 
 msgid "Reorder Point"
 msgstr "再注文ポイント"
@@ -6856,7 +6862,7 @@ msgid "Shipping:"
 msgstr "配送:"
 
 msgid "Shop Floor"
-msgstr ""
+msgstr "ショップフロア"
 
 msgid "Short Description"
 msgstr "短い説明"
@@ -6880,7 +6886,7 @@ msgid "Show sync options"
 msgstr "同期オプションを表示"
 
 msgid "Shown as a faint background behind every page of generated PDFs"
-msgstr "生成されたPDFの各ページの背景に薄く表示されます"
+msgstr ""
 
 msgid "Shown to the user when this rule fails."
 msgstr "このルールが失敗したときにユーザーに表示されます。"

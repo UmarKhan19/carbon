@@ -2499,6 +2499,9 @@ msgstr "将采购订单 PDF 拖放到此处，或点击选择文件"
 msgid "Drag handle"
 msgstr "拖动手柄"
 
+msgid "Drag to reorder"
+msgstr ""
+
 msgid "Drop Shipment"
 msgstr "直运"
 
@@ -2924,7 +2927,7 @@ msgid "Entity is {status}"
 msgstr "实体为 {status}"
 
 msgid "EORI"
-msgstr "EORI"
+msgstr ""
 
 msgid "ERP, MES, QMS"
 msgstr "ERP, MES, QMS"
@@ -5412,7 +5415,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF Watermark"
-msgstr "PDF 水印"
+msgstr ""
 
 msgid "PDFs"
 msgstr "PDF"
@@ -6100,6 +6103,9 @@ msgstr "重新排序"
 
 msgid "Reorder Group"
 msgstr "重新排序组"
+
+msgid "Reorder lines"
+msgstr ""
 
 msgid "Reorder Point"
 msgstr "重新订购点"
@@ -6856,7 +6862,7 @@ msgid "Shipping:"
 msgstr "运费："
 
 msgid "Shop Floor"
-msgstr ""
+msgstr "车间"
 
 msgid "Short Description"
 msgstr "简短描述"
@@ -6880,7 +6886,7 @@ msgid "Show sync options"
 msgstr "显示同步选项"
 
 msgid "Shown as a faint background behind every page of generated PDFs"
-msgstr "作为淡色背景显示在每个生成的PDF页面后面"
+msgstr ""
 
 msgid "Shown to the user when this rule fails."
 msgstr "当此规则失败时向用户显示。"

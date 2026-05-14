@@ -2499,6 +2499,9 @@ msgstr "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgid "Drag handle"
 msgstr "Drag handle"
 
+msgid "Drag to reorder"
+msgstr "Drag to reorder"
+
 msgid "Drop Shipment"
 msgstr "Drop Shipment"
 
@@ -6100,6 +6103,9 @@ msgstr "Reorder"
 
 msgid "Reorder Group"
 msgstr "Reorder Group"
+
+msgid "Reorder lines"
+msgstr "Reorder lines"
 
 msgid "Reorder Point"
 msgstr "Reorder Point"

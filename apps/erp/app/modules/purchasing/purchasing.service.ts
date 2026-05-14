@@ -282,6 +282,7 @@ export async function getPurchaseOrderLines(
     .from("purchaseOrderLines")
     .select("*")
     .eq("purchaseOrderId", purchaseOrderId)
+    .order("sortOrder", { ascending: true })
     .order("createdAt", { ascending: true });
 }
 
@@ -730,7 +731,8 @@ export async function getSupplierQuoteLines(
   return client
     .from("supplierQuoteLines")
     .select("*")
-    .eq("supplierQuoteId", supplierQuoteId);
+    .eq("supplierQuoteId", supplierQuoteId)
+    .order("sortOrder", { ascending: true });
 }
 
 export async function getSupplierQuoteLinePrices(
@@ -1466,11 +1468,39 @@ export async function upsertPurchaseOrderLine(
       .select("id")
       .single();
   }
+
+  const existing = await client
+    .from("purchaseOrderLine")
+    .select("sortOrder")
+    .eq("purchaseOrderId", purchaseOrderLine.purchaseOrderId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("purchaseOrderLine")
-    .insert([purchaseOrderLine])
+    .insert([{ ...purchaseOrderLine, sortOrder: maxSortOrder + 1 }])
     .select("id")
     .single();
+}
+
+export async function updatePurchaseOrderLineOrder(
+  client: SupabaseClient<Database>,
+  updates: {
+    id: string;
+    sortOrder: number;
+    updatedBy: string;
+  }[]
+) {
+  const updatePromises = updates.map(({ id, sortOrder, updatedBy }) =>
+    client
+      .from("purchaseOrderLine")
+      .update({ sortOrder, updatedBy })
+      .eq("id", id)
+  );
+  return Promise.all(updatePromises);
 }
 
 export async function upsertPurchaseOrderPayment(
@@ -1719,13 +1749,42 @@ export async function upsertSupplierQuoteLine(
       .select("id")
       .single();
   }
+
+  const existing = await client
+    .from("supplierQuoteLine")
+    .select("sortOrder")
+    .eq("supplierQuoteId", supplierQuoteLine.supplierQuoteId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("supplierQuoteLine")
     .insert([
-      { ...supplierQuoteLine, description: supplierQuoteLine.description ?? "" }
+      {
+        ...supplierQuoteLine,
+        description: supplierQuoteLine.description ?? "",
+        sortOrder: maxSortOrder + 1
+      }
     ])
     .select("id")
     .single();
+}
+
+export async function updateSupplierQuoteLineOrder(
+  client: SupabaseClient<Database>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return Promise.all(
+    updates.map(({ id, sortOrder, updatedBy }) =>
+      client
+        .from("supplierQuoteLine")
+        .update({ sortOrder, updatedBy })
+        .eq("id", id)
+    )
+  );
 }
 
 export async function upsertSupplierType(
@@ -1913,6 +1972,20 @@ export async function upsertPurchasingRFQLine(
     .insert([purchasingRfqLine])
     .select("id")
     .single();
+}
+
+export async function updatePurchasingRFQLineOrder(
+  client: SupabaseClient<Database>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return Promise.all(
+    updates.map(({ id, sortOrder, updatedBy }) =>
+      client
+        .from("purchasingRfqLine")
+        .update({ order: sortOrder, updatedBy })
+        .eq("id", id)
+    )
+  );
 }
 
 export async function upsertPurchasingRFQSuppliers(

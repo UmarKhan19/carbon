@@ -205,6 +205,7 @@ export async function getPurchaseInvoiceLines(
     .from("purchaseInvoiceLines")
     .select("*")
     .eq("invoiceId", purchaseInvoiceId)
+    .order("sortOrder", { ascending: true })
     .order("createdAt", { ascending: true });
 }
 
@@ -287,6 +288,7 @@ export async function getSalesInvoiceLines(
     .from("salesInvoiceLines")
     .select("*")
     .eq("invoiceId", salesInvoiceId)
+    .order("sortOrder", { ascending: true })
     .order("createdAt", { ascending: true });
 }
 
@@ -541,11 +543,35 @@ export async function upsertPurchaseInvoiceLine(
       .single();
   }
 
+  const existing = await client
+    .from("purchaseInvoiceLine")
+    .select("sortOrder")
+    .eq("invoiceId", purchaseInvoiceLine.invoiceId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("purchaseInvoiceLine")
-    .insert([purchaseInvoiceLine])
+    .insert([{ ...purchaseInvoiceLine, sortOrder: maxSortOrder + 1 }])
     .select("id")
     .single();
+}
+
+export async function updatePurchaseInvoiceLineOrder(
+  client: SupabaseClient<Database>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return Promise.all(
+    updates.map(({ id, sortOrder, updatedBy }) =>
+      client
+        .from("purchaseInvoiceLine")
+        .update({ sortOrder, updatedBy })
+        .eq("id", id)
+    )
+  );
 }
 
 export async function upsertSalesInvoice(
@@ -711,9 +737,33 @@ export async function upsertSalesInvoiceLine(
       .single();
   }
 
+  const existing = await client
+    .from("salesInvoiceLine")
+    .select("sortOrder")
+    .eq("invoiceId", salesInvoiceLine.invoiceId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("salesInvoiceLine")
-    .insert([salesInvoiceLine])
+    .insert([{ ...salesInvoiceLine, sortOrder: maxSortOrder + 1 }])
     .select("id")
     .single();
+}
+
+export async function updateSalesInvoiceLineOrder(
+  client: SupabaseClient<Database>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return Promise.all(
+    updates.map(({ id, sortOrder, updatedBy }) =>
+      client
+        .from("salesInvoiceLine")
+        .update({ sortOrder, updatedBy })
+        .eq("id", id)
+    )
+  );
 }

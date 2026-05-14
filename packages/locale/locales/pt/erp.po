@@ -2499,6 +2499,9 @@ msgstr "Arraste e solte um PDF de Ordem de Compra aqui, ou clique para seleciona
 msgid "Drag handle"
 msgstr "Puxador de arrasto"
 
+msgid "Drag to reorder"
+msgstr ""
+
 msgid "Drop Shipment"
 msgstr "Envio Direto"
 
@@ -2924,7 +2927,7 @@ msgid "Entity is {status}"
 msgstr "Entidade é {status}"
 
 msgid "EORI"
-msgstr "EORI"
+msgstr ""
 
 msgid "ERP, MES, QMS"
 msgstr "ERP, MES, QMS"
@@ -5412,7 +5415,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF Watermark"
-msgstr "Marca d'água do PDF"
+msgstr ""
 
 msgid "PDFs"
 msgstr "PDFs"
@@ -6100,6 +6103,9 @@ msgstr "Reordenar"
 
 msgid "Reorder Group"
 msgstr "Reordenar Grupo"
+
+msgid "Reorder lines"
+msgstr ""
 
 msgid "Reorder Point"
 msgstr "Ponto de Reordenação"
@@ -6856,7 +6862,7 @@ msgid "Shipping:"
 msgstr "Envio:"
 
 msgid "Shop Floor"
-msgstr ""
+msgstr "Chão de Fábrica"
 
 msgid "Short Description"
 msgstr "Descrição Breve"
@@ -6880,7 +6886,7 @@ msgid "Show sync options"
 msgstr "Mostrar opções de sincronização"
 
 msgid "Shown as a faint background behind every page of generated PDFs"
-msgstr "Exibido como um fundo suave atrás de cada página dos PDFs gerados"
+msgstr ""
 
 msgid "Shown to the user when this rule fails."
 msgstr "Mostrado ao usuário quando esta regra falha."

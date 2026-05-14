@@ -2499,6 +2499,9 @@ msgstr "Перетащите PDF-файл заказа на покупку сю�
 msgid "Drag handle"
 msgstr "Ручка перетаскивания"
 
+msgid "Drag to reorder"
+msgstr ""
+
 msgid "Drop Shipment"
 msgstr "Прямая поставка"
 
@@ -2924,7 +2927,7 @@ msgid "Entity is {status}"
 msgstr "Сущность имеет статус {status}"
 
 msgid "EORI"
-msgstr "EORI"
+msgstr ""
 
 msgid "ERP, MES, QMS"
 msgstr "ERP, MES, QMS"
@@ -5412,7 +5415,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF Watermark"
-msgstr "Водяной знак PDF"
+msgstr ""
 
 msgid "PDFs"
 msgstr "PDF-файлы"
@@ -6100,6 +6103,9 @@ msgstr "Переупорядочить"
 
 msgid "Reorder Group"
 msgstr "Переупорядочить группу"
+
+msgid "Reorder lines"
+msgstr ""
 
 msgid "Reorder Point"
 msgstr "Точка переупорядочения"
@@ -6856,7 +6862,7 @@ msgid "Shipping:"
 msgstr "Доставка:"
 
 msgid "Shop Floor"
-msgstr ""
+msgstr "Цех"
 
 msgid "Short Description"
 msgstr "Краткое описание"
@@ -6880,7 +6886,7 @@ msgid "Show sync options"
 msgstr "Показать параметры синхронизации"
 
 msgid "Shown as a faint background behind every page of generated PDFs"
-msgstr "Отображается как бледный фон на каждой странице сгенерированных PDF-файлов"
+msgstr ""
 
 msgid "Shown to the user when this rule fails."
 msgstr "Показывается пользователю при ошибке этого правила."

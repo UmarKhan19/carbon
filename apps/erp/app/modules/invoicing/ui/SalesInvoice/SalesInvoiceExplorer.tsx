@@ -20,9 +20,21 @@ import {
 import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
-import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuArrowUpDown,
+  LuCirclePlus,
+  LuEllipsisVertical,
+  LuTrash
+} from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { Empty, ItemThumbnail, MethodItemTypeIcon } from "~/components";
+import type { DragHandleBindings } from "~/components/LineReorder";
+import {
+  ReorderableLineList,
+  ReorderableRow,
+  ReorderEditBar,
+  useLineOrderEditMode
+} from "~/components/LineReorder";
 import {
   useOptimisticLocation,
   usePermissions,
@@ -94,6 +106,15 @@ export default function SalesInvoiceExplorer() {
     }
   });
 
+  const lines = salesInvoiceData?.salesInvoiceLines ?? [];
+  const canReorder =
+    !isDisabled && permissions.can("update", "invoicing") && lines.length > 1;
+
+  const editMode = useLineOrderEditMode<SalesInvoiceLine>({
+    actionPath: path.to.salesInvoiceLineOrder(invoiceId),
+    lines
+  });
+
   return (
     <>
       <VStack className="w-full h-[calc(100dvh-99px)] justify-between">
@@ -101,15 +122,30 @@ export default function SalesInvoiceExplorer() {
           className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent"
           spacing={0}
         >
-          {salesInvoiceData?.salesInvoiceLines?.length ? (
-            salesInvoiceData.salesInvoiceLines.map((line) => (
-              <SalesInvoiceLineItem
-                key={line.id}
-                isDisabled={isDisabled}
-                line={line}
-                onDelete={onDeleteLine}
+          {lines.length > 0 ? (
+            editMode.isEditing ? (
+              <ReorderableLineList<SalesInvoiceLine>
+                lines={editMode.draft}
+                activeLine={editMode.activeLine}
+                onDragStart={editMode.handleDragStart}
+                onDragEnd={editMode.handleDragEnd}
+                renderRow={(line, dragHandle) => (
+                  <SalesInvoiceLineBody line={line} dragHandle={dragHandle} />
+                )}
+                renderOverlay={(line) => (
+                  <SalesInvoiceLineBody line={line} isOverlay />
+                )}
               />
-            ))
+            ) : (
+              lines.map((line) => (
+                <SalesInvoiceLineItem
+                  key={line.id}
+                  isDisabled={isDisabled}
+                  line={line}
+                  onDelete={onDeleteLine}
+                />
+              ))
+            )
           ) : (
             <Empty>
               {permissions.can("update", "sales") && (
@@ -125,13 +161,38 @@ export default function SalesInvoiceExplorer() {
             </Empty>
           )}
         </VStack>
+        {canReorder && lines.length > 0 && (
+          <div className="w-full px-4 pt-2">
+            {editMode.isEditing ? (
+              <ReorderEditBar
+                isSaving={editMode.isSaving}
+                isDirty={editMode.isDirty}
+                onSave={editMode.save}
+                onCancel={editMode.cancelEditMode}
+              />
+            ) : (
+              <Button
+                variant="ghost"
+                leftIcon={<LuArrowUpDown />}
+                className="w-full h-8 justify-start text-muted-foreground"
+                onClick={editMode.enterEditMode}
+              >
+                <Trans>Reorder lines</Trans>
+              </Button>
+            )}
+          </div>
+        )}
         <div className="w-full flex flex-0 sm:flex-row border-t border-border p-4 sm:justify-start sm:space-x-2">
           <Tooltip>
             <TooltipTrigger className="w-full">
               <Button
                 ref={newButtonRef}
                 className="w-full"
-                isDisabled={isDisabled || !permissions.can("update", "sales")}
+                isDisabled={
+                  isDisabled ||
+                  editMode.isEditing ||
+                  !permissions.can("update", "sales")
+                }
                 leftIcon={<LuCirclePlus />}
                 variant="secondary"
                 onClick={newSalesInvoiceLineDisclosure.onOpen}
@@ -162,6 +223,33 @@ export default function SalesInvoiceExplorer() {
         <DeleteSalesInvoiceLine line={deleteLine!} onCancel={onDeleteCancel} />
       )}
     </>
+  );
+}
+
+function SalesInvoiceLineBody({
+  line,
+  dragHandle,
+  isOverlay
+}: {
+  line: SalesInvoiceLine;
+  dragHandle?: DragHandleBindings;
+  isOverlay?: boolean;
+}) {
+  const [items] = useItems();
+  return (
+    <ReorderableRow dragHandle={dragHandle} isOverlay={isOverlay}>
+      <HStack spacing={2} className="flex-grow min-w-0 p-2 pr-10">
+        <ItemThumbnail thumbnailPath={line.thumbnailPath} type="Part" />
+        <VStack spacing={0} className="min-w-0">
+          <span className="font-semibold line-clamp-1">
+            {getItemReadableId(items, line.itemId) ?? ""}
+          </span>
+          <span className="text-muted-foreground text-xs truncate line-clamp-1">
+            {line.description}
+          </span>
+        </VStack>
+      </HStack>
+    </ReorderableRow>
   );
 }
 

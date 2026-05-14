@@ -2499,6 +2499,9 @@ msgstr "यहाँ एक खरीद आदेश PDF को ड्रैग
 msgid "Drag handle"
 msgstr "ड्रैग हैंडल"
 
+msgid "Drag to reorder"
+msgstr ""
+
 msgid "Drop Shipment"
 msgstr "ड्रॉप शिपमेंट"
 
@@ -2924,7 +2927,7 @@ msgid "Entity is {status}"
 msgstr "Entity {status} है"
 
 msgid "EORI"
-msgstr "EORI"
+msgstr ""
 
 msgid "ERP, MES, QMS"
 msgstr "ERP, MES, QMS"
@@ -5412,7 +5415,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF Watermark"
-msgstr "PDF वॉटरमार्क"
+msgstr ""
 
 msgid "PDFs"
 msgstr "PDFs"
@@ -6100,6 +6103,9 @@ msgstr "पुनः क्रमित करें"
 
 msgid "Reorder Group"
 msgstr "समूह को पुनः क्रमित करें"
+
+msgid "Reorder lines"
+msgstr ""
 
 msgid "Reorder Point"
 msgstr "पुनः ऑर्डर बिंदु"
@@ -6856,7 +6862,7 @@ msgid "Shipping:"
 msgstr "शिपिंग:"
 
 msgid "Shop Floor"
-msgstr ""
+msgstr "शॉप फ्लोर"
 
 msgid "Short Description"
 msgstr "संक्षिप्त विवरण"
@@ -6880,7 +6886,7 @@ msgid "Show sync options"
 msgstr "सिंक विकल्प दिखाएं"
 
 msgid "Shown as a faint background behind every page of generated PDFs"
-msgstr "जनरेट की गई PDF के हर पेज के पीछे हल्की पृष्ठभूमि के रूप में दिखाया जाता है"
+msgstr ""
 
 msgid "Shown to the user when this rule fails."
 msgstr "जब यह नियम विफल हो तो उपयोगकर्ता को दिखाया जाता है।"

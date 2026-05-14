@@ -2499,6 +2499,9 @@ msgstr "Glissez-déposez un PDF de bon de commande ici, ou cliquez pour sélecti
 msgid "Drag handle"
 msgstr "Poignée de déplacement"
 
+msgid "Drag to reorder"
+msgstr ""
+
 msgid "Drop Shipment"
 msgstr "Expédition directe"
 
@@ -2924,7 +2927,7 @@ msgid "Entity is {status}"
 msgstr "L'entité est {status}"
 
 msgid "EORI"
-msgstr "EORI"
+msgstr ""
 
 msgid "ERP, MES, QMS"
 msgstr "ERP, MES, QMS"
@@ -5412,7 +5415,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF Watermark"
-msgstr "Filigrane PDF"
+msgstr ""
 
 msgid "PDFs"
 msgstr "PDFs"
@@ -6100,6 +6103,9 @@ msgstr "Réorganiser"
 
 msgid "Reorder Group"
 msgstr "Réorganiser le groupe"
+
+msgid "Reorder lines"
+msgstr ""
 
 msgid "Reorder Point"
 msgstr "Point de réapprovisionnement"
@@ -6856,7 +6862,7 @@ msgid "Shipping:"
 msgstr "Expédition :"
 
 msgid "Shop Floor"
-msgstr ""
+msgstr "Atelier de production"
 
 msgid "Short Description"
 msgstr "Description courte"
@@ -6880,7 +6886,7 @@ msgid "Show sync options"
 msgstr "Afficher les options de synchronisation"
 
 msgid "Shown as a faint background behind every page of generated PDFs"
-msgstr "Affiché en arrière-plan discret sur chaque page des PDF générés"
+msgstr ""
 
 msgid "Shown to the user when this rule fails."
 msgstr "Affiché à l'utilisateur lorsque cette règle échoue."
