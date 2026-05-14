@@ -100,7 +100,7 @@ export function NodeSearchDialog({
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput
-        placeholder="Search entities, activities, status, source doc..."
+        placeholder="Search entities, activities, status, source doc, VIN..."
         value={query}
         onValueChange={setQuery}
       />
@@ -131,10 +131,17 @@ export function NodeSearchDialog({
               const meta = entityStatusMeta(entity.status);
               const Icon = meta.icon;
               const inGraph = localIds.e.has(entity.id);
+              const vin = pickStringAttribute(entity.attributes, [
+                "VIN",
+                "Vin",
+                "vin",
+                "VIN Number",
+                "Vehicle Identification Number"
+              ]);
               return (
                 <CommandItem
                   key={entity.id}
-                  value={`${label} ${entity.id} ${entity.sourceDocument ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""} ${entity.status ?? ""}`}
+                  value={`${label} ${entity.id} ${vin ?? ""} ${entity.sourceDocument ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""} ${entity.status ?? ""}`}
                   onSelect={() => focusOrNavigate("entity", entity.id)}
                   className="!py-2 !px-2 gap-3"
                 >
@@ -232,4 +239,22 @@ function OpenBadge() {
       Open
     </span>
   );
+}
+
+function pickStringAttribute(
+  attributes: TrackedEntity["attributes"],
+  keys: string[]
+): string | undefined {
+  if (
+    !attributes ||
+    typeof attributes !== "object" ||
+    Array.isArray(attributes)
+  )
+    return undefined;
+  const record = attributes as Record<string, unknown>;
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "string" && value.trim()) return value;
+  }
+  return undefined;
 }

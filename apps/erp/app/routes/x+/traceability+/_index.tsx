@@ -7,7 +7,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  HStack
+  HStack,
+  TruncatedTooltipText
 } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -36,6 +37,8 @@ function recentSearchesKey(companyId: string): string {
 type EntityRow = {
   id: string;
   readableId: string | null;
+  jobId?: string | null;
+  jobReadableId?: string | null;
   sourceDocument: string | null;
   sourceDocumentId: string | null;
   sourceDocumentReadableId: string | null;
@@ -150,7 +153,7 @@ export default function TraceabilityRoute() {
     <SearchLandingPage
       icon={LuNetwork}
       heading={t`Traceability`}
-      description={t`Scan a label or search by ID, serial number, or batch number.`}
+      description={t`Scan a label or search by ID, VIN, serial number, or batch number.`}
     >
       <Command
         shouldFilter={false}
@@ -220,15 +223,27 @@ function EntityRowItem({
   const headline = headlineFor(entity);
   const batch = entity.attributes?.["Batch Number"] as string | undefined;
   const serial = entity.attributes?.["Serial Number"] as string | undefined;
+  const vin =
+    (entity.attributes?.["VIN"] as string | undefined) ??
+    (entity.attributes?.["Vin"] as string | undefined) ??
+    (entity.attributes?.["vin"] as string | undefined) ??
+    (entity.attributes?.["VIN Number"] as string | undefined) ??
+    (entity.attributes?.["Vehicle Identification Number"] as
+      | string
+      | undefined);
   const trackingHint = serial
-    ? `Serial · ${serial}`
-    : batch
-      ? `Batch · ${batch}`
-      : (entity.sourceDocument ?? entity.id.slice(0, 12));
+    ? `Serial - ${serial}`
+    : vin
+      ? `VIN - ${vin}`
+      : batch
+        ? `Batch - ${batch}`
+        : (entity.sourceDocument ?? entity.id.slice(0, 12));
+  const jobHint = entity.jobReadableId ?? entity.jobId ?? "No job";
+  const trackingIdHint = entity.readableId ?? entity.id;
 
   return (
     <CommandItem
-      value={`${headline} ${entity.id} ${serial ?? ""} ${batch ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""}`}
+      value={`${headline} ${entity.id} ${serial ?? ""} ${vin ?? ""} ${batch ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""} ${entity.jobReadableId ?? ""} ${entity.jobId ?? ""}`}
       onSelect={onSelect}
       className="!py-2.5 !px-3 gap-3 cursor-pointer rounded-lg"
     >
@@ -239,10 +254,21 @@ function EntityRowItem({
         <Icon className="size-4 text-white drop-shadow-sm" />
       </span>
       <div className="flex flex-col flex-1 min-w-0 gap-0.5">
-        <p className="text-sm font-medium truncate leading-5">{headline}</p>
+        <TruncatedTooltipText
+          className="block text-sm font-medium truncate leading-5"
+          tooltip={headline}
+        >
+          {headline}
+        </TruncatedTooltipText>
         <p className="text-[11px] text-muted-foreground truncate leading-4">
           {trackingHint}
         </p>
+        <TruncatedTooltipText
+          className="block text-[11px] text-muted-foreground truncate leading-4"
+          tooltip={`Job - ${jobHint} | Tracking - ${trackingIdHint}`}
+        >
+          {`Job - ${jobHint} | Tracking - ${trackingIdHint}`}
+        </TruncatedTooltipText>
       </div>
       <HStack spacing={2} className="items-center shrink-0">
         {entity.status && (
@@ -264,6 +290,13 @@ function EntityRowItem({
 function headlineFor(entity: EntityRow): string {
   return (
     (entity.attributes?.["Serial Number"] as string | undefined) ??
+    (entity.attributes?.["VIN"] as string | undefined) ??
+    (entity.attributes?.["Vin"] as string | undefined) ??
+    (entity.attributes?.["vin"] as string | undefined) ??
+    (entity.attributes?.["VIN Number"] as string | undefined) ??
+    (entity.attributes?.["Vehicle Identification Number"] as
+      | string
+      | undefined) ??
     (entity.attributes?.["Batch Number"] as string | undefined) ??
     entity.sourceDocumentReadableId ??
     entity.readableId ??
