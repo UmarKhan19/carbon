@@ -145,9 +145,11 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
     linesMap.set(pendingItem.itemId!, { ...pendingItem, quoteId });
   }
 
-  const linesToRender = Array.from(linesMap.values()).sort((a, b) =>
-    (a.itemReadableId ?? "").localeCompare(b.itemReadableId ?? "")
-  );
+  // Server already returns lines ordered by sortOrder; the Map preserves
+  // insertion order so we just take values as-is. Optimistic items (added
+  // via .set() in the loop above) trail at the end, which is fine — they
+  // don't have a sortOrder yet.
+  const linesToRender = Array.from(linesMap.values());
 
   const realQuoteLines = (quoteData?.lines ?? []) as QuotationLine[];
   const canReorder =
