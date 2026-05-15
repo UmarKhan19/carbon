@@ -127,7 +127,7 @@ export function summaryLines(
   branchPrefix: string,
   apps: readonly AppId[]
 ): string[] {
-  const host = (sub: string) => `https://${branchPrefix}.${sub}.${TLD}`;
+  const host = (sub: string) => `https://${sub}.${branchPrefix}.${TLD}`;
   const dbUrl = `postgresql://postgres:postgres@localhost:${ports.PORT_DB}/postgres`;
   const lines: string[] = [];
   if (apps.includes("erp")) lines.push(row(pc.cyan, "ERP", host("erp")));

@@ -345,7 +345,7 @@ export async function unregisterAliases(root: string, branchPrefix: string) {
   );
 }
 
-// Pre-empt `<prefix>.<app>.{dev,localhost}` routes before spawning apps.
+// Pre-empt `<app>.<prefix>.{dev,localhost}` routes before spawning apps.
 // Orphan portless processes from a prior `crbn up` keep entries alive,
 // causing `RouteConflictError` on the next run. SIGTERM → 400ms poll →
 // SIGKILL stragglers, then drop matching entries.
@@ -443,7 +443,7 @@ export function pruneStaleRoutes(branchPrefix: string) {
 const STABLE_OAUTH_ALIAS = "api.carbon";
 
 // Always prefix with the branch name (last `/`-segment, sanitized) so every
-// worktree — including main — gets a distinct `<branch>.<app>.dev` host.
+// worktree — including main — gets a distinct `<app>.<branch>.dev` host.
 // Bare hosts (`erp.dev`, `api.dev`) are forbidden; falls back to `fallback`
 // (typically the worktree slug) when branch is missing/HEAD-detached.
 // e.g. `feat/boo` → `boo`, `main` → `main`.
@@ -462,7 +462,7 @@ export function branchToPrefix(
 }
 
 function withPrefix(name: string, prefix: string): string {
-  return `${prefix}.${name}`;
+  return `${name}.${prefix}`;
 }
 
 // Compose-service host:port aliases mirroring portless's app-host shape.
