@@ -6790,7 +6790,7 @@ msgid "Shelf Life Start Process"
 msgstr "Processo de InÃƒÆ’Ã‚Â­cio da Vida ÃƒÆ’Ã…Â¡til"
 
 msgid "Shelf-Life"
-msgstr "Vida de Prateleira======="
+msgstr "Vida de Prateleira"
 
 msgid "Shelf-Life History"
 msgstr "Histórico de validade"

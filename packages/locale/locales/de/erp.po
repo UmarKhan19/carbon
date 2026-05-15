@@ -6790,7 +6790,7 @@ msgid "Shelf Life Start Process"
 msgstr "Haltbarkeitsstartprozess"
 
 msgid "Shelf-Life"
-msgstr "Haltbarkeit======="
+msgstr "Haltbarkeit"
 
 msgid "Shelf-Life History"
 msgstr "Haltbarkeitsverlauf"

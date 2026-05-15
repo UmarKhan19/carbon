@@ -5172,7 +5172,7 @@ msgid "Open"
 msgstr "Apri"
 
 msgid "Open Actions"
-msgstr "Azioni Aperte======="
+msgstr "Azioni Aperte"
 
 msgid "Open Audit Log"
 msgstr "Apri registro di audit"
@@ -6790,7 +6790,7 @@ msgid "Shelf Life Start Process"
 msgstr "Processo di Inizio Shelf Life"
 
 msgid "Shelf-Life"
-msgstr "Durata di Conservazione======="
+msgstr "Durata di Conservazione"
 
 msgid "Shelf-Life History"
 msgstr "Cronologia durata di conservazione"

@@ -5172,7 +5172,7 @@ msgid "Open"
 msgstr "Ouvrir"
 
 msgid "Open Actions"
-msgstr "Actions ouvertes======="
+msgstr "Actions ouvertes"
 
 msgid "Open Audit Log"
 msgstr "Ouvrir le journal d'audit"
