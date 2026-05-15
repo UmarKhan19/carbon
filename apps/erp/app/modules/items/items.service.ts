@@ -1805,7 +1805,7 @@ export async function updateDefaultRevision(
   const [item, makeMethod] = await Promise.all([
     client
       .from("item")
-      .select("id,readableId, readableIdWithRevision")
+      .select("id,readableId, readableIdWithRevision, type, companyId")
       .eq("id", data.id)
       .single(),
     client
@@ -1815,11 +1815,14 @@ export async function updateDefaultRevision(
       .maybeSingle()
   ]);
   if (item.error) return item;
-  const readableId = item.data.readableId;
+  const { readableId, type, companyId } = item.data;
+  if (!companyId) return item;
   const relatedItems = await client
     .from("item")
     .select("id")
-    .eq("readableId", readableId);
+    .eq("readableId", readableId)
+    .eq("type", type)
+    .eq("companyId", companyId);
 
   const itemIds = relatedItems.data?.map((item) => item.id) ?? [];
 
@@ -2476,7 +2479,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("job")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "not in", ["Completed", "Closed", "Cancelled"])
+            .where("status", "in", ["Draft", "Planned"])
         )
       )
       .execute();
@@ -2499,7 +2502,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("job")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "not in", ["Completed", "Closed", "Cancelled"])
+            .where("status", "in", ["Draft", "Planned"])
         )
       )
       .execute();
@@ -2522,7 +2525,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("receipt")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "in", ["Draft", "Pending"])
+            .where("status", "=", "Draft")
         )
       )
       .execute();
@@ -2545,7 +2548,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("shipment")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "in", ["Draft", "Pending"])
+            .where("status", "=", "Draft")
         )
       )
       .execute();
@@ -2568,7 +2571,7 @@ export async function cascadeItemTrackingType(
             .selectFrom("stockTransfer")
             .select("id")
             .where("companyId", "=", args.companyId)
-            .where("status", "in", ["Draft", "Released", "In Progress"])
+            .where("status", "=", "Draft")
         )
       )
       .execute();
