@@ -93,6 +93,7 @@
     "non.geist": "catalog:",
     "papaparse": "5.3.2",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "5.4.296",
     "performant-array-to-tree": "1.11.0",
     "posthog-js": "catalog:",
     "react": "catalog:",
