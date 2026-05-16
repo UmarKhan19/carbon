@@ -62,4 +62,4 @@ OAuth redirect URIs in localhost mode use `http://localhost:54321/auth/v1/callba
 
 ## Project naming
 
-Compose projects are prefixed `crbn-<slug>` (e.g. `crbn-feature-foo`). The slug is derived from the worktree directory name and persisted in `.carbon-worktree`.
+Compose projects are prefixed `carbon-<slug>` (e.g. `carbon-feature-foo`). The slug is derived from the worktree directory name and persisted in `.carbon-worktree`.

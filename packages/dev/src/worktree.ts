@@ -72,7 +72,7 @@ export async function getWorktreeRoot(): Promise<string> {
 }
 
 export function projectName(slug: string): string {
-  return `crbn-${slug}`;
+  return `carbon-${slug}`;
 }
 
 // Resolve symlinks + normalize separators / trailing slashes so two strings
