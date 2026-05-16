@@ -912,6 +912,7 @@ export const path = {
     jobBatchNumber: (id: string) => generatePath(`${x}/job/${id}/batch`),
     jobComplete: (id: string) => generatePath(`${x}/job/${id}/complete`),
     jobConfigure: (id: string) => generatePath(`${x}/job/${id}/configure`),
+    jobDag: (id: string) => generatePath(`${x}/job/${id}/dag`),
     jobDetails: (id: string) => generatePath(`${x}/job/${id}/details`),
     jobInspectionSteps: (id: string) =>
       generatePath(`${x}/job/${id}/steps?filter=type:eq:Inspection`),

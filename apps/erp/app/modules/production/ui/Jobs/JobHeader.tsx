@@ -39,6 +39,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
+import { AiOutlinePartition } from "react-icons/ai";
 import {
   LuCheckCheck,
   LuChevronDown,
@@ -94,6 +95,8 @@ const JobHeader = () => {
         return t`Materials`;
       case "operations":
         return t`Operations`;
+      case "dag":
+        return "DAG";
       case "step-records":
         return t`Step Records`;
       case "events":
@@ -138,6 +141,7 @@ const JobHeader = () => {
       return "events";
     if (location.pathname.includes(path.to.jobProductionQuantities(jobId)))
       return "quantities";
+    if (location.pathname.includes(path.to.jobDag(jobId))) return "dag";
     return "details";
   };
 
@@ -283,7 +287,7 @@ const JobHeader = () => {
                   {getExplorerLabel("details")}
                 </DropdownMenuRadioItem>
                 <DropdownMenuSeparator />
-                {["materials", "operations"].map((i) => (
+                {["materials", "operations", "dag"].map((i) => (
                   <DropdownMenuRadioItem value={i} key={i}>
                     <DropdownMenuIcon icon={getExplorerMenuIcon(i)} />
                     {getExplorerLabel(i)}
@@ -459,6 +463,8 @@ function getExplorerMenuIcon(type: string) {
       return <LuPackage />;
     case "operations":
       return <LuSettings />;
+    case "dag":
+      return <AiOutlinePartition />;
     case "step-records":
       return <LuClipboardList />;
     case "events":
@@ -476,6 +482,8 @@ const getExplorePath = (jobId: string, type: string) => {
       return path.to.jobMaterials(jobId);
     case "operations":
       return path.to.jobOperations(jobId);
+    case "dag":
+      return path.to.jobDag(jobId);
     case "step-records":
       return path.to.jobOperationStepRecords(jobId);
     case "events":
