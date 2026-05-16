@@ -2503,7 +2503,7 @@ msgid "Drag handle"
 msgstr "Puxador de arrasto"
 
 msgid "Drag to reorder"
-msgstr ""
+msgstr "Arrastar para reordenar"
 
 msgid "Drop Shipment"
 msgstr "Envio Direto"
@@ -6113,9 +6113,6 @@ msgstr "Reordenar"
 msgid "Reorder Group"
 msgstr "Reordenar Grupo"
 
-msgid "Reorder lines"
-msgstr ""
-
 msgid "Reorder Point"
 msgstr "Ponto de ReordenaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o"
 
@@ -6424,6 +6421,9 @@ msgstr "Salvar MÃƒÆ’Ã‚Â©todo"
 
 msgid "Save View"
 msgstr "Guardar VisualizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o"
+
+msgid "Saving..."
+msgstr ""
 
 msgid "Scan"
 msgstr "Digitalizar"

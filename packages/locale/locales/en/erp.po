@@ -6113,9 +6113,6 @@ msgstr "Reorder"
 msgid "Reorder Group"
 msgstr "Reorder Group"
 
-msgid "Reorder lines"
-msgstr "Reorder lines"
-
 msgid "Reorder Point"
 msgstr "Reorder Point"
 
@@ -6424,6 +6421,9 @@ msgstr "Save Method"
 
 msgid "Save View"
 msgstr "Save View"
+
+msgid "Saving..."
+msgstr "Saving..."
 
 msgid "Scan"
 msgstr "Scan"

@@ -1,4 +1,4 @@
-import { Button, HStack } from "@carbon/react";
+import { Button } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
 
 type ReorderEditBarProps = {
@@ -8,11 +8,6 @@ type ReorderEditBarProps = {
   onCancel: () => void;
 };
 
-/**
- * Two-button strip (Cancel / Save) shown above the explorer's primary footer
- * action while drag-to-reorder is active. Same h-8 chrome as the trigger
- * Button it replaces, so the explorer doesn't shift between states.
- */
 export function ReorderEditBar({
   isSaving,
   isDirty,
@@ -20,24 +15,25 @@ export function ReorderEditBar({
   onCancel
 }: ReorderEditBarProps) {
   return (
-    <HStack spacing={2} className="w-full">
+    <div className="flex gap-1 flex-1">
       <Button
-        variant="secondary"
-        className="flex-1"
-        isDisabled={isSaving}
+        size="sm"
+        variant="ghost"
         onClick={onCancel}
+        isDisabled={isSaving}
+        className="flex-1 h-8 text-xs"
       >
         <Trans>Cancel</Trans>
       </Button>
       <Button
+        size="sm"
         variant="primary"
-        className="flex-1"
-        isDisabled={!isDirty || isSaving}
-        isLoading={isSaving}
         onClick={onSave}
+        isDisabled={!isDirty || isSaving}
+        className="flex-1 h-8 text-xs"
       >
-        <Trans>Save</Trans>
+        {isSaving ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
       </Button>
-    </HStack>
+    </div>
   );
 }

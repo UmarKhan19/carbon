@@ -24,21 +24,10 @@ type ReorderableLineListProps<T extends ReorderableLine> = {
   activeLine: T | null;
   onDragStart: (event: DragStartEvent) => void;
   onDragEnd: (event: DragEndEvent) => void;
-  /**
-   * Render the row content (drag-handle + entity-specific body). Receives
-   * the drag-handle bindings so the entity can place the grip wherever its
-   * layout requires.
-   */
   renderRow: (line: T, dragHandle: DragHandleBindings) => ReactNode;
-  /** Render the floating ghost shown under the cursor during a drag. */
   renderOverlay: (line: T) => ReactNode;
 };
 
-/**
- * dnd-kit wrapper that turns a flat list of `{ id }` objects into a
- * vertical sortable list with a portaled drag overlay. Entity-specific
- * rendering lives in the `renderRow` / `renderOverlay` callbacks.
- */
 export function ReorderableLineList<T extends ReorderableLine>({
   lines,
   activeLine,
@@ -72,7 +61,7 @@ export function ReorderableLineList<T extends ReorderableLine>({
       <ClientOnly fallback={null}>
         {() =>
           createPortal(
-            <DragOverlay>
+            <DragOverlay dropAnimation={null}>
               {activeLine && renderOverlay(activeLine)}
             </DragOverlay>,
             document.body
@@ -101,7 +90,7 @@ function SortableLineRow<T extends ReorderableLine>({
 
   const style = {
     transform: CSS.Translate.toString(transform),
-    transition
+    transition: transition ?? undefined
   };
 
   return (
@@ -109,8 +98,9 @@ function SortableLineRow<T extends ReorderableLine>({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "w-full border-b bg-card ring-1 ring-transparent",
-        isDragging && "opacity-50 ring-primary"
+        "w-full border-b border-border/60 bg-card",
+        "transition-[opacity,background-color] duration-150 ease",
+        isDragging && "opacity-40 bg-muted/30"
       )}
     >
       {renderRow(line, { attributes, listeners })}

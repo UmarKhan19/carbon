@@ -22,9 +22,9 @@ import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useRef, useState } from "react";
 import {
-  LuArrowUpDown,
   LuCirclePlus,
   LuEllipsisVertical,
+  LuSettings2,
   LuTrash
 } from "react-icons/lu";
 import { Link, useParams } from "react-router";
@@ -164,54 +164,51 @@ export default function PurchaseOrderExplorer() {
             </Empty>
           )}
         </VStack>
-        {canReorder && lines.length > 0 && (
-          <div className="w-full px-4 pt-2">
-            {editMode.isEditing ? (
-              <ReorderEditBar
-                isSaving={editMode.isSaving}
-                isDirty={editMode.isDirty}
-                onSave={editMode.save}
-                onCancel={editMode.cancelEditMode}
-              />
-            ) : (
-              <Button
-                variant="ghost"
-                leftIcon={<LuArrowUpDown />}
-                className="w-full h-8 justify-start text-muted-foreground"
-                onClick={editMode.enterEditMode}
-              >
-                <Trans>Reorder lines</Trans>
-              </Button>
-            )}
-          </div>
-        )}
-        <div className="w-full flex flex-0 sm:flex-row border-t border-border p-4 sm:justify-start sm:space-x-2">
-          <Tooltip>
-            <TooltipTrigger className="w-full">
-              <Button
-                ref={newButtonRef}
-                className="w-full"
-                isDisabled={
-                  isDisabled ||
-                  editMode.isEditing ||
-                  !permissions.can("update", "sales")
-                }
-                leftIcon={<LuCirclePlus />}
-                variant="secondary"
-                onClick={newPurchaseOrderLineDisclosure.onOpen}
-              >
-                <Trans>Add Line Item</Trans>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <HStack>
-                <span>
-                  <Trans>New Line Item</Trans>
-                </span>
-                <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
-              </HStack>
-            </TooltipContent>
-          </Tooltip>
+        <div className="w-full flex border-t border-border p-4 gap-2">
+          {editMode.isEditing ? (
+            <ReorderEditBar
+              isSaving={editMode.isSaving}
+              isDirty={editMode.isDirty}
+              onSave={editMode.save}
+              onCancel={editMode.cancelEditMode}
+            />
+          ) : (
+            <>
+              <Tooltip>
+                <TooltipTrigger className="flex-1">
+                  <Button
+                    ref={newButtonRef}
+                    className="w-full"
+                    isDisabled={
+                      isDisabled || !permissions.can("update", "sales")
+                    }
+                    leftIcon={<LuCirclePlus />}
+                    variant="secondary"
+                    onClick={newPurchaseOrderLineDisclosure.onOpen}
+                  >
+                    <Trans>Add Line Item</Trans>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <HStack>
+                    <span>
+                      <Trans>New Line Item</Trans>
+                    </span>
+                    <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
+                  </HStack>
+                </TooltipContent>
+              </Tooltip>
+              {canReorder && lines.length > 0 && (
+                <IconButton
+                  aria-label="Reorder lines"
+                  icon={<LuSettings2 />}
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={editMode.enterEditMode}
+                />
+              )}
+            </>
+          )}
         </div>
       </VStack>
       {newPurchaseOrderLineDisclosure.isOpen && (

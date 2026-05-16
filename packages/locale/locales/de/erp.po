@@ -2503,7 +2503,7 @@ msgid "Drag handle"
 msgstr "Ziehgriff"
 
 msgid "Drag to reorder"
-msgstr ""
+msgstr "Zum Neuordnen ziehen"
 
 msgid "Drop Shipment"
 msgstr "Direktversand"
@@ -2930,7 +2930,7 @@ msgid "Entity is {status}"
 msgstr "Entity ist {status}"
 
 msgid "EORI"
-msgstr ""
+msgstr "EORI"
 
 msgid "ERP, MES, QMS"
 msgstr "ERP, MES, QMS"
@@ -5424,7 +5424,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF Watermark"
-msgstr ""
+msgstr "PDF-Wasserzeichen"
 
 msgid "PDFs"
 msgstr "PDFs"
@@ -6113,9 +6113,6 @@ msgstr "Neu anordnen"
 msgid "Reorder Group"
 msgstr "Gruppe neu anordnen"
 
-msgid "Reorder lines"
-msgstr ""
-
 msgid "Reorder Point"
 msgstr "Bestellpunkt"
 
@@ -6424,6 +6421,9 @@ msgstr "Methode speichern"
 
 msgid "Save View"
 msgstr "Ansicht speichern"
+
+msgid "Saving..."
+msgstr ""
 
 msgid "Scan"
 msgstr "Scannen"
@@ -6898,7 +6898,7 @@ msgid "Show sync options"
 msgstr "Synchronisierungsoptionen anzeigen"
 
 msgid "Shown as a faint background behind every page of generated PDFs"
-msgstr ""
+msgstr "Wird als schwacher Hintergrund hinter jeder Seite generierter PDFs angezeigt"
 
 msgid "Shown to the user when this rule fails."
 msgstr "Wird dem Benutzer angezeigt, wenn diese Regel fehlschlÃƒÆ’Ã‚Â¤gt."
