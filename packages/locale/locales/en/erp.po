@@ -500,6 +500,9 @@ msgstr "API Key"
 msgid "API Keys"
 msgstr "API Keys"
 
+msgid "API keys for programmatic access to your Carbon data."
+msgstr "API keys for programmatic access to your Carbon data."
+
 msgid "Applies to"
 msgstr "Applies to"
 
@@ -1486,8 +1489,8 @@ msgstr "Confirm Import"
 msgid "Confirm Password"
 msgstr "Confirm Password"
 
-msgid "Connect Carbon to your accounting, project, and CAD tools and much more."
-msgstr "Connect Carbon to your accounting, project, and CAD tools and much more."
+msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
+msgstr "Connect Carbon to your accounting, project management, and CAD tools and much more."
 
 msgid "Connect Jira issue"
 msgstr "Connect Jira issue"
@@ -2550,6 +2553,9 @@ msgstr "Drag handle"
 
 msgid "Drag to create anchor"
 msgstr "Drag to create anchor"
+
+msgid "Drag to reorder"
+msgstr "Drag to reorder"
 
 msgid "Drag to resize diagram and features"
 msgstr "Drag to resize diagram and features"
@@ -3900,8 +3906,14 @@ msgstr "Invalid Invite"
 msgid "Inventory"
 msgstr "Inventory"
 
+msgid "Inventory actions"
+msgstr "Inventory actions"
+
 msgid "Inventory Adjustment"
 msgstr "Inventory Adjustment"
+
+msgid "Inventory History"
+msgstr "Inventory History"
 
 msgid "Inventory Job Notifications"
 msgstr "Inventory Job Notifications"
@@ -3980,9 +3992,6 @@ msgstr "Issue description"
 
 msgid "Issue not found"
 msgstr "Issue not found"
-
-msgid "Issue scoped API keys for programmatic access to your Carbon data."
-msgstr "Issue scoped API keys for programmatic access to your Carbon data."
 
 msgid "Issue Status"
 msgstr "Issue Status"
@@ -5268,6 +5277,9 @@ msgstr "Open"
 msgid "Open Actions"
 msgstr "Open Actions"
 
+msgid "Open Audit Log"
+msgstr "Open Audit Log"
+
 msgid "Open chat history"
 msgstr "Open chat history"
 
@@ -6531,6 +6543,9 @@ msgstr "Save Method"
 msgid "Save View"
 msgstr "Save View"
 
+msgid "Saving..."
+msgstr "Saving..."
+
 msgid "Scan"
 msgstr "Scan"
 
@@ -6903,6 +6918,9 @@ msgstr "Shelf Life Start Process"
 
 msgid "Shelf-Life"
 msgstr "Shelf-Life"
+
+msgid "Shelf-Life History"
+msgstr "Shelf-Life History"
 
 msgid "Shift"
 msgstr "Shift"

@@ -15,6 +15,11 @@ import {
 } from "../git.js";
 import { confirmRemove } from "../prompts.js";
 import { destroyProjectVolumes, flushDb } from "../services/compose.js";
+import {
+  branchToPrefix,
+  pruneStaleRoutes,
+  unregisterAliases
+} from "../services/portless.js";
 import { getSlot, listSlugs, removeSlot } from "../worktree.js";
 
 export async function removeWorktreeCmd() {
@@ -65,14 +70,28 @@ export async function removeWorktreeCmd() {
   }
 
   const slotInfo = slug ? getSlot(slug) : null;
+  const branchPrefix = slug ? branchToPrefix(target.branch, slug) : null;
+
   await tasks([
+    ...(branchPrefix
+      ? [
+          {
+            title: "Unregister portless aliases",
+            task: async () => {
+              await unregisterAliases(targetPath, branchPrefix);
+              pruneStaleRoutes(branchPrefix);
+              return "network stopped";
+            }
+          }
+        ]
+      : []),
     ...(slug
       ? [
           {
             title: `docker compose down -v · ${projectLabel}`,
             task: async () => {
               await destroyProjectVolumes(targetPath, projectLabel);
-              return "stack removed";
+              return "stack and volumes removed";
             }
           }
         ]

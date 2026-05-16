@@ -1900,6 +1900,9 @@ importers:
       execa:
         specifier: ^8.0.1
         version: 8.0.1
+      pathe:
+        specifier: ^2.0.3
+        version: 2.0.3
       pg:
         specifier: 8.20.0
         version: 8.20.0
@@ -2486,6 +2489,9 @@ importers:
       '@carbon/database':
         specifier: workspace:*
         version: link:../database
+      '@carbon/env':
+        specifier: workspace:*
+        version: link:../env
       '@carbon/tiptap':
         specifier: workspace:*
         version: link:../tiptap

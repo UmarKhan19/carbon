@@ -1805,7 +1805,7 @@ export async function updateDefaultRevision(
   const [item, makeMethod] = await Promise.all([
     client
       .from("item")
-      .select("id,readableId, readableIdWithRevision")
+      .select("id,readableId, readableIdWithRevision, type, companyId")
       .eq("id", data.id)
       .single(),
     client
@@ -1815,11 +1815,14 @@ export async function updateDefaultRevision(
       .maybeSingle()
   ]);
   if (item.error) return item;
-  const readableId = item.data.readableId;
+  const { readableId, type, companyId } = item.data;
+  if (!companyId) return item;
   const relatedItems = await client
     .from("item")
     .select("id")
-    .eq("readableId", readableId);
+    .eq("readableId", readableId)
+    .eq("type", type)
+    .eq("companyId", companyId);
 
   const itemIds = relatedItems.data?.map((item) => item.id) ?? [];
 

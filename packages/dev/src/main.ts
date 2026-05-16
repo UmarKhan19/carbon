@@ -1,4 +1,3 @@
-import tab from "@bomb.sh/tab/citty";
 import { defineCommand, runMain } from "citty";
 import { copy } from "./commands/copy.js";
 import { down } from "./commands/down.js";
@@ -35,13 +34,27 @@ const main = defineCommand({
           default: true,
           description:
             "Spawn ERP/MES dev servers (use --no-apps for services-only boot)"
+        },
+        pull: {
+          type: "boolean",
+          default: false,
+          description:
+            "Always docker compose pull (default: skip when all images exist locally)"
+        },
+        borrow: {
+          type: "boolean",
+          default: false,
+          description:
+            "Pick another worktree's running containers to use instead of booting a new stack"
         }
       },
       run: ({ args }) =>
         up({
           migrate: args.migrate !== false,
           regen: args.regen !== false,
-          apps: args.apps !== false
+          apps: args.apps !== false,
+          pull: args.pull === true,
+          borrow: args.borrow === true
         })
     }),
     down: defineCommand({
@@ -105,5 +118,10 @@ const main = defineCommand({
   }
 });
 
-await tab(main);
+try {
+  const { default: tab } = await import("@bomb.sh/tab/citty");
+  await tab(main);
+} catch {
+  // Optional: shell completions only; continue if the package is missing (run `pnpm install`).
+}
 await runMain(main);
