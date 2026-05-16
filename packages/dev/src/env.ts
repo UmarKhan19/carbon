@@ -34,7 +34,7 @@ export function renderEnv(opts: {
       ? "# App-facing URLs (portless hostnames)"
       : "# App-facing URLs (localhost)"
   );
-  lines.push(`DOMAIN=${portless ? host("erp") : "localhost"}`);
+  lines.push(`DOMAIN=${portless ? `${branchPrefix}.dev` : "localhost"}`);
   lines.push(
     `ERP_URL=${portless ? `https://${host("erp")}` : local(ports.PORT_ERP)}`
   );
