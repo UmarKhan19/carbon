@@ -26620,6 +26620,7 @@ export type Database = {
           requiredDate: string | null
           serviceId: string | null
           shippingCost: number | null
+          sortOrder: number
           storageUnitId: string | null
           supplierExtendedPrice: number | null
           supplierShippingCost: number
@@ -26662,6 +26663,7 @@ export type Database = {
           requiredDate?: string | null
           serviceId?: string | null
           shippingCost?: number | null
+          sortOrder?: number
           storageUnitId?: string | null
           supplierExtendedPrice?: number | null
           supplierShippingCost?: number
@@ -26704,6 +26706,7 @@ export type Database = {
           requiredDate?: string | null
           serviceId?: string | null
           shippingCost?: number | null
+          sortOrder?: number
           storageUnitId?: string | null
           supplierExtendedPrice?: number | null
           supplierShippingCost?: number
@@ -27848,6 +27851,7 @@ export type Database = {
           requiresInspection: boolean
           setupPrice: number | null
           shippingCost: number | null
+          sortOrder: number
           storageUnitId: string | null
           supplierExtendedPrice: number | null
           supplierShippingCost: number
@@ -27899,6 +27903,7 @@ export type Database = {
           requiresInspection?: boolean
           setupPrice?: number | null
           shippingCost?: number | null
+          sortOrder?: number
           storageUnitId?: string | null
           supplierExtendedPrice?: number | null
           supplierShippingCost?: number
@@ -27950,6 +27955,7 @@ export type Database = {
           requiresInspection?: boolean
           setupPrice?: number | null
           shippingCost?: number | null
+          sortOrder?: number
           storageUnitId?: string | null
           supplierExtendedPrice?: number | null
           supplierShippingCost?: number
@@ -30380,6 +30386,7 @@ export type Database = {
           quantity: number[] | null
           quoteId: string
           quoteRevisionId: number
+          sortOrder: number
           status: Database["public"]["Enums"]["quoteLineStatus"]
           tags: string[] | null
           taxPercent: number
@@ -30412,6 +30419,7 @@ export type Database = {
           quantity?: number[] | null
           quoteId: string
           quoteRevisionId?: number
+          sortOrder?: number
           status?: Database["public"]["Enums"]["quoteLineStatus"]
           tags?: string[] | null
           taxPercent?: number
@@ -30444,6 +30452,7 @@ export type Database = {
           quantity?: number[] | null
           quoteId?: string
           quoteRevisionId?: number
+          sortOrder?: number
           status?: Database["public"]["Enums"]["quoteLineStatus"]
           tags?: string[] | null
           taxPercent?: number
@@ -33564,6 +33573,7 @@ export type Database = {
           salesOrderLineId: string | null
           setupPrice: number
           shippingCost: number
+          sortOrder: number
           storageUnitId: string | null
           taxPercent: number
           unitOfMeasureCode: string
@@ -33602,6 +33612,7 @@ export type Database = {
           salesOrderLineId?: string | null
           setupPrice?: number
           shippingCost?: number
+          sortOrder?: number
           storageUnitId?: string | null
           taxPercent?: number
           unitOfMeasureCode: string
@@ -33640,6 +33651,7 @@ export type Database = {
           salesOrderLineId?: string | null
           setupPrice?: number
           shippingCost?: number
+          sortOrder?: number
           storageUnitId?: string | null
           taxPercent?: number
           unitOfMeasureCode?: string
@@ -34516,6 +34528,7 @@ export type Database = {
           sentDate: string | null
           setupPrice: number | null
           shippingCost: number
+          sortOrder: number
           status: Database["public"]["Enums"]["salesOrderLineStatus"]
           storageUnitId: string | null
           taxPercent: number
@@ -34562,6 +34575,7 @@ export type Database = {
           sentDate?: string | null
           setupPrice?: number | null
           shippingCost?: number
+          sortOrder?: number
           status?: Database["public"]["Enums"]["salesOrderLineStatus"]
           storageUnitId?: string | null
           taxPercent?: number
@@ -34608,6 +34622,7 @@ export type Database = {
           sentDate?: string | null
           setupPrice?: number | null
           shippingCost?: number
+          sortOrder?: number
           status?: Database["public"]["Enums"]["salesOrderLineStatus"]
           storageUnitId?: string | null
           taxPercent?: number
@@ -36092,7 +36107,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_7BqMC5eK9CZo1FTcT3LJUR: {
+      searchIndex_CYj9v111oXXm6PX9ZD6Yn2: {
         Row: {
           createdAt: string
           description: string | null
@@ -40488,6 +40503,7 @@ export type Database = {
           purchaseUnitOfMeasureCode: string | null
           quantity: number[] | null
           requiredDate: string | null
+          sortOrder: number
           supplierPartId: string | null
           supplierPartRevision: string | null
           supplierQuoteId: string
@@ -40514,6 +40530,7 @@ export type Database = {
           purchaseUnitOfMeasureCode?: string | null
           quantity?: number[] | null
           requiredDate?: string | null
+          sortOrder?: number
           supplierPartId?: string | null
           supplierPartRevision?: string | null
           supplierQuoteId: string
@@ -40540,6 +40557,7 @@ export type Database = {
           purchaseUnitOfMeasureCode?: string | null
           quantity?: number[] | null
           requiredDate?: string | null
+          sortOrder?: number
           supplierPartId?: string | null
           supplierPartRevision?: string | null
           supplierQuoteId?: string
@@ -51836,6 +51854,7 @@ export type Database = {
           jobOperationId: string | null
           locationId: string | null
           modelUploadId: string | null
+          ownerId: string | null
           purchaseOrderId: string | null
           purchaseOrderLineId: string | null
           purchaseUnitOfMeasureCode: string | null
@@ -51843,6 +51862,7 @@ export type Database = {
           requiredDate: string | null
           serviceId: string | null
           shippingCost: number | null
+          sortOrder: number | null
           storageUnitId: string | null
           supplierExtendedPrice: number | null
           supplierPartId: string | null
@@ -51922,6 +51942,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseInvoiceLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "purchaseInvoiceLine_storageUnitId_fkey"
@@ -52468,6 +52523,7 @@ export type Database = {
           modelPath: string | null
           modelSize: number | null
           modelUploadId: string | null
+          ownerId: string | null
           promisedDate: string | null
           purchaseOrderId: string | null
           purchaseOrderLineType:
@@ -52486,6 +52542,7 @@ export type Database = {
           requiresInspection: boolean | null
           setupPrice: number | null
           shippingCost: number | null
+          sortOrder: number | null
           storageUnitId: string | null
           supplierExtendedPrice: number | null
           supplierPartId: string | null
@@ -52669,6 +52726,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchaseOrderLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "purchaseOrderLine_purchaseOrderId_fkey"
@@ -54178,9 +54270,12 @@ export type Database = {
           modelSize: number | null
           modelUploadId: string | null
           noQuoteReason: string | null
+          priceTrace: Json | null
+          pricingRuleId: string | null
           quantity: number[] | null
           quoteId: string | null
           quoteRevisionId: number | null
+          sortOrder: number | null
           status: Database["public"]["Enums"]["quoteLineStatus"] | null
           tags: string[] | null
           taxPercent: number | null
@@ -54359,6 +54454,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "salesRfqLines"
             referencedColumns: ["modelId"]
+          },
+          {
+            foreignKeyName: "quoteLine_pricingRuleId_fkey"
+            columns: ["pricingRuleId"]
+            isOneToOne: false
+            referencedRelation: "pricingRule"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "quoteLine_quoteId_fkey"
@@ -55883,6 +55985,7 @@ export type Database = {
           salesOrderLineId: string | null
           setupPrice: number | null
           shippingCost: number | null
+          sortOrder: number | null
           storageUnitId: string | null
           taxPercent: number | null
           thumbnailPath: string | null
@@ -56188,7 +56291,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56202,7 +56305,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56531,6 +56634,7 @@ export type Database = {
           sentDate: string | null
           setupPrice: number | null
           shippingCost: number | null
+          sortOrder: number | null
           status: Database["public"]["Enums"]["salesOrderLineStatus"] | null
           storageUnitId: string | null
           taxPercent: number | null
@@ -58549,9 +58653,11 @@ export type Database = {
           itemId: string | null
           itemReadableId: string | null
           itemType: Database["public"]["Enums"]["itemType"] | null
+          ownerId: string | null
           purchaseUnitOfMeasureCode: string | null
           quantity: number[] | null
           requiredDate: string | null
+          sortOrder: number | null
           supplierPartId: string | null
           supplierPartRevision: string | null
           supplierQuoteId: string | null
@@ -58696,6 +58802,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tools"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplierQuoteLine_ownerId_fkey"
+            columns: ["ownerId"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
           {
             foreignKeyName: "supplierQuoteLine_purchaseUnitOfMeasureCode_fkey"

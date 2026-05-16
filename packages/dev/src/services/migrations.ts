@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
+import { log } from "@clack/prompts";
 import { execa } from "execa";
 import { join } from "pathe";
 import pg from "pg";
@@ -96,15 +97,22 @@ export async function waitForStorageReady(
   throw new Error("storage.buckets did not appear within 180s");
 }
 
-// Re-apply `packages/dev/docker/init.sql` as the superuser. Docker's
-// `docker-entrypoint-initdb.d` only runs on a fresh pgdata volume — a worktree
-// with a pre-existing volume from before init.sql evolved keeps the old role
-// passwords forever, so storage-api / gotrue / postgrest auth-fail on every
-// boot. Re-applying is idempotent (`ALTER USER ... PASSWORD`, `CREATE SCHEMA
-// IF NOT EXISTS`).
+// Re-apply `packages/dev/docker/init.sql` as the cluster superuser role.
+// Docker's `docker-entrypoint-initdb.d` only runs on a fresh pgdata volume —
+// a worktree with a pre-existing volume from before init.sql evolved keeps the
+// old role passwords forever, so storage-api / gotrue / postgrest auth-fail on
+// every boot. Re-applying is idempotent (`ALTER USER ... PASSWORD`, `CREATE
+// SCHEMA IF NOT EXISTS`).
+//
+// Connect as `supabase_admin` (not `postgres`): current supabase/postgres
+// images treat `supabase_admin` as a reserved role; only a superuser may
+// `ALTER` it, and the host TCP `postgres` role is no longer sufficient.
 export async function applyBootstrapSql(root: string, port: number) {
   const sql = readFileSync(join(root, "packages/dev/docker/init.sql"), "utf8");
-  await withClient(port, (c) => c.query(sql));
+  await withClient(port, (c) => c.query(sql), {
+    user: "supabase_admin",
+    password: "postgres"
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -115,17 +123,17 @@ export async function applyBootstrapSql(root: string, port: number) {
 // that makes earlier-timestamp migrations look "out of order" without it.
 // Returns `applied: true` when at least one migration ran — callers gate
 // type/swagger regen on this so a re-run against an up-to-date DB stays cheap.
+//
+// Use `supabase_admin`, not `postgres`: current supabase/postgres images mark
+// `session_authorization=postgres` as non-superuser (`is_superuser=off`), so
+// the CLI cannot INSERT migration bookkeeping rows into
+// `supabase_migrations.schema_migrations` as `postgres`.
 export async function applyMigrations(
   root: string,
   dbPort: number
 ): Promise<{ applied: boolean }> {
-  const args = [
-    "migration",
-    "up",
-    "--include-all",
-    "--db-url",
-    `postgresql://postgres:postgres@localhost:${dbPort}/postgres`
-  ];
+  const dbUrl = `postgresql://supabase_admin:postgres@localhost:${dbPort}/postgres`;
+  const args = ["migration", "up", "--include-all", "--db-url", dbUrl];
   const cwd = join(root, "packages/database");
   const r = await execa("supabase", args, {
     cwd,
@@ -133,6 +141,29 @@ export async function applyMigrations(
     preferLocal: true
   });
   if (r.exitCode !== 0) {
+    const output = `${r.stderr ?? ""}\n${r.stdout ?? ""}`;
+    // Auto-repair: DB has migration versions not present locally (stale from
+    // another branch or incomplete volume wipe). Remove them and retry.
+    if (/remote migration versions not found in local/i.test(output)) {
+      const repaired = await repairStaleMigrations(root, dbPort);
+      if (repaired > 0) {
+        log.warn(`repaired ${repaired} stale migration(s) — retrying`);
+        const retry = await execa("supabase", args, {
+          cwd,
+          reject: false,
+          preferLocal: true
+        });
+        if (retry.exitCode === 0) {
+          const applied = /Applying migration/i.test(retry.stdout ?? "");
+          return { applied };
+        }
+        process.stderr.write(retry.stderr?.toString() ?? "");
+        process.stdout.write(retry.stdout?.toString() ?? "");
+        throw new Error(
+          `supabase ${args.join(" ")} failed after repair (exit ${retry.exitCode})`
+        );
+      }
+    }
     process.stderr.write(r.stderr?.toString() ?? "");
     process.stdout.write(r.stdout?.toString() ?? "");
     throw new Error(`supabase ${args.join(" ")} failed (exit ${r.exitCode})`);
@@ -143,22 +174,72 @@ export async function applyMigrations(
   return { applied };
 }
 
+// Find migration versions in DB that have no corresponding local file and
+// remove them from supabase_migrations.schema_migrations.
+async function repairStaleMigrations(
+  root: string,
+  dbPort: number
+): Promise<number> {
+  const migrationsDir = join(root, "packages/database/supabase/migrations");
+  const localVersions = new Set(
+    readdirSync(migrationsDir)
+      .filter((f) => f.endsWith(".sql"))
+      .map((f) => f.split("_")[0]!)
+  );
+
+  const remoteVersions = await withClient(
+    dbPort,
+    async (c) => {
+      const res = await c.query<{ version: string }>(
+        "SELECT version FROM supabase_migrations.schema_migrations ORDER BY version"
+      );
+      return res.rows.map((r) => r.version);
+    },
+    { user: "supabase_admin", password: "postgres" }
+  );
+
+  const stale = remoteVersions.filter((v) => !localVersions.has(v));
+  if (stale.length === 0) return 0;
+
+  await withClient(
+    dbPort,
+    async (c) => {
+      for (const version of stale) {
+        await c.query(
+          "DELETE FROM supabase_migrations.schema_migrations WHERE version = $1",
+          [version]
+        );
+      }
+    },
+    { user: "supabase_admin", password: "postgres" }
+  );
+
+  return stale.length;
+}
+
 // ---------------------------------------------------------------------------
 // Private helpers
 // ---------------------------------------------------------------------------
 
-// Host-side superuser connection. `pg` avoids a host `psql` install —
+type HostPgOpts = {
+  user?: string;
+  password?: string;
+  database?: string;
+};
+
+// Host-side Postgres connection. `pg` avoids a host `psql` install —
 // previously a hidden requirement that bit at least one engineer.
 async function withClient<T>(
   port: number,
-  fn: (c: pg.Client) => Promise<T>
+  fn: (c: pg.Client) => Promise<T>,
+  opts: HostPgOpts = {}
 ): Promise<T> {
   const client = new pg.Client({
     host: "127.0.0.1",
     port,
-    user: "postgres",
-    password: "postgres",
-    database: "postgres"
+    user: opts.user ?? "postgres",
+    password: opts.password ?? "postgres",
+    database: opts.database ?? "postgres"
   });
   await client.connect();
   try {

@@ -1319,6 +1319,8 @@ export const path = {
       generatePath(`${x}/purchase-invoice/${id}/exchange-rate`),
     purchaseInvoiceLine: (invoiceId: string, id: string) =>
       generatePath(`${x}/purchase-invoice/${invoiceId}/${id}/details`),
+    purchaseInvoiceLineOrder: (invoiceId: string) =>
+      generatePath(`${x}/purchase-invoice/${invoiceId}/line-order`),
     purchaseInvoicePost: (id: string) =>
       generatePath(`${x}/purchase-invoice/${id}/post`),
     purchaseInvoiceRoot: `${x}/purchase-invoice`,
@@ -1339,6 +1341,8 @@ export const path = {
     purchaseOrderFavorite: `${x}/purchasing/orders/favorite`,
     purchaseOrderLine: (orderId: string, id: string) =>
       generatePath(`${x}/purchase-order/${orderId}/${id}/details`),
+    purchaseOrderLineOrder: (orderId: string) =>
+      generatePath(`${x}/purchase-order/${orderId}/line-order`),
     purchaseOrderPayment: (id: string) =>
       generatePath(`${x}/purchase-order/${id}/payment`),
     purchaseOrderFinalize: (id: string) =>
@@ -1381,6 +1385,8 @@ export const path = {
       generatePath(`${x}/quote/${id}/internal`),
     quoteLine: (quoteId: string, id: string) =>
       generatePath(`${x}/quote/${quoteId}/${id}/details`),
+    quoteLineOrder: (quoteId: string) =>
+      generatePath(`${x}/quote/${quoteId}/line-order`),
     quoteLineConfigure: (quoteId: string, lineId: string) =>
       generatePath(`${x}/quote/${quoteId}/${lineId}/configure`),
     quoteLineMakeMethod: (
@@ -1449,6 +1455,8 @@ export const path = {
       generatePath(`${x}/sales-invoice/${id}/exchange-rate`),
     salesInvoiceLine: (id: string, lineId: string) =>
       generatePath(`${x}/sales-invoice/${id}/${lineId}/details`),
+    salesInvoiceLineOrder: (id: string) =>
+      generatePath(`${x}/sales-invoice/${id}/line-order`),
     salesInvoicePost: (id: string) =>
       generatePath(`${x}/sales-invoice/${id}/post`),
     salesInvoiceShipment: (id: string) =>
@@ -1474,6 +1482,8 @@ export const path = {
       generatePath(`${x}/sales-order/${id}/internal`),
     salesOrderLine: (orderId: string, id: string) =>
       generatePath(`${x}/sales-order/${orderId}/${id}/details`),
+    salesOrderLineOrder: (orderId: string) =>
+      generatePath(`${x}/sales-order/${orderId}/line-order`),
     salesOrderLineToJob: (orderId: string, lineId: string) =>
       generatePath(`${x}/sales-order/${orderId}/${lineId}/job`),
     salesOrderLinesToJobs: (orderId: string) =>
@@ -1505,8 +1515,8 @@ export const path = {
     salesRfqFavorite: `${x}/sales/rfqs/favorite`,
     salesRfqLine: (id: string, lineId: string) =>
       generatePath(`${x}/sales-rfq/${id}/${lineId}/details`),
-    salesRfqLinesOrder: (id: string) =>
-      generatePath(`${x}/sales-rfq/${id}/lines/order`),
+    salesRfqLineOrder: (id: string) =>
+      generatePath(`${x}/sales-rfq/${id}/line-order`),
     salesRfqRoot: `${x}/sales-rfq`,
     salesRfqStatus: (id: string) => generatePath(`${x}/sales-rfq/${id}/status`),
     salesRfqs: `${x}/sales/rfqs`,
@@ -1519,6 +1529,8 @@ export const path = {
     purchasingRfqFavorite: `${x}/purchasing/rfqs/favorite`,
     purchasingRfqLine: (id: string, lineId: string) =>
       generatePath(`${x}/purchasing-rfq/${id}/${lineId}/details`),
+    purchasingRfqLineOrder: (id: string) =>
+      generatePath(`${x}/purchasing-rfq/${id}/line-order`),
     purchasingRfqRoot: `${x}/purchasing-rfq`,
     purchasingRfqStatus: (id: string) =>
       generatePath(`${x}/purchasing-rfq/${id}/status`),
@@ -1641,6 +1653,8 @@ export const path = {
       generatePath(`${x}/supplier-quote/${id}/exchange-rate`),
     supplierQuoteLine: (id: string, lineId: string) =>
       generatePath(`${x}/supplier-quote/${id}/${lineId}/details`),
+    supplierQuoteLineOrder: (id: string) =>
+      generatePath(`${x}/supplier-quote/${id}/line-order`),
     supplierQuoteFinalize: (id: string) =>
       generatePath(`${x}/supplier-quote/${id}/finalize`),
     supplierQuoteSend: (id: string) =>

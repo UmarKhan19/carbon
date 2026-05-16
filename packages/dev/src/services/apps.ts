@@ -1,7 +1,10 @@
+import { existsSync, readFileSync } from "node:fs";
+import { parse } from "dotenv";
 import { type ExecaChildProcess, execa } from "execa";
 import { join } from "pathe";
 import pc from "picocolors";
 import { isAtLeastAsNew, onShutdown, readLines } from "../helpers.js";
+import type { PortMap } from "../worktree.js";
 
 const APP_COLORS: Record<string, (s: string) => string> = {
   erp: pc.cyan,
@@ -18,28 +21,68 @@ function isNoiseLine(line: string): boolean {
   return NOISE_PATTERNS.some((re) => re.test(plain));
 }
 
-// Invoke portless directly per app, bypassing the per-app `dev` script.
-// Older branches still have `dev: portless` which recurses into itself in
-// portless default mode, racing to register `<prefix>.<app>.dev`.
+// `portless` inherits `crbn`'s `process.env`; a stale shell `SUPABASE_URL`
+// (e.g. `http://127.0.0.1:54321`) would otherwise win over `crbn`'s repo-root
+// `.env.local`. Merge the same `.env*` stack as ERP Vite (app then repo, last
+// wins) so spawned dev servers always see worktree URLs.
+function spawnAppEnv(repoRoot: string, appId: string): NodeJS.ProcessEnv {
+  const env: Record<string, string | undefined> = { ...process.env };
+  const appRoot = join(repoRoot, "apps", appId);
+  const mergeFile = (abs: string) => {
+    if (!existsSync(abs)) return;
+    Object.assign(env, parse(readFileSync(abs, "utf8")));
+  };
+  mergeFile(join(appRoot, ".env"));
+  mergeFile(join(appRoot, ".env.local"));
+  mergeFile(join(repoRoot, ".env"));
+  mergeFile(join(repoRoot, ".env.local"));
+  return env as NodeJS.ProcessEnv;
+}
+
+const APP_PORT_KEYS: Partial<Record<string, keyof PortMap>> = {
+  erp: "PORT_ERP",
+  mes: "PORT_MES"
+};
+
 export function spawnApps(opts: {
   root: string;
   apps: string[];
+  ports: PortMap;
+  portless: boolean;
 }): Promise<void> {
-  const { root, apps } = opts;
+  const { root, apps, ports } = opts;
 
   let shuttingDown = false;
 
   const children: ExecaChildProcess[] = apps.map((id) => {
     const color = APP_COLORS[id] ?? ((s: string) => s);
-    // detached: own process group so `process.kill(-pid, sig)` reaches the
-    // whole subtree (portless → react-router → vite → esbuild).
-    const child = execa("portless", ["--script", "dev:app", "run", "--force"], {
-      cwd: join(root, "apps", id),
-      preferLocal: true,
-      reject: false,
-      stdin: "ignore",
-      detached: true
-    });
+    // Spawn apps directly with assigned ports. Hostnames are registered via
+    // `portless alias` (in registerAliases) so we control the exact format
+    // (`<app>.<prefix>.dev`) without portless auto-prefix mangling.
+    const portKey = APP_PORT_KEYS[id];
+    const port = portKey ? ports[portKey] : undefined;
+    const child = execa(
+      "pnpm",
+      [
+        "exec",
+        "react-router",
+        "dev",
+        ...(port !== undefined ? ["--port", String(port)] : []),
+        "--host",
+        "127.0.0.1"
+      ],
+      {
+        cwd: join(root, "apps", id),
+        env: {
+          ...spawnAppEnv(root, id),
+          HOST: "127.0.0.1",
+          ...(port !== undefined ? { PORT: String(port) } : {})
+        },
+        reject: false,
+        stdin: "ignore",
+        detached: true
+      }
+    );
 
     const prefix = color(pc.bold(`${id.padEnd(3)} | `));
     const pipe = (

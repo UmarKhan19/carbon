@@ -1,4 +1,5 @@
 import type { Database, Json } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
@@ -205,6 +206,7 @@ export async function getPurchaseInvoiceLines(
     .from("purchaseInvoiceLines")
     .select("*")
     .eq("invoiceId", purchaseInvoiceId)
+    .order("sortOrder", { ascending: true })
     .order("createdAt", { ascending: true });
 }
 
@@ -287,6 +289,7 @@ export async function getSalesInvoiceLines(
     .from("salesInvoiceLines")
     .select("*")
     .eq("invoiceId", salesInvoiceId)
+    .order("sortOrder", { ascending: true })
     .order("createdAt", { ascending: true });
 }
 
@@ -541,11 +544,36 @@ export async function upsertPurchaseInvoiceLine(
       .single();
   }
 
+  const existing = await client
+    .from("purchaseInvoiceLine")
+    .select("sortOrder")
+    .eq("invoiceId", purchaseInvoiceLine.invoiceId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("purchaseInvoiceLine")
-    .insert([purchaseInvoiceLine])
+    .insert([{ ...purchaseInvoiceLine, sortOrder: maxSortOrder + 1 }])
     .select("id")
     .single();
+}
+
+export async function updatePurchaseInvoiceLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchaseInvoiceLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertSalesInvoice(
@@ -711,9 +739,34 @@ export async function upsertSalesInvoiceLine(
       .single();
   }
 
+  const existing = await client
+    .from("salesInvoiceLine")
+    .select("sortOrder")
+    .eq("invoiceId", salesInvoiceLine.invoiceId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("salesInvoiceLine")
-    .insert([salesInvoiceLine])
+    .insert([{ ...salesInvoiceLine, sortOrder: maxSortOrder + 1 }])
     .select("id")
     .single();
+}
+
+export async function updateSalesInvoiceLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("salesInvoiceLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
