@@ -67,17 +67,31 @@ slugify_branch() {
 }
 
 delegate_ts() {
-  # Run citty entry through tsx. Prefer the locally-installed binary in the
-  # main checkout (single process under the shell — keeps Ctrl+C / SIGTERM
-  # semantics clean for the `crbn up` → graceful-`down` teardown flow).
-  # Falls back to `pnpx tsx` for fresh checkouts where node_modules isn't
-  # populated yet (e.g. immediately after `crbn checkout`).
-  local root
-  root="$(repo_root)"
-  if [[ -x "$root/node_modules/.bin/tsx" ]]; then
-    exec "$root/node_modules/.bin/tsx" "$root/packages/dev/src/main.ts" "$@"
+  # Run citty entry through tsx. Prefer the current worktree's source so CLI
+  # changes in a branch are testable immediately; fall back to main checkout.
+  # tsx binary: prefer worktree's node_modules, then main's, then pnpx.
+  local wt_root main_root src tsx
+  wt_root="$(git rev-parse --show-toplevel 2>/dev/null)"
+  main_root="$(repo_root)"
+
+  # Pick source: worktree first, but only if deps are installed (otherwise
+  # imports like `citty` fail). Falls back to main checkout.
+  if [[ -n "$wt_root" && -f "$wt_root/packages/dev/src/main.ts" && -d "$wt_root/node_modules" ]]; then
+    src="$wt_root/packages/dev/src/main.ts"
+  else
+    src="$main_root/packages/dev/src/main.ts"
   fi
-  exec pnpx tsx "$root/packages/dev/src/main.ts" "$@"
+
+  # Pick tsx binary.
+  if [[ -n "$wt_root" && -x "$wt_root/node_modules/.bin/tsx" ]]; then
+    tsx="$wt_root/node_modules/.bin/tsx"
+  elif [[ -x "$main_root/node_modules/.bin/tsx" ]]; then
+    tsx="$main_root/node_modules/.bin/tsx"
+  else
+    exec pnpx tsx "$src" "$@"
+  fi
+
+  exec "$tsx" "$src" "$@"
 }
 
 # ---------------------------------------------------------------------------

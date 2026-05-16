@@ -116,6 +116,33 @@ export async function branchExists(branch: string): Promise<boolean> {
   return r.exitCode === 0;
 }
 
+/**
+ * Check if creating `branch` would conflict with an existing ref in the
+ * hierarchy. Git refs are path-like: `test` and `test/sid` can't coexist
+ * because `test` would need to be both a file and a directory under
+ * `.git/refs/heads/`.
+ *
+ * Returns the conflicting ref name, or null if no conflict.
+ */
+export async function refConflict(branch: string): Promise<string | null> {
+  // A parent segment exists as a branch? e.g. "test" blocks "test/sid".
+  const parts = branch.split("/");
+  for (let i = 1; i < parts.length; i++) {
+    const ancestor = parts.slice(0, i).join("/");
+    if (await branchExists(ancestor)) return ancestor;
+  }
+  // A child branch exists under this name? e.g. "test/sid" blocks "test".
+  const r = await execa(
+    "git",
+    ["for-each-ref", "--format=%(refname:short)", `refs/heads/${branch}/`],
+    { reject: false }
+  );
+  if (r.exitCode === 0 && r.stdout.trim()) {
+    return r.stdout.trim().split("\n")[0]!;
+  }
+  return null;
+}
+
 export async function deleteBranch(branch: string): Promise<void> {
   // -D forces even on unmerged; caller confirms.
   const r = await execa("git", ["branch", "-D", branch], { reject: false });

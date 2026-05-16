@@ -12,7 +12,12 @@ import {
 import { join } from "pathe";
 import pc from "picocolors";
 import { APP_CHOICES, type AppId } from "./constants.js";
-import { branchExists, deleteBranch, listWorktrees } from "./git.js";
+import {
+  branchExists,
+  deleteBranch,
+  listWorktrees,
+  refConflict
+} from "./git.js";
 import { listSlugs } from "./worktree.js";
 
 // git-check-ref-format(1) rules.
@@ -71,11 +76,12 @@ export async function pickApps(): Promise<AppId[]> {
   return picked as AppId[];
 }
 
-export async function promptBranch(): Promise<string> {
+export async function promptBranch(initial?: string): Promise<string> {
   while (true) {
     const value = await text({
       message: "Branch name",
       placeholder: "feature/foo",
+      initialValue: initial,
       validate(v) {
         if (!v || !v.trim()) return "Branch is required";
         const t = v.trim();
@@ -86,6 +92,16 @@ export async function promptBranch(): Promise<string> {
     });
     if (isCancel(value)) abort();
     const trimmed = (value as string).trim();
+    // Detect git ref hierarchy conflicts (e.g. "test" exists → "test/sid" impossible).
+    const conflict = await refConflict(trimmed);
+    if (conflict) {
+      log.error(
+        `Branch '${trimmed}' conflicts with existing ref '${conflict}'.\n` +
+          `  Git can't have both — pick a different name or delete '${conflict}' first.`
+      );
+      initial = undefined;
+      continue;
+    }
     if (await branchExists(trimmed)) {
       const worktrees = await listWorktrees();
       const onWorktree = worktrees.find((w) => w.branch === trimmed);

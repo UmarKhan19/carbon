@@ -59,13 +59,13 @@ export function renderEnv(opts: {
   lines.push(`SUPABASE_JWT_SECRET=${jwt.secret}`);
   lines.push(`SUPABASE_ANON_KEY=${jwt.anonKey}`);
   lines.push(`SUPABASE_SERVICE_ROLE_KEY=${jwt.serviceKey}`);
-  // Branch-independent OAuth callback host (api.carbon.dev). Last `crbn up`
-  // wins — registers `api.carbon` alias to its PORT_API.
+  const apiBase = portless ? `https://${host("api")}` : local(ports.PORT_API);
+  // OAuth callback must match the URL scheme apps actually use.
   lines.push(
-    `SUPABASE_AUTH_EXTERNAL_GOOGLE_REDIRECT_URI=https://api.carbon.dev/auth/v1/callback`
+    `SUPABASE_AUTH_EXTERNAL_GOOGLE_REDIRECT_URI=${portless ? "https://api.carbon.dev" : apiBase}/auth/v1/callback`
   );
   lines.push(
-    `SUPABASE_AUTH_EXTERNAL_AZURE_REDIRECT_URI=https://api.carbon.dev/auth/v1/callback`
+    `SUPABASE_AUTH_EXTERNAL_AZURE_REDIRECT_URI=${portless ? "https://api.carbon.dev" : apiBase}/auth/v1/callback`
   );
   lines.push("");
   lines.push("# Aux services");
@@ -75,7 +75,9 @@ export function renderEnv(opts: {
   // SDK advertises this as its serve URL during self-register. Must be
   // reachable from inside the inngest container (handled via extra_hosts +
   // portless CA mount in docker-compose.dev.yml).
-  lines.push(`INNGEST_SERVE_HOST=https://${host("erp")}`);
+  lines.push(
+    `INNGEST_SERVE_HOST=${portless ? `https://${host("erp")}` : local(ports.PORT_ERP)}`
+  );
   lines.push("");
   return lines.join("\n");
 }

@@ -68,6 +68,8 @@ type UpOpts = {
   pull?: boolean;
   /** When true, show a picker to borrow another worktree's running containers. */
   borrow?: boolean;
+  /** When false, skip portless proxy and use localhost URLs. */
+  portless?: boolean;
 };
 
 type Ctx = {
@@ -96,9 +98,13 @@ export async function up(opts: UpOpts = {}) {
   loadDotenv({ path: join(root, ".env.local"), override: false });
   loadDotenv({ path: join(root, ".env"), override: false });
 
-  // Set CARBON_PORTLESS=0 to use http://localhost:PORT URLs and skip the
-  // portless proxy setup (useful when the .dev TLD cert is not trusted).
-  const portless = process.env.CARBON_PORTLESS !== "0";
+  // --no-portless flag or CARBON_PORTLESS=0 to use http://localhost:PORT URLs
+  // and skip the portless proxy setup (useful when the .dev TLD cert is not
+  // trusted). The flag takes precedence over the env var.
+  const portless =
+    opts.portless !== undefined
+      ? opts.portless
+      : process.env.CARBON_PORTLESS !== "0";
 
   intro("Carbon · dev up");
 
