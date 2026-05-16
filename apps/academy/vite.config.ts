@@ -3,7 +3,6 @@ import { lingui } from "@lingui/vite-plugin";
 import path from "node:path";
 import { defineConfig, PluginOption } from "vite";
 import babelMacros from "vite-plugin-babel-macros";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig(({ isSsrBuild }) => ({
   build: {
@@ -40,9 +39,9 @@ export default defineConfig(({ isSsrBuild }) => ({
     babelMacros(),
     lingui(),
     reactRouter(),
-    tsconfigPaths(),
   ] as PluginOption[],
   resolve: {
+    tsconfigPaths: true,
     alias: {
       "@carbon/utils": path.resolve(
         __dirname,

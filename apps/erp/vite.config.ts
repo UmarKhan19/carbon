@@ -3,7 +3,6 @@ import { reactRouter } from "@react-router/dev/vite";
 import path from "node:path";
 import { defineConfig, loadEnv, PluginOption } from "vite";
 import babelMacros from "vite-plugin-babel-macros";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 const repoRoot = path.resolve(__dirname, "../..");
 
@@ -77,9 +76,9 @@ export default defineConfig(({ isSsrBuild, mode }) => {
       babelMacros(),
       lingui(),
       reactRouter(),
-      tsconfigPaths(),
     ] as PluginOption[],
     resolve: {
+      tsconfigPaths: true,
       alias: {
         "@carbon/utils": path.resolve(
           __dirname,
