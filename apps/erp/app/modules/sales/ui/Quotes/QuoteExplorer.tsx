@@ -34,12 +34,20 @@ import {
   LuDownload,
   LuEllipsisVertical,
   LuSearch,
+  LuSettings2,
   LuTable,
   LuTrash
 } from "react-icons/lu";
 import { Link, useFetchers, useNavigate, useParams } from "react-router";
 import { Empty, ItemThumbnail, MethodItemTypeIcon } from "~/components";
 import { QuoteLineStatusIcon } from "~/components/Icons";
+import type { DragHandleBindings } from "~/components/LineReorder";
+import {
+  ReorderableLineList,
+  ReorderableRow,
+  ReorderEditBar,
+  useLineOrderEditMode
+} from "~/components/LineReorder";
 import type { Tree } from "~/components/TreeView";
 import { flattenTree } from "~/components/TreeView";
 import {
@@ -137,9 +145,22 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
     linesMap.set(pendingItem.itemId!, { ...pendingItem, quoteId });
   }
 
-  const linesToRender = Array.from(linesMap.values()).sort((a, b) =>
-    (a.itemReadableId ?? "").localeCompare(b.itemReadableId ?? "")
-  );
+  // Server already returns lines ordered by sortOrder; the Map preserves
+  // insertion order so we just take values as-is. Optimistic items (added
+  // via .set() in the loop above) trail at the end, which is fine — they
+  // don't have a sortOrder yet.
+  const linesToRender = Array.from(linesMap.values());
+
+  const realQuoteLines = (quoteData?.lines ?? []) as QuotationLine[];
+  const canReorder =
+    !isDisabled &&
+    permissions.can("update", "sales") &&
+    realQuoteLines.length > 1;
+
+  const editMode = useLineOrderEditMode<QuotationLine>({
+    actionPath: path.to.quoteLineOrder(quoteId),
+    lines: realQuoteLines
+  });
 
   return (
     <div
@@ -156,20 +177,35 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
           spacing={0}
         >
           {linesToRender.length > 0 ? (
-            linesToRender.map((line) =>
-              !isQuoteLine(line) ? (
-                <OptimisticQuoteLineItem
-                  key={line.itemId}
-                  line={line as OptimisticQuoteLine}
-                />
-              ) : (
-                <DroppableQuoteLineItem
-                  key={line.id}
-                  isDisabled={isDisabled}
-                  line={line as QuotationLine}
-                  onDelete={onDeleteLine}
-                  methods={methods}
-                />
+            editMode.isEditing ? (
+              <ReorderableLineList<QuotationLine>
+                lines={editMode.draft}
+                activeLine={editMode.activeLine}
+                onDragStart={editMode.handleDragStart}
+                onDragEnd={editMode.handleDragEnd}
+                renderRow={(line, dragHandle) => (
+                  <QuoteLineBody line={line} dragHandle={dragHandle} />
+                )}
+                renderOverlay={(line) => (
+                  <QuoteLineBody line={line} isOverlay />
+                )}
+              />
+            ) : (
+              linesToRender.map((line) =>
+                !isQuoteLine(line) ? (
+                  <OptimisticQuoteLineItem
+                    key={line.itemId}
+                    line={line as OptimisticQuoteLine}
+                  />
+                ) : (
+                  <DroppableQuoteLineItem
+                    key={line.id}
+                    isDisabled={isDisabled}
+                    line={line as QuotationLine}
+                    onDelete={onDeleteLine}
+                    methods={methods}
+                  />
+                )
               )
             )
           ) : (
@@ -187,29 +223,51 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
             </Empty>
           )}
         </VStack>
-        <div className="w-full flex flex-0 sm:flex-row border-t border-border p-4 sm:justify-start sm:space-x-2">
-          <Tooltip>
-            <TooltipTrigger className="w-full">
-              <Button
-                ref={newButtonRef}
-                className="w-full"
-                isDisabled={isDisabled || !permissions.can("update", "sales")}
-                leftIcon={<LuCirclePlus />}
-                variant="secondary"
-                onClick={newQuoteLineDisclosure.onOpen}
-              >
-                <Trans>Add Line Item</Trans>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <HStack>
-                <span>
-                  <Trans>New Line Item</Trans>
-                </span>
-                <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
-              </HStack>
-            </TooltipContent>
-          </Tooltip>
+        <div className="w-full flex border-t border-border p-4 gap-2">
+          {editMode.isEditing ? (
+            <ReorderEditBar
+              isSaving={editMode.isSaving}
+              isDirty={editMode.isDirty}
+              onSave={editMode.save}
+              onCancel={editMode.cancelEditMode}
+            />
+          ) : (
+            <>
+              <Tooltip>
+                <TooltipTrigger className="flex-1">
+                  <Button
+                    ref={newButtonRef}
+                    className="w-full"
+                    isDisabled={
+                      isDisabled || !permissions.can("update", "sales")
+                    }
+                    leftIcon={<LuCirclePlus />}
+                    variant="secondary"
+                    onClick={newQuoteLineDisclosure.onOpen}
+                  >
+                    <Trans>Add Line Item</Trans>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <HStack>
+                    <span>
+                      <Trans>New Line Item</Trans>
+                    </span>
+                    <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
+                  </HStack>
+                </TooltipContent>
+              </Tooltip>
+              {canReorder && realQuoteLines.length > 0 && (
+                <IconButton
+                  aria-label="Reorder lines"
+                  icon={<LuSettings2 />}
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={editMode.enterEditMode}
+                />
+              )}
+            </>
+          )}
         </div>
       </VStack>
       {newQuoteLineDisclosure.isOpen && (
@@ -223,6 +281,32 @@ export default function QuoteExplorer({ methods }: QuoteExplorerProps) {
         <DeleteQuoteLine line={deleteLine!} onCancel={onDeleteCancel} />
       )}
     </div>
+  );
+}
+
+function QuoteLineBody({
+  line,
+  dragHandle,
+  isOverlay
+}: {
+  line: QuotationLine;
+  dragHandle?: DragHandleBindings;
+  isOverlay?: boolean;
+}) {
+  return (
+    <ReorderableRow dragHandle={dragHandle} isOverlay={isOverlay}>
+      <HStack spacing={2} className="flex-grow min-w-0 p-2 pr-10">
+        <ItemThumbnail thumbnailPath={line.thumbnailPath} type="Part" />
+        <VStack spacing={0} className="min-w-0">
+          <span className="font-semibold line-clamp-1">
+            {line.itemReadableId || line.description || "Item"}
+          </span>
+          <span className="text-muted-foreground text-xs truncate line-clamp-1">
+            {line.description}
+          </span>
+        </VStack>
+      </HStack>
+    </ReorderableRow>
   );
 }
 

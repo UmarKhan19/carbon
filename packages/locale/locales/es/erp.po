@@ -303,7 +303,7 @@ msgid "Add Entry"
 msgstr "Agregar entrada"
 
 msgid "Add from library…"
-msgstr ""
+msgstr "Agregar de la biblioteca…"
 
 msgid "Add Group"
 msgstr "Agregar grupo"
@@ -481,6 +481,9 @@ msgstr "Clave API"
 
 msgid "API Keys"
 msgstr "Claves API"
+
+msgid "API keys for programmatic access to your Carbon data."
+msgstr "Claves API para acceso programático a tus datos de Carbon."
 
 msgid "Applies to"
 msgstr "Se aplica a"
@@ -1149,7 +1152,7 @@ msgid "Cannot place order - no supplier associated with this item"
 msgstr "No se puede realizar el pedido - no hay proveedor asociado a este artÃƒÆ’Ã‚Â­culo"
 
 msgid "Cannot post — shipment contains expired tracked entities."
-msgstr ""
+msgstr "No se puede registrar — el envío contiene entidades rastreadas vencidas."
 
 msgid "Cannot send RFQ"
 msgstr "No se puede enviar RFQ"
@@ -1456,8 +1459,8 @@ msgstr "Confirmar importaciÃƒÆ’Ã‚Â³n"
 msgid "Confirm Password"
 msgstr "Confirmar ContraseÃƒÆ’Ã‚Â±a"
 
-msgid "Connect Carbon to your accounting, project, and CAD tools and much more."
-msgstr "Conecta Carbon a tus herramientas de contabilidad, proyectos, CAD y mucho mÃƒÆ’Ã‚Â¡s."
+msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
+msgstr "Conecta Carbon a tus herramientas de contabilidad, gestión de proyectos, CAD y mucho más."
 
 msgid "Connect Jira issue"
 msgstr "Conectar problema de Jira"
@@ -2498,6 +2501,9 @@ msgstr "Arrastra y suelta un PDF de Orden de Compra aquÃƒÆ’Ã‚Â­, o haz
 
 msgid "Drag handle"
 msgstr "Controlador de arrastre"
+
+msgid "Drag to reorder"
+msgstr "Arrastra para reordenar"
 
 msgid "Drop Shipment"
 msgstr "EnvÃƒÆ’Ã‚Â­o Directo"
@@ -3810,7 +3816,7 @@ msgid "Inventory"
 msgstr "Inventario"
 
 msgid "Inventory actions"
-msgstr ""
+msgstr "Acciones de inventario"
 
 msgid "Inventory Adjustment"
 msgstr "Ajuste de Inventario"
@@ -3895,9 +3901,6 @@ msgstr "DescripciÃƒÆ’Ã‚Â³n del problema"
 
 msgid "Issue not found"
 msgstr "Problema no encontrado"
-
-msgid "Issue scoped API keys for programmatic access to your Carbon data."
-msgstr "Emite claves API con alcance para acceso programÃƒÆ’Ã‚Â¡tico a tus datos de Carbon."
 
 msgid "Issue Status"
 msgstr "Estado del Problema"
@@ -4583,7 +4586,7 @@ msgid "Move entities"
 msgstr "Mover entidades"
 
 msgid "Move entities…"
-msgstr ""
+msgstr "Mover entidades…"
 
 msgid "Move item"
 msgstr "Mover elemento"
@@ -6419,6 +6422,9 @@ msgstr "Guardar MÃƒÆ’Ã‚Â©todo"
 msgid "Save View"
 msgstr "Guardar Vista"
 
+msgid "Saving..."
+msgstr ""
+
 msgid "Scan"
 msgstr "Escanear"
 
@@ -7060,7 +7066,7 @@ msgstr "Estado / Provincia"
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr ""
+msgstr "La aceptación estadística falló, por lo que el lote completo se considera no conforme (ISO 9001:2015 §8.7). Todas las {0} entidades — {passes} muestra(s) aprobada(s), {fails} falla(s) y {1} sin inspeccionar — se marcarán como Rechazadas. Un NCR se abrirá automáticamente para disposición de MRB."
 
 msgid "Status"
 msgstr "Estado"
