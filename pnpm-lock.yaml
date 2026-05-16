@@ -926,6 +926,9 @@ importers:
       '@carbon/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@carbon/dev':
+        specifier: workspace:*
+        version: link:../../packages/dev
       '@lingui/macro':
         specifier: 'catalog:'
         version: 5.9.4(@lingui/babel-plugin-lingui-macro@5.9.4(babel-plugin-macros@3.1.0)(typescript@5.8.3))(babel-plugin-macros@3.1.0)(react@18.3.1)
@@ -1248,6 +1251,9 @@ importers:
       '@carbon/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@carbon/dev':
+        specifier: workspace:*
+        version: link:../../packages/dev
       '@types/react':
         specifier: 'catalog:'
         version: 18.3.28
@@ -1876,6 +1882,9 @@ importers:
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
+      vite:
+        specifier: '*'
+        version: 7.3.2(@types/node@20.19.39)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
     devDependencies:
       '@carbon/config':
         specifier: '*'
