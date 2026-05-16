@@ -10,6 +10,7 @@ declare global {
       CLOUDFLARE_TURNSTILE_SITE_KEY: string;
       CONTROLLED_ENVIRONMENT: string;
       ERP_URL: string;
+      NODE_ENV: string;
       JIRA_CLIENT_ID: string;
       MES_URL: string;
       NOVU_APPLICATION_ID: string;
