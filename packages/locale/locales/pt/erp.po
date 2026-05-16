@@ -6428,8 +6428,8 @@ msgstr ""
 msgid "Scan"
 msgstr "Digitalizar"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "Digitalize um rÃƒÆ’Ã‚Â³tulo ou pesquise por ID, nÃƒÆ’Ã‚Âºmero de sÃƒÆ’Ã‚Â©rie ou nÃƒÆ’Ã‚Âºmero de lote."
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr ""
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Digitalize ou insira ID da entidade rastreada, sÃƒÆ’Ã‚Â©rie ou lote"

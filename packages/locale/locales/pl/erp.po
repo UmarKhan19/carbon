@@ -6428,8 +6428,8 @@ msgstr ""
 msgid "Scan"
 msgstr "Skanuj"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "Skanuj etykietÃƒâ€žÃ¢â€žÂ¢ lub wyszukaj wedÃƒâ€¦Ã¢â‚¬Å¡ug ID, numeru seryjnego lub numeru partii."
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr ""
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Skanuj lub wprowadÃƒâ€¦Ã‚Âº identyfikator Ãƒâ€¦Ã¢â‚¬Âºledzonej jednostki, numer seryjny lub partiÃƒâ€žÃ¢â€žÂ¢"
