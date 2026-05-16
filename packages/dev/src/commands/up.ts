@@ -34,7 +34,6 @@ import {
 } from "../services/migrations.js";
 import {
   branchToPrefix,
-  claimAppHosts,
   ensurePortlessInstalled,
   ensureProxyPrivileges,
   hostsFileInSync,
@@ -391,12 +390,18 @@ async function runDatabaseMigrations(
   ]);
 }
 
-async function setupPortless(ctx: Ctx, selectedApps: AppId[]) {
+async function setupPortless(ctx: Ctx, _selectedApps: AppId[]) {
   await tasks([
+    {
+      title: "Prune stale portless routes",
+      task: async () => {
+        await pruneStaleRoutes();
+        return "orphans cleaned";
+      }
+    },
     {
       title: "Start portless proxy",
       task: async (msg) => {
-        pruneStaleRoutes(ctx.branchPrefix);
         startProxyDaemon(ctx.root);
         msg("waiting for proxy on :443");
         await waitForProxyReady();
@@ -413,26 +418,26 @@ async function setupPortless(ctx: Ctx, selectedApps: AppId[]) {
         );
         return `${count} aliases registered`;
       }
-    },
-    {
-      title: "Reserve app hostnames",
-      task: async () => {
-        const killed = await claimAppHosts(ctx.branchPrefix, selectedApps);
-        return killed > 0
-          ? `killed ${killed} orphan portless process${killed === 1 ? "" : "es"}`
-          : "no orphans found";
-      }
     }
   ]);
 }
 
-// Skip sudo sync when root daemon already auto-syncs, or hosts unchanged.
+// Verify /etc/hosts has all expected entries. Root proxy auto-syncs via
+// fs.watch on routes.json, but there's a race between alias registration
+// and the watcher firing. Poll briefly, then fall back to sudo sync.
 async function ensureHostsFile() {
   if (proxyRunsAsRoot()) {
-    log.info("/etc/hosts auto-synced by root proxy daemon");
-    return;
-  }
-  if (hostsFileInSync()) {
+    // Give the root daemon a moment to pick up new routes.
+    const deadline = Date.now() + 3_000;
+    while (Date.now() < deadline) {
+      if (hostsFileInSync()) {
+        log.info("/etc/hosts verified in sync");
+        return;
+      }
+      await new Promise((r) => setTimeout(r, 300));
+    }
+    log.warn("/etc/hosts not in sync after 3s — falling back to manual sync");
+  } else if (hostsFileInSync()) {
     log.info("/etc/hosts already in sync — skipping sudo");
     return;
   }

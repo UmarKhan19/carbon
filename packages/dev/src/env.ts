@@ -84,24 +84,18 @@ export function writeEnv(worktreeRoot: string, content: string) {
   writeFileSync(join(worktreeRoot, ".env.local"), content);
 }
 
-// Stamp `apps/<id>/portless.json` so main-checkout gets `<app>.<prefix>.dev`
-// too (portless auto-prefixes only in linked worktrees). Linked worktrees
-// leave the file absent — stamping would double-prefix.
+// Remove leftover portless.json files — apps are no longer spawned via
+// `portless run` (which auto-prefixed linked worktrees in the wrong order).
+// Instead, apps are spawned directly and registered via `portless alias`.
 export function syncAppPortlessConfigs(opts: {
   worktreeRoot: string;
   branchPrefix: string | null;
   linked: boolean;
 }) {
-  const { worktreeRoot, branchPrefix, linked } = opts;
+  const { worktreeRoot } = opts;
   for (const { value: appId } of APP_CHOICES) {
     const path = join(worktreeRoot, "apps", appId, "portless.json");
-    const shouldStamp = !linked && branchPrefix !== null;
-    if (shouldStamp) {
-      writeFileSync(
-        path,
-        `${JSON.stringify({ name: `${appId}.${branchPrefix}` }, null, 2)}\n`
-      );
-    } else if (existsSync(path)) {
+    if (existsSync(path)) {
       unlinkSync(path);
     }
   }

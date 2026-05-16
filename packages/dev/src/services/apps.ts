@@ -50,38 +50,28 @@ export function spawnApps(opts: {
   ports: PortMap;
   portless: boolean;
 }): Promise<void> {
-  const { root, apps, ports, portless } = opts;
+  const { root, apps, ports } = opts;
 
   let shuttingDown = false;
 
   const children: ExecaChildProcess[] = apps.map((id) => {
     const color = APP_COLORS[id] ?? ((s: string) => s);
-    // detached: own process group so `process.kill(-pid, sig)` reaches the
-    // whole subtree (portless → react-router → vite → esbuild).
-    const child = portless
-      ? execa("portless", ["--script", "dev:app", "run", "--force"], {
-          cwd: join(root, "apps", id),
-          env: spawnAppEnv(root, id),
-          preferLocal: true,
-          reject: false,
-          stdin: "ignore",
-          detached: true
-        })
-      : (() => {
-          const portKey = APP_PORT_KEYS[id];
-          const port = portKey ? ports[portKey] : undefined;
-          return execa("pnpm", ["run", "dev:app"], {
-            cwd: join(root, "apps", id),
-            env: {
-              ...spawnAppEnv(root, id),
-              HOST: "127.0.0.1",
-              ...(port !== undefined ? { PORT: String(port) } : {})
-            },
-            reject: false,
-            stdin: "ignore",
-            detached: true
-          });
-        })();
+    // Spawn apps directly with assigned ports. Hostnames are registered via
+    // `portless alias` (in registerAliases) so we control the exact format
+    // (`<app>.<prefix>.dev`) without portless auto-prefix mangling.
+    const portKey = APP_PORT_KEYS[id];
+    const port = portKey ? ports[portKey] : undefined;
+    const child = execa("pnpm", ["run", "dev:app"], {
+      cwd: join(root, "apps", id),
+      env: {
+        ...spawnAppEnv(root, id),
+        HOST: "127.0.0.1",
+        ...(port !== undefined ? { PORT: String(port) } : {})
+      },
+      reject: false,
+      stdin: "ignore",
+      detached: true
+    });
 
     const prefix = color(pc.bold(`${id.padEnd(3)} | `));
     const pipe = (

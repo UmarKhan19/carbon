@@ -1,14 +1,10 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { setTimeout as sleep } from "node:timers/promises";
 import { confirm, isCancel, log, spinner } from "@clack/prompts";
 import { execa, execaSync } from "execa";
 import pc from "picocolors";
-import {
-  ALIAS_SERVICES,
-  type AppId,
-  PORTLESS_MIN_VERSION
-} from "../constants.js";
+import { PORTLESS_MIN_VERSION } from "../constants.js";
 import type { PortMap } from "../worktree.js";
 
 // Strip npm_* / PNPM_* so portless doesn't refuse with "should not be run via
@@ -331,8 +327,10 @@ export async function registerAliases(
 }
 
 export async function unregisterAliases(root: string, branchPrefix: string) {
+  // Use a dummy PortMap — only the names matter for removal, not ports.
+  const names = aliasMap(branchPrefix, {} as PortMap).map((a) => a.name);
   await Promise.all(
-    ALIAS_SERVICES.map((s) => withPrefix(s, branchPrefix)).map((name) =>
+    names.map((name) =>
       execa("portless", ["alias", "--remove", name], {
         cwd: root,
         reject: false,
@@ -345,97 +343,15 @@ export async function unregisterAliases(root: string, branchPrefix: string) {
   );
 }
 
-// Pre-empt `<app>.<prefix>.{dev,localhost}` routes before spawning apps.
-// Orphan portless processes from a prior `crbn up` keep entries alive,
-// causing `RouteConflictError` on the next run. SIGTERM → 400ms poll →
-// SIGKILL stragglers, then drop matching entries.
-export async function claimAppHosts(
-  branchPrefix: string,
-  appIds: readonly AppId[]
-): Promise<number> {
-  const path = `${homedir()}/.portless/routes.json`;
-  if (!existsSync(path)) return 0;
-
-  let routes: { hostname: string; port: number; pid: number }[];
-  try {
-    routes = JSON.parse(readFileSync(path, "utf8"));
-  } catch {
-    return 0;
-  }
-
-  const ourHosts = new Set(
-    appIds.flatMap((id) => {
-      const name = withPrefix(id, branchPrefix);
-      return [`${name}.dev`, `${name}.localhost`];
-    })
-  );
-
-  const pidsToKill = new Set<number>();
-  for (const r of routes) {
-    if (ourHosts.has(r.hostname) && r.pid > 0 && isProcessAlive(r.pid)) {
-      pidsToKill.add(r.pid);
-    }
-  }
-
-  for (const pid of pidsToKill) {
-    try {
-      process.kill(pid, "SIGTERM");
-      // biome-ignore lint/suspicious/noEmptyBlockStatements: ignored using `--suppress`
-    } catch {}
-  }
-
-  const deadline = Date.now() + 400;
-  while (Date.now() < deadline) {
-    let allGone = true;
-    for (const pid of pidsToKill) {
-      if (isProcessAlive(pid)) {
-        allGone = false;
-        break;
-      }
-    }
-    if (allGone) break;
-    await sleep(50);
-  }
-  for (const pid of pidsToKill) {
-    if (isProcessAlive(pid)) {
-      try {
-        process.kill(pid, "SIGKILL");
-        // biome-ignore lint/suspicious/noEmptyBlockStatements: ignored using `--suppress`
-      } catch {}
-    }
-  }
-
-  const filtered = routes.filter((r) => !ourHosts.has(r.hostname));
-  if (filtered.length !== routes.length) {
-    writeFileSync(path, JSON.stringify(filtered, null, 2));
-  }
-
-  return pidsToKill.size;
-}
-
-// Drop stale alias entries (pid=0, our hostname pattern) from routes.json.
-export function pruneStaleRoutes(branchPrefix: string) {
-  const path = `${homedir()}/.portless/routes.json`;
-  if (!existsSync(path)) return 0;
-  let routes: { hostname: string; pid: number }[];
-  try {
-    routes = JSON.parse(readFileSync(path, "utf8"));
-  } catch {
-    return 0;
-  }
-  const ourHosts = ALIAS_SERVICES.flatMap((s) => {
-    const name = withPrefix(s, branchPrefix);
-    return [`${name}.dev`, `${name}.localhost`];
+// Let portless handle its own cleanup — kills orphaned dev servers from
+// crashed sessions and removes their stale route entries.
+export async function pruneStaleRoutes() {
+  await execa("portless", ["prune"], {
+    reject: false,
+    stdio: "ignore",
+    extendEnv: false,
+    env: portlessEnv()
   });
-  const before = routes.length;
-  const filtered = routes.filter(
-    (r) => !(r.pid === 0 && ourHosts.includes(r.hostname))
-  );
-  if (filtered.length !== before) {
-    writeFileSync(path, JSON.stringify(filtered, null, 2));
-    return before - filtered.length;
-  }
-  return 0;
 }
 
 // Branch-independent OAuth callback host. Last `crbn up` wins. Keep in sync
@@ -465,12 +381,17 @@ function withPrefix(name: string, prefix: string): string {
   return `${name}.${prefix}`;
 }
 
-// Compose-service host:port aliases mirroring portless's app-host shape.
+// All portless-routed services: compose services + apps. Every hostname
+// follows `<name>.<prefix>.dev` via `portless alias` so we control the
+// exact format without relying on portless auto-prefix (which reverses
+// the order in linked worktrees).
 function aliasMap(
   branchPrefix: string,
   ports: PortMap
 ): { name: string; port: number }[] {
   return [
+    { name: withPrefix("erp", branchPrefix), port: ports.PORT_ERP },
+    { name: withPrefix("mes", branchPrefix), port: ports.PORT_MES },
     { name: withPrefix("api", branchPrefix), port: ports.PORT_API },
     { name: withPrefix("studio", branchPrefix), port: ports.PORT_STUDIO },
     { name: withPrefix("mail", branchPrefix), port: ports.PORT_INBUCKET },
