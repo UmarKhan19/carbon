@@ -482,6 +482,9 @@ msgstr "API Key"
 msgid "API Keys"
 msgstr "API Keys"
 
+msgid "API keys for programmatic access to your Carbon data."
+msgstr "API keys for programmatic access to your Carbon data."
+
 msgid "Applies to"
 msgstr "Applies to"
 
@@ -882,9 +885,6 @@ msgstr "Asset"
 
 msgid "Asset Classes"
 msgstr "Asset Classes"
-
-msgid "Assets"
-msgstr "Assets"
 
 msgid "Assign To"
 msgstr "Assign To"
@@ -1416,9 +1416,6 @@ msgstr "Configure how preventative maintenance dispatches are automatically gene
 msgid "Configure Item"
 msgstr "Configure Item"
 
-msgid "Configure Materials"
-msgstr "Configure Materials"
-
 msgid "Configure notifications for when gauges go out of calibration."
 msgstr "Configure notifications for when gauges go out of calibration."
 
@@ -1465,8 +1462,8 @@ msgstr "Confirm Import"
 msgid "Confirm Password"
 msgstr "Confirm Password"
 
-msgid "Connect Carbon to your accounting, project, and CAD tools and much more."
-msgstr "Connect Carbon to your accounting, project, and CAD tools and much more."
+msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
+msgstr "Connect Carbon to your accounting, project management, and CAD tools and much more."
 
 msgid "Connect Jira issue"
 msgstr "Connect Jira issue"
@@ -2866,6 +2863,9 @@ msgstr "Enable to allow shared workstation mode."
 msgid "Enable to automatically post transactions to the general ledger."
 msgstr "Enable to automatically post transactions to the general ledger."
 
+msgid "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
+msgstr "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
+
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Enable to generate IDs and descriptions for raw materials."
 
@@ -3827,8 +3827,14 @@ msgstr "Invalid Invite"
 msgid "Inventory"
 msgstr "Inventory"
 
+msgid "Inventory actions"
+msgstr "Inventory actions"
+
 msgid "Inventory Adjustment"
 msgstr "Inventory Adjustment"
+
+msgid "Inventory History"
+msgstr "Inventory History"
 
 msgid "Inventory Job Notifications"
 msgstr "Inventory Job Notifications"
@@ -3907,9 +3913,6 @@ msgstr "Issue description"
 
 msgid "Issue not found"
 msgstr "Issue not found"
-
-msgid "Issue scoped API keys for programmatic access to your Carbon data."
-msgstr "Issue scoped API keys for programmatic access to your Carbon data."
 
 msgid "Issue Status"
 msgstr "Issue Status"
@@ -4416,6 +4419,9 @@ msgstr "Material ID"
 
 msgid "Material IDs"
 msgstr "Material IDs"
+
+msgid "Material Properties"
+msgstr "Material Properties"
 
 msgid "Material Shape"
 msgstr "Material Shape"
@@ -5185,6 +5191,9 @@ msgstr "Open"
 
 msgid "Open Actions"
 msgstr "Open Actions"
+
+msgid "Open Audit Log"
+msgstr "Open Audit Log"
 
 msgid "Open chat history"
 msgstr "Open chat history"
@@ -6491,6 +6500,9 @@ msgstr "Scrap Reasons"
 msgid "Search"
 msgstr "Search"
 
+msgid "Search accounts..."
+msgstr "Search accounts..."
+
 msgid "Search across your workspace..."
 msgstr "Search across your workspace..."
 
@@ -6800,6 +6812,9 @@ msgstr "Shelf Life Start Process"
 
 msgid "Shelf-Life"
 msgstr "Shelf-Life"
+
+msgid "Shelf-Life History"
+msgstr "Shelf-Life History"
 
 msgid "Shift"
 msgstr "Shift"
@@ -7657,6 +7672,12 @@ msgstr "Track every change to your orders, invoices, customers, and more."
 
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr "Track every change to your orders, invoices, customers, suppliers, and more."
+
+msgid "Track tax depreciation separately"
+msgstr "Track tax depreciation separately"
+
+msgid "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
+msgstr "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
 
 msgid "Track when batches or serials of this item expire."
 msgstr "Track when batches or serials of this item expire."
