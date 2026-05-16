@@ -103,7 +103,7 @@ export function NodeSearchDialog({
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput
-        placeholder="Search entities, activities, status, source doc, serial, batch..."
+        placeholder="Search entities, activities, status, source doc, tracking ID..."
         value={query}
         onValueChange={setQuery}
       />
@@ -134,15 +134,10 @@ export function NodeSearchDialog({
               const meta = entityStatusMeta(entity.status);
               const Icon = meta.icon;
               const inGraph = localIds.e.has(entity.id);
-              const serialOrBatch = pickStringAttribute(entity.attributes, [
-                "Serial Number",
-                "Batch Number"
-              ]);
-              const jobId = pickStringAttribute(entity.attributes, ["Job"]);
               return (
                 <CommandItem
                   key={entity.id}
-                  value={`${label} ${entity.id} ${serialOrBatch ?? ""} ${entity.sourceDocument ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""} ${entity.status ?? ""} ${jobId ?? ""}`}
+                  value={`${label} ${entity.id} ${entity.sourceDocument ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""} ${entity.status ?? ""}`}
                   onSelect={() => focusOrNavigate("entity", entity.id)}
                   className="!py-2 !px-2 gap-3"
                 >
@@ -240,22 +235,4 @@ function OpenBadge() {
       Open
     </span>
   );
-}
-
-function pickStringAttribute(
-  attributes: TrackedEntity["attributes"],
-  keys: string[]
-): string | undefined {
-  if (
-    !attributes ||
-    typeof attributes !== "object" ||
-    Array.isArray(attributes)
-  )
-    return undefined;
-  const record = attributes as Record<string, unknown>;
-  for (const key of keys) {
-    const value = record[key];
-    if (typeof value === "string" && value.trim()) return value;
-  }
-  return undefined;
 }

@@ -7,16 +7,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  HStack,
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TruncatedTooltipText
+  HStack
 } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useEffect, useRef, useState } from "react";
-import { LuInfo, LuNetwork, LuQrCode } from "react-icons/lu";
+import { LuNetwork, LuQrCode } from "react-icons/lu";
 import { useFetcher, useNavigate } from "react-router";
 import { SearchLandingPage } from "~/components";
 import { useUser } from "~/hooks";
@@ -40,8 +36,6 @@ function recentSearchesKey(companyId: string): string {
 type EntityRow = {
   id: string;
   readableId: string | null;
-  jobId?: string | null;
-  jobReadableId?: string | null;
   sourceDocument: string | null;
   sourceDocumentId: string | null;
   sourceDocumentReadableId: string | null;
@@ -96,38 +90,10 @@ export default function TraceabilityRoute() {
       )
       .eq("companyId", company.id)
       .in("id", ids)
-      .then(async ({ data }) => {
+      .then(({ data }) => {
         if (cancelled) return;
         const rows = (data ?? []) as unknown as EntityRow[];
-        const jobIds = Array.from(
-          new Set(
-            rows
-              .map((row) => getEntityJobId(row.attributes))
-              .filter((id): id is string => id !== null)
-          )
-        );
-        const jobsById = new Map<string, string>();
-
-        if (jobIds.length > 0) {
-          const jobs = await carbon
-            .from("job")
-            .select("id, jobId")
-            .in("id", jobIds);
-          if (cancelled) return;
-          for (const job of jobs.data ?? []) {
-            jobsById.set(job.id, job.jobId);
-          }
-        }
-
-        const enrichedRows: EntityRow[] = rows.map((row): EntityRow => {
-          const jobId = getEntityJobId(row.attributes);
-          return {
-            ...row,
-            jobId,
-            jobReadableId: jobId ? (jobsById.get(jobId) ?? null) : null
-          };
-        });
-        const byId = new Map(enrichedRows.map((r) => [r.id, r]));
+        const byId = new Map(rows.map((r) => [r.id, r]));
         const next = parsed
           .map((p) => byId.get(p.id))
           .filter((e): e is EntityRow => e !== undefined);
@@ -168,13 +134,9 @@ export default function TraceabilityRoute() {
   };
 
   const openEntity = (entity: EntityRow) => {
-    const entityWithJob = {
-      ...entity,
-      jobId: entity.jobId ?? getEntityJobId(entity.attributes)
-    };
     const params = new URLSearchParams();
 
-    recordRecent(entityWithJob);
+    recordRecent(entity);
 
     params.set("trackedEntityId", entity.id);
 
@@ -185,7 +147,7 @@ export default function TraceabilityRoute() {
     <SearchLandingPage
       icon={LuNetwork}
       heading={t`Traceability`}
-      description={t`Scan a label or search by item ID, tracking ID, serial number, or batch number.`}
+      description={t`Scan a label or search by item ID or tracking ID.`}
     >
       <Command
         shouldFilter={false}
@@ -253,20 +215,15 @@ function EntityRowItem({
   const meta = entityStatusMeta(entity.status);
   const Icon = meta.icon;
   const headline = headlineFor(entity);
-  const batch = entity.attributes?.["Batch Number"] as string | undefined;
-  const serial = entity.attributes?.["Serial Number"] as string | undefined;
-  const jobId = entity.jobId ?? getEntityJobId(entity.attributes);
-  const trackingHint = serial
-    ? `Serial - ${serial}`
-    : batch
-      ? `Batch - ${batch}`
-      : (entity.sourceDocument ?? entity.id.slice(0, 12));
-  const jobHint = entity.jobReadableId ?? jobId ?? "No job";
+  const trackingHint =
+    entity.sourceDocumentReadableId ??
+    entity.sourceDocument ??
+    entity.id.slice(0, 12);
   const trackingIdHint = entity.readableId ?? entity.id;
 
   return (
     <CommandItem
-      value={`${headline} ${entity.id} ${serial ?? ""} ${batch ?? ""} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""} ${entity.jobReadableId ?? ""} ${jobId ?? ""}`}
+      value={`${headline} ${entity.id} ${entity.sourceDocumentReadableId ?? ""} ${entity.readableId ?? ""}`}
       onSelect={onSelect}
       className="!py-2.5 !px-3 gap-3 cursor-pointer rounded-lg"
     >
@@ -277,47 +234,16 @@ function EntityRowItem({
         <Icon className="size-4 text-white drop-shadow-sm" />
       </span>
       <div className="flex flex-col flex-1 min-w-0 gap-0.5">
-        <TruncatedTooltipText
-          className="block text-sm font-medium truncate leading-5"
-          tooltip={headline}
-        >
+        <span className="block text-sm font-medium truncate leading-5">
           {headline}
-        </TruncatedTooltipText>
+        </span>
         <p className="text-[11px] text-muted-foreground truncate leading-4">
           {trackingHint}
         </p>
         <div className="flex items-center gap-1 text-[11px] text-muted-foreground leading-4 min-w-0">
-          <TruncatedTooltipText
-            className="block min-w-0 truncate"
-            tooltip={`Job ${jobHint}`}
-          >
-            {`Job ${jobHint}`}
-          </TruncatedTooltipText>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                className="shrink-0 inline-flex items-center justify-center rounded text-muted-foreground hover:text-foreground"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                aria-label="View full job and tracking details"
-              >
-                <LuInfo className="size-3.5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="top" align="start">
-              <div className="text-xs leading-5">
-                <div>{`Job: ${jobHint}`}</div>
-                <div>{`Tracking: ${trackingIdHint}`}</div>
-              </div>
-            </TooltipContent>
-          </Tooltip>
+          <span className="block min-w-0 truncate">
+            {`Tracking ${trackingIdHint}`}
+          </span>
         </div>
       </div>
       <HStack spacing={2} className="items-center shrink-0">
@@ -339,17 +265,10 @@ function EntityRowItem({
 
 function headlineFor(entity: EntityRow): string {
   return (
-    (entity.attributes?.["Serial Number"] as string | undefined) ??
-    (entity.attributes?.["Batch Number"] as string | undefined) ??
     entity.sourceDocumentReadableId ??
     entity.readableId ??
     entity.id.slice(0, 12)
   );
-}
-
-function getEntityJobId(attributes: EntityRow["attributes"]): string | null {
-  const job = attributes?.Job;
-  return typeof job === "string" && job.length > 0 ? job : null;
 }
 
 function SearchSkeleton() {

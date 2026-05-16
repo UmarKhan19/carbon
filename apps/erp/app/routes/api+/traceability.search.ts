@@ -35,7 +35,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
             .limit(50);
           if (pattern) {
             return query.or(
-              `id.ilike.${pattern},sourceDocumentReadableId.ilike.${pattern},readableId.ilike.${pattern},attributes->>Batch Number.ilike.${pattern},attributes->>Serial Number.ilike.${pattern}`
+              `id.ilike.${pattern},sourceDocumentReadableId.ilike.${pattern},readableId.ilike.${pattern}`
             );
           }
           return query;
@@ -61,42 +61,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       : Promise.resolve({ data: [] as any[] })
   ]);
 
-  const entityRows = (entities.data ?? []) as Array<{
-    attributes: unknown;
-    [key: string]: unknown;
-  }>;
-  const jobIds = Array.from(
-    new Set(entityRows.map((e) => getJobId(e.attributes)).filter(Boolean))
-  ) as string[];
-
-  const jobsById = new Map<string, string>();
-  if (jobIds.length > 0) {
-    const jobs = await client.from("job").select("id, jobId").in("id", jobIds);
-    for (const row of jobs.data ?? []) {
-      if (row?.id && row?.jobId) jobsById.set(row.id, row.jobId);
-    }
-  }
-
   return Response.json({
-    entities: entityRows.map((entity) => {
-      const jobId = getJobId(entity.attributes);
-      return {
-        ...entity,
-        jobId,
-        jobReadableId: jobId ? (jobsById.get(jobId) ?? null) : null
-      };
-    }),
+    entities: entities.data ?? [],
     activities: activities.data ?? []
   });
-}
-
-function getJobId(attributes: unknown): string | null {
-  if (
-    !attributes ||
-    typeof attributes !== "object" ||
-    Array.isArray(attributes)
-  )
-    return null;
-  const value = (attributes as Record<string, unknown>).Job;
-  return typeof value === "string" && value.trim() ? value : null;
 }

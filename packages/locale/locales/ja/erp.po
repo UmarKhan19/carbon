@@ -6428,7 +6428,7 @@ msgstr ""
 msgid "Scan"
 msgstr "ÃƒÂ£Ã¢â‚¬Å¡Ã‚Â¹ÃƒÂ£Ã¢â‚¬Å¡Ã‚Â­ÃƒÂ£Ã†â€™Ã‚Â£ÃƒÂ£Ã†â€™Ã‚Â³"
 
-msgid "Scan a label or search by item ID, tracking ID, serial number, or batch number."
+msgid "Scan a label or search by item ID or tracking ID."
 msgstr ""
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
