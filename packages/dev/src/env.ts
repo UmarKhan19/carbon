@@ -90,15 +90,7 @@ export function writeEnv(worktreeRoot: string, content: string) {
   writeFileSync(join(worktreeRoot, ".env.local"), content);
 }
 
-// Remove leftover portless.json files — apps are no longer spawned via
-// `portless run` (which auto-prefixed linked worktrees in the wrong order).
-// Instead, apps are spawned directly and registered via `portless alias`.
-export function syncAppPortlessConfigs(opts: {
-  worktreeRoot: string;
-  branchPrefix: string | null;
-  linked: boolean;
-}) {
-  const { worktreeRoot } = opts;
+export function syncAppPortlessConfigs(worktreeRoot: string) {
   for (const { value: appId } of APP_CHOICES) {
     const path = join(worktreeRoot, "apps", appId, "portless.json");
     if (existsSync(path)) {

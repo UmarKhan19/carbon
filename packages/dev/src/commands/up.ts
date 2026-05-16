@@ -4,7 +4,7 @@ import { execa } from "execa";
 import { join } from "pathe";
 import type { AppId } from "../constants.js";
 import { renderEnv, syncAppPortlessConfigs, writeEnv } from "../env.js";
-import { currentBranch, isLinkedWorktree } from "../git.js";
+import { currentBranch } from "../git.js";
 import { onShutdown } from "../helpers.js";
 import { pickApps, pickBorrowSlug } from "../prompts.js";
 import {
@@ -239,21 +239,13 @@ async function provisionSlot(
               jwt: borrowedEntry.jwt
             }
           : ownSlot;
-        // Prefix every non-default branch. Portless auto-prefixes only in
-        // linked worktrees; main checkout gets the same shape via per-app
-        // portless.json stamped below.
         const branch = await currentBranch(root);
-        const linked = await isLinkedWorktree();
         const branchPrefix = branchToPrefix(branch, slug);
 
         ctx = { root, slug, branchPrefix, ...slot };
 
         writeEnv(root, renderEnv({ slug, portless, branchPrefix, ...slot }));
-        syncAppPortlessConfigs({
-          worktreeRoot: root,
-          branchPrefix: portless ? branchPrefix : null,
-          linked
-        });
+        syncAppPortlessConfigs(root);
         // Use override: true so freshly written .env.local values replace any
         // stale values already in process.env from the initial load at startup.
         loadDotenv({ path: join(root, ".env.local"), override: true });

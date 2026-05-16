@@ -205,7 +205,7 @@ cmd_checkout() {
     target="$parent/${base}-$(slugify_branch "$name")"
   fi
 
-  local local_exists=0 origin_exists=0 existing_worktree=""
+  local local_exists=0 existing_worktree=""
   if git -C "$root" show-ref --verify --quiet "refs/heads/$name"; then
     local_exists=1
   fi
@@ -260,13 +260,11 @@ cmd_checkout() {
        && git -C "$root" show-ref --verify --quiet "refs/remotes/origin/$name"; then
       git -C "$root" branch --track "$name" "origin/$name" >&2
       resolved="$name"
-      origin_exists=1
     else
       fail "branch '$name' not found locally or on origin (use -b to create)"
       exit 1
     fi
   fi
-  : "$origin_exists"  # tracked for clarity; not used after this
 
   if [[ -e "$target" ]]; then
     fail "target path already exists: $target"
