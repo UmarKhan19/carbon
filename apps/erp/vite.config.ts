@@ -43,7 +43,7 @@ export default defineConfig(({ isSsrBuild, mode }) => {
   return {
     build: {
       minify: true,
-      rollupOptions: {
+      rolldownOptions: {
         onwarn(warning, defaultHandler) {
           if (warning.code === "SOURCEMAP_ERROR") {
             return;
