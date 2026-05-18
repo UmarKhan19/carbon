@@ -448,6 +448,9 @@ msgstr "ジョブ詳細"
 msgid "Job Traveler"
 msgstr "ジョブトラベラー"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "キット"
 
@@ -593,6 +596,9 @@ msgstr "本日のメンテナンス予定はありません"
 msgid "No materials"
 msgstr "材料なし"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "オペレーターなし"
 
@@ -656,6 +662,9 @@ msgstr "このページは表示されないはずです。最終的にはラン
 
 msgid "Open"
 msgstr "未対応"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "工程"
@@ -838,6 +847,9 @@ msgstr "スクラップ済み"
 
 msgid "Search"
 msgstr "検索"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search by PL, job, or item"
 msgstr ""
@@ -1048,6 +1060,9 @@ msgid "Tracked · scan required"
 msgstr ""
 
 msgid "Tracked entity not found"
+msgstr ""
+
+msgid "Tracking"
 msgstr ""
 
 msgid "Tracking Labels"

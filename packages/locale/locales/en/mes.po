@@ -448,6 +448,9 @@ msgstr "Job Details"
 msgid "Job Traveler"
 msgstr "Job Traveler"
 
+msgid "Jobs"
+msgstr "Jobs"
+
 msgid "Kit"
 msgstr "Kit"
 
@@ -593,6 +596,9 @@ msgstr "No maintenance scheduled for today"
 msgid "No materials"
 msgstr "No materials"
 
+msgid "No open jobs"
+msgstr "No open jobs"
+
 msgid "No operators"
 msgstr "No operators"
 
@@ -656,6 +662,9 @@ msgstr "Oops. You shouldn't see this page. Eventually it will be a landing page.
 
 msgid "Open"
 msgstr "Open"
+
+msgid "Open Jobs"
+msgstr "Open Jobs"
 
 msgid "Operations"
 msgstr "Operations"
@@ -838,6 +847,9 @@ msgstr "Scrapped"
 
 msgid "Search"
 msgstr "Search"
+
+msgid "Search by job or item ID"
+msgstr "Search by job or item ID"
 
 msgid "Search by PL, job, or item"
 msgstr "Search by PL, job, or item"
@@ -1049,6 +1061,9 @@ msgstr "Tracked · scan required"
 
 msgid "Tracked entity not found"
 msgstr "Tracked entity not found"
+
+msgid "Tracking"
+msgstr "Tracking"
 
 msgid "Tracking Labels"
 msgstr "Tracking Labels"

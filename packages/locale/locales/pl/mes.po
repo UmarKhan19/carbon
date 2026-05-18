@@ -448,6 +448,9 @@ msgstr "Szczegóły zlecenia"
 msgid "Job Traveler"
 msgstr "Karta obiegowa zlecenia"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "Zestaw"
 
@@ -593,6 +596,9 @@ msgstr "Brak zaplanowanego utrzymania ruchu na dziś"
 msgid "No materials"
 msgstr "Brak materiałów"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "Brak operatorów"
 
@@ -656,6 +662,9 @@ msgstr "Ups. Nie powinieneś widzieć tej strony. Docelowo będzie to strona gł
 
 msgid "Open"
 msgstr "Otwarte"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "Operacje"
@@ -838,6 +847,9 @@ msgstr "Odrzucone"
 
 msgid "Search"
 msgstr "Szukaj"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search by PL, job, or item"
 msgstr ""
@@ -1048,6 +1060,9 @@ msgid "Tracked · scan required"
 msgstr ""
 
 msgid "Tracked entity not found"
+msgstr ""
+
+msgid "Tracking"
 msgstr ""
 
 msgid "Tracking Labels"

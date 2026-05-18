@@ -448,6 +448,9 @@ msgstr "Detalhes da Ordem"
 msgid "Job Traveler"
 msgstr "Folha de Processo"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "Kit"
 
@@ -593,6 +596,9 @@ msgstr "Nenhuma manutenção programada para hoje"
 msgid "No materials"
 msgstr "Nenhum material"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "Nenhum operador"
 
@@ -656,6 +662,9 @@ msgstr "Ops. Você não deveria ver esta página. Eventualmente será uma págin
 
 msgid "Open"
 msgstr "Aberto"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "Operações"
@@ -838,6 +847,9 @@ msgstr "Refugado"
 
 msgid "Search"
 msgstr "Pesquisar"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search by PL, job, or item"
 msgstr ""
@@ -1048,6 +1060,9 @@ msgid "Tracked · scan required"
 msgstr ""
 
 msgid "Tracked entity not found"
+msgstr ""
+
+msgid "Tracking"
 msgstr ""
 
 msgid "Tracking Labels"
