@@ -55,6 +55,9 @@ msgstr "账户设置"
 msgid "Active"
 msgstr "活跃"
 
+msgid "Active entries cannot be edited."
+msgstr ""
+
 msgid "Actual"
 msgstr "实际"
 
@@ -69,6 +72,9 @@ msgstr "添加库存"
 
 msgid "Add Spare Part"
 msgstr "添加备件"
+
+msgid "After Update"
+msgstr ""
 
 msgid "All"
 msgstr "全部"
@@ -218,6 +224,9 @@ msgstr "已消耗过期"
 msgid "Create {0}"
 msgstr "创建 {0}"
 
+msgid "Current"
+msgstr ""
+
 msgid "Customer"
 msgstr "客户"
 
@@ -269,8 +278,8 @@ msgid "Dragging {0} cancelled."
 msgstr "拖拽 {0} 已取消。"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "截止 {0}"
 
@@ -289,18 +298,30 @@ msgstr "时长"
 msgid "Edit"
 msgstr "编辑"
 
+msgid "Edit time entry"
+msgstr ""
+
 msgid "Email Address"
 msgstr "电子邮箱"
 
 msgid "Empty work centers"
 msgstr "空的工作中心"
 
+msgid "End"
+msgstr ""
+
 msgid "End Operations"
 msgstr "结束工序"
+
+msgid "End time must be after start time."
+msgstr ""
 
 #. placeholder {0}: selectedPerson.name
 msgid "Enter PIN for {0}"
 msgstr "输入 {0} 的 PIN 码"
+
+msgid "Enter valid start and end times."
+msgstr ""
 
 msgid "Error"
 msgstr "错误"
@@ -319,6 +340,9 @@ msgstr "获取活跃工序失败"
 
 msgid "Failed to fetch storageUnits"
 msgstr "获取存储单位失败"
+
+msgid "Failed to update time entry"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
@@ -368,6 +392,9 @@ msgstr "进行中"
 
 msgid "Insufficient quantity"
 msgstr "数量不足"
+
+msgid "Invalid"
+msgstr ""
 
 msgid "Inventory adjustment completed"
 msgstr "库存调整已完成"
@@ -589,6 +616,9 @@ msgstr "抱歉，您不应该看到此页面。此页面最终将成为首页。
 
 msgid "Open"
 msgstr "打开"
+
+msgid "Open time entries"
+msgstr ""
 
 msgid "Operations"
 msgstr "工序"
@@ -854,8 +884,17 @@ msgstr "物料清单中有序列号或批次追踪的物料尚未完全发放。
 msgid "Thumbnail"
 msgstr "缩略图"
 
+msgid "Time"
+msgstr ""
+
 msgid "Time Entries"
 msgstr "工时记录"
+
+msgid "Time entries cannot be in the future."
+msgstr ""
+
+msgid "Time entry overlaps another event."
+msgstr ""
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Time Worked: {0}"
@@ -892,6 +931,15 @@ msgstr "未知"
 
 msgid "Update"
 msgstr "更新"
+
+msgid "Update Time"
+msgstr ""
+
+msgid "Update Time Entry"
+msgstr ""
+
+msgid "Updated Duration"
+msgstr ""
 
 msgid "Updated successfully"
 msgstr "更新成功"

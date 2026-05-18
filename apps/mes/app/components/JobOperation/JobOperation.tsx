@@ -21,6 +21,14 @@ import {
   Heading,
   HStack,
   IconButton,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
   ModelViewer,
   ScrollArea,
   Separator,
@@ -61,6 +69,7 @@ import { FaTasks } from "react-icons/fa";
 import { FaCheck, FaPlus, FaTrash } from "react-icons/fa6";
 import {
   LuArrowLeft,
+  LuArrowRight,
   LuAxis3D,
   LuBarcode,
   LuCheck,
@@ -75,6 +84,7 @@ import {
   LuGitPullRequest,
   LuHammer,
   LuHardHat,
+  LuPencil,
   LuPrinter,
   LuQrCode,
   LuSquareUser,
@@ -88,6 +98,7 @@ import {
   FilePreview,
   OperationStatusIcon
 } from "~/components";
+import EmployeeAvatar from "~/components/EmployeeAvatar";
 import {
   MethodIcon,
   MethodItemTypeIcon,
@@ -188,7 +199,7 @@ export const JobOperation = ({
   workCenter
 }: JobOperationProps) => {
   const { t } = useLingui();
-  const { formatDate, formatRelativeTime } = useDateFormatter();
+  const { formatDate, formatDateTime, formatRelativeTime } = useDateFormatter();
   const [params, setParams] = useUrlParams();
 
   const trackedEntityParam = params.get("trackedEntityId");
@@ -239,6 +250,7 @@ export const JobOperation = ({
     machineProductionEvent,
     operation,
     progress,
+    productionEvents,
     reworkModal,
     scrapModal,
     serialModal,
@@ -281,6 +293,103 @@ export const JobOperation = ({
       : null;
 
   const fetcher = useFetcher<Result>();
+  const timeEntryFetcher = useFetcher<{
+    success: boolean;
+    message?: string;
+    productionEvent?: ProductionEvent;
+  }>();
+  const [editingProductionEvent, setEditingProductionEvent] =
+    useState<ProductionEvent | null>(null);
+  const [editStartTime, setEditStartTime] = useState("");
+  const [editEndTime, setEditEndTime] = useState("");
+  const [timeEntriesOpen, setTimeEntriesOpen] = useState(false);
+  const [editNow, setEditNow] = useState(() => Date.now());
+  const editMaxDateTime = useMemo(
+    () => toLocalDatetimeInput(new Date(editNow).toISOString()),
+    [editNow]
+  );
+
+  useEffect(() => {
+    if (!editingProductionEvent) return;
+
+    setEditNow(Date.now());
+    const interval = window.setInterval(() => setEditNow(Date.now()), 1000);
+
+    return () => window.clearInterval(interval);
+  }, [editingProductionEvent]);
+
+  const editTimeRangeError = useMemo(() => {
+    const start = new Date(editStartTime).getTime();
+    const end = new Date(editEndTime).getTime();
+
+    if (Number.isNaN(start) || Number.isNaN(end)) {
+      return t`Enter valid start and end times.`;
+    }
+
+    if (start >= end) {
+      return t`End time must be after start time.`;
+    }
+
+    if (start > editNow || end > editNow) {
+      return t`Time entries cannot be in the future.`;
+    }
+
+    if (
+      editingProductionEvent &&
+      productionEvents.some((event) =>
+        productionEventOverlaps(event, editingProductionEvent, start, end)
+      )
+    ) {
+      return t`Time entry overlaps another event.`;
+    }
+
+    return null;
+  }, [
+    editEndTime,
+    editingProductionEvent,
+    editNow,
+    editStartTime,
+    productionEvents,
+    t
+  ]);
+  const editTimeRangeIsValid = !editTimeRangeError;
+
+  const originalEditDurationMs = useMemo(
+    () =>
+      editingProductionEvent
+        ? getProductionEventDurationMs(editingProductionEvent)
+        : 0,
+    [editingProductionEvent]
+  );
+  const updatedEditDurationMs = useMemo(() => {
+    const start = new Date(editStartTime).getTime();
+    const end = new Date(editEndTime).getTime();
+
+    if (Number.isNaN(start) || Number.isNaN(end) || start >= end) return 0;
+    return end - start;
+  }, [editEndTime, editStartTime]);
+  const editDurationDeltaMs = updatedEditDurationMs - originalEditDurationMs;
+
+  useEffect(() => {
+    if (timeEntryFetcher.state !== "idle" || !timeEntryFetcher.data) return;
+
+    if (timeEntryFetcher.data.success) {
+      setEditingProductionEvent(null);
+    } else {
+      toast.error(
+        timeEntryFetcher.data.message ?? t`Failed to update time entry`
+      );
+    }
+  }, [t, timeEntryFetcher.data, timeEntryFetcher.state]);
+
+  const onEditProductionEvent = (event: ProductionEvent) => {
+    if (!event.endTime) return;
+
+    setTimeEntriesOpen(false);
+    setEditingProductionEvent(event);
+    setEditStartTime(toLocalDatetimeInput(event.startTime));
+    setEditEndTime(toLocalDatetimeInput(event.endTime));
+  };
 
   // Lazy creation of Inspection steps for non-conformance actions
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -2262,10 +2371,155 @@ export const JobOperation = ({
                   />
                 </>
               </div>
+              {productionEvents.length > 0 && (
+                <>
+                  <Separator className="my-3" />
+                  <TimeEntriesSummary
+                    events={productionEvents}
+                    onOpen={() => setTimeEntriesOpen(true)}
+                  />
+                </>
+              )}
             </div>
           </Times>
         )}
       </Tabs>
+      <Modal open={timeEntriesOpen} onOpenChange={setTimeEntriesOpen}>
+        <ModalOverlay />
+        <ModalContent className="max-w-3xl">
+          <ModalHeader>
+            <ModalTitle>
+              <Trans>Time Entries</Trans>
+            </ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <ProductionEventHistory
+              events={productionEvents}
+              formatDateTime={formatDateTime}
+              onEdit={onEditProductionEvent}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => setTimeEntriesOpen(false)}
+            >
+              <Trans>Close</Trans>
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+      {editingProductionEvent && (
+        <Modal
+          open
+          onOpenChange={(open) => {
+            if (!open) setEditingProductionEvent(null);
+          }}
+        >
+          <ModalOverlay />
+          <ModalContent className="max-w-xl">
+            <timeEntryFetcher.Form
+              method="post"
+              action={path.to.productionEvent}
+            >
+              <ModalHeader>
+                <ModalTitle>
+                  <Trans>Update Time Entry</Trans>
+                </ModalTitle>
+              </ModalHeader>
+              <ModalBody>
+                <input type="hidden" name="intent" value="updateEventTimes" />
+                <input
+                  type="hidden"
+                  name="id"
+                  value={editingProductionEvent.id}
+                />
+                <input
+                  type="hidden"
+                  name="jobOperationId"
+                  value={editingProductionEvent.jobOperationId}
+                />
+                <input
+                  type="hidden"
+                  name="startTime"
+                  value={
+                    editTimeRangeIsValid
+                      ? new Date(editStartTime).toISOString()
+                      : ""
+                  }
+                />
+                <input
+                  type="hidden"
+                  name="endTime"
+                  value={
+                    editTimeRangeIsValid
+                      ? new Date(editEndTime).toISOString()
+                      : ""
+                  }
+                />
+                <VStack spacing={3} className="items-stretch">
+                  <TimeEntryUpdatePreview
+                    event={editingProductionEvent}
+                    originalDurationMs={originalEditDurationMs}
+                    updatedDurationMs={updatedEditDurationMs}
+                    durationDeltaMs={editDurationDeltaMs}
+                    isValid={editTimeRangeIsValid}
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <span className="text-xs text-muted-foreground">
+                        <Trans>Start</Trans>
+                      </span>
+                      <Input
+                        type="datetime-local"
+                        step={1}
+                        max={editMaxDateTime}
+                        value={editStartTime}
+                        onChange={(e) => setEditStartTime(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs text-muted-foreground">
+                        <Trans>End</Trans>
+                      </span>
+                      <Input
+                        type="datetime-local"
+                        step={1}
+                        max={editMaxDateTime}
+                        value={editEndTime}
+                        onChange={(e) => setEditEndTime(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  {!editTimeRangeIsValid && (
+                    <span className="text-sm text-destructive">
+                      {editTimeRangeError}
+                    </span>
+                  )}
+                </VStack>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={() => setEditingProductionEvent(null)}
+                >
+                  <Trans>Cancel</Trans>
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    !editTimeRangeIsValid || timeEntryFetcher.state !== "idle"
+                  }
+                >
+                  <Trans>Update Time</Trans>
+                </Button>
+              </ModalFooter>
+            </timeEntryFetcher.Form>
+          </ModalContent>
+        </Modal>
+      )}
       {reworkModal.isOpen && (
         <QuantityModal
           type="rework"
@@ -2399,4 +2653,312 @@ function recordSetIsStarted(
           record.userValue !== null)
     )
   );
+}
+
+function TimeEntriesSummary({
+  events,
+  onOpen
+}: {
+  events: ProductionEvent[];
+  onOpen: () => void;
+}) {
+  const { t } = useLingui();
+  const activeCount = events.filter((event) => !event.endTime).length;
+  const totalDurationMs = events.reduce(
+    (total, event) => total + getProductionEventElapsedMs(event),
+    0
+  );
+
+  return (
+    <button
+      type="button"
+      aria-label={t`Open time entries`}
+      onClick={onOpen}
+      className="w-full rounded-md border bg-muted/20 px-3 py-2 text-left transition-colors hover:bg-muted/40"
+    >
+      <HStack className="justify-between gap-3">
+        <HStack spacing={2} className="min-w-0">
+          <LuTimer className="size-4 shrink-0 text-muted-foreground" />
+          <span className="truncate text-xs font-medium uppercase text-muted-foreground">
+            <Trans>Time Entries</Trans>
+          </span>
+          <Badge variant="secondary" className="text-xxs">
+            {events.length}
+          </Badge>
+        </HStack>
+        <HStack spacing={2} className="shrink-0">
+          {activeCount > 0 && (
+            <Badge variant="green" className="text-xxs">
+              <Trans>Active</Trans>
+            </Badge>
+          )}
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">
+            {formatDurationMilliseconds(totalDurationMs, {
+              style: "short"
+            })}
+          </span>
+          <LuPencil className="size-4 text-muted-foreground" />
+        </HStack>
+      </HStack>
+    </button>
+  );
+}
+
+function ProductionEventHistory({
+  events,
+  formatDateTime,
+  onEdit
+}: {
+  events: ProductionEvent[];
+  formatDateTime: (isoString: string) => string;
+  onEdit: (event: ProductionEvent) => void;
+}) {
+  const { t } = useLingui();
+  const sortedEvents = useMemo(
+    () =>
+      [...events].sort(
+        (a, b) =>
+          new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+      ),
+    [events]
+  );
+  const activeCount = sortedEvents.filter((event) => !event.endTime).length;
+
+  return (
+    <div className="space-y-2">
+      <HStack className="justify-between">
+        <HStack spacing={2}>
+          <span className="text-xs font-medium uppercase text-muted-foreground">
+            <Trans>Time Entries</Trans>
+          </span>
+          {activeCount > 0 && (
+            <Badge variant="green" className="text-xxs">
+              <Trans>Active</Trans>
+            </Badge>
+          )}
+        </HStack>
+        <span className="text-xs tabular-nums text-muted-foreground">
+          {sortedEvents.length}
+        </span>
+      </HStack>
+      <div className="max-h-[60dvh] overflow-y-auto space-y-1 pr-1">
+        {sortedEvents.map((event) => {
+          const isActive = !event.endTime;
+
+          return (
+            <div
+              key={event.id}
+              className={cn(
+                "grid grid-cols-[minmax(4rem,auto)_minmax(0,1fr)_auto_auto] items-center gap-2 rounded-md px-2 py-2 transition-colors",
+                isActive ? "bg-emerald-500/10" : "hover:bg-muted/40"
+              )}
+            >
+              <Badge variant={isActive ? "green" : "secondary"}>
+                {event.type ?? t`Time`}
+              </Badge>
+              <VStack spacing={1} className="min-w-0 items-start">
+                <EmployeeAvatar
+                  employeeId={event.employeeId}
+                  size="xs"
+                  className="max-w-full"
+                />
+                <span className="text-xs text-muted-foreground truncate max-w-full">
+                  {formatDateTime(event.startTime)}
+                  {event.endTime ? ` - ${formatDateTime(event.endTime)}` : ""}
+                </span>
+              </VStack>
+              <span className="text-xs font-mono text-muted-foreground whitespace-nowrap">
+                {isActive ? (
+                  <Trans>Active</Trans>
+                ) : (
+                  formatDurationMilliseconds(
+                    getProductionEventDurationMs(event),
+                    {
+                      style: "short"
+                    }
+                  )
+                )}
+              </span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <IconButton
+                    aria-label={t`Edit time entry`}
+                    variant="ghost"
+                    icon={<LuPencil />}
+                    isDisabled={isActive}
+                    onClick={() => onEdit(event)}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isActive ? (
+                    <Trans>Active entries cannot be edited.</Trans>
+                  ) : (
+                    <Trans>Edit time entry</Trans>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TimeEntryUpdatePreview({
+  event,
+  originalDurationMs,
+  updatedDurationMs,
+  durationDeltaMs,
+  isValid
+}: {
+  event: ProductionEvent;
+  originalDurationMs: number;
+  updatedDurationMs: number;
+  durationDeltaMs: number;
+  isValid: boolean;
+}) {
+  const deltaLabel =
+    durationDeltaMs === 0
+      ? null
+      : `${durationDeltaMs > 0 ? "+" : "-"}${formatDurationMilliseconds(
+          Math.abs(durationDeltaMs),
+          {
+            style: "short"
+          }
+        )}`;
+
+  return (
+    <div className="rounded-lg border bg-muted/20 p-3">
+      <HStack className="justify-between gap-3">
+        <VStack spacing={1} className="min-w-0 items-start">
+          <Badge variant="secondary">{event.type}</Badge>
+          <EmployeeAvatar
+            employeeId={event.employeeId}
+            size="xs"
+            className="max-w-full"
+          />
+        </VStack>
+        <VStack spacing={1} className="items-end text-right">
+          <span className="text-xs uppercase text-muted-foreground">
+            <Trans>Updated Duration</Trans>
+          </span>
+          <span className="font-mono text-xl font-semibold tabular-nums">
+            {isValid ? (
+              formatDurationMilliseconds(updatedDurationMs, {
+                style: "short"
+              })
+            ) : (
+              <Trans>Invalid</Trans>
+            )}
+          </span>
+        </VStack>
+      </HStack>
+      <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-md bg-background/70 p-3">
+        <VStack spacing={1} className="items-start">
+          <span className="text-xs text-muted-foreground">
+            <Trans>Current</Trans>
+          </span>
+          <span className="font-mono text-sm tabular-nums">
+            {formatDurationMilliseconds(originalDurationMs, {
+              style: "short"
+            })}
+          </span>
+        </VStack>
+        <LuArrowRight className="size-4 text-muted-foreground" />
+        <VStack spacing={1} className="items-start">
+          <span className="text-xs text-muted-foreground">
+            <Trans>After Update</Trans>
+          </span>
+          <HStack spacing={2}>
+            <span className="font-mono text-sm tabular-nums">
+              {isValid ? (
+                formatDurationMilliseconds(updatedDurationMs, {
+                  style: "short"
+                })
+              ) : (
+                <Trans>Invalid</Trans>
+              )}
+            </span>
+            {isValid && deltaLabel && (
+              <Badge
+                variant={durationDeltaMs > 0 ? "green" : "secondary"}
+                className="text-xxs"
+              >
+                {deltaLabel}
+              </Badge>
+            )}
+          </HStack>
+        </VStack>
+      </div>
+    </div>
+  );
+}
+
+function getProductionEventDurationMs(event: ProductionEvent) {
+  if (event.duration && event.duration > 0) return event.duration * 1000;
+  if (!event.endTime) return 0;
+
+  const start = new Date(event.startTime).getTime();
+  const end = new Date(event.endTime).getTime();
+
+  if (Number.isNaN(start) || Number.isNaN(end)) return 0;
+  return Math.max(0, end - start);
+}
+
+function getProductionEventElapsedMs(event: ProductionEvent) {
+  if (event.endTime) return getProductionEventDurationMs(event);
+
+  const start = new Date(event.startTime).getTime();
+  if (Number.isNaN(start)) return 0;
+
+  return Math.max(0, Date.now() - start);
+}
+
+function productionEventOverlaps(
+  event: ProductionEvent,
+  editingEvent: ProductionEvent,
+  start: number,
+  end: number
+) {
+  if (event.id === editingEvent.id) return false;
+  if (!productionEventsShareTimer(event, editingEvent)) return false;
+
+  const eventStart = new Date(event.startTime).getTime();
+  const eventEnd = event.endTime
+    ? new Date(event.endTime).getTime()
+    : Number.POSITIVE_INFINITY;
+
+  if (Number.isNaN(eventStart) || Number.isNaN(eventEnd)) return false;
+
+  return eventStart < end && eventEnd > start;
+}
+
+function productionEventsShareTimer(
+  event: ProductionEvent,
+  editingEvent: ProductionEvent
+) {
+  if (editingEvent.type === "Machine") {
+    return (
+      event.type === "Machine" &&
+      event.workCenterId === editingEvent.workCenterId
+    );
+  }
+
+  return (
+    event.employeeId === editingEvent.employeeId &&
+    (event.type === "Setup" || event.type === "Labor")
+  );
+}
+
+function toLocalDatetimeInput(dateStr: string) {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }

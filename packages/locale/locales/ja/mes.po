@@ -55,6 +55,9 @@ msgstr "アカウント設定"
 msgid "Active"
 msgstr "アクティブ"
 
+msgid "Active entries cannot be edited."
+msgstr ""
+
 msgid "Actual"
 msgstr "実績"
 
@@ -69,6 +72,9 @@ msgstr "在庫追加"
 
 msgid "Add Spare Part"
 msgstr "スペアパーツを追加"
+
+msgid "After Update"
+msgstr ""
 
 msgid "All"
 msgstr "すべて"
@@ -218,6 +224,9 @@ msgstr "消費期限切れ"
 msgid "Create {0}"
 msgstr "{0}を作成"
 
+msgid "Current"
+msgstr ""
+
 msgid "Customer"
 msgstr "顧客"
 
@@ -269,8 +278,8 @@ msgid "Dragging {0} cancelled."
 msgstr "{0} のドラッグがキャンセルされました。"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "期限 {0}"
 
@@ -289,18 +298,30 @@ msgstr "時間"
 msgid "Edit"
 msgstr "編集"
 
+msgid "Edit time entry"
+msgstr ""
+
 msgid "Email Address"
 msgstr "メールアドレス"
 
 msgid "Empty work centers"
 msgstr "空の作業センター"
 
+msgid "End"
+msgstr ""
+
 msgid "End Operations"
 msgstr "工程を終了"
+
+msgid "End time must be after start time."
+msgstr ""
 
 #. placeholder {0}: selectedPerson.name
 msgid "Enter PIN for {0}"
 msgstr "{0} のPINを入力"
+
+msgid "Enter valid start and end times."
+msgstr ""
 
 msgid "Error"
 msgstr "エラー"
@@ -319,6 +340,9 @@ msgstr "アクティブな工程の取得に失敗しました"
 
 msgid "Failed to fetch storageUnits"
 msgstr "storageUnitsの取得に失敗しました"
+
+msgid "Failed to update time entry"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
@@ -368,6 +392,9 @@ msgstr "進行中"
 
 msgid "Insufficient quantity"
 msgstr "数量が不足しています"
+
+msgid "Invalid"
+msgstr ""
 
 msgid "Inventory adjustment completed"
 msgstr "在庫調整が完了しました"
@@ -589,6 +616,9 @@ msgstr "このページは表示されないはずです。最終的にはラン
 
 msgid "Open"
 msgstr "未対応"
+
+msgid "Open time entries"
+msgstr ""
 
 msgid "Operations"
 msgstr "工程"
@@ -854,8 +884,17 @@ msgstr "部品表にシリアルまたはバッチ追跡対象の材料が完全
 msgid "Thumbnail"
 msgstr "サムネイル"
 
+msgid "Time"
+msgstr ""
+
 msgid "Time Entries"
 msgstr "タイムエントリー"
+
+msgid "Time entries cannot be in the future."
+msgstr ""
+
+msgid "Time entry overlaps another event."
+msgstr ""
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Time Worked: {0}"
@@ -892,6 +931,15 @@ msgstr "不明"
 
 msgid "Update"
 msgstr "更新"
+
+msgid "Update Time"
+msgstr ""
+
+msgid "Update Time Entry"
+msgstr ""
+
+msgid "Updated Duration"
+msgstr ""
 
 msgid "Updated successfully"
 msgstr "正常に更新されました"

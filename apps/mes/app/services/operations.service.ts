@@ -14,6 +14,7 @@ import { sanitize } from "~/utils/supabase";
 import type {
   documentTypes,
   nonScrapQuantityValidator,
+  productionEventEditValidator,
   productionEventValidator,
   scrapQuantityValidator,
   stepRecordValidator
@@ -827,6 +828,114 @@ export async function endProductionEvent(
     .select("*");
 }
 
+export async function updateProductionEventTimes(
+  client: SupabaseClient<Database>,
+  data: z.infer<typeof productionEventEditValidator> & {
+    companyId: string;
+    updatedBy: string;
+  }
+) {
+  const { id, jobOperationId, startTime, endTime, companyId, updatedBy } = data;
+
+  const existingEvent = await client
+    .from("productionEvent")
+    .select("*")
+    .eq("id", id)
+    .eq("jobOperationId", jobOperationId)
+    .eq("companyId", companyId)
+    .not("endTime", "is", null)
+    .single();
+
+  if (existingEvent.error) return existingEvent;
+
+  const overlapCheck = await getOverlappingProductionEvent(client, {
+    event: existingEvent.data,
+    startTime,
+    endTime,
+    companyId,
+    jobOperationId
+  });
+
+  if (overlapCheck.error) return { data: null, error: overlapCheck.error };
+
+  if (overlapCheck.data) {
+    return {
+      data: null,
+      error: {
+        message: "Time entry overlaps another event"
+      }
+    };
+  }
+
+  return client
+    .from("productionEvent")
+    .update({
+      startTime,
+      endTime,
+      updatedAt: new Date().toISOString(),
+      updatedBy
+    })
+    .eq("id", id)
+    .eq("jobOperationId", jobOperationId)
+    .eq("companyId", companyId)
+    .not("endTime", "is", null)
+    .select("*")
+    .single();
+}
+
+async function getOverlappingProductionEvent(
+  client: SupabaseClient<Database>,
+  args: {
+    event: Database["public"]["Tables"]["productionEvent"]["Row"];
+    startTime: string;
+    endTime: string;
+    companyId: string;
+    jobOperationId: string;
+  }
+) {
+  const { event, startTime, endTime, companyId, jobOperationId } = args;
+  let query = client
+    .from("productionEvent")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("jobOperationId", jobOperationId)
+    .neq("id", event.id)
+    .lt("startTime", endTime);
+
+  if (event.type === "Machine") {
+    query = event.workCenterId
+      ? query.eq("type", "Machine").eq("workCenterId", event.workCenterId)
+      : query.eq("type", "Machine").is("workCenterId", null);
+  } else {
+    if (!event.employeeId) {
+      return {
+        data: null,
+        error: { message: "Production event is missing an employee" }
+      };
+    }
+
+    query = query
+      .in("type", ["Setup", "Labor"])
+      .eq("employeeId", event.employeeId);
+  }
+
+  const result = await query;
+  if (result.error) return { data: null, error: result.error };
+
+  const start = new Date(startTime).getTime();
+  const end = new Date(endTime).getTime();
+  const overlap = result.data?.find((candidate) => {
+    const candidateStart = new Date(candidate.startTime).getTime();
+    const candidateEnd = candidate.endTime
+      ? new Date(candidate.endTime).getTime()
+      : Number.POSITIVE_INFINITY;
+
+    return candidateStart < end && candidateEnd > start;
+  });
+
+  return { data: overlap ?? null, error: null };
+}
+
 export async function endProductionEventsForJobOperation(
   client: SupabaseClient<Database>,
   args: {
@@ -870,6 +979,38 @@ export async function endProductionEventsByWorkCenter(
     .is("endTime", null)
     .eq("workCenterId", args.workCenterId)
     .eq("companyId", args.companyId);
+}
+
+export async function getActiveProductionEventForTimer(
+  client: SupabaseClient<Database>,
+  args: {
+    jobOperationId: string;
+    type: "Setup" | "Labor" | "Machine";
+    employeeId: string;
+    companyId: string;
+    workCenterId?: string;
+  }
+) {
+  let query = client
+    .from("productionEvent")
+    .select("*")
+    .eq("jobOperationId", args.jobOperationId)
+    .eq("companyId", args.companyId)
+    .eq("type", args.type)
+    .is("endTime", null)
+    .order("startTime", { ascending: false })
+    .order("createdAt", { ascending: false })
+    .limit(1);
+
+  if (args.type === "Machine") {
+    query = args.workCenterId
+      ? query.eq("workCenterId", args.workCenterId)
+      : query.is("workCenterId", null);
+  } else {
+    query = query.eq("employeeId", args.employeeId);
+  }
+
+  return query.maybeSingle();
 }
 
 export async function startProductionEvent(

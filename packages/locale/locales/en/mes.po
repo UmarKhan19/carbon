@@ -55,6 +55,9 @@ msgstr "Account Settings"
 msgid "Active"
 msgstr "Active"
 
+msgid "Active entries cannot be edited."
+msgstr "Active entries cannot be edited."
+
 msgid "Actual"
 msgstr "Actual"
 
@@ -69,6 +72,9 @@ msgstr "Add Inventory"
 
 msgid "Add Spare Part"
 msgstr "Add Spare Part"
+
+msgid "After Update"
+msgstr "After Update"
 
 msgid "All"
 msgstr "All"
@@ -218,6 +224,9 @@ msgstr "Consumed expired"
 msgid "Create {0}"
 msgstr "Create {0}"
 
+msgid "Current"
+msgstr "Current"
+
 msgid "Customer"
 msgstr "Customer"
 
@@ -269,8 +278,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Dragging {0} cancelled."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Due {0}"
 
@@ -289,18 +298,30 @@ msgstr "Duration"
 msgid "Edit"
 msgstr "Edit"
 
+msgid "Edit time entry"
+msgstr "Edit time entry"
+
 msgid "Email Address"
 msgstr "Email Address"
 
 msgid "Empty work centers"
 msgstr "Empty work centers"
 
+msgid "End"
+msgstr "End"
+
 msgid "End Operations"
 msgstr "End Operations"
+
+msgid "End time must be after start time."
+msgstr "End time must be after start time."
 
 #. placeholder {0}: selectedPerson.name
 msgid "Enter PIN for {0}"
 msgstr "Enter PIN for {0}"
+
+msgid "Enter valid start and end times."
+msgstr "Enter valid start and end times."
 
 msgid "Error"
 msgstr "Error"
@@ -319,6 +340,9 @@ msgstr "Failed to fetch active operations"
 
 msgid "Failed to fetch storageUnits"
 msgstr "Failed to fetch storageUnits"
+
+msgid "Failed to update time entry"
+msgstr "Failed to update time entry"
 
 #. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
@@ -368,6 +392,9 @@ msgstr "In Progress"
 
 msgid "Insufficient quantity"
 msgstr "Insufficient quantity"
+
+msgid "Invalid"
+msgstr "Invalid"
 
 msgid "Inventory adjustment completed"
 msgstr "Inventory adjustment completed"
@@ -589,6 +616,9 @@ msgstr "Oops. You shouldn't see this page. Eventually it will be a landing page.
 
 msgid "Open"
 msgstr "Open"
+
+msgid "Open time entries"
+msgstr "Open time entries"
 
 msgid "Operations"
 msgstr "Operations"
@@ -854,8 +884,17 @@ msgstr "There are serial or batch tracked materials on the bill of material that
 msgid "Thumbnail"
 msgstr "Thumbnail"
 
+msgid "Time"
+msgstr "Time"
+
 msgid "Time Entries"
 msgstr "Time Entries"
+
+msgid "Time entries cannot be in the future."
+msgstr "Time entries cannot be in the future."
+
+msgid "Time entry overlaps another event."
+msgstr "Time entry overlaps another event."
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Time Worked: {0}"
@@ -892,6 +931,15 @@ msgstr "Unknown"
 
 msgid "Update"
 msgstr "Update"
+
+msgid "Update Time"
+msgstr "Update Time"
+
+msgid "Update Time Entry"
+msgstr "Update Time Entry"
+
+msgid "Updated Duration"
+msgstr "Updated Duration"
 
 msgid "Updated successfully"
 msgstr "Updated successfully"

@@ -87,6 +87,10 @@ export function useOperation({
   const [operationState, setOperationState] = useState(operation);
 
   const [eventState, setEventState] = useState<ProductionEvent[]>(events);
+  const productionEvents = useMemo(
+    () => getCurrentProductionEvents(eventState),
+    [eventState]
+  );
 
   useEffect(() => {
     setEventState(events);
@@ -127,23 +131,15 @@ export function useOperation({
             switch (payload.eventType) {
               case "INSERT":
                 const { new: inserted } = payload;
-                setEventState((prevEvents) => [
-                  ...prevEvents,
-                  inserted as ProductionEvent
-                ]);
+                setEventState((prevEvents) =>
+                  upsertProductionEvent(prevEvents, inserted as ProductionEvent)
+                );
                 break;
               case "UPDATE":
                 const { new: updated } = payload;
 
                 setEventState((prevEvents) =>
-                  prevEvents.map((event) =>
-                    event.id === updated.id
-                      ? ({
-                          ...event,
-                          ...updated
-                        } as ProductionEvent)
-                      : event
-                  )
+                  upsertProductionEvent(prevEvents, updated as ProductionEvent)
                 );
                 break;
               case "DELETE":
@@ -184,11 +180,11 @@ export function useOperation({
 
   const getProgress = useCallback(() => {
     const timeNow = now(getLocalTimeZone());
-    return eventState.reduce(
+    return productionEvents.reduce(
       (acc, event) => {
         if (event.endTime && event.type) {
           acc[event.type.toLowerCase() as keyof typeof acc] +=
-            (event.duration ?? 0) * 1000;
+            getCompletedProductionEventDurationMs(event);
         } else if (event.startTime && event.type) {
           const startTime = toZoned(
             parseAbsolute(event.startTime, getLocalTimeZone()),
@@ -209,7 +205,7 @@ export function useOperation({
         machine: 0
       }
     );
-  }, [eventState]);
+  }, [productionEvents]);
 
   const [progress, setProgress] = useState<{
     setup: number;
@@ -217,21 +213,25 @@ export function useOperation({
     machine: number;
   }>(getProgress);
 
+  useEffect(() => {
+    setProgress(getProgress());
+  }, [getProgress]);
+
   const activeEvents = useMemo(() => {
     return {
-      setupProductionEvent: events.find(
+      setupProductionEvent: productionEvents.find(
         (e) =>
           e.type === "Setup" && e.endTime === null && e.employeeId === user.id
       ),
-      laborProductionEvent: events.find(
+      laborProductionEvent: productionEvents.find(
         (e) =>
           e.type === "Labor" && e.endTime === null && e.employeeId === user.id
       ),
-      machineProductionEvent: eventState.find(
+      machineProductionEvent: productionEvents.find(
         (e) => e.type === "Machine" && e.endTime === null
       )
     };
-  }, [eventState, events, user.id]);
+  }, [productionEvents, user.id]);
 
   const active = useMemo(() => {
     return {
@@ -277,6 +277,7 @@ export function useOperation({
       progress.setup > 0 || progress.labor > 0 || progress.machine > 0,
     ...activeEvents,
     progress,
+    productionEvents,
     operation: operationState,
 
     activeTab,
@@ -295,4 +296,93 @@ export function useOperation({
     setActiveTab,
     setEventType
   };
+}
+
+function getCurrentProductionEvents(events: ProductionEvent[]) {
+  const dedupedEvents = dedupeProductionEvents(events);
+  const latestByTimer = new Map<string, ProductionEvent>();
+
+  for (const event of dedupedEvents) {
+    const key = getTimerIdentity(event);
+    const latest = latestByTimer.get(key);
+
+    if (!latest || compareProductionEventRecency(event, latest) > 0) {
+      latestByTimer.set(key, event);
+    }
+  }
+
+  return dedupedEvents.filter((event) => {
+    if (event.endTime) return true;
+
+    return latestByTimer.get(getTimerIdentity(event))?.id === event.id;
+  });
+}
+
+function upsertProductionEvent(
+  events: ProductionEvent[],
+  incomingEvent: ProductionEvent
+) {
+  const eventById = new Map(events.map((event) => [event.id, event]));
+  const existingEvent = eventById.get(incomingEvent.id);
+
+  eventById.set(incomingEvent.id, {
+    ...existingEvent,
+    ...incomingEvent
+  });
+
+  return Array.from(eventById.values());
+}
+
+function dedupeProductionEvents(events: ProductionEvent[]) {
+  return Array.from(
+    events
+      .reduce((eventById, event) => {
+        const existingEvent = eventById.get(event.id);
+        eventById.set(event.id, {
+          ...existingEvent,
+          ...event
+        });
+
+        return eventById;
+      }, new Map<string, ProductionEvent>())
+      .values()
+  );
+}
+
+function getTimerIdentity(event: ProductionEvent) {
+  if (event.type === "Machine") {
+    return `${event.type}:${event.workCenterId ?? "operation"}`;
+  }
+
+  return `${event.type ?? "Time"}:${event.employeeId ?? "employee"}`;
+}
+
+function compareProductionEventRecency(
+  event: ProductionEvent,
+  otherEvent: ProductionEvent
+) {
+  const startDifference =
+    getEventTime(event.startTime) - getEventTime(otherEvent.startTime);
+  if (startDifference !== 0) return startDifference;
+
+  const createdDifference =
+    getEventTime(event.createdAt) - getEventTime(otherEvent.createdAt);
+  if (createdDifference !== 0) return createdDifference;
+
+  return event.id.localeCompare(otherEvent.id);
+}
+
+function getCompletedProductionEventDurationMs(event: ProductionEvent) {
+  if (event.duration && event.duration > 0) return event.duration * 1000;
+  if (!event.endTime) return 0;
+
+  const start = getEventTime(event.startTime);
+  const end = getEventTime(event.endTime);
+
+  return Math.max(0, end - start);
+}
+
+function getEventTime(date: string | null | undefined) {
+  const time = new Date(date ?? "").getTime();
+  return Number.isNaN(time) ? 0 : time;
 }

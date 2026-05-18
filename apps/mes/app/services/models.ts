@@ -126,6 +126,38 @@ export const productionEventValidator = z.object({
   trackedEntityId: zfd.text(z.string().optional())
 });
 
+export const productionEventEditValidator = z
+  .object({
+    intent: z.literal("updateEventTimes"),
+    id: z.string().min(1, { message: "Production event ID is required" }),
+    jobOperationId: z
+      .string()
+      .min(1, { message: "Job Operation ID is required" }),
+    startTime: z.string().min(1, { message: "Start time is required" }),
+    endTime: z.string().min(1, { message: "End time is required" })
+  })
+  .refine(
+    (data) =>
+      !Number.isNaN(new Date(data.startTime).getTime()) &&
+      !Number.isNaN(new Date(data.endTime).getTime()),
+    {
+      message: "Start time and end time must be valid dates",
+      path: ["endTime"]
+    }
+  )
+  .refine((data) => new Date(data.startTime) < new Date(data.endTime), {
+    message: "End time must be after start time",
+    path: ["endTime"]
+  })
+  .refine((data) => new Date(data.startTime).getTime() <= Date.now(), {
+    message: "Start time cannot be in the future",
+    path: ["startTime"]
+  })
+  .refine((data) => new Date(data.endTime).getTime() <= Date.now(), {
+    message: "End time cannot be in the future",
+    path: ["endTime"]
+  });
+
 export const finishValidator = z.object({
   jobOperationId: z.string(),
   setupProductionEventId: zfd.text(z.string().optional()),

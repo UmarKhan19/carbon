@@ -55,6 +55,9 @@ msgstr "Kontoeinstellungen"
 msgid "Active"
 msgstr "Aktiv"
 
+msgid "Active entries cannot be edited."
+msgstr ""
+
 msgid "Actual"
 msgstr "Ist"
 
@@ -69,6 +72,9 @@ msgstr "Bestand hinzufügen"
 
 msgid "Add Spare Part"
 msgstr "Ersatzteil hinzufügen"
+
+msgid "After Update"
+msgstr ""
 
 msgid "All"
 msgstr "Alle"
@@ -218,6 +224,9 @@ msgstr "Verbrauchte abgelaufen"
 msgid "Create {0}"
 msgstr "Erstelle {0}"
 
+msgid "Current"
+msgstr ""
+
 msgid "Customer"
 msgstr "Kunde"
 
@@ -269,8 +278,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Ziehen von {0} abgebrochen."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Fällig {0}"
 
@@ -289,18 +298,30 @@ msgstr "Dauer"
 msgid "Edit"
 msgstr "Bearbeiten"
 
+msgid "Edit time entry"
+msgstr ""
+
 msgid "Email Address"
 msgstr "E-Mail-Adresse"
 
 msgid "Empty work centers"
 msgstr "Leere Arbeitszentren"
 
+msgid "End"
+msgstr ""
+
 msgid "End Operations"
 msgstr "Arbeitsgänge beenden"
+
+msgid "End time must be after start time."
+msgstr ""
 
 #. placeholder {0}: selectedPerson.name
 msgid "Enter PIN for {0}"
 msgstr "PIN für {0} eingeben"
+
+msgid "Enter valid start and end times."
+msgstr ""
 
 msgid "Error"
 msgstr "Fehler"
@@ -319,6 +340,9 @@ msgstr "Aktive Arbeitsgänge konnten nicht abgerufen werden"
 
 msgid "Failed to fetch storageUnits"
 msgstr "Fehler beim Abrufen von Lagerbereichen"
+
+msgid "Failed to update time entry"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
@@ -368,6 +392,9 @@ msgstr "In Bearbeitung"
 
 msgid "Insufficient quantity"
 msgstr "Unzureichende Menge"
+
+msgid "Invalid"
+msgstr ""
 
 msgid "Inventory adjustment completed"
 msgstr "Bestandskorrektur abgeschlossen"
@@ -589,6 +616,9 @@ msgstr "Hoppla. Diese Seite sollten Sie nicht sehen. Sie wird künftig eine Star
 
 msgid "Open"
 msgstr "Offen"
+
+msgid "Open time entries"
+msgstr ""
 
 msgid "Operations"
 msgstr "Arbeitsgänge"
@@ -854,8 +884,17 @@ msgstr "Es gibt serien- oder chargenverfolgte Materialien in der Stückliste, di
 msgid "Thumbnail"
 msgstr "Vorschaubild"
 
+msgid "Time"
+msgstr ""
+
 msgid "Time Entries"
 msgstr "Zeiteinträge"
+
+msgid "Time entries cannot be in the future."
+msgstr ""
+
+msgid "Time entry overlaps another event."
+msgstr ""
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Time Worked: {0}"
@@ -892,6 +931,15 @@ msgstr "Unbekannt"
 
 msgid "Update"
 msgstr "Aktualisieren"
+
+msgid "Update Time"
+msgstr ""
+
+msgid "Update Time Entry"
+msgstr ""
+
+msgid "Updated Duration"
+msgstr ""
 
 msgid "Updated successfully"
 msgstr "Erfolgreich aktualisiert"
