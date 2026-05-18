@@ -54,7 +54,9 @@ type Operation = {
   quantityComplete: number | null;
   targetQuantity: number | null;
   quantityScrapped: number | null;
-  jobMakeMethod: { item: { readableIdWithRevision: string } | null } | null;
+  jobMakeMethod: {
+    item: { readableIdWithRevision: string | null } | null;
+  } | null;
 };
 
 type Props = {
