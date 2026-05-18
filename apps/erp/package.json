@@ -1,6 +1,4 @@
 {
-  "name": "erp",
-  "type": "module",
   "dependencies": {
     "@ai-sdk-tools/agents": "1.2.0",
     "@ai-sdk-tools/artifacts": "1.2.0",
@@ -38,9 +36,6 @@
     "@modelcontextprotocol/sdk": "1.29.0",
     "@monaco-editor/react": "4.7.0",
     "@nanostores/react": "catalog:",
-    "@novu/framework": "2.10.0",
-    "@novu/headless": "2.7.0-alpha.0",
-    "@novu/node": "2.6.6",
     "@paper-design/shaders-react": "^0.0.57",
     "@react-aria/i18n": "catalog:",
     "@react-email/components": "catalog:",
@@ -129,12 +124,13 @@
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",
-    "@carbon/dev": "workspace:*",
     "@lingui/macro": "catalog:",
     "@lingui/vite-plugin": "catalog:",
     "@react-router/dev": "catalog:",
+    "@tailwindcss/container-queries": "catalog:",
+    "@tailwindcss/forms": "catalog:",
+    "@tailwindcss/line-clamp": "catalog:",
     "@tailwindcss/typography": "catalog:",
-    "@tailwindcss/vite": "catalog:",
     "@types/d3": "7.4.3",
     "@types/d3-force": "3.0.10",
     "@types/lodash": "4.17.24",
@@ -144,9 +140,11 @@
     "@types/react": "catalog:",
     "@types/react-csv": "1.1.10",
     "@types/react-dom": "catalog:",
+    "autoprefixer": "catalog:",
     "cross-env": "catalog:",
     "nodemon": "catalog:",
     "npm-run-all": "catalog:",
+    "postcss": "catalog:",
     "supabase": "catalog:",
     "tailwind-scrollbar": "catalog:",
     "tailwind-scrollbar-hide": "catalog:",
@@ -155,20 +153,23 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-babel-macros": "catalog:",
+    "vite-tsconfig-paths": "catalog:",
     "vitest": "catalog:"
   },
+  "name": "erp",
   "private": true,
   "scripts": {
     "build": "react-router build",
     "clean": "rimraf .cache .turbo node_modules dist build",
     "dev": "portless --script dev:app run --force",
-    "dev:app": "react-router dev",
+    "dev:app": "react-router dev --port $PORT --host $HOST",
     "dev:novu": "pnpm dlx novu@latest dev --port 3000",
-    "sync:novu": "pnpm dlx novu@latest sync ",
     "lint": "biome lint --write ",
     "start": "NODE_ENV=production react-router-serve ./build/server/index.js",
+    "sync:novu": "pnpm dlx novu@latest sync ",
     "typecheck": "tsgo --noEmit",
     "typegen": "react-router typegen"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "type": "module"
 }
