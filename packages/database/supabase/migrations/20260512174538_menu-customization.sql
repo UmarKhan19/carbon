@@ -1,4 +1,4 @@
-CREATE TABLE "userModulePreference" (
+CREATE TABLE IF NOT EXISTS "userModulePreference" (
   "id" TEXT NOT NULL DEFAULT xid(),
   "userId" TEXT NOT NULL,
   "companyId" TEXT NOT NULL,
@@ -15,17 +15,21 @@ CREATE TABLE "userModulePreference" (
 
 ALTER TABLE "userModulePreference" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "SELECT" ON "userModulePreference";
 CREATE POLICY "SELECT" ON "userModulePreference"
   FOR SELECT USING ("userId" = auth.uid()::text);
 
+DROP POLICY IF EXISTS "INSERT" ON "userModulePreference";
 CREATE POLICY "INSERT" ON "userModulePreference"
   FOR INSERT WITH CHECK ("userId" = auth.uid()::text);
 
+DROP POLICY IF EXISTS "UPDATE" ON "userModulePreference";
 CREATE POLICY "UPDATE" ON "userModulePreference"
   FOR UPDATE USING ("userId" = auth.uid()::text);
 
+DROP POLICY IF EXISTS "DELETE" ON "userModulePreference";
 CREATE POLICY "DELETE" ON "userModulePreference"
   FOR DELETE USING ("userId" = auth.uid()::text);
 
-CREATE INDEX "userModulePreference_userId_companyId_idx"
+CREATE INDEX IF NOT EXISTS "userModulePreference_userId_companyId_idx"
   ON "userModulePreference" ("userId", "companyId");

@@ -1,14 +1,17 @@
 -- Per-rule trigger surface scoping. Rules opt in to one or more transaction
 -- surfaces; the evaluator skips surfaces a rule didn't subscribe to.
-CREATE TYPE "transactionSurface" AS ENUM (
-  'receipt',
-  'shipment',
-  'stockTransfer',
-  'warehouseTransfer',
-  'inventoryAdjustment'
-);
+DO $$ BEGIN
+  CREATE TYPE "transactionSurface" AS ENUM (
+    'receipt',
+    'shipment',
+    'stockTransfer',
+    'warehouseTransfer',
+    'inventoryAdjustment'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TABLE "itemRule" (
+CREATE TABLE IF NOT EXISTS "itemRule" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT xid(),
   "companyId" TEXT NOT NULL,
   "name" TEXT NOT NULL,
@@ -37,12 +40,13 @@ CREATE TABLE "itemRule" (
   CONSTRAINT "itemRule_surfaces_nonempty" CHECK (array_length("surfaces", 1) >= 1)
 );
 
-CREATE INDEX "itemRule_companyId_idx" ON "itemRule" ("companyId");
-CREATE INDEX "itemRule_companyId_active_partial_idx"
+CREATE INDEX IF NOT EXISTS "itemRule_companyId_idx" ON "itemRule" ("companyId");
+CREATE INDEX IF NOT EXISTS "itemRule_companyId_active_partial_idx"
   ON "itemRule" ("companyId") WHERE "active" = TRUE;
 
 ALTER TABLE "itemRule" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "SELECT" ON "public"."itemRule";
 CREATE POLICY "SELECT" ON "public"."itemRule"
 FOR SELECT USING (
   "companyId" = ANY (
@@ -50,6 +54,7 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "INSERT" ON "public"."itemRule";
 CREATE POLICY "INSERT" ON "public"."itemRule"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
@@ -57,6 +62,7 @@ FOR INSERT WITH CHECK (
   )
 );
 
+DROP POLICY IF EXISTS "UPDATE" ON "public"."itemRule";
 CREATE POLICY "UPDATE" ON "public"."itemRule"
 FOR UPDATE USING (
   "companyId" = ANY (
@@ -64,6 +70,7 @@ FOR UPDATE USING (
   )
 );
 
+DROP POLICY IF EXISTS "DELETE" ON "public"."itemRule";
 CREATE POLICY "DELETE" ON "public"."itemRule"
 FOR DELETE USING (
   "companyId" = ANY (
@@ -71,7 +78,7 @@ FOR DELETE USING (
   )
 );
 
-CREATE TABLE "itemRuleAssignment" (
+CREATE TABLE IF NOT EXISTS "itemRuleAssignment" (
   "itemId" TEXT NOT NULL,
   "ruleId" TEXT NOT NULL,
   "companyId" TEXT NOT NULL,
@@ -85,14 +92,15 @@ CREATE TABLE "itemRuleAssignment" (
   CONSTRAINT "itemRuleAssignment_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id")
 );
 
-CREATE INDEX "itemRuleAssignment_itemId_idx" ON "itemRuleAssignment" ("itemId");
-CREATE INDEX "itemRuleAssignment_ruleId_idx" ON "itemRuleAssignment" ("ruleId");
-CREATE INDEX "itemRuleAssignment_companyId_idx" ON "itemRuleAssignment" ("companyId");
-CREATE INDEX "itemRuleAssignment_itemId_companyId_idx"
+CREATE INDEX IF NOT EXISTS "itemRuleAssignment_itemId_idx" ON "itemRuleAssignment" ("itemId");
+CREATE INDEX IF NOT EXISTS "itemRuleAssignment_ruleId_idx" ON "itemRuleAssignment" ("ruleId");
+CREATE INDEX IF NOT EXISTS "itemRuleAssignment_companyId_idx" ON "itemRuleAssignment" ("companyId");
+CREATE INDEX IF NOT EXISTS "itemRuleAssignment_itemId_companyId_idx"
   ON "itemRuleAssignment" ("itemId", "companyId");
 
 ALTER TABLE "itemRuleAssignment" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "SELECT" ON "public"."itemRuleAssignment";
 CREATE POLICY "SELECT" ON "public"."itemRuleAssignment"
 FOR SELECT USING (
   "companyId" = ANY (
@@ -100,6 +108,7 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "INSERT" ON "public"."itemRuleAssignment";
 CREATE POLICY "INSERT" ON "public"."itemRuleAssignment"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
@@ -107,6 +116,7 @@ FOR INSERT WITH CHECK (
   )
 );
 
+DROP POLICY IF EXISTS "UPDATE" ON "public"."itemRuleAssignment";
 CREATE POLICY "UPDATE" ON "public"."itemRuleAssignment"
 FOR UPDATE USING (
   "companyId" = ANY (
@@ -114,6 +124,7 @@ FOR UPDATE USING (
   )
 );
 
+DROP POLICY IF EXISTS "DELETE" ON "public"."itemRuleAssignment";
 CREATE POLICY "DELETE" ON "public"."itemRuleAssignment"
 FOR DELETE USING (
   "companyId" = ANY (
@@ -122,4 +133,5 @@ FOR DELETE USING (
 );
 
 INSERT INTO "customFieldTable" ("table", "name", "module")
-VALUES ('itemRule', 'Item Rule', 'Items');
+VALUES ('itemRule', 'Item Rule', 'Items')
+ON CONFLICT DO NOTHING;

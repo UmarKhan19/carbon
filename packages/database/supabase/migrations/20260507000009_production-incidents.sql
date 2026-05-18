@@ -8,9 +8,12 @@
 -- so the operator no longer sees the lost stock as a shortage.
 -- ============================================================
 
-CREATE TYPE "productionIncidentStatus" AS ENUM ('Open', 'Resolved', 'Closed');
+DO $$ BEGIN
+  CREATE TYPE "productionIncidentStatus" AS ENUM ('Open', 'Resolved', 'Closed');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TABLE "productionIncidentType" (
+CREATE TABLE IF NOT EXISTS "productionIncidentType" (
   "id"          TEXT        NOT NULL DEFAULT id('pit'),
   "name"        TEXT        NOT NULL,
   "companyId"   TEXT        NOT NULL,
@@ -34,6 +37,7 @@ CREATE TABLE "productionIncidentType" (
 
 ALTER TABLE "productionIncidentType" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "productionIncidentType_select" ON "productionIncidentType";
 CREATE POLICY "productionIncidentType_select"
 ON "productionIncidentType"
 FOR SELECT USING (
@@ -42,6 +46,7 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "productionIncidentType_modify" ON "productionIncidentType";
 CREATE POLICY "productionIncidentType_modify"
 ON "productionIncidentType"
 FOR ALL USING (
@@ -76,7 +81,7 @@ $$;
 
 -- ─── productionIncident ─────────────────────────────────────
 
-CREATE TABLE "productionIncident" (
+CREATE TABLE IF NOT EXISTS "productionIncident" (
   "id"                   TEXT        NOT NULL DEFAULT id('pi'),
   "incidentId"           TEXT,
   "jobId"                TEXT        NOT NULL,
@@ -117,13 +122,14 @@ CREATE TABLE "productionIncident" (
     FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON DELETE RESTRICT
 );
 
-CREATE INDEX "productionIncident_jobId_idx"
+CREATE INDEX IF NOT EXISTS "productionIncident_jobId_idx"
   ON "productionIncident" ("jobId");
-CREATE INDEX "productionIncident_companyId_status_idx"
+CREATE INDEX IF NOT EXISTS "productionIncident_companyId_status_idx"
   ON "productionIncident" ("companyId", "status");
 
 ALTER TABLE "productionIncident" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "productionIncident_select" ON "productionIncident";
 CREATE POLICY "productionIncident_select"
 ON "productionIncident"
 FOR SELECT USING (
@@ -132,6 +138,7 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "productionIncident_modify" ON "productionIncident";
 CREATE POLICY "productionIncident_modify"
 ON "productionIncident"
 FOR ALL USING (
