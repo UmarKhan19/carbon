@@ -309,7 +309,7 @@ msgid "Add Entry"
 msgstr "ÃƒÂ¦Ã‚Â·Ã‚Â»ÃƒÂ¥Ã…Â Ã‚Â ÃƒÂ¦Ã‚ÂÃ‚Â¡ÃƒÂ§Ã¢â‚¬ÂºÃ‚Â®"
 
 msgid "Add from library…"
-msgstr ""
+msgstr "从库中添加…"
 
 msgid "Add Group"
 msgstr "ÃƒÂ¦Ã‚Â·Ã‚Â»ÃƒÂ¥Ã…Â Ã‚Â ÃƒÂ§Ã‚Â»Ã¢â‚¬Å¾"
@@ -510,7 +510,7 @@ msgid "API Keys"
 msgstr "API ÃƒÂ¥Ã‚Â¯Ã¢â‚¬Â ÃƒÂ©Ã¢â‚¬â„¢Ã‚Â¥"
 
 msgid "API keys for programmatic access to your Carbon data."
-msgstr ""
+msgstr "用于以编程方式访问您的 Carbon 数据的 API 密钥。"
 
 msgid "Applies to"
 msgstr "ÃƒÂ©Ã¢â€šÂ¬Ã¢â‚¬Å¡ÃƒÂ§Ã¢â‚¬ÂÃ‚Â¨ÃƒÂ¤Ã‚ÂºÃ…Â½"
@@ -1200,7 +1200,7 @@ msgid "Cannot place order - no supplier associated with this item"
 msgstr "ÃƒÂ¦Ã¢â‚¬â€Ã‚Â ÃƒÂ¦Ã‚Â³Ã¢â‚¬Â¢ÃƒÂ¤Ã‚Â¸Ã¢â‚¬Â¹ÃƒÂ¥Ã‚ÂÃ¢â‚¬Â¢ - ÃƒÂ¦Ã‚Â­Ã‚Â¤ÃƒÂ©Ã‚Â¡Ã‚Â¹ÃƒÂ§Ã¢â‚¬ÂºÃ‚Â®ÃƒÂ¦Ã‚Â²Ã‚Â¡ÃƒÂ¦Ã…â€œÃ¢â‚¬Â°ÃƒÂ¥Ã¢â‚¬Â¦Ã‚Â³ÃƒÂ¨Ã‚ÂÃ¢â‚¬ÂÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¤Ã‚Â¾Ã¢â‚¬ÂºÃƒÂ¥Ã‚ÂºÃ¢â‚¬ÂÃƒÂ¥Ã¢â‚¬Â¢Ã¢â‚¬Â "
 
 msgid "Cannot post — shipment contains expired tracked entities."
-msgstr ""
+msgstr "无法发布 — 货运单包含已过期的追踪实体。"
 
 msgid "Cannot send RFQ"
 msgstr "ÃƒÂ¦Ã¢â‚¬â€Ã‚Â ÃƒÂ¦Ã‚Â³Ã¢â‚¬Â¢ÃƒÂ¥Ã‚ÂÃ¢â‚¬ËœÃƒÂ©Ã¢â€šÂ¬Ã‚ÂÃƒÂ¨Ã‚Â¯Ã‚Â¢ÃƒÂ¤Ã‚Â»Ã‚Â·ÃƒÂ¥Ã‚ÂÃ¢â‚¬Â¢"
@@ -1520,7 +1520,7 @@ msgid "Confirming will post consumption ledger entries for all picked quantities
 msgstr ""
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
-msgstr ""
+msgstr "将 Carbon 连接到您的会计、项目管理和 CAD 工具等更多应用。"
 
 msgid "Connect Jira issue"
 msgstr "ÃƒÂ¨Ã‚Â¿Ã…Â¾ÃƒÂ¦Ã…Â½Ã‚Â¥ Jira ÃƒÂ©Ã¢â‚¬â€Ã‚Â®ÃƒÂ©Ã‚Â¢Ã‹Å“"
@@ -2585,6 +2585,9 @@ msgstr "ÃƒÂ¥Ã‚Â°Ã¢â‚¬Â ÃƒÂ©Ã¢â‚¬Â¡Ã¢â‚¬Â¡Ã
 
 msgid "Drag handle"
 msgstr "ÃƒÂ¦Ã¢â‚¬Â¹Ã¢â‚¬â€œÃƒÂ¥Ã…Â Ã‚Â¨ÃƒÂ¦Ã¢â‚¬Â°Ã¢â‚¬Â¹ÃƒÂ¦Ã…Â¸Ã¢â‚¬Å¾"
+
+msgid "Drag to reorder"
+msgstr "拖动以重新排序"
 
 msgid "Drop Shipment"
 msgstr "ÃƒÂ§Ã¢â‚¬ÂºÃ‚Â´ÃƒÂ¨Ã‚Â¿Ã‚Â"
@@ -3961,7 +3964,7 @@ msgid "Inventory"
 msgstr "ÃƒÂ¥Ã‚ÂºÃ¢â‚¬Å“ÃƒÂ¥Ã‚Â­Ã‹Å“"
 
 msgid "Inventory actions"
-msgstr ""
+msgstr "库存操作"
 
 msgid "Inventory Adjustment"
 msgstr "ÃƒÂ¥Ã‚ÂºÃ¢â‚¬Å“ÃƒÂ¥Ã‚Â­Ã‹Å“ÃƒÂ¨Ã‚Â°Ã†â€™ÃƒÂ¦Ã¢â‚¬Â¢Ã‚Â´"
@@ -4764,7 +4767,7 @@ msgid "Move entities"
 msgstr "ÃƒÂ§Ã‚Â§Ã‚Â»ÃƒÂ¥Ã…Â Ã‚Â¨ÃƒÂ¥Ã‚Â®Ã…Â¾ÃƒÂ¤Ã‚Â½Ã¢â‚¬Å“"
 
 msgid "Move entities…"
-msgstr ""
+msgstr "移动实体…"
 
 msgid "Move item"
 msgstr "ÃƒÂ§Ã‚Â§Ã‚Â»ÃƒÂ¥Ã…Â Ã‚Â¨ÃƒÂ©Ã‚Â¡Ã‚Â¹ÃƒÂ§Ã¢â‚¬ÂºÃ‚Â®"
@@ -6738,11 +6741,14 @@ msgstr "ÃƒÂ¤Ã‚Â¿Ã‚ÂÃƒÂ¥Ã‚Â­Ã‹Å“ÃƒÂ¦Ã¢â‚¬
 msgid "Save View"
 msgstr "ÃƒÂ¤Ã‚Â¿Ã‚ÂÃƒÂ¥Ã‚Â­Ã‹Å“ÃƒÂ¨Ã‚Â§Ã¢â‚¬Â ÃƒÂ¥Ã¢â‚¬ÂºÃ‚Â¾"
 
+msgid "Saving..."
+msgstr ""
+
 msgid "Scan"
 msgstr "ÃƒÂ¦Ã¢â‚¬Â°Ã‚Â«ÃƒÂ¦Ã‚ÂÃ‚Â"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "ÃƒÂ¦Ã¢â‚¬Â°Ã‚Â«ÃƒÂ¦Ã‚ÂÃ‚ÂÃƒÂ¦Ã‚Â Ã¢â‚¬Â¡ÃƒÂ§Ã‚Â­Ã‚Â¾ÃƒÂ¦Ã‹â€ Ã¢â‚¬â€œÃƒÂ¦Ã…â€™Ã¢â‚¬Â°IDÃƒÂ£Ã¢â€šÂ¬Ã‚ÂÃƒÂ¥Ã‚ÂºÃ‚ÂÃƒÂ¥Ã‹â€ Ã¢â‚¬â€ÃƒÂ¥Ã‚ÂÃ‚Â·ÃƒÂ¦Ã‹â€ Ã¢â‚¬â€œÃƒÂ¦Ã¢â‚¬Â°Ã‚Â¹ÃƒÂ¥Ã‚ÂÃ‚Â·ÃƒÂ¦Ã‚ÂÃ…â€œÃƒÂ§Ã‚Â´Ã‚Â¢ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡"
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr ""
 
 msgid "Scan entity"
 msgstr ""
@@ -7428,7 +7434,7 @@ msgstr "ÃƒÂ¥Ã‚Â·Ã…Â¾/ÃƒÂ§Ã…â€œÃ‚Â"
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr ""
+msgstr "统计验收失败，因此整个批次被视为不符合要求 (ISO 9001:2015 §8.7)。所有 {0} 个实体 — {passes} 个合格样品、{fails} 个不合格品和 {1} 个未检验的 — 将被标记为已拒收。不符合项报告 (NCR) 将自动开启以供物料评审委员会 (MRB) 处置。"
 
 msgid "Status"
 msgstr "ÃƒÂ§Ã…Â Ã‚Â¶ÃƒÂ¦Ã¢â€šÂ¬Ã‚Â"

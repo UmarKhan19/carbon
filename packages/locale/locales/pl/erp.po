@@ -309,7 +309,7 @@ msgid "Add Entry"
 msgstr "Dodaj wpis"
 
 msgid "Add from library…"
-msgstr ""
+msgstr "Dodaj z biblioteki…"
 
 msgid "Add Group"
 msgstr "Dodaj grupÃƒâ€žÃ¢â€žÂ¢"
@@ -510,7 +510,7 @@ msgid "API Keys"
 msgstr "Klucze API"
 
 msgid "API keys for programmatic access to your Carbon data."
-msgstr ""
+msgstr "Klucze API do programowego dostępu do danych Carbon."
 
 msgid "Applies to"
 msgstr "Dotyczy"
@@ -1200,7 +1200,7 @@ msgid "Cannot place order - no supplier associated with this item"
 msgstr "Nie moÃƒâ€¦Ã‚Â¼na zÃƒâ€¦Ã¢â‚¬Å¡oÃƒâ€¦Ã‚Â¼yÃƒâ€žÃ¢â‚¬Â¡ zamÃƒÆ’Ã‚Â³wienia - brak dostawcy powiÃƒâ€žÃ¢â‚¬Â¦zanego z tym artykuÃƒâ€¦Ã¢â‚¬Å¡em"
 
 msgid "Cannot post — shipment contains expired tracked entities."
-msgstr ""
+msgstr "Nie można wysłać — przesyłka zawiera wygasłe jednostki śledzenia."
 
 msgid "Cannot send RFQ"
 msgstr "Nie moÃƒâ€¦Ã‚Â¼na wysÃƒâ€¦Ã¢â‚¬Å¡aÃƒâ€žÃ¢â‚¬Â¡ ZZO"
@@ -1520,7 +1520,7 @@ msgid "Confirming will post consumption ledger entries for all picked quantities
 msgstr ""
 
 msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
-msgstr ""
+msgstr "Połącz Carbon ze swoimi narzędziami księgowości, zarządzania projektami, CAD i wieloma innymi."
 
 msgid "Connect Jira issue"
 msgstr "PoÃƒâ€¦Ã¢â‚¬Å¡Ãƒâ€žÃ¢â‚¬Â¦cz problem Jiry"
@@ -2585,6 +2585,9 @@ msgstr "PrzeciÃƒâ€žÃ¢â‚¬Â¦gnij i upuÃƒâ€¦Ã¢â‚¬ÂºÃƒ
 
 msgid "Drag handle"
 msgstr "Uchwyt do przeciÃƒâ€žÃ¢â‚¬Â¦gania"
+
+msgid "Drag to reorder"
+msgstr "Przeciągnij, aby zmienić kolejność"
 
 msgid "Drop Shipment"
 msgstr "WysyÃƒâ€¦Ã¢â‚¬Å¡ka bezpoÃƒâ€¦Ã¢â‚¬Âºrednia"
@@ -3961,7 +3964,7 @@ msgid "Inventory"
 msgstr "Zapasy"
 
 msgid "Inventory actions"
-msgstr ""
+msgstr "Akcje inwentarza"
 
 msgid "Inventory Adjustment"
 msgstr "Korekta ZapasÃƒÆ’Ã‚Â³w"
@@ -4764,7 +4767,7 @@ msgid "Move entities"
 msgstr "PrzenieÃƒâ€¦Ã¢â‚¬Âº jednostki"
 
 msgid "Move entities…"
-msgstr ""
+msgstr "Przenieś jednostki…"
 
 msgid "Move item"
 msgstr "PrzesuÃƒâ€¦Ã¢â‚¬Å¾ element"
@@ -6738,11 +6741,14 @@ msgstr "Zapisz metodÃƒâ€žÃ¢â€žÂ¢"
 msgid "Save View"
 msgstr "Zapisz Widok"
 
+msgid "Saving..."
+msgstr ""
+
 msgid "Scan"
 msgstr "Skanuj"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "Skanuj etykietÃƒâ€žÃ¢â€žÂ¢ lub wyszukaj wedÃƒâ€¦Ã¢â‚¬Å¡ug ID, numeru seryjnego lub numeru partii."
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr ""
 
 msgid "Scan entity"
 msgstr ""
@@ -7212,7 +7218,7 @@ msgid "Shipping:"
 msgstr "WysyÃƒâ€¦Ã¢â‚¬Å¡ka:"
 
 msgid "Shop Floor"
-msgstr ""
+msgstr "Hala produkcyjna"
 
 msgid "short"
 msgstr ""
@@ -7428,7 +7434,7 @@ msgstr "Stan / Prowincja"
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
 msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr ""
+msgstr "Akceptacja statystyczna nie powiodła się, dlatego cała partia jest uważana za niezgodną (ISO 9001:2015 §8.7). Wszystkie {0} jednostki — {passes} przebadane przejście(cia), {fails} niepowodzenie(nia) i {1} niezbadane — zostaną oznaczone jako Odrzucone. NCR zostanie otwarty automatycznie do dyspozycji MRB."
 
 msgid "Status"
 msgstr "Status"
