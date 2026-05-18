@@ -402,6 +402,9 @@ msgstr "工单详情"
 msgid "Job Traveler"
 msgstr "工单流转卡"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "套件"
 
@@ -532,6 +535,9 @@ msgstr "今天没有计划的维护"
 msgid "No materials"
 msgstr "无物料"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "无操作员"
 
@@ -589,6 +595,9 @@ msgstr "抱歉，您不应该看到此页面。此页面最终将成为首页。
 
 msgid "Open"
 msgstr "打开"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "工序"
@@ -707,6 +716,9 @@ msgstr "已报废"
 
 msgid "Search"
 msgstr "搜索"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search operators..."
 msgstr "搜索操作员..."
@@ -877,6 +889,9 @@ msgstr "总时间：{0}"
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
 msgstr "合计：{0}"
+
+msgid "Tracking"
+msgstr ""
 
 msgid "Tracking Labels"
 msgstr "追踪标签"

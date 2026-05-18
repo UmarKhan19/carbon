@@ -20,6 +20,68 @@ import type {
 } from "./models";
 import type { BaseOperationWithDetails, Job, StorageItem } from "./types";
 
+export async function getOpenJobs(
+  client: SupabaseClient<Database>,
+  args: { companyId: string; locationId: string }
+) {
+  return client
+    .from("jobs")
+    .select(
+      "id, jobId, status, itemReadableIdWithRevision, name, quantity, quantityComplete, dueDate, deadlineType, assignee, jobMakeMethodId"
+    )
+    .eq("companyId", args.companyId)
+    .eq("locationId", args.locationId)
+    .in("status", ["Ready", "In Progress", "Paused"])
+    .order("jobId", { ascending: true });
+}
+
+export async function getTrackedEntitiesByJobMakeMethodIds(
+  client: SupabaseClient<Database>,
+  jobMakeMethodIds: string[],
+  companyId: string
+) {
+  if (jobMakeMethodIds.length === 0) return {};
+  const result = await client
+    .from("trackedEntity")
+    .select("readableId, attributes")
+    .in("attributes->>Job Make Method", jobMakeMethodIds)
+    .eq("companyId", companyId);
+
+  if (!result.data) return {};
+
+  return result.data.reduce<Record<string, string>>((acc, curr) => {
+    if (
+      curr.attributes !== null &&
+      typeof curr.attributes === "object" &&
+      "Job Make Method" in curr.attributes &&
+      curr.readableId
+    ) {
+      acc[curr.attributes["Job Make Method"] as string] = curr.readableId;
+    }
+    return acc;
+  }, {});
+}
+
+export async function getJobOperations(
+  client: SupabaseClient<Database>,
+  jobId: string
+) {
+  return client
+    .from("jobOperation")
+    .select("*, jobMakeMethod(parentMaterialId, item(readableIdWithRevision))")
+    .eq("jobId", jobId);
+}
+
+export async function getJobOperationDependencies(
+  client: SupabaseClient<Database>,
+  jobId: string
+) {
+  return client
+    .from("jobOperationDependency")
+    .select("operationId, dependsOnId")
+    .eq("jobId", jobId);
+}
+
 export async function deleteAttributeRecord(
   client: SupabaseClient<Database>,
   args: { id: string; companyId: string; userId: string }
