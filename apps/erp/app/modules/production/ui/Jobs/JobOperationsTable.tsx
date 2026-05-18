@@ -18,7 +18,6 @@ import {
   LuCircleCheckBig,
   LuClipboardList,
   LuHash,
-  LuPlay,
   LuRefreshCcwDot,
   LuRotateCcw,
   LuTriangleAlert,
@@ -123,20 +122,6 @@ const JobOperationsTable = memo(({ data, count }: JobOperationsTableProps) => {
         ),
         meta: {
           icon: <LuClipboardList />
-        }
-      },
-      {
-        id: "mes",
-        header: t`MES`,
-        cell: ({ row }) => (
-          <Button size="sm" variant="secondary" leftIcon={<LuPlay />} asChild>
-            <a href={path.to.external.mesJobOperation(row.original.id)}>
-              {t`Open`}
-            </a>
-          </Button>
-        ),
-        meta: {
-          icon: <LuPlay />
         }
       },
       {
