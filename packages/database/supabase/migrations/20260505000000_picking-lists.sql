@@ -4,22 +4,28 @@
 
 -- ─── Enums ───────────────────────────────────────────────────
 
-CREATE TYPE "pickingListStatus" AS ENUM (
-  'Draft',
-  'Released',
-  'In Progress',
-  'Confirmed',
-  'Cancelled'
-);
+DO $$ BEGIN
+  CREATE TYPE "pickingListStatus" AS ENUM (
+    'Draft',
+    'Released',
+    'In Progress',
+    'Confirmed',
+    'Cancelled'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TYPE "jobPickingStatus" AS ENUM (
-  'Not Required',
-  'Not Generated',
-  'Generated',
-  'In Progress',
-  'Partial',
-  'Complete'
-);
+DO $$ BEGIN
+  CREATE TYPE "jobPickingStatus" AS ENUM (
+    'Not Required',
+    'Not Generated',
+    'Generated',
+    'In Progress',
+    'Partial',
+    'Complete'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ─── Column additions to existing tables ─────────────────────
 
@@ -48,7 +54,7 @@ ALTER TABLE "workCenter"
 
 -- ─── pickingList ──────────────────────────────────────────────
 
-CREATE TABLE "pickingList" (
+CREATE TABLE IF NOT EXISTS "pickingList" (
   "id"                      TEXT        NOT NULL DEFAULT id('pl'),
   "pickingListId"           TEXT        NOT NULL,
   "jobId"                   TEXT        NOT NULL,
@@ -88,19 +94,19 @@ CREATE TABLE "pickingList" (
 );
 
 -- Only one active (non-Confirmed/Cancelled) PL per job + location
-CREATE UNIQUE INDEX "pickingList_jobId_locationId_active_key"
+CREATE UNIQUE INDEX IF NOT EXISTS "pickingList_jobId_locationId_active_key"
   ON "pickingList" ("jobId", "locationId", "companyId")
   WHERE "status" NOT IN ('Confirmed', 'Cancelled');
 
-CREATE INDEX "pickingList_companyId_idx"   ON "pickingList" ("companyId");
-CREATE INDEX "pickingList_jobId_idx"       ON "pickingList" ("jobId");
-CREATE INDEX "pickingList_locationId_idx"  ON "pickingList" ("locationId");
-CREATE INDEX "pickingList_status_idx"      ON "pickingList" ("status");
-CREATE INDEX "pickingList_assignee_idx"    ON "pickingList" ("assignee");
+CREATE INDEX IF NOT EXISTS "pickingList_companyId_idx"   ON "pickingList" ("companyId");
+CREATE INDEX IF NOT EXISTS "pickingList_jobId_idx"       ON "pickingList" ("jobId");
+CREATE INDEX IF NOT EXISTS "pickingList_locationId_idx"  ON "pickingList" ("locationId");
+CREATE INDEX IF NOT EXISTS "pickingList_status_idx"      ON "pickingList" ("status");
+CREATE INDEX IF NOT EXISTS "pickingList_assignee_idx"    ON "pickingList" ("assignee");
 
 -- ─── pickingListLine ──────────────────────────────────────────
 
-CREATE TABLE "pickingListLine" (
+CREATE TABLE IF NOT EXISTS "pickingListLine" (
   "id"                       TEXT        NOT NULL DEFAULT id('pll'),
   "pickingListId"            TEXT        NOT NULL,
   "jobMaterialId"            TEXT        NOT NULL,
@@ -144,10 +150,10 @@ CREATE TABLE "pickingListLine" (
     FOREIGN KEY ("updatedBy") REFERENCES "user"("id")
 );
 
-CREATE INDEX "pickingListLine_companyId_idx"    ON "pickingListLine" ("companyId");
-CREATE INDEX "pickingListLine_pickingListId_idx" ON "pickingListLine" ("pickingListId");
-CREATE INDEX "pickingListLine_itemId_idx"        ON "pickingListLine" ("itemId");
-CREATE INDEX "pickingListLine_storageUnitId_idx" ON "pickingListLine" ("storageUnitId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_companyId_idx"    ON "pickingListLine" ("companyId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_pickingListId_idx" ON "pickingListLine" ("pickingListId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_itemId_idx"        ON "pickingListLine" ("itemId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_storageUnitId_idx" ON "pickingListLine" ("storageUnitId");
 
 -- ─── Sequence entry for PL-XXXXX readable IDs ────────────────
 
@@ -160,6 +166,7 @@ ON CONFLICT DO NOTHING;
 
 ALTER TABLE "pickingList" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "SELECT" ON "pickingList";
 CREATE POLICY "SELECT" ON "pickingList"
   FOR SELECT USING (
     "companyId" = ANY (
@@ -167,6 +174,7 @@ CREATE POLICY "SELECT" ON "pickingList"
     )
   );
 
+DROP POLICY IF EXISTS "INSERT" ON "pickingList";
 CREATE POLICY "INSERT" ON "pickingList"
   FOR INSERT WITH CHECK (
     "companyId" = ANY (
@@ -174,6 +182,7 @@ CREATE POLICY "INSERT" ON "pickingList"
     )
   );
 
+DROP POLICY IF EXISTS "UPDATE" ON "pickingList";
 CREATE POLICY "UPDATE" ON "pickingList"
   FOR UPDATE USING (
     "companyId" = ANY (
@@ -181,6 +190,7 @@ CREATE POLICY "UPDATE" ON "pickingList"
     )
   );
 
+DROP POLICY IF EXISTS "DELETE" ON "pickingList";
 CREATE POLICY "DELETE" ON "pickingList"
   FOR DELETE USING (
     "companyId" = ANY (
@@ -190,6 +200,7 @@ CREATE POLICY "DELETE" ON "pickingList"
 
 ALTER TABLE "pickingListLine" ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "SELECT" ON "pickingListLine";
 CREATE POLICY "SELECT" ON "pickingListLine"
   FOR SELECT USING (
     "companyId" = ANY (
@@ -197,6 +208,7 @@ CREATE POLICY "SELECT" ON "pickingListLine"
     )
   );
 
+DROP POLICY IF EXISTS "INSERT" ON "pickingListLine";
 CREATE POLICY "INSERT" ON "pickingListLine"
   FOR INSERT WITH CHECK (
     "companyId" = ANY (
@@ -204,6 +216,7 @@ CREATE POLICY "INSERT" ON "pickingListLine"
     )
   );
 
+DROP POLICY IF EXISTS "UPDATE" ON "pickingListLine";
 CREATE POLICY "UPDATE" ON "pickingListLine"
   FOR UPDATE USING (
     "companyId" = ANY (
@@ -211,6 +224,7 @@ CREATE POLICY "UPDATE" ON "pickingListLine"
     )
   );
 
+DROP POLICY IF EXISTS "DELETE" ON "pickingListLine";
 CREATE POLICY "DELETE" ON "pickingListLine"
   FOR DELETE USING (
     "companyId" = ANY (
@@ -396,10 +410,12 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS "pickingList_update_job_picking_status" ON "pickingList";
 CREATE TRIGGER "pickingList_update_job_picking_status"
   AFTER INSERT OR UPDATE OR DELETE ON "pickingList"
   FOR EACH ROW EXECUTE FUNCTION trigger_update_job_picking_status();
 
+DROP TRIGGER IF EXISTS "pickingListLine_update_job_picking_status" ON "pickingListLine";
 CREATE TRIGGER "pickingListLine_update_job_picking_status"
   AFTER INSERT OR UPDATE OR DELETE ON "pickingListLine"
   FOR EACH ROW EXECUTE FUNCTION trigger_update_job_picking_status();
