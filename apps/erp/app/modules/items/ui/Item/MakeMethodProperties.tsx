@@ -60,7 +60,7 @@ const MakeMethodProperties = ({
           </div>
         </CardContent>
         <CardFooter>
-          <Submit isDisabled={isReadOnly}>
+          <Submit isDisabled={isReadOnly} withBlocker={false}>
             <Trans>Save</Trans>
           </Submit>
         </CardFooter>

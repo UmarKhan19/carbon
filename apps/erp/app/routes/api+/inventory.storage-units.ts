@@ -3,7 +3,10 @@ import type {
   ClientLoaderFunctionArgs,
   LoaderFunctionArgs
 } from "react-router";
-import { getStorageUnitsListForLocation } from "~/modules/inventory";
+import {
+  getStorageUnitsList,
+  getStorageUnitsListForLocation
+} from "~/modules/inventory";
 import { getCompanyId, storageUnitsQuery } from "~/utils/react-query";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -14,10 +17,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const locationId = url.searchParams.get("locationId");
   if (!locationId) {
-    return {
-      data: [],
-      error: null
-    };
+    return await getStorageUnitsList(client, companyId);
   }
 
   return await getStorageUnitsListForLocation(client, companyId, locationId);

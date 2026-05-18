@@ -112,8 +112,10 @@ export function useStorageUnits(locationId?: string, itemId?: string) {
           path.to.api.storageUnitsWithQuantities(locationId, itemId)
         );
       }
-      storageUnitsFetcher.load(path.to.api.storageUnits(locationId));
     }
+    // Always load storage units — when locationId is absent the API returns all
+    // company storage units so pickers without a default location still work.
+    storageUnitsFetcher.load(path.to.api.storageUnits(locationId));
   }, [locationId, itemId]);
 
   const options = useMemo(() => {

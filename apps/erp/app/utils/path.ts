@@ -170,8 +170,10 @@ export const path = {
       services: `${api}/items/services`,
       shifts: (id: string) =>
         generatePath(`${api}/people/shifts?location=${id}`),
-      storageUnits: (id: string) =>
-        generatePath(`${api}/inventory/storage-units?locationId=${id}`),
+      storageUnits: (id?: string) =>
+        id
+          ? generatePath(`${api}/inventory/storage-units?locationId=${id}`)
+          : generatePath(`${api}/inventory/storage-units`),
       storageUnitsTree: (id: string) =>
         generatePath(`${api}/inventory/storage-units-tree?locationId=${id}`),
       storageUnitsWithQuantities: (locationId: string, itemId?: string) =>

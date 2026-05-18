@@ -3,9 +3,10 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
-import { data } from "react-router";
+import { data, redirect } from "react-router";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import { path } from "~/utils/path";
 
 const finishToValidator = z.object({
   finishToStorageUnitId: zfd.text(z.string().optional())
@@ -52,8 +53,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  return data(
-    { success: true },
+  throw redirect(
+    request.headers.get("Referer") ?? path.to.parts,
     await flash(request, success("Finish-to storage unit updated"))
   );
 }

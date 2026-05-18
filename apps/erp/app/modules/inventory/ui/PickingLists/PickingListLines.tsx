@@ -1,5 +1,8 @@
 import {
+  Badge,
   Button,
+  Card,
+  CardContent,
   cn,
   DropdownMenu,
   DropdownMenuContent,
@@ -73,26 +76,26 @@ function LineStatusBadge({ line }: { line: PickingListLine }) {
   const s = lineStatus(line);
   if (s === "completed")
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-md border border-emerald-500/30 text-xs font-medium bg-emerald-500/10 text-emerald-400">
+      <Badge variant="green">
         <Trans>Completed</Trans>
-      </span>
+      </Badge>
     );
   if (s === "overpicked")
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-md border border-orange-500/30 text-xs font-medium bg-orange-500/10 text-orange-400">
+      <Badge variant="orange">
         <Trans>Overpicked</Trans>
-      </span>
+      </Badge>
     );
   if (s === "in_progress")
     return (
-      <span className="inline-flex items-center px-2 py-0.5 rounded-md border border-blue-500/30 text-xs font-medium bg-blue-500/10 text-blue-400">
+      <Badge variant="blue">
         <Trans>In Progress</Trans>
-      </span>
+      </Badge>
     );
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-md border border-white/20 text-xs font-medium bg-white/5 text-white/75">
+    <Badge variant="gray">
       <Trans>Not Started</Trans>
-    </span>
+    </Badge>
   );
 }
 
@@ -182,7 +185,7 @@ function ActiveLineCard({
   };
 
   return (
-    <div className="w-full rounded-xl border border-border/80 bg-card overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.24)]">
+    <Card className="w-full overflow-hidden">
       {/* Line header */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-border/60">
         <HStack spacing={2}>
@@ -199,7 +202,7 @@ function ActiveLineCard({
         <LineStatusBadge line={line} />
       </div>
 
-      <div className="px-5 py-4 space-y-4">
+      <CardContent className="px-5 py-4 space-y-4">
         {/* Source → Destination */}
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -396,8 +399,8 @@ function ActiveLineCard({
             </Button>
           )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -654,14 +657,16 @@ function StatCard({
   sub?: React.ReactNode;
 }) {
   return (
-    <div className="flex-1 rounded-xl border border-border/70 bg-card p-4 space-y-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-        <span className={cn("size-3.5 shrink-0", iconColor)}>{icon}</span>
-        {label}
-      </div>
-      <div>{children}</div>
-      {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
-    </div>
+    <Card className="flex-1">
+      <CardContent className="p-4 space-y-1.5">
+        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+          <span className={cn("size-3.5 shrink-0", iconColor)}>{icon}</span>
+          {label}
+        </div>
+        <div>{children}</div>
+        {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -845,77 +850,86 @@ const PickingListLines = () => {
   return (
     <VStack spacing={4} className="w-full">
       {/* ── Hero section ─────────────────────────────────────── */}
-      <div className="w-full rounded-xl border border-border/70 bg-card p-5 shadow-[0_1px_2px_rgba(0,0,0,0.08)] space-y-3">
-        {/* Status row */}
-        <div className="flex items-center justify-between">
-          <HStack spacing={2}>
-            <PickingListStatus status={pl.status as any} />
-            {isOverdue && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-red-500/30 text-xs font-semibold bg-red-500/10 text-red-400 uppercase tracking-widest">
-                ⚠️ <Trans>Overdue</Trans>
+      <Card className="w-full">
+        <CardContent className="p-5 space-y-3">
+          {/* Status row */}
+          <div className="flex items-center justify-between">
+            <HStack spacing={2}>
+              <PickingListStatus status={pl.status as any} />
+              {isOverdue && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border border-red-500/30 text-xs font-semibold bg-red-500/10 text-red-400 uppercase tracking-widest">
+                  ⚠️ <Trans>Overdue</Trans>
+                </span>
+              )}
+            </HStack>
+            {createdByName && pl.createdAt && (
+              <span className="text-xs text-muted-foreground">
+                <Trans>Created by</Trans>{" "}
+                <span className="text-foreground/80">{createdByName}</span>
+                {" · "}
+                {formatRelativeTime(pl.createdAt)}
               </span>
             )}
-          </HStack>
-          {createdByName && pl.createdAt && (
-            <span className="text-xs text-muted-foreground">
-              <Trans>Created by</Trans>{" "}
-              <span className="text-foreground/80">{createdByName}</span>
-              {" · "}
-              {formatRelativeTime(pl.createdAt)}
-            </span>
-          )}
-        </div>
+          </div>
 
-        {/* Title */}
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-balance">
-            {itemReadableId ? <>Pick for {itemReadableId}</> : pl.pickingListId}
-            {itemName && (
-              <span className="ml-2.5 text-base font-normal text-muted-foreground">
-                {itemName}
-              </span>
-            )}
-          </h2>
-        </div>
+          {/* Title */}
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-balance">
+              {itemReadableId ? (
+                <>Pick for {itemReadableId}</>
+              ) : (
+                pl.pickingListId
+              )}
+              {itemName && (
+                <span className="ml-2.5 text-base font-normal text-muted-foreground">
+                  {itemName}
+                </span>
+              )}
+            </h2>
+          </div>
 
-        {/* Metadata row */}
-        <HStack spacing={1} className="text-xs text-muted-foreground flex-wrap">
-          {jobId && (
-            <Link
-              to={path.to.job(pl.jobId!)}
-              className="hover:text-foreground transition-colors font-medium"
-            >
-              {jobId}
-            </Link>
-          )}
-          {salesOrderId && (
-            <>
-              <span className="text-border">·</span>
+          {/* Metadata row */}
+          <HStack
+            spacing={1}
+            className="text-xs text-muted-foreground flex-wrap"
+          >
+            {jobId && (
               <Link
-                to={path.to.salesOrder(pl.job?.salesOrderId ?? "")}
+                to={path.to.job(pl.jobId!)}
                 className="hover:text-foreground transition-colors font-medium"
               >
-                {salesOrderId}
+                {jobId}
               </Link>
-            </>
-          )}
-          {customerName && (
-            <>
-              <span className="text-border">·</span>
-              <span>{customerName}</span>
-            </>
-          )}
-          {locationName && (
-            <>
-              <span className="text-border">·</span>
-              <span className="flex items-center gap-1">
-                <LuMapPin className="size-3" />
-                {locationName}
-              </span>
-            </>
-          )}
-        </HStack>
-      </div>
+            )}
+            {salesOrderId && (
+              <>
+                <span className="text-border">·</span>
+                <Link
+                  to={path.to.salesOrder(pl.job?.salesOrderId ?? "")}
+                  className="hover:text-foreground transition-colors font-medium"
+                >
+                  {salesOrderId}
+                </Link>
+              </>
+            )}
+            {customerName && (
+              <>
+                <span className="text-border">·</span>
+                <span>{customerName}</span>
+              </>
+            )}
+            {locationName && (
+              <>
+                <span className="text-border">·</span>
+                <span className="flex items-center gap-1">
+                  <LuMapPin className="size-3" />
+                  {locationName}
+                </span>
+              </>
+            )}
+          </HStack>
+        </CardContent>
+      </Card>
 
       {/* ── Stats row ──────────────────────────────────────────── */}
       <div className="w-full flex gap-3">
@@ -1021,7 +1035,7 @@ const PickingListLines = () => {
       )}
 
       {/* ── Lines table ────────────────────────────────────────── */}
-      <div className="w-full rounded-xl border border-border/70 bg-card overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.08)]">
+      <Card className="w-full overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-border/60">
           <HStack spacing={2}>
             <span className="text-sm font-semibold">
@@ -1120,7 +1134,7 @@ const PickingListLines = () => {
             </tbody>
           </table>
         )}
-      </div>
+      </Card>
     </VStack>
   );
 };

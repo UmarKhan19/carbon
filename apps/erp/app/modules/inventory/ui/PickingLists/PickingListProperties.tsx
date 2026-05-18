@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   cn,
   HStack,
@@ -240,9 +241,7 @@ export default function PickingListProperties() {
               icon={<LuWarehouse className="size-3" />}
             >
               <Hyperlink to={path.to.job(pl.jobId!)}>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md border border-blue-500/30 text-xs font-medium bg-blue-500/10 text-blue-400 hover:bg-blue-500/15 transition-colors">
-                  JOB · {pl.job.jobId}
-                </span>
+                <Badge variant="blue">JOB · {pl.job.jobId}</Badge>
               </Hyperlink>
             </PropertyRow>
           )}
@@ -254,14 +253,14 @@ export default function PickingListProperties() {
             >
               {pl.job?.salesOrderId ? (
                 <Hyperlink to={path.to.salesOrder(pl.job.salesOrderId)}>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded-md border border-amber-500/30 text-xs font-medium bg-amber-500/10 text-amber-400 hover:bg-amber-500/15 transition-colors">
+                  <Badge variant="yellow">
                     {pl.job?.salesOrder?.salesOrderId ?? pl.job.salesOrderId}
-                  </span>
+                  </Badge>
                 </Hyperlink>
               ) : (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md border border-amber-500/30 text-xs font-medium bg-amber-500/10 text-amber-400">
+                <Badge variant="yellow">
                   {pl.job?.salesOrder?.salesOrderId ?? ""}
-                </span>
+                </Badge>
               )}
             </PropertyRow>
           )}
@@ -285,9 +284,7 @@ export default function PickingListProperties() {
               label={<Trans>Warehouse</Trans>}
               icon={<LuMapPin className="size-3" />}
             >
-              <span className="inline-flex items-center px-2 py-0.5 rounded-md border border-violet-500/30 text-xs font-medium bg-violet-500/10 text-violet-400">
-                {pl.location.name}
-              </span>
+              <Badge variant="purple">{pl.location.name}</Badge>
             </PropertyRow>
           )}
 

@@ -1023,6 +1023,13 @@ function MaterialForm({
             }}
             isOptional
           />
+          {itemData.methodType === "Pull from Inventory" && (
+            <Boolean
+              name="requiresPicking"
+              label={t`Requires picking`}
+              description={t`Off = stored line-side. The picking-list flow will skip this material; consume it via the MES Issue modal at operation time.`}
+            />
+          )}
         </div>
       </div>
 
@@ -1087,13 +1094,6 @@ function MaterialForm({
               }));
             }}
           />
-          {itemData.methodType === "Pull from Inventory" && (
-            <Boolean
-              name="requiresPicking"
-              label={t`Requires picking`}
-              description={t`Off = stored line-side. The picking-list flow will skip this material; consume it via the MES Issue modal at operation time.`}
-            />
-          )}
         </div>
       </div>
 
