@@ -14,6 +14,8 @@
     "@carbon/react": "workspace:*",
     "@carbon/stripe": "workspace:*",
     "@carbon/utils": "workspace:*",
+    "@dagrejs/dagre": "^1.1.4",
+    "@xyflow/react": "12.10.2",
     "@dnd-kit/core": "catalog:",
     "@dnd-kit/sortable": "catalog:",
     "@dnd-kit/utilities": "catalog:",

@@ -402,6 +402,9 @@ msgstr "Dettagli Commessa"
 msgid "Job Traveler"
 msgstr "Foglio di Lavorazione"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "Kit"
 
@@ -532,6 +535,9 @@ msgstr "Nessuna manutenzione programmata per oggi"
 msgid "No materials"
 msgstr "Nessun materiale"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "Nessun operatore"
 
@@ -589,6 +595,9 @@ msgstr "Ops. Non dovresti vedere questa pagina. In futuro sarà una pagina di de
 
 msgid "Open"
 msgstr "Aperto"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "Operazioni"
@@ -707,6 +716,9 @@ msgstr "Scartato"
 
 msgid "Search"
 msgstr "Cerca"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search operators..."
 msgstr "Cerca operatori..."
@@ -877,6 +889,9 @@ msgstr "Tempo totale: {0}"
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
 msgstr "Totale: {0}"
+
+msgid "Tracking"
+msgstr ""
 
 msgid "Tracking Labels"
 msgstr "Etichette di Tracciabilità"

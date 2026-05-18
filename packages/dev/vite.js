@@ -14,7 +14,7 @@ import { loadEnv } from "vite";
  * `"development"` during startup, which previously left stale shell values
  * (e.g. `SUPABASE_URL=127.0.0.1:54321`) in place.
  */
-export function applyDotenvToProcessEnv(mode: string, appDir: string) {
+export function applyDotenvToProcessEnv(mode, appDir) {
   const repoRoot = path.resolve(appDir, "../..");
   const fromFiles = {
     ...loadEnv(mode, appDir, ""),

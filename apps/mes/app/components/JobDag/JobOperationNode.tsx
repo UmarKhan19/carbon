@@ -1,8 +1,11 @@
 import { BarProgress, cn } from "@carbon/react";
 import { Handle, type NodeProps, Position } from "@xyflow/react";
 import { memo } from "react";
+import { useNavigate } from "react-router";
+import { path } from "~/utils/path";
 
 type JobOperationNodeData = {
+  id: string;
   description: string;
   itemId: string | null;
   status: string;
@@ -26,6 +29,7 @@ function JobOperationNodeImpl({ data }: NodeProps) {
   const d = data as unknown as JobOperationNodeData;
   const colors = STATUS_COLORS[d.status] ?? STATUS_COLORS.Todo;
   const isHorizontal = d.direction === "LR";
+  const navigate = useNavigate();
 
   return (
     <>
@@ -35,8 +39,14 @@ function JobOperationNodeImpl({ data }: NodeProps) {
         className="invisible"
       />
       <div
+        role="button"
+        tabIndex={0}
+        onClick={() => navigate(path.to.operation(d.id))}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") navigate(path.to.operation(d.id));
+        }}
         className={cn(
-          "w-[200px] rounded-lg border-2 bg-card px-3 py-2 shadow-sm",
+          "w-[200px] rounded-lg border-2 bg-card px-3 py-2 shadow-sm cursor-pointer hover:bg-accent/50 transition-colors",
           colors.border
         )}
       >

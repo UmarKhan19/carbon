@@ -39,7 +39,6 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
-import { AiOutlinePartition } from "react-icons/ai";
 import {
   LuCheckCheck,
   LuChevronDown,
@@ -61,7 +60,8 @@ import {
   LuSquareSigma,
   LuTable,
   LuTrash,
-  LuTriangleAlert
+  LuTriangleAlert,
+  LuWorkflow
 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
 import type { FetcherWithComponents } from "react-router";
@@ -96,7 +96,7 @@ const JobHeader = () => {
       case "operations":
         return t`Operations`;
       case "dag":
-        return "DAG";
+        return "Workflow";
       case "step-records":
         return t`Step Records`;
       case "events":
@@ -287,7 +287,11 @@ const JobHeader = () => {
                   {getExplorerLabel("details")}
                 </DropdownMenuRadioItem>
                 <DropdownMenuSeparator />
-                {["materials", "operations", "dag"].map((i) => (
+                {[
+                  "materials",
+                  "operations",
+                  ...(status !== "Draft" && status !== "Planned" ? ["dag"] : [])
+                ].map((i) => (
                   <DropdownMenuRadioItem value={i} key={i}>
                     <DropdownMenuIcon icon={getExplorerMenuIcon(i)} />
                     {getExplorerLabel(i)}
@@ -464,7 +468,7 @@ function getExplorerMenuIcon(type: string) {
     case "operations":
       return <LuSettings />;
     case "dag":
-      return <AiOutlinePartition />;
+      return <LuWorkflow />;
     case "step-records":
       return <LuClipboardList />;
     case "events":

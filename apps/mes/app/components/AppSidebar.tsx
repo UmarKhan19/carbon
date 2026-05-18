@@ -44,6 +44,7 @@ import {
   LuBuilding,
   LuCalendarDays,
   LuChevronDown,
+  LuCirclePlay,
   LuClipboardList,
   LuHistory,
   LuLogOut,
@@ -207,6 +208,11 @@ export function OperationsNav({
       title: t`Recent`,
       icon: LuHistory,
       to: path.to.recent
+    },
+    {
+      title: t`Jobs`,
+      icon: LuCirclePlay,
+      to: path.to.jobs
     },
     {
       title: t`Maintenance`,

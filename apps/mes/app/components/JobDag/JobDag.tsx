@@ -24,7 +24,6 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuArrowDown, LuArrowRight, LuInfo, LuMaximize } from "react-icons/lu";
-import type { JobOperation } from "../../types";
 import { JobOperationEdge } from "./JobOperationEdge";
 import { JobOperationNode } from "./JobOperationNode";
 
@@ -48,13 +47,23 @@ type Dependency = {
   dependsOnId: string;
 };
 
+type Operation = {
+  id: string;
+  description: string | null;
+  status: string | null;
+  quantityComplete: number | null;
+  targetQuantity: number | null;
+  quantityScrapped: number | null;
+  jobMakeMethod: { item: { readableIdWithRevision: string } | null } | null;
+};
+
 type Props = {
-  operations: JobOperation[];
+  operations: Operation[];
   dependencies: Dependency[];
 };
 
 function computeLayout(
-  operations: JobOperation[],
+  operations: Operation[],
   dependencies: Dependency[],
   direction: LayoutDirection
 ): { nodes: Node[]; edges: Edge[] } {
@@ -93,8 +102,9 @@ function computeLayout(
         y: pos.y - NODE_HEIGHT / 2
       },
       data: {
+        id: op.id,
         description: op.description ?? "Untitled",
-        itemId: (op as any).jobMakeMethod?.item?.readableIdWithRevision ?? null,
+        itemId: op.jobMakeMethod?.item?.readableIdWithRevision ?? null,
         status: op.status ?? "Todo",
         quantityComplete: Number(op.quantityComplete ?? 0),
         targetQuantity: Number(op.targetQuantity ?? 0),

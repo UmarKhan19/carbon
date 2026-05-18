@@ -7,7 +7,7 @@
     "crbn": "./bin/crbn"
   },
   "exports": {
-    "./vite": "./vite.ts"
+    "./vite": "./vite.js"
   },
   "scripts": {
     "clean": "rimraf node_modules .turbo",

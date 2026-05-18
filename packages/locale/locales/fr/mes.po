@@ -402,6 +402,9 @@ msgstr "Détails de l'ordre de fabrication"
 msgid "Job Traveler"
 msgstr "Fiche suiveuse"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "Kit"
 
@@ -532,6 +535,9 @@ msgstr "Aucune maintenance planifiée pour aujourd'hui"
 msgid "No materials"
 msgstr "Aucun matériau"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "Aucun opérateur"
 
@@ -589,6 +595,9 @@ msgstr "Oups. Vous ne devriez pas voir cette page. Elle deviendra éventuellemen
 
 msgid "Open"
 msgstr "Ouvert"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "Opérations"
@@ -707,6 +716,9 @@ msgstr "Rebuté"
 
 msgid "Search"
 msgstr "Rechercher"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search operators..."
 msgstr "Rechercher des opérateurs..."
@@ -877,6 +889,9 @@ msgstr "Temps total : {0}"
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
 msgstr "Total : {0}"
+
+msgid "Tracking"
+msgstr ""
 
 msgid "Tracking Labels"
 msgstr "Étiquettes de suivi"
