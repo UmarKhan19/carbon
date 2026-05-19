@@ -85,7 +85,7 @@ serve(async (req: Request) => {
           .select("id, entityType")
           .eq("companyGroupId", companyGroupId)
           .eq("active", true)
-          .in("entityType", ["SupplierType", "ItemPostingGroup", "Location"]),
+          .in("entityType", ["SupplierType", "ItemPostingGroup", "Location", "Process"]),
       ]);
 
     if (receipt.error) throw new Error("Failed to fetch receipt");
@@ -283,6 +283,67 @@ serve(async (req: Request) => {
         return acc;
       }, {});
 
+      // Reverse FA PO line received status on void
+      const faPoLinesForVoid = purchaseOrderLinesVoid.data.filter(
+        (pol) =>
+          pol.purchaseOrderLineType === "Fixed Asset" &&
+          pol.assetId &&
+          pol.receivedComplete
+      );
+
+      for (const faPoLine of faPoLinesForVoid) {
+        const hasReceiptEntries = originalJournalLines.data.some(
+          (jl) =>
+            jl.documentLineReference ===
+            journalReference.to.receipt(faPoLine.id)
+        );
+
+        if (hasReceiptEntries) {
+          purchaseOrderLineUpdatesVoid[faPoLine.id] = {
+            quantityReceived: 0,
+            receivedComplete: false,
+          };
+
+          const receiptCost = originalJournalLines.data
+            .filter(
+              (jl) =>
+                jl.documentLineReference ===
+                  journalReference.to.receipt(faPoLine.id) &&
+                (jl.amount ?? 0) > 0
+            )
+            .reduce((sum, jl) => sum + Math.abs(jl.amount ?? 0), 0);
+
+          const assetRecord = await client
+            .from("fixedAsset")
+            .select("id, acquisitionCost, status")
+            .eq("id", faPoLine.assetId!)
+            .single();
+
+          if (!assetRecord.error && assetRecord.data) {
+            const newAcquisitionCost = Math.max(
+              0,
+              Number(assetRecord.data.acquisitionCost) - receiptCost
+            );
+            const faUpdate: Record<string, any> = {
+              acquisitionCost: newAcquisitionCost,
+              updatedBy: userId,
+            };
+            if (
+              newAcquisitionCost === 0 &&
+              assetRecord.data.status === "Active"
+            ) {
+              faUpdate.status = "Draft";
+              faUpdate.acquisitionDate = null;
+              faUpdate.depreciationStartDate = null;
+            }
+            await client
+              .from("fixedAsset")
+              .update(faUpdate)
+              .eq("id", faPoLine.assetId!);
+          }
+        }
+      }
+
       const projectedPurchaseOrderLines = purchaseOrderLinesVoid.data.map(
         (line) => {
           const update = purchaseOrderLineUpdatesVoid[line.id];
@@ -309,8 +370,7 @@ serve(async (req: Request) => {
         (line) => {
           if (
             line.purchaseOrderLineType === "Comment" ||
-            line.purchaseOrderLineType === "G/L Account" ||
-            line.purchaseOrderLineType === "Fixed Asset"
+            line.purchaseOrderLineType === "G/L Account"
           )
             return true;
           const target = line.purchaseQuantity ?? 0;
@@ -536,10 +596,27 @@ serve(async (req: Request) => {
           supplierTypeId: string | null;
           itemPostingGroupId: string | null;
           locationId: string | null;
+          processId: string | null;
         }[] = [];
 
         const isOutsideProcessing =
           purchaseOrder.data.purchaseOrderType === "Outside Processing";
+
+        const processIdByJobOperationId = new Map<string, string>();
+        if (isOutsideProcessing) {
+          const jobOpIds = purchaseOrderLines.data
+            .map((pol) => pol.jobOperationId)
+            .filter((id): id is string => !!id);
+          if (jobOpIds.length > 0) {
+            const jobOps = await client
+              .from("jobOperation")
+              .select("id, processId")
+              .in("id", jobOpIds);
+            for (const op of jobOps.data ?? []) {
+              if (op.processId) processIdByJobOperationId.set(op.id, op.processId);
+            }
+          }
+        }
 
         const receiptLinesByPurchaseOrderLineId = receiptLines.data.reduce<
           Record<string, Database["public"]["Tables"]["receiptLine"]["Row"][]>
@@ -851,39 +928,7 @@ serve(async (req: Request) => {
             let debitAccount: string;
             let debitDescription: string;
 
-            if (poLine?.purchaseOrderLineType === "Fixed Asset" && poLine.assetId) {
-              // Fixed Asset line — debit the asset's class account
-              const assetRecord = await client
-                .from("fixedAsset")
-                .select("id, status, acquisitionDate, depreciationStartDate, acquisitionCost, fixedAssetClass:fixedAssetClassId(assetAccountId)")
-                .eq("id", poLine.assetId)
-                .single();
-
-              if (assetRecord.error) throw new Error("Failed to fetch fixed asset");
-
-              debitAccount = (assetRecord.data.fixedAssetClass as any).assetAccountId;
-              debitDescription = "Fixed Asset Acquisition";
-
-              // Update the asset master
-              const updateData: Record<string, any> = {
-                acquisitionCost: (Number(assetRecord.data.acquisitionCost) ?? 0) + cost,
-                updatedBy: userId,
-              };
-              if (!assetRecord.data.acquisitionDate) {
-                updateData.acquisitionDate = today;
-              }
-              if (!assetRecord.data.depreciationStartDate) {
-                updateData.depreciationStartDate = today;
-              }
-              if (assetRecord.data.status === "Draft") {
-                updateData.status = "Active";
-              }
-
-              await client
-                .from("fixedAsset")
-                .update(updateData)
-                .eq("id", poLine.assetId);
-            } else if (itemTrackingType !== "Non-Inventory" && !isOutsideProcessing) {
+            if (itemTrackingType !== "Non-Inventory" && !isOutsideProcessing) {
               debitAccount = accountDefaults.data.inventoryAccount;
               debitDescription = "Inventory Account";
             } else if (isOutsideProcessing) {
@@ -1025,11 +1070,7 @@ serve(async (req: Request) => {
             }
           }
 
-          const isFixedAssetLine = purchaseOrderLines.data.find(
-            (pol) => pol.id === receiptLine.lineId
-          )?.purchaseOrderLineType === "Fixed Asset";
-
-          if (itemTrackingType === "Inventory" && !isOutsideProcessing && !isFixedAssetLine) {
+          if (itemTrackingType === "Inventory" && !isOutsideProcessing) {
             // For inventory entries, use the appropriate entry type based on quantity sign
             const entryType =
               receivedQuantity < 0 ? "Negative Adjmt." : "Positive Adjmt.";
@@ -1049,7 +1090,7 @@ serve(async (req: Request) => {
             });
           }
 
-          if (receiptLine.requiresBatchTracking && !isOutsideProcessing && !isFixedAssetLine) {
+          if (receiptLine.requiresBatchTracking && !isOutsideProcessing) {
             const entryType =
               receivedQuantity < 0 ? "Negative Adjmt." : "Positive Adjmt.";
 
@@ -1074,7 +1115,7 @@ serve(async (req: Request) => {
             });
           }
 
-          if (receiptLine.requiresSerialTracking && !isOutsideProcessing && !isFixedAssetLine) {
+          if (receiptLine.requiresSerialTracking && !isOutsideProcessing) {
             const lineTracking = receiptLineTracking.data?.filter(
               (tracking) =>
                 (tracking.attributes as TrackedEntityAttributes | undefined)?.[
@@ -1125,14 +1166,134 @@ serve(async (req: Request) => {
               itemCosts.data.find(
                 (cost) => cost.itemId === receiptLine.itemId
               )?.itemPostingGroupId ?? null;
+            const poLine = purchaseOrderLines.data.find(
+              (pol) => pol.id === receiptLine.lineId
+            );
+            const lineProcessId = poLine?.jobOperationId
+              ? processIdByJobOperationId.get(poLine.jobOperationId) ?? null
+              : null;
             for (let i = 0; i < jlCount; i++) {
               journalLineDimensionsMeta.push({
                 supplierTypeId: supplier.data.supplierTypeId ?? null,
                 itemPostingGroupId: lineItemPostingGroupId,
                 locationId: receiptLine.locationId ?? null,
+                processId: lineProcessId,
               });
             }
           }
+        }
+
+        // Process Fixed Asset PO lines (no receipt lines — handled directly from PO)
+        const { data: receiptFaLines } = await client
+          .from("receiptFixedAssetLine")
+          .select("purchaseOrderLineId, serialNumber")
+          .eq("receiptId", receiptId)
+          .eq("received", true);
+        const receivedFaPoLineIds = new Set(
+          (receiptFaLines ?? []).map((r) => r.purchaseOrderLineId)
+        );
+        const faSerialNumbers = new Map(
+          (receiptFaLines ?? []).map((r) => [r.purchaseOrderLineId, r.serialNumber])
+        );
+
+        const faPurchaseOrderLines = purchaseOrderLines.data.filter(
+          (pol) =>
+            pol.purchaseOrderLineType === "Fixed Asset" &&
+            pol.assetId &&
+            !pol.receivedComplete &&
+            pol.purchaseQuantity &&
+            pol.purchaseQuantity > 0 &&
+            receivedFaPoLineIds.has(pol.id)
+        );
+
+        for (const faPoLine of faPurchaseOrderLines) {
+          if (accountingEnabled && accountDefaults?.data) {
+            const quantity = faPoLine.purchaseQuantity ?? 1;
+            const unitPrice = faPoLine.unitPrice ?? 0;
+            const cost = quantity * unitPrice;
+
+            const assetRecord = await client
+              .from("fixedAsset")
+              .select(
+                "id, status, acquisitionDate, depreciationStartDate, acquisitionCost, fixedAssetClass:fixedAssetClassId(assetAccountId)"
+              )
+              .eq("id", faPoLine.assetId!)
+              .single();
+
+            if (assetRecord.error)
+              throw new Error("Failed to fetch fixed asset");
+
+            const journalLineRef = nanoid();
+
+            journalLineInserts.push({
+              accountId: (assetRecord.data.fixedAssetClass as any)
+                .assetAccountId,
+              description: "Fixed Asset Acquisition",
+              amount: debit("asset", cost),
+              quantity,
+              documentType: "Receipt",
+              documentId: receipt.data?.id ?? undefined,
+              externalDocumentId:
+                purchaseOrder.data?.supplierReference ?? undefined,
+              documentLineReference: journalReference.to.receipt(faPoLine.id!),
+              journalLineReference: journalLineRef,
+              companyId,
+            });
+
+            journalLineInserts.push({
+              accountId: accountDefaults.data.goodsReceivedNotInvoicedAccount,
+              description: "Goods Received Not Invoiced",
+              amount: credit("liability", cost),
+              quantity,
+              documentType: "Receipt",
+              documentId: receipt.data?.id ?? undefined,
+              externalDocumentId:
+                purchaseOrder.data?.supplierReference ?? undefined,
+              documentLineReference: journalReference.to.receipt(faPoLine.id!),
+              journalLineReference: journalLineRef,
+              companyId,
+            });
+
+            for (let i = 0; i < 2; i++) {
+              journalLineDimensionsMeta.push({
+                supplierTypeId: supplier.data.supplierTypeId ?? null,
+                itemPostingGroupId: null,
+                locationId: null,
+                processId: null,
+              });
+            }
+
+            const updateData: Record<string, any> = {
+              acquisitionCost:
+                (Number(assetRecord.data.acquisitionCost) ?? 0) + cost,
+              updatedBy: userId,
+            };
+            if (!assetRecord.data.acquisitionDate) {
+              updateData.acquisitionDate = today;
+            }
+            if (!assetRecord.data.depreciationStartDate) {
+              updateData.depreciationStartDate = today;
+            }
+            if (assetRecord.data.status === "Draft") {
+              updateData.status = "Active";
+            }
+
+            const serialNumber = faSerialNumbers.get(faPoLine.id!);
+            if (serialNumber) {
+              updateData.serialNumber = serialNumber;
+            }
+
+            await client
+              .from("fixedAsset")
+              .update(updateData)
+              .eq("id", faPoLine.assetId!);
+          }
+
+          purchaseOrderLineUpdates[faPoLine.id!] = {
+            quantityReceived: faPoLine.purchaseQuantity,
+            receivedComplete: true,
+            receivedDate: today,
+          };
         }
 
         const accountingPeriodId = accountingEnabled
@@ -1180,7 +1341,6 @@ serve(async (req: Request) => {
             (line) =>
               line.purchaseOrderLineType === "Comment" ||
               line.purchaseOrderLineType === "G/L Account" ||
-              line.purchaseOrderLineType === "Fixed Asset" ||
               line.receivedComplete
           );
 
@@ -1286,6 +1446,14 @@ serve(async (req: Request) => {
                     journalLineId: jl.id,
                     dimensionId: dimensionMap.get("Location")!,
                     valueId: meta.locationId,
+                    companyId,
+                  });
+                }
+                if (meta.processId && dimensionMap.has("Process")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("Process")!,
+                    valueId: meta.processId,
                     companyId,
                   });
                 }

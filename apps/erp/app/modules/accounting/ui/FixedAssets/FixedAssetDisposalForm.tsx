@@ -12,12 +12,9 @@ import {
   VStack
 } from "@carbon/react";
 import { useFetcher } from "react-router";
-import { DatePicker, Number, Select, Submit } from "~/components/Form";
+import { DatePicker, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
-import {
-  disposalMethods,
-  fixedAssetDisposalValidator
-} from "../../fixedAssets.models";
+import { fixedAssetDisposalValidator } from "../../fixedAssets.models";
 
 type FixedAssetDisposalFormProps = {
   currentNBV: number;
@@ -46,9 +43,7 @@ const FixedAssetDisposalForm = ({
             fetcher={fetcher}
             className="flex flex-col h-full"
             defaultValues={{
-              disposalMethod: "Sale",
-              disposalDate: "",
-              saleProceeds: 0
+              disposalDate: ""
             }}
           >
             <ModalDrawerHeader>
@@ -62,20 +57,10 @@ const FixedAssetDisposalForm = ({
                     {currentNBV.toFixed(2)}
                   </span>
                 </div>
-                <Select
-                  name="disposalMethod"
-                  label="Disposal Method"
-                  options={disposalMethods.map((m) => ({
-                    label: m,
-                    value: m
-                  }))}
-                />
+                <p className="text-sm text-muted-foreground">
+                  This will write off the remaining book value of the asset.
+                </p>
                 <DatePicker name="disposalDate" label="Disposal Date" />
-                <Number
-                  name="saleProceeds"
-                  label="Sale Proceeds"
-                  minValue={0}
-                />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

@@ -14,7 +14,7 @@ export async function getFixedAssetClasses(
   let query = client
     .from("fixedAssetClass")
     .select(
-      "id, name, description, depreciationMethod, usefulLifeMonths, residualValuePercent",
+      "id, name, description, depreciationMethod, usefulLifeMonths, residualValuePercent, taxDepreciationMethod, taxUsefulLifeMonths, macrsPropertyClass",
       { count: "exact" }
     )
     .eq("companyId", companyId);
@@ -42,7 +42,9 @@ export async function getFixedAssetClassesList(
 ) {
   return client
     .from("fixedAssetClass")
-    .select("id, name")
+    .select(
+      "id, name, depreciationMethod, usefulLifeMonths, residualValuePercent"
+    )
     .eq("companyId", companyId)
     .order("name");
 }
@@ -81,12 +83,15 @@ export async function deleteFixedAssetClass(
 export async function getFixedAssets(
   client: SupabaseClient<Database>,
   companyId: string,
-  args: GenericQueryFilters & { search: string | null; status: string | null }
+  args: GenericQueryFilters & {
+    search: string | null;
+    status: Database["public"]["Enums"]["fixedAssetStatus"] | null;
+  }
 ) {
   let query = client
     .from("fixedAsset")
     .select(
-      "id, fixedAssetId, name, status, depreciationMethod, acquisitionCost, accumulatedDepreciation, fixedAssetClass:fixedAssetClassId(id, name)",
+      "id, fixedAssetId, fixedAssetClassId, name, status, depreciationMethod, acquisitionCost, accumulatedDepreciation, fixedAssetClass:fixedAssetClassId(id, name), location:locationId(id, name)",
       { count: "exact" }
     )
     .eq("companyId", companyId);
@@ -113,7 +118,9 @@ export async function getFixedAsset(
 ) {
   return client
     .from("fixedAsset")
-    .select("*, fixedAssetClass:fixedAssetClassId(*)")
+    .select(
+      "*, fixedAssetClass:fixedAssetClassId(*), location:locationId(id, name)"
+    )
     .eq("id", id)
     .single();
 }
@@ -127,6 +134,18 @@ export async function getFixedAssetsList(
     .select("id, fixedAssetId, name")
     .eq("companyId", companyId)
     .eq("status", "Draft")
+    .order("fixedAssetId");
+}
+
+export async function getFixedAssetsListForSale(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("fixedAsset")
+    .select("id, fixedAssetId, name")
+    .eq("companyId", companyId)
+    .in("status", ["Active", "Fully Depreciated"])
     .order("fixedAssetId");
 }
 
@@ -201,7 +220,7 @@ export async function getDepreciationRunLines(
   return client
     .from("depreciationRunLine")
     .select(
-      "id, amount, journalId, fixedAsset:fixedAssetId(id, fixedAssetId, name, acquisitionCost, accumulatedDepreciation, residualValuePercent)"
+      "id, amount, taxAmount, journalId, fixedAsset:fixedAssetId(id, fixedAssetId, name, acquisitionCost, accumulatedDepreciation, accumulatedTaxDepreciation, residualValuePercent)"
     )
     .eq("depreciationRunId", depreciationRunId);
 }
@@ -215,7 +234,7 @@ export async function getAssetDepreciationHistory(
   return client
     .from("depreciationRunLine")
     .select(
-      "id, amount, journalId, depreciationRun:depreciationRunId(depreciationRunId, periodEnd, status)"
+      "id, amount, taxAmount, journalId, depreciationRun:depreciationRunId(depreciationRunId, periodEnd, status)"
     )
     .eq("fixedAssetId", fixedAssetId)
     .order("depreciationRun(periodEnd)", { ascending: false });

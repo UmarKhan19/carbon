@@ -79,7 +79,7 @@ export default function useAccountingSubmodules() {
       },
 
       {
-        name: t`Assets`,
+        name: t`Fixed Assets`,
         routes: [
           {
             name: t`Fixed Assets`,

@@ -7,12 +7,24 @@ import {
   Button,
   Card,
   CardContent,
+  DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   useDisclosure
 } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
-import { LuPencil, LuTrash } from "react-icons/lu";
+import {
+  LuChevronDown,
+  LuCircleX,
+  LuClipboardCheck,
+  LuPencil,
+  LuShoppingCart,
+  LuStore,
+  LuTrash
+} from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import {
   Link,
@@ -94,9 +106,11 @@ export default function FixedAssetDetailRoute() {
       ? Math.min(100, (accumulatedDepreciation / acquisitionCost) * 100)
       : 0;
 
-  const canDispose =
-    (asset.status === "Active" || asset.status === "Fully Depreciated") &&
-    permissions.can("update", "accounting");
+  const isDraft = asset.status === "Draft";
+  const isActive =
+    asset.status === "Active" || asset.status === "Fully Depreciated";
+  const isDisposed = asset.status === "Disposed";
+  const canUpdate = permissions.can("update", "accounting");
 
   return (
     <div className="flex h-[calc(100dvh-49px)] overflow-y-auto scrollbar-hide w-full">
@@ -118,21 +132,62 @@ export default function FixedAssetDetailRoute() {
             }
             actions={
               <>
-                {canDispose && (
-                  <Button variant="secondary" size="md" asChild>
-                    <Link to={path.to.fixedAssetDispose(fixedAssetId)}>
-                      Dispose
-                    </Link>
-                  </Button>
-                )}
                 <Button
-                  variant="primary"
+                  variant="secondary"
                   size="md"
                   leftIcon={<LuPencil />}
                   asChild
                 >
                   <Link to={path.to.fixedAssetDetails(fixedAssetId)}>Edit</Link>
                 </Button>
+                {!isDisposed && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="primary"
+                        size="md"
+                        rightIcon={<LuChevronDown />}
+                      >
+                        Actions
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {isDraft && (
+                        <>
+                          <DropdownMenuItem disabled={!canUpdate} asChild>
+                            <Link to={path.to.fixedAssetRegister(fixedAssetId)}>
+                              <DropdownMenuIcon icon={<LuClipboardCheck />} />
+                              Register
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to={path.to.fixedAssetPurchase(fixedAssetId)}>
+                              <DropdownMenuIcon icon={<LuShoppingCart />} />
+                              Purchase
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      {isActive && (
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link to={path.to.fixedAssetSell(fixedAssetId)}>
+                              <DropdownMenuIcon icon={<LuStore />} />
+                              Sell
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem disabled={!canUpdate} asChild>
+                            <Link to={path.to.fixedAssetDispose(fixedAssetId)}>
+                              <DropdownMenuIcon icon={<LuCircleX />} />
+                              Dispose
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </>
             }
           />
@@ -146,6 +201,9 @@ export default function FixedAssetDetailRoute() {
               </DetailRow>
               <DetailRow label="Serial Number">
                 {asset.serialNumber || "—"}
+              </DetailRow>
+              <DetailRow label="Location">
+                <Enumerable value={(asset as any).location?.name ?? null} />
               </DetailRow>
               <DetailRow label="Depreciation Method">
                 {asset.depreciationMethod}

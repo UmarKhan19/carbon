@@ -4,7 +4,7 @@ import { LuCirclePlus } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { usePermissions } from "~/hooks";
-import { getFixedAssets } from "~/modules/accounting";
+import { getFixedAssetClassesList, getFixedAssets } from "~/modules/accounting";
 import { FixedAssetsTable } from "~/modules/accounting/ui/FixedAssets";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -24,27 +24,36 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchParams = new URLSearchParams(url.search);
   const search = searchParams.get("search");
-  const status = searchParams.get("status");
+  const status = searchParams.get("status") as
+    | "Draft"
+    | "Active"
+    | "Fully Depreciated"
+    | "Disposed"
+    | null;
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  const assets = await getFixedAssets(client, companyId, {
-    search,
-    status,
-    limit,
-    offset,
-    sorts,
-    filters
-  });
+  const [assets, assetClasses] = await Promise.all([
+    getFixedAssets(client, companyId, {
+      search,
+      status,
+      limit,
+      offset,
+      sorts,
+      filters
+    }),
+    getFixedAssetClassesList(client, companyId)
+  ]);
 
   return {
     data: assets.data ?? [],
-    count: assets.count ?? 0
+    count: assets.count ?? 0,
+    assetClasses: assetClasses.data ?? []
   };
 }
 
 export default function FixedAssetsRoute() {
-  const { data, count } = useLoaderData<typeof loader>();
+  const { data, count, assetClasses } = useLoaderData<typeof loader>();
   const permissions = usePermissions();
   const navigate = useNavigate();
 
@@ -53,6 +62,7 @@ export default function FixedAssetsRoute() {
       <FixedAssetsTable
         data={data}
         count={count}
+        assetClasses={assetClasses}
         primaryAction={
           permissions.can("create", "accounting") && (
             <Button

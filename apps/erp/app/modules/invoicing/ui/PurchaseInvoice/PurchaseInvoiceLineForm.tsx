@@ -822,7 +822,10 @@ const PurchaseInvoiceLineForm = ({
                           name="quantity"
                           label={t`Quantity`}
                           isOptional={false}
-                          value={indirectData.quantity}
+                          isDisabled={activeTab === "asset"}
+                          value={
+                            activeTab === "asset" ? 1 : indirectData.quantity
+                          }
                           onChange={(value) =>
                             setIndirectData((d) => ({
                               ...d,

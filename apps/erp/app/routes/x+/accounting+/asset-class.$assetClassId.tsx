@@ -10,17 +10,21 @@ import {
   upsertFixedAssetClass
 } from "~/modules/accounting";
 import { AssetClassForm } from "~/modules/accounting/ui/FixedAssets";
+import { getCompanySettings } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     view: "accounting"
   });
 
   const { assetClassId } = params;
   if (!assetClassId) throw notFound("Asset Class ID was not found");
 
-  const assetClass = await getFixedAssetClass(client, assetClassId);
+  const [assetClass, companySettings] = await Promise.all([
+    getFixedAssetClass(client, assetClassId),
+    getCompanySettings(client, companyId)
+  ]);
 
   if (assetClass.error) {
     throw redirect(
@@ -29,7 +33,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  return { assetClass: assetClass.data };
+  return {
+    assetClass: assetClass.data,
+    taxDepreciationEnabled:
+      (companySettings.data as any)?.assetTaxDepreciationEnabled ?? false
+  };
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -70,7 +78,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AssetClassRoute() {
-  const { assetClass } = useLoaderData<typeof loader>();
+  const { assetClass, taxDepreciationEnabled } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const initialValues = {
@@ -86,7 +94,19 @@ export default function AssetClassRoute() {
     depreciationExpenseAccountId: assetClass.depreciationExpenseAccountId,
     writeOffAccountId: assetClass.writeOffAccountId,
     writeDownAccountId: assetClass.writeDownAccountId,
-    disposalAccountId: assetClass.disposalAccountId
+    disposalAccountId: assetClass.disposalAccountId,
+    taxDepreciationMethod: (assetClass as any).taxDepreciationMethod ?? null,
+    taxUsefulLifeMonths: (assetClass as any).taxUsefulLifeMonths ?? null,
+    taxResidualValuePercent:
+      (assetClass as any).taxResidualValuePercent != null
+        ? Number((assetClass as any).taxResidualValuePercent)
+        : null,
+    macrsPropertyClass: (assetClass as any).macrsPropertyClass ?? null,
+    macrsConvention: (assetClass as any).macrsConvention ?? null,
+    bonusDepreciationPercent:
+      (assetClass as any).bonusDepreciationPercent != null
+        ? Number((assetClass as any).bonusDepreciationPercent)
+        : null
   };
 
   return (
@@ -94,6 +114,7 @@ export default function AssetClassRoute() {
       onClose={() => navigate(-1)}
       key={initialValues.id}
       initialValues={initialValues}
+      taxDepreciationEnabled={taxDepreciationEnabled}
     />
   );
 }

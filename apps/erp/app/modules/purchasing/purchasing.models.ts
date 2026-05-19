@@ -245,6 +245,16 @@ export const purchaseOrderLineValidator = z
       message: "Description is required",
       path: ["description"]
     }
+  )
+  .refine(
+    (data) =>
+      data.purchaseOrderLineType === "Fixed Asset"
+        ? (data.purchaseQuantity ?? 1) === 1
+        : true,
+    {
+      message: "Fixed Asset quantity must be 1",
+      path: ["purchaseQuantity"]
+    }
   );
 
 export const purchaseOrderPaymentValidator = z.object({

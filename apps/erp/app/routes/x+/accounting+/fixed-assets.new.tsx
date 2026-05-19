@@ -51,10 +51,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const status =
-    d.acquisitionCost && d.acquisitionCost > 0 && d.acquisitionDate
-      ? "Active"
-      : "Draft";
+  const status = "Draft";
 
   const result = await upsertFixedAsset(client, {
     ...d,

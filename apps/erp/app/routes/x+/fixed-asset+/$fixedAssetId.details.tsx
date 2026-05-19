@@ -88,10 +88,6 @@ export default function FixedAssetDetailsRoute() {
     depreciationMethod: asset.depreciationMethod,
     usefulLifeMonths: asset.usefulLifeMonths,
     residualValuePercent: Number(asset.residualValuePercent),
-    acquisitionCost: Number(asset.acquisitionCost),
-    acquisitionDate: asset.acquisitionDate ?? undefined,
-    depreciationStartDate: asset.depreciationStartDate ?? undefined,
-    accumulatedDepreciation: Number(asset.accumulatedDepreciation),
     assetLifetimeUsage: asset.assetLifetimeUsage
       ? Number(asset.assetLifetimeUsage)
       : undefined,

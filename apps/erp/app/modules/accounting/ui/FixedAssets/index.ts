@@ -5,6 +5,7 @@ import DepreciationRunTable from "./DepreciationRunTable";
 import FixedAssetDisposalForm from "./FixedAssetDisposalForm";
 import FixedAssetForm from "./FixedAssetForm";
 import FixedAssetNotes from "./FixedAssetNotes";
+import FixedAssetRegisterForm from "./FixedAssetRegisterForm";
 import FixedAssetStatus from "./FixedAssetStatus";
 import FixedAssetsTable from "./FixedAssetsTable";
 
@@ -16,6 +17,7 @@ export {
   FixedAssetDisposalForm,
   FixedAssetForm,
   FixedAssetNotes,
+  FixedAssetRegisterForm,
   FixedAssetStatus,
   FixedAssetsTable
 };

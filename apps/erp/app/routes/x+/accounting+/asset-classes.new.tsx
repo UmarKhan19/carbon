@@ -10,6 +10,7 @@ import {
   upsertFixedAssetClass
 } from "~/modules/accounting";
 import { AssetClassForm } from "~/modules/accounting/ui/FixedAssets";
+import { getCompanySettings } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -17,10 +18,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     create: "accounting"
   });
 
-  const defaults = await getDefaultAccounts(client, companyId);
+  const [defaults, companySettings] = await Promise.all([
+    getDefaultAccounts(client, companyId),
+    getCompanySettings(client, companyId)
+  ]);
 
   return {
-    defaults: defaults.data
+    defaults: defaults.data,
+    taxDepreciationEnabled:
+      (companySettings.data as any)?.assetTaxDepreciationEnabled ?? false
   };
 }
 
@@ -62,7 +68,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function NewAssetClassRoute() {
   const navigate = useNavigate();
-  const { defaults } = useLoaderData<typeof loader>();
+  const { defaults, taxDepreciationEnabled } = useLoaderData<typeof loader>();
 
   const initialValues = {
     name: "",
@@ -84,6 +90,7 @@ export default function NewAssetClassRoute() {
     <AssetClassForm
       onClose={() => navigate(-1)}
       initialValues={initialValues}
+      taxDepreciationEnabled={taxDepreciationEnabled}
     />
   );
 }

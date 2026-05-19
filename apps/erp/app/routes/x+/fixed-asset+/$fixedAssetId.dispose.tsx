@@ -67,7 +67,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { disposalMethod, disposalDate, saleProceeds } = validation.data;
+  const { disposalDate } = validation.data;
+  const disposalMethod = "Scrapping";
 
   const asset = await client
     .from("fixedAsset")
@@ -86,8 +87,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const acquisitionCost = Number(asset.data.acquisitionCost);
   const accumulatedDepreciation = Number(asset.data.accumulatedDepreciation);
   const nbv = acquisitionCost - accumulatedDepreciation;
-  const proceeds = saleProceeds ?? 0;
-  const gainLoss = proceeds - nbv;
 
   const nextSequence = await getNextSequence(client, "journalEntry", companyId);
   if (nextSequence.error) {
@@ -137,97 +136,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
     companyId: string;
   }> = [];
 
-  if (disposalMethod === "Sale") {
-    // Dr Accumulated Depreciation (clear contra-asset)
-    if (accumulatedDepreciation > 0) {
-      journalLines.push({
-        journalId: journal.data.id,
-        accountId: assetClass.accumulatedDepreciationAccountId,
-        description: "Clear accumulated depreciation",
-        amount: toStoredAmount(accumulatedDepreciation, 0, "Asset"),
-        journalLineReference: crypto.randomUUID(),
-        companyId
-      });
-    }
-
-    // Dr Disposal Account for proceeds (or net if no separate receivable)
-    if (proceeds > 0) {
-      journalLines.push({
-        journalId: journal.data.id,
-        accountId: assetClass.disposalAccountId,
-        description: "Sale proceeds",
-        amount: toStoredAmount(proceeds, 0, "Revenue"),
-        journalLineReference: crypto.randomUUID(),
-        companyId
-      });
-    }
-
-    // Cr Asset Account (remove asset at cost)
+  if (accumulatedDepreciation > 0) {
     journalLines.push({
       journalId: journal.data.id,
-      accountId: assetClass.assetAccountId,
-      description: "Remove asset at cost",
-      amount: toStoredAmount(0, acquisitionCost, "Asset"),
-      journalLineReference: crypto.randomUUID(),
-      companyId
-    });
-
-    // Gain or Loss to disposal account
-    if (gainLoss > 0) {
-      journalLines.push({
-        journalId: journal.data.id,
-        accountId: assetClass.disposalAccountId,
-        description: "Gain on disposal",
-        amount: toStoredAmount(0, gainLoss, "Revenue"),
-        journalLineReference: crypto.randomUUID(),
-        companyId
-      });
-    } else if (gainLoss < 0) {
-      journalLines.push({
-        journalId: journal.data.id,
-        accountId: assetClass.disposalAccountId,
-        description: "Loss on disposal",
-        amount: toStoredAmount(Math.abs(gainLoss), 0, "Expense"),
-        journalLineReference: crypto.randomUUID(),
-        companyId
-      });
-    }
-  } else {
-    // Scrapping
-    // Dr Accumulated Depreciation (clear contra-asset)
-    if (accumulatedDepreciation > 0) {
-      journalLines.push({
-        journalId: journal.data.id,
-        accountId: assetClass.accumulatedDepreciationAccountId,
-        description: "Clear accumulated depreciation",
-        amount: toStoredAmount(accumulatedDepreciation, 0, "Asset"),
-        journalLineReference: crypto.randomUUID(),
-        companyId
-      });
-    }
-
-    // Dr Write-Off Account (remaining NBV)
-    if (nbv > 0) {
-      journalLines.push({
-        journalId: journal.data.id,
-        accountId: assetClass.writeOffAccountId,
-        description: "Write-off remaining book value",
-        amount: toStoredAmount(nbv, 0, "Expense"),
-        journalLineReference: crypto.randomUUID(),
-        companyId
-      });
-    }
-
-    // Cr Asset Account (remove asset at cost)
-    journalLines.push({
-      journalId: journal.data.id,
-      accountId: assetClass.assetAccountId,
-      description: "Remove asset at cost",
-      amount: toStoredAmount(0, acquisitionCost, "Asset"),
+      accountId: assetClass.accumulatedDepreciationAccountId,
+      description: "Clear accumulated depreciation",
+      amount: toStoredAmount(accumulatedDepreciation, 0, "Asset"),
       journalLineReference: crypto.randomUUID(),
       companyId
     });
   }
+
+  if (nbv > 0) {
+    journalLines.push({
+      journalId: journal.data.id,
+      accountId: assetClass.writeOffAccountId,
+      description: "Write-off remaining book value",
+      amount: toStoredAmount(nbv, 0, "Expense"),
+      journalLineReference: crypto.randomUUID(),
+      companyId
+    });
+  }
+
+  journalLines.push({
+    journalId: journal.data.id,
+    accountId: assetClass.assetAccountId,
+    description: "Remove asset at cost",
+    amount: toStoredAmount(0, acquisitionCost, "Asset"),
+    journalLineReference: crypto.randomUUID(),
+    companyId
+  });
 
   if (journalLines.length > 0) {
     const lineResult = await client.from("journalLine").insert(journalLines);
@@ -246,9 +184,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     fixedAssetId,
     disposalMethod,
     disposalDate,
-    saleProceeds: proceeds,
+    saleProceeds: 0,
     netBookValueAtDisposal: nbv,
-    gainLoss,
+    gainLoss: -nbv,
     journalId: journal.data.id,
     companyId,
     createdBy: userId
@@ -260,7 +198,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       status: "Disposed",
       disposalDate,
       disposalMethod,
-      saleProceeds: proceeds,
+      saleProceeds: 0,
       updatedBy: userId
     })
     .eq("id", fixedAssetId);

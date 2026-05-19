@@ -163,8 +163,8 @@ export default function EditPurchaseInvoiceLineRoute() {
     storageUnitId: purchaseInvoiceLine?.storageUnitId ?? "",
     costCenterId: purchaseInvoiceLine?.costCenterId ?? "",
     taxPercent: purchaseInvoiceLine?.taxPercent ?? 0,
-    assetReadableId: purchaseInvoiceLine?.assetReadableId ?? "",
-    assetName: purchaseInvoiceLine?.assetName ?? "",
+    assetReadableId: (purchaseInvoiceLine as any)?.assetReadableId ?? "",
+    assetName: (purchaseInvoiceLine as any)?.assetName ?? "",
     ...getCustomFields(purchaseInvoiceLine?.customFields)
   };
 
@@ -180,7 +180,7 @@ export default function EditPurchaseInvoiceLineRoute() {
         title={t`Notes`}
         subTitle={
           purchaseInvoiceLine?.invoiceLineType === "Fixed Asset"
-            ? (purchaseInvoiceLine?.assetName ??
+            ? ((purchaseInvoiceLine as any)?.assetName ??
               purchaseInvoiceLine?.description ??
               "")
             : purchaseInvoiceLine?.invoiceLineType === "G/L Account"

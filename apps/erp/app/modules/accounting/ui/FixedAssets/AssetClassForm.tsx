@@ -11,6 +11,7 @@ import {
   ModalDrawerTitle,
   VStack
 } from "@carbon/react";
+import { useState } from "react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import {
@@ -25,15 +26,22 @@ import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
 import {
   depreciationMethods,
-  fixedAssetClassValidator
+  fixedAssetClassValidator,
+  taxDepreciationMethods
 } from "../../fixedAssets.models";
+import { macrsConventions, macrsPropertyClasses } from "../../macrs";
 
 type AssetClassFormProps = {
   initialValues: z.infer<typeof fixedAssetClassValidator>;
+  taxDepreciationEnabled: boolean;
   onClose: () => void;
 };
 
-const AssetClassForm = ({ initialValues, onClose }: AssetClassFormProps) => {
+const AssetClassForm = ({
+  initialValues,
+  taxDepreciationEnabled,
+  onClose
+}: AssetClassFormProps) => {
   const permissions = usePermissions();
   const fetcher = useFetcher();
 
@@ -41,6 +49,10 @@ const AssetClassForm = ({ initialValues, onClose }: AssetClassFormProps) => {
   const isDisabled = isEditing
     ? !permissions.can("update", "accounting")
     : !permissions.can("create", "accounting");
+
+  const [taxMethod, setTaxMethod] = useState<string>(
+    initialValues.taxDepreciationMethod ?? ""
+  );
 
   return (
     <ModalDrawerProvider type="drawer">
@@ -122,6 +134,71 @@ const AssetClassForm = ({ initialValues, onClose }: AssetClassFormProps) => {
                   label="Disposal Account"
                   classes={["Revenue", "Expense"]}
                 />
+
+                {taxDepreciationEnabled && (
+                  <>
+                    <div className="border-t pt-4 mt-2 w-full">
+                      <h4 className="text-sm font-medium mb-4">
+                        Tax Depreciation
+                      </h4>
+                    </div>
+                    <Select
+                      name="taxDepreciationMethod"
+                      label="Tax Method"
+                      placeholder="Same as Book"
+                      isOptional
+                      options={taxDepreciationMethods.map((m) => ({
+                        label: m,
+                        value: m
+                      }))}
+                      onChange={(value) => setTaxMethod(value?.value ?? "")}
+                    />
+
+                    {taxMethod === "MACRS" && (
+                      <>
+                        <Select
+                          name="macrsPropertyClass"
+                          label="Recovery Period"
+                          options={macrsPropertyClasses.map((c) => ({
+                            label: `${c}-Year Property`,
+                            value: c
+                          }))}
+                        />
+                        <Select
+                          name="macrsConvention"
+                          label="Convention"
+                          options={macrsConventions.map((c) => ({
+                            label: c,
+                            value: c
+                          }))}
+                        />
+                        <Number
+                          name="bonusDepreciationPercent"
+                          label="Bonus Depreciation %"
+                          minValue={0}
+                          maxValue={100}
+                        />
+                      </>
+                    )}
+
+                    {(taxMethod === "Straight Line" ||
+                      taxMethod === "Declining Balance") && (
+                      <>
+                        <Number
+                          name="taxUsefulLifeMonths"
+                          label="Tax Useful Life (Months)"
+                          minValue={1}
+                        />
+                        <Number
+                          name="taxResidualValuePercent"
+                          label="Tax Residual Value %"
+                          minValue={0}
+                          maxValue={100}
+                        />
+                      </>
+                    )}
+                  </>
+                )}
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

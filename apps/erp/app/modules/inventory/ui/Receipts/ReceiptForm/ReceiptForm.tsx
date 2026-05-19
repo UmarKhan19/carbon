@@ -72,6 +72,7 @@ const ReceiptForm = ({
   const routeData = useRouteData<{
     receipt: Receipt;
     receiptLineTracking: ItemTracking[];
+    fixedAssetLines: { id: string; received: boolean }[];
   }>(path.to.receipt(receiptId));
 
   const { company } = useUser();
@@ -100,9 +101,13 @@ const ReceiptForm = ({
   const isInvoiced = routeData?.receipt?.invoiced === true;
   const isEditing = initialValues.id !== undefined;
 
+  const hasReceivableFaLines = (routeData?.fixedAssetLines ?? []).some(
+    (line) => line.received
+  );
   const canPost =
-    receiptLines.length > 0 &&
-    receiptLines.some((line) => (line.receivedQuantity ?? 0) !== 0);
+    (receiptLines.length > 0 &&
+      receiptLines.some((line) => (line.receivedQuantity ?? 0) !== 0)) ||
+    hasReceivableFaLines;
 
   const receiptLineTracking = routeData?.receiptLineTracking ?? [];
 

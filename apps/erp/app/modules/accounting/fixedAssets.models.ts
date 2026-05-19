@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import { macrsConventions, macrsPropertyClasses } from "./macrs";
 
 export const fixedAssetStatuses = [
   "Draft",
@@ -12,6 +13,12 @@ export const depreciationMethods = [
   "Straight Line",
   "Declining Balance",
   "Units of Production"
+] as const;
+
+export const taxDepreciationMethods = [
+  "Straight Line",
+  "Declining Balance",
+  "MACRS"
 ] as const;
 
 export const disposalMethods = ["Sale", "Scrapping"] as const;
@@ -47,7 +54,22 @@ export const fixedAssetClassValidator = z.object({
     .min(1, { message: "Write-down account is required" }),
   disposalAccountId: z
     .string()
-    .min(1, { message: "Disposal account is required" })
+    .min(1, { message: "Disposal account is required" }),
+  taxDepreciationMethod: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.enum(taxDepreciationMethods).nullable().optional()
+  ),
+  taxUsefulLifeMonths: zfd.numeric(
+    z.number().int().positive().nullable().optional()
+  ),
+  taxResidualValuePercent: zfd.numeric(
+    z.number().min(0).max(100).nullable().optional()
+  ),
+  macrsPropertyClass: z.enum(macrsPropertyClasses).nullable().optional(),
+  macrsConvention: z.enum(macrsConventions).nullable().optional(),
+  bonusDepreciationPercent: zfd.numeric(
+    z.number().min(0).max(100).nullable().optional()
+  )
 });
 
 export const fixedAssetValidator = z.object({
@@ -68,13 +90,24 @@ export const fixedAssetValidator = z.object({
       .min(0, { message: "Residual value must be >= 0" })
       .max(100, { message: "Residual value must be <= 100" })
   ),
-  acquisitionCost: zfd.numeric(z.number().min(0).default(0)),
-  acquisitionDate: zfd.text(z.string().optional()),
-  depreciationStartDate: zfd.text(z.string().optional()),
-  accumulatedDepreciation: zfd.numeric(z.number().min(0).default(0)),
   assetLifetimeUsage: zfd.numeric(z.number().positive().optional()),
   locationId: zfd.text(z.string().optional()),
   custodianId: zfd.text(z.string().optional())
+});
+
+export const fixedAssetRegisterValidator = z.object({
+  acquisitionCost: zfd.numeric(
+    z.number().positive({ message: "Acquisition cost must be positive" })
+  ),
+  acquisitionDate: z
+    .string()
+    .min(1, { message: "Acquisition date is required" }),
+  accumulatedDepreciation: zfd.numeric(
+    z.number().min(0, { message: "Accumulated depreciation must be >= 0" })
+  ),
+  depreciationStartDate: z
+    .string()
+    .min(1, { message: "Depreciation start date is required" })
 });
 
 export const depreciationRunValidator = z.object({
@@ -91,9 +124,5 @@ export const fixedAssetUsageLogValidator = z.object({
 });
 
 export const fixedAssetDisposalValidator = z.object({
-  disposalMethod: z.enum(disposalMethods, {
-    errorMap: () => ({ message: "Disposal method is required" })
-  }),
-  disposalDate: z.string().min(1, { message: "Disposal date is required" }),
-  saleProceeds: zfd.numeric(z.number().min(0).optional())
+  disposalDate: z.string().min(1, { message: "Disposal date is required" })
 });

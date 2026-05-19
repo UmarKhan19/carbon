@@ -3,16 +3,19 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
-  LuBox,
+  LuBookMarked,
   LuBuilding2,
   LuCircleDollarSign,
-  LuHash,
+  LuLayers,
+  LuMapPin,
   LuPencil,
   LuStar,
   LuTrash
 } from "react-icons/lu";
 import { useNavigate } from "react-router";
 import { Hyperlink, Table } from "~/components";
+import { Enumerable } from "~/components/Enumerable";
+import { useLocations } from "~/components/Form/Location";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useUser } from "~/hooks";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
@@ -24,17 +27,19 @@ import FixedAssetStatus from "./FixedAssetStatus";
 type FixedAssetsTableProps = {
   data: FixedAssetListItem[];
   count: number;
+  assetClasses: { id: string; name: string }[];
   primaryAction?: ReactNode;
 };
 
 const FixedAssetsTable = memo(
-  ({ data, count, primaryAction }: FixedAssetsTableProps) => {
+  ({ data, count, assetClasses, primaryAction }: FixedAssetsTableProps) => {
     const navigate = useNavigate();
     const permissions = usePermissions();
     const { company } = useUser();
     const currencyFormatter = useCurrencyFormatter({
       currency: company.baseCurrencyCode
     });
+    const locations = useLocations();
     const [selectedAsset, setSelectedAsset] =
       useState<FixedAssetListItem | null>(null);
     const deleteModal = useDisclosure();
@@ -50,7 +55,7 @@ const FixedAssetsTable = memo(
             </Hyperlink>
           ),
           meta: {
-            icon: <LuHash />
+            icon: <LuBookMarked />
           }
         },
         {
@@ -82,17 +87,45 @@ const FixedAssetsTable = memo(
           }
         },
         {
-          accessorKey: "fixedAssetClass",
+          accessorKey: "fixedAssetClassId",
           header: "Asset Class",
           cell: ({ row }) => {
             const cls = row.original.fixedAssetClass as {
               id: string;
               name: string;
             } | null;
-            return cls?.name ?? "—";
+            return <Enumerable value={cls?.name ?? null} />;
           },
           meta: {
-            icon: <LuBox />
+            filter: {
+              type: "static",
+              options: assetClasses.map((c) => ({
+                label: <Enumerable value={c.name} />,
+                value: c.id
+              }))
+            },
+            icon: <LuLayers />
+          }
+        },
+        {
+          accessorKey: "location.name",
+          header: "Location",
+          cell: ({ row }) => {
+            const loc = (row.original as any).location as {
+              id: string;
+              name: string;
+            } | null;
+            return <Enumerable value={loc?.name ?? null} />;
+          },
+          meta: {
+            filter: {
+              type: "static",
+              options: locations.map((l) => ({
+                label: <Enumerable value={l.label} />,
+                value: l.label
+              }))
+            },
+            icon: <LuMapPin />
           }
         },
         {
@@ -118,7 +151,7 @@ const FixedAssetsTable = memo(
           }
         }
       ],
-      [currencyFormatter]
+      [assetClasses, currencyFormatter, locations]
     );
 
     const renderContextMenu = useCallback(

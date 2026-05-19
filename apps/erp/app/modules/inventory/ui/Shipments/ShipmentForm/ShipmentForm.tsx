@@ -86,6 +86,7 @@ const ShipmentForm = ({
   const routeData = useRouteData<{
     shipment: Shipment;
     shipmentLineTracking: ItemTracking[];
+    fixedAssetLines: { id: string; shipped: boolean }[];
     relatedItems?: Promise<{ invoices: SalesInvoice[] }>;
   }>(path.to.shipment(shipmentId));
 
@@ -115,9 +116,13 @@ const ShipmentForm = ({
   const isVoided = status === "Voided";
   const isEditing = initialValues.id !== undefined;
 
+  const hasShippableFaLines = (routeData?.fixedAssetLines ?? []).some(
+    (line) => line.shipped
+  );
   const canPost =
-    shipmentLines.length > 0 &&
-    shipmentLines.some((line) => (line.shippedQuantity ?? 0) !== 0);
+    (shipmentLines.length > 0 &&
+      shipmentLines.some((line) => (line.shippedQuantity ?? 0) !== 0)) ||
+    hasShippableFaLines;
 
   const shipmentLineTracking = routeData?.shipmentLineTracking ?? [];
   const hasTrackingLabels = shipmentLineTracking.some(

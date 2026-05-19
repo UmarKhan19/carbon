@@ -34,10 +34,33 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  const [companySettingsResult, accountDefaultsResult] = await Promise.all([
+    client
+      .from("companySettings")
+      .select("assetTaxDepreciationEnabled, assetTaxRate")
+      .eq("id", companyId)
+      .single(),
+    client
+      .from("accountDefault")
+      .select("deferredTaxLiabilityAccountId, deferredTaxExpenseAccountId")
+      .eq("companyId", companyId)
+      .single()
+  ]);
+
+  const taxEnabled =
+    (companySettingsResult.data as any)?.assetTaxDepreciationEnabled ?? false;
+  const taxRate = (companySettingsResult.data as any)?.assetTaxRate
+    ? Number((companySettingsResult.data as any).assetTaxRate)
+    : null;
+  const dtlAccountId = (accountDefaultsResult.data as any)
+    ?.deferredTaxLiabilityAccountId;
+  const dtExpenseAccountId = (accountDefaultsResult.data as any)
+    ?.deferredTaxExpenseAccountId;
+
   const lines = await client
     .from("depreciationRunLine")
     .select(
-      "id, fixedAssetId, amount, fixedAsset:fixedAssetId(id, acquisitionCost, accumulatedDepreciation, residualValuePercent, usefulLifeMonths, fixedAssetClass:fixedAssetClassId(depreciationExpenseAccountId, accumulatedDepreciationAccountId))"
+      "id, fixedAssetId, amount, taxAmount, fixedAsset:fixedAssetId(id, acquisitionCost, accumulatedDepreciation, accumulatedTaxDepreciation, residualValuePercent, usefulLifeMonths, fixedAssetClass:fixedAssetClassId(depreciationExpenseAccountId, accumulatedDepreciationAccountId))"
     )
     .eq("depreciationRunId", depreciationRunId);
 
@@ -127,6 +150,101 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .from("fixedAsset")
       .update(assetUpdate)
       .eq("id", line.fixedAssetId);
+  }
+
+  // Update accumulated tax depreciation on assets
+  if (taxEnabled) {
+    for (const line of lines.data) {
+      const taxAmount = Number((line as any).taxAmount ?? 0);
+      if (taxAmount > 0) {
+        const currentTax = Number(
+          (line.fixedAsset as any)?.accumulatedTaxDepreciation ?? 0
+        );
+        await client
+          .from("fixedAsset")
+          .update({ accumulatedTaxDepreciation: currentTax + taxAmount } as any)
+          .eq("id", line.fixedAssetId);
+      }
+    }
+  }
+
+  // Post deferred tax liability journal entry
+  if (taxEnabled && taxRate && dtlAccountId && dtExpenseAccountId) {
+    let totalTemporaryDifference = 0;
+    for (const line of lines.data) {
+      const bookAmount = Number(line.amount);
+      const taxAmount = Number((line as any).taxAmount ?? bookAmount);
+      totalTemporaryDifference += taxAmount - bookAmount;
+    }
+
+    const dtlAmount = Math.abs(totalTemporaryDifference * (taxRate / 100));
+
+    if (dtlAmount > 0.01) {
+      const dtlSequence = await getNextSequence(
+        client,
+        "journalEntry",
+        companyId
+      );
+      if (!dtlSequence.error) {
+        const dtlJournal = await client
+          .from("journal")
+          .insert({
+            journalEntryId: dtlSequence.data,
+            companyId,
+            description: `Deferred Tax: Depreciation ${(run.data as any).depreciationRunId ?? depreciationRunId}`,
+            postingDate: today,
+            sourceType: "Asset Depreciation" as const,
+            status: "Posted" as const,
+            postedAt: now,
+            postedBy: userId,
+            createdBy: userId
+          })
+          .select("id")
+          .single();
+
+        if (!dtlJournal.error) {
+          if (totalTemporaryDifference > 0) {
+            await client.from("journalLine").insert([
+              {
+                journalId: dtlJournal.data.id,
+                accountId: dtExpenseAccountId,
+                description: "Deferred Tax Expense",
+                amount: toStoredAmount(dtlAmount, 0, "Expense"),
+                journalLineReference: crypto.randomUUID(),
+                companyId
+              },
+              {
+                journalId: dtlJournal.data.id,
+                accountId: dtlAccountId,
+                description: "Deferred Tax Liability",
+                amount: toStoredAmount(0, dtlAmount, "Liability"),
+                journalLineReference: crypto.randomUUID(),
+                companyId
+              }
+            ]);
+          } else {
+            await client.from("journalLine").insert([
+              {
+                journalId: dtlJournal.data.id,
+                accountId: dtlAccountId,
+                description: "Deferred Tax Liability",
+                amount: toStoredAmount(dtlAmount, 0, "Liability"),
+                journalLineReference: crypto.randomUUID(),
+                companyId
+              },
+              {
+                journalId: dtlJournal.data.id,
+                accountId: dtExpenseAccountId,
+                description: "Deferred Tax Benefit",
+                amount: toStoredAmount(0, dtlAmount, "Expense"),
+                journalLineReference: crypto.randomUUID(),
+                companyId
+              }
+            ]);
+          }
+        }
+      }
+    }
   }
 
   await client

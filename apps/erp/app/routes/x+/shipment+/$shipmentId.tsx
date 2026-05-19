@@ -1,5 +1,6 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
@@ -43,9 +44,54 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw redirect(path.to.shipments);
   }
 
+  let fixedAssetLines: {
+    id: string;
+    salesOrderLineId: string;
+    assetId: string;
+    assetName: string | null;
+    assetReadableId: string | null;
+    description: string | null;
+    saleQuantity: number;
+    unitPrice: number | null;
+    shipped: boolean;
+    serialNumber: string | null;
+  }[] = [];
+
+  if (shipment.data.sourceDocument === "Sales Order") {
+    const serviceRole = getCarbonServiceRole();
+    const faLineRecords = await serviceRole
+      .from("shipmentFixedAssetLine")
+      .select(
+        "id, salesOrderLineId, shipped, serialNumber, salesOrderLine:salesOrderLineId(assetId, description, saleQuantity, unitPrice, fixedAsset:assetId(name, fixedAssetId))"
+      )
+      .eq("shipmentId", shipmentId);
+
+    fixedAssetLines = (faLineRecords.data ?? [])
+      .filter((row) => {
+        const sol = row.salesOrderLine as any;
+        return sol?.assetId && sol?.saleQuantity != null;
+      })
+      .map((row) => {
+        const sol = row.salesOrderLine as any;
+        return {
+          id: row.id,
+          salesOrderLineId: row.salesOrderLineId,
+          assetId: sol.assetId,
+          assetName: sol.fixedAsset?.name ?? null,
+          assetReadableId: sol.fixedAsset?.fixedAssetId ?? null,
+          description: sol.description,
+          saleQuantity: sol.saleQuantity,
+          unitPrice: sol.unitPrice,
+          shipped: row.shipped,
+          serialNumber: row.serialNumber
+        };
+      });
+  }
+
   return {
     shipment: shipment.data,
     shipmentLines: shipmentLines.data ?? [],
+    fixedAssetLines,
     shipmentLineTracking: shipmentLineTracking.data ?? [],
     relatedItems: getShipmentRelatedItems(
       client,

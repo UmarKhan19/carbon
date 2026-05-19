@@ -92,6 +92,18 @@ const ReceiptLines = () => {
   const routeData = useRouteData<{
     receipt: Receipt;
     receiptLines: ReceiptLine[];
+    fixedAssetLines: {
+      id: string;
+      purchaseOrderLineId: string;
+      assetId: string;
+      assetName: string | null;
+      assetReadableId: string | null;
+      description: string | null;
+      purchaseQuantity: number;
+      unitPrice: number | null;
+      received: boolean;
+      serialNumber: string | null;
+    }[];
     receiptFiles: PostgrestResponse<StorageItem>;
     receiptLineTracking: ItemTracking[];
     batchProperties: PostgrestResponse<BatchProperty>;
@@ -278,10 +290,121 @@ const ReceiptLines = () => {
           </div>
         </CardContent>
       </Card>
+      {routeData?.fixedAssetLines && routeData.fixedAssetLines.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Fixed Assets</Trans>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="border rounded-lg">
+              {routeData.fixedAssetLines.map((line, index) => (
+                <ReceiptFixedAssetLineItem
+                  key={line.id}
+                  line={line}
+                  isReadOnly={isPosted}
+                  className={
+                    index < routeData.fixedAssetLines.length - 1
+                      ? "border-b"
+                      : ""
+                  }
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <Outlet />
     </>
   );
 };
+
+function ReceiptFixedAssetLineItem({
+  line,
+  isReadOnly,
+  className
+}: {
+  line: {
+    id: string;
+    purchaseOrderLineId: string;
+    assetId: string;
+    assetName: string | null;
+    assetReadableId: string | null;
+    description: string | null;
+    purchaseQuantity: number;
+    unitPrice: number | null;
+    received: boolean;
+    serialNumber: string | null;
+  };
+  isReadOnly: boolean;
+  className?: string;
+}) {
+  const fetcher = useFetcher();
+  const [serialNumber, setSerialNumber] = useState(line.serialNumber ?? "");
+
+  const updateField = (field: string, value: string) => {
+    const formData = new FormData();
+    formData.append("id", line.id);
+    formData.append("field", field);
+    formData.append("value", value);
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.receiptFixedAssetLineUpdate
+    });
+  };
+
+  return (
+    <div className={cn("flex items-center gap-4 p-6", className)}>
+      <input
+        type="checkbox"
+        checked={line.received}
+        disabled={isReadOnly}
+        onChange={(e) => updateField("received", String(e.target.checked))}
+        className="h-4 w-4"
+      />
+      <VStack spacing={0} className="flex-1 min-w-0">
+        <span className="text-sm font-medium">
+          {line.assetName ?? line.description ?? "Fixed Asset"}
+        </span>
+        {line.assetReadableId && (
+          <span className="text-xs text-muted-foreground">
+            {line.assetReadableId}
+          </span>
+        )}
+      </VStack>
+      <div className="flex items-center gap-4">
+        <Input
+          placeholder="Serial Number"
+          value={serialNumber}
+          isDisabled={isReadOnly}
+          className="w-48"
+          onChange={(e) => setSerialNumber(e.target.value)}
+          onBlur={() => {
+            if (serialNumber !== (line.serialNumber ?? "")) {
+              updateField("serialNumber", serialNumber);
+            }
+          }}
+        />
+        <VStack spacing={0} className="text-right">
+          <span className="text-xs text-muted-foreground">Qty</span>
+          <span className="text-sm">{line.purchaseQuantity}</span>
+        </VStack>
+        {line.unitPrice != null && (
+          <VStack spacing={0} className="text-right">
+            <span className="text-xs text-muted-foreground">Price</span>
+            <span className="text-sm">
+              {line.unitPrice.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </span>
+          </VStack>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function ReceiptLineItem({
   line,

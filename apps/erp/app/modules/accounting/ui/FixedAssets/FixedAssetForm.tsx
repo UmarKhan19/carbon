@@ -16,25 +16,32 @@ import { useFetcher } from "react-router";
 import type { z } from "zod";
 import { Enumerable } from "~/components/Enumerable";
 import {
-  DatePicker,
   Employee,
   Hidden,
   Input,
   Location,
-  Number,
-  Select,
+  NumberControlled,
+  SelectControlled,
   Submit
 } from "~/components/Form";
-import { usePermissions, useUser } from "~/hooks";
+import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
 import {
   depreciationMethods,
   fixedAssetValidator
 } from "../../fixedAssets.models";
 
+type AssetClassOption = {
+  id: string;
+  name: string;
+  depreciationMethod: string;
+  usefulLifeMonths: number;
+  residualValuePercent: number;
+};
+
 type FixedAssetFormProps = {
   initialValues: z.infer<typeof fixedAssetValidator>;
-  assetClasses: { id: string; name: string }[];
+  assetClasses: AssetClassOption[];
   onClose: () => void;
 };
 
@@ -44,16 +51,36 @@ const FixedAssetForm = ({
   onClose
 }: FixedAssetFormProps) => {
   const permissions = usePermissions();
-  const { company } = useUser();
   const fetcher = useFetcher();
-  const [depreciationMethod, setDepreciationMethod] = useState(
-    initialValues.depreciationMethod
-  );
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
     ? !permissions.can("update", "accounting")
     : !permissions.can("create", "accounting");
+
+  const [assetData, setAssetData] = useState({
+    fixedAssetClassId: initialValues.fixedAssetClassId ?? "",
+    depreciationMethod: initialValues.depreciationMethod ?? "",
+    usefulLifeMonths: initialValues.usefulLifeMonths ?? 0,
+    residualValuePercent: initialValues.residualValuePercent ?? 0,
+    assetLifetimeUsage: initialValues.assetLifetimeUsage ?? 0
+  });
+
+  const onAssetClassChange = (
+    selected: { value: string; label: string | JSX.Element } | null
+  ) => {
+    if (!selected) return;
+    const assetClass = assetClasses.find((c) => c.id === selected.value);
+    if (!assetClass) return;
+
+    setAssetData((d) => ({
+      ...d,
+      fixedAssetClassId: assetClass.id,
+      depreciationMethod: assetClass.depreciationMethod,
+      usefulLifeMonths: assetClass.usefulLifeMonths,
+      residualValuePercent: assetClass.residualValuePercent
+    }));
+  };
 
   return (
     <ModalDrawerProvider type="drawer">
@@ -85,71 +112,64 @@ const FixedAssetForm = ({
               <Hidden name="id" />
               <VStack spacing={4}>
                 <Input name="name" label="Name" />
-                <Select
+                <SelectControlled
                   name="fixedAssetClassId"
                   label="Asset Class"
                   options={assetClasses.map((c) => ({
                     label: <Enumerable value={c.name} />,
                     value: c.id
                   }))}
+                  value={assetData.fixedAssetClassId}
+                  onChange={onAssetClassChange}
                 />
                 <Input name="description" label="Description" />
                 <Input name="serialNumber" label="Serial Number" />
-                <Select
+                <SelectControlled
                   name="depreciationMethod"
                   label="Depreciation Method"
                   options={depreciationMethods.map((m) => ({
                     label: m,
                     value: m
                   }))}
+                  value={assetData.depreciationMethod}
                   onChange={(v) => {
                     if (v)
-                      setDepreciationMethod(
-                        v.value as typeof depreciationMethod
-                      );
+                      setAssetData((d) => ({
+                        ...d,
+                        depreciationMethod: v.value
+                      }));
                   }}
                 />
-                <Number
+                <NumberControlled
                   name="usefulLifeMonths"
                   label="Useful Life (Months)"
                   minValue={1}
+                  value={assetData.usefulLifeMonths}
+                  onChange={(value) =>
+                    setAssetData((d) => ({ ...d, usefulLifeMonths: value }))
+                  }
                 />
-                <Number
+                <NumberControlled
                   name="residualValuePercent"
                   label="Residual Value %"
                   minValue={0}
                   maxValue={100}
+                  value={assetData.residualValuePercent}
+                  onChange={(value) =>
+                    setAssetData((d) => ({ ...d, residualValuePercent: value }))
+                  }
                 />
-                {depreciationMethod === "Units of Production" && (
-                  <Number
+                {assetData.depreciationMethod === "Units of Production" && (
+                  <NumberControlled
                     name="assetLifetimeUsage"
                     label="Lifetime Usage (Units)"
                     minValue={0}
+                    value={assetData.assetLifetimeUsage}
+                    onChange={(value) =>
+                      setAssetData((d) => ({ ...d, assetLifetimeUsage: value }))
+                    }
                   />
                 )}
-                <Number
-                  name="acquisitionCost"
-                  label="Acquisition Cost"
-                  minValue={0}
-                  formatOptions={{
-                    style: "currency",
-                    currency: company?.baseCurrencyCode ?? "USD"
-                  }}
-                />
-                <DatePicker name="acquisitionDate" label="Acquisition Date" />
-                <DatePicker
-                  name="depreciationStartDate"
-                  label="Depreciation Start Date"
-                />
-                <Number
-                  name="accumulatedDepreciation"
-                  label="Accumulated Depreciation"
-                  minValue={0}
-                  formatOptions={{
-                    style: "currency",
-                    currency: company?.baseCurrencyCode ?? "USD"
-                  }}
-                />
                 <Location name="locationId" label="Location" />
                 <Employee name="custodianId" label="Custodian" />
               </VStack>

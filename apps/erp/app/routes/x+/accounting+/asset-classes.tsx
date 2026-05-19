@@ -6,6 +6,7 @@ import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { usePermissions } from "~/hooks";
 import { getFixedAssetClasses } from "~/modules/accounting";
 import { AssetClassesTable } from "~/modules/accounting/ui/FixedAssets";
+import { getCompanySettings } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
@@ -27,22 +28,28 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
 
-  const classes = await getFixedAssetClasses(client, companyId, {
-    search,
-    limit,
-    offset,
-    sorts,
-    filters
-  });
+  const [classes, companySettings] = await Promise.all([
+    getFixedAssetClasses(client, companyId, {
+      search,
+      limit,
+      offset,
+      sorts,
+      filters
+    }),
+    getCompanySettings(client, companyId)
+  ]);
 
   return {
     data: classes.data ?? [],
-    count: classes.count ?? 0
+    count: classes.count ?? 0,
+    taxDepreciationEnabled:
+      (companySettings.data as any)?.assetTaxDepreciationEnabled ?? false
   };
 }
 
 export default function AssetClassesRoute() {
-  const { data, count } = useLoaderData<typeof loader>();
+  const { data, count, taxDepreciationEnabled } =
+    useLoaderData<typeof loader>();
   const permissions = usePermissions();
   const navigate = useNavigate();
 
@@ -51,6 +58,7 @@ export default function AssetClassesRoute() {
       <AssetClassesTable
         data={data}
         count={count}
+        taxDepreciationEnabled={taxDepreciationEnabled}
         primaryAction={
           permissions.can("create", "accounting") && (
             <Button

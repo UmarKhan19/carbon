@@ -69,9 +69,53 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       .filter((itemId) => itemId !== null) as string[];
   }
 
+  let fixedAssetLines: {
+    id: string;
+    purchaseOrderLineId: string;
+    assetId: string;
+    assetName: string | null;
+    assetReadableId: string | null;
+    description: string | null;
+    purchaseQuantity: number;
+    unitPrice: number | null;
+    received: boolean;
+    serialNumber: string | null;
+  }[] = [];
+
+  if (receipt.data.sourceDocument === "Purchase Order") {
+    const faLineRecords = await serviceRole
+      .from("receiptFixedAssetLine")
+      .select(
+        "id, purchaseOrderLineId, received, serialNumber, purchaseOrderLine:purchaseOrderLineId(assetId, description, purchaseQuantity, unitPrice, fixedAsset:assetId(name, fixedAssetId))"
+      )
+      .eq("receiptId", receiptId);
+
+    fixedAssetLines = (faLineRecords.data ?? [])
+      .filter((row) => {
+        const pol = row.purchaseOrderLine as any;
+        return pol?.assetId && pol?.purchaseQuantity != null;
+      })
+      .map((row) => {
+        const pol = row.purchaseOrderLine as any;
+        return {
+          id: row.id,
+          purchaseOrderLineId: row.purchaseOrderLineId,
+          assetId: pol.assetId,
+          assetName: pol.fixedAsset?.name ?? null,
+          assetReadableId: pol.fixedAsset?.fixedAssetId ?? null,
+          description: pol.description,
+          purchaseQuantity: pol.purchaseQuantity,
+          unitPrice: pol.unitPrice,
+          received: row.received,
+          serialNumber: row.serialNumber
+        };
+      });
+  }
+
   return {
     receipt: receipt.data,
     receiptLines: receiptLines.data ?? [],
+    fixedAssetLines,
     receiptFiles: getReceiptFiles(serviceRole, companyId, receiptLineIds) ?? [],
     receiptLineTracking: receiptLineTracking.data ?? [],
     batchProperties:

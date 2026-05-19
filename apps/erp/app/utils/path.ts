@@ -422,6 +422,11 @@ export const path = {
       generatePath(`${x}/fixed-asset/${id}/details`),
     fixedAssetDispose: (id: string) =>
       generatePath(`${x}/fixed-asset/${id}/dispose`),
+    fixedAssetRegister: (id: string) =>
+      generatePath(`${x}/fixed-asset/${id}/register`),
+    fixedAssetPurchase: (id: string) =>
+      generatePath(`${x}/fixed-asset/${id}/purchase`),
+    fixedAssetSell: (id: string) => generatePath(`${x}/fixed-asset/${id}/sell`),
     newFixedAsset: `${x}/accounting/fixed-assets/new`,
     deleteFixedAsset: (id: string) =>
       generatePath(`${x}/fixed-asset/${id}/delete`),
@@ -1439,6 +1444,7 @@ export const path = {
     receiptDetails: (id: string) => generatePath(`${x}/receipt/${id}/details`),
     receiptLineDelete: (id: string) =>
       generatePath(`${x}/receipt/lines/${id}/delete`),
+    receiptFixedAssetLineUpdate: `${x}/receipt/fixed-asset-lines/update`,
     receiptLineSplit: `${x}/receipt/lines/split`,
     receiptLines: (id: string) => generatePath(`${x}/receipt/${id}/lines`),
     receiptLinesTracking: (id: string) =>
@@ -1599,6 +1605,7 @@ export const path = {
     shipment: (id: string) => generatePath(`${x}/shipment/${id}`),
     shipmentDetails: (id: string) =>
       generatePath(`${x}/shipment/${id}/details`),
+    shipmentFixedAssetLineUpdate: `${x}/shipment/fixed-asset-lines/update`,
     shipmentLineDelete: (id: string) =>
       generatePath(`${x}/shipment/lines/${id}/delete`),
     shipmentLineSplit: `${x}/shipment/lines/split`,

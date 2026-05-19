@@ -13,6 +13,8 @@ export const dimensions = [
   { name: "Item Posting Group", entityType: "ItemPostingGroup" },
   { name: "Customer Type", entityType: "CustomerType" },
   { name: "Supplier Type", entityType: "SupplierType" },
+  { name: "Work Center", entityType: "WorkCenter" },
+  { name: "Process", entityType: "Process" },
 ] as const;
 
 export const supplierStatuses = [
@@ -638,6 +640,7 @@ export const accounts = [
   { key: "7060", number: "7060", name: "Foreign Exchange Losses", isGroup: false, parentKey: "other-expenses", accountType: "Other Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
   { key: "7070", number: "7070", name: "Income Tax Expense", isGroup: false, parentKey: "other-expenses", accountType: "Other Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
   { key: "7080", number: "7080", name: "R&D Expenses", isGroup: false, parentKey: "other-expenses", accountType: "Other Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "7090", number: "7090", name: "Deferred Tax Expense", isGroup: false, parentKey: "other-expenses", accountType: "Other Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
 ] as const;
 
 export const accountDefaults = {
@@ -680,6 +683,8 @@ export const accountDefaults = {
   reverseChargeSalesTaxPayableAccount: "2230",
   retainedEarningsAccount: "3100",
   currencyTranslationAccount: "3200",
+  deferredTaxLiabilityAccountId: "2420",
+  deferredTaxExpenseAccountId: "7090",
 } as const;
 
 export const fiscalYearSettings = {

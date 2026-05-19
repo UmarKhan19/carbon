@@ -897,7 +897,12 @@ const PurchaseOrderLineForm = ({
                             name="purchaseQuantity"
                             label={t`Quantity`}
                             isOptional={false}
-                            value={indirectData.purchaseQuantity}
+                            isDisabled={activeTab === "asset"}
+                            value={
+                              activeTab === "asset"
+                                ? 1
+                                : indirectData.purchaseQuantity
+                            }
                             onChange={(value) =>
                               setIndirectData((d) => ({
                                 ...d,

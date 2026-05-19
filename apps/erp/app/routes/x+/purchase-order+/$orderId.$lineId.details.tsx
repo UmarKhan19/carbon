@@ -170,8 +170,8 @@ export default function EditPurchaseOrderLineRoute() {
     supplierUnitPrice: line?.supplierUnitPrice ?? 0,
     costCenterId: line?.costCenterId ?? "",
     taxPercent: line?.taxPercent ?? 0,
-    assetReadableId: line?.assetReadableId ?? "",
-    assetName: line?.assetName ?? "",
+    assetReadableId: (line as any)?.assetReadableId ?? "",
+    assetName: (line as any)?.assetName ?? "",
     ...getCustomFields(line?.customFields)
   };
 

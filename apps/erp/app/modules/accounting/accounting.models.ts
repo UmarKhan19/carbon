@@ -271,6 +271,9 @@ export const defaultBalanceSheetAccountValidator = z.object({
   }),
   currencyTranslationAccount: z.string().min(1, {
     message: "Currency translation account is required"
+  }),
+  deferredTaxLiabilityAccountId: z.string().min(1, {
+    message: "Deferred tax liability account is required"
   })
 });
 
@@ -332,6 +335,9 @@ export const defaultIncomeAcountValidator = z.object({
   }),
   roundingAccount: z.string().min(1, {
     message: "Rounding account is required"
+  }),
+  deferredTaxExpenseAccountId: z.string().min(1, {
+    message: "Deferred tax expense account is required"
   })
 });
 
@@ -489,7 +495,9 @@ export const dimensionEntityTypes = [
   "Employee",
   "ItemPostingGroup",
   "Location",
-  "SupplierType"
+  "Process",
+  "SupplierType",
+  "WorkCenter"
 ] as const;
 
 export const dimensionValidator = z.object({

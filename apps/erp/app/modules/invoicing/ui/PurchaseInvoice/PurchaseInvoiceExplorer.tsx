@@ -205,7 +205,7 @@ function PurchaseInvoiceLineItem({
                 {line.invoiceLineType === "G/L Account"
                   ? line.description || "G/L Account"
                   : line.invoiceLineType === "Fixed Asset"
-                    ? line.assetReadableId || "Fixed Asset"
+                    ? (line as any).assetReadableId || "Fixed Asset"
                     : getItemReadableId(items, line.itemId)}
               </span>
               <span className="text-muted-foreground text-xs truncate line-clamp-1">

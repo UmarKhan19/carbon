@@ -3,7 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { ReactNode } from "react";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
-  LuBox,
+  LuBookMarked,
   LuCalendar,
   LuPencil,
   LuPercent,
@@ -20,19 +20,53 @@ import type { FixedAssetClassListItem } from "../../types";
 type AssetClassesTableProps = {
   data: FixedAssetClassListItem[];
   count: number;
+  taxDepreciationEnabled: boolean;
   primaryAction?: ReactNode;
 };
 
+function formatBookDepreciation(row: FixedAssetClassListItem): string {
+  const method = row.depreciationMethod;
+  const life = row.usefulLifeMonths;
+  const residual = row.residualValuePercent;
+
+  const years = life ? Math.round((life / 12) * 10) / 10 : null;
+  const lifeStr = years ? `${years}yr` : "";
+  const residualStr =
+    residual && Number(residual) > 0 ? `, ${residual}% residual` : "";
+
+  return `${method}, ${lifeStr}${residualStr}`;
+}
+
+function formatTaxDepreciation(row: FixedAssetClassListItem): string {
+  const method = (row as any).taxDepreciationMethod;
+  if (!method) return "Same as Book";
+
+  if (method === "MACRS") {
+    const cls = (row as any).macrsPropertyClass;
+    return cls ? `MACRS ${cls}-Year` : "MACRS";
+  }
+
+  const life = (row as any).taxUsefulLifeMonths;
+  const years = life ? Math.round((life / 12) * 10) / 10 : null;
+  const lifeStr = years ? `, ${years}yr` : "";
+  return `${method}${lifeStr}`;
+}
+
 const AssetClassesTable = memo(
-  ({ data, count, primaryAction }: AssetClassesTableProps) => {
+  ({
+    data,
+    count,
+    taxDepreciationEnabled,
+    primaryAction
+  }: AssetClassesTableProps) => {
     const navigate = useNavigate();
     const permissions = usePermissions();
     const [selectedClass, setSelectedClass] =
       useState<FixedAssetClassListItem | null>(null);
     const deleteModal = useDisclosure();
 
-    const columns = useMemo<ColumnDef<FixedAssetClassListItem>[]>(
-      () => [
+    const columns = useMemo<ColumnDef<FixedAssetClassListItem>[]>(() => {
+      const cols: ColumnDef<FixedAssetClassListItem>[] = [
         {
           accessorKey: "name",
           header: "Name",
@@ -45,34 +79,32 @@ const AssetClassesTable = memo(
             </Hyperlink>
           ),
           meta: {
-            icon: <LuBox />
+            icon: <LuBookMarked />
           }
         },
         {
-          accessorKey: "depreciationMethod",
-          header: "Depreciation Method",
+          id: "bookDepreciation",
+          header: "Book Depreciation",
+          cell: ({ row }) => formatBookDepreciation(row.original),
           meta: {
             icon: <LuCalendar />
           }
-        },
-        {
-          accessorKey: "usefulLifeMonths",
-          header: "Useful Life (Months)",
-          meta: {
-            icon: <LuCalendar />
-          }
-        },
-        {
-          accessorKey: "residualValuePercent",
-          header: "Residual Value %",
-          cell: ({ row }) => `${row.original.residualValuePercent}%`,
+        }
+      ];
+
+      if (taxDepreciationEnabled) {
+        cols.push({
+          id: "taxDepreciation",
+          header: "Tax Depreciation",
+          cell: ({ row }) => formatTaxDepreciation(row.original),
           meta: {
             icon: <LuPercent />
           }
-        }
-      ],
-      []
-    );
+        });
+      }
+
+      return cols;
+    }, [taxDepreciationEnabled]);
 
     const renderContextMenu = useCallback(
       (row: FixedAssetClassListItem) => (
