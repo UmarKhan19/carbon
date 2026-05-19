@@ -1,7 +1,29 @@
-import { Heading, HStack, VStack } from "@carbon/react";
-import { Trans } from "@lingui/react/macro";
-import { useState } from "react";
-import { useFetcher } from "react-router";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  DatePicker,
+  Heading,
+  HStack,
+  Status,
+  VStack
+} from "@carbon/react";
+import { parseDate } from "@internationalized/date";
+import { Trans, useLingui } from "@lingui/react/macro";
+import type { ColumnDef } from "@tanstack/react-table";
+import { useMemo } from "react";
+import {
+  LuCalendar,
+  LuCircleDot,
+  LuCoins,
+  LuHash,
+  LuUser
+} from "react-icons/lu";
+import { CustomerAvatar, SupplierAvatar, Table } from "~/components";
+import { Enumerable } from "~/components/Enumerable";
+import { useCurrencyFormatter, useDateFormatter, useUrlParams } from "~/hooks";
 
 type TieOutResult = {
   subledgerBalance: number;
@@ -35,141 +57,169 @@ type TieOutProps = {
 // the presentation is identical so a shared component is the right
 // shape per the locked decision (two pages, shared component).
 export function TieOut({ side, result, rows, asOfDate }: TieOutProps) {
-  const fetcher = useFetcher();
-  const [date, setDate] = useState(asOfDate);
-  const sideLabel = side === "ar" ? "Accounts Receivable" : "Accounts Payable";
+  const { t } = useLingui();
+  const [, setParams] = useUrlParams();
+  const currencyFormatter = useCurrencyFormatter();
+  const { formatDate } = useDateFormatter();
+
+  const sideLabel =
+    side === "ar" ? t`Accounts Receivable` : t`Accounts Payable`;
   const variance = result?.variance ?? 0;
   const reconciled = Math.abs(variance) < 0.01;
 
+  const columns = useMemo<ColumnDef<TieOutDrillRow>[]>(
+    () => [
+      {
+        accessorKey: "invoiceNumber",
+        header: t`Invoice`,
+        cell: ({ row }) => row.original.invoiceNumber,
+        meta: { icon: <LuHash /> }
+      },
+      {
+        id: "counterparty",
+        header: side === "ar" ? t`Customer` : t`Supplier`,
+        cell: ({ row }) =>
+          row.original.customerId ? (
+            <CustomerAvatar customerId={row.original.customerId} />
+          ) : row.original.supplierId ? (
+            <SupplierAvatar supplierId={row.original.supplierId} />
+          ) : null,
+        meta: { icon: <LuUser /> }
+      },
+      {
+        accessorKey: "dateDue",
+        header: t`Due`,
+        cell: ({ row }) =>
+          row.original.dateDue ? formatDate(row.original.dateDue) : "—",
+        meta: { icon: <LuCalendar /> }
+      },
+      {
+        accessorKey: "currencyCode",
+        header: t`Currency`,
+        cell: ({ row }) => <Enumerable value={row.original.currencyCode} />,
+        meta: { icon: <LuCircleDot /> }
+      },
+      {
+        accessorKey: "totalAmount",
+        header: t`Total`,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {Number(row.original.totalAmount).toFixed(2)}
+          </span>
+        ),
+        meta: { icon: <LuCoins /> }
+      },
+      {
+        accessorKey: "settled",
+        header: t`Settled`,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {Number(row.original.settled).toFixed(2)}
+          </span>
+        )
+      },
+      {
+        accessorKey: "openInCurrency",
+        header: t`Open (Local)`,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {Number(row.original.openInCurrency).toFixed(2)}
+          </span>
+        )
+      },
+      {
+        accessorKey: "openInBase",
+        header: t`Open (Base)`,
+        cell: ({ row }) => (
+          <span className="tabular-nums">
+            {currencyFormatter.format(Number(row.original.openInBase))}
+          </span>
+        ),
+        meta: {
+          renderTotal: true,
+          formatter: currencyFormatter.format
+        }
+      }
+    ],
+    [t, side, formatDate, currencyFormatter]
+  );
+
   return (
-    <VStack spacing={4} className="p-6 max-w-6xl">
-      <HStack className="justify-between w-full">
-        <Heading size="h2">
+    <VStack spacing={0} className="h-full">
+      <div className="flex px-4 py-3 items-center justify-between bg-card border-b border-border w-full">
+        <Heading size="h3">
           {sideLabel} <Trans>Tie-Out</Trans>
         </Heading>
-        <fetcher.Form method="get" className="flex items-center gap-2">
-          <label className="text-sm">
+        <HStack>
+          <span className="text-sm text-muted-foreground">
             <Trans>As of:</Trans>
-            <input
-              type="date"
-              name="asOfDate"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="ml-2 border border-border rounded px-2 py-1 text-sm"
-            />
-          </label>
-          <button
-            type="submit"
-            className="bg-primary text-primary-foreground rounded px-3 py-1.5 text-sm hover:opacity-90"
-          >
-            <Trans>Refresh</Trans>
-          </button>
-        </fetcher.Form>
-      </HStack>
+          </span>
+          <DatePicker
+            value={parseDate(asOfDate)}
+            onChange={(value) =>
+              setParams({ asOfDate: value?.toString() ?? asOfDate })
+            }
+          />
+        </HStack>
+      </div>
 
-      <div className="grid grid-cols-3 gap-4 w-full">
-        <SummaryCard label="Subledger" value={result?.subledgerBalance ?? 0} />
+      <div className="grid grid-cols-3 gap-4 w-full p-6">
         <SummaryCard
-          label="GL Control Account"
-          value={result?.glBalance ?? 0}
+          title={t`Subledger`}
+          value={currencyFormatter.format(result?.subledgerBalance ?? 0)}
         />
         <SummaryCard
-          label="Variance"
-          value={variance}
-          status={reconciled ? "ok" : "break"}
+          title={t`GL Control Account`}
+          value={currencyFormatter.format(result?.glBalance ?? 0)}
+        />
+        <SummaryCard
+          title={t`Variance`}
+          value={currencyFormatter.format(variance)}
+          badge={
+            reconciled ? (
+              <Status color="green">
+                <Trans>Reconciled</Trans>
+              </Status>
+            ) : (
+              <Status color="red">
+                <Trans>Break</Trans>
+              </Status>
+            )
+          }
         />
       </div>
 
-      <Heading size="h3">
-        <Trans>Open Invoices</Trans>{" "}
-        <span className="text-muted-foreground text-base">({rows.length})</span>
-      </Heading>
-      <div className="w-full rounded-lg border border-border bg-card">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/30 text-xs uppercase">
-            <tr>
-              <th className="text-left p-3">Invoice</th>
-              <th className="text-left p-3">
-                {side === "ar" ? "Customer" : "Supplier"}
-              </th>
-              <th className="text-left p-3">Due</th>
-              <th className="text-left p-3">Currency</th>
-              <th className="text-right p-3">Total</th>
-              <th className="text-right p-3">Settled</th>
-              <th className="text-right p-3">Open (Local)</th>
-              <th className="text-right p-3">Open (Base)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={8}
-                  className="p-6 text-center text-muted-foreground"
-                >
-                  <Trans>No open invoices as of this date.</Trans>
-                </td>
-              </tr>
-            ) : (
-              rows.map((r) => (
-                <tr key={r.invoiceId} className="border-t border-border">
-                  <td className="p-3">{r.invoiceNumber}</td>
-                  <td className="p-3">{r.customerId ?? r.supplierId ?? "—"}</td>
-                  <td className="p-3">{r.dateDue ?? "—"}</td>
-                  <td className="p-3">{r.currencyCode}</td>
-                  <td className="p-3 text-right tabular-nums">
-                    {Number(r.totalAmount).toFixed(2)}
-                  </td>
-                  <td className="p-3 text-right tabular-nums">
-                    {Number(r.settled).toFixed(2)}
-                  </td>
-                  <td className="p-3 text-right tabular-nums">
-                    {Number(r.openInCurrency).toFixed(2)}
-                  </td>
-                  <td className="p-3 text-right tabular-nums">
-                    {Number(r.openInBase).toFixed(2)}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="flex-1 w-full">
+        <Table<TieOutDrillRow>
+          data={rows}
+          columns={columns}
+          count={rows.length}
+          title={t`Open Invoices`}
+        />
       </div>
     </VStack>
   );
 }
 
 function SummaryCard({
-  label,
+  title,
   value,
-  status
+  badge
 }: {
-  label: string;
-  value: number;
-  status?: "ok" | "break";
+  title: string;
+  value: string;
+  badge?: React.ReactNode;
 }) {
-  const color =
-    status === "ok"
-      ? "text-green-600"
-      : status === "break"
-        ? "text-destructive"
-        : "text-foreground";
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="text-xs uppercase text-muted-foreground">{label}</div>
-      <div className={`text-2xl font-semibold tabular-nums ${color}`}>
-        {value.toFixed(2)}
-      </div>
-      {status === "ok" && (
-        <div className="text-xs text-green-600 mt-1">
-          <Trans>Subledger matches GL.</Trans>
-        </div>
-      )}
-      {status === "break" && (
-        <div className="text-xs text-destructive mt-1">
-          <Trans>Subledger and GL do not match.</Trans>
-        </div>
-      )}
-    </div>
+    <Card>
+      <CardHeader>
+        <HStack className="justify-between">
+          <CardDescription>{title}</CardDescription>
+          {badge}
+        </HStack>
+        <CardTitle className="tabular-nums">{value}</CardTitle>
+      </CardHeader>
+      <CardContent />
+    </Card>
   );
 }

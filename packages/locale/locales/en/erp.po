@@ -188,8 +188,14 @@ msgstr "Accounting is enabled"
 msgid "Accounts"
 msgstr "Accounts"
 
+msgid "Accounts Payable"
+msgstr "Accounts Payable"
+
 msgid "Accounts Payable Billing Address"
 msgstr "Accounts Payable Billing Address"
+
+msgid "Accounts Receivable"
+msgstr "Accounts Receivable"
 
 msgid "Accounts Receivable Billing Address"
 msgstr "Accounts Receivable Billing Address"
@@ -493,6 +499,9 @@ msgstr "API keys for programmatic access to your Carbon data."
 
 msgid "Applications"
 msgstr "Applications"
+
+msgid "Applied"
+msgstr "Applied"
 
 msgid "Applied Amount"
 msgstr "Applied Amount"
@@ -1009,6 +1018,9 @@ msgstr "Balance Sheet"
 msgid "Bank / Cash Account"
 msgstr "Bank / Cash Account"
 
+msgid "Bank Account"
+msgstr "Bank Account"
+
 msgid "Base Currency"
 msgstr "Base Currency"
 
@@ -1084,6 +1096,9 @@ msgstr "BOM synced successfully"
 
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
+
+msgid "Break"
+msgstr "Break"
 
 msgid "Browse library"
 msgstr "Browse library"
@@ -1731,6 +1746,9 @@ msgstr "Costing Method"
 
 msgid "Couldn't load documents"
 msgstr "Couldn't load documents"
+
+msgid "Counterparty"
+msgstr "Counterparty"
 
 msgid "Country"
 msgstr "Country"
@@ -2540,6 +2558,9 @@ msgstr "Drop Shipment Statuses"
 
 msgid "Drop your file here, or click to browse."
 msgstr "Drop your file here, or click to browse."
+
+msgid "Due"
+msgstr "Due"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 msgid "Due {0}"
@@ -3563,6 +3584,9 @@ msgstr "From Storage Unit"
 msgid "Fully trained for"
 msgstr "Fully trained for"
 
+msgid "FX G/L"
+msgstr "FX G/L"
+
 msgid "Gauge"
 msgstr "Gauge"
 
@@ -3607,6 +3631,9 @@ msgstr "Get Method"
 
 msgid "GL Account"
 msgstr "GL Account"
+
+msgid "GL Control Account"
+msgstr "GL Control Account"
 
 #. placeholder {0}: user.firstName
 msgid "Good afternoon, {0}"
@@ -3838,6 +3865,9 @@ msgstr "Internal"
 
 msgid "Internal Notes"
 msgstr "Internal Notes"
+
+msgid "Inv Rate"
+msgstr "Inv Rate"
 
 msgid "Invalid Invite"
 msgstr "Invalid Invite"
@@ -5048,9 +5078,6 @@ msgstr "No new notifications"
 msgid "No notes"
 msgstr "No notes"
 
-msgid "No open invoices as of this date."
-msgstr "No open invoices as of this date."
-
 msgid "No operators."
 msgstr "No operators."
 
@@ -5074,9 +5101,6 @@ msgstr "No part ID"
 
 msgid "No parts added yet"
 msgstr "No parts added yet"
-
-msgid "No payments yet."
-msgstr "No payments yet."
 
 msgid "No planning data"
 msgstr "No planning data"
@@ -5224,6 +5248,12 @@ msgstr "Oops! The link you're trying to access is not valid."
 
 msgid "Open"
 msgstr "Open"
+
+msgid "Open (Base)"
+msgstr "Open (Base)"
+
+msgid "Open (Local)"
+msgstr "Open (Local)"
 
 msgid "Open Actions"
 msgstr "Open Actions"
@@ -5464,6 +5494,9 @@ msgstr "Pass"
 
 msgid "Path"
 msgstr "Path"
+
+msgid "Pay Rate"
+msgstr "Pay Rate"
 
 msgid "Payment"
 msgstr "Payment"
@@ -6072,6 +6105,9 @@ msgstr "Recent"
 
 msgid "Recently Created"
 msgstr "Recently Created"
+
+msgid "Reconciled"
+msgstr "Reconciled"
 
 msgid "Record"
 msgstr "Record"
@@ -6831,6 +6867,9 @@ msgstr "Set your default location in profile settings to pick a storage unit."
 msgid "Settings"
 msgstr "Settings"
 
+msgid "Settled"
+msgstr "Settled"
+
 msgid "Setup"
 msgstr "Setup"
 
@@ -7152,9 +7191,6 @@ msgstr "Status"
 msgid "Status Distribution"
 msgstr "Status Distribution"
 
-msgid "Status:"
-msgstr "Status:"
-
 msgid "Statuses"
 msgstr "Statuses"
 
@@ -7215,11 +7251,8 @@ msgstr "Sub-Departments"
 msgid "Subassembly"
 msgstr "Subassembly"
 
-msgid "Subledger and GL do not match."
-msgstr "Subledger and GL do not match."
-
-msgid "Subledger matches GL."
-msgstr "Subledger matches GL."
+msgid "Subledger"
+msgstr "Subledger"
 
 msgid "Submit"
 msgstr "Submit"
@@ -8079,6 +8112,9 @@ msgstr "Validating job..."
 
 msgid "Value"
 msgstr "Value"
+
+msgid "Variance"
+msgstr "Variance"
 
 msgid "VAT Number"
 msgstr "VAT Number"

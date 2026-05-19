@@ -5,7 +5,7 @@ export const paymentType = ["Receipt", "Disbursement"] as const;
 export const paymentStatus = ["Draft", "Posted", "Voided"] as const;
 
 export type PaymentType = (typeof paymentType)[number];
-export type PaymentStatus = (typeof paymentStatus)[number];
+export type PaymentStatusType = (typeof paymentStatus)[number];
 
 export function isPaymentLocked(status: string | null | undefined): boolean {
   return status !== null && status !== undefined && status !== "Draft";

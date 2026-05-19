@@ -5,7 +5,7 @@ import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 import type {
-  PaymentStatus,
+  PaymentStatusType,
   paymentApplicationValidator,
   paymentValidator
 } from "./payments.models";
@@ -24,7 +24,7 @@ export async function getPayments(
   args: GenericQueryFilters & {
     search: string | null;
     paymentType: "Receipt" | "Disbursement" | null;
-    status: PaymentStatus | null;
+    status: PaymentStatusType | null;
     customerId: string | null;
     supplierId: string | null;
   }

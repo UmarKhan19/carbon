@@ -2,22 +2,39 @@ import { error, notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   Heading,
   HStack,
+  Table,
+  Tbody,
+  Td,
+  Tfoot,
+  Th,
+  Thead,
+  Tr,
   VStack
 } from "@carbon/react";
 import { Trans } from "@lingui/react/macro";
+import { LuCheckCheck, LuTicketX } from "react-icons/lu";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
+import { CustomerAvatar, SupplierAvatar } from "~/components";
+import { Enumerable } from "~/components/Enumerable";
+import {
+  useCurrencyFormatter,
+  useDateFormatter,
+  usePermissions
+} from "~/hooks";
 import {
   getPayment,
   getPaymentApplications,
   isPaymentLocked,
-  PaymentApplicationForm
+  PaymentApplicationForm,
+  PaymentStatus
 } from "~/modules/invoicing";
 import { path } from "~/utils/path";
 
@@ -45,10 +62,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export default function PaymentDetailRoute() {
+  const permissions = usePermissions();
   const { payment, applications } = useLoaderData<typeof loader>();
   const post = useFetcher();
   const voidFetcher = useFetcher();
+  const currencyFormatter = useCurrencyFormatter({
+    currency: payment.currencyCode
+  });
+  const { formatDate } = useDateFormatter();
   const locked = isPaymentLocked(payment.status);
+  const canMutate = permissions.can("update", "invoicing");
 
   const totalApplied = applications.reduce(
     (sum, a) =>
@@ -65,42 +88,43 @@ export default function PaymentDetailRoute() {
   return (
     <VStack spacing={4} className="p-6 max-w-6xl">
       <HStack className="justify-between w-full">
-        <div>
-          <Heading size="h2">
-            {payment.paymentId}{" "}
-            <span className="text-muted-foreground text-base">
-              ({payment.paymentType})
-            </span>
-          </Heading>
-          <p className="text-sm text-muted-foreground">
-            <Trans>Status:</Trans> <strong>{payment.status}</strong>
-          </p>
-        </div>
+        <HStack spacing={2}>
+          <Heading size="h2">{payment.paymentId}</Heading>
+          <Enumerable value={payment.paymentType} />
+          <PaymentStatus status={payment.status} />
+        </HStack>
         <HStack>
           {payment.status === "Draft" && (
-            <post.Form method="post" action={path.to.paymentPost(payment.id)}>
-              <button
-                type="submit"
-                className="bg-primary text-primary-foreground rounded px-3 py-1.5 text-sm hover:opacity-90"
-                disabled={post.state !== "idle"}
-              >
-                <Trans>Post</Trans>
-              </button>
-            </post.Form>
+            <Button
+              leftIcon={<LuCheckCheck />}
+              variant="primary"
+              isLoading={post.state !== "idle"}
+              isDisabled={!canMutate}
+              onClick={() =>
+                post.submit(null, {
+                  method: "post",
+                  action: path.to.paymentPost(payment.id)
+                })
+              }
+            >
+              <Trans>Post</Trans>
+            </Button>
           )}
           {payment.status === "Posted" && (
-            <voidFetcher.Form
-              method="post"
-              action={path.to.paymentVoid(payment.id)}
+            <Button
+              leftIcon={<LuTicketX />}
+              variant="destructive"
+              isLoading={voidFetcher.state !== "idle"}
+              isDisabled={!canMutate}
+              onClick={() =>
+                voidFetcher.submit(null, {
+                  method: "post",
+                  action: path.to.paymentVoid(payment.id)
+                })
+              }
             >
-              <button
-                type="submit"
-                className="bg-destructive text-destructive-foreground rounded px-3 py-1.5 text-sm hover:opacity-90"
-                disabled={voidFetcher.state !== "idle"}
-              >
-                <Trans>Void</Trans>
-              </button>
-            </voidFetcher.Form>
+              <Trans>Void</Trans>
+            </Button>
           )}
         </HStack>
       </HStack>
@@ -112,31 +136,78 @@ export default function PaymentDetailRoute() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4">
-            <DetailField label="Counterparty">
-              {payment.customerId ?? payment.supplierId ?? "—"}
-            </DetailField>
-            <DetailField label="Payment Date">
-              {payment.paymentDate}
-            </DetailField>
-            <DetailField label="Total Amount">
-              {Number(payment.totalAmount).toFixed(2)} {payment.currencyCode}
-            </DetailField>
-            <DetailField label="Exchange Rate">
-              {payment.exchangeRate}
-            </DetailField>
-            <DetailField label="Bank Account">
-              {payment.bankAccount}
-            </DetailField>
-            <DetailField label="Reference">
-              {payment.reference ?? "—"}
-            </DetailField>
-            {payment.memo && (
-              <div className="lg:col-span-3">
-                <DetailField label="Memo">{payment.memo}</DetailField>
-              </div>
-            )}
-          </div>
+          <Table>
+            <Tbody>
+              <Tr>
+                <Td>
+                  <Trans>Counterparty</Trans>
+                </Td>
+                <Td className="text-right">
+                  {payment.customerId ? (
+                    <CustomerAvatar customerId={payment.customerId} />
+                  ) : payment.supplierId ? (
+                    <SupplierAvatar supplierId={payment.supplierId} />
+                  ) : (
+                    "—"
+                  )}
+                </Td>
+              </Tr>
+              <Tr>
+                <Td>
+                  <Trans>Payment Date</Trans>
+                </Td>
+                <Td className="text-right">
+                  {formatDate(payment.paymentDate)}
+                </Td>
+              </Tr>
+              <Tr>
+                <Td>
+                  <Trans>Total Amount</Trans>
+                </Td>
+                <Td className="text-right tabular-nums">
+                  {currencyFormatter.format(Number(payment.totalAmount))}
+                </Td>
+              </Tr>
+              <Tr>
+                <Td>
+                  <Trans>Currency</Trans>
+                </Td>
+                <Td className="text-right">
+                  <Enumerable value={payment.currencyCode} />
+                </Td>
+              </Tr>
+              <Tr>
+                <Td>
+                  <Trans>Exchange Rate</Trans>
+                </Td>
+                <Td className="text-right tabular-nums">
+                  {payment.exchangeRate}
+                </Td>
+              </Tr>
+              <Tr>
+                <Td>
+                  <Trans>Bank Account</Trans>
+                </Td>
+                <Td className="text-right">{payment.bankAccount}</Td>
+              </Tr>
+              <Tr>
+                <Td>
+                  <Trans>Reference</Trans>
+                </Td>
+                <Td className="text-right">{payment.reference ?? "—"}</Td>
+              </Tr>
+              {payment.memo && (
+                <Tr>
+                  <Td>
+                    <Trans>Memo</Trans>
+                  </Td>
+                  <Td className="text-right whitespace-pre-wrap">
+                    {payment.memo}
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          </Table>
         </CardContent>
       </Card>
 
@@ -147,75 +218,86 @@ export default function PaymentDetailRoute() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <table className="w-full text-sm">
-            <thead className="bg-muted/30 text-xs uppercase">
-              <tr>
-                <th className="text-left p-3">Invoice</th>
-                <th className="text-right p-3">Applied</th>
-                <th className="text-right p-3">Discount</th>
-                <th className="text-right p-3">Write-Off</th>
-                <th className="text-right p-3">Inv Rate</th>
-                <th className="text-right p-3">Pay Rate</th>
-                <th className="text-right p-3">FX G/L</th>
-                <th className="text-left p-3">Applied Date</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>
+                  <Trans>Invoice</Trans>
+                </Th>
+                <Th className="text-right">
+                  <Trans>Applied</Trans>
+                </Th>
+                <Th className="text-right">
+                  <Trans>Discount</Trans>
+                </Th>
+                <Th className="text-right">
+                  <Trans>Write-Off</Trans>
+                </Th>
+                <Th className="text-right">
+                  <Trans>Inv Rate</Trans>
+                </Th>
+                <Th className="text-right">
+                  <Trans>Pay Rate</Trans>
+                </Th>
+                <Th className="text-right">
+                  <Trans>FX G/L</Trans>
+                </Th>
+                <Th>
+                  <Trans>Applied Date</Trans>
+                </Th>
+              </Tr>
+            </Thead>
+            <Tbody>
               {applications.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={8}
-                    className="p-6 text-center text-muted-foreground"
-                  >
+                <Tr>
+                  <Td colSpan={8} className="text-center text-muted-foreground">
                     <Trans>No applications. Payment will be on-account.</Trans>
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ) : (
                 applications.map((a) => (
-                  <tr key={a.id} className="border-t border-border">
-                    <td className="p-3">
-                      {a.salesInvoiceId ?? a.purchaseInvoiceId}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
+                  <Tr key={a.id}>
+                    <Td>{a.salesInvoiceId ?? a.purchaseInvoiceId}</Td>
+                    <Td className="text-right tabular-nums">
                       {Number(a.appliedAmount).toFixed(2)}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
+                    </Td>
+                    <Td className="text-right tabular-nums">
                       {Number(a.discountAmount).toFixed(2)}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
+                    </Td>
+                    <Td className="text-right tabular-nums">
                       {Number(a.writeOffAmount).toFixed(2)}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
+                    </Td>
+                    <Td className="text-right tabular-nums">
                       {a.invoiceExchangeRate}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
+                    </Td>
+                    <Td className="text-right tabular-nums">
                       {a.paymentExchangeRate}
-                    </td>
-                    <td className="p-3 text-right tabular-nums">
+                    </Td>
+                    <Td className="text-right tabular-nums">
                       {Number(a.fxGainLossAmount ?? 0).toFixed(2)}
-                    </td>
-                    <td className="p-3">{a.appliedDate}</td>
-                  </tr>
+                    </Td>
+                    <Td>{formatDate(a.appliedDate)}</Td>
+                  </Tr>
                 ))
               )}
-            </tbody>
-            <tfoot className="border-t border-border bg-muted/20 text-xs">
-              <tr>
-                <td className="p-3 text-right" colSpan={1}>
-                  <strong>
+            </Tbody>
+            {applications.length > 0 && (
+              <Tfoot>
+                <Tr>
+                  <Td className="text-right font-semibold">
                     <Trans>Totals</Trans>
-                  </strong>
-                </td>
-                <td className="p-3 text-right tabular-nums">
-                  <strong>{totalApplied.toFixed(2)}</strong>
-                </td>
-                <td colSpan={5} />
-                <td className="p-3 text-right tabular-nums">
-                  <Trans>Unapplied:</Trans> {unapplied.toFixed(2)}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+                  </Td>
+                  <Td className="text-right tabular-nums font-semibold">
+                    {totalApplied.toFixed(2)}
+                  </Td>
+                  <Td colSpan={5} />
+                  <Td className="text-right tabular-nums">
+                    <Trans>Unapplied:</Trans> {unapplied.toFixed(2)}
+                  </Td>
+                </Tr>
+              </Tfoot>
+            )}
+          </Table>
         </CardContent>
       </Card>
 
@@ -227,20 +309,5 @@ export default function PaymentDetailRoute() {
         />
       )}
     </VStack>
-  );
-}
-
-function DetailField({
-  label,
-  children
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <div className="text-xs uppercase text-muted-foreground">{label}</div>
-      <div className="text-sm font-medium">{children}</div>
-    </div>
   );
 }

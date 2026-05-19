@@ -188,8 +188,14 @@ msgstr "La contabilitÃƒÆ’Ã‚Â  ÃƒÆ’Ã‚Â¨ abilitata"
 msgid "Accounts"
 msgstr "Account"
 
+msgid "Accounts Payable"
+msgstr ""
+
 msgid "Accounts Payable Billing Address"
 msgstr "Indirizzo di Fatturazione ContabilitÃƒÆ’Ã‚Â  Fornitori"
+
+msgid "Accounts Receivable"
+msgstr ""
 
 msgid "Accounts Receivable Billing Address"
 msgstr "Indirizzo di Fatturazione ContabilitÃƒÆ’Ã‚Â  Clienti"
@@ -492,6 +498,9 @@ msgid "API keys for programmatic access to your Carbon data."
 msgstr "Chiavi API per l'accesso programmatico ai tuoi dati Carbon."
 
 msgid "Applications"
+msgstr ""
+
+msgid "Applied"
 msgstr ""
 
 msgid "Applied Amount"
@@ -1009,6 +1018,9 @@ msgstr "Bilancio"
 msgid "Bank / Cash Account"
 msgstr ""
 
+msgid "Bank Account"
+msgstr ""
+
 msgid "Base Currency"
 msgstr "Valuta di Base"
 
@@ -1084,6 +1096,9 @@ msgstr "BOM sincronizzato con successo"
 
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
+
+msgid "Break"
+msgstr ""
 
 msgid "Browse library"
 msgstr "Sfoglia libreria"
@@ -1731,6 +1746,9 @@ msgstr "Metodo di Determinazione dei Costi"
 
 msgid "Couldn't load documents"
 msgstr "Impossibile caricare i documenti"
+
+msgid "Counterparty"
+msgstr ""
 
 msgid "Country"
 msgstr "Paese"
@@ -2540,6 +2558,9 @@ msgstr "Stati Spedizione Diretta"
 
 msgid "Drop your file here, or click to browse."
 msgstr "Rilascia il tuo file qui, oppure fai clic per sfogliare."
+
+msgid "Due"
+msgstr ""
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 msgid "Due {0}"
@@ -3563,6 +3584,9 @@ msgstr "Da UnitÃƒÆ’Ã‚Â  di Stoccaggio"
 msgid "Fully trained for"
 msgstr "Completamente formato per"
 
+msgid "FX G/L"
+msgstr ""
+
 msgid "Gauge"
 msgstr "Calibro"
 
@@ -3607,6 +3631,9 @@ msgstr "Ottieni Metodo"
 
 msgid "GL Account"
 msgstr "Conto Contabile"
+
+msgid "GL Control Account"
+msgstr ""
 
 #. placeholder {0}: user.firstName
 msgid "Good afternoon, {0}"
@@ -3838,6 +3865,9 @@ msgstr "Interno"
 
 msgid "Internal Notes"
 msgstr "Note Interne"
+
+msgid "Inv Rate"
+msgstr ""
 
 msgid "Invalid Invite"
 msgstr "Invito Non Valido"
@@ -5048,9 +5078,6 @@ msgstr "Nessuna nuova notifica"
 msgid "No notes"
 msgstr "Nessuna nota"
 
-msgid "No open invoices as of this date."
-msgstr ""
-
 msgid "No operators."
 msgstr "Nessun operatore."
 
@@ -5074,9 +5101,6 @@ msgstr "Nessun ID parte"
 
 msgid "No parts added yet"
 msgstr "Nessuna parte aggiunta ancora"
-
-msgid "No payments yet."
-msgstr ""
 
 msgid "No planning data"
 msgstr "Nessun dato di pianificazione"
@@ -5224,6 +5248,12 @@ msgstr "Oops! Il link che stai cercando di accedere non ÃƒÆ’Ã‚Â¨ valid
 
 msgid "Open"
 msgstr "Apri"
+
+msgid "Open (Base)"
+msgstr ""
+
+msgid "Open (Local)"
+msgstr ""
 
 msgid "Open Actions"
 msgstr "Azioni Aperte"
@@ -5464,6 +5494,9 @@ msgstr "Passa"
 
 msgid "Path"
 msgstr "Percorso"
+
+msgid "Pay Rate"
+msgstr ""
 
 msgid "Payment"
 msgstr "Pagamento"
@@ -6072,6 +6105,9 @@ msgstr "Recenti"
 
 msgid "Recently Created"
 msgstr "Creato di recente"
+
+msgid "Reconciled"
+msgstr ""
 
 msgid "Record"
 msgstr "Registra"
@@ -6831,6 +6867,9 @@ msgstr "Imposta la tua posizione predefinita nelle impostazioni del profilo per 
 msgid "Settings"
 msgstr "Impostazioni"
 
+msgid "Settled"
+msgstr ""
+
 msgid "Setup"
 msgstr "Configurazione"
 
@@ -7152,9 +7191,6 @@ msgstr "Stato"
 msgid "Status Distribution"
 msgstr "Distribuzione dello Stato"
 
-msgid "Status:"
-msgstr ""
-
 msgid "Statuses"
 msgstr "Stati"
 
@@ -7215,10 +7251,7 @@ msgstr "Sotto-Dipartimenti"
 msgid "Subassembly"
 msgstr "Sottoassembly"
 
-msgid "Subledger and GL do not match."
-msgstr ""
-
-msgid "Subledger matches GL."
+msgid "Subledger"
 msgstr ""
 
 msgid "Submit"
@@ -8079,6 +8112,9 @@ msgstr "Convalida processo..."
 
 msgid "Value"
 msgstr "Valore"
+
+msgid "Variance"
+msgstr ""
 
 msgid "VAT Number"
 msgstr "Numero IVA"
