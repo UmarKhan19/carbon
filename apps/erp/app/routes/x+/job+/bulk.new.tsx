@@ -102,14 +102,12 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  const storageUnitId =
-    jobData.storageUnitId ||
-    (await getDefaultStorageUnitForJob(
-      serviceRole,
-      jobData.itemId,
-      jobData.locationId,
-      companyId
-    ));
+  const storageUnitId = await getDefaultStorageUnitForJob(
+    serviceRole,
+    jobData.itemId,
+    jobData.locationId,
+    companyId
+  );
 
   for await (const [i] of Array.from({ length: jobs }, (_, i) => [i])) {
     const nextSequence = await getNextSequence(serviceRole, "job", companyId);

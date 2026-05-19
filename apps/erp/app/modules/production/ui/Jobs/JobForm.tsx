@@ -492,7 +492,6 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                         />
 
                         <Location name="locationId" label={t`Location`} />
-
                         <Select
                           name="deadlineType"
                           label={t`Deadline Type`}
