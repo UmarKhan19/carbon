@@ -24506,6 +24506,141 @@ export type Database = {
           },
         ]
       }
+      payment: {
+        Row: {
+          bankAccount: string
+          companyId: string
+          createdAt: string
+          createdBy: string
+          currencyCode: string
+          customerId: string | null
+          customFields: Json | null
+          exchangeRate: number
+          id: string
+          journalId: string | null
+          memo: string | null
+          paymentDate: string
+          paymentId: string
+          paymentType: Database["public"]["Enums"]["paymentType"]
+          postedAt: string | null
+          postedBy: string | null
+          postingDate: string | null
+          reference: string | null
+          status: Database["public"]["Enums"]["paymentStatus"]
+          supplierId: string | null
+          totalAmount: number
+          updatedAt: string | null
+          updatedBy: string | null
+          voidedAt: string | null
+          voidedBy: string | null
+        }
+        Insert: {
+          bankAccount: string
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          currencyCode: string
+          customerId?: string | null
+          customFields?: Json | null
+          exchangeRate?: number
+          id?: string
+          journalId?: string | null
+          memo?: string | null
+          paymentDate: string
+          paymentId: string
+          paymentType: Database["public"]["Enums"]["paymentType"]
+          postedAt?: string | null
+          postedBy?: string | null
+          postingDate?: string | null
+          reference?: string | null
+          status?: Database["public"]["Enums"]["paymentStatus"]
+          supplierId?: string | null
+          totalAmount: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+          voidedAt?: string | null
+          voidedBy?: string | null
+        }
+        Update: {
+          bankAccount?: string
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          currencyCode?: string
+          customerId?: string | null
+          customFields?: Json | null
+          exchangeRate?: number
+          id?: string
+          journalId?: string | null
+          memo?: string | null
+          paymentDate?: string
+          paymentId?: string
+          paymentType?: Database["public"]["Enums"]["paymentType"]
+          postedAt?: string | null
+          postedBy?: string | null
+          postingDate?: string | null
+          reference?: string | null
+          status?: Database["public"]["Enums"]["paymentStatus"]
+          supplierId?: string | null
+          totalAmount?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+          voidedAt?: string | null
+          voidedBy?: string | null
+        }
+        Relationships: []
+      }
+      paymentApplication: {
+        Row: {
+          appliedAmount: number
+          appliedDate: string
+          companyId: string
+          createdAt: string
+          createdBy: string
+          discountAmount: number
+          fxGainLossAmount: number
+          id: string
+          invoiceExchangeRate: number
+          paymentExchangeRate: number
+          paymentId: string
+          purchaseInvoiceId: string | null
+          salesInvoiceId: string | null
+          writeOffAmount: number
+        }
+        Insert: {
+          appliedAmount: number
+          appliedDate: string
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          discountAmount?: number
+          fxGainLossAmount?: number
+          id?: string
+          invoiceExchangeRate: number
+          paymentExchangeRate: number
+          paymentId: string
+          purchaseInvoiceId?: string | null
+          salesInvoiceId?: string | null
+          writeOffAmount?: number
+        }
+        Update: {
+          appliedAmount?: number
+          appliedDate?: string
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          discountAmount?: number
+          fxGainLossAmount?: number
+          id?: string
+          invoiceExchangeRate?: number
+          paymentExchangeRate?: number
+          paymentId?: string
+          purchaseInvoiceId?: string | null
+          salesInvoiceId?: string | null
+          writeOffAmount?: number
+        }
+        Relationships: []
+      }
       paymentTerm: {
         Row: {
           active: boolean
@@ -27045,46 +27180,6 @@ export type Database = {
           },
         ]
       }
-      purchaseInvoicePaymentRelation: {
-        Row: {
-          id: string
-          invoiceId: string
-          paymentId: string
-        }
-        Insert: {
-          id?: string
-          invoiceId: string
-          paymentId: string
-        }
-        Update: {
-          id?: string
-          invoiceId?: string
-          paymentId?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "purchasePayments_invoiceId_fkey"
-            columns: ["invoiceId"]
-            isOneToOne: false
-            referencedRelation: "purchaseInvoice"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayments_invoiceId_fkey"
-            columns: ["invoiceId"]
-            isOneToOne: false
-            referencedRelation: "purchaseInvoices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayments_paymentId_fkey"
-            columns: ["paymentId"]
-            isOneToOne: false
-            referencedRelation: "purchasePayment"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       purchaseInvoicePriceChange: {
         Row: {
           id: string
@@ -28520,195 +28615,6 @@ export type Database = {
           {
             foreignKeyName: "purchaseOrderTransaction_userId_fkey"
             columns: ["userId"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-        ]
-      }
-      purchasePayment: {
-        Row: {
-          companyId: string
-          createdAt: string
-          createdBy: string
-          currencyCode: string
-          customFields: Json | null
-          exchangeRate: number
-          id: string
-          paymentDate: string | null
-          paymentId: string
-          supplierId: string
-          totalAmount: number
-          updatedAt: string | null
-          updatedBy: string | null
-        }
-        Insert: {
-          companyId: string
-          createdAt?: string
-          createdBy: string
-          currencyCode: string
-          customFields?: Json | null
-          exchangeRate?: number
-          id?: string
-          paymentDate?: string | null
-          paymentId: string
-          supplierId: string
-          totalAmount?: number
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Update: {
-          companyId?: string
-          createdAt?: string
-          createdBy?: string
-          currencyCode?: string
-          customFields?: Json | null
-          exchangeRate?: number
-          id?: string
-          paymentDate?: string | null
-          paymentId?: string
-          supplierId?: string
-          totalAmount?: number
-          updatedAt?: string | null
-          updatedBy?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "purchasePayment_companyId_fkey"
-            columns: ["companyId"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_companyId_fkey"
-            columns: ["companyId"]
-            isOneToOne: false
-            referencedRelation: "company"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_companyId_fkey"
-            columns: ["companyId"]
-            isOneToOne: false
-            referencedRelation: "customFieldTables"
-            referencedColumns: ["companyId"]
-          },
-          {
-            foreignKeyName: "purchasePayment_companyId_fkey"
-            columns: ["companyId"]
-            isOneToOne: false
-            referencedRelation: "integrations"
-            referencedColumns: ["companyId"]
-          },
-          {
-            foreignKeyName: "purchasePayment_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_createdBy_fkey"
-            columns: ["createdBy"]
-            isOneToOne: false
-            referencedRelation: "userDefaults"
-            referencedColumns: ["userId"]
-          },
-          {
-            foreignKeyName: "purchasePayment_currencyCode_fkey"
-            columns: ["currencyCode"]
-            isOneToOne: false
-            referencedRelation: "currencyCode"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "purchasePayment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "contractors"
-            referencedColumns: ["supplierId"]
-          },
-          {
-            foreignKeyName: "purchasePayment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["supplierId"]
-          },
-          {
-            foreignKeyName: "purchasePayment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "purchaseOrderSuppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "supplier"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_supplierId_fkey"
-            columns: ["supplierId"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeesAcrossCompanies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "employeeSummary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_updatedBy_fkey"
-            columns: ["updatedBy"]
-            isOneToOne: false
-            referencedRelation: "user"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchasePayment_updatedBy_fkey"
-            columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
@@ -62563,6 +62469,7 @@ export type Database = {
         | "Maintenance Consumption"
         | "Production Event"
         | "Job Close"
+        | "Payment"
       kanbanOutput: "label" | "qrcode" | "url"
       maintenanceDispatchPriority: "Low" | "Medium" | "High" | "Critical"
       maintenanceDispatchStatus:
@@ -62647,6 +62554,8 @@ export type Database = {
         | "Service"
         | "Consumable"
         | "Fixture"
+      paymentStatus: "Draft" | "Posted" | "Voided"
+      paymentType: "Receipt" | "Disbursement"
       paymentTermCalculationMethod: "Net" | "End of Month" | "Day of Month"
       periodType: "Week" | "Day" | "Month"
       pricingRuleAmountType: "Percentage" | "Fixed"
@@ -63923,6 +63832,8 @@ export const Constants = {
         "Consumable",
         "Fixture",
       ],
+      paymentStatus: ["Draft", "Posted", "Voided"],
+      paymentType: ["Receipt", "Disbursement"],
       paymentTermCalculationMethod: ["Net", "End of Month", "Day of Month"],
       periodType: ["Week", "Day", "Month"],
       pricingRuleAmountType: ["Percentage", "Fixed"],

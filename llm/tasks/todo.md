@@ -84,13 +84,13 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 - Create: `apps/erp/app/modules/invoicing/payments.service.ts`
 - Create: `apps/erp/app/modules/invoicing/payments.models.ts`
 
-- [ ] **Step 3.1: Zod validators** in `payments.models.ts` for `paymentValidator` (the upsert shape), `paymentApplicationValidator`. Mirror the existing invoice validator patterns. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 3.1: Zod validators** in `payments.models.ts` for `paymentValidator` (the upsert shape), `paymentApplicationValidator`. Mirror the existing invoice validator patterns. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 3.2: CRUD service functions**: `getPayment`, `getPaymentsList(filters)`, `upsertPayment` (Draft-only via RLS), `deletePayment` (Draft-only via RLS), `replacePaymentApplications(paymentId, apps[])` (delete-then-insert), `getOpenInvoicesForCustomer`, `getOpenInvoicesForSupplier`. All return `{data, error}`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 3.2: CRUD service functions**: `getPayment`, `getPaymentsList(filters)`, `upsertPayment` (Draft-only via RLS), `deletePayment` (Draft-only via RLS), `replacePaymentApplications(paymentId, apps[])` (delete-then-insert), `getOpenInvoicesForCustomer`, `getOpenInvoicesForSupplier`. All return `{data, error}`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 3.3: Edge function invokers** `postPayment(supabase, paymentId, userId)` and `voidPayment(supabase, paymentId, userId)`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 3.3: Edge function invokers** `postPayment(supabase, paymentId, userId)` and `voidPayment(supabase, paymentId, userId)`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 3.4: Tie-out fetchers** `getArTieOut(client, companyId, asOfDate)` and `getApTieOut(...)` calling the RPCs from Task 5. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 3.4: Tie-out fetchers** `getArTieOut(client, companyId, asOfDate)` and `getApTieOut(...)` calling the RPCs from Task 5. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 ---
 
