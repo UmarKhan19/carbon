@@ -193,7 +193,7 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 **Files:**
 - Create: `apps/erp/app/modules/invoicing/payments.service.test.ts`
 
-- [ ] **Step 10.1: Service tests** covering validator rejection paths, FX `fxGainLossAmount` generated column arithmetic, view `balance` + `status` derivation across all status combinations. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 10.1: Service tests** covering validator rejection paths, FX `fxGainLossAmount` generated column arithmetic, view `balance` + `status` derivation across all status combinations. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 - [ ] **Step 10.2: Manual e2e** (DB reset run by user, not Claude):
   - Seed company + customer + supplier + bank account
