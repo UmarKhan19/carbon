@@ -5,6 +5,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./accounting": "./src/accounting/index.ts",
+    "./business-rules": "./src/businessRules/index.ts",
+    "./business-rules.server": "./src/businessRules/server.ts",
     "./exchange-rates.server": "./src/exchange-rates/exchange-rates.server.ts",
     "./jira": "./src/jira/lib/index.ts",
     "./jira.server": "./src/jira/lib/index.server.ts",

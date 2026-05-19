@@ -200,9 +200,6 @@ msgstr "Periodo di Accumulo (Settimane)"
 msgid "Accumulation Period:"
 msgstr "Periodo di Accumulo:"
 
-msgid "Acknowledge & continue"
-msgstr "Riconosci e continua"
-
 msgid "Action Items"
 msgstr "Elementi di azione"
 
@@ -487,6 +484,15 @@ msgstr "Chiavi API per l'accesso programmatico ai tuoi dati Carbon."
 
 msgid "Applies to"
 msgstr "Si applica a"
+
+msgid "Applies to all items"
+msgstr ""
+
+msgid "Applies to all storage units"
+msgstr ""
+
+msgid "Applies to all work centers"
+msgstr ""
 
 msgid "Apply pricing rules"
 msgstr "Applica regole di prezzo"
@@ -1069,6 +1075,9 @@ msgstr "Importazione in blocco"
 
 msgid "Bulk Jobs"
 msgstr "Lavori in Blocco"
+
+msgid "Business Rules"
+msgstr ""
 
 msgid "Buy"
 msgstr "Acquista"
@@ -2991,9 +3000,6 @@ msgstr "Errore nella rimozione del modello dalla riga dell'ordine di vendita"
 
 msgid "Error validating serial number"
 msgstr "Errore durante la convalida del numero di serie"
-
-msgid "Errors"
-msgstr "Errori"
 
 msgid "Escalation"
 msgstr "Escalation"
@@ -6329,9 +6335,6 @@ msgstr "La regola si applica a ogni articolo."
 msgid "Rule Type"
 msgstr "Tipo di Regola"
 
-msgid "Rule Violation"
-msgstr "Violazione della regola"
-
 msgid "Rules"
 msgstr "Regole"
 
@@ -7739,6 +7742,9 @@ msgstr "Cestino"
 msgid "Trial Balance"
 msgstr "Bilancia di Verifica"
 
+msgid "Triggers"
+msgstr ""
+
 msgid "Tuesday"
 msgstr "MartedÃƒÆ’Ã‚Â¬"
 
@@ -8176,9 +8182,6 @@ msgstr "Avvisa quando la persona che ispeziona un articolo in entrata ÃƒÆ’�
 msgid "Warning"
 msgstr "Avvertenza"
 
-msgid "Warnings"
-msgstr "Avvisi"
-
 msgid "Watch full video"
 msgstr "Guarda il video completo"
 
@@ -8238,6 +8241,9 @@ msgstr "Quando la durata di conservazione di un prodotto finito ÃƒÆ’Ã‚Â
 
 msgid "When expired stock is used"
 msgstr "Quando viene utilizzato stock scaduto"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr ""
 
 msgid "Who Can Approve"
 msgstr "Chi PuÃƒÆ’Ã‚Â² Approvare"

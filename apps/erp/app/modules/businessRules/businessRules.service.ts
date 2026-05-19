@@ -1,0 +1,141 @@
+// ERP-only admin CRUD for the Settings → Business Rules page.
+// Cross-app queries (assignment loaders, list fetch for tab data, polymorphic
+// assign/unassign) live in `@carbon/ee/business-rules`.
+
+import type { Database, Json } from "@carbon/database";
+import type {
+  ConditionAst,
+  Severity,
+  TargetType,
+  TransactionSurface
+} from "@carbon/utils";
+import { getLocalTimeZone, now } from "@internationalized/date";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { GenericQueryFilters } from "~/utils/query";
+import { setGenericQueryFilters } from "~/utils/query";
+import { sanitize } from "~/utils/supabase";
+
+type BusinessRuleInsert = {
+  name: string;
+  description?: string | null;
+  message: string;
+  severity: Severity;
+  conditionAst: ConditionAst;
+  surfaces: TransactionSurface[];
+  targetType: TargetType;
+  appliesToAll: boolean;
+  active: boolean;
+  companyId: string;
+  createdBy: string;
+  customFields?: Json;
+};
+
+type BusinessRuleUpdate = {
+  id: string;
+  name: string;
+  description?: string | null;
+  message: string;
+  severity: Severity;
+  conditionAst: ConditionAst;
+  surfaces: TransactionSurface[];
+  appliesToAll: boolean;
+  active: boolean;
+  updatedBy: string;
+  customFields?: Json;
+};
+
+export async function getBusinessRules(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args?: GenericQueryFilters & {
+    search: string | null;
+    targetType?: TargetType | null;
+  }
+) {
+  let query = client
+    .from("businessRule")
+    .select("*", { count: "exact" })
+    .eq("companyId", companyId);
+
+  if (args?.search) {
+    query = query.ilike("name", `%${args.search}%`);
+  }
+  if (args?.targetType) {
+    query = query.eq("targetType", args.targetType);
+  }
+
+  query = setGenericQueryFilters(query, args ?? {}, [
+    { column: "name", ascending: true }
+  ]);
+  return query;
+}
+
+export async function getBusinessRule(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("businessRule").select("*").eq("id", id).single();
+}
+
+export async function upsertBusinessRule(
+  client: SupabaseClient<Database>,
+  rule: BusinessRuleInsert | BusinessRuleUpdate
+) {
+  if ("createdBy" in rule) {
+    return client
+      .from("businessRule")
+      .insert({ ...rule, conditionAst: rule.conditionAst as unknown as Json })
+      .select("id")
+      .single();
+  }
+  return client
+    .from("businessRule")
+    .update({
+      ...sanitize(rule),
+      conditionAst: rule.conditionAst as unknown as Json,
+      updatedAt: now(getLocalTimeZone()).toAbsoluteString()
+    })
+    .eq("id", rule.id)
+    .select("id")
+    .single();
+}
+
+export async function deleteBusinessRule(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("businessRule").delete().eq("id", id);
+}
+
+export async function getRuleAssignmentCounts(
+  client: SupabaseClient<Database>,
+  ruleIds: string[]
+) {
+  // Counts span all three assignment tables. Each rule lives in exactly one
+  // (rule.targetType drives the table); union of single-table counts is correct.
+  if (ruleIds.length === 0) return { data: {}, error: null };
+
+  const counts: Record<string, number> = {};
+  const tables: Array<
+    | "businessRuleItemAssignment"
+    | "businessRuleStorageUnitAssignment"
+    | "businessRuleWorkCenterAssignment"
+  > = [
+    "businessRuleItemAssignment",
+    "businessRuleStorageUnitAssignment",
+    "businessRuleWorkCenterAssignment"
+  ];
+
+  for (const table of tables) {
+    const { data, error } = await (client as SupabaseClient<Database>)
+      .from(table)
+      .select("ruleId")
+      .in("ruleId", ruleIds);
+    if (error) return { data: {}, error };
+    for (const row of (data ?? []) as Array<{ ruleId: string }>) {
+      counts[row.ruleId] = (counts[row.ruleId] ?? 0) + 1;
+    }
+  }
+
+  return { data: counts, error: null };
+}

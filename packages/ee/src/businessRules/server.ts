@@ -1,12 +1,10 @@
-// Server-side item-rules service. Single entry point for trigger surfaces
-// (receipt / shipment / stock-transfer / inventory adjustment), plan gate,
-// and the per-item Rules-tab loader.
+// Server-side business-rules evaluator. Cross-app entry point — ERP
+// (item/storageUnit surfaces) and MES (workCenter surfaces) both call
+// `evaluateLinesForSurface`.
 //
 // All functions here are server-only. Never import from a client module.
 
-import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
-import { companyHasPlan } from "@carbon/ee/plan.server";
 import {
   type CompiledRule,
   type Condition,
@@ -16,20 +14,18 @@ import {
   getFieldDef,
   type RuleContext,
   type Severity,
+  type TargetType,
   type TransactionSurface,
   type ValueOptionsLoader,
   type Violation
 } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { LoaderFunctionArgs } from "react-router";
-import { getStorageTypesList } from "~/modules/inventory";
-import { getLocationsList } from "~/modules/resources";
+import { companyHasPlan } from "../plan.server";
 import {
-  getActiveRulesForItems,
-  getItemPostingGroupsList,
-  getItemRulesList,
-  getRuleAssignmentsForItem
-} from "./items.service";
+  getActiveRulesForTargets,
+  getBusinessRulesList,
+  getRuleAssignmentsForTarget
+} from "./service";
 
 type Client = SupabaseClient<Database>;
 
@@ -37,11 +33,11 @@ type Client = SupabaseClient<Database>;
 // Plan gate
 // ---------------------------------------------------------------------------
 
-export const isItemRulesEnabledForCompany = (
+export const isBusinessRulesEnabledForCompany = (
   client: Client,
   companyId: string
 ): Promise<boolean> =>
-  companyHasPlan(client, companyId, { feature: "ITEM_RULES" });
+  companyHasPlan(client, companyId, { feature: "BUSINESS_RULES" });
 
 // ---------------------------------------------------------------------------
 // Block decision
@@ -59,11 +55,9 @@ export const isBlocked = (
 };
 
 /**
- * Collapse violations by `ruleId + message`. Same rule firing on N lines or
- * across N surfaces (e.g. shipment + warehouseTransfer when posting an
- * outbound transfer) yields N copies — operator only needs to see one.
- * `evaluateLinesForSurface` dedups its own output; use this when a caller
- * accumulates results from multiple `evaluateLinesForSurface` invocations.
+ * Collapse violations by `ruleId + message`. Call when accumulating results
+ * from multiple `evaluateLinesForSurface` invocations (e.g. item pass +
+ * storageUnit pass on the same receipt).
  */
 export const dedupeViolations = (violations: Violation[]): Violation[] => {
   const seen = new Set<string>();
@@ -79,35 +73,34 @@ export const dedupeViolations = (violations: Violation[]): Violation[] => {
 };
 
 // ---------------------------------------------------------------------------
-// Per-item Rules tab data (loader helper)
+// Per-target Rules tab data (loader helper)
 // ---------------------------------------------------------------------------
 
 type AssignedRuleNode = {
   id: string;
   name: string;
+  targetType: TargetType;
   severity: Severity;
   message: string;
   active: boolean;
   surfaces: TransactionSurface[];
+  appliesToAll: boolean;
 };
 
-export async function getItemRulesDataForItem(
+export async function getBusinessRulesDataForTarget(
   client: Client,
-  itemId: string,
-  companyId: string
+  args: { targetType: TargetType; targetId: string; companyId: string }
 ) {
   const [assignmentsRes, libraryRes] = await Promise.all([
-    getRuleAssignmentsForItem(client, itemId, companyId),
-    getItemRulesList(client, companyId)
+    getRuleAssignmentsForTarget(client, args),
+    getBusinessRulesList(client, args.companyId, args.targetType)
   ]);
 
   const assignments: { ruleId: string; rule: AssignedRuleNode }[] = [];
   for (const row of assignmentsRes.data ?? []) {
-    // Supabase returns joined relation as object or single-element array
-    // depending on FK shape. Normalise once.
     const joined = (
-      row as { itemRule: AssignedRuleNode | AssignedRuleNode[] | null }
-    ).itemRule;
+      row as { businessRule: AssignedRuleNode | AssignedRuleNode[] | null }
+    ).businessRule;
     const rule = Array.isArray(joined) ? joined[0] : joined;
     if (!rule) continue;
     assignments.push({ ruleId: row.ruleId as string, rule });
@@ -116,43 +109,19 @@ export async function getItemRulesDataForItem(
   return { assignments, library: libraryRes.data ?? [] };
 }
 
-export async function loadRulesTabData({
-  request,
-  itemId
-}: {
-  request: LoaderFunctionArgs["request"];
-  itemId: string;
-}) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "parts",
-    role: "employee"
-  });
-  return getItemRulesDataForItem(client, itemId, companyId);
-}
-
 // ---------------------------------------------------------------------------
 // Compile
 // ---------------------------------------------------------------------------
 
-/**
- * Batch-load + compile rules for many items in one round-trip. The compiled
- * cache (`compileWithCache`) deduplicates across requests so identical rules
- * compile once per process.
- */
-async function loadCompiledRulesForItems(
+async function loadCompiledRulesForTargets(
   client: Client,
-  itemIds: string[],
-  companyId: string
+  args: { targetType: TargetType; targetIds: string[]; companyId: string }
 ): Promise<Map<string, CompiledRule[]>> {
   const out = new Map<string, CompiledRule[]>();
-  if (itemIds.length === 0) return out;
+  if (args.targetIds.length === 0) return out;
 
-  const { data: byItem } = await getActiveRulesForItems(
-    client,
-    itemIds,
-    companyId
-  );
-  for (const [itemId, rows] of byItem) {
+  const { data: byTarget } = await getActiveRulesForTargets(client, args);
+  for (const [targetId, rows] of byTarget) {
     const compiled = new Array<CompiledRule>(rows.length);
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]!;
@@ -161,7 +130,7 @@ async function loadCompiledRulesForItems(
         conditionAst: row.conditionAst as ConditionAst
       });
     }
-    out.set(itemId, compiled);
+    out.set(targetId, compiled);
   }
   return out;
 }
@@ -175,11 +144,23 @@ type LoaderFn = (
   companyId: string
 ) => Promise<{ id: string; name: string }[]>;
 
+// Inline-table loaders. Each pulls (id, name) for one entity type scoped by
+// company. No ERP-app-utils dependency — keeps this file portable across apps.
 const LOADERS: Record<ValueOptionsLoader, LoaderFn | null> = {
-  locations: async (c, id) => (await getLocationsList(c, id)).data ?? [],
-  storageTypes: async (c, id) => (await getStorageTypesList(c, id)).data ?? [],
-  itemPostingGroups: async (c, id) =>
-    (await getItemPostingGroupsList(c, id)).data ?? [],
+  locations: async (c, id) => {
+    const { data } = await c
+      .from("location")
+      .select("id, name")
+      .eq("companyId", id);
+    return (data ?? []) as { id: string; name: string }[];
+  },
+  storageTypes: async (c, id) => {
+    const { data } = await c
+      .from("storageType")
+      .select("id, name")
+      .eq("companyId", id);
+    return (data ?? []) as { id: string; name: string }[];
+  },
   // Static enums — value is already the label.
   itemTypes: null,
   replenishmentSystems: null,
@@ -188,11 +169,6 @@ const LOADERS: Record<ValueOptionsLoader, LoaderFn | null> = {
 
 const EMPTY_RESOLVER = (): undefined => undefined;
 
-/**
- * Build a synchronous `(cond) => label` resolver. Pre-fetches every distinct
- * loader referenced by an `id`-typed condition in one parallel batch, then
- * returns a closure that hits memory only.
- */
 async function buildConditionValueResolver(
   client: Client,
   companyId: string,
@@ -252,30 +228,43 @@ async function buildConditionValueResolver(
 }
 
 // ---------------------------------------------------------------------------
-// Per-line evaluator — the single entry point trigger handlers call
+// Per-line evaluator — single entry point trigger handlers call
 // ---------------------------------------------------------------------------
 
 export type RuleLineInput = {
   /** Diagnostic identifier — not used in eval. */
   lineId: string;
-  /** Item the line operates on. `null` lines are skipped. */
-  itemId: string | null;
-  /** Storage unit being interacted with. `null` → `storageUnit.*` resolves to undefined. */
-  storageUnitId: string | null;
+  /**
+   * Item the line operates on. Required when `targetType === "item"`.
+   * Available for context in storageUnit/workCenter passes too.
+   */
+  itemId?: string | null;
+  /** Storage unit being interacted with. */
+  storageUnitId?: string | null;
+  /** Work center being operated. Required when `targetType === "workCenter"`. */
+  workCenterId?: string | null;
+  /** Operation context for workCenter passes. */
+  operation?: {
+    id?: string | null;
+    itemId?: string | null;
+    quantity?: number | null;
+    workInstructionId?: string | null;
+  };
   /** Quantity for `transaction.quantity` predicates. */
   quantity: number;
-  /**
-   * Location stamped on the transaction. When `null`, the helper derives one
-   * from the storage unit (if any).
-   */
   locationId?: string | null;
 };
 
 export type EvaluateLinesForSurfaceArgs = {
-  /** Service-role client — `item` / `storageUnit` reads bypass RLS. */
   client: Client;
   companyId: string;
   userId: string;
+  /**
+   * Which targetType the call is evaluating. Surfaces that apply to multiple
+   * targetTypes (e.g. `stockTransfer`) require one call per targetType — the
+   * caller concatenates and `dedupeViolations`-es results.
+   */
+  targetType: TargetType;
   surface: TransactionSurface;
   lines: RuleLineInput[];
 };
@@ -296,46 +285,77 @@ type ItemCtxRow = Record<string, unknown> & {
 type StorageUnitCtxRow = Record<string, unknown> & {
   locationId?: string | null;
 };
+type WorkCenterCtxRow = Record<string, unknown>;
+
+const lineTargetIdFor = (
+  line: RuleLineInput,
+  targetType: TargetType
+): string | null => {
+  switch (targetType) {
+    case "item":
+      return line.itemId ?? null;
+    case "storageUnit":
+      return line.storageUnitId ?? null;
+    case "workCenter":
+      return line.workCenterId ?? null;
+  }
+};
 
 export async function evaluateLinesForSurface({
   client,
   companyId,
   userId,
+  targetType,
   surface,
   lines
 }: EvaluateLinesForSurfaceArgs): Promise<EvaluateLinesForSurfaceResult> {
   if (lines.length === 0) return EMPTY_RESULT;
-  if (!(await isItemRulesEnabledForCompany(client, companyId)))
+  if (!(await isBusinessRulesEnabledForCompany(client, companyId)))
     return EMPTY_RESULT;
 
-  // Single-pass extraction of unique itemIds + storageUnitIds. Avoids two
-  // `pluckUnique` calls + intermediate arrays.
+  const targetIds = new Set<string>();
   const itemIds = new Set<string>();
   const storageUnitIds = new Set<string>();
+  const workCenterIds = new Set<string>();
   for (const line of lines) {
+    const tid = lineTargetIdFor(line, targetType);
+    if (tid) targetIds.add(tid);
     if (line.itemId) itemIds.add(line.itemId);
     if (line.storageUnitId) storageUnitIds.add(line.storageUnitId);
+    if (line.workCenterId) workCenterIds.add(line.workCenterId);
+    if (line.operation?.itemId) itemIds.add(line.operation.itemId);
   }
-  if (itemIds.size === 0) return EMPTY_RESULT;
+  if (targetIds.size === 0) return EMPTY_RESULT;
 
-  const [itemsRes, storageUnitsRes, compiledByItem] = await Promise.all([
-    client
-      .from("item")
-      .select(
-        "id, type, replenishmentSystem, itemTrackingType, name, readableId"
-      )
-      .in("id", Array.from(itemIds)),
-    storageUnitIds.size > 0
-      ? client
-          .from("storageUnit")
-          .select("id, storageTypeIds, warehouseId, name, locationId")
-          .in("id", Array.from(storageUnitIds))
-      : Promise.resolve({ data: [], error: null }),
-    loadCompiledRulesForItems(client, Array.from(itemIds), companyId)
-  ]);
+  const [itemsRes, storageUnitsRes, workCentersRes, compiledByTarget] =
+    await Promise.all([
+      itemIds.size > 0
+        ? client
+            .from("item")
+            .select(
+              "id, type, replenishmentSystem, itemTrackingType, name, readableId, customFields"
+            )
+            .in("id", Array.from(itemIds))
+        : Promise.resolve({ data: [], error: null }),
+      storageUnitIds.size > 0
+        ? client
+            .from("storageUnit")
+            .select("id, storageTypeIds, warehouseId, name, locationId")
+            .in("id", Array.from(storageUnitIds))
+        : Promise.resolve({ data: [], error: null }),
+      workCenterIds.size > 0
+        ? client
+            .from("workCenter")
+            .select("id, locationId, active, name")
+            .in("id", Array.from(workCenterIds))
+        : Promise.resolve({ data: [], error: null }),
+      loadCompiledRulesForTargets(client, {
+        targetType,
+        targetIds: Array.from(targetIds),
+        companyId
+      })
+    ]);
 
-  // Item ctx exposes `readableId` as `id` so templates can render `{item.id}`
-  // as "PART-001" (not the UUID). Predicates never reference UUID directly.
   const itemsById = new Map<string, ItemCtxRow>();
   for (const it of itemsRes.data ?? []) {
     const row = it as Record<string, unknown>;
@@ -346,34 +366,33 @@ export async function evaluateLinesForSurface({
     });
   }
 
-  // Expose the full `storageTypeIds[]` under the synthetic `storageTypeId`
-  // field (FIELD_REGISTRY entry is named singular for legacy reasons). Array
-  // shape lets the operator helpers do "any of" matching against rule values
-  // — a unit configured as both Hot + Cool should satisfy `in [Cool]`.
   const unitsById = new Map<string, StorageUnitCtxRow>();
   for (const u of storageUnitsRes.data ?? []) {
     const row = u as Record<string, unknown>;
     const ids = row.storageTypeIds as string[] | null | undefined;
     unitsById.set(row.id as string, {
       ...row,
-      // Empty/null → undefined so `isNotSet` fires correctly, otherwise the
-      // full array so the operator helpers handle "any of" semantics.
       storageTypeId: ids && ids.length > 0 ? ids : undefined
     });
   }
 
-  // One eager DB pass for label maps. Build the condition list with a single
-  // generator so we never allocate an intermediate flat array.
+  const wcById = new Map<string, WorkCenterCtxRow>();
+  for (const w of workCentersRes.data ?? []) {
+    const row = w as Record<string, unknown>;
+    wcById.set(row.id as string, { ...row });
+  }
+
   const resolveConditionValue = await buildConditionValueResolver(
     client,
     companyId,
-    iterateConditions(compiledByItem)
+    iterateConditions(compiledByTarget)
   );
 
   const violations: Violation[] = [];
   for (const line of lines) {
-    if (!line.itemId) continue;
-    const compiled = compiledByItem.get(line.itemId);
+    const targetId = lineTargetIdFor(line, targetType);
+    if (!targetId) continue;
+    const compiled = compiledByTarget.get(targetId);
     if (!compiled || compiled.length === 0) continue;
 
     const storageUnit = line.storageUnitId
@@ -381,8 +400,17 @@ export async function evaluateLinesForSurface({
       : undefined;
 
     const ctx: RuleContext = {
-      item: itemsById.get(line.itemId),
+      item: line.itemId ? itemsById.get(line.itemId) : undefined,
       storageUnit,
+      workCenter: line.workCenterId ? wcById.get(line.workCenterId) : undefined,
+      operation: line.operation
+        ? {
+            id: line.operation.id ?? undefined,
+            itemId: line.operation.itemId ?? undefined,
+            quantity: line.operation.quantity ?? undefined,
+            workInstructionId: line.operation.workInstructionId ?? undefined
+          }
+        : undefined,
       transaction: {
         kind: surface,
         locationId: line.locationId ?? storageUnit?.locationId ?? null,
@@ -399,30 +427,16 @@ export async function evaluateLinesForSurface({
     }
   }
 
-  // Dedup. Same item + same rule across N lines yields N identical violations
-  // (e.g. 3 shipment lines of "Frozen peas" all break "Hot only"). Operator
-  // doesn't need to see the same message thrice — collapse by ruleId+message.
-  const seen = new Set<string>();
-  const deduped: Violation[] = [];
-  for (let i = 0; i < violations.length; i++) {
-    const v = violations[i]!;
-    const key = `${v.ruleId}\x00${v.message}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    deduped.push(v);
-  }
-
+  const deduped = dedupeViolations(violations);
   if (deduped.length === 0) {
     return { violations: deduped, ruleNames: {} };
   }
 
-  // Resolve human-readable rule names for the violations modal.
   const violatedIds = new Set<string>();
-  for (let i = 0; i < violations.length; i++)
-    violatedIds.add(violations[i]!.ruleId);
+  for (let i = 0; i < deduped.length; i++) violatedIds.add(deduped[i]!.ruleId);
 
   const { data: namedRules } = await client
-    .from("itemRule")
+    .from("businessRule")
     .select("id, name")
     .in("id", Array.from(violatedIds));
 
@@ -431,14 +445,13 @@ export async function evaluateLinesForSurface({
     ruleNames[r.id as string] = r.name as string;
   }
 
-  return { violations, ruleNames };
+  return { violations: deduped, ruleNames };
 }
 
-/** Lazy-iterate every condition across every compiled rule. No allocations. */
 function* iterateConditions(
-  compiledByItem: Map<string, CompiledRule[]>
+  compiledByTarget: Map<string, CompiledRule[]>
 ): Generator<Condition> {
-  for (const rules of compiledByItem.values()) {
+  for (const rules of compiledByTarget.values()) {
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i]!;
       const conds = rule.conditions;

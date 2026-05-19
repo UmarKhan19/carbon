@@ -1,6 +1,11 @@
-// Item Rules evaluator. AST → JIT-compiled closure with LRU cache.
+// Business Rules evaluator. AST → JIT-compiled closure with LRU cache.
 // Used server-side on transactions (receipt, shipment, stock transfer,
-// inventory adjustment) to enforce per-item validation/guideline rules.
+// inventory adjustment, putaway, pick, operation start/finish, material
+// issue/receive) to enforce per-entity validation/guideline rules.
+//
+// Each rule binds to a single `TargetType` (`item`, `storageUnit`, or
+// `workCenter`). The field registry is partitioned by `targetType` so the
+// builder UI only surfaces fields valid for the chosen target.
 
 export type Operator =
   | "eq"
@@ -13,6 +18,14 @@ export type Operator =
   | "lt";
 
 export type Severity = "error" | "warn";
+
+/**
+ * Which entity a rule applies to. Drives the field registry slice the
+ * builder shows the author, and the assignment table the loader joins.
+ * Mirrors the Postgres ENUM `businessRuleTargetType`.
+ */
+export const TARGET_TYPES = ["item", "storageUnit", "workCenter"] as const;
+export type TargetType = (typeof TARGET_TYPES)[number];
 
 /**
  * Transaction surfaces a rule may opt into. Mirrors the Postgres ENUM
@@ -29,9 +42,44 @@ export const TRANSACTION_SURFACES = [
   "shipment",
   "stockTransfer",
   "warehouseTransfer",
-  "inventoryAdjustment"
+  "inventoryAdjustment",
+  "putaway",
+  "pick",
+  "operationStart",
+  "operationFinish",
+  "materialIssue",
+  "materialReceive"
 ] as const;
 export type TransactionSurface = (typeof TRANSACTION_SURFACES)[number];
+
+/**
+ * Which surfaces are valid for each target type. The form validator narrows
+ * a rule's `surfaces` array against this map; the evaluator skips surfaces
+ * a rule didn't subscribe to.
+ *
+ * Transfer surfaces (`stockTransfer`, `warehouseTransfer`) apply to both
+ * `item` and `storageUnit` targets — the integration call sites pass each
+ * targetType separately, the engine filters by surface intersection.
+ */
+export const SURFACES_BY_TARGET_TYPE: Record<
+  TargetType,
+  readonly TransactionSurface[]
+> = {
+  item: [
+    "receipt",
+    "shipment",
+    "stockTransfer",
+    "warehouseTransfer",
+    "inventoryAdjustment"
+  ],
+  storageUnit: ["putaway", "pick", "stockTransfer", "warehouseTransfer"],
+  workCenter: [
+    "operationStart",
+    "operationFinish",
+    "materialIssue",
+    "materialReceive"
+  ]
+};
 
 export type Condition = {
   field: string;
@@ -61,18 +109,22 @@ export type RuleContext = {
   item?: Record<string, unknown> & { customFields?: Record<string, unknown> };
   shelf?: Record<string, unknown>;
   storageUnit?: Record<string, unknown>;
+  workCenter?: Record<string, unknown>;
+  operation?: Record<string, unknown>;
   transaction?: Record<string, unknown>;
 };
 
-export type ItemRuleRow = {
+export type BusinessRuleRow = {
   id: string;
+  targetType: TargetType;
   severity: Severity;
   message: string;
   conditionAst: ConditionAst;
   /**
    * Surfaces this rule applies to. Empty arrays are not allowed at the DB
    * level (CHECK constraint); treat missing/empty client-side as "all
-   * surfaces" for forward-compat with rules created before the migration.
+   * surfaces for this targetType" for forward-compat with rules created
+   * before the migration.
    */
   surfaces?: TransactionSurface[];
   updatedAt?: string | null;
@@ -81,22 +133,11 @@ export type ItemRuleRow = {
 
 export type CompiledRule = {
   id: string;
+  targetType: TargetType;
   severity: Severity;
   rawMessage: string;
   surfaces: TransactionSurface[];
-  /**
-   * Raw condition list — kept on the compiled rule so message templates can
-   * reference `{condition[N].field|operator|value}` at eval time without
-   * round-tripping back to the AST row.
-   */
   conditions: Condition[];
-  /**
-   * Pre-bound resolvers for every condition whose op is NOT a presence-aware
-   * operator (`isSet`/`isNotSet`). Evaluator runs these BEFORE the predicate;
-   * any null / undefined / empty-string field hit short-circuits the rule
-   * to a "field is required" violation. Lets authors declare contracts at
-   * the condition level — referencing a field implies it must be set.
-   */
   requiredFieldChecks: {
     field: string;
     resolve: (ctx: RuleContext) => unknown;
@@ -110,7 +151,14 @@ export type CompiledRule = {
 
 type Resolver = (ctx: RuleContext) => unknown;
 
-const ROOT_KEYS = new Set(["item", "shelf", "storageUnit", "transaction"]);
+const ROOT_KEYS = new Set([
+  "item",
+  "shelf",
+  "storageUnit",
+  "workCenter",
+  "operation",
+  "transaction"
+]);
 
 const buildResolver = (path: string): Resolver => {
   const segments = path.split(".");
@@ -133,10 +181,6 @@ const buildResolver = (path: string): Resolver => {
 
 const isNullish = (v: unknown): boolean => v === null || v === undefined;
 
-// Array-left helpers: treat the field's resolved array as "any of these
-// elements". Lets storage-unit fields with multiple types (e.g.
-// `storageUnit.storageTypeId` flattened from `storageTypeIds[]`) participate
-// in `eq` / `in` semantics naturally.
 const eqAnyArrayLeft = (l: unknown[], r: unknown): boolean => {
   for (let i = 0; i < l.length; i++) if (l[i] === r) return true;
   return false;
@@ -174,8 +218,6 @@ const compileCondition = (cond: Condition): ((ctx: RuleContext) => boolean) => {
   const op = operatorFns[cond.op];
   if (!op) return () => false;
   const value = cond.value;
-  // Bind everything at compile time. Closure shape is monomorphic per Operator
-  // (single property access pattern, single equality check), keeping V8 happy.
   return (ctx) => op(resolve(ctx), value);
 };
 
@@ -185,7 +227,6 @@ const compilePredicate = (
   if (!ast || !Array.isArray(ast.conditions)) return () => false;
   const kind = ast.kind;
   if (kind !== "all" && kind !== "any" && kind !== "none") return () => false;
-  // Vacuous-truth handling: empty `all` = true, empty `any`/`none` = false/true.
   if (ast.conditions.length === 0) {
     return kind === "all" || kind === "none" ? () => true : () => false;
   }
@@ -206,7 +247,6 @@ const compilePredicate = (
       return false;
     };
   }
-  // none — no condition may be true
   return (ctx) => {
     for (let i = 0; i < fns.length; i++) {
       if (fns[i]!(ctx)) return false;
@@ -215,16 +255,19 @@ const compilePredicate = (
   };
 };
 
-export const compileRule = (row: ItemRuleRow): CompiledRule => ({
+const defaultSurfacesFor = (
+  targetType: TargetType
+): readonly TransactionSurface[] => SURFACES_BY_TARGET_TYPE[targetType];
+
+export const compileRule = (row: BusinessRuleRow): CompiledRule => ({
   id: row.id,
+  targetType: row.targetType,
   severity: row.severity,
   rawMessage: row.message,
-  // Empty / missing → treat as "all surfaces" (backward-compat for rules
-  // created before the surfaces column existed).
   surfaces:
     row.surfaces && row.surfaces.length > 0
       ? row.surfaces
-      : [...TRANSACTION_SURFACES],
+      : [...defaultSurfacesFor(row.targetType)],
   conditions:
     row.conditionAst && Array.isArray(row.conditionAst.conditions)
       ? row.conditionAst.conditions
@@ -246,9 +289,6 @@ export const compileRule = (row: ItemRuleRow): CompiledRule => ({
 const CACHE_CAP = 256;
 const cache = new Map<string, CompiledRule>();
 
-// FNV-1a 32-bit. Cheap, deterministic, no deps. Used to cache-bust on
-// content changes even if `updatedAt` is missing/stale (e.g. callers that
-// forget to refresh the column on edit).
 const fnv1a = (s: string): string => {
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {
@@ -258,20 +298,19 @@ const fnv1a = (s: string): string => {
   return h.toString(36);
 };
 
-const cacheKey = (row: ItemRuleRow): string => {
-  // Hash the bits that drive compilation output. If any change, the cached
-  // CompiledRule (with its baked-in rawMessage + predicate) is stale.
+const cacheKey = (row: BusinessRuleRow): string => {
+  // Hash bits that drive compilation output, including targetType so two
+  // rules with identical AST but different targets cannot collide.
   const contentHash = fnv1a(
-    `${row.message}|${JSON.stringify(row.conditionAst)}|${(row.surfaces ?? []).join(",")}`
+    `${row.targetType}|${row.message}|${JSON.stringify(row.conditionAst)}|${(row.surfaces ?? []).join(",")}`
   );
   return `${row.id}:${row.updatedAt ?? ""}:${contentHash}`;
 };
 
-export const compileWithCache = (row: ItemRuleRow): CompiledRule => {
+export const compileWithCache = (row: BusinessRuleRow): CompiledRule => {
   const key = cacheKey(row);
   const hit = cache.get(key);
   if (hit) {
-    // Refresh recency: delete + re-insert so the most-recently-used floats to the end.
     cache.delete(key);
     cache.set(key, hit);
     return hit;
@@ -285,24 +324,16 @@ export const compileWithCache = (row: ItemRuleRow): CompiledRule => {
   return compiled;
 };
 
-export const __resetItemRulesCache = (): void => {
+export const __resetBusinessRulesCache = (): void => {
   cache.clear();
 };
 
-export const __itemRulesCacheSize = (): number => cache.size;
+export const __businessRulesCacheSize = (): number => cache.size;
 
 // ---------------------------------------------------------------------------
 // Message interpolation
 // ---------------------------------------------------------------------------
 
-/**
- * Token grammar:
- *   {ctx.dotted.path}                  — resolved against `RuleContext`
- *   {condition[N].field|operator|value} — resolved against the rule's AST
- *
- * Missing/null tokens render as an em-dash so the message stays readable
- * when the rule fires precisely because the field is empty.
- */
 const TOKEN_RE =
   /\{(condition\[\d+\]\.(?:field|operator|value)|[a-zA-Z_][\w.]*)\}/g;
 
@@ -320,14 +351,7 @@ const OPERATOR_LABELS: Record<Operator, string> = {
 };
 
 export type InterpolateMessageOptions = {
-  /** AST conditions for `{condition[N].…}` tokens. Pass `rule.conditions`. */
   conditions?: Condition[];
-  /**
-   * Optional resolver that turns a condition's stored `value` into a
-   * human-friendly string (e.g. UUID → display label for `id`-typed
-   * loaders). Returning `undefined` falls back to a default formatter that
-   * stringifies scalars and joins arrays with `", "`.
-   */
   resolveConditionValue?: (
     cond: Condition,
     index: number
@@ -358,9 +382,6 @@ export const interpolateMessage = (
       if (!cond) return "—";
       switch (prop) {
         case "field":
-          // Read the registry at call time — declarations are hoisted by
-          // the module's eval order, so `getFieldDef` exists by the time
-          // any rule actually fires.
           return getFieldDef(cond.field)?.label ?? cond.field;
         case "operator":
           return OPERATOR_LABELS[cond.op] ?? cond.op;
@@ -385,22 +406,12 @@ export const interpolateMessage = (
 // ---------------------------------------------------------------------------
 
 export type EvaluateRulesOptions = {
-  /**
-   * Resolver for `{condition[N].value}` tokens — typically an async-prefilled
-   * lookup map of `id` → label for loader-backed condition values.
-   */
   resolveConditionValue?: (
     cond: Condition,
     index: number
   ) => string | undefined;
 };
 
-/**
- * Walk a rule's required-field checks. Returns a label of the FIRST field
- * that resolved to null / undefined / empty string, or `null` if every
- * required field is populated. Indexed loop, monomorphic resolver call
- * site — predicate-style hot path that V8 keeps in IC.
- */
 const findFirstMissingRequiredField = (
   rule: CompiledRule,
   ctx: RuleContext
@@ -409,8 +420,6 @@ const findFirstMissingRequiredField = (
   for (let i = 0; i < checks.length; i++) {
     const c = checks[i]!;
     const value = c.resolve(ctx);
-    // Empty array counts as missing — synthetic fields like
-    // `storageUnit.storageTypeId` resolve to `string[]` from `storageTypeIds[]`.
     if (
       value === null ||
       value === undefined ||
@@ -424,7 +433,7 @@ const findFirstMissingRequiredField = (
 };
 
 const buildRequiredFieldMessage = (
-  rule: CompiledRule,
+  _rule: CompiledRule,
   fieldPath: string
 ): string => {
   const label = getFieldDef(fieldPath)?.label ?? fieldPath;
@@ -441,13 +450,8 @@ export const evaluateRules = (
   const resolveConditionValue = opts?.resolveConditionValue;
   for (let i = 0; i < rules.length; i++) {
     const rule = rules[i]!;
-    // Surface gate — skip rules that don't opt into this surface before
-    // touching the predicate. Cheap: 1–4 element array, O(1) in practice.
     if (!rule.surfaces.includes(surface)) continue;
 
-    // Required-field pre-check — referencing a field in a condition implies
-    // that field is part of the rule's contract. Null → hard violation,
-    // skip predicate.
     const missing = findFirstMissingRequiredField(rule, ctx);
     if (missing !== null) {
       out.push({
@@ -458,7 +462,7 @@ export const evaluateRules = (
       continue;
     }
 
-    if (rule.predicate(ctx)) continue; // condition satisfied — no violation
+    if (rule.predicate(ctx)) continue;
     out.push({
       ruleId: rule.id,
       severity: rule.severity,
@@ -475,16 +479,10 @@ export const evaluateRules = (
 // Field resolver registry — single source of truth for builder UI + evaluator
 // ---------------------------------------------------------------------------
 
-// Pull DB row shapes from the generated Supabase types so the registry stays
-// in sync with the schema. Type-only import — no runtime dependency.
 import type { Database } from "@carbon/database";
 
 type Tables = Database["public"]["Tables"];
 
-/**
- * Compile-time check: returns `true` if the column type accepts `null`,
- * else `false`. Used to verify each `dbField` declares the correct nullability.
- */
 type IsNullable<T> = null extends T ? true : false;
 
 type ExpectedNullable<
@@ -499,15 +497,27 @@ export type ValueOptionsLoader =
   | "storageTypes"
   | "itemTypes"
   | "replenishmentSystems"
-  | "itemTrackingTypes"
-  | "itemPostingGroups";
+  | "itemTrackingTypes";
+
+export type FieldContext =
+  | "item"
+  | "storage"
+  | "workCenter"
+  | "operation"
+  | "transaction";
 
 export type FieldDef = {
   path: string;
   label: string;
   type: FieldType;
   operators: Operator[];
-  context: "item" | "storage" | "transaction";
+  context: FieldContext;
+  /**
+   * Which rule `targetType`(s) may reference this field. `"shared"` means
+   * available regardless of targetType — typically used for `transaction.*`
+   * and ctx-style synthetic fields that the trigger handler always supplies.
+   */
+  targetType: TargetType | "shared";
   valueOptionsLoader?: ValueOptionsLoader;
   /**
    * `true` (default) — column is nullable; `isSet`/`isNotSet` are valid.
@@ -523,12 +533,8 @@ const SCALAR_OPS: Operator[] = ["eq", "neq", "isSet", "isNotSet"];
 const ENUM_OPS: Operator[] = ["eq", "neq", "in", "notIn", "isSet", "isNotSet"];
 const ID_OPS: Operator[] = ["eq", "neq", "in", "notIn", "isSet", "isNotSet"];
 const NUMBER_OPS: Operator[] = ["eq", "neq", "gt", "lt", "isSet", "isNotSet"];
+const BOOL_OPS: Operator[] = ["eq", "neq"];
 
-/**
- * Returns the operator subset valid for a field given its DB nullability.
- * Strips `isSet`/`isNotSet` when the field is non-nullable — those ops are
- * meaningless on a NOT NULL column and would always evaluate to a constant.
- */
 export const availableOperators = (def: FieldDef): Operator[] =>
   def.nullable === false
     ? def.operators.filter((op) => !PRESENCE_OPS.has(op))
@@ -537,19 +543,6 @@ export const availableOperators = (def: FieldDef): Operator[] =>
 export const isOperatorAllowed = (def: FieldDef, op: Operator): boolean =>
   availableOperators(def).includes(op);
 
-/**
- * Field declaration helpers. Two flavors:
- *
- * - `fields.database({ table, column, nullable, ... })` — maps 1:1 to a real
- *   DB column. Nullability is **enforced at compile time** against
- *   `Database["public"]["Tables"][T]["Row"][C]`. Schema drift = TS error.
- *   Path is derived as `${ctxKey ?? table}.${column}`.
- *
- * - `fields.synthetic({ path, derivedFrom, nullable, ... })` — no direct DB
- *   column (e.g. `transaction.*` is built per-trigger; `item.itemPostingGroupId`
- *   is denormalised from a join). Nullability is asserted by hand; document
- *   the runtime source in `derivedFrom`.
- */
 const fields = {
   database: <
     T extends keyof Tables,
@@ -558,11 +551,12 @@ const fields = {
   >(args: {
     table: T;
     column: C;
-    nullable: N; // ← must equal ExpectedNullable<T, C> or TS errors
+    nullable: N;
     label: string;
     type: FieldType;
     operators: Operator[];
-    context: FieldDef["context"];
+    context: FieldContext;
+    targetType: FieldDef["targetType"];
     ctxKey?: string;
     valueOptionsLoader?: ValueOptionsLoader;
   }): FieldDef => ({
@@ -571,6 +565,7 @@ const fields = {
     type: args.type,
     operators: args.operators,
     context: args.context,
+    targetType: args.targetType,
     valueOptionsLoader: args.valueOptionsLoader,
     nullable: args.nullable
   }),
@@ -582,7 +577,8 @@ const fields = {
     label: string;
     type: FieldType;
     operators: Operator[];
-    context: FieldDef["context"];
+    context: FieldContext;
+    targetType: FieldDef["targetType"];
     valueOptionsLoader?: ValueOptionsLoader;
   }): FieldDef => ({
     path: args.path,
@@ -590,13 +586,28 @@ const fields = {
     type: args.type,
     operators: args.operators,
     context: args.context,
+    targetType: args.targetType,
     valueOptionsLoader: args.valueOptionsLoader,
     nullable: args.nullable
   })
 };
 
+// FIELD_REGISTRY holds ONLY fields the evaluator guarantees in ctx for every
+// surface within a given targetType. Fields that may be null or are only
+// populated for a subset of surfaces are intentionally excluded — rule
+// authors should never write a predicate that silently no-ops on some surface.
+//
+// Dropped vs. earlier drafts (kept here as audit trail):
+//   - item.itemPostingGroupId  → evaluator SELECT doesn't include the join
+//   - shelf.locationId         → `shelf` is not a RuleContext root key
+//   - storageUnit.* (item target) → storageUnit ctx only loaded when
+//                                   line.storageUnitId is set; inventoryAdjustment
+//                                   may omit it
+//   - transaction.locationId   → sometimes null per surface
+//   - operation.itemId         → null at operationStart (no item bound yet)
+//   - operation.workInstructionId → may be null on operations
 export const FIELD_REGISTRY: FieldDef[] = [
-  // ── Item ──────────────────────────────────────────────────────────────────
+  // ── Item target ───────────────────────────────────────────────────────────
   fields.database({
     table: "item",
     column: "type",
@@ -605,6 +616,7 @@ export const FIELD_REGISTRY: FieldDef[] = [
     type: "enum",
     operators: ENUM_OPS,
     context: "item",
+    targetType: "item",
     valueOptionsLoader: "itemTypes"
   }),
   fields.database({
@@ -615,6 +627,7 @@ export const FIELD_REGISTRY: FieldDef[] = [
     type: "enum",
     operators: ENUM_OPS,
     context: "item",
+    targetType: "item",
     valueOptionsLoader: "replenishmentSystems"
   }),
   fields.database({
@@ -625,30 +638,13 @@ export const FIELD_REGISTRY: FieldDef[] = [
     type: "enum",
     operators: ENUM_OPS,
     context: "item",
+    targetType: "item",
     valueOptionsLoader: "itemTrackingTypes"
   }),
-  fields.synthetic({
-    path: "item.itemPostingGroupId",
-    derivedFrom: "itemCost.itemPostingGroupId (denormalised into ctx.item)",
-    nullable: true,
-    label: "Item posting group",
-    type: "id",
-    operators: ID_OPS,
-    context: "item",
-    valueOptionsLoader: "itemPostingGroups"
-  }),
 
-  // ── Storage ───────────────────────────────────────────────────────────────
-  fields.synthetic({
-    path: "shelf.locationId",
-    derivedFrom: "storageUnit.locationId via shelfId join (no `shelf` table)",
-    nullable: false,
-    label: "Shelf location",
-    type: "id",
-    operators: ID_OPS,
-    context: "storage",
-    valueOptionsLoader: "locations"
-  }),
+  // ── StorageUnit target ────────────────────────────────────────────────────
+  // storageUnit is the target — always loaded by the evaluator. All three
+  // fields are columns on `storageUnit` (or derived from its array column).
   fields.synthetic({
     path: "storageUnit.storageTypeId",
     derivedFrom: "first element of storageUnit.storageTypeIds[]",
@@ -657,31 +653,57 @@ export const FIELD_REGISTRY: FieldDef[] = [
     type: "id",
     operators: ID_OPS,
     context: "storage",
+    targetType: "storageUnit",
     valueOptionsLoader: "storageTypes"
   }),
-  // ── Transaction ───────────────────────────────────────────────────────────
-  // `transaction` is a synthetic ctx assembled per-trigger (receipt/shipment/
-  // stock-transfer/job op). No corresponding table — all paths synthetic.
-  fields.synthetic({
-    path: "transaction.locationId",
-    derivedFrom: "trigger handler — varies by surface",
+  // ── WorkCenter target ─────────────────────────────────────────────────────
+  // workCenter is the target — always loaded by the evaluator.
+  fields.database({
+    table: "workCenter",
+    column: "locationId",
     nullable: true,
-    label: "Transaction location",
+    label: "Work center location",
     type: "id",
     operators: ID_OPS,
-    context: "transaction",
+    context: "workCenter",
+    targetType: "workCenter",
     valueOptionsLoader: "locations"
   }),
+  fields.database({
+    table: "workCenter",
+    column: "active",
+    nullable: false,
+    label: "Work center active",
+    type: "enum",
+    operators: BOOL_OPS,
+    context: "workCenter",
+    targetType: "workCenter"
+  }),
+
+  // ── Transaction (shared across all targets) ───────────────────────────────
+  // transaction.quantity is set by every trigger handler. No other transaction
+  // field is guaranteed across all surfaces.
   fields.synthetic({
     path: "transaction.quantity",
-    derivedFrom: "line.quantity from receipt/shipment/transfer consumption",
+    derivedFrom: "line.quantity from receipt/shipment/transfer/operation",
     nullable: false,
     label: "Transaction quantity",
     type: "number",
     operators: NUMBER_OPS,
-    context: "transaction"
+    context: "transaction",
+    targetType: "shared"
   })
 ];
+
+/**
+ * Subset of the registry visible to a rule of a given `targetType`. Includes
+ * all fields explicitly declared for that target plus the `shared` set.
+ * Builder UI filters its field dropdown through this helper.
+ */
+export const getFieldsForTargetType = (targetType: TargetType): FieldDef[] =>
+  FIELD_REGISTRY.filter(
+    (f) => f.targetType === targetType || f.targetType === "shared"
+  );
 
 export const getFieldDef = (path: string): FieldDef | undefined => {
   // Custom fields are dynamic — accept any item.customFields.* path.
@@ -691,7 +713,8 @@ export const getFieldDef = (path: string): FieldDef | undefined => {
       label: path.slice("item.customFields.".length),
       type: "string",
       operators: SCALAR_OPS,
-      context: "item"
+      context: "item",
+      targetType: "item"
     };
   }
   return FIELD_REGISTRY.find((f) => f.path === path);

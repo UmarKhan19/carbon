@@ -12,7 +12,12 @@ import {
   PopoverContent,
   PopoverTrigger
 } from "@carbon/react";
-import { FIELD_REGISTRY, type FieldDef, getFieldDef } from "@carbon/utils";
+import {
+  FIELD_REGISTRY,
+  type FieldDef,
+  getFieldDef,
+  getFieldsForTargetType
+} from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import { useMemo, useState } from "react";
 import {
@@ -28,27 +33,43 @@ const CONTEXT: Record<
   { label: string; icon: JSX.Element }
 > = {
   item: { label: "Item", icon: <LuPackage className="h-3.5 w-3.5" /> },
-  storage: { label: "Storage", icon: <LuBox className="h-3.5 w-3.5" /> },
+  storage: { label: "Storage unit", icon: <LuBox className="h-3.5 w-3.5" /> },
+  workCenter: {
+    label: "Work center",
+    icon: <LuBox className="h-3.5 w-3.5" />
+  },
+  operation: {
+    label: "Operation",
+    icon: <LuReceipt className="h-3.5 w-3.5" />
+  },
   transaction: {
     label: "Transaction",
     icon: <LuReceipt className="h-3.5 w-3.5" />
   }
 };
 
-const CONTEXT_ORDER: FieldDef["context"][] = ["item", "storage", "transaction"];
+const CONTEXT_ORDER: FieldDef["context"][] = [
+  "item",
+  "storage",
+  "workCenter",
+  "operation",
+  "transaction"
+];
 
 type FieldComboboxProps = {
   value: string;
   onChange: (path: string) => void;
   placeholder?: string;
   className?: string;
+  targetType?: "item" | "storageUnit" | "workCenter";
 };
 
 export default function FieldCombobox({
   value,
   onChange,
   placeholder,
-  className
+  className,
+  targetType
 }: FieldComboboxProps) {
   const { t } = useLingui();
   const [open, setOpen] = useState(false);
@@ -56,9 +77,12 @@ export default function FieldCombobox({
   const grouped = useMemo(() => {
     const map = new Map<FieldDef["context"], FieldDef[]>();
     for (const ctx of CONTEXT_ORDER) map.set(ctx, []);
-    for (const f of FIELD_REGISTRY) map.get(f.context)!.push(f);
+    const pool = targetType
+      ? getFieldsForTargetType(targetType)
+      : FIELD_REGISTRY;
+    for (const f of pool) map.get(f.context)!.push(f);
     return map;
-  }, []);
+  }, [targetType]);
 
   const selected = useMemo(() => getFieldDef(value), [value]);
   const ctx = selected ? CONTEXT[selected.context] : undefined;

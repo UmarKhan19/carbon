@@ -11,7 +11,7 @@ import {
   UpgradeOverlayTitle,
   UpgradeOverlayUpgradeButton
 } from "~/components/UpgradeOverlay";
-import ItemRulesTable from "./ItemRulesTable";
+import BusinessRulesTable from "./BusinessRulesTable";
 
 const mockRules = [
   {
@@ -64,11 +64,14 @@ const mockRules = [
   }
 ];
 
-export default function ItemRulesUpgradeOverlay() {
+export default function BusinessRulesUpgradeOverlay() {
   return (
     <UpgradeOverlay>
       <UpgradeOverlayPreview>
-        <ItemRulesTable data={mockRules as never} count={mockRules.length} />
+        <BusinessRulesTable
+          data={mockRules as never}
+          count={mockRules.length}
+        />
       </UpgradeOverlayPreview>
       <UpgradeOverlayCard>
         <UpgradeOverlayIcon>

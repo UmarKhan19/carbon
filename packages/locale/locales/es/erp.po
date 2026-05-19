@@ -200,9 +200,6 @@ msgstr "PerÃƒÆ’Ã‚Â­odo de AcumulaciÃƒÆ’Ã‚Â³n (Semanas)"
 msgid "Accumulation Period:"
 msgstr "PerÃƒÆ’Ã‚Â­odo de AcumulaciÃƒÆ’Ã‚Â³n:"
 
-msgid "Acknowledge & continue"
-msgstr "Reconocer y continuar"
-
 msgid "Action Items"
 msgstr "Elementos de AcciÃƒÆ’Ã‚Â³n"
 
@@ -487,6 +484,15 @@ msgstr "Claves API para acceso programático a tus datos de Carbon."
 
 msgid "Applies to"
 msgstr "Se aplica a"
+
+msgid "Applies to all items"
+msgstr ""
+
+msgid "Applies to all storage units"
+msgstr ""
+
+msgid "Applies to all work centers"
+msgstr ""
 
 msgid "Apply pricing rules"
 msgstr "Aplicar reglas de precios"
@@ -1069,6 +1075,9 @@ msgstr "ImportaciÃƒÆ’Ã‚Â³n masiva"
 
 msgid "Bulk Jobs"
 msgstr "Trabajos en Lote"
+
+msgid "Business Rules"
+msgstr ""
 
 msgid "Buy"
 msgstr "Comprar"
@@ -2991,9 +3000,6 @@ msgstr "Error al eliminar el modelo de la lÃƒÆ’Ã‚Â­nea de orden de ven
 
 msgid "Error validating serial number"
 msgstr "Error validando nÃƒÆ’Ã‚Âºmero de serie"
-
-msgid "Errors"
-msgstr "Errores"
 
 msgid "Escalation"
 msgstr "Escalada"
@@ -6329,9 +6335,6 @@ msgstr "La regla se aplica a todos los artÃƒÆ’Ã‚Â­culos."
 msgid "Rule Type"
 msgstr "Tipo de Regla"
 
-msgid "Rule Violation"
-msgstr "ViolaciÃƒÆ’Ã‚Â³n de regla"
-
 msgid "Rules"
 msgstr "Reglas"
 
@@ -7739,6 +7742,9 @@ msgstr "Papelera"
 msgid "Trial Balance"
 msgstr "Balance de ComprobaciÃƒÆ’Ã‚Â³n"
 
+msgid "Triggers"
+msgstr ""
+
 msgid "Tuesday"
 msgstr "Martes"
 
@@ -8176,9 +8182,6 @@ msgstr "Advertir cuando la persona que inspecciona un artÃƒÆ’Ã‚Â­culo 
 msgid "Warning"
 msgstr "Advertencia"
 
-msgid "Warnings"
-msgstr "Advertencias"
-
 msgid "Watch full video"
 msgstr "Ver video completo"
 
@@ -8238,6 +8241,9 @@ msgstr "Cuando la vida ÃƒÆ’Ã‚Âºtil de un producto terminado se estable
 
 msgid "When expired stock is used"
 msgstr "Cuando se utiliza stock vencido"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr ""
 
 msgid "Who Can Approve"
 msgstr "QuiÃƒÆ’Ã‚Â©n Puede Aprobar"

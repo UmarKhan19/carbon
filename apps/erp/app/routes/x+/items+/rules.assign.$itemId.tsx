@@ -7,9 +7,12 @@ import type {
   ClientActionFunctionArgs
 } from "react-router";
 import { redirect } from "react-router";
-import { assignItemRule } from "~/modules/items";
+import { assignBusinessRule } from "~/modules/businessRules";
 import { path } from "~/utils/path";
-import { getCompanyId, itemRuleAssignmentsQuery } from "~/utils/react-query";
+import {
+  businessRuleAssignmentsQuery,
+  getCompanyId
+} from "~/utils/react-query";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -21,8 +24,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     request,
     client,
     companyId,
-    feature: "ITEM_RULES",
-    redirectTo: path.to.itemRules
+    feature: "BUSINESS_RULES",
+    redirectTo: path.to.businessRules
   });
 
   const { itemId } = params;
@@ -32,13 +35,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const ruleId = String(formData.get("ruleId") ?? "");
   if (!ruleId) {
     throw redirect(
-      request.headers.get("Referer") ?? path.to.itemRules,
+      request.headers.get("Referer") ?? path.to.businessRules,
       await flash(request, error(null, "Rule id required"))
     );
   }
 
-  const result = await assignItemRule(client, {
-    itemId,
+  const result = await assignBusinessRule(client, {
+    targetType: "item",
+    targetId: itemId,
     ruleId,
     companyId,
     userId
@@ -46,13 +50,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (result.error) {
     throw redirect(
-      request.headers.get("Referer") ?? path.to.itemRules,
+      request.headers.get("Referer") ?? path.to.businessRules,
       await flash(request, error(result.error, "Failed to assign rule"))
     );
   }
 
   throw redirect(
-    request.headers.get("Referer") ?? path.to.itemRules,
+    request.headers.get("Referer") ?? path.to.businessRules,
     await flash(request, success("Rule assigned"))
   );
 }
@@ -64,7 +68,7 @@ export async function clientAction({
   const { itemId } = params;
   if (itemId) {
     window?.clientCache?.setQueryData(
-      itemRuleAssignmentsQuery(itemId, getCompanyId()).queryKey,
+      businessRuleAssignmentsQuery("item", itemId, getCompanyId()).queryKey,
       null
     );
   }

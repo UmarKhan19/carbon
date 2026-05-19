@@ -200,9 +200,6 @@ msgstr "Okres akumulacji (tygodnie)"
 msgid "Accumulation Period:"
 msgstr "Okres akumulacji:"
 
-msgid "Acknowledge & continue"
-msgstr "PotwierdÃƒâ€¦Ã‚Âº i kontynuuj"
-
 msgid "Action Items"
 msgstr "Elementy akcji"
 
@@ -487,6 +484,15 @@ msgstr "Klucze API do programowego dostępu do danych Carbon."
 
 msgid "Applies to"
 msgstr "Dotyczy"
+
+msgid "Applies to all items"
+msgstr ""
+
+msgid "Applies to all storage units"
+msgstr ""
+
+msgid "Applies to all work centers"
+msgstr ""
 
 msgid "Apply pricing rules"
 msgstr "Zastosuj reguÃƒâ€¦Ã¢â‚¬Å¡y cenowe"
@@ -1069,6 +1075,9 @@ msgstr "Import zbiorczy"
 
 msgid "Bulk Jobs"
 msgstr "Zadania zbiorcze"
+
+msgid "Business Rules"
+msgstr ""
 
 msgid "Buy"
 msgstr "Kup"
@@ -2991,9 +3000,6 @@ msgstr "BÃƒâ€¦Ã¢â‚¬Å¡Ãƒâ€žÃ¢â‚¬Â¦d podczas usuwania 
 
 msgid "Error validating serial number"
 msgstr "BÃƒâ€¦Ã¢â‚¬Å¡Ãƒâ€žÃ¢â‚¬Â¦d podczas walidacji numeru seryjnego"
-
-msgid "Errors"
-msgstr "BÃƒâ€¦Ã¢â‚¬Å¡Ãƒâ€žÃ¢â€žÂ¢dy"
 
 msgid "Escalation"
 msgstr "Eskalacja"
@@ -6329,9 +6335,6 @@ msgstr "ReguÃƒâ€¦Ã¢â‚¬Å¡a dotyczy kaÃƒâ€¦Ã‚Â¼dego artyk
 msgid "Rule Type"
 msgstr "Typ reguÃƒâ€¦Ã¢â‚¬Å¡y"
 
-msgid "Rule Violation"
-msgstr "Naruszenie reguÃƒâ€¦Ã¢â‚¬Å¡y"
-
 msgid "Rules"
 msgstr "ReguÃƒâ€¦Ã¢â‚¬Å¡y"
 
@@ -7739,6 +7742,9 @@ msgstr "Kosz"
 msgid "Trial Balance"
 msgstr "Bilans PrÃƒÆ’Ã‚Â³bny"
 
+msgid "Triggers"
+msgstr ""
+
 msgid "Tuesday"
 msgstr "Wtorek"
 
@@ -8176,9 +8182,6 @@ msgstr "Ostrzegaj, gdy osoba sprawdzajÃƒâ€žÃ¢â‚¬Â¦ca przychodzÃƒ
 msgid "Warning"
 msgstr "OstrzeÃƒâ€¦Ã‚Â¼enie"
 
-msgid "Warnings"
-msgstr "OstrzeÃƒâ€¦Ã‚Â¼enia"
-
 msgid "Watch full video"
 msgstr "Obejrzyj peÃƒâ€¦Ã¢â‚¬Å¡ne wideo"
 
@@ -8238,6 +8241,9 @@ msgstr "Gdy okres przydatnoÃƒâ€¦Ã¢â‚¬Âºci gotowego produktu jest u
 
 msgid "When expired stock is used"
 msgstr "Gdy uÃƒâ€¦Ã‚Â¼ywany jest wygasÃƒâ€¦Ã¢â‚¬Å¡y zapas"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr ""
 
 msgid "Who Can Approve"
 msgstr "Kto moÃƒâ€¦Ã‚Â¼e zatwierdziÃƒâ€žÃ¢â‚¬Â¡"

@@ -23,6 +23,7 @@ type ConditionRowProps = {
   onChange: (index: number, patch: Partial<Condition>) => void;
   onRemove: (index: number) => void;
   optionsByLoader: ValueOptionsByLoader;
+  targetType?: "item" | "storageUnit" | "workCenter";
 };
 
 function ConditionRowImpl({
@@ -31,7 +32,8 @@ function ConditionRowImpl({
   canRemove,
   onChange,
   onRemove,
-  optionsByLoader
+  optionsByLoader,
+  targetType
 }: ConditionRowProps) {
   const { t } = useLingui();
 
@@ -59,6 +61,7 @@ function ConditionRowImpl({
         <div className={CONDITION_GRID_CLASS}>
           <FieldCombobox
             value={condition.field}
+            targetType={targetType}
             onChange={(path) =>
               onChange(index, { field: path, op: "eq", value: undefined })
             }

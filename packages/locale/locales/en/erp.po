@@ -200,9 +200,6 @@ msgstr "Accumulation Period (Weeks)"
 msgid "Accumulation Period:"
 msgstr "Accumulation Period:"
 
-msgid "Acknowledge & continue"
-msgstr "Acknowledge & continue"
-
 msgid "Action Items"
 msgstr "Action Items"
 
@@ -487,6 +484,15 @@ msgstr "API keys for programmatic access to your Carbon data."
 
 msgid "Applies to"
 msgstr "Applies to"
+
+msgid "Applies to all items"
+msgstr "Applies to all items"
+
+msgid "Applies to all storage units"
+msgstr "Applies to all storage units"
+
+msgid "Applies to all work centers"
+msgstr "Applies to all work centers"
 
 msgid "Apply pricing rules"
 msgstr "Apply pricing rules"
@@ -1069,6 +1075,9 @@ msgstr "Bulk Import"
 
 msgid "Bulk Jobs"
 msgstr "Bulk Jobs"
+
+msgid "Business Rules"
+msgstr "Business Rules"
 
 msgid "Buy"
 msgstr "Buy"
@@ -2991,9 +3000,6 @@ msgstr "Error removing model from sales order line"
 
 msgid "Error validating serial number"
 msgstr "Error validating serial number"
-
-msgid "Errors"
-msgstr "Errors"
 
 msgid "Escalation"
 msgstr "Escalation"
@@ -6329,9 +6335,6 @@ msgstr "Rule applies to every item."
 msgid "Rule Type"
 msgstr "Rule Type"
 
-msgid "Rule Violation"
-msgstr "Rule Violation"
-
 msgid "Rules"
 msgstr "Rules"
 
@@ -7739,6 +7742,9 @@ msgstr "Trash"
 msgid "Trial Balance"
 msgstr "Trial Balance"
 
+msgid "Triggers"
+msgstr "Triggers"
+
 msgid "Tuesday"
 msgstr "Tuesday"
 
@@ -8176,9 +8182,6 @@ msgstr "Warn when the person inspecting an inbound item is the same person who r
 msgid "Warning"
 msgstr "Warning"
 
-msgid "Warnings"
-msgstr "Warnings"
-
 msgid "Watch full video"
 msgstr "Watch full video"
 
@@ -8238,6 +8241,9 @@ msgstr "When a finished product's shelf life is set to Calculated, pick which co
 
 msgid "When expired stock is used"
 msgstr "When expired stock is used"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
 
 msgid "Who Can Approve"
 msgstr "Who Can Approve"

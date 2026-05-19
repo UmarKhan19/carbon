@@ -14,6 +14,7 @@ import {
 import {
   type Condition,
   type ConditionAst,
+  SURFACES_BY_TARGET_TYPE,
   TRANSACTION_SURFACES
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -29,35 +30,37 @@ import {
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
-import { itemRuleValidator } from "../../items.models";
+import { businessRuleValidator } from "../businessRules.models";
 import MessageWithTokens from "./MessageWithTokens";
 import RuleBuilder from "./RuleBuilder";
 import SeveritySelect from "./SeveritySelect";
 import SurfacesField from "./SurfacesField";
 
-type ItemRuleFormInitial = Partial<z.infer<typeof itemRuleValidator>> & {
+type BusinessRuleFormInitial = Partial<
+  z.infer<typeof businessRuleValidator>
+> & {
   conditionAst?: ConditionAst;
 };
 
-type ItemRuleFormProps = {
-  initialValues: ItemRuleFormInitial;
+type BusinessRuleFormProps = {
+  initialValues: BusinessRuleFormInitial;
   open?: boolean;
   onClose: () => void;
 };
 
-export default function ItemRuleForm({
+export default function BusinessRuleForm({
   initialValues,
   open = true,
   onClose
-}: ItemRuleFormProps) {
+}: BusinessRuleFormProps) {
   const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher();
 
   const isEditing = !!initialValues.id;
   const isDisabled = isEditing
-    ? !permissions.can("update", "parts")
-    : !permissions.can("create", "parts");
+    ? !permissions.can("update", "settings")
+    : !permissions.can("create", "settings");
 
   const conditionAstInitial: ConditionAst = (initialValues.conditionAst as
     | ConditionAst
@@ -74,6 +77,19 @@ export default function ItemRuleForm({
     conditionAstInitial.conditions
   );
 
+  const targetType = (initialValues.targetType ?? "item") as
+    | "item"
+    | "storageUnit"
+    | "workCenter";
+
+  // Default new rules to all surfaces of the chosen targetType. Editing keeps
+  // whatever was saved.
+  const defaultSurfaces =
+    initialValues.surfaces ??
+    TRANSACTION_SURFACES.filter((s) =>
+      SURFACES_BY_TARGET_TYPE[targetType].includes(s as never)
+    );
+
   // ValidatedForm wants defaultValues; we hand it the scalar fields.
   // conditionAst gets driven by RuleBuilder via Hidden field.
   const defaults = {
@@ -82,9 +98,10 @@ export default function ItemRuleForm({
     description: initialValues.description ?? "",
     message: initialValues.message ?? "",
     severity: initialValues.severity ?? "error",
+    targetType,
+    appliesToAll: initialValues.appliesToAll ?? false,
     active: initialValues.active ?? true,
-    // Default new rules to all surfaces (matches DB default).
-    surfaces: initialValues.surfaces ?? [...TRANSACTION_SURFACES]
+    surfaces: defaultSurfaces
   };
 
   return (
@@ -97,12 +114,12 @@ export default function ItemRuleForm({
       >
         <ModalDrawerContent size="lg">
           <ValidatedForm
-            validator={itemRuleValidator}
+            validator={businessRuleValidator}
             method="post"
             action={
               isEditing
-                ? path.to.itemRule(initialValues.id!)
-                : path.to.newItemRule
+                ? path.to.businessRule(initialValues.id!)
+                : path.to.newBusinessRule
             }
             defaultValues={defaults}
             fetcher={fetcher}
@@ -115,6 +132,7 @@ export default function ItemRuleForm({
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
+              <Hidden name="targetType" />
               <VStack spacing={4}>
                 <HStack className="w-full gap-x-4">
                   <Input name="name" label={t`Name`} />
@@ -129,14 +147,30 @@ export default function ItemRuleForm({
                   placeholder={t`Optional context for this rule`}
                 />
                 <SeveritySelect name="severity" />
-                <SurfacesField name="surfaces" />
+                <Boolean
+                  name="appliesToAll"
+                  label={
+                    targetType === "item"
+                      ? t`Applies to all items`
+                      : targetType === "storageUnit"
+                        ? t`Applies to all storage units`
+                        : t`Applies to all work centers`
+                  }
+                  description={t`When on, this rule fires for every target of its type. Assignment rows are ignored but preserved.`}
+                />
+                <SurfacesField name="surfaces" targetType={targetType} />
                 <RuleBuilder
                   name="conditionAst"
                   initial={conditionAstInitial}
                   onConditionsChange={setLiveConditions}
+                  targetType={targetType}
                 />
-                <MessageWithTokens name="message" conditions={liveConditions} />
-                <CustomFormFields table="itemRule" />
+                <MessageWithTokens
+                  name="message"
+                  conditions={liveConditions}
+                  targetType={targetType}
+                />
+                <CustomFormFields table="businessRule" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

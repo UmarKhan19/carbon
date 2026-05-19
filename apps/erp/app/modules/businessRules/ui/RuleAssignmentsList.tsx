@@ -56,23 +56,46 @@ type LibraryRule = {
   active: boolean;
 };
 
-type ItemRuleAssignmentsProps = {
-  itemId: string;
+type TargetType = "item" | "storageUnit" | "workCenter";
+
+type RuleAssignmentsListProps = {
+  targetType: TargetType;
+  targetId: string;
   assignments: AssignedRule[];
   library: LibraryRule[];
 };
 
-export default function ItemRuleAssignments({
-  itemId,
+const ASSIGN_PATH = {
+  item: path.to.businessRuleAssignItem,
+  storageUnit: path.to.businessRuleAssignStorageUnit,
+  workCenter: path.to.businessRuleAssignWorkCenter
+};
+
+const UNASSIGN_PATH = {
+  item: path.to.businessRuleUnassignItem,
+  storageUnit: path.to.businessRuleUnassignStorageUnit,
+  workCenter: path.to.businessRuleUnassignWorkCenter
+};
+
+const PERM_MODULE: Record<TargetType, "parts" | "inventory" | "resources"> = {
+  item: "parts",
+  storageUnit: "inventory",
+  workCenter: "resources"
+};
+
+export default function RuleAssignmentsList({
+  targetType,
+  targetId,
   assignments,
   library
-}: ItemRuleAssignmentsProps) {
+}: RuleAssignmentsListProps) {
   const { t } = useLingui();
   const permissions = usePermissions();
   const fetcher = useFetcher();
-  const { isGated } = usePlanGate({ feature: "ITEM_RULES" });
-  const canCreate = permissions.can("create", "parts");
-  const canDelete = permissions.can("delete", "parts");
+  const { isGated } = usePlanGate({ feature: "BUSINESS_RULES" });
+  const module = PERM_MODULE[targetType];
+  const canCreate = permissions.can("create", module);
+  const canDelete = permissions.can("delete", module);
 
   const assignedSet = useMemo(
     () => new Set(assignments.map((a) => a.ruleId)),
@@ -95,7 +118,7 @@ export default function ItemRuleAssignments({
     fd.set("ruleId", ruleId);
     fetcher.submit(fd, {
       method: "post",
-      action: path.to.itemRuleAssign(itemId)
+      action: ASSIGN_PATH[targetType](targetId)
     });
   };
 
@@ -176,7 +199,7 @@ export default function ItemRuleAssignments({
                 />
               )}
               <Button asChild variant="secondary" size="sm">
-                <Link to={path.to.newItemRule}>
+                <Link to={path.to.newBusinessRule}>
                   <Trans>Add rule</Trans>
                 </Link>
               </Button>
@@ -218,7 +241,7 @@ export default function ItemRuleAssignments({
               {assignments.map((a) => (
                 <Tr key={a.ruleId}>
                   <Td className="whitespace-nowrap">
-                    <Hyperlink to={path.to.itemRule(a.ruleId)}>
+                    <Hyperlink to={path.to.businessRule(a.ruleId)}>
                       <HStack className="gap-2 items-center">
                         <LuShieldCheck className="text-muted-foreground shrink-0" />
                         <span>{a.rule.name}</span>
@@ -258,7 +281,7 @@ export default function ItemRuleAssignments({
                   <Td className="text-right">
                     <Form
                       method="post"
-                      action={path.to.itemRuleUnassign(itemId, a.ruleId)}
+                      action={UNASSIGN_PATH[targetType](targetId, a.ruleId)}
                     >
                       <IconButton
                         type="submit"
@@ -327,7 +350,7 @@ function EmptyState({
                 size="sm"
                 leftIcon={<LuPlus />}
               >
-                <Link to={path.to.newItemRule}>
+                <Link to={path.to.newBusinessRule}>
                   <Trans>Create new rule</Trans>
                 </Link>
               </Button>
@@ -340,12 +363,12 @@ function EmptyState({
                 size="sm"
                 leftIcon={<LuLibrary />}
               >
-                <Link to={path.to.itemRules}>
+                <Link to={path.to.businessRules}>
                   <Trans>Browse library</Trans>
                 </Link>
               </Button>
               <Button asChild size="sm" leftIcon={<LuPlus />}>
-                <Link to={path.to.newItemRule}>
+                <Link to={path.to.newBusinessRule}>
                   <Trans>Create new rule</Trans>
                 </Link>
               </Button>

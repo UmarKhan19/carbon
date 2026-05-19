@@ -17,7 +17,7 @@ import {
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId } = await requirePermissions(request, {
-    delete: "parts"
+    delete: "inventory"
   });
 
   await requirePlan({
@@ -28,12 +28,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     redirectTo: path.to.businessRules
   });
 
-  const { itemId, ruleId } = params;
-  if (!itemId || !ruleId) throw new Error("itemId and ruleId required");
+  const { storageUnitId, ruleId } = params;
+  if (!storageUnitId || !ruleId)
+    throw new Error("storageUnitId and ruleId required");
 
   const result = await unassignBusinessRule(client, {
-    targetType: "item",
-    targetId: itemId,
+    targetType: "storageUnit",
+    targetId: storageUnitId,
     ruleId
   });
   if (result.error) {
@@ -53,10 +54,11 @@ export async function clientAction({
   serverAction,
   params
 }: ClientActionFunctionArgs) {
-  const { itemId } = params;
-  if (itemId) {
+  const { storageUnitId } = params;
+  if (storageUnitId) {
     window?.clientCache?.setQueryData(
-      businessRuleAssignmentsQuery("item", itemId, getCompanyId()).queryKey,
+      businessRuleAssignmentsQuery("storageUnit", storageUnitId, getCompanyId())
+        .queryKey,
       null
     );
   }

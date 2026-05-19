@@ -2,6 +2,10 @@ import { assertIsPost, error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
+import {
+  evaluateLinesForSurface,
+  isBlocked
+} from "@carbon/ee/business-rules.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -9,10 +13,6 @@ import {
   insertManualInventoryAdjustment,
   inventoryAdjustmentValidator
 } from "~/modules/inventory";
-import {
-  evaluateLinesForSurface,
-  isBlocked
-} from "~/modules/items/itemRules.server";
 import { path, requestReferrer } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -41,6 +41,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     client: serviceRole,
     companyId,
     userId,
+    targetType: "item",
     surface: "inventoryAdjustment",
     lines: [
       {

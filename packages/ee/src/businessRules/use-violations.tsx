@@ -2,21 +2,21 @@ import { toast } from "@carbon/react";
 import type { Violation } from "@carbon/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import ItemRuleViolationModal from "~/components/ItemRuleViolationModal";
+import BusinessRuleViolationModal from "./violation-modal";
 
 /**
  * Shape every item-rule-aware server action must return when it wants the
  * client to surface violations. Mirrors the payload produced by
  * `evaluateForItem` + the per-action wrapper that resolves rule names.
  */
-export type ItemRuleViolationPayload = {
+export type BusinessRuleViolationPayload = {
   error?: { message?: string } | null;
   data?: unknown;
   violations?: Violation[];
   ruleNames?: Record<string, string>;
 };
 
-type UseItemRuleViolationsOptions = {
+type UseBusinessRuleViolationsOptions = {
   /** Server action endpoint that the form is posted to. */
   action: string;
   /**
@@ -26,7 +26,7 @@ type UseItemRuleViolationsOptions = {
   onSuccess?: () => void;
 };
 
-type UseItemRuleViolationsResult<T> = {
+type UseBusinessRuleViolationsResult<T> = {
   // `useFetcher<T>` actually returns `FetcherWithComponents<SerializeFrom<T>>`;
   // mirror that here so callers see the serialised payload type without us
   // having to import the React Router internal `SerializeFrom` helper.
@@ -45,7 +45,7 @@ type UseItemRuleViolationsResult<T> = {
  *
  * Wraps a `useFetcher` and:
  * - toasts any `error.message` returned by the action
- * - opens `<ItemRuleViolationModal>` when the action returns `violations`
+ * - opens `<BusinessRuleViolationModal>` when the action returns `violations`
  * - re-posts the last form data with `acknowledged=true` when the user
  *   clicks "Acknowledge & continue"
  * - resets the dismissed/ack flags on every fresh submission
@@ -53,10 +53,10 @@ type UseItemRuleViolationsResult<T> = {
  * Call sites only have to swap `fetcher.submit(...)` for `rules.submit(...)`
  * and render `<rules.ViolationModal />`. Everything else is wired internally.
  */
-export function useItemRuleViolations<T = unknown>({
+export function useBusinessRuleViolations<T = unknown>({
   action,
   onSuccess
-}: UseItemRuleViolationsOptions): UseItemRuleViolationsResult<T> {
+}: UseBusinessRuleViolationsOptions): UseBusinessRuleViolationsResult<T> {
   const fetcher = useFetcher<T>();
   const lastSubmissionRef = useRef<FormData | null>(null);
   // Tracks whether a submission was issued but onSuccess hasn't fired yet.
@@ -71,15 +71,15 @@ export function useItemRuleViolations<T = unknown>({
   // forever (page reload was the only way out). Instead, we clear `staged`
   // when a new submission starts and only re-stage if `fetcher.data` is a
   // *different* reference than what we last consumed.
-  const [staged, setStaged] = useState<ItemRuleViolationPayload | undefined>(
-    undefined
-  );
+  const [staged, setStaged] = useState<
+    BusinessRuleViolationPayload | undefined
+  >(undefined);
   const lastSeenDataRef = useRef<unknown>(undefined);
   // Track idle→submitting transitions so the hook resets correctly even when
   // the form submits via `fetcher={...}` prop directly (bypassing `submit()`).
   const prevIdleRef = useRef(true);
 
-  const data = fetcher.data as ItemRuleViolationPayload | undefined;
+  const data = fetcher.data as BusinessRuleViolationPayload | undefined;
   const idle = fetcher.state === "idle";
   const violations = staged?.violations ?? [];
   const ruleNames = staged?.ruleNames;
@@ -164,7 +164,7 @@ export function useItemRuleViolations<T = unknown>({
   const ViolationModal = useCallback(() => {
     if (!hasViolations) return null;
     return (
-      <ItemRuleViolationModal
+      <BusinessRuleViolationModal
         violations={violations}
         ruleNames={ruleNames}
         isSubmitting={!idle}

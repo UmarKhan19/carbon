@@ -1,3 +1,4 @@
+import { useBusinessRuleViolations } from "@carbon/ee/business-rules";
 import {
   DatePicker,
   Hidden,
@@ -62,7 +63,6 @@ import {
 } from "~/components/Form";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions } from "~/hooks";
-import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import type {
   ItemStorageUnitQuantities,
   itemTrackingTypes,
@@ -96,7 +96,7 @@ const InventoryStorageUnits = ({
   const permissions = usePermissions();
   const { t } = useLingui();
   const adjustmentModal = useDisclosure();
-  const ruleViolations = useItemRuleViolations({
+  const ruleViolations = useBusinessRuleViolations({
     action: path.to.inventoryItemAdjustment(pickMethod.itemId),
     onSuccess: adjustmentModal.onClose
   });

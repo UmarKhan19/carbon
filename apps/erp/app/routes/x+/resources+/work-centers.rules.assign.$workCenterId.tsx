@@ -7,7 +7,7 @@ import type {
   ClientActionFunctionArgs
 } from "react-router";
 import { redirect } from "react-router";
-import { unassignBusinessRule } from "~/modules/businessRules";
+import { assignBusinessRule } from "~/modules/businessRules";
 import { path } from "~/utils/path";
 import {
   businessRuleAssignmentsQuery,
@@ -16,8 +16,8 @@ import {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId } = await requirePermissions(request, {
-    delete: "parts"
+  const { client, companyId, userId } = await requirePermissions(request, {
+    create: "resources"
   });
 
   await requirePlan({
@@ -28,24 +28,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
     redirectTo: path.to.businessRules
   });
 
-  const { itemId, ruleId } = params;
-  if (!itemId || !ruleId) throw new Error("itemId and ruleId required");
+  const { workCenterId } = params;
+  if (!workCenterId) throw new Error("workCenterId required");
 
-  const result = await unassignBusinessRule(client, {
-    targetType: "item",
-    targetId: itemId,
-    ruleId
+  const formData = await request.formData();
+  const ruleId = String(formData.get("ruleId") ?? "");
+  if (!ruleId) {
+    throw redirect(
+      request.headers.get("Referer") ?? path.to.businessRules,
+      await flash(request, error(null, "Rule id required"))
+    );
+  }
+
+  const result = await assignBusinessRule(client, {
+    targetType: "workCenter",
+    targetId: workCenterId,
+    ruleId,
+    companyId,
+    userId
   });
+
   if (result.error) {
     throw redirect(
       request.headers.get("Referer") ?? path.to.businessRules,
-      await flash(request, error(result.error, "Failed to unassign rule"))
+      await flash(request, error(result.error, "Failed to assign rule"))
     );
   }
 
   throw redirect(
     request.headers.get("Referer") ?? path.to.businessRules,
-    await flash(request, success("Rule unassigned"))
+    await flash(request, success("Rule assigned"))
   );
 }
 
@@ -53,10 +65,11 @@ export async function clientAction({
   serverAction,
   params
 }: ClientActionFunctionArgs) {
-  const { itemId } = params;
-  if (itemId) {
+  const { workCenterId } = params;
+  if (workCenterId) {
     window?.clientCache?.setQueryData(
-      businessRuleAssignmentsQuery("item", itemId, getCompanyId()).queryKey,
+      businessRuleAssignmentsQuery("workCenter", workCenterId, getCompanyId())
+        .queryKey,
       null
     );
   }
