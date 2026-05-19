@@ -6631,6 +6631,9 @@ msgstr "Wybierz typ elementu"
 msgid "Select items"
 msgstr "Wybierz artykuÃƒâ€¦Ã¢â‚¬Å¡y"
 
+msgid "Select location"
+msgstr ""
+
 msgid "Select Quantities"
 msgstr "Wybierz iloÃƒâ€¦Ã¢â‚¬Âºci"
 
@@ -6746,9 +6749,6 @@ msgstr "Ustaw iloÃƒâ€¦Ã¢â‚¬ÂºÃƒâ€žÃ¢â‚¬Â¡"
 #. placeholder {0}: selectedVersion.version
 msgid "Set Version {0} as Active Version?"
 msgstr "UstawiÃƒâ€žÃ¢â‚¬Â¡ wersjÃƒâ€žÃ¢â€žÂ¢ {0} jako aktywnÃƒâ€žÃ¢â‚¬Â¦ wersjÃƒâ€žÃ¢â€žÂ¢?"
-
-msgid "Set your default location in profile settings to pick a storage unit."
-msgstr "Ustaw swojÃƒâ€žÃ¢â‚¬Â¦ domyÃƒâ€¦Ã¢â‚¬ÂºlnÃƒâ€žÃ¢â‚¬Â¦ lokalizacjÃƒâ€žÃ¢â€žÂ¢ w ustawieniach profilu, aby wybraÃƒâ€žÃ¢â‚¬Â¡ jednostkÃƒâ€žÃ¢â€žÂ¢ magazynowÃƒâ€žÃ¢â‚¬Â¦."
 
 msgid "Settings"
 msgstr "Ustawienia"

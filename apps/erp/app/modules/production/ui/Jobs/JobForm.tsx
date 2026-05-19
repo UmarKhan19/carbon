@@ -35,7 +35,6 @@ import {
   SequenceOrCustomId,
   Submit
 } from "~/components/Form";
-import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
 import { usePermissions, useUser } from "~/hooks";
 import type {
   ConfigurationParameter,
@@ -120,8 +119,6 @@ const JobForm = ({ initialValues }: JobFormProps) => {
   const [configurationValues, setConfigurationValues] = useState<
     Record<string, any> | ""
   >("");
-
-  const [locationId, setLocationId] = useState(initialValues.locationId ?? "");
 
   const isCustomer = permissions.is("customer");
   const isEditing = initialValues.id !== undefined;
@@ -332,20 +329,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                         minValue={0}
                       />
 
-                      <Location
-                        name="locationId"
-                        label={t`Location`}
-                        onChange={(option) =>
-                          setLocationId(option?.value ?? "")
-                        }
-                      />
-
-                      <StorageUnitDrillSelectField
-                        key={locationId}
-                        name="storageUnitId"
-                        label={t`Storage Unit`}
-                        locationId={locationId}
-                      />
+                      <Location name="locationId" label={t`Location`} />
 
                       <DatePicker
                         name="dueDate"
@@ -507,20 +491,7 @@ const JobForm = ({ initialValues }: JobFormProps) => {
                           isDisabled={isCustomer}
                         />
 
-                        <Location
-                          name="locationId"
-                          label={t`Location`}
-                          onChange={(option) =>
-                            setLocationId(option?.value ?? "")
-                          }
-                        />
-
-                        <StorageUnitDrillSelectField
-                          key={locationId}
-                          name="storageUnitId"
-                          label={t`Storage Unit`}
-                          locationId={locationId}
-                        />
+                        <Location name="locationId" label={t`Location`} />
 
                         <Select
                           name="deadlineType"
