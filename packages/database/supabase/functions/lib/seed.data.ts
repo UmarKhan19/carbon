@@ -257,6 +257,15 @@ export const sequences = [
     step: 1
   },
   {
+    table: "payment",
+    name: "Payment",
+    prefix: "PAY-%{yyyy}-%{mm}-",
+    suffix: null,
+    next: 0,
+    size: 6,
+    step: 1
+  },
+  {
     table: "purchasingRfq",
     name: "Purchasing RFQ",
     prefix: "PRFQ",
@@ -571,6 +580,7 @@ export const accounts = [
   { key: "other-income", number: null, name: "Other Income", isGroup: true, parentKey: "income-statement", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
   { key: "4110", number: "4110", name: "Scrap Sales", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
   { key: "4120", number: "4120", name: "Foreign Exchange Gains", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
+  { key: "4130", number: "4130", name: "Vendor Write-Off Income", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
 
   // ─── 5000-5999: COST OF GOODS SOLD ───
   { key: "cogs", number: null, name: "Cost of Goods Sold", isGroup: true, parentKey: "income-statement", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
@@ -662,6 +672,10 @@ export const accountDefaults = {
   reverseChargeSalesTaxPayableAccount: "2230",
   retainedEarningsAccount: "3100",
   currencyTranslationAccount: "3200",
+  customerWriteOffAccount: "6050",
+  supplierWriteOffAccount: "4130",
+  realizedExchangeGainAccount: "4120",
+  realizedExchangeLossAccount: "7060",
 } as const;
 
 export const fiscalYearSettings = {
