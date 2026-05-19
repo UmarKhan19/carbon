@@ -860,6 +860,20 @@ async function reversePickingList(_client: any, payload: any) {
       throw new Error("Only Confirmed picking lists can be reversed");
     }
 
+    if (pl.jobId) {
+      const job = await trx
+        .selectFrom("job")
+        .select("status")
+        .where("id", "=", pl.jobId)
+        .where("companyId", "=", companyId)
+        .executeTakeFirst();
+      if (job && ["Completed", "Closed"].includes(job.status as string)) {
+        throw new Error(
+          `Cannot reverse a picking list for a ${job.status} job`
+        );
+      }
+    }
+
     const lines = await trx
       .selectFrom("pickingListLine")
       .selectAll()

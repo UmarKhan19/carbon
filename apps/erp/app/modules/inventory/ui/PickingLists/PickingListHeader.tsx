@@ -58,8 +58,11 @@ const PickingListHeader = () => {
   const canConfirm =
     ["Released", "In Progress"].includes(status) &&
     permissions.can("update", "inventory");
+  const jobStatus = (pl as any).job?.status as string | undefined;
   const canReverse =
-    status === "Confirmed" && permissions.can("update", "inventory");
+    status === "Confirmed" &&
+    !["Completed", "Closed"].includes(jobStatus ?? "") &&
+    permissions.can("update", "inventory");
   const canDelete =
     ["Draft", "Cancelled"].includes(status) &&
     permissions.can("delete", "inventory");

@@ -42,7 +42,7 @@ export default function IncidentForm({
 }: IncidentFormProps) {
   const { t } = useLingui();
   const navigate = useNavigate();
-  const isEditing = Boolean((initialValues as { id?: string }).id);
+  const isEditing = !!(initialValues as { id?: string }).id;
 
   const onClose = () => navigate(path.to.jobIncidents(jobId));
 
