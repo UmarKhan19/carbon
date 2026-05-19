@@ -153,7 +153,7 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 **Files:**
 - Edit: `apps/erp/app/modules/accounting/ui/AccountDefaults/AccountDefaultsForm.tsx`
 
-- [ ] **Step 7.1: Add four account-picker fields** for the new columns. `customerWriteOffAccount` filtered to Expense accounts; `supplierWriteOffAccount` filtered to Revenue/Other Income; `realizedExchangeGainAccount` filtered to Revenue/Other Income; `realizedExchangeLossAccount` filtered to Expense/Other Expense. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 7.1: Add four account-picker fields** for the new columns. `customerWriteOffAccount` filtered to Expense accounts; `supplierWriteOffAccount` filtered to Revenue/Other Income; `realizedExchangeGainAccount` filtered to Revenue/Other Income; `realizedExchangeLossAccount` filtered to Expense/Other Expense. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 ---
 

@@ -330,6 +330,18 @@ export const defaultIncomeAcountValidator = z.object({
   customerPaymentDiscountAccount: z.string().min(1, {
     message: "Customer payment discount account is required"
   }),
+  customerWriteOffAccount: z.string().min(1, {
+    message: "Customer write-off account is required"
+  }),
+  supplierWriteOffAccount: z.string().min(1, {
+    message: "Supplier write-off account is required"
+  }),
+  realizedExchangeGainAccount: z.string().min(1, {
+    message: "Realized exchange gain account is required"
+  }),
+  realizedExchangeLossAccount: z.string().min(1, {
+    message: "Realized exchange loss account is required"
+  }),
   roundingAccount: z.string().min(1, {
     message: "Rounding account is required"
   })

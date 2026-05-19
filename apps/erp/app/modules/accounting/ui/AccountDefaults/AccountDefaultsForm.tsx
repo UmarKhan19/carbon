@@ -399,6 +399,47 @@ const categoryGroups: CategoryGroup[] = [
         badgeType: "Expense"
       }
     ]
+  },
+  // --- Foreign Exchange & Write-Offs ---
+  {
+    id: "fx-and-writeoff",
+    title: "Foreign Exchange & Write-Offs",
+    description:
+      "Default accounts for realized FX gain/loss on payment settlement and AR/AP write-offs",
+    fields: [
+      {
+        name: "realizedExchangeGainAccount",
+        label: "Realized Exchange Gain",
+        description:
+          "Other Income account for FX gains when a payment settles a foreign-currency invoice at a more favorable rate",
+        accountType: "income",
+        badgeType: "Revenue"
+      },
+      {
+        name: "realizedExchangeLossAccount",
+        label: "Realized Exchange Loss",
+        description:
+          "Expense account for FX losses when a payment settles a foreign-currency invoice at a less favorable rate",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "customerWriteOffAccount",
+        label: "Customer Write-Off (Bad Debt)",
+        description:
+          "Expense account for customer balances written off as uncollectable on AR settlement",
+        accountType: "income",
+        badgeType: "Expense"
+      },
+      {
+        name: "supplierWriteOffAccount",
+        label: "Vendor Write-Off Income",
+        description:
+          "Other Income account for vendor balances cleared without full payment on AP settlement",
+        accountType: "income",
+        badgeType: "Revenue"
+      }
+    ]
   }
 ];
 
