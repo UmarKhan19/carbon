@@ -1,6 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
-import { getLocalTimeZone, now, today } from "@internationalized/date";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import {
@@ -329,18 +329,22 @@ export async function updatePurchaseInvoiceStatus(
     updatedBy: string;
   }
 ) {
-  const { status, ...rest } = update;
+  // Paid / Partially Paid / Overdue are derived in the purchaseInvoices view
+  // from paymentApplication. Rejecting them here ensures status integrity.
+  if (
+    update.status === "Paid" ||
+    update.status === "Partially Paid" ||
+    update.status === "Overdue"
+  ) {
+    return {
+      data: null,
+      error: {
+        message: `Cannot set status to ${update.status} directly — this status is derived from payment applications.`
+      }
+    };
+  }
 
-  // Set completedDate when status is Confirmed
-  const updateData = {
-    status,
-    ...rest,
-    ...(["Paid"].includes(status)
-      ? { datePaid: now(getLocalTimeZone()).toAbsoluteString() }
-      : {})
-  };
-
-  return client.from("purchaseInvoice").update(updateData).eq("id", update.id);
+  return client.from("purchaseInvoice").update(update).eq("id", update.id);
 }
 
 export async function updateSalesInvoiceExchangeRate(
@@ -368,17 +372,22 @@ export async function updateSalesInvoiceStatus(
     updatedBy: string;
   }
 ) {
-  const { status, ...rest } = update;
+  // Paid / Partially Paid / Overdue are derived in the salesInvoices view
+  // from paymentApplication. Rejecting them here ensures status integrity.
+  if (
+    update.status === "Paid" ||
+    update.status === "Partially Paid" ||
+    update.status === "Overdue"
+  ) {
+    return {
+      data: null,
+      error: {
+        message: `Cannot set status to ${update.status} directly — this status is derived from payment applications.`
+      }
+    };
+  }
 
-  const updateData = {
-    status,
-    ...rest,
-    ...(["Paid"].includes(status)
-      ? { datePaid: now(getLocalTimeZone()).toAbsoluteString() }
-      : {})
-  };
-
-  return client.from("salesInvoice").update(updateData).eq("id", update.id);
+  return client.from("salesInvoice").update(update).eq("id", update.id);
 }
 
 export async function upsertPurchaseInvoice(

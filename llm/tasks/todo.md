@@ -99,11 +99,11 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 **Files:**
 - Create: `packages/database/supabase/migrations/<ts>_invoice-derived-status.sql`
 
-- [ ] **Step 4.1: Drop existing views** `salesInvoices` and `purchaseInvoices`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 4.1: Drop existing views** `salesInvoices` and `purchaseInvoices`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 4.2: Drop `balance` column** from `salesInvoice` and `purchaseInvoice` base tables. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 4.2: Drop `balance` column** from `salesInvoice` and `purchaseInvoice` base tables. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 4.3: Recreate `salesInvoices` view** with CTE summing applications (`appliedAmount + discountAmount + writeOffAmount` from `paymentApplication` joined to `payment WHERE status='Posted'`), exposing computed `balance` and derived `status`:
+- [x] **Step 4.3: Recreate `salesInvoices` view** with CTE summing applications (`appliedAmount + discountAmount + writeOffAmount` from `paymentApplication` joined to `payment WHERE status='Posted'`), exposing computed `balance` and derived `status`:
   ```sql
   CASE
     WHEN status IN ('Draft','Pending','Voided','Return','Credit Note Issued') THEN status::TEXT
@@ -115,11 +115,11 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
   ```
   Preserve all other columns from prior view shape. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 4.4: Recreate `purchaseInvoices` view** parallel to sales, substituting active state `'Open'` (not `'Submitted'`) and `'Debit Note Issued'` (not `'Credit Note Issued'`). Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 4.4: Recreate `purchaseInvoices` view** parallel to sales, substituting active state `'Open'` (not `'Submitted'`) and `'Debit Note Issued'` (not `'Credit Note Issued'`). Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 4.5: Remove `Paid`/`Partially Paid` status writes** from `apps/erp/app/modules/invoicing/invoicing.service.ts:323-344, 362-382`. Reject those values in `updateSalesInvoiceStatus`/`updatePurchaseInvoiceStatus`. Remove the `datePaid` setter. Keep the Draft→Pending→Submitted/Open manual path. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 4.5: Remove `Paid`/`Partially Paid` status writes** from `apps/erp/app/modules/invoicing/invoicing.service.ts:323-344, 362-382`. Reject those values in `updateSalesInvoiceStatus`/`updatePurchaseInvoiceStatus`. Remove the `datePaid` setter. Keep the Draft→Pending→Submitted/Open manual path. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 4.6: Narrow MCP tool schemas** in `apps/erp/app/routes/api+/mcp+/lib/tools/invoicing.ts:351-403` (and equivalent for purchase) to reject derived statuses. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 4.6: Narrow MCP tool schemas** in `apps/erp/app/routes/api+/mcp+/lib/tools/invoicing.ts:351-403` (and equivalent for purchase) to reject derived statuses. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 ---
 
