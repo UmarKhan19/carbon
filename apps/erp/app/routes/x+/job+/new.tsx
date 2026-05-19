@@ -95,12 +95,14 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  const storageUnitId = await getDefaultStorageUnitForJob(
-    client,
-    validation.data.itemId,
-    validation.data.locationId,
-    companyId
-  );
+  const storageUnitId =
+    validation.data.storageUnitId ||
+    (await getDefaultStorageUnitForJob(
+      client,
+      validation.data.itemId,
+      validation.data.locationId,
+      companyId
+    ));
 
   // Calculate priority based on due date and deadline type
   const priority = await calculateJobPriority(client, {

@@ -119,6 +119,7 @@ const baseJobValidator = z.object({
     errorMap: () => ({ message: "Deadline type is required" })
   }),
   locationId: z.string().min(1, { message: "Location is required" }),
+  storageUnitId: zfd.text(z.string().optional()),
   quantity: zfd.numeric(z.number().min(0)),
   scrapQuantity: zfd.numeric(z.number().min(0)),
   startDate: zfd.text(z.string().optional()),
@@ -144,6 +145,7 @@ export const bulkJobValidator = z
     dueDateOfFirstJob: zfd.text(z.string().optional()),
     dueDateOfLastJob: zfd.text(z.string().optional()),
     locationId: z.string().min(1, { message: "Location is required" }),
+    storageUnitId: zfd.text(z.string().optional()),
     customerId: zfd.text(z.string().optional()),
     modelUploadId: zfd.text(z.string().optional()),
     configuration: z.any().optional()
