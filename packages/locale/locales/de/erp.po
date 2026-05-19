@@ -284,9 +284,6 @@ msgstr "Aktionen hinzufÃƒÆ’Ã‚Â¼gen"
 msgid "Add any notes about your decision..."
 msgstr "FÃƒÆ’Ã‚Â¼gen Sie Notizen zu Ihrer Entscheidung hinzu..."
 
-msgid "Add Application"
-msgstr ""
-
 msgid "Add Approval Requirement"
 msgstr "Genehmigungsanforderung hinzufÃƒÆ’Ã‚Â¼gen"
 
@@ -476,9 +473,6 @@ msgstr "Ein Element kann nicht zu sich selbst hinzugefÃƒÆ’Ã‚Â¼gt werde
 msgid "and {remaining} more"
 msgstr "und {remaining} weitere"
 
-msgid "AP Tie-Out"
-msgstr ""
-
 msgid "API and Webhooks"
 msgstr "API und Webhooks"
 
@@ -503,9 +497,6 @@ msgstr ""
 msgid "Applied"
 msgstr ""
 
-msgid "Applied Amount"
-msgstr ""
-
 msgid "Applied Date"
 msgstr ""
 
@@ -514,9 +505,6 @@ msgstr "Gilt fÃƒÆ’Ã‚Â¼r"
 
 msgid "Apply pricing rules"
 msgstr "Preisregeln anwenden"
-
-msgid "Apply this payment to an open invoice. Principal, discount, and write-off are all in invoice currency. FX gain/loss is computed from the rate delta."
-msgstr ""
 
 msgid "Apply To"
 msgstr "Anwenden auf"
@@ -541,9 +529,6 @@ msgstr "Genehmigt von"
 
 msgid "AQL"
 msgstr "AQL"
-
-msgid "AR Tie-Out"
-msgstr ""
 
 msgid "Archive"
 msgstr "Archiv"
@@ -3923,9 +3908,6 @@ msgstr "Rechnungskunde-Kontakt"
 msgid "Invoice Customer Location"
 msgstr "Rechnungskundenstandort"
 
-msgid "Invoice Exchange Rate"
-msgstr ""
-
 msgid "Invoice ID"
 msgstr "Rechnungs-ID"
 
@@ -5522,9 +5504,6 @@ msgstr "Zahlung"
 msgid "Payment Date"
 msgstr ""
 
-msgid "Payment Exchange Rate"
-msgstr ""
-
 msgid "Payment ID"
 msgstr ""
 
@@ -5866,9 +5845,6 @@ msgstr "Kaufrechnung"
 
 msgid "Purchase Invoice Amount"
 msgstr "Betrag der Kaufrechnung"
-
-msgid "Purchase Invoice ID"
-msgstr ""
 
 msgid "Purchase Invoice Line"
 msgstr "Kaufrechnungsposition"
@@ -6490,9 +6466,6 @@ msgstr "Verkaufstrichter"
 
 msgid "Sales Invoice"
 msgstr "Verkaufsrechnung"
-
-msgid "Sales Invoice ID"
-msgstr ""
 
 msgid "Sales Invoice Line"
 msgstr "Verkaufsrechnungsposition"

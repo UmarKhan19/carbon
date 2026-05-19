@@ -284,9 +284,6 @@ msgstr "Agregar Acciones"
 msgid "Add any notes about your decision..."
 msgstr "AÃƒÆ’Ã‚Â±ade cualquier nota sobre tu decisiÃƒÆ’Ã‚Â³n..."
 
-msgid "Add Application"
-msgstr ""
-
 msgid "Add Approval Requirement"
 msgstr "Agregar Requisito de AprobaciÃƒÆ’Ã‚Â³n"
 
@@ -476,9 +473,6 @@ msgstr "Un elemento no puede agregarse a sÃƒÆ’Ã‚Â­ mismo."
 msgid "and {remaining} more"
 msgstr "y {remaining} mÃƒÆ’Ã‚Â¡s"
 
-msgid "AP Tie-Out"
-msgstr ""
-
 msgid "API and Webhooks"
 msgstr "API y Webhooks"
 
@@ -503,9 +497,6 @@ msgstr ""
 msgid "Applied"
 msgstr ""
 
-msgid "Applied Amount"
-msgstr ""
-
 msgid "Applied Date"
 msgstr ""
 
@@ -514,9 +505,6 @@ msgstr "Se aplica a"
 
 msgid "Apply pricing rules"
 msgstr "Aplicar reglas de precios"
-
-msgid "Apply this payment to an open invoice. Principal, discount, and write-off are all in invoice currency. FX gain/loss is computed from the rate delta."
-msgstr ""
 
 msgid "Apply To"
 msgstr "Aplicar a"
@@ -541,9 +529,6 @@ msgstr "Aprobado por"
 
 msgid "AQL"
 msgstr "AQL"
-
-msgid "AR Tie-Out"
-msgstr ""
 
 msgid "Archive"
 msgstr "Archivo"
@@ -3923,9 +3908,6 @@ msgstr "Contacto del Cliente de Factura"
 msgid "Invoice Customer Location"
 msgstr "UbicaciÃƒÆ’Ã‚Â³n del Cliente de Factura"
 
-msgid "Invoice Exchange Rate"
-msgstr ""
-
 msgid "Invoice ID"
 msgstr "ID de Factura"
 
@@ -5522,9 +5504,6 @@ msgstr "Pago"
 msgid "Payment Date"
 msgstr ""
 
-msgid "Payment Exchange Rate"
-msgstr ""
-
 msgid "Payment ID"
 msgstr ""
 
@@ -5866,9 +5845,6 @@ msgstr "Factura de Compra"
 
 msgid "Purchase Invoice Amount"
 msgstr "Monto de Factura de Compra"
-
-msgid "Purchase Invoice ID"
-msgstr ""
 
 msgid "Purchase Invoice Line"
 msgstr "LÃƒÆ’Ã‚Â­nea de Factura de Compra"
@@ -6490,9 +6466,6 @@ msgstr "Embudo de Ventas"
 
 msgid "Sales Invoice"
 msgstr "Factura de Venta"
-
-msgid "Sales Invoice ID"
-msgstr ""
 
 msgid "Sales Invoice Line"
 msgstr "LÃƒÆ’Ã‚Â­nea de Factura de Venta"

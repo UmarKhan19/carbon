@@ -1,5 +1,4 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { TieOut } from "~/modules/accounting/ui/Reports";
@@ -8,7 +7,7 @@ import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: msg`AR Tie-Out`,
+  breadcrumb: "AR Tie-Out",
   to: path.to.arTieOut,
   module: "accounting"
 };

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   paymentApplicationValidator,
   paymentValidator
-} from "./payments.models";
+} from "./invoicing.models";
 
 describe("paymentValidator", () => {
   const validReceipt = {

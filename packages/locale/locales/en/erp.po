@@ -284,9 +284,6 @@ msgstr "Add Actions"
 msgid "Add any notes about your decision..."
 msgstr "Add any notes about your decision..."
 
-msgid "Add Application"
-msgstr "Add Application"
-
 msgid "Add Approval Requirement"
 msgstr "Add Approval Requirement"
 
@@ -476,9 +473,6 @@ msgstr "An item cannot be added to itself."
 msgid "and {remaining} more"
 msgstr "and {remaining} more"
 
-msgid "AP Tie-Out"
-msgstr "AP Tie-Out"
-
 msgid "API and Webhooks"
 msgstr "API and Webhooks"
 
@@ -503,9 +497,6 @@ msgstr "Applications"
 msgid "Applied"
 msgstr "Applied"
 
-msgid "Applied Amount"
-msgstr "Applied Amount"
-
 msgid "Applied Date"
 msgstr "Applied Date"
 
@@ -514,9 +505,6 @@ msgstr "Applies to"
 
 msgid "Apply pricing rules"
 msgstr "Apply pricing rules"
-
-msgid "Apply this payment to an open invoice. Principal, discount, and write-off are all in invoice currency. FX gain/loss is computed from the rate delta."
-msgstr "Apply this payment to an open invoice. Principal, discount, and write-off are all in invoice currency. FX gain/loss is computed from the rate delta."
 
 msgid "Apply To"
 msgstr "Apply To"
@@ -541,9 +529,6 @@ msgstr "Approved By"
 
 msgid "AQL"
 msgstr "AQL"
-
-msgid "AR Tie-Out"
-msgstr "AR Tie-Out"
 
 msgid "Archive"
 msgstr "Archive"
@@ -3923,9 +3908,6 @@ msgstr "Invoice Customer Contact"
 msgid "Invoice Customer Location"
 msgstr "Invoice Customer Location"
 
-msgid "Invoice Exchange Rate"
-msgstr "Invoice Exchange Rate"
-
 msgid "Invoice ID"
 msgstr "Invoice ID"
 
@@ -5522,9 +5504,6 @@ msgstr "Payment"
 msgid "Payment Date"
 msgstr "Payment Date"
 
-msgid "Payment Exchange Rate"
-msgstr "Payment Exchange Rate"
-
 msgid "Payment ID"
 msgstr "Payment ID"
 
@@ -5866,9 +5845,6 @@ msgstr "Purchase Invoice"
 
 msgid "Purchase Invoice Amount"
 msgstr "Purchase Invoice Amount"
-
-msgid "Purchase Invoice ID"
-msgstr "Purchase Invoice ID"
 
 msgid "Purchase Invoice Line"
 msgstr "Purchase Invoice Line"
@@ -6490,9 +6466,6 @@ msgstr "Sales Funnel"
 
 msgid "Sales Invoice"
 msgstr "Sales Invoice"
-
-msgid "Sales Invoice ID"
-msgstr "Sales Invoice ID"
 
 msgid "Sales Invoice Line"
 msgstr "Sales Invoice Line"

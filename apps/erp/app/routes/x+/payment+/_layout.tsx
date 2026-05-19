@@ -1,4 +1,3 @@
-import { msg } from "@lingui/core/macro";
 import type { MetaFunction } from "react-router";
 import { Outlet } from "react-router";
 import type { Handle } from "~/utils/handle";
@@ -9,7 +8,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const handle: Handle = {
-  breadcrumb: msg`Payments`,
+  breadcrumb: "Payments",
   to: path.to.payments,
   module: "invoicing"
 };
