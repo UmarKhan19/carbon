@@ -17,7 +17,9 @@ import type {
   SalesInvoiceShipment
 } from "~/modules/invoicing";
 import {
+  getPaymentApplicationsForInvoice,
   getSalesInvoice,
+  InvoicePaymentsPanel,
   isSalesInvoiceLocked,
   salesInvoiceValidator,
   upsertSalesInvoice
@@ -42,7 +44,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { invoiceId } = params;
   if (!invoiceId) throw new Error("Could not find invoiceId");
 
-  const invoice = await getSalesInvoice(client, invoiceId);
+  const [invoice, applications] = await Promise.all([
+    getSalesInvoice(client, invoiceId),
+    getPaymentApplicationsForInvoice(client, "sales", invoiceId)
+  ]);
   if (invoice.error) {
     throw redirect(
       path.to.salesInvoices,
@@ -51,7 +56,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return {
-    internalNotes: (invoice.data?.internalNotes ?? {}) as JSONContent
+    internalNotes: (invoice.data?.internalNotes ?? {}) as JSONContent,
+    paymentApplications: applications.data ?? []
   };
 }
 
@@ -120,7 +126,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function SalesInvoiceBasicRoute() {
   const { t } = useLingui();
-  const { internalNotes } = useLoaderData<typeof loader>();
+  const { internalNotes, paymentApplications } = useLoaderData<typeof loader>();
   const { invoiceId } = useParams();
   if (!invoiceId) throw new Error("invoiceId not found");
 
@@ -173,6 +179,7 @@ export default function SalesInvoiceBasicRoute() {
   return (
     <Fragment key={invoiceId}>
       <SalesInvoiceSummary onEditShippingCost={handleEditShippingCost} />
+      <InvoicePaymentsPanel rows={paymentApplications} />
       <OpportunityNotes
         key={`notes-${initialValues.id}`}
         id={invoiceId}

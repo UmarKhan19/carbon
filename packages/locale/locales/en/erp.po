@@ -521,6 +521,9 @@ msgstr "Apply this payment to an open invoice. Principal, discount, and write-of
 msgid "Apply To"
 msgstr "Apply To"
 
+msgid "Apply To Invoices"
+msgstr "Apply To Invoices"
+
 msgid "Approval Date"
 msgstr "Approval Date"
 
@@ -976,6 +979,9 @@ msgstr "Audit Logs"
 msgid "Authentication Error"
 msgstr "Authentication Error"
 
+msgid "Auto Apply"
+msgstr "Auto Apply"
+
 msgid "Auto Release"
 msgstr "Auto Release"
 
@@ -1264,6 +1270,9 @@ msgstr "Chart of Accounts"
 
 msgid "Chat"
 msgstr "Chat"
+
+msgid "Check the invoices this payment settles. Discount and write-off are in invoice currency."
+msgstr "Check the invoices this payment settles. Discount and write-off are in invoice currency."
 
 msgid "Check your email"
 msgstr "Check your email"
@@ -4349,6 +4358,9 @@ msgstr "Make items cannot be invoiced directly. Change method to Pick to continu
 msgid "Make Method Version"
 msgstr "Make Method Version"
 
+msgid "Make Payment"
+msgstr "Make Payment"
+
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "Make revision {0} default?"
@@ -5078,6 +5090,9 @@ msgstr "No new notifications"
 msgid "No notes"
 msgstr "No notes"
 
+msgid "No open invoices for this counterparty. Payment will be on-account."
+msgstr "No open invoices for this counterparty. Payment will be on-account."
+
 msgid "No operators."
 msgstr "No operators."
 
@@ -5390,6 +5405,9 @@ msgstr "Output"
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 
+msgid "Over-applied by"
+msgstr "Over-applied by"
+
 msgid "Overdue"
 msgstr "Overdue"
 
@@ -5686,6 +5704,9 @@ msgstr "Posted"
 
 msgid "Posted By"
 msgstr "Posted By"
+
+msgid "Posted payments that have applied to this invoice. Click a row to open the payment."
+msgstr "Posted payments that have applied to this invoice. Click a row to open the payment."
 
 msgid "Posting Date"
 msgstr "Posting Date"
@@ -6084,6 +6105,9 @@ msgstr "Receive"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Receive {0} to Inventory"
+
+msgid "Receive Payment"
+msgstr "Receive Payment"
 
 msgid "Receive to Inventory"
 msgstr "Receive to Inventory"
@@ -6529,6 +6553,9 @@ msgstr "Save & Close"
 
 msgid "Save and Overwrite"
 msgstr "Save and Overwrite"
+
+msgid "Save Applications"
+msgstr "Save Applications"
 
 msgid "Save Method"
 msgstr "Save Method"

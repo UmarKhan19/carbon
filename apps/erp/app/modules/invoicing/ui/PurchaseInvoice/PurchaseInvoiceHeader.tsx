@@ -6,8 +6,6 @@ import {
   DropdownMenuContent,
   DropdownMenuIcon,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   Heading,
@@ -22,7 +20,6 @@ import { useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import {
   LuCheckCheck,
-  LuChevronDown,
   LuEllipsisVertical,
   LuHandCoins,
   LuPanelLeft,
@@ -31,7 +28,7 @@ import {
   LuTicketX,
   LuTrash
 } from "react-icons/lu";
-import { Link, useFetcher, useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { useAuditLog } from "~/components/AuditLog";
 import { usePanels } from "~/components/Layout/Panels";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -43,7 +40,6 @@ import {
 } from "~/hooks";
 import type { PurchaseInvoice, PurchaseInvoiceLine } from "~/modules/invoicing";
 import { PurchaseInvoicingStatus } from "~/modules/invoicing";
-import type { action as statusAction } from "~/routes/x+/purchase-invoice+/$invoiceId.status";
 import { useItems } from "~/stores";
 import { useSuppliers } from "~/stores/suppliers";
 import { path } from "~/utils/path";
@@ -67,8 +63,6 @@ const PurchaseInvoiceHeader = () => {
     companyId: company.id,
     variant: "dropdown"
   });
-
-  const statusFetcher = useFetcher<typeof statusAction>();
 
   const { carbon } = useCarbon();
   const [linesNotAssociatedWithPO, setLinesNotAssociatedWithPO] = useState<
@@ -180,12 +174,19 @@ const PurchaseInvoiceHeader = () => {
     postingModal.onOpen();
   };
 
-  const handleStatusChange = (status: string) => {
-    statusFetcher.submit(
-      { status },
-      { method: "post", action: path.to.purchaseInvoiceStatus(invoiceId) }
-    );
-  };
+  // Status is derived from paymentApplication rows (migration
+  // 20260519130000); manual mutation removed.
+  const canMakePayment =
+    !["Voided", "Draft", "Pending", "Paid"].includes(
+      purchaseInvoice.status ?? ""
+    ) &&
+    Number(purchaseInvoice.balance ?? 0) > 0 &&
+    permissions.can("create", "invoicing");
+  const makePaymentHref = `${path.to.paymentNew}?supplierId=${encodeURIComponent(
+    purchaseInvoice.supplierId ?? ""
+  )}&invoiceId=${encodeURIComponent(invoiceId)}&amount=${encodeURIComponent(
+    String(purchaseInvoice.balance ?? 0)
+  )}`;
 
   return (
     <>
@@ -333,52 +334,13 @@ const PurchaseInvoiceHeader = () => {
               <Trans>Post</Trans>
             </Button>
 
-            {(() => {
-              const isPaymentDisabled =
-                purchaseInvoice.status === "Draft" ||
-                purchaseInvoice.status === "Pending" ||
-                isVoided ||
-                !permissions.can("update", "invoicing");
-
-              if (isPaymentDisabled) {
-                return (
-                  <Button
-                    variant="secondary"
-                    isDisabled
-                    leftIcon={<LuHandCoins />}
-                    rightIcon={<LuChevronDown />}
-                  >
-                    <Trans>Payment</Trans>
-                  </Button>
-                );
-              }
-
-              return (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="secondary"
-                      leftIcon={<LuHandCoins />}
-                      rightIcon={<LuChevronDown />}
-                    >
-                      <Trans>Payment</Trans>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuRadioGroup
-                      value={purchaseInvoice.status ?? "Draft"}
-                      onValueChange={handleStatusChange}
-                    >
-                      {(["Paid", "Partially Paid"] as const).map((status) => (
-                        <DropdownMenuRadioItem key={status} value={status}>
-                          <PurchaseInvoicingStatus status={status} />
-                        </DropdownMenuRadioItem>
-                      ))}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              );
-            })()}
+            {canMakePayment && (
+              <Button variant="secondary" leftIcon={<LuHandCoins />} asChild>
+                <Link to={makePaymentHref}>
+                  <Trans>Make Payment</Trans>
+                </Link>
+              </Button>
+            )}
 
             <IconButton
               aria-label={t`Toggle Properties`}

@@ -521,6 +521,9 @@ msgstr ""
 msgid "Apply To"
 msgstr "Applica a"
 
+msgid "Apply To Invoices"
+msgstr ""
+
 msgid "Approval Date"
 msgstr "Data di approvazione"
 
@@ -976,6 +979,9 @@ msgstr "Registri di Audit"
 msgid "Authentication Error"
 msgstr "Errore di autenticazione"
 
+msgid "Auto Apply"
+msgstr ""
+
 msgid "Auto Release"
 msgstr "Rilascio Automatico"
 
@@ -1264,6 +1270,9 @@ msgstr "Piano dei Conti"
 
 msgid "Chat"
 msgstr "Chat"
+
+msgid "Check the invoices this payment settles. Discount and write-off are in invoice currency."
+msgstr ""
 
 msgid "Check your email"
 msgstr "Controlla la tua email"
@@ -4349,6 +4358,9 @@ msgstr "Gli articoli Make non possono essere fatturati direttamente. Cambia il m
 msgid "Make Method Version"
 msgstr "Versione Metodo di Produzione"
 
+msgid "Make Payment"
+msgstr ""
+
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "Rendere la revisione {0} predefinita?"
@@ -5078,6 +5090,9 @@ msgstr "Nessuna nuova notifica"
 msgid "No notes"
 msgstr "Nessuna nota"
 
+msgid "No open invoices for this counterparty. Payment will be on-account."
+msgstr ""
+
 msgid "No operators."
 msgstr "Nessun operatore."
 
@@ -5390,6 +5405,9 @@ msgstr "Output"
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "L'output non supera mai i suoi materiali grezzi. Ritorna alla durata fissa quando nessun input ha una data di scadenza."
 
+msgid "Over-applied by"
+msgstr ""
+
 msgid "Overdue"
 msgstr "Scaduto"
 
@@ -5686,6 +5704,9 @@ msgstr "Registrato"
 
 msgid "Posted By"
 msgstr "Pubblicato da"
+
+msgid "Posted payments that have applied to this invoice. Click a row to open the payment."
+msgstr ""
 
 msgid "Posting Date"
 msgstr "Data di registrazione"
@@ -6084,6 +6105,9 @@ msgstr "Ricevi"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Ricevi {0} in Inventario"
+
+msgid "Receive Payment"
+msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Ricevi in Inventario"
@@ -6529,6 +6553,9 @@ msgstr "Salva e chiudi"
 
 msgid "Save and Overwrite"
 msgstr "Salva e Sovrascrivi"
+
+msgid "Save Applications"
+msgstr ""
 
 msgid "Save Method"
 msgstr "Salva Metodo"

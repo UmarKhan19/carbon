@@ -1265,6 +1265,8 @@ export const path = {
     payment: (id: string) => generatePath(`${x}/payment/${id}`),
     paymentApplicationsNew: (id: string) =>
       generatePath(`${x}/payment/${id}/applications/new`),
+    paymentApplicationsSet: (id: string) =>
+      generatePath(`${x}/payment/${id}/applications/set`),
     paymentDelete: (id: string) => generatePath(`${x}/payment/${id}/delete`),
     paymentNew: `${x}/payment/new`,
     paymentPost: (id: string) => generatePath(`${x}/payment/${id}/post`),

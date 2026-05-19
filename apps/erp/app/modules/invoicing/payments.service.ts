@@ -67,6 +67,70 @@ export async function getPaymentApplications(
     .order("appliedDate", { ascending: true });
 }
 
+export type PaymentApplicationForInvoice = {
+  id: string;
+  paymentId: string;
+  appliedAmount: number;
+  discountAmount: number;
+  writeOffAmount: number;
+  fxGainLossAmount: number | null;
+  invoiceExchangeRate: number;
+  paymentExchangeRate: number;
+  appliedDate: string;
+  payment: {
+    id: string;
+    paymentId: string;
+    status: string | null;
+    paymentDate: string | null;
+    currencyCode: string;
+  };
+};
+
+// Posted applications against a specific invoice. Used by the "Payments"
+// panel on the sales/purchase invoice detail page to list every payment
+// that has settled (any portion of) this invoice. Two-step query (apps
+// then their parent payments) avoids the supabase JS type depth limit
+// that a !inner join hits, and lets the caller filter out Voided
+// payments cleanly.
+export async function getPaymentApplicationsForInvoice(
+  client: SupabaseClient<Database>,
+  side: "sales" | "purchase",
+  invoiceId: string
+): Promise<{
+  data: PaymentApplicationForInvoice[] | null;
+  error: unknown;
+}> {
+  const column = side === "sales" ? "salesInvoiceId" : "purchaseInvoiceId";
+  const apps = await client
+    .from("paymentApplication")
+    .select(
+      "id, paymentId, appliedAmount, discountAmount, writeOffAmount, fxGainLossAmount, invoiceExchangeRate, paymentExchangeRate, appliedDate"
+    )
+    .eq(column, invoiceId)
+    .order("appliedDate", { ascending: false });
+
+  if (apps.error) return { data: null, error: apps.error };
+  if (!apps.data || apps.data.length === 0) return { data: [], error: null };
+
+  const paymentIds = apps.data.map((a) => a.paymentId);
+  const payments = await client
+    .from("payment")
+    .select("id, paymentId, status, paymentDate, currencyCode")
+    .in("id", paymentIds)
+    .eq("status", "Posted");
+
+  if (payments.error) {
+    return { data: null, error: payments.error };
+  }
+
+  const paymentById = new Map(payments.data.map((p) => [p.id, p]));
+  const merged = apps.data
+    .filter((a) => paymentById.has(a.paymentId))
+    .map((a) => ({ ...a, payment: paymentById.get(a.paymentId)! }));
+
+  return { data: merged, error: null };
+}
+
 // Open sales invoices for a customer (status active and a positive balance).
 // Used by the application picker on the AR payment form.
 export async function getOpenSalesInvoicesForCustomer(

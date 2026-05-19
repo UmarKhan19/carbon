@@ -30,16 +30,20 @@ import {
   usePermissions
 } from "~/hooks";
 import {
+  getOpenPurchaseInvoicesForSupplier,
+  getOpenSalesInvoicesForCustomer,
   getPayment,
   getPaymentApplications,
   isPaymentLocked,
-  PaymentApplicationForm,
+  PaymentApplyTable,
   PaymentStatus
 } from "~/modules/invoicing";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client } = await requirePermissions(request, { view: "invoicing" });
+  const { client, companyId } = await requirePermissions(request, {
+    view: "invoicing"
+  });
   const { paymentId } = params;
   if (!paymentId) throw notFound("Missing paymentId");
 
@@ -55,15 +59,51 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  // Apply table needs the counterparty's open invoices. Only fetched
+  // for Draft payments to keep the Posted/Voided detail render lean.
+  // Cast to a common shape — sales and purchase status enums differ
+  // ('Submitted' vs 'Open') so TypeScript can't unify the two without
+  // help.
+  type OpenInvoiceRow = {
+    id: string;
+    invoiceId: string | null;
+    dateDue: string | null;
+    currencyCode: string;
+    exchangeRate: number;
+    totalAmount: number;
+    balance: number;
+    status: string | null;
+  };
+  let openInvoices: OpenInvoiceRow[] = [];
+  if (payment.data.status === "Draft") {
+    if (payment.data.customerId) {
+      const res = await getOpenSalesInvoicesForCustomer(
+        client,
+        companyId,
+        payment.data.customerId
+      );
+      openInvoices = (res.data ?? []) as OpenInvoiceRow[];
+    } else if (payment.data.supplierId) {
+      const res = await getOpenPurchaseInvoicesForSupplier(
+        client,
+        companyId,
+        payment.data.supplierId
+      );
+      openInvoices = (res.data ?? []) as OpenInvoiceRow[];
+    }
+  }
+
   return {
     payment: payment.data,
-    applications: applications.data ?? []
+    applications: applications.data ?? [],
+    openInvoices: openInvoices ?? []
   };
 }
 
 export default function PaymentDetailRoute() {
   const permissions = usePermissions();
-  const { payment, applications } = useLoaderData<typeof loader>();
+  const { payment, applications, openInvoices } =
+    useLoaderData<typeof loader>();
   const post = useFetcher();
   const voidFetcher = useFetcher();
   const currencyFormatter = useCurrencyFormatter({
@@ -302,10 +342,32 @@ export default function PaymentDetailRoute() {
       </Card>
 
       {!locked && (
-        <PaymentApplicationForm
+        <PaymentApplyTable
           paymentId={payment.id}
           paymentType={payment.paymentType}
-          defaultPaymentExchangeRate={Number(payment.exchangeRate)}
+          paymentCurrency={payment.currencyCode}
+          paymentTotal={Number(payment.totalAmount)}
+          paymentExchangeRate={Number(payment.exchangeRate)}
+          openInvoices={(openInvoices ?? []).map((inv) => ({
+            id: inv.id,
+            invoiceId: inv.invoiceId ?? inv.id,
+            dateDue: inv.dateDue,
+            currencyCode: inv.currencyCode,
+            exchangeRate: Number(inv.exchangeRate ?? 1),
+            totalAmount: Number(inv.totalAmount ?? 0),
+            balance: Number(inv.balance ?? 0),
+            status: inv.status
+          }))}
+          existingApplications={applications.map((a) => ({
+            salesInvoiceId: a.salesInvoiceId,
+            purchaseInvoiceId: a.purchaseInvoiceId,
+            appliedAmount: Number(a.appliedAmount),
+            discountAmount: Number(a.discountAmount),
+            writeOffAmount: Number(a.writeOffAmount),
+            invoiceExchangeRate: Number(a.invoiceExchangeRate),
+            paymentExchangeRate: Number(a.paymentExchangeRate),
+            appliedDate: a.appliedDate
+          }))}
         />
       )}
     </VStack>

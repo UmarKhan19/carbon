@@ -37,9 +37,17 @@ type PaymentFormValues = z.infer<typeof paymentValidator>;
 
 type PaymentFormProps = {
   initialValues: PaymentFormValues & { status?: string };
+  // When set, a hidden field carries the seed invoice id through to
+  // the action, which auto-creates a starter application against it.
+  seedInvoiceId?: string;
+  seedInvoiceExchangeRate?: number;
 };
 
-const PaymentForm = ({ initialValues }: PaymentFormProps) => {
+const PaymentForm = ({
+  initialValues,
+  seedInvoiceId,
+  seedInvoiceExchangeRate
+}: PaymentFormProps) => {
   const { t } = useLingui();
   const permissions = usePermissions();
   const isEditing = Boolean(initialValues.id);
@@ -81,6 +89,15 @@ const PaymentForm = ({ initialValues }: PaymentFormProps) => {
         </CardHeader>
         <CardContent>
           <Hidden name="id" />
+          {seedInvoiceId && (
+            <>
+              <Hidden name="seedInvoiceId" value={seedInvoiceId} />
+              <Hidden
+                name="seedInvoiceExchangeRate"
+                value={String(seedInvoiceExchangeRate ?? 1)}
+              />
+            </>
+          )}
           <VStack>
             <div className="grid w-full gap-x-8 gap-y-4 grid-cols-1 lg:grid-cols-3">
               {!isEditing && (

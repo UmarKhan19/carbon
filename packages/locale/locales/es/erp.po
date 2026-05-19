@@ -521,6 +521,9 @@ msgstr ""
 msgid "Apply To"
 msgstr "Aplicar a"
 
+msgid "Apply To Invoices"
+msgstr ""
+
 msgid "Approval Date"
 msgstr "Fecha de AprobaciÃƒÆ’Ã‚Â³n"
 
@@ -976,6 +979,9 @@ msgstr "Registros de AuditorÃƒÆ’Ã‚Â­a"
 msgid "Authentication Error"
 msgstr "Error de autenticaciÃƒÆ’Ã‚Â³n"
 
+msgid "Auto Apply"
+msgstr ""
+
 msgid "Auto Release"
 msgstr "LiberaciÃƒÆ’Ã‚Â³n AutomÃƒÆ’Ã‚Â¡tica"
 
@@ -1264,6 +1270,9 @@ msgstr "Plan de Cuentas"
 
 msgid "Chat"
 msgstr "Chat"
+
+msgid "Check the invoices this payment settles. Discount and write-off are in invoice currency."
+msgstr ""
 
 msgid "Check your email"
 msgstr "Revisa tu correo electrÃƒÆ’Ã‚Â³nico"
@@ -4349,6 +4358,9 @@ msgstr "Los artÃƒÆ’Ã‚Â­culos de fabricaciÃƒÆ’Ã‚Â³n no se pue
 msgid "Make Method Version"
 msgstr "VersiÃƒÆ’Ã‚Â³n del MÃƒÆ’Ã‚Â©todo de FabricaciÃƒÆ’Ã‚Â³n"
 
+msgid "Make Payment"
+msgstr ""
+
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "Ãƒâ€šÃ‚Â¿Hacer la revisiÃƒÆ’Ã‚Â³n {0} predeterminada?"
@@ -5078,6 +5090,9 @@ msgstr "Sin notificaciones nuevas"
 msgid "No notes"
 msgstr "Sin notas"
 
+msgid "No open invoices for this counterparty. Payment will be on-account."
+msgstr ""
+
 msgid "No operators."
 msgstr "Sin operadores."
 
@@ -5390,6 +5405,9 @@ msgstr "Salida"
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "El producto nunca durarÃƒÆ’Ã‚Â¡ mÃƒÆ’Ã‚Â¡s que sus materias primas. Vuelve a la duraciÃƒÆ’Ã‚Â³n fija cuando ninguna entrada tiene una fecha de vencimiento."
 
+msgid "Over-applied by"
+msgstr ""
+
 msgid "Overdue"
 msgstr "Vencido"
 
@@ -5686,6 +5704,9 @@ msgstr "Publicado"
 
 msgid "Posted By"
 msgstr "Publicado por"
+
+msgid "Posted payments that have applied to this invoice. Click a row to open the payment."
+msgstr ""
 
 msgid "Posting Date"
 msgstr "Fecha de Registro"
@@ -6084,6 +6105,9 @@ msgstr "Recibir"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Recibir {0} al Inventario"
+
+msgid "Receive Payment"
+msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Recibir al Inventario"
@@ -6529,6 +6553,9 @@ msgstr "Guardar y cerrar"
 
 msgid "Save and Overwrite"
 msgstr "Guardar y Sobrescribir"
+
+msgid "Save Applications"
+msgstr ""
 
 msgid "Save Method"
 msgstr "Guardar MÃƒÆ’Ã‚Â©todo"

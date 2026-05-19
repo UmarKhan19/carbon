@@ -521,6 +521,9 @@ msgstr ""
 msgid "Apply To"
 msgstr "Zastosuj do"
 
+msgid "Apply To Invoices"
+msgstr ""
+
 msgid "Approval Date"
 msgstr "Data zatwierdzenia"
 
@@ -976,6 +979,9 @@ msgstr "Dzienniki audytu"
 msgid "Authentication Error"
 msgstr "BÃƒâ€¦Ã¢â‚¬Å¡Ãƒâ€žÃ¢â‚¬Â¦d uwierzytelniania"
 
+msgid "Auto Apply"
+msgstr ""
+
 msgid "Auto Release"
 msgstr "Automatyczne zwolnienie"
 
@@ -1264,6 +1270,9 @@ msgstr "Plan kont"
 
 msgid "Chat"
 msgstr "Czat"
+
+msgid "Check the invoices this payment settles. Discount and write-off are in invoice currency."
+msgstr ""
 
 msgid "Check your email"
 msgstr "SprawdÃƒâ€¦Ã‚Âº swojÃƒâ€žÃ¢â‚¬Â¦ pocztÃƒâ€žÃ¢â€žÂ¢"
@@ -4349,6 +4358,9 @@ msgstr "ArtykuÃƒâ€¦Ã¢â‚¬Å¡y Make nie mogÃƒâ€žÃ¢â‚¬Â¦
 msgid "Make Method Version"
 msgstr "Wersja metody produkcji"
 
+msgid "Make Payment"
+msgstr ""
+
 #. placeholder {0}: selectedRevision.revision
 msgid "Make revision {0} default?"
 msgstr "UczyniÃƒâ€žÃ¢â‚¬Â¡ wersjÃƒâ€žÃ¢â€žÂ¢ {0} domyÃƒâ€¦Ã¢â‚¬ÂºlnÃƒâ€žÃ¢â‚¬Â¦?"
@@ -5078,6 +5090,9 @@ msgstr "Brak nowych powiadomieÃƒâ€¦Ã¢â‚¬Å¾"
 msgid "No notes"
 msgstr "Brak notek"
 
+msgid "No open invoices for this counterparty. Payment will be on-account."
+msgstr ""
+
 msgid "No operators."
 msgstr "Brak operatorÃƒÆ’Ã‚Â³w."
 
@@ -5390,6 +5405,9 @@ msgstr "WyjÃƒâ€¦Ã¢â‚¬Âºcie"
 msgid "Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date."
 msgstr "Produkt nigdy nie przetrwa dÃƒâ€¦Ã¢â‚¬Å¡uÃƒâ€¦Ã‚Â¼ej niÃƒâ€¦Ã‚Â¼ jego surowce. Powraca do staÃƒâ€¦Ã¢â‚¬Å¡ego okresu, gdy Ãƒâ€¦Ã‚Â¼aden materiaÃƒâ€¦Ã¢â‚¬Å¡ wejÃƒâ€¦Ã¢â‚¬Âºciowy nie ma daty wygaÃƒâ€¦Ã¢â‚¬ÂºniÃƒâ€žÃ¢â€žÂ¢cia."
 
+msgid "Over-applied by"
+msgstr ""
+
 msgid "Overdue"
 msgstr "ZalegÃƒâ€¦Ã¢â‚¬Å¡y"
 
@@ -5686,6 +5704,9 @@ msgstr "Opublikowano"
 
 msgid "Posted By"
 msgstr "Opublikowano przez"
+
+msgid "Posted payments that have applied to this invoice. Click a row to open the payment."
+msgstr ""
 
 msgid "Posting Date"
 msgstr "Data ksiÃƒâ€žÃ¢â€žÂ¢gowania"
@@ -6084,6 +6105,9 @@ msgstr "Odbierz"
 #. placeholder {0}: job.jobId
 msgid "Receive {0} to Inventory"
 msgstr "Odbierz {0} do Magazynu"
+
+msgid "Receive Payment"
+msgstr ""
 
 msgid "Receive to Inventory"
 msgstr "Odbierz do Magazynu"
@@ -6529,6 +6553,9 @@ msgstr "Zapisz i zamknij"
 
 msgid "Save and Overwrite"
 msgstr "Zapisz i ZastÃƒâ€žÃ¢â‚¬Â¦p"
+
+msgid "Save Applications"
+msgstr ""
 
 msgid "Save Method"
 msgstr "Zapisz metodÃƒâ€žÃ¢â€žÂ¢"
