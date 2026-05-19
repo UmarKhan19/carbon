@@ -140,11 +140,11 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 **Files:**
 - Create: `packages/database/supabase/migrations/<ts>_ar-ap-tie-out.sql`
 
-- [ ] **Step 6.1: Create `get_ar_tie_out(_company_id TEXT, _as_of_date DATE)`** returning `(subledgerBalance, glBalance, variance)`. Subledger = `SUM((si.totalAmount − COALESCE(settled,0)) × si.exchangeRate)` where `postingDate <= as_of` and `status NOT IN ('Draft','Pending','Voided')`, with settled CTE filtered to `pa.appliedDate <= as_of` AND `p.status='Posted'`. GL = `SUM(jl.amount)` over `journalLine JOIN journal` where `accountNumber = accountDefault.receivablesAccount` and `j.postingDate <= as_of`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 6.1: Create `get_ar_tie_out(_company_id TEXT, _as_of_date DATE)`** returning `(subledgerBalance, glBalance, variance)`. Subledger = `SUM((si.totalAmount − COALESCE(settled,0)) × si.exchangeRate)` where `postingDate <= as_of` and `status NOT IN ('Draft','Pending','Voided')`, with settled CTE filtered to `pa.appliedDate <= as_of` AND `p.status='Posted'`. GL = `SUM(jl.amount)` over `journalLine JOIN journal` where `accountNumber = accountDefault.receivablesAccount` and `j.postingDate <= as_of`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 6.2: Create `get_ap_tie_out`** mirror using `payablesAccount` and `purchaseInvoice`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 6.2: Create `get_ap_tie_out`** mirror using `payablesAccount` and `purchaseInvoice`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 6.3: Drill-down RPCs** `get_ar_open_by_customer` and `get_ap_open_by_supplier` returning per-counterparty rows of open invoices. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 6.3: Drill-down RPCs** `get_ar_open_by_customer` and `get_ap_open_by_supplier` returning per-counterparty rows of open invoices. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 ---
 

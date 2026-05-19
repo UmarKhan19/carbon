@@ -213,6 +213,54 @@ export async function replacePaymentApplications(
   );
 }
 
-// Tie-out fetchers (`getArTieOut`, `getApTieOut`) land with Task 6 when
-// the RPCs themselves exist. Keeping them out of this file avoids a TS
-// reference to an undefined RPC.
+// ----------------------------------------------------------------------
+// Tie-out (calls the RPCs from migration 20260519140000_ar-ap-tie-out)
+// ----------------------------------------------------------------------
+
+export async function getArTieOut(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  asOfDate: string
+) {
+  return client
+    .rpc("get_ar_tie_out", {
+      _company_id: companyId,
+      _as_of_date: asOfDate
+    })
+    .single();
+}
+
+export async function getApTieOut(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  asOfDate: string
+) {
+  return client
+    .rpc("get_ap_tie_out", {
+      _company_id: companyId,
+      _as_of_date: asOfDate
+    })
+    .single();
+}
+
+export async function getArOpenByCustomer(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  asOfDate: string
+) {
+  return client.rpc("get_ar_open_by_customer", {
+    _company_id: companyId,
+    _as_of_date: asOfDate
+  });
+}
+
+export async function getApOpenBySupplier(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  asOfDate: string
+) {
+  return client.rpc("get_ap_open_by_supplier", {
+    _company_id: companyId,
+    _as_of_date: asOfDate
+  });
+}

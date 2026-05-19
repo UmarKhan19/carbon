@@ -60381,6 +60381,64 @@ export type Database = {
           workCenterId: string
         }[]
       }
+      get_ap_open_by_supplier: {
+        Args: {
+          _as_of_date: string
+          _company_id: string
+        }
+        Returns: {
+          currencyCode: string
+          dateDue: string | null
+          exchangeRate: number
+          invoiceId: string
+          invoiceNumber: string
+          openInBase: number
+          openInCurrency: number
+          settled: number
+          supplierId: string
+          totalAmount: number
+        }[]
+      }
+      get_ap_tie_out: {
+        Args: {
+          _as_of_date: string
+          _company_id: string
+        }
+        Returns: {
+          glBalance: number
+          subledgerBalance: number
+          variance: number
+        }[]
+      }
+      get_ar_open_by_customer: {
+        Args: {
+          _as_of_date: string
+          _company_id: string
+        }
+        Returns: {
+          currencyCode: string
+          customerId: string
+          dateDue: string | null
+          exchangeRate: number
+          invoiceId: string
+          invoiceNumber: string
+          openInBase: number
+          openInCurrency: number
+          settled: number
+          totalAmount: number
+        }[]
+      }
+      get_ar_tie_out: {
+        Args: {
+          _as_of_date: string
+          _company_id: string
+        }
+        Returns: {
+          glBalance: number
+          subledgerBalance: number
+          variance: number
+        }[]
+      }
       get_audit_log: {
         Args: {
           p_actor_id?: string
