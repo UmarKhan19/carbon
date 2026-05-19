@@ -289,6 +289,12 @@ serve(async (req: Request) => {
           receivablesAccountId = accountDefaults?.data?.receivablesAccount;
         }
 
+        // Invoice exchange rate (defaults to 1 for base-currency invoices).
+        // journalLine.amount is denominated in base currency, so all monetary
+        // amounts derived from the invoice's foreign-currency unitPrice etc.
+        // must be multiplied by this rate before they reach a journal line.
+        const invoiceExchangeRate = salesInvoice.data?.exchangeRate ?? 1;
+
         for await (const invoiceLine of salesInvoiceLines.data) {
           const invoiceLineQuantityInInventoryUnit = invoiceLine.quantity;
 
@@ -302,8 +308,9 @@ serve(async (req: Request) => {
             totalLinesCost === 0 ? 0 : totalLineCost / totalLinesCost;
           const lineWeightedShippingCost =
             shippingCost * lineCostPercentageOfTotalCost;
+          // Convert to base currency for the GL.
           const totalLineCostWithWeightedShipping =
-            totalLineCost + lineWeightedShippingCost;
+            (totalLineCost + lineWeightedShippingCost) * invoiceExchangeRate;
 
           const invoiceLineUnitCostInInventoryUnit =
             totalLineCostWithWeightedShipping / invoiceLine.quantity;

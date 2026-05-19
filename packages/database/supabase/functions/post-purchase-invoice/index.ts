@@ -644,6 +644,12 @@ serve(async (req: Request) => {
       throw new Error("Error getting account defaults");
     }
 
+    // Invoice exchange rate (defaults to 1 for base-currency invoices).
+    // shippingCost (line 445) is already multiplied by the rate; per-line
+    // unitPrice / shippingCost / taxAmount on purchaseInvoiceLine are in
+    // invoice currency and need conversion before they reach a journal line.
+    const invoiceExchangeRate = purchaseInvoice.data?.exchangeRate ?? 1;
+
     for await (const invoiceLine of purchaseInvoiceLines.data) {
       const invoiceLineQuantityInInventoryUnit =
         invoiceLine.quantity * (invoiceLine.conversionFactor ?? 1);
@@ -657,8 +663,10 @@ serve(async (req: Request) => {
         totalLinesCost === 0 ? 0 : totalLineCost / totalLinesCost;
       const lineWeightedShippingCost =
         shippingCost * lineCostPercentageOfTotalCost;
+      // Convert line cost to base currency before combining with the
+      // already-converted shipping cost.
       const totalLineCostWithWeightedShipping =
-        totalLineCost + lineWeightedShippingCost;
+        totalLineCost * invoiceExchangeRate + lineWeightedShippingCost;
 
       const invoiceLineUnitCostInInventoryUnit =
         totalLineCostWithWeightedShipping /

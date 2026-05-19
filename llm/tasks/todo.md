@@ -129,9 +129,9 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 - Edit: `packages/database/supabase/functions/post-sales-invoice/index.ts`
 - Edit: `packages/database/supabase/functions/post-purchase-invoice/index.ts`
 
-- [ ] **Step 5.1: Multiply by `exchangeRate`** before pushing into `journalLine.amount` at every site: `unitPrice`, `shippingCost`, `addOnCost`, `taxAmount`. Roughly four insert sites per function: lines 115, 296, 374–498 in sales; lines 445–458 in purchase. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 5.1: Multiply by `exchangeRate`** before pushing into `journalLine.amount` at every site: `unitPrice`, `shippingCost`, `addOnCost`, `taxAmount`. Roughly four insert sites per function: lines 115, 296, 374–498 in sales; lines 445–458 in purchase. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 5.2: Verify no double-conversion** — if any site already multiplied by exchangeRate, don't compound. Audit each before edit. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 5.2: Verify no double-conversion** — if any site already multiplied by exchangeRate, don't compound. Audit each before edit. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 ---
 
