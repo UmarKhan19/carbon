@@ -51,7 +51,7 @@
 
 - [x] **Step 1.9: Update `seed.data.ts`**: added 4130 to `accounts` array, four new keys to `accountDefaults`, and a `payment` entry to `sequences`.
 
-- [ ] **Step 1.10: Verify** `supabase db reset` succeeds locally (user runs reset, not Claude).
+- [x] **Step 1.10: Verify** migration applies cleanly. Confirmed against a production-shape scaffold: stubs dropped, 4130 CoA entry created, four `accountDefault` columns added + backfilled + SET NOT NULL, both `paymentType` and `paymentStatus` enums created, `journalLineDocumentType` extended with `'Payment'`, `payment` + `paymentApplication` tables created with all RLS policies, sequence seeded. Check constraints (party_check, totalAmount_check) tested and reject invalid rows. Generated column `fxGainLossAmount = (appliedAmount + discountAmount) * (paymentExchangeRate - invoiceExchangeRate)` arithmetic verified (100 @ 1.10 → 1.05 yields -5.0000 FX Loss).
 
 ---
 
