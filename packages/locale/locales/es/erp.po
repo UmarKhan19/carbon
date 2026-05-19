@@ -278,6 +278,9 @@ msgstr "Agregar Acciones"
 msgid "Add any notes about your decision..."
 msgstr "AÃƒÆ’Ã‚Â±ade cualquier nota sobre tu decisiÃƒÆ’Ã‚Â³n..."
 
+msgid "Add Application"
+msgstr ""
+
 msgid "Add Approval Requirement"
 msgstr "Agregar Requisito de AprobaciÃƒÆ’Ã‚Â³n"
 
@@ -467,6 +470,9 @@ msgstr "Un elemento no puede agregarse a sÃƒÆ’Ã‚Â­ mismo."
 msgid "and {remaining} more"
 msgstr "y {remaining} mÃƒÆ’Ã‚Â¡s"
 
+msgid "AP Tie-Out"
+msgstr ""
+
 msgid "API and Webhooks"
 msgstr "API y Webhooks"
 
@@ -484,6 +490,9 @@ msgstr "Claves API"
 
 msgid "API keys for programmatic access to your Carbon data."
 msgstr "Claves API para acceso programático a tus datos de Carbon."
+
+msgid "Applications"
+msgstr ""
 
 msgid "Applies to"
 msgstr "Se aplica a"
@@ -511,6 +520,9 @@ msgstr "Aprobado por"
 
 msgid "AQL"
 msgstr "AQL"
+
+msgid "AR Tie-Out"
+msgstr ""
 
 msgid "Archive"
 msgstr "Archivo"
@@ -866,6 +878,9 @@ msgstr "Ãƒâ€šÃ‚Â¿EstÃƒÆ’Ã‚Â¡s seguro de que deseas anular e
 
 msgid "Are you sure?"
 msgstr "Ãƒâ€šÃ‚Â¿EstÃƒÆ’Ã‚Â¡s seguro?"
+
+msgid "As of:"
+msgstr ""
 
 msgid "As the company owner, you can transfer ownership to another employee. This will give them full access to billing and administrative settings."
 msgstr "Como propietario de la empresa, puedes transferir la propiedad a otro empleado. Esto le darÃƒÆ’Ã‚Â¡ acceso completo a la facturaciÃƒÆ’Ã‚Â³n y la configuraciÃƒÆ’Ã‚Â³n administrativa."
@@ -1751,6 +1766,9 @@ msgstr "Crear Kanban"
 
 msgid "Create new rule"
 msgstr "Crear nueva regla"
+
+msgid "Create Payment"
+msgstr ""
 
 msgid "Create Quote Revision"
 msgstr "Crear RevisiÃƒÆ’Ã‚Â³n de CotizaciÃƒÆ’Ã‚Â³n"
@@ -4758,6 +4776,9 @@ msgstr "Pieza Nueva"
 msgid "New Password"
 msgstr "Nueva ContraseÃƒÆ’Ã‚Â±a"
 
+msgid "New Payment"
+msgstr ""
+
 msgid "New Payment Term"
 msgstr "Nuevo TÃƒÆ’Ã‚Â©rmino de Pago"
 
@@ -4912,6 +4933,9 @@ msgstr "Sin presupuestos activos"
 msgid "No addresses found"
 msgstr "No se encontraron direcciones"
 
+msgid "No applications. Payment will be on-account."
+msgstr ""
+
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "No hay registros archivados aÃƒÆ’Ã‚Âºn. Los registros mÃƒÆ’Ã‚Â¡s antiguos de {0} dÃƒÆ’Ã‚Â­as se archivarÃƒÆ’Ã‚Â¡n automÃƒÆ’Ã‚Â¡ticamente y estarÃƒÆ’Ã‚Â¡n disponibles para descargar aquÃƒÆ’Ã‚Â­."
@@ -5006,6 +5030,9 @@ msgstr "Sin notificaciones nuevas"
 msgid "No notes"
 msgstr "Sin notas"
 
+msgid "No open invoices as of this date."
+msgstr ""
+
 msgid "No operators."
 msgstr "Sin operadores."
 
@@ -5029,6 +5056,9 @@ msgstr "Sin ID de pieza"
 
 msgid "No parts added yet"
 msgstr "No hay piezas aÃƒÆ’Ã‚Â±adidas aÃƒÆ’Ã‚Âºn"
+
+msgid "No payments yet."
+msgstr ""
 
 msgid "No planning data"
 msgstr "Sin datos de planificaciÃƒÆ’Ã‚Â³n"
@@ -5193,6 +5223,9 @@ msgid "Open Dispatches"
 msgstr "Despachos Abiertos"
 
 msgid "Open in MES"
+msgstr ""
+
+msgid "Open Invoices"
 msgstr ""
 
 msgid "Open Issues"
@@ -5425,6 +5458,9 @@ msgstr "TÃƒÆ’Ã‚Â©rmino de Pago"
 
 msgid "Payment Terms"
 msgstr "TÃƒÆ’Ã‚Â©rminos de Pago"
+
+msgid "Payments"
+msgstr ""
 
 msgid "PDF"
 msgstr "PDF"
@@ -7080,6 +7116,9 @@ msgstr "Estado"
 msgid "Status Distribution"
 msgstr "DistribuciÃƒÆ’Ã‚Â³n de Estado"
 
+msgid "Status:"
+msgstr ""
+
 msgid "Statuses"
 msgstr "Estados"
 
@@ -7139,6 +7178,12 @@ msgstr "Sub-Departamentos"
 
 msgid "Subassembly"
 msgstr "Subconjunto"
+
+msgid "Subledger and GL do not match."
+msgstr ""
+
+msgid "Subledger matches GL."
+msgstr ""
 
 msgid "Submit"
 msgstr "Enviar"
@@ -7544,6 +7589,9 @@ msgstr "Las miniaturas no estÃƒÆ’Ã‚Â¡n incluidas"
 msgid "Thursday"
 msgstr "Jueves"
 
+msgid "Tie-Out"
+msgstr ""
+
 msgid "Timecard"
 msgstr "Tarjeta de tiempo"
 
@@ -7645,6 +7693,9 @@ msgstr "Cantidad Total"
 
 msgid "Total:"
 msgstr "Total:"
+
+msgid "Totals"
+msgstr ""
 
 msgid "Traceability"
 msgstr "Trazabilidad"
@@ -7762,6 +7813,9 @@ msgstr "Tipos"
 
 msgid "Un-sampled entities will remain On Hold so you can keep inspecting and disposition later. Sampled outcomes are preserved."
 msgstr "Las entidades no muestreadas permanecerÃƒÆ’Ã‚Â¡n En Espera para que puedas seguir inspeccionando y disponer mÃƒÆ’Ã‚Â¡s tarde. Los resultados muestreados se conservan."
+
+msgid "Unapplied:"
+msgstr ""
 
 msgid "Unapproved Supplier"
 msgstr "Proveedor No Aprobado"

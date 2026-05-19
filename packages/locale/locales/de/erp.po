@@ -278,6 +278,9 @@ msgstr "Aktionen hinzufÃƒÆ’Ã‚Â¼gen"
 msgid "Add any notes about your decision..."
 msgstr "FÃƒÆ’Ã‚Â¼gen Sie Notizen zu Ihrer Entscheidung hinzu..."
 
+msgid "Add Application"
+msgstr ""
+
 msgid "Add Approval Requirement"
 msgstr "Genehmigungsanforderung hinzufÃƒÆ’Ã‚Â¼gen"
 
@@ -467,6 +470,9 @@ msgstr "Ein Element kann nicht zu sich selbst hinzugefÃƒÆ’Ã‚Â¼gt werde
 msgid "and {remaining} more"
 msgstr "und {remaining} weitere"
 
+msgid "AP Tie-Out"
+msgstr ""
+
 msgid "API and Webhooks"
 msgstr "API und Webhooks"
 
@@ -484,6 +490,9 @@ msgstr "API-SchlÃƒÆ’Ã‚Â¼ssel"
 
 msgid "API keys for programmatic access to your Carbon data."
 msgstr "API-Schlüssel für programmgesteuerten Zugriff auf Ihre Carbon-Daten."
+
+msgid "Applications"
+msgstr ""
 
 msgid "Applies to"
 msgstr "Gilt fÃƒÆ’Ã‚Â¼r"
@@ -511,6 +520,9 @@ msgstr "Genehmigt von"
 
 msgid "AQL"
 msgstr "AQL"
+
+msgid "AR Tie-Out"
+msgstr ""
 
 msgid "Archive"
 msgstr "Archiv"
@@ -866,6 +878,9 @@ msgstr "Sind Sie sicher, dass Sie diese Sendung stornieren mÃƒÆ’Ã‚Â¶ch
 
 msgid "Are you sure?"
 msgstr "Sind Sie sicher?"
+
+msgid "As of:"
+msgstr ""
 
 msgid "As the company owner, you can transfer ownership to another employee. This will give them full access to billing and administrative settings."
 msgstr "Als UnternehmenseigentÃƒÆ’Ã‚Â¼mer kÃƒÆ’Ã‚Â¶nnen Sie das Eigentum an einen anderen Mitarbeiter ÃƒÆ’Ã‚Â¼bertragen. Dies gibt ihm vollstÃƒÆ’Ã‚Â¤ndigen Zugriff auf Abrechnungs- und Verwaltungseinstellungen."
@@ -1751,6 +1766,9 @@ msgstr "Kanban erstellen"
 
 msgid "Create new rule"
 msgstr "Neue Regel erstellen"
+
+msgid "Create Payment"
+msgstr ""
 
 msgid "Create Quote Revision"
 msgstr "Angebotrevision erstellen"
@@ -4758,6 +4776,9 @@ msgstr "Neuer Teil"
 msgid "New Password"
 msgstr "Neues Passwort"
 
+msgid "New Payment"
+msgstr ""
+
 msgid "New Payment Term"
 msgstr "Neuer Zahlungsbegriff"
 
@@ -4912,6 +4933,9 @@ msgstr "Keine aktiven Angebote"
 msgid "No addresses found"
 msgstr "Keine Adressen gefunden"
 
+msgid "No applications. Payment will be on-account."
+msgstr ""
+
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Noch keine archivierten Protokolle. Protokolle ÃƒÆ’Ã‚Â¤lter als {0} Tage werden automatisch archiviert und sind hier zum Download verfÃƒÆ’Ã‚Â¼gbar."
@@ -5006,6 +5030,9 @@ msgstr "Keine neuen Benachrichtigungen"
 msgid "No notes"
 msgstr "Keine Notizen"
 
+msgid "No open invoices as of this date."
+msgstr ""
+
 msgid "No operators."
 msgstr "Keine Operatoren."
 
@@ -5029,6 +5056,9 @@ msgstr "Keine Teile-ID"
 
 msgid "No parts added yet"
 msgstr "Noch keine Teile hinzugefÃƒÆ’Ã‚Â¼gt"
+
+msgid "No payments yet."
+msgstr ""
 
 msgid "No planning data"
 msgstr "Keine Planungsdaten"
@@ -5193,6 +5223,9 @@ msgid "Open Dispatches"
 msgstr "Offene EinsÃƒÆ’Ã‚Â¤tze"
 
 msgid "Open in MES"
+msgstr ""
+
+msgid "Open Invoices"
 msgstr ""
 
 msgid "Open Issues"
@@ -5425,6 +5458,9 @@ msgstr "Zahlungsbedingung"
 
 msgid "Payment Terms"
 msgstr "Zahlungsbedingungen"
+
+msgid "Payments"
+msgstr ""
 
 msgid "PDF"
 msgstr "PDF"
@@ -7080,6 +7116,9 @@ msgstr "Status"
 msgid "Status Distribution"
 msgstr "Statusverteilung"
 
+msgid "Status:"
+msgstr ""
+
 msgid "Statuses"
 msgstr "Status"
 
@@ -7139,6 +7178,12 @@ msgstr "Unterbereiche"
 
 msgid "Subassembly"
 msgstr "Baugruppe"
+
+msgid "Subledger and GL do not match."
+msgstr ""
+
+msgid "Subledger matches GL."
+msgstr ""
 
 msgid "Submit"
 msgstr "Absenden"
@@ -7544,6 +7589,9 @@ msgstr "Miniaturansichten sind nicht enthalten"
 msgid "Thursday"
 msgstr "Donnerstag"
 
+msgid "Tie-Out"
+msgstr ""
+
 msgid "Timecard"
 msgstr "Zeitkarte"
 
@@ -7645,6 +7693,9 @@ msgstr "Gesamtmenge"
 
 msgid "Total:"
 msgstr "Gesamt:"
+
+msgid "Totals"
+msgstr ""
 
 msgid "Traceability"
 msgstr "RÃƒÆ’Ã‚Â¼ckverfolgbarkeit"
@@ -7762,6 +7813,9 @@ msgstr "Typen"
 
 msgid "Un-sampled entities will remain On Hold so you can keep inspecting and disposition later. Sampled outcomes are preserved."
 msgstr "Nicht beprobte EntitÃƒÆ’Ã‚Â¤ten bleiben in Warteschleife, damit Sie weiterhin inspizieren und spÃƒÆ’Ã‚Â¤ter dispositieren kÃƒÆ’Ã‚Â¶nnen. Beprobte Ergebnisse bleiben erhalten."
+
+msgid "Unapplied:"
+msgstr ""
 
 msgid "Unapproved Supplier"
 msgstr "Nicht genehmigter Lieferant"

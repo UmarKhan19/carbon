@@ -1262,6 +1262,14 @@ export const path = {
     partner: (id: string, abilityId: string) =>
       generatePath(`${x}/resources/partners/${id}/${abilityId}`),
     partners: `${x}/resources/partners`,
+    payment: (id: string) => generatePath(`${x}/payment/${id}`),
+    paymentDelete: (id: string) => generatePath(`${x}/payment/${id}/delete`),
+    paymentNew: `${x}/payment/new`,
+    paymentPost: (id: string) => generatePath(`${x}/payment/${id}/post`),
+    paymentVoid: (id: string) => generatePath(`${x}/payment/${id}/void`),
+    payments: `${x}/payment`,
+    arTieOut: `${x}/accounting/ar-tie-out`,
+    apTieOut: `${x}/accounting/ap-tie-out`,
     paymentTerm: (id: string) =>
       generatePath(`${x}/accounting/payment-terms/${id}`),
     paymentTerms: `${x}/accounting/payment-terms`,

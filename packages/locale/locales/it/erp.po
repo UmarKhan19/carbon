@@ -278,6 +278,9 @@ msgstr "Aggiungi Azioni"
 msgid "Add any notes about your decision..."
 msgstr "Aggiungi eventuali note sulla tua decisione..."
 
+msgid "Add Application"
+msgstr ""
+
 msgid "Add Approval Requirement"
 msgstr "Aggiungi Requisito di Approvazione"
 
@@ -467,6 +470,9 @@ msgstr "Un articolo non puÃƒÆ’Ã‚Â² essere aggiunto a se stesso."
 msgid "and {remaining} more"
 msgstr "e {remaining} altri"
 
+msgid "AP Tie-Out"
+msgstr ""
+
 msgid "API and Webhooks"
 msgstr "API e Webhook"
 
@@ -484,6 +490,9 @@ msgstr "Chiavi API"
 
 msgid "API keys for programmatic access to your Carbon data."
 msgstr "Chiavi API per l'accesso programmatico ai tuoi dati Carbon."
+
+msgid "Applications"
+msgstr ""
 
 msgid "Applies to"
 msgstr "Si applica a"
@@ -511,6 +520,9 @@ msgstr "Approvato da"
 
 msgid "AQL"
 msgstr "AQL"
+
+msgid "AR Tie-Out"
+msgstr ""
 
 msgid "Archive"
 msgstr "Archivio"
@@ -866,6 +878,9 @@ msgstr "Sei sicuro di voler annullare questa spedizione? Questa azione invertir�
 
 msgid "Are you sure?"
 msgstr "Sei sicuro?"
+
+msgid "As of:"
+msgstr ""
 
 msgid "As the company owner, you can transfer ownership to another employee. This will give them full access to billing and administrative settings."
 msgstr "Come proprietario dell'azienda, puoi trasferire la proprietÃƒÆ’Ã‚Â  a un altro dipendente. Questo darÃƒÆ’Ã‚Â  loro accesso completo alla fatturazione e alle impostazioni amministrative."
@@ -1751,6 +1766,9 @@ msgstr "Crea Kanban"
 
 msgid "Create new rule"
 msgstr "Crea nuova regola"
+
+msgid "Create Payment"
+msgstr ""
 
 msgid "Create Quote Revision"
 msgstr "Crea Revisione Preventivo"
@@ -4758,6 +4776,9 @@ msgstr "Nuova Parte"
 msgid "New Password"
 msgstr "Nuova Password"
 
+msgid "New Payment"
+msgstr ""
+
 msgid "New Payment Term"
 msgstr "Nuovo Termine di Pagamento"
 
@@ -4912,6 +4933,9 @@ msgstr "Nessuna Quotazione Attiva"
 msgid "No addresses found"
 msgstr "Nessun indirizzo trovato"
 
+msgid "No applications. Payment will be on-account."
+msgstr ""
+
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Nessun log archiviato ancora. I log piÃƒÆ’Ã‚Â¹ vecchi di {0} giorni verranno archiviati automaticamente e disponibili per il download qui."
@@ -5006,6 +5030,9 @@ msgstr "Nessuna nuova notifica"
 msgid "No notes"
 msgstr "Nessuna nota"
 
+msgid "No open invoices as of this date."
+msgstr ""
+
 msgid "No operators."
 msgstr "Nessun operatore."
 
@@ -5029,6 +5056,9 @@ msgstr "Nessun ID parte"
 
 msgid "No parts added yet"
 msgstr "Nessuna parte aggiunta ancora"
+
+msgid "No payments yet."
+msgstr ""
 
 msgid "No planning data"
 msgstr "Nessun dato di pianificazione"
@@ -5193,6 +5223,9 @@ msgid "Open Dispatches"
 msgstr "Spedizioni Aperte"
 
 msgid "Open in MES"
+msgstr ""
+
+msgid "Open Invoices"
 msgstr ""
 
 msgid "Open Issues"
@@ -5425,6 +5458,9 @@ msgstr "Condizione di Pagamento"
 
 msgid "Payment Terms"
 msgstr "Condizioni di Pagamento"
+
+msgid "Payments"
+msgstr ""
 
 msgid "PDF"
 msgstr "PDF"
@@ -7080,6 +7116,9 @@ msgstr "Stato"
 msgid "Status Distribution"
 msgstr "Distribuzione dello Stato"
 
+msgid "Status:"
+msgstr ""
+
 msgid "Statuses"
 msgstr "Stati"
 
@@ -7139,6 +7178,12 @@ msgstr "Sotto-Dipartimenti"
 
 msgid "Subassembly"
 msgstr "Sottoassembly"
+
+msgid "Subledger and GL do not match."
+msgstr ""
+
+msgid "Subledger matches GL."
+msgstr ""
 
 msgid "Submit"
 msgstr "Invia"
@@ -7544,6 +7589,9 @@ msgstr "Le miniature non sono incluse"
 msgid "Thursday"
 msgstr "GiovedÃƒÆ’Ã‚Â¬"
 
+msgid "Tie-Out"
+msgstr ""
+
 msgid "Timecard"
 msgstr "Foglio presenze"
 
@@ -7645,6 +7693,9 @@ msgstr "QuantitÃƒÆ’Ã‚Â  Totale"
 
 msgid "Total:"
 msgstr "Totale:"
+
+msgid "Totals"
+msgstr ""
 
 msgid "Traceability"
 msgstr "TracciabilitÃƒÆ’Ã‚Â "
@@ -7762,6 +7813,9 @@ msgstr "Tipi"
 
 msgid "Un-sampled entities will remain On Hold so you can keep inspecting and disposition later. Sampled outcomes are preserved."
 msgstr "Le entitÃƒÆ’Ã‚Â  non campionate rimarranno In Sospeso in modo che tu possa continuare a ispezionare e disporre in seguito. I risultati campionati vengono conservati."
+
+msgid "Unapplied:"
+msgstr ""
 
 msgid "Unapproved Supplier"
 msgstr "Fornitore non approvato"

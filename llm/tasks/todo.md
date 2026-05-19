@@ -167,11 +167,11 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 - Create: `apps/erp/app/routes/x+/payment+/$paymentId.post.tsx`
 - Create: `apps/erp/app/routes/x+/payment+/$paymentId.void.tsx`
 
-- [ ] **Step 8.1: List + new payment** — paginated table, filterable by type/status/party/date; `new.tsx` chooses Receipt vs Disbursement and allocates `paymentId` via `getNextSequence`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 8.1: List + new payment** — paginated table, filterable by type/status/party/date; `new.tsx` chooses Receipt vs Disbursement and allocates `paymentId` via `getNextSequence`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 8.2: Payment detail with applications editor** — header fields + ValidatedForm (zod), open-invoice picker for the counterparty, row-level `appliedAmount`/`discountAmount`/`writeOffAmount`, running totals against payment.totalAmount. Shared `<CounterpartyCombobox>` driven by `paymentType`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 8.2: Payment detail with applications editor** — header fields + ValidatedForm (zod), open-invoice picker for the counterparty, row-level `appliedAmount`/`discountAmount`/`writeOffAmount`, running totals against payment.totalAmount. Shared `<CounterpartyCombobox>` driven by `paymentType`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 8.3: Post + Void routes** thin Remix actions that invoke `supabase.functions.invoke('post-payment', {...})`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 8.3: Post + Void routes** thin Remix actions that invoke `supabase.functions.invoke('post-payment', {...})`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 ---
 
@@ -182,9 +182,9 @@ Pattern mirrors `post-sales-invoice/index.ts` and `post-purchase-invoice/index.t
 - Create: `apps/erp/app/routes/x+/accounting+/ar-tie-out.tsx`
 - Create: `apps/erp/app/routes/x+/accounting+/ap-tie-out.tsx`
 
-- [ ] **Step 9.1: Shared `<TieOut side="ar"|"ap" />` component** — date picker (defaults to today), header showing subledger balance, GL balance, variance pill (green if zero, red otherwise), drill-down tables for open invoices and journal lines. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 9.1: Shared `<TieOut side="ar"|"ap" />` component** — date picker (defaults to today), header showing subledger balance, GL balance, variance pill (green if zero, red otherwise), drill-down tables for open invoices and journal lines. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-- [ ] **Step 9.2: AR + AP route shells** each rendering `<TieOut side={...} />` with appropriate page title and breadcrumb. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] **Step 9.2: AR + AP route shells** each rendering `<TieOut side={...} />` with appropriate page title and breadcrumb. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 ---
 
