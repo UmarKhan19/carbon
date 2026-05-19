@@ -1263,6 +1263,8 @@ export const path = {
       generatePath(`${x}/resources/partners/${id}/${abilityId}`),
     partners: `${x}/resources/partners`,
     payment: (id: string) => generatePath(`${x}/payment/${id}`),
+    paymentApplicationsNew: (id: string) =>
+      generatePath(`${x}/payment/${id}/applications/new`),
     paymentDelete: (id: string) => generatePath(`${x}/payment/${id}/delete`),
     paymentNew: `${x}/payment/new`,
     paymentPost: (id: string) => generatePath(`${x}/payment/${id}/post`),

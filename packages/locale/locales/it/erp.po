@@ -494,11 +494,20 @@ msgstr "Chiavi API per l'accesso programmatico ai tuoi dati Carbon."
 msgid "Applications"
 msgstr ""
 
+msgid "Applied Amount"
+msgstr ""
+
+msgid "Applied Date"
+msgstr ""
+
 msgid "Applies to"
 msgstr "Si applica a"
 
 msgid "Apply pricing rules"
 msgstr "Applica regole di prezzo"
+
+msgid "Apply this payment to an open invoice. Principal, discount, and write-off are all in invoice currency. FX gain/loss is computed from the rate delta."
+msgstr ""
 
 msgid "Apply To"
 msgstr "Applica a"
@@ -996,6 +1005,9 @@ msgstr "Scarico automatico"
 
 msgid "Balance Sheet"
 msgstr "Bilancio"
+
+msgid "Bank / Cash Account"
+msgstr ""
 
 msgid "Base Currency"
 msgstr "Valuta di Base"
@@ -1766,9 +1778,6 @@ msgstr "Crea Kanban"
 
 msgid "Create new rule"
 msgstr "Crea nuova regola"
-
-msgid "Create Payment"
-msgstr ""
 
 msgid "Create Quote Revision"
 msgstr "Crea Revisione Preventivo"
@@ -3052,6 +3061,9 @@ msgstr "Tutto da Starter"
 msgid "Exchange Rate"
 msgstr "Tasso di Cambio"
 
+msgid "Exchange Rate (to base)"
+msgstr ""
+
 msgid "Exchange Rates"
 msgstr "Tassi di Cambio"
 
@@ -3872,6 +3884,9 @@ msgstr "Contatto Cliente Fattura"
 msgid "Invoice Customer Location"
 msgstr "Ubicazione Cliente Fattura"
 
+msgid "Invoice Exchange Rate"
+msgstr ""
+
 msgid "Invoice ID"
 msgstr "ID Fattura"
 
@@ -4482,6 +4497,9 @@ msgstr "Standard di Misurazione"
 
 msgid "Members"
 msgstr "Membri"
+
+msgid "Memo"
+msgstr ""
 
 msgid "MES"
 msgstr ""
@@ -5450,6 +5468,15 @@ msgstr "Percorso"
 msgid "Payment"
 msgstr "Pagamento"
 
+msgid "Payment Date"
+msgstr ""
+
+msgid "Payment Exchange Rate"
+msgstr ""
+
+msgid "Payment ID"
+msgstr ""
+
 msgid "Payment Method"
 msgstr "Metodo di Pagamento"
 
@@ -5786,6 +5813,9 @@ msgstr "Fattura di Acquisto"
 msgid "Purchase Invoice Amount"
 msgstr "Importo Fattura di Acquisto"
 
+msgid "Purchase Invoice ID"
+msgstr ""
+
 msgid "Purchase Invoice Line"
 msgstr "Riga Fattura di Acquisto"
 
@@ -6045,6 +6075,9 @@ msgstr "Creato di recente"
 
 msgid "Record"
 msgstr "Registra"
+
+msgid "Record cash received from a customer (Receipt) or paid to a supplier (Disbursement). Applications to specific invoices are added after the payment is created."
+msgstr ""
 
 msgid "Record deleted"
 msgstr "Record eliminato"
@@ -6397,6 +6430,9 @@ msgstr "Funnel di vendita"
 
 msgid "Sales Invoice"
 msgstr "Fattura di vendita"
+
+msgid "Sales Invoice ID"
+msgstr ""
 
 msgid "Sales Invoice Line"
 msgstr "Riga Fattura di Vendita"
@@ -7679,6 +7715,9 @@ msgstr "Strumenti"
 msgid "Total"
 msgstr "Totale"
 
+msgid "Total Amount"
+msgstr ""
+
 msgid "Total Hours"
 msgstr "Ore totali"
 
@@ -8373,6 +8412,9 @@ msgstr "Flusso di lavoro"
 
 msgid "Worst Performing Machines"
 msgstr "Macchine con Prestazioni Peggiori"
+
+msgid "Write-Off"
+msgstr ""
 
 msgid "Year"
 msgstr "Anno"

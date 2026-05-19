@@ -1,7 +1,7 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { validator } from "@carbon/form";
+import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
@@ -17,22 +17,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
   });
 
   const { paymentId } = params;
-  if (!paymentId) {
-    throw redirect(path.to.payments);
-  }
+  if (!paymentId) throw redirect(path.to.payments);
 
   const formData = await request.formData();
-  // Inject paymentId from the URL into the validated payload.
+  // Hidden field is already in the form, but enforce it server-side.
   formData.set("paymentId", paymentId);
 
   const validation = await validator(paymentApplicationValidator).validate(
     formData
   );
   if (validation.error) {
-    throw redirect(
-      path.to.payment(paymentId),
-      await flash(request, error(validation.error, "Invalid application"))
-    );
+    return validationError(validation.error);
   }
 
   const insert = await upsertPaymentApplication(client, {

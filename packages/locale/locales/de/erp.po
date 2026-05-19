@@ -494,11 +494,20 @@ msgstr "API-Schlüssel für programmgesteuerten Zugriff auf Ihre Carbon-Daten."
 msgid "Applications"
 msgstr ""
 
+msgid "Applied Amount"
+msgstr ""
+
+msgid "Applied Date"
+msgstr ""
+
 msgid "Applies to"
 msgstr "Gilt fÃƒÆ’Ã‚Â¼r"
 
 msgid "Apply pricing rules"
 msgstr "Preisregeln anwenden"
+
+msgid "Apply this payment to an open invoice. Principal, discount, and write-off are all in invoice currency. FX gain/loss is computed from the rate delta."
+msgstr ""
 
 msgid "Apply To"
 msgstr "Anwenden auf"
@@ -996,6 +1005,9 @@ msgstr "RÃƒÆ’Ã‚Â¼cklauf"
 
 msgid "Balance Sheet"
 msgstr "Bilanz"
+
+msgid "Bank / Cash Account"
+msgstr ""
 
 msgid "Base Currency"
 msgstr "BasiswÃƒÆ’Ã‚Â¤hrung"
@@ -1766,9 +1778,6 @@ msgstr "Kanban erstellen"
 
 msgid "Create new rule"
 msgstr "Neue Regel erstellen"
-
-msgid "Create Payment"
-msgstr ""
 
 msgid "Create Quote Revision"
 msgstr "Angebotrevision erstellen"
@@ -3052,6 +3061,9 @@ msgstr "Alles aus dem Starter-Plan"
 msgid "Exchange Rate"
 msgstr "Wechselkurs"
 
+msgid "Exchange Rate (to base)"
+msgstr ""
+
 msgid "Exchange Rates"
 msgstr "Wechselkurse"
 
@@ -3872,6 +3884,9 @@ msgstr "Rechnungskunde-Kontakt"
 msgid "Invoice Customer Location"
 msgstr "Rechnungskundenstandort"
 
+msgid "Invoice Exchange Rate"
+msgstr ""
+
 msgid "Invoice ID"
 msgstr "Rechnungs-ID"
 
@@ -4482,6 +4497,9 @@ msgstr "Messnorm"
 
 msgid "Members"
 msgstr "Mitglieder"
+
+msgid "Memo"
+msgstr ""
 
 msgid "MES"
 msgstr ""
@@ -5450,6 +5468,15 @@ msgstr "Pfad"
 msgid "Payment"
 msgstr "Zahlung"
 
+msgid "Payment Date"
+msgstr ""
+
+msgid "Payment Exchange Rate"
+msgstr ""
+
+msgid "Payment ID"
+msgstr ""
+
 msgid "Payment Method"
 msgstr "Zahlungsmethode"
 
@@ -5786,6 +5813,9 @@ msgstr "Kaufrechnung"
 msgid "Purchase Invoice Amount"
 msgstr "Betrag der Kaufrechnung"
 
+msgid "Purchase Invoice ID"
+msgstr ""
+
 msgid "Purchase Invoice Line"
 msgstr "Kaufrechnungsposition"
 
@@ -6045,6 +6075,9 @@ msgstr "KÃƒÆ’Ã‚Â¼rzlich erstellt"
 
 msgid "Record"
 msgstr "Aufnahme"
+
+msgid "Record cash received from a customer (Receipt) or paid to a supplier (Disbursement). Applications to specific invoices are added after the payment is created."
+msgstr ""
 
 msgid "Record deleted"
 msgstr "Datensatz gelÃƒÆ’Ã‚Â¶scht"
@@ -6397,6 +6430,9 @@ msgstr "Verkaufstrichter"
 
 msgid "Sales Invoice"
 msgstr "Verkaufsrechnung"
+
+msgid "Sales Invoice ID"
+msgstr ""
 
 msgid "Sales Invoice Line"
 msgstr "Verkaufsrechnungsposition"
@@ -7679,6 +7715,9 @@ msgstr "Werkzeuge"
 msgid "Total"
 msgstr "Gesamt"
 
+msgid "Total Amount"
+msgstr ""
+
 msgid "Total Hours"
 msgstr "Gesamtstunden"
 
@@ -8373,6 +8412,9 @@ msgstr "Workflow"
 
 msgid "Worst Performing Machines"
 msgstr "Schlechteste Maschinen"
+
+msgid "Write-Off"
+msgstr ""
 
 msgid "Year"
 msgstr "Jahr"

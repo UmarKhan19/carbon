@@ -494,11 +494,20 @@ msgstr "Klucze API do programowego dostępu do danych Carbon."
 msgid "Applications"
 msgstr ""
 
+msgid "Applied Amount"
+msgstr ""
+
+msgid "Applied Date"
+msgstr ""
+
 msgid "Applies to"
 msgstr "Dotyczy"
 
 msgid "Apply pricing rules"
 msgstr "Zastosuj reguÃƒâ€¦Ã¢â‚¬Å¡y cenowe"
+
+msgid "Apply this payment to an open invoice. Principal, discount, and write-off are all in invoice currency. FX gain/loss is computed from the rate delta."
+msgstr ""
 
 msgid "Apply To"
 msgstr "Zastosuj do"
@@ -996,6 +1005,9 @@ msgstr "CofniÃƒâ€žÃ¢â€žÂ¢cie"
 
 msgid "Balance Sheet"
 msgstr "Bilans"
+
+msgid "Bank / Cash Account"
+msgstr ""
 
 msgid "Base Currency"
 msgstr "Waluta bazowa"
@@ -1766,9 +1778,6 @@ msgstr "UtwÃƒÆ’Ã‚Â³rz Kanban"
 
 msgid "Create new rule"
 msgstr "UtwÃƒÆ’Ã‚Â³rz nowÃƒâ€žÃ¢â‚¬Â¦ reguÃƒâ€¦Ã¢â‚¬Å¡Ãƒâ€žÃ¢â€žÂ¢"
-
-msgid "Create Payment"
-msgstr ""
 
 msgid "Create Quote Revision"
 msgstr "UtwÃƒÆ’Ã‚Â³rz wersjÃƒâ€žÃ¢â€žÂ¢ oferty"
@@ -3052,6 +3061,9 @@ msgstr "Wszystko z pakietu Starter"
 msgid "Exchange Rate"
 msgstr "Kurs wymiany"
 
+msgid "Exchange Rate (to base)"
+msgstr ""
+
 msgid "Exchange Rates"
 msgstr "Kursy wymiany"
 
@@ -3872,6 +3884,9 @@ msgstr "Kontakt odbiorcy faktury"
 msgid "Invoice Customer Location"
 msgstr "Lokalizacja klienta faktury"
 
+msgid "Invoice Exchange Rate"
+msgstr ""
+
 msgid "Invoice ID"
 msgstr "Numer faktury"
 
@@ -4482,6 +4497,9 @@ msgstr "Standard Pomiaru"
 
 msgid "Members"
 msgstr "CzÃƒâ€¦Ã¢â‚¬Å¡onkowie"
+
+msgid "Memo"
+msgstr ""
 
 msgid "MES"
 msgstr ""
@@ -5450,6 +5468,15 @@ msgstr "Ãƒâ€¦Ã…Â¡cieÃƒâ€¦Ã‚Â¼ka"
 msgid "Payment"
 msgstr "PÃƒâ€¦Ã¢â‚¬Å¡atnoÃƒâ€¦Ã¢â‚¬ÂºÃƒâ€žÃ¢â‚¬Â¡"
 
+msgid "Payment Date"
+msgstr ""
+
+msgid "Payment Exchange Rate"
+msgstr ""
+
+msgid "Payment ID"
+msgstr ""
+
 msgid "Payment Method"
 msgstr "Metoda PÃƒâ€¦Ã¢â‚¬Å¡atnoÃƒâ€¦Ã¢â‚¬Âºci"
 
@@ -5786,6 +5813,9 @@ msgstr "Faktura Zakupu"
 msgid "Purchase Invoice Amount"
 msgstr "Kwota faktury zakupu"
 
+msgid "Purchase Invoice ID"
+msgstr ""
+
 msgid "Purchase Invoice Line"
 msgstr "Linia faktury zakupu"
 
@@ -6045,6 +6075,9 @@ msgstr "Niedawno utworzone"
 
 msgid "Record"
 msgstr "Nagrywaj"
+
+msgid "Record cash received from a customer (Receipt) or paid to a supplier (Disbursement). Applications to specific invoices are added after the payment is created."
+msgstr ""
 
 msgid "Record deleted"
 msgstr "Rekord usuniÃƒâ€žÃ¢â€žÂ¢ty"
@@ -6397,6 +6430,9 @@ msgstr "Lejek sprzedaÃƒâ€¦Ã‚Â¼y"
 
 msgid "Sales Invoice"
 msgstr "Faktura sprzedaÃƒâ€¦Ã‚Â¼y"
+
+msgid "Sales Invoice ID"
+msgstr ""
 
 msgid "Sales Invoice Line"
 msgstr "Linia faktury sprzedaÃƒâ€¦Ã‚Â¼y"
@@ -7679,6 +7715,9 @@ msgstr "NarzÃƒâ€žÃ¢â€žÂ¢dzia"
 msgid "Total"
 msgstr "Razem"
 
+msgid "Total Amount"
+msgstr ""
+
 msgid "Total Hours"
 msgstr "Ãƒâ€¦Ã‚ÂÃƒâ€žÃ¢â‚¬Â¦cznie godzin"
 
@@ -8373,6 +8412,9 @@ msgstr "PrzepÃƒâ€¦Ã¢â‚¬Å¡yw pracy"
 
 msgid "Worst Performing Machines"
 msgstr "Maszyny o najgorszych wynikach"
+
+msgid "Write-Off"
+msgstr ""
 
 msgid "Year"
 msgstr "Rok"
