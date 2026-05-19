@@ -2508,6 +2508,9 @@ msgstr "Ziehen Sie eine Bestellungs-PDF hierher, oder klicken Sie, um eine Datei
 msgid "Drag handle"
 msgstr "Ziehgriff"
 
+msgid "Drag to reorder"
+msgstr "Zum Neuordnen ziehen"
+
 msgid "Drop Shipment"
 msgstr "Direktversand"
 
@@ -6437,11 +6440,14 @@ msgstr "Methode speichern"
 msgid "Save View"
 msgstr "Ansicht speichern"
 
+msgid "Saving..."
+msgstr ""
+
 msgid "Scan"
 msgstr "Scannen"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "Scannen Sie ein Etikett oder suchen Sie nach ID, Seriennummer oder Chargennummer."
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr ""
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Scannen oder geben Sie die Kennung der verfolgten EntitÃƒÆ’Ã‚Â¤t, Seriennummer oder Chargennummer ein"

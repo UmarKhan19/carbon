@@ -34,7 +34,7 @@ export function renderEnv(opts: {
       ? "# App-facing URLs (portless hostnames)"
       : "# App-facing URLs (localhost)"
   );
-  lines.push(`DOMAIN=${portless ? host("erp") : "localhost"}`);
+  lines.push(`DOMAIN=${portless ? `${branchPrefix}.dev` : "localhost"}`);
   lines.push(
     `ERP_URL=${portless ? `https://${host("erp")}` : local(ports.PORT_ERP)}`
   );
@@ -59,13 +59,17 @@ export function renderEnv(opts: {
   lines.push(`SUPABASE_JWT_SECRET=${jwt.secret}`);
   lines.push(`SUPABASE_ANON_KEY=${jwt.anonKey}`);
   lines.push(`SUPABASE_SERVICE_ROLE_KEY=${jwt.serviceKey}`);
-  // Branch-independent OAuth callback host (api.carbon.dev). Last `crbn up`
-  // wins — registers `api.carbon` alias to its PORT_API.
+  // OAuth callback: portless uses the shared api.carbon.dev alias; localhost
+  // mode uses the well-known Supabase default port so the redirect URI is
+  // predictable and can be registered in Google/Azure console once.
+  const oauthBase = portless
+    ? "https://api.carbon.dev"
+    : "http://localhost:54321";
   lines.push(
-    `SUPABASE_AUTH_EXTERNAL_GOOGLE_REDIRECT_URI=https://api.carbon.dev/auth/v1/callback`
+    `SUPABASE_AUTH_EXTERNAL_GOOGLE_REDIRECT_URI=${oauthBase}/auth/v1/callback`
   );
   lines.push(
-    `SUPABASE_AUTH_EXTERNAL_AZURE_REDIRECT_URI=https://api.carbon.dev/auth/v1/callback`
+    `SUPABASE_AUTH_EXTERNAL_AZURE_REDIRECT_URI=${oauthBase}/auth/v1/callback`
   );
   lines.push("");
   lines.push("# Aux services");
@@ -75,7 +79,9 @@ export function renderEnv(opts: {
   // SDK advertises this as its serve URL during self-register. Must be
   // reachable from inside the inngest container (handled via extra_hosts +
   // portless CA mount in docker-compose.dev.yml).
-  lines.push(`INNGEST_SERVE_HOST=https://${host("erp")}`);
+  lines.push(
+    `INNGEST_SERVE_HOST=${portless ? `https://${host("erp")}` : local(ports.PORT_ERP)}`
+  );
   lines.push("");
   return lines.join("\n");
 }
@@ -84,24 +90,10 @@ export function writeEnv(worktreeRoot: string, content: string) {
   writeFileSync(join(worktreeRoot, ".env.local"), content);
 }
 
-// Stamp `apps/<id>/portless.json` so main-checkout gets `<app>.<prefix>.dev`
-// too (portless auto-prefixes only in linked worktrees). Linked worktrees
-// leave the file absent — stamping would double-prefix.
-export function syncAppPortlessConfigs(opts: {
-  worktreeRoot: string;
-  branchPrefix: string | null;
-  linked: boolean;
-}) {
-  const { worktreeRoot, branchPrefix, linked } = opts;
+export function syncAppPortlessConfigs(worktreeRoot: string) {
   for (const { value: appId } of APP_CHOICES) {
     const path = join(worktreeRoot, "apps", appId, "portless.json");
-    const shouldStamp = !linked && branchPrefix !== null;
-    if (shouldStamp) {
-      writeFileSync(
-        path,
-        `${JSON.stringify({ name: `${appId}.${branchPrefix}` }, null, 2)}\n`
-      );
-    } else if (existsSync(path)) {
+    if (existsSync(path)) {
       unlinkSync(path);
     }
   }

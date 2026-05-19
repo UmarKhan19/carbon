@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { getPurchaseOrderStatus } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type {
@@ -282,6 +283,7 @@ export async function getPurchaseOrderLines(
     .from("purchaseOrderLines")
     .select("*")
     .eq("purchaseOrderId", purchaseOrderId)
+    .order("sortOrder", { ascending: true })
     .order("createdAt", { ascending: true });
 }
 
@@ -730,7 +732,8 @@ export async function getSupplierQuoteLines(
   return client
     .from("supplierQuoteLines")
     .select("*")
-    .eq("supplierQuoteId", supplierQuoteId);
+    .eq("supplierQuoteId", supplierQuoteId)
+    .order("sortOrder", { ascending: true });
 }
 
 export async function getSupplierQuoteLinePrices(
@@ -1466,11 +1469,37 @@ export async function upsertPurchaseOrderLine(
       .select("id")
       .single();
   }
+
+  const existing = await client
+    .from("purchaseOrderLine")
+    .select("sortOrder")
+    .eq("purchaseOrderId", purchaseOrderLine.purchaseOrderId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("purchaseOrderLine")
-    .insert([purchaseOrderLine])
+    .insert([{ ...purchaseOrderLine, sortOrder: maxSortOrder + 1 }])
     .select("id")
     .single();
+}
+
+export async function updatePurchaseOrderLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchaseOrderLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertPurchaseOrderPayment(
@@ -1719,13 +1748,43 @@ export async function upsertSupplierQuoteLine(
       .select("id")
       .single();
   }
+
+  const existing = await client
+    .from("supplierQuoteLine")
+    .select("sortOrder")
+    .eq("supplierQuoteId", supplierQuoteLine.supplierQuoteId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("supplierQuoteLine")
     .insert([
-      { ...supplierQuoteLine, description: supplierQuoteLine.description ?? "" }
+      {
+        ...supplierQuoteLine,
+        description: supplierQuoteLine.description ?? "",
+        sortOrder: maxSortOrder + 1
+      }
     ])
     .select("id")
     .single();
+}
+
+export async function updateSupplierQuoteLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("supplierQuoteLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertSupplierType(
@@ -1913,6 +1972,21 @@ export async function upsertPurchasingRFQLine(
     .insert([purchasingRfqLine])
     .select("id")
     .single();
+}
+
+export async function updatePurchasingRFQLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchasingRfqLine")
+        .set({ order: sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertPurchasingRFQSuppliers(

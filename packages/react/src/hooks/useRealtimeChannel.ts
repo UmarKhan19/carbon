@@ -1,3 +1,4 @@
+import { NODE_ENV } from "@carbon/env";
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 import { useCallback, useEffect, useRef } from "react";
@@ -40,13 +41,14 @@ export const useRealtimeChannel = <TDeps extends any[]>(
     setup,
     enabled = true,
     dependencies = [],
-    notifyOnSubscribeError = process.env.NODE_ENV === "development"
+    notifyOnSubscribeError = NODE_ENV === "development"
   } = options;
   const channelRef = useRef<RealtimeChannel | null>(null);
   const isTearingDownRef = useRef(false);
   const lastErrorToastAtRef = useRef<number>(0);
   const retryCountRef = useRef(0);
   const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isVisibilityReconnectRef = useRef(false);
   // Updated each effect run so the retry timer always calls the latest subscribe closure.
   const doSubscribeRef = useRef<() => Promise<void>>(() => Promise.resolve());
   const { carbon, isRealtimeAuthSet } = useCarbon();
@@ -117,7 +119,11 @@ export const useRealtimeChannel = <TDeps extends any[]>(
             status === REALTIME_SUBSCRIBE_STATES.CHANNEL_ERROR ||
             status === REALTIME_SUBSCRIBE_STATES.TIMED_OUT;
 
-          if (isRetriableError && notifyOnSubscribeError) {
+          if (
+            isRetriableError &&
+            notifyOnSubscribeError &&
+            !isVisibilityReconnectRef.current
+          ) {
             const now = Date.now();
             if (now - lastErrorToastAtRef.current > 12_000) {
               lastErrorToastAtRef.current = now;
@@ -159,8 +165,26 @@ export const useRealtimeChannel = <TDeps extends any[]>(
     doSubscribeRef.current = doSubscribe;
     void doSubscribe();
 
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        // Cancel pending retry and reconnect immediately
+        if (retryTimerRef.current) {
+          clearTimeout(retryTimerRef.current);
+          retryTimerRef.current = null;
+        }
+        retryCountRef.current = 0;
+        isVisibilityReconnectRef.current = true;
+        void doSubscribeRef.current().finally(() => {
+          isVisibilityReconnectRef.current = false;
+        });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     // Cleanup on unmount or dependency change
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (retryTimerRef.current) {
         clearTimeout(retryTimerRef.current);
         retryTimerRef.current = null;

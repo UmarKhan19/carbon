@@ -244,7 +244,7 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
               getNodeProps={getNodeProps}
               getTreeProps={getTreeProps}
               renderNode={({ node, state }) => (
-                <HoverCard openDelay={500}>
+                <HoverCard openDelay={500} closeDelay={0}>
                   <HoverCardTrigger asChild>
                     <div
                       key={node.id}
@@ -328,7 +328,10 @@ const JobBoMExplorer = ({ method }: JobBoMExplorerProps) => {
                       </div>
                     </div>
                   </HoverCardTrigger>
-                  <HoverCardContent side="right">
+                  <HoverCardContent
+                    side="right"
+                    className="pointer-events-none"
+                  >
                     <NodePreview node={node} />
                   </HoverCardContent>
                 </HoverCard>

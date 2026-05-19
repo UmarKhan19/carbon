@@ -2508,6 +2508,9 @@ msgstr "Arrastra y suelta un PDF de Orden de Compra aquÃƒÆ’Ã‚Â­, o haz
 msgid "Drag handle"
 msgstr "Controlador de arrastre"
 
+msgid "Drag to reorder"
+msgstr "Arrastra para reordenar"
+
 msgid "Drop Shipment"
 msgstr "EnvÃƒÆ’Ã‚Â­o Directo"
 
@@ -6437,11 +6440,14 @@ msgstr "Guardar MÃƒÆ’Ã‚Â©todo"
 msgid "Save View"
 msgstr "Guardar Vista"
 
+msgid "Saving..."
+msgstr ""
+
 msgid "Scan"
 msgstr "Escanear"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "Escanea una etiqueta o busca por ID, nÃƒÆ’Ã‚Âºmero de serie o nÃƒÆ’Ã‚Âºmero de lote."
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr ""
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Escanear o ingresar ID de entidad rastreada, serie o lote"

@@ -402,6 +402,9 @@ msgstr "Szczegóły zlecenia"
 msgid "Job Traveler"
 msgstr "Karta obiegowa zlecenia"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "Zestaw"
 
@@ -532,6 +535,9 @@ msgstr "Brak zaplanowanego utrzymania ruchu na dziś"
 msgid "No materials"
 msgstr "Brak materiałów"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "Brak operatorów"
 
@@ -589,6 +595,9 @@ msgstr "Ups. Nie powinieneś widzieć tej strony. Docelowo będzie to strona gł
 
 msgid "Open"
 msgstr "Otwarte"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "Operacje"
@@ -707,6 +716,9 @@ msgstr "Odrzucone"
 
 msgid "Search"
 msgstr "Szukaj"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search operators..."
 msgstr "Szukaj operatorów..."
@@ -877,6 +889,9 @@ msgstr "Czas całkowity: {0}"
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
 msgstr "Razem: {0}"
+
+msgid "Tracking"
+msgstr ""
 
 msgid "Tracking Labels"
 msgstr "Etykiety śledzenia"

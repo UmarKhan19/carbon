@@ -108,6 +108,8 @@ export const path = {
     kanbanComplete: (id: string) => `${ERP_URL}/api/kanban/complete/${id}`,
     inspectionSteps: `${x}/steps/inspection`,
     inventoryAdjustment: `${x}/adjustment`,
+    jobDag: (id: string) => generatePath(`${x}/job/${id}`),
+    jobs: `${x}/jobs`,
     issue: `${x}/issue`,
     issueTrackedEntity: `${x}/issue-tracked-entity`,
     location: `${x}/location`,
