@@ -3959,9 +3959,6 @@ msgstr "ID Articolo"
 msgid "Item Master"
 msgstr "Anagrafica Articolo"
 
-msgid "Item Rules"
-msgstr "Regole Articolo"
-
 msgid "Item Scope"
 msgstr "Ambito Articolo"
 
@@ -4320,6 +4317,9 @@ msgstr "Gestisci come la durata di conservazione viene tracciata, calcolata e ap
 
 msgid "Manage Ownership"
 msgstr "Gestisci ProprietÃƒÆ’Ã‚Â "
+
+msgid "Manage rules"
+msgstr ""
 
 msgid "Manage Subscription"
 msgstr "Gestisci Abbonamento"
@@ -7118,6 +7118,9 @@ msgstr "Tipi di Archiviazione"
 
 msgid "Storage Unit"
 msgstr "UnitÃƒÆ’Ã‚Â  di Stoccaggio"
+
+msgid "Storage unit rules"
+msgstr ""
 
 msgid "Storage Units"
 msgstr "UnitÃƒÆ’Ã‚Â  di Stoccaggio"

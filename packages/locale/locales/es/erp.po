@@ -3959,9 +3959,6 @@ msgstr "ID de ArtÃƒÆ’Ã‚Â­culo"
 msgid "Item Master"
 msgstr "Maestro de ArtÃƒÆ’Ã‚Â­culos"
 
-msgid "Item Rules"
-msgstr "Reglas de ArtÃƒÆ’Ã‚Â­culos"
-
 msgid "Item Scope"
 msgstr "Alcance de ArtÃƒÆ’Ã‚Â­culos"
 
@@ -4320,6 +4317,9 @@ msgstr "Administra cÃƒÆ’Ã‚Â³mo se rastrea, calcula y aplica la vida Ã
 
 msgid "Manage Ownership"
 msgstr "Gestionar Propiedad"
+
+msgid "Manage rules"
+msgstr ""
 
 msgid "Manage Subscription"
 msgstr "Administrar SuscripciÃƒÆ’Ã‚Â³n"
@@ -7118,6 +7118,9 @@ msgstr "Tipos de Almacenamiento"
 
 msgid "Storage Unit"
 msgstr "Unidad de Almacenamiento"
+
+msgid "Storage unit rules"
+msgstr ""
 
 msgid "Storage Units"
 msgstr "Unidades de Almacenamiento"

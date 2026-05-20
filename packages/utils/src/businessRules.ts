@@ -643,8 +643,7 @@ export const FIELD_REGISTRY: FieldDef[] = [
   }),
 
   // ── StorageUnit target ────────────────────────────────────────────────────
-  // storageUnit is the target — always loaded by the evaluator. All three
-  // fields are columns on `storageUnit` (or derived from its array column).
+  // storageUnit is the target — always loaded by the evaluator.
   fields.synthetic({
     path: "storageUnit.storageTypeId",
     derivedFrom: "first element of storageUnit.storageTypeIds[]",
@@ -656,6 +655,20 @@ export const FIELD_REGISTRY: FieldDef[] = [
     targetType: "storageUnit",
     valueOptionsLoader: "storageTypes"
   }),
+  // Useful for `appliesToAll` rules that want to scope by physical location —
+  // e.g. "block pick from any unit in the quarantine warehouse".
+  fields.database({
+    table: "storageUnit",
+    column: "locationId",
+    nullable: false,
+    label: "Storage unit location",
+    type: "id",
+    operators: ID_OPS,
+    context: "storage",
+    targetType: "storageUnit",
+    valueOptionsLoader: "locations"
+  }),
+
   // ── WorkCenter target ─────────────────────────────────────────────────────
   // workCenter is the target — always loaded by the evaluator.
   fields.database({

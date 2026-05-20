@@ -191,14 +191,14 @@ export default function RuleAssignmentsList({
             <HStack className="gap-2">
               {availableOptions.length > 0 && (
                 <Combobox
-                  size="sm"
+                  size="md"
                   value=""
                   options={availableOptions}
                   onChange={handleAssign}
                   placeholder={t`Add from library…`}
                 />
               )}
-              <Button asChild variant="secondary" size="sm">
+              <Button asChild>
                 <Link to={path.to.newBusinessRule}>
                   <Trans>Add rule</Trans>
                 </Link>

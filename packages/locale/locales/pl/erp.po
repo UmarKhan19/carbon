@@ -3959,9 +3959,6 @@ msgstr "ID Przedmiotu"
 msgid "Item Master"
 msgstr "GÃƒâ€¦Ã¢â‚¬Å¡ÃƒÆ’Ã‚Â³wny element"
 
-msgid "Item Rules"
-msgstr "ReguÃƒâ€¦Ã¢â‚¬Å¡y pozycji"
-
 msgid "Item Scope"
 msgstr "Zakres Pozycji"
 
@@ -4320,6 +4317,9 @@ msgstr "ZarzÃƒâ€žÃ¢â‚¬Â¦dzaj sposobem Ãƒâ€¦Ã¢â‚¬Âºle
 
 msgid "Manage Ownership"
 msgstr "ZarzÃƒâ€žÃ¢â‚¬Â¦dzaj wÃƒâ€¦Ã¢â‚¬Å¡asnoÃƒâ€¦Ã¢â‚¬ÂºciÃƒâ€žÃ¢â‚¬Â¦"
+
+msgid "Manage rules"
+msgstr ""
 
 msgid "Manage Subscription"
 msgstr "Zarzadzaj subskrypcja"
@@ -7118,6 +7118,9 @@ msgstr "Typy magazynowania"
 
 msgid "Storage Unit"
 msgstr "Jednostka magazynowa"
+
+msgid "Storage unit rules"
+msgstr ""
 
 msgid "Storage Units"
 msgstr "Jednostki magazynowe"

@@ -1597,6 +1597,8 @@ export const path = {
     sequences: `${x}/settings/sequences`,
     storageUnit: (id: string) =>
       generatePath(`${x}/inventory/storage-units/${id}`),
+    storageUnitRules: (id: string) =>
+      generatePath(`${x}/inventory/storage-units/${id}/rules`),
     storageUnits: `${x}/inventory/storage-units`,
     storageType: (id: string) =>
       generatePath(`${x}/inventory/storage-types/${id}`),

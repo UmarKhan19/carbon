@@ -3959,9 +3959,6 @@ msgstr "Artikel-ID"
 msgid "Item Master"
 msgstr "Artikelstamm"
 
-msgid "Item Rules"
-msgstr "Artikelregeln"
-
 msgid "Item Scope"
 msgstr "Artikelbereich"
 
@@ -4320,6 +4317,9 @@ msgstr "Verwalten Sie, wie die Haltbarkeit in Ihrem Bestand verfolgt, berechnet 
 
 msgid "Manage Ownership"
 msgstr "EigentÃƒÆ’Ã‚Â¼merschaft verwalten"
+
+msgid "Manage rules"
+msgstr ""
 
 msgid "Manage Subscription"
 msgstr "Abonnement verwalten"
@@ -7118,6 +7118,9 @@ msgstr "Speichertypen"
 
 msgid "Storage Unit"
 msgstr "Lagereinheit"
+
+msgid "Storage unit rules"
+msgstr ""
 
 msgid "Storage Units"
 msgstr "Lagereinheiten"

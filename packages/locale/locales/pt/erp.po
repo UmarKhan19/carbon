@@ -3959,9 +3959,6 @@ msgstr "ID do Item"
 msgid "Item Master"
 msgstr "Mestre de Item"
 
-msgid "Item Rules"
-msgstr "Regras de Item"
-
 msgid "Item Scope"
 msgstr "Escopo do Item"
 
@@ -4320,6 +4317,9 @@ msgstr "Gerir como a vida ÃƒÆ’Ã‚Âºtil ÃƒÆ’Ã‚Â© rastreada, ca
 
 msgid "Manage Ownership"
 msgstr "Gerenciar Propriedade"
+
+msgid "Manage rules"
+msgstr ""
 
 msgid "Manage Subscription"
 msgstr "Gerenciar Assinatura"
@@ -7118,6 +7118,9 @@ msgstr "Tipos de Armazenamento"
 
 msgid "Storage Unit"
 msgstr "Unidade de Armazenamento"
+
+msgid "Storage unit rules"
+msgstr ""
 
 msgid "Storage Units"
 msgstr "Unidades de Armazenamento"

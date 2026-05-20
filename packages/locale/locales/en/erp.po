@@ -3959,9 +3959,6 @@ msgstr "Item ID"
 msgid "Item Master"
 msgstr "Item Master"
 
-msgid "Item Rules"
-msgstr "Item Rules"
-
 msgid "Item Scope"
 msgstr "Item Scope"
 
@@ -4320,6 +4317,9 @@ msgstr "Manage how shelf life is tracked, computed, and enforced across inventor
 
 msgid "Manage Ownership"
 msgstr "Manage Ownership"
+
+msgid "Manage rules"
+msgstr "Manage rules"
 
 msgid "Manage Subscription"
 msgstr "Manage Subscription"
@@ -7118,6 +7118,9 @@ msgstr "Storage Types"
 
 msgid "Storage Unit"
 msgstr "Storage Unit"
+
+msgid "Storage unit rules"
+msgstr "Storage unit rules"
 
 msgid "Storage Units"
 msgstr "Storage Units"

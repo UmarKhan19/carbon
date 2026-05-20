@@ -468,10 +468,8 @@ describe("getFieldsForTargetType", () => {
     const fields = getFieldsForTargetType("storageUnit");
     const paths = fields.map((f) => f.path);
     expect(paths).toContain("storageUnit.storageTypeId");
+    expect(paths).toContain("storageUnit.locationId");
     expect(paths).toContain("transaction.quantity");
-    // Storage unit IS the target — assignment is the match. No need to
-    // also match on its location.
-    expect(paths).not.toContain("storageUnit.locationId");
     expect(paths).not.toContain("item.type");
   });
 });

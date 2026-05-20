@@ -66,15 +66,16 @@ const BusinessRulesGroups = memo(({ rules }: BusinessRulesGroupsProps) => {
   const permissions = usePermissions();
   const canCreate = permissions.can("update", "settings");
 
-  const { inventoryRules, productionRules } = useMemo(() => {
-    const inv: RuleListItem[] = [];
-    const prod: RuleListItem[] = [];
-    for (const r of rules) {
-      if (r.targetType === "workCenter") prod.push(r);
-      else inv.push(r);
-    }
-    return { inventoryRules: inv, productionRules: prod };
-  }, [rules]);
+  // Inventory rules: item + storageUnit (both wired end-to-end).
+  // Production rules: workCenter — hidden until entry point + MES modal
+  // ship. workCenter rows are filtered out so any stragglers don't surface.
+  const inventoryRules = useMemo(
+    () =>
+      rules.filter(
+        (r) => r.targetType === "item" || r.targetType === "storageUnit"
+      ),
+    [rules]
+  );
 
   return (
     <ScrollArea className="h-full w-full">
@@ -136,39 +137,47 @@ const BusinessRulesGroups = memo(({ rules }: BusinessRulesGroupsProps) => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-lg">Production rules</CardTitle>
-                  <CardDescription className="text-sm">
-                    Fire on operation start/finish, material issue/receive.
-                    Target work centers.
-                  </CardDescription>
+          {/*
+            Production rules card — hidden until work center rule wiring
+            (entry point on the work centers list, drawer/tab to manage
+            assignments, MES violation modal) ships. To restore: also
+            split inventoryRules useMemo above into inventoryRules +
+            productionRules buckets like the original.
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">Production rules</CardTitle>
+                    <CardDescription className="text-sm">
+                      Fire on operation start/finish, material issue/receive.
+                      Target work centers.
+                    </CardDescription>
+                  </div>
+                  {canCreate && (
+                    <Button variant="primary" leftIcon={<LuPlus />} asChild>
+                      <Link
+                        to={`${path.to.newBusinessRule}?targetType=workCenter`}
+                      >
+                        New Rule
+                      </Link>
+                    </Button>
+                  )}
                 </div>
-                {canCreate && (
-                  <Button variant="primary" leftIcon={<LuPlus />} asChild>
-                    <Link
-                      to={`${path.to.newBusinessRule}?targetType=workCenter`}
-                    >
-                      New Rule
-                    </Link>
-                  </Button>
+              </CardHeader>
+              <CardContent>
+                {productionRules.length === 0 ? (
+                  <Empty className="my-4" />
+                ) : (
+                  <VStack spacing={3} className="items-stretch">
+                    {productionRules.map((r) => (
+                      <BusinessRuleCard key={r.id} rule={r} />
+                    ))}
+                  </VStack>
                 )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              {productionRules.length === 0 ? (
-                <Empty className="my-4" />
-              ) : (
-                <VStack spacing={3} className="items-stretch">
-                  {productionRules.map((r) => (
-                    <BusinessRuleCard key={r.id} rule={r} />
-                  ))}
-                </VStack>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          */}
         </VStack>
       </div>
     </ScrollArea>
