@@ -416,6 +416,12 @@ msgstr "Zaawansowane"
 msgid "After"
 msgstr "Po"
 
+msgid "Aging"
+msgstr ""
+
+msgid "Aging by Counterparty"
+msgstr ""
+
 msgid "AI Tokens"
 msgstr "Tokeny AI"
 
@@ -473,6 +479,12 @@ msgstr "Przedmiot nie moÃƒâ€¦Ã‚Â¼e byÃƒâ€žÃ¢â‚¬Â¡ dodan
 msgid "and {remaining} more"
 msgstr "i {remaining} wiÃƒâ€žÃ¢â€žÂ¢cej"
 
+msgid "AP Aging"
+msgstr ""
+
+msgid "AP Tie-Out"
+msgstr ""
+
 msgid "API and Webhooks"
 msgstr "API i Webhooks"
 
@@ -529,6 +541,12 @@ msgstr "Zatwierdzone przez"
 
 msgid "AQL"
 msgstr "AQL"
+
+msgid "AR Aging"
+msgstr ""
+
+msgid "AR Tie-Out"
+msgstr ""
 
 msgid "Archive"
 msgstr "Archiwum"
@@ -1117,6 +1135,12 @@ msgstr "przez {byUser}"
 
 msgid "By accepting the invite, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
 msgstr "AkceptujÃƒâ€žÃ¢â‚¬Â¦c zaproszenie, zgadzasz siÃƒâ€žÃ¢â€žÂ¢ na <0>Warunki UsÃƒâ€¦Ã¢â‚¬Å¡ugi</0> i <1>PolitykÃƒâ€žÃ¢â€žÂ¢ PrywatnoÃƒâ€¦Ã¢â‚¬Âºci</1>."
+
+msgid "By Document Date"
+msgstr ""
+
+msgid "By Due Date"
+msgstr ""
 
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "LogujÃƒâ€žÃ¢â‚¬Â¦c siÃƒâ€žÃ¢â€žÂ¢, wyraÃƒâ€¦Ã‚Â¼asz zgodÃƒâ€žÃ¢â€žÂ¢ na <0>Warunki korzystania z usÃƒâ€¦Ã¢â‚¬Å¡ugi</0> i <1>PolitykÃƒâ€žÃ¢â€žÂ¢ prywatnoÃƒâ€¦Ã¢â‚¬Âºci.</1>"
@@ -7757,6 +7781,9 @@ msgstr "Ãƒâ€¦Ã‚ÂÃƒâ€žÃ¢â‚¬Â¦cznie godzin"
 msgid "Total Minutes"
 msgstr "Ãƒâ€¦Ã‚ÂÃƒâ€žÃ¢â‚¬Â¦cznie minut"
 
+msgid "Total Outstanding"
+msgstr ""
+
 msgid "Total Price"
 msgstr "Cena caÃƒâ€¦Ã¢â‚¬Å¡kowita"
 
@@ -7885,6 +7912,9 @@ msgstr "Typy"
 
 msgid "Un-sampled entities will remain On Hold so you can keep inspecting and disposition later. Sampled outcomes are preserved."
 msgstr "Nieprzetestowane jednostki pozostanÃƒâ€žÃ¢â‚¬Â¦ w stanie Wstrzymane, aby moÃƒâ€¦Ã‚Â¼na byÃƒâ€¦Ã¢â‚¬Å¡o kontynuowaÃƒâ€žÃ¢â‚¬Â¡ inspekcjÃƒâ€žÃ¢â€žÂ¢ i podjÃƒâ€žÃ¢â‚¬Â¦Ãƒâ€žÃ¢â‚¬Â¡ decyzjÃƒâ€žÃ¢â€žÂ¢ pÃƒÆ’Ã‚Â³Ãƒâ€¦Ã‚Âºniej. Wyniki testowanych jednostek sÃƒâ€žÃ¢â‚¬Â¦ zachowywane."
+
+msgid "Unapplied"
+msgstr ""
 
 msgid "Unapplied:"
 msgstr ""

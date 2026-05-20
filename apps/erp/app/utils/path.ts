@@ -1272,6 +1272,8 @@ export const path = {
     payments: `${x}/payment`,
     arTieOut: `${x}/accounting/ar-tie-out`,
     apTieOut: `${x}/accounting/ap-tie-out`,
+    arAging: `${x}/accounting/ar-aging`,
+    apAging: `${x}/accounting/ap-aging`,
     paymentTerm: (id: string) =>
       generatePath(`${x}/accounting/payment-terms/${id}`),
     paymentTerms: `${x}/accounting/payment-terms`,

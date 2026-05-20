@@ -8,19 +8,20 @@ Same shared-component pattern as `TieOut` — one `<AgingReport side="ar"|"ap" /
 
 ## Goals (in scope)
 
-1. Two new SQL functions: `get_ar_aging(_company_id, _as_of_date)` and `get_ap_aging(...)` returning one row per counterparty with totals per bucket: **Current**, **1-30**, **31-60**, **61-90**, **90+** days past due, plus a `total`.
-2. One shared `<AgingReport side="ar"|"ap" />` component in `modules/accounting/ui/Reports/` rendering a `Table` of counterparties with per-bucket columns.
-3. Two routes: `x+/accounting+/ar-aging.tsx` and `x+/accounting+/ap-aging.tsx`, each loading the corresponding RPC and rendering the shared component.
-4. Wire both into the accounting Reports submenu (next to Trial Balance and Tie-Out).
-5. Path helpers `arAging` and `apAging`.
+1. Two SQL functions `get_ar_aging` / `get_ap_aging` taking `(_company_id, _as_of_date, _aging_method, _bucket1, _bucket2, _bucket3)` and returning one row per counterparty with `current`, `bucket1`, `bucket2`, `bucket3`, `bucket4` (>bucket3), `unapplied` (on-account credits, negative), and `total`.
+2. **Aging method** param: `'dueDate'` (default) or `'documentDate'` — chooses `dateDue` vs `COALESCE(dateIssued, postingDate)` as the age basis. Matches NetSuite's Accounting Preference toggle.
+3. **Configurable bucket boundaries** via the three integer params (default 30/60/90); the UI passes them and labels columns accordingly.
+4. **Unapplied payments included** as negative amounts in their own column + the total. A customer who overpaid shows as a net credit, not a phantom receivable. (My earlier "exclude unapplied" was wrong — verified against NetSuite, which includes them.)
+5. Shared `<AgingReport side="ar"|"ap" />` in `modules/accounting/ui/Reports/`, two routes under `accounting+/`, submenu wire-up, path helpers.
+6. Counterparty name links to the customer/supplier detail page.
 
 ## Non-goals
 
-- Configurable bucket boundaries (hardcode 30/60/90 for v1; if users complain, add a settings hook later).
-- Aging Detail report (per-invoice list grouped by customer). Drill-down is via the existing tie-out drill or by clicking the customer name to navigate to the customer's invoice list.
-- Future-dated aging (only as-of past or today).
-- PDF / email of aging reports.
-- Statement of account (the customer-facing version).
+- Persistent company-level default for aging method / buckets (URL params cover the function; the `companySettings` preference column is a follow-up).
+- Per-bucket drill-down to the composing invoices (counterparty link is enough for v1; the existing tie-out drill RPC would need bucket-bound params to do this precisely).
+- Aging Detail report as a separate page (the tie-out drill + customer page cover it).
+- Chart visualization (table-first, matching TrialBalance/TieOut; summary cards cover the at-a-glance need).
+- PDF / email / statement of account.
 
 ## Bucket math
 

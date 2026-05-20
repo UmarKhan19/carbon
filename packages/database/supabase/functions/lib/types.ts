@@ -60381,6 +60381,46 @@ export type Database = {
           workCenterId: string
         }[]
       }
+      get_ap_aging: {
+        Args: {
+          _aging_method?: string
+          _as_of_date: string
+          _bucket1?: number
+          _bucket2?: number
+          _bucket3?: number
+          _company_id: string
+        }
+        Returns: {
+          bucket1: number
+          bucket2: number
+          bucket3: number
+          bucket4: number
+          current: number
+          supplierId: string
+          total: number
+          unapplied: number
+        }[]
+      }
+      get_ar_aging: {
+        Args: {
+          _aging_method?: string
+          _as_of_date: string
+          _bucket1?: number
+          _bucket2?: number
+          _bucket3?: number
+          _company_id: string
+        }
+        Returns: {
+          bucket1: number
+          bucket2: number
+          bucket3: number
+          bucket4: number
+          current: number
+          customerId: string
+          total: number
+          unapplied: number
+        }[]
+      }
       get_ap_open_by_supplier: {
         Args: {
           _as_of_date: string

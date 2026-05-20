@@ -416,6 +416,12 @@ msgstr "Advanced"
 msgid "After"
 msgstr "After"
 
+msgid "Aging"
+msgstr "Aging"
+
+msgid "Aging by Counterparty"
+msgstr "Aging by Counterparty"
+
 msgid "AI Tokens"
 msgstr "AI Tokens"
 
@@ -473,6 +479,12 @@ msgstr "An item cannot be added to itself."
 msgid "and {remaining} more"
 msgstr "and {remaining} more"
 
+msgid "AP Aging"
+msgstr "AP Aging"
+
+msgid "AP Tie-Out"
+msgstr "AP Tie-Out"
+
 msgid "API and Webhooks"
 msgstr "API and Webhooks"
 
@@ -529,6 +541,12 @@ msgstr "Approved By"
 
 msgid "AQL"
 msgstr "AQL"
+
+msgid "AR Aging"
+msgstr "AR Aging"
+
+msgid "AR Tie-Out"
+msgstr "AR Tie-Out"
 
 msgid "Archive"
 msgstr "Archive"
@@ -1117,6 +1135,12 @@ msgstr "by {byUser}"
 
 msgid "By accepting the invite, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
 msgstr "By accepting the invite, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
+
+msgid "By Document Date"
+msgstr "By Document Date"
+
+msgid "By Due Date"
+msgstr "By Due Date"
 
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
@@ -7757,6 +7781,9 @@ msgstr "Total Hours"
 msgid "Total Minutes"
 msgstr "Total Minutes"
 
+msgid "Total Outstanding"
+msgstr "Total Outstanding"
+
 msgid "Total Price"
 msgstr "Total Price"
 
@@ -7885,6 +7912,9 @@ msgstr "Types"
 
 msgid "Un-sampled entities will remain On Hold so you can keep inspecting and disposition later. Sampled outcomes are preserved."
 msgstr "Un-sampled entities will remain On Hold so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+
+msgid "Unapplied"
+msgstr "Unapplied"
 
 msgid "Unapplied:"
 msgstr "Unapplied:"

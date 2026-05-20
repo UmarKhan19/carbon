@@ -416,6 +416,12 @@ msgstr "AvanÃƒÆ’Ã‚Â§ado"
 msgid "After"
 msgstr "ApÃƒÆ’Ã‚Â³s"
 
+msgid "Aging"
+msgstr ""
+
+msgid "Aging by Counterparty"
+msgstr ""
+
 msgid "AI Tokens"
 msgstr "Tokens de IA"
 
@@ -473,6 +479,12 @@ msgstr "Um item nÃƒÆ’Ã‚Â£o pode ser adicionado a si mesmo."
 msgid "and {remaining} more"
 msgstr "e {remaining} mais"
 
+msgid "AP Aging"
+msgstr ""
+
+msgid "AP Tie-Out"
+msgstr ""
+
 msgid "API and Webhooks"
 msgstr "API e Webhooks"
 
@@ -529,6 +541,12 @@ msgstr "Aprovado Por"
 
 msgid "AQL"
 msgstr "AQL"
+
+msgid "AR Aging"
+msgstr ""
+
+msgid "AR Tie-Out"
+msgstr ""
 
 msgid "Archive"
 msgstr "Arquivo"
@@ -1117,6 +1135,12 @@ msgstr "por {byUser}"
 
 msgid "By accepting the invite, you agree to the <0>Terms of Service</0> and <1>Privacy Policy</1>."
 msgstr "Ao aceitar o convite, vocÃƒÆ’Ã‚Âª concorda com os <0>Termos de ServiÃƒÆ’Ã‚Â§o</0> e a <1>PolÃƒÆ’Ã‚Â­tica de Privacidade</1>."
+
+msgid "By Document Date"
+msgstr ""
+
+msgid "By Due Date"
+msgstr ""
 
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "Ao fazer login, vocÃƒÆ’Ã‚Âª concorda com os <0>Termos de ServiÃƒÆ’Ã‚Â§o</0> e a <1>PolÃƒÆ’Ã‚Â­tica de Privacidade.</1>"
@@ -7757,6 +7781,9 @@ msgstr "Total de Horas"
 msgid "Total Minutes"
 msgstr "Total de Minutos"
 
+msgid "Total Outstanding"
+msgstr ""
+
 msgid "Total Price"
 msgstr "PreÃƒÆ’Ã‚Â§o Total"
 
@@ -7885,6 +7912,9 @@ msgstr "Tipos"
 
 msgid "Un-sampled entities will remain On Hold so you can keep inspecting and disposition later. Sampled outcomes are preserved."
 msgstr "Entidades nÃƒÆ’Ã‚Â£o amostradas permanecerÃƒÆ’Ã‚Â£o Em Espera para que vocÃƒÆ’Ã‚Âª possa continuar inspecionando e fazer a disposiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o posteriormente. Os resultados das amostras sÃƒÆ’Ã‚Â£o preservados."
+
+msgid "Unapplied"
+msgstr ""
 
 msgid "Unapplied:"
 msgstr ""

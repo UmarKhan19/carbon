@@ -1092,3 +1092,44 @@ export async function getApOpenBySupplier(
     _as_of_date: asOfDate
   });
 }
+
+// Aging RPCs (migration 20260519150000_ar-ap-aging)
+
+export type AgingOptions = {
+  agingMethod?: "dueDate" | "documentDate";
+  bucketDays?: [number, number, number];
+};
+
+export async function getArAging(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  asOfDate: string,
+  options: AgingOptions = {}
+) {
+  const [b1, b2, b3] = options.bucketDays ?? [30, 60, 90];
+  return client.rpc("get_ar_aging", {
+    _company_id: companyId,
+    _as_of_date: asOfDate,
+    _aging_method: options.agingMethod ?? "dueDate",
+    _bucket1: b1,
+    _bucket2: b2,
+    _bucket3: b3
+  });
+}
+
+export async function getApAging(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  asOfDate: string,
+  options: AgingOptions = {}
+) {
+  const [b1, b2, b3] = options.bucketDays ?? [30, 60, 90];
+  return client.rpc("get_ap_aging", {
+    _company_id: companyId,
+    _as_of_date: asOfDate,
+    _aging_method: options.agingMethod ?? "dueDate",
+    _bucket1: b1,
+    _bucket2: b2,
+    _bucket3: b3
+  });
+}
