@@ -7520,6 +7520,11 @@ msgstr "To spowoduje zastÃƒâ€žÃ¢â‚¬Â¦pienie istniejÃƒâ€žÃ¢
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "To spowoduje przeliczenie kosztu jednostkowego na podstawie aktywnej metody produkcji, listy materiaÃƒâ€¦Ã¢â‚¬Å¡ÃƒÆ’Ã‚Â³w i procesÃƒÆ’Ã‚Â³w przy uÃƒâ€¦Ã‚Â¼yciu wielkoÃƒâ€¦Ã¢â‚¬Âºci partii. BieÃƒâ€¦Ã‚Â¼Ãƒâ€žÃ¢â‚¬Â¦cy koszt zostanie zastÃƒâ€žÃ¢â‚¬Â¦piony. Czy chcesz kontynuowaÃƒâ€žÃ¢â‚¬Â¡?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "To zastÃƒâ€žÃ¢â‚¬Â¦pi wszystkie materiaÃƒâ€¦Ã¢â‚¬Å¡y metody innych wersji tÃƒâ€žÃ¢â‚¬Â¦ wersjÃƒâ€žÃ¢â‚¬Â¦."
 
@@ -7810,6 +7815,9 @@ msgstr "Nieograniczone wsparcie funkcjonalne"
 
 msgid "Unlink"
 msgstr "OdÃƒâ€¦Ã¢â‚¬Å¡Ãƒâ€žÃ¢â‚¬Â¦cz"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "NieobsÃƒâ€¦Ã¢â‚¬Å¡ugiwany typ dokumentu Ãƒâ€¦Ã‚ÂºrÃƒÆ’Ã‚Â³dÃƒâ€¦Ã¢â‚¬Å¡owego: {sourceDocument}"
