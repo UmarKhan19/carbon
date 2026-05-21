@@ -329,7 +329,7 @@ const JobProperties = () => {
           </HStack>
         ) : (
           <VStack spacing={2} className="w-full">
-            {routeData?.job?.customerId && (
+            {!!prevSalesOrderId && (
               <Button
                 variant="ghost"
                 size="sm"
