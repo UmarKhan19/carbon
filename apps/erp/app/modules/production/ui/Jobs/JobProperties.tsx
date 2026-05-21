@@ -184,12 +184,8 @@ const JobProperties = () => {
   const isLocked = isJobLocked(routeData?.job?.status);
   const isDisabled = !canUpdate || isLocked;
 
-  const jobCustomFields = (routeData?.job?.customFields ?? {}) as {
-    previousSalesOrderId?: string;
-    previousSalesOrderLineId?: string;
-    previousSalesOrderReadableId?: string;
-    [key: string]: unknown;
-  };
+  const prevSalesOrderId = routeData?.job?.previousSalesOrderId;
+  const prevSalesOrderReadableId = routeData?.job?.previousSalesOrderReadableId;
 
   return (
     <VStack
@@ -688,11 +684,10 @@ const JobProperties = () => {
                       }}
                     >
                       <option value="">{t`Select sales order`}</option>
-                      {!!jobCustomFields.previousSalesOrderId && (
+                      {!!prevSalesOrderId && (
                         <optgroup label={t`Previously linked`}>
-                          <option value={jobCustomFields.previousSalesOrderId}>
-                            {jobCustomFields.previousSalesOrderReadableId ??
-                              t`Previous`}
+                          <option value={prevSalesOrderId}>
+                            {prevSalesOrderReadableId ?? t`Previous`}
                           </option>
                         </optgroup>
                       )}

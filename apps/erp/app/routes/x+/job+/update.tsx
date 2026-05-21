@@ -241,36 +241,31 @@ export async function action({ request }: ActionFunctionArgs) {
     case "salesOrderId":
     case "salesOrderLineId":
       if (!value) {
-        // Fetch current values so we can store them as history in customFields
         const currentJobs = await client
           .from("job")
           .select(
-            "id, salesOrderId, salesOrderLineId, customFields, salesOrder(salesOrderId)"
+            "id, salesOrderId, salesOrderLineId, salesOrder!salesOrderId(salesOrderId)"
           )
           .in("id", ids as string[])
           .eq("companyId", companyId);
 
-        for (const job of currentJobs.data ?? []) {
-          const prevCustomFields =
-            (job.customFields as Record<string, unknown>) ?? {};
-          await client
+        const updates = (currentJobs.data ?? []).map((job) =>
+          client
             .from("job")
             .update({
               salesOrderId: null,
               salesOrderLineId: null,
-              customFields: {
-                ...prevCustomFields,
-                previousSalesOrderId: job.salesOrderId ?? null,
-                previousSalesOrderLineId: job.salesOrderLineId ?? null,
-                previousSalesOrderReadableId:
-                  (job.salesOrder as { salesOrderId: string } | null)
-                    ?.salesOrderId ?? null
-              },
+              previousSalesOrderId: job.salesOrderId ?? null,
+              previousSalesOrderLineId: job.salesOrderLineId ?? null,
+              previousSalesOrderReadableId:
+                (job.salesOrder as { salesOrderId: string } | null)
+                  ?.salesOrderId ?? null,
               updatedBy: userId
             })
             .eq("id", job.id)
-            .eq("companyId", companyId);
-        }
+            .eq("companyId", companyId)
+        );
+        await Promise.all(updates);
         return { data: null, error: null };
       } else {
         return {

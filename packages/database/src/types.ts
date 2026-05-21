@@ -5348,6 +5348,8 @@ export type Database = {
           customerId: string
           customerPartId: string
           customerPartRevision: string | null
+          customerShelfLifeDays: number | null
+          customerShelfLifeMode: string
           id: string
           itemId: string
         }
@@ -5356,6 +5358,8 @@ export type Database = {
           customerId: string
           customerPartId: string
           customerPartRevision?: string | null
+          customerShelfLifeDays?: number | null
+          customerShelfLifeMode?: string
           id?: string
           itemId: string
         }
@@ -5364,6 +5368,8 @@ export type Database = {
           customerId?: string
           customerPartId?: string
           customerPartRevision?: string | null
+          customerShelfLifeDays?: number | null
+          customerShelfLifeMode?: string
           id?: string
           itemId?: string
         }
@@ -13039,6 +13045,9 @@ export type Database = {
           locationId: string
           modelUploadId: string | null
           notes: Json | null
+          previousSalesOrderId: string | null
+          previousSalesOrderLineId: string | null
+          previousSalesOrderReadableId: string | null
           priority: number
           productionQuantity: number | null
           quantity: number
@@ -13079,6 +13088,9 @@ export type Database = {
           locationId: string
           modelUploadId?: string | null
           notes?: Json | null
+          previousSalesOrderId?: string | null
+          previousSalesOrderLineId?: string | null
+          previousSalesOrderReadableId?: string | null
           priority?: number
           productionQuantity?: number | null
           quantity?: number
@@ -13119,6 +13131,9 @@ export type Database = {
           locationId?: string
           modelUploadId?: string | null
           notes?: Json | null
+          previousSalesOrderId?: string | null
+          previousSalesOrderLineId?: string | null
+          previousSalesOrderReadableId?: string | null
           priority?: number
           productionQuantity?: number | null
           quantity?: number
@@ -13307,6 +13322,48 @@ export type Database = {
             columns: ["locationId"]
             isOneToOne: false
             referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_previousSalesOrderId_fkey"
+            columns: ["previousSalesOrderId"]
+            isOneToOne: false
+            referencedRelation: "salesOrder"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_previousSalesOrderId_fkey"
+            columns: ["previousSalesOrderId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderLocations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_previousSalesOrderId_fkey"
+            columns: ["previousSalesOrderId"]
+            isOneToOne: false
+            referencedRelation: "salesOrders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_previousSalesOrderLineId_fkey"
+            columns: ["previousSalesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "openSalesOrderLines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_previousSalesOrderLineId_fkey"
+            columns: ["previousSalesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_previousSalesOrderLineId_fkey"
+            columns: ["previousSalesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderLines"
             referencedColumns: ["id"]
           },
           {
@@ -36107,7 +36164,49 @@ export type Database = {
           },
         ]
       }
-      searchIndex_CYj9v111oXXm6PX9ZD6Yn2: {
+      searchIndex_SDw3PKzggHJQ9vPZgEkkFD: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
+      searchIndex_WsyKzLEiuMA4htga9tvued: {
         Row: {
           createdAt: string
           description: string | null
@@ -37257,6 +37356,222 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+        ]
+      }
+      shipmentLineShelfLifeOverride: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          customerId: string
+          customerPartToItemId: string
+          estimatedDeliveryDate: string
+          expirationDate: string
+          id: string
+          itemId: string
+          reason: string
+          requiredShelfLifeDays: number
+          residualShelfLifeDays: number
+          shipmentId: string
+          shipmentLineId: string
+          trackedEntityId: string
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          customerId: string
+          customerPartToItemId: string
+          estimatedDeliveryDate: string
+          expirationDate: string
+          id?: string
+          itemId: string
+          reason: string
+          requiredShelfLifeDays: number
+          residualShelfLifeDays: number
+          shipmentId: string
+          shipmentLineId: string
+          trackedEntityId: string
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          customerId?: string
+          customerPartToItemId?: string
+          estimatedDeliveryDate?: string
+          expirationDate?: string
+          id?: string
+          itemId?: string
+          reason?: string
+          requiredShelfLifeDays?: number
+          residualShelfLifeDays?: number
+          shipmentId?: string
+          shipmentLineId?: string
+          trackedEntityId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_customerId_fkey"
+            columns: ["customerId"]
+            isOneToOne: false
+            referencedRelation: "customer"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_customerId_fkey"
+            columns: ["customerId"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_customerId_fkey"
+            columns: ["customerId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderCustomers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_customerPartToItemId_fkey"
+            columns: ["customerPartToItemId"]
+            isOneToOne: false
+            referencedRelation: "customerPartToItem"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_shipmentId_fkey"
+            columns: ["shipmentId"]
+            isOneToOne: false
+            referencedRelation: "shipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_shipmentLineId_fkey"
+            columns: ["shipmentLineId"]
+            isOneToOne: false
+            referencedRelation: "shipmentLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_shipmentLineId_fkey"
+            columns: ["shipmentLineId"]
+            isOneToOne: false
+            referencedRelation: "shipmentLines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentLineShelfLifeOverride_trackedEntityId_fkey"
+            columns: ["trackedEntityId"]
+            isOneToOne: false
+            referencedRelation: "trackedEntity"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -49453,6 +49768,9 @@ export type Database = {
           salesOrderId: string | null
           salesOrderLineId: string | null
           salesOrderReadableId: string | null
+          previousSalesOrderId: string | null
+          previousSalesOrderLineId: string | null
+          previousSalesOrderReadableId: string | null
           scrapQuantity: number | null
           secondsToComplete: number | null
           startDate: string | null
@@ -56291,7 +56609,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56305,7 +56623,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56863,14 +57181,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]

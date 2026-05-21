@@ -1,5 +1,6 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
+import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -36,7 +37,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const lineResult = await client
     .from("salesOrderLine")
-    .select("salesOrderId, salesOrder(customerId)")
+    .select("salesOrderId, salesOrder(customerId, locationId)")
     .eq("id", salesOrderLineId)
     .eq("companyId", companyId)
     .single();
@@ -52,35 +53,20 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   const salesOrderId = lineResult.data.salesOrderId;
-  const customerId =
-    (lineResult.data.salesOrder as { customerId: string } | null)?.customerId ??
-    null;
-
-  // Clear stored history now that the link is restored
-  const currentJob = await client
-    .from("job")
-    .select("customFields")
-    .eq("id", id)
-    .single();
-
-  const prevCustomFields =
-    (currentJob.data?.customFields as Record<string, unknown>) ?? {};
-  const historyKeys = new Set([
-    "previousSalesOrderId",
-    "previousSalesOrderLineId",
-    "previousSalesOrderReadableId"
-  ]);
-  const cleanCustomFields = Object.fromEntries(
-    Object.entries(prevCustomFields).filter(([k]) => !historyKeys.has(k))
-  );
+  const soData = lineResult.data.salesOrder as {
+    customerId: string;
+    locationId: string | null;
+  } | null;
 
   const update = await client
     .from("job")
     .update({
       salesOrderId,
       salesOrderLineId,
-      customerId,
-      customFields: cleanCustomFields,
+      customerId: soData?.customerId ?? null,
+      previousSalesOrderId: null,
+      previousSalesOrderLineId: null,
+      previousSalesOrderReadableId: null,
       updatedBy: userId
     })
     .eq("id", id)
@@ -96,8 +82,43 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
+  // Auto-refresh any empty Draft shipments for this sales order
+  let relinkedShipment = false;
+  const emptyShipments = await client
+    .from("shipment")
+    .select("id, locationId")
+    .eq("sourceDocumentId", salesOrderId)
+    .eq("status", "Draft")
+    .eq("companyId", companyId);
+
+  for (const shipment of emptyShipments.data ?? []) {
+    const lineCount = await client
+      .from("shipmentLine")
+      .select("id", { count: "exact", head: true })
+      .eq("shipmentId", shipment.id);
+
+    if ((lineCount.count ?? 0) === 0) {
+      const serviceRole = getCarbonServiceRole();
+      await serviceRole.functions.invoke("create", {
+        body: {
+          type: "shipmentFromSalesOrder",
+          salesOrderId,
+          shipmentId: shipment.id,
+          locationId: shipment.locationId ?? soData?.locationId,
+          companyId,
+          userId
+        }
+      });
+      relinkedShipment = true;
+    }
+  }
+
+  const message = relinkedShipment
+    ? "Job linked to sales order and shipment lines restored"
+    : "Job linked to sales order";
+
   throw redirect(
     requestReferrer(request) ?? path.to.job(id),
-    await flash(request, success("Job linked to sales order"))
+    await flash(request, success(message))
   );
 }
