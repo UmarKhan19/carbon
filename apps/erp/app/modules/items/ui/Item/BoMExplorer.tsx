@@ -305,7 +305,7 @@ const BoMExplorer = ({
             parentClassName="h-full"
             renderNode={({ node, state }) => {
               return (
-                <HoverCard openDelay={500} closeDelay={150}>
+                <HoverCard openDelay={500} closeDelay={50}>
                   <HoverCardTrigger asChild>
                     <div
                       key={node.id}
