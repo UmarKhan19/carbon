@@ -1,3 +1,4 @@
+import { useCarbon } from "@carbon/auth";
 import type { Json } from "@carbon/database";
 import {
   DatePicker,
@@ -10,16 +11,24 @@ import {
   Badge,
   Button,
   HStack,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
   toast,
+  useDisclosure,
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { LuCopy, LuLink, LuUnlink2 } from "react-icons/lu";
+import { LuCopy, LuLink, LuLink2, LuUnlink2 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
 import { Await, useFetcher, useParams } from "react-router";
 import { z } from "zod";
@@ -59,6 +68,17 @@ const JobProperties = () => {
     tags: { name: string }[];
     trackedEntities: Promise<PostgrestResponse<TrackedEntity>>;
   }>(path.to.job(jobId));
+
+  const { carbon } = useCarbon();
+  const linkDisclosure = useDisclosure();
+  const [salesOrders, setSalesOrders] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [salesOrderLines, setSalesOrderLines] = useState<
+    { value: string; label: string }[]
+  >([]);
+  const [selectedSalesOrderId, setSelectedSalesOrderId] = useState("");
+  const [selectedLineId, setSelectedLineId] = useState("");
 
   const fetcher = useFetcher<typeof action>();
   useEffect(() => {
@@ -163,6 +183,13 @@ const JobProperties = () => {
   const canUpdate = permissions.can("update", "production");
   const isLocked = isJobLocked(routeData?.job?.status);
   const isDisabled = !canUpdate || isLocked;
+
+  const jobCustomFields = (routeData?.job?.customFields ?? {}) as {
+    previousSalesOrderId?: string;
+    previousSalesOrderLineId?: string;
+    previousSalesOrderReadableId?: string;
+    [key: string]: unknown;
+  };
 
   return (
     <VStack
@@ -305,26 +332,58 @@ const JobProperties = () => {
             </Button>
           </HStack>
         ) : (
-          <ValidatedForm
-            defaultValues={{
-              storageUnitId: routeData?.job?.storageUnitId ?? undefined
-            }}
-            validator={z.object({
-              storageUnitId: zfd.text(z.string().optional())
-            })}
-            className="w-full"
-          >
-            <StorageUnit
-              label=""
-              name="storageUnitId"
-              inline
-              locationId={routeData?.job?.locationId ?? undefined}
-              isReadOnly={isDisabled}
-              onChange={(value) => {
-                onUpdate("storageUnitId", value?.id ?? null);
+          <VStack spacing={2} className="w-full">
+            {routeData?.job?.customerId && (
+              <Button
+                variant="ghost"
+                size="sm"
+                isDisabled={isDisabled}
+                leftIcon={<LuLink2 className="w-3 h-3" />}
+                className="w-full justify-start px-0 text-muted-foreground hover:text-foreground"
+                onClick={async () => {
+                  const result = await carbon
+                    ?.from("salesOrders")
+                    .select("id, salesOrderId")
+                    .eq("customerId", routeData?.job?.customerId as string)
+                    .in("status", ["To Ship and Invoice", "To Ship"]);
+                  setSalesOrders(
+                    (result?.data ?? [])
+                      .filter((so) => so.id != null)
+                      .map((so) => ({
+                        value: so.id as string,
+                        label: so.salesOrderId ?? so.id ?? ""
+                      }))
+                  );
+                  setSelectedSalesOrderId("");
+                  setSelectedLineId("");
+                  setSalesOrderLines([]);
+                  linkDisclosure.onOpen();
+                }}
+              >
+                <Trans>Link to Sales Order</Trans>
+              </Button>
+            )}
+            <ValidatedForm
+              defaultValues={{
+                storageUnitId: routeData?.job?.storageUnitId ?? undefined
               }}
-            />
-          </ValidatedForm>
+              validator={z.object({
+                storageUnitId: zfd.text(z.string().optional())
+              })}
+              className="w-full"
+            >
+              <StorageUnit
+                label=""
+                name="storageUnitId"
+                inline
+                locationId={routeData?.job?.locationId ?? undefined}
+                isReadOnly={isDisabled}
+                onChange={(value) => {
+                  onUpdate("storageUnitId", value?.id ?? null);
+                }}
+              />
+            </ValidatedForm>
+          </VStack>
         )}
       </VStack>
 
@@ -569,6 +628,137 @@ const JobProperties = () => {
         tags={routeData?.job.tags ?? []}
         onUpdate={onUpdateCustomFields}
       />
+
+      {linkDisclosure.isOpen && (
+        <Modal
+          open={linkDisclosure.isOpen}
+          onOpenChange={(open) => {
+            if (!open) linkDisclosure.onClose();
+          }}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>
+                <Trans>Link job to sales order</Trans>
+              </ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <VStack spacing={4}>
+                <VStack spacing={1} className="w-full">
+                  <span className="text-sm font-medium">
+                    <Trans>Sales Order</Trans>
+                  </span>
+                  {salesOrders.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      <Trans>No open sales orders for this customer</Trans>
+                    </p>
+                  ) : (
+                    <select
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      value={selectedSalesOrderId}
+                      onChange={async (e) => {
+                        const soId = e.target.value;
+                        setSelectedSalesOrderId(soId);
+                        setSelectedLineId("");
+                        if (!soId) {
+                          setSalesOrderLines([]);
+                          return;
+                        }
+                        const result = await carbon
+                          ?.from("salesOrderLines")
+                          .select(
+                            "id, itemReadableId, saleQuantity, promisedDate"
+                          )
+                          .eq("salesOrderId", soId)
+                          .eq("itemId", routeData?.job?.itemId as string)
+                          .eq("methodType", "Make to Order");
+                        setSalesOrderLines(
+                          (result?.data ?? []).flatMap((line) =>
+                            line.id
+                              ? [
+                                  {
+                                    value: line.id,
+                                    label: `${line.itemReadableId ?? "—"} — qty ${line.saleQuantity ?? "?"}${line.promisedDate ? ` — ${line.promisedDate}` : ""}`
+                                  }
+                                ]
+                              : []
+                          )
+                        );
+                      }}
+                    >
+                      <option value="">{t`Select sales order`}</option>
+                      {!!jobCustomFields.previousSalesOrderId && (
+                        <optgroup label={t`Previously linked`}>
+                          <option value={jobCustomFields.previousSalesOrderId}>
+                            {jobCustomFields.previousSalesOrderReadableId ??
+                              t`Previous`}
+                          </option>
+                        </optgroup>
+                      )}
+                      {salesOrders.length > 0 && (
+                        <optgroup label={t`Open sales orders`}>
+                          {salesOrders.map((so) => (
+                            <option key={so.value} value={so.value}>
+                              {so.label}
+                            </option>
+                          ))}
+                        </optgroup>
+                      )}
+                    </select>
+                  )}
+                </VStack>
+
+                {selectedSalesOrderId && (
+                  <VStack spacing={1} className="w-full">
+                    <span className="text-sm font-medium">
+                      <Trans>Line</Trans>
+                    </span>
+                    {salesOrderLines.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        <Trans>No matching lines found for this item</Trans>
+                      </p>
+                    ) : (
+                      <select
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        value={selectedLineId}
+                        onChange={(e) => setSelectedLineId(e.target.value)}
+                      >
+                        <option value="">{t`Select line`}</option>
+                        {salesOrderLines.map((line) => (
+                          <option key={line.value} value={line.value}>
+                            {line.label}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </VStack>
+                )}
+              </VStack>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="secondary" onClick={linkDisclosure.onClose}>
+                <Trans>Cancel</Trans>
+              </Button>
+              <Button
+                variant="primary"
+                leftIcon={<LuLink2 className="w-3 h-3" />}
+                isDisabled={!selectedLineId || fetcher.state !== "idle"}
+                isLoading={fetcher.state !== "idle"}
+                onClick={() => {
+                  fetcher.submit(
+                    { salesOrderLineId: selectedLineId },
+                    { method: "post", action: path.to.jobLink(jobId) }
+                  );
+                  linkDisclosure.onClose();
+                }}
+              >
+                <Trans>Link</Trans>
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
     </VStack>
   );
 };

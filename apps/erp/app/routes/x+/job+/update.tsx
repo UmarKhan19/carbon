@@ -241,11 +241,37 @@ export async function action({ request }: ActionFunctionArgs) {
     case "salesOrderId":
     case "salesOrderLineId":
       if (!value) {
-        return await client
+        // Fetch current values so we can store them as history in customFields
+        const currentJobs = await client
           .from("job")
-          .update({ salesOrderId: null, salesOrderLineId: null })
+          .select(
+            "id, salesOrderId, salesOrderLineId, customFields, salesOrder(salesOrderId)"
+          )
           .in("id", ids as string[])
           .eq("companyId", companyId);
+
+        for (const job of currentJobs.data ?? []) {
+          const prevCustomFields =
+            (job.customFields as Record<string, unknown>) ?? {};
+          await client
+            .from("job")
+            .update({
+              salesOrderId: null,
+              salesOrderLineId: null,
+              customFields: {
+                ...prevCustomFields,
+                previousSalesOrderId: job.salesOrderId ?? null,
+                previousSalesOrderLineId: job.salesOrderLineId ?? null,
+                previousSalesOrderReadableId:
+                  (job.salesOrder as { salesOrderId: string } | null)
+                    ?.salesOrderId ?? null
+              },
+              updatedBy: userId
+            })
+            .eq("id", job.id)
+            .eq("companyId", companyId);
+        }
+        return { data: null, error: null };
       } else {
         return {
           error: { message: `Invalid value: ${value} for field: ${field}` },

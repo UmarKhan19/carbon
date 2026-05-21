@@ -4136,6 +4136,9 @@ msgstr "Light Mode"
 msgid "Likelihood"
 msgstr "Likelihood"
 
+msgid "Line"
+msgstr "Line"
+
 msgid "Line Item Comparison"
 msgstr "Line Item Comparison"
 
@@ -4160,8 +4163,14 @@ msgstr "Link"
 msgid "Link Jira Issue"
 msgstr "Link Jira Issue"
 
+msgid "Link job to sales order"
+msgstr "Link job to sales order"
+
 msgid "Link Linear Issue"
 msgstr "Link Linear Issue"
+
+msgid "Link to Sales Order"
+msgstr "Link to Sales Order"
 
 #. placeholder {0}: r.linkedSum
 #. placeholder {1}: r.quantity
@@ -5000,11 +5009,17 @@ msgstr "No matches"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "No matches for \"{query}\". Try a different search term."
 
+msgid "No matching lines found for this item"
+msgstr "No matching lines found for this item"
+
 msgid "No new notifications"
 msgstr "No new notifications"
 
 msgid "No notes"
 msgstr "No notes"
+
+msgid "No open sales orders for this customer"
+msgstr "No open sales orders for this customer"
 
 msgid "No operators."
 msgstr "No operators."
@@ -5215,6 +5230,9 @@ msgstr "Open Reactive"
 
 msgid "Open RFQs"
 msgstr "Open RFQs"
+
+msgid "Open sales orders"
+msgstr "Open sales orders"
 
 msgid "Open Sales Orders"
 msgstr "Open Sales Orders"
@@ -5623,6 +5641,9 @@ msgstr "Previous"
 
 msgid "Previous Date"
 msgstr "Previous Date"
+
+msgid "Previously linked"
+msgstr "Previously linked"
 
 msgid "Price break actions"
 msgstr "Price break actions"
@@ -6637,11 +6658,17 @@ msgstr "Select Item Type"
 msgid "Select items"
 msgstr "Select items"
 
+msgid "Select line"
+msgstr "Select line"
+
 msgid "Select Quantities"
 msgstr "Select Quantities"
 
 msgid "Select Row"
 msgstr "Select Row"
+
+msgid "Select sales order"
+msgstr "Select sales order"
 
 msgid "Select scope"
 msgstr "Select scope"

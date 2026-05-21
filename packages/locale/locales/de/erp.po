@@ -4136,6 +4136,9 @@ msgstr "Hellmodus"
 msgid "Likelihood"
 msgstr "Wahrscheinlichkeit"
 
+msgid "Line"
+msgstr ""
+
 msgid "Line Item Comparison"
 msgstr "Vergleich der Positionen"
 
@@ -4160,8 +4163,14 @@ msgstr "VerknÃƒÆ’Ã‚Â¼pfung"
 msgid "Link Jira Issue"
 msgstr "Jira-Problem verknÃƒÆ’Ã‚Â¼pfen"
 
+msgid "Link job to sales order"
+msgstr ""
+
 msgid "Link Linear Issue"
 msgstr "Linear-Problem verknÃƒÆ’Ã‚Â¼pfen"
+
+msgid "Link to Sales Order"
+msgstr ""
 
 #. placeholder {0}: r.linkedSum
 #. placeholder {1}: r.quantity
@@ -5000,11 +5009,17 @@ msgstr "Keine ÃƒÆ’Ã…â€œbereinstimmungen"
 msgid "No matches for \"{query}\". Try a different search term."
 msgstr "Keine ÃƒÆ’Ã…â€œbereinstimmungen fÃƒÆ’Ã‚Â¼r \"{query}\". Versuchen Sie einen anderen Suchbegriff."
 
+msgid "No matching lines found for this item"
+msgstr ""
+
 msgid "No new notifications"
 msgstr "Keine neuen Benachrichtigungen"
 
 msgid "No notes"
 msgstr "Keine Notizen"
+
+msgid "No open sales orders for this customer"
+msgstr ""
 
 msgid "No operators."
 msgstr "Keine Operatoren."
@@ -5215,6 +5230,9 @@ msgstr "Offene reaktive Wartung"
 
 msgid "Open RFQs"
 msgstr "Offene Anfragen"
+
+msgid "Open sales orders"
+msgstr ""
 
 msgid "Open Sales Orders"
 msgstr "Offene VerkaufsauftrÃƒÆ’Ã‚Â¤ge"
@@ -5623,6 +5641,9 @@ msgstr "ZurÃƒÆ’Ã‚Â¼ck"
 
 msgid "Previous Date"
 msgstr "Vorheriges Datum"
+
+msgid "Previously linked"
+msgstr ""
 
 msgid "Price break actions"
 msgstr "Aktionen fÃƒÆ’Ã‚Â¼r Preisabstufung"
@@ -6637,11 +6658,17 @@ msgstr "Elementtyp auswÃƒÆ’Ã‚Â¤hlen"
 msgid "Select items"
 msgstr "Artikel auswÃƒÆ’Ã‚Â¤hlen"
 
+msgid "Select line"
+msgstr ""
+
 msgid "Select Quantities"
 msgstr "Mengen auswÃƒÆ’Ã‚Â¤hlen"
 
 msgid "Select Row"
 msgstr "Zeile auswÃƒÆ’Ã‚Â¤hlen"
+
+msgid "Select sales order"
+msgstr ""
 
 msgid "Select scope"
 msgstr "Bereich auswÃƒÆ’Ã‚Â¤hlen"
