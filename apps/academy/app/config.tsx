@@ -1197,11 +1197,11 @@ export const modules: Config = [
               {
                 id: "purchase-invoices",
                 loomUrl:
-                  "https://www.loom.com/share/51e0c6dd053b4a3e904fc795d4fc298f?sid=0bb2081d-6bc4-4efb-8361-d2717dda9781",
+                  "https://www.loom.com/share/063ab0d221054103881ec5a8d94bf007",
                 name: "Purchase Invoices",
                 description:
                   "Learn how to process and manage purchase invoices for payment.",
-                duration: 0
+                duration: 226
               },
               {
                 id: "purchasing-planning",
