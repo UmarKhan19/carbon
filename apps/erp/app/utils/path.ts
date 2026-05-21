@@ -1393,6 +1393,48 @@ export const path = {
       generatePath(`${x}/purchase-order/${id}/payment`),
     purchaseOrderFinalize: (id: string) =>
       generatePath(`${x}/purchase-order/${id}/finalize`),
+    purchaseOrderAttachments: (id: string) =>
+      generatePath(`${x}/purchase-order/${id}/attachments`),
+    purchaseOrderAttachmentDelete: (orderId: string, attachmentId: string) =>
+      generatePath(
+        `${x}/purchase-order/${orderId}/attachments/${attachmentId}/delete`
+      ),
+    companyDefaultAttachments: `${x}/settings/purchasing/default-attachments`,
+    companyDefaultAttachmentDelete: (attachmentId: string) =>
+      generatePath(
+        `${x}/settings/purchasing/default-attachments/${attachmentId}/delete`
+      ),
+    supplierDefaultAttachments: (supplierId: string) =>
+      generatePath(`${x}/supplier/${supplierId}/default-attachments`),
+    supplierDefaultAttachmentDelete: (
+      supplierId: string,
+      attachmentId: string
+    ) =>
+      generatePath(
+        `${x}/supplier/${supplierId}/default-attachments/${attachmentId}/delete`
+      ),
+    itemDefaultAttachments: (itemId: string) =>
+      generatePath(`${x}/items/default-attachments/${itemId}`),
+    itemDefaultAttachmentDelete: (itemId: string, attachmentId: string) =>
+      generatePath(
+        `${x}/items/default-attachments/${itemId}/${attachmentId}/delete`
+      ),
+    purchaseOrderAttachmentLock: (orderId: string, attachmentId: string) =>
+      generatePath(
+        `${x}/purchase-order/${orderId}/attachments/${attachmentId}/lock`
+      ),
+    companyDefaultAttachmentLock: (attachmentId: string) =>
+      generatePath(
+        `${x}/settings/purchasing/default-attachments/${attachmentId}/lock`
+      ),
+    supplierDefaultAttachmentLock: (supplierId: string, attachmentId: string) =>
+      generatePath(
+        `${x}/supplier/${supplierId}/default-attachments/${attachmentId}/lock`
+      ),
+    itemDefaultAttachmentLock: (itemId: string, attachmentId: string) =>
+      generatePath(
+        `${x}/items/default-attachments/${itemId}/${attachmentId}/lock`
+      ),
     purchaseOrderRoot: `${x}/purchase-order`,
     purchaseOrderStatus: (id: string) =>
       generatePath(`${x}/purchase-order/${id}/status`),

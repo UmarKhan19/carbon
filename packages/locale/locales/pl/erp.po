@@ -503,6 +503,9 @@ msgstr "Zastosuj reguły cenowe"
 msgid "Apply To"
 msgstr "Zastosuj do"
 
+msgid "Approaching 25 MB cap."
+msgstr ""
+
 msgid "Approval Date"
 msgstr "Data zatwierdzenia"
 
@@ -927,6 +930,9 @@ msgstr "Dolacz plik"
 
 msgid "Attachment"
 msgstr "Załącznik"
+
+msgid "Attachments"
+msgstr ""
 
 msgid "Attribute"
 msgstr "Atrybut"
@@ -2118,6 +2124,12 @@ msgstr "Konta domyślne"
 msgid "Default Approver"
 msgstr "Domyślny Zatwierdzający"
 
+msgid "Default Attachments"
+msgstr ""
+
+msgid "Default Attachments on Purchase Orders"
+msgstr ""
+
 msgid "Default CC Recipients"
 msgstr "Domyślni odbiorcy DW"
 
@@ -2519,6 +2531,9 @@ msgstr "Pobierz CSV"
 
 msgid "Draft"
 msgstr "Wersja robocza"
+
+msgid "Drag & drop files, or click to browse"
+msgstr ""
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Przeciągnij i upuść plik PDF zamówienia zakupu tutaj lub kliknij, aby wybrać plik"
@@ -3055,6 +3070,9 @@ msgstr "Każdy warunek musi się zgadzać"
 msgid "Everything from Starter"
 msgstr "Wszystko z pakietu Starter"
 
+msgid "Exceeds 25 MB total — remove some attachments to send."
+msgstr ""
+
 msgid "Exchange Rate"
 msgstr "Kurs wymiany"
 
@@ -3397,6 +3415,10 @@ msgstr "Nie udało się zaktualizować linii oferty dostawcy"
 msgid "Failed to update thumbnail path"
 msgstr "Nie udało się zaktualizować ścieżki miniatury"
 
+#. placeholder {0}: file.name
+msgid "Failed to upload {0}"
+msgstr ""
+
 msgid "Failed to upload CSV file."
 msgstr "Nie udało się przesłać pliku CSV."
 
@@ -3487,6 +3509,15 @@ msgstr "Typ pliku nie jest obsługiwany. Użyj JPG, PNG, WebP lub GIF."
 
 msgid "Files"
 msgstr "Pliki"
+
+msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
+msgstr ""
+
+msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
+msgstr ""
+
+msgid "Files attached here ride along whenever this item appears on a purchase order email."
+msgstr ""
 
 msgid "Filter"
 msgstr "Filtr"
@@ -3844,6 +3875,9 @@ msgstr "Wewnętrzne"
 
 msgid "Internal Notes"
 msgstr "Notatki wewnętrzne"
+
+msgid "Internal only"
+msgstr ""
 
 msgid "Invalid Invite"
 msgstr "Nieprawidłowe zaproszenie"
@@ -4236,6 +4270,9 @@ msgstr "Lokalizacje"
 
 msgid "Lock"
 msgstr "Zablokuj"
+
+msgid "Locked"
+msgstr ""
 
 msgid "Log In"
 msgstr "Zaloguj się"
@@ -4958,6 +4995,9 @@ msgstr "Nie znaleziono adresów"
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Brak zarchiwizowanych dzienników. Dzienniki starsze niż {0} dni będą automatycznie archiwizowane i dostępne do pobrania tutaj."
 
+msgid "No attachments yet."
+msgstr ""
+
 msgid "No available filters"
 msgstr "Brak dostępnych filtrów"
 
@@ -4999,6 +5039,9 @@ msgstr "Brak danych"
 
 msgid "No days off scheduled"
 msgstr "Brak zaplanowanych dni wolnych"
+
+msgid "No default attachments yet."
+msgstr ""
 
 msgid "No draft versions available"
 msgstr "Brak dostępnych wersji roboczych"
@@ -5593,6 +5636,9 @@ msgstr "ZO"
 
 msgid "PO Number"
 msgstr "Numer PZ"
+
+msgid "PO PDF"
+msgstr ""
 
 msgid "Policy & Procedure"
 msgstr "Polityka i procedura"
@@ -7152,6 +7198,9 @@ msgstr "Kreator Transferu Zapasów"
 msgid "Stock Transfers"
 msgstr "Transfery Zapasów"
 
+msgid "Storage client not available"
+msgstr ""
+
 msgid "Storage Type"
 msgstr "Typ magazynu"
 
@@ -7813,6 +7862,9 @@ msgstr "Typ"
 msgid "Type a message..."
 msgstr "Wpisz wiadomość..."
 
+msgid "Type an email and press Enter to add an external recipient"
+msgstr ""
+
 msgid "Type of Permission Update"
 msgstr "Typ aktualizacji uprawnień"
 
@@ -7881,6 +7933,9 @@ msgstr "Odłącz"
 
 msgid "Unlink job from sales order?"
 msgstr "Odłączyć zadanie od zamówienia sprzedaży?"
+
+msgid "Unlock"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Nieobsługiwany typ dokumentu źródłowego: {sourceDocument}"
@@ -7986,6 +8041,9 @@ msgstr "Przesyłanie {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Przesylanie {fileName}"
+
+msgid "Uploading…"
+msgstr ""
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "Po kliknięciu przycisku Konwertuj, części zostaną utworzone z następującymi numerami części wewnętrznych:"

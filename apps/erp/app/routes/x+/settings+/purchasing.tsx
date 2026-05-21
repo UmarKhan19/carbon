@@ -37,9 +37,11 @@ import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
+import CompanyDefaultAttachmentsCard from "~/components/CompanyDefaultAttachmentsCard";
 import { EmailRecipients, Users } from "~/components/Form";
 import Country from "~/components/Form/Country";
 import { usePermissions, useUser } from "~/hooks";
+import { getCompanyDefaultAttachments } from "~/modules/purchasing";
 import {
   accountsPayableBillingAddressValidator,
   defaultSupplierCcValidator,
@@ -70,11 +72,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "settings"
   });
 
-  const [companySettings, terms, apBillingAddress] = await Promise.all([
-    getCompanySettings(client, companyId),
-    getTerms(client, companyId),
-    getAccountsPayableBillingAddress(client, companyId)
-  ]);
+  const [companySettings, terms, apBillingAddress, defaultAttachments] =
+    await Promise.all([
+      getCompanySettings(client, companyId),
+      getTerms(client, companyId),
+      getAccountsPayableBillingAddress(client, companyId),
+      getCompanyDefaultAttachments(client, companyId)
+    ]);
 
   if (companySettings.error) {
     throw redirect(
@@ -96,7 +100,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return {
     companySettings: companySettings.data,
     terms: terms.data,
-    apBillingAddress: apBillingAddress.data
+    apBillingAddress: apBillingAddress.data,
+    defaultAttachments: defaultAttachments.data ?? []
   };
 }
 
@@ -303,7 +308,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function PurchasingSettingsRoute() {
   const { t } = useLingui();
-  const { companySettings, terms, apBillingAddress } =
+  const { companySettings, terms, apBillingAddress, defaultAttachments } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const permissions = usePermissions();
@@ -449,6 +454,9 @@ export default function PurchasingSettingsRoute() {
             )}
           </CardContent>
         </Card>
+        <CompanyDefaultAttachmentsCard
+          attachments={(defaultAttachments ?? []) as any}
+        />
         <Card>
           <CardHeader>
             <HStack className="justify-between items-center">

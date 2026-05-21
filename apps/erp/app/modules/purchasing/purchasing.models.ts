@@ -269,7 +269,10 @@ export const purchaseOrderFinalizeValidator = z
   .object({
     notification: z.enum(["Email", "None"]).optional(),
     supplierContact: zfd.text(z.string().optional()),
-    cc: z.array(z.string()).optional()
+    cc: z.array(z.string()).optional(),
+    // documentIds the user chose to include on this send. When omitted, every
+    // resolved attachment with shareOnSend=true is attached.
+    attachmentDocumentIds: z.array(z.string()).optional()
   })
   .refine(
     (data) => (data.notification === "Email" ? data.supplierContact : true),
@@ -278,6 +281,12 @@ export const purchaseOrderFinalizeValidator = z
       path: ["supplierContact"] // path of error
     }
   );
+
+// Validator for adding a default attachment at any scope.
+export const defaultAttachmentValidator = z.object({
+  documentId: z.string().min(1, { message: "Document is required" }),
+  shareOnSend: zfd.checkbox()
+});
 
 export const purchaseOrderApprovalValidator = z
   .object({

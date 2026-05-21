@@ -2218,3 +2218,343 @@ export async function getPurchasingRFQSuppliersWithLinks(
     .select("*, supplier:supplierId(id, name)")
     .eq("purchasingRfqId", purchasingRfqId);
 }
+
+// ===========================================================================
+// PO + default attachments
+// ===========================================================================
+
+export type ResolvedAttachment = {
+  documentId: string;
+  /** When source === "po", the id of the purchaseOrderAttachment row so the UI can delete it. */
+  attachmentRowId: string | null;
+  source: "po" | "company" | "supplier" | "item";
+  sourceLabel: string;
+  shareOnSend: boolean;
+  /** When true, the buyer cannot uncheck this attachment on the finalize modal. */
+  isLocked: boolean;
+  name: string;
+  size: number | null;
+  path: string;
+};
+
+const documentSelect = "id, name, size, path, type, createdAt, createdBy";
+
+export async function getPurchaseOrderAttachments(
+  client: SupabaseClient<Database>,
+  purchaseOrderId: string
+) {
+  return client
+    .from("purchaseOrderAttachment")
+    .select(`*, document:documentId(${documentSelect})`)
+    .eq("purchaseOrderId", purchaseOrderId);
+}
+
+export async function insertPurchaseOrderAttachment(
+  client: SupabaseClient<Database>,
+  args: {
+    purchaseOrderId: string;
+    documentId: string;
+    shareOnSend?: boolean;
+    companyId: string;
+    createdBy: string;
+  }
+) {
+  return client.from("purchaseOrderAttachment").insert({
+    purchaseOrderId: args.purchaseOrderId,
+    documentId: args.documentId,
+    shareOnSend: args.shareOnSend ?? true,
+    companyId: args.companyId,
+    createdBy: args.createdBy
+  });
+}
+
+export async function deletePurchaseOrderAttachment(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("purchaseOrderAttachment").delete().eq("id", id);
+}
+
+export async function getCompanyDefaultAttachments(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("companyDefaultAttachment")
+    .select(`*, document:documentId(${documentSelect})`)
+    .eq("companyId", companyId);
+}
+
+export async function insertCompanyDefaultAttachment(
+  client: SupabaseClient<Database>,
+  args: {
+    companyId: string;
+    documentId: string;
+    shareOnSend?: boolean;
+    createdBy: string;
+  }
+) {
+  return client.from("companyDefaultAttachment").insert({
+    companyId: args.companyId,
+    documentId: args.documentId,
+    shareOnSend: args.shareOnSend ?? true,
+    createdBy: args.createdBy
+  });
+}
+
+export async function deleteCompanyDefaultAttachment(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("companyDefaultAttachment").delete().eq("id", id);
+}
+
+export async function getSupplierDefaultAttachments(
+  client: SupabaseClient<Database>,
+  supplierId: string
+) {
+  return client
+    .from("supplierDefaultAttachment")
+    .select(`*, document:documentId(${documentSelect})`)
+    .eq("supplierId", supplierId);
+}
+
+export async function insertSupplierDefaultAttachment(
+  client: SupabaseClient<Database>,
+  args: {
+    supplierId: string;
+    documentId: string;
+    shareOnSend?: boolean;
+    companyId: string;
+    createdBy: string;
+  }
+) {
+  return client.from("supplierDefaultAttachment").insert({
+    supplierId: args.supplierId,
+    documentId: args.documentId,
+    shareOnSend: args.shareOnSend ?? true,
+    companyId: args.companyId,
+    createdBy: args.createdBy
+  });
+}
+
+export async function deleteSupplierDefaultAttachment(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("supplierDefaultAttachment").delete().eq("id", id);
+}
+
+export async function getItemDefaultAttachments(
+  client: SupabaseClient<Database>,
+  itemId: string
+) {
+  return client
+    .from("itemDefaultAttachment")
+    .select(`*, document:documentId(${documentSelect})`)
+    .eq("itemId", itemId);
+}
+
+export async function insertItemDefaultAttachment(
+  client: SupabaseClient<Database>,
+  args: {
+    itemId: string;
+    documentId: string;
+    shareOnSend?: boolean;
+    companyId: string;
+    createdBy: string;
+  }
+) {
+  return client.from("itemDefaultAttachment").insert({
+    itemId: args.itemId,
+    documentId: args.documentId,
+    shareOnSend: args.shareOnSend ?? true,
+    companyId: args.companyId,
+    createdBy: args.createdBy
+  });
+}
+
+export async function deleteItemDefaultAttachment(
+  client: SupabaseClient<Database>,
+  id: string
+) {
+  return client.from("itemDefaultAttachment").delete().eq("id", id);
+}
+
+/**
+ * Resolve the full cascaded attachment list for a PO:
+ *   Per-PO ad-hoc + Company defaults + Supplier defaults + per-Item defaults
+ *
+ * Deduped by documentId, with the most-specific source winning the label.
+ * Specificity: po > item > supplier > company.
+ *
+ * Pass `shareOnSendOnly=true` to filter to only the rows that should actually
+ * ride along on an outbound email; otherwise every attachment is returned (for
+ * UI display).
+ */
+export async function getResolvedPoAttachments(
+  client: SupabaseClient<Database>,
+  args: {
+    purchaseOrderId: string;
+    supplierId: string | null;
+    companyId: string;
+    shareOnSendOnly?: boolean;
+  }
+): Promise<ResolvedAttachment[]> {
+  const { purchaseOrderId, supplierId, companyId, shareOnSendOnly } = args;
+
+  const linesResult = await client
+    .from("purchaseOrderLine")
+    .select("itemId, item:itemId(readableIdWithRevision)")
+    .eq("purchaseOrderId", purchaseOrderId);
+
+  const itemIds = Array.from(
+    new Set(
+      (linesResult.data ?? [])
+        .map((l) => l.itemId)
+        .filter((id): id is string => !!id)
+    )
+  );
+  const itemLabelById = new Map<string, string>();
+  for (const line of linesResult.data ?? []) {
+    if (line.itemId && line.item) {
+      // @ts-expect-error supabase nested-select shape
+      itemLabelById.set(line.itemId, line.item.readableIdWithRevision ?? "");
+    }
+  }
+
+  const [poAtt, companyAtt, supplierAtt, itemAtt] = await Promise.all([
+    client
+      .from("purchaseOrderAttachment")
+      .select(`*, document:documentId(${documentSelect})`)
+      .eq("purchaseOrderId", purchaseOrderId),
+    client
+      .from("companyDefaultAttachment")
+      .select(`*, document:documentId(${documentSelect})`)
+      .eq("companyId", companyId),
+    supplierId
+      ? client
+          .from("supplierDefaultAttachment")
+          .select(`*, document:documentId(${documentSelect})`)
+          .eq("supplierId", supplierId)
+      : Promise.resolve({ data: [], error: null } as {
+          data: any[];
+          error: null;
+        }),
+    itemIds.length > 0
+      ? client
+          .from("itemDefaultAttachment")
+          .select(`*, itemId, document:documentId(${documentSelect})`)
+          .in("itemId", itemIds)
+      : Promise.resolve({ data: [], error: null } as {
+          data: any[];
+          error: null;
+        })
+  ]);
+
+  const byDocId = new Map<string, ResolvedAttachment>();
+  const specificity: Record<ResolvedAttachment["source"], number> = {
+    company: 0,
+    supplier: 1,
+    item: 2,
+    po: 3
+  };
+
+  const push = (entry: ResolvedAttachment) => {
+    if (shareOnSendOnly && !entry.shareOnSend) return;
+    if (!entry.documentId || !entry.path) return;
+    const existing = byDocId.get(entry.documentId);
+    if (!existing || specificity[entry.source] > specificity[existing.source]) {
+      byDocId.set(entry.documentId, entry);
+    }
+  };
+
+  for (const row of (companyAtt.data ?? []) as any[]) {
+    if (!row.document) continue;
+    push({
+      documentId: row.documentId,
+      attachmentRowId: null,
+      source: "company",
+      sourceLabel: "From Company",
+      shareOnSend: row.shareOnSend,
+      isLocked: row.isLocked ?? false,
+      name: row.document.name,
+      size: row.document.size ?? null,
+      path: row.document.path
+    });
+  }
+
+  for (const row of (supplierAtt.data ?? []) as any[]) {
+    if (!row.document) continue;
+    push({
+      documentId: row.documentId,
+      attachmentRowId: null,
+      source: "supplier",
+      sourceLabel: "From Supplier",
+      shareOnSend: row.shareOnSend,
+      isLocked: row.isLocked ?? false,
+      name: row.document.name,
+      size: row.document.size ?? null,
+      path: row.document.path
+    });
+  }
+
+  for (const row of (itemAtt.data ?? []) as any[]) {
+    if (!row.document) continue;
+    const label = itemLabelById.get(row.itemId);
+    push({
+      documentId: row.documentId,
+      attachmentRowId: null,
+      source: "item",
+      sourceLabel: label ? `From Part ${label}` : "From Part",
+      shareOnSend: row.shareOnSend,
+      isLocked: row.isLocked ?? false,
+      name: row.document.name,
+      size: row.document.size ?? null,
+      path: row.document.path
+    });
+  }
+
+  for (const row of (poAtt.data ?? []) as any[]) {
+    if (!row.document) continue;
+    push({
+      documentId: row.documentId,
+      attachmentRowId: row.id,
+      source: "po",
+      sourceLabel: "Ad-hoc",
+      shareOnSend: row.shareOnSend,
+      isLocked: row.isLocked ?? false,
+      name: row.document.name,
+      size: row.document.size ?? null,
+      path: row.document.path
+    });
+  }
+
+  return Array.from(byDocId.values()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+}
+
+export async function setAttachmentLock(
+  client: SupabaseClient<Database>,
+  args: {
+    table:
+      | "purchaseOrderAttachment"
+      | "companyDefaultAttachment"
+      | "supplierDefaultAttachment"
+      | "itemDefaultAttachment";
+    id: string;
+    isLocked: boolean;
+  }
+) {
+  // @ts-expect-error column added in 20260518000001 migration; types regenerate later
+  return client
+    .from(args.table)
+    .update({ isLocked: args.isLocked })
+    .eq("id", args.id);
+}
+
+// Hard upper bound for total outbound attachments. Most SMTP providers cap
+// around 25 MB; we warn at 20 in the UI and reject at 25 in the action.
+export const PO_ATTACHMENT_TOTAL_LIMIT_KB = 25 * 1024;
+export const PO_ATTACHMENT_TOTAL_WARN_KB = 20 * 1024;

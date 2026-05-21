@@ -291,18 +291,8 @@ const SalesInvoicePDF = ({
         >
           <Text style={tw("w-1/2")}>Description</Text>
           <Text style={tw("w-1/6 text-center")}>Qty</Text>
-          <View style={tw("w-1/6 items-center")}>
-            <Text>Unit Price</Text>
-            <Text style={[tw("text-[7px] font-normal"), { opacity: 0.7 }]}>
-              {currencyCode}
-            </Text>
-          </View>
-          <View style={tw("w-1/6 items-center")}>
-            <Text>Total</Text>
-            <Text style={[tw("text-[7px] font-normal"), { opacity: 0.7 }]}>
-              {currencyCode}
-            </Text>
-          </View>
+          <Text style={tw("w-1/6 text-center")}>Unit Price</Text>
+          <Text style={tw("w-1/6 text-center")}>Total</Text>
         </View>
 
         {/* Rows */}
@@ -419,10 +409,10 @@ const SalesInvoicePDF = ({
               { backgroundColor: "rgba(249, 250, 251, 0.6)" }
             ]}
           >
-            <Text style={tw("w-[80%] text-right pr-3 text-gray-600")}>
+            <Text style={tw("w-5/6 text-right pr-3 text-gray-600")}>
               Subtotal ({currencyCode})
             </Text>
-            <Text style={tw("w-[20%] text-right text-gray-800")}>
+            <Text style={tw("w-1/6 text-center text-gray-800")}>
               {numberFormatter.format(
                 salesInvoiceLines.reduce(
                   (sum, line) =>
@@ -445,10 +435,10 @@ const SalesInvoicePDF = ({
                 { backgroundColor: "rgba(249, 250, 251, 0.6)" }
               ]}
             >
-              <Text style={tw("w-[80%] text-right pr-3 text-gray-600")}>
+              <Text style={tw("w-5/6 text-right pr-3 text-gray-600")}>
                 Add-Ons ({currencyCode})
               </Text>
-              <Text style={tw("w-[20%] text-right text-gray-800")}>
+              <Text style={tw("w-1/6 text-center text-gray-800")}>
                 {numberFormatter.format(
                   salesInvoiceLines.reduce(
                     (sum, line) =>
@@ -479,10 +469,10 @@ const SalesInvoicePDF = ({
                   { backgroundColor: "rgba(249, 250, 251, 0.6)" }
                 ]}
               >
-                <Text style={tw("w-[80%] text-right pr-3 text-gray-600")}>
+                <Text style={tw("w-5/6 text-right pr-3 text-gray-600")}>
                   Shipping ({currencyCode})
                 </Text>
-                <Text style={tw("w-[20%] text-right text-gray-800")}>
+                <Text style={tw("w-1/6 text-center text-gray-800")}>
                   {numberFormatter.format(totalShipping)}
                 </Text>
               </View>
@@ -497,10 +487,10 @@ const SalesInvoicePDF = ({
                 { backgroundColor: "rgba(249, 250, 251, 0.6)" }
               ]}
             >
-              <Text style={tw("w-[80%] text-right pr-3 text-gray-600")}>
+              <Text style={tw("w-5/6 text-right pr-3 text-gray-600")}>
                 Taxes ({currencyCode})
               </Text>
-              <Text style={tw("w-[20%] text-right text-gray-800")}>
+              <Text style={tw("w-1/6 text-center text-gray-800")}>
                 {numberFormatter.format(
                   salesInvoiceLines.reduce((sum, line) => {
                     const taxPercent = line.taxPercent ?? 0;
@@ -513,11 +503,10 @@ const SalesInvoicePDF = ({
 
           <View style={tw("h-[1px] bg-gray-200")} />
           <View style={tw("flex flex-row py-2 px-3 text-[9px]")}>
-            <Text style={tw("w-[80%] text-right pr-3 text-gray-800 font-bold")}>
-              Total
+            <Text style={tw("w-5/6 text-right pr-3 text-gray-800 font-bold")}>
+              Total ({currencyCode})
             </Text>
-            <Text style={tw("w-[20%] text-right text-gray-800 font-bold")}>
-              {currencyCode}{" "}
+            <Text style={tw("w-1/6 text-center text-gray-800 font-bold")}>
               {numberFormatter.format(
                 getTotal(salesInvoiceLines, salesInvoice, salesInvoiceShipment)
               )}

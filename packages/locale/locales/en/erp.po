@@ -200,6 +200,9 @@ msgstr "Accumulation Period (Weeks)"
 msgid "Accumulation Period:"
 msgstr "Accumulation Period:"
 
+msgid "Acknowledge & continue"
+msgstr "Acknowledge & continue"
+
 msgid "Action Items"
 msgstr "Action Items"
 
@@ -485,23 +488,14 @@ msgstr "API keys for programmatic access to your Carbon data."
 msgid "Applies to"
 msgstr "Applies to"
 
-msgid "Applies to all"
-msgstr "Applies to all"
-
-msgid "Applies to all items"
-msgstr "Applies to all items"
-
-msgid "Applies to all storage units"
-msgstr "Applies to all storage units"
-
-msgid "Applies to all work centers"
-msgstr "Applies to all work centers"
-
 msgid "Apply pricing rules"
 msgstr "Apply pricing rules"
 
 msgid "Apply To"
 msgstr "Apply To"
+
+msgid "Approaching 25 MB cap."
+msgstr "Approaching 25 MB cap."
 
 msgid "Approval Date"
 msgstr "Approval Date"
@@ -889,15 +883,6 @@ msgstr "Ask anything"
 msgid "Assembly:"
 msgstr "Assembly:"
 
-msgid "Asset"
-msgstr "Asset"
-
-msgid "Asset Classes"
-msgstr "Asset Classes"
-
-msgid "Assets"
-msgstr "Assets"
-
 msgid "Assign To"
 msgstr "Assign To"
 
@@ -927,6 +912,9 @@ msgstr "Attach File"
 
 msgid "Attachment"
 msgstr "Attachment"
+
+msgid "Attachments"
+msgstr "Attachments"
 
 msgid "Attribute"
 msgstr "Attribute"
@@ -1196,9 +1184,6 @@ msgstr "Carbon Logo"
 msgid "Carbon Value"
 msgstr "Carbon Value"
 
-msgid "Cards"
-msgstr "Cards"
-
 msgid "Carrier"
 msgstr "Carrier"
 
@@ -1430,6 +1415,9 @@ msgstr "Configure how preventative maintenance dispatches are automatically gene
 
 msgid "Configure Item"
 msgstr "Configure Item"
+
+msgid "Configure Materials"
+msgstr "Configure Materials"
 
 msgid "Configure notifications for when gauges go out of calibration."
 msgstr "Configure notifications for when gauges go out of calibration."
@@ -1937,9 +1925,6 @@ msgstr "Custom Field"
 msgid "Custom Fields"
 msgstr "Custom Fields"
 
-msgid "Custom Rules"
-msgstr "Custom Rules"
-
 msgid "Customer"
 msgstr "Customer"
 
@@ -2117,6 +2102,12 @@ msgstr "Default Accounts"
 
 msgid "Default Approver"
 msgstr "Default Approver"
+
+msgid "Default Attachments"
+msgstr "Default Attachments"
+
+msgid "Default Attachments on Purchase Orders"
+msgstr "Default Attachments on Purchase Orders"
 
 msgid "Default CC Recipients"
 msgstr "Default CC Recipients"
@@ -2418,9 +2409,6 @@ msgstr "Department Name"
 msgid "Departments"
 msgstr "Departments"
 
-msgid "Depreciation"
-msgstr "Depreciation"
-
 msgid "Description"
 msgstr "Description"
 
@@ -2519,6 +2507,9 @@ msgstr "Download CSV"
 
 msgid "Draft"
 msgstr "Draft"
+
+msgid "Drag & drop files, or click to browse"
+msgstr "Drag & drop files, or click to browse"
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Drag and drop a Purchase Order PDF here, or click to select a file"
@@ -2797,9 +2788,6 @@ msgstr "Edit supplier process"
 msgid "Edit Supplier Type"
 msgstr "Edit Supplier Type"
 
-msgid "Edit the rule to remove the \"Applies to all\" flag"
-msgstr "Edit the rule to remove the \"Applies to all\" flag"
-
 msgid "Edit Timecard"
 msgstr "Edit Timecard"
 
@@ -2857,9 +2845,6 @@ msgstr "Employee Types"
 msgid "Employees"
 msgstr "Employees"
 
-msgid "Empty work centers"
-msgstr "Empty work centers"
-
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Enable audit logging in settings to start tracking changes to your data."
 
@@ -2890,9 +2875,6 @@ msgstr "Enable to allow shared workstation mode."
 msgid "Enable to automatically post transactions to the general ledger."
 msgstr "Enable to automatically post transactions to the general ledger."
 
-msgid "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
-msgstr "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
-
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Enable to generate IDs and descriptions for raw materials."
 
@@ -2922,6 +2904,12 @@ msgstr "End Date"
 
 msgid "End Time"
 msgstr "End Time"
+
+msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
+msgstr "Enforce constraints on receipts, shipments, transfers and job operations for this item."
+
+msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
+msgstr "Enforce per-item validation across receipts, shipments, transfers and adjustments."
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
@@ -3019,6 +3007,9 @@ msgstr "Error removing model from sales order line"
 msgid "Error validating serial number"
 msgstr "Error validating serial number"
 
+msgid "Errors"
+msgstr "Errors"
+
 msgid "Escalation"
 msgstr "Escalation"
 
@@ -3054,6 +3045,9 @@ msgstr "Every condition must match"
 
 msgid "Everything from Starter"
 msgstr "Everything from Starter"
+
+msgid "Exceeds 25 MB total — remove some attachments to send."
+msgstr "Exceeds 25 MB total — remove some attachments to send."
 
 msgid "Exchange Rate"
 msgstr "Exchange Rate"
@@ -3397,6 +3391,10 @@ msgstr "Failed to update supplier quote line"
 msgid "Failed to update thumbnail path"
 msgstr "Failed to update thumbnail path"
 
+#. placeholder {0}: file.name
+msgid "Failed to upload {0}"
+msgstr "Failed to upload {0}"
+
 msgid "Failed to upload CSV file."
 msgstr "Failed to upload CSV file."
 
@@ -3450,9 +3448,6 @@ msgstr "Fetch"
 msgid "Field"
 msgstr "Field"
 
-msgid "Field info"
-msgstr "Field info"
-
 msgid "Field Mapping"
 msgstr "Field Mapping"
 
@@ -3487,6 +3482,15 @@ msgstr "File type not supported. Please use JPG, PNG, WebP, or GIF."
 
 msgid "Files"
 msgstr "Files"
+
+msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
+msgstr "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
+
+msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
+msgstr "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
+
+msgid "Files attached here ride along whenever this item appears on a purchase order email."
+msgstr "Files attached here ride along whenever this item appears on a purchase order email."
 
 msgid "Filter"
 msgstr "Filter"
@@ -3523,12 +3527,6 @@ msgstr "Fiscal Years"
 
 msgid "Fixed"
 msgstr "Fixed"
-
-msgid "Fixed Asset"
-msgstr "Fixed Asset"
-
-msgid "Fixed Assets"
-msgstr "Fixed Assets"
 
 msgid "Fixed Reorder"
 msgstr "Fixed Reorder"
@@ -3785,9 +3783,6 @@ msgstr "Infrastructure"
 msgid "Inherit From Materials"
 msgstr "Inherit From Materials"
 
-msgid "Inherited from"
-msgstr "Inherited from"
-
 msgid "Insert rows"
 msgstr "Insert rows"
 
@@ -3844,6 +3839,9 @@ msgstr "Internal"
 
 msgid "Internal Notes"
 msgstr "Internal Notes"
+
+msgid "Internal only"
+msgstr "Internal only"
 
 msgid "Invalid Invite"
 msgstr "Invalid Invite"
@@ -3988,6 +3986,9 @@ msgstr "Item ID"
 
 msgid "Item Master"
 msgstr "Item Master"
+
+msgid "Item Rules"
+msgstr "Item Rules"
 
 msgid "Item Scope"
 msgstr "Item Scope"
@@ -4222,9 +4223,6 @@ msgstr "Loading item details..."
 msgid "Loading..."
 msgstr "Loading..."
 
-msgid "Loading…"
-msgstr "Loading…"
-
 msgid "Location"
 msgstr "Location"
 
@@ -4236,6 +4234,9 @@ msgstr "Locations"
 
 msgid "Lock"
 msgstr "Lock"
+
+msgid "Locked"
+msgstr "Locked"
 
 msgid "Log In"
 msgstr "Log In"
@@ -4351,9 +4352,6 @@ msgstr "Manage how shelf life is tracked, computed, and enforced across inventor
 msgid "Manage Ownership"
 msgstr "Manage Ownership"
 
-msgid "Manage rules"
-msgstr "Manage rules"
-
 msgid "Manage Subscription"
 msgstr "Manage Subscription"
 
@@ -4446,9 +4444,6 @@ msgstr "Material ID"
 
 msgid "Material IDs"
 msgstr "Material IDs"
-
-msgid "Material Properties"
-msgstr "Material Properties"
 
 msgid "Material Shape"
 msgstr "Material Shape"
@@ -4958,6 +4953,9 @@ msgstr "No addresses found"
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 
+msgid "No attachments yet."
+msgstr "No attachments yet."
+
 msgid "No available filters"
 msgstr "No available filters"
 
@@ -5000,6 +4998,9 @@ msgstr "No data exists"
 msgid "No days off scheduled"
 msgstr "No days off scheduled"
 
+msgid "No default attachments yet."
+msgstr "No default attachments yet."
+
 msgid "No draft versions available"
 msgstr "No draft versions available"
 
@@ -5023,9 +5024,6 @@ msgstr "No files uploaded"
 
 msgid "No Gauge Selected"
 msgstr "No Gauge Selected"
-
-msgid "No grouped notifications"
-msgstr "No grouped notifications"
 
 msgid "No groups assigned"
 msgstr "No groups assigned"
@@ -5528,6 +5526,9 @@ msgstr "Pick a customer or customer type to view their pricing."
 msgid "Pick a date or leave blank to clear it."
 msgstr "Pick a date or leave blank to clear it."
 
+msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
+msgstr "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
+
 msgid "Pick List"
 msgstr "Pick List"
 
@@ -5593,6 +5594,9 @@ msgstr "PO"
 
 msgid "PO Number"
 msgstr "PO Number"
+
+msgid "PO PDF"
+msgstr "PO PDF"
 
 msgid "Policy & Procedure"
 msgstr "Policy & Procedure"
@@ -6371,6 +6375,9 @@ msgstr "Rule applies to every item."
 msgid "Rule Type"
 msgstr "Rule Type"
 
+msgid "Rule Violation"
+msgstr "Rule Violation"
+
 msgid "Rules"
 msgstr "Rules"
 
@@ -6532,9 +6539,6 @@ msgstr "Scrap Reasons"
 
 msgid "Search"
 msgstr "Search"
-
-msgid "Search accounts..."
-msgstr "Search accounts..."
 
 msgid "Search across your workspace..."
 msgstr "Search across your workspace..."
@@ -6960,9 +6964,6 @@ msgstr "Sign in with Google"
 msgid "Sign in with Outlook"
 msgstr "Sign in with Outlook"
 
-msgid "Sign in with Passkey"
-msgstr "Sign in with Passkey"
-
 msgid "Sign Out"
 msgstr "Sign Out"
 
@@ -7152,6 +7153,9 @@ msgstr "Stock Transfer Wizard"
 msgid "Stock Transfers"
 msgstr "Stock Transfers"
 
+msgid "Storage client not available"
+msgstr "Storage client not available"
+
 msgid "Storage Type"
 msgstr "Storage Type"
 
@@ -7160,9 +7164,6 @@ msgstr "Storage Types"
 
 msgid "Storage Unit"
 msgstr "Storage Unit"
-
-msgid "Storage unit rules"
-msgstr "Storage unit rules"
 
 msgid "Storage Units"
 msgstr "Storage Units"
@@ -7414,9 +7415,6 @@ msgstr "Tax"
 msgid "Tax & Additional Costs"
 msgstr "Tax & Additional Costs"
 
-msgid "Tax & Shipping"
-msgstr "Tax & Shipping"
-
 msgid "Tax Amount"
 msgstr "Tax Amount"
 
@@ -7571,11 +7569,6 @@ msgstr "This will overwrite the existing quote method"
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 
-#. placeholder {0}: routeData?.job?.jobId
-#. placeholder {1}: routeData?.job?.salesOrderReadableId
-msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
-msgstr "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
-
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "This will replace all method materials of other revisions with this revision."
 
@@ -7717,12 +7710,6 @@ msgstr "Track every change to your orders, invoices, customers, and more."
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr "Track every change to your orders, invoices, customers, suppliers, and more."
 
-msgid "Track tax depreciation separately"
-msgstr "Track tax depreciation separately"
-
-msgid "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
-msgstr "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
-
 msgid "Track when batches or serials of this item expire."
 msgstr "Track when batches or serials of this item expire."
 
@@ -7801,9 +7788,6 @@ msgstr "Trash"
 msgid "Trial Balance"
 msgstr "Trial Balance"
 
-msgid "Triggers"
-msgstr "Triggers"
-
 msgid "Tuesday"
 msgstr "Tuesday"
 
@@ -7812,6 +7796,9 @@ msgstr "Type"
 
 msgid "Type a message..."
 msgstr "Type a message..."
+
+msgid "Type an email and press Enter to add an external recipient"
+msgstr "Type an email and press Enter to add an external recipient"
 
 msgid "Type of Permission Update"
 msgstr "Type of Permission Update"
@@ -7830,9 +7817,6 @@ msgstr "Un-sampled entities will remain On Hold so you can keep inspecting and d
 
 msgid "Unapproved Supplier"
 msgstr "Unapproved Supplier"
-
-msgid "Unassign from parent unit to remove"
-msgstr "Unassign from parent unit to remove"
 
 msgid "Unassign rule"
 msgstr "Unassign rule"
@@ -7879,8 +7863,8 @@ msgstr "Unlimited Functional Support"
 msgid "Unlink"
 msgstr "Unlink"
 
-msgid "Unlink job from sales order?"
-msgstr "Unlink job from sales order?"
+msgid "Unlock"
+msgstr "Unlock"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Unsupported source document type: {sourceDocument}"
@@ -7954,12 +7938,11 @@ msgstr "Upgrade"
 msgid "Upgrade to Business"
 msgstr "Upgrade to Business"
 
-#. placeholder {0}: targetCopy.noun
-msgid "Upgrade to unlock {0} rules"
-msgstr "Upgrade to unlock {0} rules"
-
 msgid "Upgrade to unlock audit history"
 msgstr "Upgrade to unlock audit history"
+
+msgid "Upgrade to unlock item rules"
+msgstr "Upgrade to unlock item rules"
 
 msgid "Upload"
 msgstr "Upload"
@@ -7986,6 +7969,9 @@ msgstr "Uploading {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Uploading {fileName}"
+
+msgid "Uploading…"
+msgstr "Uploading…"
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "Upon clicking Convert, parts will be created with the following internal part numbers:"
@@ -8058,9 +8044,6 @@ msgstr "Validating job..."
 
 msgid "Value"
 msgstr "Value"
-
-msgid "Value source by surface"
-msgstr "Value source by surface"
 
 msgid "VAT Number"
 msgstr "VAT Number"
@@ -8251,6 +8234,9 @@ msgstr "Warn when the person inspecting an inbound item is the same person who r
 msgid "Warning"
 msgstr "Warning"
 
+msgid "Warnings"
+msgstr "Warnings"
+
 msgid "Watch full video"
 msgstr "Watch full video"
 
@@ -8310,9 +8296,6 @@ msgstr "When a finished product's shelf life is set to Calculated, pick which co
 
 msgid "When expired stock is used"
 msgstr "When expired stock is used"
-
-msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
-msgstr "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
 
 msgid "Who Can Approve"
 msgstr "Who Can Approve"

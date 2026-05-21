@@ -20,6 +20,7 @@ import {
   getPurchaseOrderDelivery,
   getPurchaseOrderLines,
   getPurchaseOrderLocations,
+  getResolvedPoAttachments,
   getSupplier,
   getSupplierContact,
   getSupplierInteraction,
@@ -426,6 +427,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     canDelete = isRequester;
   }
 
+  const resolvedAttachments = await getResolvedPoAttachments(serviceRole, {
+    purchaseOrderId: orderId,
+    supplierId: purchaseOrder.data?.supplierId ?? null,
+    companyId
+  });
+
   return {
     purchaseOrder: purchaseOrder.data,
     purchaseOrderDelivery: purchaseOrderDelivery.data,
@@ -441,7 +448,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     canApprove,
     canReopen,
     canDelete,
-    defaultCc
+    defaultCc,
+    resolvedAttachments
   };
 }
 

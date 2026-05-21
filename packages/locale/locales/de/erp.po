@@ -503,6 +503,9 @@ msgstr "Preisregeln anwenden"
 msgid "Apply To"
 msgstr "Anwenden auf"
 
+msgid "Approaching 25 MB cap."
+msgstr ""
+
 msgid "Approval Date"
 msgstr "Genehmigungsdatum"
 
@@ -927,6 +930,9 @@ msgstr "Datei anhängen"
 
 msgid "Attachment"
 msgstr "Anlage"
+
+msgid "Attachments"
+msgstr ""
 
 msgid "Attribute"
 msgstr "Attribut"
@@ -2118,6 +2124,12 @@ msgstr "Standardkonten"
 msgid "Default Approver"
 msgstr "Standardgenehmiger"
 
+msgid "Default Attachments"
+msgstr ""
+
+msgid "Default Attachments on Purchase Orders"
+msgstr ""
+
 msgid "Default CC Recipients"
 msgstr "Standard-CC-Empfänger"
 
@@ -2519,6 +2531,9 @@ msgstr "CSV herunterladen"
 
 msgid "Draft"
 msgstr "Entwurf"
+
+msgid "Drag & drop files, or click to browse"
+msgstr ""
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Ziehen Sie eine Bestellungs-PDF hierher, oder klicken Sie, um eine Datei auszuwählen"
@@ -3055,6 +3070,9 @@ msgstr "Jede Bedingung muss erfüllt sein"
 msgid "Everything from Starter"
 msgstr "Alles aus dem Starter-Plan"
 
+msgid "Exceeds 25 MB total — remove some attachments to send."
+msgstr ""
+
 msgid "Exchange Rate"
 msgstr "Wechselkurs"
 
@@ -3397,6 +3415,10 @@ msgstr "Fehler beim Aktualisieren der Lieferantenangebotszeile"
 msgid "Failed to update thumbnail path"
 msgstr "Fehler beim Aktualisieren des Miniaturbildpfads"
 
+#. placeholder {0}: file.name
+msgid "Failed to upload {0}"
+msgstr ""
+
 msgid "Failed to upload CSV file."
 msgstr "CSV-Datei konnte nicht hochgeladen werden."
 
@@ -3487,6 +3509,15 @@ msgstr "Dateityp wird nicht unterstützt. Bitte verwenden Sie JPG, PNG, WebP ode
 
 msgid "Files"
 msgstr "Dateien"
+
+msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
+msgstr ""
+
+msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
+msgstr ""
+
+msgid "Files attached here ride along whenever this item appears on a purchase order email."
+msgstr ""
 
 msgid "Filter"
 msgstr "Filter"
@@ -3844,6 +3875,9 @@ msgstr "Intern"
 
 msgid "Internal Notes"
 msgstr "Interne Notizen"
+
+msgid "Internal only"
+msgstr ""
 
 msgid "Invalid Invite"
 msgstr "Ungültige Einladung"
@@ -4236,6 +4270,9 @@ msgstr "Standorte"
 
 msgid "Lock"
 msgstr "Sperren"
+
+msgid "Locked"
+msgstr ""
 
 msgid "Log In"
 msgstr "Anmelden"
@@ -4958,6 +4995,9 @@ msgstr "Keine Adressen gefunden"
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Noch keine archivierten Protokolle. Protokolle älter als {0} Tage werden automatisch archiviert und sind hier zum Download verfügbar."
 
+msgid "No attachments yet."
+msgstr ""
+
 msgid "No available filters"
 msgstr "Keine verfügbaren Filter"
 
@@ -4999,6 +5039,9 @@ msgstr "Es existieren keine Daten"
 
 msgid "No days off scheduled"
 msgstr "Keine Tage frei geplant"
+
+msgid "No default attachments yet."
+msgstr ""
 
 msgid "No draft versions available"
 msgstr "Keine Entwurfsversionen verfügbar"
@@ -5593,6 +5636,9 @@ msgstr "PO"
 
 msgid "PO Number"
 msgstr "Bestellnummer"
+
+msgid "PO PDF"
+msgstr ""
 
 msgid "Policy & Procedure"
 msgstr "Richtlinie & Verfahren"
@@ -7152,6 +7198,9 @@ msgstr "Bestandsübertragungs-Assistent"
 msgid "Stock Transfers"
 msgstr "Bestandsübertragungen"
 
+msgid "Storage client not available"
+msgstr ""
+
 msgid "Storage Type"
 msgstr "Lagertyp"
 
@@ -7813,6 +7862,9 @@ msgstr "Typ"
 msgid "Type a message..."
 msgstr "Geben Sie eine Nachricht ein..."
 
+msgid "Type an email and press Enter to add an external recipient"
+msgstr ""
+
 msgid "Type of Permission Update"
 msgstr "Berechtigungsupdate-Typ"
 
@@ -7881,6 +7933,9 @@ msgstr "Verknüpfung aufheben"
 
 msgid "Unlink job from sales order?"
 msgstr "Auftrag von Verkaufsauftrag trennen?"
+
+msgid "Unlock"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Nicht unterstützter Quelldokumenttyp: {sourceDocument}"
@@ -7986,6 +8041,9 @@ msgstr "Wird hochgeladen {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Wird hochgeladen {fileName}"
+
+msgid "Uploading…"
+msgstr ""
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "Beim Klicken auf „Konvertieren\" werden Teile mit den folgenden internen Teilenummern erstellt:"

@@ -14,6 +14,9 @@ import type {
 } from "react-router";
 import { Await, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
+import DefaultAttachmentsPanel, {
+  type DefaultAttachment
+} from "~/components/DefaultAttachmentsPanel";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { ItemFile, MakeMethod, PartSummary } from "~/modules/items";
 import {
@@ -39,6 +42,7 @@ import {
 } from "~/modules/items/ui/Item";
 import ItemManufacturingForm from "~/modules/items/ui/Item/ItemManufacturingForm";
 import { ConfigurationParametersForm } from "~/modules/items/ui/Parts";
+import { getItemDefaultAttachments } from "~/modules/purchasing/purchasing.service";
 import type { MethodItemType, MethodType } from "~/modules/shared";
 import { getTagsList } from "~/modules/shared";
 import { getCustomFields, setCustomFields } from "~/utils/form";
@@ -66,21 +70,37 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       makeMethods.data?.[0]);
 
   if (!makeMethod) {
-    return { methodData: null, tags: [] };
+    const fallback = await getItemDefaultAttachments(client, itemId);
+    return {
+      methodData: null,
+      tags: [],
+      defaultAttachments: fallback.data ?? []
+    };
   }
 
   const fullMethod = await getMakeMethodById(client, makeMethod.id, companyId);
   if (fullMethod.error || !fullMethod.data) {
-    return { methodData: null, tags: [] };
+    const fallback = await getItemDefaultAttachments(client, itemId);
+    return {
+      methodData: null,
+      tags: [],
+      defaultAttachments: fallback.data ?? []
+    };
   }
 
-  const [methodMaterials, methodOperations, tags, partManufacturing] =
-    await Promise.all([
-      getMethodMaterialsByMakeMethod(client, fullMethod.data.id),
-      getMethodOperationsByMakeMethodId(client, fullMethod.data.id),
-      getTagsList(client, companyId, "operation"),
-      getItemManufacturing(client, itemId, companyId)
-    ]);
+  const [
+    methodMaterials,
+    methodOperations,
+    tags,
+    partManufacturing,
+    defaultAttachments
+  ] = await Promise.all([
+    getMethodMaterialsByMakeMethod(client, fullMethod.data.id),
+    getMethodOperationsByMakeMethodId(client, fullMethod.data.id),
+    getTagsList(client, companyId, "operation"),
+    getItemManufacturing(client, itemId, companyId),
+    getItemDefaultAttachments(client, itemId)
+  ]);
 
   const configData = partManufacturing.data?.requiresConfiguration
     ? {
@@ -121,7 +141,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       partManufacturing: partManufacturing.data,
       ...configData
     },
-    tags: tags.data ?? []
+    tags: tags.data ?? [],
+    defaultAttachments: defaultAttachments.data ?? []
   };
 }
 
@@ -212,7 +233,8 @@ export default function PartDetailsRoute() {
   if (!itemId) throw new Error("Could not find itemId");
 
   const permissions = usePermissions();
-  const { methodData, tags } = useLoaderData<typeof loader>();
+  const { methodData, tags, defaultAttachments } =
+    useLoaderData<typeof loader>();
 
   const partData = useRouteData<{
     partSummary: PartSummary;
@@ -326,6 +348,21 @@ export default function PartDetailsRoute() {
               />
             )}
           </DeferredFiles>
+
+          <DefaultAttachmentsPanel
+            attachments={(defaultAttachments ?? []) as DefaultAttachment[]}
+            storagePathPrefix={`default-attachments/item/${itemId}`}
+            uploadAction={path.to.itemDefaultAttachments(itemId)}
+            deleteAction={(attachmentId) =>
+              path.to.itemDefaultAttachmentDelete(itemId, attachmentId)
+            }
+            lockAction={(attachmentId) =>
+              path.to.itemDefaultAttachmentLock(itemId, attachmentId)
+            }
+            fetcherKeyPrefix={`item-default:${itemId}`}
+            title={t`Default Attachments on Purchase Orders`}
+            description={t`Files attached here ride along whenever this item appears on a purchase order email.`}
+          />
 
           <CadModel
             isReadOnly={!permissions.can("update", "parts")}

@@ -569,6 +569,7 @@ const PurchaseOrderHeader = () => {
           purchaseOrder={routeData?.purchaseOrder}
           onClose={finalizeDisclosure.onClose}
           defaultCc={routeData?.defaultCc ?? []}
+          resolvedAttachments={routeData?.resolvedAttachments ?? []}
         />
       )}
       {deleteModal.isOpen && (

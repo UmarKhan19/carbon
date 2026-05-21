@@ -348,30 +348,10 @@ const PurchaseOrderPDF = ({
           <View style={tw("w-[10%] items-center")}>
             <Text>Required</Text>
           </View>
-          <View style={tw("w-[12%] items-center")}>
-            <Text>Unit Price</Text>
-            <Text style={[tw("text-[7px] font-normal"), { opacity: 0.7 }]}>
-              {currencyCode}
-            </Text>
-          </View>
-          <View style={tw("w-[12%] items-center")}>
-            <Text>Net Value</Text>
-            <Text style={[tw("text-[7px] font-normal"), { opacity: 0.7 }]}>
-              {currencyCode}
-            </Text>
-          </View>
-          <View style={tw("w-[12%] items-center")}>
-            <Text>Tax Value</Text>
-            <Text style={[tw("text-[7px] font-normal"), { opacity: 0.7 }]}>
-              {currencyCode}
-            </Text>
-          </View>
-          <View style={tw("w-[13%] items-center")}>
-            <Text>Total</Text>
-            <Text style={[tw("text-[7px] font-normal"), { opacity: 0.7 }]}>
-              {currencyCode}
-            </Text>
-          </View>
+          <Text style={tw("w-[12%] text-center")}>Unit Price</Text>
+          <Text style={tw("w-[12%] text-center")}>Net Value</Text>
+          <Text style={tw("w-[12%] text-center")}>Tax Value</Text>
+          <Text style={tw("w-[13%] text-center")}>Total</Text>
         </View>
 
         {/* Rows */}
@@ -503,10 +483,10 @@ const PurchaseOrderPDF = ({
               { backgroundColor: "rgba(249, 250, 251, 0.6)" }
             ]}
           >
-            <Text style={tw("w-[80%] text-right pr-3 text-gray-600")}>
+            <Text style={tw("w-[87%] text-right pr-3 text-gray-600")}>
               Subtotal ({currencyCode})
             </Text>
-            <Text style={tw("w-[20%] text-right text-gray-800")}>
+            <Text style={tw("w-[13%] text-center text-gray-800")}>
               {numberFormatter.format(
                 purchaseOrderLines.reduce((sum, line) => {
                   if (line?.purchaseQuantity && line?.supplierUnitPrice) {
@@ -526,10 +506,10 @@ const PurchaseOrderPDF = ({
                 { backgroundColor: "rgba(249, 250, 251, 0.6)" }
               ]}
             >
-              <Text style={tw("w-[80%] text-right pr-3 text-gray-600")}>
+              <Text style={tw("w-[87%] text-right pr-3 text-gray-600")}>
                 Shipping ({currencyCode})
               </Text>
-              <Text style={tw("w-[20%] text-right text-gray-800")}>
+              <Text style={tw("w-[13%] text-center text-gray-800")}>
                 {numberFormatter.format(shippingCost)}
               </Text>
             </View>
@@ -543,10 +523,10 @@ const PurchaseOrderPDF = ({
                 { backgroundColor: "rgba(249, 250, 251, 0.6)" }
               ]}
             >
-              <Text style={tw("w-[80%] text-right pr-3 text-gray-600")}>
+              <Text style={tw("w-[87%] text-right pr-3 text-gray-600")}>
                 Tax ({currencyCode})
               </Text>
-              <Text style={tw("w-[20%] text-right text-gray-800")}>
+              <Text style={tw("w-[13%] text-center text-gray-800")}>
                 {numberFormatter.format(taxAmount)}
               </Text>
             </View>
@@ -554,11 +534,10 @@ const PurchaseOrderPDF = ({
 
           <View style={tw("h-[1px] bg-gray-200")} />
           <View style={tw("flex flex-row py-2 px-3 text-[9px]")}>
-            <Text style={tw("w-[80%] text-right pr-3 text-gray-800 font-bold")}>
-              Total
+            <Text style={tw("w-[87%] text-right pr-3 text-gray-800 font-bold")}>
+              Total ({currencyCode})
             </Text>
-            <Text style={tw("w-[20%] text-right text-gray-800 font-bold")}>
-              {currencyCode}{" "}
+            <Text style={tw("w-[13%] text-center text-gray-800 font-bold")}>
               {numberFormatter.format(
                 getTotal(purchaseOrderLines) + shippingCost
               )}

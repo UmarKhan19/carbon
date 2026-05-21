@@ -503,6 +503,9 @@ msgstr "価格設定ルールを適用"
 msgid "Apply To"
 msgstr "適用対象"
 
+msgid "Approaching 25 MB cap."
+msgstr ""
+
 msgid "Approval Date"
 msgstr "承認日"
 
@@ -927,6 +930,9 @@ msgstr "ファイルを添付"
 
 msgid "Attachment"
 msgstr "添付ファイル"
+
+msgid "Attachments"
+msgstr ""
 
 msgid "Attribute"
 msgstr "属性"
@@ -2118,6 +2124,12 @@ msgstr "デフォルトアカウント"
 msgid "Default Approver"
 msgstr "デフォルト承認者"
 
+msgid "Default Attachments"
+msgstr ""
+
+msgid "Default Attachments on Purchase Orders"
+msgstr ""
+
 msgid "Default CC Recipients"
 msgstr "デフォルトCC受信者"
 
@@ -2519,6 +2531,9 @@ msgstr "CSVをダウンロード"
 
 msgid "Draft"
 msgstr "下書き"
+
+msgid "Drag & drop files, or click to browse"
+msgstr ""
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "購入発注書のPDFをここにドラッグアンドドロップするか、クリックしてファイルを選択してください"
@@ -3055,6 +3070,9 @@ msgstr "すべての条件が一致する必要があります"
 msgid "Everything from Starter"
 msgstr "スターターのすべての機能"
 
+msgid "Exceeds 25 MB total — remove some attachments to send."
+msgstr ""
+
 msgid "Exchange Rate"
 msgstr "為替レート"
 
@@ -3397,6 +3415,10 @@ msgstr "仕入先見積行の更新に失敗しました"
 msgid "Failed to update thumbnail path"
 msgstr "サムネイルパスの更新に失敗しました"
 
+#. placeholder {0}: file.name
+msgid "Failed to upload {0}"
+msgstr ""
+
 msgid "Failed to upload CSV file."
 msgstr "CSVファイルのアップロードに失敗しました。"
 
@@ -3487,6 +3509,15 @@ msgstr "ファイル形式がサポートされていません。JPG、PNG、Web
 
 msgid "Files"
 msgstr "ファイル"
+
+msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
+msgstr ""
+
+msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
+msgstr ""
+
+msgid "Files attached here ride along whenever this item appears on a purchase order email."
+msgstr ""
 
 msgid "Filter"
 msgstr "フィルター"
@@ -3844,6 +3875,9 @@ msgstr "内部"
 
 msgid "Internal Notes"
 msgstr "内部メモ"
+
+msgid "Internal only"
+msgstr ""
 
 msgid "Invalid Invite"
 msgstr "無効な招待"
@@ -4236,6 +4270,9 @@ msgstr "ロケーション"
 
 msgid "Lock"
 msgstr "ロック"
+
+msgid "Locked"
+msgstr ""
 
 msgid "Log In"
 msgstr "ログイン"
@@ -4958,6 +4995,9 @@ msgstr "住所が見つかりません"
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "まだアーカイブされたログはありません。{0}日以上前のログは自動的にアーカイブされ、ここからダウンロードできます。"
 
+msgid "No attachments yet."
+msgstr ""
+
 msgid "No available filters"
 msgstr "利用可能なフィルターがありません"
 
@@ -4999,6 +5039,9 @@ msgstr "データが存在しません"
 
 msgid "No days off scheduled"
 msgstr "休暇の予定がありません"
+
+msgid "No default attachments yet."
+msgstr ""
 
 msgid "No draft versions available"
 msgstr "ドラフト版は利用できません"
@@ -5593,6 +5636,9 @@ msgstr "発注書"
 
 msgid "PO Number"
 msgstr "発注番号"
+
+msgid "PO PDF"
+msgstr ""
 
 msgid "Policy & Procedure"
 msgstr "ポリシーと手順"
@@ -7152,6 +7198,9 @@ msgstr "在庫転送ウィザード"
 msgid "Stock Transfers"
 msgstr "在庫移動"
 
+msgid "Storage client not available"
+msgstr ""
+
 msgid "Storage Type"
 msgstr "ストレージタイプ"
 
@@ -7813,6 +7862,9 @@ msgstr "種類"
 msgid "Type a message..."
 msgstr "メッセージを入力..."
 
+msgid "Type an email and press Enter to add an external recipient"
+msgstr ""
+
 msgid "Type of Permission Update"
 msgstr "権限更新のタイプ"
 
@@ -7881,6 +7933,9 @@ msgstr "リンク解除"
 
 msgid "Unlink job from sales order?"
 msgstr "販売注文からジョブのリンクを解除しますか？"
+
+msgid "Unlock"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "サポートされていないソースドキュメントタイプ: {sourceDocument}"
@@ -7986,6 +8041,9 @@ msgstr "アップロード中 {0}"
 
 msgid "Uploading {fileName}"
 msgstr "アップロード中 {fileName}"
+
+msgid "Uploading…"
+msgstr ""
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "変換をクリックすると、以下の内部部品番号で部品が作成されます:"
