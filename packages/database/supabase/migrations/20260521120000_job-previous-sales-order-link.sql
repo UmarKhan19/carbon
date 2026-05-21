@@ -3,8 +3,10 @@ ALTER TABLE "job"
   ADD COLUMN IF NOT EXISTS "previousSalesOrderLineId" text REFERENCES "salesOrderLine"(id) ON DELETE SET NULL,
   ADD COLUMN IF NOT EXISTS "previousSalesOrderReadableId" text;
 
--- Recreate jobs view so SELECT j.* picks up the new columns
-CREATE OR REPLACE VIEW "jobs" WITH(SECURITY_INVOKER=true) AS
+-- DROP and recreate jobs view so SELECT j.* picks up the new columns
+-- (CREATE OR REPLACE cannot add columns positionally)
+DROP VIEW IF EXISTS "jobs";
+CREATE VIEW "jobs" WITH(SECURITY_INVOKER=true) AS
 WITH job_model AS (
   SELECT
     j.id AS job_id,
