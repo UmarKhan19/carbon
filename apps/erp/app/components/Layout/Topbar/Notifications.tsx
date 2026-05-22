@@ -452,7 +452,7 @@ function DigestNotification({
         )}
       </div>
       {expanded && (
-        <div className="bg-muted/30 border-l-2 ml-6">
+        <div className="bg-muted/30">
           {loadingChildren && (
             <div className="flex items-center gap-x-2 px-3 py-2 text-xs text-muted-foreground">
               <LuLoader className="animate-spin" />
