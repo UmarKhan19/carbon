@@ -418,6 +418,7 @@ export function getMESUrl() {
 
 export function getBrowserEnv() {
   return {
+    AUTH_PROVIDERS,
     CARBON_EDITION,
     CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,

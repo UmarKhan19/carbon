@@ -290,7 +290,7 @@ export default function AccountProfile() {
   };
 
   return (
-    <VStack spacing={4}>
+    <VStack spacing={4} className="pb-6">
       <ProfileForm user={user} />
 
       {passkeysEnabled && (

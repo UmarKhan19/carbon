@@ -11,7 +11,7 @@ import type {
   AuthenticatorTransportFuture,
   RegistrationResponseJSON
 } from "@simplewebauthn/types";
-import { DOMAIN, VERCEL_URL } from "../config/env";
+import { DOMAIN, ERP_URL, MES_URL, VERCEL_URL } from "../config/env";
 
 // ── RP (Relying Party) configuration ────────────────────────────────────────
 //
@@ -29,10 +29,15 @@ import { DOMAIN, VERCEL_URL } from "../config/env";
 export const RP_ID =
   DOMAIN && !DOMAIN.startsWith("localhost") ? DOMAIN : "localhost";
 
-/** The expected origin sent by the browser during registration/authentication. */
-const ORIGIN =
+/** The expected origin(s) sent by the browser during registration/authentication.
+ *  Both ERP and MES subdomains share the same RP_ID (the parent DOMAIN), so a
+ *  passkey registered on either app works on both — but @simplewebauthn checks
+ *  origin exactly, so we pass an array of allowed origins. */
+const ORIGIN: string | string[] =
   DOMAIN && !DOMAIN.startsWith("localhost")
-    ? `https://${DOMAIN}`
+    ? [`https://${DOMAIN}`, ERP_URL, MES_URL].filter(
+        (url, idx, arr) => !!url && arr.indexOf(url) === idx
+      )
     : VERCEL_URL?.startsWith("http")
       ? VERCEL_URL
       : "http://localhost:3000";
