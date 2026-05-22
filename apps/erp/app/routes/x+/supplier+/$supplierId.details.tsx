@@ -60,6 +60,7 @@ export default function SupplierEditRoute() {
   if (!routeData?.supplier) return null;
 
   const initialValues = {
+    ...routeData.supplier,
     id: routeData?.supplier?.id ?? undefined,
     name: routeData?.supplier?.name ?? "",
     supplierTypeId: routeData?.supplier?.supplierTypeId ?? undefined,

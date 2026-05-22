@@ -15,6 +15,12 @@ const itemTrackingTypes = [
   "Serial",
   "Batch"
 ] as const;
+const supplierStatusTypes = [
+  "Active",
+  "Inactive",
+  "Pending",
+  "Rejected"
+] as const;
 
 export const fieldMappings = {
   customer: {
@@ -33,14 +39,53 @@ export const fieldMappings = {
       required: false,
       type: "enum",
       enumData: {
-        description: "The account manager of the customer",
+        description:
+          "The account manager — match by employee email (e.g. jane@company.com)",
         fetcher: async (
           client: SupabaseClient<Database>,
           companyId: string
         ) => {
           return client
             .from("employees")
-            .select("id, name, avatarUrl")
+            .select("id, name, email, avatarUrl")
+            .eq("companyId", companyId)
+            .order("name");
+        }
+      }
+    },
+    customerStatusId: {
+      label: "Status",
+      required: false,
+      type: "enum",
+      enumData: {
+        description:
+          "The status of the customer (from your configured statuses)",
+        fetcher: async (
+          client: SupabaseClient<Database>,
+          companyId: string
+        ) => {
+          return client
+            .from("customerStatus")
+            .select("id, name")
+            .eq("companyId", companyId)
+            .order("name");
+        }
+      }
+    },
+    customerTypeId: {
+      label: "Type",
+      required: false,
+      type: "enum",
+      enumData: {
+        description:
+          "The category/type of the customer (from your configured types)",
+        fetcher: async (
+          client: SupabaseClient<Database>,
+          companyId: string
+        ) => {
+          return client
+            .from("customerType")
+            .select("id, name")
             .eq("companyId", companyId)
             .order("name");
         }
@@ -140,14 +185,45 @@ export const fieldMappings = {
       required: false,
       type: "enum",
       enumData: {
-        description: "The account manager of the customer",
+        description:
+          "The account manager — match by employee email (e.g. jane@company.com)",
         fetcher: async (
           client: SupabaseClient<Database>,
           companyId: string
         ) => {
           return client
             .from("employees")
-            .select("id, name, avatarUrl")
+            .select("id, name, email, avatarUrl")
+            .eq("companyId", companyId)
+            .order("name");
+        }
+      }
+    },
+    supplierStatus: {
+      label: "Status",
+      required: false,
+      type: "enum",
+      enumData: {
+        default: "",
+        description:
+          "The status of the supplier — one of: Active, Inactive, Pending, Rejected",
+        options: supplierStatusTypes
+      }
+    },
+    supplierTypeId: {
+      label: "Type",
+      required: false,
+      type: "enum",
+      enumData: {
+        description:
+          "The category/type of the supplier (from your configured types)",
+        fetcher: async (
+          client: SupabaseClient<Database>,
+          companyId: string
+        ) => {
+          return client
+            .from("supplierType")
+            .select("id, name")
             .eq("companyId", companyId)
             .order("name");
         }
@@ -254,13 +330,8 @@ export const fieldMappings = {
       default: "0"
     },
     name: {
-      label: "Short Description",
+      label: "Description",
       required: true,
-      type: "string"
-    },
-    description: {
-      label: "Long Description",
-      required: false,
       type: "string"
     },
     active: {
@@ -348,13 +419,8 @@ export const fieldMappings = {
       default: "0"
     },
     name: {
-      label: "Short Description",
+      label: "Description",
       required: true,
-      type: "string"
-    },
-    description: {
-      label: "Long Description",
-      required: false,
       type: "string"
     },
     active: {
@@ -442,13 +508,8 @@ export const fieldMappings = {
       default: "0"
     },
     name: {
-      label: "Short Description",
+      label: "Description",
       required: true,
-      type: "string"
-    },
-    description: {
-      label: "Long Description",
-      required: false,
       type: "string"
     },
     active: {
@@ -536,13 +597,8 @@ export const fieldMappings = {
       default: "0"
     },
     name: {
-      label: "Short Description",
+      label: "Description",
       required: true,
-      type: "string"
-    },
-    description: {
-      label: "Long Description",
-      required: false,
       type: "string"
     },
     active: {
@@ -630,13 +686,8 @@ export const fieldMappings = {
       default: "0"
     },
     name: {
-      label: "Short Description",
+      label: "Description",
       required: true,
-      type: "string"
-    },
-    description: {
-      label: "Long Description",
-      required: false,
       type: "string"
     },
     active: {
@@ -977,6 +1028,14 @@ export const importSchemas: Record<
       .string()
       .optional()
       .describe("The id of the account manager of the customer"),
+    customerStatusId: z
+      .string()
+      .optional()
+      .describe("The id of the customer's status"),
+    customerTypeId: z
+      .string()
+      .optional()
+      .describe("The id of the customer's type/category"),
     phone: z.string().optional().describe("The phone number of the customer"),
     fax: z.string().optional().describe("The fax number of the customer"),
     taxId: z
@@ -1047,6 +1106,14 @@ export const importSchemas: Record<
       .string()
       .optional()
       .describe("The id of the account manager of the supplier"),
+    supplierStatus: z
+      .string()
+      .optional()
+      .describe("The status of the supplier"),
+    supplierTypeId: z
+      .string()
+      .optional()
+      .describe("The id of the supplier's type/category"),
     phone: z.string().optional().describe("The phone number of the supplier"),
     fax: z.string().optional().describe("The fax number of the supplier"),
     taxId: z
@@ -1122,11 +1189,7 @@ export const importSchemas: Record<
     name: z
       .string()
       .min(1, { message: "Name is required" })
-      .describe("The short description of the part"),
-    description: z
-      .string()
-      .optional()
-      .describe("The long description of the part"),
+      .describe("The description of the part"),
     active: z.string().optional().describe("Whether the part is active"),
     unitOfMeasureCode: z
       .string()
@@ -1161,11 +1224,7 @@ export const importSchemas: Record<
     name: z
       .string()
       .min(1, { message: "Name is required" })
-      .describe("The short description of the tool"),
-    description: z
-      .string()
-      .optional()
-      .describe("The long description of the tool"),
+      .describe("The description of the tool"),
     active: z.string().optional().describe("Whether the tool is active"),
     unitOfMeasureCode: z
       .string()
@@ -1200,11 +1259,7 @@ export const importSchemas: Record<
     name: z
       .string()
       .min(1, { message: "Name is required" })
-      .describe("The short description of the fixture"),
-    description: z
-      .string()
-      .optional()
-      .describe("The long description of the fixture"),
+      .describe("The description of the fixture"),
     active: z.string().optional().describe("Whether the fixture is active"),
     unitOfMeasureCode: z
       .string()
@@ -1239,11 +1294,7 @@ export const importSchemas: Record<
     name: z
       .string()
       .min(1, { message: "Name is required" })
-      .describe("The short description of the part"),
-    description: z
-      .string()
-      .optional()
-      .describe("The long description of the part"),
+      .describe("The description of the part"),
     active: z.string().optional().describe("Whether the part is active"),
     unitOfMeasureCode: z
       .string()
@@ -1278,11 +1329,7 @@ export const importSchemas: Record<
     name: z
       .string()
       .min(1, { message: "Name is required" })
-      .describe("The short description of the material"),
-    description: z
-      .string()
-      .optional()
-      .describe("The long description of the material"),
+      .describe("The description of the material"),
     active: z.string().optional().describe("Whether the material is active"),
     materialSubstanceId: z
       .string()

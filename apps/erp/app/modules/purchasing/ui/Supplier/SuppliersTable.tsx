@@ -14,6 +14,7 @@ import {
   LuCalendar,
   LuEuro,
   LuGlobe,
+  LuHash,
   LuPencil,
   LuPhone,
   LuPrinter,
@@ -63,6 +64,18 @@ const SuppliersTable = memo(({ data, count, tags }: SuppliersTableProps) => {
   const customColumns = useCustomColumns<Supplier>("supplier");
   const columns = useMemo<ColumnDef<Supplier>[]>(() => {
     const defaultColumns: ColumnDef<Supplier>[] = [
+      {
+        accessorKey: "readableId",
+        header: t`ID`,
+        cell: ({ row }) => (
+          <span className="font-mono text-xs text-muted-foreground">
+            {row.original.readableId ?? ""}
+          </span>
+        ),
+        meta: {
+          icon: <LuHash />
+        }
+      },
       {
         accessorKey: "name",
         header: t`Name`,

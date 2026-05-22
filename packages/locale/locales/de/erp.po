@@ -2493,6 +2493,9 @@ msgstr "Herunterladen"
 msgid "Download CSV"
 msgstr "CSV herunterladen"
 
+msgid "Download template"
+msgstr ""
+
 msgid "Draft"
 msgstr "Entwurf"
 
@@ -3620,6 +3623,9 @@ msgstr "Spalten ausblenden, fixieren und neu anordnen"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "HÃƒÆ’Ã‚Â¶here PrioritÃƒÆ’Ã‚Â¤t gewinnt bei GleichstÃƒÆ’Ã‚Â¤nden und wird zuerst fÃƒÆ’Ã‚Â¼r AufschlÃƒÆ’Ã‚Â¤ge angewendet"
 
+msgid "Hints in the first row"
+msgstr ""
+
 msgid "History"
 msgstr "Verlauf"
 
@@ -4628,6 +4634,9 @@ msgstr "Navigieren"
 
 msgid "NCRs by Type"
 msgstr "NCRs nach Typ"
+
+msgid "Need the right columns?"
+msgstr ""
 
 msgid "Negative Adjustment"
 msgstr "Negative Anpassung"

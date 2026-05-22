@@ -2493,6 +2493,9 @@ msgstr "Download"
 msgid "Download CSV"
 msgstr "Download CSV"
 
+msgid "Download template"
+msgstr "Download template"
+
 msgid "Draft"
 msgstr "Draft"
 
@@ -3620,6 +3623,9 @@ msgstr "Hide, pin and reorder columns"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Higher priority wins ties and applies first for markups"
 
+msgid "Hints in the first row"
+msgstr "Hints in the first row"
+
 msgid "History"
 msgstr "History"
 
@@ -4628,6 +4634,9 @@ msgstr "Navigate"
 
 msgid "NCRs by Type"
 msgstr "NCRs by Type"
+
+msgid "Need the right columns?"
+msgstr "Need the right columns?"
 
 msgid "Negative Adjustment"
 msgstr "Negative Adjustment"

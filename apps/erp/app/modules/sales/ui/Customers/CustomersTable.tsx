@@ -14,6 +14,7 @@ import {
   LuCalendar,
   LuEuro,
   LuGlobe,
+  LuHash,
   LuPencil,
   LuPhone,
   LuPrinter,
@@ -69,6 +70,18 @@ const CustomersTable = memo(
     const customColumns = useCustomColumns<Customer>("customer");
     const columns = useMemo<ColumnDef<Customer>[]>(() => {
       const defaultColumns: ColumnDef<Customer>[] = [
+        {
+          accessorKey: "readableId",
+          header: t`ID`,
+          cell: ({ row }) => (
+            <span className="font-mono text-xs text-muted-foreground">
+              {row.original.readableId ?? ""}
+            </span>
+          ),
+          meta: {
+            icon: <LuHash />
+          }
+        },
         {
           accessorKey: "name",
           header: t`Name`,

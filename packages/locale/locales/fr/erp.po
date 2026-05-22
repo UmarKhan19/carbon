@@ -2493,6 +2493,9 @@ msgstr "TÃƒÆ’Ã‚Â©lÃƒÆ’Ã‚Â©charger"
 msgid "Download CSV"
 msgstr "TÃƒÆ’Ã‚Â©lÃƒÆ’Ã‚Â©charger CSV"
 
+msgid "Download template"
+msgstr ""
+
 msgid "Draft"
 msgstr "Brouillon"
 
@@ -3620,6 +3623,9 @@ msgstr "Masquer, ÃƒÆ’Ã‚Â©pingler et rÃƒÆ’Ã‚Â©organiser les c
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "La prioritÃƒÆ’Ã‚Â© plus ÃƒÆ’Ã‚Â©levÃƒÆ’Ã‚Â©e gagne les ÃƒÆ’Ã‚Â©galitÃƒÆ’Ã‚Â©s et s'applique en premier pour les majorations"
 
+msgid "Hints in the first row"
+msgstr ""
+
 msgid "History"
 msgstr "Historique"
 
@@ -4628,6 +4634,9 @@ msgstr "Naviguer"
 
 msgid "NCRs by Type"
 msgstr "NCRs par type"
+
+msgid "Need the right columns?"
+msgstr ""
 
 msgid "Negative Adjustment"
 msgstr "Ajustement NÃƒÆ’Ã‚Â©gatif"

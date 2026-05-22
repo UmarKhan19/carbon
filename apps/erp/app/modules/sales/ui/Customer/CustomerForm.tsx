@@ -27,6 +27,7 @@ import {
   Hidden,
   Input,
   Number,
+  SequenceOrCustomId,
   Submit
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
@@ -112,6 +113,15 @@ const CustomerForm = ({
                         : "grid-cols-1 md:grid-cols-2"
                   )}
                 >
+                  {isEditing ? (
+                    <Input name="readableId" label={t`Customer ID`} />
+                  ) : (
+                    <SequenceOrCustomId
+                      name="readableId"
+                      label={t`Customer ID`}
+                      table="customer"
+                    />
+                  )}
                   <Input name="name" label={t`Name`} autoFocus={!isEditing} />
 
                   <CustomerStatus

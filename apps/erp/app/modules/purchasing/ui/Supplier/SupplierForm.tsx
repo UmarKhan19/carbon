@@ -23,6 +23,7 @@ import {
   Employee,
   Hidden,
   Input,
+  SequenceOrCustomId,
   Submit,
   SupplierContact,
   SupplierStatus,
@@ -117,6 +118,15 @@ const SupplierForm = ({
                         : "grid-cols-1 md:grid-cols-2"
                   )}
                 >
+                  {isEditing ? (
+                    <Input name="readableId" label={t`Supplier ID`} />
+                  ) : (
+                    <SequenceOrCustomId
+                      name="readableId"
+                      label={t`Supplier ID`}
+                      table="supplier"
+                    />
+                  )}
                   <Input autoFocus={!isEditing} name="name" label={t`Name`} />
                   <SupplierStatus
                     name="supplierStatus"

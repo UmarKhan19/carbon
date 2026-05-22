@@ -37,10 +37,168 @@ const importCsvValidator = z.object({
 const EXTERNAL_ID_KEY = "csv";
 
 /**
- * Build a map of CSV external IDs → entity IDs from the externalIntegrationMapping table.
+ * Fallback CSV parser used when std/csv rejects a row-length mismatch.
+ * Handles RFC-4180 quoting but tolerates uneven row widths (extra cells
+ * dropped, missing cells become "").
+ */
+function parsePermissiveCsv(text: string): Record<string, string>[] {
+  // Tokenize the full text into a 2D array of cells, respecting quoted fields
+  // that may span commas and newlines.
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        field += c;
+      }
+    } else if (c === '"') {
+      inQuotes = true;
+    } else if (c === ",") {
+      row.push(field);
+      field = "";
+    } else if (c === "\n" || c === "\r") {
+      // \r\n: consume the \n that follows
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field);
+      field = "";
+      // Skip blank rows that arise from trailing newlines
+      if (row.length > 1 || (row.length === 1 && row[0] !== "")) {
+        rows.push(row);
+      }
+      row = [];
+    } else {
+      field += c;
+    }
+  }
+  // Trailing field / row (no terminating newline)
+  if (field !== "" || row.length > 0) {
+    row.push(field);
+    if (row.length > 1 || (row.length === 1 && row[0] !== "")) {
+      rows.push(row);
+    }
+  }
+
+  if (rows.length === 0) return [];
+  const headers = rows[0];
+  return rows.slice(1).map((r) => {
+    const obj: Record<string, string> = {};
+    for (let i = 0; i < headers.length; i++) {
+      obj[headers[i]] = r[i] ?? "";
+    }
+    return obj;
+  });
+}
+
+type CsvEntityType =
+  | "customer"
+  | "supplier"
+  | "item"
+  | "contact"
+  | "workCenter"
+  | "process";
+
+/**
+ * Look up the ids that still exist in the entity table. Done as a typed
+ * switch so each Kysely query is fully type-checked — avoids `as any` casts
+ * that bypass the generated DB types.
+ */
+async function fetchLiveEntityIds(
+  entityType: CsvEntityType,
+  ids: string[]
+): Promise<Set<string>> {
+  if (ids.length === 0) return new Set();
+  let rows: { id: string }[];
+  switch (entityType) {
+    case "customer":
+      rows = await db
+        .selectFrom("customer")
+        .select(["id"])
+        .where("id", "in", ids)
+        .execute();
+      break;
+    case "supplier":
+      rows = await db
+        .selectFrom("supplier")
+        .select(["id"])
+        .where("id", "in", ids)
+        .execute();
+      break;
+    case "item":
+      rows = await db
+        .selectFrom("item")
+        .select(["id"])
+        .where("id", "in", ids)
+        .execute();
+      break;
+    case "contact":
+      rows = await db
+        .selectFrom("contact")
+        .select(["id"])
+        .where("id", "in", ids)
+        .execute();
+      break;
+    case "workCenter":
+      rows = await db
+        .selectFrom("workCenter")
+        .select(["id"])
+        .where("id", "in", ids)
+        .execute();
+      break;
+    case "process":
+      rows = await db
+        .selectFrom("process")
+        .select(["id"])
+        .where("id", "in", ids)
+        .execute();
+      break;
+  }
+  return new Set(rows.map((r) => r.id));
+}
+
+/**
+ * Build a name → id map for an entity table, scoped to a company. Used as a
+ * fallback dedup key when the CSV's Unique ID has no externalIntegrationMapping
+ * row yet (e.g., the entity was created in-app, then a CSV with the same name
+ * is imported). Without this, the INSERT would fail the per-company name
+ * uniqueness constraint (supplier_name_unique / customer_name_unique).
+ */
+async function getNameMap(
+  entityType: "supplier" | "customer",
+  cId: string
+): Promise<Map<string, string>> {
+  const rows =
+    entityType === "supplier"
+      ? await db
+          .selectFrom("supplier")
+          .select(["id", "name"])
+          .where("companyId", "=", cId)
+          .execute()
+      : await db
+          .selectFrom("customer")
+          .select(["id", "name"])
+          .where("companyId", "=", cId)
+          .execute();
+  return new Map(rows.map((r) => [r.name, r.id]));
+}
+
+/**
+ * Build a map of CSV external IDs → entity IDs from externalIntegrationMapping.
+ * Filters orphan mappings (rows whose entityId points at a deleted entity)
+ * so re-imports cleanly take the INSERT path instead of failing the
+ * subsequent supplierTax/customerTax upsert with a 23503 FK error.
  */
 async function getCsvExternalIdMap(
-  entityType: string,
+  entityType: CsvEntityType,
   cId: string
 ): Promise<Map<string, string>> {
   const result = await db
@@ -51,13 +209,38 @@ async function getCsvExternalIdMap(
     .where("companyId", "=", cId)
     .execute();
 
+  const candidates = result.filter(
+    (r): r is typeof r & { externalId: string; entityId: string } =>
+      r.externalId !== null && r.entityId !== null
+  );
+
+  if (candidates.length === 0) return new Map();
+
+  const liveIds = await fetchLiveEntityIds(
+    entityType,
+    candidates.map((r) => r.entityId)
+  );
+
   return new Map(
-    result
-      .filter(
-        (r): r is typeof r & { externalId: string } => r.externalId !== null
-      )
+    candidates
+      .filter((r) => liveIds.has(r.entityId))
       .map((r) => [r.externalId, r.entityId])
   );
+}
+
+/**
+ * Convert empty-string values to undefined. Kysely drops undefined keys from
+ * the INSERT, so the column gets its DB default (NULL). Empty CSV cells would
+ * otherwise become literal "" and fail FK or enum constraints.
+ */
+function nullifyEmptyStrings<T extends Record<string, unknown>>(
+  obj: T
+): Partial<T> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(obj)) {
+    out[k] = v === "" ? undefined : v;
+  }
+  return out as Partial<T>;
 }
 
 /**
@@ -66,7 +249,7 @@ async function getCsvExternalIdMap(
  */
 async function upsertCsvMappings(
   trx: typeof db,
-  entityType: string,
+  entityType: CsvEntityType,
   mappings: Array<{ entityId: string; externalId: string }>,
   cId: string,
   userId: string
@@ -90,11 +273,16 @@ async function upsertCsvMappings(
         updatedAt: now,
       }))
     )
+    // On conflict (orphan mapping with same csv id but stale entityId),
+    // repoint entityId to the freshly-inserted entity. The .where() matches
+    // the partial unique index's predicate, required by Postgres for
+    // arbitration on partial indexes (42P10 otherwise).
     .onConflict((oc) =>
       oc
-        .columns(["entityType", "entityId", "integration", "companyId"])
+        .columns(["integration", "externalId", "entityType", "companyId"])
+        .where("allowDuplicateExternalId", "=", false)
         .doUpdateSet((eb) => ({
-          externalId: eb.ref("excluded.externalId"),
+          entityId: eb.ref("excluded.entityId"),
           updatedAt: eb.ref("excluded.updatedAt"),
         }))
     )
@@ -104,7 +292,6 @@ async function upsertCsvMappings(
 async function upsertTaxIdentifiers(
   trx: typeof db,
   table: "customerTax" | "supplierTax",
-  fkColumn: "customerId" | "supplierId",
   records: Array<{ entityId: string; taxId: string | null | undefined }>,
   cId: string,
   userId: string
@@ -112,22 +299,41 @@ async function upsertTaxIdentifiers(
   if (records.length === 0) return;
 
   const now = new Date().toISOString();
-  // deno-lint-ignore no-explicit-any -- generated DB types lag this branch-local migration.
-  await (trx as any)
-    .insertInto(table)
+  if (table === "customerTax") {
+    await trx
+      .insertInto("customerTax")
+      .values(
+        records.map((r) => ({
+          customerId: r.entityId,
+          taxId: r.taxId ?? null,
+          companyId: cId,
+          updatedAt: now,
+          updatedBy: userId,
+        }))
+      )
+      .onConflict((oc) =>
+        oc.column("customerId").doUpdateSet({
+          taxId: sql`excluded."taxId"`,
+          updatedAt: now,
+          updatedBy: userId,
+        })
+      )
+      .execute();
+    return;
+  }
+  await trx
+    .insertInto("supplierTax")
     .values(
-      records.map((record) => ({
-        [fkColumn]: record.entityId,
-        taxId: record.taxId ?? null,
+      records.map((r) => ({
+        supplierId: r.entityId,
+        taxId: r.taxId ?? null,
         companyId: cId,
         updatedAt: now,
         updatedBy: userId,
       }))
     )
-    .onConflict(
-      // deno-lint-ignore no-explicit-any -- Kysely conflict builder type is unavailable after the cast above.
-      (oc: any) =>
-      oc.column(fkColumn).doUpdateSet({
+    .onConflict((oc) =>
+      oc.column("supplierId").doUpdateSet({
         taxId: sql`excluded."taxId"`,
         updatedAt: now,
         updatedBy: userId,
@@ -162,8 +368,6 @@ serve(async (req: Request) => {
       userId,
     });
 
-    console.log({ enumMappings });
-
     const client = await getSupabaseServiceRole(
       req.headers.get("Authorization"),
       req.headers.get("carbon-key") ?? "",
@@ -177,10 +381,17 @@ serve(async (req: Request) => {
     const csvText = new TextDecoder().decode(
       new Uint8Array(await csvFile.data.arrayBuffer())
     );
-    const parsedCsv = parse(csvText, { skipFirstRow: true }) as Record<
-      string,
-      string
-    >[];
+    // std/csv is strict on row-length mismatches; fall back to the
+    // permissive parser for real-world CSVs with quoting/comma issues.
+    let parsedCsv: Record<string, string>[];
+    try {
+      parsedCsv = parse(csvText, {
+        skipFirstRow: true,
+        lazyQuotes: true,
+      }) as Record<string, string>[];
+    } catch (_strictErr) {
+      parsedCsv = parsePermissiveCsv(csvText);
+    }
 
     let mappedRecords = parsedCsv.map((row) => {
       const record: Record<string, string> = {};
@@ -222,7 +433,13 @@ serve(async (req: Request) => {
     switch (table) {
       case "customer": {
         const externalIdMap = await getCsvExternalIdMap("customer", companyId);
+        const nameMap = await getNameMap("customer", companyId);
         const customerIds = new Set();
+        // Tracks names queued for INSERT in this batch so a second CSV row
+        // with the same name doesn't trip the (name, companyId) unique
+        // constraint at flush time. The customer table enforces one record
+        // per name per company, so duplicates within the CSV collapse.
+        const namesQueuedForInsert = new Set<string>();
 
         await db.transaction().execute(async (trx) => {
           const customerInserts: Database["public"]["Tables"]["customer"]["Insert"][] =
@@ -239,6 +456,13 @@ serve(async (req: Request) => {
             entityId: string;
             taxId: string | null | undefined;
           }> = [];
+          // Updates matched by name (no pre-existing csv mapping). After the
+          // updates run, we add csv mappings for these so the next import takes
+          // the externalIdMap path directly.
+          const csvIdsForNameMatchedUpdates: Array<{
+            entityId: string;
+            externalId: string;
+          }> = [];
 
           const isCustomerValid = (
             record: Record<string, string>
@@ -248,24 +472,41 @@ serve(async (req: Request) => {
 
           for (const record of mappedRecords) {
             const { id, taxId, ...rest } = record;
-            if (externalIdMap.has(id)) {
-              const existingEntityId = externalIdMap.get(id)!;
+            const matchedByCsvId = externalIdMap.get(id);
+            const matchedByName =
+              matchedByCsvId === undefined && rest.name
+                ? nameMap.get(rest.name)
+                : undefined;
+            const existingEntityId = matchedByCsvId ?? matchedByName;
+
+            if (existingEntityId !== undefined) {
               if (isCustomerValid(rest) && !customerIds.has(id)) {
                 customerIds.add(id);
                 customerUpdates.push({
                   id: existingEntityId,
                   data: {
-                    ...rest,
+                    ...nullifyEmptyStrings(rest),
                     updatedAt: new Date().toISOString(),
                     updatedBy: userId,
                   },
                 });
                 customerTaxUpdates.push({ entityId: existingEntityId, taxId });
+                if (matchedByCsvId === undefined) {
+                  csvIdsForNameMatchedUpdates.push({
+                    entityId: existingEntityId,
+                    externalId: id,
+                  });
+                }
               }
             } else if (isCustomerValid(rest) && !customerIds.has(id)) {
+              if (namesQueuedForInsert.has(rest.name)) continue;
               customerIds.add(id);
+              namesQueuedForInsert.add(rest.name);
               customerInserts.push({
-                ...rest,
+                ...nullifyEmptyStrings(rest),
+                // Use the CSV's Unique ID as the readableId; trigger no-ops
+                // when readableId is non-null.
+                readableId: id,
                 companyId,
                 createdAt: new Date().toISOString(),
                 createdBy: userId,
@@ -290,7 +531,7 @@ serve(async (req: Request) => {
             await upsertCsvMappings(
               trx,
               "customer",
-              inserted.map((row: { id?: string }, i: number) => ({
+              inserted.map((row, i) => ({
                 entityId: row.id!,
                 externalId: csvIdsForInserts[i],
               })),
@@ -300,8 +541,7 @@ serve(async (req: Request) => {
             await upsertTaxIdentifiers(
               trx,
               "customerTax",
-              "customerId",
-              inserted.map((row: { id?: string }, i: number) => ({
+              inserted.map((row, i) => ({
                 entityId: row.id!,
                 taxId: customerTaxForInserts[i]?.taxId,
               })),
@@ -320,8 +560,16 @@ serve(async (req: Request) => {
             await upsertTaxIdentifiers(
               trx,
               "customerTax",
-              "customerId",
               customerTaxUpdates,
+              companyId,
+              userId
+            );
+          }
+          if (csvIdsForNameMatchedUpdates.length > 0) {
+            await upsertCsvMappings(
+              trx,
+              "customer",
+              csvIdsForNameMatchedUpdates,
               companyId,
               userId
             );
@@ -331,7 +579,9 @@ serve(async (req: Request) => {
       }
       case "supplier": {
         const externalIdMap = await getCsvExternalIdMap("supplier", companyId);
+        const nameMap = await getNameMap("supplier", companyId);
         const supplierIds = new Set();
+        const namesQueuedForInsert = new Set<string>();
 
         await db.transaction().execute(async (trx) => {
           const supplierInserts: Database["public"]["Tables"]["supplier"]["Insert"][] =
@@ -348,6 +598,10 @@ serve(async (req: Request) => {
             entityId: string;
             taxId: string | null | undefined;
           }> = [];
+          const csvIdsForNameMatchedUpdates: Array<{
+            entityId: string;
+            externalId: string;
+          }> = [];
 
           const isSupplierValid = (
             record: Record<string, string>
@@ -357,24 +611,41 @@ serve(async (req: Request) => {
 
           for (const record of mappedRecords) {
             const { id, taxId, ...rest } = record;
-            if (externalIdMap.has(id) && !supplierIds.has(id)) {
+            const matchedByCsvId = externalIdMap.get(id);
+            const matchedByName =
+              matchedByCsvId === undefined && rest.name
+                ? nameMap.get(rest.name)
+                : undefined;
+            const existingEntityId = matchedByCsvId ?? matchedByName;
+
+            if (existingEntityId !== undefined && !supplierIds.has(id)) {
               supplierIds.add(id);
-              const existingEntityId = externalIdMap.get(id)!;
               if (isSupplierValid(rest)) {
                 supplierUpdates.push({
                   id: existingEntityId,
                   data: {
-                    ...rest,
+                    ...nullifyEmptyStrings(rest),
                     updatedAt: new Date().toISOString(),
                     updatedBy: userId,
                   },
                 });
                 supplierTaxUpdates.push({ entityId: existingEntityId, taxId });
+                if (matchedByCsvId === undefined) {
+                  csvIdsForNameMatchedUpdates.push({
+                    entityId: existingEntityId,
+                    externalId: id,
+                  });
+                }
               }
             } else if (isSupplierValid(rest) && !supplierIds.has(id)) {
+              if (namesQueuedForInsert.has(rest.name)) continue;
               supplierIds.add(id);
+              namesQueuedForInsert.add(rest.name);
               supplierInserts.push({
-                ...rest,
+                ...nullifyEmptyStrings(rest),
+                // Use the CSV's Unique ID as the readableId; trigger no-ops
+                // when readableId is non-null.
+                readableId: id,
                 companyId,
                 createdAt: new Date().toISOString(),
                 createdBy: userId,
@@ -399,7 +670,7 @@ serve(async (req: Request) => {
             await upsertCsvMappings(
               trx,
               "supplier",
-              inserted.map((row: { id?: string }, i: number) => ({
+              inserted.map((row, i) => ({
                 entityId: row.id!,
                 externalId: csvIdsForInserts[i],
               })),
@@ -409,8 +680,7 @@ serve(async (req: Request) => {
             await upsertTaxIdentifiers(
               trx,
               "supplierTax",
-              "supplierId",
-              inserted.map((row: { id?: string }, i: number) => ({
+              inserted.map((row, i) => ({
                 entityId: row.id!,
                 taxId: supplierTaxForInserts[i]?.taxId,
               })),
@@ -429,8 +699,16 @@ serve(async (req: Request) => {
             await upsertTaxIdentifiers(
               trx,
               "supplierTax",
-              "supplierId",
               supplierTaxUpdates,
+              companyId,
+              userId
+            );
+          }
+          if (csvIdsForNameMatchedUpdates.length > 0) {
+            await upsertCsvMappings(
+              trx,
+              "supplier",
+              csvIdsForNameMatchedUpdates,
               companyId,
               userId
             );
