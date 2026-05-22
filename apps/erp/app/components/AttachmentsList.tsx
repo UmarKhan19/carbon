@@ -140,9 +140,9 @@ export default function AttachmentsList({
             key={`pinned-${p.name}`}
             className="w-full justify-between border rounded-md px-3 py-2 bg-muted/30"
           >
-            <HStack className="gap-2 min-w-0 flex-1">
+            <HStack className="gap-2">
               <LuFileText className="flex-shrink-0 text-muted-foreground" />
-              <span className="text-sm font-medium truncate min-w-0 flex-1">
+              <span className="text-sm font-medium truncate max-w-[200px]">
                 {p.name}
               </span>
               <Badge variant="gray" className="flex-shrink-0">
@@ -166,9 +166,9 @@ export default function AttachmentsList({
             key={a.path}
             className="w-full justify-between border rounded-md px-3 py-2"
           >
-            <HStack className="gap-2 min-w-0 flex-1">
+            <HStack className="gap-2">
               <LuFileText className="flex-shrink-0 text-muted-foreground" />
-              <span className="text-sm truncate min-w-0 flex-1">{a.name}</span>
+              <span className="text-sm truncate max-w-[200px]">{a.name}</span>
               <Badge
                 variant={sourceBadgeVariant[a.source]}
                 className="flex-shrink-0"
