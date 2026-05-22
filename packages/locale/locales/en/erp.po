@@ -4646,6 +4646,9 @@ msgstr "Measurement Standard"
 msgid "Members"
 msgstr "Members"
 
+msgid "MES"
+msgstr "MES"
+
 msgid "Message"
 msgstr "Message"
 
@@ -5408,6 +5411,9 @@ msgstr "Open Date"
 
 msgid "Open Dispatches"
 msgstr "Open Dispatches"
+
+msgid "Open in MES"
+msgstr "Open in MES"
 
 msgid "Open Issues"
 msgstr "Open Issues"
