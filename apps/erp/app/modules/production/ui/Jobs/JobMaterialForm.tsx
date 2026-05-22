@@ -32,11 +32,7 @@ import type { MethodItemType, MethodType } from "~/modules/shared";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import type { jobOperationValidator } from "../../production.models";
-import {
-  isJobLocked,
-  jobMaterialValidator,
-  jobMaterialValidatorForReleasedJob
-} from "../../production.models";
+import { isJobLocked, jobMaterialValidator } from "../../production.models";
 import type { Job } from "../../types";
 
 type JobMaterialFormProps = {
@@ -166,12 +162,7 @@ const JobMaterialForm = ({
         action={path.to.jobMaterial(jobId, initialValues?.id!)}
         defaultValues={initialValues}
         fetcher={fetcher}
-        validator={
-          ["Draft", "Planned"].includes(jobData?.job?.status ?? "") ||
-          operations.length === 0
-            ? jobMaterialValidator
-            : jobMaterialValidatorForReleasedJob
-        }
+        validator={jobMaterialValidator}
       >
         <CardHeader>
           <CardTitle className="line-clamp-2">{itemData.description}</CardTitle>
