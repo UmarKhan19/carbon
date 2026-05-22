@@ -1,4 +1,3 @@
-import { useCarbon } from "@carbon/auth";
 import {
   Button,
   Card,
@@ -15,6 +14,12 @@ import {
   DropdownMenuTrigger,
   HStack,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
   NumberField,
   NumberInput,
   Switch,
@@ -30,9 +35,8 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { getLocalTimeZone, today } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LuChevronDown,
   LuChevronRight,
@@ -41,7 +45,7 @@ import {
   LuRefreshCcw,
   LuTrash
 } from "react-icons/lu";
-import { useFetcher, useParams } from "react-router";
+import { useBlocker, useFetcher, useParams } from "react-router";
 import {
   useCurrencyFormatter,
   usePermissions,
@@ -96,6 +100,14 @@ const QuoteLinePricing = ({
   if (!quoteId) throw new Error("Could not find quoteId");
   if (!lineId) throw new Error("Could not find lineId");
 
+  // Track original values from props for dirty comparison
+  const [originalFields, setOriginalFields] = useState(() => ({
+    prices: pricesByQuantity,
+    unitCost: line.unitCost ?? 0,
+    additionalCharges: line.additionalCharges || {},
+    taxPercent: line.taxPercent ?? 0
+  }));
+
   // Consolidated state for all editable fields
   const [editableFields, setEditableFields] = useState({
     prices: pricesByQuantity,
@@ -106,20 +118,27 @@ const QuoteLinePricing = ({
 
   const [showCategoryMarkups, setShowCategoryMarkups] = useState(false);
 
+  // Reset both original and editable when props change (e.g., after save)
   useEffect(() => {
-    setEditableFields((prev) => ({
-      ...prev,
+    const newFields = {
       prices: pricesByQuantity,
       unitCost: line.unitCost ?? 0,
       additionalCharges: line.additionalCharges || {},
       taxPercent: line.taxPercent ?? 0
-    }));
+    };
+    setOriginalFields(newFields);
+    setEditableFields(newFields);
   }, [
     pricesByQuantity,
     line.unitCost,
     line.additionalCharges,
     line.taxPercent
   ]);
+
+  // Compute dirty state by comparing editable to original
+  const isDirty = useMemo(() => {
+    return JSON.stringify(editableFields) !== JSON.stringify(originalFields);
+  }, [editableFields, originalFields]);
 
   const settings = useSettings();
   const defaultCategoryMarkups = useMemo(() => {
@@ -160,16 +179,78 @@ const QuoteLinePricing = ({
     isEmployee &&
     ["Draft"].includes(routeData?.quote?.status ?? "");
 
-  const fetcher = useFetcher<{ id?: string; error: string | null }>();
+  const fetcher = useFetcher<{ id?: string; error?: string | null; success?: boolean }>();
+  const saveFetcher = useFetcher<{ success?: boolean; error?: string | null }>();
+  const submittedRef = useRef(false);
+
   useEffect(() => {
     if (fetcher.data?.error) {
       toast.error(fetcher.data.error);
     }
   }, [fetcher.data]);
 
-  const { carbon } = useCarbon();
+  useEffect(() => {
+    if (saveFetcher.data?.error) {
+      toast.error(saveFetcher.data.error);
+    }
+    if (submittedRef.current && saveFetcher.state === "idle" && saveFetcher.data?.success) {
+      submittedRef.current = false;
+      toast.success(t`Pricing saved`);
+    }
+  }, [saveFetcher.data, saveFetcher.state, t]);
+
+  const isSaving = saveFetcher.state !== "idle";
+
+  // Navigate away warning when dirty
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      isDirty && currentLocation.pathname !== nextLocation.pathname
+  );
+
   const { id: userId, company } = useUser();
   const baseCurrency = company?.baseCurrencyCode ?? "USD";
+
+  const onSave = useCallback(() => {
+    if (!isDirty) return;
+
+    const pricingData = {
+      prices: {} as Record<number, Record<string, unknown>>,
+      unitCost: editableFields.unitCost !== originalFields.unitCost ? editableFields.unitCost : undefined,
+      additionalCharges: JSON.stringify(editableFields.additionalCharges) !== JSON.stringify(originalFields.additionalCharges) ? editableFields.additionalCharges : undefined,
+      taxPercent: editableFields.taxPercent !== originalFields.taxPercent ? editableFields.taxPercent : undefined
+    };
+
+    // Collect price changes
+    for (const quantity of quantities) {
+      const current = editableFields.prices[quantity];
+      const original = originalFields.prices[quantity];
+      const changes: Record<string, unknown> = {};
+
+      if (current?.leadTime !== original?.leadTime) changes.leadTime = current?.leadTime ?? 0;
+      if (current?.unitPrice !== original?.unitPrice) changes.unitPrice = current?.unitPrice ?? 0;
+      if (current?.discountPercent !== original?.discountPercent) changes.discountPercent = current?.discountPercent ?? 0;
+      if (current?.shippingCost !== original?.shippingCost) changes.shippingCost = current?.shippingCost ?? 0;
+      if (JSON.stringify(current?.categoryMarkups) !== JSON.stringify(original?.categoryMarkups)) {
+        changes.categoryMarkups = current?.categoryMarkups ?? {};
+      }
+
+      if (Object.keys(changes).length > 0) {
+        pricingData.prices[quantity] = changes;
+      }
+    }
+
+    const formData = new FormData();
+    formData.append("pricingData", JSON.stringify(pricingData));
+    submittedRef.current = true;
+    saveFetcher.submit(formData, {
+      method: "post",
+      action: path.to.quoteLinePricingSave(quoteId, lineId)
+    });
+  }, [isDirty, editableFields, originalFields, quantities, quoteId, lineId, saveFetcher]);
+
+  const onCancel = useCallback(() => {
+    setEditableFields(originalFields);
+  }, [originalFields]);
 
   const formatter = useCurrencyFormatter();
   const unitPriceFormatter = useCurrencyFormatter({
@@ -206,7 +287,7 @@ const QuoteLinePricing = ({
   });
 
   const onUpdateChargeDescription = useCallback(
-    async (chargeId: string, description: string) => {
+    (chargeId: string, description: string) => {
       const updatedCharges = {
         ...additionalCharges,
         [chargeId]: {
@@ -215,30 +296,16 @@ const QuoteLinePricing = ({
         }
       };
 
-      setEditableFields((prev) => {
-        return {
-          ...prev,
-          additionalCharges: updatedCharges
-        };
-      });
-
-      const costUpdate = await carbon
-        ?.from("quoteLine")
-        .update({
-          additionalCharges: updatedCharges
-        })
-        .eq("id", lineId);
-
-      if (costUpdate?.error) {
-        console.error(costUpdate.error);
-        toast.error(t`Failed to update quote line`);
-      }
+      setEditableFields((prev) => ({
+        ...prev,
+        additionalCharges: updatedCharges
+      }));
     },
-    [additionalCharges, lineId, carbon, t]
+    [additionalCharges]
   );
 
   const onUpdateChargeAmount = useCallback(
-    async (chargeId: string, quantity: number, amount: number) => {
+    (chargeId: string, quantity: number, amount: number) => {
       const updatedCharges = {
         ...additionalCharges,
         [chargeId]: {
@@ -254,24 +321,12 @@ const QuoteLinePricing = ({
         ...prev,
         additionalCharges: updatedCharges
       }));
-
-      const costUpdate = await carbon
-        ?.from("quoteLine")
-        .update({
-          additionalCharges: updatedCharges
-        })
-        .eq("id", lineId);
-
-      if (costUpdate?.error) {
-        console.error(costUpdate.error);
-        toast.error("Failed to update quote line");
-      }
     },
-    [additionalCharges, carbon, lineId]
+    [additionalCharges]
   );
 
   const onUpdateChargeTaxable = useCallback(
-    async (chargeId: string, taxable: boolean) => {
+    (chargeId: string, taxable: boolean) => {
       const updatedCharges = {
         ...additionalCharges,
         [chargeId]: {
@@ -284,18 +339,8 @@ const QuoteLinePricing = ({
         ...prev,
         additionalCharges: updatedCharges
       }));
-
-      const costUpdate = await carbon
-        ?.from("quoteLine")
-        .update({ additionalCharges: updatedCharges })
-        .eq("id", lineId);
-
-      if (costUpdate?.error) {
-        console.error(costUpdate.error);
-        toast.error("Failed to update quote line");
-      }
     },
-    [additionalCharges, lineId, carbon]
+    [additionalCharges]
   );
 
   const costsByQuantity = quantities.map((quantity) => {
@@ -388,34 +433,19 @@ const QuoteLinePricing = ({
   };
 
   const onUpdateCost = useCallback(
-    async (value: number) => {
+    (value: number) => {
       if (!line.itemId) return;
 
       setEditableFields((prev) => ({
         ...prev,
         unitCost: value
       }));
-
-      const costUpdate = await carbon
-        ?.from("itemCost")
-        .update({
-          unitCost: value,
-          costIsAdjusted: true,
-          updatedAt: today(getLocalTimeZone()).toString()
-        })
-        .eq("itemId", line.itemId)
-        .single();
-
-      if (costUpdate?.error) {
-        console.error(costUpdate.error);
-        toast.error(t`Failed to update item cost`);
-      }
     },
-    [carbon, line.itemId, t]
+    [line.itemId]
   );
 
   const onUpdateCategoryMarkup = useCallback(
-    async (category: CostCategoryKey, quantity: number, value: number) => {
+    (category: CostCategoryKey, quantity: number, value: number) => {
       const existingMarkups = categoryMarkupsByQuantity[quantity] ?? {};
       const newMarkups = {
         ...existingMarkups,
@@ -437,34 +467,17 @@ const QuoteLinePricing = ({
           }
         }
       }));
-
-      const priceUpdate = await carbon
-        ?.from("quoteLinePrice")
-        .update({
-          categoryMarkups: newMarkups,
-          unitPrice
-        })
-        .eq("quoteLineId", lineId)
-        .eq("quantity", quantity);
-
-      if (priceUpdate?.error) {
-        console.error(priceUpdate.error);
-        toast.error(t`Failed to update category markups`);
-      }
     },
     [
       categoryMarkupsByQuantity,
-      carbon,
-      lineId,
       costsByQuantity,
       quantities,
-      computeUnitPriceFromMarkups,
-      t
+      computeUnitPriceFromMarkups
     ]
   );
 
   const onUpdatePrice = useCallback(
-    async (
+    (
       key: "leadTime" | "unitPrice" | "discountPercent" | "shippingCost",
       quantity: number,
       value: number
@@ -489,7 +502,6 @@ const QuoteLinePricing = ({
       }
       let roundedValue = value;
       if (key === "unitPrice") {
-        // Round the value to the precision of the quote line
         roundedValue = Number(value.toFixed(unitPricePrecision));
       }
       newPrices[quantity] = { ...newPrices[quantity], [key]: roundedValue };
@@ -498,33 +510,6 @@ const QuoteLinePricing = ({
         ...prev,
         prices: newPrices
       }));
-
-      if (hasPrice) {
-        const update = await carbon
-          ?.from("quoteLinePrice")
-          .update({
-            [key]: roundedValue,
-            quoteLineId: lineId,
-            quantity
-          })
-          .eq("quoteLineId", lineId)
-          .eq("quantity", quantity);
-        if (update?.error) {
-          console.error(update.error);
-          toast.error("Failed to update quote line");
-        }
-      } else {
-        const insert = await carbon?.from("quoteLinePrice").insert({
-          ...newPrices[quantity],
-          quoteLineId: lineId,
-          quantity
-        });
-
-        if (insert?.error) {
-          console.error(insert.error);
-          toast.error(t`Failed to insert quote line`);
-        }
-      }
     },
     [
       line.unitPricePrecision,
@@ -532,9 +517,7 @@ const QuoteLinePricing = ({
       quoteId,
       lineId,
       exchangeRate,
-      userId,
-      carbon,
-      t
+      userId
     ]
   );
 
@@ -549,6 +532,27 @@ const QuoteLinePricing = ({
         {isEditable && (
           <CardAction>
             <HStack>
+              {isDirty && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={onCancel}
+                    isDisabled={isSaving}
+                  >
+                    <Trans>Cancel</Trans>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={onSave}
+                    isDisabled={isSaving}
+                    isLoading={isSaving}
+                  >
+                    <Trans>Save</Trans>
+                  </Button>
+                </>
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -1370,6 +1374,30 @@ const QuoteLinePricing = ({
           </Tbody>
         </Table>
       </CardContent>
+      {blocker.state === "blocked" && (
+        <Modal open onOpenChange={(open) => !open && blocker.reset()}>
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>
+                <Trans>Unsaved changes</Trans>
+              </ModalTitle>
+            </ModalHeader>
+            <ModalBody>
+              <p>
+                <Trans>Are you sure you want to leave this page?</Trans>
+              </p>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="secondary" onClick={() => blocker.reset()}>
+                <Trans>Stay on this page</Trans>
+              </Button>
+              <Button onClick={() => blocker.proceed()}>
+                <Trans>Leave this page</Trans>
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
     </Card>
   );
 };
