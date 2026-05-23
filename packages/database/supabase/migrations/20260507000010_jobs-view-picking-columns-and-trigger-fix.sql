@@ -129,10 +129,11 @@ END;
 $$;
 
 -- ─── 3. Recreate jobs view to expose picking columns ─────────────────────────
--- Running CREATE OR REPLACE VIEW forces PostgreSQL to re-expand j.* against the
--- current job table definition, so autoGeneratePickingList and pickingStatus are
--- included in the view's output.
-CREATE OR REPLACE VIEW "jobs" WITH(SECURITY_INVOKER=true) AS
+-- CREATE OR REPLACE VIEW cannot shift existing column positions, so we must
+-- drop and recreate. j.* now re-expands to include autoGeneratePickingList and
+-- pickingStatus which were added to job in 20260505000000.
+DROP VIEW IF EXISTS "jobs";
+CREATE VIEW "jobs" WITH(SECURITY_INVOKER=true) AS
 WITH job_model AS (
   SELECT
     j.id AS job_id,
