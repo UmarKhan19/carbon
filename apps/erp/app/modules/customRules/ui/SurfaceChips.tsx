@@ -31,7 +31,7 @@ const SURFACE_VISUALS: Record<
     label: "Inventory adjustments",
     icon: <LuScale className="size-3.5" />
   },
-  putaway: { label: "Putaway", icon: <LuPackage className="size-3.5" /> },
+  place: { label: "Place", icon: <LuPackage className="size-3.5" /> },
   pick: { label: "Pick", icon: <LuPackage className="size-3.5" /> },
   operationStart: {
     label: "Operation start",

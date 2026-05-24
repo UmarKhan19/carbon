@@ -7,12 +7,9 @@ import type {
   ClientActionFunctionArgs
 } from "react-router";
 import { redirect } from "react-router";
-import { unassignBusinessRule } from "~/modules/businessRules";
+import { unassignCustomRule } from "~/modules/customRules";
 import { path } from "~/utils/path";
-import {
-  businessRuleAssignmentsQuery,
-  getCompanyId
-} from "~/utils/react-query";
+import { customRuleAssignmentsQuery, getCompanyId } from "~/utils/react-query";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -24,28 +21,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
     request,
     client,
     companyId,
-    feature: "BUSINESS_RULES",
-    redirectTo: path.to.businessRules
+    feature: "CUSTOM_RULES",
+    redirectTo: path.to.customRules
   });
 
   const { workCenterId, ruleId } = params;
   if (!workCenterId || !ruleId)
     throw new Error("workCenterId and ruleId required");
 
-  const result = await unassignBusinessRule(client, {
+  const result = await unassignCustomRule(client, {
     targetType: "workCenter",
     targetId: workCenterId,
     ruleId
   });
   if (result.error) {
     throw redirect(
-      request.headers.get("Referer") ?? path.to.businessRules,
+      request.headers.get("Referer") ?? path.to.customRules,
       await flash(request, error(result.error, "Failed to unassign rule"))
     );
   }
 
   throw redirect(
-    request.headers.get("Referer") ?? path.to.businessRules,
+    request.headers.get("Referer") ?? path.to.customRules,
     await flash(request, success("Rule unassigned"))
   );
 }
@@ -57,7 +54,7 @@ export async function clientAction({
   const { workCenterId } = params;
   if (workCenterId) {
     window?.clientCache?.setQueryData(
-      businessRuleAssignmentsQuery("workCenter", workCenterId, getCompanyId())
+      customRuleAssignmentsQuery("workCenter", workCenterId, getCompanyId())
         .queryKey,
       null
     );

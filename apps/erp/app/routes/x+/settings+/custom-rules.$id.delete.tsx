@@ -9,18 +9,18 @@ import type {
 } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import { ConfirmDelete } from "~/components/Modals";
-import { deleteBusinessRule, getBusinessRule } from "~/modules/businessRules";
+import { deleteCustomRule, getCustomRule } from "~/modules/customRules";
 import { getParams, path } from "~/utils/path";
-import { businessRulesQuery, getCompanyId } from "~/utils/react-query";
+import { customRulesQuery, getCompanyId } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, { delete: "settings" });
   const { id } = params;
   if (!id) throw notFound("id required");
-  const rule = await getBusinessRule(client, id);
+  const rule = await getCustomRule(client, id);
   if (rule.error || !rule.data) {
     throw redirect(
-      path.to.businessRules,
+      path.to.customRules,
       await flash(request, error(rule.error, "Rule not found"))
     );
   }
@@ -37,45 +37,45 @@ export async function action({ request, params }: ActionFunctionArgs) {
     request,
     client,
     companyId,
-    feature: "BUSINESS_RULES",
-    redirectTo: path.to.businessRules
+    feature: "CUSTOM_RULES",
+    redirectTo: path.to.customRules
   });
 
   const { id } = params;
   if (!id) throw new Error("id required");
 
-  const result = await deleteBusinessRule(client, id);
+  const result = await deleteCustomRule(client, id);
   if (result.error) {
     throw redirect(
-      `${path.to.businessRules}?${getParams(request)}`,
+      `${path.to.customRules}?${getParams(request)}`,
       await flash(request, error(result.error, "Failed to delete rule"))
     );
   }
 
   throw redirect(
-    `${path.to.businessRules}?${getParams(request)}`,
+    `${path.to.customRules}?${getParams(request)}`,
     await flash(request, success("Rule deleted"))
   );
 }
 
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
   window?.clientCache?.setQueryData(
-    businessRulesQuery(getCompanyId()).queryKey,
+    customRulesQuery(getCompanyId()).queryKey,
     null
   );
   return await serverAction();
 }
 
-export default function DeleteBusinessRuleRoute() {
+export default function DeleteCustomRuleRoute() {
   const { rule } = useLoaderData<typeof loader>();
   const { id } = (rule as { id: string }) ?? { id: "" };
   const navigate = useNavigate();
   return (
     <ConfirmDelete
-      action={path.to.deleteBusinessRule(id)}
+      action={path.to.deleteCustomRule(id)}
       name={(rule as { name?: string })?.name ?? "this rule"}
       text="Are you sure you want to delete this rule? Assignments will also be removed."
-      onCancel={() => navigate(-1)}
+      onCancel={() => navigate(path.to.customRules)}
     />
   );
 }

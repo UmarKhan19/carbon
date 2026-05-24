@@ -11,19 +11,19 @@ import type {
 } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
-  businessRuleValidator,
-  getBusinessRule,
-  upsertBusinessRule
-} from "~/modules/businessRules";
-import BusinessRuleForm from "~/modules/businessRules/ui/BusinessRuleForm";
+  customRuleValidator,
+  getCustomRule,
+  upsertCustomRule
+} from "~/modules/customRules";
+import CustomRuleForm from "~/modules/customRules/ui/CustomRuleForm";
 import { getParams, path } from "~/utils/path";
-import { businessRulesQuery, getCompanyId } from "~/utils/react-query";
+import { customRulesQuery, getCompanyId } from "~/utils/react-query";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client } = await requirePermissions(request, { view: "settings" });
   const { id } = params;
   if (!id) throw notFound("id required");
-  const rule = await getBusinessRule(client, id);
+  const rule = await getCustomRule(client, id);
   if (rule.error || !rule.data) throw notFound("Rule not found");
   return { rule: rule.data };
 }
@@ -38,18 +38,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     request,
     client,
     companyId,
-    feature: "BUSINESS_RULES",
-    redirectTo: path.to.businessRules
+    feature: "CUSTOM_RULES",
+    redirectTo: path.to.customRules
   });
 
   const { id } = params;
   if (!id) throw new Error("id required");
 
   const formData = await request.formData();
-  const validation = await validator(businessRuleValidator).validate(formData);
+  const validation = await validator(customRuleValidator).validate(formData);
   if (validation.error) return validation.error;
 
-  const update = await upsertBusinessRule(client, {
+  const update = await upsertCustomRule(client, {
     ...validation.data,
     id,
     description: validation.data.description ?? null,
@@ -63,27 +63,30 @@ export async function action({ request, params }: ActionFunctionArgs) {
     ).then(() => null);
   }
 
-  throw redirect(`${path.to.businessRules}?${getParams(request)}`);
+  throw redirect(`${path.to.customRules}?${getParams(request)}`);
 }
 
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
   window?.clientCache?.setQueryData(
-    businessRulesQuery(getCompanyId()).queryKey,
+    customRulesQuery(getCompanyId()).queryKey,
     null
   );
   return await serverAction();
 }
 
-export default function EditBusinessRuleRoute() {
+export default function EditCustomRuleRoute() {
   const { rule } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   return (
-    <BusinessRuleForm
-      initialValues={{
-        ...(rule as never),
-        conditionAst: rule.conditionAst as unknown as ConditionAst
-      }}
-      onClose={() => navigate(-1)}
+    <CustomRuleForm
+      initialValues={
+        {
+          ...((rule ?? {}) as Record<string, unknown>),
+          conditionAst: (rule as { conditionAst: unknown })
+            .conditionAst as unknown as ConditionAst
+        } as never
+      }
+      onClose={() => navigate(path.to.customRules)}
     />
   );
 }

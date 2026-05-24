@@ -6,7 +6,7 @@ import {
   dedupeViolations,
   evaluateLinesForSurface,
   isBlocked
-} from "@carbon/ee/business-rules.server";
+} from "@carbon/ee/custom-rules.server";
 import { validationError, validator } from "@carbon/form";
 import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs } from "react-router";

@@ -4,7 +4,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import {
   evaluateLinesForSurface,
   isBlocked
-} from "@carbon/ee/business-rules.server";
+} from "@carbon/ee/custom-rules.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { issueTrackedEntityValidator } from "~/services/models";
@@ -24,6 +24,12 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const { materialId, parentTrackedEntityId, children } = validation.data;
+  if (!materialId) {
+    return data(
+      { success: false, message: "materialId required" },
+      { status: 400 }
+    );
+  }
   const acknowledged = Boolean(
     (payload as { acknowledged?: boolean }).acknowledged
   );
@@ -40,13 +46,19 @@ export async function action({ request }: ActionFunctionArgs) {
     .maybeSingle();
 
   if (matRow?.jobOperationId) {
+    // `workInstructionId` is in the runtime row but absent from the generated
+    // DB types (stale until next regen). Select only the typed column;
+    // pick up `workInstructionId` via cast below.
     const { data: jobOpRow } = await serviceRole
       .from("jobOperation")
-      .select("workCenterId, workInstructionId")
+      .select("workCenterId")
       .eq("id", matRow.jobOperationId)
       .maybeSingle();
 
     if (jobOpRow?.workCenterId) {
+      const workInstructionId =
+        (jobOpRow as { workInstructionId?: string | null }).workInstructionId ??
+        null;
       const ruleEval = await evaluateLinesForSurface({
         client: serviceRole,
         companyId,
@@ -62,7 +74,7 @@ export async function action({ request }: ActionFunctionArgs) {
               id: matRow.jobOperationId,
               itemId: (matRow.itemId as string | null) ?? null,
               quantity: matRow.quantity ?? null,
-              workInstructionId: jobOpRow.workInstructionId ?? null
+              workInstructionId
             },
             quantity: matRow.quantity ?? 0
           }

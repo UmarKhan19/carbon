@@ -6,9 +6,9 @@ import {
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 
-export const businessRuleSeverities = ["error", "warn"] as const;
+export const customRuleSeverities = ["error", "warn"] as const;
 
-export const businessRuleOperators = [
+export const customRuleOperators = [
   "eq",
   "neq",
   "in",
@@ -19,7 +19,7 @@ export const businessRuleOperators = [
   "lt"
 ] as const;
 
-const businessRuleConditionValueSchema = z.union([
+const customRuleConditionValueSchema = z.union([
   z.string(),
   z.number(),
   z.boolean(),
@@ -27,37 +27,37 @@ const businessRuleConditionValueSchema = z.union([
   z.null()
 ]);
 
-const businessRuleConditionSchema = z.object({
+const customRuleConditionSchema = z.object({
   field: z.string().min(1, { message: "Field is required" }),
-  op: z.enum(businessRuleOperators),
-  value: businessRuleConditionValueSchema.optional()
+  op: z.enum(customRuleOperators),
+  value: customRuleConditionValueSchema.optional()
 });
 
-export const businessRuleMatchKinds = ["all", "any", "none"] as const;
+export const customRuleMatchKinds = ["all", "any", "none"] as const;
 
-export const businessRuleConditionAstSchema = z.object({
-  kind: z.enum(businessRuleMatchKinds),
+export const customRuleConditionAstSchema = z.object({
+  kind: z.enum(customRuleMatchKinds),
   conditions: z
-    .array(businessRuleConditionSchema)
+    .array(customRuleConditionSchema)
     .min(1, { message: "At least one condition is required" })
 });
 
-const businessRuleConditionAstFormField = z.preprocess((raw) => {
+const customRuleConditionAstFormField = z.preprocess((raw) => {
   if (typeof raw !== "string") return raw;
   try {
     return JSON.parse(raw);
   } catch {
     return raw;
   }
-}, businessRuleConditionAstSchema);
+}, customRuleConditionAstSchema);
 
-export const businessRuleValidator = z
+export const customRuleValidator = z
   .object({
     id: zfd.text(z.string().optional()),
     name: z.string().min(1, { message: "Name is required" }).max(120),
     description: zfd.text(z.string().optional()),
     message: z.string().min(1, { message: "Message is required" }).max(500),
-    severity: z.enum(businessRuleSeverities),
+    severity: z.enum(customRuleSeverities),
     targetType: z.enum(TARGET_TYPES),
     appliesToAll: zfd.checkbox(),
     active: zfd.checkbox(),
@@ -66,7 +66,7 @@ export const businessRuleValidator = z
       .refine((arr) => arr.length >= 1, {
         message: "Pick at least one surface"
       }),
-    conditionAst: businessRuleConditionAstFormField
+    conditionAst: customRuleConditionAstFormField
   })
   .superRefine((val, ctx) => {
     // Reject any surface that isn't valid for the chosen targetType. Schema
@@ -89,7 +89,7 @@ export const businessRuleValidator = z
  * action which targetType is in play, then this validator picks the right
  * target-id key.
  */
-export const businessRuleAssignmentValidator = (
+export const customRuleAssignmentValidator = (
   targetType: "item" | "storageUnit" | "workCenter"
 ) => {
   const idKey =
@@ -104,4 +104,4 @@ export const businessRuleAssignmentValidator = (
   });
 };
 
-export const businessRuleAcknowledgeValidator = zfd.checkbox();
+export const customRuleAcknowledgeValidator = zfd.checkbox();

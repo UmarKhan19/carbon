@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  __businessRulesCacheSize,
-  __resetBusinessRulesCache,
-  type BusinessRuleRow,
+  __customRulesCacheSize,
+  __resetCustomRulesCache,
+  type CustomRuleRow,
   compileRule,
   compileWithCache,
   evaluateRules,
@@ -10,12 +10,12 @@ import {
   getFieldsForTargetType,
   interpolateMessage,
   type RuleContext
-} from "./businessRules";
+} from "./customRules";
 
 const ruleOf = (
   conditions: Array<{ field: string; op: string; value?: unknown }>,
-  overrides: Partial<BusinessRuleRow> = {}
-): BusinessRuleRow => ({
+  overrides: Partial<CustomRuleRow> = {}
+): CustomRuleRow => ({
   id: overrides.id ?? "rule_1",
   targetType: overrides.targetType ?? "item",
   severity: overrides.severity ?? "error",
@@ -373,7 +373,7 @@ describe("evaluateRules", () => {
 });
 
 describe("compileWithCache", () => {
-  beforeEach(() => __resetBusinessRulesCache());
+  beforeEach(() => __resetCustomRulesCache());
 
   it("returns same compiled instance on cache hit", () => {
     const row = ruleOf([{ field: "item.type", op: "eq", value: "Part" }]);
@@ -392,7 +392,7 @@ describe("compileWithCache", () => {
     const a = compileWithCache(row1);
     const b = compileWithCache(row2);
     expect(a).not.toBe(b);
-    expect(__businessRulesCacheSize()).toBe(2);
+    expect(__customRulesCacheSize()).toBe(2);
   });
 
   it("does not collide across targetTypes with identical content", () => {
@@ -423,7 +423,7 @@ describe("compileWithCache", () => {
         })
       );
     }
-    expect(__businessRulesCacheSize()).toBeLessThanOrEqual(256);
+    expect(__customRulesCacheSize()).toBeLessThanOrEqual(256);
   });
 });
 
@@ -445,32 +445,41 @@ describe("FIELD_REGISTRY", () => {
 });
 
 describe("getFieldsForTargetType", () => {
-  it("item target sees item + shared fields, not workCenter fields", () => {
+  it("item target sees item + storage + shared fields, not workCenter fields", () => {
     const fields = getFieldsForTargetType("item");
     const paths = fields.map((f) => f.path);
     expect(paths).toContain("item.type");
     expect(paths).toContain("transaction.quantity");
+    // storageUnit ctx is loaded for item-target surfaces when the line carries
+    // a storageUnitId — these fields are now visible (with nullable: true so
+    // authors can guard with isSet/isNotSet).
+    expect(paths).toContain("storageUnit.id");
+    expect(paths).toContain("storageUnit.locationId");
+    expect(paths).toContain("storageUnit.storageTypeId");
     expect(paths.some((p) => p.startsWith("workCenter."))).toBe(false);
     expect(paths.some((p) => p.startsWith("operation."))).toBe(false);
-    expect(paths.some((p) => p.startsWith("storageUnit."))).toBe(false);
   });
 
-  it("workCenter target sees workCenter + shared, not item.* registry", () => {
+  it("workCenter target sees workCenter + shared, not item.* or storageUnit.*", () => {
     const fields = getFieldsForTargetType("workCenter");
     const paths = fields.map((f) => f.path);
     expect(paths).toContain("workCenter.locationId");
     expect(paths).toContain("workCenter.active");
     expect(paths).toContain("transaction.quantity");
     expect(paths).not.toContain("item.type");
+    expect(paths.some((p) => p.startsWith("storageUnit."))).toBe(false);
   });
 
-  it("storageUnit target sees storage fields, not item-only ones", () => {
+  it("storageUnit target sees storage + item fields (item ctx loads on every storageUnit-target surface)", () => {
     const fields = getFieldsForTargetType("storageUnit");
     const paths = fields.map((f) => f.path);
+    expect(paths).toContain("storageUnit.id");
     expect(paths).toContain("storageUnit.storageTypeId");
     expect(paths).toContain("storageUnit.locationId");
     expect(paths).toContain("transaction.quantity");
-    expect(paths).not.toContain("item.type");
+    expect(paths).toContain("item.type");
+    expect(paths).toContain("item.replenishmentSystem");
+    expect(paths).toContain("item.itemTrackingType");
   });
 });
 

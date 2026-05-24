@@ -13,7 +13,7 @@ import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { path } from "~/utils/path";
 import SurfaceChips from "./SurfaceChips";
 
-type BusinessRuleRowView = {
+type CustomRuleRowView = {
   id: string;
   name: string;
   targetType: "item" | "storageUnit" | "workCenter";
@@ -34,17 +34,17 @@ const TARGET_TYPE_LABELS = {
   workCenter: "Work center"
 } as const;
 
-type BusinessRulesTableProps = {
-  data: BusinessRuleRowView[];
+type CustomRulesTableProps = {
+  data: CustomRuleRowView[];
   count: number;
 };
 
-const BusinessRulesTable = memo(({ data, count }: BusinessRulesTableProps) => {
+const CustomRulesTable = memo(({ data, count }: CustomRulesTableProps) => {
   const { t } = useLingui();
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
-  const customColumns = useCustomColumns<BusinessRuleRowView>("businessRule");
+  const customColumns = useCustomColumns<CustomRuleRowView>("customRule");
 
   const rows = useMemo(() => data, [data]);
 
@@ -55,7 +55,7 @@ const BusinessRulesTable = memo(({ data, count }: BusinessRulesTableProps) => {
         header: t`Name`,
         cell: ({ row }) => (
           <Hyperlink
-            to={`${path.to.businessRule(row.original.id)}?${params.toString()}`}
+            to={`${path.to.customRule(row.original.id)}?${params.toString()}`}
           >
             <Enumerable value={row.original.name} />
           </Hyperlink>
@@ -88,7 +88,12 @@ const BusinessRulesTable = memo(({ data, count }: BusinessRulesTableProps) => {
       {
         accessorKey: "surfaces",
         header: t`Surfaces`,
-        cell: ({ row }) => <SurfaceChips surfaces={row.original.surfaces} />
+        cell: ({ row }) => (
+          <SurfaceChips
+            surfaces={row.original.surfaces}
+            targetType={row.original.targetType}
+          />
+        )
       },
       {
         accessorKey: "active",
@@ -123,7 +128,7 @@ const BusinessRulesTable = memo(({ data, count }: BusinessRulesTableProps) => {
         <MenuItem
           disabled={!permissions.can("update", "settings")}
           onClick={() => {
-            navigate(`${path.to.businessRule(row.id)}?${params.toString()}`);
+            navigate(`${path.to.customRule(row.id)}?${params.toString()}`);
           }}
         >
           <MenuIcon icon={<LuPencil />} />
@@ -134,7 +139,7 @@ const BusinessRulesTable = memo(({ data, count }: BusinessRulesTableProps) => {
           destructive
           onClick={() => {
             navigate(
-              `${path.to.deleteBusinessRule(row.id)}?${params.toString()}`
+              `${path.to.deleteCustomRule(row.id)}?${params.toString()}`
             );
           }}
         >
@@ -155,15 +160,15 @@ const BusinessRulesTable = memo(({ data, count }: BusinessRulesTableProps) => {
         permissions.can("create", "settings") && (
           <New
             label={t`Rule`}
-            to={`${path.to.newBusinessRule}?${params.toString()}`}
+            to={`${path.to.newCustomRule}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title={t`Business Rules`}
+      title={t`Custom Rules`}
     />
   );
 });
 
-BusinessRulesTable.displayName = "BusinessRulesTable";
-export default BusinessRulesTable;
+CustomRulesTable.displayName = "CustomRulesTable";
+export default CustomRulesTable;

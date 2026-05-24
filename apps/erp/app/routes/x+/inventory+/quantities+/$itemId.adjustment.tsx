@@ -3,9 +3,10 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import {
+  dedupeViolations,
   evaluateLinesForSurface,
   isBlocked
-} from "@carbon/ee/business-rules.server";
+} from "@carbon/ee/custom-rules.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -35,31 +36,64 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { ...d } = validation.data;
   const acknowledged = formData.get("acknowledged") === "true";
 
-  // Item Rule evaluation. Single synthetic line covering the adjustment.
+  // Business rule evaluation. Item-target rules fire on
+  // `inventoryAdjustment` surface. Storage-unit-target rules fire on
+  // `place` when the adjustment lands stock in a bin (positive delta) and
+  // `pick` when it removes from a bin (negative delta) — so warehouse rules
+  // tied to those surfaces also kick in for manual adjustments.
   const serviceRole = getCarbonServiceRole();
-  const { violations, ruleNames } = await evaluateLinesForSurface({
+  const qty = Number(d.quantity ?? 0);
+  const evalLine = [
+    {
+      lineId: itemId,
+      itemId,
+      storageUnitId: d.storageUnitId ?? null,
+      quantity: qty,
+      locationId: d.locationId
+    }
+  ];
+
+  const itemPass = await evaluateLinesForSurface({
     client: serviceRole,
     companyId,
     userId,
     targetType: "item",
     surface: "inventoryAdjustment",
-    lines: [
-      {
-        lineId: itemId,
-        itemId,
-        storageUnitId: d.storageUnitId ?? null,
-        quantity: Number(d.quantity ?? 0),
-        locationId: d.locationId
-      }
-    ]
+    lines: evalLine
   });
 
-  if (violations.length > 0 && isBlocked(violations, acknowledged)) {
+  const allViolations = [...itemPass.violations];
+  const allRuleNames: Record<string, string> = { ...itemPass.ruleNames };
+
+  if (d.storageUnitId) {
+    // Pick storage-unit surface by direction. `Negative Adjmt.` removes
+    // stock — pick. Everything else (positive / set-up) — place.
+    const adjustmentType = String(
+      (d as { adjustmentType?: string }).adjustmentType ?? ""
+    );
+    const isNegative = adjustmentType === "Negative Adjmt." || qty < 0;
+    const storageSurface: "place" | "pick" = isNegative ? "pick" : "place";
+
+    const storagePass = await evaluateLinesForSurface({
+      client: serviceRole,
+      companyId,
+      userId,
+      targetType: "storageUnit",
+      surface: storageSurface,
+      lines: evalLine
+    });
+    allViolations.push(...storagePass.violations);
+    Object.assign(allRuleNames, storagePass.ruleNames);
+  }
+
+  const deduped = dedupeViolations(allViolations);
+
+  if (deduped.length > 0 && isBlocked(deduped, acknowledged)) {
     return {
       error: null,
       data: null,
-      violations,
-      ruleNames
+      violations: deduped,
+      ruleNames: allRuleNames
     };
   }
 

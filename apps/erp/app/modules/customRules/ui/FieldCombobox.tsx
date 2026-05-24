@@ -10,7 +10,11 @@ import {
   cn,
   Popover,
   PopoverContent,
-  PopoverTrigger
+  PopoverTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
 } from "@carbon/react";
 import {
   FIELD_REGISTRY,
@@ -24,6 +28,7 @@ import {
   LuBox,
   LuCheck,
   LuChevronDown,
+  LuInfo,
   LuPackage,
   LuReceipt
 } from "react-icons/lu";
@@ -113,6 +118,38 @@ export default function FieldCombobox({
                 {ctx.icon}
               </div>
               <div className="truncate text-foreground">{selected.label}</div>
+              {selected.description && (
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        aria-label={t`Field info`}
+                        className="ml-0.5 inline-flex shrink-0 cursor-help items-center justify-center rounded text-muted-foreground hover:text-foreground"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }
+                        }}
+                      >
+                        <LuInfo className="h-3.5 w-3.5" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      align="start"
+                      sideOffset={6}
+                      className="max-w-[32ch] text-xs leading-snug"
+                    >
+                      {selected.description}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
             </div>
           ) : (
             <div className="truncate">{placeholder ?? t`Select field`}</div>
@@ -150,32 +187,50 @@ export default function FieldCombobox({
                         </span>
                       }
                     >
-                      {fields.map((f) => (
-                        <CommandItem
-                          key={f.path}
-                          value={`${meta.label} ${f.label} ${f.path}`}
-                          onSelect={() => {
-                            onChange(f.path);
-                            setOpen(false);
-                          }}
-                          className="flex items-center gap-2 px-2 py-2"
-                        >
-                          <span className="flex min-w-0 flex-1 flex-col">
-                            <span className="truncate text-sm font-medium">
-                              {f.label}
+                      {fields.map((f) => {
+                        const item = (
+                          <CommandItem
+                            key={f.path}
+                            value={`${meta.label} ${f.label} ${f.path} ${f.description ?? ""}`}
+                            onSelect={() => {
+                              onChange(f.path);
+                              setOpen(false);
+                            }}
+                            className="flex items-center gap-2 px-2 py-2"
+                          >
+                            <span className="flex min-w-0 flex-1 flex-col">
+                              <span className="truncate text-sm font-medium">
+                                {f.label}
+                              </span>
+                              <span className="truncate text-xs text-muted-foreground">
+                                {f.path}
+                              </span>
                             </span>
-                            <span className="truncate text-xs text-muted-foreground">
-                              {f.path}
-                            </span>
-                          </span>
-                          <LuCheck
-                            className={cn(
-                              "h-4 w-4 shrink-0",
-                              value === f.path ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
+                            <LuCheck
+                              className={cn(
+                                "h-4 w-4 shrink-0",
+                                value === f.path ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        );
+                        if (!f.description) return item;
+                        return (
+                          <TooltipProvider key={f.path} delayDuration={300}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>{item}</TooltipTrigger>
+                              <TooltipContent
+                                side="right"
+                                align="start"
+                                sideOffset={8}
+                                className="max-w-[28ch] text-xs leading-snug"
+                              >
+                                {f.description}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        );
+                      })}
                     </CommandGroup>
                   </div>
                 );

@@ -10,13 +10,10 @@ import type {
   LoaderFunctionArgs
 } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
-import {
-  businessRuleValidator,
-  upsertBusinessRule
-} from "~/modules/businessRules";
-import BusinessRuleForm from "~/modules/businessRules/ui/BusinessRuleForm";
+import { customRuleValidator, upsertCustomRule } from "~/modules/customRules";
+import CustomRuleForm from "~/modules/customRules/ui/CustomRuleForm";
 import { getParams, path } from "~/utils/path";
-import { businessRulesQuery, getCompanyId } from "~/utils/react-query";
+import { customRulesQuery, getCompanyId } from "~/utils/react-query";
 
 const isTargetType = (value: string | null): value is TargetType =>
   value === "item" || value === "storageUnit" || value === "workCenter";
@@ -38,15 +35,15 @@ export async function action({ request }: ActionFunctionArgs) {
     request,
     client,
     companyId,
-    feature: "BUSINESS_RULES",
-    redirectTo: path.to.businessRules
+    feature: "CUSTOM_RULES",
+    redirectTo: path.to.customRules
   });
 
   const formData = await request.formData();
-  const validation = await validator(businessRuleValidator).validate(formData);
+  const validation = await validator(customRuleValidator).validate(formData);
   if (validation.error) return validation.error;
 
-  const insert = await upsertBusinessRule(client, {
+  const insert = await upsertCustomRule(client, {
     ...validation.data,
     description: validation.data.description ?? null,
     companyId,
@@ -60,24 +57,27 @@ export async function action({ request }: ActionFunctionArgs) {
     ).then(() => null);
   }
 
-  throw redirect(`${path.to.businessRules}?${getParams(request)}`);
+  throw redirect(`${path.to.customRules}?${getParams(request)}`);
 }
 
 export async function clientAction({ serverAction }: ClientActionFunctionArgs) {
   window?.clientCache?.setQueryData(
-    businessRulesQuery(getCompanyId()).queryKey,
+    customRulesQuery(getCompanyId()).queryKey,
     null
   );
   return await serverAction();
 }
 
-export default function NewBusinessRuleRoute() {
+export default function NewCustomRuleRoute() {
   const { targetType } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+  // navigate(-1) breaks when the page was opened directly (no history entry
+  // to pop). Always navigate forward to the parent list route — closes the
+  // drawer regardless of how the user got here.
   return (
-    <BusinessRuleForm
+    <CustomRuleForm
       initialValues={{ targetType }}
-      onClose={() => navigate(-1)}
+      onClose={() => navigate(path.to.customRules)}
     />
   );
 }

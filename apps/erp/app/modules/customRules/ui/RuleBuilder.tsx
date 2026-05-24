@@ -11,7 +11,8 @@ import {
   FIELD_REGISTRY,
   getFieldsForTargetType,
   type MatchKind,
-  type TargetType
+  type TargetType,
+  type TransactionSurface
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -24,6 +25,12 @@ type RuleBuilderProps = {
   name: string;
   initial?: ConditionAst;
   targetType?: TargetType;
+  /**
+   * Surfaces the rule is currently configured to fire on. Forwarded to each
+   * ConditionRow so the per-surface notes panel filters to the surfaces this
+   * rule actually triggers — not every surface valid for the targetType.
+   */
+  surfaces?: TransactionSurface[];
   /**
    * Notifies the parent of every condition-list change so siblings (e.g.
    * `MessageWithTokens`) can offer per-condition tokens that resolve to
@@ -41,6 +48,7 @@ export default function RuleBuilder({
   name,
   initial,
   targetType,
+  surfaces,
   onConditionsChange
 }: RuleBuilderProps) {
   const { t } = useLingui();
@@ -147,6 +155,7 @@ export default function RuleBuilder({
             onRemove={handleRemove}
             optionsByLoader={optionsByLoader}
             targetType={targetType}
+            surfaces={surfaces}
           />
         ))}
       </div>

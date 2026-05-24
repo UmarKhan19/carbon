@@ -5,7 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import {
   evaluateLinesForSurface,
   isBlocked
-} from "@carbon/ee/business-rules.server";
+} from "@carbon/ee/custom-rules.server";
 import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -31,9 +31,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // Resolve workCenter context off the operation so workCenter-scoped rules
   // can evaluate against this materialIssue.
+  // `workInstructionId` is in the runtime row but absent from the generated
+  // DB types (stale until next regen). Select * and let the manual cast
+  // below resolve the field; type only `workCenterId` directly off the row.
   const { data: jobOpRow } = await serviceRole
     .from("jobOperation")
-    .select("workCenterId, workInstructionId")
+    .select("workCenterId")
     .eq("id", jobOperationId)
     .maybeSingle();
 

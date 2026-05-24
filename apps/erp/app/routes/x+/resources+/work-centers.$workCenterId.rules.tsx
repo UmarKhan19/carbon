@@ -1,9 +1,9 @@
 import { notFound } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { getBusinessRulesDataForTarget } from "@carbon/ee/business-rules.server";
+import { getCustomRulesDataForTarget } from "@carbon/ee/custom-rules.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
-import RuleAssignmentsList from "~/modules/businessRules/ui/RuleAssignmentsList";
+import RuleAssignmentsList from "~/modules/customRules/ui/RuleAssignmentsList";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -13,7 +13,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { workCenterId } = params;
   if (!workCenterId) throw notFound("workCenterId required");
 
-  const data = await getBusinessRulesDataForTarget(client, {
+  const data = await getCustomRulesDataForTarget(client, {
     targetType: "workCenter",
     targetId: workCenterId,
     companyId
@@ -30,6 +30,7 @@ export default function WorkCenterRulesRoute() {
       targetId={workCenterId}
       assignments={assignments as never}
       library={library as never}
+      variant="flat"
     />
   );
 }

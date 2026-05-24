@@ -1246,25 +1246,25 @@ export const path = {
     consumableRules: (id: string) =>
       generatePath(`${x}/consumable/${id}/rules`),
     toolRules: (id: string) => generatePath(`${x}/tool/${id}/rules`),
-    businessRules: `${x}/settings/business-rules`,
-    businessRule: (id: string) =>
-      generatePath(`${x}/settings/business-rules/${id}`),
-    newBusinessRule: `${x}/settings/business-rules/new`,
-    deleteBusinessRule: (id: string) =>
-      generatePath(`${x}/settings/business-rules/${id}/delete`),
-    businessRuleAssignItem: (itemId: string) =>
+    customRules: `${x}/settings/custom-rules`,
+    customRule: (id: string) =>
+      generatePath(`${x}/settings/custom-rules/${id}`),
+    newCustomRule: `${x}/settings/custom-rules/new`,
+    deleteCustomRule: (id: string) =>
+      generatePath(`${x}/settings/custom-rules/${id}/delete`),
+    customRuleAssignItem: (itemId: string) =>
       generatePath(`${x}/items/rules/assign/${itemId}`),
-    businessRuleUnassignItem: (itemId: string, ruleId: string) =>
+    customRuleUnassignItem: (itemId: string, ruleId: string) =>
       generatePath(`${x}/items/rules/unassign/${itemId}/${ruleId}`),
-    businessRuleAssignStorageUnit: (id: string) =>
+    customRuleAssignStorageUnit: (id: string) =>
       generatePath(`${x}/inventory/storage-units/rules/assign/${id}`),
-    businessRuleUnassignStorageUnit: (id: string, ruleId: string) =>
+    customRuleUnassignStorageUnit: (id: string, ruleId: string) =>
       generatePath(
         `${x}/inventory/storage-units/rules/unassign/${id}/${ruleId}`
       ),
-    businessRuleAssignWorkCenter: (id: string) =>
+    customRuleAssignWorkCenter: (id: string) =>
       generatePath(`${x}/resources/work-centers/rules/assign/${id}`),
-    businessRuleUnassignWorkCenter: (id: string, ruleId: string) =>
+    customRuleUnassignWorkCenter: (id: string, ruleId: string) =>
       generatePath(
         `${x}/resources/work-centers/rules/unassign/${id}/${ruleId}`
       ),

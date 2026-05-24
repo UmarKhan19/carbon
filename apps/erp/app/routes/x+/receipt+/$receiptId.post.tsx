@@ -6,7 +6,7 @@ import {
   dedupeViolations,
   evaluateLinesForSurface,
   isBlocked
-} from "@carbon/ee/business-rules.server";
+} from "@carbon/ee/custom-rules.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -71,9 +71,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     Object.assign(allRuleNames, ruleNames);
   }
 
-  // Storage-unit pass — putaway side of the receipt. Same lines, different
+  // Storage-unit pass — place side of the receipt. Same lines, different
   // target. Transfers double-up via the warehouseTransfer surface.
-  const storageUnitSurfaces: ("putaway" | "warehouseTransfer")[] = ["putaway"];
+  const storageUnitSurfaces: ("place" | "warehouseTransfer")[] = ["place"];
   if (receiptForSurface?.sourceDocument === "Inbound Transfer") {
     storageUnitSurfaces.push("warehouseTransfer");
   }

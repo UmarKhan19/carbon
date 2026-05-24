@@ -1,6 +1,6 @@
 import type { Result } from "@carbon/auth";
 import { useCarbon } from "@carbon/auth";
-import { useBusinessRuleViolations } from "@carbon/ee/business-rules";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import {
   Badge,
   Button,
@@ -1215,7 +1215,7 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
   // Item Rule pre-flight on Create Transfer (auto-released → stock-commit
   // gate sits at the wizard click). Modal surfaces violations before the
   // transfer is created.
-  const createRules = useBusinessRuleViolations<Result>({
+  const createRules = useCustomRuleViolations<Result>({
     action: path.to.newStockTransfer,
     onSuccess: () => clearStockTransferWizard()
   });

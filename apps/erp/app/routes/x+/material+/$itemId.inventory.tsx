@@ -1,7 +1,7 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { getBusinessRulesDataForTarget } from "@carbon/ee/business-rules.server";
+import { getCustomRulesDataForTarget } from "@carbon/ee/custom-rules.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
 import { pluckUnique } from "@carbon/utils";
@@ -9,7 +9,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
-import RuleAssignmentsList from "~/modules/businessRules/ui/RuleAssignmentsList";
+import RuleAssignmentsList from "~/modules/customRules/ui/RuleAssignmentsList";
 import {
   getTrackedEntityExpirations,
   InventoryDetails
@@ -162,7 +162,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getItemShelfLife(client, itemId),
     getBomHasShelfLifeManagedInput(client, itemId, companyId),
     getTrackedEntityExpirations(client, trackedEntityIds),
-    getBusinessRulesDataForTarget(client, {
+    getCustomRulesDataForTarget(client, {
       targetType: "item",
       targetId: itemId,
       companyId

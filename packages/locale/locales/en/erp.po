@@ -1076,9 +1076,6 @@ msgstr "Bulk Import"
 msgid "Bulk Jobs"
 msgstr "Bulk Jobs"
 
-msgid "Business Rules"
-msgstr "Business Rules"
-
 msgid "Buy"
 msgstr "Buy"
 
@@ -1927,6 +1924,9 @@ msgstr "Custom Field"
 
 msgid "Custom Fields"
 msgstr "Custom Fields"
+
+msgid "Custom Rules"
+msgstr "Custom Rules"
 
 msgid "Customer"
 msgstr "Customer"
@@ -2899,12 +2899,6 @@ msgstr "End Date"
 msgid "End Time"
 msgstr "End Time"
 
-msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-msgstr "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-
-msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-msgstr "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 
@@ -3432,6 +3426,9 @@ msgstr "Fetch"
 msgid "Field"
 msgstr "Field"
 
+msgid "Field info"
+msgstr "Field info"
+
 msgid "Field Mapping"
 msgstr "Field Mapping"
 
@@ -3757,6 +3754,9 @@ msgstr "Infrastructure"
 
 msgid "Inherit From Materials"
 msgstr "Inherit From Materials"
+
+msgid "Inherited from"
+msgstr "Inherited from"
 
 msgid "Insert rows"
 msgstr "Insert rows"
@@ -5488,9 +5488,6 @@ msgstr "Pick a customer or customer type to view their pricing."
 
 msgid "Pick a date or leave blank to clear it."
 msgstr "Pick a date or leave blank to clear it."
-
-msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-msgstr "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
 
 msgid "Pick List"
 msgstr "Pick List"
@@ -7775,6 +7772,9 @@ msgstr "Un-sampled entities will remain On Hold so you can keep inspecting and d
 msgid "Unapproved Supplier"
 msgstr "Unapproved Supplier"
 
+msgid "Unassign from parent unit to remove"
+msgstr "Unassign from parent unit to remove"
+
 msgid "Unassign rule"
 msgstr "Unassign rule"
 
@@ -7892,11 +7892,12 @@ msgstr "Upgrade"
 msgid "Upgrade to Business"
 msgstr "Upgrade to Business"
 
+#. placeholder {0}: targetCopy.noun
+msgid "Upgrade to unlock {0} rules"
+msgstr "Upgrade to unlock {0} rules"
+
 msgid "Upgrade to unlock audit history"
 msgstr "Upgrade to unlock audit history"
-
-msgid "Upgrade to unlock item rules"
-msgstr "Upgrade to unlock item rules"
 
 msgid "Upload"
 msgstr "Upload"
@@ -7995,6 +7996,9 @@ msgstr "Validating job..."
 
 msgid "Value"
 msgstr "Value"
+
+msgid "Value source by surface"
+msgstr "Value source by surface"
 
 msgid "VAT Number"
 msgstr "VAT Number"

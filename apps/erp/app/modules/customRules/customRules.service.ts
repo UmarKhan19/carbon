@@ -1,6 +1,6 @@
-// ERP-only admin CRUD for the Settings → Business Rules page.
+// ERP-only admin CRUD for the Settings → Custom Rules page.
 // Cross-app queries (assignment loaders, list fetch for tab data, polymorphic
-// assign/unassign) live in `@carbon/ee/business-rules`.
+// assign/unassign) live in `@carbon/ee/custom-rules`.
 
 import type { Database, Json } from "@carbon/database";
 import type {
@@ -15,7 +15,7 @@ import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 
-type BusinessRuleInsert = {
+type CustomRuleInsert = {
   name: string;
   description?: string | null;
   message: string;
@@ -30,7 +30,7 @@ type BusinessRuleInsert = {
   customFields?: Json;
 };
 
-type BusinessRuleUpdate = {
+type CustomRuleUpdate = {
   id: string;
   name: string;
   description?: string | null;
@@ -44,7 +44,7 @@ type BusinessRuleUpdate = {
   customFields?: Json;
 };
 
-export async function getBusinessRules(
+export async function getCustomRules(
   client: SupabaseClient<Database>,
   companyId: string,
   args?: GenericQueryFilters & {
@@ -53,7 +53,7 @@ export async function getBusinessRules(
   }
 ) {
   let query = client
-    .from("businessRule")
+    .from("customRule")
     .select("*", { count: "exact" })
     .eq("companyId", companyId);
 
@@ -70,26 +70,26 @@ export async function getBusinessRules(
   return query;
 }
 
-export async function getBusinessRule(
+export async function getCustomRule(
   client: SupabaseClient<Database>,
   id: string
 ) {
-  return client.from("businessRule").select("*").eq("id", id).single();
+  return client.from("customRule").select("*").eq("id", id).single();
 }
 
-export async function upsertBusinessRule(
+export async function upsertCustomRule(
   client: SupabaseClient<Database>,
-  rule: BusinessRuleInsert | BusinessRuleUpdate
+  rule: CustomRuleInsert | CustomRuleUpdate
 ) {
   if ("createdBy" in rule) {
     return client
-      .from("businessRule")
+      .from("customRule")
       .insert({ ...rule, conditionAst: rule.conditionAst as unknown as Json })
       .select("id")
       .single();
   }
   return client
-    .from("businessRule")
+    .from("customRule")
     .update({
       ...sanitize(rule),
       conditionAst: rule.conditionAst as unknown as Json,
@@ -100,11 +100,11 @@ export async function upsertBusinessRule(
     .single();
 }
 
-export async function deleteBusinessRule(
+export async function deleteCustomRule(
   client: SupabaseClient<Database>,
   id: string
 ) {
-  return client.from("businessRule").delete().eq("id", id);
+  return client.from("customRule").delete().eq("id", id);
 }
 
 export async function getRuleAssignmentCounts(
@@ -117,13 +117,13 @@ export async function getRuleAssignmentCounts(
 
   const counts: Record<string, number> = {};
   const tables: Array<
-    | "businessRuleItemAssignment"
-    | "businessRuleStorageUnitAssignment"
-    | "businessRuleWorkCenterAssignment"
+    | "customRuleItemAssignment"
+    | "customRuleStorageUnitAssignment"
+    | "customRuleWorkCenterAssignment"
   > = [
-    "businessRuleItemAssignment",
-    "businessRuleStorageUnitAssignment",
-    "businessRuleWorkCenterAssignment"
+    "customRuleItemAssignment",
+    "customRuleStorageUnitAssignment",
+    "customRuleWorkCenterAssignment"
   ];
 
   for (const table of tables) {

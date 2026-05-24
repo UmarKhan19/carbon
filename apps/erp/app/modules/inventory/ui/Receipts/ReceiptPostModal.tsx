@@ -1,5 +1,5 @@
 import { useCarbon } from "@carbon/auth";
-import { useBusinessRuleViolations } from "@carbon/ee/business-rules";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import {
   Alert,
   AlertDescription,
@@ -139,7 +139,7 @@ const ReceiptPostModal = ({ onClose }: { onClose: () => void }) => {
     validateReceiptTracking();
   });
 
-  const ruleViolations = useBusinessRuleViolations({
+  const ruleViolations = useCustomRuleViolations({
     action: path.to.receiptPost(receiptId),
     onSuccess: onClose
   });

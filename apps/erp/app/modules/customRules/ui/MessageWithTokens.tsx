@@ -63,7 +63,7 @@ const CTX_KEYS_BY_SURFACE: Record<TransactionSurface, FieldDef["context"][]> = {
   stockTransfer: ["storage", "transaction"],
   warehouseTransfer: ["storage", "transaction"],
   inventoryAdjustment: ["storage", "transaction"],
-  putaway: ["storage", "transaction"],
+  place: ["storage", "transaction"],
   pick: ["storage", "transaction"],
   operationStart: ["workCenter", "operation", "transaction"],
   operationFinish: ["workCenter", "operation", "transaction"],
@@ -102,7 +102,7 @@ const ORDERED_CTX: FieldDef["context"][] = ["storage", "transaction"];
 // reallocate the icon element (rendering-hoist-jsx).
 const BRACES_ICON = <LuBraces />;
 
-// Mirror of the runtime `TOKEN_RE` in packages/utils/src/businessRules.ts so the
+// Mirror of the runtime `TOKEN_RE` in packages/utils/src/customRules.ts so the
 // editor highlights exactly what `interpolateMessage` will substitute — no
 // false greens, no missed reds. Inlined rather than re-exported to avoid a
 // UI → runtime import cycle.

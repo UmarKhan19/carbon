@@ -1,4 +1,4 @@
-// Server-side business-rules evaluator. Cross-app entry point — ERP
+// Server-side custom-rules evaluator. Cross-app entry point — ERP
 // (item/storageUnit surfaces) and MES (workCenter surfaces) both call
 // `evaluateLinesForSurface`.
 //
@@ -23,7 +23,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { companyHasPlan } from "../plan.server";
 import {
   getActiveRulesForTargets,
-  getBusinessRulesList,
+  getCustomRulesList,
   getRuleAssignmentsForTarget
 } from "./service";
 
@@ -33,11 +33,11 @@ type Client = SupabaseClient<Database>;
 // Plan gate
 // ---------------------------------------------------------------------------
 
-export const isBusinessRulesEnabledForCompany = (
+export const isCustomRulesEnabledForCompany = (
   client: Client,
   companyId: string
 ): Promise<boolean> =>
-  companyHasPlan(client, companyId, { feature: "BUSINESS_RULES" });
+  companyHasPlan(client, companyId, { feature: "CUSTOM_RULES" });
 
 // ---------------------------------------------------------------------------
 // Block decision
@@ -87,23 +87,35 @@ type AssignedRuleNode = {
   appliesToAll: boolean;
 };
 
-export async function getBusinessRulesDataForTarget(
+export async function getCustomRulesDataForTarget(
   client: Client,
   args: { targetType: TargetType; targetId: string; companyId: string }
 ) {
   const [assignmentsRes, libraryRes] = await Promise.all([
     getRuleAssignmentsForTarget(client, args),
-    getBusinessRulesList(client, args.companyId, args.targetType)
+    getCustomRulesList(client, args.companyId, args.targetType)
   ]);
 
-  const assignments: { ruleId: string; rule: AssignedRuleNode }[] = [];
+  // Forward inheritance metadata so the drawer can tag inherited rows.
+  const assignments: {
+    ruleId: string;
+    rule: AssignedRuleNode;
+    inheritedFromId: string | null;
+    inheritedFromName: string | null;
+  }[] = [];
   for (const row of assignmentsRes.data ?? []) {
-    const joined = (
-      row as { businessRule: AssignedRuleNode | AssignedRuleNode[] | null }
-    ).businessRule;
+    const joined = row.customRule as
+      | AssignedRuleNode
+      | AssignedRuleNode[]
+      | null;
     const rule = Array.isArray(joined) ? joined[0] : joined;
     if (!rule) continue;
-    assignments.push({ ruleId: row.ruleId as string, rule });
+    assignments.push({
+      ruleId: row.ruleId,
+      rule,
+      inheritedFromId: row.inheritedFromId,
+      inheritedFromName: row.inheritedFromName
+    });
   }
 
   return { assignments, library: libraryRes.data ?? [] };
@@ -310,7 +322,7 @@ export async function evaluateLinesForSurface({
   lines
 }: EvaluateLinesForSurfaceArgs): Promise<EvaluateLinesForSurfaceResult> {
   if (lines.length === 0) return EMPTY_RESULT;
-  if (!(await isBusinessRulesEnabledForCompany(client, companyId)))
+  if (!(await isCustomRulesEnabledForCompany(client, companyId)))
     return EMPTY_RESULT;
 
   const targetIds = new Set<string>();
@@ -326,6 +338,77 @@ export async function evaluateLinesForSurface({
     if (line.operation?.itemId) itemIds.add(line.operation.itemId);
   }
   if (targetIds.size === 0) return EMPTY_RESULT;
+
+  // Walk the storage-unit tree for every line that carries a bin id. Two
+  // inheritance behaviours hang off this fetch:
+  //   1. Rules assigned to a parent bin (e.g. "Grow Room") fire on every
+  //      descendant — expand the rule-assignment lookup set with each line
+  //      bin's ancestorPath.
+  //   2. Storage types cascade: a child bin implicitly carries every
+  //      `storageTypeIds` declared on itself OR any ancestor. The evaluator
+  //      unions them when populating `ctx.storageUnit.storageTypeId` below.
+  // One round-trip; selects `storageTypeIds` so the union doesn't need a
+  // second fetch.
+  const ancestorsByBin = new Map<string, string[]>();
+  const storageTypesByBin = new Map<string, string[]>();
+  let expandedTargetIds: string[] = Array.from(targetIds);
+  if (storageUnitIds.size > 0) {
+    const ids = Array.from(storageUnitIds);
+    const ancestorsRes = await (client as Client)
+      .from("storageUnits_recursive")
+      .select("id, ancestorPath, storageTypeIds")
+      .in("id", ids)
+      .eq("companyId", companyId);
+
+    const expanded = new Set<string>(ids);
+    const ancestorIds = new Set<string>();
+    for (const row of (ancestorsRes.data ?? []) as Array<{
+      id: string;
+      ancestorPath: string[] | null;
+      storageTypeIds: string[] | null;
+    }>) {
+      const chain =
+        row.ancestorPath && row.ancestorPath.length > 0
+          ? row.ancestorPath
+          : [row.id];
+      ancestorsByBin.set(row.id, chain);
+      if (row.storageTypeIds) storageTypesByBin.set(row.id, row.storageTypeIds);
+      for (const a of chain) {
+        expanded.add(a);
+        ancestorIds.add(a);
+      }
+    }
+    for (const id of ids) {
+      if (!ancestorsByBin.has(id)) ancestorsByBin.set(id, [id]);
+    }
+
+    // Second fetch: storageTypeIds for ancestor bins not in the line-bin set
+    // (the first query only returned rows for the bins we asked about, not
+    // their ancestors). Skip if every ancestor was already in the line set.
+    const missing = Array.from(ancestorIds).filter(
+      (id) => !storageTypesByBin.has(id) && !ids.includes(id)
+    );
+    if (missing.length > 0) {
+      const ancestorRowsRes = await (client as Client)
+        .from("storageUnits_recursive")
+        .select("id, storageTypeIds")
+        .in("id", missing)
+        .eq("companyId", companyId);
+      for (const row of (ancestorRowsRes.data ?? []) as Array<{
+        id: string;
+        storageTypeIds: string[] | null;
+      }>) {
+        if (row.storageTypeIds)
+          storageTypesByBin.set(row.id, row.storageTypeIds);
+      }
+    }
+
+    // Only the storageUnit-target rule lookup uses the expanded set; item /
+    // workCenter rule queries still scope to their own target ids.
+    if (targetType === "storageUnit") {
+      expandedTargetIds = Array.from(expanded);
+    }
+  }
 
   const [itemsRes, storageUnitsRes, workCentersRes, compiledByTarget] =
     await Promise.all([
@@ -351,14 +434,14 @@ export async function evaluateLinesForSurface({
         : Promise.resolve({ data: [], error: null }),
       loadCompiledRulesForTargets(client, {
         targetType,
-        targetIds: Array.from(targetIds),
+        targetIds: expandedTargetIds,
         companyId
       })
     ]);
 
   const itemsById = new Map<string, ItemCtxRow>();
   for (const it of itemsRes.data ?? []) {
-    const row = it as Record<string, unknown>;
+    const row = it as unknown as Record<string, unknown>;
     const readable = row.readableId as string | undefined;
     itemsById.set(row.id as string, {
       ...row,
@@ -369,10 +452,24 @@ export async function evaluateLinesForSurface({
   const unitsById = new Map<string, StorageUnitCtxRow>();
   for (const u of storageUnitsRes.data ?? []) {
     const row = u as Record<string, unknown>;
-    const ids = row.storageTypeIds as string[] | null | undefined;
-    unitsById.set(row.id as string, {
+    const binId = row.id as string;
+    // Union storage types across the ancestor chain so a child bin inherits
+    // every type declared on itself + every parent. Predicates like
+    // `storageUnit.storageTypeId eq frozen` then match when ANY ancestor
+    // (incl. self) carries "frozen".
+    const chain = ancestorsByBin.get(binId) ?? [binId];
+    const unionedTypes = new Set<string>();
+    for (const ancestorId of chain) {
+      const ownTypes =
+        ancestorId === binId
+          ? (row.storageTypeIds as string[] | null | undefined)
+          : storageTypesByBin.get(ancestorId);
+      if (ownTypes) for (const t of ownTypes) unionedTypes.add(t);
+    }
+    unitsById.set(binId, {
       ...row,
-      storageTypeId: ids && ids.length > 0 ? ids : undefined
+      storageTypeId:
+        unionedTypes.size > 0 ? Array.from(unionedTypes) : undefined
     });
   }
 
@@ -392,17 +489,46 @@ export async function evaluateLinesForSurface({
   for (const line of lines) {
     const targetId = lineTargetIdFor(line, targetType);
     if (!targetId) continue;
-    const compiled = compiledByTarget.get(targetId);
+
+    // StorageUnit target: union rules from every ancestor bin (inheritance).
+    // Other targets: single key lookup. Dedupe by rule.id so an ancestor +
+    // self-assignment of the same rule fires only once per line.
+    let compiled: CompiledRule[] | undefined;
+    if (targetType === "storageUnit") {
+      const chain = ancestorsByBin.get(targetId) ?? [targetId];
+      const seen = new Set<string>();
+      const merged: CompiledRule[] = [];
+      for (const ancestorId of chain) {
+        const rules = compiledByTarget.get(ancestorId);
+        if (!rules) continue;
+        for (const r of rules) {
+          if (seen.has(r.id)) continue;
+          seen.add(r.id);
+          merged.push(r);
+        }
+      }
+      compiled = merged.length > 0 ? merged : undefined;
+    } else {
+      compiled = compiledByTarget.get(targetId);
+    }
     if (!compiled || compiled.length === 0) continue;
 
+    // Fallback id-only ctx objects when the DB lookup misses the row (RLS,
+    // missing record, late insert). Keeps `{item.id}` / `{storageUnit.id}` /
+    // `{workCenter.id}` token interpolation working — the violation modal
+    // shouldn't render "—" just because the join didn't materialize.
     const storageUnit = line.storageUnitId
-      ? unitsById.get(line.storageUnitId)
+      ? (unitsById.get(line.storageUnitId) ?? { id: line.storageUnitId })
       : undefined;
 
     const ctx: RuleContext = {
-      item: line.itemId ? itemsById.get(line.itemId) : undefined,
+      item: line.itemId
+        ? (itemsById.get(line.itemId) ?? { id: line.itemId })
+        : undefined,
       storageUnit,
-      workCenter: line.workCenterId ? wcById.get(line.workCenterId) : undefined,
+      workCenter: line.workCenterId
+        ? (wcById.get(line.workCenterId) ?? { id: line.workCenterId })
+        : undefined,
       operation: line.operation
         ? {
             id: line.operation.id ?? undefined,
@@ -436,7 +562,7 @@ export async function evaluateLinesForSurface({
   for (let i = 0; i < deduped.length; i++) violatedIds.add(deduped[i]!.ruleId);
 
   const { data: namedRules } = await client
-    .from("businessRule")
+    .from("customRule")
     .select("id, name")
     .in("id", Array.from(violatedIds));
 

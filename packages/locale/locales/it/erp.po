@@ -1076,9 +1076,6 @@ msgstr "Importazione in blocco"
 msgid "Bulk Jobs"
 msgstr "Lavori in Blocco"
 
-msgid "Business Rules"
-msgstr ""
-
 msgid "Buy"
 msgstr "Acquista"
 
@@ -1927,6 +1924,9 @@ msgstr "Campo Personalizzato"
 
 msgid "Custom Fields"
 msgstr "Campi Personalizzati"
+
+msgid "Custom Rules"
+msgstr ""
 
 msgid "Customer"
 msgstr "Cliente"
@@ -2899,12 +2899,6 @@ msgstr "Data di fine"
 msgid "End Time"
 msgstr "Ora di fine"
 
-msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-msgstr "Applica vincoli su ricevute, spedizioni, trasferimenti e operazioni di lavoro per questo articolo."
-
-msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-msgstr "Applica la convalida per articolo su ricevute, spedizioni, trasferimenti e rettifiche."
-
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Applica la convalida per articolo e le linee guida su ricevute, spedizioni, trasferimenti e rettifiche."
 
@@ -3432,6 +3426,9 @@ msgstr "Recupera"
 msgid "Field"
 msgstr "Campo"
 
+msgid "Field info"
+msgstr ""
+
 msgid "Field Mapping"
 msgstr "Mappatura campi"
 
@@ -3757,6 +3754,9 @@ msgstr "Infrastruttura"
 
 msgid "Inherit From Materials"
 msgstr "Eredita dai Materiali"
+
+msgid "Inherited from"
+msgstr ""
 
 msgid "Insert rows"
 msgstr "Inserisci righe"
@@ -5488,9 +5488,6 @@ msgstr "Seleziona un cliente o un tipo di cliente per visualizzare i loro prezzi
 
 msgid "Pick a date or leave blank to clear it."
 msgstr "Scegli una data o lascia vuoto per cancellarla."
-
-msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-msgstr "Seleziona una regola esistente dalla libreria o creane una nuova per iniziare a applicare vincoli su questo articolo."
 
 msgid "Pick List"
 msgstr "Elenco di prelievo"
@@ -7775,6 +7772,9 @@ msgstr "Le entitÃƒÆ’Ã‚Â  non campionate rimarranno In Sospeso in modo 
 msgid "Unapproved Supplier"
 msgstr "Fornitore non approvato"
 
+msgid "Unassign from parent unit to remove"
+msgstr ""
+
 msgid "Unassign rule"
 msgstr "Annulla assegnazione regola"
 
@@ -7892,11 +7892,12 @@ msgstr "Aggiorna"
 msgid "Upgrade to Business"
 msgstr "Passa a Business"
 
+#. placeholder {0}: targetCopy.noun
+msgid "Upgrade to unlock {0} rules"
+msgstr ""
+
 msgid "Upgrade to unlock audit history"
 msgstr "Aggiorna per sbloccare la cronologia di audit"
-
-msgid "Upgrade to unlock item rules"
-msgstr "Esegui l'upgrade per sbloccare le regole degli articoli"
 
 msgid "Upload"
 msgstr "Carica"
@@ -7995,6 +7996,9 @@ msgstr "Convalida processo..."
 
 msgid "Value"
 msgstr "Valore"
+
+msgid "Value source by surface"
+msgstr ""
 
 msgid "VAT Number"
 msgstr "Numero IVA"

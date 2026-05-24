@@ -1,5 +1,5 @@
 import { useCarbon } from "@carbon/auth";
-import { useBusinessRuleViolations } from "@carbon/ee/business-rules";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import { InputControlled, ValidatedForm } from "@carbon/form";
 import {
   Button,
@@ -73,7 +73,7 @@ const WarehouseTransferForm = ({
   // Item rules eval at every "go" status transition (Confirm/Ship/Receive/
   // Complete). Surface violations through the hook's modal rather than the
   // plain navigation path.
-  const statusRules = useBusinessRuleViolations<typeof statusAction>({
+  const statusRules = useCustomRuleViolations<typeof statusAction>({
     action: warehouseTransfer?.id
       ? path.to.warehouseTransferStatus(warehouseTransfer.id)
       : ""

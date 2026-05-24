@@ -152,8 +152,8 @@ export default function useSettingsSubmodules() {
             icon: <LuCircleCheck />
           },
           {
-            name: t`Business Rules`,
-            to: path.to.businessRules,
+            name: t`Custom Rules`,
+            to: path.to.customRules,
             role: "employee",
             icon: <LuShieldCheck />
           },

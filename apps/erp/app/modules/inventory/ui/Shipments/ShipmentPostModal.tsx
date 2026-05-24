@@ -1,5 +1,5 @@
 import { useCarbon } from "@carbon/auth";
-import { useBusinessRuleViolations } from "@carbon/ee/business-rules";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import {
   Alert,
   AlertDescription,
@@ -219,7 +219,7 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
     validateShipmentTracking();
   });
 
-  const ruleViolations = useBusinessRuleViolations({
+  const ruleViolations = useCustomRuleViolations({
     action: path.to.shipmentPost(shipmentId),
     onSuccess: onClose
   });

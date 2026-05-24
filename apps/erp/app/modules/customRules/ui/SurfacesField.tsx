@@ -12,6 +12,7 @@ import {
   type TransactionSurface
 } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
+import { useEffect } from "react";
 import {
   LuArrowRightLeft,
   LuPackage,
@@ -49,8 +50,8 @@ const SURFACE_META: Record<
     description: "Manual quantity edits at a storage unit",
     icon: <LuScale />
   },
-  putaway: {
-    title: "Putaway",
+  place: {
+    title: "Place",
     description: "When stock is placed into a storage unit",
     icon: <LuPackage />
   },
@@ -85,6 +86,12 @@ type SurfacesFieldProps = {
   name: string;
   label?: string;
   targetType?: "item" | "storageUnit" | "workCenter";
+  /**
+   * Mirrors the live `value` to the parent so siblings (e.g. ConditionRow's
+   * per-surface notes panel) can filter against the rule's actual surfaces
+   * rather than every surface valid for the targetType. Identity untracked.
+   */
+  onSurfacesChange?: (next: TransactionSurface[]) => void;
 };
 
 /**
@@ -97,12 +104,20 @@ type SurfacesFieldProps = {
 export default function SurfacesField({
   name,
   label,
-  targetType
+  targetType,
+  onSurfacesChange
 }: SurfacesFieldProps) {
   const { t } = useLingui();
   const { error, isOptional } = useField(name);
   const [value, setValue] = useControlField<TransactionSurface[]>(name);
   const selected = value ?? [];
+
+  // Mirror selection up to the form. Identity of `onSurfacesChange` not
+  // tracked — parent wraps in `useCallback` if it needs stability.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: callback identity intentionally untracked
+  useEffect(() => {
+    onSurfacesChange?.(selected);
+  }, [selected]);
 
   const allowed = targetType
     ? new Set<TransactionSurface>(SURFACES_BY_TARGET_TYPE[targetType])

@@ -1,6 +1,6 @@
-// Business Rules evaluator. AST → JIT-compiled closure with LRU cache.
+// Custom Rules evaluator. AST → JIT-compiled closure with LRU cache.
 // Used server-side on transactions (receipt, shipment, stock transfer,
-// inventory adjustment, putaway, pick, operation start/finish, material
+// inventory adjustment, place, pick, operation start/finish, material
 // issue/receive) to enforce per-entity validation/guideline rules.
 //
 // Each rule binds to a single `TargetType` (`item`, `storageUnit`, or
@@ -22,7 +22,7 @@ export type Severity = "error" | "warn";
 /**
  * Which entity a rule applies to. Drives the field registry slice the
  * builder shows the author, and the assignment table the loader joins.
- * Mirrors the Postgres ENUM `businessRuleTargetType`.
+ * Mirrors the Postgres ENUM `customRuleTargetType`.
  */
 export const TARGET_TYPES = ["item", "storageUnit", "workCenter"] as const;
 export type TargetType = (typeof TARGET_TYPES)[number];
@@ -43,7 +43,7 @@ export const TRANSACTION_SURFACES = [
   "stockTransfer",
   "warehouseTransfer",
   "inventoryAdjustment",
-  "putaway",
+  "place",
   "pick",
   "operationStart",
   "operationFinish",
@@ -72,7 +72,7 @@ export const SURFACES_BY_TARGET_TYPE: Record<
     "warehouseTransfer",
     "inventoryAdjustment"
   ],
-  storageUnit: ["putaway", "pick", "stockTransfer", "warehouseTransfer"],
+  storageUnit: ["place", "pick", "stockTransfer", "warehouseTransfer"],
   workCenter: [
     "operationStart",
     "operationFinish",
@@ -114,7 +114,7 @@ export type RuleContext = {
   transaction?: Record<string, unknown>;
 };
 
-export type BusinessRuleRow = {
+export type CustomRuleRow = {
   id: string;
   targetType: TargetType;
   severity: Severity;
@@ -259,7 +259,7 @@ const defaultSurfacesFor = (
   targetType: TargetType
 ): readonly TransactionSurface[] => SURFACES_BY_TARGET_TYPE[targetType];
 
-export const compileRule = (row: BusinessRuleRow): CompiledRule => ({
+export const compileRule = (row: CustomRuleRow): CompiledRule => ({
   id: row.id,
   targetType: row.targetType,
   severity: row.severity,
@@ -298,7 +298,7 @@ const fnv1a = (s: string): string => {
   return h.toString(36);
 };
 
-const cacheKey = (row: BusinessRuleRow): string => {
+const cacheKey = (row: CustomRuleRow): string => {
   // Hash bits that drive compilation output, including targetType so two
   // rules with identical AST but different targets cannot collide.
   const contentHash = fnv1a(
@@ -307,7 +307,7 @@ const cacheKey = (row: BusinessRuleRow): string => {
   return `${row.id}:${row.updatedAt ?? ""}:${contentHash}`;
 };
 
-export const compileWithCache = (row: BusinessRuleRow): CompiledRule => {
+export const compileWithCache = (row: CustomRuleRow): CompiledRule => {
   const key = cacheKey(row);
   const hit = cache.get(key);
   if (hit) {
@@ -324,11 +324,11 @@ export const compileWithCache = (row: BusinessRuleRow): CompiledRule => {
   return compiled;
 };
 
-export const __resetBusinessRulesCache = (): void => {
+export const __resetCustomRulesCache = (): void => {
   cache.clear();
 };
 
-export const __businessRulesCacheSize = (): number => cache.size;
+export const __customRulesCacheSize = (): number => cache.size;
 
 // ---------------------------------------------------------------------------
 // Message interpolation
@@ -490,7 +490,17 @@ type ExpectedNullable<
   C extends keyof Tables[T]["Row"]
 > = IsNullable<Tables[T]["Row"][C]>;
 
-export type FieldType = "string" | "number" | "enum" | "id";
+export type FieldType =
+  | "string"
+  | "number"
+  | "enum"
+  | "id"
+  /**
+   * Special-cased id picker: the rule builder renders a hierarchical
+   * (location → drill-down) storage-unit selector instead of a flat combobox.
+   * Values stored as the chosen storage unit's UUID.
+   */
+  | "storageUnit";
 
 export type ValueOptionsLoader =
   | "locations"
@@ -513,11 +523,14 @@ export type FieldDef = {
   operators: Operator[];
   context: FieldContext;
   /**
-   * Which rule `targetType`(s) may reference this field. `"shared"` means
-   * available regardless of targetType — typically used for `transaction.*`
-   * and ctx-style synthetic fields that the trigger handler always supplies.
+   * Which rule `targetType`(s) may reference this field.
+   * - `"shared"`            → visible to every targetType (e.g. `transaction.*`)
+   * - `TargetType`          → visible only to that one targetType
+   * - `readonly TargetType[]` → visible to each targetType in the list (e.g.
+   *   `["item", "storageUnit"]` for storage-unit fields that make sense on
+   *   both item-target and storageUnit-target rules)
    */
-  targetType: TargetType | "shared";
+  targetType: TargetType | "shared" | readonly TargetType[];
   valueOptionsLoader?: ValueOptionsLoader;
   /**
    * `true` (default) — column is nullable; `isSet`/`isNotSet` are valid.
@@ -525,6 +538,13 @@ export type FieldDef = {
    *                     stripped from the available operator list.
    */
   nullable?: boolean;
+  /**
+   * Human-readable note on where this field's value originates. Surfaced in
+   * the rule-builder UI under the field selector so authors understand what
+   * they're testing against. Synthetic fields receive their `derivedFrom`
+   * string here automatically.
+   */
+  description?: string;
 };
 
 const PRESENCE_OPS = new Set<Operator>(["isSet", "isNotSet"]);
@@ -559,6 +579,7 @@ const fields = {
     targetType: FieldDef["targetType"];
     ctxKey?: string;
     valueOptionsLoader?: ValueOptionsLoader;
+    description?: string;
   }): FieldDef => ({
     path: `${args.ctxKey ?? args.table}.${args.column}`,
     label: args.label,
@@ -567,7 +588,8 @@ const fields = {
     context: args.context,
     targetType: args.targetType,
     valueOptionsLoader: args.valueOptionsLoader,
-    nullable: args.nullable
+    nullable: args.nullable,
+    description: args.description
   }),
 
   synthetic: (args: {
@@ -588,7 +610,8 @@ const fields = {
     context: args.context,
     targetType: args.targetType,
     valueOptionsLoader: args.valueOptionsLoader,
-    nullable: args.nullable
+    nullable: args.nullable,
+    description: args.derivedFrom
   })
 };
 
@@ -597,17 +620,25 @@ const fields = {
 // populated for a subset of surfaces are intentionally excluded — rule
 // authors should never write a predicate that silently no-ops on some surface.
 //
+// Cross-target fields (e.g. storageUnit.* visible to both item + storageUnit
+// rules) use the array form of `targetType`. For item-target surfaces the
+// storageUnit ctx may be undefined when `line.storageUnitId` is null
+// (inventoryAdjustment without a bin, warehouseTransfer with no destination
+// yet); we mark such fields `nullable: true` so `availableOperators` exposes
+// `isSet`/`isNotSet` and authors can guard explicitly.
+//
 // Dropped vs. earlier drafts (kept here as audit trail):
 //   - item.itemPostingGroupId  → evaluator SELECT doesn't include the join
 //   - shelf.locationId         → `shelf` is not a RuleContext root key
-//   - storageUnit.* (item target) → storageUnit ctx only loaded when
-//                                   line.storageUnitId is set; inventoryAdjustment
-//                                   may omit it
 //   - transaction.locationId   → sometimes null per surface
 //   - operation.itemId         → null at operationStart (no item bound yet)
 //   - operation.workInstructionId → may be null on operations
 export const FIELD_REGISTRY: FieldDef[] = [
-  // ── Item target ───────────────────────────────────────────────────────────
+  // ── Item context (item + storageUnit targets) ─────────────────────────────
+  // All storageUnit-target surfaces (place, pick, stockTransfer,
+  // warehouseTransfer) carry a `line.itemId`, so the evaluator loads item
+  // ctx and these fields resolve. Item DB columns are NOT NULL so no
+  // nullable change.
   fields.database({
     table: "item",
     column: "type",
@@ -616,7 +647,7 @@ export const FIELD_REGISTRY: FieldDef[] = [
     type: "enum",
     operators: ENUM_OPS,
     context: "item",
-    targetType: "item",
+    targetType: ["item", "storageUnit"],
     valueOptionsLoader: "itemTypes"
   }),
   fields.database({
@@ -627,7 +658,7 @@ export const FIELD_REGISTRY: FieldDef[] = [
     type: "enum",
     operators: ENUM_OPS,
     context: "item",
-    targetType: "item",
+    targetType: ["item", "storageUnit"],
     valueOptionsLoader: "replenishmentSystems"
   }),
   fields.database({
@@ -638,34 +669,54 @@ export const FIELD_REGISTRY: FieldDef[] = [
     type: "enum",
     operators: ENUM_OPS,
     context: "item",
-    targetType: "item",
+    targetType: ["item", "storageUnit"],
     valueOptionsLoader: "itemTrackingTypes"
   }),
 
-  // ── StorageUnit target ────────────────────────────────────────────────────
-  // storageUnit is the target — always loaded by the evaluator.
+  // ── StorageUnit context (item + storageUnit targets) ──────────────────────
+  // Always loaded by the evaluator for storageUnit-target rules; loaded when
+  // `line.storageUnitId` is set for item-target rules. `nullable: true` on
+  // every entry so item rules can guard with `isSet`/`isNotSet`.
+  fields.synthetic({
+    path: "storageUnit.id",
+    derivedFrom: "The bin chosen on this transaction line.",
+    nullable: true,
+    label: "Storage unit",
+    // `"storageUnit"` triggers the hierarchical drill-down picker in the
+    // rule-builder UI (Location → drilldown). No flat loader needed.
+    type: "storageUnit",
+    // Drill picker selects a single bin — `in`/`notIn` would require a
+    // multi-select UI that doesn't exist. Restrict to scalar ops.
+    operators: SCALAR_OPS,
+    context: "storage",
+    targetType: ["item", "storageUnit"]
+  }),
   fields.synthetic({
     path: "storageUnit.storageTypeId",
-    derivedFrom: "first element of storageUnit.storageTypeIds[]",
+    derivedFrom: "The bin's primary storage type (e.g. cold, hazmat, dry).",
     nullable: true,
     label: "Storage type",
     type: "id",
     operators: ID_OPS,
     context: "storage",
-    targetType: "storageUnit",
+    targetType: ["item", "storageUnit"],
     valueOptionsLoader: "storageTypes"
   }),
   // Useful for `appliesToAll` rules that want to scope by physical location —
-  // e.g. "block pick from any unit in the quarantine warehouse".
-  fields.database({
-    table: "storageUnit",
-    column: "locationId",
-    nullable: false,
+  // e.g. "block pick from any unit in the quarantine warehouse". Declared as
+  // synthetic (not database) so `nullable: true` overrides the DB NOT NULL —
+  // ctx itself can be undefined for item-target rules when `line.storageUnitId`
+  // is null.
+  fields.synthetic({
+    path: "storageUnit.locationId",
+    derivedFrom:
+      "Physical location (warehouse or site) holding the chosen bin.",
+    nullable: true,
     label: "Storage unit location",
     type: "id",
     operators: ID_OPS,
     context: "storage",
-    targetType: "storageUnit",
+    targetType: ["item", "storageUnit"],
     valueOptionsLoader: "locations"
   }),
 
@@ -698,7 +749,8 @@ export const FIELD_REGISTRY: FieldDef[] = [
   // field is guaranteed across all surfaces.
   fields.synthetic({
     path: "transaction.quantity",
-    derivedFrom: "line.quantity from receipt/shipment/transfer/operation",
+    derivedFrom:
+      "Quantity moved or applied by this transaction. Meaning shifts per surface — see per-surface notes below.",
     nullable: false,
     label: "Transaction quantity",
     type: "number",
@@ -710,13 +762,16 @@ export const FIELD_REGISTRY: FieldDef[] = [
 
 /**
  * Subset of the registry visible to a rule of a given `targetType`. Includes
- * all fields explicitly declared for that target plus the `shared` set.
+ * all fields explicitly declared for that target plus the `shared` set, plus
+ * any field whose `targetType` is an array containing the requested target.
  * Builder UI filters its field dropdown through this helper.
  */
 export const getFieldsForTargetType = (targetType: TargetType): FieldDef[] =>
-  FIELD_REGISTRY.filter(
-    (f) => f.targetType === targetType || f.targetType === "shared"
-  );
+  FIELD_REGISTRY.filter((f) => {
+    if (f.targetType === "shared") return true;
+    if (Array.isArray(f.targetType)) return f.targetType.includes(targetType);
+    return f.targetType === targetType;
+  });
 
 export const getFieldDef = (path: string): FieldDef | undefined => {
   // Custom fields are dynamic — accept any item.customFields.* path.
@@ -727,8 +782,74 @@ export const getFieldDef = (path: string): FieldDef | undefined => {
       type: "string",
       operators: SCALAR_OPS,
       context: "item",
-      targetType: "item"
+      targetType: "item",
+      description: "Custom field on the item record."
     };
   }
   return FIELD_REGISTRY.find((f) => f.path === path);
 };
+
+// ---------------------------------------------------------------------------
+// Per-surface field semantics
+// ---------------------------------------------------------------------------
+//
+// Some fields carry different meaning depending on which surface fires the
+// rule. `transaction.quantity` is the prime example — it's the line qty on a
+// receipt, the planned op qty on `operationStart`, the scan delta on
+// `operationFinish`, etc. Surface this so rule authors don't write predicates
+// that work on one surface and silently misfire on another.
+
+const TRANSACTION_QUANTITY_NOTES: Record<TransactionSurface, string> = {
+  receipt: "Quantity received on this receipt line.",
+  shipment: "Quantity shipped on this shipment line.",
+  stockTransfer: "Quantity moved on this stock-transfer line.",
+  warehouseTransfer: "Quantity moved on this warehouse-transfer line.",
+  inventoryAdjustment: "Signed delta applied by this adjustment.",
+  place: "Quantity placed into the storage unit (= receipt line qty).",
+  pick: "Quantity taken from the storage unit (= shipment line qty).",
+  operationStart:
+    "Planned operation quantity (full target, not a delta this scan).",
+  operationFinish: "Quantity completed by this scan (a delta, not cumulative).",
+  materialIssue: "Material quantity consumed by this issue.",
+  materialReceive: "Material quantity returned to stock."
+};
+
+// StorageUnit fields shift meaning between source bin (pick / shipment) and
+// destination bin (place / receipt / transfer). On operation surfaces they
+// aren't populated at all.
+const STORAGE_UNIT_NOTES: Record<TransactionSurface, string> = {
+  receipt: "Destination bin (where receiving line lands).",
+  shipment: "Source bin (where shipped line was picked from).",
+  stockTransfer: "Destination bin (TO storage unit).",
+  warehouseTransfer: "Destination bin (TO storage unit).",
+  inventoryAdjustment: "Bin the adjustment applies to (may be unset).",
+  place: "Destination bin (mirrors receipt).",
+  pick: "Source bin (mirrors shipment).",
+  operationStart: "Not populated.",
+  operationFinish: "Not populated.",
+  materialIssue: "Not populated.",
+  materialReceive: "Not populated."
+};
+
+const SURFACE_FIELD_NOTES: Record<
+  string,
+  Partial<Record<TransactionSurface, string>>
+> = {
+  "transaction.quantity": TRANSACTION_QUANTITY_NOTES,
+  "storageUnit.id": STORAGE_UNIT_NOTES,
+  "storageUnit.locationId": STORAGE_UNIT_NOTES,
+  "storageUnit.storageTypeId": STORAGE_UNIT_NOTES
+};
+
+/**
+ * Per-surface note for a given field path. Returns `undefined` when the field
+ * carries the same meaning across every surface it applies to (no clarification
+ * needed). Returns a partial map keyed by surface otherwise.
+ *
+ * Builder UI renders these under the field selector when the user picks a
+ * field whose semantics shift between surfaces.
+ */
+export const getFieldSurfaceNotes = (
+  path: string
+): Partial<Record<TransactionSurface, string>> | undefined =>
+  SURFACE_FIELD_NOTES[path];

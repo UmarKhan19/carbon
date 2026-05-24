@@ -1076,9 +1076,6 @@ msgstr "ImportaciÃƒÆ’Ã‚Â³n masiva"
 msgid "Bulk Jobs"
 msgstr "Trabajos en Lote"
 
-msgid "Business Rules"
-msgstr ""
-
 msgid "Buy"
 msgstr "Comprar"
 
@@ -1927,6 +1924,9 @@ msgstr "Campo Personalizado"
 
 msgid "Custom Fields"
 msgstr "Campos Personalizados"
+
+msgid "Custom Rules"
+msgstr ""
 
 msgid "Customer"
 msgstr "Cliente"
@@ -2899,12 +2899,6 @@ msgstr "Fecha de Fin"
 msgid "End Time"
 msgstr "Hora de FinalizaciÃƒÆ’Ã‚Â³n"
 
-msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-msgstr "Aplicar restricciones en recibos, envÃƒÆ’Ã‚Â­os, transferencias y operaciones de trabajo para este artÃƒÆ’Ã‚Â­culo."
-
-msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-msgstr "Aplicar validaciÃƒÆ’Ã‚Â³n por artÃƒÆ’Ã‚Â­culo en recibos, envÃƒÆ’Ã‚Â­os, transferencias y ajustes."
-
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Aplicar validaciÃƒÆ’Ã‚Â³n y directrices por artÃƒÆ’Ã‚Â­culo en recibos, envÃƒÆ’Ã‚Â­os, transferencias y ajustes."
 
@@ -3432,6 +3426,9 @@ msgstr "Obtener"
 msgid "Field"
 msgstr "Campo"
 
+msgid "Field info"
+msgstr ""
+
 msgid "Field Mapping"
 msgstr "Mapeo de campos"
 
@@ -3757,6 +3754,9 @@ msgstr "Infraestructura"
 
 msgid "Inherit From Materials"
 msgstr "Heredar de Materiales"
+
+msgid "Inherited from"
+msgstr ""
 
 msgid "Insert rows"
 msgstr "Insertar filas"
@@ -5488,9 +5488,6 @@ msgstr "Selecciona un cliente o tipo de cliente para ver sus precios."
 
 msgid "Pick a date or leave blank to clear it."
 msgstr "Elige una fecha o dÃƒÆ’Ã‚Â©jala en blanco para borrarla."
-
-msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-msgstr "Elige una regla existente de la biblioteca o crea una nueva para comenzar a aplicar restricciones en este artÃƒÆ’Ã‚Â­culo."
 
 msgid "Pick List"
 msgstr "Lista de Picking"
@@ -7775,6 +7772,9 @@ msgstr "Las entidades no muestreadas permanecerÃƒÆ’Ã‚Â¡n En Espera par
 msgid "Unapproved Supplier"
 msgstr "Proveedor No Aprobado"
 
+msgid "Unassign from parent unit to remove"
+msgstr ""
+
 msgid "Unassign rule"
 msgstr "Desasignar regla"
 
@@ -7892,11 +7892,12 @@ msgstr "Actualizar"
 msgid "Upgrade to Business"
 msgstr "Actualizar a Business"
 
+#. placeholder {0}: targetCopy.noun
+msgid "Upgrade to unlock {0} rules"
+msgstr ""
+
 msgid "Upgrade to unlock audit history"
 msgstr "Actualizar para desbloquear el historial de auditorÃƒÆ’Ã‚Â­a"
-
-msgid "Upgrade to unlock item rules"
-msgstr "Actualizar para desbloquear reglas de artÃƒÆ’Ã‚Â­culos"
 
 msgid "Upload"
 msgstr "Cargar"
@@ -7995,6 +7996,9 @@ msgstr "Validando trabajo..."
 
 msgid "Value"
 msgstr "Valor"
+
+msgid "Value source by surface"
+msgstr ""
 
 msgid "VAT Number"
 msgstr "NÃƒÆ’Ã‚Âºmero de IVA"

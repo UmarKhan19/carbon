@@ -5,18 +5,15 @@ import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import { usePlanGate } from "~/hooks/usePlanGate";
-import {
-  getBusinessRules,
-  getRuleAssignmentCounts
-} from "~/modules/businessRules";
-import BusinessRulesGroups from "~/modules/businessRules/ui/BusinessRulesGroups";
-import BusinessRulesUpgradeOverlay from "~/modules/businessRules/ui/BusinessRulesUpgradeOverlay";
+import { getCustomRules, getRuleAssignmentCounts } from "~/modules/customRules";
+import CustomRulesGroups from "~/modules/customRules/ui/CustomRulesGroups";
+import CustomRulesUpgradeOverlay from "~/modules/customRules/ui/CustomRulesUpgradeOverlay";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 
 export const handle: Handle = {
-  breadcrumb: msg`Business Rules`,
-  to: path.to.businessRules
+  breadcrumb: msg`Custom Rules`,
+  to: path.to.customRules
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -25,7 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     role: "employee"
   });
 
-  const rules = await getBusinessRules(client, companyId, {
+  const rules = await getCustomRules(client, companyId, {
     search: null,
     limit: 1000,
     offset: 0,
@@ -35,32 +32,33 @@ export async function loader({ request }: LoaderFunctionArgs) {
   if (rules.error) {
     throw redirect(
       path.to.settings,
-      await flash(request, error(rules.error, "Failed to load business rules"))
+      await flash(request, error(rules.error, "Failed to load custom rules"))
     );
   }
 
   const ids = (rules.data ?? []).map((r) => r.id);
   const counts = await getRuleAssignmentCounts(client, ids);
 
+  const countsData = (counts.data ?? {}) as Record<string, number>;
   const rows = (rules.data ?? []).map((r) => ({
     ...r,
-    assignmentCount: counts.data?.[r.id] ?? 0
+    assignmentCount: countsData[r.id] ?? 0
   }));
 
   return { rows };
 }
 
-export default function BusinessRulesSettingsRoute() {
+export default function CustomRulesSettingsRoute() {
   const { rows } = useLoaderData<typeof loader>();
-  const { isGated } = usePlanGate({ feature: "BUSINESS_RULES" });
+  const { isGated } = usePlanGate({ feature: "CUSTOM_RULES" });
 
   if (isGated) {
-    return <BusinessRulesUpgradeOverlay />;
+    return <CustomRulesUpgradeOverlay />;
   }
 
   return (
     <>
-      <BusinessRulesGroups rules={rows as never} />
+      <CustomRulesGroups rules={rows as never} />
       <Outlet />
     </>
   );

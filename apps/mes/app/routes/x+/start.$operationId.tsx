@@ -5,7 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import {
   evaluateLinesForSurface,
   isBlocked
-} from "@carbon/ee/business-rules.server";
+} from "@carbon/ee/custom-rules.server";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
