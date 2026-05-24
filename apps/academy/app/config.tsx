@@ -1215,11 +1215,11 @@ export const modules: Config = [
               {
                 id: "historical-costs",
                 loomUrl:
-                  "https://www.loom.com/share/51e0c6dd053b4a3e904fc795d4fc298f?sid=0bb2081d-6bc4-4efb-8361-d2717dda9781",
+                  "https://www.loom.com/share/8885fc3734eb45b9beb8202fcf3d52c8",
                 name: "Historical Costs",
                 description:
                   "Learn how to analyze historical costs for better purchasing decisions.",
-                duration: 0
+                duration: 112
               },
               {
                 id: "supplier-pricing",
