@@ -168,14 +168,10 @@ const JobProperties = () => {
   const isLocked = isJobLocked(routeData?.job?.status);
   const isDisabled = !canUpdate || isLocked;
 
-  const jobAutoGeneratePickingList = (routeData?.job as any)
-    ?.autoGeneratePickingList as boolean | null | undefined;
   const effectiveAutoGeneratePickingList =
     companySettings.usePickingLists === false
       ? false
-      : (jobAutoGeneratePickingList ??
-        companySettings.defaultAutoGeneratePickingList ??
-        true);
+      : (companySettings.defaultAutoGeneratePickingList ?? true);
 
   return (
     <VStack
@@ -573,10 +569,6 @@ const JobProperties = () => {
         </span>
         <AutoGeneratePickingListDisplay
           value={effectiveAutoGeneratePickingList}
-          jobValue={jobAutoGeneratePickingList}
-          companyDefault={
-            companySettings.defaultAutoGeneratePickingList ?? undefined
-          }
           companyEnabled={companySettings.usePickingLists ?? true}
         />
       </VStack>
@@ -602,27 +594,16 @@ const JobProperties = () => {
 
 export default JobProperties;
 
-// Read-only display of job.autoGeneratePickingList. The column is seeded
-// from companySettings.defaultAutoGeneratePickingList by
-// trigger_default_auto_generate_picking_list at job INSERT, and there's
-// no per-job edit UI on purpose — planners change the default in
-// Settings → Inventory; the job page just shows the resulting status.
 function AutoGeneratePickingListDisplay({
   value,
-  jobValue,
-  companyDefault,
   companyEnabled
 }: {
   value: boolean;
-  jobValue?: boolean | null;
-  companyDefault?: boolean | null;
   companyEnabled: boolean;
 }) {
   const sourceLabel = !companyEnabled
     ? "Disabled at company level"
-    : jobValue === null || jobValue === undefined
-      ? `Inherits company default (${companyDefault ? "On" : "Off"})`
-      : "Job-level value";
+    : "Follows company default";
 
   return (
     <div className="flex flex-col gap-1 text-sm">
