@@ -338,7 +338,6 @@ function EmptyState({
           {availableOptions.length > 0 ? (
             <>
               <Combobox
-                size="sm"
                 value=""
                 options={availableOptions}
                 onChange={onAssign}
