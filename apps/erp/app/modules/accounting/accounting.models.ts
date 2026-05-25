@@ -496,6 +496,7 @@ export const dimensionEntityTypes = [
   "CustomerType",
   "Department",
   "Employee",
+  "FixedAssetClass",
   "ItemPostingGroup",
   "Location",
   "Process",

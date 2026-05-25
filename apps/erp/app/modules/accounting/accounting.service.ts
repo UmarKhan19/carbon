@@ -1020,6 +1020,12 @@ function getEntityDimensionValues(
         .select("id, name")
         .eq("companyId", companyId)
         .order("name");
+    case "FixedAssetClass":
+      return client
+        .from("fixedAssetClass")
+        .select("id, name")
+        .eq("companyId", companyId)
+        .order("name");
     case "ItemPostingGroup":
       return client
         .from("itemPostingGroup")

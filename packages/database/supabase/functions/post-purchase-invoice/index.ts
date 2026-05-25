@@ -540,6 +540,7 @@ serve(async (req: Request) => {
       locationId: string | null;
       costCenterId: string | null;
       processId: string | null;
+      fixedAssetClassId: string | null;
     }[] = [];
 
     const processIdByJobOperationId = new Map<string, string>();
@@ -815,6 +816,7 @@ serve(async (req: Request) => {
                   locationId: invoiceLine.locationId ?? null,
                   costCenterId: null,
                   processId: null,
+                  fixedAssetClassId: null,
                 };
                 journalLineDimensionsMeta.push(itemDimMeta, itemDimMeta);
               }
@@ -1004,6 +1006,7 @@ serve(async (req: Request) => {
                   locationId: invoiceLine.locationId ?? null,
                   costCenterId: null,
                   processId: lineProcessId,
+                  fixedAssetClassId: null,
                 };
                 const reverseJlCount =
                   journalLineInserts.length - jlStartIdxReverse;
@@ -1072,6 +1075,7 @@ serve(async (req: Request) => {
                   locationId: invoiceLine.locationId ?? null,
                   costCenterId: null,
                   processId: accrualProcessId,
+                  fixedAssetClassId: null,
                 };
                 journalLineDimensionsMeta.push(accrualDimMeta, accrualDimMeta);
               }
@@ -1089,14 +1093,16 @@ serve(async (req: Request) => {
               purchaseOrderLine &&
               (purchaseOrderLine.quantityReceived ?? 0) > 0;
 
-            const faLocationRecord = await client
+            const faRecord = await client
               .from("fixedAsset")
-              .select("locationId")
+              .select("locationId, fixedAssetClassId")
               .eq("id", invoiceLine.assetId)
               .single();
-            const faLocationId = faLocationRecord.data?.locationId ?? null;
+            const faLocationId = faRecord.data?.locationId ?? null;
+            const faClassId = faRecord.data?.fixedAssetClassId ?? null;
 
             const jlStartIdxFa = journalLineInserts.length;
+            let faFixedAssetClassId: string | null = null;
 
             if (wasReceived && invoiceLine.purchaseOrderLineId) {
               // Receipt was already posted — reverse the GR/IR accrual
@@ -1198,18 +1204,21 @@ serve(async (req: Request) => {
                     .eq("id", invoiceLine.assetId);
                 }
               }
+              faFixedAssetClassId = faClassId;
             } else {
               // Direct invoice (no prior receipt) — full acquisition
               const assetRecord = await client
                 .from("fixedAsset")
                 .select(
-                  "id, status, acquisitionDate, depreciationStartDate, acquisitionCost, fixedAssetClass:fixedAssetClassId(assetAccountId)"
+                  "id, status, acquisitionDate, depreciationStartDate, acquisitionCost, fixedAssetClassId, fixedAssetClass:fixedAssetClassId(assetAccountId)"
                 )
                 .eq("id", invoiceLine.assetId)
                 .single();
 
               if (assetRecord.error)
                 throw new Error("Failed to fetch fixed asset");
+
+              faFixedAssetClassId = assetRecord.data.fixedAssetClassId ?? null;
 
               journalLineReference = nanoid();
 
@@ -1281,6 +1290,7 @@ serve(async (req: Request) => {
               locationId: invoiceLine.locationId ?? purchaseOrderLine?.locationId ?? faLocationId,
               costCenterId: null,
               processId: null,
+              fixedAssetClassId: faFixedAssetClassId,
             };
             for (let i = 0; i < faJlCount; i++) {
               journalLineDimensionsMeta.push(assetDimMeta);
@@ -1345,6 +1355,7 @@ serve(async (req: Request) => {
               locationId: invoiceLine.locationId ?? null,
               costCenterId: invoiceLine.costCenterId ?? null,
               processId: null,
+              fixedAssetClassId: null,
             };
             journalLineDimensionsMeta.push(glDimMeta, glDimMeta);
           }
@@ -1578,6 +1589,14 @@ serve(async (req: Request) => {
                 journalLineId: jl.id,
                 dimensionId: dimensionMap.get("Process")!,
                 valueId: meta.processId,
+                companyId,
+              });
+            }
+            if (meta.fixedAssetClassId && dimensionMap.has("FixedAssetClass")) {
+              journalLineDimensionInserts.push({
+                journalLineId: jl.id,
+                dimensionId: dimensionMap.get("FixedAssetClass")!,
+                valueId: meta.fixedAssetClassId,
                 companyId,
               });
             }

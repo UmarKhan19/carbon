@@ -15,6 +15,7 @@ export const dimensions = [
   { name: "Supplier Type", entityType: "SupplierType" },
   { name: "Work Center", entityType: "WorkCenter" },
   { name: "Process", entityType: "Process" },
+  { name: "Asset Class", entityType: "FixedAssetClass" },
 ] as const;
 
 export const supplierStatuses = [

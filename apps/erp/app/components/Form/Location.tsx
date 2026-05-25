@@ -39,7 +39,10 @@ const Location = ({ inline = false, ...props }: LocationSelectProps) => {
     <>
       <CreatableCombobox
         ref={triggerRef}
-        options={options}
+        options={options.map((o) => ({
+          value: o.value,
+          label: <Enumerable value={o.label} />
+        }))}
         {...props}
         label={props?.label ?? "Location"}
         inline={inline ? LocationPreview : undefined}

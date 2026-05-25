@@ -270,6 +270,7 @@ serve(async (req: Request) => {
           itemPostingGroupId: string | null;
           locationId: string | null;
           costCenterId: string | null;
+          fixedAssetClassId: string | null;
         }[] = [];
 
         // For IC transactions, use IC Receivables (1130) instead of regular AR
@@ -414,6 +415,7 @@ serve(async (req: Request) => {
                         itemPostingGroupId: lineItemPostingGroupId,
                         locationId: invoiceLine.locationId ?? null,
                         costCenterId: null,
+                        fixedAssetClassId: null,
                       });
                     }
 
@@ -450,6 +452,7 @@ serve(async (req: Request) => {
                           itemPostingGroupId: lineItemPostingGroupId,
                           locationId: invoiceLine.locationId ?? null,
                           costCenterId: null,
+                          fixedAssetClassId: null,
                         });
                       }
                     }
@@ -513,6 +516,7 @@ serve(async (req: Request) => {
                         itemPostingGroupId,
                         locationId: invoiceLine.locationId ?? null,
                         costCenterId: null,
+                        fixedAssetClassId: null,
                       });
                     }
                   }
@@ -533,7 +537,7 @@ serve(async (req: Request) => {
                   const assetRecord = await client
                     .from("fixedAsset")
                     .select(
-                      "locationId, fixedAssetClass:fixedAssetClassId(writeOffAccountId)"
+                      "locationId, fixedAssetClassId, fixedAssetClass:fixedAssetClassId(writeOffAccountId)"
                     )
                     .eq("id", invoiceLine.assetId)
                     .single();
@@ -587,6 +591,7 @@ serve(async (req: Request) => {
                       itemPostingGroupId: null,
                       locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
                       costCenterId: null,
+                      fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
                     });
                   }
 
@@ -622,7 +627,7 @@ serve(async (req: Request) => {
                   const assetRecord = await client
                     .from("fixedAsset")
                     .select(
-                      "id, status, acquisitionCost, accumulatedDepreciation, locationId, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
+                      "id, status, acquisitionCost, accumulatedDepreciation, locationId, fixedAssetClassId, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
                     )
                     .eq("id", invoiceLine.assetId)
                     .single();
@@ -667,6 +672,7 @@ serve(async (req: Request) => {
                       itemPostingGroupId: null,
                       locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
                       costCenterId: null,
+                      fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
                     });
                   }
 
@@ -696,6 +702,7 @@ serve(async (req: Request) => {
                       itemPostingGroupId: null,
                       locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
                       costCenterId: null,
+                      fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
                     });
                   }
 
@@ -724,6 +731,7 @@ serve(async (req: Request) => {
                     itemPostingGroupId: null,
                     locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? null,
                     costCenterId: null,
+                    fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
                   });
 
                   const arJournalLineReference = nanoid();
@@ -772,6 +780,7 @@ serve(async (req: Request) => {
                       itemPostingGroupId: null,
                       locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
                       costCenterId: null,
+                      fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
                     });
                   }
 
@@ -1072,6 +1081,14 @@ serve(async (req: Request) => {
                     journalLineId: jl.id,
                     dimensionId: dimensionMap.get("CostCenter")!,
                     valueId: meta.costCenterId,
+                    companyId,
+                  });
+                }
+                if (meta.fixedAssetClassId && dimensionMap.has("FixedAssetClass")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("FixedAssetClass")!,
+                    valueId: meta.fixedAssetClassId,
                     companyId,
                   });
                 }

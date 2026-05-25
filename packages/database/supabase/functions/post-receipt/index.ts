@@ -597,6 +597,7 @@ serve(async (req: Request) => {
           itemPostingGroupId: string | null;
           locationId: string | null;
           processId: string | null;
+          fixedAssetClassId: string | null;
         }[] = [];
 
         const isOutsideProcessing =
@@ -1178,6 +1179,7 @@ serve(async (req: Request) => {
                 itemPostingGroupId: lineItemPostingGroupId,
                 locationId: receiptLine.locationId ?? null,
                 processId: lineProcessId,
+                fixedAssetClassId: null,
               });
             }
           }
@@ -1215,7 +1217,7 @@ serve(async (req: Request) => {
             const assetRecord = await client
               .from("fixedAsset")
               .select(
-                "id, status, acquisitionDate, depreciationStartDate, acquisitionCost, locationId, fixedAssetClass:fixedAssetClassId(assetAccountId)"
+                "id, status, acquisitionDate, depreciationStartDate, acquisitionCost, locationId, fixedAssetClassId, fixedAssetClass:fixedAssetClassId(assetAccountId)"
               )
               .eq("id", faPoLine.assetId!)
               .single();
@@ -1260,6 +1262,7 @@ serve(async (req: Request) => {
                 itemPostingGroupId: null,
                 locationId: faPoLine.locationId ?? receipt.data.locationId ?? assetRecord.data.locationId ?? null,
                 processId: null,
+                fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
               });
             }
 
@@ -1462,6 +1465,14 @@ serve(async (req: Request) => {
                     companyId,
                   });
                 }
+                if (meta.fixedAssetClassId && dimensionMap.has("FixedAssetClass")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("FixedAssetClass")!,
+                    valueId: meta.fixedAssetClassId,
+                    companyId,
+                  });
+                }
               });
 
               if (journalLineDimensionInserts.length > 0) {
@@ -1597,6 +1608,7 @@ serve(async (req: Request) => {
         const journalLineDimensionsMeta: {
           itemPostingGroupId: string | null;
           locationId: string | null;
+          fixedAssetClassId: string | null;
         }[] = [];
         const warehouseTransferLineUpdates: Record<
           string,
@@ -1696,6 +1708,7 @@ serve(async (req: Request) => {
               journalLineDimensionsMeta.push({
                 itemPostingGroupId: itemCost?.itemPostingGroupId ?? null,
                 locationId: receiptLine.locationId ?? null,
+                fixedAssetClassId: null,
               });
             }
           }
@@ -1822,6 +1835,14 @@ serve(async (req: Request) => {
                     journalLineId: jl.id,
                     dimensionId: dimensionMap.get("Location")!,
                     valueId: meta.locationId,
+                    companyId,
+                  });
+                }
+                if (meta.fixedAssetClassId && dimensionMap.has("FixedAssetClass")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("FixedAssetClass")!,
+                    valueId: meta.fixedAssetClassId,
                     companyId,
                   });
                 }

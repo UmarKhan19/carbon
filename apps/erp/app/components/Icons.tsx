@@ -43,6 +43,7 @@ import {
   LuHardHat,
   LuHeadphones,
   LuImage,
+  LuLandmark,
   LuList,
   LuMapPin,
   LuPackage,
@@ -622,6 +623,8 @@ export const DimensionEntityTypeIcon = ({
       return <LuBuilding className={className} />;
     case "Employee":
       return <LuUser className={className} />;
+    case "FixedAssetClass":
+      return <LuLandmark className={className} />;
     case "CostCenter":
       return <LuCircleDollarSign className={className} />;
     case "WorkCenter":

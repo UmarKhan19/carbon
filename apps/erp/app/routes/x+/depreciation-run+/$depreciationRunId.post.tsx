@@ -64,7 +64,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     client
       .from("depreciationRunLine")
       .select(
-        "id, fixedAssetId, amount, taxAmount, fixedAsset:fixedAssetId(id, fixedAssetId, locationId, acquisitionCost, accumulatedDepreciation, accumulatedTaxDepreciation, residualValuePercent, usefulLifeMonths, fixedAssetClass:fixedAssetClassId(depreciationExpenseAccountId, accumulatedDepreciationAccountId))"
+        "id, fixedAssetId, amount, taxAmount, fixedAsset:fixedAssetId(id, fixedAssetId, locationId, fixedAssetClassId, acquisitionCost, accumulatedDepreciation, accumulatedTaxDepreciation, residualValuePercent, usefulLifeMonths, fixedAssetClass:fixedAssetClassId(depreciationExpenseAccountId, accumulatedDepreciationAccountId))"
       )
       .eq("depreciationRunId", depreciationRunId),
     client
@@ -86,6 +86,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const locationDimensionId = (dimensionsResult.data ?? []).find(
     (d) => d.entityType === "Location"
+  )?.id;
+
+  const assetClassDimensionId = (dimensionsResult.data ?? []).find(
+    (d) => d.entityType === "FixedAssetClass"
   )?.id;
 
   const postingDate = run.data.periodEnd;
@@ -137,6 +141,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       asset: {
         fixedAssetId: asset.fixedAssetId as string,
         locationId: asset.locationId as string | null,
+        fixedAssetClassId: asset.fixedAssetClassId as string,
         acquisitionCost: Number(asset.acquisitionCost),
         accumulatedDepreciation: Number(asset.accumulatedDepreciation),
         accumulatedTaxDepreciation: Number(
@@ -159,6 +164,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       accountingPeriodId: accountingPeriod.data!,
       lines,
       locationDimensionId,
+      assetClassDimensionId,
       taxEnabled,
       taxRate,
       dtlAccountId,

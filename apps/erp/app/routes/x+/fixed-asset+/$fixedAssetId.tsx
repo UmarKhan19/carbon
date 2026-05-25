@@ -214,8 +214,58 @@ export default function FixedAssetDetailRoute() {
               </DropdownMenu>
             }
           />
-          <CardContent>
-            <div className="divide-y divide-border">
+          <CardContent className="space-y-0">
+            <div
+              className={`grid grid-cols-1 gap-3 sm:gap-0 pb-4 ${taxDepreciationEnabled ? "sm:grid-cols-5" : "sm:grid-cols-3"}`}
+            >
+              <div className="sm:pr-6">
+                <p className="text-base text-muted-foreground truncate sm:text-sm">
+                  Acquisition Cost
+                </p>
+                <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
+                  {currencyFormatter.format(acquisitionCost)}
+                </p>
+              </div>
+              <div className="sm:border-l sm:border-border sm:px-6">
+                <p className="text-base text-muted-foreground truncate sm:text-sm">
+                  Accum. Depreciation
+                </p>
+                <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
+                  {currencyFormatter.format(accumulatedDepreciation)}
+                </p>
+              </div>
+              <div
+                className={`sm:border-l sm:border-border ${taxDepreciationEnabled ? "sm:px-6" : "sm:pl-6"}`}
+              >
+                <p className="text-base text-muted-foreground truncate sm:text-sm">
+                  Net Book Value
+                </p>
+                <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
+                  {currencyFormatter.format(nbv)}
+                </p>
+              </div>
+              {taxDepreciationEnabled && (
+                <>
+                  <div className="sm:border-l sm:border-border sm:px-6">
+                    <p className="text-base text-muted-foreground truncate sm:text-sm">
+                      Accum. Tax Depr.
+                    </p>
+                    <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
+                      {currencyFormatter.format(accumulatedTaxDepreciation)}
+                    </p>
+                  </div>
+                  <div className="sm:border-l sm:border-border sm:pl-6">
+                    <p className="text-base text-muted-foreground truncate sm:text-sm">
+                      Tax Book Value
+                    </p>
+                    <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">
+                      {currencyFormatter.format(taxNbv)}
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="divide-y divide-border border-t border-border">
               <DetailRow label="Name">{asset.name}</DetailRow>
               <DetailRow label="Asset Class">
                 <Enumerable
@@ -237,6 +287,43 @@ export default function FixedAssetDetailRoute() {
               <DetailRow label="Residual Value">
                 {Number(asset.residualValuePercent)}%
               </DetailRow>
+              {taxDepreciationEnabled && (
+                <>
+                  <DetailRow label="Tax Depreciation Method">
+                    {(asset as any).taxDepreciationMethod || "—"}
+                  </DetailRow>
+                  {(asset as any).taxDepreciationMethod === "MACRS" ? (
+                    <>
+                      <DetailRow label="MACRS Property Class">
+                        {(asset as any).macrsPropertyClass
+                          ? `${(asset as any).macrsPropertyClass}-Year`
+                          : "—"}
+                      </DetailRow>
+                      <DetailRow label="MACRS Convention">
+                        {(asset as any).macrsConvention || "—"}
+                      </DetailRow>
+                      <DetailRow label="Bonus Depreciation">
+                        {(asset as any).bonusDepreciationPercent != null
+                          ? `${Number((asset as any).bonusDepreciationPercent)}%`
+                          : "—"}
+                      </DetailRow>
+                    </>
+                  ) : (
+                    <>
+                      <DetailRow label="Tax Useful Life">
+                        {(asset as any).taxUsefulLifeMonths
+                          ? `${(asset as any).taxUsefulLifeMonths} months`
+                          : "—"}
+                      </DetailRow>
+                      <DetailRow label="Tax Residual Value">
+                        {(asset as any).taxResidualValuePercent != null
+                          ? `${Number((asset as any).taxResidualValuePercent)}%`
+                          : "—"}
+                      </DetailRow>
+                    </>
+                  )}
+                </>
+              )}
               <DetailRow label="Acquisition Date">
                 {asset.acquisitionDate
                   ? formatDate(asset.acquisitionDate)
@@ -250,56 +337,6 @@ export default function FixedAssetDetailRoute() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Financial Summary */}
-        <div
-          className={`grid ${taxDepreciationEnabled ? "grid-cols-5" : "grid-cols-3"} gap-px rounded-lg border border-border bg-border overflow-hidden`}
-        >
-          <div className="bg-card p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Acquisition Cost
-            </p>
-            <p className="text-2xl font-semibold tabular-nums tracking-tight">
-              {currencyFormatter.format(acquisitionCost)}
-            </p>
-          </div>
-          <div className="bg-card p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Accum. Depreciation
-            </p>
-            <p className="text-2xl font-semibold tabular-nums tracking-tight">
-              {currencyFormatter.format(accumulatedDepreciation)}
-            </p>
-          </div>
-          <div className="bg-card p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Net Book Value
-            </p>
-            <p className="text-2xl font-semibold tabular-nums tracking-tight">
-              {currencyFormatter.format(nbv)}
-            </p>
-          </div>
-          {taxDepreciationEnabled && (
-            <>
-              <div className="bg-card p-4 space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Accum. Tax Depr.
-                </p>
-                <p className="text-2xl font-semibold tabular-nums tracking-tight">
-                  {currencyFormatter.format(accumulatedTaxDepreciation)}
-                </p>
-              </div>
-              <div className="bg-card p-4 space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Tax Book Value
-                </p>
-                <p className="text-2xl font-semibold tabular-nums tracking-tight">
-                  {currencyFormatter.format(taxNbv)}
-                </p>
-              </div>
-            </>
-          )}
-        </div>
 
         {/* Depreciation History */}
         {(depreciationHistory.length > 0 || acquisitionCost > 0) && (
@@ -327,67 +364,69 @@ export default function FixedAssetDetailRoute() {
                 </div>
               )}
               {depreciationHistory.length > 0 && (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left py-2 font-medium text-muted-foreground">
-                        Run
-                      </th>
-                      <th className="text-left py-2 font-medium text-muted-foreground">
-                        Period End
-                      </th>
-                      <th className="text-left py-2 font-medium text-muted-foreground">
-                        Status
-                      </th>
-                      <th className="text-right py-2 font-medium text-muted-foreground">
-                        Amount
-                      </th>
-                      {taxDepreciationEnabled && (
-                        <th className="text-right py-2 font-medium text-muted-foreground">
-                          Tax Amount
+                <div className="overflow-x-auto -mx-6 px-6">
+                  <table className="w-full text-base sm:text-sm">
+                    <thead>
+                      <tr className="border-b border-border">
+                        <th className="text-left py-2.5 sm:py-2 font-medium text-muted-foreground">
+                          Run
                         </th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {depreciationHistory.map((item) => {
-                      const run = item.depreciationRun as any;
-                      return (
-                        <tr
-                          key={item.id}
-                          className="border-b border-border last:border-0"
-                        >
-                          <td className="py-2.5 tabular-nums">
-                            <Link
-                              to={path.to.depreciationRun(run?.id ?? item.id)}
-                              className="text-foreground hover:underline"
-                            >
-                              {run?.depreciationRunId ?? "—"}
-                            </Link>
-                          </td>
-                          <td className="py-2.5">
-                            {run?.periodEnd ? formatDate(run.periodEnd) : "—"}
-                          </td>
-                          <td className="py-2.5">
-                            <DepreciationRunStatus
-                              status={run?.status ?? null}
-                            />
-                          </td>
-                          <td className="py-2.5 text-right tabular-nums">
-                            {currencyFormatter.format(Number(item.amount))}
-                          </td>
-                          {taxDepreciationEnabled && (
-                            <td className="py-2.5 text-right tabular-nums">
-                              {currencyFormatter.format(
-                                Number((item as any).taxAmount ?? 0)
-                              )}
+                        <th className="text-left py-2.5 sm:py-2 font-medium text-muted-foreground">
+                          Period End
+                        </th>
+                        <th className="text-left py-2.5 sm:py-2 font-medium text-muted-foreground">
+                          Status
+                        </th>
+                        <th className="text-right py-2.5 sm:py-2 font-medium text-muted-foreground">
+                          Amount
+                        </th>
+                        {taxDepreciationEnabled && (
+                          <th className="text-right py-2.5 sm:py-2 font-medium text-muted-foreground">
+                            Tax Amount
+                          </th>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {depreciationHistory.map((item) => {
+                        const run = item.depreciationRun as any;
+                        return (
+                          <tr
+                            key={item.id}
+                            className="border-b border-border last:border-0"
+                          >
+                            <td className="py-3 sm:py-2.5 tabular-nums">
+                              <Link
+                                to={path.to.depreciationRun(run?.id ?? item.id)}
+                                className="text-foreground hover:underline"
+                              >
+                                {run?.depreciationRunId ?? "—"}
+                              </Link>
                             </td>
-                          )}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                            <td className="py-3 sm:py-2.5">
+                              {run?.periodEnd ? formatDate(run.periodEnd) : "—"}
+                            </td>
+                            <td className="py-3 sm:py-2.5">
+                              <DepreciationRunStatus
+                                status={run?.status ?? null}
+                              />
+                            </td>
+                            <td className="py-3 sm:py-2.5 text-right tabular-nums">
+                              {currencyFormatter.format(Number(item.amount))}
+                            </td>
+                            {taxDepreciationEnabled && (
+                              <td className="py-3 sm:py-2.5 text-right tabular-nums">
+                                {currencyFormatter.format(
+                                  Number((item as any).taxAmount ?? 0)
+                                )}
+                              </td>
+                            )}
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -468,9 +507,9 @@ function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between py-2.5 text-sm">
+    <div className="flex items-center justify-between py-3 text-base sm:text-sm">
       <span className="text-muted-foreground">{label}</span>
-      <span>{children}</span>
+      <span className="font-medium">{children}</span>
     </div>
   );
 }

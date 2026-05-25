@@ -115,6 +115,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     (d) => d.entityType === "Location"
   )?.id;
 
+  const assetClassDimensionId = (dimensionsResult.data ?? []).find(
+    (d) => d.entityType === "FixedAssetClass"
+  )?.id;
+
   try {
     await postDisposal(getDatabaseClient(), {
       fixedAssetId,
@@ -124,12 +128,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
       acquisitionCost,
       accumulatedDepreciation,
       locationId: asset.data.locationId,
+      fixedAssetClassId: asset.data.fixedAssetClassId,
       assetAccountId: assetClass.assetAccountId,
       accumulatedDepreciationAccountId:
         assetClass.accumulatedDepreciationAccountId,
       writeOffAccountId: assetClass.writeOffAccountId,
       accountingPeriodId: accountingPeriod.data!,
       locationDimensionId,
+      assetClassDimensionId,
       companyId,
       userId
     });
