@@ -15,925 +15,925 @@ msgstr ""
 #. placeholder {0}: attribute.name
 #. placeholder {1}: activeStep + 1
 msgid "{0} - Set {1}"
-msgstr "{0} - 组 {1}"
+msgstr ""
 
 #. placeholder {0}: employeeIds.length
 msgid "{0} Active"
-msgstr "{0} 个活跃"
+msgstr ""
 
 #. placeholder {0}: batch.quantity
 msgid "{0} available"
-msgstr "{0} 可用"
+msgstr ""
 
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
 #. placeholder {1}: operation.targetQuantity
 msgid "{0} of {1}"
-msgstr "{0} / {1}"
+msgstr ""
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
 msgid "{0} of {1} complete"
-msgstr "{0} / {1} 已完成"
+msgstr ""
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
 msgid "{0} of {1} completed"
-msgstr "{0} / {1} 已完成"
+msgstr ""
 
 #. placeholder {0}: item.quantityScrapped
 msgid "{0} Scrapped"
-msgstr "{0} 已报废"
+msgstr ""
 
 msgid "About"
-msgstr "关于"
+msgstr ""
 
 msgid "Account Settings"
-msgstr "账户设置"
+msgstr ""
 
 msgid "Active"
-msgstr "活跃"
+msgstr ""
 
 msgid "Actual"
-msgstr "实际"
+msgstr ""
 
 msgid "Add"
-msgstr "添加"
+msgstr ""
 
 msgid "Add & Issue"
-msgstr "添加并发放"
+msgstr ""
 
 msgid "Add Inventory"
-msgstr "添加库存"
+msgstr ""
 
 msgid "Add Spare Part"
-msgstr "添加备件"
+msgstr ""
 
 msgid "All"
-msgstr "全部"
+msgstr ""
 
 msgid "Are you sure you want to close out this operation? This will end all active production events for this operation."
-msgstr "确定要结束此工序吗？这将终止此工序的所有活跃生产事件。"
+msgstr ""
 
 msgid "Are you sure you want to delete this step?"
-msgstr "确定要删除此步骤吗？"
+msgstr ""
 
 msgid "Are you sure you want to delete this timecard? This cannot be undone."
-msgstr "确定要删除此考勤记录吗？此操作无法撤销。"
+msgstr ""
 
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
-msgstr "确定要结束所有生产事件吗？这将终止所有活跃工序，而不会完成它们。"
+msgstr ""
 
 msgid "Assigned"
-msgstr "已分配"
+msgstr ""
 
 msgid "Assigned to Me"
-msgstr "分配给我"
+msgstr ""
 
 msgid "Assignee"
-msgstr "负责人"
+msgstr ""
 
 msgid "Attach File"
-msgstr "附加文件"
+msgstr ""
 
 msgid "Authentication Error"
-msgstr "认证错误"
+msgstr ""
 
 #. placeholder {0}: batch.readableId
 #. placeholder {1}: batch.quantity
 msgid "Batch {0} ({1} available)"
-msgstr "批次 {0}（{1} 可用）"
+msgstr ""
 
 msgid "Batch is not available"
-msgstr "批次不可用"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Batch Number {0}"
-msgstr "批次号 {0}"
+msgstr ""
 
 msgid "Batch number is required"
-msgstr "批次号为必填项"
+msgstr ""
 
 #. placeholder {0}: column.blockingDispatchReadableId
 msgid "Blocked by {0}"
-msgstr "被 {0} 阻塞"
+msgstr ""
 
 msgid "Blocking"
-msgstr "阻塞中"
+msgstr ""
 
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
-msgstr "但别担心。您可以使用忘记密码流程来请求新的魔法链接。"
+msgstr ""
 
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
-msgstr "登录即表示您同意<0>服务条款</0>和<1>隐私政策。</1>"
+msgstr ""
 
 msgid "Cancel"
-msgstr "取消"
+msgstr ""
 
 msgid "Carbon Logo"
-msgstr "Carbon 标志"
+msgstr ""
 
 msgid "Cards"
-msgstr "卡片"
+msgstr ""
 
 msgid "Chat"
-msgstr "聊天"
+msgstr ""
 
 msgid "Check your email"
-msgstr "请查收邮件"
+msgstr ""
 
 msgid "Clear"
-msgstr "清除"
+msgstr ""
 
 msgid "Clear Filters"
-msgstr "清除筛选"
+msgstr ""
 
 msgid "Clear Search"
-msgstr "清除搜索"
+msgstr ""
 
 msgid "Clock In"
-msgstr "上班打卡"
+msgstr ""
 
 msgid "Clock Out"
-msgstr "下班打卡"
+msgstr ""
 
 #. placeholder {0}: formatTime(openEntry.clockIn, locale)
 msgid "Clocked in since {0}"
-msgstr "自 {0} 起已打卡上班"
+msgstr ""
 
 msgid "Close"
-msgstr "关闭"
+msgstr ""
 
 msgid "Close Anyways"
-msgstr "仍然关闭"
+msgstr ""
 
 msgid "Close Out"
-msgstr "结束"
+msgstr ""
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Close out {0}"
-msgstr "结束 {0}"
+msgstr ""
 
 #. placeholder {0}: active.data.current.column.title
 #. placeholder {1}: overColumnPosition + 1
 #. placeholder {2}: columnOrder.length
 msgid "Column {0} was dropped into position {1} of {2}"
-msgstr "列 {0} 已放置到第 {1} 个位置（共 {2} 个）"
+msgstr ""
 
 #. placeholder {0}: active.data.current.column.title
 #. placeholder {1}: over.data.current.column.title
 #. placeholder {2}: overIndex + 1
 #. placeholder {3}: columnOrder.length
 msgid "Column {0} was moved over {1} at position {2} of {3}"
-msgstr "列 {0} 已移动到 {1} 上方，位于第 {2} 个位置（共 {3} 个）"
+msgstr ""
 
 #. placeholder {0}: column.title
 msgid "Column: {0}"
-msgstr "列：{0}"
+msgstr ""
 
 msgid "Columns"
-msgstr "列"
+msgstr ""
 
 msgid "Company"
-msgstr "公司"
+msgstr ""
 
 msgid "Complete"
-msgstr "完成"
+msgstr ""
 
 msgid "Completed"
-msgstr "已完成"
+msgstr ""
 
 msgid "Console"
-msgstr "控制台"
+msgstr ""
 
 msgid "Console Mode"
-msgstr "控制台模式"
+msgstr ""
 
 msgid "Consumed expired"
-msgstr "已消耗过期"
+msgstr ""
 
 #. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
-msgstr "创建 {0}"
+msgstr ""
 
 msgid "Customer"
-msgstr "客户"
+msgstr ""
 
 msgid "Dark Mode"
-msgstr "深色模式"
+msgstr ""
 
 msgid "Date"
-msgstr "日期"
+msgstr ""
 
 msgid "Deadline"
-msgstr "截止日期"
+msgstr ""
 
 msgid "Default Storage Unit"
-msgstr "默认存储单位"
+msgstr ""
 
 msgid "Delete"
-msgstr "删除"
+msgstr ""
 
 msgid "Delete Step"
-msgstr "删除步骤"
+msgstr ""
 
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
-msgstr "删除考勤记录 ({0})"
+msgstr ""
 
 msgid "Description"
-msgstr "描述"
+msgstr ""
 
 msgid "Details"
-msgstr "详情"
+msgstr ""
 
 msgid "Dispatch not found"
-msgstr "未找到工单"
+msgstr ""
 
 msgid "Display"
-msgstr "显示"
+msgstr ""
 
 msgid "Down"
-msgstr "停机"
+msgstr ""
 
 msgid "Download"
-msgstr "下载"
+msgstr ""
 
 msgid "Drag and drop a file here, or click to select a file"
-msgstr "拖放文件到此处，或点击选择文件"
+msgstr ""
 
 #. placeholder {0}: active.data.current?.type
 msgid "Dragging {0} cancelled."
-msgstr "拖拽 {0} 已取消。"
+msgstr ""
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
-msgstr "截止 {0}"
+msgstr ""
 
 msgid "Due Date"
-msgstr "截止日期"
+msgstr ""
 
 msgid "Duplicate batch number"
-msgstr "重复的批次号"
+msgstr ""
 
 msgid "Duplicate serial number"
-msgstr "重复的序列号"
+msgstr ""
 
 msgid "Duration"
-msgstr "时长"
+msgstr ""
 
 msgid "Edit"
-msgstr "编辑"
+msgstr ""
 
 msgid "Email Address"
-msgstr "电子邮箱"
+msgstr ""
 
 msgid "Empty work centers"
-msgstr "空的工作中心"
+msgstr ""
 
 msgid "End Operations"
-msgstr "结束工序"
+msgstr ""
 
 #. placeholder {0}: selectedPerson.name
 msgid "Enter PIN for {0}"
-msgstr "输入 {0} 的 PIN 码"
+msgstr ""
 
 msgid "Error"
-msgstr "错误"
+msgstr ""
 
 msgid "Estimated"
-msgstr "估计"
+msgstr ""
 
 msgid "Failed to complete inventory adjustment"
-msgstr "库存调整失败"
+msgstr ""
 
 msgid "Failed to end operations"
-msgstr "结束工序失败"
+msgstr ""
 
 msgid "Failed to fetch active operations"
-msgstr "获取活跃工序失败"
+msgstr ""
 
 msgid "Failed to fetch storageUnits"
-msgstr "获取存储单位失败"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
-msgstr "文件上传失败：{0}"
+msgstr ""
 
 msgid "Failed to upload image"
-msgstr "图片上传失败"
+msgstr ""
 
 msgid "Feedback"
-msgstr "反馈"
+msgstr ""
 
 msgid "File size exceeds 10MB limit"
-msgstr "文件大小超过 10MB 限制"
+msgstr ""
 
 msgid "Files"
-msgstr "文件"
+msgstr ""
 
 msgid "Files related to the job and the opportunity line."
-msgstr "与工单和商机行相关的文件。"
+msgstr ""
 
 msgid "Filter"
-msgstr "筛选"
+msgstr ""
 
 msgid "Forgot to Clock Out?"
-msgstr "忘记打卡下班了？"
+msgstr ""
 
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
-msgstr "遇到技术问题？联系<0>Carbon 支持。</0>"
+msgstr ""
 
 msgid "I understand and want to complete without issuing"
-msgstr "我理解并希望在不发放物料的情况下完成"
+msgstr ""
 
 msgid "I'm Still Working"
-msgstr "我还在工作"
+msgstr ""
 
 msgid "Ideas, suggestions or problems with this page?"
-msgstr "对此页面有想法、建议或问题？"
+msgstr ""
 
 msgid "Ideas, suggestions or problems?"
-msgstr "有想法、建议或问题？"
+msgstr ""
 
 msgid "Impact"
-msgstr "影响"
+msgstr ""
 
 msgid "In Progress"
-msgstr "进行中"
+msgstr ""
 
 msgid "Insufficient quantity"
-msgstr "数量不足"
+msgstr ""
 
 msgid "Inventory adjustment completed"
-msgstr "库存调整已完成"
+msgstr ""
 
 msgid "Inventory Adjustments"
-msgstr "库存调整"
+msgstr ""
 
 msgid "is"
-msgstr "是"
+msgstr ""
 
 msgid "is any of"
-msgstr "是以下任一"
+msgstr ""
 
 msgid "Issue"
-msgstr "发放"
+msgstr ""
 
 msgid "Issue Material"
-msgstr "发放物料"
+msgstr ""
 
 msgid "Item"
-msgstr "物料"
+msgstr ""
 
 msgid "Item Master"
-msgstr "物料主数据"
+msgstr ""
 
 msgid "Job"
-msgstr "工单"
+msgstr ""
 
 msgid "Job Details"
-msgstr "工单详情"
+msgstr ""
 
 msgid "Job Traveler"
-msgstr "工单流转卡"
+msgstr ""
 
 msgid "Jobs"
 msgstr "工作"
 
 msgid "Kit"
-msgstr "套件"
+msgstr ""
 
 msgid "Labor"
-msgstr "人工"
+msgstr ""
 
 msgid "Let's build something"
-msgstr "让我们开始构建"
+msgstr ""
 
 msgid "Loading item details..."
-msgstr "正在加载物料详情..."
+msgstr ""
 
 msgid "Loading..."
-msgstr "加载中..."
+msgstr ""
 
 msgid "Location"
-msgstr "位置"
+msgstr ""
 
 msgid "Log Completed"
-msgstr "记录完成数量"
+msgstr ""
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log completed for {0}"
-msgstr "记录 {0} 的完成数量"
+msgstr ""
 
 msgid "Log Rework"
-msgstr "记录返工"
+msgstr ""
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log rework for {0}"
-msgstr "记录 {0} 的返工"
+msgstr ""
 
 msgid "Log Scrap"
-msgstr "记录报废"
+msgstr ""
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log scrap for {0}"
-msgstr "记录 {0} 的报废"
+msgstr ""
 
 msgid "Login"
-msgstr "登录"
+msgstr ""
 
 msgid "Machine"
-msgstr "机器"
+msgstr ""
 
 msgid "Maintenance"
-msgstr "维护"
+msgstr ""
 
 msgid "Maintenance Completed"
-msgstr "维护已完成"
+msgstr ""
 
 msgid "Manually add items to inventory"
-msgstr "手动添加物料到库存"
+msgstr ""
 
 msgid "Manually remove items from inventory"
-msgstr "手动从库存中移除物料"
+msgstr ""
 
 msgid "matches"
-msgstr "匹配"
+msgstr ""
 
 msgid "Materials"
-msgstr "物料"
+msgstr ""
 
 msgid "Maximum number of records reached"
-msgstr "已达到最大记录数"
+msgstr ""
 
 msgid "Model"
-msgstr "模型"
+msgstr ""
 
 msgid "More options"
-msgstr "更多选项"
+msgstr ""
 
 #. placeholder {0}: column.title
 msgid "Move column: {0}"
-msgstr "移动列：{0}"
+msgstr ""
 
 msgid "Must be < {maxValue} {unitOfMeasureCode}"
-msgstr "必须小于 {maxValue} {unitOfMeasureCode}"
+msgstr ""
 
 msgid "Must be > {minValue} {unitOfMeasureCode}"
-msgstr "必须大于 {minValue} {unitOfMeasureCode}"
+msgstr ""
 
 msgid "Must be between {minValue} and {maxValue} {unitOfMeasureCode}"
-msgstr "必须在 {minValue} 到 {maxValue} {unitOfMeasureCode} 之间"
+msgstr ""
 
 msgid "My Hours"
-msgstr "我的工时"
+msgstr ""
 
 msgid "Name"
-msgstr "名称"
+msgstr ""
 
 msgid "New"
-msgstr "新建"
+msgstr ""
 
 msgid "New Record"
-msgstr "新记录"
+msgstr ""
 
 msgid "Next"
-msgstr "下一个"
+msgstr ""
 
 msgid "No active maintenance dispatches"
-msgstr "无活跃的维护工单"
+msgstr ""
 
 msgid "No active operations"
-msgstr "无活跃工序"
+msgstr ""
 
 msgid "No assigned operations"
-msgstr "无已分配工序"
+msgstr ""
 
 msgid "No available filters"
-msgstr "无可用筛选条件"
+msgstr ""
 
 msgid "No available serial numbers found"
-msgstr "未找到可用的序列号"
+msgstr ""
 
 msgid "No dispatches assigned to you"
-msgstr "没有分配给您的工单"
+msgstr ""
 
 msgid "No files"
-msgstr "无文件"
+msgstr ""
 
 msgid "No Impact"
-msgstr "无影响"
+msgstr ""
 
 msgid "No maintenance scheduled for today"
-msgstr "今天没有计划的维护"
+msgstr ""
 
 msgid "No materials"
-msgstr "无物料"
+msgstr ""
 
 msgid "No open jobs"
 msgstr "没有开放的工作"
 
 msgid "No operators"
-msgstr "无操作员"
+msgstr ""
 
 msgid "No option found."
-msgstr "未找到选项。"
+msgstr ""
 
 msgid "No options found."
-msgstr "未找到选项。"
+msgstr ""
 
 msgid "No recent operations"
-msgstr "无近期工序"
+msgstr ""
 
 msgid "No results"
-msgstr "无结果"
+msgstr ""
 
 msgid "No results exist"
-msgstr "无结果"
+msgstr ""
 
 msgid "No results found"
-msgstr "未找到结果"
+msgstr ""
 
 msgid "No scheduled time"
-msgstr "无排定时间"
+msgstr ""
 
 msgid "No serial numbers"
-msgstr "无序列号"
+msgstr ""
 
 msgid "No spare parts added yet"
-msgstr "尚未添加备件"
+msgstr ""
 
 msgid "No time entries for this week"
-msgstr "本周无考勤记录"
+msgstr ""
 
 msgid "No work centers are blocked"
-msgstr "无工作中心被阻塞"
+msgstr ""
 
 msgid "No work centers exist"
-msgstr "无工作中心"
+msgstr ""
 
 msgid "Notes"
-msgstr "备注"
+msgstr ""
 
 msgid "OEE Impact"
-msgstr "OEE 影响"
+msgstr ""
 
 msgid "OEM Required"
-msgstr "需要 OEM"
+msgstr ""
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
-msgstr "仅 {0} 可用"
+msgstr ""
 
 msgid "Oops. You shouldn't see this page. Eventually it will be a landing page."
-msgstr "抱歉，您不应该看到此页面。此页面最终将成为首页。"
+msgstr ""
 
 msgid "Open"
-msgstr "打开"
+msgstr ""
 
 msgid "Open Jobs"
 msgstr "开放工作"
 
 msgid "Operations"
-msgstr "工序"
+msgstr ""
 
 msgid "Operations ended"
-msgstr "工序已结束"
+msgstr ""
 
 msgid "Operator Performed"
-msgstr "操作员执行"
+msgstr ""
 
 msgid "Optional"
-msgstr "可选"
+msgstr ""
 
 msgid "Parameters"
-msgstr "参数"
+msgstr ""
 
 msgid "Part"
-msgstr "零件"
+msgstr ""
 
 msgid "Passed Inspection"
-msgstr "检验通过"
+msgstr ""
 
 msgid "Pause"
-msgstr "暂停"
+msgstr ""
 
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
 #. placeholder {2}: columnOrder.length
 msgid "Picked up Column {0} at position: {1} of {2}"
-msgstr "已拾取列 {0}，位于第 {1} 个位置（共 {2} 个）"
+msgstr ""
 
 msgid "Pin Out"
-msgstr "退出登录"
+msgstr ""
 
 msgid "Planned"
-msgstr "已计划"
+msgstr ""
 
 msgid "Please record all steps for this operation before closing."
-msgstr "请在关闭前记录此工序的所有步骤。"
+msgstr ""
 
 msgid "Please select an item"
-msgstr "请选择一个物料"
+msgstr ""
 
 msgid "Prev"
-msgstr "上一个"
+msgstr ""
 
 msgid "Preventive"
-msgstr "预防性"
+msgstr ""
 
 msgid "Priority"
-msgstr "优先级"
+msgstr ""
 
 msgid "Procedure"
-msgstr "程序"
+msgstr ""
 
 msgid "Process"
-msgstr "工艺"
+msgstr ""
 
 msgid "Process Parameters"
-msgstr "工艺参数"
+msgstr ""
 
 msgid "Processes"
-msgstr "工艺"
+msgstr ""
 
 msgid "Progress"
-msgstr "进度"
+msgstr ""
 
 msgid "Quantity"
-msgstr "数量"
+msgstr ""
 
 msgid "Quantity must be greater than 0"
-msgstr "数量必须大于 0"
+msgstr ""
 
 msgid "Recent"
-msgstr "最近"
+msgstr ""
 
 msgid "Record"
-msgstr "记录"
+msgstr ""
 
 #. placeholder {0}: activeStep + 1
 msgid "Record {0}"
-msgstr "记录 {0}"
+msgstr ""
 
 msgid "Remove"
-msgstr "移除"
+msgstr ""
 
 msgid "Remove filter"
-msgstr "移除筛选"
+msgstr ""
 
 msgid "Remove Inventory"
-msgstr "移除库存"
+msgstr ""
 
 msgid "Remove part"
-msgstr "移除零件"
+msgstr ""
 
 msgid "Sales Order"
-msgstr "销售订单"
+msgstr ""
 
 msgid "Save"
-msgstr "保存"
+msgstr ""
 
 msgid "Scan"
-msgstr "扫描"
+msgstr ""
 
 msgid "Scan or enter serial number"
-msgstr "扫描或输入序列号"
+msgstr ""
 
 msgid "Schedule"
-msgstr "排程"
+msgstr ""
 
 msgid "Scrap Reason"
-msgstr "报废原因"
+msgstr ""
 
 msgid "Scrapped"
-msgstr "已报废"
+msgstr ""
 
 msgid "Search"
-msgstr "搜索"
+msgstr ""
 
 msgid "Search by job or item ID"
 msgstr "按工作或项目ID搜索"
 
 msgid "Search operators..."
-msgstr "搜索操作员..."
+msgstr ""
 
 msgid "Search..."
-msgstr "搜索..."
+msgstr ""
 
 msgid "Select"
-msgstr "选择"
+msgstr ""
 
 msgid "Select a completion quantity"
-msgstr "选择完成数量"
+msgstr ""
 
 msgid "Select a rework quantity"
-msgstr "选择返工数量"
+msgstr ""
 
 msgid "Select a scrap quantity and reason"
-msgstr "选择报废数量和原因"
+msgstr ""
 
 msgid "Select a serial number to continue with this operation"
-msgstr "选择一个序列号以继续此工序"
+msgstr ""
 
 msgid "Select an item and specify the quantity to issue"
-msgstr "选择物料并指定发放数量"
+msgstr ""
 
 msgid "Select an item..."
-msgstr "选择物料..."
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Batch {0}"
-msgstr "选择批次 {0}"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
-msgstr "选择序列号 {0}"
+msgstr ""
 
 msgid "Select Serial Number"
-msgstr "选择序列号"
+msgstr ""
 
 msgid "Send"
-msgstr "发送"
+msgstr ""
 
 msgid "Serial"
-msgstr "序列号"
+msgstr ""
 
 #. placeholder {0}: sn.readableId
 msgid "Serial {0}"
-msgstr "序列号 {0}"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
-msgstr "序列号 {0}"
+msgstr ""
 
 msgid "Serial number is not available"
-msgstr "序列号不可用"
+msgstr ""
 
 msgid "Serial number is required"
-msgstr "序列号为必填项"
+msgstr ""
 
 msgid "Serial Numbers"
-msgstr "序列号"
+msgstr ""
 
 msgid "Set Clock Out"
-msgstr "设置下班时间"
+msgstr ""
 
 msgid "Set clock-out time"
-msgstr "设置下班打卡时间"
+msgstr ""
 
 msgid "Setup"
-msgstr "设置"
+msgstr ""
 
 msgid "Sign in with Email"
-msgstr "使用邮箱登录"
+msgstr ""
 
 msgid "Sign in with Google"
-msgstr "使用 Google 登录"
+msgstr ""
 
 msgid "Sign in with Outlook"
-msgstr "使用 Outlook 登录"
+msgstr ""
 
 msgid "Sign Out"
-msgstr "退出登录"
+msgstr ""
 
 msgid "Signed in as {stationName}"
-msgstr "已登录为 {stationName}"
+msgstr ""
 
 msgid "Size"
-msgstr "大小"
+msgstr ""
 
 msgid "Source"
-msgstr "来源"
+msgstr ""
 
 msgid "Spare Parts"
-msgstr "备件"
+msgstr ""
 
 msgid "Spare Parts Used"
-msgstr "已使用备件"
+msgstr ""
 
 msgid "Start"
-msgstr "开始"
+msgstr ""
 
 msgid "Station User"
-msgstr "工位用户"
+msgstr ""
 
 msgid "Station: {stationName}"
-msgstr "工位：{stationName}"
+msgstr ""
 
 msgid "Status"
-msgstr "状态"
+msgstr ""
 
 msgid "Statuses"
-msgstr "状态"
+msgstr ""
 
 msgid "Steps"
-msgstr "步骤"
+msgstr ""
 
 msgid "Steps are missing"
-msgstr "缺少步骤"
+msgstr ""
 
 msgid "Storage Unit"
-msgstr "存储单位"
+msgstr ""
 
 msgid "Submit anonymously"
-msgstr "匿名提交"
+msgstr ""
 
 msgid "Suggestion"
-msgstr "建议"
+msgstr ""
 
 msgid "Support Required"
-msgstr "需要支持"
+msgstr ""
 
 msgid "Switch Operator"
-msgstr "切换操作员"
+msgstr ""
 
 msgid "Tag"
-msgstr "标签"
+msgstr ""
 
 #. placeholder {0}: operation.operationQuantity
 msgid "The completed quantity for this operation is less than the required quantity of {0}."
-msgstr "此工序的完成数量小于所需数量 {0}。"
+msgstr ""
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
-msgstr "物料清单中有序列号或批次追踪的物料尚未完全发放。不发放即完成可能导致追溯记录不正确。"
+msgstr ""
 
 msgid "Thumbnail"
-msgstr "缩略图"
+msgstr ""
 
 msgid "Time Entries"
-msgstr "工时记录"
+msgstr ""
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Time Worked: {0}"
-msgstr "工作时间：{0}"
+msgstr ""
 
 msgid "Today"
-msgstr "今天"
+msgstr ""
 
 msgid "Tools"
-msgstr "工具"
+msgstr ""
 
 msgid "Total Quantity"
-msgstr "总数量"
+msgstr ""
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Total time: {0}"
-msgstr "总时间：{0}"
+msgstr ""
 
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
-msgstr "合计：{0}"
+msgstr ""
 
 msgid "Tracking"
 msgstr "追踪"
 
 msgid "Tracking Labels"
-msgstr "追踪标签"
+msgstr ""
 
 msgid "Type a message..."
-msgstr "输入消息..."
+msgstr ""
 
 msgid "Unissued serial/batch materials"
-msgstr "未发放的序列号/批次物料"
+msgstr ""
 
 msgid "Unknown"
-msgstr "未知"
+msgstr ""
 
 msgid "Update"
-msgstr "更新"
+msgstr ""
 
 msgid "Updated successfully"
-msgstr "更新成功"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Uploaded: {0}"
-msgstr "已上传：{0}"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
-msgstr "正在上传 {0}"
+msgstr ""
 
 msgid "View maintenance dispatch"
-msgstr "查看维护工单"
+msgstr ""
 
 msgid "We've sent you a magic link to sign in to your account."
-msgstr "我们已向您发送了登录链接，请查收。"
+msgstr ""
 
 msgid "WIP"
-msgstr "在制品"
+msgstr ""
 
 msgid "Work Center"
-msgstr "工作中心"
+msgstr ""
 
 #. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString(locale)
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
-msgstr "您于 {0} 打卡上班。您可以在下方编辑下班时间，或确认您仍在工作。"
+msgstr ""
 
 msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
-msgstr "您已打卡上班 {hoursElapsed} 小时。您是否忘记打卡下班了？"
+msgstr ""

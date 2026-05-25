@@ -113,11 +113,18 @@ export function getEnv(
  * Server env
  */
 
+export type AuthProvider = "email" | "google" | "azure" | "passkey";
+
 export const AUTH_PROVIDERS =
   getEnv("AUTH_PROVIDERS", {
     isRequired: false,
     isSecret: false
   }) ?? "email,google,azure";
+
+export function isAuthProviderEnabled(provider: AuthProvider) {
+  const AUTH_PROVIDERS_LIST = AUTH_PROVIDERS.split(",").map((p) => p.trim());
+  return AUTH_PROVIDERS_LIST.includes(provider);
+}
 
 const CARBON_EDITION = getEnv("CARBON_EDITION", {
   isRequired: false,
@@ -411,6 +418,7 @@ export function getMESUrl() {
 
 export function getBrowserEnv() {
   return {
+    AUTH_PROVIDERS,
     CARBON_EDITION,
     CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,

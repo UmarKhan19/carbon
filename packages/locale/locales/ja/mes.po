@@ -15,925 +15,925 @@ msgstr ""
 #. placeholder {0}: attribute.name
 #. placeholder {1}: activeStep + 1
 msgid "{0} - Set {1}"
-msgstr "{0} - セット {1}"
+msgstr ""
 
 #. placeholder {0}: employeeIds.length
 msgid "{0} Active"
-msgstr "{0} アクティブ"
+msgstr ""
 
 #. placeholder {0}: batch.quantity
 msgid "{0} available"
-msgstr "{0} 利用可能"
+msgstr ""
 
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
 #. placeholder {1}: operation.targetQuantity
 msgid "{0} of {1}"
-msgstr "{0} / {1}"
+msgstr ""
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
 msgid "{0} of {1} complete"
-msgstr "{0} / {1} 完了"
+msgstr ""
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
 msgid "{0} of {1} completed"
-msgstr "{0} / {1} 完了済み"
+msgstr ""
 
 #. placeholder {0}: item.quantityScrapped
 msgid "{0} Scrapped"
-msgstr "{0} スクラップ"
+msgstr ""
 
 msgid "About"
-msgstr "バージョン情報"
+msgstr ""
 
 msgid "Account Settings"
-msgstr "アカウント設定"
+msgstr ""
 
 msgid "Active"
-msgstr "アクティブ"
+msgstr ""
 
 msgid "Actual"
-msgstr "実績"
+msgstr ""
 
 msgid "Add"
-msgstr "追加"
+msgstr ""
 
 msgid "Add & Issue"
-msgstr "追加して払出"
+msgstr ""
 
 msgid "Add Inventory"
-msgstr "在庫追加"
+msgstr ""
 
 msgid "Add Spare Part"
-msgstr "スペアパーツを追加"
+msgstr ""
 
 msgid "All"
-msgstr "すべて"
+msgstr ""
 
 msgid "Are you sure you want to close out this operation? This will end all active production events for this operation."
-msgstr "この工程をクローズしてもよろしいですか？この工程のすべてのアクティブな生産イベントが終了します。"
+msgstr ""
 
 msgid "Are you sure you want to delete this step?"
-msgstr "このステップを削除してもよろしいですか？"
+msgstr ""
 
 msgid "Are you sure you want to delete this timecard? This cannot be undone."
-msgstr "このタイムカードを削除してもよろしいですか？この操作は元に戻せません。"
+msgstr ""
 
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
-msgstr "すべての生産イベントを終了してもよろしいですか？すべてのアクティブな工程が完了せずに終了します。"
+msgstr ""
 
 msgid "Assigned"
-msgstr "割当済み"
+msgstr ""
 
 msgid "Assigned to Me"
-msgstr "自分に割当"
+msgstr ""
 
 msgid "Assignee"
-msgstr "担当者"
+msgstr ""
 
 msgid "Attach File"
-msgstr "ファイルを添付"
+msgstr ""
 
 msgid "Authentication Error"
-msgstr "認証エラー"
+msgstr ""
 
 #. placeholder {0}: batch.readableId
 #. placeholder {1}: batch.quantity
 msgid "Batch {0} ({1} available)"
-msgstr "バッチ {0}（{1} 利用可能）"
+msgstr ""
 
 msgid "Batch is not available"
-msgstr "バッチは利用できません"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Batch Number {0}"
-msgstr "バッチ番号 {0}"
+msgstr ""
 
 msgid "Batch number is required"
-msgstr "バッチ番号は必須です"
+msgstr ""
 
 #. placeholder {0}: column.blockingDispatchReadableId
 msgid "Blocked by {0}"
-msgstr "{0} によりブロック中"
+msgstr ""
 
 msgid "Blocking"
-msgstr "ブロック中"
+msgstr ""
 
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
-msgstr "ご心配なく。パスワード忘却フローを使用して新しいマジックリンクをリクエストできます。"
+msgstr ""
 
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
-msgstr "サインインすることにより、<0>利用規約</0>および<1>プライバシーポリシー</1>に同意したものとみなされます。"
+msgstr ""
 
 msgid "Cancel"
-msgstr "キャンセル"
+msgstr ""
 
 msgid "Carbon Logo"
-msgstr "Carbonロゴ"
+msgstr ""
 
 msgid "Cards"
-msgstr "カード"
+msgstr ""
 
 msgid "Chat"
-msgstr "チャット"
+msgstr ""
 
 msgid "Check your email"
-msgstr "メールを確認してください"
+msgstr ""
 
 msgid "Clear"
-msgstr "クリア"
+msgstr ""
 
 msgid "Clear Filters"
-msgstr "フィルターをクリア"
+msgstr ""
 
 msgid "Clear Search"
-msgstr "検索をクリア"
+msgstr ""
 
 msgid "Clock In"
-msgstr "出勤打刻"
+msgstr ""
 
 msgid "Clock Out"
-msgstr "退勤打刻"
+msgstr ""
 
 #. placeholder {0}: formatTime(openEntry.clockIn, locale)
 msgid "Clocked in since {0}"
-msgstr "{0} から出勤中"
+msgstr ""
 
 msgid "Close"
-msgstr "閉じる"
+msgstr ""
 
 msgid "Close Anyways"
-msgstr "強制的に閉じる"
+msgstr ""
 
 msgid "Close Out"
-msgstr "クローズ"
+msgstr ""
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Close out {0}"
-msgstr "{0} をクローズ"
+msgstr ""
 
 #. placeholder {0}: active.data.current.column.title
 #. placeholder {1}: overColumnPosition + 1
 #. placeholder {2}: columnOrder.length
 msgid "Column {0} was dropped into position {1} of {2}"
-msgstr "カラム {0} が {2} 中の位置 {1} にドロップされました"
+msgstr ""
 
 #. placeholder {0}: active.data.current.column.title
 #. placeholder {1}: over.data.current.column.title
 #. placeholder {2}: overIndex + 1
 #. placeholder {3}: columnOrder.length
 msgid "Column {0} was moved over {1} at position {2} of {3}"
-msgstr "カラム {0} が {1} の上に移動し、{3} 中の位置 {2} になりました"
+msgstr ""
 
 #. placeholder {0}: column.title
 msgid "Column: {0}"
-msgstr "カラム: {0}"
+msgstr ""
 
 msgid "Columns"
-msgstr "列"
+msgstr ""
 
 msgid "Company"
-msgstr "会社"
+msgstr ""
 
 msgid "Complete"
-msgstr "完了"
+msgstr ""
 
 msgid "Completed"
-msgstr "完了済み"
+msgstr ""
 
 msgid "Console"
-msgstr "コンソール"
+msgstr ""
 
 msgid "Console Mode"
-msgstr "コンソールモード"
+msgstr ""
 
 msgid "Consumed expired"
-msgstr "消費期限切れ"
+msgstr ""
 
 #. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
-msgstr "{0}を作成"
+msgstr ""
 
 msgid "Customer"
-msgstr "顧客"
+msgstr ""
 
 msgid "Dark Mode"
-msgstr "ダークモード"
+msgstr ""
 
 msgid "Date"
-msgstr "日付"
+msgstr ""
 
 msgid "Deadline"
-msgstr "期限"
+msgstr ""
 
 msgid "Default Storage Unit"
-msgstr "デフォルト保管ユニット"
+msgstr ""
 
 msgid "Delete"
-msgstr "削除"
+msgstr ""
 
 msgid "Delete Step"
-msgstr "ステップを削除"
+msgstr ""
 
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
-msgstr "タイムカードを削除（{0}）"
+msgstr ""
 
 msgid "Description"
-msgstr "説明"
+msgstr ""
 
 msgid "Details"
-msgstr "詳細"
+msgstr ""
 
 msgid "Dispatch not found"
-msgstr "ディスパッチが見つかりません"
+msgstr ""
 
 msgid "Display"
-msgstr "表示"
+msgstr ""
 
 msgid "Down"
-msgstr "停止"
+msgstr ""
 
 msgid "Download"
-msgstr "ダウンロード"
+msgstr ""
 
 msgid "Drag and drop a file here, or click to select a file"
-msgstr "ファイルをここにドラッグ＆ドロップするか、クリックしてファイルを選択してください"
+msgstr ""
 
 #. placeholder {0}: active.data.current?.type
 msgid "Dragging {0} cancelled."
-msgstr "{0} のドラッグがキャンセルされました。"
+msgstr ""
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
-msgstr "期限 {0}"
+msgstr ""
 
 msgid "Due Date"
-msgstr "納期"
+msgstr ""
 
 msgid "Duplicate batch number"
-msgstr "バッチ番号が重複しています"
+msgstr ""
 
 msgid "Duplicate serial number"
-msgstr "シリアル番号が重複しています"
+msgstr ""
 
 msgid "Duration"
-msgstr "時間"
+msgstr ""
 
 msgid "Edit"
-msgstr "編集"
+msgstr ""
 
 msgid "Email Address"
-msgstr "メールアドレス"
+msgstr ""
 
 msgid "Empty work centers"
-msgstr "空の作業センター"
+msgstr ""
 
 msgid "End Operations"
-msgstr "工程を終了"
+msgstr ""
 
 #. placeholder {0}: selectedPerson.name
 msgid "Enter PIN for {0}"
-msgstr "{0} のPINを入力"
+msgstr ""
 
 msgid "Error"
-msgstr "エラー"
+msgstr ""
 
 msgid "Estimated"
-msgstr "見積"
+msgstr ""
 
 msgid "Failed to complete inventory adjustment"
-msgstr "在庫調整の完了に失敗しました"
+msgstr ""
 
 msgid "Failed to end operations"
-msgstr "工程の終了に失敗しました"
+msgstr ""
 
 msgid "Failed to fetch active operations"
-msgstr "アクティブな工程の取得に失敗しました"
+msgstr ""
 
 msgid "Failed to fetch storageUnits"
-msgstr "storageUnitsの取得に失敗しました"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
-msgstr "ファイルのアップロードに失敗しました: {0}"
+msgstr ""
 
 msgid "Failed to upload image"
-msgstr "画像のアップロードに失敗しました"
+msgstr ""
 
 msgid "Feedback"
-msgstr "フィードバック"
+msgstr ""
 
 msgid "File size exceeds 10MB limit"
-msgstr "ファイルサイズが10MBの制限を超えています"
+msgstr ""
 
 msgid "Files"
-msgstr "ファイル"
+msgstr ""
 
 msgid "Files related to the job and the opportunity line."
-msgstr "ジョブおよび案件明細に関連するファイル。"
+msgstr ""
 
 msgid "Filter"
-msgstr "フィルター"
+msgstr ""
 
 msgid "Forgot to Clock Out?"
-msgstr "退勤打刻を忘れましたか？"
+msgstr ""
 
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
-msgstr "技術的な問題がありますか？<0>Carbonサポート</0>にお問い合わせください。"
+msgstr ""
 
 msgid "I understand and want to complete without issuing"
-msgstr "理解した上で払出なしで完了します"
+msgstr ""
 
 msgid "I'm Still Working"
-msgstr "まだ作業中です"
+msgstr ""
 
 msgid "Ideas, suggestions or problems with this page?"
-msgstr "このページについてのアイデア、提案、または問題はありますか？"
+msgstr ""
 
 msgid "Ideas, suggestions or problems?"
-msgstr "アイデア、提案、または問題はありますか？"
+msgstr ""
 
 msgid "Impact"
-msgstr "影響"
+msgstr ""
 
 msgid "In Progress"
-msgstr "進行中"
+msgstr ""
 
 msgid "Insufficient quantity"
-msgstr "数量が不足しています"
+msgstr ""
 
 msgid "Inventory adjustment completed"
-msgstr "在庫調整が完了しました"
+msgstr ""
 
 msgid "Inventory Adjustments"
-msgstr "在庫調整"
+msgstr ""
 
 msgid "is"
-msgstr "が次と等しい"
+msgstr ""
 
 msgid "is any of"
-msgstr "が次のいずれか"
+msgstr ""
 
 msgid "Issue"
-msgstr "払出"
+msgstr ""
 
 msgid "Issue Material"
-msgstr "材料払出"
+msgstr ""
 
 msgid "Item"
-msgstr "品目"
+msgstr ""
 
 msgid "Item Master"
-msgstr "品目マスター"
+msgstr ""
 
 msgid "Job"
-msgstr "ジョブ"
+msgstr ""
 
 msgid "Job Details"
-msgstr "ジョブ詳細"
+msgstr ""
 
 msgid "Job Traveler"
-msgstr "ジョブトラベラー"
+msgstr ""
 
 msgid "Jobs"
 msgstr "ジョブ"
 
 msgid "Kit"
-msgstr "キット"
+msgstr ""
 
 msgid "Labor"
-msgstr "作業"
+msgstr ""
 
 msgid "Let's build something"
-msgstr "さあ、何かを作りましょう"
+msgstr ""
 
 msgid "Loading item details..."
-msgstr "品目詳細を読み込み中..."
+msgstr ""
 
 msgid "Loading..."
-msgstr "読み込み中..."
+msgstr ""
 
 msgid "Location"
-msgstr "ロケーション"
+msgstr ""
 
 msgid "Log Completed"
-msgstr "完了を記録"
+msgstr ""
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log completed for {0}"
-msgstr "{0} の完了を記録"
+msgstr ""
 
 msgid "Log Rework"
-msgstr "手直しを記録"
+msgstr ""
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log rework for {0}"
-msgstr "{0} の手直しを記録"
+msgstr ""
 
 msgid "Log Scrap"
-msgstr "スクラップを記録"
+msgstr ""
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log scrap for {0}"
-msgstr "{0} のスクラップを記録"
+msgstr ""
 
 msgid "Login"
-msgstr "ログイン"
+msgstr ""
 
 msgid "Machine"
-msgstr "機械"
+msgstr ""
 
 msgid "Maintenance"
-msgstr "メンテナンス"
+msgstr ""
 
 msgid "Maintenance Completed"
-msgstr "メンテナンス完了"
+msgstr ""
 
 msgid "Manually add items to inventory"
-msgstr "手動で在庫に品目を追加"
+msgstr ""
 
 msgid "Manually remove items from inventory"
-msgstr "手動で在庫から品目を削除"
+msgstr ""
 
 msgid "matches"
-msgstr "が一致"
+msgstr ""
 
 msgid "Materials"
-msgstr "材料"
+msgstr ""
 
 msgid "Maximum number of records reached"
-msgstr "レコードの最大数に達しました"
+msgstr ""
 
 msgid "Model"
-msgstr "モデル"
+msgstr ""
 
 msgid "More options"
-msgstr "その他のオプション"
+msgstr ""
 
 #. placeholder {0}: column.title
 msgid "Move column: {0}"
-msgstr "カラムを移動: {0}"
+msgstr ""
 
 msgid "Must be < {maxValue} {unitOfMeasureCode}"
-msgstr "{maxValue} {unitOfMeasureCode} 未満である必要があります"
+msgstr ""
 
 msgid "Must be > {minValue} {unitOfMeasureCode}"
-msgstr "{minValue} {unitOfMeasureCode} より大きい必要があります"
+msgstr ""
 
 msgid "Must be between {minValue} and {maxValue} {unitOfMeasureCode}"
-msgstr "{minValue} から {maxValue} {unitOfMeasureCode} の間である必要があります"
+msgstr ""
 
 msgid "My Hours"
-msgstr "勤務時間"
+msgstr ""
 
 msgid "Name"
-msgstr "名前"
+msgstr ""
 
 msgid "New"
-msgstr "新規"
+msgstr ""
 
 msgid "New Record"
-msgstr "新規レコード"
+msgstr ""
 
 msgid "Next"
-msgstr "次へ"
+msgstr ""
 
 msgid "No active maintenance dispatches"
-msgstr "アクティブなメンテナンスディスパッチはありません"
+msgstr ""
 
 msgid "No active operations"
-msgstr "アクティブな工程はありません"
+msgstr ""
 
 msgid "No assigned operations"
-msgstr "割り当てられた工程はありません"
+msgstr ""
 
 msgid "No available filters"
-msgstr "利用可能なフィルターはありません"
+msgstr ""
 
 msgid "No available serial numbers found"
-msgstr "利用可能なシリアル番号が見つかりません"
+msgstr ""
 
 msgid "No dispatches assigned to you"
-msgstr "あなたに割り当てられたディスパッチはありません"
+msgstr ""
 
 msgid "No files"
-msgstr "ファイルなし"
+msgstr ""
 
 msgid "No Impact"
-msgstr "影響なし"
+msgstr ""
 
 msgid "No maintenance scheduled for today"
-msgstr "本日のメンテナンス予定はありません"
+msgstr ""
 
 msgid "No materials"
-msgstr "材料なし"
+msgstr ""
 
 msgid "No open jobs"
 msgstr "オープンなジョブはありません"
 
 msgid "No operators"
-msgstr "オペレーターなし"
+msgstr ""
 
 msgid "No option found."
-msgstr "オプションが見つかりません。"
+msgstr ""
 
 msgid "No options found."
-msgstr "オプションが見つかりません。"
+msgstr ""
 
 msgid "No recent operations"
-msgstr "最近の工程はありません"
+msgstr ""
 
 msgid "No results"
-msgstr "結果なし"
+msgstr ""
 
 msgid "No results exist"
-msgstr "結果がありません"
+msgstr ""
 
 msgid "No results found"
-msgstr "結果が見つかりません"
+msgstr ""
 
 msgid "No scheduled time"
-msgstr "予定時間なし"
+msgstr ""
 
 msgid "No serial numbers"
-msgstr "シリアル番号なし"
+msgstr ""
 
 msgid "No spare parts added yet"
-msgstr "スペアパーツはまだ追加されていません"
+msgstr ""
 
 msgid "No time entries for this week"
-msgstr "今週のタイムエントリーはありません"
+msgstr ""
 
 msgid "No work centers are blocked"
-msgstr "ブロックされているワークセンターはありません"
+msgstr ""
 
 msgid "No work centers exist"
-msgstr "ワークセンターがありません"
+msgstr ""
 
 msgid "Notes"
-msgstr "備考"
+msgstr ""
 
 msgid "OEE Impact"
-msgstr "OEE影響度"
+msgstr ""
 
 msgid "OEM Required"
-msgstr "OEM対応必要"
+msgstr ""
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
-msgstr "{0} のみ利用可能"
+msgstr ""
 
 msgid "Oops. You shouldn't see this page. Eventually it will be a landing page."
-msgstr "このページは表示されないはずです。最終的にはランディングページになります。"
+msgstr ""
 
 msgid "Open"
-msgstr "未対応"
+msgstr ""
 
 msgid "Open Jobs"
 msgstr "オープンジョブ"
 
 msgid "Operations"
-msgstr "工程"
+msgstr ""
 
 msgid "Operations ended"
-msgstr "工程が終了しました"
+msgstr ""
 
 msgid "Operator Performed"
-msgstr "オペレーター実施"
+msgstr ""
 
 msgid "Optional"
-msgstr "オプション"
+msgstr ""
 
 msgid "Parameters"
-msgstr "パラメーター"
+msgstr ""
 
 msgid "Part"
-msgstr "パーツ"
+msgstr ""
 
 msgid "Passed Inspection"
-msgstr "検査合格"
+msgstr ""
 
 msgid "Pause"
-msgstr "一時停止"
+msgstr ""
 
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
 #. placeholder {2}: columnOrder.length
 msgid "Picked up Column {0} at position: {1} of {2}"
-msgstr "カラム {0} を位置 {1}/{2} で選択しました"
+msgstr ""
 
 msgid "Pin Out"
-msgstr "ピンアウト"
+msgstr ""
 
 msgid "Planned"
-msgstr "計画済み"
+msgstr ""
 
 msgid "Please record all steps for this operation before closing."
-msgstr "クローズする前にこの工程のすべてのステップを記録してください。"
+msgstr ""
 
 msgid "Please select an item"
-msgstr "品目を選択してください"
+msgstr ""
 
 msgid "Prev"
-msgstr "前へ"
+msgstr ""
 
 msgid "Preventive"
-msgstr "予防保全"
+msgstr ""
 
 msgid "Priority"
-msgstr "優先度"
+msgstr ""
 
 msgid "Procedure"
-msgstr "手順"
+msgstr ""
 
 msgid "Process"
-msgstr "プロセス"
+msgstr ""
 
 msgid "Process Parameters"
-msgstr "プロセスパラメーター"
+msgstr ""
 
 msgid "Processes"
-msgstr "プロセス一覧"
+msgstr ""
 
 msgid "Progress"
-msgstr "進捗"
+msgstr ""
 
 msgid "Quantity"
-msgstr "数量"
+msgstr ""
 
 msgid "Quantity must be greater than 0"
-msgstr "数量は0より大きい値を入力してください"
+msgstr ""
 
 msgid "Recent"
-msgstr "最近"
+msgstr ""
 
 msgid "Record"
-msgstr "記録"
+msgstr ""
 
 #. placeholder {0}: activeStep + 1
 msgid "Record {0}"
-msgstr "レコード {0}"
+msgstr ""
 
 msgid "Remove"
-msgstr "削除"
+msgstr ""
 
 msgid "Remove filter"
-msgstr "フィルターを削除"
+msgstr ""
 
 msgid "Remove Inventory"
-msgstr "在庫削除"
+msgstr ""
 
 msgid "Remove part"
-msgstr "パーツを削除"
+msgstr ""
 
 msgid "Sales Order"
-msgstr "受注"
+msgstr ""
 
 msgid "Save"
-msgstr "保存"
+msgstr ""
 
 msgid "Scan"
-msgstr "スキャン"
+msgstr ""
 
 msgid "Scan or enter serial number"
-msgstr "シリアル番号をスキャンまたは入力"
+msgstr ""
 
 msgid "Schedule"
-msgstr "スケジュール"
+msgstr ""
 
 msgid "Scrap Reason"
-msgstr "スクラップ理由"
+msgstr ""
 
 msgid "Scrapped"
-msgstr "スクラップ済み"
+msgstr ""
 
 msgid "Search"
-msgstr "検索"
+msgstr ""
 
 msgid "Search by job or item ID"
 msgstr "ジョブまたはアイテムIDで検索"
 
 msgid "Search operators..."
-msgstr "オペレーターを検索..."
+msgstr ""
 
 msgid "Search..."
-msgstr "検索..."
+msgstr ""
 
 msgid "Select"
-msgstr "選択"
+msgstr ""
 
 msgid "Select a completion quantity"
-msgstr "完了数量を選択"
+msgstr ""
 
 msgid "Select a rework quantity"
-msgstr "手直し数量を選択"
+msgstr ""
 
 msgid "Select a scrap quantity and reason"
-msgstr "スクラップ数量と理由を選択"
+msgstr ""
 
 msgid "Select a serial number to continue with this operation"
-msgstr "この工程を続行するシリアル番号を選択してください"
+msgstr ""
 
 msgid "Select an item and specify the quantity to issue"
-msgstr "品目を選択し、払出数量を指定してください"
+msgstr ""
 
 msgid "Select an item..."
-msgstr "品目を選択..."
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Batch {0}"
-msgstr "バッチ {0} を選択"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
-msgstr "シリアル {0} を選択"
+msgstr ""
 
 msgid "Select Serial Number"
-msgstr "シリアル番号を選択"
+msgstr ""
 
 msgid "Send"
-msgstr "送信"
+msgstr ""
 
 msgid "Serial"
-msgstr "シリアル"
+msgstr ""
 
 #. placeholder {0}: sn.readableId
 msgid "Serial {0}"
-msgstr "シリアル {0}"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
-msgstr "シリアル番号 {0}"
+msgstr ""
 
 msgid "Serial number is not available"
-msgstr "シリアル番号は利用できません"
+msgstr ""
 
 msgid "Serial number is required"
-msgstr "シリアル番号は必須です"
+msgstr ""
 
 msgid "Serial Numbers"
-msgstr "シリアル番号"
+msgstr ""
 
 msgid "Set Clock Out"
-msgstr "退勤時間を設定"
+msgstr ""
 
 msgid "Set clock-out time"
-msgstr "退勤時間を設定"
+msgstr ""
 
 msgid "Setup"
-msgstr "段取り"
+msgstr ""
 
 msgid "Sign in with Email"
-msgstr "メールでサインイン"
+msgstr ""
 
 msgid "Sign in with Google"
-msgstr "Googleでサインイン"
+msgstr ""
 
 msgid "Sign in with Outlook"
-msgstr "Outlookでサインイン"
+msgstr ""
 
 msgid "Sign Out"
-msgstr "サインアウト"
+msgstr ""
 
 msgid "Signed in as {stationName}"
-msgstr "{stationName} としてサインイン中"
+msgstr ""
 
 msgid "Size"
-msgstr "サイズ"
+msgstr ""
 
 msgid "Source"
-msgstr "ソース"
+msgstr ""
 
 msgid "Spare Parts"
-msgstr "スペアパーツ"
+msgstr ""
 
 msgid "Spare Parts Used"
-msgstr "使用済みスペアパーツ"
+msgstr ""
 
 msgid "Start"
-msgstr "開始"
+msgstr ""
 
 msgid "Station User"
-msgstr "ステーションユーザー"
+msgstr ""
 
 msgid "Station: {stationName}"
-msgstr "ステーション: {stationName}"
+msgstr ""
 
 msgid "Status"
-msgstr "ステータス"
+msgstr ""
 
 msgid "Statuses"
-msgstr "ステータス一覧"
+msgstr ""
 
 msgid "Steps"
-msgstr "ステップ"
+msgstr ""
 
 msgid "Steps are missing"
-msgstr "ステップが未記録です"
+msgstr ""
 
 msgid "Storage Unit"
-msgstr "保管場所"
+msgstr ""
 
 msgid "Submit anonymously"
-msgstr "匿名で送信"
+msgstr ""
 
 msgid "Suggestion"
-msgstr "提案"
+msgstr ""
 
 msgid "Support Required"
-msgstr "サポート必要"
+msgstr ""
 
 msgid "Switch Operator"
-msgstr "オペレーターを切替"
+msgstr ""
 
 msgid "Tag"
-msgstr "タグ"
+msgstr ""
 
 #. placeholder {0}: operation.operationQuantity
 msgid "The completed quantity for this operation is less than the required quantity of {0}."
-msgstr "この工程の完了数量が必要数量 {0} を下回っています。"
+msgstr ""
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
-msgstr "部品表にシリアルまたはバッチ追跡対象の材料が完全に払い出されていません。払出なしで完了すると、トレーサビリティ記録が不正確になる可能性があります。"
+msgstr ""
 
 msgid "Thumbnail"
-msgstr "サムネイル"
+msgstr ""
 
 msgid "Time Entries"
-msgstr "タイムエントリー"
+msgstr ""
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Time Worked: {0}"
-msgstr "作業時間: {0}"
+msgstr ""
 
 msgid "Today"
-msgstr "今日"
+msgstr ""
 
 msgid "Tools"
-msgstr "工具"
+msgstr ""
 
 msgid "Total Quantity"
-msgstr "合計数量"
+msgstr ""
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Total time: {0}"
-msgstr "合計時間: {0}"
+msgstr ""
 
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
-msgstr "合計: {0}"
+msgstr ""
 
 msgid "Tracking"
 msgstr "追跡"
 
 msgid "Tracking Labels"
-msgstr "追跡ラベル"
+msgstr ""
 
 msgid "Type a message..."
-msgstr "メッセージを入力..."
+msgstr ""
 
 msgid "Unissued serial/batch materials"
-msgstr "未払出のシリアル/バッチ材料"
+msgstr ""
 
 msgid "Unknown"
-msgstr "不明"
+msgstr ""
 
 msgid "Update"
-msgstr "更新"
+msgstr ""
 
 msgid "Updated successfully"
-msgstr "正常に更新されました"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Uploaded: {0}"
-msgstr "アップロード完了: {0}"
+msgstr ""
 
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
-msgstr "{0} をアップロード中"
+msgstr ""
 
 msgid "View maintenance dispatch"
-msgstr "メンテナンスディスパッチを表示"
+msgstr ""
 
 msgid "We've sent you a magic link to sign in to your account."
-msgstr "アカウントにサインインするためのマジックリンクをお送りしました。"
+msgstr ""
 
 msgid "WIP"
-msgstr "仕掛品"
+msgstr ""
 
 msgid "Work Center"
-msgstr "ワークセンター"
+msgstr ""
 
 #. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString(locale)
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
-msgstr "{0} に出勤打刻しました。下記で退勤時間を編集するか、まだ作業中であることを確認してください。"
+msgstr ""
 
 msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
-msgstr "{hoursElapsed} 時間出勤中です。退勤打刻を忘れていませんか？"
+msgstr ""

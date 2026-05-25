@@ -68,6 +68,7 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const {
+    AUTH_PROVIDERS,
     CARBON_EDITION,
     CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,
@@ -98,6 +99,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   return data(
     {
       env: {
+        AUTH_PROVIDERS,
         CARBON_EDITION,
         CARBON_API_URL,
         CLOUDFLARE_TURNSTILE_SITE_KEY,

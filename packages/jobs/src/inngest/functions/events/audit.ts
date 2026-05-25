@@ -40,6 +40,21 @@ const AuditPayloadSchema = z.object({
 export type AuditPayload = z.infer<typeof AuditPayloadSchema>;
 
 /**
+ * Whether a diff key should be excluded from the audit log. Matches both
+ * top-level columns (`"embedding"`) and any nested suffix (`"foo.embedding"`)
+ * so vector / metadata columns don't leak when they appear inside JSON
+ * containers or under createField allowlists.
+ */
+function isSkippedAuditKey(key: string): boolean {
+  const skip = auditConfig.skipFields as readonly string[];
+  for (let i = 0; i < skip.length; i++) {
+    const s = skip[i]!;
+    if (key === s || key.endsWith(`.${s}`)) return true;
+  }
+  return false;
+}
+
+/**
  * Compute the diff between old and new record values.
  */
 function computeDiff(
@@ -47,12 +62,11 @@ function computeDiff(
   newRecord: Record<string, unknown>
 ): AuditDiff | null {
   const diff: AuditDiff = {};
-  const skipFields = auditConfig.skipFields;
 
   const allKeys = new Set([...Object.keys(old), ...Object.keys(newRecord)]);
 
   for (const key of allKeys) {
-    if ((skipFields as readonly string[]).includes(key)) continue;
+    if (isSkippedAuditKey(key)) continue;
 
     const oldValue = old[key];
     const newValue = newRecord[key];
@@ -84,6 +98,8 @@ function computeDiff(
 /**
  * Build a diff for INSERT events from an allowlist of columns.
  * Returns null when no fields are configured or none are present on the record.
+ * Globally-skipped fields (e.g. `embedding`) are dropped even if listed in
+ * `createFields` so vector / metadata noise can't leak into CREATE diffs.
  */
 function computeCreateDiff(
   newRecord: Record<string, unknown>,
@@ -93,6 +109,7 @@ function computeCreateDiff(
 
   const diff: AuditDiff = {};
   for (const field of createFields) {
+    if (isSkippedAuditKey(field)) continue;
     if (field in newRecord) {
       diff[field] = { new: newRecord[field] };
     }
@@ -111,11 +128,14 @@ function computeNestedDiff(
   const allKeys = new Set([...Object.keys(old), ...Object.keys(newRecord)]);
 
   for (const key of allKeys) {
+    const fullKey = `${prefix}.${key}`;
+    if (isSkippedAuditKey(fullKey)) continue;
+
     const oldValue = old[key];
     const newValue = newRecord[key];
 
     if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
-      diff[`${prefix}.${key}`] = { old: oldValue, new: newValue };
+      diff[fullKey] = { old: oldValue, new: newValue };
     }
   }
 

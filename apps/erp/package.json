@@ -45,6 +45,7 @@
     "@react-aria/i18n": "catalog:",
     "@react-email/components": "catalog:",
     "@react-pdf/renderer": "catalog:",
+    "@simplewebauthn/browser": "^13.3.0",
     "@react-router/remix-routes-option-adapter": "catalog:",
     "@react-router/serve": "catalog:",
     "@react-types/datepicker": "3.13.5",

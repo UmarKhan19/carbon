@@ -63,6 +63,7 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const {
+    AUTH_PROVIDERS,
     CARBON_EDITION,
     CARBON_API_URL,
     CONTROLLED_ENVIRONMENT,
@@ -84,6 +85,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   return data(
     {
       env: {
+        AUTH_PROVIDERS,
         CARBON_EDITION,
         CARBON_API_URL,
         CONTROLLED_ENVIRONMENT,
