@@ -1,4 +1,4 @@
-import { getTableLabel } from "@carbon/database/audit.config";
+import { auditConfig, getTableLabel } from "@carbon/database/audit.config";
 import type { AuditLogEntry } from "@carbon/database/audit.types";
 import {
   Badge,
@@ -241,7 +241,12 @@ const AuditLogEntryCard = memo(({ entry }: AuditLogEntryCardProps) => {
     icon: null
   };
 
-  const diffKeys = entry.diff ? Object.keys(entry.diff) : [];
+  // Belt-and-suspenders filter — backend strips skipFields too, but if a
+  // legacy entry slipped through (or a new skipField was added since the
+  // entry was written), keep the noise out of the rendered diff.
+  const diffKeys = entry.diff
+    ? Object.keys(entry.diff).filter((k) => !isSkippedDiffKey(k))
+    : [];
 
   return (
     <div className="border bg-muted/40 rounded-lg p-4 w-full">
@@ -304,6 +309,18 @@ const AuditLogEntryCard = memo(({ entry }: AuditLogEntryCardProps) => {
 
 AuditLogEntryCard.displayName = "AuditLogEntryCard";
 export { AuditLogEntryCard };
+
+// Hide globally-skipped columns (and any nested suffix path) from the
+// rendered diff. Mirrors the writer/reader filter so vector / metadata
+// noise stays out of the UI even if it sneaks past the API layer.
+function isSkippedDiffKey(key: string): boolean {
+  const skip = auditConfig.skipFields as readonly string[];
+  for (let i = 0; i < skip.length; i++) {
+    const s = skip[i]!;
+    if (key === s || key.endsWith(`.${s}`)) return true;
+  }
+  return false;
+}
 
 function formatValue(value: unknown): string {
   if (value === null) return "null";
