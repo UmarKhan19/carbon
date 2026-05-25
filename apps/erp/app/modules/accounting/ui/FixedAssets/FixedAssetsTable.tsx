@@ -6,6 +6,7 @@ import {
   LuBookMarked,
   LuBuilding2,
   LuCircleDollarSign,
+  LuHash,
   LuLayers,
   LuMapPin,
   LuPencil,
@@ -20,7 +21,7 @@ import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useUser } from "~/hooks";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import { path } from "~/utils/path";
-import { fixedAssetStatuses } from "../../fixedAssets.models";
+import { fixedAssetStatuses } from "../../accounting.models";
 import type { FixedAssetListItem } from "../../types";
 import FixedAssetStatus from "./FixedAssetStatus";
 
@@ -63,6 +64,13 @@ const FixedAssetsTable = memo(
           header: "Name",
           meta: {
             icon: <LuBuilding2 />
+          }
+        },
+        {
+          accessorKey: "serialNumber",
+          header: "Serial Number",
+          meta: {
+            icon: <LuHash />
           }
         },
         {

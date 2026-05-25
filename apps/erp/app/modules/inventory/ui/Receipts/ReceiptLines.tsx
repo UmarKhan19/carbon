@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Checkbox,
   cn,
   DatePicker,
   DropdownMenu,
@@ -99,8 +100,6 @@ const ReceiptLines = () => {
       assetName: string | null;
       assetReadableId: string | null;
       description: string | null;
-      purchaseQuantity: number;
-      unitPrice: number | null;
       received: boolean;
       serialNumber: string | null;
     }[];
@@ -332,8 +331,6 @@ function ReceiptFixedAssetLineItem({
     assetName: string | null;
     assetReadableId: string | null;
     description: string | null;
-    purchaseQuantity: number;
-    unitPrice: number | null;
     received: boolean;
     serialNumber: string | null;
   };
@@ -356,12 +353,12 @@ function ReceiptFixedAssetLineItem({
 
   return (
     <div className={cn("flex items-center gap-4 p-6", className)}>
-      <input
-        type="checkbox"
-        checked={line.received}
+      <Checkbox
+        isChecked={line.received}
         disabled={isReadOnly}
-        onChange={(e) => updateField("received", String(e.target.checked))}
-        className="h-4 w-4"
+        onCheckedChange={(checked) =>
+          updateField("received", String(checked === true))
+        }
       />
       <VStack spacing={0} className="flex-1 min-w-0">
         <span className="text-sm font-medium">
@@ -373,35 +370,18 @@ function ReceiptFixedAssetLineItem({
           </span>
         )}
       </VStack>
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Serial Number"
-          value={serialNumber}
-          isDisabled={isReadOnly}
-          className="w-48"
-          onChange={(e) => setSerialNumber(e.target.value)}
-          onBlur={() => {
-            if (serialNumber !== (line.serialNumber ?? "")) {
-              updateField("serialNumber", serialNumber);
-            }
-          }}
-        />
-        <VStack spacing={0} className="text-right">
-          <span className="text-xs text-muted-foreground">Qty</span>
-          <span className="text-sm">{line.purchaseQuantity}</span>
-        </VStack>
-        {line.unitPrice != null && (
-          <VStack spacing={0} className="text-right">
-            <span className="text-xs text-muted-foreground">Price</span>
-            <span className="text-sm">
-              {line.unitPrice.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })}
-            </span>
-          </VStack>
-        )}
-      </div>
+      <Input
+        placeholder="Serial Number"
+        value={serialNumber}
+        isDisabled={isReadOnly}
+        className="w-48"
+        onChange={(e) => setSerialNumber(e.target.value)}
+        onBlur={() => {
+          if (serialNumber !== (line.serialNumber ?? "")) {
+            updateField("serialNumber", serialNumber);
+          }
+        }}
+      />
     </div>
   );
 }

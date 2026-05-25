@@ -886,6 +886,9 @@ msgstr ""
 msgid "Asset Classes"
 msgstr ""
 
+msgid "Assets"
+msgstr ""
+
 msgid "Assign To"
 msgstr "Zuweisen an"
 
@@ -2400,7 +2403,7 @@ msgstr "Abteilungsname"
 msgid "Departments"
 msgstr "Abteilungen"
 
-msgid "Depreciation Runs"
+msgid "Depreciation"
 msgstr ""
 
 msgid "Description"

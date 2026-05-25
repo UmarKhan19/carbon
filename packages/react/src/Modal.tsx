@@ -111,7 +111,7 @@ const ModalHeader = ({
 }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col space-y-1.5 text-center sm:text-left mb-6 px-6",
+      "flex flex-col space-y-1.5 text-center sm:text-left mb-4 px-6",
       className
     )}
     {...props}
@@ -120,7 +120,7 @@ const ModalHeader = ({
 ModalHeader.displayName = "ModalHeader";
 
 const ModalBody = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn(" w-full py-0 px-6 mb-6", className)} {...props} />
+  <div className={cn(" w-full py-0 px-6 mb-4", className)} {...props} />
 );
 ModalBody.displayName = "ModalBody";
 

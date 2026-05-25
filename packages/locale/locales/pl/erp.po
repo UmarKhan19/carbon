@@ -886,6 +886,9 @@ msgstr ""
 msgid "Asset Classes"
 msgstr ""
 
+msgid "Assets"
+msgstr ""
+
 msgid "Assign To"
 msgstr "Przypisz do"
 
@@ -2400,7 +2403,7 @@ msgstr "Nazwa DziaÃƒâ€¦Ã¢â‚¬Å¡u"
 msgid "Departments"
 msgstr "DziaÃƒâ€¦Ã¢â‚¬Å¡y"
 
-msgid "Depreciation Runs"
+msgid "Depreciation"
 msgstr ""
 
 msgid "Description"

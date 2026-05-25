@@ -556,7 +556,7 @@ serve(async (req: Request) => {
                 const assetRecord = await client
                   .from("fixedAsset")
                   .select(
-                    "id, status, acquisitionCost, accumulatedDepreciation, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
+                    "id, status, acquisitionCost, accumulatedDepreciation, locationId, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
                   )
                   .eq("id", faSoLine.assetId!)
                   .single();
@@ -592,7 +592,7 @@ serve(async (req: Request) => {
                   journalLineDimensionsMeta.push({
                     customerTypeId: customer.data.customerTypeId ?? null,
                     itemPostingGroupId: null,
-                    locationId: locationId ?? null,
+                    locationId: locationId ?? assetRecord.data.locationId ?? null,
                     costCenterId: faSoLine.costCenterId ?? null,
                   });
                 }
@@ -618,7 +618,7 @@ serve(async (req: Request) => {
                   journalLineDimensionsMeta.push({
                     customerTypeId: customer.data.customerTypeId ?? null,
                     itemPostingGroupId: null,
-                    locationId: locationId ?? null,
+                    locationId: locationId ?? assetRecord.data.locationId ?? null,
                     costCenterId: faSoLine.costCenterId ?? null,
                   });
                 }
@@ -643,7 +643,7 @@ serve(async (req: Request) => {
                 journalLineDimensionsMeta.push({
                   customerTypeId: customer.data.customerTypeId ?? null,
                   itemPostingGroupId: null,
-                  locationId: locationId ?? null,
+                  locationId: locationId ?? assetRecord.data.locationId ?? null,
                   costCenterId: faSoLine.costCenterId ?? null,
                 });
 

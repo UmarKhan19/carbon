@@ -342,6 +342,8 @@ export type Database = {
           costOfGoodsSoldAccount: string
           currencyTranslationAccount: string
           customerPaymentDiscountAccount: string
+          deferredTaxExpenseAccountId: string | null
+          deferredTaxLiabilityAccountId: string | null
           goodsReceivedNotInvoicedAccount: string
           indirectCostAccount: string
           interestAccount: string
@@ -385,6 +387,8 @@ export type Database = {
           costOfGoodsSoldAccount: string
           currencyTranslationAccount: string
           customerPaymentDiscountAccount: string
+          deferredTaxExpenseAccountId?: string | null
+          deferredTaxLiabilityAccountId?: string | null
           goodsReceivedNotInvoicedAccount: string
           indirectCostAccount: string
           interestAccount: string
@@ -428,6 +432,8 @@ export type Database = {
           costOfGoodsSoldAccount?: string
           currencyTranslationAccount?: string
           customerPaymentDiscountAccount?: string
+          deferredTaxExpenseAccountId?: string | null
+          deferredTaxLiabilityAccountId?: string | null
           goodsReceivedNotInvoicedAccount?: string
           indirectCostAccount?: string
           interestAccount?: string
@@ -622,6 +628,34 @@ export type Database = {
           {
             foreignKeyName: "accountDefault_customerPaymentDiscountAccount_fkey"
             columns: ["customerPaymentDiscountAccount"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_deferredTaxExpenseAccountId_fkey"
+            columns: ["deferredTaxExpenseAccountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_deferredTaxExpenseAccountId_fkey"
+            columns: ["deferredTaxExpenseAccountId"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_deferredTaxLiabilityAccountId_fkey"
+            columns: ["deferredTaxLiabilityAccountId"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accountDefault_deferredTaxLiabilityAccountId_fkey"
+            columns: ["deferredTaxLiabilityAccountId"]
             isOneToOne: false
             referencedRelation: "accounts"
             referencedColumns: ["id"]
@@ -2832,6 +2866,8 @@ export type Database = {
           accountsPayableEmail: string | null
           accountsReceivableAddress: boolean | null
           accountsReceivableEmail: string | null
+          assetTaxDepreciationEnabled: boolean
+          assetTaxRate: number | null
           consoleEnabled: boolean
           defaultCustomerCc: string[] | null
           defaultSupplierCc: string[] | null
@@ -2873,6 +2909,8 @@ export type Database = {
           accountsPayableEmail?: string | null
           accountsReceivableAddress?: boolean | null
           accountsReceivableEmail?: string | null
+          assetTaxDepreciationEnabled?: boolean
+          assetTaxRate?: number | null
           consoleEnabled?: boolean
           defaultCustomerCc?: string[] | null
           defaultSupplierCc?: string[] | null
@@ -2914,6 +2952,8 @@ export type Database = {
           accountsPayableEmail?: string | null
           accountsReceivableAddress?: boolean | null
           accountsReceivableEmail?: string | null
+          assetTaxDepreciationEnabled?: boolean
+          assetTaxRate?: number | null
           consoleEnabled?: boolean
           defaultCustomerCc?: string[] | null
           defaultSupplierCc?: string[] | null
@@ -7207,6 +7247,7 @@ export type Database = {
           fixedAssetId: string
           id: string
           journalId: string | null
+          taxAmount: number | null
         }
         Insert: {
           amount: number
@@ -7215,6 +7256,7 @@ export type Database = {
           fixedAssetId: string
           id?: string
           journalId?: string | null
+          taxAmount?: number | null
         }
         Update: {
           amount?: number
@@ -7223,6 +7265,7 @@ export type Database = {
           fixedAssetId?: string
           id?: string
           journalId?: string | null
+          taxAmount?: number | null
         }
         Relationships: [
           {
@@ -8911,6 +8954,7 @@ export type Database = {
       fixedAsset: {
         Row: {
           accumulatedDepreciation: number
+          accumulatedTaxDepreciation: number
           acquisitionCost: number
           acquisitionDate: string | null
           assetLifetimeUsage: number | null
@@ -8940,6 +8984,7 @@ export type Database = {
         }
         Insert: {
           accumulatedDepreciation?: number
+          accumulatedTaxDepreciation?: number
           acquisitionCost?: number
           acquisitionDate?: string | null
           assetLifetimeUsage?: number | null
@@ -8969,6 +9014,7 @@ export type Database = {
         }
         Update: {
           accumulatedDepreciation?: number
+          accumulatedTaxDepreciation?: number
           acquisitionCost?: number
           acquisitionDate?: string | null
           assetLifetimeUsage?: number | null
@@ -9150,6 +9196,7 @@ export type Database = {
         Row: {
           accumulatedDepreciationAccountId: string
           assetAccountId: string
+          bonusDepreciationPercent: number | null
           companyId: string
           createdAt: string
           createdBy: string
@@ -9159,8 +9206,17 @@ export type Database = {
           description: string | null
           disposalAccountId: string
           id: string
+          macrsConvention: Database["public"]["Enums"]["macrsConvention"] | null
+          macrsPropertyClass:
+            | Database["public"]["Enums"]["macrsPropertyClass"]
+            | null
           name: string
           residualValuePercent: number
+          taxDepreciationMethod:
+            | Database["public"]["Enums"]["taxDepreciationMethod"]
+            | null
+          taxResidualValuePercent: number | null
+          taxUsefulLifeMonths: number | null
           updatedAt: string | null
           updatedBy: string | null
           usefulLifeMonths: number
@@ -9170,6 +9226,7 @@ export type Database = {
         Insert: {
           accumulatedDepreciationAccountId: string
           assetAccountId: string
+          bonusDepreciationPercent?: number | null
           companyId: string
           createdAt?: string
           createdBy: string
@@ -9179,8 +9236,19 @@ export type Database = {
           description?: string | null
           disposalAccountId: string
           id?: string
+          macrsConvention?:
+            | Database["public"]["Enums"]["macrsConvention"]
+            | null
+          macrsPropertyClass?:
+            | Database["public"]["Enums"]["macrsPropertyClass"]
+            | null
           name: string
           residualValuePercent?: number
+          taxDepreciationMethod?:
+            | Database["public"]["Enums"]["taxDepreciationMethod"]
+            | null
+          taxResidualValuePercent?: number | null
+          taxUsefulLifeMonths?: number | null
           updatedAt?: string | null
           updatedBy?: string | null
           usefulLifeMonths?: number
@@ -9190,6 +9258,7 @@ export type Database = {
         Update: {
           accumulatedDepreciationAccountId?: string
           assetAccountId?: string
+          bonusDepreciationPercent?: number | null
           companyId?: string
           createdAt?: string
           createdBy?: string
@@ -9199,8 +9268,19 @@ export type Database = {
           description?: string | null
           disposalAccountId?: string
           id?: string
+          macrsConvention?:
+            | Database["public"]["Enums"]["macrsConvention"]
+            | null
+          macrsPropertyClass?:
+            | Database["public"]["Enums"]["macrsPropertyClass"]
+            | null
           name?: string
           residualValuePercent?: number
+          taxDepreciationMethod?:
+            | Database["public"]["Enums"]["taxDepreciationMethod"]
+            | null
+          taxResidualValuePercent?: number | null
+          taxUsefulLifeMonths?: number | null
           updatedAt?: string | null
           updatedBy?: string | null
           usefulLifeMonths?: number
@@ -33738,6 +33818,144 @@ export type Database = {
           },
         ]
       }
+      receiptFixedAssetLine: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          purchaseOrderLineId: string
+          receiptId: string
+          received: boolean
+          serialNumber: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          purchaseOrderLineId: string
+          receiptId: string
+          received?: boolean
+          serialNumber?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          purchaseOrderLineId?: string
+          receiptId?: string
+          received?: boolean
+          serialNumber?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receiptFixedAssetLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_purchaseOrderLineId_fkey"
+            columns: ["purchaseOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "openPurchaseOrderLines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_purchaseOrderLineId_fkey"
+            columns: ["purchaseOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "purchaseOrderLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_purchaseOrderLineId_fkey"
+            columns: ["purchaseOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "purchaseOrderLines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_receiptId_fkey"
+            columns: ["receiptId"]
+            isOneToOne: false
+            referencedRelation: "receipt"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receiptFixedAssetLine_receiptId_fkey"
+            columns: ["receiptId"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       receiptLine: {
         Row: {
           companyId: string
@@ -34613,6 +34831,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesInvoiceLine_assetId_fkey"
+            columns: ["assetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
             referencedColumns: ["id"]
           },
           {
@@ -35585,6 +35810,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderLine_assetId_fkey"
+            columns: ["assetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
             referencedColumns: ["id"]
           },
           {
@@ -37048,7 +37280,49 @@ export type Database = {
           },
         ]
       }
-      searchIndex_CYj9v111oXXm6PX9ZD6Yn2: {
+      searchIndex_7STwbHJSYgaEK2MsKDg1hR: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
+      searchIndex_VBnfDd5MSMj18aZkF4bwmw: {
         Row: {
           createdAt: string
           description: string | null
@@ -37991,6 +38265,137 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+        ]
+      }
+      shipmentFixedAssetLine: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          salesOrderLineId: string
+          serialNumber: string | null
+          shipmentId: string
+          shipped: boolean
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          salesOrderLineId: string
+          serialNumber?: string | null
+          shipmentId: string
+          shipped?: boolean
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          salesOrderLineId?: string
+          serialNumber?: string | null
+          shipmentId?: string
+          shipped?: boolean
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipmentFixedAssetLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_salesOrderLineId_fkey"
+            columns: ["salesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "openSalesOrderLines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_salesOrderLineId_fkey"
+            columns: ["salesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_salesOrderLineId_fkey"
+            columns: ["salesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderLines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipmentFixedAssetLine_shipmentId_fkey"
+            columns: ["shipmentId"]
+            isOneToOne: false
+            referencedRelation: "shipment"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -46245,6 +46650,7 @@ export type Database = {
           createdBy: string
           customFields: Json | null
           defaultStandardFactor: Database["public"]["Enums"]["factor"]
+          departmentId: string | null
           description: string | null
           id: string
           laborRate: number
@@ -46264,6 +46670,7 @@ export type Database = {
           createdBy: string
           customFields?: Json | null
           defaultStandardFactor?: Database["public"]["Enums"]["factor"]
+          departmentId?: string | null
           description?: string | null
           id?: string
           laborRate?: number
@@ -46283,6 +46690,7 @@ export type Database = {
           createdBy?: string
           customFields?: Json | null
           defaultStandardFactor?: Database["public"]["Enums"]["factor"]
+          departmentId?: string | null
           description?: string | null
           id?: string
           laborRate?: number
@@ -46358,6 +46766,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "workCenter_departmentId_fkey"
+            columns: ["departmentId"]
+            isOneToOne: false
+            referencedRelation: "department"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workCenter_locationId_fkey"
@@ -52775,6 +53190,7 @@ export type Database = {
           accountName: string | null
           assetId: string | null
           assetName: string | null
+          assetReadableId: string | null
           companyId: string | null
           conversionFactor: number | null
           costCenterId: string | null
@@ -53438,6 +53854,7 @@ export type Database = {
           accountName: string | null
           assetId: string | null
           assetName: string | null
+          assetReadableId: string | null
           autodeskUrn: string | null
           companyId: string | null
           conversionFactor: number | null
@@ -53823,14 +54240,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -56902,6 +57319,8 @@ export type Database = {
           accountId: string | null
           addOnCost: number | null
           assetId: string | null
+          assetName: string | null
+          assetReadableId: string | null
           companyId: string | null
           convertedAddOnCost: number | null
           convertedNonTaxableAddOnCost: number | null
@@ -56958,6 +57377,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesInvoiceLine_assetId_fkey"
+            columns: ["assetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
             referencedColumns: ["id"]
           },
           {
@@ -57241,7 +57667,7 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -57255,7 +57681,7 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -57537,6 +57963,8 @@ export type Database = {
           accountId: string | null
           addOnCost: number | null
           assetId: string | null
+          assetName: string | null
+          assetReadableId: string | null
           autodeskUrn: string | null
           companyId: string | null
           convertedAddOnCost: number | null
@@ -57629,6 +58057,13 @@ export type Database = {
             columns: ["accountId"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salesOrderLine_assetId_fkey"
+            columns: ["assetId"]
+            isOneToOne: false
+            referencedRelation: "fixedAsset"
             referencedColumns: ["id"]
           },
           {
@@ -60822,6 +61257,8 @@ export type Database = {
           createdBy: string | null
           customFields: Json | null
           defaultStandardFactor: Database["public"]["Enums"]["factor"] | null
+          departmentId: string | null
+          departmentName: string | null
           description: string | null
           id: string | null
           laborRate: number | null
@@ -60901,6 +61338,13 @@ export type Database = {
             referencedColumns: ["userId"]
           },
           {
+            foreignKeyName: "workCenter_departmentId_fkey"
+            columns: ["departmentId"]
+            isOneToOne: false
+            referencedRelation: "department"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "workCenter_locationId_fkey"
             columns: ["locationId"]
             isOneToOne: false
@@ -60961,6 +61405,7 @@ export type Database = {
           createdBy: string | null
           customFields: Json | null
           defaultStandardFactor: Database["public"]["Enums"]["factor"] | null
+          departmentId: string | null
           description: string | null
           id: string | null
           isBlocked: boolean | null
@@ -61038,6 +61483,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "userDefaults"
             referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "workCenter_departmentId_fkey"
+            columns: ["departmentId"]
+            isOneToOne: false
+            referencedRelation: "department"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workCenter_locationId_fkey"
@@ -63300,6 +63752,8 @@ export type Database = {
         | "Department"
         | "Employee"
         | "CostCenter"
+        | "WorkCenter"
+        | "Process"
       disposalMethod: "Sale" | "Scrapping"
       disposition:
         | "Conditional Acceptance"
@@ -63522,6 +63976,8 @@ export type Database = {
         | "Production Event"
         | "Job Close"
       kanbanOutput: "label" | "qrcode" | "url"
+      macrsConvention: "Half-Year" | "Mid-Quarter"
+      macrsPropertyClass: "3" | "5" | "7" | "10" | "15" | "20" | "27.5" | "39"
       maintenanceDispatchPriority: "Low" | "Medium" | "High" | "Critical"
       maintenanceDispatchStatus:
         | "Open"
@@ -63783,6 +64239,7 @@ export type Database = {
       supplierStatusType: "Active" | "Inactive" | "Pending" | "Rejected"
       supplySourceType: "Purchase Order" | "Production Order"
       tableViewType: "Public" | "Private"
+      taxDepreciationMethod: "Straight Line" | "Declining Balance" | "MACRS"
       taxExemptionReason:
         | "Resale"
         | "Government"
@@ -64556,6 +65013,8 @@ export const Constants = {
         "Department",
         "Employee",
         "CostCenter",
+        "WorkCenter",
+        "Process",
       ],
       disposalMethod: ["Sale", "Scrapping"],
       disposition: [
@@ -64798,6 +65257,8 @@ export const Constants = {
         "Job Close",
       ],
       kanbanOutput: ["label", "qrcode", "url"],
+      macrsConvention: ["Half-Year", "Mid-Quarter"],
+      macrsPropertyClass: ["3", "5", "7", "10", "15", "20", "27.5", "39"],
       maintenanceDispatchPriority: ["Low", "Medium", "High", "Critical"],
       maintenanceDispatchStatus: [
         "Open",
@@ -65085,6 +65546,7 @@ export const Constants = {
       supplierStatusType: ["Active", "Inactive", "Pending", "Rejected"],
       supplySourceType: ["Purchase Order", "Production Order"],
       tableViewType: ["Public", "Private"],
+      taxDepreciationMethod: ["Straight Line", "Declining Balance", "MACRS"],
       taxExemptionReason: [
         "Resale",
         "Government",

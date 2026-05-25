@@ -16,7 +16,6 @@ import { useFetcher } from "react-router";
 import type { z } from "zod";
 import { Enumerable } from "~/components/Enumerable";
 import {
-  Employee,
   Hidden,
   Input,
   Location,
@@ -24,12 +23,15 @@ import {
   SelectControlled,
   Submit
 } from "~/components/Form";
-import { usePermissions } from "~/hooks";
+import { usePermissions, useSettings } from "~/hooks";
 import { path } from "~/utils/path";
 import {
   depreciationMethods,
-  fixedAssetValidator
-} from "../../fixedAssets.models";
+  fixedAssetValidator,
+  macrsConventions,
+  macrsPropertyClasses,
+  taxDepreciationMethods
+} from "../../accounting.models";
 
 type AssetClassOption = {
   id: string;
@@ -37,6 +39,12 @@ type AssetClassOption = {
   depreciationMethod: string;
   usefulLifeMonths: number;
   residualValuePercent: number;
+  taxDepreciationMethod: string | null;
+  taxUsefulLifeMonths: number | null;
+  taxResidualValuePercent: number | null;
+  macrsPropertyClass: string | null;
+  macrsConvention: string | null;
+  bonusDepreciationPercent: number | null;
 };
 
 type FixedAssetFormProps = {
@@ -51,6 +59,9 @@ const FixedAssetForm = ({
   onClose
 }: FixedAssetFormProps) => {
   const permissions = usePermissions();
+  const settings = useSettings();
+  const taxDepreciationEnabled =
+    (settings as any).assetTaxDepreciationEnabled ?? false;
   const fetcher = useFetcher();
 
   const isEditing = initialValues.id !== undefined;
@@ -61,9 +72,15 @@ const FixedAssetForm = ({
   const [assetData, setAssetData] = useState({
     fixedAssetClassId: initialValues.fixedAssetClassId ?? "",
     depreciationMethod: initialValues.depreciationMethod ?? "",
-    usefulLifeMonths: initialValues.usefulLifeMonths ?? 0,
+    usefulLifeMonths: initialValues.usefulLifeMonths ?? 60,
     residualValuePercent: initialValues.residualValuePercent ?? 0,
-    assetLifetimeUsage: initialValues.assetLifetimeUsage ?? 0
+    assetLifetimeUsage: initialValues.assetLifetimeUsage ?? 0,
+    taxDepreciationMethod: initialValues.taxDepreciationMethod ?? "",
+    taxUsefulLifeMonths: initialValues.taxUsefulLifeMonths ?? 60,
+    taxResidualValuePercent: initialValues.taxResidualValuePercent ?? 0,
+    macrsPropertyClass: initialValues.macrsPropertyClass ?? "",
+    macrsConvention: initialValues.macrsConvention ?? "Half-Year",
+    bonusDepreciationPercent: initialValues.bonusDepreciationPercent ?? 0
   });
 
   const onAssetClassChange = (
@@ -73,13 +90,19 @@ const FixedAssetForm = ({
     const assetClass = assetClasses.find((c) => c.id === selected.value);
     if (!assetClass) return;
 
-    setAssetData((d) => ({
-      ...d,
+    setAssetData({
       fixedAssetClassId: assetClass.id,
       depreciationMethod: assetClass.depreciationMethod,
       usefulLifeMonths: assetClass.usefulLifeMonths,
-      residualValuePercent: assetClass.residualValuePercent
-    }));
+      residualValuePercent: assetClass.residualValuePercent,
+      assetLifetimeUsage: 0,
+      taxDepreciationMethod: assetClass.taxDepreciationMethod ?? "",
+      taxUsefulLifeMonths: assetClass.taxUsefulLifeMonths ?? 60,
+      taxResidualValuePercent: assetClass.taxResidualValuePercent ?? 0,
+      macrsPropertyClass: assetClass.macrsPropertyClass ?? "",
+      macrsConvention: assetClass.macrsConvention ?? "Half-Year",
+      bonusDepreciationPercent: assetClass.bonusDepreciationPercent ?? 0
+    });
   };
 
   return (
@@ -171,7 +194,113 @@ const FixedAssetForm = ({
                   />
                 )}
                 <Location name="locationId" label="Location" />
-                <Employee name="custodianId" label="Custodian" />
+                {taxDepreciationEnabled && (
+                  <>
+                    <SelectControlled
+                      name="taxDepreciationMethod"
+                      label="Tax Depreciation Method"
+                      placeholder="None"
+                      options={taxDepreciationMethods.map((m) => ({
+                        label: m,
+                        value: m
+                      }))}
+                      value={assetData.taxDepreciationMethod}
+                      onChange={(v) => {
+                        setAssetData((d) => ({
+                          ...d,
+                          taxDepreciationMethod: v?.value ?? ""
+                        }));
+                      }}
+                    />
+                    <div
+                      className={
+                        assetData.taxDepreciationMethod === "MACRS"
+                          ? "flex flex-col gap-4 w-full"
+                          : "hidden"
+                      }
+                    >
+                      <SelectControlled
+                        name="macrsPropertyClass"
+                        label="MACRS Property Class"
+                        options={macrsPropertyClasses.map((c) => ({
+                          label: `${c}-Year`,
+                          value: c
+                        }))}
+                        value={assetData.macrsPropertyClass}
+                        onChange={(v) => {
+                          if (v)
+                            setAssetData((d) => ({
+                              ...d,
+                              macrsPropertyClass: v.value
+                            }));
+                        }}
+                      />
+                      <SelectControlled
+                        name="macrsConvention"
+                        label="MACRS Convention"
+                        options={macrsConventions.map((c) => ({
+                          label: c,
+                          value: c
+                        }))}
+                        value={assetData.macrsConvention}
+                        onChange={(v) => {
+                          if (v)
+                            setAssetData((d) => ({
+                              ...d,
+                              macrsConvention: v.value
+                            }));
+                        }}
+                      />
+                      <NumberControlled
+                        name="bonusDepreciationPercent"
+                        label="Bonus Depreciation %"
+                        minValue={0}
+                        maxValue={100}
+                        value={assetData.bonusDepreciationPercent}
+                        onChange={(value) =>
+                          setAssetData((d) => ({
+                            ...d,
+                            bonusDepreciationPercent: value
+                          }))
+                        }
+                      />
+                    </div>
+                    <div
+                      className={
+                        assetData.taxDepreciationMethod === "Straight Line" ||
+                        assetData.taxDepreciationMethod === "Declining Balance"
+                          ? "flex flex-col gap-4 w-full"
+                          : "hidden"
+                      }
+                    >
+                      <NumberControlled
+                        name="taxUsefulLifeMonths"
+                        label="Tax Useful Life (Months)"
+                        minValue={1}
+                        value={assetData.taxUsefulLifeMonths}
+                        onChange={(value) =>
+                          setAssetData((d) => ({
+                            ...d,
+                            taxUsefulLifeMonths: value
+                          }))
+                        }
+                      />
+                      <NumberControlled
+                        name="taxResidualValuePercent"
+                        label="Tax Residual Value %"
+                        minValue={0}
+                        maxValue={100}
+                        value={assetData.taxResidualValuePercent}
+                        onChange={(value) =>
+                          setAssetData((d) => ({
+                            ...d,
+                            taxResidualValuePercent: value
+                          }))
+                        }
+                      />
+                    </div>
+                  </>
+                )}
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

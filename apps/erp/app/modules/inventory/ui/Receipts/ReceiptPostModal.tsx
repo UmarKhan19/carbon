@@ -8,7 +8,6 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalDescription,
   ModalFooter,
   ModalHeader,
   ModalOverlay,
@@ -161,12 +160,9 @@ const ReceiptPostModal = ({ onClose }: { onClose: () => void }) => {
           <ModalTitle>
             <Trans>Post Receipt</Trans>
           </ModalTitle>
-          <ModalDescription>
-            <Trans>Are you sure you want to post this receipt?</Trans>
-          </ModalDescription>
         </ModalHeader>
         <ModalBody>
-          {validationErrors.length > 0 && (
+          {validationErrors.length > 0 ? (
             <Alert variant="destructive">
               <LuTriangleAlert className="h-4 w-4" />
               <AlertTitle>
@@ -188,6 +184,10 @@ const ReceiptPostModal = ({ onClose }: { onClose: () => void }) => {
                 </ul>
               </AlertDescription>
             </Alert>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              <Trans>Are you sure you want to post this receipt?</Trans>
+            </p>
           )}
         </ModalBody>
         <ModalFooter>

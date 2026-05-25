@@ -1215,7 +1215,7 @@ serve(async (req: Request) => {
             const assetRecord = await client
               .from("fixedAsset")
               .select(
-                "id, status, acquisitionDate, depreciationStartDate, acquisitionCost, fixedAssetClass:fixedAssetClassId(assetAccountId)"
+                "id, status, acquisitionDate, depreciationStartDate, acquisitionCost, locationId, fixedAssetClass:fixedAssetClassId(assetAccountId)"
               )
               .eq("id", faPoLine.assetId!)
               .single();
@@ -1258,7 +1258,7 @@ serve(async (req: Request) => {
               journalLineDimensionsMeta.push({
                 supplierTypeId: supplier.data.supplierTypeId ?? null,
                 itemPostingGroupId: null,
-                locationId: null,
+                locationId: faPoLine.locationId ?? receipt.data.locationId ?? assetRecord.data.locationId ?? null,
                 processId: null,
               });
             }
@@ -1281,6 +1281,11 @@ serve(async (req: Request) => {
             const serialNumber = faSerialNumbers.get(faPoLine.id!);
             if (serialNumber) {
               updateData.serialNumber = serialNumber;
+            }
+
+            const faLineLocationId = faPoLine.locationId ?? receipt.data.locationId;
+            if (faLineLocationId) {
+              updateData.locationId = faLineLocationId;
             }
 
             await client

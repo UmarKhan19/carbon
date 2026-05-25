@@ -229,25 +229,40 @@ const PurchaseOrderLineForm = ({
   const indirectCostsDisclosure = useDisclosure();
 
   const [assetOptions, setAssetOptions] = useState<
-    { value: string; label: string }[]
+    { value: string; label: string; locationId: string | null }[]
   >([]);
 
   useMount(() => {
     (async () => {
       const assets = await carbon
         .from("fixedAsset")
-        .select("id, fixedAssetId, name")
+        .select("id, fixedAssetId, name, locationId")
         .eq("companyId", company.id)
         .eq("status", "Draft")
         .order("fixedAssetId");
-      if (assets.data) {
-        setAssetOptions(
-          assets.data.map((a) => ({
-            value: a.id,
-            label: `${a.fixedAssetId} — ${a.name}`
-          }))
-        );
+      const options = (assets.data ?? []).map((a) => ({
+        value: a.id,
+        label: `${a.fixedAssetId} — ${a.name}`,
+        locationId: a.locationId
+      }));
+      if (
+        initialValues.assetId &&
+        !options.some((o) => o.value === initialValues.assetId)
+      ) {
+        const current = await carbon
+          .from("fixedAsset")
+          .select("id, fixedAssetId, name, locationId")
+          .eq("id", initialValues.assetId)
+          .single();
+        if (current.data) {
+          options.unshift({
+            value: current.data.id,
+            label: `${current.data.fixedAssetId} — ${current.data.name}`,
+            locationId: current.data.locationId
+          });
+        }
       }
+      setAssetOptions(options);
     })();
   });
 
@@ -848,24 +863,40 @@ const PurchaseOrderLineForm = ({
                               />
                             </>
                           ) : (
-                            <Combobox
-                              name="assetId"
-                              label={t`Fixed Asset`}
-                              isOptional={false}
-                              options={assetOptions}
-                              value={indirectData.assetId}
-                              onChange={(selected) => {
-                                setIndirectData((d) => ({
-                                  ...d,
-                                  assetId: (selected?.value as string) ?? ""
-                                }));
-                              }}
-                            />
+                            <>
+                              <Combobox
+                                name="assetId"
+                                label={t`Fixed Asset`}
+                                isOptional={false}
+                                options={assetOptions}
+                                value={indirectData.assetId}
+                                onChange={(selected) => {
+                                  setIndirectData((d) => ({
+                                    ...d,
+                                    assetId: (selected?.value as string) ?? ""
+                                  }));
+                                  const asset = assetOptions.find(
+                                    (o) => o.value === selected?.value
+                                  );
+                                  if (asset?.locationId && !locationId) {
+                                    setLocationId(asset.locationId);
+                                  }
+                                }}
+                              />
+                              <Location
+                                name="locationId"
+                                label={t`Location`}
+                                value={locationId}
+                                onChange={(newLocation) => {
+                                  setLocationId(newLocation?.value ?? "");
+                                }}
+                              />
+                            </>
                           )}
                           <FormControl
                             className={
                               activeTab === "asset"
-                                ? "col-span-2"
+                                ? "col-span-1"
                                 : "col-span-3"
                             }
                           >

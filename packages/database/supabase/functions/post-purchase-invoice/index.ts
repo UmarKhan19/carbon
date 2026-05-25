@@ -1089,6 +1089,13 @@ serve(async (req: Request) => {
               purchaseOrderLine &&
               (purchaseOrderLine.quantityReceived ?? 0) > 0;
 
+            const faLocationRecord = await client
+              .from("fixedAsset")
+              .select("locationId")
+              .eq("id", invoiceLine.assetId)
+              .single();
+            const faLocationId = faLocationRecord.data?.locationId ?? null;
+
             const jlStartIdxFa = journalLineInserts.length;
 
             if (wasReceived && invoiceLine.purchaseOrderLineId) {
@@ -1257,6 +1264,10 @@ serve(async (req: Request) => {
                 updateData.status = "Active";
               }
 
+              if (invoiceLine.locationId) {
+                updateData.locationId = invoiceLine.locationId;
+              }
+
               await client
                 .from("fixedAsset")
                 .update(updateData)
@@ -1267,7 +1278,7 @@ serve(async (req: Request) => {
             const assetDimMeta = {
               supplierTypeId: supplier.data.supplierTypeId ?? null,
               itemPostingGroupId: null,
-              locationId: invoiceLine.locationId ?? null,
+              locationId: invoiceLine.locationId ?? purchaseOrderLine?.locationId ?? faLocationId,
               costCenterId: null,
               processId: null,
             };

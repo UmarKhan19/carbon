@@ -2,15 +2,16 @@ import { assertIsPost, error, notFound, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { toStoredAmount } from "@carbon/utils";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
   fixedAssetDisposalValidator,
-  getFixedAsset
+  getFixedAsset,
+  getOrCreateAccountingPeriod
 } from "~/modules/accounting";
+import { postDisposal } from "~/modules/accounting/accounting.server";
 import { FixedAssetDisposalForm } from "~/modules/accounting/ui/FixedAssets";
-import { getNextSequence } from "~/modules/settings";
+import { getDatabaseClient } from "~/services/database.server";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -51,9 +52,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
-    update: "accounting"
-  });
+  const { client, companyId, companyGroupId, userId } =
+    await requirePermissions(request, {
+      update: "accounting"
+    });
 
   const { fixedAssetId } = params;
   if (!fixedAssetId) throw notFound("fixedAssetId not found");
@@ -70,11 +72,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { disposalDate } = validation.data;
   const disposalMethod = "Scrapping";
 
-  const asset = await client
-    .from("fixedAsset")
-    .select("*, fixedAssetClass:fixedAssetClassId(*)")
-    .eq("id", fixedAssetId)
-    .single();
+  const [asset, dimensionsResult] = await Promise.all([
+    client
+      .from("fixedAsset")
+      .select("*, fixedAssetClass:fixedAssetClassId(*)")
+      .eq("id", fixedAssetId)
+      .single(),
+    client
+      .from("dimension")
+      .select("id, entityType")
+      .eq("companyGroupId", companyGroupId)
+      .eq("active", true)
+  ]);
 
   if (asset.error) {
     throw redirect(
@@ -86,122 +95,50 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const assetClass = asset.data.fixedAssetClass as any;
   const acquisitionCost = Number(asset.data.acquisitionCost);
   const accumulatedDepreciation = Number(asset.data.accumulatedDepreciation);
-  const nbv = acquisitionCost - accumulatedDepreciation;
 
-  const nextSequence = await getNextSequence(client, "journalEntry", companyId);
-  if (nextSequence.error) {
-    throw redirect(
-      path.to.fixedAsset(fixedAssetId),
-      await flash(
-        request,
-        error(nextSequence.error, "Failed to generate journal ID")
-      )
-    );
-  }
-
-  const now = new Date().toISOString();
-
-  const journal = await client
-    .from("journal")
-    .insert({
-      journalEntryId: nextSequence.data,
-      companyId,
-      description: `Asset Disposal: ${asset.data.fixedAssetId} (${disposalMethod})`,
-      postingDate: disposalDate,
-      sourceType: "Asset Disposal" as const,
-      status: "Posted" as const,
-      postedAt: now,
-      postedBy: userId,
-      createdBy: userId
-    })
-    .select("id")
-    .single();
-
-  if (journal.error) {
-    throw redirect(
-      path.to.fixedAsset(fixedAssetId),
-      await flash(
-        request,
-        error(journal.error, "Failed to create disposal journal")
-      )
-    );
-  }
-
-  const journalLines: Array<{
-    journalId: string;
-    accountId: string;
-    description: string;
-    amount: number;
-    journalLineReference: string;
-    companyId: string;
-  }> = [];
-
-  if (accumulatedDepreciation > 0) {
-    journalLines.push({
-      journalId: journal.data.id,
-      accountId: assetClass.accumulatedDepreciationAccountId,
-      description: "Clear accumulated depreciation",
-      amount: toStoredAmount(accumulatedDepreciation, 0, "Asset"),
-      journalLineReference: crypto.randomUUID(),
-      companyId
-    });
-  }
-
-  if (nbv > 0) {
-    journalLines.push({
-      journalId: journal.data.id,
-      accountId: assetClass.writeOffAccountId,
-      description: "Write-off remaining book value",
-      amount: toStoredAmount(nbv, 0, "Expense"),
-      journalLineReference: crypto.randomUUID(),
-      companyId
-    });
-  }
-
-  journalLines.push({
-    journalId: journal.data.id,
-    accountId: assetClass.assetAccountId,
-    description: "Remove asset at cost",
-    amount: toStoredAmount(0, acquisitionCost, "Asset"),
-    journalLineReference: crypto.randomUUID(),
-    companyId
-  });
-
-  if (journalLines.length > 0) {
-    const lineResult = await client.from("journalLine").insert(journalLines);
-    if (lineResult.error) {
-      throw redirect(
-        path.to.fixedAsset(fixedAssetId),
-        await flash(
-          request,
-          error(lineResult.error, "Failed to create journal lines")
-        )
-      );
-    }
-  }
-
-  await client.from("fixedAssetDisposal").insert({
-    fixedAssetId,
-    disposalMethod,
-    disposalDate,
-    saleProceeds: 0,
-    netBookValueAtDisposal: nbv,
-    gainLoss: -nbv,
-    journalId: journal.data.id,
+  const accountingPeriod = await getOrCreateAccountingPeriod(
+    client,
     companyId,
-    createdBy: userId
-  });
+    disposalDate
+  );
+  if (accountingPeriod.error) {
+    throw redirect(
+      path.to.fixedAsset(fixedAssetId),
+      await flash(
+        request,
+        error(accountingPeriod.error, "Failed to get accounting period")
+      )
+    );
+  }
 
-  await client
-    .from("fixedAsset")
-    .update({
-      status: "Disposed",
+  const locationDimensionId = (dimensionsResult.data ?? []).find(
+    (d) => d.entityType === "Location"
+  )?.id;
+
+  try {
+    await postDisposal(getDatabaseClient(), {
+      fixedAssetId,
+      fixedAssetReadableId: asset.data.fixedAssetId,
       disposalDate,
       disposalMethod,
-      saleProceeds: 0,
-      updatedBy: userId
-    })
-    .eq("id", fixedAssetId);
+      acquisitionCost,
+      accumulatedDepreciation,
+      locationId: asset.data.locationId,
+      assetAccountId: assetClass.assetAccountId,
+      accumulatedDepreciationAccountId:
+        assetClass.accumulatedDepreciationAccountId,
+      writeOffAccountId: assetClass.writeOffAccountId,
+      accountingPeriodId: accountingPeriod.data!,
+      locationDimensionId,
+      companyId,
+      userId
+    });
+  } catch (err) {
+    throw redirect(
+      path.to.fixedAsset(fixedAssetId),
+      await flash(request, error(err, "Failed to post asset disposal"))
+    );
+  }
 
   throw redirect(
     path.to.fixedAsset(fixedAssetId),

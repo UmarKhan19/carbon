@@ -76,8 +76,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     assetName: string | null;
     assetReadableId: string | null;
     description: string | null;
-    purchaseQuantity: number;
-    unitPrice: number | null;
     received: boolean;
     serialNumber: string | null;
   }[] = [];
@@ -86,14 +84,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     const faLineRecords = await serviceRole
       .from("receiptFixedAssetLine")
       .select(
-        "id, purchaseOrderLineId, received, serialNumber, purchaseOrderLine:purchaseOrderLineId(assetId, description, purchaseQuantity, unitPrice, fixedAsset:assetId(name, fixedAssetId))"
+        "id, purchaseOrderLineId, received, serialNumber, purchaseOrderLine:purchaseOrderLineId(assetId, description, fixedAsset:assetId(name, fixedAssetId, serialNumber))"
       )
       .eq("receiptId", receiptId);
 
     fixedAssetLines = (faLineRecords.data ?? [])
       .filter((row) => {
         const pol = row.purchaseOrderLine as any;
-        return pol?.assetId && pol?.purchaseQuantity != null;
+        return pol?.assetId;
       })
       .map((row) => {
         const pol = row.purchaseOrderLine as any;
@@ -104,10 +102,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           assetName: pol.fixedAsset?.name ?? null,
           assetReadableId: pol.fixedAsset?.fixedAssetId ?? null,
           description: pol.description,
-          purchaseQuantity: pol.purchaseQuantity,
-          unitPrice: pol.unitPrice,
           received: row.received,
-          serialNumber: row.serialNumber
+          serialNumber: row.serialNumber ?? pol.fixedAsset?.serialNumber ?? null
         };
       });
   }

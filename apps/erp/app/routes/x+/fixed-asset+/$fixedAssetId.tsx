@@ -4,9 +4,12 @@ import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
 import {
   Badge,
+  BarProgress,
   Button,
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -20,6 +23,7 @@ import {
   LuChevronDown,
   LuCircleX,
   LuClipboardCheck,
+  LuHistory,
   LuPencil,
   LuShoppingCart,
   LuStore,
@@ -35,9 +39,10 @@ import {
   useParams
 } from "react-router";
 import { DocumentHeader } from "~/components";
+import { AuditLogDrawer } from "~/components/AuditLog";
 import { Enumerable } from "~/components/Enumerable";
 import { ConfirmDelete } from "~/components/Modals";
-import { usePermissions, useUser } from "~/hooks";
+import { usePermissions, useSettings, useUser } from "~/hooks";
 import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
 import {
   getAssetDepreciationHistory,
@@ -45,6 +50,7 @@ import {
   getFixedAssetDisposal
 } from "~/modules/accounting";
 import {
+  DepreciationRunStatus,
   FixedAssetNotes,
   FixedAssetStatus
 } from "~/modules/accounting/ui/FixedAssets";
@@ -88,6 +94,9 @@ export default function FixedAssetDetailRoute() {
   const { fixedAssetId } = useParams();
   const { asset, depreciationHistory, disposal } =
     useLoaderData<typeof loader>();
+  const settings = useSettings();
+  const taxDepreciationEnabled =
+    (settings as any).assetTaxDepreciationEnabled ?? false;
   const permissions = usePermissions();
   const navigate = useNavigate();
   const { company } = useUser();
@@ -95,6 +104,7 @@ export default function FixedAssetDetailRoute() {
     currency: company.baseCurrencyCode
   });
   const deleteModal = useDisclosure();
+  const auditDrawer = useDisclosure();
 
   if (!fixedAssetId) throw new Error("Could not find fixedAssetId");
 
@@ -106,89 +116,102 @@ export default function FixedAssetDetailRoute() {
       ? Math.min(100, (accumulatedDepreciation / acquisitionCost) * 100)
       : 0;
 
+  const accumulatedTaxDepreciation = Number(
+    (asset as any).accumulatedTaxDepreciation ?? 0
+  );
+  const taxNbv = acquisitionCost - accumulatedTaxDepreciation;
+  const taxDepreciationPercent =
+    acquisitionCost > 0
+      ? Math.min(100, (accumulatedTaxDepreciation / acquisitionCost) * 100)
+      : 0;
+
   const isDraft = asset.status === "Draft";
   const isActive =
     asset.status === "Active" || asset.status === "Fully Depreciated";
-  const isDisposed = asset.status === "Disposed";
   const canUpdate = permissions.can("update", "accounting");
 
   return (
     <div className="flex h-[calc(100dvh-49px)] overflow-y-auto scrollbar-hide w-full">
-      <div className="h-full p-4 w-full max-w-5xl mx-auto space-y-4">
+      <div className="h-full p-4 pb-16 w-full max-w-5xl mx-auto space-y-4">
         {/* Main Details */}
         <Card>
           <DocumentHeader
             title={asset.fixedAssetId ?? ""}
             status={<FixedAssetStatus status={asset.status as any} />}
             menuItems={
-              <DropdownMenuItem
-                disabled={!permissions.can("delete", "accounting")}
-                destructive
-                onClick={deleteModal.onOpen}
-              >
-                <DropdownMenuIcon icon={<LuTrash />} />
-                Delete
-              </DropdownMenuItem>
-            }
-            actions={
               <>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  leftIcon={<LuPencil />}
-                  asChild
-                >
-                  <Link to={path.to.fixedAssetDetails(fixedAssetId)}>Edit</Link>
-                </Button>
-                {!isDisposed && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="primary"
-                        size="md"
-                        rightIcon={<LuChevronDown />}
-                      >
-                        Actions
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {isDraft && (
-                        <>
-                          <DropdownMenuItem disabled={!canUpdate} asChild>
-                            <Link to={path.to.fixedAssetRegister(fixedAssetId)}>
-                              <DropdownMenuIcon icon={<LuClipboardCheck />} />
-                              Register
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link to={path.to.fixedAssetPurchase(fixedAssetId)}>
-                              <DropdownMenuIcon icon={<LuShoppingCart />} />
-                              Purchase
-                            </Link>
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      {isActive && (
-                        <>
-                          <DropdownMenuItem asChild>
-                            <Link to={path.to.fixedAssetSell(fixedAssetId)}>
-                              <DropdownMenuIcon icon={<LuStore />} />
-                              Sell
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem disabled={!canUpdate} asChild>
-                            <Link to={path.to.fixedAssetDispose(fixedAssetId)}>
-                              <DropdownMenuIcon icon={<LuCircleX />} />
-                              Dispose
-                            </Link>
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                <DropdownMenuItem onClick={auditDrawer.onOpen}>
+                  <DropdownMenuIcon icon={<LuHistory />} />
+                  History
+                </DropdownMenuItem>
+                {isDraft && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      disabled={!permissions.can("delete", "accounting")}
+                      destructive
+                      onClick={deleteModal.onOpen}
+                    >
+                      <DropdownMenuIcon icon={<LuTrash />} />
+                      Delete
+                    </DropdownMenuItem>
+                  </>
                 )}
               </>
+            }
+            actions={
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    rightIcon={<LuChevronDown />}
+                  >
+                    Actions
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem disabled={!canUpdate} asChild>
+                    <Link to={path.to.fixedAssetDetails(fixedAssetId)}>
+                      <DropdownMenuIcon icon={<LuPencil />} />
+                      Edit
+                    </Link>
+                  </DropdownMenuItem>
+                  {isDraft && (
+                    <>
+                      <DropdownMenuItem disabled={!canUpdate} asChild>
+                        <Link to={path.to.fixedAssetRegister(fixedAssetId)}>
+                          <DropdownMenuIcon icon={<LuClipboardCheck />} />
+                          Register
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={path.to.fixedAssetPurchase(fixedAssetId)}>
+                          <DropdownMenuIcon icon={<LuShoppingCart />} />
+                          Purchase
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {isActive && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to={path.to.fixedAssetSell(fixedAssetId)}>
+                          <DropdownMenuIcon icon={<LuStore />} />
+                          Sell
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem disabled={!canUpdate} asChild>
+                        <Link to={path.to.fixedAssetDispose(fixedAssetId)}>
+                          <DropdownMenuIcon icon={<LuCircleX />} />
+                          Dispose
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             }
           />
           <CardContent>
@@ -229,7 +252,9 @@ export default function FixedAssetDetailRoute() {
         </Card>
 
         {/* Financial Summary */}
-        <div className="grid grid-cols-3 gap-px rounded-lg border border-border bg-border overflow-hidden">
+        <div
+          className={`grid ${taxDepreciationEnabled ? "grid-cols-5" : "grid-cols-3"} gap-px rounded-lg border border-border bg-border overflow-hidden`}
+        >
           <div className="bg-card p-4 space-y-1">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Acquisition Cost
@@ -240,7 +265,7 @@ export default function FixedAssetDetailRoute() {
           </div>
           <div className="bg-card p-4 space-y-1">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Accumulated Depreciation
+              Accum. Depreciation
             </p>
             <p className="text-2xl font-semibold tabular-nums tracking-tight">
               {currencyFormatter.format(accumulatedDepreciation)}
@@ -254,24 +279,118 @@ export default function FixedAssetDetailRoute() {
               {currencyFormatter.format(nbv)}
             </p>
           </div>
+          {taxDepreciationEnabled && (
+            <>
+              <div className="bg-card p-4 space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Accum. Tax Depr.
+                </p>
+                <p className="text-2xl font-semibold tabular-nums tracking-tight">
+                  {currencyFormatter.format(accumulatedTaxDepreciation)}
+                </p>
+              </div>
+              <div className="bg-card p-4 space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Tax Book Value
+                </p>
+                <p className="text-2xl font-semibold tabular-nums tracking-tight">
+                  {currencyFormatter.format(taxNbv)}
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
-        {/* Depreciation Progress */}
-        {acquisitionCost > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span>Depreciation Progress</span>
-              <span className="tabular-nums">
-                {depreciationPercent.toFixed(1)}%
-              </span>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full rounded-full bg-foreground transition-all duration-500"
-                style={{ width: `${depreciationPercent}%` }}
-              />
-            </div>
-          </div>
+        {/* Depreciation History */}
+        {(depreciationHistory.length > 0 || acquisitionCost > 0) && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Depreciation</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {acquisitionCost > 0 && (
+                <div className="space-y-4">
+                  <BarProgress
+                    progress={depreciationPercent}
+                    label="Book Depreciation"
+                    value={`${depreciationPercent.toFixed(1)}%`}
+                    gradient
+                  />
+                  {taxDepreciationEnabled && (
+                    <BarProgress
+                      progress={taxDepreciationPercent}
+                      label="Tax Depreciation"
+                      value={`${taxDepreciationPercent.toFixed(1)}%`}
+                      gradient
+                    />
+                  )}
+                </div>
+              )}
+              {depreciationHistory.length > 0 && (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-2 font-medium text-muted-foreground">
+                        Run
+                      </th>
+                      <th className="text-left py-2 font-medium text-muted-foreground">
+                        Period End
+                      </th>
+                      <th className="text-left py-2 font-medium text-muted-foreground">
+                        Status
+                      </th>
+                      <th className="text-right py-2 font-medium text-muted-foreground">
+                        Amount
+                      </th>
+                      {taxDepreciationEnabled && (
+                        <th className="text-right py-2 font-medium text-muted-foreground">
+                          Tax Amount
+                        </th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {depreciationHistory.map((item) => {
+                      const run = item.depreciationRun as any;
+                      return (
+                        <tr
+                          key={item.id}
+                          className="border-b border-border last:border-0"
+                        >
+                          <td className="py-2.5 tabular-nums">
+                            <Link
+                              to={path.to.depreciationRun(run?.id ?? item.id)}
+                              className="text-foreground hover:underline"
+                            >
+                              {run?.depreciationRunId ?? "—"}
+                            </Link>
+                          </td>
+                          <td className="py-2.5">
+                            {run?.periodEnd ? formatDate(run.periodEnd) : "—"}
+                          </td>
+                          <td className="py-2.5">
+                            <DepreciationRunStatus
+                              status={run?.status ?? null}
+                            />
+                          </td>
+                          <td className="py-2.5 text-right tabular-nums">
+                            {currencyFormatter.format(Number(item.amount))}
+                          </td>
+                          {taxDepreciationEnabled && (
+                            <td className="py-2.5 text-right tabular-nums">
+                              {currencyFormatter.format(
+                                Number((item as any).taxAmount ?? 0)
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </CardContent>
+          </Card>
         )}
 
         {/* Notes */}
@@ -316,54 +435,6 @@ export default function FixedAssetDetailRoute() {
           </Card>
         )}
 
-        {/* Depreciation History */}
-        {depreciationHistory.length > 0 && (
-          <Card>
-            <CardContent className="pt-6">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-2 font-medium text-muted-foreground">
-                      Run
-                    </th>
-                    <th className="text-left py-2 font-medium text-muted-foreground">
-                      Period End
-                    </th>
-                    <th className="text-left py-2 font-medium text-muted-foreground">
-                      Status
-                    </th>
-                    <th className="text-right py-2 font-medium text-muted-foreground">
-                      Amount
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {depreciationHistory.map((item) => {
-                    const run = item.depreciationRun as any;
-                    return (
-                      <tr
-                        key={item.id}
-                        className="border-b border-border last:border-0"
-                      >
-                        <td className="py-2.5 tabular-nums">
-                          {run?.depreciationRunId ?? "—"}
-                        </td>
-                        <td className="py-2.5">
-                          {run?.periodEnd ? formatDate(run.periodEnd) : "—"}
-                        </td>
-                        <td className="py-2.5">{run?.status ?? "—"}</td>
-                        <td className="py-2.5 text-right tabular-nums">
-                          {currencyFormatter.format(Number(item.amount))}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-        )}
-
         <Outlet />
 
         <ConfirmDelete
@@ -378,6 +449,13 @@ export default function FixedAssetDetailRoute() {
           }}
         />
       </div>
+      <AuditLogDrawer
+        isOpen={auditDrawer.isOpen}
+        onClose={auditDrawer.onClose}
+        entityType="fixedAsset"
+        entityId={fixedAssetId}
+        companyId={company.id}
+      />
     </div>
   );
 }

@@ -533,7 +533,7 @@ serve(async (req: Request) => {
                   const assetRecord = await client
                     .from("fixedAsset")
                     .select(
-                      "fixedAssetClass:fixedAssetClassId(writeOffAccountId)"
+                      "locationId, fixedAssetClass:fixedAssetClassId(writeOffAccountId)"
                     )
                     .eq("id", invoiceLine.assetId)
                     .single();
@@ -552,7 +552,7 @@ serve(async (req: Request) => {
                     description: "Accounts Receivable",
                     amount: debit("asset", saleProceeds),
                     quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Sales Invoice",
+                    documentType: "Invoice",
                     documentId: salesInvoice.data?.id ?? undefined,
                     externalDocumentId:
                       salesInvoice.data?.customerReference ?? undefined,
@@ -567,9 +567,9 @@ serve(async (req: Request) => {
                   journalLineInserts.push({
                     accountId: writeOffAccountId,
                     description: "Disposal proceeds",
-                    amount: credit("revenue", saleProceeds),
+                    amount: credit("expense", saleProceeds),
                     quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Sales Invoice",
+                    documentType: "Invoice",
                     documentId: salesInvoice.data?.id ?? undefined,
                     externalDocumentId:
                       salesInvoice.data?.customerReference ?? undefined,
@@ -585,7 +585,7 @@ serve(async (req: Request) => {
                     journalLineDimensionsMeta.push({
                       customerTypeId: customer.data.customerTypeId ?? null,
                       itemPostingGroupId: null,
-                      locationId: invoiceLine.locationId ?? null,
+                      locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
                       costCenterId: null,
                     });
                   }
@@ -622,7 +622,7 @@ serve(async (req: Request) => {
                   const assetRecord = await client
                     .from("fixedAsset")
                     .select(
-                      "id, status, acquisitionCost, accumulatedDepreciation, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
+                      "id, status, acquisitionCost, accumulatedDepreciation, locationId, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
                     )
                     .eq("id", invoiceLine.assetId)
                     .single();
@@ -648,7 +648,7 @@ serve(async (req: Request) => {
                       description: "Clear accumulated depreciation",
                       amount: debit("asset", accumulatedDepreciation),
                       quantity: 1,
-                      documentType: "Sales Invoice",
+                      documentType: "Invoice",
                       documentId: salesInvoice.data?.id ?? undefined,
                       externalDocumentId:
                         salesInvoice.data?.customerReference ?? undefined,
@@ -665,7 +665,7 @@ serve(async (req: Request) => {
                       customerTypeId:
                         customer.data.customerTypeId ?? null,
                       itemPostingGroupId: null,
-                      locationId: invoiceLine.locationId ?? null,
+                      locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
                       costCenterId: null,
                     });
                   }
@@ -677,7 +677,7 @@ serve(async (req: Request) => {
                       description: "Write-off remaining book value",
                       amount: debit("expense", nbv),
                       quantity: 1,
-                      documentType: "Sales Invoice",
+                      documentType: "Invoice",
                       documentId: salesInvoice.data?.id ?? undefined,
                       externalDocumentId:
                         salesInvoice.data?.customerReference ?? undefined,
@@ -694,7 +694,7 @@ serve(async (req: Request) => {
                       customerTypeId:
                         customer.data.customerTypeId ?? null,
                       itemPostingGroupId: null,
-                      locationId: invoiceLine.locationId ?? null,
+                      locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
                       costCenterId: null,
                     });
                   }
@@ -705,7 +705,7 @@ serve(async (req: Request) => {
                     description: "Remove asset at cost",
                     amount: credit("asset", acquisitionCost),
                     quantity: 1,
-                    documentType: "Sales Invoice",
+                    documentType: "Invoice",
                     documentId: salesInvoice.data?.id ?? undefined,
                     externalDocumentId:
                       salesInvoice.data?.customerReference ?? undefined,
@@ -722,7 +722,7 @@ serve(async (req: Request) => {
                     customerTypeId:
                       customer.data.customerTypeId ?? null,
                     itemPostingGroupId: null,
-                    locationId: invoiceLine.locationId ?? null,
+                    locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? null,
                     costCenterId: null,
                   });
 
@@ -732,7 +732,7 @@ serve(async (req: Request) => {
                     description: "Accounts Receivable",
                     amount: debit("asset", saleProceeds),
                     quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Sales Invoice",
+                    documentType: "Invoice",
                     documentId: salesInvoice.data?.id ?? undefined,
                     externalDocumentId:
                       salesInvoice.data?.customerReference ?? undefined,
@@ -749,9 +749,9 @@ serve(async (req: Request) => {
                   journalLineInserts.push({
                     accountId: assetClass.writeOffAccountId,
                     description: "Disposal proceeds",
-                    amount: credit("revenue", saleProceeds),
+                    amount: credit("expense", saleProceeds),
                     quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Sales Invoice",
+                    documentType: "Invoice",
                     documentId: salesInvoice.data?.id ?? undefined,
                     externalDocumentId:
                       salesInvoice.data?.customerReference ?? undefined,
@@ -770,7 +770,7 @@ serve(async (req: Request) => {
                       customerTypeId:
                         customer.data.customerTypeId ?? null,
                       itemPostingGroupId: null,
-                      locationId: invoiceLine.locationId ?? null,
+                      locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
                       costCenterId: null,
                     });
                   }

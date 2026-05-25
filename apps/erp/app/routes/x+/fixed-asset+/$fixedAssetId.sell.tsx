@@ -21,6 +21,7 @@ import { usePermissions } from "~/hooks";
 import { getFixedAsset } from "~/modules/accounting";
 import { upsertSalesOrder } from "~/modules/sales";
 import { getNextSequence } from "~/modules/settings";
+import { getUserDefaults } from "~/modules/users/users.server";
 import { path } from "~/utils/path";
 
 const sellAssetValidator = z.object({
@@ -72,7 +73,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { customerId } = validation.data;
 
-  const asset = await getFixedAsset(client, fixedAssetId);
+  const [asset, defaults] = await Promise.all([
+    getFixedAsset(client, fixedAssetId),
+    getUserDefaults(client, userId, companyId)
+  ]);
+
   if (asset.error || !asset.data) {
     throw redirect(
       path.to.fixedAssets,
@@ -91,11 +96,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const locationId = asset.data.locationId;
+  const locationId = asset.data.locationId ?? defaults.data?.locationId ?? "";
+
+  const company = await client
+    .from("company")
+    .select("baseCurrencyCode")
+    .eq("id", companyId)
+    .single();
 
   const newSO = await upsertSalesOrder(client, {
     salesOrderId: nextSequence.data!,
     customerId,
+    currencyCode: company.data?.baseCurrencyCode ?? "USD",
     locationId: locationId ?? "",
     status: "Draft",
     companyId,

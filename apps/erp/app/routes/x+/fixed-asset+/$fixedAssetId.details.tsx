@@ -92,7 +92,18 @@ export default function FixedAssetDetailsRoute() {
       ? Number(asset.assetLifetimeUsage)
       : undefined,
     locationId: asset.locationId ?? undefined,
-    custodianId: asset.custodianId ?? undefined
+    taxDepreciationMethod: (asset as any).taxDepreciationMethod ?? undefined,
+    taxUsefulLifeMonths: (asset as any).taxUsefulLifeMonths ?? undefined,
+    taxResidualValuePercent:
+      (asset as any).taxResidualValuePercent != null
+        ? Number((asset as any).taxResidualValuePercent)
+        : undefined,
+    macrsPropertyClass: (asset as any).macrsPropertyClass ?? undefined,
+    macrsConvention: (asset as any).macrsConvention ?? undefined,
+    bonusDepreciationPercent:
+      (asset as any).bonusDepreciationPercent != null
+        ? Number((asset as any).bonusDepreciationPercent)
+        : undefined
   };
 
   return (

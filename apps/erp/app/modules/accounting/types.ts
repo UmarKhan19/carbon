@@ -411,7 +411,7 @@ import type {
   getFixedAssetClasses,
   getFixedAssetDisposal,
   getFixedAssets
-} from "./fixedAssets.service";
+} from "./accounting.service";
 
 export type FixedAssetClass = NonNullable<
   Awaited<ReturnType<typeof getFixedAssetClass>>["data"]

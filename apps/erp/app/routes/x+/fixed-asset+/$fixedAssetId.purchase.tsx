@@ -24,6 +24,7 @@ import {
   upsertPurchaseOrderLine
 } from "~/modules/purchasing";
 import { getNextSequence } from "~/modules/settings";
+import { getUserDefaults } from "~/modules/users/users.server";
 import { path } from "~/utils/path";
 
 const purchaseAssetValidator = z.object({
@@ -75,13 +76,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { supplierId } = validation.data;
 
-  const asset = await getFixedAsset(client, fixedAssetId);
+  const [asset, defaults] = await Promise.all([
+    getFixedAsset(client, fixedAssetId),
+    getUserDefaults(client, userId, companyId)
+  ]);
+
   if (asset.error || !asset.data) {
     throw redirect(
       path.to.fixedAssets,
       await flash(request, error(asset.error, "Failed to get fixed asset"))
     );
   }
+
+  const locationId = asset.data.locationId ?? defaults.data?.locationId ?? "";
 
   const nextSequence = await getNextSequence(
     client,
@@ -101,6 +108,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const newPO = await upsertPurchaseOrder(client, {
     purchaseOrderId: nextSequence.data!,
     supplierId,
+    locationId,
     status: "Draft",
     purchaseOrderType: "Purchase",
     companyId,
@@ -125,6 +133,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     purchaseOrderLineType: "Fixed Asset",
     assetId: fixedAssetId,
     description: asset.data.name,
+    locationId,
     purchaseQuantity: 1,
     supplierUnitPrice: 0,
     supplierShippingCost: 0,

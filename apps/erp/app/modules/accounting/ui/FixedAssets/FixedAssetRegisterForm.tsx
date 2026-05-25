@@ -14,7 +14,7 @@ import {
 import { useFetcher } from "react-router";
 import { DatePicker, Number, Submit } from "~/components/Form";
 import { usePermissions, useUser } from "~/hooks";
-import { fixedAssetRegisterValidator } from "../../fixedAssets.models";
+import { fixedAssetRegisterValidator } from "../../accounting.models";
 
 type FixedAssetRegisterFormProps = {
   onClose: () => void;

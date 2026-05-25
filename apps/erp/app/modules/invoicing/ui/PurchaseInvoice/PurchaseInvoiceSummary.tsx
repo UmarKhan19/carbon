@@ -81,7 +81,7 @@ const LineItems = ({
         const itemReadableId = isGlAccount
           ? line.description || "Indirect Expense"
           : isFixedAsset
-            ? line.assetName || "Fixed Asset"
+            ? line.assetReadableId || "Fixed Asset"
             : getItemReadableId(items, line.itemId);
         const lineTotal = (line.unitPrice ?? 0) * (line.quantity ?? 0);
         const supplierLineTotal =

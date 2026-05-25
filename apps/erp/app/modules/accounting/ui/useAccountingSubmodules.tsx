@@ -29,7 +29,6 @@ const accountingOnlyRoutes = new Set<string>([
   path.to.intercompany,
   path.to.accountingJournals,
   path.to.fixedAssets,
-  path.to.assetClasses,
   path.to.depreciationRuns
 ]);
 
@@ -61,7 +60,7 @@ export default function useAccountingSubmodules() {
         ]
       },
       {
-        name: t`Manage`,
+        name: t`General Ledger`,
         routes: [
           {
             name: t`Intercompany`,
@@ -82,19 +81,13 @@ export default function useAccountingSubmodules() {
         name: t`Fixed Assets`,
         routes: [
           {
-            name: t`Fixed Assets`,
+            name: t`Assets`,
             to: path.to.fixedAssets,
             role: "employee",
             icon: <LuBuilding2 />
           },
           {
-            name: t`Asset Classes`,
-            to: path.to.assetClasses,
-            role: "employee",
-            icon: <LuLayers />
-          },
-          {
-            name: t`Depreciation Runs`,
+            name: t`Depreciation`,
             to: path.to.depreciationRuns,
             role: "employee",
             icon: <LuClock />
@@ -104,6 +97,12 @@ export default function useAccountingSubmodules() {
       {
         name: t`Configure`,
         routes: [
+          {
+            name: t`Asset Classes`,
+            to: path.to.assetClasses,
+            role: "employee",
+            icon: <LuLayers />
+          },
           {
             name: t`Chart of Accounts`,
             to: path.to.chartOfAccounts,

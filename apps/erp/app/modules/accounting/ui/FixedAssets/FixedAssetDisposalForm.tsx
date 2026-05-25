@@ -13,8 +13,9 @@ import {
 } from "@carbon/react";
 import { useFetcher } from "react-router";
 import { DatePicker, Submit } from "~/components/Form";
-import { usePermissions } from "~/hooks";
-import { fixedAssetDisposalValidator } from "../../fixedAssets.models";
+import { usePermissions, useUser } from "~/hooks";
+import { useCurrencyFormatter } from "~/hooks/useCurrencyFormatter";
+import { fixedAssetDisposalValidator } from "../../accounting.models";
 
 type FixedAssetDisposalFormProps = {
   currentNBV: number;
@@ -27,9 +28,13 @@ const FixedAssetDisposalForm = ({
 }: FixedAssetDisposalFormProps) => {
   const permissions = usePermissions();
   const fetcher = useFetcher();
+  const { company } = useUser();
+  const currencyFormatter = useCurrencyFormatter({
+    currency: company.baseCurrencyCode
+  });
 
   return (
-    <ModalDrawerProvider type="drawer">
+    <ModalDrawerProvider type="modal">
       <ModalDrawer
         open
         onOpenChange={(open) => {
@@ -54,7 +59,7 @@ const FixedAssetDisposalForm = ({
                 <div className="text-sm text-muted-foreground">
                   Current Net Book Value:{" "}
                   <span className="font-medium text-foreground">
-                    {currentNBV.toFixed(2)}
+                    {currencyFormatter.format(currentNBV)}
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground">

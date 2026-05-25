@@ -440,8 +440,12 @@ export const path = {
       generatePath(`${x}/accounting/asset-class/${id}/delete`),
     depreciationRuns: `${x}/accounting/depreciation-runs`,
     depreciationRun: (id: string) =>
-      generatePath(`${x}/accounting/depreciation-run/${id}`),
+      generatePath(`${x}/depreciation-run/${id}`),
     newDepreciationRun: `${x}/accounting/depreciation-runs/new`,
+    deleteDepreciationRun: (id: string) =>
+      generatePath(`${x}/depreciation-run/${id}/delete`),
+    repeatDepreciationRun: (id: string) =>
+      generatePath(`${x}/depreciation-run/${id}/repeat`),
     fixedAssetImport: `${x}/accounting/fixed-asset-import`,
     intercompany: `${x}/accounting/intercompany`,
     newIntercompanyTransaction: `${x}/accounting/intercompany/new`,

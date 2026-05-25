@@ -3,46 +3,65 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import {
-  buildDepreciationLines,
-  getNextPeriodEnd
-} from "~/modules/accounting/accounting.utils";
+import { buildDepreciationLines } from "~/modules/accounting/accounting.utils";
 import { getNextSequence } from "~/modules/settings";
 import { path } from "~/utils/path";
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
     create: "accounting"
   });
 
-  // Find the last run (posted or draft) to determine the next period
-  const lastRun = await client
-    .from("depreciationRun")
-    .select("periodEnd, status")
-    .eq("companyId", companyId)
-    .order("periodEnd", { ascending: false })
-    .limit(1);
-
-  const lastPeriodEnd =
-    lastRun.data && lastRun.data.length > 0 ? lastRun.data[0].periodEnd : null;
-
-  const periodEnd = getNextPeriodEnd(lastPeriodEnd);
-
-  // Check for existing run at this period
-  const existing = await client
-    .from("depreciationRun")
-    .select("id")
-    .eq("periodEnd", periodEnd)
-    .eq("companyId", companyId);
-
-  if (existing.data && existing.data.length > 0) {
+  const { depreciationRunId } = params;
+  if (!depreciationRunId) {
     throw redirect(
       path.to.depreciationRuns,
-      await flash(
-        request,
-        error(null, "A depreciation run already exists for this period")
-      )
+      await flash(request, error(null, "Missing depreciation run ID"))
+    );
+  }
+
+  // Get the source run to find its period
+  const sourceRun = await client
+    .from("depreciationRun")
+    .select("periodEnd, status")
+    .eq("id", depreciationRunId)
+    .single();
+
+  if (sourceRun.error) {
+    throw redirect(
+      path.to.depreciationRun(depreciationRunId),
+      await flash(request, error(sourceRun.error, "Failed to load source run"))
+    );
+  }
+
+  if (sourceRun.data.status !== "Posted") {
+    throw redirect(
+      path.to.depreciationRun(depreciationRunId),
+      await flash(request, error(null, "Only posted runs can be repeated"))
+    );
+  }
+
+  const periodEnd = sourceRun.data.periodEnd;
+
+  // Find all assets already covered by runs for this period
+  const runsForPeriod = await client
+    .from("depreciationRun")
+    .select("id")
+    .eq("companyId", companyId)
+    .eq("periodEnd", periodEnd);
+
+  const runIdsForPeriod = (runsForPeriod.data ?? []).map((r) => r.id);
+
+  let coveredAssetIds = new Set<string>();
+  if (runIdsForPeriod.length > 0) {
+    const existingLines = await client
+      .from("depreciationRunLine")
+      .select("fixedAssetId")
+      .in("depreciationRunId", runIdsForPeriod);
+
+    coveredAssetIds = new Set(
+      (existingLines.data ?? []).map((l) => l.fixedAssetId)
     );
   }
 
@@ -55,6 +74,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const taxEnabled =
     (companySettings.data as any)?.assetTaxDepreciationEnabled ?? false;
 
+  // Get all active assets
   const assets = await client
     .from("fixedAsset")
     .select("*")
@@ -68,12 +88,28 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  // For depreciation calculation, use last *posted* run
+  // Filter to only uncovered assets
+  const uncoveredAssets = (assets.data ?? []).filter(
+    (a) => !coveredAssetIds.has(a.id)
+  );
+
+  if (uncoveredAssets.length === 0) {
+    throw redirect(
+      path.to.depreciationRun(depreciationRunId),
+      await flash(
+        request,
+        error(null, "All active assets are already covered for this period")
+      )
+    );
+  }
+
+  // Use last posted run before this period for calculation baseline
   const lastPostedRun = await client
     .from("depreciationRun")
     .select("periodEnd")
     .eq("companyId", companyId)
     .eq("status", "Posted")
+    .lt("periodEnd", periodEnd)
     .order("periodEnd", { ascending: false })
     .limit(1);
 
@@ -92,7 +128,7 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   const lines = buildDepreciationLines(
-    (assets.data ?? []).map((a) => ({
+    uncoveredAssets.map((a) => ({
       ...a,
       accumulatedTaxDepreciation: Number(
         (a as any).accumulatedTaxDepreciation ?? 0
@@ -109,6 +145,16 @@ export async function action({ request }: ActionFunctionArgs) {
     taxEnabled,
     usageMap
   );
+
+  if (lines.length === 0) {
+    throw redirect(
+      path.to.depreciationRun(depreciationRunId),
+      await flash(
+        request,
+        error(null, "No depreciation to calculate for uncovered assets")
+      )
+    );
+  }
 
   const nextSequence = await getNextSequence(
     client,
@@ -142,37 +188,35 @@ export async function action({ request }: ActionFunctionArgs) {
       path.to.depreciationRuns,
       await flash(
         request,
-        error(run.error, "Failed to create depreciation run")
+        error(run.error, "Failed to create repeat depreciation run")
       )
     );
   }
 
-  if (lines.length > 0) {
-    const lineInserts = lines.map((line) => ({
-      depreciationRunId: run.data.id,
-      fixedAssetId: line.fixedAssetId,
-      amount: line.amount,
-      taxAmount: line.taxAmount,
-      companyId
-    }));
+  const lineInserts = lines.map((line) => ({
+    depreciationRunId: run.data.id,
+    fixedAssetId: line.fixedAssetId,
+    amount: line.amount,
+    taxAmount: line.taxAmount,
+    companyId
+  }));
 
-    const lineResult = await client
-      .from("depreciationRunLine")
-      .insert(lineInserts);
+  const lineResult = await client
+    .from("depreciationRunLine")
+    .insert(lineInserts);
 
-    if (lineResult.error) {
-      throw redirect(
-        path.to.depreciationRuns,
-        await flash(
-          request,
-          error(lineResult.error, "Failed to create run lines")
-        )
-      );
-    }
+  if (lineResult.error) {
+    throw redirect(
+      path.to.depreciationRuns,
+      await flash(
+        request,
+        error(lineResult.error, "Failed to create run lines")
+      )
+    );
   }
 
   throw redirect(
     path.to.depreciationRun(run.data.id),
-    await flash(request, success("Depreciation run created"))
+    await flash(request, success("Repeat depreciation run created"))
   );
 }

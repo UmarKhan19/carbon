@@ -28,8 +28,8 @@ import {
   depreciationMethods,
   fixedAssetClassValidator,
   taxDepreciationMethods
-} from "../../fixedAssets.models";
-import { macrsConventions, macrsPropertyClasses } from "../../macrs";
+} from "../../accounting.models";
+import { macrsConventions, macrsPropertyClasses } from "../../accounting.utils";
 
 type AssetClassFormProps = {
   initialValues: z.infer<typeof fixedAssetClassValidator>;

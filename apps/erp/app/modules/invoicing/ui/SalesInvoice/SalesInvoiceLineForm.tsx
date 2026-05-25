@@ -189,14 +189,27 @@ const SalesInvoiceLineForm = ({
         .eq("companyId", company.id)
         .in("status", ["Active", "Fully Depreciated"])
         .order("fixedAssetId");
-      if (assets.data) {
-        setAssetOptions(
-          assets.data.map((a) => ({
-            value: a.id,
-            label: `${a.fixedAssetId} — ${a.name}`
-          }))
-        );
+      const options = (assets.data ?? []).map((a) => ({
+        value: a.id,
+        label: `${a.fixedAssetId} — ${a.name}`
+      }));
+      if (
+        initialValues.assetId &&
+        !options.some((o) => o.value === initialValues.assetId)
+      ) {
+        const current = await carbon
+          .from("fixedAsset")
+          .select("id, fixedAssetId, name")
+          .eq("id", initialValues.assetId)
+          .single();
+        if (current.data) {
+          options.unshift({
+            value: current.data.id,
+            label: `${current.data.fixedAssetId} — ${current.data.name}`
+          });
+        }
       }
+      setAssetOptions(options);
     })();
   });
 

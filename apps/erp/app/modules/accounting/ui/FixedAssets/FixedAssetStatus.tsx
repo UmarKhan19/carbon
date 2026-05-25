@@ -1,5 +1,5 @@
 import { Status } from "@carbon/react";
-import type { fixedAssetStatuses } from "../../fixedAssets.models";
+import type { fixedAssetStatuses } from "../../accounting.models";
 
 type FixedAssetStatusProps = {
   status?: (typeof fixedAssetStatuses)[number] | null;
