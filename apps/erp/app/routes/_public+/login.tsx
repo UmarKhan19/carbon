@@ -1,5 +1,4 @@
 import {
-  AUTH_PROVIDERS,
   assertIsPost,
   CarbonEdition,
   CLOUDFLARE_TURNSTILE_SECRET_KEY,
@@ -69,20 +68,20 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const authSession = await getAuthSession(request);
+  const hasOutlookAuth = isAuthProviderEnabled("azure");
+  const hasGoogleAuth = isAuthProviderEnabled("google");
+  const hasPasskeyAuth = isAuthProviderEnabled("passkey");
+
   if (authSession) {
     if (await verifyAuthSession(authSession)) {
       throw redirect(path.to.authenticatedRoot);
     }
     const cookieHeaders = await clearAuthCookies(request);
     return data(
-      { providers: AUTH_PROVIDERS.split(",") },
+      { hasOutlookAuth, hasGoogleAuth, hasPasskeyAuth },
       { headers: cookieHeaders }
     );
   }
-
-  const hasOutlookAuth = isAuthProviderEnabled("azure");
-  const hasGoogleAuth = isAuthProviderEnabled("google");
-  const hasPasskeyAuth = isAuthProviderEnabled("passkey");
 
   return {
     hasOutlookAuth,
