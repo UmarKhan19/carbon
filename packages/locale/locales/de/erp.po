@@ -7526,6 +7526,11 @@ msgstr "Dies wird die vorhandene Angebotsmethode ÃƒÆ’Ã‚Â¼berschreiben"
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "Dies wird die StÃƒÆ’Ã‚Â¼ckkosten aus der aktiven Herstellungsmethode, deren StÃƒÆ’Ã‚Â¼ckliste und Prozesse unter Verwendung der ChargengrÃƒÆ’Ã‚Â¶ÃƒÆ’Ã…Â¸e neu berechnen. Die aktuellen Kosten werden ÃƒÆ’Ã‚Â¼berschrieben. MÃƒÆ’Ã‚Â¶chten Sie fortfahren?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "Dies ersetzt alle Methodenmaterialien anderer Revisionen durch diese Revision."
 
@@ -7816,6 +7821,9 @@ msgstr "Unbegrenzte funktionale UnterstÃƒÆ’Ã‚Â¼tzung"
 
 msgid "Unlink"
 msgstr "VerknÃƒÆ’Ã‚Â¼pfung aufheben"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Nicht unterstÃƒÆ’Ã‚Â¼tzter Quelldokumenttyp: {sourceDocument}"
