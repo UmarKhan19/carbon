@@ -178,6 +178,7 @@ serve(async (req: Request) => {
                     "ItemPostingGroup",
                     "Location",
                     "CostCenter",
+                    "FixedAssetClass",
                   ])
               : null;
 
@@ -201,6 +202,7 @@ serve(async (req: Request) => {
               itemPostingGroupId: string | null;
               locationId: string | null;
               costCenterId: string | null;
+              fixedAssetClassId: string | null;
             }[] = [];
 
             const jobUpdates: Record<
@@ -457,6 +459,7 @@ serve(async (req: Request) => {
                     itemPostingGroupId,
                     locationId: shipmentLine.locationId ?? locationId ?? null,
                     costCenterId: salesOrderLine?.costCenterId ?? null,
+                    fixedAssetClassId: null,
                   });
                 }
               }
@@ -556,7 +559,7 @@ serve(async (req: Request) => {
                 const assetRecord = await client
                   .from("fixedAsset")
                   .select(
-                    "id, status, acquisitionCost, accumulatedDepreciation, locationId, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
+                    "id, status, acquisitionCost, accumulatedDepreciation, locationId, fixedAssetClassId, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
                   )
                   .eq("id", faSoLine.assetId!)
                   .single();
@@ -594,6 +597,7 @@ serve(async (req: Request) => {
                     itemPostingGroupId: null,
                     locationId: locationId ?? assetRecord.data.locationId ?? null,
                     costCenterId: faSoLine.costCenterId ?? null,
+                    fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
                   });
                 }
 
@@ -620,6 +624,7 @@ serve(async (req: Request) => {
                     itemPostingGroupId: null,
                     locationId: locationId ?? assetRecord.data.locationId ?? null,
                     costCenterId: faSoLine.costCenterId ?? null,
+                    fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
                   });
                 }
 
@@ -645,6 +650,7 @@ serve(async (req: Request) => {
                   itemPostingGroupId: null,
                   locationId: locationId ?? assetRecord.data.locationId ?? null,
                   costCenterId: faSoLine.costCenterId ?? null,
+                  fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
                 });
 
                 await client
@@ -1227,6 +1233,14 @@ serve(async (req: Request) => {
                         journalLineId: jl.id,
                         dimensionId: dimensionMap.get("CostCenter")!,
                         valueId: meta.costCenterId,
+                        companyId,
+                      });
+                    }
+                    if (meta.fixedAssetClassId && dimensionMap.has("FixedAssetClass")) {
+                      journalLineDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("FixedAssetClass")!,
+                        valueId: meta.fixedAssetClassId,
                         companyId,
                       });
                     }

@@ -46,6 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const { id: _id, ...d } = validation.data;
+  const modal = formData.get("type") === "modal";
 
   const result = await upsertFixedAssetClass(client, {
     ...d,
@@ -54,11 +55,18 @@ export async function action({ request }: ActionFunctionArgs) {
   });
 
   if (result.error) {
-    return redirect(
-      path.to.assetClasses,
-      await flash(request, error(result.error, "Failed to create asset class"))
-    );
+    return modal
+      ? result
+      : redirect(
+          path.to.assetClasses,
+          await flash(
+            request,
+            error(result.error, "Failed to create asset class")
+          )
+        );
   }
+
+  if (modal) return result;
 
   throw redirect(
     path.to.assetClasses,

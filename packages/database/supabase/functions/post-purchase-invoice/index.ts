@@ -425,6 +425,7 @@ serve(async (req: Request) => {
             "Location",
             "CostCenter",
             "Process",
+            "FixedAssetClass",
           ]),
       ]);
 

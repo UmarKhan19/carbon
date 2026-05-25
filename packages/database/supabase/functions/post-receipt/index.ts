@@ -85,7 +85,7 @@ serve(async (req: Request) => {
           .select("id, entityType")
           .eq("companyGroupId", companyGroupId)
           .eq("active", true)
-          .in("entityType", ["SupplierType", "ItemPostingGroup", "Location", "Process"]),
+          .in("entityType", ["SupplierType", "ItemPostingGroup", "Location", "Process", "FixedAssetClass"]),
       ]);
 
     if (receipt.error) throw new Error("Failed to fetch receipt");

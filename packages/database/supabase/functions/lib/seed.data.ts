@@ -688,6 +688,45 @@ export const accountDefaults = {
   deferredTaxExpenseAccountId: "7090",
 } as const;
 
+export const fixedAssetClasses = [
+  {
+    name: "Buildings",
+    depreciationMethod: "Straight Line" as const,
+    usefulLifeMonths: 468,
+    residualValuePercent: 0,
+    assetAccount: "1360",
+    accumulatedDepreciationAccount: "1330",
+    depreciationExpenseAccount: "6310",
+    writeOffAccount: "6320",
+    writeDownAccount: "6320",
+    disposalAccount: "6320",
+  },
+  {
+    name: "Machinery & Equipment",
+    depreciationMethod: "Straight Line" as const,
+    usefulLifeMonths: 120,
+    residualValuePercent: 0,
+    assetAccount: "1350",
+    accumulatedDepreciationAccount: "1330",
+    depreciationExpenseAccount: "6310",
+    writeOffAccount: "6320",
+    writeDownAccount: "6320",
+    disposalAccount: "6320",
+  },
+  {
+    name: "Vehicles",
+    depreciationMethod: "Straight Line" as const,
+    usefulLifeMonths: 60,
+    residualValuePercent: 0,
+    assetAccount: "1310",
+    accumulatedDepreciationAccount: "1330",
+    depreciationExpenseAccount: "6310",
+    writeOffAccount: "6320",
+    writeDownAccount: "6320",
+    disposalAccount: "6320",
+  },
+];
+
 export const fiscalYearSettings = {
   startMonth: "January",
   taxStartMonth: "January",

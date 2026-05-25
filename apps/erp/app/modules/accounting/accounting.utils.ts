@@ -510,6 +510,9 @@ export function buildDepreciationLines(
         periodEnd,
         lastPostedPeriodEnd
       );
+      if (taxAmount === null) {
+        taxAmount = amount;
+      }
     }
 
     if (amount > 0 || (taxAmount !== null && taxAmount > 0)) {

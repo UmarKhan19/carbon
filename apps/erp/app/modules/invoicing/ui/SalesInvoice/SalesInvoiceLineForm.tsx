@@ -780,7 +780,13 @@ const SalesInvoiceLineForm = ({
                             }));
                           }}
                         />
-                        <FormControl className="col-span-2">
+                        <Location
+                          name="locationId"
+                          label={t`Shipping Location`}
+                          value={locationId}
+                          onChange={onLocationChange}
+                        />
+                        <FormControl>
                           <FormLabel>
                             <Trans>Description</Trans>
                           </FormLabel>

@@ -7,24 +7,20 @@ import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
   fixedAssetValidator,
   getFixedAsset,
-  getFixedAssetClassesList,
   upsertFixedAsset
 } from "~/modules/accounting";
 import { FixedAssetForm } from "~/modules/accounting/ui/FixedAssets";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
+  const { client } = await requirePermissions(request, {
     view: "accounting"
   });
 
   const { fixedAssetId } = params;
   if (!fixedAssetId) throw notFound("fixedAssetId not found");
 
-  const [asset, assetClasses] = await Promise.all([
-    getFixedAsset(client, fixedAssetId),
-    getFixedAssetClassesList(client, companyId)
-  ]);
+  const asset = await getFixedAsset(client, fixedAssetId);
 
   if (asset.error) {
     throw redirect(
@@ -34,8 +30,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   return {
-    asset: asset.data,
-    assetClasses: assetClasses.data ?? []
+    asset: asset.data
   };
 }
 
@@ -76,7 +71,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function FixedAssetDetailsRoute() {
-  const { asset, assetClasses } = useLoaderData<typeof loader>();
+  const { asset } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const initialValues = {
@@ -111,7 +106,6 @@ export default function FixedAssetDetailsRoute() {
       onClose={() => navigate(-1)}
       key={initialValues.id}
       initialValues={initialValues}
-      assetClasses={assetClasses}
     />
   );
 }

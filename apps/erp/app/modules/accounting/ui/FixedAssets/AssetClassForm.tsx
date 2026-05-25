@@ -9,9 +9,11 @@ import {
   ModalDrawerHeader,
   ModalDrawerProvider,
   ModalDrawerTitle,
+  toast,
   VStack
 } from "@carbon/react";
-import { useState } from "react";
+import type { PostgrestResponse } from "@supabase/supabase-js";
+import { useEffect, useState } from "react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
 import {
@@ -34,16 +36,31 @@ import { macrsConventions, macrsPropertyClasses } from "../../accounting.utils";
 type AssetClassFormProps = {
   initialValues: z.infer<typeof fixedAssetClassValidator>;
   taxDepreciationEnabled: boolean;
+  type?: "modal" | "drawer";
   onClose: () => void;
 };
 
 const AssetClassForm = ({
   initialValues,
   taxDepreciationEnabled,
+  type = "drawer",
   onClose
 }: AssetClassFormProps) => {
   const permissions = usePermissions();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<PostgrestResponse<{ id: string }>>();
+
+  useEffect(() => {
+    if (type !== "modal") return;
+
+    if (fetcher.state === "loading" && fetcher.data?.data) {
+      onClose?.();
+      toast.success("Created asset class");
+    } else if (fetcher.state === "idle" && fetcher.data?.error) {
+      toast.error(
+        `Failed to create asset class: ${fetcher.data.error.message}`
+      );
+    }
+  }, [fetcher.data, fetcher.state, onClose, type]);
 
   const isEditing = initialValues.id !== undefined;
   const isDisabled = isEditing
@@ -55,7 +72,7 @@ const AssetClassForm = ({
   );
 
   return (
-    <ModalDrawerProvider type="drawer">
+    <ModalDrawerProvider type={type}>
       <ModalDrawer
         open
         onOpenChange={(open) => {
@@ -82,6 +99,7 @@ const AssetClassForm = ({
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
+              <Hidden name="type" value={type} />
               <VStack spacing={4}>
                 <Input name="name" label="Name" />
                 <Input name="description" label="Description" />

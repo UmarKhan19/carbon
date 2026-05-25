@@ -812,7 +812,12 @@ const SalesOrderLineForm = ({
                               }));
                             }}
                           />
-                          <FormControl className="col-span-2">
+                          <Location
+                            name="locationId"
+                            label={t`Shipping Location`}
+                            onChange={onLocationChange}
+                          />
+                          <FormControl>
                             <FormLabel>
                               <Trans>Description</Trans>
                             </FormLabel>
@@ -826,6 +831,10 @@ const SalesOrderLineForm = ({
                               }
                             />
                           </FormControl>
+                          <DatePicker
+                            name="promisedDate"
+                            label={t`Promised Date`}
+                          />
                           <NumberControlled
                             name="saleQuantity"
                             label={t`Quantity`}
@@ -849,10 +858,6 @@ const SalesOrderLineForm = ({
                                 unitPrice: value
                               }))
                             }
-                          />
-                          <DatePicker
-                            name="promisedDate"
-                            label={t`Promised Date`}
                           />
                           <CustomFormFields table="salesOrderLine" />
                         </div>

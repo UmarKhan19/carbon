@@ -1156,6 +1156,8 @@ function getEntityValuesByIds(
       return client.from("itemPostingGroup").select("id, name").in("id", ids);
     case "CostCenter":
       return client.from("costCenter").select("id, name").in("id", ids);
+    case "FixedAssetClass":
+      return client.from("fixedAssetClass").select("id, name").in("id", ids);
     default:
       return Promise.resolve({
         data: [] as { id: string; name: string }[],

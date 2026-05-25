@@ -2,28 +2,12 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { redirect, useLoaderData, useNavigate } from "react-router";
-import {
-  fixedAssetValidator,
-  getFixedAssetClassesList,
-  upsertFixedAsset
-} from "~/modules/accounting";
+import type { ActionFunctionArgs } from "react-router";
+import { redirect, useNavigate } from "react-router";
+import { fixedAssetValidator, upsertFixedAsset } from "~/modules/accounting";
 import { FixedAssetForm } from "~/modules/accounting/ui/FixedAssets";
 import { getNextSequence } from "~/modules/settings";
 import { path } from "~/utils/path";
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "accounting"
-  });
-
-  const assetClasses = await getFixedAssetClassesList(client, companyId);
-
-  return {
-    assetClasses: assetClasses.data ?? []
-  };
-}
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -75,7 +59,6 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function NewFixedAssetRoute() {
-  const { assetClasses } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const initialValues = {
@@ -92,7 +75,6 @@ export default function NewFixedAssetRoute() {
     <FixedAssetForm
       onClose={() => navigate(-1)}
       initialValues={initialValues}
-      assetClasses={assetClasses}
     />
   );
 }

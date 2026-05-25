@@ -14,14 +14,15 @@ import {
 import { useState } from "react";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
-import { Enumerable } from "~/components/Enumerable";
 import {
+  AssetClass,
   Hidden,
   Input,
   Location,
   NumberControlled,
   SelectControlled,
-  Submit
+  Submit,
+  useAssetClasses
 } from "~/components/Form";
 import { usePermissions, useSettings } from "~/hooks";
 import { path } from "~/utils/path";
@@ -33,31 +34,12 @@ import {
   taxDepreciationMethods
 } from "../../accounting.models";
 
-type AssetClassOption = {
-  id: string;
-  name: string;
-  depreciationMethod: string;
-  usefulLifeMonths: number;
-  residualValuePercent: number;
-  taxDepreciationMethod: string | null;
-  taxUsefulLifeMonths: number | null;
-  taxResidualValuePercent: number | null;
-  macrsPropertyClass: string | null;
-  macrsConvention: string | null;
-  bonusDepreciationPercent: number | null;
-};
-
 type FixedAssetFormProps = {
   initialValues: z.infer<typeof fixedAssetValidator>;
-  assetClasses: AssetClassOption[];
   onClose: () => void;
 };
 
-const FixedAssetForm = ({
-  initialValues,
-  assetClasses,
-  onClose
-}: FixedAssetFormProps) => {
+const FixedAssetForm = ({ initialValues, onClose }: FixedAssetFormProps) => {
   const permissions = usePermissions();
   const settings = useSettings();
   const taxDepreciationEnabled =
@@ -68,6 +50,8 @@ const FixedAssetForm = ({
   const isDisabled = isEditing
     ? !permissions.can("update", "accounting")
     : !permissions.can("create", "accounting");
+
+  const { assetClasses } = useAssetClasses();
 
   const [assetData, setAssetData] = useState<{
     fixedAssetClassId: string;
@@ -147,13 +131,9 @@ const FixedAssetForm = ({
               <Hidden name="id" />
               <VStack spacing={4}>
                 <Input name="name" label="Name" />
-                <SelectControlled
+                <AssetClass
                   name="fixedAssetClassId"
                   label="Asset Class"
-                  options={assetClasses.map((c) => ({
-                    label: <Enumerable value={c.name} />,
-                    value: c.id
-                  }))}
                   value={assetData.fixedAssetClassId}
                   onChange={onAssetClassChange}
                 />
@@ -234,6 +214,7 @@ const FixedAssetForm = ({
                       <SelectControlled
                         name="macrsPropertyClass"
                         label="MACRS Property Class"
+                        isOptional={false}
                         options={macrsPropertyClasses.map((c) => ({
                           label: `${c}-Year`,
                           value: c
@@ -250,6 +231,7 @@ const FixedAssetForm = ({
                       <SelectControlled
                         name="macrsConvention"
                         label="MACRS Convention"
+                        isOptional={false}
                         options={macrsConventions.map((c) => ({
                           label: c,
                           value: c
