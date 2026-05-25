@@ -1178,6 +1178,9 @@ msgstr "Carbonロゴ"
 msgid "Carbon Value"
 msgstr "カーボン値"
 
+msgid "Cards"
+msgstr ""
+
 msgid "Carrier"
 msgstr "配送業者"
 
@@ -2458,7 +2461,7 @@ msgid "Dispatches"
 msgstr "配送"
 
 msgid "Display Settings"
-msgstr "表示設定"
+msgstr ""
 
 msgid "Disposition"
 msgstr "処置"
@@ -2829,6 +2832,9 @@ msgstr "従業員タイプ"
 
 msgid "Employees"
 msgstr "従業員"
+
+msgid "Empty work centers"
+msgstr ""
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "設定で監査ログを有効にして、データへの変更の追跡を開始します。"
@@ -7526,6 +7532,11 @@ msgstr "これは既存の見積方法を上書きします"
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "これにより、アクティブな製造方法の部品表とプロセスからバッチサイズを使用して単価が再計算されます。現在のコストは上書きされます。続行しますか？"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "これにより、他のリビジョンのすべてのメソッドマテリアルがこのリビジョンに置き換わります。"
 
@@ -7816,6 +7827,9 @@ msgstr "無制限の機能サポート"
 
 msgid "Unlink"
 msgstr "リンク解除"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "サポートされていないソースドキュメントタイプ: {sourceDocument}"

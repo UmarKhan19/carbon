@@ -1178,6 +1178,9 @@ msgstr "Логотип Carbon"
 msgid "Carbon Value"
 msgstr "Значение Carbon"
 
+msgid "Cards"
+msgstr ""
+
 msgid "Carrier"
 msgstr "Перевозчик"
 
@@ -2458,7 +2461,7 @@ msgid "Dispatches"
 msgstr "Отправки"
 
 msgid "Display Settings"
-msgstr "Параметры отображения"
+msgstr ""
 
 msgid "Disposition"
 msgstr "Решение"
@@ -2829,6 +2832,9 @@ msgstr "Типы сотрудников"
 
 msgid "Employees"
 msgstr "Сотрудники"
+
+msgid "Empty work centers"
+msgstr ""
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Включите аудит в настройках, чтобы начать отслеживать изменения ваших данных."
@@ -7526,6 +7532,11 @@ msgstr "Это перезапишет существующий метод пре
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "Это пересчитает себестоимость единицы продукции на основе активного метода производства, спецификации материалов и процессов с использованием размера партии. Текущая себестоимость будет перезаписана. Вы хотите продолжить?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "Это заменит все материалы методов других редакций на эту редакцию."
 
@@ -7816,6 +7827,9 @@ msgstr "Неограниченная функциональная поддерж
 
 msgid "Unlink"
 msgstr "Отменить связь"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Неподдерживаемый тип исходного документа: {sourceDocument}"

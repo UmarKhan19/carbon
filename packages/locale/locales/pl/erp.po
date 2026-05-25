@@ -1178,6 +1178,9 @@ msgstr "Logo Carbon"
 msgid "Carbon Value"
 msgstr "Wartość Carbon"
 
+msgid "Cards"
+msgstr ""
+
 msgid "Carrier"
 msgstr "Przewoźnik"
 
@@ -2458,7 +2461,7 @@ msgid "Dispatches"
 msgstr "Wysyłki"
 
 msgid "Display Settings"
-msgstr "Ustawienia wyświetlania"
+msgstr ""
 
 msgid "Disposition"
 msgstr "Dyspozycja"
@@ -2829,6 +2832,9 @@ msgstr "Typy pracowników"
 
 msgid "Employees"
 msgstr "Pracownicy"
+
+msgid "Empty work centers"
+msgstr ""
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Włącz rejestrowanie audytu w ustawieniach, aby rozpocząć śledzenie zmian w Twoich danych."
@@ -7526,6 +7532,11 @@ msgstr "To spowoduje zastąpienie istniejącej metody oferty"
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "To spowoduje przeliczenie kosztu jednostkowego na podstawie aktywnej metody produkcji, listy materiałów i procesów przy użyciu wielkości partii. Bieżący koszt zostanie zastąpiony. Czy chcesz kontynuować?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "To zastąpi wszystkie materiały metody innych wersji tą wersją."
 
@@ -7816,6 +7827,9 @@ msgstr "Nieograniczone wsparcie funkcjonalne"
 
 msgid "Unlink"
 msgstr "Odłącz"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Nieobsługiwany typ dokumentu źródłowego: {sourceDocument}"

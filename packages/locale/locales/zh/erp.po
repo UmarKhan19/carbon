@@ -1178,6 +1178,9 @@ msgstr "Carbon 标志"
 msgid "Carbon Value"
 msgstr "碳值"
 
+msgid "Cards"
+msgstr ""
+
 msgid "Carrier"
 msgstr "承运人"
 
@@ -2458,7 +2461,7 @@ msgid "Dispatches"
 msgstr "派遣"
 
 msgid "Display Settings"
-msgstr "显示设置"
+msgstr ""
 
 msgid "Disposition"
 msgstr "处置"
@@ -2829,6 +2832,9 @@ msgstr "员工类型"
 
 msgid "Employees"
 msgstr "员工"
+
+msgid "Empty work centers"
+msgstr ""
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "在设置中启用审计日志以开始跟踪数据的更改。"
@@ -7526,6 +7532,11 @@ msgstr "这将覆盖现有的报价方法"
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "这将根据活跃制造方法的物料清单和工艺流程使用批量大小重新计算单位成本。当前成本将被覆盖。您要继续吗？"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "这将用此修订版本替换其他修订版本的所有方法材料。"
 
@@ -7816,6 +7827,9 @@ msgstr "无限功能支持"
 
 msgid "Unlink"
 msgstr "取消链接"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "不支持的源文档类型：{sourceDocument}"
