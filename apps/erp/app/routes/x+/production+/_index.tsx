@@ -747,7 +747,7 @@ function WorkCenterCards({
     const jobOperation = await carbon
       ?.from("jobOperation")
       .select(
-        "description, ...job(jobId:id, jobReadableId:jobId, customerId, dueDate, deadlineType, salesOrderLineId, ...salesOrderLine(...salesOrder(salesOrderId:id, salesOrderReadableId:salesOrderId)))"
+        "description, ...job(jobId:id, jobReadableId:jobId, customerId, dueDate, deadlineType, salesOrderLineId, ...salesOrderLine!salesOrderLineId(...salesOrder(salesOrderId:id, salesOrderReadableId:salesOrderId)))"
       )
       .eq("id", event.jobOperationId)
       .single();

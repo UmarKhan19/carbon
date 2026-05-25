@@ -38,11 +38,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   if (status === "Ready") {
-    const { data } = await client
+    const { data } = (await client
       .from("job")
       .select("item(itemReplenishment(manufacturingBlocked))")
       .eq("id", id)
-      .single();
+      .single()) as {
+      data: {
+        item: {
+          itemReplenishment: { manufacturingBlocked: boolean } | null;
+        } | null;
+      } | null;
+    };
 
     if (data?.item?.itemReplenishment?.manufacturingBlocked) {
       throw redirect(
