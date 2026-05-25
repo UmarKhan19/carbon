@@ -15,928 +15,928 @@ msgstr ""
 #. placeholder {0}: attribute.name
 #. placeholder {1}: activeStep + 1
 msgid "{0} - Set {1}"
-msgstr ""
+msgstr "{0} - Zestaw {1}"
 
 #. placeholder {0}: employeeIds.length
 msgid "{0} Active"
-msgstr ""
+msgstr "{0} Aktywnych"
 
 #. placeholder {0}: batch.quantity
 msgid "{0} available"
-msgstr ""
+msgstr "{0} dostępnych"
 
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
 #. placeholder {1}: operation.targetQuantity
 msgid "{0} of {1}"
-msgstr ""
+msgstr "{0} z {1}"
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
 msgid "{0} of {1} complete"
-msgstr ""
+msgstr "{0} z {1} ukończono"
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
 msgid "{0} of {1} completed"
-msgstr ""
+msgstr "{0} z {1} ukończonych"
 
 #. placeholder {0}: item.quantityScrapped
 msgid "{0} Scrapped"
-msgstr ""
+msgstr "{0} Odrzuconych"
 
 msgid "About"
-msgstr ""
+msgstr "O programie"
 
 msgid "Account Settings"
-msgstr ""
+msgstr "Ustawienia konta"
 
 msgid "Active"
-msgstr ""
+msgstr "Aktywne"
 
 msgid "Actual"
-msgstr ""
+msgstr "Rzeczywiste"
 
 msgid "Add"
-msgstr ""
+msgstr "Dodaj"
 
 msgid "Add & Issue"
-msgstr ""
+msgstr "Dodaj i wydaj"
 
 msgid "Add Inventory"
-msgstr ""
+msgstr "Dodaj zapasy"
 
 msgid "Add Spare Part"
-msgstr ""
+msgstr "Dodaj część zamienną"
 
 msgid "All"
-msgstr ""
+msgstr "Wszystkie"
 
 msgid "Are you sure you want to close out this operation? This will end all active production events for this operation."
-msgstr ""
+msgstr "Czy na pewno chcesz zamknąć tę operację? Spowoduje to zakończenie wszystkich aktywnych zdarzeń produkcyjnych dla tej operacji."
 
 msgid "Are you sure you want to delete this step?"
-msgstr ""
+msgstr "Czy na pewno chcesz usunąć ten krok?"
 
 msgid "Are you sure you want to delete this timecard? This cannot be undone."
-msgstr ""
+msgstr "Czy na pewno chcesz usunąć tę kartę czasu pracy? Tej operacji nie można cofnąć."
 
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
-msgstr ""
+msgstr "Czy na pewno chcesz zakończyć wszystkie zdarzenia produkcyjne? Spowoduje to zakończenie wszystkich aktywnych operacji bez ich ukończenia."
 
 msgid "Assigned"
-msgstr ""
+msgstr "Przypisane"
 
 msgid "Assigned to Me"
-msgstr ""
+msgstr "Przypisane do mnie"
 
 msgid "Assignee"
-msgstr ""
+msgstr "Przypisany"
 
 msgid "Attach File"
-msgstr ""
+msgstr "Załącz plik"
 
 msgid "Authentication Error"
-msgstr ""
+msgstr "Błąd uwierzytelniania"
 
 #. placeholder {0}: batch.readableId
 #. placeholder {1}: batch.quantity
 msgid "Batch {0} ({1} available)"
-msgstr ""
+msgstr "Partia {0} ({1} dostępnych)"
 
 msgid "Batch is not available"
-msgstr ""
+msgstr "Partia jest niedostępna"
 
 #. placeholder {0}: index + 1
 msgid "Batch Number {0}"
-msgstr ""
+msgstr "Numer partii {0}"
 
 msgid "Batch number is required"
-msgstr ""
+msgstr "Numer partii jest wymagany"
 
 #. placeholder {0}: column.blockingDispatchReadableId
 msgid "Blocked by {0}"
-msgstr ""
+msgstr "Zablokowane przez {0}"
 
 msgid "Blocking"
-msgstr ""
+msgstr "Blokujące"
 
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
-msgstr ""
+msgstr "Ale nie martw się. Możesz użyć funkcji resetowania hasła, aby poprosić o nowy magiczny link."
 
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
-msgstr ""
+msgstr "Logując się, akceptujesz <0>Regulamin</0> i <1>Politykę prywatności.</1>"
 
 msgid "Cancel"
-msgstr ""
+msgstr "Anuluj"
 
 msgid "Carbon Logo"
-msgstr ""
+msgstr "Logo Carbon"
 
 msgid "Cards"
-msgstr ""
+msgstr "Karty"
 
 msgid "Chat"
-msgstr ""
+msgstr "Czat"
 
 msgid "Check your email"
-msgstr ""
+msgstr "Sprawdź swoją skrzynkę e-mail"
 
 msgid "Clear"
-msgstr ""
+msgstr "Wyczyść"
 
 msgid "Clear Filters"
-msgstr ""
+msgstr "Wyczyść filtry"
 
 msgid "Clear Search"
-msgstr ""
+msgstr "Wyczyść wyszukiwanie"
 
 msgid "Clock In"
-msgstr ""
+msgstr "Rozpocznij zmianę"
 
 msgid "Clock Out"
-msgstr ""
+msgstr "Zakończ zmianę"
 
 #. placeholder {0}: formatTime(openEntry.clockIn, locale)
 msgid "Clocked in since {0}"
-msgstr ""
+msgstr "Zalogowany od {0}"
 
 msgid "Close"
-msgstr ""
+msgstr "Zamknij"
 
 msgid "Close Anyways"
-msgstr ""
+msgstr "Zamknij mimo to"
 
 msgid "Close Out"
-msgstr ""
+msgstr "Zamknij"
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Close out {0}"
-msgstr ""
+msgstr "Zamknij {0}"
 
 #. placeholder {0}: active.data.current.column.title
 #. placeholder {1}: overColumnPosition + 1
 #. placeholder {2}: columnOrder.length
 msgid "Column {0} was dropped into position {1} of {2}"
-msgstr ""
+msgstr "Kolumna {0} została upuszczona na pozycję {1} z {2}"
 
 #. placeholder {0}: active.data.current.column.title
 #. placeholder {1}: over.data.current.column.title
 #. placeholder {2}: overIndex + 1
 #. placeholder {3}: columnOrder.length
 msgid "Column {0} was moved over {1} at position {2} of {3}"
-msgstr ""
+msgstr "Kolumna {0} została przeniesiona nad {1} na pozycję {2} z {3}"
 
 #. placeholder {0}: column.title
 msgid "Column: {0}"
-msgstr ""
+msgstr "Kolumna: {0}"
 
 msgid "Columns"
-msgstr ""
+msgstr "Kolumny"
 
 msgid "Company"
-msgstr ""
+msgstr "Firma"
 
 msgid "Complete"
-msgstr ""
+msgstr "Ukończ"
 
 msgid "Completed"
-msgstr ""
+msgstr "Ukończone"
 
 msgid "Console"
-msgstr ""
+msgstr "Konsola"
 
 msgid "Console Mode"
-msgstr ""
+msgstr "Tryb konsoli"
 
 msgid "Consumed expired"
-msgstr ""
+msgstr "Zużyte wygasłe"
 
 #. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
-msgstr ""
+msgstr "Utwórz {0}"
 
 msgid "Customer"
-msgstr ""
+msgstr "Klient"
 
 msgid "Dark Mode"
-msgstr ""
+msgstr "Tryb ciemny"
 
 msgid "Date"
-msgstr ""
+msgstr "Data"
 
 msgid "Deadline"
-msgstr ""
+msgstr "Termin"
 
 msgid "Default Storage Unit"
-msgstr ""
+msgstr "Domyślna jednostka magazynowa"
 
 msgid "Delete"
-msgstr ""
+msgstr "Usuń"
 
 msgid "Delete Step"
-msgstr ""
+msgstr "Usuń krok"
 
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
-msgstr ""
+msgstr "Usuń kartę czasu pracy ({0})"
 
 msgid "Description"
-msgstr ""
+msgstr "Opis"
 
 msgid "Details"
-msgstr ""
+msgstr "Szczegóły"
 
 msgid "Dispatch not found"
-msgstr ""
+msgstr "Nie znaleziono zlecenia"
 
 msgid "Display"
-msgstr ""
+msgstr "Wyświetlanie"
 
 msgid "Down"
-msgstr ""
+msgstr "Awaria"
 
 msgid "Download"
-msgstr ""
+msgstr "Pobierz"
 
 msgid "Drag and drop a file here, or click to select a file"
-msgstr ""
+msgstr "Przeciągnij i upuść plik tutaj lub kliknij, aby wybrać plik"
 
 #. placeholder {0}: active.data.current?.type
 msgid "Dragging {0} cancelled."
-msgstr ""
+msgstr "Przeciąganie {0} anulowane."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
-msgstr ""
+msgstr "Termin {0}"
 
 msgid "Due Date"
-msgstr ""
+msgstr "Termin realizacji"
 
 msgid "Duplicate batch number"
-msgstr ""
+msgstr "Zduplikowany numer partii"
 
 msgid "Duplicate serial number"
-msgstr ""
+msgstr "Zduplikowany numer seryjny"
 
 msgid "Duration"
-msgstr ""
+msgstr "Czas trwania"
 
 msgid "Edit"
-msgstr ""
+msgstr "Edytuj"
 
 msgid "Email Address"
-msgstr ""
+msgstr "Adres e-mail"
 
 msgid "Empty work centers"
-msgstr ""
+msgstr "Puste centra pracy"
 
 msgid "End Operations"
-msgstr ""
+msgstr "Zakończ operacje"
 
 #. placeholder {0}: selectedPerson.name
 msgid "Enter PIN for {0}"
-msgstr ""
+msgstr "Wprowadź PIN dla {0}"
 
 msgid "Error"
-msgstr ""
+msgstr "Błąd"
 
 msgid "Estimated"
-msgstr ""
+msgstr "Szacowane"
 
 msgid "Failed to complete inventory adjustment"
-msgstr ""
+msgstr "Nie udało się zakończyć korekty zapasów"
 
 msgid "Failed to end operations"
-msgstr ""
+msgstr "Nie udało się zakończyć operacji"
 
 msgid "Failed to fetch active operations"
-msgstr ""
+msgstr "Nie udało się pobrać aktywnych operacji"
 
 msgid "Failed to fetch storageUnits"
-msgstr ""
+msgstr "Nie udało się pobrać jednostek magazynowych"
 
 #. placeholder {0}: fileUpload.name
 msgid "Failed to upload file: {0}"
-msgstr ""
+msgstr "Nie udało się przesłać pliku: {0}"
 
 msgid "Failed to upload image"
-msgstr ""
+msgstr "Nie udało się przesłać obrazu"
 
 msgid "Feedback"
-msgstr ""
+msgstr "Opinia"
 
 msgid "File size exceeds 10MB limit"
-msgstr ""
+msgstr "Rozmiar pliku przekracza limit 10 MB"
 
 msgid "Files"
-msgstr ""
+msgstr "Pliki"
 
 msgid "Files related to the job and the opportunity line."
-msgstr ""
+msgstr "Pliki powiązane ze zleceniem i pozycją zapytania."
 
 msgid "Filter"
-msgstr ""
+msgstr "Filtr"
 
 msgid "Forgot to Clock Out?"
-msgstr ""
+msgstr "Zapomniałeś zakończyć zmianę?"
 
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
-msgstr ""
+msgstr "Masz problem techniczny? Skontaktuj się z <0>Wsparciem Carbon.</0>"
 
 msgid "I understand and want to complete without issuing"
-msgstr ""
+msgstr "Rozumiem i chcę ukończyć bez wydania"
 
 msgid "I'm Still Working"
-msgstr ""
+msgstr "Nadal pracuję"
 
 msgid "Ideas, suggestions or problems with this page?"
-msgstr ""
+msgstr "Pomysły, sugestie lub problemy z tą stroną?"
 
 msgid "Ideas, suggestions or problems?"
-msgstr ""
+msgstr "Pomysły, sugestie lub problemy?"
 
 msgid "Impact"
-msgstr ""
+msgstr "Wpływ"
 
 msgid "In Progress"
-msgstr ""
+msgstr "W toku"
 
 msgid "Insufficient quantity"
-msgstr ""
+msgstr "Niewystarczająca ilość"
 
 msgid "Inventory adjustment completed"
-msgstr ""
+msgstr "Korekta zapasów zakończona"
 
 msgid "Inventory Adjustments"
-msgstr ""
+msgstr "Korekty zapasów"
 
 msgid "is"
-msgstr ""
+msgstr "jest"
 
 msgid "is any of"
-msgstr ""
+msgstr "jest jednym z"
 
 msgid "Issue"
-msgstr ""
+msgstr "Wydaj"
 
 msgid "Issue Material"
-msgstr ""
+msgstr "Wydaj materiał"
 
 msgid "Item"
-msgstr ""
+msgstr "Pozycja"
 
 msgid "Item Master"
-msgstr ""
+msgstr "Kartoteka pozycji"
 
 msgid "Job"
-msgstr ""
+msgstr "Zlecenie"
 
 msgid "Job Details"
-msgstr ""
+msgstr "Szczegóły zlecenia"
 
 msgid "Job Traveler"
-msgstr ""
+msgstr "Karta obiegowa zlecenia"
 
 msgid "Jobs"
 msgstr "Zadania"
 
 msgid "Kit"
-msgstr ""
+msgstr "Zestaw"
 
 msgid "Labor"
-msgstr ""
+msgstr "Robocizna"
 
 msgid "Let's build something"
-msgstr ""
+msgstr "Zbudujmy coś"
 
 msgid "Loading item details..."
-msgstr ""
+msgstr "Ładowanie szczegółów pozycji..."
 
 msgid "Loading..."
-msgstr ""
+msgstr "Ładowanie..."
 
 msgid "Location"
-msgstr ""
+msgstr "Lokalizacja"
 
 msgid "Log Completed"
-msgstr ""
+msgstr "Rejestruj ukończone"
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log completed for {0}"
-msgstr ""
+msgstr "Rejestruj ukończone dla {0}"
 
 msgid "Log Rework"
-msgstr ""
+msgstr "Rejestruj poprawki"
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log rework for {0}"
-msgstr ""
+msgstr "Rejestruj poprawki dla {0}"
 
 msgid "Log Scrap"
-msgstr ""
+msgstr "Rejestruj odpad"
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Log scrap for {0}"
-msgstr ""
+msgstr "Rejestruj odpad dla {0}"
 
 msgid "Login"
-msgstr ""
+msgstr "Zaloguj się"
 
 msgid "Machine"
-msgstr ""
+msgstr "Maszyna"
 
 msgid "Maintenance"
-msgstr ""
+msgstr "Utrzymanie ruchu"
 
 msgid "Maintenance Completed"
-msgstr ""
+msgstr "Utrzymanie ruchu zakończone"
 
 msgid "Manually add items to inventory"
-msgstr ""
+msgstr "Ręcznie dodaj pozycje do zapasów"
 
 msgid "Manually remove items from inventory"
-msgstr ""
+msgstr "Ręcznie usuń pozycje z zapasów"
 
 msgid "matches"
-msgstr ""
+msgstr "pasuje do"
 
 msgid "Materials"
-msgstr ""
+msgstr "Materiały"
 
 msgid "Maximum number of records reached"
-msgstr ""
+msgstr "Osiągnięto maksymalną liczbę rekordów"
 
 msgid "Model"
-msgstr ""
+msgstr "Model"
 
 msgid "More options"
-msgstr ""
+msgstr "Więcej opcji"
 
 #. placeholder {0}: column.title
 msgid "Move column: {0}"
-msgstr ""
+msgstr "Przenieś kolumnę: {0}"
 
 msgid "Must be < {maxValue} {unitOfMeasureCode}"
-msgstr ""
+msgstr "Musi być < {maxValue} {unitOfMeasureCode}"
 
 msgid "Must be > {minValue} {unitOfMeasureCode}"
-msgstr ""
+msgstr "Musi być > {minValue} {unitOfMeasureCode}"
 
 msgid "Must be between {minValue} and {maxValue} {unitOfMeasureCode}"
-msgstr ""
+msgstr "Musi być pomiędzy {minValue} a {maxValue} {unitOfMeasureCode}"
 
 msgid "My Hours"
-msgstr ""
+msgstr "Moje godziny"
 
 msgid "Name"
-msgstr ""
+msgstr "Nazwa"
 
 msgid "New"
-msgstr ""
+msgstr "Nowy"
 
 msgid "New Record"
-msgstr ""
+msgstr "Nowy rekord"
 
 msgid "Next"
-msgstr ""
+msgstr "Następny"
 
 msgid "No active maintenance dispatches"
-msgstr ""
+msgstr "Brak aktywnych zleceń utrzymania ruchu"
 
 msgid "No active operations"
-msgstr ""
+msgstr "Brak aktywnych operacji"
 
 msgid "No assigned operations"
-msgstr ""
+msgstr "Brak przypisanych operacji"
 
 msgid "No available filters"
-msgstr ""
+msgstr "Brak dostępnych filtrów"
 
 msgid "No available serial numbers found"
-msgstr ""
+msgstr "Nie znaleziono dostępnych numerów seryjnych"
 
 msgid "No dispatches assigned to you"
-msgstr ""
+msgstr "Brak zleceń przypisanych do Ciebie"
 
 msgid "No files"
-msgstr ""
+msgstr "Brak plików"
 
 msgid "No Impact"
-msgstr ""
+msgstr "Brak wpływu"
 
 msgid "No maintenance scheduled for today"
-msgstr ""
+msgstr "Brak zaplanowanego utrzymania ruchu na dziś"
 
 msgid "No materials"
-msgstr ""
+msgstr "Brak materiałów"
 
 msgid "No open jobs"
 msgstr "Brak otwartych zadań"
 
 msgid "No operators"
-msgstr ""
+msgstr "Brak operatorów"
 
 msgid "No option found."
-msgstr ""
+msgstr "Nie znaleziono opcji."
 
 msgid "No options found."
-msgstr ""
+msgstr "Nie znaleziono opcji."
 
 msgid "No recent operations"
-msgstr ""
+msgstr "Brak ostatnich operacji"
 
 msgid "No results"
-msgstr ""
+msgstr "Brak wyników"
 
 msgid "No results exist"
-msgstr ""
+msgstr "Brak wyników"
 
 msgid "No results found"
-msgstr ""
+msgstr "Nie znaleziono wyników"
 
 msgid "No scheduled time"
-msgstr ""
+msgstr "Brak zaplanowanego czasu"
 
 msgid "No serial numbers"
-msgstr ""
+msgstr "Brak numerów seryjnych"
 
 msgid "No spare parts added yet"
-msgstr ""
+msgstr "Nie dodano jeszcze części zamiennych"
 
 msgid "No time entries for this week"
-msgstr ""
+msgstr "Brak wpisów czasu pracy w tym tygodniu"
 
 msgid "No work centers are blocked"
-msgstr ""
+msgstr "Żadne gniazda produkcyjne nie są zablokowane"
 
 msgid "No work centers exist"
-msgstr ""
+msgstr "Brak gniazd produkcyjnych"
 
 msgid "Notes"
-msgstr ""
+msgstr "Notatki"
 
 msgid "OEE Impact"
-msgstr ""
+msgstr "Wpływ na OEE"
 
 msgid "OEM Required"
-msgstr ""
+msgstr "Wymagany OEM"
 
 #. placeholder {0}: batch.quantity
 msgid "Only {0} available"
-msgstr ""
+msgstr "Tylko {0} dostępnych"
 
 msgid "Oops. You shouldn't see this page. Eventually it will be a landing page."
-msgstr ""
+msgstr "Ups. Nie powinieneś widzieć tej strony. Docelowo będzie to strona główna."
 
 msgid "Open"
-msgstr ""
+msgstr "Otwarte"
 
 msgid "Open Jobs"
 msgstr "Otwarte Zadania"
 
 msgid "Operations"
-msgstr ""
+msgstr "Operacje"
 
 msgid "Operations ended"
-msgstr ""
+msgstr "Operacje zakończone"
 
 msgid "Operator Performed"
-msgstr ""
+msgstr "Wykonane przez operatora"
 
 msgid "Optional"
-msgstr ""
+msgstr "Opcjonalnie"
 
 msgid "Parameters"
-msgstr ""
+msgstr "Parametry"
 
 msgid "Part"
-msgstr ""
+msgstr "Część"
 
 msgid "Passed Inspection"
-msgstr ""
+msgstr "Inspekcja zaliczona"
 
 msgid "Pause"
-msgstr ""
+msgstr "Pauza"
 
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
 #. placeholder {2}: columnOrder.length
 msgid "Picked up Column {0} at position: {1} of {2}"
-msgstr ""
+msgstr "Podniesiono kolumnę {0} na pozycji: {1} z {2}"
 
 msgid "Pin Out"
-msgstr ""
+msgstr "Wyloguj PIN"
 
 msgid "Planned"
-msgstr ""
+msgstr "Planowane"
 
 msgid "Please record all steps for this operation before closing."
-msgstr ""
+msgstr "Zarejestruj wszystkie kroki dla tej operacji przed zamknięciem."
 
 msgid "Please select an item"
-msgstr ""
+msgstr "Wybierz pozycję"
 
 msgid "Prev"
-msgstr ""
+msgstr "Poprzedni"
 
 msgid "Preventive"
-msgstr ""
+msgstr "Prewencyjne"
 
 msgid "Priority"
-msgstr ""
+msgstr "Priorytet"
 
 msgid "Procedure"
-msgstr ""
+msgstr "Procedura"
 
 msgid "Process"
-msgstr ""
+msgstr "Proces"
 
 msgid "Process Parameters"
-msgstr ""
+msgstr "Parametry procesu"
 
 msgid "Processes"
-msgstr ""
+msgstr "Procesy"
 
 msgid "Progress"
-msgstr ""
+msgstr "Postęp"
 
 msgid "Quantity"
-msgstr ""
+msgstr "Ilość"
 
 msgid "Quantity must be greater than 0"
-msgstr ""
+msgstr "Ilość musi być większa od 0"
 
 msgid "Recent"
-msgstr ""
+msgstr "Ostatnie"
 
 msgid "Record"
-msgstr ""
+msgstr "Rejestruj"
 
 #. placeholder {0}: activeStep + 1
 msgid "Record {0}"
-msgstr ""
+msgstr "Rekord {0}"
 
 msgid "Remove"
-msgstr ""
+msgstr "Usuń"
 
 msgid "Remove filter"
-msgstr ""
+msgstr "Usuń filtr"
 
 msgid "Remove Inventory"
-msgstr ""
+msgstr "Usuń zapasy"
 
 msgid "Remove part"
-msgstr ""
+msgstr "Usuń część"
 
 msgid "Sales Order"
-msgstr ""
+msgstr "Zamówienie sprzedaży"
 
 msgid "Save"
-msgstr ""
+msgstr "Zapisz"
 
 msgid "Scan"
-msgstr ""
+msgstr "Skanuj"
 
 msgid "Scan or enter serial number"
-msgstr ""
+msgstr "Skanuj lub wprowadź numer seryjny"
 
 msgid "Schedule"
-msgstr ""
+msgstr "Harmonogram"
 
 msgid "Scrap Reason"
-msgstr ""
+msgstr "Przyczyna odrzutu"
 
 msgid "Scrapped"
-msgstr ""
+msgstr "Odrzucone"
 
 msgid "Search"
-msgstr ""
+msgstr "Szukaj"
 
 msgid "Search by job or item ID"
 msgstr "Szukaj po ID zadania lub przedmiotu"
 
 msgid "Search operators..."
-msgstr ""
+msgstr "Szukaj operatorów..."
 
 msgid "Search..."
-msgstr ""
+msgstr "Szukaj..."
 
 msgid "Select"
-msgstr ""
+msgstr "Wybierz"
 
 msgid "Select a completion quantity"
-msgstr ""
+msgstr "Wybierz ilość ukończoną"
 
 msgid "Select a rework quantity"
-msgstr ""
+msgstr "Wybierz ilość do poprawki"
 
 msgid "Select a scrap quantity and reason"
-msgstr ""
+msgstr "Wybierz ilość odrzutu i przyczynę"
 
 msgid "Select a serial number to continue with this operation"
-msgstr ""
+msgstr "Wybierz numer seryjny, aby kontynuować tę operację"
 
 msgid "Select an item and specify the quantity to issue"
-msgstr ""
+msgstr "Wybierz pozycję i określ ilość do wydania"
 
 msgid "Select an item..."
-msgstr ""
+msgstr "Wybierz pozycję..."
 
 #. placeholder {0}: index + 1
 msgid "Select Batch {0}"
-msgstr ""
+msgstr "Wybierz partię {0}"
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
-msgstr ""
+msgstr "Wybierz numer seryjny {0}"
 
 msgid "Select Serial Number"
-msgstr ""
+msgstr "Wybierz numer seryjny"
 
 msgid "Send"
-msgstr ""
+msgstr "Wyślij"
 
 msgid "Serial"
-msgstr ""
+msgstr "Seryjny"
 
 #. placeholder {0}: sn.readableId
 msgid "Serial {0}"
-msgstr ""
+msgstr "Seryjny {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
-msgstr ""
+msgstr "Numer seryjny {0}"
 
 msgid "Serial number is not available"
-msgstr ""
+msgstr "Numer seryjny jest niedostępny"
 
 msgid "Serial number is required"
-msgstr ""
+msgstr "Numer seryjny jest wymagany"
 
 msgid "Serial Numbers"
-msgstr ""
+msgstr "Numery seryjne"
 
 msgid "Set Clock Out"
-msgstr ""
+msgstr "Ustaw zakończenie zmiany"
 
 msgid "Set clock-out time"
-msgstr ""
+msgstr "Ustaw czas zakończenia zmiany"
 
 msgid "Setup"
-msgstr ""
+msgstr "Ustawienie"
 
 msgid "Sign in with Email"
-msgstr ""
+msgstr "Zaloguj się przez e-mail"
 
 msgid "Sign in with Google"
-msgstr ""
+msgstr "Zaloguj się przez Google"
 
 msgid "Sign in with Outlook"
-msgstr ""
+msgstr "Zaloguj się przez Outlook"
 
 msgid "Sign in with Passkey"
-msgstr ""
+msgstr "Zaloguj się za pomocą klucza dostępu"
 
 msgid "Sign Out"
-msgstr ""
+msgstr "Wyloguj się"
 
 msgid "Signed in as {stationName}"
-msgstr ""
+msgstr "Zalogowany jako {stationName}"
 
 msgid "Size"
-msgstr ""
+msgstr "Rozmiar"
 
 msgid "Source"
-msgstr ""
+msgstr "Źródło"
 
 msgid "Spare Parts"
-msgstr ""
+msgstr "Części zamienne"
 
 msgid "Spare Parts Used"
-msgstr ""
+msgstr "Użyte części zamienne"
 
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 msgid "Station User"
-msgstr ""
+msgstr "Użytkownik stacji"
 
 msgid "Station: {stationName}"
-msgstr ""
+msgstr "Stacja: {stationName}"
 
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 msgid "Statuses"
-msgstr ""
+msgstr "Statusy"
 
 msgid "Steps"
-msgstr ""
+msgstr "Kroki"
 
 msgid "Steps are missing"
-msgstr ""
+msgstr "Brakuje kroków"
 
 msgid "Storage Unit"
-msgstr ""
+msgstr "Jednostka magazynowa"
 
 msgid "Submit anonymously"
-msgstr ""
+msgstr "Wyślij anonimowo"
 
 msgid "Suggestion"
-msgstr ""
+msgstr "Sugestia"
 
 msgid "Support Required"
-msgstr ""
+msgstr "Wymagane wsparcie"
 
 msgid "Switch Operator"
-msgstr ""
+msgstr "Zmień operatora"
 
 msgid "Tag"
-msgstr ""
+msgstr "Tag"
 
 #. placeholder {0}: operation.operationQuantity
 msgid "The completed quantity for this operation is less than the required quantity of {0}."
-msgstr ""
+msgstr "Ukończona ilość dla tej operacji jest mniejsza niż wymagana ilość {0}."
 
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
-msgstr ""
+msgstr "Na liście materiałowej znajdują się materiały śledzone seryjnie lub partiami, które nie zostały w pełni wydane. Ukończenie bez wydania może skutkować nieprawidłowymi rekordami śledzenia."
 
 msgid "Thumbnail"
-msgstr ""
+msgstr "Miniatura"
 
 msgid "Time Entries"
-msgstr ""
+msgstr "Wpisy czasu pracy"
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Time Worked: {0}"
-msgstr ""
+msgstr "Przepracowany czas: {0}"
 
 msgid "Today"
-msgstr ""
+msgstr "Dzisiaj"
 
 msgid "Tools"
-msgstr ""
+msgstr "Narzędzia"
 
 msgid "Total Quantity"
-msgstr ""
+msgstr "Ilość całkowita"
 
 #. placeholder {0}: formatDuration(totalDuration)
 msgid "Total time: {0}"
-msgstr ""
+msgstr "Czas całkowity: {0}"
 
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
-msgstr ""
+msgstr "Razem: {0}"
 
 msgid "Tracking"
 msgstr "Śledzenie"
 
 msgid "Tracking Labels"
-msgstr ""
+msgstr "Etykiety śledzenia"
 
 msgid "Type a message..."
-msgstr ""
+msgstr "Wpisz wiadomość..."
 
 msgid "Unissued serial/batch materials"
-msgstr ""
+msgstr "Niewydane materiały seryjne/partyjne"
 
 msgid "Unknown"
-msgstr ""
+msgstr "Nieznane"
 
 msgid "Update"
-msgstr ""
+msgstr "Aktualizuj"
 
 msgid "Updated successfully"
-msgstr ""
+msgstr "Zaktualizowano pomyślnie"
 
 #. placeholder {0}: fileUpload.name
 msgid "Uploaded: {0}"
-msgstr ""
+msgstr "Przesłano: {0}"
 
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
-msgstr ""
+msgstr "Przesyłanie {0}"
 
 msgid "View maintenance dispatch"
-msgstr ""
+msgstr "Wyświetl zlecenie utrzymania ruchu"
 
 msgid "We've sent you a magic link to sign in to your account."
-msgstr ""
+msgstr "Wysłaliśmy Ci link do logowania na Twoje konto."
 
 msgid "WIP"
-msgstr ""
+msgstr "WIP"
 
 msgid "Work Center"
-msgstr ""
+msgstr "Gniazdo produkcyjne"
 
 #. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString(locale)
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
-msgstr ""
+msgstr "Zalogowałeś się o {0}. Możesz edytować czas zakończenia zmiany poniżej lub potwierdzić, że nadal pracujesz."
 
 msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
-msgstr ""
+msgstr "Jesteś zalogowany od {hoursElapsed} godzin. Czy zapomniałeś zakończyć zmianę?"
