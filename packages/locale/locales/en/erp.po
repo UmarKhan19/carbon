@@ -200,9 +200,6 @@ msgstr "Accumulation Period (Weeks)"
 msgid "Accumulation Period:"
 msgstr "Accumulation Period:"
 
-msgid "Acknowledge & continue"
-msgstr "Acknowledge & continue"
-
 msgid "Action Items"
 msgstr "Action Items"
 
@@ -487,6 +484,18 @@ msgstr "API keys for programmatic access to your Carbon data."
 
 msgid "Applies to"
 msgstr "Applies to"
+
+msgid "Applies to all"
+msgstr "Applies to all"
+
+msgid "Applies to all items"
+msgstr "Applies to all items"
+
+msgid "Applies to all storage units"
+msgstr "Applies to all storage units"
+
+msgid "Applies to all work centers"
+msgstr "Applies to all work centers"
 
 msgid "Apply pricing rules"
 msgstr "Apply pricing rules"
@@ -1922,6 +1931,9 @@ msgstr "Custom Field"
 msgid "Custom Fields"
 msgstr "Custom Fields"
 
+msgid "Custom Rules"
+msgstr "Custom Rules"
+
 msgid "Customer"
 msgstr "Customer"
 
@@ -2776,6 +2788,9 @@ msgstr "Edit supplier process"
 msgid "Edit Supplier Type"
 msgstr "Edit Supplier Type"
 
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr "Edit the rule to remove the \"Applies to all\" flag"
+
 msgid "Edit Timecard"
 msgstr "Edit Timecard"
 
@@ -2896,12 +2911,6 @@ msgstr "End Date"
 msgid "End Time"
 msgstr "End Time"
 
-msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-msgstr "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-
-msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-msgstr "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 
@@ -2997,9 +3006,6 @@ msgstr "Error removing model from sales order line"
 
 msgid "Error validating serial number"
 msgstr "Error validating serial number"
-
-msgid "Errors"
-msgstr "Errors"
 
 msgid "Escalation"
 msgstr "Escalation"
@@ -3432,6 +3438,9 @@ msgstr "Fetch"
 msgid "Field"
 msgstr "Field"
 
+msgid "Field info"
+msgstr "Field info"
+
 msgid "Field Mapping"
 msgstr "Field Mapping"
 
@@ -3758,6 +3767,9 @@ msgstr "Infrastructure"
 msgid "Inherit From Materials"
 msgstr "Inherit From Materials"
 
+msgid "Inherited from"
+msgstr "Inherited from"
+
 msgid "Insert rows"
 msgstr "Insert rows"
 
@@ -3958,9 +3970,6 @@ msgstr "Item ID"
 
 msgid "Item Master"
 msgstr "Item Master"
-
-msgid "Item Rules"
-msgstr "Item Rules"
 
 msgid "Item Scope"
 msgstr "Item Scope"
@@ -4320,6 +4329,9 @@ msgstr "Manage how shelf life is tracked, computed, and enforced across inventor
 
 msgid "Manage Ownership"
 msgstr "Manage Ownership"
+
+msgid "Manage rules"
+msgstr "Manage rules"
 
 msgid "Manage Subscription"
 msgstr "Manage Subscription"
@@ -5489,9 +5501,6 @@ msgstr "Pick a customer or customer type to view their pricing."
 msgid "Pick a date or leave blank to clear it."
 msgstr "Pick a date or leave blank to clear it."
 
-msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-msgstr "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-
 msgid "Pick List"
 msgstr "Pick List"
 
@@ -6335,9 +6344,6 @@ msgstr "Rule applies to every item."
 msgid "Rule Type"
 msgstr "Rule Type"
 
-msgid "Rule Violation"
-msgstr "Rule Violation"
-
 msgid "Rules"
 msgstr "Rules"
 
@@ -7122,6 +7128,9 @@ msgstr "Storage Types"
 msgid "Storage Unit"
 msgstr "Storage Unit"
 
+msgid "Storage unit rules"
+msgstr "Storage unit rules"
+
 msgid "Storage Units"
 msgstr "Storage Units"
 
@@ -7750,6 +7759,9 @@ msgstr "Trash"
 msgid "Trial Balance"
 msgstr "Trial Balance"
 
+msgid "Triggers"
+msgstr "Triggers"
+
 msgid "Tuesday"
 msgstr "Tuesday"
 
@@ -7776,6 +7788,9 @@ msgstr "Un-sampled entities will remain On Hold so you can keep inspecting and d
 
 msgid "Unapproved Supplier"
 msgstr "Unapproved Supplier"
+
+msgid "Unassign from parent unit to remove"
+msgstr "Unassign from parent unit to remove"
 
 msgid "Unassign rule"
 msgstr "Unassign rule"
@@ -7897,11 +7912,12 @@ msgstr "Upgrade"
 msgid "Upgrade to Business"
 msgstr "Upgrade to Business"
 
+#. placeholder {0}: targetCopy.noun
+msgid "Upgrade to unlock {0} rules"
+msgstr "Upgrade to unlock {0} rules"
+
 msgid "Upgrade to unlock audit history"
 msgstr "Upgrade to unlock audit history"
-
-msgid "Upgrade to unlock item rules"
-msgstr "Upgrade to unlock item rules"
 
 msgid "Upload"
 msgstr "Upload"
@@ -8000,6 +8016,9 @@ msgstr "Validating job..."
 
 msgid "Value"
 msgstr "Value"
+
+msgid "Value source by surface"
+msgstr "Value source by surface"
 
 msgid "VAT Number"
 msgstr "VAT Number"
@@ -8190,9 +8209,6 @@ msgstr "Warn when the person inspecting an inbound item is the same person who r
 msgid "Warning"
 msgstr "Warning"
 
-msgid "Warnings"
-msgstr "Warnings"
-
 msgid "Watch full video"
 msgstr "Watch full video"
 
@@ -8252,6 +8268,9 @@ msgstr "When a finished product's shelf life is set to Calculated, pick which co
 
 msgid "When expired stock is used"
 msgstr "When expired stock is used"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
 
 msgid "Who Can Approve"
 msgstr "Who Can Approve"

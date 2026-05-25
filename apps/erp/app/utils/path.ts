@@ -777,8 +777,6 @@ export const path = {
     deleteShipment: (id: string) => generatePath(`${x}/shipment/${id}/delete`),
     deleteStorageUnit: (id: string) =>
       generatePath(`${x}/inventory/storage-units/delete/${id}`),
-    deleteItemRule: (id: string) =>
-      generatePath(`${x}/items/rules/delete/${id}`),
     deleteStorageType: (id: string) =>
       generatePath(`${x}/inventory/storage-types/delete/${id}`),
     deleteShippingMethod: (id: string) =>
@@ -1191,7 +1189,6 @@ export const path = {
     newSalesRFQLine: (id: string) => generatePath(`${x}/sales-rfq/${id}/new`),
     newScrapReason: `${x}/production/scrap-reasons/new`,
     newStorageUnit: `${x}/inventory/storage-units/new`,
-    newItemRule: `${x}/items/rules/new`,
     newStorageType: `${x}/inventory/storage-types/new`,
     newShipment: `${x}/shipment/new`,
     newShift: `${x}/people/shifts/new`,
@@ -1249,12 +1246,28 @@ export const path = {
     consumableRules: (id: string) =>
       generatePath(`${x}/consumable/${id}/rules`),
     toolRules: (id: string) => generatePath(`${x}/tool/${id}/rules`),
-    itemRules: `${x}/items/rules`,
-    itemRule: (id: string) => generatePath(`${x}/items/rules/${id}`),
-    itemRuleAssign: (itemId: string) =>
+    customRules: `${x}/settings/custom-rules`,
+    customRule: (id: string) =>
+      generatePath(`${x}/settings/custom-rules/${id}`),
+    newCustomRule: `${x}/settings/custom-rules/new`,
+    deleteCustomRule: (id: string) =>
+      generatePath(`${x}/settings/custom-rules/${id}/delete`),
+    customRuleAssignItem: (itemId: string) =>
       generatePath(`${x}/items/rules/assign/${itemId}`),
-    itemRuleUnassign: (itemId: string, ruleId: string) =>
+    customRuleUnassignItem: (itemId: string, ruleId: string) =>
       generatePath(`${x}/items/rules/unassign/${itemId}/${ruleId}`),
+    customRuleAssignStorageUnit: (id: string) =>
+      generatePath(`${x}/inventory/storage-units/rules/assign/${id}`),
+    customRuleUnassignStorageUnit: (id: string, ruleId: string) =>
+      generatePath(
+        `${x}/inventory/storage-units/rules/unassign/${id}/${ruleId}`
+      ),
+    customRuleAssignWorkCenter: (id: string) =>
+      generatePath(`${x}/resources/work-centers/rules/assign/${id}`),
+    customRuleUnassignWorkCenter: (id: string, ruleId: string) =>
+      generatePath(
+        `${x}/resources/work-centers/rules/unassign/${id}/${ruleId}`
+      ),
     partSales: (id: string) => generatePath(`${x}/part/${id}/sales`),
     partSupplier: (itemId: string, id: string) =>
       generatePath(`${x}/part/${itemId}/purchasing/${id}`),
@@ -1585,6 +1598,8 @@ export const path = {
     sequences: `${x}/settings/sequences`,
     storageUnit: (id: string) =>
       generatePath(`${x}/inventory/storage-units/${id}`),
+    storageUnitRules: (id: string) =>
+      generatePath(`${x}/inventory/storage-units/${id}/rules`),
     storageUnits: `${x}/inventory/storage-units`,
     storageType: (id: string) =>
       generatePath(`${x}/inventory/storage-types/${id}`),

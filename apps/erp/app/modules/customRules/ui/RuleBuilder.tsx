@@ -9,7 +9,10 @@ import {
   type Condition,
   type ConditionAst,
   FIELD_REGISTRY,
-  type MatchKind
+  getFieldsForTargetType,
+  type MatchKind,
+  type TargetType,
+  type TransactionSurface
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,6 +24,13 @@ import { useValueOptions } from "./useValueOptions";
 type RuleBuilderProps = {
   name: string;
   initial?: ConditionAst;
+  targetType?: TargetType;
+  /**
+   * Surfaces the rule is currently configured to fire on. Forwarded to each
+   * ConditionRow so the per-surface notes panel filters to the surfaces this
+   * rule actually triggers — not every surface valid for the targetType.
+   */
+  surfaces?: TransactionSurface[];
   /**
    * Notifies the parent of every condition-list change so siblings (e.g.
    * `MessageWithTokens`) can offer per-condition tokens that resolve to
@@ -29,15 +39,16 @@ type RuleBuilderProps = {
   onConditionsChange?: (conditions: Condition[]) => void;
 };
 
-const emptyCondition = (): Condition => ({
-  field: FIELD_REGISTRY[0]?.path ?? "",
-  op: "eq",
-  value: undefined
-});
+const emptyConditionFor = (targetType: TargetType | undefined): Condition => {
+  const pool = targetType ? getFieldsForTargetType(targetType) : FIELD_REGISTRY;
+  return { field: pool[0]?.path ?? "", op: "eq", value: undefined };
+};
 
 export default function RuleBuilder({
   name,
   initial,
+  targetType,
+  surfaces,
   onConditionsChange
 }: RuleBuilderProps) {
   const { t } = useLingui();
@@ -67,7 +78,9 @@ export default function RuleBuilder({
     [t]
   );
   const [conditions, setConditions] = useState<Condition[]>(
-    initial?.conditions?.length ? initial.conditions : [emptyCondition()]
+    initial?.conditions?.length
+      ? initial.conditions
+      : [emptyConditionFor(targetType)]
   );
   const optionsByLoader = useValueOptions();
 
@@ -94,8 +107,8 @@ export default function RuleBuilder({
   }, []);
 
   const handleAdd = useCallback(() => {
-    setConditions((prev) => [...prev, emptyCondition()]);
-  }, []);
+    setConditions((prev) => [...prev, emptyConditionFor(targetType)]);
+  }, [targetType]);
 
   const ast: ConditionAst = { kind, conditions };
 
@@ -141,6 +154,8 @@ export default function RuleBuilder({
             onChange={handleChange}
             onRemove={handleRemove}
             optionsByLoader={optionsByLoader}
+            targetType={targetType}
+            surfaces={surfaces}
           />
         ))}
       </div>

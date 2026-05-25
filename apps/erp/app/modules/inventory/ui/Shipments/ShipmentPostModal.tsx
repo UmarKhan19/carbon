@@ -1,4 +1,5 @@
 import { useCarbon } from "@carbon/auth";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import {
   Alert,
   AlertDescription,
@@ -25,7 +26,6 @@ import { useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useNavigation, useParams } from "react-router";
 import { useSettings, useUser } from "~/hooks";
-import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import type { ShipmentLine } from "../..";
@@ -219,7 +219,7 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
     validateShipmentTracking();
   });
 
-  const ruleViolations = useItemRuleViolations({
+  const ruleViolations = useCustomRuleViolations({
     action: path.to.shipmentPost(shipmentId),
     onSuccess: onClose
   });

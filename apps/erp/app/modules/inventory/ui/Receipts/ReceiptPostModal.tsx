@@ -1,4 +1,5 @@
 import { useCarbon } from "@carbon/auth";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import {
   Alert,
   AlertDescription,
@@ -24,7 +25,6 @@ import { useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useNavigation, useParams } from "react-router";
 import { useUser } from "~/hooks";
-import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import { getReceiptTracking } from "../../inventory.service";
@@ -139,7 +139,7 @@ const ReceiptPostModal = ({ onClose }: { onClose: () => void }) => {
     validateReceiptTracking();
   });
 
-  const ruleViolations = useItemRuleViolations({
+  const ruleViolations = useCustomRuleViolations({
     action: path.to.receiptPost(receiptId),
     onSuccess: onClose
   });

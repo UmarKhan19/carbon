@@ -9,13 +9,12 @@ import {
   ModalTitle
 } from "@carbon/react";
 import type { Violation } from "@carbon/utils";
-import { Trans, useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import { LuOctagonAlert, LuTriangleAlert } from "react-icons/lu";
 
 type RuleNameMap = Record<string, string>;
 
-type ItemRuleViolationModalProps = {
+type CustomRuleViolationModalProps = {
   violations: Violation[];
   ruleNames?: RuleNameMap;
   onCancel: () => void;
@@ -23,15 +22,13 @@ type ItemRuleViolationModalProps = {
   isSubmitting?: boolean;
 };
 
-export default function ItemRuleViolationModal({
+export default function CustomRuleViolationModal({
   violations,
   ruleNames,
   onCancel,
   onAcknowledge,
   isSubmitting
-}: ItemRuleViolationModalProps) {
-  const { t } = useLingui();
-
+}: CustomRuleViolationModalProps) {
   const { errors, warns, hasError, onlyWarns } = useMemo(() => {
     const errs: Violation[] = [];
     const wrns: Violation[] = [];
@@ -65,7 +62,7 @@ export default function ItemRuleViolationModal({
               ) : (
                 <LuTriangleAlert className="text-amber-500 h-5 w-5" />
               )}
-              <Trans>Rule Violation</Trans>
+              Rule Violation
             </span>
           </ModalTitle>
         </ModalHeader>
@@ -74,7 +71,7 @@ export default function ItemRuleViolationModal({
           <div className="flex flex-col gap-4 text-sm">
             {errors.length > 0 && (
               <ViolationGroup
-                title={t`Errors`}
+                title="Errors"
                 violations={errors}
                 ruleNames={ruleNames}
                 tone="error"
@@ -82,7 +79,7 @@ export default function ItemRuleViolationModal({
             )}
             {warns.length > 0 && (
               <ViolationGroup
-                title={t`Warnings`}
+                title="Warnings"
                 violations={warns}
                 ruleNames={ruleNames}
                 tone="warn"
@@ -93,7 +90,7 @@ export default function ItemRuleViolationModal({
 
         <ModalFooter>
           <Button variant="secondary" onClick={onCancel}>
-            <Trans>Cancel</Trans>
+            Cancel
           </Button>
           <Button
             variant={hasError ? "destructive" : "solid"}
@@ -101,11 +98,7 @@ export default function ItemRuleViolationModal({
             isDisabled={hasError || isSubmitting}
             isLoading={isSubmitting}
           >
-            {onlyWarns ? (
-              <Trans>Acknowledge & continue</Trans>
-            ) : (
-              <Trans>Confirm</Trans>
-            )}
+            {onlyWarns ? "Acknowledge & continue" : "Confirm"}
           </Button>
         </ModalFooter>
       </ModalContent>

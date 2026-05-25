@@ -1,24 +1,27 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  __itemRulesCacheSize,
-  __resetItemRulesCache,
+  __customRulesCacheSize,
+  __resetCustomRulesCache,
+  type CustomRuleRow,
   compileRule,
   compileWithCache,
   evaluateRules,
   getFieldDef,
-  type ItemRuleRow,
+  getFieldsForTargetType,
   interpolateMessage,
   type RuleContext
-} from "./itemRules";
+} from "./customRules";
 
 const ruleOf = (
   conditions: Array<{ field: string; op: string; value?: unknown }>,
-  overrides: Partial<ItemRuleRow> = {}
-): ItemRuleRow => ({
+  overrides: Partial<CustomRuleRow> = {}
+): CustomRuleRow => ({
   id: overrides.id ?? "rule_1",
+  targetType: overrides.targetType ?? "item",
   severity: overrides.severity ?? "error",
   message: overrides.message ?? "violated",
   conditionAst: { kind: "all", conditions: conditions as never },
+  surfaces: overrides.surfaces,
   updatedAt: overrides.updatedAt ?? "2026-05-04T00:00:00Z",
   active: true
 });
@@ -174,7 +177,6 @@ describe("operators", () => {
     );
     expect(gt.predicate({ transaction: { quantity: 200 } })).toBe(true);
     expect(gt.predicate({ transaction: { quantity: 50 } })).toBe(false);
-    // Non-numeric input: returns false instead of coercing
     expect(gt.predicate({ transaction: { quantity: "300" } })).toBe(false);
 
     const lt = compileRule(
@@ -194,15 +196,13 @@ describe("compilePredicate", () => {
         { field: "transaction.kind", op: "eq", value: "receipt" }
       ])
     );
-    // Wrap with our own counter — we can't directly observe, but we can assert behavior:
-    // when first condition false, second is irrelevant.
     expect(
       compiled.predicate({
         item: { type: "Material" },
         transaction: { kind: "receipt" }
       })
     ).toBe(false);
-    secondCondCalls++; // sanity: this assertion runs without invoking second condition due to short-circuit
+    secondCondCalls++;
     expect(secondCondCalls).toBe(1);
   });
 
@@ -214,6 +214,7 @@ describe("compilePredicate", () => {
   it("malformed AST → predicate false (defensive)", () => {
     const compiled = compileRule({
       id: "x",
+      targetType: "item",
       severity: "error",
       message: "m",
       // @ts-expect-error intentionally malformed
@@ -244,6 +245,30 @@ describe("compilePredicate", () => {
     ).toBe(true);
     expect(
       compiled.predicate({ item: { customFields: { frozen: false } } })
+    ).toBe(false);
+  });
+
+  it("workCenter + operation root segments resolve", () => {
+    const compiled = compileRule(
+      ruleOf(
+        [
+          { field: "workCenter.locationId", op: "eq", value: "loc_a" },
+          { field: "operation.itemId", op: "isSet" }
+        ],
+        { targetType: "workCenter" }
+      )
+    );
+    expect(
+      compiled.predicate({
+        workCenter: { locationId: "loc_a" },
+        operation: { itemId: "item_1" }
+      })
+    ).toBe(true);
+    expect(
+      compiled.predicate({
+        workCenter: { locationId: "loc_a" },
+        operation: { itemId: null }
+      })
     ).toBe(false);
   });
 });
@@ -298,8 +323,8 @@ describe("evaluateRules", () => {
       [r1, r2],
       {
         item: { name: "Vanilla" },
-        storageUnit: { storageTypeId: "ambient" }, // fails r1
-        transaction: { quantity: 2000 } // fails r2 (not less than 1000)
+        storageUnit: { storageTypeId: "ambient" },
+        transaction: { quantity: 2000 }
       },
       "receipt"
     );
@@ -330,10 +355,25 @@ describe("evaluateRules", () => {
     );
     expect(violations).toEqual([]);
   });
+
+  it("rule subscribed to surfaces it doesn't include is skipped", () => {
+    const r = compileRule(
+      ruleOf([{ field: "operation.itemId", op: "isSet" }], {
+        targetType: "workCenter",
+        surfaces: ["operationStart"]
+      })
+    );
+    const violations = evaluateRules(
+      [r],
+      { operation: { itemId: null } },
+      "operationFinish"
+    );
+    expect(violations).toEqual([]);
+  });
 });
 
 describe("compileWithCache", () => {
-  beforeEach(() => __resetItemRulesCache());
+  beforeEach(() => __resetCustomRulesCache());
 
   it("returns same compiled instance on cache hit", () => {
     const row = ruleOf([{ field: "item.type", op: "eq", value: "Part" }]);
@@ -352,11 +392,29 @@ describe("compileWithCache", () => {
     const a = compileWithCache(row1);
     const b = compileWithCache(row2);
     expect(a).not.toBe(b);
-    expect(__itemRulesCacheSize()).toBe(2);
+    expect(__customRulesCacheSize()).toBe(2);
+  });
+
+  it("does not collide across targetTypes with identical content", () => {
+    // Same id, same AST, same message — different targetType must produce
+    // distinct compiled rules. Catches a stale cache key that omits
+    // targetType.
+    const itemRow = ruleOf([{ field: "item.type", op: "eq", value: "Part" }], {
+      id: "shared_id",
+      targetType: "item"
+    });
+    const wcRow = ruleOf([{ field: "item.type", op: "eq", value: "Part" }], {
+      id: "shared_id",
+      targetType: "workCenter"
+    });
+    const a = compileWithCache(itemRow);
+    const b = compileWithCache(wcRow);
+    expect(a).not.toBe(b);
+    expect(a.targetType).toBe("item");
+    expect(b.targetType).toBe("workCenter");
   });
 
   it("evicts oldest when over cap", () => {
-    // Fill past CACHE_CAP (256) — assert size never exceeds cap.
     for (let i = 0; i < 300; i++) {
       compileWithCache(
         ruleOf([{ field: "item.type", op: "eq", value: `v${i}` }], {
@@ -365,7 +423,7 @@ describe("compileWithCache", () => {
         })
       );
     }
-    expect(__itemRulesCacheSize()).toBeLessThanOrEqual(256);
+    expect(__customRulesCacheSize()).toBeLessThanOrEqual(256);
   });
 });
 
@@ -386,6 +444,45 @@ describe("FIELD_REGISTRY", () => {
   });
 });
 
+describe("getFieldsForTargetType", () => {
+  it("item target sees item + storage + shared fields, not workCenter fields", () => {
+    const fields = getFieldsForTargetType("item");
+    const paths = fields.map((f) => f.path);
+    expect(paths).toContain("item.type");
+    expect(paths).toContain("transaction.quantity");
+    // storageUnit ctx is loaded for item-target surfaces when the line carries
+    // a storageUnitId — these fields are now visible (with nullable: true so
+    // authors can guard with isSet/isNotSet).
+    expect(paths).toContain("storageUnit.id");
+    expect(paths).toContain("storageUnit.locationId");
+    expect(paths).toContain("storageUnit.storageTypeId");
+    expect(paths.some((p) => p.startsWith("workCenter."))).toBe(false);
+    expect(paths.some((p) => p.startsWith("operation."))).toBe(false);
+  });
+
+  it("workCenter target sees workCenter + shared, not item.* or storageUnit.*", () => {
+    const fields = getFieldsForTargetType("workCenter");
+    const paths = fields.map((f) => f.path);
+    expect(paths).toContain("workCenter.locationId");
+    expect(paths).toContain("workCenter.active");
+    expect(paths).toContain("transaction.quantity");
+    expect(paths).not.toContain("item.type");
+    expect(paths.some((p) => p.startsWith("storageUnit."))).toBe(false);
+  });
+
+  it("storageUnit target sees storage + item fields (item ctx loads on every storageUnit-target surface)", () => {
+    const fields = getFieldsForTargetType("storageUnit");
+    const paths = fields.map((f) => f.path);
+    expect(paths).toContain("storageUnit.id");
+    expect(paths).toContain("storageUnit.storageTypeId");
+    expect(paths).toContain("storageUnit.locationId");
+    expect(paths).toContain("transaction.quantity");
+    expect(paths).toContain("item.type");
+    expect(paths).toContain("item.replenishmentSystem");
+    expect(paths).toContain("item.itemTrackingType");
+  });
+});
+
 describe("required-field pre-check", () => {
   const coldRule = ruleOf(
     [{ field: "storageUnit.storageTypeId", op: "eq", value: "cold-id" }],
@@ -394,10 +491,7 @@ describe("required-field pre-check", () => {
 
   it("null field → hard violation, predicate skipped", () => {
     const compiled = compileRule(coldRule);
-    // Predicate would PASS if it ran (undefined === "cold-id" is false, so
-    // normally a violation fires for wrong value — but here storageUnit is
-    // entirely absent, so required-field check must fire first).
-    const ctx: RuleContext = {}; // storageUnit undefined
+    const ctx: RuleContext = {};
     const violations = evaluateRules([compiled], ctx, "inventoryAdjustment");
     expect(violations).toHaveLength(1);
     expect(violations[0]?.ruleId).toBe("rule_cold");
@@ -421,10 +515,9 @@ describe("required-field pre-check", () => {
         message: "storage type must be set"
       })
     );
-    const ctx: RuleContext = {}; // storageUnit undefined
+    const ctx: RuleContext = {};
     const violations = evaluateRules([rule], ctx, "inventoryAdjustment");
     expect(violations).toHaveLength(1);
-    // Must be the rule's own message, not "is required"
     expect(violations[0]?.message).toBe("storage type must be set");
     expect(violations[0]?.message).not.toContain("required");
   });

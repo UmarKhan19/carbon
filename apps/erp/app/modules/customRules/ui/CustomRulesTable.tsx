@@ -13,11 +13,13 @@ import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { path } from "~/utils/path";
 import SurfaceChips from "./SurfaceChips";
 
-type ItemRuleRowView = {
+type CustomRuleRowView = {
   id: string;
   name: string;
+  targetType: "item" | "storageUnit" | "workCenter";
   severity: "error" | "warn";
   active: boolean;
+  appliesToAll: boolean;
   description?: string | null;
   message: string;
   updatedAt?: string | null;
@@ -26,17 +28,23 @@ type ItemRuleRowView = {
   surfaces?: TransactionSurface[];
 };
 
-type ItemRulesTableProps = {
-  data: ItemRuleRowView[];
+const TARGET_TYPE_LABELS = {
+  item: "Item",
+  storageUnit: "Storage unit",
+  workCenter: "Work center"
+} as const;
+
+type CustomRulesTableProps = {
+  data: CustomRuleRowView[];
   count: number;
 };
 
-const ItemRulesTable = memo(({ data, count }: ItemRulesTableProps) => {
+const CustomRulesTable = memo(({ data, count }: CustomRulesTableProps) => {
   const { t } = useLingui();
   const [params] = useUrlParams();
   const navigate = useNavigate();
   const permissions = usePermissions();
-  const customColumns = useCustomColumns<ItemRuleRowView>("itemRule");
+  const customColumns = useCustomColumns<CustomRuleRowView>("customRule");
 
   const rows = useMemo(() => data, [data]);
 
@@ -47,12 +55,21 @@ const ItemRulesTable = memo(({ data, count }: ItemRulesTableProps) => {
         header: t`Name`,
         cell: ({ row }) => (
           <Hyperlink
-            to={`${path.to.itemRule(row.original.id)}?${params.toString()}`}
+            to={`${path.to.customRule(row.original.id)}?${params.toString()}`}
           >
             <Enumerable value={row.original.name} />
           </Hyperlink>
         ),
         meta: { icon: <LuShieldCheck /> }
+      },
+      {
+        accessorKey: "targetType",
+        header: t`Target`,
+        cell: ({ row }) => (
+          <Badge variant="secondary">
+            {TARGET_TYPE_LABELS[row.original.targetType]}
+          </Badge>
+        )
       },
       {
         accessorKey: "severity",
@@ -71,7 +88,12 @@ const ItemRulesTable = memo(({ data, count }: ItemRulesTableProps) => {
       {
         accessorKey: "surfaces",
         header: t`Surfaces`,
-        cell: ({ row }) => <SurfaceChips surfaces={row.original.surfaces} />
+        cell: ({ row }) => (
+          <SurfaceChips
+            surfaces={row.original.surfaces}
+            targetType={row.original.targetType}
+          />
+        )
       },
       {
         accessorKey: "active",
@@ -104,19 +126,21 @@ const ItemRulesTable = memo(({ data, count }: ItemRulesTableProps) => {
     (row: (typeof rows)[number]) => (
       <>
         <MenuItem
-          disabled={!permissions.can("update", "parts")}
+          disabled={!permissions.can("update", "settings")}
           onClick={() => {
-            navigate(`${path.to.itemRule(row.id)}?${params.toString()}`);
+            navigate(`${path.to.customRule(row.id)}?${params.toString()}`);
           }}
         >
           <MenuIcon icon={<LuPencil />} />
           <Trans>Edit Rule</Trans>
         </MenuItem>
         <MenuItem
-          disabled={!permissions.can("delete", "parts")}
+          disabled={!permissions.can("delete", "settings")}
           destructive
           onClick={() => {
-            navigate(`${path.to.deleteItemRule(row.id)}?${params.toString()}`);
+            navigate(
+              `${path.to.deleteCustomRule(row.id)}?${params.toString()}`
+            );
           }}
         >
           <MenuIcon icon={<LuTrash />} />
@@ -133,18 +157,18 @@ const ItemRulesTable = memo(({ data, count }: ItemRulesTableProps) => {
       columns={columns}
       count={count}
       primaryAction={
-        permissions.can("create", "parts") && (
+        permissions.can("create", "settings") && (
           <New
             label={t`Rule`}
-            to={`${path.to.newItemRule}?${params.toString()}`}
+            to={`${path.to.newCustomRule}?${params.toString()}`}
           />
         )
       }
       renderContextMenu={renderContextMenu}
-      title={t`Item Rules`}
+      title={t`Custom Rules`}
     />
   );
 });
 
-ItemRulesTable.displayName = "ItemRulesTable";
-export default ItemRulesTable;
+CustomRulesTable.displayName = "CustomRulesTable";
+export default CustomRulesTable;

@@ -995,6 +995,9 @@ importers:
       '@carbon/documents':
         specifier: workspace:*
         version: link:../../packages/documents
+      '@carbon/ee':
+        specifier: workspace:*
+        version: link:../../packages/ee
       '@carbon/form':
         specifier: workspace:*
         version: link:../../packages/form
