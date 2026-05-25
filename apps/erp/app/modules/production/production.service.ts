@@ -599,7 +599,7 @@ export async function getActiveProductionEvents(
   return client
     .from("productionEvent")
     .select(
-      "*, ...jobOperation(description, ...job(jobId:id, jobReadableId:jobId, customerId, dueDate, deadlineType, salesOrderLineId, ...salesOrderLine(...salesOrder(salesOrderId:id, salesOrderReadableId:salesOrderId))))"
+      "*, ...jobOperation(description, ...job(jobId:id, jobReadableId:jobId, customerId, dueDate, deadlineType, salesOrderLineId, ...salesOrderLine!salesOrderLineId(...salesOrder(salesOrderId:id, salesOrderReadableId:salesOrderId))))"
     )
     .eq("companyId", companyId)
     .is("endTime", null);
