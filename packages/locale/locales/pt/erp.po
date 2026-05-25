@@ -1178,6 +1178,9 @@ msgstr "LogÃƒÆ’Ã‚Â³tipo do Carbon"
 msgid "Carbon Value"
 msgstr "Valor Carbon"
 
+msgid "Cards"
+msgstr ""
+
 msgid "Carrier"
 msgstr "Transportadora"
 
@@ -2458,7 +2461,7 @@ msgid "Dispatches"
 msgstr "Despachos"
 
 msgid "Display Settings"
-msgstr "ConfiguraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes de ExibiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o"
+msgstr ""
 
 msgid "Disposition"
 msgstr "DisposiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o"
@@ -2829,6 +2832,9 @@ msgstr "Tipos de FuncionÃƒÆ’Ã‚Â¡rios"
 
 msgid "Employees"
 msgstr "FuncionÃƒÆ’Ã‚Â¡rios"
+
+msgid "Empty work centers"
+msgstr ""
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Ative o registro de auditoria nas configuraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes para comeÃƒÆ’Ã‚Â§ar a rastrear alteraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes nos seus dados."
@@ -7547,6 +7553,11 @@ msgstr "Isto irÃƒÆ’Ã‚Â¡ sobrescrever o mÃƒÆ’Ã‚Â©todo de cota
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "Isto irÃƒÆ’Ã‚Â¡ recalcular o custo unitÃƒÆ’Ã‚Â¡rio a partir da lista de materiais e processos do mÃƒÆ’Ã‚Â©todo de fabricaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativo usando o tamanho do lote. O custo atual serÃƒÆ’Ã‚Â¡ sobrescrito. Deseja continuar?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "Isto substituirÃƒÆ’Ã‚Â¡ todos os materiais de mÃƒÆ’Ã‚Â©todo de outras revisÃƒÆ’Ã‚Âµes por esta revisÃƒÆ’Ã‚Â£o."
 
@@ -7837,6 +7848,9 @@ msgstr "Suporte Funcional Ilimitado"
 
 msgid "Unlink"
 msgstr "DesvinculaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Tipo de documento de origem nÃƒÆ’Ã‚Â£o suportado: {sourceDocument}"
