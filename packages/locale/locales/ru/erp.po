@@ -4223,7 +4223,7 @@ msgid "Loading..."
 msgstr "Загрузка..."
 
 msgid "Loading…"
-msgstr ""
+msgstr "Загрузка…"
 
 msgid "Location"
 msgstr "Местоположение"
@@ -5025,7 +5025,7 @@ msgid "No Gauge Selected"
 msgstr "Датчик не выбран"
 
 msgid "No grouped notifications"
-msgstr ""
+msgstr "Нет сгруппированных уведомлений"
 
 msgid "No groups assigned"
 msgstr "Нет назначенных групп"

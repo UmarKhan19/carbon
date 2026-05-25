@@ -4223,7 +4223,7 @@ msgid "Loading..."
 msgstr "लोड हो रहा है..."
 
 msgid "Loading…"
-msgstr ""
+msgstr "लोड हो रहा है…"
 
 msgid "Location"
 msgstr "स्थान"
@@ -5025,7 +5025,7 @@ msgid "No Gauge Selected"
 msgstr "कोई गेज चयनित नहीं"
 
 msgid "No grouped notifications"
-msgstr ""
+msgstr "कोई समूहीकृत सूचनाएं नहीं"
 
 msgid "No groups assigned"
 msgstr "कोई समूह असाइन नहीं किया गया"

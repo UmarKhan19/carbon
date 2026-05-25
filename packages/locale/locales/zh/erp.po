@@ -4223,7 +4223,7 @@ msgid "Loading..."
 msgstr "加载中..."
 
 msgid "Loading…"
-msgstr ""
+msgstr "加载中…"
 
 msgid "Location"
 msgstr "位置"
@@ -5025,7 +5025,7 @@ msgid "No Gauge Selected"
 msgstr "未选择量具"
 
 msgid "No grouped notifications"
-msgstr ""
+msgstr "没有分组通知"
 
 msgid "No groups assigned"
 msgstr "未分配任何组"

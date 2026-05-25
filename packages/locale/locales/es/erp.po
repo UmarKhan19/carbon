@@ -4223,7 +4223,7 @@ msgid "Loading..."
 msgstr "Cargando..."
 
 msgid "Loading…"
-msgstr ""
+msgstr "Cargando…"
 
 msgid "Location"
 msgstr "Ubicación"
@@ -5025,7 +5025,7 @@ msgid "No Gauge Selected"
 msgstr "Sin calibrador seleccionado"
 
 msgid "No grouped notifications"
-msgstr ""
+msgstr "Sin notificaciones agrupadas"
 
 msgid "No groups assigned"
 msgstr "No hay grupos asignados"

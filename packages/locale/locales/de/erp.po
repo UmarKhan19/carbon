@@ -4223,7 +4223,7 @@ msgid "Loading..."
 msgstr "Wird geladen..."
 
 msgid "Loading…"
-msgstr ""
+msgstr "Wird geladen…"
 
 msgid "Location"
 msgstr "Standort"
@@ -5025,7 +5025,7 @@ msgid "No Gauge Selected"
 msgstr "Keine Messuhr ausgewählt"
 
 msgid "No grouped notifications"
-msgstr ""
+msgstr "Keine gruppierten Benachrichtigungen"
 
 msgid "No groups assigned"
 msgstr "Keine Gruppen zugewiesen"

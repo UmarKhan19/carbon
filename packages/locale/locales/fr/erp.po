@@ -4223,7 +4223,7 @@ msgid "Loading..."
 msgstr "Chargement..."
 
 msgid "Loading…"
-msgstr ""
+msgstr "Chargement…"
 
 msgid "Location"
 msgstr "Emplacement"
@@ -5025,7 +5025,7 @@ msgid "No Gauge Selected"
 msgstr "Aucune jauge sélectionnée"
 
 msgid "No grouped notifications"
-msgstr ""
+msgstr "Aucune notification groupée"
 
 msgid "No groups assigned"
 msgstr "Aucun groupe assigné"
