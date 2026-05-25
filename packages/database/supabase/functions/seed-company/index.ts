@@ -117,6 +117,7 @@ serve(async (req: Request) => {
           name: companyId,
           public: false,
         })
+        .onConflict((oc) => oc.column("id").doNothing())
         .execute();
 
       await trx
