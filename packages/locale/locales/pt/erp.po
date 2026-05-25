@@ -5024,11 +5024,11 @@ msgstr "Nenhum arquivo enviado"
 msgid "No Gauge Selected"
 msgstr "Nenhum Medidor Selecionado"
 
-msgid "No groups assigned"
-msgstr "Nenhum grupo atribuído"
+msgid "No grouped notifications"
+msgstr ""
 
 msgid "No groups assigned"
-msgstr ">>>>>>> main"
+msgstr "Nenhum grupo atribuído"
 
 msgid "No image"
 msgstr "Sem imagem"

@@ -4222,6 +4222,9 @@ msgstr "Chargement des détails de l'article..."
 msgid "Loading..."
 msgstr "Chargement..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "Emplacement"
 
@@ -5021,11 +5024,11 @@ msgstr "Aucun fichier téléchargé"
 msgid "No Gauge Selected"
 msgstr "Aucune jauge sélectionnée"
 
-msgid "No groups assigned"
-msgstr "Aucun groupe assigné"
+msgid "No grouped notifications"
+msgstr ""
 
 msgid "No groups assigned"
-msgstr ">>>>>>> main"
+msgstr "Aucun groupe assigné"
 
 msgid "No image"
 msgstr "Aucune image"

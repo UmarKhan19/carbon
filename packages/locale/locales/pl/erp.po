@@ -4222,6 +4222,9 @@ msgstr "Ładowanie szczegółów przedmiotu..."
 msgid "Loading..."
 msgstr "Ładowanie..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "Lokalizacja"
 
@@ -5020,6 +5023,9 @@ msgstr "Brak przesłanych plików"
 
 msgid "No Gauge Selected"
 msgstr "Nie wybrano miernika"
+
+msgid "No grouped notifications"
+msgstr ""
 
 msgid "No groups assigned"
 msgstr "Brak przypisanych grup"
