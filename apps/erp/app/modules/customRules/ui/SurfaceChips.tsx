@@ -1,5 +1,10 @@
 import { cn } from "@carbon/react";
-import { TRANSACTION_SURFACES, type TransactionSurface } from "@carbon/utils";
+import {
+  SURFACES_BY_TARGET_TYPE,
+  type TargetType,
+  TRANSACTION_SURFACES,
+  type TransactionSurface
+} from "@carbon/utils";
 import {
   LuArrowRightLeft,
   LuPackage,
@@ -25,36 +30,59 @@ const SURFACE_VISUALS: Record<
   inventoryAdjustment: {
     label: "Inventory adjustments",
     icon: <LuScale className="size-3.5" />
+  },
+  place: { label: "Place", icon: <LuPackage className="size-3.5" /> },
+  pick: { label: "Pick", icon: <LuPackage className="size-3.5" /> },
+  operationStart: {
+    label: "Operation start",
+    icon: <LuArrowRightLeft className="size-3.5" />
+  },
+  operationFinish: {
+    label: "Operation finish",
+    icon: <LuArrowRightLeft className="size-3.5" />
+  },
+  materialIssue: {
+    label: "Material issue",
+    icon: <LuScale className="size-3.5" />
+  },
+  materialReceive: {
+    label: "Material receive",
+    icon: <LuScale className="size-3.5" />
   }
 };
 
 type SurfaceChipsProps = {
   surfaces: TransactionSurface[] | null | undefined;
+  /**
+   * When provided, the chip rail renders only surfaces valid for this
+   * targetType (instead of all 11). Inactive surfaces within the target's
+   * set are still shown at reduced opacity so the operator can scan
+   * subscribed vs. skipped at a glance.
+   */
+  targetType?: TargetType;
   className?: string;
 };
 
-/**
- * Compact icon-only chips for the 4 transaction surfaces. Active surfaces
- * render at full opacity; inactive ones at 30% — letting an operator scan
- * "this rule fires on receipts + shipments" without opening the rule.
- *
- * Each chip carries a `title` attribute for accessibility/native tooltip.
- */
 export default function SurfaceChips({
   surfaces,
+  targetType,
   className
 }: SurfaceChipsProps) {
-  // Empty / null → treat as "all surfaces" (legacy rules pre-migration).
-  const active = new Set(
-    surfaces && surfaces.length > 0 ? surfaces : TRANSACTION_SURFACES
-  );
+  // Scope rendered set to the targetType's valid surfaces; fall back to all
+  // when no targetType is supplied (callers that haven't been updated yet).
+  const universe = targetType
+    ? SURFACES_BY_TARGET_TYPE[targetType]
+    : TRANSACTION_SURFACES;
+
+  const active = new Set(surfaces && surfaces.length > 0 ? surfaces : universe);
+
   return (
     <div
       className={cn("flex items-center gap-1 text-muted-foreground", className)}
       role="group"
       aria-label="Transaction surfaces"
     >
-      {TRANSACTION_SURFACES.map((s) => {
+      {universe.map((s) => {
         const meta = SURFACE_VISUALS[s];
         const isOn = active.has(s);
         return (

@@ -11,14 +11,16 @@ import {
   UpgradeOverlayTitle,
   UpgradeOverlayUpgradeButton
 } from "~/components/UpgradeOverlay";
-import ItemRulesTable from "./ItemRulesTable";
+import CustomRulesTable from "./CustomRulesTable";
 
 const mockRules = [
   {
     id: "mock-1",
     name: "Require lot number on receipt",
+    targetType: "item" as const,
     severity: "error" as const,
     active: true,
+    appliesToAll: false,
     description: "Block receiving when lot number is missing.",
     message: "Lot number is required for this item on receipt.",
     updatedAt: "2026-05-04T10:00:00Z",
@@ -29,8 +31,10 @@ const mockRules = [
   {
     id: "mock-2",
     name: "Warn on negative adjustment",
+    targetType: "item" as const,
     severity: "warn" as const,
     active: true,
+    appliesToAll: true,
     description: "Flag inventory adjustments that take quantity below zero.",
     message: "Adjustment will result in negative on-hand quantity.",
     updatedAt: "2026-04-29T14:22:00Z",
@@ -41,8 +45,10 @@ const mockRules = [
   {
     id: "mock-3",
     name: "Shipment requires serial",
+    targetType: "item" as const,
     severity: "error" as const,
     active: true,
+    appliesToAll: false,
     description: "Block shipment when serial number is not captured.",
     message: "Serial number is required on shipment.",
     updatedAt: "2026-04-21T09:15:00Z",
@@ -53,8 +59,10 @@ const mockRules = [
   {
     id: "mock-4",
     name: "Stock transfer between plants",
+    targetType: "item" as const,
     severity: "warn" as const,
     active: false,
+    appliesToAll: false,
     description: "Warn when transferring between non-default plants.",
     message: "Cross-plant transfer requires manager approval.",
     updatedAt: "2026-03-12T11:45:00Z",
@@ -64,11 +72,11 @@ const mockRules = [
   }
 ];
 
-export default function ItemRulesUpgradeOverlay() {
+export default function CustomRulesUpgradeOverlay() {
   return (
     <UpgradeOverlay>
       <UpgradeOverlayPreview>
-        <ItemRulesTable data={mockRules as never} count={mockRules.length} />
+        <CustomRulesTable data={mockRules as never} count={mockRules.length} />
       </UpgradeOverlayPreview>
       <UpgradeOverlayCard>
         <UpgradeOverlayIcon>
@@ -76,7 +84,7 @@ export default function ItemRulesUpgradeOverlay() {
         </UpgradeOverlayIcon>
         <UpgradeOverlayContent>
           <UpgradeOverlayTitle>
-            <Trans>Item Rules</Trans>
+            <Trans>Custom Rules</Trans>
           </UpgradeOverlayTitle>
           <UpgradeOverlayDescription>
             <Trans>

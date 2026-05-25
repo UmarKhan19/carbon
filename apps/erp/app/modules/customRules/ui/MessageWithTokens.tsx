@@ -19,6 +19,7 @@ import {
   FIELD_REGISTRY,
   type FieldDef,
   getFieldDef,
+  getFieldsForTargetType,
   type TransactionSurface
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
@@ -41,6 +42,11 @@ type MessageWithTokensProps = {
    * toggles surface scope without prop drilling.
    */
   surfacesFieldName?: string;
+  /**
+   * Rule's targetType — scopes which fields appear in the token dropdown
+   * so e.g. workCenter rules don't list `item.replenishmentSystem`.
+   */
+  targetType?: "item" | "storageUnit" | "workCenter";
 };
 
 type TokenItem = { token: string; description: string };
@@ -56,12 +62,20 @@ const CTX_KEYS_BY_SURFACE: Record<TransactionSurface, FieldDef["context"][]> = {
   shipment: ["storage", "transaction"],
   stockTransfer: ["storage", "transaction"],
   warehouseTransfer: ["storage", "transaction"],
-  inventoryAdjustment: ["storage", "transaction"]
+  inventoryAdjustment: ["storage", "transaction"],
+  place: ["storage", "transaction"],
+  pick: ["storage", "transaction"],
+  operationStart: ["workCenter", "operation", "transaction"],
+  operationFinish: ["workCenter", "operation", "transaction"],
+  materialIssue: ["workCenter", "operation", "transaction"],
+  materialReceive: ["workCenter", "operation", "transaction"]
 };
 
 const CONTEXT_LABELS: Record<FieldDef["context"], string> = {
   item: "Item",
-  storage: "Storage",
+  storage: "Storage unit",
+  workCenter: "Work center",
+  operation: "Operation",
   transaction: "Transaction"
 };
 
@@ -72,6 +86,8 @@ const CONTEXT_LABELS: Record<FieldDef["context"], string> = {
 const FIELDS_BY_CTX: Record<FieldDef["context"], FieldDef[]> = {
   item: [],
   storage: [],
+  workCenter: [],
+  operation: [],
   transaction: []
 };
 for (const f of FIELD_REGISTRY) FIELDS_BY_CTX[f.context].push(f);
@@ -86,7 +102,7 @@ const ORDERED_CTX: FieldDef["context"][] = ["storage", "transaction"];
 // reallocate the icon element (rendering-hoist-jsx).
 const BRACES_ICON = <LuBraces />;
 
-// Mirror of the runtime `TOKEN_RE` in packages/utils/src/itemRules.ts so the
+// Mirror of the runtime `TOKEN_RE` in packages/utils/src/customRules.ts so the
 // editor highlights exactly what `interpolateMessage` will substitute — no
 // false greens, no missed reds. Inlined rather than re-exported to avoid a
 // UI → runtime import cycle.
@@ -110,7 +126,8 @@ export default function MessageWithTokens({
   name,
   label,
   conditions,
-  surfacesFieldName = "surfaces"
+  surfacesFieldName = "surfaces",
+  targetType
 }: MessageWithTokensProps) {
   const { t } = useLingui();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -171,6 +188,20 @@ export default function MessageWithTokens({
   const groups = useMemo<TokenGroup[]>(() => {
     const out: TokenGroup[] = [];
     const conds = conditions ?? [];
+    // Field pool scoped to the rule's targetType; falls back to full registry
+    // when not provided (legacy usage).
+    const scopedFieldsByCtx: Partial<Record<FieldDef["context"], FieldDef[]>> =
+      {};
+    if (targetType) {
+      const pool = getFieldsForTargetType(targetType);
+      for (const f of pool) {
+        const bucket = scopedFieldsByCtx[f.context];
+        if (bucket) bucket.push(f);
+        else scopedFieldsByCtx[f.context] = [f];
+      }
+    }
+    const fieldsForCtx = (ctx: FieldDef["context"]): FieldDef[] =>
+      targetType ? (scopedFieldsByCtx[ctx] ?? []) : FIELDS_BY_CTX[ctx];
 
     // 1. Per-condition tokens.
     conds.forEach((c, i) => {
@@ -194,18 +225,20 @@ export default function MessageWithTokens({
       });
     });
 
-    // 2. Item ctx tokens — always populated regardless of surface.
-    //    Includes display-only tokens (`item.id`, `item.name`) on top of
-    //    the predicate-eligible fields from `FIELD_REGISTRY`.
-    const itemTokens: TokenItem[] = [
-      // `item.id` is the readable id (e.g. "PART-001"), not the UUID — see
-      // `evaluateLinesForSurface` where the ctx is normalised.
-      { token: "item.id", description: "Readable ID (e.g. PART-001)" },
-      { token: "item.name", description: "Display name" }
-    ];
-    for (const f of FIELDS_BY_CTX.item)
-      itemTokens.push({ token: f.path, description: f.label });
-    out.push({ heading: CONTEXT_LABELS.item, tokens: itemTokens });
+    // 2. Item ctx tokens — populated when item context is in scope. For
+    //    workCenter rules the item is only available via `operation.itemId`,
+    //    so suppress the item header entirely.
+    if (!targetType || targetType !== "workCenter") {
+      const itemTokens: TokenItem[] = [
+        // `item.id` is readable id (e.g. "PART-001"), not UUID — see
+        // `evaluateLinesForSurface` where ctx is normalised.
+        { token: "item.id", description: "Readable ID (e.g. PART-001)" },
+        { token: "item.name", description: "Display name" }
+      ];
+      for (const f of fieldsForCtx("item"))
+        itemTokens.push({ token: f.path, description: f.label });
+      out.push({ heading: CONTEXT_LABELS.item, tokens: itemTokens });
+    }
 
     // 3. Surface-relevant ctx tokens. Compute the union of ctx keys
     //    populated by any selected surface; hide groups no surface uses.
@@ -217,7 +250,7 @@ export default function MessageWithTokens({
     }
     for (const ctxKey of ORDERED_CTX) {
       if (!allowedCtx.has(ctxKey)) continue;
-      const fields = FIELDS_BY_CTX[ctxKey];
+      const fields = fieldsForCtx(ctxKey);
       if (fields.length === 0) continue;
       const tokens: TokenItem[] = [];
       for (const f of fields)
@@ -226,7 +259,7 @@ export default function MessageWithTokens({
     }
 
     return out;
-  }, [conditions, surfaces]);
+  }, [conditions, surfaces, targetType]);
 
   const knownTokens = useMemo(() => {
     const set = new Set<string>();

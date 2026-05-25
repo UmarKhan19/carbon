@@ -1,5 +1,6 @@
 import type { Result } from "@carbon/auth";
 import { useCarbon } from "@carbon/auth";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import {
   Badge,
   Button,
@@ -69,7 +70,6 @@ import {
 import { ItemThumbnail } from "~/components";
 import { getAccessorKey } from "~/components/Table/utils";
 import { useUser } from "~/hooks";
-import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import {
   addTransferLine,
   clearSelectedToItemStorageUnits,
@@ -1215,7 +1215,7 @@ const StockTransferWizardWidget = ({ locationId }: { locationId: string }) => {
   // Item Rule pre-flight on Create Transfer (auto-released → stock-commit
   // gate sits at the wizard click). Modal surfaces violations before the
   // transfer is created.
-  const createRules = useItemRuleViolations<Result>({
+  const createRules = useCustomRuleViolations<Result>({
     action: path.to.newStockTransfer,
     onSuccess: () => clearStockTransferWizard()
   });

@@ -14,11 +14,12 @@ import {
 import {
   type Condition,
   type ConditionAst,
-  TRANSACTION_SURFACES
+  SURFACES_BY_TARGET_TYPE,
+  TRANSACTION_SURFACES,
+  type TransactionSurface
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
-import { useFetcher } from "react-router";
 import type { z } from "zod";
 import {
   CustomFormFields,
@@ -29,35 +30,34 @@ import {
 } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { path } from "~/utils/path";
-import { itemRuleValidator } from "../../items.models";
+import { customRuleValidator } from "../customRules.models";
 import MessageWithTokens from "./MessageWithTokens";
 import RuleBuilder from "./RuleBuilder";
 import SeveritySelect from "./SeveritySelect";
 import SurfacesField from "./SurfacesField";
 
-type ItemRuleFormInitial = Partial<z.infer<typeof itemRuleValidator>> & {
+type CustomRuleFormInitial = Partial<z.infer<typeof customRuleValidator>> & {
   conditionAst?: ConditionAst;
 };
 
-type ItemRuleFormProps = {
-  initialValues: ItemRuleFormInitial;
+type CustomRuleFormProps = {
+  initialValues: CustomRuleFormInitial;
   open?: boolean;
   onClose: () => void;
 };
 
-export default function ItemRuleForm({
+export default function CustomRuleForm({
   initialValues,
   open = true,
   onClose
-}: ItemRuleFormProps) {
+}: CustomRuleFormProps) {
   const { t } = useLingui();
   const permissions = usePermissions();
-  const fetcher = useFetcher();
 
   const isEditing = !!initialValues.id;
   const isDisabled = isEditing
-    ? !permissions.can("update", "parts")
-    : !permissions.can("create", "parts");
+    ? !permissions.can("update", "settings")
+    : !permissions.can("create", "settings");
 
   const conditionAstInitial: ConditionAst = (initialValues.conditionAst as
     | ConditionAst
@@ -74,6 +74,24 @@ export default function ItemRuleForm({
     conditionAstInitial.conditions
   );
 
+  const targetType = (initialValues.targetType ?? "item") as
+    | "item"
+    | "storageUnit"
+    | "workCenter";
+
+  // Default new rules to all surfaces of the chosen targetType. Editing keeps
+  // whatever was saved.
+  const defaultSurfaces = (initialValues.surfaces ??
+    TRANSACTION_SURFACES.filter((s) =>
+      SURFACES_BY_TARGET_TYPE[targetType].includes(s as never)
+    )) as TransactionSurface[];
+
+  // Live mirror of the rule's selected surfaces. RuleBuilder forwards this to
+  // each ConditionRow so the per-surface notes panel filters to only the
+  // surfaces this rule actually fires on.
+  const [liveSurfaces, setLiveSurfaces] =
+    useState<TransactionSurface[]>(defaultSurfaces);
+
   // ValidatedForm wants defaultValues; we hand it the scalar fields.
   // conditionAst gets driven by RuleBuilder via Hidden field.
   const defaults = {
@@ -82,9 +100,10 @@ export default function ItemRuleForm({
     description: initialValues.description ?? "",
     message: initialValues.message ?? "",
     severity: initialValues.severity ?? "error",
+    targetType,
+    appliesToAll: initialValues.appliesToAll ?? false,
     active: initialValues.active ?? true,
-    // Default new rules to all surfaces (matches DB default).
-    surfaces: initialValues.surfaces ?? [...TRANSACTION_SURFACES]
+    surfaces: defaultSurfaces
   };
 
   return (
@@ -97,15 +116,14 @@ export default function ItemRuleForm({
       >
         <ModalDrawerContent size="lg">
           <ValidatedForm
-            validator={itemRuleValidator}
+            validator={customRuleValidator}
             method="post"
             action={
               isEditing
-                ? path.to.itemRule(initialValues.id!)
-                : path.to.newItemRule
+                ? path.to.customRule(initialValues.id!)
+                : path.to.newCustomRule
             }
             defaultValues={defaults}
-            fetcher={fetcher}
             className="flex flex-col h-full"
           >
             <ModalDrawerHeader>
@@ -115,6 +133,7 @@ export default function ItemRuleForm({
             </ModalDrawerHeader>
             <ModalDrawerBody>
               <Hidden name="id" />
+              <Hidden name="targetType" />
               <VStack spacing={4}>
                 <HStack className="w-full gap-x-4">
                   <Input name="name" label={t`Name`} />
@@ -129,14 +148,35 @@ export default function ItemRuleForm({
                   placeholder={t`Optional context for this rule`}
                 />
                 <SeveritySelect name="severity" />
-                <SurfacesField name="surfaces" />
+                <Boolean
+                  name="appliesToAll"
+                  label={
+                    targetType === "item"
+                      ? t`Applies to all items`
+                      : targetType === "storageUnit"
+                        ? t`Applies to all storage units`
+                        : t`Applies to all work centers`
+                  }
+                  description={t`When on, this rule fires for every target of its type. Assignment rows are ignored but preserved.`}
+                />
+                <SurfacesField
+                  name="surfaces"
+                  targetType={targetType}
+                  onSurfacesChange={setLiveSurfaces}
+                />
                 <RuleBuilder
                   name="conditionAst"
                   initial={conditionAstInitial}
                   onConditionsChange={setLiveConditions}
+                  targetType={targetType}
+                  surfaces={liveSurfaces}
                 />
-                <MessageWithTokens name="message" conditions={liveConditions} />
-                <CustomFormFields table="itemRule" />
+                <MessageWithTokens
+                  name="message"
+                  conditions={liveConditions}
+                  targetType={targetType}
+                />
+                <CustomFormFields table="customRule" />
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>

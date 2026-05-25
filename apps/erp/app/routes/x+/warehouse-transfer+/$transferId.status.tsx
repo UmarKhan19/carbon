@@ -2,16 +2,17 @@ import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
+import {
+  dedupeViolations,
+  evaluateLinesForSurface,
+  isBlocked
+} from "@carbon/ee/custom-rules.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
   updateWarehouseTransferStatus,
   warehouseTransferStatusType
 } from "~/modules/inventory";
-import {
-  evaluateLinesForSurface,
-  isBlocked
-} from "~/modules/items/itemRules.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -56,26 +57,44 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .eq("transferId", id)
       .eq("companyId", companyId);
 
-    const { violations, ruleNames } = await evaluateLinesForSurface({
+    const evalLines = (lines ?? []).map((l) => ({
+      lineId: l.id as string,
+      itemId: l.itemId as string | null,
+      storageUnitId: l.toStorageUnitId as string | null,
+      quantity: Number(l.quantity ?? 0),
+      locationId: l.toLocationId as string | null
+    }));
+
+    const itemPass = await evaluateLinesForSurface({
       client: serviceRole,
       companyId,
       userId,
+      targetType: "item",
       surface: "warehouseTransfer",
       // Evaluate against the destination side — that's where stock is landing.
-      lines: (lines ?? []).map((l) => ({
-        lineId: l.id as string,
-        itemId: l.itemId as string | null,
-        storageUnitId: l.toStorageUnitId as string | null,
-        quantity: Number(l.quantity ?? 0),
-        locationId: l.toLocationId as string | null
-      }))
+      lines: evalLines
     });
 
-    if (violations.length > 0 && isBlocked(violations, acknowledged)) {
+    const storagePass = await evaluateLinesForSurface({
+      client: serviceRole,
+      companyId,
+      userId,
+      targetType: "storageUnit",
+      surface: "warehouseTransfer",
+      lines: evalLines
+    });
+
+    const combined = dedupeViolations([
+      ...itemPass.violations,
+      ...storagePass.violations
+    ]);
+    const ruleNames = { ...itemPass.ruleNames, ...storagePass.ruleNames };
+
+    if (combined.length > 0 && isBlocked(combined, acknowledged)) {
       return {
         error: null,
         data: null,
-        violations,
+        violations: combined,
         ruleNames
       };
     }

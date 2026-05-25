@@ -2,15 +2,15 @@ import { error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
-import type { ActionFunctionArgs } from "react-router";
-import { redirect } from "react-router";
-import { upsertDocument } from "~/modules/documents";
 import {
   dedupeViolations,
   evaluateLinesForSurface,
   isBlocked
-} from "~/modules/items/itemRules.server";
+} from "@carbon/ee/custom-rules.server";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import type { ActionFunctionArgs } from "react-router";
+import { redirect } from "react-router";
+import { upsertDocument } from "~/modules/documents";
 import { loader as pdfLoader } from "~/routes/file+/shipment+/$id[.]pdf";
 import { path } from "~/utils/path";
 import { stripSpecialCharacters } from "~/utils/string";
@@ -67,6 +67,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
       client: serviceRole,
       companyId,
       userId,
+      targetType: "item",
+      surface,
+      lines: evalLines
+    });
+    allViolations.push(...violations);
+    Object.assign(allRuleNames, ruleNames);
+  }
+
+  // Storage-unit pass — pick side of the shipment.
+  const storageUnitSurfaces: ("pick" | "warehouseTransfer")[] = ["pick"];
+  if (shipmentForSurface?.sourceDocument === "Outbound Transfer") {
+    storageUnitSurfaces.push("warehouseTransfer");
+  }
+  for (const surface of storageUnitSurfaces) {
+    const { violations, ruleNames } = await evaluateLinesForSurface({
+      client: serviceRole,
+      companyId,
+      userId,
+      targetType: "storageUnit",
       surface,
       lines: evalLines
     });
