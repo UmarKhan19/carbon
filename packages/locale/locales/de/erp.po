@@ -4222,6 +4222,9 @@ msgstr "Artikeldetails werden geladen..."
 msgid "Loading..."
 msgstr "Wird geladen..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "Standort"
 
@@ -5020,6 +5023,9 @@ msgstr "Keine Dateien hochgeladen"
 
 msgid "No Gauge Selected"
 msgstr "Keine Messuhr ausgewählt"
+
+msgid "No grouped notifications"
+msgstr ""
 
 msgid "No groups assigned"
 msgstr "Keine Gruppen zugewiesen"

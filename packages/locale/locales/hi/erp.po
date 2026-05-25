@@ -4222,6 +4222,9 @@ msgstr "आइटम विवरण लोड हो रहे हैं..."
 msgid "Loading..."
 msgstr "लोड हो रहा है..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "स्थान"
 
@@ -5020,6 +5023,9 @@ msgstr "कोई फ़ाइल अपलोड नहीं की गई"
 
 msgid "No Gauge Selected"
 msgstr "कोई गेज चयनित नहीं"
+
+msgid "No grouped notifications"
+msgstr ""
 
 msgid "No groups assigned"
 msgstr "कोई समूह असाइन नहीं किया गया"

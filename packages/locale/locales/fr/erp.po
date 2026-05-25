@@ -5024,6 +5024,9 @@ msgstr "Aucune jauge sélectionnée"
 msgid "No groups assigned"
 msgstr "Aucun groupe assigné"
 
+msgid "No groups assigned"
+msgstr ">>>>>>> main"
+
 msgid "No image"
 msgstr "Aucune image"
 

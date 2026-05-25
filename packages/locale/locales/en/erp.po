@@ -174,7 +174,7 @@ msgid "Account Settings"
 msgstr "Account Settings"
 
 msgid "Account Type"
-msgstr "Account Type"
+msgstr "Account Type<<<<<<< HEAD"
 
 msgid "Accounting"
 msgstr "Accounting"
@@ -474,7 +474,7 @@ msgid "API Documentation"
 msgstr "API Documentation"
 
 msgid "API Key"
-msgstr "API Key"
+msgstr "API Key<<<<<<< HEAD"
 
 msgid "API Keys"
 msgstr "API Keys"
@@ -507,7 +507,7 @@ msgid "Approval Date"
 msgstr "Approval Date"
 
 msgid "Approval Requirements"
-msgstr "Approval Requirements"
+msgstr "Approval Requirements<<<<<<< HEAD"
 
 msgid "Approval Rules"
 msgstr "Approval Rules"
@@ -519,10 +519,10 @@ msgid "Approved By"
 msgstr "Approved By"
 
 msgid "AQL"
-msgstr "AQL"
+msgstr "AQL<<<<<<< HEAD"
 
 msgid "Archive"
-msgstr "Archive"
+msgstr "Archive>>>>>>> main"
 
 msgid "Archive all"
 msgstr "Archive all"
@@ -953,7 +953,7 @@ msgid "Audit logging is enabled"
 msgstr "Audit logging is enabled"
 
 msgid "Audit logging is not enabled"
-msgstr "Audit logging is not enabled"
+msgstr "Audit logging is not enabled<<<<<<< HEAD"
 
 msgid "Audit Logs"
 msgstr "Audit Logs"
@@ -995,7 +995,7 @@ msgid "Back to traceability"
 msgstr "Back to traceability"
 
 msgid "Backflush"
-msgstr "Backflush"
+msgstr "Backflush<<<<<<< HEAD"
 
 msgid "Balance Sheet"
 msgstr "Balance Sheet"
@@ -1043,7 +1043,7 @@ msgid "Bill of Process"
 msgstr "Bill of Process"
 
 msgid "Bill To"
-msgstr "Bill To"
+msgstr "Bill To<<<<<<< HEAD"
 
 msgid "Billing"
 msgstr "Billing"
@@ -1095,7 +1095,7 @@ msgid "Buy and Make"
 msgstr "Buy and Make"
 
 msgid "Buyer"
-msgstr "Buyer"
+msgstr "Buyer<<<<<<< HEAD"
 
 msgid "by {byUser}"
 msgstr "by {byUser}"
@@ -1236,7 +1236,7 @@ msgid "Changing this will overwrite the existing method"
 msgstr "Changing this will overwrite the existing method"
 
 msgid "Changing this will update the part ID"
-msgstr "Changing this will update the part ID"
+msgstr "Changing this will update the part ID<<<<<<< HEAD"
 
 msgid "Chart of Accounts"
 msgstr "Chart of Accounts"
@@ -1345,10 +1345,10 @@ msgid "Comment"
 msgstr "Comment"
 
 msgid "Comments"
-msgstr "Comments"
+msgstr "Comments<<<<<<< HEAD"
 
 msgid "Companies"
-msgstr "Companies"
+msgstr "Companies>>>>>>> main"
 
 msgid "Company"
 msgstr "Company"
@@ -1703,7 +1703,7 @@ msgid "Correct Answers"
 msgstr "Correct Answers"
 
 msgid "Cost Center"
-msgstr "Cost Center"
+msgstr "Cost Center<<<<<<< HEAD"
 
 msgid "Cost Centers"
 msgstr "Cost Centers"
@@ -1932,7 +1932,7 @@ msgid "Custom {label}"
 msgstr "Custom {label}"
 
 msgid "Custom Field"
-msgstr "Custom Field"
+msgstr "Custom Field<<<<<<< HEAD"
 
 msgid "Custom Fields"
 msgstr "Custom Fields"
@@ -2110,7 +2110,7 @@ msgid "Deadline Type"
 msgstr "Deadline Type"
 
 msgid "Decide what an operator sees if they try to issue a batch or serial that's already expired."
-msgstr "Decide what an operator sees if they try to issue a batch or serial that's already expired."
+msgstr "Decide what an operator sees if they try to issue a batch or serial that's already expired.<<<<<<< HEAD"
 
 msgid "Default Accounts"
 msgstr "Default Accounts"
@@ -2443,7 +2443,7 @@ msgid "Digital Quotes"
 msgstr "Digital Quotes"
 
 msgid "Dimension"
-msgstr "Dimension"
+msgstr "Dimension<<<<<<< HEAD"
 
 msgid "Dimensions"
 msgstr "Dimensions"
@@ -3056,7 +3056,7 @@ msgid "Everything from Starter"
 msgstr "Everything from Starter"
 
 msgid "Exchange Rate"
-msgstr "Exchange Rate"
+msgstr "Exchange Rate<<<<<<< HEAD"
 
 msgid "Exchange Rates"
 msgstr "Exchange Rates"
@@ -3510,7 +3510,7 @@ msgid "First Name"
 msgstr "First Name"
 
 msgid "First Operation"
-msgstr "First Operation"
+msgstr "First Operation<<<<<<< HEAD"
 
 msgid "Fiscal Year"
 msgstr "Fiscal Year"
@@ -3747,7 +3747,7 @@ msgid "Inbound Inspections"
 msgstr "Inbound Inspections"
 
 msgid "Inbound Inspections: Require Different Inspector"
-msgstr "Inbound Inspections: Require Different Inspector"
+msgstr "Inbound Inspections: Require Different Inspector<<<<<<< HEAD"
 
 msgid "Inbox"
 msgstr "Inbox"
@@ -3759,7 +3759,7 @@ msgid "Include Inactive"
 msgstr "Include Inactive"
 
 msgid "Includes tax and shipping costs"
-msgstr "Includes tax and shipping costs"
+msgstr "Includes tax and shipping costs<<<<<<< HEAD"
 
 msgid "Income Statement"
 msgstr "Income Statement"
@@ -3831,10 +3831,10 @@ msgid "Instructions are inherited from the procedure."
 msgstr "Instructions are inherited from the procedure."
 
 msgid "Integration not found"
-msgstr "Integration not found"
+msgstr "Integration not found<<<<<<< HEAD"
 
 msgid "Integrations"
-msgstr "Integrations"
+msgstr "Integrations>>>>>>> main"
 
 msgid "Intercompany"
 msgstr "Intercompany"
@@ -3846,7 +3846,7 @@ msgid "Internal Notes"
 msgstr "Internal Notes"
 
 msgid "Invalid Invite"
-msgstr "Invalid Invite"
+msgstr "Invalid Invite<<<<<<< HEAD"
 
 msgid "Inventory"
 msgstr "Inventory"
@@ -3996,7 +3996,7 @@ msgid "Item Type"
 msgstr "Item Type"
 
 msgid "items"
-msgstr "items"
+msgstr "items<<<<<<< HEAD"
 
 msgid "Items"
 msgstr "Items"
@@ -4042,7 +4042,7 @@ msgstr "Jobs Required"
 
 #. placeholder {0}: company?.name ?? "Company"
 msgid "Join {0}"
-msgstr "Join {0}"
+msgstr "Join {0}<<<<<<< HEAD"
 
 msgid "Journal Entries"
 msgstr "Journal Entries"
@@ -4082,7 +4082,7 @@ msgid "Label to create a {0} for this kanban"
 msgstr "Label to create a {0} for this kanban"
 
 msgid "Label to start the next operation for this kanban"
-msgstr "Label to start the next operation for this kanban"
+msgstr "Label to start the next operation for this kanban<<<<<<< HEAD"
 
 msgid "Labels"
 msgstr "Labels"
@@ -4220,7 +4220,10 @@ msgid "Loading item details..."
 msgstr "Loading item details..."
 
 msgid "Loading..."
-msgstr "Loading..."
+msgstr "Loading...<<<<<<< HEAD"
+
+msgid "Loading…"
+msgstr "Loading…"
 
 msgid "Location"
 msgstr "Location"
@@ -4244,7 +4247,7 @@ msgid "Logo removed successfully"
 msgstr "Logo removed successfully"
 
 msgid "Logo uploaded successfully"
-msgstr "Logo uploaded successfully"
+msgstr "Logo uploaded successfully<<<<<<< HEAD"
 
 msgid "Logos"
 msgstr "Logos"
@@ -4370,7 +4373,7 @@ msgid "Manufacturing"
 msgstr "Manufacturing"
 
 msgid "Mark as Planned"
-msgstr "Mark as Planned"
+msgstr "Mark as Planned<<<<<<< HEAD"
 
 msgid "Mark as read"
 msgstr "Mark as read"
@@ -5019,7 +5022,10 @@ msgid "No files uploaded"
 msgstr "No files uploaded"
 
 msgid "No Gauge Selected"
-msgstr "No Gauge Selected"
+msgstr "No Gauge Selected<<<<<<< HEAD"
+
+msgid "No grouped notifications"
+msgstr "No grouped notifications"
 
 msgid "No groups assigned"
 msgstr "No groups assigned"
@@ -5037,7 +5043,7 @@ msgid "No matches"
 msgstr "No matches"
 
 msgid "No matches for \"{query}\". Try a different search term."
-msgstr "No matches for \"{query}\". Try a different search term."
+msgstr "No matches for \"{query}\". Try a different search term.<<<<<<< HEAD"
 
 msgid "No new notifications"
 msgstr "No new notifications"
@@ -5055,7 +5061,7 @@ msgid "No options found."
 msgstr "No options found."
 
 msgid "No other employees found. Add employees to enable ownership transfer."
-msgstr "No other employees found. Add employees to enable ownership transfer."
+msgstr "No other employees found. Add employees to enable ownership transfer.<<<<<<< HEAD"
 
 msgid "No outstanding trainings"
 msgstr "No outstanding trainings"
@@ -5157,7 +5163,7 @@ msgid "Notes"
 msgstr "Notes"
 
 msgid "Notes (optional)"
-msgstr "Notes (optional)"
+msgstr "Notes (optional)<<<<<<< HEAD"
 
 msgid "Nothing in the archive"
 msgstr "Nothing in the archive"
@@ -5460,7 +5466,7 @@ msgid "Payment Method"
 msgstr "Payment Method"
 
 msgid "Payment Term"
-msgstr "Payment Term"
+msgstr "Payment Term<<<<<<< HEAD"
 
 msgid "Payment Terms"
 msgstr "Payment Terms"
@@ -5475,7 +5481,7 @@ msgid "PDFs"
 msgstr "PDFs"
 
 msgid "Pending"
-msgstr "Pending"
+msgstr "Pending<<<<<<< HEAD"
 
 msgid "People"
 msgstr "People"
@@ -5724,7 +5730,7 @@ msgid "Processes"
 msgstr "Processes"
 
 msgid "Product Label Size"
-msgstr "Product Label Size"
+msgstr "Product Label Size<<<<<<< HEAD"
 
 msgid "Production"
 msgstr "Production"
@@ -5835,7 +5841,7 @@ msgid "Purchase Unit:"
 msgstr "Purchase Unit:"
 
 msgid "Purchased"
-msgstr "Purchased"
+msgstr "Purchased<<<<<<< HEAD"
 
 msgid "Purchasing"
 msgstr "Purchasing"
@@ -5872,7 +5878,7 @@ msgid "Qty. Reworked"
 msgstr "Qty. Reworked"
 
 msgid "Qty. Scrapped"
-msgstr "Qty. Scrapped"
+msgstr "Qty. Scrapped<<<<<<< HEAD"
 
 msgid "Quality"
 msgstr "Quality"
@@ -6251,7 +6257,7 @@ msgid "Resolve these before completing the NCR: every row must have a non-Pendin
 msgstr "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 
 msgid "Resolved Price"
-msgstr "Resolved Price"
+msgstr "Resolved Price<<<<<<< HEAD"
 
 msgid "Resources"
 msgstr "Resources"
@@ -6381,7 +6387,7 @@ msgid "Safety Stock:"
 msgstr "Safety Stock:"
 
 msgid "Sale Price"
-msgstr "Sale Price"
+msgstr "Sale Price<<<<<<< HEAD"
 
 msgid "Sales"
 msgstr "Sales"
@@ -6732,7 +6738,7 @@ msgid "Send Via"
 msgstr "Send Via"
 
 msgid "Sends this document for approval before it can go active."
-msgstr "Sends this document for approval before it can go active."
+msgstr "Sends this document for approval before it can go active.<<<<<<< HEAD"
 
 msgid "Sequences"
 msgstr "Sequences"
@@ -7754,7 +7760,7 @@ msgid "Training"
 msgstr "Training"
 
 msgid "Training Assignments"
-msgstr "Training Assignments"
+msgstr "Training Assignments<<<<<<< HEAD"
 
 msgid "Trainings"
 msgstr "Trainings"
@@ -7790,7 +7796,7 @@ msgid "Transfers"
 msgstr "Transfers"
 
 msgid "Trash"
-msgstr "Trash"
+msgstr "Trash<<<<<<< HEAD"
 
 msgid "Trial Balance"
 msgstr "Trial Balance"
@@ -8270,7 +8276,7 @@ msgid "Webhook Documentation"
 msgstr "Webhook Documentation"
 
 msgid "Webhook URL"
-msgstr "Webhook URL"
+msgstr "Webhook URL<<<<<<< HEAD"
 
 msgid "Webhooks"
 msgstr "Webhooks"
@@ -8452,7 +8458,7 @@ msgid "Your invitation is invalid or has already been accepted. Please contact s
 msgstr "Your invitation is invalid or has already been accepted. Please contact support if you believe this is an error."
 
 msgid "Your Name"
-msgstr "Your Name"
+msgstr "Your Name<<<<<<< HEAD"
 
 msgid "yourself"
 msgstr "yourself"

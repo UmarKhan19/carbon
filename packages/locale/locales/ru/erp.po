@@ -4222,6 +4222,9 @@ msgstr "Загрузка деталей товара..."
 msgid "Loading..."
 msgstr "Загрузка..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "Местоположение"
 
@@ -5020,6 +5023,9 @@ msgstr "Файлы не загружены"
 
 msgid "No Gauge Selected"
 msgstr "Датчик не выбран"
+
+msgid "No grouped notifications"
+msgstr ""
 
 msgid "No groups assigned"
 msgstr "Нет назначенных групп"

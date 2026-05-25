@@ -4222,6 +4222,9 @@ msgstr "Cargando detalles del artículo..."
 msgid "Loading..."
 msgstr "Cargando..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "Ubicación"
 
@@ -5020,6 +5023,9 @@ msgstr "No hay archivos cargados"
 
 msgid "No Gauge Selected"
 msgstr "Sin calibrador seleccionado"
+
+msgid "No grouped notifications"
+msgstr ""
 
 msgid "No groups assigned"
 msgstr "No hay grupos asignados"

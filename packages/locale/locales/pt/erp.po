@@ -4222,6 +4222,9 @@ msgstr "Carregando detalhes do item..."
 msgid "Loading..."
 msgstr "Carregando..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "Localização"
 
@@ -5023,6 +5026,9 @@ msgstr "Nenhum Medidor Selecionado"
 
 msgid "No groups assigned"
 msgstr "Nenhum grupo atribuído"
+
+msgid "No groups assigned"
+msgstr ">>>>>>> main"
 
 msgid "No image"
 msgstr "Sem imagem"

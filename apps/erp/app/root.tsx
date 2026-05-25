@@ -25,6 +25,7 @@ import { Analytics } from "@vercel/analytics/react";
 import type React from "react";
 import type {
   ActionFunctionArgs,
+  LinksFunction,
   LoaderFunctionArgs,
   MetaFunction
 } from "react-router";
@@ -51,12 +52,14 @@ import { getTheme } from "./services/theme.server";
 export const middleware = [flashMiddleware];
 export const clientMiddleware = [flashClientMiddleware];
 
-export const links: Route.LinksFunction = () => [
-  { rel: "stylesheet", href: Tailwind },
-  { rel: "stylesheet", href: Background },
-  { rel: "stylesheet", href: NProgress },
-  { rel: "stylesheet", href: SonnerStyle }
-];
+export const links: LinksFunction = () => {
+  return [
+    { href: Tailwind, rel: "stylesheet" },
+    { href: Background, rel: "stylesheet" },
+    { href: NProgress, rel: "stylesheet" },
+    { href: SonnerStyle, rel: "stylesheet" }
+  ];
+};
 
 export const meta: MetaFunction = () => {
   return [
@@ -77,9 +80,6 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     GOOGLE_PLACES_API_KEY,
     JIRA_CLIENT_ID,
     MES_URL,
-    NODE_ENV,
-    NOVU_APPLICATION_ID,
-    NOVU_API_URL,
     ONSHAPE_CLIENT_ID,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
@@ -100,33 +100,30 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     {
       env: {
         AUTH_PROVIDERS,
-        CARBON_EDITION,
         CARBON_API_URL,
+        CARBON_EDITION,
         CLOUDFLARE_TURNSTILE_SITE_KEY,
         CONTROLLED_ENVIRONMENT,
+        DEFAULT_LANGUAGE,
         ERP_URL,
         GOOGLE_PLACES_API_KEY,
         JIRA_CLIENT_ID,
         MES_URL,
-        NODE_ENV,
-        NOVU_APPLICATION_ID,
-        NOVU_API_URL,
         ONSHAPE_CLIENT_ID,
         POSTHOG_API_HOST,
         POSTHOG_PROJECT_PUBLIC_KEY,
         QUICKBOOKS_CLIENT_ID,
         SUPABASE_ANON_KEY,
         SUPABASE_URL,
-        DEFAULT_LANGUAGE,
         VERCEL_ENV,
         VERCEL_URL,
         XERO_CLIENT_ID
       },
-      mode: getMode(request),
-      theme: getTheme(request),
-      preferences: getPreferenceHeaders(request),
       linguiCatalog,
-      result: context.get(flashResultContext)
+      mode: getMode(request),
+      preferences: getPreferenceHeaders(request),
+      result: context.get(flashResultContext),
+      theme: getTheme(request)
     },
     {
       headers: context.get(flashHeadersContext) ?? undefined
@@ -244,9 +241,9 @@ export default function App() {
       window.clientCache = new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: Infinity,
+            gcTime: Infinity,
             refetchOnWindowFocus: false,
-            gcTime: Infinity
+            staleTime: Infinity
           }
         }
       });

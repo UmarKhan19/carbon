@@ -4222,6 +4222,9 @@ msgstr "アイテムの詳細を読み込み中..."
 msgid "Loading..."
 msgstr "読み込み中..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "ロケーション"
 
@@ -5020,6 +5023,9 @@ msgstr "ファイルがアップロードされていません"
 
 msgid "No Gauge Selected"
 msgstr "ゲージが選択されていません"
+
+msgid "No grouped notifications"
+msgstr ""
 
 msgid "No groups assigned"
 msgstr "グループが割り当てられていません"
