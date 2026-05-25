@@ -268,7 +268,9 @@ export default function RuleAssignmentsList({
       </Thead>
       <Tbody>
         {assignments.map((a) => {
-          const isInherited = !!a.inheritedFromId;
+          const isBroadcast = a.inheritedFromId === "__all__";
+          const isInherited = !!a.inheritedFromId && !isBroadcast;
+          const isLocked = isInherited || isBroadcast;
           return (
             <Tr key={a.ruleId}>
               <Td className="whitespace-nowrap">
@@ -279,6 +281,14 @@ export default function RuleAssignmentsList({
                       <span>{a.rule.name}</span>
                     </HStack>
                   </Hyperlink>
+                  {isBroadcast && (
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] uppercase tracking-wide"
+                    >
+                      <Trans>Applies to all</Trans>
+                    </Badge>
+                  )}
                   {isInherited && (
                     <Link
                       to={path.to.storageUnitRules(a.inheritedFromId!)}
@@ -339,18 +349,22 @@ export default function RuleAssignmentsList({
                     type="submit"
                     icon={<LuTrash />}
                     aria-label={
-                      isInherited
-                        ? t`Unassign from parent unit to remove`
-                        : t`Unassign rule`
+                      isBroadcast
+                        ? t`Edit the rule to remove the "Applies to all" flag`
+                        : isInherited
+                          ? t`Unassign from parent unit to remove`
+                          : t`Unassign rule`
                     }
                     title={
-                      isInherited
-                        ? t`Unassign from parent unit to remove`
-                        : undefined
+                      isBroadcast
+                        ? t`Edit the rule to remove the "Applies to all" flag`
+                        : isInherited
+                          ? t`Unassign from parent unit to remove`
+                          : undefined
                     }
                     variant="ghost"
                     size="sm"
-                    isDisabled={!canDelete || isInherited}
+                    isDisabled={!canDelete || isLocked}
                   />
                 </Form>
               </Td>

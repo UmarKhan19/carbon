@@ -485,6 +485,9 @@ msgstr "Klucze API do programowego dostępu do danych Carbon."
 msgid "Applies to"
 msgstr "Dotyczy"
 
+msgid "Applies to all"
+msgstr ""
+
 msgid "Applies to all items"
 msgstr ""
 
@@ -2781,6 +2784,9 @@ msgstr "Edytuj proces dostawcy"
 
 msgid "Edit Supplier Type"
 msgstr "Edytuj typ dostawcy"
+
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr ""
 
 msgid "Edit Timecard"
 msgstr "Edytuj KartÃƒâ€žÃ¢â€žÂ¢ Czasu Pracy"

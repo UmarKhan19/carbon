@@ -485,6 +485,9 @@ msgstr "API keys for programmatic access to your Carbon data."
 msgid "Applies to"
 msgstr "Applies to"
 
+msgid "Applies to all"
+msgstr "Applies to all"
+
 msgid "Applies to all items"
 msgstr "Applies to all items"
 
@@ -2781,6 +2784,9 @@ msgstr "Edit supplier process"
 
 msgid "Edit Supplier Type"
 msgstr "Edit Supplier Type"
+
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr "Edit the rule to remove the \"Applies to all\" flag"
 
 msgid "Edit Timecard"
 msgstr "Edit Timecard"

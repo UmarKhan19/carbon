@@ -485,6 +485,9 @@ msgstr "Chiavi API per l'accesso programmatico ai tuoi dati Carbon."
 msgid "Applies to"
 msgstr "Si applica a"
 
+msgid "Applies to all"
+msgstr ""
+
 msgid "Applies to all items"
 msgstr ""
 
@@ -2781,6 +2784,9 @@ msgstr "Modifica processo fornitore"
 
 msgid "Edit Supplier Type"
 msgstr "Modifica Tipo Fornitore"
+
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr ""
 
 msgid "Edit Timecard"
 msgstr "Modifica Scheda Orario"

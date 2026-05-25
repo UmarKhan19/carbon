@@ -128,12 +128,14 @@ export async function getCustomRulesDataForTarget(
 async function loadCompiledRulesForTargets(
   client: Client,
   args: { targetType: TargetType; targetIds: string[]; companyId: string }
-): Promise<Map<string, CompiledRule[]>> {
-  const out = new Map<string, CompiledRule[]>();
-  if (args.targetIds.length === 0) return out;
+): Promise<{
+  byTarget: Map<string, CompiledRule[]>;
+  broadcasts: CompiledRule[];
+}> {
+  const byTarget = new Map<string, CompiledRule[]>();
 
-  const { data: byTarget } = await getActiveRulesForTargets(client, args);
-  for (const [targetId, rows] of byTarget) {
+  const { data, broadcasts } = await getActiveRulesForTargets(client, args);
+  for (const [targetId, rows] of data) {
     const compiled = new Array<CompiledRule>(rows.length);
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i]!;
@@ -142,9 +144,19 @@ async function loadCompiledRulesForTargets(
         conditionAst: row.conditionAst as ConditionAst
       });
     }
-    out.set(targetId, compiled);
+    byTarget.set(targetId, compiled);
   }
-  return out;
+
+  const compiledBroadcasts = new Array<CompiledRule>(broadcasts.length);
+  for (let i = 0; i < broadcasts.length; i++) {
+    const row = broadcasts[i]!;
+    compiledBroadcasts[i] = compileWithCache({
+      ...row,
+      conditionAst: row.conditionAst as ConditionAst
+    });
+  }
+
+  return { byTarget, broadcasts: compiledBroadcasts };
 }
 
 // ---------------------------------------------------------------------------
@@ -337,7 +349,9 @@ export async function evaluateLinesForSurface({
     if (line.workCenterId) workCenterIds.add(line.workCenterId);
     if (line.operation?.itemId) itemIds.add(line.operation.itemId);
   }
-  if (targetIds.size === 0) return EMPTY_RESULT;
+  // No early-return on empty targetIds — `appliesToAll` broadcasts must still
+  // fire against every line. Explicit-assignment lookup short-circuits inside
+  // `getActiveRulesForTargets` when targetIds is empty.
 
   // Walk the storage-unit tree for every line that carries a bin id. Two
   // inheritance behaviours hang off this fetch:
@@ -410,7 +424,7 @@ export async function evaluateLinesForSurface({
     }
   }
 
-  const [itemsRes, storageUnitsRes, workCentersRes, compiledByTarget] =
+  const [itemsRes, storageUnitsRes, workCentersRes, compiled] =
     await Promise.all([
       itemIds.size > 0
         ? client
@@ -438,6 +452,13 @@ export async function evaluateLinesForSurface({
         companyId
       })
     ]);
+
+  const compiledByTarget = compiled.byTarget;
+  const broadcastCompiled = compiled.broadcasts;
+
+  // If neither explicit assignments nor broadcasts exist, nothing can fire.
+  if (compiledByTarget.size === 0 && broadcastCompiled.length === 0)
+    return EMPTY_RESULT;
 
   const itemsById = new Map<string, ItemCtxRow>();
   for (const it of itemsRes.data ?? []) {
@@ -482,36 +503,50 @@ export async function evaluateLinesForSurface({
   const resolveConditionValue = await buildConditionValueResolver(
     client,
     companyId,
-    iterateConditions(compiledByTarget)
+    iterateConditions(compiledByTarget, broadcastCompiled)
   );
 
   const violations: Violation[] = [];
   for (const line of lines) {
     const targetId = lineTargetIdFor(line, targetType);
-    if (!targetId) continue;
 
-    // StorageUnit target: union rules from every ancestor bin (inheritance).
-    // Other targets: single key lookup. Dedupe by rule.id so an ancestor +
-    // self-assignment of the same rule fires only once per line.
-    let compiled: CompiledRule[] | undefined;
-    if (targetType === "storageUnit") {
-      const chain = ancestorsByBin.get(targetId) ?? [targetId];
-      const seen = new Set<string>();
-      const merged: CompiledRule[] = [];
-      for (const ancestorId of chain) {
-        const rules = compiledByTarget.get(ancestorId);
-        if (!rules) continue;
-        for (const r of rules) {
-          if (seen.has(r.id)) continue;
-          seen.add(r.id);
-          merged.push(r);
+    // Per-line compiled rule set: explicit assignments (target-keyed, with
+    // ancestor inheritance for storageUnit) + broadcasts. Lines without a
+    // targetId of this targetType still match broadcasts.
+    const seen = new Set<string>();
+    const compiledForLine: CompiledRule[] = [];
+
+    if (targetId) {
+      if (targetType === "storageUnit") {
+        const chain = ancestorsByBin.get(targetId) ?? [targetId];
+        for (const ancestorId of chain) {
+          const rules = compiledByTarget.get(ancestorId);
+          if (!rules) continue;
+          for (const r of rules) {
+            if (seen.has(r.id)) continue;
+            seen.add(r.id);
+            compiledForLine.push(r);
+          }
+        }
+      } else {
+        const rules = compiledByTarget.get(targetId);
+        if (rules) {
+          for (const r of rules) {
+            if (seen.has(r.id)) continue;
+            seen.add(r.id);
+            compiledForLine.push(r);
+          }
         }
       }
-      compiled = merged.length > 0 ? merged : undefined;
-    } else {
-      compiled = compiledByTarget.get(targetId);
     }
-    if (!compiled || compiled.length === 0) continue;
+
+    for (const r of broadcastCompiled) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id);
+      compiledForLine.push(r);
+    }
+
+    if (compiledForLine.length === 0) continue;
 
     // Fallback id-only ctx objects when the DB lookup misses the row (RLS,
     // missing record, late insert). Keeps `{item.id}` / `{storageUnit.id}` /
@@ -545,7 +580,7 @@ export async function evaluateLinesForSurface({
       }
     };
 
-    const ruleViolations = evaluateRules(compiled, ctx, surface, {
+    const ruleViolations = evaluateRules(compiledForLine, ctx, surface, {
       resolveConditionValue
     });
     for (let i = 0; i < ruleViolations.length; i++) {
@@ -564,7 +599,8 @@ export async function evaluateLinesForSurface({
   const { data: namedRules } = await client
     .from("customRule")
     .select("id, name")
-    .in("id", Array.from(violatedIds));
+    .in("id", Array.from(violatedIds))
+    .eq("companyId", companyId);
 
   const ruleNames: Record<string, string> = {};
   for (const r of namedRules ?? []) {
@@ -575,7 +611,8 @@ export async function evaluateLinesForSurface({
 }
 
 function* iterateConditions(
-  compiledByTarget: Map<string, CompiledRule[]>
+  compiledByTarget: Map<string, CompiledRule[]>,
+  broadcasts: CompiledRule[]
 ): Generator<Condition> {
   for (const rules of compiledByTarget.values()) {
     for (let i = 0; i < rules.length; i++) {
@@ -583,5 +620,9 @@ function* iterateConditions(
       const conds = rule.conditions;
       for (let j = 0; j < conds.length; j++) yield conds[j]!;
     }
+  }
+  for (let i = 0; i < broadcasts.length; i++) {
+    const conds = broadcasts[i]!.conditions;
+    for (let j = 0; j < conds.length; j++) yield conds[j]!;
   }
 }

@@ -59,10 +59,13 @@ type RuleRowSelect = Pick<
 /**
  * Loads active rules applicable to a set of targets of one targetType.
  *
- * Map keys are targetIds. Rules with `appliesToAll = TRUE` are unioned across
- * every passed-in targetId so the call site sees one flat list per target.
+ * `data` keys are targetIds (explicit-assignment rules only).
+ * `broadcasts` carries rules with `appliesToAll = TRUE` — caller merges them
+ * into every line, including lines that carry no targetId of this targetType.
  *
- * Two round-trips: explicit-assignments + appliesToAll-broadcast.
+ * Two round-trips: explicit-assignments + appliesToAll-broadcast. Broadcast
+ * fetch always runs, even when `targetIds` is empty, so a request with no
+ * explicit target still sees broadcasts.
  */
 export async function getActiveRulesForTargets(
   client: SupabaseClient<Database>,
@@ -71,9 +74,12 @@ export async function getActiveRulesForTargets(
     targetIds: string[];
     companyId: string;
   }
-): Promise<{ data: Map<string, CustomRuleRow[]>; error: unknown }> {
+): Promise<{
+  data: Map<string, CustomRuleRow[]>;
+  broadcasts: CustomRuleRow[];
+  error: unknown;
+}> {
   const out = new Map<string, CustomRuleRow[]>();
-  if (args.targetIds.length === 0) return { data: out, error: null };
 
   const ruleCols =
     "id, targetType, severity, message, conditionAst, surfaces, updatedAt, active";
@@ -81,13 +87,27 @@ export async function getActiveRulesForTargets(
   const table = assignmentTableFor(args.targetType);
   const idCol = targetIdColumnFor(args.targetType);
 
-  const explicit = await (client as SupabaseClient<Database>)
-    .from(table)
-    .select(`${idCol}, customRule:ruleId(${ruleCols})`)
-    .in(idCol, args.targetIds)
-    .eq("companyId", args.companyId);
+  const [explicit, broadcast] = await Promise.all([
+    args.targetIds.length > 0
+      ? (client as SupabaseClient<Database>)
+          .from(table)
+          .select(`${idCol}, customRule:ruleId(${ruleCols})`)
+          .in(idCol, args.targetIds)
+          .eq("companyId", args.companyId)
+      : Promise.resolve({ data: [], error: null }),
+    client
+      .from("customRule")
+      .select(ruleCols)
+      .eq("companyId", args.companyId)
+      .eq("targetType", args.targetType)
+      .eq("appliesToAll", true)
+      .eq("active", true)
+  ]);
 
-  if (explicit.error) return { data: out, error: explicit.error };
+  if (explicit.error)
+    return { data: out, broadcasts: [], error: explicit.error };
+  if (broadcast.error)
+    return { data: out, broadcasts: [], error: broadcast.error };
 
   for (const r of explicit.data ?? []) {
     const row = r as unknown as {
@@ -105,26 +125,9 @@ export async function getActiveRulesForTargets(
     else out.set(targetId, [node as CustomRuleRow]);
   }
 
-  const broadcast = await client
-    .from("customRule")
-    .select(ruleCols)
-    .eq("companyId", args.companyId)
-    .eq("targetType", args.targetType)
-    .eq("appliesToAll", true)
-    .eq("active", true);
+  const broadcasts = (broadcast.data ?? []) as unknown as CustomRuleRow[];
 
-  if (broadcast.error) return { data: out, error: broadcast.error };
-
-  const broadcastRules = (broadcast.data ?? []) as unknown as CustomRuleRow[];
-  if (broadcastRules.length > 0) {
-    for (const targetId of args.targetIds) {
-      const bucket = out.get(targetId);
-      if (bucket) bucket.push(...broadcastRules);
-      else out.set(targetId, [...broadcastRules]);
-    }
-  }
-
-  return { data: out, error: null };
+  return { data: out, broadcasts, error: null };
 }
 
 /**
@@ -164,15 +167,30 @@ export async function getRuleAssignmentsForTarget(
   // Item / workCenter targets are flat — keep the simple direct query.
   const lookupIds = await resolveLookupIds(client, args);
 
-  const res = await (client as SupabaseClient<Database>)
-    .from(table)
-    .select(
-      `${idCol}, ruleId, createdAt, customRule:ruleId(id, name, targetType, severity, message, active, surfaces, appliesToAll)`
-    )
-    .in(idCol, lookupIds)
-    .eq("companyId", args.companyId);
+  // Broadcast (`appliesToAll`) rules govern every target of this targetType.
+  // Surface them alongside explicit + inherited rows so the drawer shows the
+  // full set the evaluator will fire (was previously hidden — drawer showed
+  // "0 assignments" while broadcasts still triggered).
+  const [res, broadcastsRes] = await Promise.all([
+    (client as SupabaseClient<Database>)
+      .from(table)
+      .select(
+        `${idCol}, ruleId, createdAt, customRule:ruleId(id, name, targetType, severity, message, active, surfaces, appliesToAll)`
+      )
+      .in(idCol, lookupIds)
+      .eq("companyId", args.companyId),
+    client
+      .from("customRule")
+      .select(
+        "id, name, targetType, severity, message, active, surfaces, appliesToAll, createdAt"
+      )
+      .eq("companyId", args.companyId)
+      .eq("targetType", args.targetType)
+      .eq("appliesToAll", true)
+  ]);
 
   if (res.error) return { data: [], error: res.error };
+  if (broadcastsRes.error) return { data: [], error: broadcastsRes.error };
 
   // Resolve ancestor names in one extra query so the UI doesn't need to
   // re-fetch. Only the storageUnit case can yield non-self owner ids.
@@ -234,6 +252,43 @@ export async function getRuleAssignmentsForTarget(
     if (!existing || (existing.inheritedFromId && !candidate.inheritedFromId)) {
       byRuleId.set(candidate.ruleId, candidate);
     }
+  }
+
+  // Append broadcasts as synthetic rows. Sentinel `__all__` ownerId distinguishes
+  // them from real assignment rows; UI keys off `inheritedFromId === "__all__"`
+  // or the rule's `appliesToAll` flag to render the "Applies to all" badge and
+  // suppress unassign. Skip when already present as an explicit row (shouldn't
+  // happen in practice — broadcast rules can't be assigned — but be defensive).
+  for (const b of (broadcastsRes.data ?? []) as Array<{
+    id: string;
+    name: string;
+    targetType: TargetType;
+    severity: Severity;
+    message: string;
+    active: boolean;
+    surfaces: TransactionSurface[];
+    appliesToAll: boolean;
+    createdAt: string | null;
+  }>) {
+    if (b.active === false) continue;
+    if (byRuleId.has(b.id)) continue;
+    byRuleId.set(b.id, {
+      ownerId: "__all__",
+      ruleId: b.id,
+      createdAt: b.createdAt,
+      customRule: {
+        id: b.id,
+        name: b.name,
+        targetType: b.targetType,
+        severity: b.severity,
+        message: b.message,
+        active: b.active,
+        surfaces: b.surfaces,
+        appliesToAll: b.appliesToAll
+      },
+      inheritedFromId: "__all__",
+      inheritedFromName: "Applies to all"
+    });
   }
 
   return { data: Array.from(byRuleId.values()), error: null };

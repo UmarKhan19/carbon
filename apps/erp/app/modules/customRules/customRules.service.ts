@@ -126,11 +126,16 @@ export async function getRuleAssignmentCounts(
     "customRuleWorkCenterAssignment"
   ];
 
-  for (const table of tables) {
-    const { data, error } = await (client as SupabaseClient<Database>)
-      .from(table)
-      .select("ruleId")
-      .in("ruleId", ruleIds);
+  const results = await Promise.all(
+    tables.map((table) =>
+      (client as SupabaseClient<Database>)
+        .from(table)
+        .select("ruleId")
+        .in("ruleId", ruleIds)
+    )
+  );
+
+  for (const { data, error } of results) {
     if (error) return { data: {}, error };
     for (const row of (data ?? []) as Array<{ ruleId: string }>) {
       counts[row.ruleId] = (counts[row.ruleId] ?? 0) + 1;

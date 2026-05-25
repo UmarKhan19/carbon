@@ -485,6 +485,9 @@ msgstr "API-Schlüssel für programmgesteuerten Zugriff auf Ihre Carbon-Daten."
 msgid "Applies to"
 msgstr "Gilt fÃƒÆ’Ã‚Â¼r"
 
+msgid "Applies to all"
+msgstr ""
+
 msgid "Applies to all items"
 msgstr ""
 
@@ -2781,6 +2784,9 @@ msgstr "Lieferantenprozess bearbeiten"
 
 msgid "Edit Supplier Type"
 msgstr "Lieferantentyp bearbeiten"
+
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr ""
 
 msgid "Edit Timecard"
 msgstr "Zeitkarte bearbeiten"

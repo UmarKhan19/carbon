@@ -66,12 +66,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const allRuleNames: Record<string, string> = { ...itemPass.ruleNames };
 
   if (d.storageUnitId) {
-    // Pick storage-unit surface by direction. `Negative Adjmt.` removes
-    // stock — pick. Everything else (positive / set-up) — place.
-    const adjustmentType = String(
-      (d as { adjustmentType?: string }).adjustmentType ?? ""
-    );
-    const isNegative = adjustmentType === "Negative Adjmt." || qty < 0;
+    // Pick storage-unit surface from `adjustmentType` only. `quantity` is a
+    // positive magnitude per `inventoryAdjustmentValidator` — sign-based
+    // direction detection would misclassify `Negative Adjmt.` as `place`.
+    const isNegative = d.adjustmentType === "Negative Adjmt.";
     const storageSurface: "place" | "pick" = isNegative ? "pick" : "place";
 
     const storagePass = await evaluateLinesForSurface({
