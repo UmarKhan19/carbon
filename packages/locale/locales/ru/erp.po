@@ -6954,6 +6954,9 @@ msgstr ""
 msgid "Sign in with Outlook"
 msgstr ""
 
+msgid "Sign in with Passkey"
+msgstr ""
+
 msgid "Sign Out"
 msgstr ""
 

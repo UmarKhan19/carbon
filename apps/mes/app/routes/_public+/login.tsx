@@ -343,11 +343,6 @@ export default function LoginRoute() {
                 </Button>
               )}
 
-              {(hasGoogleAuth || hasOutlookAuth) && (
-                <div className="py-3 w-full">
-                  <Separator />
-                </div>
-              )}
               {hasPasskeyAuth && passkeySupported && (
                 <Button
                   type="button"
@@ -359,9 +354,16 @@ export default function LoginRoute() {
                   variant="secondary"
                   leftIcon={<LuFingerprint className="size-4" />}
                 >
-                  Sign in with Passkey
+                  <Trans>Sign in with Passkey</Trans>
                 </Button>
               )}
+
+              {(hasGoogleAuth || hasOutlookAuth || hasPasskeyAuth) && (
+                <div className="py-3 w-full">
+                  <Separator />
+                </div>
+              )}
+
               <Input
                 name="email"
                 label=""

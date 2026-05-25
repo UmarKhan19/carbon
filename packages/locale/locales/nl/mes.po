@@ -4,7 +4,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
-"Language: fr\n"
+"Language: nl\n"
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "PO-Revision-Date: \n"
@@ -402,9 +402,6 @@ msgstr ""
 msgid "Job Traveler"
 msgstr ""
 
-msgid "Jobs"
-msgstr "Emplois"
-
 msgid "Kit"
 msgstr ""
 
@@ -535,9 +532,6 @@ msgstr ""
 msgid "No materials"
 msgstr ""
 
-msgid "No open jobs"
-msgstr "Aucun travail ouvert"
-
 msgid "No operators"
 msgstr ""
 
@@ -595,9 +589,6 @@ msgstr ""
 
 msgid "Open"
 msgstr ""
-
-msgid "Open Jobs"
-msgstr "Emplois ouverts"
 
 msgid "Operations"
 msgstr ""
@@ -717,9 +708,6 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-msgid "Search by job or item ID"
-msgstr "Rechercher par numéro de travail ou d'article"
-
 msgid "Search operators..."
 msgstr ""
 
@@ -797,9 +785,6 @@ msgid "Sign in with Google"
 msgstr ""
 
 msgid "Sign in with Outlook"
-msgstr ""
-
-msgid "Sign in with Passkey"
 msgstr ""
 
 msgid "Sign Out"
@@ -892,9 +877,6 @@ msgstr ""
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
 msgstr ""
-
-msgid "Tracking"
-msgstr "Suivi"
 
 msgid "Tracking Labels"
 msgstr ""

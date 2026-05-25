@@ -4,7 +4,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: @lingui/cli\n"
-"Language: fr\n"
+"Language: nl\n"
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "PO-Revision-Date: \n"
@@ -198,7 +198,10 @@ msgid "Accumulation Period (Weeks)"
 msgstr ""
 
 msgid "Accumulation Period:"
-msgstr "<<<<<<< HEAD"
+msgstr ""
+
+msgid "Acknowledge & continue"
+msgstr ""
 
 msgid "Action Items"
 msgstr ""
@@ -479,22 +482,7 @@ msgstr ""
 msgid "API Keys"
 msgstr ""
 
-msgid "API keys for programmatic access to your Carbon data."
-msgstr ""
-
 msgid "Applies to"
-msgstr ""
-
-msgid "Applies to all"
-msgstr ""
-
-msgid "Applies to all items"
-msgstr ""
-
-msgid "Applies to all storage units"
-msgstr ""
-
-msgid "Applies to all work centers"
 msgstr ""
 
 msgid "Apply pricing rules"
@@ -889,15 +877,6 @@ msgstr ""
 msgid "Assembly:"
 msgstr ""
 
-msgid "Asset"
-msgstr ""
-
-msgid "Asset Classes"
-msgstr ""
-
-msgid "Assets"
-msgstr ""
-
 msgid "Assign To"
 msgstr ""
 
@@ -1196,9 +1175,6 @@ msgstr ""
 msgid "Carbon Value"
 msgstr ""
 
-msgid "Cards"
-msgstr ""
-
 msgid "Carrier"
 msgstr ""
 
@@ -1431,6 +1407,9 @@ msgstr ""
 msgid "Configure Item"
 msgstr ""
 
+msgid "Configure Materials"
+msgstr ""
+
 msgid "Configure notifications for when gauges go out of calibration."
 msgstr ""
 
@@ -1477,7 +1456,7 @@ msgstr ""
 msgid "Confirm Password"
 msgstr ""
 
-msgid "Connect Carbon to your accounting, project management, and CAD tools and much more."
+msgid "Connect Carbon to your accounting, project, and CAD tools and much more."
 msgstr ""
 
 msgid "Connect Jira issue"
@@ -1935,9 +1914,6 @@ msgid "Custom Field"
 msgstr ""
 
 msgid "Custom Fields"
-msgstr ""
-
-msgid "Custom Rules"
 msgstr ""
 
 msgid "Customer"
@@ -2418,9 +2394,6 @@ msgstr ""
 msgid "Departments"
 msgstr ""
 
-msgid "Depreciation"
-msgstr ""
-
 msgid "Description"
 msgstr ""
 
@@ -2524,9 +2497,6 @@ msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr ""
 
 msgid "Drag handle"
-msgstr ""
-
-msgid "Drag to reorder"
 msgstr ""
 
 msgid "Drop Shipment"
@@ -2797,9 +2767,6 @@ msgstr ""
 msgid "Edit Supplier Type"
 msgstr ""
 
-msgid "Edit the rule to remove the \"Applies to all\" flag"
-msgstr ""
-
 msgid "Edit Timecard"
 msgstr ""
 
@@ -2857,9 +2824,6 @@ msgstr ""
 msgid "Employees"
 msgstr ""
 
-msgid "Empty work centers"
-msgstr ""
-
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr ""
 
@@ -2890,9 +2854,6 @@ msgstr ""
 msgid "Enable to automatically post transactions to the general ledger."
 msgstr ""
 
-msgid "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
-msgstr ""
-
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr ""
 
@@ -2921,7 +2882,13 @@ msgid "End Date"
 msgstr ""
 
 msgid "End Time"
-msgstr "<<<<<<< HEAD"
+msgstr ""
+
+msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
+msgstr ""
+
+msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
+msgstr ""
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr ""
@@ -3017,7 +2984,10 @@ msgid "Error removing model from sales order line"
 msgstr ""
 
 msgid "Error validating serial number"
-msgstr "<<<<<<< HEAD"
+msgstr ""
+
+msgid "Errors"
+msgstr ""
 
 msgid "Escalation"
 msgstr ""
@@ -3450,9 +3420,6 @@ msgstr ""
 msgid "Field"
 msgstr ""
 
-msgid "Field info"
-msgstr ""
-
 msgid "Field Mapping"
 msgstr ""
 
@@ -3522,12 +3489,6 @@ msgid "Fiscal Years"
 msgstr ""
 
 msgid "Fixed"
-msgstr ""
-
-msgid "Fixed Asset"
-msgstr ""
-
-msgid "Fixed Assets"
 msgstr ""
 
 msgid "Fixed Reorder"
@@ -3785,9 +3746,6 @@ msgstr ""
 msgid "Inherit From Materials"
 msgstr ""
 
-msgid "Inherited from"
-msgstr ""
-
 msgid "Insert rows"
 msgstr ""
 
@@ -3851,13 +3809,7 @@ msgstr ""
 msgid "Inventory"
 msgstr ""
 
-msgid "Inventory actions"
-msgstr ""
-
 msgid "Inventory Adjustment"
-msgstr ""
-
-msgid "Inventory History"
 msgstr ""
 
 msgid "Inventory Job Notifications"
@@ -3938,6 +3890,9 @@ msgstr ""
 msgid "Issue not found"
 msgstr ""
 
+msgid "Issue scoped API keys for programmatic access to your Carbon data."
+msgstr ""
+
 msgid "Issue Status"
 msgstr ""
 
@@ -3987,7 +3942,10 @@ msgid "Item ID"
 msgstr ""
 
 msgid "Item Master"
-msgstr "<<<<<<< HEAD"
+msgstr ""
+
+msgid "Item Rules"
+msgstr ""
 
 msgid "Item Scope"
 msgstr ""
@@ -4348,9 +4306,6 @@ msgstr ""
 msgid "Manage Ownership"
 msgstr ""
 
-msgid "Manage rules"
-msgstr ""
-
 msgid "Manage Subscription"
 msgstr ""
 
@@ -4444,9 +4399,6 @@ msgstr ""
 msgid "Material IDs"
 msgstr ""
 
-msgid "Material Properties"
-msgstr ""
-
 msgid "Material Shape"
 msgstr ""
 
@@ -4502,9 +4454,6 @@ msgid "Measurement Standard"
 msgstr ""
 
 msgid "Members"
-msgstr ""
-
-msgid "MES"
 msgstr ""
 
 msgid "Message"
@@ -5219,9 +5168,6 @@ msgstr ""
 msgid "Open Actions"
 msgstr ""
 
-msgid "Open Audit Log"
-msgstr ""
-
 msgid "Open chat history"
 msgstr ""
 
@@ -5229,9 +5175,6 @@ msgid "Open Date"
 msgstr ""
 
 msgid "Open Dispatches"
-msgstr ""
-
-msgid "Open in MES"
 msgstr ""
 
 msgid "Open Issues"
@@ -5520,7 +5463,10 @@ msgid "Pick a customer or customer type to view their pricing."
 msgstr ""
 
 msgid "Pick a date or leave blank to clear it."
-msgstr "<<<<<<< HEAD"
+msgstr ""
+
+msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
+msgstr ""
 
 msgid "Pick List"
 msgstr ""
@@ -6363,7 +6309,10 @@ msgid "Rule applies to every item."
 msgstr ""
 
 msgid "Rule Type"
-msgstr "<<<<<<< HEAD"
+msgstr ""
+
+msgid "Rule Violation"
+msgstr ""
 
 msgid "Rules"
 msgstr ""
@@ -6461,13 +6410,10 @@ msgstr ""
 msgid "Save View"
 msgstr ""
 
-msgid "Saving..."
-msgstr ""
-
 msgid "Scan"
 msgstr ""
 
-msgid "Scan a label or search by item ID or tracking ID."
+msgid "Scan a label or search by ID, serial number, or batch number."
 msgstr ""
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
@@ -6525,9 +6471,6 @@ msgid "Scrap Reasons"
 msgstr ""
 
 msgid "Search"
-msgstr ""
-
-msgid "Search accounts..."
 msgstr ""
 
 msgid "Search across your workspace..."
@@ -6840,9 +6783,6 @@ msgstr ""
 msgid "Shelf-Life"
 msgstr ""
 
-msgid "Shelf-Life History"
-msgstr ""
-
 msgid "Shift"
 msgstr ""
 
@@ -6952,9 +6892,6 @@ msgid "Sign in with Google"
 msgstr ""
 
 msgid "Sign in with Outlook"
-msgstr ""
-
-msgid "Sign in with Passkey"
 msgstr ""
 
 msgid "Sign Out"
@@ -7153,9 +7090,6 @@ msgid "Storage Types"
 msgstr ""
 
 msgid "Storage Unit"
-msgstr ""
-
-msgid "Storage unit rules"
 msgstr ""
 
 msgid "Storage Units"
@@ -7408,9 +7342,6 @@ msgstr ""
 msgid "Tax & Additional Costs"
 msgstr ""
 
-msgid "Tax & Shipping"
-msgstr ""
-
 msgid "Tax Amount"
 msgstr ""
 
@@ -7565,11 +7496,6 @@ msgstr ""
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr ""
 
-#. placeholder {0}: routeData?.job?.jobId
-#. placeholder {1}: routeData?.job?.salesOrderReadableId
-msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
-msgstr ""
-
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr ""
 
@@ -7711,12 +7637,6 @@ msgstr ""
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr ""
 
-msgid "Track tax depreciation separately"
-msgstr ""
-
-msgid "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
-msgstr ""
-
 msgid "Track when batches or serials of this item expire."
 msgstr ""
 
@@ -7795,9 +7715,6 @@ msgstr ""
 msgid "Trial Balance"
 msgstr ""
 
-msgid "Triggers"
-msgstr ""
-
 msgid "Tuesday"
 msgstr ""
 
@@ -7823,9 +7740,6 @@ msgid "Un-sampled entities will remain On Hold so you can keep inspecting and di
 msgstr ""
 
 msgid "Unapproved Supplier"
-msgstr ""
-
-msgid "Unassign from parent unit to remove"
 msgstr ""
 
 msgid "Unassign rule"
@@ -7871,9 +7785,6 @@ msgid "Unlimited Functional Support"
 msgstr ""
 
 msgid "Unlink"
-msgstr ""
-
-msgid "Unlink job from sales order?"
 msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
@@ -7948,12 +7859,11 @@ msgstr ""
 msgid "Upgrade to Business"
 msgstr ""
 
-#. placeholder {0}: targetCopy.noun
-msgid "Upgrade to unlock {0} rules"
+msgid "Upgrade to unlock audit history"
 msgstr ""
 
-msgid "Upgrade to unlock audit history"
-msgstr "<<<<<<< HEAD"
+msgid "Upgrade to unlock item rules"
+msgstr ""
 
 msgid "Upload"
 msgstr ""
@@ -8051,9 +7961,6 @@ msgid "Validating job..."
 msgstr ""
 
 msgid "Value"
-msgstr ""
-
-msgid "Value source by surface"
 msgstr ""
 
 msgid "VAT Number"
@@ -8243,7 +8150,10 @@ msgid "Warn when the person inspecting an inbound item is the same person who re
 msgstr ""
 
 msgid "Warning"
-msgstr "<<<<<<< HEAD"
+msgstr ""
+
+msgid "Warnings"
+msgstr ""
 
 msgid "Watch full video"
 msgstr ""
@@ -8303,9 +8213,6 @@ msgid "When a finished product's shelf life is set to Calculated, pick which con
 msgstr ""
 
 msgid "When expired stock is used"
-msgstr ""
-
-msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
 msgstr ""
 
 msgid "Who Can Approve"
