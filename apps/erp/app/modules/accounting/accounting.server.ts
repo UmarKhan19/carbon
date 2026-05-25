@@ -40,7 +40,7 @@ export async function postDisposal(
     fixedAssetId: string;
     fixedAssetReadableId: string;
     disposalDate: string;
-    disposalMethod: string;
+    disposalMethod: "Sale" | "Scrapping";
     acquisitionCost: number;
     accumulatedDepreciation: number;
     locationId: string | null;

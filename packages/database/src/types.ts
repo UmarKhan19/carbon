@@ -63754,6 +63754,7 @@ export type Database = {
         | "CostCenter"
         | "WorkCenter"
         | "Process"
+        | "FixedAssetClass"
       disposalMethod: "Sale" | "Scrapping"
       disposition:
         | "Conditional Acceptance"
@@ -65015,6 +65016,7 @@ export const Constants = {
         "CostCenter",
         "WorkCenter",
         "Process",
+        "FixedAssetClass",
       ],
       disposalMethod: ["Sale", "Scrapping"],
       disposition: [

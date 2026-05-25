@@ -881,13 +881,13 @@ msgid "Assembly:"
 msgstr "ÃƒÂ¨Ã‚Â£Ã¢â‚¬Â¦ÃƒÂ©Ã¢â‚¬Â¦Ã‚ÂÃƒÂ¤Ã‚Â½Ã¢â‚¬Å“ÃƒÂ¯Ã‚Â¼Ã…Â¡"
 
 msgid "Asset"
-msgstr ""
+msgstr "资产"
 
 msgid "Asset Classes"
-msgstr ""
+msgstr "资产类别"
 
 msgid "Assets"
-msgstr ""
+msgstr "资产"
 
 msgid "Assign To"
 msgstr "ÃƒÂ¥Ã‹â€ Ã¢â‚¬Â ÃƒÂ©Ã¢â‚¬Â¦Ã‚ÂÃƒÂ§Ã‚Â»Ã¢â€žÂ¢"
@@ -1188,7 +1188,7 @@ msgid "Carbon Value"
 msgstr "ÃƒÂ§Ã‚Â¢Ã‚Â³ÃƒÂ¥Ã¢â€šÂ¬Ã‚Â¼"
 
 msgid "Cards"
-msgstr ""
+msgstr "卡片"
 
 msgid "Carrier"
 msgstr "ÃƒÂ¦Ã¢â‚¬Â°Ã‚Â¿ÃƒÂ¨Ã‚Â¿Ã‚ÂÃƒÂ¤Ã‚ÂºÃ‚Âº"
@@ -2407,7 +2407,7 @@ msgid "Departments"
 msgstr "ÃƒÂ©Ã†â€™Ã‚Â¨ÃƒÂ©Ã¢â‚¬â€Ã‚Â¨"
 
 msgid "Depreciation"
-msgstr ""
+msgstr "折旧"
 
 msgid "Description"
 msgstr "ÃƒÂ¦Ã‚ÂÃ‚ÂÃƒÂ¨Ã‚Â¿Ã‚Â°"
@@ -2470,7 +2470,7 @@ msgid "Dispatches"
 msgstr "ÃƒÂ¦Ã‚Â´Ã‚Â¾ÃƒÂ©Ã‚ÂÃ‚Â£"
 
 msgid "Display Settings"
-msgstr ""
+msgstr "显示设置"
 
 msgid "Disposition"
 msgstr "ÃƒÂ¥Ã‚Â¤Ã¢â‚¬Å¾ÃƒÂ§Ã‚Â½Ã‚Â®"
@@ -2843,7 +2843,7 @@ msgid "Employees"
 msgstr "ÃƒÂ¥Ã¢â‚¬ËœÃ‹Å“ÃƒÂ¥Ã‚Â·Ã‚Â¥"
 
 msgid "Empty work centers"
-msgstr ""
+msgstr "空的工作中心"
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "ÃƒÂ¥Ã…â€œÃ‚Â¨ÃƒÂ¨Ã‚Â®Ã‚Â¾ÃƒÂ§Ã‚Â½Ã‚Â®ÃƒÂ¤Ã‚Â¸Ã‚Â­ÃƒÂ¥Ã‚ÂÃ‚Â¯ÃƒÂ§Ã¢â‚¬ÂÃ‚Â¨ÃƒÂ¥Ã‚Â®Ã‚Â¡ÃƒÂ¨Ã‚Â®Ã‚Â¡ÃƒÂ¦Ã¢â‚¬â€Ã‚Â¥ÃƒÂ¥Ã‚Â¿Ã¢â‚¬â€ÃƒÂ¤Ã‚Â»Ã‚Â¥ÃƒÂ¥Ã‚Â¼Ã¢â€šÂ¬ÃƒÂ¥Ã‚Â§Ã¢â‚¬Â¹ÃƒÂ¨Ã‚Â·Ã…Â¸ÃƒÂ¨Ã‚Â¸Ã‚ÂªÃƒÂ¦Ã¢â‚¬Â¢Ã‚Â°ÃƒÂ¦Ã‚ÂÃ‚Â®ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¦Ã¢â‚¬ÂºÃ‚Â´ÃƒÂ¦Ã¢â‚¬ÂÃ‚Â¹ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡"
@@ -2876,7 +2876,7 @@ msgid "Enable to automatically post transactions to the general ledger."
 msgstr "ÃƒÂ¥Ã‚ÂÃ‚Â¯ÃƒÂ§Ã¢â‚¬ÂÃ‚Â¨ÃƒÂ¤Ã‚Â»Ã‚Â¥ÃƒÂ¨Ã¢â‚¬Â¡Ã‚ÂªÃƒÂ¥Ã…Â Ã‚Â¨ÃƒÂ¥Ã‚Â°Ã¢â‚¬Â ÃƒÂ¤Ã‚ÂºÃ‚Â¤ÃƒÂ¦Ã‹Å“Ã¢â‚¬Å“ÃƒÂ¨Ã‚Â¿Ã¢â‚¬Â¡ÃƒÂ¨Ã‚Â´Ã‚Â¦ÃƒÂ¥Ã‹â€ Ã‚Â°ÃƒÂ¦Ã¢â€šÂ¬Ã‚Â»ÃƒÂ¥Ã‹â€ Ã¢â‚¬Â ÃƒÂ§Ã‚Â±Ã‚Â»ÃƒÂ¨Ã‚Â´Ã‚Â¦ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡"
 
 msgid "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
-msgstr ""
+msgstr "启用以在资产类别上配置特定于税收的折旧方法（例如，MACRS、加速）。"
 
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "ÃƒÂ¥Ã‚ÂÃ‚Â¯ÃƒÂ§Ã¢â‚¬ÂÃ‚Â¨ÃƒÂ¤Ã‚Â»Ã‚Â¥ÃƒÂ¤Ã‚Â¸Ã‚ÂºÃƒÂ¥Ã…Â½Ã…Â¸ÃƒÂ¦Ã‚ÂÃ‚ÂÃƒÂ¦Ã¢â‚¬â€œÃ¢â€žÂ¢ÃƒÂ§Ã¢â‚¬ÂÃ…Â¸ÃƒÂ¦Ã‹â€ Ã‚ÂIDÃƒÂ¥Ã¢â‚¬â„¢Ã…â€™ÃƒÂ¦Ã‚ÂÃ‚ÂÃƒÂ¨Ã‚Â¿Ã‚Â°ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡"
@@ -3516,10 +3516,10 @@ msgid "Fixed"
 msgstr "ÃƒÂ¥Ã¢â‚¬ÂºÃ‚ÂºÃƒÂ¥Ã‚Â®Ã…Â¡"
 
 msgid "Fixed Asset"
-msgstr ""
+msgstr "固定资产"
 
 msgid "Fixed Assets"
-msgstr ""
+msgstr "固定资产"
 
 msgid "Fixed Reorder"
 msgstr "ÃƒÂ¥Ã¢â‚¬ÂºÃ‚ÂºÃƒÂ¥Ã‚Â®Ã…Â¡ÃƒÂ©Ã¢â‚¬Â¡Ã‚ÂÃƒÂ¦Ã¢â‚¬â€œÃ‚Â°ÃƒÂ¨Ã‚Â®Ã‚Â¢ÃƒÂ¨Ã‚Â´Ã‚Â­"
@@ -4433,7 +4433,7 @@ msgid "Material IDs"
 msgstr "ÃƒÂ§Ã¢â‚¬Â°Ã‚Â©ÃƒÂ¦Ã¢â‚¬â€œÃ¢â€žÂ¢ID"
 
 msgid "Material Properties"
-msgstr ""
+msgstr "材料属性"
 
 msgid "Material Shape"
 msgstr "ÃƒÂ¦Ã‚ÂÃ‚ÂÃƒÂ¦Ã¢â‚¬â€œÃ¢â€žÂ¢ÃƒÂ¥Ã‚Â½Ã‚Â¢ÃƒÂ§Ã…Â Ã‚Â¶"
@@ -4493,7 +4493,7 @@ msgid "Members"
 msgstr "ÃƒÂ¦Ã‹â€ Ã‚ÂÃƒÂ¥Ã¢â‚¬ËœÃ‹Å“"
 
 msgid "MES"
-msgstr ""
+msgstr "MES"
 
 msgid "Message"
 msgstr "ÃƒÂ¦Ã‚Â¶Ã‹â€ ÃƒÂ¦Ã‚ÂÃ‚Â¯"
@@ -5220,7 +5220,7 @@ msgid "Open Dispatches"
 msgstr "ÃƒÂ¦Ã…â€œÃ‚ÂªÃƒÂ§Ã‚Â»Ã¢â‚¬Å“ÃƒÂ¦Ã‚Â´Ã‚Â¾ÃƒÂ¥Ã‚Â·Ã‚Â¥ÃƒÂ¥Ã‚ÂÃ¢â‚¬Â¢"
 
 msgid "Open in MES"
-msgstr ""
+msgstr "在MES中打开"
 
 msgid "Open Issues"
 msgstr "ÃƒÂ¦Ã…â€œÃ‚ÂªÃƒÂ¨Ã‚Â§Ã‚Â£ÃƒÂ¥Ã¢â‚¬Â Ã‚Â³ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ©Ã¢â‚¬â€Ã‚Â®ÃƒÂ©Ã‚Â¢Ã‹Å“"
@@ -6456,13 +6456,13 @@ msgid "Save View"
 msgstr "ÃƒÂ¤Ã‚Â¿Ã‚ÂÃƒÂ¥Ã‚Â­Ã‹Å“ÃƒÂ¨Ã‚Â§Ã¢â‚¬Â ÃƒÂ¥Ã¢â‚¬ÂºÃ‚Â¾"
 
 msgid "Saving..."
-msgstr ""
+msgstr "保存中..."
 
 msgid "Scan"
 msgstr "ÃƒÂ¦Ã¢â‚¬Â°Ã‚Â«ÃƒÂ¦Ã‚ÂÃ‚Â"
 
 msgid "Scan a label or search by item ID or tracking ID."
-msgstr ""
+msgstr "扫描标签或按项目 ID 或跟踪 ID 搜索。"
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "ÃƒÂ¦Ã¢â‚¬Â°Ã‚Â«ÃƒÂ¦Ã‚ÂÃ‚ÂÃƒÂ¦Ã‹â€ Ã¢â‚¬â€œÃƒÂ¨Ã‚Â¾Ã¢â‚¬Å“ÃƒÂ¥Ã¢â‚¬Â¦Ã‚Â¥ÃƒÂ¨Ã‚Â·Ã…Â¸ÃƒÂ¨Ã‚Â¸Ã‚ÂªÃƒÂ¥Ã‚Â®Ã…Â¾ÃƒÂ¤Ã‚Â½Ã¢â‚¬Å“IDÃƒÂ£Ã¢â€šÂ¬Ã‚ÂÃƒÂ¥Ã‚ÂºÃ‚ÂÃƒÂ¥Ã‹â€ Ã¢â‚¬â€ÃƒÂ¥Ã‚ÂÃ‚Â·ÃƒÂ¦Ã‹â€ Ã¢â‚¬â€œÃƒÂ¦Ã¢â‚¬Â°Ã‚Â¹ÃƒÂ¦Ã‚Â¬Ã‚Â¡ÃƒÂ¥Ã‚ÂÃ‚Â·"
@@ -6522,7 +6522,7 @@ msgid "Search"
 msgstr "ÃƒÂ¦Ã‚ÂÃ…â€œÃƒÂ§Ã‚Â´Ã‚Â¢"
 
 msgid "Search accounts..."
-msgstr ""
+msgstr "搜索账户..."
 
 msgid "Search across your workspace..."
 msgstr "ÃƒÂ¥Ã…â€œÃ‚Â¨ÃƒÂ¦Ã¢â‚¬Å¡Ã‚Â¨ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¥Ã‚Â·Ã‚Â¥ÃƒÂ¤Ã‚Â½Ã…â€œÃƒÂ¥Ã…â€™Ã‚ÂºÃƒÂ¤Ã‚Â¸Ã‚Â­ÃƒÂ¦Ã‚ÂÃ…â€œÃƒÂ§Ã‚Â´Ã‚Â¢..."
@@ -7397,7 +7397,7 @@ msgid "Tax & Additional Costs"
 msgstr "ÃƒÂ§Ã‚Â¨Ã…Â½ÃƒÂ¨Ã‚Â´Ã‚Â¹ÃƒÂ¥Ã¢â‚¬â„¢Ã…â€™ÃƒÂ©Ã‚Â¢Ã‚ÂÃƒÂ¥Ã‚Â¤Ã¢â‚¬â€œÃƒÂ¨Ã‚Â´Ã‚Â¹ÃƒÂ§Ã¢â‚¬ÂÃ‚Â¨"
 
 msgid "Tax & Shipping"
-msgstr ""
+msgstr "税费和运费"
 
 msgid "Tax Amount"
 msgstr "ÃƒÂ§Ã‚Â¨Ã…Â½ÃƒÂ©Ã‚Â¢Ã‚Â"
@@ -7556,7 +7556,7 @@ msgstr "ÃƒÂ¨Ã‚Â¿Ã¢â€žÂ¢ÃƒÂ¥Ã‚Â°Ã¢â‚¬Â ÃƒÂ¦
 #. placeholder {0}: routeData?.job?.jobId
 #. placeholder {1}: routeData?.job?.salesOrderReadableId
 msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
-msgstr ""
+msgstr "这将移除 {0} 与 {1} 的关联。该工作单将不再显示在销售订单下，发货单也无法找到它。"
 
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "ÃƒÂ¨Ã‚Â¿Ã¢â€žÂ¢ÃƒÂ¥Ã‚Â°Ã¢â‚¬Â ÃƒÂ§Ã¢â‚¬ÂÃ‚Â¨ÃƒÂ¦Ã‚Â­Ã‚Â¤ÃƒÂ¤Ã‚Â¿Ã‚Â®ÃƒÂ¨Ã‚Â®Ã‚Â¢ÃƒÂ§Ã¢â‚¬Â°Ã‹â€ ÃƒÂ¦Ã…â€œÃ‚Â¬ÃƒÂ¦Ã¢â‚¬ÂºÃ‚Â¿ÃƒÂ¦Ã‚ÂÃ‚Â¢ÃƒÂ¥Ã¢â‚¬Â¦Ã‚Â¶ÃƒÂ¤Ã‚Â»Ã¢â‚¬â€œÃƒÂ¤Ã‚Â¿Ã‚Â®ÃƒÂ¨Ã‚Â®Ã‚Â¢ÃƒÂ§Ã¢â‚¬Â°Ã‹â€ ÃƒÂ¦Ã…â€œÃ‚Â¬ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¦Ã¢â‚¬Â°Ã¢â€šÂ¬ÃƒÂ¦Ã…â€œÃ¢â‚¬Â°ÃƒÂ¦Ã¢â‚¬â€œÃ‚Â¹ÃƒÂ¦Ã‚Â³Ã¢â‚¬Â¢ÃƒÂ¦Ã‚ÂÃ‚ÂÃƒÂ¦Ã¢â‚¬â€œÃ¢â€žÂ¢ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡"
@@ -7700,10 +7700,10 @@ msgid "Track every change to your orders, invoices, customers, suppliers, and mo
 msgstr "ÃƒÂ¨Ã‚Â·Ã…Â¸ÃƒÂ¨Ã‚Â¸Ã‚ÂªÃƒÂ¥Ã‚Â¯Ã‚Â¹ÃƒÂ¦Ã¢â‚¬Å¡Ã‚Â¨ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¨Ã‚Â®Ã‚Â¢ÃƒÂ¥Ã‚ÂÃ¢â‚¬Â¢ÃƒÂ£Ã¢â€šÂ¬Ã‚ÂÃƒÂ¥Ã‚ÂÃ¢â‚¬ËœÃƒÂ§Ã‚Â¥Ã‚Â¨ÃƒÂ£Ã¢â€šÂ¬Ã‚ÂÃƒÂ¥Ã‚Â®Ã‚Â¢ÃƒÂ¦Ã‹â€ Ã‚Â·ÃƒÂ£Ã¢â€šÂ¬Ã‚ÂÃƒÂ¤Ã‚Â¾Ã¢â‚¬ÂºÃƒÂ¥Ã‚ÂºÃ¢â‚¬ÂÃƒÂ¥Ã¢â‚¬Â¢Ã¢â‚¬Â ÃƒÂ§Ã‚Â­Ã¢â‚¬Â°ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¦Ã‚Â¯Ã‚ÂÃƒÂ©Ã‚Â¡Ã‚Â¹ÃƒÂ¦Ã¢â‚¬ÂºÃ‚Â´ÃƒÂ¦Ã¢â‚¬ÂÃ‚Â¹ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡"
 
 msgid "Track tax depreciation separately"
-msgstr ""
+msgstr "单独跟踪税收折旧"
 
 msgid "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
-msgstr ""
+msgstr "单独跟踪税收折旧与账面折旧，并自动过账递延所得税负债条目。"
 
 msgid "Track when batches or serials of this item expire."
 msgstr "ÃƒÂ¨Ã‚Â·Ã…Â¸ÃƒÂ¨Ã‚Â¸Ã‚ÂªÃƒÂ¦Ã‚Â­Ã‚Â¤ÃƒÂ©Ã‚Â¡Ã‚Â¹ÃƒÂ§Ã¢â‚¬ÂºÃ‚Â®ÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¦Ã¢â‚¬Â°Ã‚Â¹ÃƒÂ¦Ã‚Â¬Ã‚Â¡ÃƒÂ¦Ã‹â€ Ã¢â‚¬â€œÃƒÂ¥Ã‚ÂºÃ‚ÂÃƒÂ¥Ã‹â€ Ã¢â‚¬â€ÃƒÂ¥Ã‚ÂÃ‚Â·ÃƒÂ¤Ã‚Â½Ã¢â‚¬Â¢ÃƒÂ¦Ã¢â‚¬â€Ã‚Â¶ÃƒÂ¨Ã‚Â¿Ã¢â‚¬Â¡ÃƒÂ¦Ã…â€œÃ…Â¸ÃƒÂ£Ã¢â€šÂ¬Ã¢â‚¬Å¡"
@@ -7856,7 +7856,7 @@ msgid "Unlink"
 msgstr "ÃƒÂ¥Ã‚ÂÃ¢â‚¬â€œÃƒÂ¦Ã‚Â¶Ã‹â€ ÃƒÂ©Ã¢â‚¬Å“Ã‚Â¾ÃƒÂ¦Ã…Â½Ã‚Â¥"
 
 msgid "Unlink job from sales order?"
-msgstr ""
+msgstr "从销售订单取消关联工作？"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "ÃƒÂ¤Ã‚Â¸Ã‚ÂÃƒÂ¦Ã¢â‚¬ÂÃ‚Â¯ÃƒÂ¦Ã…â€™Ã‚ÂÃƒÂ§Ã…Â¡Ã¢â‚¬Å¾ÃƒÂ¦Ã‚ÂºÃ‚ÂÃƒÂ¦Ã¢â‚¬â€œÃ¢â‚¬Â¡ÃƒÂ¦Ã‚Â¡Ã‚Â£ÃƒÂ§Ã‚Â±Ã‚Â»ÃƒÂ¥Ã…Â¾Ã¢â‚¬Â¹ÃƒÂ¯Ã‚Â¼Ã…Â¡{sourceDocument}"

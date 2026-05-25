@@ -403,7 +403,7 @@ msgid "Job Traveler"
 msgstr "जॉब ट्रैवलर"
 
 msgid "Jobs"
-msgstr ""
+msgstr "नौकरियां"
 
 msgid "Kit"
 msgstr "किट"
@@ -536,7 +536,7 @@ msgid "No materials"
 msgstr "कोई सामग्री नहीं"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "कोई खुली नौकरी नहीं"
 
 msgid "No operators"
 msgstr "कोई ऑपरेटर नहीं"
@@ -597,7 +597,7 @@ msgid "Open"
 msgstr "खुला"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "खुली नौकरियां"
 
 msgid "Operations"
 msgstr "संचालन"
@@ -718,7 +718,7 @@ msgid "Search"
 msgstr "खोजें"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "जॉब या आइटम आईडी से खोजें"
 
 msgid "Search operators..."
 msgstr "ऑपरेटर खोजें..."
@@ -891,7 +891,7 @@ msgid "Total: {0}"
 msgstr "कुल: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "ट्रैकिंग"
 
 msgid "Tracking Labels"
 msgstr "ट्रैकिंग लेबल"

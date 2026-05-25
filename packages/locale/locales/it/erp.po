@@ -881,13 +881,13 @@ msgid "Assembly:"
 msgstr "Assieme:"
 
 msgid "Asset"
-msgstr ""
+msgstr "Cespite"
 
 msgid "Asset Classes"
-msgstr ""
+msgstr "Classi di Cespiti"
 
 msgid "Assets"
-msgstr ""
+msgstr "Cespiti"
 
 msgid "Assign To"
 msgstr "Assegna a"
@@ -1188,7 +1188,7 @@ msgid "Carbon Value"
 msgstr "Valore Carbon"
 
 msgid "Cards"
-msgstr ""
+msgstr "Schede"
 
 msgid "Carrier"
 msgstr "Vettore"
@@ -2407,7 +2407,7 @@ msgid "Departments"
 msgstr "Reparti"
 
 msgid "Depreciation"
-msgstr ""
+msgstr "Ammortamento"
 
 msgid "Description"
 msgstr "Descrizione"
@@ -2470,7 +2470,7 @@ msgid "Dispatches"
 msgstr "Spedizioni"
 
 msgid "Display Settings"
-msgstr ""
+msgstr "Impostazioni di visualizzazione"
 
 msgid "Disposition"
 msgstr "Disposizione"
@@ -2843,7 +2843,7 @@ msgid "Employees"
 msgstr "Dipendenti"
 
 msgid "Empty work centers"
-msgstr ""
+msgstr "Centri di lavoro vuoti"
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Abilita la registrazione di audit nelle impostazioni per iniziare a tracciare le modifiche ai tuoi dati."
@@ -2876,7 +2876,7 @@ msgid "Enable to automatically post transactions to the general ledger."
 msgstr "Abilita per registrare automaticamente le transazioni nella contabilitÃƒÆ’Ã‚Â  generale."
 
 msgid "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
-msgstr ""
+msgstr "Abilita per configurare metodi di ammortamento specifici per le imposte sulle classi di asset (ad es., MACRS, accelerato)."
 
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Abilita per generare ID e descrizioni per le materie prime."
@@ -3516,10 +3516,10 @@ msgid "Fixed"
 msgstr "Fisso"
 
 msgid "Fixed Asset"
-msgstr ""
+msgstr "Cespite Fisso"
 
 msgid "Fixed Assets"
-msgstr ""
+msgstr "Immobilizzazioni"
 
 msgid "Fixed Reorder"
 msgstr "Riordino Fisso"
@@ -4433,7 +4433,7 @@ msgid "Material IDs"
 msgstr "ID Materiali"
 
 msgid "Material Properties"
-msgstr ""
+msgstr "Proprietà dei Materiali"
 
 msgid "Material Shape"
 msgstr "Forma Materiale"
@@ -4493,7 +4493,7 @@ msgid "Members"
 msgstr "Membri"
 
 msgid "MES"
-msgstr ""
+msgstr "MES"
 
 msgid "Message"
 msgstr "Messaggio"
@@ -5220,7 +5220,7 @@ msgid "Open Dispatches"
 msgstr "Spedizioni Aperte"
 
 msgid "Open in MES"
-msgstr ""
+msgstr "Apri in MES"
 
 msgid "Open Issues"
 msgstr "Problemi Aperti"
@@ -6456,13 +6456,13 @@ msgid "Save View"
 msgstr "Salva Vista"
 
 msgid "Saving..."
-msgstr ""
+msgstr "Salvataggio in corso..."
 
 msgid "Scan"
 msgstr "Scansiona"
 
 msgid "Scan a label or search by item ID or tracking ID."
-msgstr ""
+msgstr "Scansiona un'etichetta o cerca per ID articolo o ID tracciamento."
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Scansiona o inserisci ID entitÃƒÆ’Ã‚Â  tracciata, numero di serie o lotto"
@@ -6522,7 +6522,7 @@ msgid "Search"
 msgstr "Cerca"
 
 msgid "Search accounts..."
-msgstr ""
+msgstr "Cerca conti..."
 
 msgid "Search across your workspace..."
 msgstr "Cerca nel tuo workspace..."
@@ -7397,7 +7397,7 @@ msgid "Tax & Additional Costs"
 msgstr "Tasse e costi aggiuntivi"
 
 msgid "Tax & Shipping"
-msgstr ""
+msgstr "Tasse e spedizione"
 
 msgid "Tax Amount"
 msgstr "Importo Imposta"
@@ -7556,7 +7556,7 @@ msgstr "Questo ricalcolerÃƒÆ’Ã‚Â  il costo unitario dal distinta base 
 #. placeholder {0}: routeData?.job?.jobId
 #. placeholder {1}: routeData?.job?.salesOrderReadableId
 msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
-msgstr ""
+msgstr "Questo rimuoverà il collegamento di {0} a {1}. Il lavoro non apparirà più nell'ordine di vendita e le spedizioni non lo troveranno."
 
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "Questo sostituirÃƒÆ’Ã‚Â  tutti i materiali del metodo di altre revisioni con questa revisione."
@@ -7700,10 +7700,10 @@ msgid "Track every change to your orders, invoices, customers, suppliers, and mo
 msgstr "Traccia ogni modifica ai tuoi ordini, fatture, clienti, fornitori e altro ancora."
 
 msgid "Track tax depreciation separately"
-msgstr ""
+msgstr "Traccia l'ammortamento fiscale separatamente"
 
 msgid "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
-msgstr ""
+msgstr "Traccia l'ammortamento fiscale separatamente dall'ammortamento contabile e registra automaticamente le voci di passività fiscale differita."
 
 msgid "Track when batches or serials of this item expire."
 msgstr "Traccia quando i lotti o i numeri seriali di questo articolo scadono."
@@ -7856,7 +7856,7 @@ msgid "Unlink"
 msgstr "Scollega"
 
 msgid "Unlink job from sales order?"
-msgstr ""
+msgstr "Scollega il lavoro dall'ordine di vendita?"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Tipo di documento di origine non supportato: {sourceDocument}"

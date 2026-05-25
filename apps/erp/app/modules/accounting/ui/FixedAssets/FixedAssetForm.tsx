@@ -69,7 +69,19 @@ const FixedAssetForm = ({
     ? !permissions.can("update", "accounting")
     : !permissions.can("create", "accounting");
 
-  const [assetData, setAssetData] = useState({
+  const [assetData, setAssetData] = useState<{
+    fixedAssetClassId: string;
+    depreciationMethod: string;
+    usefulLifeMonths: number;
+    residualValuePercent: number;
+    assetLifetimeUsage: number;
+    taxDepreciationMethod: string;
+    taxUsefulLifeMonths: number;
+    taxResidualValuePercent: number;
+    macrsPropertyClass: string;
+    macrsConvention: string;
+    bonusDepreciationPercent: number;
+  }>({
     fixedAssetClassId: initialValues.fixedAssetClassId ?? "",
     depreciationMethod: initialValues.depreciationMethod ?? "",
     usefulLifeMonths: initialValues.usefulLifeMonths ?? 60,

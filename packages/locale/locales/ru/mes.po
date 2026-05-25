@@ -403,7 +403,7 @@ msgid "Job Traveler"
 msgstr "Маршрутный лист"
 
 msgid "Jobs"
-msgstr ""
+msgstr "Работы"
 
 msgid "Kit"
 msgstr "Комплект"
@@ -536,7 +536,7 @@ msgid "No materials"
 msgstr "Нет материалов"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "Нет открытых заданий"
 
 msgid "No operators"
 msgstr "Нет операторов"
@@ -597,7 +597,7 @@ msgid "Open"
 msgstr "Открытые"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "Открытые задания"
 
 msgid "Operations"
 msgstr "Операции"
@@ -718,7 +718,7 @@ msgid "Search"
 msgstr "Поиск"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "Поиск по номеру работы или товара"
 
 msgid "Search operators..."
 msgstr "Поиск операторов..."
@@ -891,7 +891,7 @@ msgid "Total: {0}"
 msgstr "Итого: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "Отслеживание"
 
 msgid "Tracking Labels"
 msgstr "Этикетки отслеживания"

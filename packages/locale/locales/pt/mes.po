@@ -403,7 +403,7 @@ msgid "Job Traveler"
 msgstr "Folha de Processo"
 
 msgid "Jobs"
-msgstr ""
+msgstr "Trabalhos"
 
 msgid "Kit"
 msgstr "Kit"
@@ -536,7 +536,7 @@ msgid "No materials"
 msgstr "Nenhum material"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "Nenhum trabalho aberto"
 
 msgid "No operators"
 msgstr "Nenhum operador"
@@ -597,7 +597,7 @@ msgid "Open"
 msgstr "Aberto"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "Trabalhos Abertos"
 
 msgid "Operations"
 msgstr "Operações"
@@ -718,7 +718,7 @@ msgid "Search"
 msgstr "Pesquisar"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "Pesquisar por ID de trabalho ou item"
 
 msgid "Search operators..."
 msgstr "Pesquisar operadores..."
@@ -891,7 +891,7 @@ msgid "Total: {0}"
 msgstr "Total: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "Rastreamento"
 
 msgid "Tracking Labels"
 msgstr "Etiquetas de Rastreamento"

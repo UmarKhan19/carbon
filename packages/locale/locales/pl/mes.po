@@ -403,7 +403,7 @@ msgid "Job Traveler"
 msgstr "Karta obiegowa zlecenia"
 
 msgid "Jobs"
-msgstr ""
+msgstr "Zadania"
 
 msgid "Kit"
 msgstr "Zestaw"
@@ -536,7 +536,7 @@ msgid "No materials"
 msgstr "Brak materiałów"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "Brak otwartych zadań"
 
 msgid "No operators"
 msgstr "Brak operatorów"
@@ -597,7 +597,7 @@ msgid "Open"
 msgstr "Otwarte"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "Otwarte Zadania"
 
 msgid "Operations"
 msgstr "Operacje"
@@ -718,7 +718,7 @@ msgid "Search"
 msgstr "Szukaj"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "Szukaj po ID zadania lub przedmiotu"
 
 msgid "Search operators..."
 msgstr "Szukaj operatorów..."
@@ -891,7 +891,7 @@ msgid "Total: {0}"
 msgstr "Razem: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "Śledzenie"
 
 msgid "Tracking Labels"
 msgstr "Etykiety śledzenia"

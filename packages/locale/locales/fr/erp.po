@@ -881,13 +881,13 @@ msgid "Assembly:"
 msgstr "Assemblage :"
 
 msgid "Asset"
-msgstr ""
+msgstr "Actif"
 
 msgid "Asset Classes"
-msgstr ""
+msgstr "Classes d'actifs"
 
 msgid "Assets"
-msgstr ""
+msgstr "Actifs"
 
 msgid "Assign To"
 msgstr "Assigner ÃƒÆ’Ã‚Â "
@@ -1188,7 +1188,7 @@ msgid "Carbon Value"
 msgstr "Valeur Carbon"
 
 msgid "Cards"
-msgstr ""
+msgstr "Cartes"
 
 msgid "Carrier"
 msgstr "Transporteur"
@@ -2407,7 +2407,7 @@ msgid "Departments"
 msgstr "DÃƒÆ’Ã‚Â©partements"
 
 msgid "Depreciation"
-msgstr ""
+msgstr "Amortissement"
 
 msgid "Description"
 msgstr "Description"
@@ -2470,7 +2470,7 @@ msgid "Dispatches"
 msgstr "ExpÃƒÆ’Ã‚Â©ditions"
 
 msgid "Display Settings"
-msgstr ""
+msgstr "Paramètres d'affichage"
 
 msgid "Disposition"
 msgstr "Disposition"
@@ -2843,7 +2843,7 @@ msgid "Employees"
 msgstr "EmployÃƒÆ’Ã‚Â©s"
 
 msgid "Empty work centers"
-msgstr ""
+msgstr "Centres de travail vides"
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Activez la journalisation d'audit dans les paramÃƒÆ’Ã‚Â¨tres pour commencer ÃƒÆ’Ã‚Â  suivre les modifications apportÃƒÆ’Ã‚Â©es ÃƒÆ’Ã‚Â  vos donnÃƒÆ’Ã‚Â©es."
@@ -2876,7 +2876,7 @@ msgid "Enable to automatically post transactions to the general ledger."
 msgstr "Activez pour publier automatiquement les transactions dans le grand livre."
 
 msgid "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
-msgstr ""
+msgstr "Activez cette option pour configurer les méthodes d'amortissement spécifiques aux impôts sur les classes d'actifs (par exemple, MACRS, accéléré)."
 
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Activez pour gÃƒÆ’Ã‚Â©nÃƒÆ’Ã‚Â©rer des identifiants et des descriptions pour les matiÃƒÆ’Ã‚Â¨res premiÃƒÆ’Ã‚Â¨res."
@@ -3516,10 +3516,10 @@ msgid "Fixed"
 msgstr "Fixe"
 
 msgid "Fixed Asset"
-msgstr ""
+msgstr "Immobilisation"
 
 msgid "Fixed Assets"
-msgstr ""
+msgstr "Immobilisations"
 
 msgid "Fixed Reorder"
 msgstr "RÃƒÆ’Ã‚Â©approvisionnement Fixe"
@@ -4433,7 +4433,7 @@ msgid "Material IDs"
 msgstr "IDs de matÃƒÆ’Ã‚Â©riau"
 
 msgid "Material Properties"
-msgstr ""
+msgstr "Propriétés des matériaux"
 
 msgid "Material Shape"
 msgstr "Forme de matÃƒÆ’Ã‚Â©riau"
@@ -4493,7 +4493,7 @@ msgid "Members"
 msgstr "Membres"
 
 msgid "MES"
-msgstr ""
+msgstr "MES"
 
 msgid "Message"
 msgstr "Message"
@@ -5220,7 +5220,7 @@ msgid "Open Dispatches"
 msgstr "DÃƒÆ’Ã‚Â©pannages Ouverts"
 
 msgid "Open in MES"
-msgstr ""
+msgstr "Ouvrir dans MES"
 
 msgid "Open Issues"
 msgstr "ProblÃƒÆ’Ã‚Â¨mes ouverts"
@@ -6456,13 +6456,13 @@ msgid "Save View"
 msgstr "Enregistrer la vue"
 
 msgid "Saving..."
-msgstr ""
+msgstr "Enregistrement..."
 
 msgid "Scan"
 msgstr "NumÃƒÆ’Ã‚Â©riser"
 
 msgid "Scan a label or search by item ID or tracking ID."
-msgstr ""
+msgstr "Scannez une étiquette ou recherchez par ID d'article ou ID de suivi."
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Scannez ou entrez l'ID d'entitÃƒÆ’Ã‚Â© suivie, le numÃƒÆ’Ã‚Â©ro de sÃƒÆ’Ã‚Â©rie ou le lot"
@@ -6522,7 +6522,7 @@ msgid "Search"
 msgstr "Rechercher"
 
 msgid "Search accounts..."
-msgstr ""
+msgstr "Rechercher des comptes..."
 
 msgid "Search across your workspace..."
 msgstr "Rechercher dans votre espace de travail..."
@@ -7397,7 +7397,7 @@ msgid "Tax & Additional Costs"
 msgstr "Taxe et frais supplÃƒÆ’Ã‚Â©mentaires"
 
 msgid "Tax & Shipping"
-msgstr ""
+msgstr "Taxe et expédition"
 
 msgid "Tax Amount"
 msgstr "Montant de la taxe"
@@ -7556,7 +7556,7 @@ msgstr "Cela recalculera le coÃƒÆ’Ã‚Â»t unitaire ÃƒÆ’Ã‚Â  pa
 #. placeholder {0}: routeData?.job?.jobId
 #. placeholder {1}: routeData?.job?.salesOrderReadableId
 msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
-msgstr ""
+msgstr "Cela supprimera le lien de {0} vers {1}. Le travail n'apparaîtra plus sous la commande client et les expéditions ne le trouveront pas."
 
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "Cela remplacera tous les matÃƒÆ’Ã‚Â©riaux de mÃƒÆ’Ã‚Â©thode des autres rÃƒÆ’Ã‚Â©visions par cette rÃƒÆ’Ã‚Â©vision."
@@ -7700,10 +7700,10 @@ msgid "Track every change to your orders, invoices, customers, suppliers, and mo
 msgstr "Suivez chaque modification apportÃƒÆ’Ã‚Â©e ÃƒÆ’Ã‚Â  vos commandes, factures, clients, fournisseurs et bien d'autres."
 
 msgid "Track tax depreciation separately"
-msgstr ""
+msgstr "Suivre séparément l'amortissement fiscal"
 
 msgid "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
-msgstr ""
+msgstr "Suivre l'amortissement fiscal séparément de l'amortissement comptable et publier automatiquement les écritures de passif d'impôt différé."
 
 msgid "Track when batches or serials of this item expire."
 msgstr "Suivez l'expiration des lots ou numÃƒÆ’Ã‚Â©ros de sÃƒÆ’Ã‚Â©rie de cet article."
@@ -7856,7 +7856,7 @@ msgid "Unlink"
 msgstr "Dissocier"
 
 msgid "Unlink job from sales order?"
-msgstr ""
+msgstr "Dissocier la commande de la commande client ?"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Type de document source non pris en charge : {sourceDocument}"

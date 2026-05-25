@@ -139,7 +139,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     supplierShippingCost: 0,
     supplierTaxAmount: 0,
     exchangeRate: 1,
-    setupPrice: 0,
     purchaseUnitOfMeasureCode: "EA",
     inventoryUnitOfMeasureCode: "EA",
     conversionFactor: 1,

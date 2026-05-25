@@ -403,7 +403,7 @@ msgid "Job Traveler"
 msgstr "Auftragsbegleitkarte"
 
 msgid "Jobs"
-msgstr ""
+msgstr "Aufträge"
 
 msgid "Kit"
 msgstr "Bausatz"
@@ -536,7 +536,7 @@ msgid "No materials"
 msgstr "Keine Materialien"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "Keine offenen Aufträge"
 
 msgid "No operators"
 msgstr "Keine Bediener"
@@ -597,7 +597,7 @@ msgid "Open"
 msgstr "Offen"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "Offene Aufträge"
 
 msgid "Operations"
 msgstr "Arbeitsgänge"
@@ -718,7 +718,7 @@ msgid "Search"
 msgstr "Suchen"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "Nach Job oder Artikel-ID suchen"
 
 msgid "Search operators..."
 msgstr "Bediener suchen..."
@@ -891,7 +891,7 @@ msgid "Total: {0}"
 msgstr "Gesamt: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "Verfolgung"
 
 msgid "Tracking Labels"
 msgstr "Verfolgungsetiketten"
