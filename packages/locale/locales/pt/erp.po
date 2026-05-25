@@ -299,6 +299,9 @@ msgstr "Adicionar Contratante"
 msgid "Add Entry"
 msgstr "Adicionar Entrada"
 
+msgid "Add Feature"
+msgstr ""
+
 msgid "Add from library…"
 msgstr "Adicionar da biblioteca…"
 
@@ -1011,6 +1014,9 @@ msgstr "Descarga AutomÃƒÆ’Ã‚Â¡tica"
 
 msgid "Balance Sheet"
 msgstr "BalanÃƒÆ’Ã‚Â§o Patrimonial"
+
+msgid "Balloon"
+msgstr ""
 
 msgid "Balloon #"
 msgstr ""
@@ -2566,7 +2572,7 @@ msgstr "Arraste e solte um PDF de Ordem de Compra aqui, ou clique para seleciona
 msgid "Drag handle"
 msgstr "Puxador de arrasto"
 
-msgid "Drag to create anchor"
+msgid "Drag to place on drawing"
 msgstr ""
 
 msgid "Drag to reorder"
@@ -3501,9 +3507,6 @@ msgstr "Fax"
 
 msgid "Fax Number"
 msgstr "NÃƒÆ’Ã‚Âºmero de Fax"
-
-msgid "Feature"
-msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -6195,14 +6198,14 @@ msgstr "Remover"
 msgid "Remove {0}"
 msgstr "Remover {0}"
 
-msgid "Remove anchor and balloon"
-msgstr ""
-
 msgid "Remove attachment"
 msgstr "Remover anexo"
 
 msgid "Remove condition"
 msgstr "Remover condiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o"
+
+msgid "Remove feature"
+msgstr ""
 
 msgid "Remove filter"
 msgstr "Remover filtro"
@@ -7927,6 +7930,9 @@ msgstr "Desatribuir regra"
 
 msgid "Unassigned"
 msgstr "NÃƒÆ’Ã‚Â£o atribuÃƒÆ’Ã‚Â­do"
+
+msgid "Unballoon"
+msgstr ""
 
 msgid "Uninstall"
 msgstr "Desinstalar"

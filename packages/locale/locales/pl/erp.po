@@ -299,6 +299,9 @@ msgstr "Dodaj WykonawcÃƒâ€žÃ¢â€žÂ¢"
 msgid "Add Entry"
 msgstr "Dodaj wpis"
 
+msgid "Add Feature"
+msgstr ""
+
 msgid "Add from library…"
 msgstr "Dodaj z biblioteki…"
 
@@ -1011,6 +1014,9 @@ msgstr "CofniÃƒâ€žÃ¢â€žÂ¢cie"
 
 msgid "Balance Sheet"
 msgstr "Bilans"
+
+msgid "Balloon"
+msgstr ""
 
 msgid "Balloon #"
 msgstr ""
@@ -2566,7 +2572,7 @@ msgstr "PrzeciÃƒâ€žÃ¢â‚¬Â¦gnij i upuÃƒâ€¦Ã¢â‚¬ÂºÃƒ
 msgid "Drag handle"
 msgstr "Uchwyt do przeciÃƒâ€žÃ¢â‚¬Â¦gania"
 
-msgid "Drag to create anchor"
+msgid "Drag to place on drawing"
 msgstr ""
 
 msgid "Drag to reorder"
@@ -3501,9 +3507,6 @@ msgstr "Faks"
 
 msgid "Fax Number"
 msgstr "Numer faksu"
-
-msgid "Feature"
-msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -6195,14 +6198,14 @@ msgstr "UsuÃƒâ€¦Ã¢â‚¬Å¾"
 msgid "Remove {0}"
 msgstr "UsuÃƒâ€¦Ã¢â‚¬Å¾ {0}"
 
-msgid "Remove anchor and balloon"
-msgstr ""
-
 msgid "Remove attachment"
 msgstr "UsuÃƒâ€¦Ã¢â‚¬Å¾ zaÃƒâ€¦Ã¢â‚¬Å¡Ãƒâ€žÃ¢â‚¬Â¦cznik"
 
 msgid "Remove condition"
 msgstr "UsuÃƒâ€¦Ã¢â‚¬Å¾ warunek"
+
+msgid "Remove feature"
+msgstr ""
 
 msgid "Remove filter"
 msgstr "UsuÃƒâ€¦Ã¢â‚¬Å¾ filtr"
@@ -7927,6 +7930,9 @@ msgstr "UsuÃƒâ€¦Ã¢â‚¬Å¾ przypisanie reguÃƒâ€¦Ã¢â‚¬Å¡
 
 msgid "Unassigned"
 msgstr "Nieprzydzielone"
+
+msgid "Unballoon"
+msgstr ""
 
 msgid "Uninstall"
 msgstr "Odinstaluj"

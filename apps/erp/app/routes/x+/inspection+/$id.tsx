@@ -7,7 +7,11 @@ import { msg } from "@lingui/core/macro";
 import { lazy, Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
-import { getBalloons, getInspectionDocument } from "~/modules/quality";
+import {
+  getBalloons,
+  getInspectionDocument,
+  getInspectionFeatures
+} from "~/modules/quality";
 import type { InspectionDocumentContent } from "~/modules/quality/types";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -32,8 +36,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!id) throw new Error("Could not find id");
 
   const serviceRole = await getCarbonServiceRole();
-  const [diagram, balloonsResult] = await Promise.all([
+  const [diagram, featuresResult, balloonsResult] = await Promise.all([
     getInspectionDocument(serviceRole, id),
+    getInspectionFeatures(serviceRole, id),
     getBalloons(serviceRole, id)
   ]);
 
@@ -55,25 +60,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw redirect(path.to.inspectionDocuments);
   }
 
+  const features = featuresResult.data ?? [];
   const balloons = balloonsResult.data ?? [];
-  const anchors = balloons.map((b) => ({
-    id: b.id,
-    pageNumber: b.pageNumber,
-    xCoordinate: b.regionX,
-    yCoordinate: b.regionY,
-    width: b.regionWidth,
-    height: b.regionHeight
-  }));
 
   return {
     diagram: diagram.data,
-    anchors,
+    features,
     balloons
   };
 }
 
 export default function BalloonDetailRoute() {
-  const { diagram, anchors, balloons } = useLoaderData<typeof loader>();
+  const { diagram, features, balloons } = useLoaderData<typeof loader>();
   const content = diagram.content as InspectionDocumentContent | null;
 
   return (
@@ -97,7 +95,7 @@ export default function BalloonDetailRoute() {
               diagramId={diagram.id}
               name={diagram.name}
               content={content}
-              anchors={anchors}
+              features={features}
               balloons={balloons}
             />
           </Suspense>

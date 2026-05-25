@@ -299,6 +299,9 @@ msgstr "Auftragnehmer hinzufÃƒÆ’Ã‚Â¼gen"
 msgid "Add Entry"
 msgstr "Eintrag hinzufÃƒÆ’Ã‚Â¼gen"
 
+msgid "Add Feature"
+msgstr ""
+
 msgid "Add from library…"
 msgstr "Aus Bibliothek hinzufügen…"
 
@@ -1011,6 +1014,9 @@ msgstr "RÃƒÆ’Ã‚Â¼cklauf"
 
 msgid "Balance Sheet"
 msgstr "Bilanz"
+
+msgid "Balloon"
+msgstr ""
 
 msgid "Balloon #"
 msgstr ""
@@ -2566,7 +2572,7 @@ msgstr "Ziehen Sie eine Bestellungs-PDF hierher, oder klicken Sie, um eine Datei
 msgid "Drag handle"
 msgstr "Ziehgriff"
 
-msgid "Drag to create anchor"
+msgid "Drag to place on drawing"
 msgstr ""
 
 msgid "Drag to reorder"
@@ -3501,9 +3507,6 @@ msgstr "Fax"
 
 msgid "Fax Number"
 msgstr "Faxnummer"
-
-msgid "Feature"
-msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -6195,14 +6198,14 @@ msgstr "Entfernen"
 msgid "Remove {0}"
 msgstr "Entfernen {0}"
 
-msgid "Remove anchor and balloon"
-msgstr ""
-
 msgid "Remove attachment"
 msgstr "Anhang entfernen"
 
 msgid "Remove condition"
 msgstr "Bedingung entfernen"
+
+msgid "Remove feature"
+msgstr ""
 
 msgid "Remove filter"
 msgstr "Filter entfernen"
@@ -7927,6 +7930,9 @@ msgstr "Regel entfernen"
 
 msgid "Unassigned"
 msgstr "Nicht zugewiesen"
+
+msgid "Unballoon"
+msgstr ""
 
 msgid "Uninstall"
 msgstr "Deinstallieren"

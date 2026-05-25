@@ -8,6 +8,14 @@ import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
 
+import {
+  listBalloons,
+  listInspectionFeatures,
+  mapBalloonIdsToFeatureIdsForDocument
+} from "./inspectionDocumentDb";
+
+export { mapBalloonIdsToFeatureIdsForDocument };
+
 import type { inspectionStatus } from "../shared";
 import type {
   gaugeCalibrationRecordValidator,
@@ -1883,8 +1891,7 @@ export async function getInspectionDocuments(
   let query = documentClient
     .from("inspectionDocument")
     .select("*", { count: "exact" })
-    .eq("companyId", companyId)
-    .is("deletedAt", null);
+    .eq("companyId", companyId);
 
   if (args?.search) {
     query = query.or(
@@ -1920,15 +1927,10 @@ export async function getInspectionDocument(
           column: string,
           value: unknown
         ) => {
-          is: (
-            column: string,
-            value: null
-          ) => {
-            single: () => Promise<{
-              data: Record<string, unknown> | null;
-              error: unknown;
-            }>;
-          };
+          single: () => Promise<{
+            data: Record<string, unknown> | null;
+            error: unknown;
+          }>;
         };
       };
     };
@@ -1938,7 +1940,6 @@ export async function getInspectionDocument(
     .from("inspectionDocument")
     .select("*")
     .eq("id", id)
-    .is("deletedAt", null)
     .single();
 
   return {
@@ -1989,15 +1990,10 @@ export async function upsertInspectionDocument(
           column: string,
           value: unknown
         ) => {
-          is: (
-            column: string,
-            value: null
-          ) => {
-            single: () => Promise<{
-              data: Record<string, unknown> | null;
-              error: unknown;
-            }>;
-          };
+          single: () => Promise<{
+            data: Record<string, unknown> | null;
+            error: unknown;
+          }>;
         };
       };
       update: (payload: Record<string, unknown>) => {
@@ -2045,7 +2041,6 @@ export async function upsertInspectionDocument(
       .from("inspectionDocument")
       .select("*")
       .eq("id", id)
-      .is("deletedAt", null)
       .single();
 
     const existing = existingResult.data;
@@ -2143,18 +2138,13 @@ export async function deleteInspectionDocument(
           column: string,
           value: unknown
         ) => {
-          is: (
-            column: string,
-            value: null
-          ) => {
-            single: () => Promise<{
-              data: Record<string, unknown> | null;
-              error: unknown;
-            }>;
-          };
+          single: () => Promise<{
+            data: Record<string, unknown> | null;
+            error: unknown;
+          }>;
         };
       };
-      update: (payload: Record<string, unknown>) => {
+      delete: () => {
         eq: (
           column: string,
           value: unknown
@@ -2169,19 +2159,57 @@ export async function deleteInspectionDocument(
     .from("inspectionDocument")
     .select("*")
     .eq("id", id)
-    .is("deletedAt", null)
     .single();
 
   if (!existingResult.data) {
     return {
+      data: null,
       error: { message: "Inspection document not found" }
     };
   }
 
-  return documentClient
+  const storagePath =
+    (existingResult.data.storagePath as string | null) ?? null;
+
+  const deleteResult = await documentClient
     .from("inspectionDocument")
-    .update({ deletedAt: new Date().toISOString() })
+    .delete()
     .eq("id", id);
+
+  if (deleteResult.error) {
+    return { data: null, error: deleteResult.error };
+  }
+
+  return {
+    data: { storagePath },
+    error: null
+  };
+}
+
+function mapInspectionFeature(row: Record<string, unknown>) {
+  const balloonIdRaw = row.balloonId ?? row.balloon_id;
+  return {
+    id: String(row.id),
+    inspectionDocumentId: String(row.inspectionDocumentId),
+    companyId: String(row.companyId),
+    pageNumber: Number(row.pageNumber),
+    label: String(row.label),
+    description: (row.description as string | null) ?? null,
+    nominalValue: (row.nominalValue as string | null) ?? null,
+    tolerancePlus: (row.tolerancePlus as string | null) ?? null,
+    toleranceMinus: (row.toleranceMinus as string | null) ?? null,
+    unit: (row.unit as string | null) ?? null,
+    balloonId:
+      typeof balloonIdRaw === "string"
+        ? balloonIdRaw
+        : balloonIdRaw != null
+          ? String(balloonIdRaw)
+          : null,
+    createdBy: String(row.createdBy),
+    updatedBy: (row.updatedBy as string | null) ?? null,
+    createdAt: String(row.createdAt),
+    updatedAt: (row.updatedAt as string | null) ?? null
+  };
 }
 
 function mapBalloon(row: Record<string, unknown>) {
@@ -2189,65 +2217,70 @@ function mapBalloon(row: Record<string, unknown>) {
     id: String(row.id),
     inspectionDocumentId: String(row.inspectionDocumentId),
     companyId: String(row.companyId),
+    inspectionFeatureId: String(row.inspectionFeatureId),
     pageNumber: Number(row.pageNumber),
     regionX: Number(row.regionX),
     regionY: Number(row.regionY),
     regionWidth: Number(row.regionWidth),
     regionHeight: Number(row.regionHeight),
-    label: String(row.label),
     xCoordinate: Number(row.xCoordinate),
     yCoordinate: Number(row.yCoordinate),
-    description: (row.description as string | null) ?? null,
-    nominalValue: (row.nominalValue as string | null) ?? null,
-    tolerancePlus: (row.tolerancePlus as string | null) ?? null,
-    toleranceMinus: (row.toleranceMinus as string | null) ?? null,
-    unit: (row.unit as string | null) ?? null,
     createdBy: String(row.createdBy),
     updatedBy: (row.updatedBy as string | null) ?? null,
     createdAt: String(row.createdAt),
     updatedAt: (row.updatedAt as string | null) ?? null,
-    // The balloon's own id serves as its anchor id since they are the same row
     balloonAnchorId: String(row.id)
   };
+}
+
+export async function getInspectionFeatures(
+  client: SupabaseClient<Database>,
+  inspectionDocumentId: string
+) {
+  const [featuresResult, balloonsResult] = await Promise.all([
+    getInspectionFeaturesRaw(client, inspectionDocumentId),
+    getBalloons(client, inspectionDocumentId)
+  ]);
+
+  if (featuresResult.error) {
+    return { data: null, error: featuresResult.error };
+  }
+  if (balloonsResult.error) {
+    return { data: null, error: balloonsResult.error };
+  }
+
+  const balloonByFeatureId = new Map(
+    (balloonsResult.data ?? []).map((b) => [b.inspectionFeatureId, b.id])
+  );
+
+  return {
+    data: (featuresResult.data ?? []).map((row) =>
+      mapInspectionFeature({
+        ...row,
+        balloonId: balloonByFeatureId.get(String(row.id)) ?? null
+      })
+    ),
+    error: null
+  };
+}
+
+async function getInspectionFeaturesRaw(
+  client: SupabaseClient<Database>,
+  inspectionDocumentId: string
+) {
+  return listInspectionFeatures(client, inspectionDocumentId);
 }
 
 export async function getBalloons(
   client: SupabaseClient<Database>,
   inspectionDocumentId: string
 ) {
-  const documentClient = client as unknown as {
-    from: (table: string) => {
-      select: (columns: string) => {
-        eq: (
-          column: string,
-          value: unknown
-        ) => {
-          is: (
-            column: string,
-            value: null
-          ) => {
-            order: (
-              column: string,
-              opts: { ascending: boolean }
-            ) => Promise<{
-              data: Record<string, unknown>[] | null;
-              error: unknown;
-            }>;
-          };
-        };
-      };
-    };
-  };
-
-  const result = await documentClient
-    .from("balloon")
-    .select("*")
-    .eq("inspectionDocumentId", inspectionDocumentId)
-    .is("deletedAt", null)
-    .order("createdAt", { ascending: true });
+  const result = await listBalloons(client, inspectionDocumentId);
 
   return {
-    data: (result.data ?? []).map(mapBalloon),
+    data: (result.data ?? []).map((row) =>
+      mapBalloon(row as unknown as Record<string, unknown>)
+    ),
     error: result.error
   };
 }
@@ -2256,64 +2289,49 @@ export async function getInspectionPlan(
   client: SupabaseClient<Database>,
   inspectionDocumentId: string
 ) {
-  const documentClient = client as unknown as {
-    from: (table: string) => {
-      select: (columns: string) => {
-        eq: (
-          column: string,
-          value: unknown
-        ) => {
-          is: (
-            column: string,
-            value: null
-          ) => {
-            order: (
-              column: string,
-              opts?: { ascending?: boolean }
-            ) => {
-              order: (
-                column: string,
-                opts?: { ascending?: boolean }
-              ) => Promise<{
-                data: Record<string, unknown>[] | null;
-                error: unknown;
-              }>;
-            };
-          };
-        };
-      };
-    };
-  };
+  const [featuresResult, balloonsResult] = await Promise.all([
+    getInspectionFeaturesRaw(client, inspectionDocumentId),
+    getBalloons(client, inspectionDocumentId)
+  ]);
 
-  const result = await documentClient
-    .from("balloon")
-    .select(
-      "id, inspectionDocumentId, pageNumber, label, description, nominalValue, tolerancePlus, toleranceMinus, unit, regionX, regionY, regionWidth, regionHeight, xCoordinate, yCoordinate"
-    )
-    .eq("inspectionDocumentId", inspectionDocumentId)
-    .is("deletedAt", null)
-    .order("pageNumber", { ascending: true })
-    .order("createdAt", { ascending: true });
+  if (featuresResult.error) {
+    return { data: null, error: featuresResult.error };
+  }
+  if (balloonsResult.error) {
+    return { data: null, error: balloonsResult.error };
+  }
+
+  const balloonByFeatureId = new Map(
+    (balloonsResult.data ?? []).map((b) => [b.inspectionFeatureId, b])
+  );
 
   return {
-    data: (result.data ?? []).map((row) => ({
-      id: String(row.id),
-      inspectionDocumentId: String(row.inspectionDocumentId),
-      pageNumber: Number(row.pageNumber),
-      characteristic: String(row.label),
-      description: (row.description as string | null) ?? null,
-      nominalValue: (row.nominalValue as string | null) ?? null,
-      tolerancePlus: (row.tolerancePlus as string | null) ?? null,
-      toleranceMinus: (row.toleranceMinus as string | null) ?? null,
-      unit: (row.unit as string | null) ?? null,
-      regionX: Number(row.regionX),
-      regionY: Number(row.regionY),
-      regionWidth: Number(row.regionWidth),
-      regionHeight: Number(row.regionHeight),
-      xCoordinate: Number(row.xCoordinate),
-      yCoordinate: Number(row.yCoordinate)
-    })),
-    error: result.error
+    data: (featuresResult.data ?? []).map((row) => {
+      const b = balloonByFeatureId.get(row.id);
+      const featureId = row.id;
+      return {
+        /** Feature id (primary key for plan rows). */
+        id: featureId,
+        featureId,
+        /** Balloon id when placed; null for table-only characteristics. */
+        balloonId: b?.id ?? null,
+        inspectionDocumentId: row.inspectionDocumentId,
+        pageNumber: b?.pageNumber ?? row.pageNumber,
+        characteristic: row.label,
+        description: row.description,
+        nominalValue: row.nominalValue,
+        tolerancePlus: row.tolerancePlus,
+        toleranceMinus: row.toleranceMinus,
+        unit: row.unit,
+        regionX: b ? b.regionX : null,
+        regionY: b ? b.regionY : null,
+        regionWidth: b ? b.regionWidth : null,
+        regionHeight: b ? b.regionHeight : null,
+        xCoordinate: b ? b.xCoordinate : null,
+        yCoordinate: b ? b.yCoordinate : null
+      };
+    }),
+    error: null
   };
 }
 
@@ -2327,7 +2345,7 @@ export async function saveInspectionDocumentAtomic(
     pageCount?: number;
     defaultPageWidth?: number;
     defaultPageHeight?: number;
-    anchors: unknown;
+    features: unknown;
     balloons: unknown;
   }
 ) {
@@ -2349,7 +2367,7 @@ export async function saveInspectionDocumentAtomic(
     p_page_count: args.pageCount ?? null,
     p_default_page_width: args.defaultPageWidth ?? null,
     p_default_page_height: args.defaultPageHeight ?? null,
-    p_anchors: args.anchors,
+    p_features: args.features,
     p_balloons: args.balloons
   });
 }

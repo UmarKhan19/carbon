@@ -299,6 +299,9 @@ msgstr "Add Contractor"
 msgid "Add Entry"
 msgstr "Add Entry"
 
+msgid "Add Feature"
+msgstr "Add Feature"
+
 msgid "Add from library…"
 msgstr "Add from library…"
 
@@ -1011,6 +1014,9 @@ msgstr "Backflush"
 
 msgid "Balance Sheet"
 msgstr "Balance Sheet"
+
+msgid "Balloon"
+msgstr "Balloon"
 
 msgid "Balloon #"
 msgstr "Balloon #"
@@ -2566,8 +2572,8 @@ msgstr "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgid "Drag handle"
 msgstr "Drag handle"
 
-msgid "Drag to create anchor"
-msgstr "Drag to create anchor"
+msgid "Drag to place on drawing"
+msgstr "Drag to place on drawing"
 
 msgid "Drag to reorder"
 msgstr "Drag to reorder"
@@ -3501,9 +3507,6 @@ msgstr "Fax"
 
 msgid "Fax Number"
 msgstr "Fax Number"
-
-msgid "Feature"
-msgstr "Feature"
 
 msgid "Feature values suggested from drawing"
 msgstr "Feature values suggested from drawing"
@@ -6195,14 +6198,14 @@ msgstr "Remove"
 msgid "Remove {0}"
 msgstr "Remove {0}"
 
-msgid "Remove anchor and balloon"
-msgstr "Remove anchor and balloon"
-
 msgid "Remove attachment"
 msgstr "Remove attachment"
 
 msgid "Remove condition"
 msgstr "Remove condition"
+
+msgid "Remove feature"
+msgstr "Remove feature"
 
 msgid "Remove filter"
 msgstr "Remove filter"
@@ -7927,6 +7930,9 @@ msgstr "Unassign rule"
 
 msgid "Unassigned"
 msgstr "Unassigned"
+
+msgid "Unballoon"
+msgstr "Unballoon"
 
 msgid "Uninstall"
 msgstr "Uninstall"

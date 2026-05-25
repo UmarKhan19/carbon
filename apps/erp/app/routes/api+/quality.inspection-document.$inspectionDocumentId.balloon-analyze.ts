@@ -5,7 +5,6 @@ import { data } from "react-router";
 import { balloonRegionAnalysisRequestSchema } from "~/modules/quality/inspectionBalloonAnalyze";
 import {
   INSPECTION_BALLOON_ANALYZE_MAX_IMAGE_BYTES,
-  logInspectionBalloonAnalyzeEvent,
   runInspectionBalloonRegionVisionAnalysis
 } from "~/modules/quality/inspectionBalloonAnalyze.server";
 import { getInspectionDocument } from "~/modules/quality/quality.service";
@@ -112,26 +111,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       mediaType: mime
     });
 
-    logInspectionBalloonAnalyzeEvent({
-      ok: true,
-      companyId,
-      inspectionDocumentId,
-      imageBytes: imageBytes.length,
-      type: object.type,
-      unit: object.unit
-    });
-
     return data({ success: true as const, analysis: object });
   } catch (error) {
     const message = getErrorMessage(error, "Analysis failed");
-    logInspectionBalloonAnalyzeEvent({
-      ok: false,
-      companyId,
-      inspectionDocumentId,
-      imageBytes: imageBytes.length,
-      error: message.slice(0, 240)
-    });
-    console.error("inspection balloon analyze", error);
     return data(
       {
         success: false as const,

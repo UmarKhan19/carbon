@@ -4,8 +4,18 @@ import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { saveInspectionDocumentAtomic } from "~/modules/quality";
 import {
+  type InspectionSaveBalloonsGeometryPayload,
+  type InspectionSaveFeaturesPayload,
+  mergeInspectionBalloonsPayload,
+  mergeInspectionFeaturesPayload,
+  resolveInspectionFeaturePayloadIds,
+  translateLegacyInspectionSavePayload
+} from "~/modules/quality/inspectionDocumentSave.server";
+import {
   inspectionSaveAnchorsPayloadValidator,
-  inspectionSaveBalloonsPayloadValidator
+  inspectionSaveBalloonsGeometryPayloadValidator,
+  inspectionSaveBalloonsPayloadValidator,
+  inspectionSaveFeaturesPayloadValidator
 } from "~/modules/quality/quality.models";
 
 function getErrorMessage(error: unknown, fallback: string) {
@@ -33,8 +43,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const formData = await request.formData();
   const pdfUrl = formData.get("pdfUrl") as string | null;
-  const anchorsRaw = formData.get("anchors") as string | null;
+  const featuresRaw = formData.get("features") as string | null;
   const balloonsRaw = formData.get("balloons") as string | null;
+  const anchorsRaw = formData.get("anchors") as string | null;
   const pageCountRaw = formData.get("pageCount");
   const defaultPageWidthRaw = formData.get("defaultPageWidth");
   const defaultPageHeightRaw = formData.get("defaultPageHeight");
@@ -52,40 +63,104 @@ export async function action({ request, params }: ActionFunctionArgs) {
       ? Number(defaultPageHeightRaw)
       : undefined;
 
-  // ── Parse balloons payload ────────────────────────────────────────────────
-  let balloonsParsed = { create: [], update: [], delete: [] } as ReturnType<
-    typeof inspectionSaveBalloonsPayloadValidator.parse
-  >;
+  let featuresParsed = {
+    create: [],
+    update: [],
+    delete: []
+  } as InspectionSaveFeaturesPayload;
+  let balloonsParsed = {
+    create: [],
+    update: [],
+    delete: []
+  } as InspectionSaveBalloonsGeometryPayload;
+
+  if (featuresRaw) {
+    try {
+      const json = JSON.parse(featuresRaw) as unknown;
+      const validated = inspectionSaveFeaturesPayloadValidator.safeParse(json);
+      if (!validated.success) {
+        throw new Error("Invalid features payload");
+      }
+      featuresParsed = validated.data;
+    } catch {
+      return data(
+        { success: false, message: "Invalid features payload" },
+        { status: 400 }
+      );
+    }
+  }
 
   if (balloonsRaw) {
     try {
       const json = JSON.parse(balloonsRaw) as unknown;
-      const validated = inspectionSaveBalloonsPayloadValidator.safeParse(json);
-      if (!validated.success) {
-        throw new Error("Invalid balloons payload");
+      const geometryValidated =
+        inspectionSaveBalloonsGeometryPayloadValidator.safeParse(json);
+      if (geometryValidated.success) {
+        balloonsParsed = geometryValidated.data;
+      } else {
+        const legacyValidated =
+          inspectionSaveBalloonsPayloadValidator.safeParse(json);
+        if (!legacyValidated.success) {
+          throw new Error("Invalid balloons payload");
+        }
+        if (!anchorsRaw) {
+          return data(
+            {
+              success: false,
+              message: "Legacy balloons payload requires anchors"
+            },
+            { status: 400 }
+          );
+        }
+        const anchorsJson = JSON.parse(anchorsRaw) as unknown;
+        const anchorsValidated =
+          inspectionSaveAnchorsPayloadValidator.safeParse(anchorsJson);
+        if (!anchorsValidated.success) {
+          throw new Error("Invalid anchors payload");
+        }
+        const translated = translateLegacyInspectionSavePayload(
+          anchorsValidated.data,
+          legacyValidated.data
+        );
+        featuresParsed = mergeInspectionFeaturesPayload(
+          featuresParsed,
+          translated.features
+        );
+        balloonsParsed = mergeInspectionBalloonsPayload(
+          balloonsParsed,
+          translated.balloons
+        );
       }
-      balloonsParsed = validated.data;
     } catch {
       return data(
         { success: false, message: "Invalid balloons payload" },
         { status: 400 }
       );
     }
-  }
-
-  // ── Parse anchors payload ─────────────────────────────────────────────────
-  let anchorsParsed = { create: [], update: [], delete: [] } as ReturnType<
-    typeof inspectionSaveAnchorsPayloadValidator.parse
-  >;
-
-  if (anchorsRaw) {
+  } else if (anchorsRaw) {
     try {
-      const json = JSON.parse(anchorsRaw) as unknown;
-      const validated = inspectionSaveAnchorsPayloadValidator.safeParse(json);
-      if (!validated.success) {
+      const anchorsJson = JSON.parse(anchorsRaw) as unknown;
+      const anchorsValidated =
+        inspectionSaveAnchorsPayloadValidator.safeParse(anchorsJson);
+      if (!anchorsValidated.success) {
         throw new Error("Invalid anchors payload");
       }
-      anchorsParsed = validated.data;
+      const translated = translateLegacyInspectionSavePayload(
+        anchorsValidated.data,
+        {
+          create: [],
+          update: [],
+          delete: []
+        }
+      );
+      featuresParsed = mergeInspectionFeaturesPayload(
+        featuresParsed,
+        translated.features
+      );
+      balloonsParsed = mergeInspectionBalloonsPayload(
+        balloonsParsed,
+        translated.balloons
+      );
     } catch {
       return data(
         { success: false, message: "Invalid anchors payload" },
@@ -93,6 +168,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
       );
     }
   }
+
+  featuresParsed = await resolveInspectionFeaturePayloadIds(
+    client,
+    id,
+    featuresParsed
+  );
 
   const rpcResult = await saveInspectionDocumentAtomic(client, {
     inspectionDocumentId: id,
@@ -102,7 +183,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     pageCount,
     defaultPageWidth,
     defaultPageHeight,
-    anchors: anchorsParsed,
+    features: featuresParsed,
     balloons: balloonsParsed
   });
 
@@ -121,7 +202,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   return rpcResult.data as {
     success: boolean;
+    featureIdMap: Record<string, string>;
     balloonAnchorIdMap: Record<string, string>;
+    features: unknown[];
     anchors: unknown[];
     balloons: unknown[];
   };
