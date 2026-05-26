@@ -218,6 +218,12 @@ msgstr "Consumido vencido"
 msgid "Create {0}"
 msgstr "Crear {0}"
 
+msgid "Create a quality issue for MRB review or start a rework quantity for this operation."
+msgstr ""
+
+msgid "Create Quality Issue"
+msgstr ""
+
 msgid "Customer"
 msgstr "Cliente"
 
@@ -248,6 +254,9 @@ msgstr "Descripción"
 
 msgid "Details"
 msgstr "Detalles"
+
+msgid "Dismiss"
+msgstr ""
 
 msgid "Dispatch not found"
 msgstr "Despacho no encontrado"
@@ -365,6 +374,9 @@ msgstr "Impacto"
 
 msgid "In Progress"
 msgstr "En progreso"
+
+msgid "Inspection Failed"
+msgstr ""
 
 msgid "Insufficient quantity"
 msgstr "Cantidad insuficiente"
@@ -599,6 +611,9 @@ msgstr "Abierto"
 msgid "Open Jobs"
 msgstr "Trabajos Abiertos"
 
+msgid "Operation evidence will be attached as context."
+msgstr ""
+
 msgid "Operations"
 msgstr "Operaciones"
 
@@ -822,6 +837,9 @@ msgstr "Repuestos utilizados"
 
 msgid "Start"
 msgstr "Iniciar"
+
+msgid "Start Rework"
+msgstr ""
 
 msgid "Station User"
 msgstr "Usuario de estación"

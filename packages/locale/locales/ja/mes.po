@@ -218,6 +218,12 @@ msgstr "消費期限切れ"
 msgid "Create {0}"
 msgstr "{0}を作成"
 
+msgid "Create a quality issue for MRB review or start a rework quantity for this operation."
+msgstr ""
+
+msgid "Create Quality Issue"
+msgstr ""
+
 msgid "Customer"
 msgstr "顧客"
 
@@ -248,6 +254,9 @@ msgstr "説明"
 
 msgid "Details"
 msgstr "詳細"
+
+msgid "Dismiss"
+msgstr ""
 
 msgid "Dispatch not found"
 msgstr "ディスパッチが見つかりません"
@@ -365,6 +374,9 @@ msgstr "影響"
 
 msgid "In Progress"
 msgstr "進行中"
+
+msgid "Inspection Failed"
+msgstr ""
 
 msgid "Insufficient quantity"
 msgstr "数量が不足しています"
@@ -599,6 +611,9 @@ msgstr "未対応"
 msgid "Open Jobs"
 msgstr "オープンジョブ"
 
+msgid "Operation evidence will be attached as context."
+msgstr ""
+
 msgid "Operations"
 msgstr "工程"
 
@@ -822,6 +837,9 @@ msgstr "使用済みスペアパーツ"
 
 msgid "Start"
 msgstr "開始"
+
+msgid "Start Rework"
+msgstr ""
 
 msgid "Station User"
 msgstr "ステーションユーザー"

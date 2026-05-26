@@ -112,6 +112,7 @@ export const path = {
     jobs: `${x}/jobs`,
     issue: `${x}/issue`,
     issueTrackedEntity: `${x}/issue-tracked-entity`,
+    qualityIssueNew: `${x}/quality-issue/new`,
     location: `${x}/location`,
     login: "/login",
     logout: "/logout",

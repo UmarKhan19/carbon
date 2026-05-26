@@ -218,6 +218,12 @@ msgstr "Verbrauchte abgelaufen"
 msgid "Create {0}"
 msgstr "Erstelle {0}"
 
+msgid "Create a quality issue for MRB review or start a rework quantity for this operation."
+msgstr ""
+
+msgid "Create Quality Issue"
+msgstr ""
+
 msgid "Customer"
 msgstr "Kunde"
 
@@ -248,6 +254,9 @@ msgstr "Beschreibung"
 
 msgid "Details"
 msgstr "Details"
+
+msgid "Dismiss"
+msgstr ""
 
 msgid "Dispatch not found"
 msgstr "Einsatz nicht gefunden"
@@ -365,6 +374,9 @@ msgstr "Auswirkung"
 
 msgid "In Progress"
 msgstr "In Bearbeitung"
+
+msgid "Inspection Failed"
+msgstr ""
 
 msgid "Insufficient quantity"
 msgstr "Unzureichende Menge"
@@ -599,6 +611,9 @@ msgstr "Offen"
 msgid "Open Jobs"
 msgstr "Offene Aufträge"
 
+msgid "Operation evidence will be attached as context."
+msgstr ""
+
 msgid "Operations"
 msgstr "Arbeitsgänge"
 
@@ -822,6 +837,9 @@ msgstr "Verwendete Ersatzteile"
 
 msgid "Start"
 msgstr "Start"
+
+msgid "Start Rework"
+msgstr ""
 
 msgid "Station User"
 msgstr "Stationsbenutzer"

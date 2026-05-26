@@ -218,6 +218,12 @@ msgstr "खपत की गई समाप्त"
 msgid "Create {0}"
 msgstr "{0} बनाएं"
 
+msgid "Create a quality issue for MRB review or start a rework quantity for this operation."
+msgstr ""
+
+msgid "Create Quality Issue"
+msgstr ""
+
 msgid "Customer"
 msgstr "ग्राहक"
 
@@ -248,6 +254,9 @@ msgstr "विवरण"
 
 msgid "Details"
 msgstr "विवरण"
+
+msgid "Dismiss"
+msgstr ""
 
 msgid "Dispatch not found"
 msgstr "डिस्पैच नहीं मिला"
@@ -365,6 +374,9 @@ msgstr "प्रभाव"
 
 msgid "In Progress"
 msgstr "प्रगति में"
+
+msgid "Inspection Failed"
+msgstr ""
 
 msgid "Insufficient quantity"
 msgstr "अपर्याप्त मात्रा"
@@ -599,6 +611,9 @@ msgstr "खुला"
 msgid "Open Jobs"
 msgstr "खुली नौकरियां"
 
+msgid "Operation evidence will be attached as context."
+msgstr ""
+
 msgid "Operations"
 msgstr "संचालन"
 
@@ -822,6 +837,9 @@ msgstr "उपयोग किए गए स्पेयर पार्ट्�
 
 msgid "Start"
 msgstr "शुरू करें"
+
+msgid "Start Rework"
+msgstr ""
 
 msgid "Station User"
 msgstr "स्टेशन उपयोगकर्ता"

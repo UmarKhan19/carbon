@@ -827,11 +827,17 @@ export async function insertReworkQuantity(
     createdBy: string;
   }
 ) {
+  const {
+    trackedEntityId: _trackedEntityId,
+    trackingType: _trackingType,
+    ...insert
+  } = data;
+
   return client
     .from("productionQuantity")
     .insert(
       sanitize({
-        ...data,
+        ...insert,
         type: "Rework"
       })
     )

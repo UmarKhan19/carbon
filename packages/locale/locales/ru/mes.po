@@ -218,6 +218,12 @@ msgstr "Потреблено истекшее"
 msgid "Create {0}"
 msgstr "Создать {0}"
 
+msgid "Create a quality issue for MRB review or start a rework quantity for this operation."
+msgstr ""
+
+msgid "Create Quality Issue"
+msgstr ""
+
 msgid "Customer"
 msgstr "Заказчик"
 
@@ -248,6 +254,9 @@ msgstr "Описание"
 
 msgid "Details"
 msgstr "Детали"
+
+msgid "Dismiss"
+msgstr ""
 
 msgid "Dispatch not found"
 msgstr "Наряд не найден"
@@ -365,6 +374,9 @@ msgstr "Влияние"
 
 msgid "In Progress"
 msgstr "В работе"
+
+msgid "Inspection Failed"
+msgstr ""
 
 msgid "Insufficient quantity"
 msgstr "Недостаточное количество"
@@ -599,6 +611,9 @@ msgstr "Открытые"
 msgid "Open Jobs"
 msgstr "Открытые задания"
 
+msgid "Operation evidence will be attached as context."
+msgstr ""
+
 msgid "Operations"
 msgstr "Операции"
 
@@ -822,6 +837,9 @@ msgstr "Использованные запасные части"
 
 msgid "Start"
 msgstr "Старт"
+
+msgid "Start Rework"
+msgstr ""
 
 msgid "Station User"
 msgstr "Пользователь станции"

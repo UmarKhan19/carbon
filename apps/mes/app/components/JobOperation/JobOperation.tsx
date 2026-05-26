@@ -21,6 +21,13 @@ import {
   Heading,
   HStack,
   IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalTitle,
   ModelViewer,
   ScrollArea,
   Separator,
@@ -69,6 +76,7 @@ import {
   LuCirclePlay,
   LuCirclePlus,
   LuClipboardCheck,
+  LuClipboardPlus,
   LuDownload,
   LuEllipsisVertical,
   LuGitBranchPlus,
@@ -81,7 +89,14 @@ import {
   LuTimer,
   LuTriangleAlert
 } from "react-icons/lu";
-import { Await, Link, useFetcher, useNavigate, useParams } from "react-router";
+import {
+  Await,
+  Form,
+  Link,
+  useFetcher,
+  useNavigate,
+  useParams
+} from "react-router";
 import {
   DeadlineIcon,
   FileIcon,
@@ -212,10 +227,17 @@ export const JobOperation = ({
 
   const attributeRecordModal = useDisclosure();
   const attributeRecordDeleteModal = useDisclosure();
+  const failedInspectionModal = useDisclosure();
   const [activeStep, setActiveStep] = useState(
     parentIsSerial ? serialIndex : 0
   );
   const [hasMultipleRecords, setHasMultipleRecords] = useState(false);
+  const [failedInspectionStep, setFailedInspectionStep] =
+    useState<JobOperationStep | null>(null);
+  const [reworkNotes, setReworkNotes] = useState<string | undefined>();
+  const [reworkDefaultQuantity, setReworkDefaultQuantity] = useState<
+    number | undefined
+  >();
 
   useEffect(() => {
     if (parentIsSerial) {
@@ -371,6 +393,21 @@ export const JobOperation = ({
     attributeRecordDeleteModal.onOpen();
   };
 
+  const onFailedInspection = (attribute: JobOperationStep) => {
+    setFailedInspectionStep(attribute);
+    failedInspectionModal.onOpen();
+  };
+
+  const startReworkFromFailedInspection = () => {
+    if (!failedInspectionStep) return;
+    setReworkNotes(
+      `Rework started from failed inspection "${failedInspectionStep.name}".`
+    );
+    setReworkDefaultQuantity(1);
+    failedInspectionModal.onClose();
+    reworkModal.onOpen();
+  };
+
   const onDeselectStep = () => {
     setSelectedStep(null);
     attributeRecordModal.onClose();
@@ -462,13 +499,7 @@ export const JobOperation = ({
                 >
                   <Trans>Model</Trans>
                 </TabsTrigger>
-                <TabsTrigger
-                  disabled={
-                    !operation.workInstruction ||
-                    Object.keys(operation.workInstruction).length === 0
-                  }
-                  value="procedure"
-                >
+                <TabsTrigger value="procedure">
                   <Trans>Procedure</Trans>
                 </TabsTrigger>
                 <TabsTrigger value="chat">
@@ -2086,6 +2117,27 @@ export const JobOperation = ({
                   onClick={reworkModal.onOpen}
                 /> 
                 */}
+                <Form method="post" action={path.to.qualityIssueNew}>
+                  <input
+                    type="hidden"
+                    name="jobOperationId"
+                    value={operation.id}
+                  />
+                  {trackedEntityId && (
+                    <input
+                      type="hidden"
+                      name="trackedEntityId"
+                      value={trackedEntityId}
+                    />
+                  )}
+                  <IconButtonWithTooltip
+                    type="submit"
+                    icon={
+                      <LuClipboardPlus className="text-accent-foreground group-hover:text-accent-foreground/80" />
+                    }
+                    tooltip={t`Create Quality Issue`}
+                  />
+                </Form>
                 <IconButtonWithTooltip
                   disabled={
                     parentIsSerial &&
@@ -2269,6 +2321,10 @@ export const JobOperation = ({
       {reworkModal.isOpen && (
         <QuantityModal
           type="rework"
+          defaultNotes={reworkNotes}
+          defaultQuantity={
+            reworkDefaultQuantity ?? (parentIsSerial ? 1 : undefined)
+          }
           laborProductionEvent={laborProductionEvent}
           machineProductionEvent={machineProductionEvent}
           operation={operation}
@@ -2276,7 +2332,11 @@ export const JobOperation = ({
           parentIsBatch={parentIsBatch}
           setupProductionEvent={setupProductionEvent}
           trackedEntityId={trackedEntityId}
-          onClose={reworkModal.onClose}
+          onClose={() => {
+            setReworkDefaultQuantity(undefined);
+            setReworkNotes(undefined);
+            reworkModal.onClose();
+          }}
         />
       )}
       {scrapModal.isOpen && (
@@ -2366,7 +2426,87 @@ export const JobOperation = ({
           activeStep={activeStep}
           attribute={selectedStep}
           onClose={onDeselectStep}
+          onFailedInspection={onFailedInspection}
         />
+      ) : null}
+
+      {failedInspectionModal.isOpen && failedInspectionStep ? (
+        <Modal
+          open
+          onOpenChange={(open) => {
+            if (!open) failedInspectionModal.onClose();
+          }}
+        >
+          <ModalContent>
+            <ModalHeader>
+              <ModalTitle>
+                <Trans>Inspection Failed</Trans>
+              </ModalTitle>
+              <ModalDescription>
+                <Trans>
+                  Create a quality issue for MRB review or start a rework
+                  quantity for this operation.
+                </Trans>
+              </ModalDescription>
+            </ModalHeader>
+            <ModalBody>
+              <div className="rounded-md border p-3 text-sm">
+                <div className="font-medium">{failedInspectionStep.name}</div>
+                <div className="text-muted-foreground">
+                  <Trans>Operation evidence will be attached as context.</Trans>
+                </div>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={failedInspectionModal.onClose}
+              >
+                <Trans>Dismiss</Trans>
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={startReworkFromFailedInspection}
+              >
+                <Trans>Start Rework</Trans>
+              </Button>
+              <Form method="post" action={path.to.qualityIssueNew}>
+                <input
+                  type="hidden"
+                  name="jobOperationId"
+                  value={operation.id}
+                />
+                <input
+                  type="hidden"
+                  name="jobOperationStepId"
+                  value={failedInspectionStep.id}
+                />
+                <input
+                  type="hidden"
+                  name="inspectionName"
+                  value={failedInspectionStep.name}
+                />
+                <input
+                  type="hidden"
+                  name="quantity"
+                  value={parentIsSerial ? 1 : operation.operationQuantity}
+                />
+                {trackedEntityId && (
+                  <input
+                    type="hidden"
+                    name="trackedEntityId"
+                    value={trackedEntityId}
+                  />
+                )}
+                <Button type="submit">
+                  <Trans>Create Quality Issue</Trans>
+                </Button>
+              </Form>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       ) : null}
 
       {attributeRecordDeleteModal.isOpen && selectedStep && (
