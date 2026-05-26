@@ -4,6 +4,13 @@ import {
   Heading,
   HStack,
   IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
   toast,
   VStack
 } from "@carbon/react";
@@ -362,6 +369,28 @@ function isTempBalloonId(balloonId: string | null) {
   return balloonId != null && balloonId.startsWith("temp-bln-");
 }
 
+function stripBalloonGeometryFromFeatureRows(rows: FeatureRow[]): FeatureRow[] {
+  return rows.map((r) =>
+    r.balloonId == null
+      ? r
+      : {
+          ...r,
+          balloonId: null,
+          balloonAnchorId: "",
+          x: 0,
+          y: 0,
+          geometryDirty: false
+        }
+  );
+}
+
+function hasBalloonGeometry(
+  rows: FeatureRow[],
+  selectors: SelectorRect[]
+): boolean {
+  return rows.some((r) => r.balloonId != null) || selectors.length > 0;
+}
+
 function sanitizeFilenameBase(name: string) {
   const trimmed = name.trim().replace(/[\\/:*?"<>|]+/g, "_");
   return (trimmed.length > 0 ? trimmed : "diagram").slice(0, 120);
@@ -506,6 +535,14 @@ export default function InspectionDocumentEditor({
   const [pdfUrl, setPdfUrl] = useState<string>(content?.pdfUrl ?? "");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [replacePdfConfirmOpen, setReplacePdfConfirmOpen] = useState(false);
+  const [pendingReplacePdfFile, setPendingReplacePdfFile] =
+    useState<File | null>(null);
+
+  useEffect(() => {
+    const documentPresent = pdfFile !== null || pdfUrl.trim() !== "";
+    setFeaturesTableExpanded(!documentPresent);
+  }, [pdfFile, pdfUrl]);
   const [anchorRects, setSelectorRects] = useState<SelectorRect[]>(() =>
     selectorRectsFromBalloonRecords(balloons)
   );
@@ -525,8 +562,10 @@ export default function InspectionDocumentEditor({
   const [dragKind, setDragKind] = useState<DragKind>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [overlayHeight, setOverlayHeight] = useState<number>(0);
-  /** Expanded: full table. Collapsed: header + one data row (more room for PDF). */
-  const [featuresTableExpanded, setFeaturesTableExpanded] = useState(true);
+  /** Expanded when no PDF (edit features); collapsed when a document is loaded (room for drawing). */
+  const [featuresTableExpanded, setFeaturesTableExpanded] = useState(
+    () => !(content?.pdfUrl ?? "").trim()
+  );
   /** Height of PDF block when table is expanded (px); drag the splitter to adjust. */
   const [pdfPaneHeightPx, setPdfPaneHeightPx] = useState(360);
   const [editorStackHeightPx, setEditorStackHeightPx] = useState(0);
@@ -560,6 +599,8 @@ export default function InspectionDocumentEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   /** Only the explicit Save button should show "Diagram saved" — not auto-persist after anchor draw. */
   const manualSaveToastRef = useRef(false);
+  const pdfReplaceToastRef = useRef(false);
+  const pdfReplacePendingMetricsRef = useRef(false);
   /** Persisted feature ids to hard-delete on next Save. */
   const pendingFeatureDeleteIdsRef = useRef(new Set<string>());
   /** Persisted balloon ids to hard-delete on next Save (unballoon). */
@@ -699,6 +740,19 @@ export default function InspectionDocumentEditor({
   }, [pdfFile, pdfUrl]);
 
   useEffect(() => {
+    if (!pdfReplacePendingMetricsRef.current || !pdfMetrics) return;
+    pdfReplacePendingMetricsRef.current = false;
+    const formData = new FormData();
+    formData.set("pageCount", String(pdfMetrics.pageCount));
+    formData.set("defaultPageWidth", String(pdfMetrics.defaultPageWidth));
+    formData.set("defaultPageHeight", String(pdfMetrics.defaultPageHeight));
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.saveInspectionDocument(diagramId)
+    });
+  }, [diagramId, fetcher, pdfMetrics]);
+
+  useEffect(() => {
     if (fetcher.data?.success === true) {
       const savedBalloons = fetcher.data.balloons ?? [];
       setSelectorRects(selectorRectsFromBalloonRecords(savedBalloons));
@@ -707,11 +761,18 @@ export default function InspectionDocumentEditor({
       );
       pendingFeatureDeleteIdsRef.current.clear();
       pendingBalloonDeleteIdsRef.current.clear();
-      if (manualSaveToastRef.current) {
+      if (pdfReplaceToastRef.current) {
+        toast.success(
+          t`Drawing replaced. Balloon placements were removed; feature rows are unchanged.`
+        );
+        pdfReplaceToastRef.current = false;
+      } else if (manualSaveToastRef.current) {
         toast.success(t`Diagram saved`);
         manualSaveToastRef.current = false;
       }
     } else if (fetcher.data?.success === false) {
+      pdfReplaceToastRef.current = false;
+      pdfReplacePendingMetricsRef.current = false;
       manualSaveToastRef.current = false;
       toast.error(fetcher.data.message ?? t`Failed to save diagram`);
     }
@@ -1969,13 +2030,11 @@ export default function InspectionDocumentEditor({
     });
   }, [diagramId, name, pdfUrl, anchorRects, featureRows, pdfMetrics, fetcher]);
 
-  const handlePdfUpload = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file || !carbon) return;
+  const uploadPdfAndSave = useCallback(
+    async (file: File, options: { clearBalloons: boolean }) => {
+      if (!carbon) return;
 
       setUploading(true);
-      setPdfFile(file);
 
       const storagePath = `${companyId}/inspectionDocument/${diagramId}/${nanoid()}.pdf`;
       const result = await carbon.storage
@@ -1986,23 +2045,84 @@ export default function InspectionDocumentEditor({
 
       if (result.error) {
         toast.error(t`Failed to upload PDF`);
-        setPdfFile(null);
         return;
       }
 
       const nextPdfUrl = `/file/preview/private/${result.data.path}`;
       setPdfUrl(nextPdfUrl);
       setPdfFile(null);
+      setPdfViewPage(1);
+      setNumPages(0);
+      setPdfMetrics(null);
 
       const formData = new FormData();
       formData.set("pdfUrl", nextPdfUrl);
+
+      if (options.clearBalloons) {
+        const persistedBalloonDeleteIds = featureRows
+          .filter(
+            (r): r is FeatureRow & { balloonId: string } =>
+              r.balloonId != null && !isTempBalloonId(r.balloonId)
+          )
+          .map((r) => r.balloonId);
+
+        formData.set(
+          "balloons",
+          JSON.stringify({
+            create: [],
+            update: [],
+            delete: persistedBalloonDeleteIds
+          })
+        );
+
+        setSelectorRects([]);
+        setFeatureRows((prev) => stripBalloonGeometryFromFeatureRows(prev));
+        pendingBalloonDeleteIdsRef.current.clear();
+        pdfReplaceToastRef.current = true;
+        pdfReplacePendingMetricsRef.current = true;
+      }
+
       fetcher.submit(formData, {
         method: "post",
         action: path.to.saveInspectionDocument(diagramId)
       });
     },
-    [carbon, companyId, diagramId, fetcher, t]
+    [carbon, companyId, diagramId, featureRows, fetcher, t]
   );
+
+  const handlePdfUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = "";
+      if (!file || !carbon) return;
+
+      const replacingExistingPdf = pdfUrl.trim() !== "";
+      const shouldConfirmClearBalloons =
+        replacingExistingPdf && hasBalloonGeometry(featureRows, anchorRects);
+
+      if (shouldConfirmClearBalloons) {
+        setPendingReplacePdfFile(file);
+        setReplacePdfConfirmOpen(true);
+        return;
+      }
+
+      await uploadPdfAndSave(file, { clearBalloons: false });
+    },
+    [anchorRects, carbon, featureRows, pdfUrl, uploadPdfAndSave]
+  );
+
+  const handleConfirmReplacePdf = useCallback(async () => {
+    const file = pendingReplacePdfFile;
+    setReplacePdfConfirmOpen(false);
+    setPendingReplacePdfFile(null);
+    if (!file) return;
+    await uploadPdfAndSave(file, { clearBalloons: true });
+  }, [pendingReplacePdfFile, uploadPdfAndSave]);
+
+  const handleCancelReplacePdf = useCallback(() => {
+    setReplacePdfConfirmOpen(false);
+    setPendingReplacePdfFile(null);
+  }, []);
 
   const hasPdf = pdfFile !== null || pdfUrl !== "";
   const isPdfReady = hasPdf && (numPages > 0 || pdfMetrics !== null);
@@ -2287,6 +2407,43 @@ export default function InspectionDocumentEditor({
     containerWidth > 0 ? Math.max(1, containerWidth * zoomScale) : 0;
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      <Modal
+        open={replacePdfConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCancelReplacePdf();
+        }}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>{t`Replace drawing?`}</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-sm text-muted-foreground">
+              {t`Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing.`}
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleCancelReplacePdf}
+              isDisabled={uploading}
+            >
+              {t`Cancel`}
+            </Button>
+            <Button
+              type="button"
+              isLoading={uploading}
+              isDisabled={uploading}
+              onClick={() => void handleConfirmReplacePdf()}
+            >
+              {t`Replace PDF`}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       {/* Hidden file input */}
       <input
         ref={fileInputRef}

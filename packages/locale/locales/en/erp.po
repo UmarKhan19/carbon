@@ -2587,6 +2587,9 @@ msgstr "Drag to zoom"
 msgid "Drawing Number"
 msgstr "Drawing Number"
 
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+msgstr "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+
 msgid "Drop Shipment"
 msgstr "Drop Shipment"
 
@@ -6276,11 +6279,17 @@ msgstr "Reorder Quantity:"
 msgid "Reordering Policy"
 msgstr "Reordering Policy"
 
+msgid "Replace drawing?"
+msgstr "Replace drawing?"
+
 msgid "Replace existing pricing with source values"
 msgstr "Replace existing pricing with source values"
 
 msgid "Replace PDF"
 msgstr "Replace PDF"
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
+msgstr "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
 
 msgid "Replenishment"
 msgstr "Replenishment"

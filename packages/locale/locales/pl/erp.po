@@ -2587,6 +2587,9 @@ msgstr ""
 msgid "Drawing Number"
 msgstr ""
 
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+msgstr ""
+
 msgid "Drop Shipment"
 msgstr "WysyÃƒâ€¦Ã¢â‚¬Å¡ka bezpoÃƒâ€¦Ã¢â‚¬Âºrednia"
 
@@ -6276,10 +6279,16 @@ msgstr "IloÃƒâ€¦Ã¢â‚¬ÂºÃƒâ€žÃ¢â‚¬Â¡ do ponownego zam
 msgid "Reordering Policy"
 msgstr "Polityka zamawiania"
 
+msgid "Replace drawing?"
+msgstr ""
+
 msgid "Replace existing pricing with source values"
 msgstr "ZastÃƒâ€žÃ¢â‚¬Â¦p istniejÃƒâ€žÃ¢â‚¬Â¦ce ceny wartoÃƒâ€¦Ã¢â‚¬Âºciami ze Ãƒâ€¦Ã‚ÂºrÃƒÆ’Ã‚Â³dÃƒâ€¦Ã¢â‚¬Å¡a"
 
 msgid "Replace PDF"
+msgstr ""
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
 msgstr ""
 
 msgid "Replenishment"

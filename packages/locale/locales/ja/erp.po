@@ -2587,6 +2587,9 @@ msgstr ""
 msgid "Drawing Number"
 msgstr ""
 
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+msgstr ""
+
 msgid "Drop Shipment"
 msgstr "ÃƒÂ£Ã†â€™Ã¢â‚¬Â°ÃƒÂ£Ã†â€™Ã‚Â­ÃƒÂ£Ã†â€™Ã†â€™ÃƒÂ£Ã†â€™Ã¢â‚¬â€ÃƒÂ£Ã¢â‚¬Å¡Ã‚Â·ÃƒÂ£Ã†â€™Ã†â€™ÃƒÂ£Ã†â€™Ã¢â‚¬â€ÃƒÂ£Ã†â€™Ã‚Â¡ÃƒÂ£Ã†â€™Ã‚Â³ÃƒÂ£Ã†â€™Ã‹â€ "
 
@@ -6276,10 +6279,16 @@ msgstr "ÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã¢â‚¬Å¡Ã‚ÂªÃƒÂ£Ã
 msgid "Reordering Policy"
 msgstr "ÃƒÂ¥Ã¢â‚¬Â Ã‚ÂÃƒÂ¦Ã‚Â³Ã‚Â¨ÃƒÂ¦Ã¢â‚¬â€œÃ¢â‚¬Â¡ÃƒÂ£Ã†â€™Ã‚ÂÃƒÂ£Ã†â€™Ã‚ÂªÃƒÂ£Ã¢â‚¬Å¡Ã‚Â·ÃƒÂ£Ã†â€™Ã‚Â¼"
 
+msgid "Replace drawing?"
+msgstr ""
+
 msgid "Replace existing pricing with source values"
 msgstr "ÃƒÂ¦Ã¢â‚¬â€Ã‚Â¢ÃƒÂ¥Ã‚Â­Ã‹Å“ÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ¤Ã‚Â¾Ã‚Â¡ÃƒÂ¦Ã‚Â Ã‚Â¼ÃƒÂ£Ã¢â‚¬Å¡Ã¢â‚¬â„¢ÃƒÂ¥Ã¢â‚¬Â¦Ã†â€™ÃƒÂ£Ã‚ÂÃ‚Â®ÃƒÂ¥Ã¢â€šÂ¬Ã‚Â¤ÃƒÂ£Ã‚ÂÃ‚Â«ÃƒÂ§Ã‚Â½Ã‚Â®ÃƒÂ£Ã‚ÂÃ‚ÂÃƒÂ¦Ã‚ÂÃ¢â‚¬ÂºÃƒÂ£Ã‚ÂÃ‹â€ ÃƒÂ£Ã¢â‚¬Å¡Ã¢â‚¬Â¹"
 
 msgid "Replace PDF"
+msgstr ""
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
 msgstr ""
 
 msgid "Replenishment"
