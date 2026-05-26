@@ -20,7 +20,7 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import {
@@ -39,8 +39,6 @@ import ScrapReason from "./ScrapReason";
 
 export function QuantityModal({
   allStepsRecorded = true,
-  defaultNotes,
-  defaultQuantity,
   laborProductionEvent,
   machineProductionEvent,
   materials = [],
@@ -53,8 +51,6 @@ export function QuantityModal({
   onClose
 }: {
   allStepsRecorded?: boolean;
-  defaultNotes?: string;
-  defaultQuantity?: number;
   laborProductionEvent: ProductionEvent | undefined;
   machineProductionEvent: ProductionEvent | undefined;
   materials?: JobMaterial[];
@@ -68,16 +64,8 @@ export function QuantityModal({
 }) {
   const { t } = useLingui();
   const fetcher = useFetcher<ProductionQuantity>();
-  const [quantity, setQuantity] = useState(
-    defaultQuantity ?? (parentIsSerial ? 1 : 0)
-  );
+  const [quantity, setQuantity] = useState(parentIsSerial ? 1 : 0);
   const [confirmedUnissued, setConfirmedUnissued] = useState(false);
-
-  useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data) {
-      onClose();
-    }
-  }, [fetcher.data, fetcher.state, onClose]);
 
   const titleMap = {
     scrap: t`Log scrap for ${operation.itemReadableId}`,
@@ -157,14 +145,15 @@ export function QuantityModal({
               parentIsSerial || parentIsBatch ? trackedEntityId : undefined,
             jobOperationId: operation.id,
             // @ts-ignore
-            quantity: type === "finish" ? undefined : quantity,
-            // @ts-ignore
-            notes: defaultNotes,
+            quantity: type === "finish" ? undefined : 0,
             setupProductionEventId: setupProductionEvent?.id,
             laborProductionEventId: laborProductionEvent?.id,
             machineProductionEventId: machineProductionEvent?.id
           }}
           fetcher={fetcher}
+          onSubmit={() => {
+            onClose();
+          }}
         >
           <ModalHeader>
             <ModalTitle>{titleMap[type]}</ModalTitle>
@@ -270,9 +259,6 @@ export function QuantityModal({
                     }
                     isReadOnly
                   />
-                  {type === "rework" && (
-                    <TextArea label={t`Notes`} name="notes" />
-                  )}
                 </>
               )}
             </VStack>
@@ -290,10 +276,9 @@ export function QuantityModal({
               }
               type="submit"
               disabled={
-                fetcher.state !== "idle" ||
-                (type === "complete" &&
-                  hasUnissuedTrackedMaterials &&
-                  !confirmedUnissued)
+                type === "complete" &&
+                hasUnissuedTrackedMaterials &&
+                !confirmedUnissued
               }
             >
               {actionButtonMap[type]}

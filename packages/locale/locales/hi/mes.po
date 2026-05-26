@@ -218,7 +218,7 @@ msgstr "खपत की गई समाप्त"
 msgid "Create {0}"
 msgstr "{0} बनाएं"
 
-msgid "Create a quality issue for MRB review or start a rework quantity for this operation."
+msgid "Create a quality issue for MRB review."
 msgstr ""
 
 msgid "Create Quality Issue"
@@ -840,9 +840,6 @@ msgstr "उपयोग किए गए स्पेयर पार्ट्�
 
 msgid "Start"
 msgstr "शुरू करें"
-
-msgid "Start Rework"
-msgstr ""
 
 msgid "Station User"
 msgstr "स्टेशन उपयोगकर्ता"

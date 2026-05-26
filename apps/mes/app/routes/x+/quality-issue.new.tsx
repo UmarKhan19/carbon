@@ -5,7 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { Database } from "@carbon/database";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { ERP_URL, path, requestReferrer } from "~/utils/path";
+import { path, requestReferrer } from "~/utils/path";
 
 type ServiceRole = Awaited<ReturnType<typeof getCarbonServiceRole>>;
 type IssueContext =
@@ -185,7 +185,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   throw redirect(
-    `${ERP_URL}/x/issue/${nonConformanceId}`,
+    requestReferrer(request) ?? path.to.active,
     await flash(request, success("Quality issue created"))
   );
 }

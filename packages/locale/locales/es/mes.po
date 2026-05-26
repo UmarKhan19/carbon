@@ -218,7 +218,7 @@ msgstr "Consumido vencido"
 msgid "Create {0}"
 msgstr "Crear {0}"
 
-msgid "Create a quality issue for MRB review or start a rework quantity for this operation."
+msgid "Create a quality issue for MRB review."
 msgstr ""
 
 msgid "Create Quality Issue"
@@ -840,9 +840,6 @@ msgstr "Repuestos utilizados"
 
 msgid "Start"
 msgstr "Iniciar"
-
-msgid "Start Rework"
-msgstr ""
 
 msgid "Station User"
 msgstr "Usuario de estación"

@@ -218,7 +218,7 @@ msgstr "Consommé expiré"
 msgid "Create {0}"
 msgstr "Créer {0}"
 
-msgid "Create a quality issue for MRB review or start a rework quantity for this operation."
+msgid "Create a quality issue for MRB review."
 msgstr ""
 
 msgid "Create Quality Issue"
@@ -840,9 +840,6 @@ msgstr "Pièces de rechange utilisées"
 
 msgid "Start"
 msgstr "Démarrer"
-
-msgid "Start Rework"
-msgstr ""
 
 msgid "Station User"
 msgstr "Utilisateur du poste"

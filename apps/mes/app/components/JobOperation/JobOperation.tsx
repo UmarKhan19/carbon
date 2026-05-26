@@ -233,10 +233,6 @@ export const JobOperation = ({
   const [hasMultipleRecords, setHasMultipleRecords] = useState(false);
   const [failedInspectionStep, setFailedInspectionStep] =
     useState<JobOperationStep | null>(null);
-  const [reworkNotes, setReworkNotes] = useState<string | undefined>();
-  const [reworkDefaultQuantity, setReworkDefaultQuantity] = useState<
-    number | undefined
-  >();
 
   useEffect(() => {
     if (parentIsSerial) {
@@ -397,14 +393,9 @@ export const JobOperation = ({
     failedInspectionModal.onOpen();
   };
 
-  const startReworkFromFailedInspection = () => {
-    if (!failedInspectionStep) return;
-    setReworkNotes(
-      `Rework started from failed inspection "${failedInspectionStep.name}".`
-    );
-    setReworkDefaultQuantity(1);
+  const onCloseFailedInspection = () => {
+    setFailedInspectionStep(null);
     failedInspectionModal.onClose();
-    reworkModal.onOpen();
   };
 
   const onDeselectStep = () => {
@@ -2299,10 +2290,6 @@ export const JobOperation = ({
       {reworkModal.isOpen && (
         <QuantityModal
           type="rework"
-          defaultNotes={reworkNotes}
-          defaultQuantity={
-            reworkDefaultQuantity ?? (parentIsSerial ? 1 : undefined)
-          }
           laborProductionEvent={laborProductionEvent}
           machineProductionEvent={machineProductionEvent}
           operation={operation}
@@ -2310,11 +2297,7 @@ export const JobOperation = ({
           parentIsBatch={parentIsBatch}
           setupProductionEvent={setupProductionEvent}
           trackedEntityId={trackedEntityId}
-          onClose={() => {
-            setReworkDefaultQuantity(undefined);
-            setReworkNotes(undefined);
-            reworkModal.onClose();
-          }}
+          onClose={reworkModal.onClose}
         />
       )}
       {scrapModal.isOpen && (
@@ -2412,7 +2395,7 @@ export const JobOperation = ({
         <Modal
           open
           onOpenChange={(open) => {
-            if (!open) failedInspectionModal.onClose();
+            if (!open) onCloseFailedInspection();
           }}
         >
           <ModalContent>
@@ -2421,10 +2404,7 @@ export const JobOperation = ({
                 <Trans>Inspection Failed</Trans>
               </ModalTitle>
               <ModalDescription>
-                <Trans>
-                  Create a quality issue for MRB review or start a rework
-                  quantity for this operation.
-                </Trans>
+                <Trans>Create a quality issue for MRB review.</Trans>
               </ModalDescription>
             </ModalHeader>
             <ModalBody>
@@ -2439,18 +2419,15 @@ export const JobOperation = ({
               <Button
                 type="button"
                 variant="secondary"
-                onClick={failedInspectionModal.onClose}
+                onClick={onCloseFailedInspection}
               >
                 <Trans>Dismiss</Trans>
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={startReworkFromFailedInspection}
+              <Form
+                method="post"
+                action={path.to.qualityIssueNew}
+                onSubmit={onCloseFailedInspection}
               >
-                <Trans>Start Rework</Trans>
-              </Button>
-              <Form method="post" action={path.to.qualityIssueNew}>
                 <input
                   type="hidden"
                   name="jobOperationId"
