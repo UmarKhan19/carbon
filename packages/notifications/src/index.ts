@@ -1,8 +1,8 @@
 // Notification event taxonomy. Kept as a standalone package because the
 // enums are referenced from app routes, scheduled jobs, and the inngest
-// notify function. The previous Novu trigger helpers have been removed —
-// callers now dispatch a `carbon/notify` event via @carbon/lib's `trigger()`
-// and the notify function handles fan-out (in-app / email / slack).
+// notify function. Callers dispatch a `carbon/notify` event via
+// @carbon/lib's `trigger()` and the notify function handles fan-out
+// (in-app / email / slack).
 
 export enum NotificationEvent {
   ApprovalApproved = "approval-approved",
