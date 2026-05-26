@@ -1352,6 +1352,69 @@ export async function insertManualInventoryAdjustment(
     }
   }
 
+  // When a SERIAL item's "Update Inventory" form is submitted without selecting a
+  // specific row, trackedEntityId is always a fresh nanoid() with no ledger history.
+  // For negative adjustments, resolve the correct stock target before the standard
+  // check runs:
+  //   1. If readableId matches an existing tracked entity, adjust that entity.
+  //   2. Otherwise fall back to untracked (legacy) stock.
+  if (
+    data.entryType === "Negative Adjmt." &&
+    inventoryAdjustment.trackedEntityId &&
+    !currentQuantity
+  ) {
+    if (readableId) {
+      const entityBySerial = await client
+        .from("trackedEntity")
+        .select("id")
+        .eq("itemId", data.itemId)
+        .eq("readableId", readableId)
+        .maybeSingle();
+      if (!entityBySerial.error && entityBySerial.data?.id) {
+        const resolvedId = entityBySerial.data.id;
+        const resolvedQty =
+          storageUnitQuantities?.data?.find(
+            (q) => q.trackedEntityId == resolvedId
+          )?.quantity ?? 0;
+        if (data.quantity > resolvedQty) {
+          return { error: "Insufficient quantity for negative adjustment" };
+        }
+        const entityUpdate = await client
+          .from("trackedEntity")
+          .update({ quantity: resolvedQty - data.quantity, readableId })
+          .eq("id", resolvedId);
+        if (entityUpdate.error) return entityUpdate;
+        return client
+          .from("itemLedger")
+          .insert([
+            {
+              ...data,
+              trackedEntityId: resolvedId,
+              quantity: -Math.abs(data.quantity)
+            }
+          ])
+          .select("*")
+          .single();
+      }
+    }
+    // No serial number provided or serial not found — fall back to legacy (untracked) stock
+    const legacyQty =
+      storageUnitQuantities?.data?.find(
+        (q) =>
+          q.trackedEntityId == null && q.storageUnitId == data.storageUnitId
+      )?.quantity ?? 0;
+    if (data.quantity > legacyQty) {
+      return { error: "Insufficient quantity for negative adjustment" };
+    }
+    return client
+      .from("itemLedger")
+      .insert([
+        { ...data, trackedEntityId: null, quantity: -Math.abs(data.quantity) }
+      ])
+      .select("*")
+      .single();
+  }
+
   // Check if it's a negative adjustment and if the quantity is sufficient
   if (data.entryType === "Negative Adjmt.") {
     if (data.quantity > currentQuantityOnHand) {
