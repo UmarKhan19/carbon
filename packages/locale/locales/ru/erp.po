@@ -3683,6 +3683,9 @@ msgstr "Часов/Деталь"
 msgid "How the resolved price was calculated."
 msgstr "Как была рассчитана окончательная цена."
 
+msgid "How this price was calculated"
+msgstr ""
+
 msgid "Humidity"
 msgstr "Влажность"
 

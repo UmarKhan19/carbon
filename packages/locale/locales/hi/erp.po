@@ -3683,6 +3683,9 @@ msgstr "घंटे/टुकड़ा"
 msgid "How the resolved price was calculated."
 msgstr "हल की गई कीमत की गणना कैसे की गई।"
 
+msgid "How this price was calculated"
+msgstr ""
+
 msgid "Humidity"
 msgstr "आर्द्रता"
 

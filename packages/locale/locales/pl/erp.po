@@ -3683,6 +3683,9 @@ msgstr "Godziny/Sztuka"
 msgid "How the resolved price was calculated."
 msgstr "Jak została obliczona ostateczna cena."
 
+msgid "How this price was calculated"
+msgstr ""
+
 msgid "Humidity"
 msgstr "Wilgotność"
 

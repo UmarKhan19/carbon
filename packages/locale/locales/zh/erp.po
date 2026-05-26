@@ -3683,6 +3683,9 @@ msgstr "小时/件"
 msgid "How the resolved price was calculated."
 msgstr "已解决价格的计算方式。"
 
+msgid "How this price was calculated"
+msgstr ""
+
 msgid "Humidity"
 msgstr "湿度"
 

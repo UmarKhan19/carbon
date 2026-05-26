@@ -3683,6 +3683,9 @@ msgstr "時間/個"
 msgid "How the resolved price was calculated."
 msgstr "解決された価格がどのように計算されたかを示します。"
 
+msgid "How this price was calculated"
+msgstr ""
+
 msgid "Humidity"
 msgstr "湿度"
 

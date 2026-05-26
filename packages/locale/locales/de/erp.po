@@ -3683,6 +3683,9 @@ msgstr "Stunden/Stück"
 msgid "How the resolved price was calculated."
 msgstr "Wie der aufgelöste Preis berechnet wurde."
 
+msgid "How this price was calculated"
+msgstr ""
+
 msgid "Humidity"
 msgstr "Luftfeuchtigkeit"
 

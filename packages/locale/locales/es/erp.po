@@ -3683,6 +3683,9 @@ msgstr "Horas/Pieza"
 msgid "How the resolved price was calculated."
 msgstr "Cómo se calculó el precio resuelto."
 
+msgid "How this price was calculated"
+msgstr ""
+
 msgid "Humidity"
 msgstr "Humedad"
 
