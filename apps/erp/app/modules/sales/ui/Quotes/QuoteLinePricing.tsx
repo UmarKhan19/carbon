@@ -105,6 +105,7 @@ const QuoteLinePricing = ({
   });
 
   const [showCategoryMarkups, setShowCategoryMarkups] = useState(false);
+  const [customMarkup, setCustomMarkup] = useState("");
 
   useEffect(() => {
     setEditableFields((prev) => ({
@@ -642,6 +643,44 @@ const QuoteLinePricing = ({
                   <DropdownMenuItem onClick={() => onRecalculate(100)}>
                     100% Markup
                   </DropdownMenuItem>
+                  <div
+                    className="flex items-center gap-1 px-2 py-1.5 border-t border-border mt-1"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
+                    <Input
+                      size="sm"
+                      type="number"
+                      min={0}
+                      placeholder="Custom %"
+                      value={customMarkup}
+                      className="w-24 h-7 text-sm"
+                      onChange={(e) => setCustomMarkup(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          const val = parseFloat(customMarkup);
+                          if (Number.isFinite(val) && val >= 0) {
+                            onRecalculate(val);
+                            setCustomMarkup("");
+                          }
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => {
+                        const val = parseFloat(customMarkup);
+                        if (Number.isFinite(val) && val >= 0) {
+                          onRecalculate(val);
+                          setCustomMarkup("");
+                        }
+                      }}
+                    >
+                      Apply
+                    </Button>
+                  </div>
                 </DropdownMenuContent>
               </DropdownMenu>
             </HStack>
