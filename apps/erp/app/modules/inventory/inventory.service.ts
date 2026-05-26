@@ -1356,8 +1356,9 @@ export async function insertManualInventoryAdjustment(
   // specific row, trackedEntityId is always a fresh nanoid() with no ledger history.
   // For negative adjustments, resolve the correct stock target before the standard
   // check runs:
-  //   1. If readableId matches an existing tracked entity, adjust that entity.
-  //   2. Otherwise fall back to untracked (legacy) stock.
+  //   1. If readableId is provided, find and adjust that specific tracked entity.
+  //      If the serial number is not found, return an error — never silently fall back.
+  //   2. If no readableId, fall back to untracked (legacy) stock.
   if (
     data.entryType === "Negative Adjmt." &&
     inventoryAdjustment.trackedEntityId &&
@@ -1367,37 +1368,43 @@ export async function insertManualInventoryAdjustment(
       const entityBySerial = await client
         .from("trackedEntity")
         .select("id")
-        .eq("itemId", data.itemId)
+        .eq("companyId", data.companyId)
         .eq("readableId", readableId)
         .maybeSingle();
-      if (!entityBySerial.error && entityBySerial.data?.id) {
-        const resolvedId = entityBySerial.data.id;
-        const resolvedQty =
-          storageUnitQuantities?.data?.find(
-            (q) => q.trackedEntityId == resolvedId
-          )?.quantity ?? 0;
-        if (data.quantity > resolvedQty) {
-          return { error: "Insufficient quantity for negative adjustment" };
-        }
-        const entityUpdate = await client
-          .from("trackedEntity")
-          .update({ quantity: resolvedQty - data.quantity, readableId })
-          .eq("id", resolvedId);
-        if (entityUpdate.error) return entityUpdate;
-        return client
-          .from("itemLedger")
-          .insert([
-            {
-              ...data,
-              trackedEntityId: resolvedId,
-              quantity: -Math.abs(data.quantity)
-            }
-          ])
-          .select("*")
-          .single();
+      // Verify the entity belongs to this item — trackedEntity.itemId is not always
+      // populated, so the authoritative link is through itemLedger (storageUnitQuantities)
+      const resolvedQtyRow =
+        !entityBySerial.error && entityBySerial.data?.id
+          ? storageUnitQuantities?.data?.find(
+              (q) => q.trackedEntityId == entityBySerial.data!.id
+            )
+          : undefined;
+      if (!resolvedQtyRow) {
+        return { error: "Serial number not found" };
       }
+      const resolvedId = entityBySerial.data!.id;
+      const resolvedQty = resolvedQtyRow.quantity ?? 0;
+      if (data.quantity > resolvedQty) {
+        return { error: "Insufficient quantity for negative adjustment" };
+      }
+      const entityUpdate = await client
+        .from("trackedEntity")
+        .update({ quantity: resolvedQty - data.quantity, readableId })
+        .eq("id", resolvedId);
+      if (entityUpdate.error) return entityUpdate;
+      return client
+        .from("itemLedger")
+        .insert([
+          {
+            ...data,
+            trackedEntityId: resolvedId,
+            quantity: -Math.abs(data.quantity)
+          }
+        ])
+        .select("*")
+        .single();
     }
-    // No serial number provided or serial not found — fall back to legacy (untracked) stock
+    // No serial number — fall back to legacy (untracked) stock
     const legacyQty =
       storageUnitQuantities?.data?.find(
         (q) =>
