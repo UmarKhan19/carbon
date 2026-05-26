@@ -1,4 +1,5 @@
 import { useCarbon } from "@carbon/auth";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import { InputControlled, ValidatedForm } from "@carbon/form";
 import {
   Button,
@@ -47,7 +48,6 @@ import {
 } from "~/components/Form";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { usePermissions, useUser } from "~/hooks";
-import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import type { action as statusAction } from "~/routes/x+/warehouse-transfer+/$transferId.status";
 import { path } from "~/utils/path";
 import {
@@ -73,7 +73,7 @@ const WarehouseTransferForm = ({
   // Item rules eval at every "go" status transition (Confirm/Ship/Receive/
   // Complete). Surface violations through the hook's modal rather than the
   // plain navigation path.
-  const statusRules = useItemRuleViolations<typeof statusAction>({
+  const statusRules = useCustomRuleViolations<typeof statusAction>({
     action: warehouseTransfer?.id
       ? path.to.warehouseTransferStatus(warehouseTransfer.id)
       : ""

@@ -200,9 +200,6 @@ msgstr "Periodo di Accumulo (Settimane)"
 msgid "Accumulation Period:"
 msgstr "Periodo di Accumulo:"
 
-msgid "Acknowledge & continue"
-msgstr "Riconosci e continua"
-
 msgid "Action Items"
 msgstr "Elementi di azione"
 
@@ -301,6 +298,9 @@ msgstr "Aggiungi Appaltatore"
 
 msgid "Add Entry"
 msgstr "Aggiungi Voce"
+
+msgid "Add Feature"
+msgstr ""
 
 msgid "Add from library…"
 msgstr "Aggiungi dalla libreria…"
@@ -505,6 +505,18 @@ msgstr "Chiavi API per l'accesso programmatico ai tuoi dati Carbon."
 
 msgid "Applies to"
 msgstr "Si applica a"
+
+msgid "Applies to all"
+msgstr ""
+
+msgid "Applies to all items"
+msgstr ""
+
+msgid "Applies to all storage units"
+msgstr ""
+
+msgid "Applies to all work centers"
+msgstr ""
 
 msgid "Apply pricing rules"
 msgstr "Applica regole di prezzo"
@@ -1003,6 +1015,9 @@ msgstr "Scarico automatico"
 msgid "Balance Sheet"
 msgstr "Bilancio"
 
+msgid "Balloon"
+msgstr ""
+
 msgid "Balloon #"
 msgstr ""
 
@@ -1201,6 +1216,9 @@ msgstr "Logo Carbon"
 
 msgid "Carbon Value"
 msgstr "Valore Carbon"
+
+msgid "Cards"
+msgstr ""
 
 msgid "Carrier"
 msgstr "Vettore"
@@ -1962,6 +1980,9 @@ msgstr "Campo Personalizzato"
 msgid "Custom Fields"
 msgstr "Campi Personalizzati"
 
+msgid "Custom Rules"
+msgstr ""
+
 msgid "Customer"
 msgstr "Cliente"
 
@@ -2504,7 +2525,7 @@ msgid "Dispatches"
 msgstr "Spedizioni"
 
 msgid "Display Settings"
-msgstr "Impostazioni di visualizzazione"
+msgstr ""
 
 msgid "Disposition"
 msgstr "Disposizione"
@@ -2551,7 +2572,7 @@ msgstr "Trascina e rilascia un PDF di ordine di acquisto qui, oppure fai clic pe
 msgid "Drag handle"
 msgstr "Maniglia di trascinamento"
 
-msgid "Drag to create anchor"
+msgid "Drag to place on drawing"
 msgstr ""
 
 msgid "Drag to reorder"
@@ -2564,6 +2585,9 @@ msgid "Drag to zoom"
 msgstr ""
 
 msgid "Drawing Number"
+msgstr ""
+
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
 msgstr ""
 
 msgid "Drop Shipment"
@@ -2840,6 +2864,9 @@ msgstr "Modifica processo fornitore"
 msgid "Edit Supplier Type"
 msgstr "Modifica Tipo Fornitore"
 
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr ""
+
 msgid "Edit Timecard"
 msgstr "Modifica Scheda Orario"
 
@@ -2896,6 +2923,9 @@ msgstr "Tipi di Dipendenti"
 
 msgid "Employees"
 msgstr "Dipendenti"
+
+msgid "Empty work centers"
+msgstr ""
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Abilita la registrazione di audit nelle impostazioni per iniziare a tracciare le modifiche ai tuoi dati."
@@ -2956,12 +2986,6 @@ msgstr "Data di fine"
 
 msgid "End Time"
 msgstr "Ora di fine"
-
-msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-msgstr "Applica vincoli su ricevute, spedizioni, trasferimenti e operazioni di lavoro per questo articolo."
-
-msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-msgstr "Applica la convalida per articolo su ricevute, spedizioni, trasferimenti e rettifiche."
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Applica la convalida per articolo e le linee guida su ricevute, spedizioni, trasferimenti e rettifiche."
@@ -3058,9 +3082,6 @@ msgstr "Errore nella rimozione del modello dalla riga dell'ordine di vendita"
 
 msgid "Error validating serial number"
 msgstr "Errore durante la convalida del numero di serie"
-
-msgid "Errors"
-msgstr "Errori"
 
 msgid "Escalation"
 msgstr "Escalation"
@@ -3490,9 +3511,6 @@ msgstr "Fax"
 msgid "Fax Number"
 msgstr "Numero di Fax"
 
-msgid "Feature"
-msgstr ""
-
 msgid "Feature values suggested from drawing"
 msgstr ""
 
@@ -3510,6 +3528,9 @@ msgstr "Recupera"
 
 msgid "Field"
 msgstr "Campo"
+
+msgid "Field info"
+msgstr ""
 
 msgid "Field Mapping"
 msgstr "Mappatura campi"
@@ -3837,6 +3858,9 @@ msgstr "Infrastruttura"
 msgid "Inherit From Materials"
 msgstr "Eredita dai Materiali"
 
+msgid "Inherited from"
+msgstr ""
+
 msgid "Insert rows"
 msgstr "Inserisci righe"
 
@@ -4043,9 +4067,6 @@ msgstr "ID Articolo"
 
 msgid "Item Master"
 msgstr "Anagrafica Articolo"
-
-msgid "Item Rules"
-msgstr "Regole Articolo"
 
 msgid "Item Scope"
 msgstr "Ambito Articolo"
@@ -4406,6 +4427,9 @@ msgstr "Gestisci come la durata di conservazione viene tracciata, calcolata e ap
 msgid "Manage Ownership"
 msgstr "Gestisci ProprietÃƒÆ’Ã‚Â "
 
+msgid "Manage rules"
+msgstr ""
+
 msgid "Manage Subscription"
 msgstr "Gestisci Abbonamento"
 
@@ -4555,6 +4579,9 @@ msgstr "Standard di Misurazione"
 
 msgid "Members"
 msgstr "Membri"
+
+msgid "MES"
+msgstr ""
 
 msgid "Message"
 msgstr "Messaggio"
@@ -5289,6 +5316,9 @@ msgstr "Data di apertura"
 msgid "Open Dispatches"
 msgstr "Spedizioni Aperte"
 
+msgid "Open in MES"
+msgstr ""
+
 msgid "Open Issues"
 msgstr "Problemi Aperti"
 
@@ -5585,9 +5615,6 @@ msgstr "Seleziona un cliente o un tipo di cliente per visualizzare i loro prezzi
 
 msgid "Pick a date or leave blank to clear it."
 msgstr "Scegli una data o lascia vuoto per cancellarla."
-
-msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-msgstr "Seleziona una regola esistente dalla libreria o creane una nuova per iniziare a applicare vincoli su questo articolo."
 
 msgid "Pick List"
 msgstr "Elenco di prelievo"
@@ -6174,14 +6201,14 @@ msgstr "Rimuovi"
 msgid "Remove {0}"
 msgstr "Rimuovi {0}"
 
-msgid "Remove anchor and balloon"
-msgstr ""
-
 msgid "Remove attachment"
 msgstr "Rimuovi allegato"
 
 msgid "Remove condition"
 msgstr "Rimuovi condizione"
+
+msgid "Remove feature"
+msgstr ""
 
 msgid "Remove filter"
 msgstr "Rimuovi filtro"
@@ -6252,10 +6279,16 @@ msgstr "QuantitÃƒÆ’Ã‚Â  di Riordino:"
 msgid "Reordering Policy"
 msgstr "Politica di Riordino"
 
+msgid "Replace drawing?"
+msgstr ""
+
 msgid "Replace existing pricing with source values"
 msgstr "Sostituisci i prezzi esistenti con i valori di origine"
 
 msgid "Replace PDF"
+msgstr ""
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
 msgstr ""
 
 msgid "Replenishment"
@@ -6444,9 +6477,6 @@ msgstr "La regola si applica a ogni articolo."
 msgid "Rule Type"
 msgstr "Tipo di Regola"
 
-msgid "Rule Violation"
-msgstr "Violazione della regola"
-
 msgid "Rules"
 msgstr "Regole"
 
@@ -6549,8 +6579,8 @@ msgstr ""
 msgid "Scan"
 msgstr "Scansiona"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "Scansiona un'etichetta o cerca per ID, numero di serie o numero di lotto."
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr ""
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Scansiona o inserisci ID entitÃƒÆ’Ã‚Â  tracciata, numero di serie o lotto"
@@ -7231,6 +7261,9 @@ msgstr "Tipi di Archiviazione"
 msgid "Storage Unit"
 msgstr "UnitÃƒÆ’Ã‚Â  di Stoccaggio"
 
+msgid "Storage unit rules"
+msgstr ""
+
 msgid "Storage Units"
 msgstr "UnitÃƒÆ’Ã‚Â  di Stoccaggio"
 
@@ -7638,6 +7671,11 @@ msgstr "Questo sovrascriverÃƒÆ’Ã‚Â  il metodo di preventivo esistente"
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "Questo ricalcolerÃƒÆ’Ã‚Â  il costo unitario dal distinta base e dai processi del metodo di produzione attivo utilizzando la dimensione del lotto. Il costo attuale verrÃƒÆ’Ã‚Â  sovrascritto. Vuoi continuare?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "Questo sostituirÃƒÆ’Ã‚Â  tutti i materiali del metodo di altre revisioni con questa revisione."
 
@@ -7863,6 +7901,9 @@ msgstr "Cestino"
 msgid "Trial Balance"
 msgstr "Bilancia di Verifica"
 
+msgid "Triggers"
+msgstr ""
+
 msgid "Tuesday"
 msgstr "MartedÃƒÆ’Ã‚Â¬"
 
@@ -7890,11 +7931,17 @@ msgstr "Le entitÃƒÆ’Ã‚Â  non campionate rimarranno In Sospeso in modo 
 msgid "Unapproved Supplier"
 msgstr "Fornitore non approvato"
 
+msgid "Unassign from parent unit to remove"
+msgstr ""
+
 msgid "Unassign rule"
 msgstr "Annulla assegnazione regola"
 
 msgid "Unassigned"
 msgstr "Non assegnato"
+
+msgid "Unballoon"
+msgstr ""
 
 msgid "Uninstall"
 msgstr "Disinstalla"
@@ -7934,6 +7981,9 @@ msgstr "Supporto Funzionale Illimitato"
 
 msgid "Unlink"
 msgstr "Scollega"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Tipo di documento di origine non supportato: {sourceDocument}"
@@ -8007,11 +8057,12 @@ msgstr "Aggiorna"
 msgid "Upgrade to Business"
 msgstr "Passa a Business"
 
+#. placeholder {0}: targetCopy.noun
+msgid "Upgrade to unlock {0} rules"
+msgstr ""
+
 msgid "Upgrade to unlock audit history"
 msgstr "Aggiorna per sbloccare la cronologia di audit"
-
-msgid "Upgrade to unlock item rules"
-msgstr "Esegui l'upgrade per sbloccare le regole degli articoli"
 
 msgid "Upload"
 msgstr "Carica"
@@ -8116,6 +8167,9 @@ msgstr "Convalida processo..."
 
 msgid "Value"
 msgstr "Valore"
+
+msgid "Value source by surface"
+msgstr ""
 
 msgid "VAT Number"
 msgstr "Numero IVA"
@@ -8306,9 +8360,6 @@ msgstr "Avvisa quando la persona che ispeziona un articolo in entrata ÃƒÆ’�
 msgid "Warning"
 msgstr "Avvertenza"
 
-msgid "Warnings"
-msgstr "Avvisi"
-
 msgid "Watch full video"
 msgstr "Guarda il video completo"
 
@@ -8368,6 +8419,9 @@ msgstr "Quando la durata di conservazione di un prodotto finito ÃƒÆ’Ã‚Â
 
 msgid "When expired stock is used"
 msgstr "Quando viene utilizzato stock scaduto"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr ""
 
 msgid "Who Can Approve"
 msgstr "Chi PuÃƒÆ’Ã‚Â² Approvare"

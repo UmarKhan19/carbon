@@ -41,13 +41,6 @@ const BALLOON_REGION_ANALYSIS_USER_MESSAGE =
 const BALLOON_REGION_ANALYSIS_SCHEMA_DESCRIPTION =
   "Drawing crop: nominal, tolerances, type enum; unit enum only when a unit symbol/text is visible in the crop, otherwise null";
 
-/** Single-line JSON for server logs (no image payload). */
-export function logInspectionBalloonAnalyzeEvent(
-  payload: Record<string, unknown>
-) {
-  console.info(`inspection_balloon_analyze ${JSON.stringify(payload)}`);
-}
-
 /**
  * Runs vision extraction on a prepared PNG/JPEG/WebP buffer (caller validates size and auth).
  */

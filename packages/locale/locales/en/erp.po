@@ -200,9 +200,6 @@ msgstr "Accumulation Period (Weeks)"
 msgid "Accumulation Period:"
 msgstr "Accumulation Period:"
 
-msgid "Acknowledge & continue"
-msgstr "Acknowledge & continue"
-
 msgid "Action Items"
 msgstr "Action Items"
 
@@ -301,6 +298,9 @@ msgstr "Add Contractor"
 
 msgid "Add Entry"
 msgstr "Add Entry"
+
+msgid "Add Feature"
+msgstr "Add Feature"
 
 msgid "Add from library…"
 msgstr "Add from library…"
@@ -505,6 +505,18 @@ msgstr "API keys for programmatic access to your Carbon data."
 
 msgid "Applies to"
 msgstr "Applies to"
+
+msgid "Applies to all"
+msgstr "Applies to all"
+
+msgid "Applies to all items"
+msgstr "Applies to all items"
+
+msgid "Applies to all storage units"
+msgstr "Applies to all storage units"
+
+msgid "Applies to all work centers"
+msgstr "Applies to all work centers"
 
 msgid "Apply pricing rules"
 msgstr "Apply pricing rules"
@@ -1003,6 +1015,9 @@ msgstr "Backflush"
 msgid "Balance Sheet"
 msgstr "Balance Sheet"
 
+msgid "Balloon"
+msgstr "Balloon"
+
 msgid "Balloon #"
 msgstr "Balloon #"
 
@@ -1201,6 +1216,9 @@ msgstr "Carbon Logo"
 
 msgid "Carbon Value"
 msgstr "Carbon Value"
+
+msgid "Cards"
+msgstr "Cards"
 
 msgid "Carrier"
 msgstr "Carrier"
@@ -1962,6 +1980,9 @@ msgstr "Custom Field"
 msgid "Custom Fields"
 msgstr "Custom Fields"
 
+msgid "Custom Rules"
+msgstr "Custom Rules"
+
 msgid "Customer"
 msgstr "Customer"
 
@@ -2551,8 +2572,8 @@ msgstr "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgid "Drag handle"
 msgstr "Drag handle"
 
-msgid "Drag to create anchor"
-msgstr "Drag to create anchor"
+msgid "Drag to place on drawing"
+msgstr "Drag to place on drawing"
 
 msgid "Drag to reorder"
 msgstr "Drag to reorder"
@@ -2565,6 +2586,9 @@ msgstr "Drag to zoom"
 
 msgid "Drawing Number"
 msgstr "Drawing Number"
+
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+msgstr "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
 
 msgid "Drop Shipment"
 msgstr "Drop Shipment"
@@ -2840,6 +2864,9 @@ msgstr "Edit supplier process"
 msgid "Edit Supplier Type"
 msgstr "Edit Supplier Type"
 
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr "Edit the rule to remove the \"Applies to all\" flag"
+
 msgid "Edit Timecard"
 msgstr "Edit Timecard"
 
@@ -2896,6 +2923,9 @@ msgstr "Employee Types"
 
 msgid "Employees"
 msgstr "Employees"
+
+msgid "Empty work centers"
+msgstr "Empty work centers"
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Enable audit logging in settings to start tracking changes to your data."
@@ -2956,12 +2986,6 @@ msgstr "End Date"
 
 msgid "End Time"
 msgstr "End Time"
-
-msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-msgstr "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-
-msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-msgstr "Enforce per-item validation across receipts, shipments, transfers and adjustments."
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
@@ -3058,9 +3082,6 @@ msgstr "Error removing model from sales order line"
 
 msgid "Error validating serial number"
 msgstr "Error validating serial number"
-
-msgid "Errors"
-msgstr "Errors"
 
 msgid "Escalation"
 msgstr "Escalation"
@@ -3490,9 +3511,6 @@ msgstr "Fax"
 msgid "Fax Number"
 msgstr "Fax Number"
 
-msgid "Feature"
-msgstr "Feature"
-
 msgid "Feature values suggested from drawing"
 msgstr "Feature values suggested from drawing"
 
@@ -3510,6 +3528,9 @@ msgstr "Fetch"
 
 msgid "Field"
 msgstr "Field"
+
+msgid "Field info"
+msgstr "Field info"
 
 msgid "Field Mapping"
 msgstr "Field Mapping"
@@ -3837,6 +3858,9 @@ msgstr "Infrastructure"
 msgid "Inherit From Materials"
 msgstr "Inherit From Materials"
 
+msgid "Inherited from"
+msgstr "Inherited from"
+
 msgid "Insert rows"
 msgstr "Insert rows"
 
@@ -4043,9 +4067,6 @@ msgstr "Item ID"
 
 msgid "Item Master"
 msgstr "Item Master"
-
-msgid "Item Rules"
-msgstr "Item Rules"
 
 msgid "Item Scope"
 msgstr "Item Scope"
@@ -4406,6 +4427,9 @@ msgstr "Manage how shelf life is tracked, computed, and enforced across inventor
 msgid "Manage Ownership"
 msgstr "Manage Ownership"
 
+msgid "Manage rules"
+msgstr "Manage rules"
+
 msgid "Manage Subscription"
 msgstr "Manage Subscription"
 
@@ -4555,6 +4579,9 @@ msgstr "Measurement Standard"
 
 msgid "Members"
 msgstr "Members"
+
+msgid "MES"
+msgstr "MES"
 
 msgid "Message"
 msgstr "Message"
@@ -5289,6 +5316,9 @@ msgstr "Open Date"
 msgid "Open Dispatches"
 msgstr "Open Dispatches"
 
+msgid "Open in MES"
+msgstr "Open in MES"
+
 msgid "Open Issues"
 msgstr "Open Issues"
 
@@ -5585,9 +5615,6 @@ msgstr "Pick a customer or customer type to view their pricing."
 
 msgid "Pick a date or leave blank to clear it."
 msgstr "Pick a date or leave blank to clear it."
-
-msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-msgstr "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
 
 msgid "Pick List"
 msgstr "Pick List"
@@ -6174,14 +6201,14 @@ msgstr "Remove"
 msgid "Remove {0}"
 msgstr "Remove {0}"
 
-msgid "Remove anchor and balloon"
-msgstr "Remove anchor and balloon"
-
 msgid "Remove attachment"
 msgstr "Remove attachment"
 
 msgid "Remove condition"
 msgstr "Remove condition"
+
+msgid "Remove feature"
+msgstr "Remove feature"
 
 msgid "Remove filter"
 msgstr "Remove filter"
@@ -6252,11 +6279,17 @@ msgstr "Reorder Quantity:"
 msgid "Reordering Policy"
 msgstr "Reordering Policy"
 
+msgid "Replace drawing?"
+msgstr "Replace drawing?"
+
 msgid "Replace existing pricing with source values"
 msgstr "Replace existing pricing with source values"
 
 msgid "Replace PDF"
 msgstr "Replace PDF"
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
+msgstr "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
 
 msgid "Replenishment"
 msgstr "Replenishment"
@@ -6444,9 +6477,6 @@ msgstr "Rule applies to every item."
 msgid "Rule Type"
 msgstr "Rule Type"
 
-msgid "Rule Violation"
-msgstr "Rule Violation"
-
 msgid "Rules"
 msgstr "Rules"
 
@@ -6549,8 +6579,8 @@ msgstr "Saving..."
 msgid "Scan"
 msgstr "Scan"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "Scan a label or search by ID, serial number, or batch number."
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr "Scan a label or search by item ID or tracking ID."
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Scan or enter tracked entity ID, serial, or batch"
@@ -7231,6 +7261,9 @@ msgstr "Storage Types"
 msgid "Storage Unit"
 msgstr "Storage Unit"
 
+msgid "Storage unit rules"
+msgstr "Storage unit rules"
+
 msgid "Storage Units"
 msgstr "Storage Units"
 
@@ -7638,6 +7671,11 @@ msgstr "This will overwrite the existing quote method"
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "This will replace all method materials of other revisions with this revision."
 
@@ -7863,6 +7901,9 @@ msgstr "Trash"
 msgid "Trial Balance"
 msgstr "Trial Balance"
 
+msgid "Triggers"
+msgstr "Triggers"
+
 msgid "Tuesday"
 msgstr "Tuesday"
 
@@ -7890,11 +7931,17 @@ msgstr "Un-sampled entities will remain On Hold so you can keep inspecting and d
 msgid "Unapproved Supplier"
 msgstr "Unapproved Supplier"
 
+msgid "Unassign from parent unit to remove"
+msgstr "Unassign from parent unit to remove"
+
 msgid "Unassign rule"
 msgstr "Unassign rule"
 
 msgid "Unassigned"
 msgstr "Unassigned"
+
+msgid "Unballoon"
+msgstr "Unballoon"
 
 msgid "Uninstall"
 msgstr "Uninstall"
@@ -7934,6 +7981,9 @@ msgstr "Unlimited Functional Support"
 
 msgid "Unlink"
 msgstr "Unlink"
+
+msgid "Unlink job from sales order?"
+msgstr "Unlink job from sales order?"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Unsupported source document type: {sourceDocument}"
@@ -8007,11 +8057,12 @@ msgstr "Upgrade"
 msgid "Upgrade to Business"
 msgstr "Upgrade to Business"
 
+#. placeholder {0}: targetCopy.noun
+msgid "Upgrade to unlock {0} rules"
+msgstr "Upgrade to unlock {0} rules"
+
 msgid "Upgrade to unlock audit history"
 msgstr "Upgrade to unlock audit history"
-
-msgid "Upgrade to unlock item rules"
-msgstr "Upgrade to unlock item rules"
 
 msgid "Upload"
 msgstr "Upload"
@@ -8116,6 +8167,9 @@ msgstr "Validating job..."
 
 msgid "Value"
 msgstr "Value"
+
+msgid "Value source by surface"
+msgstr "Value source by surface"
 
 msgid "VAT Number"
 msgstr "VAT Number"
@@ -8306,9 +8360,6 @@ msgstr "Warn when the person inspecting an inbound item is the same person who r
 msgid "Warning"
 msgstr "Warning"
 
-msgid "Warnings"
-msgstr "Warnings"
-
 msgid "Watch full video"
 msgstr "Watch full video"
 
@@ -8368,6 +8419,9 @@ msgstr "When a finished product's shelf life is set to Calculated, pick which co
 
 msgid "When expired stock is used"
 msgstr "When expired stock is used"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
 
 msgid "Who Can Approve"
 msgstr "Who Can Approve"

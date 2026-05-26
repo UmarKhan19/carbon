@@ -9,6 +9,7 @@ import type {
   getInboundInspections,
   getInspectionDocument,
   getInspectionDocuments,
+  getInspectionFeatures,
   getIssueActionTasks,
   getIssueApprovalTasks,
   getIssueAssociations,
@@ -39,6 +40,10 @@ export type Balloon = NonNullable<
   Awaited<ReturnType<typeof getBalloons>>["data"]
 >[number];
 
+export type InspectionFeature = NonNullable<
+  Awaited<ReturnType<typeof getInspectionFeatures>>["data"]
+>[number];
+
 export type BalloonFeature = {
   id: string;
   balloonNumber: number;
@@ -47,8 +52,6 @@ export type BalloonFeature = {
   tolerancePlus: number | null;
   toleranceMinus: number | null;
   unitOfMeasureCode: string | null;
-  characteristicType: "Critical" | "Major" | "Minor" | "Reference" | null;
-  sortOrder: number;
 };
 
 export type InspectionDocumentContent = {

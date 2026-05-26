@@ -83,6 +83,7 @@ import {
   upsertInspectionDocument,
   deleteInspectionDocument,
   getBalloons,
+  getInspectionFeatures,
   getInspectionPlan,
   saveInspectionDocumentAtomic,
 } from "~/modules/quality/quality.service";
@@ -1256,9 +1257,28 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
+    "quality_getInspectionFeatures",
+    {
+      description: "get inspection document features (characteristics grid)",
+      inputSchema: {
+        inspectionDocumentId: z.string()
+      },
+      annotations: READ_ONLY_ANNOTATIONS
+    },
+    withErrorHandling(async (params) => {
+      const result = await getInspectionFeatures(
+        ctx.client,
+        params.inspectionDocumentId
+      );
+      return toMcpResult(result);
+    }, "Failed: quality_getInspectionFeatures")
+  );
+
+  server.registerTool(
     "quality_getInspectionPlan",
     {
-      description: "get inspection plan",
+      description:
+        "get inspection plan; each measurement id/featureId is inspectionFeature id, balloonId set when placed on drawing",
       inputSchema: {
       inspectionDocumentId: z.string(),
     },
@@ -1273,7 +1293,8 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
   server.registerTool(
     "quality_saveInspectionDocumentAtomic",
     {
-      description: "save inspection document atomic",
+      description:
+        "save inspection document; features {create,update,delete} + balloons geometry {create,update,delete} (delete = unplace)",
       inputSchema: {
       args: z.object({
     inspectionDocumentId: z.string(),
@@ -1281,14 +1302,21 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
     pageCount: z.number().optional(),
     defaultPageWidth: z.number().optional(),
     defaultPageHeight: z.number().optional(),
-    anchors: z.any(),
-    balloons: z.any()
+    features: z.any().optional(),
+    balloons: z.any().optional()
   }),
     },
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await saveInspectionDocumentAtomic(ctx.client, { ...params.args, companyId: ctx.companyId, userId: ctx.userId });
+      const { features, balloons, ...rest } = params.args;
+      const result = await saveInspectionDocumentAtomic(ctx.client, {
+        ...rest,
+        features: features ?? { create: [], update: [], delete: [] },
+        balloons: balloons ?? { create: [], update: [], delete: [] },
+        companyId: ctx.companyId,
+        userId: ctx.userId
+      });
       return toMcpResult(result);
     }, "Failed: quality_saveInspectionDocumentAtomic"),
   );

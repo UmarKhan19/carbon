@@ -402,6 +402,9 @@ msgstr "Auftragsdetails"
 msgid "Job Traveler"
 msgstr "Auftragsbegleitkarte"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "Bausatz"
 
@@ -532,6 +535,9 @@ msgstr "Keine Instandhaltung für heute geplant"
 msgid "No materials"
 msgstr "Keine Materialien"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "Keine Bediener"
 
@@ -589,6 +595,9 @@ msgstr "Hoppla. Diese Seite sollten Sie nicht sehen. Sie wird künftig eine Star
 
 msgid "Open"
 msgstr "Offen"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "Arbeitsgänge"
@@ -707,6 +716,9 @@ msgstr "Ausschuss"
 
 msgid "Search"
 msgstr "Suchen"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search operators..."
 msgstr "Bediener suchen..."
@@ -877,6 +889,9 @@ msgstr "Gesamtzeit: {0}"
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
 msgstr "Gesamt: {0}"
+
+msgid "Tracking"
+msgstr ""
 
 msgid "Tracking Labels"
 msgstr "Verfolgungsetiketten"

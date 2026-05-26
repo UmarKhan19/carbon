@@ -1,10 +1,11 @@
-import { MenuIcon, MenuItem, useDisclosure } from "@carbon/react";
+import { MenuIcon, MenuItem, useDisclosure, VStack } from "@carbon/react";
 import { formatDate } from "@carbon/utils";
 import { useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import {
+  LuBookMarked,
   LuFileText,
   LuPencil,
   LuTarget,
@@ -15,6 +16,7 @@ import { useNavigate } from "react-router";
 import { EmployeeAvatar, Hyperlink, New, Table } from "~/components";
 import { ConfirmDelete } from "~/components/Modals";
 import { usePermissions, useUrlParams } from "~/hooks";
+import { useItems } from "~/stores/items";
 import { path } from "~/utils/path";
 import type { InspectionDocument } from "../../types";
 
@@ -35,6 +37,7 @@ const InspectionDocumentTable = memo(
     const navigate = useNavigate();
     const { t } = useLingui();
     const permissions = usePermissions();
+    const [items] = useItems();
 
     const deleteDisclosure = useDisclosure();
     const [selectedDiagram, setSelectedDiagram] =
@@ -51,6 +54,32 @@ const InspectionDocumentTable = memo(
             </Hyperlink>
           ),
           meta: { icon: <LuTarget /> }
+        },
+        {
+          accessorKey: "partId",
+          header: t`Part`,
+          cell: ({ row }) => {
+            const partId = row.original.partId;
+            if (!partId) {
+              return <span className="text-muted-foreground">—</span>;
+            }
+            const item = items.find((i) => i.id === partId);
+            return (
+              <Hyperlink to={path.to.partDetails(partId)}>
+                <VStack spacing={0} className="min-w-[160px] leading-tight">
+                  <span className="truncate font-medium">
+                    {item?.readableIdWithRevision ?? partId}
+                  </span>
+                  {item?.name ? (
+                    <span className="truncate text-xs text-muted-foreground">
+                      {item.name}
+                    </span>
+                  ) : null}
+                </VStack>
+              </Hyperlink>
+            );
+          },
+          meta: { icon: <LuBookMarked /> }
         },
         {
           id: "createdBy",
@@ -81,7 +110,7 @@ const InspectionDocumentTable = memo(
           meta: { icon: <LuFileText /> }
         }
       ],
-      [t]
+      [items, t]
     );
 
     const renderContextMenu = useCallback(

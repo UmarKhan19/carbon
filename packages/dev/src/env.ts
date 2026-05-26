@@ -34,7 +34,7 @@ export function renderEnv(opts: {
       ? "# App-facing URLs (portless hostnames)"
       : "# App-facing URLs (localhost)"
   );
-  lines.push(`DOMAIN=${portless ? host("erp") : "localhost"}`);
+  lines.push(`DOMAIN=${portless ? `${branchPrefix}.dev` : "localhost"}`);
   lines.push(
     `ERP_URL=${portless ? `https://${host("erp")}` : local(ports.PORT_ERP)}`
   );
@@ -82,6 +82,12 @@ export function renderEnv(opts: {
   lines.push(
     `INNGEST_SERVE_HOST=${portless ? `https://${host("erp")}` : local(ports.PORT_ERP)}`
   );
+  // Hostname (no scheme) that docker-compose maps to host-gateway inside the
+  // inngest container, so the SDK URL above resolves to the dev server on the
+  // host. extra_hosts only accepts fully-qualified names — no wildcards —
+  // which is why we can't reuse ${DOMAIN} (e.g. `main.dev` won't match the
+  // `erp.main.dev` host the SDK URL points at).
+  lines.push(`INNGEST_TLS_HOST=${portless ? host("erp") : "localhost"}`);
   lines.push("");
   return lines.join("\n");
 }

@@ -4,6 +4,13 @@ import {
   Heading,
   HStack,
   IconButton,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  ModalTitle,
   toast,
   VStack
 } from "@carbon/react";
@@ -92,7 +99,7 @@ type InspectionDocumentEditorProps = {
   diagramId: string;
   name: string;
   content: InspectionDocumentContent | null;
-  anchors: Array<Record<string, unknown>>;
+  features: Array<Record<string, unknown>>;
   balloons: Array<Record<string, unknown>>;
 };
 
@@ -318,9 +325,10 @@ type SelectorRect = {
   isDirty: boolean;
 };
 
-/** One feature row = one balloon + linked anchor; table fields map to balloon columns. */
+/** One grid row = one inspectionFeature; optional balloon for drawing overlay. */
 type FeatureRow = {
-  balloonId: string;
+  featureId: string;
+  balloonId: string | null;
   balloonAnchorId: string;
   label: string;
   pageNumber: number;
@@ -328,13 +336,14 @@ type FeatureRow = {
   y: number;
   width: number;
   height: number;
+  /** Maps to inspectionFeature.description (editable "Description" column). */
   featureName: string;
   nominalValue: string;
   tolerancePlus: string;
   toleranceMinus: string;
   units: string;
-  /** Persisted rows: set when table fields change so Save can PATCH balloon columns. */
-  balloonDirty?: boolean;
+  featureDirty?: boolean;
+  geometryDirty?: boolean;
 };
 
 const BALLOON_W_NORM = 0.04;
@@ -352,12 +361,34 @@ function nextBalloonLabel(rows: FeatureRow[]): string {
   return String(max + 1);
 }
 
-function isTempBalloonId(balloonId: string) {
-  return balloonId.startsWith("temp-bln-");
+function isTempFeatureId(featureId: string) {
+  return featureId.startsWith("temp-ftr-");
 }
 
-function isTempSelectorId(balloonAnchorId: string) {
-  return balloonAnchorId.startsWith("temp-");
+function isTempBalloonId(balloonId: string | null) {
+  return balloonId != null && balloonId.startsWith("temp-bln-");
+}
+
+function stripBalloonGeometryFromFeatureRows(rows: FeatureRow[]): FeatureRow[] {
+  return rows.map((r) =>
+    r.balloonId == null
+      ? r
+      : {
+          ...r,
+          balloonId: null,
+          balloonAnchorId: "",
+          x: 0,
+          y: 0,
+          geometryDirty: false
+        }
+  );
+}
+
+function hasBalloonGeometry(
+  rows: FeatureRow[],
+  selectors: SelectorRect[]
+): boolean {
+  return rows.some((r) => r.balloonId != null) || selectors.length > 0;
 }
 
 function sanitizeFilenameBase(name: string) {
@@ -395,64 +426,105 @@ function blobToBase64Data(blob: Blob): Promise<string> {
   });
 }
 
-function mapSelectorRecord(s: Record<string, unknown>): SelectorRect {
-  return {
-    id: String(s.id),
-    pageNumber: Number(s.pageNumber ?? 1),
-    x: Number(s.xCoordinate ?? 0) * 100,
-    y: Number(s.yCoordinate ?? 0) * 100,
-    width: Number(s.width ?? 0) * 100,
-    height: Number(s.height ?? 0) * 100,
+/** Selector regions are always derived from balloon rows (region = anchor rect). */
+function selectorRectsFromBalloonRecords(
+  balloons: Array<Record<string, unknown>>
+): SelectorRect[] {
+  return balloons.map((b) => ({
+    id: String(b.id),
+    pageNumber: Number(b.pageNumber ?? 1),
+    x: Number(b.regionX ?? b.xCoordinate ?? 0) * 100,
+    y: Number(b.regionY ?? b.yCoordinate ?? 0) * 100,
+    width: Number(b.regionWidth ?? 0.1) * 100,
+    height: Number(b.regionHeight ?? 0.1) * 100,
     isNew: false,
     isDirty: false
+  }));
+}
+
+/** When a balloon exists, its page is authoritative for overlay placement. */
+function resolvedFeaturePageNumber(
+  feature: Record<string, unknown>,
+  balloon?: Record<string, unknown>
+): number {
+  if (
+    balloon != null &&
+    balloon.pageNumber != null &&
+    balloon.pageNumber !== ""
+  ) {
+    return Number(balloon.pageNumber);
+  }
+  return Number(feature.pageNumber ?? 1);
+}
+
+function mapFeatureRowFromRecords(
+  feature: Record<string, unknown>,
+  balloon?: Record<string, unknown>
+): FeatureRow {
+  const desc =
+    feature.description != null && String(feature.description).trim() !== ""
+      ? String(feature.description)
+      : "";
+  const label = String(feature.label ?? "");
+  const featureName = desc || `Feature ${label}`;
+  const balloonId =
+    balloon != null
+      ? String(balloon.id)
+      : feature.balloonId != null
+        ? String(feature.balloonId)
+        : null;
+
+  return {
+    featureId: String(feature.id),
+    balloonId,
+    balloonAnchorId: balloonId ?? "",
+    label,
+    pageNumber: resolvedFeaturePageNumber(feature, balloon),
+    x: balloon ? Number(balloon.xCoordinate ?? 0) * 100 : 0,
+    y: balloon ? Number(balloon.yCoordinate ?? 0) * 100 : 0,
+    width: BALLOON_W_PCT,
+    height: BALLOON_H_PCT,
+    featureName,
+    nominalValue: String(feature.nominalValue ?? ""),
+    tolerancePlus: String(feature.tolerancePlus ?? ""),
+    toleranceMinus: String(feature.toleranceMinus ?? ""),
+    units: String(feature.unit ?? ""),
+    featureDirty: false,
+    geometryDirty: false
   };
 }
 
-function mapFeatureRowFromBalloon(b: Record<string, unknown>): FeatureRow {
-  const desc =
-    b.description != null && String(b.description).trim() !== ""
-      ? String(b.description)
-      : "";
-  const featureName = desc || `Feature ${String(b.label ?? "")}`;
-
-  const raw = b as Record<string, unknown>;
-  const balloonAnchorIdRaw = raw.balloonAnchorId ?? raw.balloon_anchor_id;
-
-  return {
-    balloonId: String(b.id),
-    balloonAnchorId:
-      typeof balloonAnchorIdRaw === "string"
-        ? balloonAnchorIdRaw
-        : balloonAnchorIdRaw != null
-          ? String(balloonAnchorIdRaw)
-          : "",
-    label: String(b.label ?? ""),
-    pageNumber: Number(b.pageNumber ?? 1),
-    x: Number(b.xCoordinate ?? 0) * 100,
-    y: Number(b.yCoordinate ?? 0) * 100,
-    width: 0.04 * 100,
-    height: 0.04 * 100,
-    featureName,
-    nominalValue: String(b.nominalValue ?? ""),
-    tolerancePlus: String(b.tolerancePlus ?? ""),
-    toleranceMinus: String(b.toleranceMinus ?? ""),
-    units: String(b.unit ?? ""),
-    balloonDirty: false
-  };
+function buildFeatureRowsFromLoader(
+  features: Array<Record<string, unknown>>,
+  balloons: Array<Record<string, unknown>>
+) {
+  const balloonByFeatureId = new Map(
+    balloons.map((b) => [String(b.inspectionFeatureId), b])
+  );
+  return features.map((f) =>
+    mapFeatureRowFromRecords(
+      f,
+      f.balloonId != null
+        ? balloons.find((b) => String(b.id) === String(f.balloonId))
+        : balloonByFeatureId.get(String(f.id))
+    )
+  );
 }
 
 export default function InspectionDocumentEditor({
   diagramId,
   name,
   content,
-  anchors,
+  features: initialFeatures,
   balloons
 }: InspectionDocumentEditorProps) {
   const { t } = useLingui();
   const fetcher = useFetcher<{
     success: boolean;
     message?: string;
+    featureIdMap?: Record<string, string>;
     balloonAnchorIdMap?: Record<string, string>;
+    features?: Array<Record<string, unknown>>;
     anchors?: Array<Record<string, unknown>>;
     balloons?: Array<Record<string, unknown>>;
   }>();
@@ -463,11 +535,19 @@ export default function InspectionDocumentEditor({
   const [pdfUrl, setPdfUrl] = useState<string>(content?.pdfUrl ?? "");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [anchorRects, setSelectorRects] = useState<SelectorRect[]>(
-    anchors.map(mapSelectorRecord)
+  const [replacePdfConfirmOpen, setReplacePdfConfirmOpen] = useState(false);
+  const [pendingReplacePdfFile, setPendingReplacePdfFile] =
+    useState<File | null>(null);
+
+  useEffect(() => {
+    const documentPresent = pdfFile !== null || pdfUrl.trim() !== "";
+    setFeaturesTableExpanded(!documentPresent);
+  }, [pdfFile, pdfUrl]);
+  const [anchorRects, setSelectorRects] = useState<SelectorRect[]>(() =>
+    selectorRectsFromBalloonRecords(balloons)
   );
   const [featureRows, setFeatureRows] = useState<FeatureRow[]>(() =>
-    balloons.map(mapFeatureRowFromBalloon)
+    buildFeatureRowsFromLoader(initialFeatures, balloons)
   );
   const [placing, setPlacing] = useState(false);
   const [placingAnnotation, setPlacingAnnotation] = useState(false);
@@ -482,8 +562,10 @@ export default function InspectionDocumentEditor({
   const [dragKind, setDragKind] = useState<DragKind>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [overlayHeight, setOverlayHeight] = useState<number>(0);
-  /** Expanded: full table. Collapsed: header + one data row (more room for PDF). */
-  const [featuresTableExpanded, setFeaturesTableExpanded] = useState(true);
+  /** Expanded when no PDF (edit features); collapsed when a document is loaded (room for drawing). */
+  const [featuresTableExpanded, setFeaturesTableExpanded] = useState(
+    () => !(content?.pdfUrl ?? "").trim()
+  );
   /** Height of PDF block when table is expanded (px); drag the splitter to adjust. */
   const [pdfPaneHeightPx, setPdfPaneHeightPx] = useState(360);
   const [editorStackHeightPx, setEditorStackHeightPx] = useState(0);
@@ -517,9 +599,13 @@ export default function InspectionDocumentEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   /** Only the explicit Save button should show "Diagram saved" — not auto-persist after anchor draw. */
   const manualSaveToastRef = useRef(false);
-  /** Persisted ids to soft-delete on next Save (cleared after successful reload). */
+  const pdfReplaceToastRef = useRef(false);
+  const pdfReplacePendingMetricsRef = useRef(false);
+  /** Persisted feature ids to hard-delete on next Save. */
+  const pendingFeatureDeleteIdsRef = useRef(new Set<string>());
+  /** Persisted balloon ids to hard-delete on next Save (unballoon). */
   const pendingBalloonDeleteIdsRef = useRef(new Set<string>());
-  const pendingSelectorDeleteIdsRef = useRef(new Set<string>());
+  const [placingFeatureId, setPlacingFeatureId] = useState<string | null>(null);
 
   const [annotations, setAnnotations] = useState<AnnotationRecord[]>([]);
   const [selectedAnnotationId, setSelectedAnnotationId] = useState<
@@ -549,6 +635,7 @@ export default function InspectionDocumentEditor({
   }, [pdfMetrics?.pageCount, numPages]);
 
   useEffect(() => {
+    void pdfViewPage;
     containerRef.current?.scrollTo(0, 0);
   }, [pdfViewPage]);
 
@@ -653,18 +740,39 @@ export default function InspectionDocumentEditor({
   }, [pdfFile, pdfUrl]);
 
   useEffect(() => {
+    if (!pdfReplacePendingMetricsRef.current || !pdfMetrics) return;
+    pdfReplacePendingMetricsRef.current = false;
+    const formData = new FormData();
+    formData.set("pageCount", String(pdfMetrics.pageCount));
+    formData.set("defaultPageWidth", String(pdfMetrics.defaultPageWidth));
+    formData.set("defaultPageHeight", String(pdfMetrics.defaultPageHeight));
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.saveInspectionDocument(diagramId)
+    });
+  }, [diagramId, fetcher, pdfMetrics]);
+
+  useEffect(() => {
     if (fetcher.data?.success === true) {
-      setSelectorRects((fetcher.data.anchors ?? []).map(mapSelectorRecord));
+      const savedBalloons = fetcher.data.balloons ?? [];
+      setSelectorRects(selectorRectsFromBalloonRecords(savedBalloons));
       setFeatureRows(
-        (fetcher.data.balloons ?? []).map(mapFeatureRowFromBalloon)
+        buildFeatureRowsFromLoader(fetcher.data.features ?? [], savedBalloons)
       );
+      pendingFeatureDeleteIdsRef.current.clear();
       pendingBalloonDeleteIdsRef.current.clear();
-      pendingSelectorDeleteIdsRef.current.clear();
-      if (manualSaveToastRef.current) {
+      if (pdfReplaceToastRef.current) {
+        toast.success(
+          t`Drawing replaced. Balloon placements were removed; feature rows are unchanged.`
+        );
+        pdfReplaceToastRef.current = false;
+      } else if (manualSaveToastRef.current) {
         toast.success(t`Diagram saved`);
         manualSaveToastRef.current = false;
       }
     } else if (fetcher.data?.success === false) {
+      pdfReplaceToastRef.current = false;
+      pdfReplacePendingMetricsRef.current = false;
       manualSaveToastRef.current = false;
       toast.error(fetcher.data.message ?? t`Failed to save diagram`);
     }
@@ -908,7 +1016,7 @@ export default function InspectionDocumentEditor({
           return;
         }
 
-        const tempBalloonAnchorId = `temp-${nanoid()}`;
+        const placingExistingFeatureId = placingFeatureId;
         const tempBalloonId = `temp-bln-${nanoid()}`;
         let balloonX = rx + rw + BALLOON_OFFSET_PCT;
         if (balloonX + BALLOON_W_PCT > 100) {
@@ -920,7 +1028,7 @@ export default function InspectionDocumentEditor({
         setSelectorRects((prev) => [
           ...prev,
           {
-            id: tempBalloonAnchorId,
+            id: tempBalloonId,
             pageNumber,
             x: rx,
             y: localY,
@@ -932,12 +1040,35 @@ export default function InspectionDocumentEditor({
         ]);
 
         setFeatureRows((prev) => {
+          const existing = placingExistingFeatureId
+            ? prev.find((r) => r.featureId === placingExistingFeatureId)
+            : null;
+          if (existing) {
+            return prev.map((r) =>
+              r.featureId !== placingExistingFeatureId
+                ? r
+                : {
+                    ...r,
+                    balloonId: tempBalloonId,
+                    balloonAnchorId: tempBalloonId,
+                    pageNumber,
+                    x: balloonX,
+                    y: balloonY,
+                    featureDirty: isTempFeatureId(r.featureId)
+                      ? r.featureDirty
+                      : true,
+                    geometryDirty: true
+                  }
+            );
+          }
+          const tempFeatureId = `temp-ftr-${nanoid()}`;
           const label = nextBalloonLabel(prev);
           return [
             ...prev,
             {
+              featureId: tempFeatureId,
               balloonId: tempBalloonId,
-              balloonAnchorId: tempBalloonAnchorId,
+              balloonAnchorId: tempBalloonId,
               label,
               pageNumber,
               x: balloonX,
@@ -952,102 +1083,99 @@ export default function InspectionDocumentEditor({
             }
           ];
         });
+        setPlacingFeatureId(null);
 
-        const renderedPageWidthPx = Math.max(1, containerWidth * zoomScale);
-        void (async () => {
-          try {
-            if (pdfFile === null && !pdfUrl) {
-              return;
-            }
-            let bytes: ArrayBuffer;
-            if (pdfFile !== null) {
-              bytes = await pdfFile.arrayBuffer();
-            } else {
-              const res = await fetch(pdfUrl, { credentials: "include" });
-              if (!res.ok) {
-                throw new Error(String(res.status));
-              }
-              bytes = await res.arrayBuffer();
-            }
-            const blob = await cropInspectionAnchorToPngBlob({
-              pdfBytes: bytes,
-              pageNumber,
-              x: rx,
-              y: localY,
-              width: rw,
-              height: clippedLocalHeight,
-              renderedPageWidthPx
-            });
-
+        // New selector rows only — skip AI when placing geometry on an existing table feature.
+        if (!placingExistingFeatureId) {
+          const renderedPageWidthPx = Math.max(1, containerWidth * zoomScale);
+          void (async () => {
             try {
-              const imageBase64 = await blobToBase64Data(blob);
-              const analyzeRes = await fetch(
-                path.to.api.inspectionDocumentBalloonAnalyze(diagramId),
-                {
-                  method: "POST",
-                  credentials: "include",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    imageBase64,
-                    mediaType: "image/png"
-                  })
-                }
-              );
-              const payloadUnknown: unknown = await analyzeRes.json();
-              if (import.meta.env.DEV) {
-                console.log("inspection balloon analyze API response", {
-                  ok: analyzeRes.ok,
-                  status: analyzeRes.status,
-                  body: payloadUnknown
-                });
-              }
-              const payload = payloadUnknown as {
-                success?: boolean;
-                analysis?: BalloonRegionAnalysis;
-                message?: string;
-              };
-              if (!analyzeRes.ok || !payload.success || !payload.analysis) {
-                toast.error(
-                  t`Could not analyze region: ${payload.message ?? analyzeRes.statusText}`
-                );
+              if (pdfFile === null && !pdfUrl) {
                 return;
               }
-              const a = payload.analysis;
-              setFeatureRows((prev) =>
-                prev.map((r) => {
-                  if (r.balloonId !== tempBalloonId) return r;
-                  const fmt = (n: number | null, fallback: string) =>
-                    n != null && Number.isFinite(n) ? String(n) : fallback;
-                  const nextNominal = fmt(a.nominal, r.nominalValue);
-                  const nextPlus = fmt(a.tol_plus, r.tolerancePlus);
-                  const nextMinus = fmt(a.tol_minus, r.toleranceMinus);
-                  const nextUnits = a.unit != null ? a.unit : r.units;
-                  let nextFeatureName = r.featureName;
-                  if (a.type !== "unknown") {
-                    const tag = ` [${a.type}]`;
-                    if (!nextFeatureName.includes(tag)) {
-                      nextFeatureName = `${nextFeatureName}${tag}`;
-                    }
+              let bytes: ArrayBuffer;
+              if (pdfFile !== null) {
+                bytes = await pdfFile.arrayBuffer();
+              } else {
+                const res = await fetch(pdfUrl, { credentials: "include" });
+                if (!res.ok) {
+                  throw new Error(String(res.status));
+                }
+                bytes = await res.arrayBuffer();
+              }
+              const blob = await cropInspectionAnchorToPngBlob({
+                pdfBytes: bytes,
+                pageNumber,
+                x: rx,
+                y: localY,
+                width: rw,
+                height: clippedLocalHeight,
+                renderedPageWidthPx
+              });
+
+              try {
+                const imageBase64 = await blobToBase64Data(blob);
+                const analyzeRes = await fetch(
+                  path.to.api.inspectionDocumentBalloonAnalyze(diagramId),
+                  {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      imageBase64,
+                      mediaType: "image/png"
+                    })
                   }
-                  return {
-                    ...r,
-                    nominalValue: nextNominal,
-                    tolerancePlus: nextPlus,
-                    toleranceMinus: nextMinus,
-                    units: nextUnits,
-                    featureName: nextFeatureName,
-                    balloonDirty: true
-                  };
-                })
-              );
-              toast.success(t`Feature values suggested from drawing`);
+                );
+                const payloadUnknown: unknown = await analyzeRes.json();
+                const payload = payloadUnknown as {
+                  success?: boolean;
+                  analysis?: BalloonRegionAnalysis;
+                  message?: string;
+                };
+                if (!analyzeRes.ok || !payload.success || !payload.analysis) {
+                  toast.error(
+                    t`Could not analyze region: ${payload.message ?? analyzeRes.statusText}`
+                  );
+                  return;
+                }
+                const a = payload.analysis;
+                setFeatureRows((prev) =>
+                  prev.map((r) => {
+                    if (r.balloonId !== tempBalloonId) return r;
+                    const fmt = (n: number | null, fallback: string) =>
+                      n != null && Number.isFinite(n) ? String(n) : fallback;
+                    const nextNominal = fmt(a.nominal, r.nominalValue);
+                    const nextPlus = fmt(a.tol_plus, r.tolerancePlus);
+                    const nextMinus = fmt(a.tol_minus, r.toleranceMinus);
+                    const nextUnits = a.unit != null ? a.unit : r.units;
+                    let nextFeatureName = r.featureName;
+                    if (a.type !== "unknown") {
+                      const tag = ` [${a.type}]`;
+                      if (!nextFeatureName.includes(tag)) {
+                        nextFeatureName = `${nextFeatureName}${tag}`;
+                      }
+                    }
+                    return {
+                      ...r,
+                      nominalValue: nextNominal,
+                      tolerancePlus: nextPlus,
+                      toleranceMinus: nextMinus,
+                      units: nextUnits,
+                      featureName: nextFeatureName,
+                      featureDirty: true
+                    };
+                  })
+                );
+                toast.success(t`Feature values suggested from drawing`);
+              } catch {
+                toast.error(t`Could not analyze cropped region`);
+              }
             } catch {
-              toast.error(t`Could not analyze cropped region`);
+              toast.error(t`Could not prepare region image for analysis`);
             }
-          } catch {
-            toast.error(t`Could not prepare region image for analysis`);
-          }
-        })();
+          })();
+        }
 
         setDragKind(null);
         setDrag(null);
@@ -1074,8 +1202,6 @@ export default function InspectionDocumentEditor({
     },
     [
       drag,
-      pdfMetrics,
-      numPages,
       pdfViewPage,
       dragKind,
       zoomScale,
@@ -1086,6 +1212,7 @@ export default function InspectionDocumentEditor({
       diagramId,
       annotations,
       persistAnnotationResize,
+      placingFeatureId,
       t
     ]
   );
@@ -1173,7 +1300,7 @@ export default function InspectionDocumentEditor({
           x <= balloon.x + balloon.width &&
           localY >= balloon.y &&
           localY <= balloon.y + balloon.height;
-        if (inRect) return balloon.balloonId;
+        if (inRect && balloon.balloonId) return balloon.balloonId;
       }
 
       return null;
@@ -1406,8 +1533,7 @@ export default function InspectionDocumentEditor({
       getSelectorIdAt,
       annotations,
       featureRows,
-      anchorRects,
-      pdfViewPage
+      anchorRects
     ]
   );
 
@@ -1505,7 +1631,7 @@ export default function InspectionDocumentEditor({
       }
 
       for (const balloon of featureRows) {
-        if (balloon.pageNumber !== pageNumber) continue;
+        if (balloon.pageNumber !== pageNumber || !balloon.balloonId) continue;
         if (inRect(balloon.x, balloon.y, balloon.width, balloon.height)) {
           return "pointer";
         }
@@ -1585,8 +1711,8 @@ export default function InspectionDocumentEditor({
               ...row,
               x: nextX,
               y: nextY,
-              balloonDirty: row.balloonId.startsWith("temp-bln-")
-                ? row.balloonDirty
+              geometryDirty: isTempBalloonId(row.balloonId)
+                ? row.geometryDirty
                 : true
             };
           })
@@ -1735,8 +1861,8 @@ export default function InspectionDocumentEditor({
               ? row
               : {
                   ...row,
-                  balloonDirty: isTempBalloonId(row.balloonId)
-                    ? row.balloonDirty
+                  geometryDirty: isTempBalloonId(row.balloonId)
+                    ? row.geometryDirty
                     : true
                 }
           )
@@ -1778,72 +1904,117 @@ export default function InspectionDocumentEditor({
     const formData = new FormData();
     formData.set("name", name);
     if (pdfUrl) formData.set("pdfUrl", pdfUrl);
-    const createSelectors = anchorRects
-      .filter((s) => s.isNew)
-      .map((s) => ({
-        tempId: s.id,
-        pageNumber: s.pageNumber,
-        xCoordinate: s.x / 100,
-        yCoordinate: s.y / 100,
-        width: s.width / 100,
-        height: s.height / 100
+    const featuresCreate = featureRows
+      .filter((r) => isTempFeatureId(r.featureId))
+      .map((r) => ({
+        tempId: r.featureId,
+        pageNumber: r.pageNumber,
+        label: r.label,
+        description: r.featureName.trim() || null,
+        nominalValue: getBalloonValueOrNull(r.nominalValue),
+        tolerancePlus: getBalloonValueOrNull(r.tolerancePlus),
+        toleranceMinus: getBalloonValueOrNull(r.toleranceMinus),
+        unit: getBalloonValueOrNull(r.units)
       }));
-    const updateSelectors = anchorRects
-      .filter((s) => !s.isNew && s.isDirty)
-      .map((s) => ({
-        id: s.id,
-        pageNumber: s.pageNumber,
-        xCoordinate: s.x / 100,
-        yCoordinate: s.y / 100,
-        width: s.width / 100,
-        height: s.height / 100
+
+    const featuresUpdate = featureRows
+      .filter(
+        (r) =>
+          !isTempFeatureId(r.featureId) &&
+          (r.featureDirty || (r.geometryDirty && r.balloonId != null))
+      )
+      .map((r) => ({
+        id: r.featureId,
+        pageNumber: r.pageNumber,
+        label: r.label,
+        description: r.featureName.trim() || null,
+        nominalValue: getBalloonValueOrNull(r.nominalValue),
+        tolerancePlus: getBalloonValueOrNull(r.tolerancePlus),
+        toleranceMinus: getBalloonValueOrNull(r.toleranceMinus),
+        unit: getBalloonValueOrNull(r.units)
       }));
+
     formData.set(
-      "anchors",
+      "features",
       JSON.stringify({
-        create: createSelectors,
-        update: updateSelectors,
-        delete: [...pendingSelectorDeleteIdsRef.current]
+        create: featuresCreate,
+        update: featuresUpdate,
+        delete: [...pendingFeatureDeleteIdsRef.current]
       })
     );
 
     const balloonsCreate = featureRows
       .filter((r) => isTempBalloonId(r.balloonId))
       .map((r) => {
+        const anchor = anchorRects.find((s) => s.id === r.balloonAnchorId);
         return {
-          tempBalloonAnchorId: r.balloonAnchorId,
-          label: r.label,
+          ...(isTempFeatureId(r.featureId)
+            ? { tempInspectionFeatureId: r.featureId }
+            : { inspectionFeatureId: r.featureId }),
+          tempBalloonAnchorId: r.balloonId ?? undefined,
+          pageNumber: r.pageNumber,
+          regionX: (anchor?.x ?? 0) / 100,
+          regionY: (anchor?.y ?? 0) / 100,
+          regionWidth: (anchor?.width ?? BALLOON_W_PCT) / 100,
+          regionHeight: (anchor?.height ?? BALLOON_H_PCT) / 100,
           xCoordinate: r.x / 100,
-          yCoordinate: r.y / 100,
-          nominalValue: getBalloonValueOrNull(r.nominalValue),
-          tolerancePlus: getBalloonValueOrNull(r.tolerancePlus),
-          toleranceMinus: getBalloonValueOrNull(r.toleranceMinus),
-          unit: getBalloonValueOrNull(r.units),
-          description: r.featureName.trim() || null
+          yCoordinate: r.y / 100
         };
       });
 
-    const balloonsUpdate = featureRows
-      .filter((r) => !isTempBalloonId(r.balloonId) && r.balloonDirty)
-      .map((r) => {
-        return {
-          id: r.balloonId,
-          label: r.label,
-          xCoordinate: r.x / 100,
-          yCoordinate: r.y / 100,
-          nominalValue: getBalloonValueOrNull(r.nominalValue),
-          tolerancePlus: getBalloonValueOrNull(r.tolerancePlus),
-          toleranceMinus: getBalloonValueOrNull(r.toleranceMinus),
-          unit: getBalloonValueOrNull(r.units),
-          description: r.featureName.trim() || null
-        };
+    const balloonsUpdateById = new Map<
+      string,
+      {
+        id: string;
+        pageNumber?: number;
+        regionX?: number;
+        regionY?: number;
+        regionWidth?: number;
+        regionHeight?: number;
+        xCoordinate?: number;
+        yCoordinate?: number;
+      }
+    >();
+
+    for (const anchor of anchorRects.filter((s) => !s.isNew && s.isDirty)) {
+      balloonsUpdateById.set(anchor.id, {
+        id: anchor.id,
+        pageNumber: anchor.pageNumber,
+        regionX: anchor.x / 100,
+        regionY: anchor.y / 100,
+        regionWidth: anchor.width / 100,
+        regionHeight: anchor.height / 100
       });
+    }
+
+    for (const row of featureRows.filter(
+      (r) => r.balloonId && !isTempBalloonId(r.balloonId) && r.geometryDirty
+    )) {
+      const anchor = anchorRects.find((s) => s.id === row.balloonAnchorId);
+      const existing = balloonsUpdateById.get(row.balloonId!) ?? {
+        id: row.balloonId!
+      };
+      balloonsUpdateById.set(row.balloonId!, {
+        ...existing,
+        pageNumber: anchor?.pageNumber ?? row.pageNumber,
+        ...(anchor
+          ? {
+              regionX: anchor.x / 100,
+              regionY: anchor.y / 100,
+              regionWidth: anchor.width / 100,
+              regionHeight: anchor.height / 100
+            }
+          : {}),
+        xCoordinate: row.x / 100,
+        yCoordinate: row.y / 100
+      });
+    }
 
     formData.set(
       "balloons",
       JSON.stringify({
         create: balloonsCreate,
-        update: balloonsUpdate,
+        update: [...balloonsUpdateById.values()],
         delete: [...pendingBalloonDeleteIdsRef.current]
       })
     );
@@ -1859,13 +2030,11 @@ export default function InspectionDocumentEditor({
     });
   }, [diagramId, name, pdfUrl, anchorRects, featureRows, pdfMetrics, fetcher]);
 
-  const handlePdfUpload = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file || !carbon) return;
+  const uploadPdfAndSave = useCallback(
+    async (file: File, options: { clearBalloons: boolean }) => {
+      if (!carbon) return;
 
       setUploading(true);
-      setPdfFile(file);
 
       const storagePath = `${companyId}/inspectionDocument/${diagramId}/${nanoid()}.pdf`;
       const result = await carbon.storage
@@ -1876,60 +2045,170 @@ export default function InspectionDocumentEditor({
 
       if (result.error) {
         toast.error(t`Failed to upload PDF`);
-        setPdfFile(null);
         return;
       }
 
       const nextPdfUrl = `/file/preview/private/${result.data.path}`;
       setPdfUrl(nextPdfUrl);
       setPdfFile(null);
+      setPdfViewPage(1);
+      setNumPages(0);
+      setPdfMetrics(null);
 
       const formData = new FormData();
       formData.set("pdfUrl", nextPdfUrl);
+
+      if (options.clearBalloons) {
+        const persistedBalloonDeleteIds = featureRows
+          .filter(
+            (r): r is FeatureRow & { balloonId: string } =>
+              r.balloonId != null && !isTempBalloonId(r.balloonId)
+          )
+          .map((r) => r.balloonId);
+
+        formData.set(
+          "balloons",
+          JSON.stringify({
+            create: [],
+            update: [],
+            delete: persistedBalloonDeleteIds
+          })
+        );
+
+        setSelectorRects([]);
+        setFeatureRows((prev) => stripBalloonGeometryFromFeatureRows(prev));
+        pendingBalloonDeleteIdsRef.current.clear();
+        pdfReplaceToastRef.current = true;
+        pdfReplacePendingMetricsRef.current = true;
+      }
+
       fetcher.submit(formData, {
         method: "post",
         action: path.to.saveInspectionDocument(diagramId)
       });
     },
-    [carbon, companyId, diagramId, fetcher, t]
+    [carbon, companyId, diagramId, featureRows, fetcher, t]
   );
+
+  const handlePdfUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = "";
+      if (!file || !carbon) return;
+
+      const replacingExistingPdf = pdfUrl.trim() !== "";
+      const shouldConfirmClearBalloons =
+        replacingExistingPdf && hasBalloonGeometry(featureRows, anchorRects);
+
+      if (shouldConfirmClearBalloons) {
+        setPendingReplacePdfFile(file);
+        setReplacePdfConfirmOpen(true);
+        return;
+      }
+
+      await uploadPdfAndSave(file, { clearBalloons: false });
+    },
+    [anchorRects, carbon, featureRows, pdfUrl, uploadPdfAndSave]
+  );
+
+  const handleConfirmReplacePdf = useCallback(async () => {
+    const file = pendingReplacePdfFile;
+    setReplacePdfConfirmOpen(false);
+    setPendingReplacePdfFile(null);
+    if (!file) return;
+    await uploadPdfAndSave(file, { clearBalloons: true });
+  }, [pendingReplacePdfFile, uploadPdfAndSave]);
+
+  const handleCancelReplacePdf = useCallback(() => {
+    setReplacePdfConfirmOpen(false);
+    setPendingReplacePdfFile(null);
+  }, []);
 
   const hasPdf = pdfFile !== null || pdfUrl !== "";
   const isPdfReady = hasPdf && (numPages > 0 || pdfMetrics !== null);
   const isOverlayReady = isPdfReady && containerWidth > 0 && overlayHeight > 0;
 
-  const handleDeleteFeature = useCallback((balloonId: string) => {
+  const handleDeleteFeature = useCallback((featureId: string) => {
     setFeatureRows((prev) => {
-      const row = prev.find((r) => r.balloonId === balloonId);
-      if (row) {
-        if (!isTempBalloonId(row.balloonId)) {
-          pendingBalloonDeleteIdsRef.current.add(row.balloonId);
-        }
-        if (row.balloonAnchorId && !isTempSelectorId(row.balloonAnchorId)) {
-          pendingSelectorDeleteIdsRef.current.add(row.balloonAnchorId);
-        }
+      const row = prev.find((r) => r.featureId === featureId);
+      if (row && !isTempFeatureId(row.featureId)) {
+        pendingFeatureDeleteIdsRef.current.add(row.featureId);
       }
-      const nextRows = prev.filter((r) => r.balloonId !== balloonId);
-      const keptSelectorIds = new Set(
+      const nextRows = prev.filter((r) => r.featureId !== featureId);
+      const keptAnchorIds = new Set(
         nextRows
           .map((r) => r.balloonAnchorId)
           .filter((id): id is string => id.length > 0)
       );
-      setSelectorRects((sels) => {
-        for (const s of sels) {
-          if (!keptSelectorIds.has(s.id) && !isTempSelectorId(s.id)) {
-            pendingSelectorDeleteIdsRef.current.add(s.id);
-          }
-        }
-        return sels.filter((sel) => keptSelectorIds.has(sel.id));
-      });
+      setSelectorRects((sels) =>
+        sels.filter((sel) => keptAnchorIds.has(sel.id))
+      );
       return nextRows;
+    });
+  }, []);
+
+  const handleAddFeature = useCallback(() => {
+    setFeatureRows((prev) => {
+      const label = nextBalloonLabel(prev);
+      return [
+        ...prev,
+        {
+          featureId: `temp-ftr-${nanoid()}`,
+          balloonId: null,
+          balloonAnchorId: "",
+          label,
+          pageNumber: pdfViewPage,
+          x: 0,
+          y: 0,
+          width: BALLOON_W_PCT,
+          height: BALLOON_H_PCT,
+          featureName: `Feature ${label}`,
+          nominalValue: "",
+          tolerancePlus: "",
+          toleranceMinus: "",
+          units: ""
+        }
+      ];
+    });
+  }, [pdfViewPage]);
+
+  const handlePlaceFeatureOnDrawing = useCallback((featureId: string) => {
+    setPlacingFeatureId(featureId);
+    setPlacing(true);
+    setPlacingAnnotation(false);
+    setZoomBoxMode(false);
+  }, []);
+
+  const handleUnballoon = useCallback((featureId: string) => {
+    setFeatureRows((prev) => {
+      const row = prev.find((r) => r.featureId === featureId);
+      if (!row?.balloonId) return prev;
+      if (!isTempBalloonId(row.balloonId)) {
+        pendingBalloonDeleteIdsRef.current.add(row.balloonId);
+      }
+      if (row.balloonAnchorId) {
+        setSelectorRects((sels) =>
+          sels.filter((s) => s.id !== row.balloonAnchorId)
+        );
+      }
+      return prev.map((r) =>
+        r.featureId !== featureId
+          ? r
+          : {
+              ...r,
+              balloonId: null,
+              balloonAnchorId: "",
+              x: 0,
+              y: 0,
+              geometryDirty: false
+            }
+      );
     });
   }, []);
 
   const updateFeatureField = useCallback(
     (
-      balloonId: string,
+      featureId: string,
       field:
         | "label"
         | "featureName"
@@ -1941,13 +2220,13 @@ export default function InspectionDocumentEditor({
     ) => {
       setFeatureRows((prev) =>
         prev.map((r) =>
-          r.balloonId !== balloonId
+          r.featureId !== featureId
             ? r
             : {
                 ...r,
                 [field]: value,
-                balloonDirty: isTempBalloonId(r.balloonId)
-                  ? r.balloonDirty
+                featureDirty: isTempFeatureId(r.featureId)
+                  ? r.featureDirty
                   : true
               }
         )
@@ -1959,7 +2238,7 @@ export default function InspectionDocumentEditor({
   const featureMutation = useCallback(
     async (accessorKey: string, newValue: string, row: FeatureRow) => {
       updateFeatureField(
-        row.balloonId,
+        row.featureId,
         accessorKey as
           | "label"
           | "featureName"
@@ -1995,7 +2274,7 @@ export default function InspectionDocumentEditor({
   const featureColumns = useMemo<ColumnDef<FeatureRow>[]>(
     () => [
       { accessorKey: "label", header: t`Balloon #`, size: 80 },
-      { accessorKey: "featureName", header: t`Feature` },
+      { accessorKey: "featureName", header: t`Description` },
       { accessorKey: "nominalValue", header: t`Nom`, size: 112 },
       { accessorKey: "tolerancePlus", header: t`Tol+`, size: 112 },
       { accessorKey: "toleranceMinus", header: t`Tol-`, size: 112 },
@@ -2003,23 +2282,62 @@ export default function InspectionDocumentEditor({
       {
         id: "actions",
         header: t`Actions`,
-        size: 28,
+        size: 148,
         cell: ({ row }) => (
-          <IconButton
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-label={t`Remove anchor and balloon`}
-            icon={<LuTrash2 className="h-4 w-4 text-destructive" />}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteFeature(row.original.balloonId);
-            }}
-          />
+          <HStack spacing={0} className="items-center">
+            <IconButton
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-label={t`Remove feature`}
+              icon={<LuTrash2 className="h-4 w-4 text-destructive" />}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteFeature(row.original.featureId);
+              }}
+            />
+            <span
+              className="mx-1.5 h-5 w-px shrink-0 bg-foreground/20 dark:bg-white/30"
+              aria-hidden
+            />
+            {row.original.balloonId ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUnballoon(row.original.featureId);
+                }}
+              >
+                {t`Unballoon`}
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                leftIcon={<LuRectangleHorizontal className="h-3.5 w-3.5" />}
+                isDisabled={!isOverlayReady}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePlaceFeatureOnDrawing(row.original.featureId);
+                }}
+              >
+                {t`Balloon`}
+              </Button>
+            )}
+          </HStack>
         )
       }
     ],
-    [handleDeleteFeature, t]
+    [
+      handleDeleteFeature,
+      handlePlaceFeatureOnDrawing,
+      handleUnballoon,
+      isOverlayReady,
+      t
+    ]
   );
 
   const handleDownloadPdfWithBalloons = useCallback(async () => {
@@ -2039,9 +2357,23 @@ export default function InspectionDocumentEditor({
         }
         bytes = await res.arrayBuffer();
       }
+      const placedRows = featureRows
+        .filter(
+          (r): r is FeatureRow & { balloonId: string } => r.balloonId != null
+        )
+        .map((r) => ({
+          balloonId: r.balloonId,
+          balloonAnchorId: r.balloonAnchorId,
+          label: r.label,
+          pageNumber: r.pageNumber,
+          x: r.x,
+          y: r.y,
+          width: r.width,
+          height: r.height
+        }));
       const outBytes = await buildInspectionDocumentPdfWithOverlaysBytes({
         pdfBytes: bytes,
-        featureRows,
+        featureRows: placedRows,
         anchorRects,
         scale: 2
       });
@@ -2075,6 +2407,43 @@ export default function InspectionDocumentEditor({
     containerWidth > 0 ? Math.max(1, containerWidth * zoomScale) : 0;
   return (
     <div className="flex flex-col h-full overflow-hidden">
+      <Modal
+        open={replacePdfConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCancelReplacePdf();
+        }}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>{t`Replace drawing?`}</ModalTitle>
+          </ModalHeader>
+          <ModalBody>
+            <p className="text-sm text-muted-foreground">
+              {t`Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing.`}
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleCancelReplacePdf}
+              isDisabled={uploading}
+            >
+              {t`Cancel`}
+            </Button>
+            <Button
+              type="button"
+              isLoading={uploading}
+              isDisabled={uploading}
+              onClick={() => void handleConfirmReplacePdf()}
+            >
+              {t`Replace PDF`}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       {/* Hidden file input */}
       <input
         ref={fileInputRef}
@@ -2109,13 +2478,14 @@ export default function InspectionDocumentEditor({
                 if (next) {
                   setPlacingAnnotation(false);
                   setZoomBoxMode(false);
+                  setPlacingFeatureId(null);
                 }
                 return next;
               });
             }}
             isDisabled={!isOverlayReady}
           >
-            {placing ? t`Drag to create anchor` : t`Add Selector`}
+            {placing ? t`Drag to place on drawing` : t`Add Selector`}
           </Button>
           <Button
             variant={zoomBoxMode ? "primary" : "secondary"}
@@ -2457,7 +2827,9 @@ export default function InspectionDocumentEditor({
                               );
                             })()}
                           {featureRows
-                            .filter((b) => b.pageNumber === pdfViewPage)
+                            .filter(
+                              (b) => b.pageNumber === pdfViewPage && b.balloonId
+                            )
                             .map((b) => {
                               const pageHeightPx = overlayHeight;
                               const balloonWidthPx =
@@ -2836,6 +3208,15 @@ export default function InspectionDocumentEditor({
                 {t`Features`} ({featureRows.length})
               </span>
               <HStack spacing={1} className="flex-shrink-0 items-center">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<LuPlus className="h-4 w-4" />}
+                  onClick={handleAddFeature}
+                >
+                  {t`Add Feature`}
+                </Button>
                 <IconButton
                   type="button"
                   variant="ghost"

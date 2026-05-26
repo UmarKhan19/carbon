@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-16T09:58:36.925Z",
-  "totalTools": 1082,
+  "generated": "2026-05-25T14:57:13.314Z",
+  "totalTools": 1083,
   "modules": 15,
   "tools": [
     {
@@ -10028,10 +10028,24 @@
       ]
     },
     {
+      "name": "quality_getInspectionFeatures",
+      "module": "quality",
+      "classification": "READ",
+      "description": "get inspection document features (characteristics grid)",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "inspectionDocumentId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ]
+    },
+    {
       "name": "quality_getInspectionPlan",
       "module": "quality",
       "classification": "READ",
-      "description": "get inspection plan",
+      "description": "get inspection plan; each measurement id/featureId is inspectionFeature id, balloonId set when placed on drawing",
       "paramCount": 0,
       "serviceParams": [
         "client",
@@ -10045,7 +10059,7 @@
       "name": "quality_saveInspectionDocumentAtomic",
       "module": "quality",
       "classification": "WRITE",
-      "description": "save inspection document atomic",
+      "description": "save inspection document; features {create,update,delete} + balloons geometry {create,update,delete} (delete = unplace)",
       "paramCount": 0,
       "serviceParams": [
         "client",

@@ -103,13 +103,6 @@ export const riskStatus = [
 
 export const riskRegisterType = ["Risk", "Opportunity"] as const;
 
-export const balloonCharacteristicType = [
-  "Critical",
-  "Major",
-  "Minor",
-  "Reference"
-] as const;
-
 export const inspectionDocumentValidator = z.object({
   id: zfd.text(z.string().optional()),
   name: zfd.text(z.string().optional()),
@@ -128,9 +121,7 @@ export const balloonFeatureValidator = z.object({
   nominalValue: zfd.numeric(z.number().optional()),
   tolerancePlus: zfd.numeric(z.number().optional()),
   toleranceMinus: zfd.numeric(z.number().optional()),
-  unitOfMeasureCode: zfd.text(z.string().optional()),
-  characteristicType: z.enum(balloonCharacteristicType).optional(),
-  sortOrder: zfd.numeric(z.number().optional())
+  unitOfMeasureCode: zfd.text(z.string().optional())
 });
 
 export const balloonCreateFromPayloadItemValidator = z.object({
@@ -225,6 +216,87 @@ export const balloonUpdateItemsValidator = z.array(
 
 export const balloonDeleteIdsValidator = z.array(z.string().min(1));
 
+export const inspectionSaveFeatureCreateItemValidator = z
+  .object({
+    tempId: z.string().min(1),
+    pageNumber: pageNumberValidator,
+    label: z.string().min(1),
+    description: z.string().nullable().optional(),
+    nominalValue: z.string().nullable().optional(),
+    tolerancePlus: z.string().nullable().optional(),
+    toleranceMinus: z.string().nullable().optional(),
+    unit: z.string().nullable().optional()
+  })
+  .strict();
+
+export const inspectionSaveFeatureUpdateItemValidator = z
+  .object({
+    id: z.string().min(1),
+    pageNumber: pageNumberValidator.optional(),
+    label: z.string().min(1).optional(),
+    description: z.string().nullable().optional(),
+    nominalValue: z.string().nullable().optional(),
+    tolerancePlus: z.string().nullable().optional(),
+    toleranceMinus: z.string().nullable().optional(),
+    unit: z.string().nullable().optional()
+  })
+  .strict();
+
+export const inspectionSaveFeaturesPayloadValidator = z
+  .object({
+    create: z.array(inspectionSaveFeatureCreateItemValidator).default([]),
+    update: z.array(inspectionSaveFeatureUpdateItemValidator).default([]),
+    delete: z.array(z.string().min(1)).default([])
+  })
+  .strict();
+
+export const inspectionSaveBalloonGeometryCreateItemValidator = z
+  .object({
+    tempInspectionFeatureId: z.string().min(1).optional(),
+    inspectionFeatureId: z.string().min(1).optional(),
+    tempBalloonAnchorId: z.string().min(1).optional(),
+    pageNumber: pageNumberValidator,
+    regionX: normalizedCoordinateValidator,
+    regionY: normalizedCoordinateValidator,
+    regionWidth: normalizedSizeValidator,
+    regionHeight: normalizedSizeValidator,
+    xCoordinate: normalizedCoordinateValidator,
+    yCoordinate: normalizedCoordinateValidator
+  })
+  .strict()
+  .refine(
+    (data) =>
+      Boolean(data.tempInspectionFeatureId) ||
+      Boolean(data.inspectionFeatureId),
+    { message: "tempInspectionFeatureId or inspectionFeatureId is required" }
+  );
+
+export const inspectionSaveBalloonGeometryUpdateItemValidator = z
+  .object({
+    id: z.string().min(1),
+    pageNumber: pageNumberValidator.optional(),
+    regionX: normalizedCoordinateValidator.optional(),
+    regionY: normalizedCoordinateValidator.optional(),
+    regionWidth: normalizedSizeValidator.optional(),
+    regionHeight: normalizedSizeValidator.optional(),
+    xCoordinate: normalizedCoordinateValidator.optional(),
+    yCoordinate: normalizedCoordinateValidator.optional()
+  })
+  .strict();
+
+export const inspectionSaveBalloonsGeometryPayloadValidator = z
+  .object({
+    create: z
+      .array(inspectionSaveBalloonGeometryCreateItemValidator)
+      .default([]),
+    update: z
+      .array(inspectionSaveBalloonGeometryUpdateItemValidator)
+      .default([]),
+    delete: z.array(z.string().min(1)).default([])
+  })
+  .strict();
+
+/** @deprecated Legacy combined payload; use features + balloons geometry split. */
 export const inspectionSaveBalloonCreateItemValidator = z
   .object({
     tempBalloonAnchorId: z.string().min(1),
@@ -239,6 +311,7 @@ export const inspectionSaveBalloonCreateItemValidator = z
   })
   .strict();
 
+/** @deprecated Legacy combined payload. */
 export const inspectionSaveBalloonUpdateItemValidator = z
   .object({
     id: z.string().min(1),
@@ -253,6 +326,7 @@ export const inspectionSaveBalloonUpdateItemValidator = z
   })
   .strict();
 
+/** @deprecated Legacy combined payload. */
 export const inspectionSaveBalloonsPayloadValidator = z
   .object({
     create: z.array(inspectionSaveBalloonCreateItemValidator).default([]),

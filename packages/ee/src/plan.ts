@@ -9,7 +9,7 @@ export const FEATURE_PLANS = {
   API_KEYS: [Plan.Business, Plan.Partner],
   WEBHOOKS: [Plan.Business, Plan.Partner],
   INTEGRATIONS: [Plan.Business, Plan.Partner],
-  ITEM_RULES: [Plan.Business],
+  CUSTOM_RULES: [Plan.Business],
   AUDIT_LOG: [Plan.Business]
 } as const satisfies Record<string, Plan[]>;
 

@@ -402,6 +402,9 @@ msgstr "Детали задания"
 msgid "Job Traveler"
 msgstr "Маршрутный лист"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "Комплект"
 
@@ -532,6 +535,9 @@ msgstr "На сегодня обслуживание не запланирова
 msgid "No materials"
 msgstr "Нет материалов"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "Нет операторов"
 
@@ -589,6 +595,9 @@ msgstr "Ой. Вы не должны видеть эту страницу. Со 
 
 msgid "Open"
 msgstr "Открытые"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "Операции"
@@ -707,6 +716,9 @@ msgstr "Списано в брак"
 
 msgid "Search"
 msgstr "Поиск"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search operators..."
 msgstr "Поиск операторов..."
@@ -877,6 +889,9 @@ msgstr "Общее время: {0}"
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
 msgstr "Итого: {0}"
+
+msgid "Tracking"
+msgstr ""
 
 msgid "Tracking Labels"
 msgstr "Этикетки отслеживания"

@@ -402,6 +402,9 @@ msgstr "Detalhes da Ordem"
 msgid "Job Traveler"
 msgstr "Folha de Processo"
 
+msgid "Jobs"
+msgstr ""
+
 msgid "Kit"
 msgstr "Kit"
 
@@ -532,6 +535,9 @@ msgstr "Nenhuma manutenção programada para hoje"
 msgid "No materials"
 msgstr "Nenhum material"
 
+msgid "No open jobs"
+msgstr ""
+
 msgid "No operators"
 msgstr "Nenhum operador"
 
@@ -589,6 +595,9 @@ msgstr "Ops. Você não deveria ver esta página. Eventualmente será uma págin
 
 msgid "Open"
 msgstr "Aberto"
+
+msgid "Open Jobs"
+msgstr ""
 
 msgid "Operations"
 msgstr "Operações"
@@ -707,6 +716,9 @@ msgstr "Refugado"
 
 msgid "Search"
 msgstr "Pesquisar"
+
+msgid "Search by job or item ID"
+msgstr ""
 
 msgid "Search operators..."
 msgstr "Pesquisar operadores..."
@@ -877,6 +889,9 @@ msgstr "Tempo total: {0}"
 #. placeholder {0}: formatTotalHours(entries)
 msgid "Total: {0}"
 msgstr "Total: {0}"
+
+msgid "Tracking"
+msgstr ""
 
 msgid "Tracking Labels"
 msgstr "Etiquetas de Rastreamento"

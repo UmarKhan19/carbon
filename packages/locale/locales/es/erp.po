@@ -200,9 +200,6 @@ msgstr "PerÃƒÆ’Ã‚Â­odo de AcumulaciÃƒÆ’Ã‚Â³n (Semanas)"
 msgid "Accumulation Period:"
 msgstr "PerÃƒÆ’Ã‚Â­odo de AcumulaciÃƒÆ’Ã‚Â³n:"
 
-msgid "Acknowledge & continue"
-msgstr "Reconocer y continuar"
-
 msgid "Action Items"
 msgstr "Elementos de AcciÃƒÆ’Ã‚Â³n"
 
@@ -301,6 +298,9 @@ msgstr "Agregar Contratista"
 
 msgid "Add Entry"
 msgstr "Agregar entrada"
+
+msgid "Add Feature"
+msgstr ""
 
 msgid "Add from library…"
 msgstr "Agregar de la biblioteca…"
@@ -505,6 +505,18 @@ msgstr "Claves API para acceso programático a tus datos de Carbon."
 
 msgid "Applies to"
 msgstr "Se aplica a"
+
+msgid "Applies to all"
+msgstr ""
+
+msgid "Applies to all items"
+msgstr ""
+
+msgid "Applies to all storage units"
+msgstr ""
+
+msgid "Applies to all work centers"
+msgstr ""
 
 msgid "Apply pricing rules"
 msgstr "Aplicar reglas de precios"
@@ -1003,6 +1015,9 @@ msgstr "Retroceso"
 msgid "Balance Sheet"
 msgstr "Balance General"
 
+msgid "Balloon"
+msgstr ""
+
 msgid "Balloon #"
 msgstr ""
 
@@ -1201,6 +1216,9 @@ msgstr "Logo de Carbon"
 
 msgid "Carbon Value"
 msgstr "Valor de Carbon"
+
+msgid "Cards"
+msgstr ""
 
 msgid "Carrier"
 msgstr "Transportista"
@@ -1962,6 +1980,9 @@ msgstr "Campo Personalizado"
 msgid "Custom Fields"
 msgstr "Campos Personalizados"
 
+msgid "Custom Rules"
+msgstr ""
+
 msgid "Customer"
 msgstr "Cliente"
 
@@ -2504,7 +2525,7 @@ msgid "Dispatches"
 msgstr "Despachos"
 
 msgid "Display Settings"
-msgstr "ConfiguraciÃƒÆ’Ã‚Â³n de pantalla"
+msgstr ""
 
 msgid "Disposition"
 msgstr "DisposiciÃƒÆ’Ã‚Â³n"
@@ -2551,7 +2572,7 @@ msgstr "Arrastra y suelta un PDF de Orden de Compra aquÃƒÆ’Ã‚Â­, o haz
 msgid "Drag handle"
 msgstr "Controlador de arrastre"
 
-msgid "Drag to create anchor"
+msgid "Drag to place on drawing"
 msgstr ""
 
 msgid "Drag to reorder"
@@ -2564,6 +2585,9 @@ msgid "Drag to zoom"
 msgstr ""
 
 msgid "Drawing Number"
+msgstr ""
+
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
 msgstr ""
 
 msgid "Drop Shipment"
@@ -2840,6 +2864,9 @@ msgstr "Editar proceso del proveedor"
 msgid "Edit Supplier Type"
 msgstr "Editar Tipo de Proveedor"
 
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr ""
+
 msgid "Edit Timecard"
 msgstr "Editar Tarjeta de Tiempo"
 
@@ -2896,6 +2923,9 @@ msgstr "Tipos de Empleados"
 
 msgid "Employees"
 msgstr "Empleados"
+
+msgid "Empty work centers"
+msgstr ""
 
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Habilita el registro de auditorÃƒÆ’Ã‚Â­a en la configuraciÃƒÆ’Ã‚Â³n para comenzar a rastrear cambios en tus datos."
@@ -2956,12 +2986,6 @@ msgstr "Fecha de Fin"
 
 msgid "End Time"
 msgstr "Hora de FinalizaciÃƒÆ’Ã‚Â³n"
-
-msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-msgstr "Aplicar restricciones en recibos, envÃƒÆ’Ã‚Â­os, transferencias y operaciones de trabajo para este artÃƒÆ’Ã‚Â­culo."
-
-msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-msgstr "Aplicar validaciÃƒÆ’Ã‚Â³n por artÃƒÆ’Ã‚Â­culo en recibos, envÃƒÆ’Ã‚Â­os, transferencias y ajustes."
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Aplicar validaciÃƒÆ’Ã‚Â³n y directrices por artÃƒÆ’Ã‚Â­culo en recibos, envÃƒÆ’Ã‚Â­os, transferencias y ajustes."
@@ -3058,9 +3082,6 @@ msgstr "Error al eliminar el modelo de la lÃƒÆ’Ã‚Â­nea de orden de ven
 
 msgid "Error validating serial number"
 msgstr "Error validando nÃƒÆ’Ã‚Âºmero de serie"
-
-msgid "Errors"
-msgstr "Errores"
 
 msgid "Escalation"
 msgstr "Escalada"
@@ -3490,9 +3511,6 @@ msgstr "Fax"
 msgid "Fax Number"
 msgstr "NÃƒÆ’Ã‚Âºmero de Fax"
 
-msgid "Feature"
-msgstr ""
-
 msgid "Feature values suggested from drawing"
 msgstr ""
 
@@ -3510,6 +3528,9 @@ msgstr "Obtener"
 
 msgid "Field"
 msgstr "Campo"
+
+msgid "Field info"
+msgstr ""
 
 msgid "Field Mapping"
 msgstr "Mapeo de campos"
@@ -3837,6 +3858,9 @@ msgstr "Infraestructura"
 msgid "Inherit From Materials"
 msgstr "Heredar de Materiales"
 
+msgid "Inherited from"
+msgstr ""
+
 msgid "Insert rows"
 msgstr "Insertar filas"
 
@@ -4043,9 +4067,6 @@ msgstr "ID de ArtÃƒÆ’Ã‚Â­culo"
 
 msgid "Item Master"
 msgstr "Maestro de ArtÃƒÆ’Ã‚Â­culos"
-
-msgid "Item Rules"
-msgstr "Reglas de ArtÃƒÆ’Ã‚Â­culos"
 
 msgid "Item Scope"
 msgstr "Alcance de ArtÃƒÆ’Ã‚Â­culos"
@@ -4406,6 +4427,9 @@ msgstr "Administra cÃƒÆ’Ã‚Â³mo se rastrea, calcula y aplica la vida Ã
 msgid "Manage Ownership"
 msgstr "Gestionar Propiedad"
 
+msgid "Manage rules"
+msgstr ""
+
 msgid "Manage Subscription"
 msgstr "Administrar SuscripciÃƒÆ’Ã‚Â³n"
 
@@ -4555,6 +4579,9 @@ msgstr "EstÃƒÆ’Ã‚Â¡ndar de MediciÃƒÆ’Ã‚Â³n"
 
 msgid "Members"
 msgstr "Miembros"
+
+msgid "MES"
+msgstr ""
 
 msgid "Message"
 msgstr "Mensaje"
@@ -5289,6 +5316,9 @@ msgstr "Fecha de Apertura"
 msgid "Open Dispatches"
 msgstr "Despachos Abiertos"
 
+msgid "Open in MES"
+msgstr ""
+
 msgid "Open Issues"
 msgstr "Problemas Abiertos"
 
@@ -5585,9 +5615,6 @@ msgstr "Selecciona un cliente o tipo de cliente para ver sus precios."
 
 msgid "Pick a date or leave blank to clear it."
 msgstr "Elige una fecha o dÃƒÆ’Ã‚Â©jala en blanco para borrarla."
-
-msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-msgstr "Elige una regla existente de la biblioteca o crea una nueva para comenzar a aplicar restricciones en este artÃƒÆ’Ã‚Â­culo."
 
 msgid "Pick List"
 msgstr "Lista de Picking"
@@ -6174,14 +6201,14 @@ msgstr "Eliminar"
 msgid "Remove {0}"
 msgstr "Eliminar {0}"
 
-msgid "Remove anchor and balloon"
-msgstr ""
-
 msgid "Remove attachment"
 msgstr "Eliminar adjunto"
 
 msgid "Remove condition"
 msgstr "Eliminar condiciÃƒÆ’Ã‚Â³n"
+
+msgid "Remove feature"
+msgstr ""
 
 msgid "Remove filter"
 msgstr "Eliminar filtro"
@@ -6252,10 +6279,16 @@ msgstr "Cantidad de Reorden:"
 msgid "Reordering Policy"
 msgstr "PolÃƒÆ’Ã‚Â­tica de Reorden"
 
+msgid "Replace drawing?"
+msgstr ""
+
 msgid "Replace existing pricing with source values"
 msgstr "Reemplazar precios existentes con valores de origen"
 
 msgid "Replace PDF"
+msgstr ""
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
 msgstr ""
 
 msgid "Replenishment"
@@ -6444,9 +6477,6 @@ msgstr "La regla se aplica a todos los artÃƒÆ’Ã‚Â­culos."
 msgid "Rule Type"
 msgstr "Tipo de Regla"
 
-msgid "Rule Violation"
-msgstr "ViolaciÃƒÆ’Ã‚Â³n de regla"
-
 msgid "Rules"
 msgstr "Reglas"
 
@@ -6549,8 +6579,8 @@ msgstr ""
 msgid "Scan"
 msgstr "Escanear"
 
-msgid "Scan a label or search by ID, serial number, or batch number."
-msgstr "Escanea una etiqueta o busca por ID, nÃƒÆ’Ã‚Âºmero de serie o nÃƒÆ’Ã‚Âºmero de lote."
+msgid "Scan a label or search by item ID or tracking ID."
+msgstr ""
 
 msgid "Scan or enter tracked entity ID, serial, or batch"
 msgstr "Escanear o ingresar ID de entidad rastreada, serie o lote"
@@ -7231,6 +7261,9 @@ msgstr "Tipos de Almacenamiento"
 msgid "Storage Unit"
 msgstr "Unidad de Almacenamiento"
 
+msgid "Storage unit rules"
+msgstr ""
+
 msgid "Storage Units"
 msgstr "Unidades de Almacenamiento"
 
@@ -7638,6 +7671,11 @@ msgstr "Esto sobrescribirÃƒÆ’Ã‚Â¡ el mÃƒÆ’Ã‚Â©todo de cotiza
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "Esto recalcularÃƒÆ’Ã‚Â¡ el costo unitario del mÃƒÆ’Ã‚Â©todo de fabricaciÃƒÆ’Ã‚Â³n activo basÃƒÆ’Ã‚Â¡ndose en la lista de materiales y procesos utilizando el tamaÃƒÆ’Ã‚Â±o de lote. El costo actual serÃƒÆ’Ã‚Â¡ sobrescrito. Ãƒâ€šÃ‚Â¿Deseas continuar?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "Esto reemplazarÃƒÆ’Ã‚Â¡ todos los materiales de mÃƒÆ’Ã‚Â©todo de otras revisiones con esta revisiÃƒÆ’Ã‚Â³n."
 
@@ -7863,6 +7901,9 @@ msgstr "Papelera"
 msgid "Trial Balance"
 msgstr "Balance de ComprobaciÃƒÆ’Ã‚Â³n"
 
+msgid "Triggers"
+msgstr ""
+
 msgid "Tuesday"
 msgstr "Martes"
 
@@ -7890,11 +7931,17 @@ msgstr "Las entidades no muestreadas permanecerÃƒÆ’Ã‚Â¡n En Espera par
 msgid "Unapproved Supplier"
 msgstr "Proveedor No Aprobado"
 
+msgid "Unassign from parent unit to remove"
+msgstr ""
+
 msgid "Unassign rule"
 msgstr "Desasignar regla"
 
 msgid "Unassigned"
 msgstr "Sin asignar"
+
+msgid "Unballoon"
+msgstr ""
 
 msgid "Uninstall"
 msgstr "Desinstalar"
@@ -7934,6 +7981,9 @@ msgstr "Soporte Funcional Ilimitado"
 
 msgid "Unlink"
 msgstr "Desenlazar"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Tipo de documento de origen no compatible: {sourceDocument}"
@@ -8007,11 +8057,12 @@ msgstr "Actualizar"
 msgid "Upgrade to Business"
 msgstr "Actualizar a Business"
 
+#. placeholder {0}: targetCopy.noun
+msgid "Upgrade to unlock {0} rules"
+msgstr ""
+
 msgid "Upgrade to unlock audit history"
 msgstr "Actualizar para desbloquear el historial de auditorÃƒÆ’Ã‚Â­a"
-
-msgid "Upgrade to unlock item rules"
-msgstr "Actualizar para desbloquear reglas de artÃƒÆ’Ã‚Â­culos"
 
 msgid "Upload"
 msgstr "Cargar"
@@ -8116,6 +8167,9 @@ msgstr "Validando trabajo..."
 
 msgid "Value"
 msgstr "Valor"
+
+msgid "Value source by surface"
+msgstr ""
 
 msgid "VAT Number"
 msgstr "NÃƒÆ’Ã‚Âºmero de IVA"
@@ -8306,9 +8360,6 @@ msgstr "Advertir cuando la persona que inspecciona un artÃƒÆ’Ã‚Â­culo 
 msgid "Warning"
 msgstr "Advertencia"
 
-msgid "Warnings"
-msgstr "Advertencias"
-
 msgid "Watch full video"
 msgstr "Ver video completo"
 
@@ -8368,6 +8419,9 @@ msgstr "Cuando la vida ÃƒÆ’Ã‚Âºtil de un producto terminado se estable
 
 msgid "When expired stock is used"
 msgstr "Cuando se utiliza stock vencido"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr ""
 
 msgid "Who Can Approve"
 msgstr "QuiÃƒÆ’Ã‚Â©n Puede Aprobar"
