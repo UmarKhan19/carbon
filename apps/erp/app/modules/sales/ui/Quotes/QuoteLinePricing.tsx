@@ -613,9 +613,14 @@ const QuoteLinePricing = ({
                     onKeyDown={(e) => e.stopPropagation()}
                   >
                     <NumberField
-                      value={customMarkup === "" ? undefined : Number(customMarkup)}
+                      value={
+                        customMarkup === "" ? undefined : Number(customMarkup)
+                      }
                       minValue={0}
-                      formatOptions={{ style: "decimal", maximumFractionDigits: 2 }}
+                      formatOptions={{
+                        style: "decimal",
+                        maximumFractionDigits: 2
+                      }}
                       onChange={(val) => {
                         if (Number.isFinite(val)) setCustomMarkup(String(val));
                       }}
@@ -623,32 +628,29 @@ const QuoteLinePricing = ({
                       <NumberInput
                         size="sm"
                         placeholder="Custom %"
-                        className="w-24 h-7"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            const val = parseFloat(customMarkup);
-                            if (Number.isFinite(val) && val >= 0) {
-                              onRecalculate(val);
-                              setCustomMarkup("");
-                            }
-                          }
-                        }}
+                        className="w-32 h-7"
                       />
                     </NumberField>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => {
+                    <DropdownMenuItem
+                      asChild
+                      onSelect={(e) => {
                         const val = parseFloat(customMarkup);
-                        if (Number.isFinite(val) && val >= 0) {
-                          onRecalculate(val);
-                          setCustomMarkup("");
+                        if (!Number.isFinite(val) || val < 0) {
+                          e.preventDefault();
+                          return;
                         }
+                        onRecalculate(val);
+                        setCustomMarkup("");
                       }}
                     >
-                      Apply
-                    </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-7 px-2 text-xs"
+                      >
+                        Apply
+                      </Button>
+                    </DropdownMenuItem>
                   </div>
                   <DropdownMenuItem onClick={() => onRecalculate(0)}>
                     0% Markup
