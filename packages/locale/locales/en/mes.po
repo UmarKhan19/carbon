@@ -680,6 +680,9 @@ msgstr "Processes"
 msgid "Progress"
 msgstr "Progress"
 
+msgid "Quality Issue"
+msgstr "Quality Issue"
+
 msgid "Quantity"
 msgstr "Quantity"
 

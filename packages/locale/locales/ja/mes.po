@@ -680,6 +680,9 @@ msgstr "プロセス一覧"
 msgid "Progress"
 msgstr "進捗"
 
+msgid "Quality Issue"
+msgstr ""
+
 msgid "Quantity"
 msgstr "数量"
 

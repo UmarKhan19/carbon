@@ -76,7 +76,6 @@ import {
   LuCirclePlay,
   LuCirclePlus,
   LuClipboardCheck,
-  LuClipboardPlus,
   LuDownload,
   LuEllipsisVertical,
   LuGitBranchPlus,
@@ -2117,27 +2116,6 @@ export const JobOperation = ({
                   onClick={reworkModal.onOpen}
                 /> 
                 */}
-                <Form method="post" action={path.to.qualityIssueNew}>
-                  <input
-                    type="hidden"
-                    name="jobOperationId"
-                    value={operation.id}
-                  />
-                  {trackedEntityId && (
-                    <input
-                      type="hidden"
-                      name="trackedEntityId"
-                      value={trackedEntityId}
-                    />
-                  )}
-                  <IconButtonWithTooltip
-                    type="submit"
-                    icon={
-                      <LuClipboardPlus className="text-accent-foreground group-hover:text-accent-foreground/80" />
-                    }
-                    tooltip={t`Create Quality Issue`}
-                  />
-                </Form>
                 <IconButtonWithTooltip
                   disabled={
                     parentIsSerial &&
