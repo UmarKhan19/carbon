@@ -3,15 +3,13 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Menubar, VStack } from "@carbon/react";
+import { VStack } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
-import type { PostgrestResponse } from "@supabase/supabase-js";
-import { Suspense } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Await, redirect, useLoaderData, useParams } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import type { ItemFile, MakeMethod, ToolSummary } from "~/modules/items";
+import type { ItemFile, ToolSummary } from "~/modules/items";
 import {
   getItemManufacturing,
   getMakeMethodById,
@@ -92,6 +90,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             operation.operationSupplierProcessId ?? undefined,
           workInstruction: operation.workInstruction as JSONContent | null
         })) ?? [],
+      makeMethods: makeMethods.data ?? [],
       toolManufacturing: toolManufacturing.data
     },
     tags: tags.data ?? []
@@ -181,7 +180,6 @@ export default function ToolDetailsRoute() {
   const toolData = useRouteData<{
     toolSummary: ToolSummary;
     files: Promise<ItemFile[]>;
-    makeMethods: Promise<PostgrestResponse<MakeMethod>>;
   }>(path.to.tool(itemId));
 
   if (!toolData) throw new Error("Could not find tool data");
@@ -198,18 +196,13 @@ export default function ToolDetailsRoute() {
     <VStack spacing={2} className="p-2">
       {permissions.is("employee") && methodData && (
         <>
-          <Suspense fallback={<Menubar />}>
-            <Await resolve={toolData?.makeMethods}>
-              {(makeMethods) => (
-                <MakeMethodTools
-                  itemId={methodData.makeMethod.itemId}
-                  makeMethods={makeMethods?.data ?? []}
-                  type="Tool"
-                  currentMethodId={methodData.makeMethod.id}
-                />
-              )}
-            </Await>
-          </Suspense>
+          <MakeMethodTools
+            key={methodData.makeMethod.itemId}
+            itemId={methodData.makeMethod.itemId}
+            makeMethods={methodData.makeMethods}
+            type="Tool"
+            currentMethodId={methodData.makeMethod.id}
+          />
 
           {manufacturingInitialValues && (
             <ItemManufacturingForm

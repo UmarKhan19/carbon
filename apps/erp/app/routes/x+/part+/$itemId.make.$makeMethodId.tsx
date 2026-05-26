@@ -160,6 +160,7 @@ export default function PartMakeMethodPage() {
         <Await resolve={makeMethods}>
           {(makeMethods) => (
             <MakeMethodTools
+              key={makeMethod.itemId}
               itemId={makeMethod.itemId}
               makeMethods={makeMethods.data ?? []}
               type="Part"

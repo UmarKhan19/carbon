@@ -3,19 +3,17 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
-import { Menubar, VStack } from "@carbon/react";
+import { VStack } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
-import type { PostgrestResponse } from "@supabase/supabase-js";
-import { Suspense } from "react";
 import type {
   ActionFunctionArgs,
   ClientActionFunctionArgs,
   LoaderFunctionArgs
 } from "react-router";
-import { Await, redirect, useLoaderData, useParams } from "react-router";
+import { redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
-import type { ItemFile, MakeMethod, PartSummary } from "~/modules/items";
+import type { ItemFile, PartSummary } from "~/modules/items";
 import {
   getConfigurationParameters,
   getConfigurationRules,
@@ -118,6 +116,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             operation.operationSupplierProcessId ?? undefined,
           workInstruction: operation.workInstruction as JSONContent | null
         })) ?? [],
+      makeMethods: makeMethods.data ?? [],
       partManufacturing: partManufacturing.data,
       ...configData
     },
@@ -217,7 +216,6 @@ export default function PartDetailsRoute() {
   const partData = useRouteData<{
     partSummary: PartSummary;
     files: Promise<ItemFile[]>;
-    makeMethods: Promise<PostgrestResponse<MakeMethod>>;
   }>(path.to.part(itemId));
 
   if (!partData) throw new Error("Could not find part data");
@@ -238,18 +236,13 @@ export default function PartDetailsRoute() {
             partData.partSummary?.replenishmentSystem ?? ""
           ) && (
             <>
-              <Suspense fallback={<Menubar />}>
-                <Await resolve={partData?.makeMethods}>
-                  {(makeMethods) => (
-                    <MakeMethodTools
-                      itemId={methodData.makeMethod.itemId}
-                      makeMethods={makeMethods?.data ?? []}
-                      type="Part"
-                      currentMethodId={methodData.makeMethod.id}
-                    />
-                  )}
-                </Await>
-              </Suspense>
+              <MakeMethodTools
+                key={methodData.makeMethod.itemId}
+                itemId={methodData.makeMethod.itemId}
+                makeMethods={methodData.makeMethods}
+                type="Part"
+                currentMethodId={methodData.makeMethod.id}
+              />
               {manufacturingInitialValues && (
                 <ItemManufacturingForm
                   key={itemId}

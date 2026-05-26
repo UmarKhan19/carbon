@@ -108,7 +108,8 @@ const MakeMethodTools = ({
   const activeMethod =
     makeMethods.find((m) => m.id === activeMethodId) ?? makeMethods[0];
 
-  const maxVersion = Math.max(...makeMethods.map((m) => m.version));
+  const maxVersion =
+    makeMethods.length > 0 ? Math.max(...makeMethods.map((m) => m.version)) : 0;
   const [selectedVersion, setSelectedVersion] =
     useState<MakeMethod>(activeMethod);
 
@@ -331,7 +332,14 @@ const MakeMethodTools = ({
                     })}
                   <DropdownMenuSeparator />
                   {permissions.can("create", "production") && (
-                    <DropdownMenuItem onClick={newVersionModal.onOpen}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        flushSync(() => {
+                          setSelectedVersion(activeMethod);
+                        });
+                        newVersionModal.onOpen();
+                      }}
+                    >
                       <DropdownMenuIcon icon={<LuCirclePlus />} />
                       New Version
                     </DropdownMenuItem>
@@ -551,6 +559,7 @@ const MakeMethodTools = ({
         >
           <ModalContent>
             <ValidatedForm
+              key={`${itemId}:${selectedVersion.id}:${maxVersion}`}
               method="post"
               fetcher={fetcher}
               action={`${path.to.newMakeMethodVersion}?methodToReplace=${activeMethodId}`}

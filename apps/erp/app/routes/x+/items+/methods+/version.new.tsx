@@ -27,10 +27,29 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
+  const methodToReplace = new URL(request.url).searchParams.get(
+    "methodToReplace"
+  );
+  if (!methodToReplace) {
+    return data(
+      {
+        id: null
+      },
+      await flash(
+        request,
+        error(
+          { message: "Missing target make method" },
+          "Failed to insert new version"
+        )
+      )
+    );
+  }
+
   const insertMethodOperation = await upsertMakeMethodVersion(client, {
     ...validation.data,
     companyId,
-    createdBy: userId
+    createdBy: userId,
+    targetMethodId: methodToReplace
   });
   if (insertMethodOperation.error) {
     return data(

@@ -54,6 +54,7 @@ import {
   type toolValidator,
   type unitOfMeasureValidator
 } from "./items.models";
+import { validateMakeMethodVersionSource } from "./methodVersion.utils";
 import type { InventoryItemType } from "./types";
 
 export async function activateMethodVersion(
@@ -3072,6 +3073,7 @@ export async function upsertMakeMethodVersion(
   makeMethodVersion: z.infer<typeof makeMethodVersionValidator> & {
     companyId: string;
     createdBy: string;
+    targetMethodId?: string;
   }
 ) {
   const currentMakeMethod = await client
@@ -3082,6 +3084,24 @@ export async function upsertMakeMethodVersion(
     .single();
 
   if (currentMakeMethod.error) return currentMakeMethod;
+
+  if (makeMethodVersion.targetMethodId) {
+    const targetMakeMethod = await client
+      .from("makeMethod")
+      .select("id, itemId")
+      .eq("id", makeMethodVersion.targetMethodId)
+      .eq("companyId", makeMethodVersion.companyId)
+      .single();
+
+    if (targetMakeMethod.error) return targetMakeMethod;
+
+    const validation = validateMakeMethodVersionSource({
+      source: currentMakeMethod.data,
+      target: targetMakeMethod.data
+    });
+
+    if (validation.error) return { data: null, error: validation.error };
+  }
 
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { id, version, ...data } = currentMakeMethod.data;
@@ -3103,7 +3123,9 @@ export async function upsertMakeMethodVersion(
     await client
       .from("makeMethod")
       .update({ status: "Active" })
-      .eq("id", makeMethodVersion.activeVersionId);
+      .eq("id", makeMethodVersion.activeVersionId)
+      .eq("itemId", currentMakeMethod.data.itemId)
+      .eq("companyId", makeMethodVersion.companyId);
   }
 
   return insert;

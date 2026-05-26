@@ -123,6 +123,7 @@ export default function ToolMakeMethodPage() {
         <Await resolve={makeMethods}>
           {(makeMethods) => (
             <MakeMethodTools
+              key={makeMethod.itemId}
               itemId={makeMethod.itemId}
               makeMethods={makeMethods.data ?? []}
               type="Tool"
