@@ -5,16 +5,13 @@ export function getLineDescription(
 ) {
   switch (line?.purchaseOrderLineType) {
     case "Fixed Asset":
-      return line?.assetId;
+      return line?.assetName ?? "Fixed Asset";
     case "G/L Account":
       return line?.description;
     case "Comment":
       return line?.description;
     default:
-      const supplierPartNumber = line.supplierPartId
-        ? ` (${line.supplierPartId})`
-        : "";
-      return line?.itemReadableId + supplierPartNumber;
+      return line?.supplierPartId ?? line?.itemReadableId;
   }
 }
 

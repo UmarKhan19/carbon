@@ -77,6 +77,7 @@ import {
   LuMaximize2,
   LuMinimize2,
   LuPaperclip,
+  LuPlay,
   LuRefreshCcw,
   LuSend,
   LuSettings2,
@@ -160,6 +161,7 @@ import { OperationDueDatePicker } from "./OperationDueDatePicker";
 export type Operation = z.infer<typeof jobOperationValidator> & {
   assignee: string | null;
   dueDate?: string | null;
+  manuallyScheduled?: boolean;
   status: JobOperation["status"];
   tags: string[] | null;
   workInstruction: JSONContent | null;
@@ -274,8 +276,29 @@ function makeItem(
           <OperationDueDatePicker
             operationId={operation.id!}
             dueDate={operation.dueDate ?? null}
+            manuallyScheduled={operation.manuallyScheduled}
           />
           <JobOperationTags operation={operation} availableTags={tags} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <a
+                href={path.to.external.mesJobOperation(operation.id!)}
+                title={t`Open in MES`}
+              >
+                <IconButton
+                  icon={<LuPlay />}
+                  variant="secondary"
+                  aria-label={t`Open in MES`}
+                  size="sm"
+                />
+              </a>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span>
+                <Trans>Open in MES</Trans>
+              </span>
+            </TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <Link

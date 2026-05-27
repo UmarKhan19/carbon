@@ -201,6 +201,9 @@ msgstr "Empresa"
 msgid "Complete"
 msgstr "Concluir"
 
+msgid "Complete All"
+msgstr "Completar Tudo"
+
 msgid "Completed"
 msgstr "Concluído"
 
@@ -217,6 +220,12 @@ msgstr "Consumido expirado"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Criar {0}"
+
+msgid "Create Issue"
+msgstr "Criar Problema"
+
+msgid "Create Quality Issue"
+msgstr "Criar Problema de Qualidade"
 
 msgid "Customer"
 msgstr "Cliente"
@@ -242,6 +251,9 @@ msgstr "Excluir Etapa"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "Excluir Cartão de Ponto ({0})"
+
+msgid "Describe the problem..."
+msgstr "Descreva o problema..."
 
 msgid "Description"
 msgstr "Descrição"
@@ -269,8 +281,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Arraste de {0} cancelado."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Vencimento {0}"
 
@@ -387,6 +399,9 @@ msgstr "Emitir"
 msgid "Issue Material"
 msgstr "Emitir Material"
 
+msgid "Issue Type"
+msgstr "Tipo de Problema"
+
 msgid "Item"
 msgstr "Item"
 
@@ -403,7 +418,7 @@ msgid "Job Traveler"
 msgstr "Folha de Processo"
 
 msgid "Jobs"
-msgstr ""
+msgstr "Trabalhos"
 
 msgid "Kit"
 msgstr "Kit"
@@ -536,7 +551,7 @@ msgid "No materials"
 msgstr "Nenhum material"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "Nenhum trabalho aberto"
 
 msgid "No operators"
 msgstr "Nenhum operador"
@@ -597,7 +612,7 @@ msgid "Open"
 msgstr "Aberto"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "Trabalhos Abertos"
 
 msgid "Operations"
 msgstr "Operações"
@@ -665,6 +680,12 @@ msgstr "Processos"
 msgid "Progress"
 msgstr "Progresso"
 
+msgid "Quality Issue"
+msgstr "Problema de Qualidade"
+
+msgid "Quality issue created"
+msgstr "Problema de qualidade criado"
+
 msgid "Quantity"
 msgstr "Quantidade"
 
@@ -718,7 +739,7 @@ msgid "Search"
 msgstr "Pesquisar"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "Pesquisar por ID de trabalho ou item"
 
 msgid "Search operators..."
 msgstr "Pesquisar operadores..."
@@ -798,6 +819,9 @@ msgstr "Entrar com Google"
 
 msgid "Sign in with Outlook"
 msgstr "Entrar com Outlook"
+
+msgid "Sign in with Passkey"
+msgstr "Entrar com Passkey"
 
 msgid "Sign Out"
 msgstr "Sair"
@@ -891,7 +915,7 @@ msgid "Total: {0}"
 msgstr "Total: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "Rastreamento"
 
 msgid "Tracking Labels"
 msgstr "Etiquetas de Rastreamento"

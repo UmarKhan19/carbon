@@ -201,6 +201,9 @@ msgstr "Компания"
 msgid "Complete"
 msgstr "Завершить"
 
+msgid "Complete All"
+msgstr "Завершить все"
+
 msgid "Completed"
 msgstr "Завершено"
 
@@ -217,6 +220,12 @@ msgstr "Потреблено истекшее"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Создать {0}"
+
+msgid "Create Issue"
+msgstr "Создать проблему"
+
+msgid "Create Quality Issue"
+msgstr "Создать проблему качества"
 
 msgid "Customer"
 msgstr "Заказчик"
@@ -242,6 +251,9 @@ msgstr "Удалить шаг"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "Удалить табель ({0})"
+
+msgid "Describe the problem..."
+msgstr "Опишите проблему..."
 
 msgid "Description"
 msgstr "Описание"
@@ -269,8 +281,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Перетаскивание {0} отменено."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Срок {0}"
 
@@ -387,6 +399,9 @@ msgstr "Выдать"
 msgid "Issue Material"
 msgstr "Выдать материал"
 
+msgid "Issue Type"
+msgstr "Тип проблемы"
+
 msgid "Item"
 msgstr "Номенклатура"
 
@@ -403,7 +418,7 @@ msgid "Job Traveler"
 msgstr "Маршрутный лист"
 
 msgid "Jobs"
-msgstr ""
+msgstr "Работы"
 
 msgid "Kit"
 msgstr "Комплект"
@@ -536,7 +551,7 @@ msgid "No materials"
 msgstr "Нет материалов"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "Нет открытых заданий"
 
 msgid "No operators"
 msgstr "Нет операторов"
@@ -597,7 +612,7 @@ msgid "Open"
 msgstr "Открытые"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "Открытые задания"
 
 msgid "Operations"
 msgstr "Операции"
@@ -665,6 +680,12 @@ msgstr "Процессы"
 msgid "Progress"
 msgstr "Прогресс"
 
+msgid "Quality Issue"
+msgstr "Проблема качества"
+
+msgid "Quality issue created"
+msgstr "Проблема качества создана"
+
 msgid "Quantity"
 msgstr "Количество"
 
@@ -718,7 +739,7 @@ msgid "Search"
 msgstr "Поиск"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "Поиск по номеру работы или товара"
 
 msgid "Search operators..."
 msgstr "Поиск операторов..."
@@ -798,6 +819,9 @@ msgstr "Войти через Google"
 
 msgid "Sign in with Outlook"
 msgstr "Войти через Outlook"
+
+msgid "Sign in with Passkey"
+msgstr "Войти с помощью Passkey"
 
 msgid "Sign Out"
 msgstr "Выйти"
@@ -891,7 +915,7 @@ msgid "Total: {0}"
 msgstr "Итого: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "Отслеживание"
 
 msgid "Tracking Labels"
 msgstr "Этикетки отслеживания"

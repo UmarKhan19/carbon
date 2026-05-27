@@ -1,6 +1,7 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { getCustomRulesDataForTarget } from "@carbon/ee/custom-rules.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
 import { pluckUnique } from "@carbon/utils";
@@ -8,6 +9,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
+import RuleAssignmentsList from "~/modules/customRules/ui/RuleAssignmentsList";
 import {
   getTrackedEntityExpirations,
   InventoryDetails
@@ -24,9 +26,7 @@ import {
   upsertPickMethod,
   upsertPickMethodWithShelfLife
 } from "~/modules/items";
-import { getItemRulesDataForItem } from "~/modules/items/itemRules.server";
 import { PickMethodForm } from "~/modules/items/ui/Item";
-import ItemRuleAssignments from "~/modules/items/ui/ItemRules/ItemRuleAssignments";
 import { getLocationsList } from "~/modules/resources";
 import { getUserDefaults } from "~/modules/users/users.server";
 import { getDatabaseClient } from "~/services/database.server";
@@ -122,7 +122,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getItemStorageUnitQuantities(client, itemId, companyId, locationId),
     getItemShelfLife(client, itemId),
     getBomHasShelfLifeManagedInput(client, itemId, companyId),
-    getItemRulesDataForItem(client, itemId, companyId)
+    getCustomRulesDataForTarget(client, {
+      targetType: "item",
+      targetId: itemId,
+      companyId
+    })
   ]);
   if (quantities.error) {
     throw redirect(
@@ -285,8 +289,9 @@ export default function PartInventoryRoute() {
         quantities={quantities}
         storageUnits={storageUnits.options}
       />
-      <ItemRuleAssignments
-        itemId={itemId}
+      <RuleAssignmentsList
+        targetType="item"
+        targetId={itemId}
         assignments={ruleAssignments as never}
         library={ruleLibrary as never}
       />

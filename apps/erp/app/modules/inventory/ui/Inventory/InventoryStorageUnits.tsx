@@ -1,3 +1,4 @@
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import {
   DatePicker,
   Hidden,
@@ -53,16 +54,10 @@ import {
 import { Outlet } from "react-router";
 import type { z } from "zod";
 import { Enumerable } from "~/components/Enumerable";
-import {
-  Input,
-  Location,
-  Select,
-  StorageUnit,
-  TextArea
-} from "~/components/Form";
+import { Input, Location, Select, TextArea } from "~/components/Form";
+import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions } from "~/hooks";
-import { useItemRuleViolations } from "~/hooks/useItemRuleViolations";
 import type {
   ItemStorageUnitQuantities,
   itemTrackingTypes,
@@ -96,7 +91,7 @@ const InventoryStorageUnits = ({
   const permissions = usePermissions();
   const { t } = useLingui();
   const adjustmentModal = useDisclosure();
-  const ruleViolations = useItemRuleViolations({
+  const ruleViolations = useCustomRuleViolations({
     action: path.to.inventoryItemAdjustment(pickMethod.itemId),
     onSuccess: adjustmentModal.onClose
   });
@@ -350,7 +345,7 @@ const InventoryStorageUnits = ({
 
                 <VStack spacing={2}>
                   <Location name="locationId" label={t`Location`} isReadOnly />
-                  <StorageUnit
+                  <StorageUnitDrillSelectField
                     name="storageUnitId"
                     locationId={pickMethod.locationId}
                     label={t`Storage Unit`}

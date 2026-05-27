@@ -201,6 +201,9 @@ msgstr "कंपनी"
 msgid "Complete"
 msgstr "पूर्ण करें"
 
+msgid "Complete All"
+msgstr "सभी को पूर्ण करें"
+
 msgid "Completed"
 msgstr "पूर्ण"
 
@@ -217,6 +220,12 @@ msgstr "खपत की गई समाप्त"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "{0} बनाएं"
+
+msgid "Create Issue"
+msgstr "समस्या बनाएं"
+
+msgid "Create Quality Issue"
+msgstr "गुणवत्ता समस्या बनाएं"
 
 msgid "Customer"
 msgstr "ग्राहक"
@@ -242,6 +251,9 @@ msgstr "चरण हटाएं"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "टाइमकार्ड हटाएं ({0})"
+
+msgid "Describe the problem..."
+msgstr "समस्या का वर्णन करें..."
 
 msgid "Description"
 msgstr "विवरण"
@@ -269,8 +281,8 @@ msgid "Dragging {0} cancelled."
 msgstr "\"{0}\" को ड्रैग करना रद्द किया गया।"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Due {0} के लिए"
 
@@ -387,6 +399,9 @@ msgstr "जारी करें"
 msgid "Issue Material"
 msgstr "सामग्री जारी करें"
 
+msgid "Issue Type"
+msgstr "समस्या प्रकार"
+
 msgid "Item"
 msgstr "वस्तु"
 
@@ -403,7 +418,7 @@ msgid "Job Traveler"
 msgstr "जॉब ट्रैवलर"
 
 msgid "Jobs"
-msgstr ""
+msgstr "नौकरियां"
 
 msgid "Kit"
 msgstr "किट"
@@ -536,7 +551,7 @@ msgid "No materials"
 msgstr "कोई सामग्री नहीं"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "कोई खुली नौकरी नहीं"
 
 msgid "No operators"
 msgstr "कोई ऑपरेटर नहीं"
@@ -597,7 +612,7 @@ msgid "Open"
 msgstr "खुला"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "खुली नौकरियां"
 
 msgid "Operations"
 msgstr "संचालन"
@@ -665,6 +680,12 @@ msgstr "प्रक्रियाएं"
 msgid "Progress"
 msgstr "प्रगति"
 
+msgid "Quality Issue"
+msgstr "गुणवत्ता समस्या"
+
+msgid "Quality issue created"
+msgstr "गुणवत्ता समस्या बनाई गई"
+
 msgid "Quantity"
 msgstr "मात्रा"
 
@@ -718,7 +739,7 @@ msgid "Search"
 msgstr "खोजें"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "जॉब या आइटम आईडी से खोजें"
 
 msgid "Search operators..."
 msgstr "ऑपरेटर खोजें..."
@@ -798,6 +819,9 @@ msgstr "Google के साथ साइन इन करें"
 
 msgid "Sign in with Outlook"
 msgstr "Outlook के साथ साइन इन करें"
+
+msgid "Sign in with Passkey"
+msgstr "पासकी के साथ साइन इन करें"
 
 msgid "Sign Out"
 msgstr "साइन आउट"
@@ -891,7 +915,7 @@ msgid "Total: {0}"
 msgstr "कुल: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "ट्रैकिंग"
 
 msgid "Tracking Labels"
 msgstr "ट्रैकिंग लेबल"

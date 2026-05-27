@@ -201,6 +201,9 @@ msgstr "Company"
 msgid "Complete"
 msgstr "Complete"
 
+msgid "Complete All"
+msgstr "Complete All"
+
 msgid "Completed"
 msgstr "Completed"
 
@@ -217,6 +220,12 @@ msgstr "Consumed expired"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Create {0}"
+
+msgid "Create Issue"
+msgstr "Create Issue"
+
+msgid "Create Quality Issue"
+msgstr "Create Quality Issue"
 
 msgid "Customer"
 msgstr "Customer"
@@ -242,6 +251,9 @@ msgstr "Delete Step"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "Delete Timecard ({0})"
+
+msgid "Describe the problem..."
+msgstr "Describe the problem..."
 
 msgid "Description"
 msgstr "Description"
@@ -269,8 +281,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Dragging {0} cancelled."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Due {0}"
 
@@ -386,6 +398,9 @@ msgstr "Issue"
 
 msgid "Issue Material"
 msgstr "Issue Material"
+
+msgid "Issue Type"
+msgstr "Issue Type"
 
 msgid "Item"
 msgstr "Item"
@@ -665,6 +680,12 @@ msgstr "Processes"
 msgid "Progress"
 msgstr "Progress"
 
+msgid "Quality Issue"
+msgstr "Quality Issue"
+
+msgid "Quality issue created"
+msgstr "Quality issue created"
+
 msgid "Quantity"
 msgstr "Quantity"
 
@@ -798,6 +819,9 @@ msgstr "Sign in with Google"
 
 msgid "Sign in with Outlook"
 msgstr "Sign in with Outlook"
+
+msgid "Sign in with Passkey"
+msgstr "Sign in with Passkey"
 
 msgid "Sign Out"
 msgstr "Sign Out"

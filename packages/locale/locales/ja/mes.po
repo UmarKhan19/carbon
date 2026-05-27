@@ -201,6 +201,9 @@ msgstr "会社"
 msgid "Complete"
 msgstr "完了"
 
+msgid "Complete All"
+msgstr "すべて完了"
+
 msgid "Completed"
 msgstr "完了済み"
 
@@ -217,6 +220,12 @@ msgstr "消費期限切れ"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "{0}を作成"
+
+msgid "Create Issue"
+msgstr "問題を作成"
+
+msgid "Create Quality Issue"
+msgstr "品質問題を作成"
 
 msgid "Customer"
 msgstr "顧客"
@@ -242,6 +251,9 @@ msgstr "ステップを削除"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "タイムカードを削除（{0}）"
+
+msgid "Describe the problem..."
+msgstr "問題を説明してください..."
 
 msgid "Description"
 msgstr "説明"
@@ -269,8 +281,8 @@ msgid "Dragging {0} cancelled."
 msgstr "{0} のドラッグがキャンセルされました。"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "期限 {0}"
 
@@ -387,6 +399,9 @@ msgstr "払出"
 msgid "Issue Material"
 msgstr "材料払出"
 
+msgid "Issue Type"
+msgstr "問題タイプ"
+
 msgid "Item"
 msgstr "品目"
 
@@ -403,7 +418,7 @@ msgid "Job Traveler"
 msgstr "ジョブトラベラー"
 
 msgid "Jobs"
-msgstr ""
+msgstr "ジョブ"
 
 msgid "Kit"
 msgstr "キット"
@@ -536,7 +551,7 @@ msgid "No materials"
 msgstr "材料なし"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "オープンなジョブはありません"
 
 msgid "No operators"
 msgstr "オペレーターなし"
@@ -597,7 +612,7 @@ msgid "Open"
 msgstr "未対応"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "オープンジョブ"
 
 msgid "Operations"
 msgstr "工程"
@@ -665,6 +680,12 @@ msgstr "プロセス一覧"
 msgid "Progress"
 msgstr "進捗"
 
+msgid "Quality Issue"
+msgstr "品質問題"
+
+msgid "Quality issue created"
+msgstr "品質問題が作成されました"
+
 msgid "Quantity"
 msgstr "数量"
 
@@ -718,7 +739,7 @@ msgid "Search"
 msgstr "検索"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "ジョブまたはアイテムIDで検索"
 
 msgid "Search operators..."
 msgstr "オペレーターを検索..."
@@ -798,6 +819,9 @@ msgstr "Googleでサインイン"
 
 msgid "Sign in with Outlook"
 msgstr "Outlookでサインイン"
+
+msgid "Sign in with Passkey"
+msgstr "パスキーでサインイン"
 
 msgid "Sign Out"
 msgstr "サインアウト"
@@ -891,7 +915,7 @@ msgid "Total: {0}"
 msgstr "合計: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "追跡"
 
 msgid "Tracking Labels"
 msgstr "追跡ラベル"

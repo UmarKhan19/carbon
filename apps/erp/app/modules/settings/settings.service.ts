@@ -62,8 +62,7 @@ export async function updateAccountsReceivableBillingAddress(
 ) {
   return client
     .from("companyAccountsReceivableBillingAddress")
-    .update(sanitize({ ...data, updatedBy }))
-    .eq("id", companyId);
+    .upsert(sanitize({ id: companyId, ...data, updatedBy }));
 }
 
 export async function deactivateWebhooks(
@@ -624,6 +623,20 @@ export async function updateAccountingEnabledSetting(
   return client
     .from("companySettings")
     .update(sanitize({ accountingEnabled }))
+    .eq("id", companyId);
+}
+
+export async function updateAssetTaxDepreciationSettings(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  settings: {
+    assetTaxDepreciationEnabled: boolean;
+    assetTaxRate: number | null;
+  }
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize(settings))
     .eq("id", companyId);
 }
 

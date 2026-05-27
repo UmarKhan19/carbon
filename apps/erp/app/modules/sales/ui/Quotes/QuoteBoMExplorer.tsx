@@ -43,11 +43,13 @@ import type { QuoteMethod } from "../../types";
 type QuoteBoMExplorerProps = {
   methods: FlatTree<QuoteMethod>;
   isSearchExpanded?: boolean;
+  isAllExpanded?: boolean;
 };
 
 const QuoteBoMExplorer = ({
   methods,
-  isSearchExpanded = false
+  isSearchExpanded = false,
+  isAllExpanded = false
 }: QuoteBoMExplorerProps) => {
   const { t } = useLingui();
   const parentRef = useRef<HTMLDivElement>(null);
@@ -107,6 +109,15 @@ const QuoteBoMExplorer = ({
     },
     isEager: true
   });
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only react to isAllExpanded changes
+  useEffect(() => {
+    if (isAllExpanded) {
+      expandAllBelowDepth(0);
+    } else {
+      collapseAllBelowDepth(1);
+    }
+  }, [isAllExpanded]);
 
   const params = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
