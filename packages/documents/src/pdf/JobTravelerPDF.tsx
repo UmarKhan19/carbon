@@ -1,7 +1,7 @@
 import type { Database } from "@carbon/database";
 import { getMESUrl } from "@carbon/env";
 import type { JSONContent } from "@carbon/react";
-import { formatDate, formatDurationMinutes } from "@carbon/utils";
+import { formatDate } from "@carbon/utils";
 import { Image, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import { generateQRCode } from "../qr/qr-code";
@@ -9,6 +9,22 @@ import type { Company, PDF } from "../types";
 import { Header, Note, Template } from "./components";
 
 type JobOperationStep = Database["public"]["Tables"]["jobOperationStep"]["Row"];
+
+type Factor = Database["public"]["Enums"]["factor"];
+
+const factorAbbreviations: Record<Factor, string> = {
+  "Total Hours": "hr",
+  "Total Minutes": "min",
+  "Hours/Piece": "hr/pc",
+  "Hours/100 Pieces": "hr/100 pcs",
+  "Hours/1000 Pieces": "hr/1000 pcs",
+  "Minutes/Piece": "min/pc",
+  "Minutes/100 Pieces": "min/100 pcs",
+  "Minutes/1000 Pieces": "min/1000 pcs",
+  "Pieces/Hour": "pcs/hr",
+  "Pieces/Minute": "pcs/min",
+  "Seconds/Piece": "sec/pc"
+};
 
 type JobOperationWithSteps =
   Database["public"]["Tables"]["jobOperation"]["Row"] & {
@@ -332,18 +348,18 @@ export const JobTravelerPageContent = ({
               );
             }
 
-            const setupTimeFormatted = formatDurationMinutes(
-              operation.setupTime,
-              { style: "short" }
-            );
-            const laborTimeFormatted = formatDurationMinutes(
-              operation.laborTime,
-              { style: "short" }
-            );
-            const machineTimeFormatted = formatDurationMinutes(
-              operation.machineTime,
-              { style: "short" }
-            );
+            const setupTimeFormatted =
+              operation.setupTime > 0
+                ? `${operation.setupTime} ${factorAbbreviations[operation.setupUnit]}`
+                : "";
+            const laborTimeFormatted =
+              operation.laborTime > 0
+                ? `${operation.laborTime} ${factorAbbreviations[operation.laborUnit]}`
+                : "";
+            const machineTimeFormatted =
+              operation.machineTime > 0
+                ? `${operation.machineTime} ${factorAbbreviations[operation.machineUnit]}`
+                : "";
             const hasExpectedTimes =
               setupTimeFormatted || laborTimeFormatted || machineTimeFormatted;
 
