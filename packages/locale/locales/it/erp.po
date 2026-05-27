@@ -300,7 +300,7 @@ msgid "Add Entry"
 msgstr "Aggiungi Voce"
 
 msgid "Add Feature"
-msgstr ""
+msgstr "Aggiungi Funzione"
 
 msgid "Add from library…"
 msgstr "Aggiungi dalla libreria…"
@@ -363,7 +363,7 @@ msgid "Add rule"
 msgstr "Aggiungi regola"
 
 msgid "Add Selector"
-msgstr ""
+msgstr "Aggiungi selettore"
 
 msgid "Add Shipment"
 msgstr "Aggiungi Spedizione"
@@ -471,19 +471,19 @@ msgid "and {remaining} more"
 msgstr "e {remaining} altri"
 
 msgid "Annotation added"
-msgstr ""
+msgstr "Annotazione aggiunta"
 
 msgid "Annotation deleted"
-msgstr ""
+msgstr "Annotazione eliminata"
 
 msgid "Annotation text"
-msgstr ""
+msgstr "Testo annotazione"
 
 msgid "Annotation text is required"
-msgstr ""
+msgstr "Il testo dell'annotazione è obbligatorio"
 
 msgid "Annotation updated"
-msgstr ""
+msgstr "Annotazione aggiornata"
 
 msgid "API and Webhooks"
 msgstr "API e Webhook"
@@ -809,7 +809,7 @@ msgid "Are you sure you want to delete this gauge?"
 msgstr "Sei sicuro di voler eliminare questo calibro?"
 
 msgid "Are you sure you want to delete this inspection document?"
-msgstr ""
+msgstr "Sei sicuro di voler eliminare questo documento di ispezione?"
 
 msgid "Are you sure you want to delete this issue workflow?"
 msgstr "Sei sicuro di voler eliminare questo flusso di lavoro dei problemi?"
@@ -1025,7 +1025,7 @@ msgid "Balance Sheet"
 msgstr "Bilancio"
 
 msgid "Balloon"
-msgstr ""
+msgstr "Palloncino"
 
 msgid "Base Currency"
 msgstr "Valuta di Base"
@@ -1308,7 +1308,7 @@ msgid "Clear search query"
 msgstr "Cancella query di ricerca"
 
 msgid "Click to upload a PDF drawing"
-msgstr ""
+msgstr "Fare clic per caricare un disegno PDF"
 
 msgid "Clock In"
 msgstr "Accedi"
@@ -1345,7 +1345,7 @@ msgid "Collapse Costs"
 msgstr "Comprimi Costi"
 
 msgid "Collapse features table"
-msgstr ""
+msgstr "Comprimi tabella funzioni"
 
 msgid "Collapse Labor"
 msgstr "Comprimi manodopera"
@@ -1754,17 +1754,17 @@ msgid "Costing Method"
 msgstr "Metodo di Determinazione dei Costi"
 
 msgid "Could not analyze cropped region"
-msgstr ""
+msgstr "Impossibile analizzare la regione ritagliata"
 
 #. placeholder {0}: payload.message ?? analyzeRes.statusText
 msgid "Could not analyze region: {0}"
-msgstr ""
+msgstr "Impossibile analizzare la regione: {0}"
 
 msgid "Could not build PDF. Try again."
-msgstr ""
+msgstr "Impossibile creare il PDF. Riprova."
 
 msgid "Could not prepare region image for analysis"
-msgstr ""
+msgstr "Impossibile preparare l'immagine della regione per l'analisi"
 
 msgid "Couldn't load documents"
 msgstr "Impossibile caricare i documenti"
@@ -2483,7 +2483,7 @@ msgid "Details"
 msgstr "Dettagli"
 
 msgid "Diagram saved"
-msgstr ""
+msgstr "Diagramma salvato"
 
 msgid "Digital Quote"
 msgstr "Preventivo Digitale"
@@ -2567,7 +2567,7 @@ msgid "Download CSV"
 msgstr "Scarica CSV"
 
 msgid "Download PDF"
-msgstr ""
+msgstr "Scarica PDF"
 
 msgid "Draft"
 msgstr "Bozza"
@@ -2579,22 +2579,22 @@ msgid "Drag handle"
 msgstr "Maniglia di trascinamento"
 
 msgid "Drag to place on drawing"
-msgstr ""
+msgstr "Trascina per posizionare sul disegno"
 
 msgid "Drag to reorder"
 msgstr "Trascina per riordinare"
 
 msgid "Drag to resize diagram and features"
-msgstr ""
+msgstr "Trascinare per ridimensionare il diagramma e le funzioni"
 
 msgid "Drag to zoom"
-msgstr ""
+msgstr "Trascina per ingrandire"
 
 msgid "Drawing Number"
-msgstr ""
+msgstr "Numero di Disegno"
 
 msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
-msgstr ""
+msgstr "Disegno sostituito. I posizionamenti dei palloncini sono stati rimossi; le righe delle funzioni rimangono invariate."
 
 msgid "Drop Shipment"
 msgstr "Spedizione Diretta"
@@ -2643,7 +2643,7 @@ msgid "Duration"
 msgstr "Durata"
 
 msgid "e.g. DWG-1234"
-msgstr ""
+msgstr "es. DWG-1234"
 
 msgid "Edit"
 msgstr "Modifica"
@@ -2730,7 +2730,7 @@ msgid "Edit Holiday"
 msgstr "Modifica Festività"
 
 msgid "Edit Inspection Document"
-msgstr ""
+msgstr "Modifica Documento di Ispezione"
 
 msgid "Edit Item Group"
 msgstr "Modifica Gruppo Articoli"
@@ -3148,7 +3148,7 @@ msgid "Expand Costs"
 msgstr "Espandi Costi"
 
 msgid "Expand features table"
-msgstr ""
+msgstr "Espandi tabella funzioni"
 
 msgid "Expand Labor"
 msgstr "Espandi manodopera"
@@ -3450,7 +3450,7 @@ msgid "Failed to save configuration rule"
 msgstr "Impossibile salvare la regola di configurazione"
 
 msgid "Failed to save diagram"
-msgstr ""
+msgstr "Impossibile salvare il diagramma"
 
 msgid "Failed to update batch property"
 msgstr "Impossibile aggiornare la proprietà batch"
@@ -3500,7 +3500,7 @@ msgid "Failed to upload model"
 msgstr "Caricamento del modello non riuscito"
 
 msgid "Failed to upload PDF"
-msgstr ""
+msgstr "Caricamento PDF non riuscito"
 
 msgid "Failed to upload thumbnail"
 msgstr "Impossibile caricare la miniatura"
@@ -3521,13 +3521,13 @@ msgid "Fax Number"
 msgstr "Numero di Fax"
 
 msgid "Feature"
-msgstr ""
+msgstr "Funzione"
 
 msgid "Feature values suggested from drawing"
-msgstr ""
+msgstr "Valori delle caratteristiche suggeriti dal disegno"
 
 msgid "Features"
-msgstr ""
+msgstr "Funzionalità"
 
 msgid "Feedback"
 msgstr "Feedback"
@@ -3898,10 +3898,10 @@ msgid "Inspection"
 msgstr "Ispezione"
 
 msgid "Inspection Document"
-msgstr ""
+msgstr "Documento di Ispezione"
 
 msgid "Inspection Documents"
-msgstr ""
+msgstr "Documenti di Ispezione"
 
 msgid "Inspection Level"
 msgstr "Livello di Ispezione"
@@ -4841,7 +4841,7 @@ msgid "New Holiday"
 msgstr "Nuova Festività"
 
 msgid "New Inspection Document"
-msgstr ""
+msgstr "Nuovo Documento di Ispezione"
 
 msgid "New Invoice"
 msgstr "Nuova Fattura"
@@ -5024,7 +5024,7 @@ msgid "Next Due"
 msgstr "Prossima Scadenza"
 
 msgid "Next page"
-msgstr ""
+msgstr "Pagina successiva"
 
 msgid "Next Sequence"
 msgstr "Sequenza Successiva"
@@ -5227,7 +5227,7 @@ msgid "No work centers exist"
 msgstr "Non esistono centri di lavoro"
 
 msgid "Nom"
-msgstr ""
+msgstr "Nom"
 
 msgid "Nominal Cost"
 msgstr "Costo Nominale"
@@ -5500,7 +5500,7 @@ msgid "Packing Slip"
 msgstr "Documento di trasporto"
 
 msgid "Page {pdfViewPage} of {documentPageCount}"
-msgstr ""
+msgstr "Pagina {pdfViewPage} di {documentPageCount}"
 
 msgid "Paid Amount:"
 msgstr "Importo Pagato:"
@@ -5581,10 +5581,10 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF downloaded"
-msgstr ""
+msgstr "PDF scaricato"
 
 msgid "PDF pages"
-msgstr ""
+msgstr "Pagine PDF"
 
 msgid "PDF Watermark"
 msgstr "Filigrana PDF"
@@ -5779,7 +5779,7 @@ msgid "Previous Date"
 msgstr "Data precedente"
 
 msgid "Previous page"
-msgstr ""
+msgstr "Pagina precedente"
 
 msgid "Price break actions"
 msgstr "Azioni di scaglione di prezzo"
@@ -6232,7 +6232,7 @@ msgid "Remove condition"
 msgstr "Rimuovi condizione"
 
 msgid "Remove feature"
-msgstr ""
+msgstr "Rimuovi funzione"
 
 msgid "Remove filter"
 msgstr "Rimuovi filtro"
@@ -6304,16 +6304,16 @@ msgid "Reordering Policy"
 msgstr "Politica di Riordino"
 
 msgid "Replace drawing?"
-msgstr ""
+msgstr "Sostituire il disegno?"
 
 msgid "Replace existing pricing with source values"
 msgstr "Sostituisci i prezzi esistenti con i valori di origine"
 
 msgid "Replace PDF"
-msgstr ""
+msgstr "Sostituisci PDF"
 
 msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
-msgstr ""
+msgstr "La sostituzione del PDF rimuove tutti i posizionamenti dei palloncini su questo documento. Le righe delle funzioni e i loro valori rimangono; puoi posizionare di nuovo i palloncini sul nuovo disegno."
 
 msgid "Replenishment"
 msgstr "Rifornimento"
@@ -6381,7 +6381,7 @@ msgid "Reset PIN for {0} {1}"
 msgstr "Reimposta PIN per {0} {1}"
 
 msgid "Reset View"
-msgstr ""
+msgstr "Ripristina visualizzazione"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "Risolvi questi prima di completare l'NCR: ogni riga deve avere una disposizione non in sospeso e le quantità delle entità collegate devono corrispondere alla quantità della riga."
@@ -7572,7 +7572,7 @@ msgid "Test Value"
 msgstr "Valore di Test"
 
 msgid "Text size"
-msgstr ""
+msgstr "Dimensione testo"
 
 msgid "The amount of days after the calculation method that the cash discount is available"
 msgstr "L'importo dei giorni dopo il metodo di calcolo in cui lo sconto in contanti è disponibile"
@@ -7803,10 +7803,10 @@ msgid "Toggle views"
 msgstr "Attiva/disattiva visualizzazioni"
 
 msgid "Tol-"
-msgstr ""
+msgstr "Tol-"
 
 msgid "Tol+"
-msgstr ""
+msgstr "Tol+"
 
 msgid "Tolerance (+/-)"
 msgstr "Tolleranza (+/-)"
@@ -7980,7 +7980,7 @@ msgid "Unassigned"
 msgstr "Non assegnato"
 
 msgid "Unballoon"
-msgstr ""
+msgstr "Rimuovi palloncino"
 
 msgid "Uninstall"
 msgstr "Disinstalla"
@@ -8028,7 +8028,7 @@ msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Tipo di documento di origine non supportato: {sourceDocument}"
 
 msgid "Untitled Diagram"
-msgstr ""
+msgstr "Diagramma senza titolo"
 
 msgid "UoM"
 msgstr "UdM"
@@ -8110,7 +8110,7 @@ msgid "Upload"
 msgstr "Carica"
 
 msgid "Upload a PDF first"
-msgstr ""
+msgstr "Carica prima un PDF"
 
 msgid "Upload completed but no file path returned"
 msgstr "Caricamento completato ma nessun percorso file restituito"
@@ -8136,7 +8136,7 @@ msgid "Uploading {fileName}"
 msgstr "Caricamento in corso {fileName}"
 
 msgid "Uploading…"
-msgstr ""
+msgstr "Caricamento in corso…"
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "Facendo clic su Converti, le parti verranno create con i seguenti numeri di parte interni:"
@@ -8611,10 +8611,10 @@ msgid "yourself"
 msgstr "te stesso"
 
 msgid "Zoom Box"
-msgstr ""
+msgstr "Zoom Box"
 
 msgid "Zoom in"
-msgstr ""
+msgstr "Aumenta zoom"
 
 msgid "Zoom out"
-msgstr ""
+msgstr "Riduci zoom"
