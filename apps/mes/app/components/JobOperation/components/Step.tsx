@@ -345,13 +345,11 @@ export function PreviewStepRecord({
 export function RecordModal({
   attribute,
   activeStep,
-  onClose,
-  onFailedInspection
+  onClose
 }: {
   attribute: JobOperationStep;
   activeStep: number;
   onClose: () => void;
-  onFailedInspection?: (step: JobOperationStep) => void;
 }) {
   const [employees] = usePeople();
   const employeeOptions = useMemo(() => {
@@ -366,9 +364,6 @@ export function RecordModal({
   const { company } = useUser();
   const [file, setFile] = useState<File | null>(null);
   const [filePath, setFilePath] = useState<string | null>(null);
-  const [shouldHandleFailedInspection, setShouldHandleFailedInspection] =
-    useState(false);
-
   const fetcher = useFetcher<{ success: boolean }>();
 
   const onDrop = async (acceptedFiles: File[]) => {
@@ -397,18 +392,9 @@ export function RecordModal({
 
   useEffect(() => {
     if (fetcher.data?.success) {
-      if (shouldHandleFailedInspection) {
-        onFailedInspection?.(attribute);
-      }
       onClose();
     }
-  }, [
-    attribute,
-    fetcher.data?.success,
-    onClose,
-    onFailedInspection,
-    shouldHandleFailedInspection
-  ]);
+  }, [fetcher.data?.success, onClose]);
 
   const record = attribute?.jobOperationStepRecord.find(
     (r) => r.index === activeStep
@@ -432,11 +418,6 @@ export function RecordModal({
           method="post"
           validator={stepRecordValidator}
           action={path.to.record}
-          onSubmit={() => {
-            setShouldHandleFailedInspection(
-              attribute.type === "Inspection" && !booleanControlled
-            );
-          }}
           defaultValues={{
             index: activeStep,
             jobOperationStepId: attribute.id,

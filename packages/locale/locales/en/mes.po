@@ -201,6 +201,9 @@ msgstr "Company"
 msgid "Complete"
 msgstr "Complete"
 
+msgid "Complete All"
+msgstr "Complete All"
+
 msgid "Completed"
 msgstr "Completed"
 
@@ -218,8 +221,8 @@ msgstr "Consumed expired"
 msgid "Create {0}"
 msgstr "Create {0}"
 
-msgid "Create a quality issue for MRB review."
-msgstr "Create a quality issue for MRB review."
+msgid "Create Issue"
+msgstr "Create Issue"
 
 msgid "Create Quality Issue"
 msgstr "Create Quality Issue"
@@ -249,14 +252,14 @@ msgstr "Delete Step"
 msgid "Delete Timecard ({0})"
 msgstr "Delete Timecard ({0})"
 
+msgid "Describe the problem..."
+msgstr "Describe the problem..."
+
 msgid "Description"
 msgstr "Description"
 
 msgid "Details"
 msgstr "Details"
-
-msgid "Dismiss"
-msgstr "Dismiss"
 
 msgid "Dispatch not found"
 msgstr "Dispatch not found"
@@ -375,9 +378,6 @@ msgstr "Impact"
 msgid "In Progress"
 msgstr "In Progress"
 
-msgid "Inspection Failed"
-msgstr "Inspection Failed"
-
 msgid "Insufficient quantity"
 msgstr "Insufficient quantity"
 
@@ -398,6 +398,9 @@ msgstr "Issue"
 
 msgid "Issue Material"
 msgstr "Issue Material"
+
+msgid "Issue Type"
+msgstr "Issue Type"
 
 msgid "Item"
 msgstr "Item"
@@ -611,9 +614,6 @@ msgstr "Open"
 msgid "Open Jobs"
 msgstr "Open Jobs"
 
-msgid "Operation evidence will be attached as context."
-msgstr "Operation evidence will be attached as context."
-
 msgid "Operations"
 msgstr "Operations"
 
@@ -682,6 +682,9 @@ msgstr "Progress"
 
 msgid "Quality Issue"
 msgstr "Quality Issue"
+
+msgid "Quality issue created"
+msgstr "Quality issue created"
 
 msgid "Quantity"
 msgstr "Quantity"

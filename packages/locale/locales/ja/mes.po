@@ -201,6 +201,9 @@ msgstr "会社"
 msgid "Complete"
 msgstr "完了"
 
+msgid "Complete All"
+msgstr ""
+
 msgid "Completed"
 msgstr "完了済み"
 
@@ -218,7 +221,7 @@ msgstr "消費期限切れ"
 msgid "Create {0}"
 msgstr "{0}を作成"
 
-msgid "Create a quality issue for MRB review."
+msgid "Create Issue"
 msgstr ""
 
 msgid "Create Quality Issue"
@@ -249,14 +252,14 @@ msgstr "ステップを削除"
 msgid "Delete Timecard ({0})"
 msgstr "タイムカードを削除（{0}）"
 
+msgid "Describe the problem..."
+msgstr ""
+
 msgid "Description"
 msgstr "説明"
 
 msgid "Details"
 msgstr "詳細"
-
-msgid "Dismiss"
-msgstr ""
 
 msgid "Dispatch not found"
 msgstr "ディスパッチが見つかりません"
@@ -375,9 +378,6 @@ msgstr "影響"
 msgid "In Progress"
 msgstr "進行中"
 
-msgid "Inspection Failed"
-msgstr ""
-
 msgid "Insufficient quantity"
 msgstr "数量が不足しています"
 
@@ -398,6 +398,9 @@ msgstr "払出"
 
 msgid "Issue Material"
 msgstr "材料払出"
+
+msgid "Issue Type"
+msgstr ""
 
 msgid "Item"
 msgstr "品目"
@@ -611,9 +614,6 @@ msgstr "未対応"
 msgid "Open Jobs"
 msgstr "オープンジョブ"
 
-msgid "Operation evidence will be attached as context."
-msgstr ""
-
 msgid "Operations"
 msgstr "工程"
 
@@ -681,6 +681,9 @@ msgid "Progress"
 msgstr "進捗"
 
 msgid "Quality Issue"
+msgstr ""
+
+msgid "Quality issue created"
 msgstr ""
 
 msgid "Quantity"

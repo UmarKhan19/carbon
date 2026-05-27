@@ -21,13 +21,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalDescription,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
   ModelViewer,
   ScrollArea,
   Separator,
@@ -86,16 +79,10 @@ import {
   LuQrCode,
   LuSquareUser,
   LuTimer,
-  LuTriangleAlert
+  LuTriangleAlert,
+  LuWrench
 } from "react-icons/lu";
-import {
-  Await,
-  Form,
-  Link,
-  useFetcher,
-  useNavigate,
-  useParams
-} from "react-router";
+import { Await, Link, useFetcher, useNavigate, useParams } from "react-router";
 import {
   DeadlineIcon,
   FileIcon,
@@ -129,6 +116,8 @@ import ItemThumbnail from "../ItemThumbnail";
 import { OperationChat } from "./components/Chat";
 import {
   Controls,
+  type FABItem,
+  FloatingActionMenu,
   IconButtonWithTooltip,
   StartStopButton,
   Times,
@@ -137,6 +126,7 @@ import {
 import { IssueMaterialModal } from "./components/IssueMaterialModal";
 import { MaintenanceDispatch } from "./components/MaintenanceDispatch";
 import { ParametersListItem } from "./components/Parameter";
+import { QualityIssueModal } from "./components/QualityIssueModal";
 import { QuantityModal } from "./components/QuantityModal";
 import { SerialSelectorModal } from "./components/SerialSelectorModal";
 import {
@@ -226,13 +216,12 @@ export const JobOperation = ({
 
   const attributeRecordModal = useDisclosure();
   const attributeRecordDeleteModal = useDisclosure();
-  const failedInspectionModal = useDisclosure();
+  const maintenanceModal = useDisclosure();
+  const qualityIssueModal = useDisclosure();
   const [activeStep, setActiveStep] = useState(
     parentIsSerial ? serialIndex : 0
   );
   const [hasMultipleRecords, setHasMultipleRecords] = useState(false);
-  const [failedInspectionStep, setFailedInspectionStep] =
-    useState<JobOperationStep | null>(null);
 
   useEffect(() => {
     if (parentIsSerial) {
@@ -386,16 +375,6 @@ export const JobOperation = ({
       setSelectedStep(attribute);
     });
     attributeRecordDeleteModal.onOpen();
-  };
-
-  const onFailedInspection = (attribute: JobOperationStep) => {
-    setFailedInspectionStep(attribute);
-    failedInspectionModal.onOpen();
-  };
-
-  const onCloseFailedInspection = () => {
-    setFailedInspectionStep(null);
-    failedInspectionModal.onClose();
   };
 
   const onDeselectStep = () => {
@@ -1979,16 +1958,9 @@ export const JobOperation = ({
                     <Await resolve={workCenter}>
                       {(resolvedWorkCenter) =>
                         resolvedWorkCenter.data && (
-                          <VStack spacing={1}>
-                            <HStack className="justify-between items-start w-full">
-                              <Heading size="h4" className="line-clamp-1">
-                                {resolvedWorkCenter.data?.name}
-                              </Heading>
-                              <MaintenanceDispatch
-                                workCenter={resolvedWorkCenter.data}
-                              />
-                            </HStack>
-                          </VStack>
+                          <Heading size="h4" className="line-clamp-1">
+                            {resolvedWorkCenter.data?.name}
+                          </Heading>
                         )
                       }
                     </Await>
@@ -2099,31 +2071,6 @@ export const JobOperation = ({
                 trackedEntityId={trackedEntityId}
               />
               <div className="flex flex-row md:flex-col items-center gap-2 justify-center">
-                {/* <IconButtonWithTooltip
-                  icon={
-                    <FaRedoAlt className="text-accent-foreground group-hover:text-accent-foreground/80" />
-                  }
-                  tooltip="Log Rework"
-                  onClick={reworkModal.onOpen}
-                /> 
-                */}
-                <IconButtonWithTooltip
-                  disabled={
-                    parentIsSerial &&
-                    trackedEntities.some(
-                      (entity) =>
-                        entity.id === trackedEntityId &&
-                        `Operation ${operationId}` in
-                          (entity.attributes as TrackedEntityAttributes)
-                    )
-                  }
-                  icon={
-                    <FaTrash className="text-accent-foreground group-hover:text-accent-foreground/80" />
-                  }
-                  tooltip={t`Log Scrap`}
-                  onClick={scrapModal.onOpen}
-                />
-
                 <IconButtonWithTooltip
                   disabled={
                     parentIsSerial &&
@@ -2140,16 +2087,63 @@ export const JobOperation = ({
                   tooltip={t`Log Completed`}
                   onClick={completeModal.onOpen}
                 />
-                <IconButtonWithTooltip
-                  icon={<FaCheck />}
-                  variant={
-                    operation.quantityComplete === operation.operationQuantity
-                      ? "success"
-                      : "default"
-                  }
-                  tooltip={t`Close Out`}
-                  onClick={finishModal.onOpen}
-                />
+                <Suspense key={`fab-${operationId}`}>
+                  <Await resolve={workCenter}>
+                    {(resolvedWorkCenter) => {
+                      const isEntityCompleted =
+                        parentIsSerial &&
+                        trackedEntities.some(
+                          (entity) =>
+                            entity.id === trackedEntityId &&
+                            `Operation ${operationId}` in
+                              (entity.attributes as TrackedEntityAttributes)
+                        );
+
+                      const fabItems: FABItem[] = [
+                        {
+                          icon: (
+                            <FaTrash className="text-accent-foreground group-hover:text-accent-foreground/80" />
+                          ),
+                          label: t`Log Scrap`,
+                          onClick: scrapModal.onOpen,
+                          disabled: isEntityCompleted
+                        },
+                        {
+                          icon: <FaCheck />,
+                          label: t`Close Out`,
+                          onClick: finishModal.onOpen,
+                          variant:
+                            operation.quantityComplete ===
+                            operation.operationQuantity
+                              ? "success"
+                              : "default"
+                        },
+                        {
+                          icon: (
+                            <LuTriangleAlert className="text-accent-foreground group-hover:text-accent-foreground/80" />
+                          ),
+                          label: t`Quality Issue`,
+                          onClick: qualityIssueModal.onOpen
+                        }
+                      ];
+
+                      if (
+                        resolvedWorkCenter.data &&
+                        !resolvedWorkCenter.data.isBlocked
+                      ) {
+                        fabItems.push({
+                          icon: (
+                            <LuWrench className="text-accent-foreground group-hover:text-accent-foreground/80" />
+                          ),
+                          label: t`Maintenance`,
+                          onClick: maintenanceModal.onOpen
+                        });
+                      }
+
+                      return <FloatingActionMenu items={fabItems} />;
+                    }}
+                  </Await>
+                </Suspense>
               </div>
             </div>
           </Controls>
@@ -2387,81 +2381,7 @@ export const JobOperation = ({
           activeStep={activeStep}
           attribute={selectedStep}
           onClose={onDeselectStep}
-          onFailedInspection={onFailedInspection}
         />
-      ) : null}
-
-      {failedInspectionModal.isOpen && failedInspectionStep ? (
-        <Modal
-          open
-          onOpenChange={(open) => {
-            if (!open) onCloseFailedInspection();
-          }}
-        >
-          <ModalContent>
-            <ModalHeader>
-              <ModalTitle>
-                <Trans>Inspection Failed</Trans>
-              </ModalTitle>
-              <ModalDescription>
-                <Trans>Create a quality issue for MRB review.</Trans>
-              </ModalDescription>
-            </ModalHeader>
-            <ModalBody>
-              <div className="rounded-md border p-3 text-sm">
-                <div className="font-medium">{failedInspectionStep.name}</div>
-                <div className="text-muted-foreground">
-                  <Trans>Operation evidence will be attached as context.</Trans>
-                </div>
-              </div>
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onCloseFailedInspection}
-              >
-                <Trans>Dismiss</Trans>
-              </Button>
-              <Form
-                method="post"
-                action={path.to.qualityIssueNew}
-                onSubmit={onCloseFailedInspection}
-              >
-                <input
-                  type="hidden"
-                  name="jobOperationId"
-                  value={operation.id}
-                />
-                <input
-                  type="hidden"
-                  name="jobOperationStepId"
-                  value={failedInspectionStep.id}
-                />
-                <input
-                  type="hidden"
-                  name="inspectionName"
-                  value={failedInspectionStep.name}
-                />
-                <input
-                  type="hidden"
-                  name="quantity"
-                  value={parentIsSerial ? 1 : operation.operationQuantity}
-                />
-                {trackedEntityId && (
-                  <input
-                    type="hidden"
-                    name="trackedEntityId"
-                    value={trackedEntityId}
-                  />
-                )}
-                <Button type="submit">
-                  <Trans>Create Quality Issue</Trans>
-                </Button>
-              </Form>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
       ) : null}
 
       {attributeRecordDeleteModal.isOpen && selectedStep && (
@@ -2476,6 +2396,29 @@ export const JobOperation = ({
           description={t`Are you sure you want to delete this step?`}
         />
       )}
+
+      <QualityIssueModal
+        operationId={operation.id}
+        trackedEntityId={
+          parentIsSerial || parentIsBatch ? trackedEntityId : undefined
+        }
+        isOpen={qualityIssueModal.isOpen}
+        onClose={qualityIssueModal.onClose}
+      />
+
+      <Suspense key={`maintenance-modal-${operationId}`}>
+        <Await resolve={workCenter}>
+          {(resolvedWorkCenter) =>
+            resolvedWorkCenter.data && (
+              <MaintenanceDispatch
+                workCenter={resolvedWorkCenter.data}
+                isOpen={maintenanceModal.isOpen}
+                onClose={maintenanceModal.onClose}
+              />
+            )
+          }
+        </Await>
+      </Suspense>
     </>
   );
 };

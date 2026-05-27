@@ -20,6 +20,7 @@ type IssueContext =
       itemReadableId: string | null;
       locationId: string;
       issueTypeId: string;
+      assignee: string | null;
     }
   | {
       ok: false;
@@ -37,11 +38,17 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const jobOperationId = getRequiredFormValue(formData, "jobOperationId");
   const trackedEntityId = getOptionalFormValue(formData, "trackedEntityId");
-  const jobOperationStepId = getOptionalFormValue(
+  const userDescription = getOptionalFormValue(formData, "description");
+  const nonConformanceTypeId = getOptionalFormValue(
     formData,
-    "jobOperationStepId"
+    "nonConformanceTypeId"
   );
-  const inspectionName = getOptionalFormValue(formData, "inspectionName");
+  const priority = getOptionalFormValue(formData, "priority") as
+    | "Low"
+    | "Medium"
+    | "High"
+    | "Critical"
+    | undefined;
   const quantity = normalizeQuantity(
     getOptionalFormValue(formData, "quantity")
   );
@@ -81,34 +88,24 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const title = inspectionName
-    ? `Failed inspection: ${inspectionName}`
-    : `MES quality issue: ${context.itemReadableId ?? context.jobReadableId}`;
-  const description = [
-    "Created from MES.",
-    `Job: ${context.jobReadableId}`,
-    `Operation: ${context.operationOrder ?? context.jobOperationId}`,
-    context.itemReadableId ? `Item: ${context.itemReadableId}` : null,
-    trackedEntityId ? `Tracked entity: ${trackedEntityId}` : null,
-    inspectionName ? `Inspection: ${inspectionName}` : null,
-    jobOperationStepId ? `Inspection step ID: ${jobOperationStepId}` : null
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const name =
+    userDescription ??
+    `MES quality issue: ${context.itemReadableId ?? context.jobReadableId}`;
 
   const issue = await serviceRole
     .from("nonConformance")
     .insert({
       nonConformanceId: nextSequence.data,
-      name: title,
-      description,
-      priority: "Medium",
+      name,
+      description: "",
+      priority: priority ?? "Medium",
       source: "Internal",
       locationId: context.locationId,
-      nonConformanceTypeId: context.issueTypeId,
+      nonConformanceTypeId: nonConformanceTypeId ?? context.issueTypeId,
       nonConformanceWorkflowId: null,
       openDate: new Date().toISOString().slice(0, 10),
       quantity,
+      assignee: context.assignee,
       requiredActionIds: [],
       approvalRequirements: [],
       companyId,
@@ -184,10 +181,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  throw redirect(
-    requestReferrer(request) ?? path.to.active,
-    await flash(request, success("Quality issue created"))
-  );
+  return success("Quality issue created");
 }
 
 function getRequiredFormValue(formData: FormData, key: string) {
@@ -236,7 +230,7 @@ async function getIssueContext(
   const [job, defaults, issueType] = await Promise.all([
     client
       .from("job")
-      .select("id, jobId, itemId, locationId")
+      .select("id, jobId, itemId, locationId, assignee")
       .eq("id", operation.data.jobId)
       .maybeSingle(),
     client
@@ -299,7 +293,8 @@ async function getIssueContext(
     itemReadableId:
       item?.data?.readableId ?? item?.data?.name ?? job.data.itemId ?? null,
     locationId,
-    issueTypeId: issueType.data.id
+    issueTypeId: issueType.data.id,
+    assignee: job.data.assignee
   };
 }
 
@@ -408,40 +403,27 @@ async function getTrackedEntitiesForIssue(
   data: { id: string; quantity: number | null }[];
   error: unknown | null;
 }> {
-  if (args.trackedEntityId) {
-    const entity = await client
-      .from("trackedEntity")
-      .select("id, quantity")
-      .eq("id", args.trackedEntityId)
-      .eq("companyId", args.companyId)
-      .maybeSingle();
-
-    if (entity.error) {
-      return { data: [], error: entity.error };
-    }
-
-    if (!entity.data) {
-      return {
-        data: [],
-        error: new Error("Tracked entity is not in this company")
-      };
-    }
-
-    return { data: [entity.data], error: null };
-  }
-
-  if (!args.jobMakeMethodId) {
+  if (!args.trackedEntityId) {
     return { data: [], error: null };
   }
 
-  const entities = await client
+  const entity = await client
     .from("trackedEntity")
     .select("id, quantity")
-    .eq("attributes->>Job Make Method", args.jobMakeMethodId)
-    .eq("companyId", args.companyId);
+    .eq("id", args.trackedEntityId)
+    .eq("companyId", args.companyId)
+    .maybeSingle();
 
-  return {
-    data: entities.data ?? [],
-    error: entities.error
-  };
+  if (entity.error) {
+    return { data: [], error: entity.error };
+  }
+
+  if (!entity.data) {
+    return {
+      data: [],
+      error: new Error("Tracked entity is not in this company")
+    };
+  }
+
+  return { data: [entity.data], error: null };
 }

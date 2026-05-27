@@ -197,6 +197,17 @@ export async function getFailureModesList(
     .order("name");
 }
 
+export async function getQualityIssueTypesList(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("nonConformanceType")
+    .select("id, name")
+    .eq("companyId", companyId)
+    .order("name");
+}
+
 export function getFileType(fileName: string): (typeof documentTypes)[number] {
   const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
   if (["zip", "rar", "7z", "tar", "gz"].includes(extension)) {

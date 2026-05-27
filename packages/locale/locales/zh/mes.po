@@ -201,6 +201,9 @@ msgstr "公司"
 msgid "Complete"
 msgstr "完成"
 
+msgid "Complete All"
+msgstr ""
+
 msgid "Completed"
 msgstr "已完成"
 
@@ -218,7 +221,7 @@ msgstr "已消耗过期"
 msgid "Create {0}"
 msgstr "创建 {0}"
 
-msgid "Create a quality issue for MRB review."
+msgid "Create Issue"
 msgstr ""
 
 msgid "Create Quality Issue"
@@ -249,14 +252,14 @@ msgstr "删除步骤"
 msgid "Delete Timecard ({0})"
 msgstr "删除考勤记录 ({0})"
 
+msgid "Describe the problem..."
+msgstr ""
+
 msgid "Description"
 msgstr "描述"
 
 msgid "Details"
 msgstr "详情"
-
-msgid "Dismiss"
-msgstr ""
 
 msgid "Dispatch not found"
 msgstr "未找到工单"
@@ -375,9 +378,6 @@ msgstr "影响"
 msgid "In Progress"
 msgstr "进行中"
 
-msgid "Inspection Failed"
-msgstr ""
-
 msgid "Insufficient quantity"
 msgstr "数量不足"
 
@@ -398,6 +398,9 @@ msgstr "发放"
 
 msgid "Issue Material"
 msgstr "发放物料"
+
+msgid "Issue Type"
+msgstr ""
 
 msgid "Item"
 msgstr "物料"
@@ -611,9 +614,6 @@ msgstr "打开"
 msgid "Open Jobs"
 msgstr "开放工作"
 
-msgid "Operation evidence will be attached as context."
-msgstr ""
-
 msgid "Operations"
 msgstr "工序"
 
@@ -681,6 +681,9 @@ msgid "Progress"
 msgstr "进度"
 
 msgid "Quality Issue"
+msgstr ""
+
+msgid "Quality issue created"
 msgstr ""
 
 msgid "Quantity"

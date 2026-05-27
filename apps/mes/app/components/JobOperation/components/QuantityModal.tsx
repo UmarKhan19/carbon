@@ -230,16 +230,33 @@ export function QuantityModal({
                 </Alert>
               )}
               {type !== "finish" && (
-                <>
-                  <NumberControlled
-                    name="quantity"
-                    label={t`Quantity`}
-                    value={quantity}
-                    onChange={setQuantity}
-                    isReadOnly={parentIsSerial}
-                    minValue={0}
-                  />
-                </>
+                <div className="flex items-end gap-2 w-full">
+                  <div className="flex-grow">
+                    <NumberControlled
+                      name="quantity"
+                      label={t`Quantity`}
+                      value={quantity}
+                      onChange={setQuantity}
+                      isReadOnly={parentIsSerial}
+                      minValue={0}
+                    />
+                  </div>
+                  {type === "complete" && !parentIsSerial && (
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      className="h-10"
+                      onClick={() =>
+                        setQuantity(
+                          operation.operationQuantity -
+                            operation.quantityComplete
+                        )
+                      }
+                    >
+                      <Trans>Complete All</Trans>
+                    </Button>
+                  )}
+                </div>
               )}
               {type === "scrap" ? (
                 <>

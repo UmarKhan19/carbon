@@ -46,7 +46,6 @@ import {
   LuChevronDown,
   LuCirclePlay,
   LuClipboardList,
-  LuClipboardPlus,
   LuHistory,
   LuLogOut,
   LuMapPin,
@@ -58,14 +57,7 @@ import {
   LuUsers,
   LuWrench
 } from "react-icons/lu";
-import {
-  Await,
-  Form,
-  Link,
-  useFetcher,
-  useLocation,
-  useMatch
-} from "react-router";
+import { Await, Form, Link, useFetcher, useLocation } from "react-router";
 import { useUser } from "~/hooks";
 import type { action } from "~/root";
 import type { Location } from "~/services/types";
@@ -232,10 +224,6 @@ export function OperationsNav({
 
   const location = useLocation();
   const { pathname } = location;
-  const operationMatch = useMatch("/x/operation/:operationId");
-  const operationId = operationMatch?.params.operationId;
-  const searchParams = new URLSearchParams(location.search);
-  const trackedEntityId = searchParams.get("trackedEntityId");
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (
@@ -277,31 +265,6 @@ export function OperationsNav({
             </SidebarMenuItem>
           );
         })}
-        {operationId && (
-          <SidebarMenuItem>
-            <Form method="post" action={path.to.qualityIssueNew}>
-              <input type="hidden" name="jobOperationId" value={operationId} />
-              {trackedEntityId && (
-                <input
-                  type="hidden"
-                  name="trackedEntityId"
-                  value={trackedEntityId}
-                />
-              )}
-              <SidebarMenuButton tooltip={t`Create Quality Issue`} asChild>
-                <button
-                  type="submit"
-                  onClick={() => isMobile && setOpenMobile(false)}
-                >
-                  <LuClipboardPlus />
-                  <span>
-                    <Trans>Quality Issue</Trans>
-                  </span>
-                </button>
-              </SidebarMenuButton>
-            </Form>
-          </SidebarMenuItem>
-        )}
       </SidebarMenu>
     </SidebarGroup>
   );
