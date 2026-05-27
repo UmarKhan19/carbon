@@ -49,9 +49,6 @@ msgstr "{0} caricato con successo"
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limite"
 
-msgid "{name} deleted"
-msgstr ""
-
 msgid "{scopeCount} permissions"
 msgstr "{scopeCount} autorizzazioni"
 
@@ -527,9 +524,6 @@ msgstr "Applica regole di prezzo"
 msgid "Apply To"
 msgstr "Applica a"
 
-msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
-msgstr ""
-
 msgid "Approval Date"
 msgstr "Data di approvazione"
 
@@ -958,9 +952,6 @@ msgstr "Allega File"
 msgid "Attachment"
 msgstr "Allegato"
 
-msgid "Attachments"
-msgstr ""
-
 msgid "Attribute"
 msgstr "Attributo"
 
@@ -1210,9 +1201,6 @@ msgstr "Impossibile registrare — la spedizione contiene entità tracciate scad
 
 msgid "Cannot send RFQ"
 msgstr "Impossibile inviare RFQ"
-
-msgid "Cannot upload — supplier interaction not yet created"
-msgstr ""
 
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Impossibile caricare nel bucket delle parti senza ID elemento"
@@ -2176,12 +2164,6 @@ msgstr "Conti Predefiniti"
 msgid "Default Approver"
 msgstr "Approvatore Predefinito"
 
-msgid "Default Attachments"
-msgstr ""
-
-msgid "Default Attachments on Purchase Orders"
-msgstr ""
-
 msgid "Default CC Recipients"
 msgstr "Destinatari CC predefiniti"
 
@@ -2589,9 +2571,6 @@ msgstr "Scarica PDF"
 
 msgid "Draft"
 msgstr "Bozza"
-
-msgid "Drag & drop files, or click to browse"
-msgstr ""
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Trascina e rilascia un PDF di ordine di acquisto qui, oppure fai clic per selezionare un file"
@@ -3089,9 +3068,6 @@ msgstr "Errore nel caricamento del metodo di produzione"
 msgid "Error moving file"
 msgstr "Errore durante lo spostamento del file"
 
-msgid "Error removing file"
-msgstr ""
-
 msgid "Error removing model from {sourceDocument}"
 msgstr "Errore nella rimozione del modello da {sourceDocument}"
 
@@ -3151,9 +3127,6 @@ msgstr "Ogni condizione deve corrispondere"
 
 msgid "Everything from Starter"
 msgstr "Tutto da Starter"
-
-msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
-msgstr ""
 
 msgid "Exchange Rate"
 msgstr "Tasso di Cambio"
@@ -3503,10 +3476,6 @@ msgstr "Impossibile aggiornare la riga del preventivo fornitore"
 msgid "Failed to update thumbnail path"
 msgstr "Impossibile aggiornare il percorso della miniatura"
 
-#. placeholder {0}: file.name
-msgid "Failed to upload {0}"
-msgstr ""
-
 msgid "Failed to upload CSV file."
 msgstr "Impossibile caricare il file CSV."
 
@@ -3609,15 +3578,6 @@ msgstr "Tipo di file non supportato. Utilizza JPG, PNG, WebP o GIF."
 
 msgid "Files"
 msgstr "File"
-
-msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
-msgstr ""
-
-msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
-msgstr ""
-
-msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr ""
 
 msgid "Filter"
 msgstr "Filtro"
@@ -5098,9 +5058,6 @@ msgstr "Nessun indirizzo trovato"
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Nessun log archiviato ancora. I log più vecchi di {0} giorni verranno archiviati automaticamente e disponibili per il download qui."
 
-msgid "No attachments."
-msgstr ""
-
 msgid "No available filters"
 msgstr "Nessun filtro disponibile"
 
@@ -5142,9 +5099,6 @@ msgstr "Non esistono dati"
 
 msgid "No days off scheduled"
 msgstr "Nessun giorno libero programmato"
-
-msgid "No default attachments yet."
-msgstr ""
 
 msgid "No draft versions available"
 msgstr "Nessuna versione bozza disponibile"
@@ -5751,9 +5705,6 @@ msgstr "PO"
 
 msgid "PO Number"
 msgstr "Numero OD"
-
-msgid "PO PDF"
-msgstr ""
 
 msgid "Policy & Procedure"
 msgstr "Politica e Procedura"
@@ -6858,9 +6809,6 @@ msgstr "Seleziona Tipo di Articolo"
 msgid "Select items"
 msgstr "Seleziona articoli"
 
-msgid "Select location"
-msgstr ""
-
 msgid "Select Quantities"
 msgstr "Seleziona Quantità"
 
@@ -6976,6 +6924,9 @@ msgstr "Imposta Quantità"
 #. placeholder {0}: selectedVersion.version
 msgid "Set Version {0} as Active Version?"
 msgstr "Imposta la versione {0} come versione attiva?"
+
+msgid "Set your default location in profile settings to pick a storage unit."
+msgstr "Imposta la tua posizione predefinita nelle impostazioni del profilo per selezionare un'unità di archiviazione."
 
 msgid "Settings"
 msgstr "Impostazioni"
@@ -7330,9 +7281,6 @@ msgstr "Procedura guidata trasferimento stock"
 
 msgid "Stock Transfers"
 msgstr "Trasferimenti di Magazzino"
-
-msgid "Storage client not available"
-msgstr ""
 
 msgid "Storage Type"
 msgstr "Tipo di Archiviazione"
@@ -8003,9 +7951,6 @@ msgstr "Tipo"
 
 msgid "Type a message..."
 msgstr "Digita un messaggio..."
-
-msgid "Type an email and press Enter to add an external recipient"
-msgstr ""
 
 msgid "Type of Permission Update"
 msgstr "Tipo di Aggiornamento Permessi"

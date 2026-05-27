@@ -49,9 +49,6 @@ msgstr "{0} uploaded successfully"
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
 
-msgid "{name} deleted"
-msgstr "{name} deleted"
-
 msgid "{scopeCount} permissions"
 msgstr "{scopeCount} permissions"
 
@@ -527,9 +524,6 @@ msgstr "Apply pricing rules"
 msgid "Apply To"
 msgstr "Apply To"
 
-msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
-msgstr "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
-
 msgid "Approval Date"
 msgstr "Approval Date"
 
@@ -958,9 +952,6 @@ msgstr "Attach File"
 msgid "Attachment"
 msgstr "Attachment"
 
-msgid "Attachments"
-msgstr "Attachments"
-
 msgid "Attribute"
 msgstr "Attribute"
 
@@ -1210,9 +1201,6 @@ msgstr "Cannot post — shipment contains expired tracked entities."
 
 msgid "Cannot send RFQ"
 msgstr "Cannot send RFQ"
-
-msgid "Cannot upload — supplier interaction not yet created"
-msgstr "Cannot upload — supplier interaction not yet created"
 
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Cannot upload to parts bucket without item ID"
@@ -2176,12 +2164,6 @@ msgstr "Default Accounts"
 msgid "Default Approver"
 msgstr "Default Approver"
 
-msgid "Default Attachments"
-msgstr "Default Attachments"
-
-msgid "Default Attachments on Purchase Orders"
-msgstr "Default Attachments on Purchase Orders"
-
 msgid "Default CC Recipients"
 msgstr "Default CC Recipients"
 
@@ -2589,9 +2571,6 @@ msgstr "Download PDF"
 
 msgid "Draft"
 msgstr "Draft"
-
-msgid "Drag & drop files, or click to browse"
-msgstr "Drag & drop files, or click to browse"
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Drag and drop a Purchase Order PDF here, or click to select a file"
@@ -3089,9 +3068,6 @@ msgstr "Error loading make method"
 msgid "Error moving file"
 msgstr "Error moving file"
 
-msgid "Error removing file"
-msgstr "Error removing file"
-
 msgid "Error removing model from {sourceDocument}"
 msgstr "Error removing model from {sourceDocument}"
 
@@ -3151,9 +3127,6 @@ msgstr "Every condition must match"
 
 msgid "Everything from Starter"
 msgstr "Everything from Starter"
-
-msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
-msgstr "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 
 msgid "Exchange Rate"
 msgstr "Exchange Rate"
@@ -3503,10 +3476,6 @@ msgstr "Failed to update supplier quote line"
 msgid "Failed to update thumbnail path"
 msgstr "Failed to update thumbnail path"
 
-#. placeholder {0}: file.name
-msgid "Failed to upload {0}"
-msgstr "Failed to upload {0}"
-
 msgid "Failed to upload CSV file."
 msgstr "Failed to upload CSV file."
 
@@ -3609,15 +3578,6 @@ msgstr "File type not supported. Please use JPG, PNG, WebP, or GIF."
 
 msgid "Files"
 msgstr "Files"
-
-msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
-msgstr "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
-
-msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
-msgstr "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
-
-msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr "Files attached here ride along whenever this item appears on a purchase order email."
 
 msgid "Filter"
 msgstr "Filter"
@@ -5098,9 +5058,6 @@ msgstr "No addresses found"
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 
-msgid "No attachments."
-msgstr "No attachments."
-
 msgid "No available filters"
 msgstr "No available filters"
 
@@ -5142,9 +5099,6 @@ msgstr "No data exists"
 
 msgid "No days off scheduled"
 msgstr "No days off scheduled"
-
-msgid "No default attachments yet."
-msgstr "No default attachments yet."
 
 msgid "No draft versions available"
 msgstr "No draft versions available"
@@ -5751,9 +5705,6 @@ msgstr "PO"
 
 msgid "PO Number"
 msgstr "PO Number"
-
-msgid "PO PDF"
-msgstr "PO PDF"
 
 msgid "Policy & Procedure"
 msgstr "Policy & Procedure"
@@ -6858,9 +6809,6 @@ msgstr "Select Item Type"
 msgid "Select items"
 msgstr "Select items"
 
-msgid "Select location"
-msgstr "Select location"
-
 msgid "Select Quantities"
 msgstr "Select Quantities"
 
@@ -6976,6 +6924,9 @@ msgstr "Set Quantity"
 #. placeholder {0}: selectedVersion.version
 msgid "Set Version {0} as Active Version?"
 msgstr "Set Version {0} as Active Version?"
+
+msgid "Set your default location in profile settings to pick a storage unit."
+msgstr "Set your default location in profile settings to pick a storage unit."
 
 msgid "Settings"
 msgstr "Settings"
@@ -7330,9 +7281,6 @@ msgstr "Stock Transfer Wizard"
 
 msgid "Stock Transfers"
 msgstr "Stock Transfers"
-
-msgid "Storage client not available"
-msgstr "Storage client not available"
 
 msgid "Storage Type"
 msgstr "Storage Type"
@@ -8003,9 +7951,6 @@ msgstr "Type"
 
 msgid "Type a message..."
 msgstr "Type a message..."
-
-msgid "Type an email and press Enter to add an external recipient"
-msgstr "Type an email and press Enter to add an external recipient"
 
 msgid "Type of Permission Update"
 msgstr "Type of Permission Update"
