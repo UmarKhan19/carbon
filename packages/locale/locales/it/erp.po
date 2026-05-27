@@ -856,6 +856,9 @@ msgstr "Sei sicuro di voler finalizzare l'offerta?"
 msgid "Are you sure you want to finalize the supplier quote?"
 msgstr "Sei sicuro di voler finalizzare l'offerta del fornitore?"
 
+msgid "Are you sure you want to leave this page?"
+msgstr "Sei sicuro di voler lasciare questa pagina?"
+
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
 msgid "Are you sure you want to permanently delete {0}?"
@@ -4276,6 +4279,9 @@ msgstr "Lasciare le ricevute correlate intatte"
 msgid "Leave empty for exact match"
 msgstr "Lascia vuoto per una corrispondenza esatta"
 
+msgid "Leave this page"
+msgstr "Lascia questa pagina"
+
 msgid "Left item"
 msgstr "Elemento sinistro"
 
@@ -7307,6 +7313,9 @@ msgstr "Distribuzione dello Stato"
 msgid "Statuses"
 msgstr "Stati"
 
+msgid "Stay on this page"
+msgstr "Rimani su questa pagina"
+
 msgid "Step"
 msgstr "Passaggio"
 
@@ -8078,6 +8087,9 @@ msgstr "Scollega"
 
 msgid "Unlink job from sales order?"
 msgstr "Scollega il lavoro dall'ordine di vendita?"
+
+msgid "Unsaved changes"
+msgstr "Modifiche non salvate"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Tipo di documento di origine non supportato: {sourceDocument}"

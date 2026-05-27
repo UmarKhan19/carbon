@@ -856,6 +856,9 @@ msgstr "Czy na pewno chcesz sfinalizować ofertę?"
 msgid "Are you sure you want to finalize the supplier quote?"
 msgstr "Czy na pewno chcesz sfinalizować ofertę dostawcy?"
 
+msgid "Are you sure you want to leave this page?"
+msgstr "Czy na pewno chcesz opuścić tę stronę?"
+
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
 msgid "Are you sure you want to permanently delete {0}?"
@@ -4276,6 +4279,9 @@ msgstr "Pozostaw wszelkie powiązane paragony bez zmian"
 msgid "Leave empty for exact match"
 msgstr "Pozostaw puste dla dokładnego dopasowania"
 
+msgid "Leave this page"
+msgstr "Opuść tę stronę"
+
 msgid "Left item"
 msgstr "Element po lewej stronie"
 
@@ -7307,6 +7313,9 @@ msgstr "Rozkład statusu"
 msgid "Statuses"
 msgstr "Statusy"
 
+msgid "Stay on this page"
+msgstr "Zostań na tej stronie"
+
 msgid "Step"
 msgstr "Krok"
 
@@ -8078,6 +8087,9 @@ msgstr "Odłącz"
 
 msgid "Unlink job from sales order?"
 msgstr "Odłączyć zadanie od zamówienia sprzedaży?"
+
+msgid "Unsaved changes"
+msgstr "Niezapisane zmiany"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Nieobsługiwany typ dokumentu źródłowego: {sourceDocument}"

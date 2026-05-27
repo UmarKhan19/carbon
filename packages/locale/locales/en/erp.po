@@ -856,6 +856,9 @@ msgstr "Are you sure you want to finalize the quote?"
 msgid "Are you sure you want to finalize the supplier quote?"
 msgstr "Are you sure you want to finalize the supplier quote?"
 
+msgid "Are you sure you want to leave this page?"
+msgstr "Are you sure you want to leave this page?"
+
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
 msgid "Are you sure you want to permanently delete {0}?"
@@ -4276,6 +4279,9 @@ msgstr "Leave any related receipts untouched"
 msgid "Leave empty for exact match"
 msgstr "Leave empty for exact match"
 
+msgid "Leave this page"
+msgstr "Leave this page"
+
 msgid "Left item"
 msgstr "Left item"
 
@@ -7307,6 +7313,9 @@ msgstr "Status Distribution"
 msgid "Statuses"
 msgstr "Statuses"
 
+msgid "Stay on this page"
+msgstr "Stay on this page"
+
 msgid "Step"
 msgstr "Step"
 
@@ -8078,6 +8087,9 @@ msgstr "Unlink"
 
 msgid "Unlink job from sales order?"
 msgstr "Unlink job from sales order?"
+
+msgid "Unsaved changes"
+msgstr "Unsaved changes"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Unsupported source document type: {sourceDocument}"
