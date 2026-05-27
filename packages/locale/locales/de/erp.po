@@ -533,6 +533,9 @@ msgstr ""
 msgid "Approval Date"
 msgstr "Genehmigungsdatum"
 
+msgid "Approval is required at or above this amount, up to the next rule's minimum"
+msgstr ""
+
 msgid "Approval Requirements"
 msgstr "Genehmigungsanforderungen"
 
@@ -3793,9 +3796,6 @@ msgstr "Spalten ausblenden, fixieren und neu anordnen"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Höhere Priorität gewinnt bei Gleichständen und wird zuerst für Aufschläge angewendet"
 
-msgid "Highest-tier rule has a maximum"
-msgstr ""
-
 msgid "Hints in the first row"
 msgstr ""
 
@@ -4291,9 +4291,6 @@ msgstr "Alle zugehörigen Belege unverändert lassen"
 msgid "Leave empty for exact match"
 msgstr "Leer lassen für exakte Übereinstimmung"
 
-msgid "Leave empty for no upper limit"
-msgstr ""
-
 msgid "Leave this page"
 msgstr "Diese Seite verlassen"
 
@@ -4634,9 +4631,6 @@ msgstr "Max. Menge"
 
 msgid "Maximum"
 msgstr "Maximum"
-
-msgid "Maximum Amount"
-msgstr ""
 
 msgid "Maximum Inventory Quantity"
 msgstr "Maximale Bestandsmenge"
@@ -6012,10 +6006,6 @@ msgstr "Bestellung erfolgreich entfernt"
 
 msgid "Purchase Orders"
 msgstr "Bestellungen"
-
-#. placeholder {0}: currencyFormatter.format(poTopTierGap)
-msgid "Purchase orders above {0} will not require approval. Edit the top-tier rule and clear the Maximum Amount, or add a higher rule with no maximum."
-msgstr ""
 
 msgid "Purchase orders required"
 msgstr "Bestellungen erforderlich"
