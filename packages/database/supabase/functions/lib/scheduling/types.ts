@@ -26,6 +26,7 @@ export type BaseOperation = {
   deadlineType?: DeadlineType;
   description?: string | null;
   dueDate?: string | null;
+  manuallyScheduled?: boolean;
   startDate?: string | null;
   laborTime?: number;
   laborUnit?: FactorUnit;

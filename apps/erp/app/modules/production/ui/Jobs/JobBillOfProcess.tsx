@@ -161,6 +161,7 @@ import { OperationDueDatePicker } from "./OperationDueDatePicker";
 export type Operation = z.infer<typeof jobOperationValidator> & {
   assignee: string | null;
   dueDate?: string | null;
+  manuallyScheduled?: boolean;
   status: JobOperation["status"];
   tags: string[] | null;
   workInstruction: JSONContent | null;
@@ -275,6 +276,7 @@ function makeItem(
           <OperationDueDatePicker
             operationId={operation.id!}
             dueDate={operation.dueDate ?? null}
+            manuallyScheduled={operation.manuallyScheduled}
           />
           <JobOperationTags operation={operation} availableTags={tags} />
           <Tooltip>

@@ -85,6 +85,9 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "क्या आप सुनिश्चित हैं कि आप सभी उत्पादन घटनाओं को समाप्त करना चाहते हैं? यह सभी सक्रिय संचालन को पूरा किए बिना या समाप्त किए बिना समाप्त कर देगा।"
 
+msgid "Are you sure you want to leave this page?"
+msgstr "क्या आप वाकई इस पृष्ठ को छोड़ना चाहते हैं?"
+
 msgid "Assigned"
 msgstr "निर्दिष्ट"
 
@@ -201,6 +204,9 @@ msgstr "कंपनी"
 msgid "Complete"
 msgstr "पूर्ण करें"
 
+msgid "Complete All"
+msgstr "सभी को पूर्ण करें"
+
 msgid "Completed"
 msgstr "पूर्ण"
 
@@ -217,6 +223,12 @@ msgstr "खपत की गई समाप्त"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "{0} बनाएं"
+
+msgid "Create Issue"
+msgstr "समस्या बनाएं"
+
+msgid "Create Quality Issue"
+msgstr "गुणवत्ता समस्या बनाएं"
 
 msgid "Customer"
 msgstr "ग्राहक"
@@ -242,6 +254,9 @@ msgstr "चरण हटाएं"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "टाइमकार्ड हटाएं ({0})"
+
+msgid "Describe the problem..."
+msgstr "समस्या का वर्णन करें..."
 
 msgid "Description"
 msgstr "विवरण"
@@ -387,6 +402,9 @@ msgstr "जारी करें"
 msgid "Issue Material"
 msgstr "सामग्री जारी करें"
 
+msgid "Issue Type"
+msgstr "समस्या प्रकार"
+
 msgid "Item"
 msgstr "वस्तु"
 
@@ -403,13 +421,16 @@ msgid "Job Traveler"
 msgstr "जॉब ट्रैवलर"
 
 msgid "Jobs"
-msgstr ""
+msgstr "नौकरियां"
 
 msgid "Kit"
 msgstr "किट"
 
 msgid "Labor"
 msgstr "श्रम"
+
+msgid "Leave this page"
+msgstr "इस पृष्ठ को छोड़ें"
 
 msgid "Let's build something"
 msgstr "चलिए कुछ बनाते हैं"
@@ -536,7 +557,7 @@ msgid "No materials"
 msgstr "कोई सामग्री नहीं"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "कोई खुली नौकरी नहीं"
 
 msgid "No operators"
 msgstr "कोई ऑपरेटर नहीं"
@@ -597,7 +618,7 @@ msgid "Open"
 msgstr "खुला"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "खुली नौकरियां"
 
 msgid "Operations"
 msgstr "संचालन"
@@ -665,6 +686,12 @@ msgstr "प्रक्रियाएं"
 msgid "Progress"
 msgstr "प्रगति"
 
+msgid "Quality Issue"
+msgstr "गुणवत्ता समस्या"
+
+msgid "Quality issue created"
+msgstr "गुणवत्ता समस्या बनाई गई"
+
 msgid "Quantity"
 msgstr "मात्रा"
 
@@ -718,7 +745,7 @@ msgid "Search"
 msgstr "खोजें"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "जॉब या आइटम आईडी से खोजें"
 
 msgid "Search operators..."
 msgstr "ऑपरेटर खोजें..."
@@ -799,6 +826,9 @@ msgstr "Google के साथ साइन इन करें"
 msgid "Sign in with Outlook"
 msgstr "Outlook के साथ साइन इन करें"
 
+msgid "Sign in with Passkey"
+msgstr "पासकी के साथ साइन इन करें"
+
 msgid "Sign Out"
 msgstr "साइन आउट"
 
@@ -831,6 +861,9 @@ msgstr "स्थिति"
 
 msgid "Statuses"
 msgstr "स्थितियाँ"
+
+msgid "Stay on this page"
+msgstr "इस पृष्ठ पर रहें"
 
 msgid "Steps"
 msgstr "चरण"
@@ -891,7 +924,7 @@ msgid "Total: {0}"
 msgstr "कुल: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "ट्रैकिंग"
 
 msgid "Tracking Labels"
 msgstr "ट्रैकिंग लेबल"
@@ -904,6 +937,9 @@ msgstr "अजारी सीरीज़/बैच सामग्री"
 
 msgid "Unknown"
 msgstr "अज्ञात"
+
+msgid "Unsaved changes"
+msgstr "असहेजे परिवर्तन"
 
 msgid "Update"
 msgstr "अपडेट करें"

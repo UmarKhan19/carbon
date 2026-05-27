@@ -5,12 +5,14 @@ import {
   LuAxis3D,
   LuBetweenHorizontalStart,
   LuBookOpen,
+  LuBuilding2,
   LuCalendar1,
   LuClock,
   LuCoins,
   LuEuro,
   LuFileSpreadsheet,
   LuHandCoins,
+  LuLayers,
   LuScale,
   LuScale3D,
   LuSheet,
@@ -30,7 +32,9 @@ const accountingOnlyRoutes = new Set<string>([
   path.to.arTieOut,
   path.to.apTieOut,
   path.to.intercompany,
-  path.to.accountingJournals
+  path.to.accountingJournals,
+  path.to.fixedAssets,
+  path.to.depreciationRuns
 ]);
 
 export default function useAccountingSubmodules() {
@@ -85,7 +89,7 @@ export default function useAccountingSubmodules() {
         ]
       },
       {
-        name: t`Manage`,
+        name: t`General Ledger`,
         routes: [
           {
             name: t`Intercompany`,
@@ -103,8 +107,31 @@ export default function useAccountingSubmodules() {
       },
 
       {
+        name: t`Fixed Assets`,
+        routes: [
+          {
+            name: t`Assets`,
+            to: path.to.fixedAssets,
+            role: "employee",
+            icon: <LuBuilding2 />
+          },
+          {
+            name: t`Depreciation`,
+            to: path.to.depreciationRuns,
+            role: "employee",
+            icon: <LuClock />
+          }
+        ]
+      },
+      {
         name: t`Configure`,
         routes: [
+          {
+            name: t`Asset Classes`,
+            to: path.to.assetClasses,
+            role: "employee",
+            icon: <LuLayers />
+          },
           {
             name: t`Chart of Accounts`,
             to: path.to.chartOfAccounts,

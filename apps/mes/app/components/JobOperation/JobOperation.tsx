@@ -79,7 +79,8 @@ import {
   LuQrCode,
   LuSquareUser,
   LuTimer,
-  LuTriangleAlert
+  LuTriangleAlert,
+  LuWrench
 } from "react-icons/lu";
 import { Await, Link, useFetcher, useNavigate, useParams } from "react-router";
 import {
@@ -115,6 +116,8 @@ import ItemThumbnail from "../ItemThumbnail";
 import { OperationChat } from "./components/Chat";
 import {
   Controls,
+  type FABItem,
+  FloatingActionMenu,
   IconButtonWithTooltip,
   StartStopButton,
   Times,
@@ -123,6 +126,7 @@ import {
 import { IssueMaterialModal } from "./components/IssueMaterialModal";
 import { MaintenanceDispatch } from "./components/MaintenanceDispatch";
 import { ParametersListItem } from "./components/Parameter";
+import { QualityIssueModal } from "./components/QualityIssueModal";
 import { QuantityModal } from "./components/QuantityModal";
 import { SerialSelectorModal } from "./components/SerialSelectorModal";
 import {
@@ -212,6 +216,8 @@ export const JobOperation = ({
 
   const attributeRecordModal = useDisclosure();
   const attributeRecordDeleteModal = useDisclosure();
+  const maintenanceModal = useDisclosure();
+  const qualityIssueModal = useDisclosure();
   const [activeStep, setActiveStep] = useState(
     parentIsSerial ? serialIndex : 0
   );
@@ -462,13 +468,7 @@ export const JobOperation = ({
                 >
                   <Trans>Model</Trans>
                 </TabsTrigger>
-                <TabsTrigger
-                  disabled={
-                    !operation.workInstruction ||
-                    Object.keys(operation.workInstruction).length === 0
-                  }
-                  value="procedure"
-                >
+                <TabsTrigger value="procedure">
                   <Trans>Procedure</Trans>
                 </TabsTrigger>
                 <TabsTrigger value="chat">
@@ -1958,16 +1958,9 @@ export const JobOperation = ({
                     <Await resolve={workCenter}>
                       {(resolvedWorkCenter) =>
                         resolvedWorkCenter.data && (
-                          <VStack spacing={1}>
-                            <HStack className="justify-between items-start w-full">
-                              <Heading size="h4" className="line-clamp-1">
-                                {resolvedWorkCenter.data?.name}
-                              </Heading>
-                              <MaintenanceDispatch
-                                workCenter={resolvedWorkCenter.data}
-                              />
-                            </HStack>
-                          </VStack>
+                          <Heading size="h4" className="line-clamp-1">
+                            {resolvedWorkCenter.data?.name}
+                          </Heading>
                         )
                       }
                     </Await>
@@ -2078,31 +2071,6 @@ export const JobOperation = ({
                 trackedEntityId={trackedEntityId}
               />
               <div className="flex flex-row md:flex-col items-center gap-2 justify-center">
-                {/* <IconButtonWithTooltip
-                  icon={
-                    <FaRedoAlt className="text-accent-foreground group-hover:text-accent-foreground/80" />
-                  }
-                  tooltip="Log Rework"
-                  onClick={reworkModal.onOpen}
-                /> 
-                */}
-                <IconButtonWithTooltip
-                  disabled={
-                    parentIsSerial &&
-                    trackedEntities.some(
-                      (entity) =>
-                        entity.id === trackedEntityId &&
-                        `Operation ${operationId}` in
-                          (entity.attributes as TrackedEntityAttributes)
-                    )
-                  }
-                  icon={
-                    <FaTrash className="text-accent-foreground group-hover:text-accent-foreground/80" />
-                  }
-                  tooltip={t`Log Scrap`}
-                  onClick={scrapModal.onOpen}
-                />
-
                 <IconButtonWithTooltip
                   disabled={
                     parentIsSerial &&
@@ -2119,16 +2087,63 @@ export const JobOperation = ({
                   tooltip={t`Log Completed`}
                   onClick={completeModal.onOpen}
                 />
-                <IconButtonWithTooltip
-                  icon={<FaCheck />}
-                  variant={
-                    operation.quantityComplete === operation.operationQuantity
-                      ? "success"
-                      : "default"
-                  }
-                  tooltip={t`Close Out`}
-                  onClick={finishModal.onOpen}
-                />
+                <Suspense key={`fab-${operationId}`}>
+                  <Await resolve={workCenter}>
+                    {(resolvedWorkCenter) => {
+                      const isEntityCompleted =
+                        parentIsSerial &&
+                        trackedEntities.some(
+                          (entity) =>
+                            entity.id === trackedEntityId &&
+                            `Operation ${operationId}` in
+                              (entity.attributes as TrackedEntityAttributes)
+                        );
+
+                      const fabItems: FABItem[] = [
+                        {
+                          icon: (
+                            <FaTrash className="text-accent-foreground group-hover:text-accent-foreground/80" />
+                          ),
+                          label: t`Log Scrap`,
+                          onClick: scrapModal.onOpen,
+                          disabled: isEntityCompleted
+                        },
+                        {
+                          icon: <FaCheck />,
+                          label: t`Close Out`,
+                          onClick: finishModal.onOpen,
+                          variant:
+                            operation.quantityComplete ===
+                            operation.operationQuantity
+                              ? "success"
+                              : "default"
+                        },
+                        {
+                          icon: (
+                            <LuTriangleAlert className="text-accent-foreground group-hover:text-accent-foreground/80" />
+                          ),
+                          label: t`Quality Issue`,
+                          onClick: qualityIssueModal.onOpen
+                        }
+                      ];
+
+                      if (
+                        resolvedWorkCenter.data &&
+                        !resolvedWorkCenter.data.isBlocked
+                      ) {
+                        fabItems.push({
+                          icon: (
+                            <LuWrench className="text-accent-foreground group-hover:text-accent-foreground/80" />
+                          ),
+                          label: t`Maintenance`,
+                          onClick: maintenanceModal.onOpen
+                        });
+                      }
+
+                      return <FloatingActionMenu items={fabItems} />;
+                    }}
+                  </Await>
+                </Suspense>
               </div>
             </div>
           </Controls>
@@ -2381,6 +2396,29 @@ export const JobOperation = ({
           description={t`Are you sure you want to delete this step?`}
         />
       )}
+
+      <QualityIssueModal
+        operationId={operation.id}
+        trackedEntityId={
+          parentIsSerial || parentIsBatch ? trackedEntityId : undefined
+        }
+        isOpen={qualityIssueModal.isOpen}
+        onClose={qualityIssueModal.onClose}
+      />
+
+      <Suspense key={`maintenance-modal-${operationId}`}>
+        <Await resolve={workCenter}>
+          {(resolvedWorkCenter) =>
+            resolvedWorkCenter.data && (
+              <MaintenanceDispatch
+                workCenter={resolvedWorkCenter.data}
+                isOpen={maintenanceModal.isOpen}
+                onClose={maintenanceModal.onClose}
+              />
+            )
+          }
+        </Await>
+      </Suspense>
     </>
   );
 };

@@ -85,6 +85,9 @@ msgstr "このタイムカードを削除してもよろしいですか？この
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "すべての生産イベントを終了してもよろしいですか？すべてのアクティブな工程が完了せずに終了します。"
 
+msgid "Are you sure you want to leave this page?"
+msgstr "このページを離れてもよろしいですか？"
+
 msgid "Assigned"
 msgstr "割当済み"
 
@@ -201,6 +204,9 @@ msgstr "会社"
 msgid "Complete"
 msgstr "完了"
 
+msgid "Complete All"
+msgstr "すべて完了"
+
 msgid "Completed"
 msgstr "完了済み"
 
@@ -217,6 +223,12 @@ msgstr "消費期限切れ"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "{0}を作成"
+
+msgid "Create Issue"
+msgstr "問題を作成"
+
+msgid "Create Quality Issue"
+msgstr "品質問題を作成"
 
 msgid "Customer"
 msgstr "顧客"
@@ -242,6 +254,9 @@ msgstr "ステップを削除"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "タイムカードを削除（{0}）"
+
+msgid "Describe the problem..."
+msgstr "問題を説明してください..."
 
 msgid "Description"
 msgstr "説明"
@@ -387,6 +402,9 @@ msgstr "払出"
 msgid "Issue Material"
 msgstr "材料払出"
 
+msgid "Issue Type"
+msgstr "問題タイプ"
+
 msgid "Item"
 msgstr "品目"
 
@@ -403,13 +421,16 @@ msgid "Job Traveler"
 msgstr "ジョブトラベラー"
 
 msgid "Jobs"
-msgstr ""
+msgstr "ジョブ"
 
 msgid "Kit"
 msgstr "キット"
 
 msgid "Labor"
 msgstr "作業"
+
+msgid "Leave this page"
+msgstr "このページを離れる"
 
 msgid "Let's build something"
 msgstr "さあ、何かを作りましょう"
@@ -536,7 +557,7 @@ msgid "No materials"
 msgstr "材料なし"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "オープンなジョブはありません"
 
 msgid "No operators"
 msgstr "オペレーターなし"
@@ -597,7 +618,7 @@ msgid "Open"
 msgstr "未対応"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "オープンジョブ"
 
 msgid "Operations"
 msgstr "工程"
@@ -665,6 +686,12 @@ msgstr "プロセス一覧"
 msgid "Progress"
 msgstr "進捗"
 
+msgid "Quality Issue"
+msgstr "品質問題"
+
+msgid "Quality issue created"
+msgstr "品質問題が作成されました"
+
 msgid "Quantity"
 msgstr "数量"
 
@@ -718,7 +745,7 @@ msgid "Search"
 msgstr "検索"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "ジョブまたはアイテムIDで検索"
 
 msgid "Search operators..."
 msgstr "オペレーターを検索..."
@@ -799,6 +826,9 @@ msgstr "Googleでサインイン"
 msgid "Sign in with Outlook"
 msgstr "Outlookでサインイン"
 
+msgid "Sign in with Passkey"
+msgstr "パスキーでサインイン"
+
 msgid "Sign Out"
 msgstr "サインアウト"
 
@@ -831,6 +861,9 @@ msgstr "ステータス"
 
 msgid "Statuses"
 msgstr "ステータス一覧"
+
+msgid "Stay on this page"
+msgstr "このページに留まる"
 
 msgid "Steps"
 msgstr "ステップ"
@@ -891,7 +924,7 @@ msgid "Total: {0}"
 msgstr "合計: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "追跡"
 
 msgid "Tracking Labels"
 msgstr "追跡ラベル"
@@ -904,6 +937,9 @@ msgstr "未払出のシリアル/バッチ材料"
 
 msgid "Unknown"
 msgstr "不明"
+
+msgid "Unsaved changes"
+msgstr "未保存の変更"
 
 msgid "Update"
 msgstr "更新"

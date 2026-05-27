@@ -85,6 +85,9 @@ msgstr "Êtes-vous sûr de vouloir supprimer cette fiche de temps ? Cette action
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "Êtes-vous sûr de vouloir mettre fin à tous les événements de production ? Cela arrêtera toutes les opérations actives sans les terminer ni les achever."
 
+msgid "Are you sure you want to leave this page?"
+msgstr "Êtes-vous sûr de vouloir quitter cette page ?"
+
 msgid "Assigned"
 msgstr "Assigné"
 
@@ -201,6 +204,9 @@ msgstr "Entreprise"
 msgid "Complete"
 msgstr "Terminé"
 
+msgid "Complete All"
+msgstr "Tout compléter"
+
 msgid "Completed"
 msgstr "Terminé"
 
@@ -217,6 +223,12 @@ msgstr "Consommé expiré"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Créer {0}"
+
+msgid "Create Issue"
+msgstr "Créer un problème"
+
+msgid "Create Quality Issue"
+msgstr "Créer un problème de qualité"
 
 msgid "Customer"
 msgstr "Client"
@@ -242,6 +254,9 @@ msgstr "Supprimer l'étape"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "Supprimer la fiche de temps ({0})"
+
+msgid "Describe the problem..."
+msgstr "Décrivez le problème..."
 
 msgid "Description"
 msgstr "Description"
@@ -387,6 +402,9 @@ msgstr "Distribuer"
 msgid "Issue Material"
 msgstr "Distribuer le matériau"
 
+msgid "Issue Type"
+msgstr "Type de problème"
+
 msgid "Item"
 msgstr "Article"
 
@@ -403,13 +421,16 @@ msgid "Job Traveler"
 msgstr "Fiche suiveuse"
 
 msgid "Jobs"
-msgstr ""
+msgstr "Emplois"
 
 msgid "Kit"
 msgstr "Kit"
 
 msgid "Labor"
 msgstr "Main-d'œuvre"
+
+msgid "Leave this page"
+msgstr "Quitter cette page"
 
 msgid "Let's build something"
 msgstr "Construisons quelque chose"
@@ -536,7 +557,7 @@ msgid "No materials"
 msgstr "Aucun matériau"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "Aucun travail ouvert"
 
 msgid "No operators"
 msgstr "Aucun opérateur"
@@ -597,7 +618,7 @@ msgid "Open"
 msgstr "Ouvert"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "Emplois ouverts"
 
 msgid "Operations"
 msgstr "Opérations"
@@ -665,6 +686,12 @@ msgstr "Processus"
 msgid "Progress"
 msgstr "Progression"
 
+msgid "Quality Issue"
+msgstr "Problème de qualité"
+
+msgid "Quality issue created"
+msgstr "Problème de qualité créé"
+
 msgid "Quantity"
 msgstr "Quantité"
 
@@ -718,7 +745,7 @@ msgid "Search"
 msgstr "Rechercher"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "Rechercher par numéro de travail ou d'article"
 
 msgid "Search operators..."
 msgstr "Rechercher des opérateurs..."
@@ -799,6 +826,9 @@ msgstr "Se connecter avec Google"
 msgid "Sign in with Outlook"
 msgstr "Se connecter avec Outlook"
 
+msgid "Sign in with Passkey"
+msgstr "Se connecter avec Passkey"
+
 msgid "Sign Out"
 msgstr "Se déconnecter"
 
@@ -831,6 +861,9 @@ msgstr "Statut"
 
 msgid "Statuses"
 msgstr "Statuts"
+
+msgid "Stay on this page"
+msgstr "Rester sur cette page"
 
 msgid "Steps"
 msgstr "Étapes"
@@ -891,7 +924,7 @@ msgid "Total: {0}"
 msgstr "Total : {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "Suivi"
 
 msgid "Tracking Labels"
 msgstr "Étiquettes de suivi"
@@ -904,6 +937,9 @@ msgstr "Matériaux série/lot non distribués"
 
 msgid "Unknown"
 msgstr "Inconnu"
+
+msgid "Unsaved changes"
+msgstr "Modifications non enregistrées"
 
 msgid "Update"
 msgstr "Mettre à jour"

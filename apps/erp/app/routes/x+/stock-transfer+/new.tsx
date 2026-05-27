@@ -2,6 +2,11 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
+import {
+  dedupeViolations,
+  evaluateLinesForSurface,
+  isBlocked
+} from "@carbon/ee/custom-rules.server";
 import { validationError, validator } from "@carbon/form";
 import { msg } from "@lingui/core/macro";
 import type { ActionFunctionArgs } from "react-router";
@@ -12,10 +17,6 @@ import {
   upsertStockTransfer,
   upsertStockTransferLines
 } from "~/modules/inventory";
-import {
-  evaluateLinesForSurface,
-  isBlocked
-} from "~/modules/items/itemRules.server";
 import { getNextSequence } from "~/modules/settings";
 import { setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
@@ -61,25 +62,42 @@ export async function action({ request }: ActionFunctionArgs) {
   // any stock-moving is started. Evaluate against the destination side
   // (`toStorageUnitId`) — that's where stock will land.
   const serviceRole = getCarbonServiceRole();
-  const { violations, ruleNames } = await evaluateLinesForSurface({
+  const evalLines = lines.map((l, i) => ({
+    lineId: `pending-${i}`,
+    itemId: l.itemId,
+    storageUnitId: l.toStorageUnitId ?? null,
+    quantity: Number(l.quantity ?? 0),
+    locationId
+  }));
+
+  const itemPass = await evaluateLinesForSurface({
     client: serviceRole,
     companyId,
     userId,
+    targetType: "item",
     surface: "stockTransfer",
-    lines: lines.map((l, i) => ({
-      lineId: `pending-${i}`,
-      itemId: l.itemId,
-      storageUnitId: l.toStorageUnitId ?? null,
-      quantity: Number(l.quantity ?? 0),
-      locationId
-    }))
+    lines: evalLines
+  });
+  const storagePass = await evaluateLinesForSurface({
+    client: serviceRole,
+    companyId,
+    userId,
+    targetType: "storageUnit",
+    surface: "stockTransfer",
+    lines: evalLines
   });
 
-  if (violations.length > 0 && isBlocked(violations, acknowledged)) {
+  const combined = dedupeViolations([
+    ...itemPass.violations,
+    ...storagePass.violations
+  ]);
+  const ruleNames = { ...itemPass.ruleNames, ...storagePass.ruleNames };
+
+  if (combined.length > 0 && isBlocked(combined, acknowledged)) {
     return {
       error: null,
       data: null,
-      violations,
+      violations: combined,
       ruleNames
     };
   }

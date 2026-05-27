@@ -181,6 +181,25 @@ export const maintenanceDispatchValidator = z.object({
   actualEndTime: zfd.text(z.string().optional())
 });
 
+export const qualityIssuePriority = [
+  "Low",
+  "Medium",
+  "High",
+  "Critical"
+] as const;
+
+export const qualityIssueValidator = z.object({
+  jobOperationId: z.string().min(1, { message: "Operation is required" }),
+  description: z.string().min(1, { message: "Description is required" }),
+  nonConformanceTypeId: z
+    .string()
+    .min(1, { message: "Issue type is required" }),
+  priority: z.enum(qualityIssuePriority, {
+    errorMap: () => ({ message: "Priority is required" })
+  }),
+  trackedEntityId: zfd.text(z.string().optional())
+});
+
 export const maintenanceDispatchIssueValidator = z.object({
   maintenanceDispatchItemId: z.string().min(1, {
     message: "Maintenance Dispatch Item is required"

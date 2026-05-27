@@ -13,6 +13,9 @@ export const dimensions = [
   { name: "Item Posting Group", entityType: "ItemPostingGroup" },
   { name: "Customer Type", entityType: "CustomerType" },
   { name: "Supplier Type", entityType: "SupplierType" },
+  { name: "Work Center", entityType: "WorkCenter" },
+  { name: "Process", entityType: "Process" },
+  { name: "Asset Class", entityType: "FixedAssetClass" },
 ] as const;
 
 export const supplierStatuses = [
@@ -257,15 +260,6 @@ export const sequences = [
     step: 1
   },
   {
-    table: "payment",
-    name: "Payment",
-    prefix: "PAY-%{yyyy}-%{mm}-",
-    suffix: null,
-    next: 0,
-    size: 6,
-    step: 1
-  },
-  {
     table: "purchasingRfq",
     name: "Purchasing RFQ",
     prefix: "PRFQ",
@@ -352,6 +346,24 @@ export const sequences = [
     prefix: "WT",
     suffix: null,
     next: 0,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "fixedAsset",
+    name: "Fixed Asset",
+    prefix: "FA",
+    suffix: null,
+    next: 1,
+    size: 6,
+    step: 1
+  },
+  {
+    table: "depreciationRun",
+    name: "Depreciation Run",
+    prefix: "DR",
+    suffix: null,
+    next: 1,
     size: 6,
     step: 1
   }
@@ -580,7 +592,6 @@ export const accounts = [
   { key: "other-income", number: null, name: "Other Income", isGroup: true, parentKey: "income-statement", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
   { key: "4110", number: "4110", name: "Scrap Sales", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
   { key: "4120", number: "4120", name: "Foreign Exchange Gains", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
-  { key: "4130", number: "4130", name: "Vendor Write-Off Income", isGroup: false, parentKey: "other-income", accountType: "Other Income", incomeBalance: "Income Statement", class: "Revenue", consolidatedRate: "Average", createdBy: "system" },
 
   // ─── 5000-5999: COST OF GOODS SOLD ───
   { key: "cogs", number: null, name: "Cost of Goods Sold", isGroup: true, parentKey: "income-statement", accountType: "Cost of Goods Sold", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
@@ -630,6 +641,7 @@ export const accounts = [
   { key: "7060", number: "7060", name: "Foreign Exchange Losses", isGroup: false, parentKey: "other-expenses", accountType: "Other Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
   { key: "7070", number: "7070", name: "Income Tax Expense", isGroup: false, parentKey: "other-expenses", accountType: "Other Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
   { key: "7080", number: "7080", name: "R&D Expenses", isGroup: false, parentKey: "other-expenses", accountType: "Other Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
+  { key: "7090", number: "7090", name: "Deferred Tax Expense", isGroup: false, parentKey: "other-expenses", accountType: "Other Expense", incomeBalance: "Income Statement", class: "Expense", consolidatedRate: "Average", createdBy: "system" },
 ] as const;
 
 export const accountDefaults = {
@@ -672,11 +684,48 @@ export const accountDefaults = {
   reverseChargeSalesTaxPayableAccount: "2230",
   retainedEarningsAccount: "3100",
   currencyTranslationAccount: "3200",
-  customerWriteOffAccount: "6050",
-  supplierWriteOffAccount: "4130",
-  realizedExchangeGainAccount: "4120",
-  realizedExchangeLossAccount: "7060",
+  deferredTaxLiabilityAccountId: "2420",
+  deferredTaxExpenseAccountId: "7090",
 } as const;
+
+export const fixedAssetClasses = [
+  {
+    name: "Buildings",
+    depreciationMethod: "Straight Line" as const,
+    usefulLifeMonths: 468,
+    residualValuePercent: 0,
+    assetAccount: "1360",
+    accumulatedDepreciationAccount: "1330",
+    depreciationExpenseAccount: "6310",
+    writeOffAccount: "6320",
+    writeDownAccount: "6320",
+    disposalAccount: "6320",
+  },
+  {
+    name: "Machinery & Equipment",
+    depreciationMethod: "Straight Line" as const,
+    usefulLifeMonths: 120,
+    residualValuePercent: 0,
+    assetAccount: "1350",
+    accumulatedDepreciationAccount: "1330",
+    depreciationExpenseAccount: "6310",
+    writeOffAccount: "6320",
+    writeDownAccount: "6320",
+    disposalAccount: "6320",
+  },
+  {
+    name: "Vehicles",
+    depreciationMethod: "Straight Line" as const,
+    usefulLifeMonths: 60,
+    residualValuePercent: 0,
+    assetAccount: "1310",
+    accumulatedDepreciationAccount: "1330",
+    depreciationExpenseAccount: "6310",
+    writeOffAccount: "6320",
+    writeDownAccount: "6320",
+    disposalAccount: "6320",
+  },
+];
 
 export const fiscalYearSettings = {
   startMonth: "January",

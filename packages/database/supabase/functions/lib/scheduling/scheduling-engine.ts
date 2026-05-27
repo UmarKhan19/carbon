@@ -524,20 +524,39 @@ export class SchedulingEngine {
    */
   async persistChanges(): Promise<void> {
     for (const op of this.scheduledOperations.values()) {
-      await this.db
-        .updateTable("jobOperation")
-        .set({
-          startDate: op.startDate,
-          dueDate: op.dueDate,
-          priority: op.priority ?? undefined,
-          workCenterId: op.workCenterId,
-          hasConflict: op.hasConflict,
-          conflictReason: op.conflictReason,
-          updatedAt: new Date().toISOString(),
-          updatedBy: this.userId,
-        })
-        .where("id", "=", op.id)
-        .execute();
+      const originalOp = this.operations.find((o) => o.id === op.id);
+      const isManuallyScheduled = originalOp?.manuallyScheduled ?? false;
+
+      if (isManuallyScheduled) {
+        await this.db
+          .updateTable("jobOperation")
+          .set({
+            startDate: op.startDate,
+            priority: op.priority ?? undefined,
+            workCenterId: op.workCenterId,
+            hasConflict: op.hasConflict,
+            conflictReason: op.conflictReason,
+            updatedAt: new Date().toISOString(),
+            updatedBy: this.userId,
+          })
+          .where("id", "=", op.id)
+          .execute();
+      } else {
+        await this.db
+          .updateTable("jobOperation")
+          .set({
+            startDate: op.startDate,
+            dueDate: op.dueDate,
+            priority: op.priority ?? undefined,
+            workCenterId: op.workCenterId,
+            hasConflict: op.hasConflict,
+            conflictReason: op.conflictReason,
+            updatedAt: new Date().toISOString(),
+            updatedBy: this.userId,
+          })
+          .where("id", "=", op.id)
+          .execute();
+      }
     }
 
     // Update job status if initial scheduling
