@@ -53,6 +53,10 @@ export const path = {
       gauges: `${api}/quality/gauges`,
       generateCsvColumns: (table: string) =>
         generatePath(`${api}/ai/csv/${table}/columns`),
+      inspectionDocumentBalloonAnalyze: (inspectionDocumentId: string) =>
+        generatePath(
+          `${api}/quality/inspection-document/${inspectionDocumentId}/balloon-analyze`
+        ),
       groupsByType: (type?: string) =>
         generatePath(`${api}/users/groups?type=${type}`),
       item: (type: string) => generatePath(`${api}/item/${type}`),
@@ -880,6 +884,15 @@ export const path = {
       generatePath(`${x}/resources/failure-modes/${id}`),
     failureModes: `${x}/resources/failure-modes`,
     fiscalYears: `${x}/accounting/years`,
+    inspectionDocument: (id: string) => generatePath(`${x}/inspection/${id}`),
+    inspectionDocuments: `${x}/quality/inspection`,
+    deleteInspectionDocument: (id: string) =>
+      generatePath(`${x}/inspection/${id}/delete`),
+    newInspectionDocument: `${x}/quality/inspection/new`,
+    saveInspectionDocument: (id: string) =>
+      generatePath(`${x}/inspection/${id}/save`),
+    updateInspectionDocumentName: (id: string) =>
+      generatePath(`${x}/inspection/${id}/update-name`),
     gauge: (id: string) => generatePath(`${x}/quality/gauges/${id}`),
     gauges: `${x}/quality/gauges`,
     gaugeCalibrationRecord: (id: string) =>
@@ -894,7 +907,6 @@ export const path = {
     holiday: (id: string) => generatePath(`${x}/people/holidays/${id}`),
     holidays: `${x}/people/holidays`,
     import: (tableId: string) => generatePath(`${x}/shared/import/${tableId}`),
-    inspections: `${x}/quality/inspections`,
     integration: (id: string) =>
       generatePath(`${x}/settings/integrations/${id}`),
     integrationDeactivate: (id: string) =>
