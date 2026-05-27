@@ -403,7 +403,7 @@ msgid "Job Traveler"
 msgstr "Viajero de trabajo"
 
 msgid "Jobs"
-msgstr ""
+msgstr "Trabajos"
 
 msgid "Kit"
 msgstr "Kit"
@@ -536,7 +536,7 @@ msgid "No materials"
 msgstr "Sin materiales"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "Sin trabajos abiertos"
 
 msgid "No operators"
 msgstr "Sin operadores"
@@ -597,7 +597,7 @@ msgid "Open"
 msgstr "Abierto"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "Trabajos Abiertos"
 
 msgid "Operations"
 msgstr "Operaciones"
@@ -718,7 +718,7 @@ msgid "Search"
 msgstr "Buscar"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "Buscar por ID de trabajo o artículo"
 
 msgid "Search operators..."
 msgstr "Buscar operadores..."
@@ -798,6 +798,9 @@ msgstr "Iniciar sesión con Google"
 
 msgid "Sign in with Outlook"
 msgstr "Iniciar sesión con Outlook"
+
+msgid "Sign in with Passkey"
+msgstr "Iniciar sesión con Passkey"
 
 msgid "Sign Out"
 msgstr "Cerrar sesión"
@@ -891,7 +894,7 @@ msgid "Total: {0}"
 msgstr "Total: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "Seguimiento"
 
 msgid "Tracking Labels"
 msgstr "Etiquetas de seguimiento"

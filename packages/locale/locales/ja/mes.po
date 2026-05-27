@@ -403,7 +403,7 @@ msgid "Job Traveler"
 msgstr "ジョブトラベラー"
 
 msgid "Jobs"
-msgstr ""
+msgstr "ジョブ"
 
 msgid "Kit"
 msgstr "キット"
@@ -536,7 +536,7 @@ msgid "No materials"
 msgstr "材料なし"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "オープンなジョブはありません"
 
 msgid "No operators"
 msgstr "オペレーターなし"
@@ -597,7 +597,7 @@ msgid "Open"
 msgstr "未対応"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "オープンジョブ"
 
 msgid "Operations"
 msgstr "工程"
@@ -718,7 +718,7 @@ msgid "Search"
 msgstr "検索"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "ジョブまたはアイテムIDで検索"
 
 msgid "Search operators..."
 msgstr "オペレーターを検索..."
@@ -798,6 +798,9 @@ msgstr "Googleでサインイン"
 
 msgid "Sign in with Outlook"
 msgstr "Outlookでサインイン"
+
+msgid "Sign in with Passkey"
+msgstr "パスキーでサインイン"
 
 msgid "Sign Out"
 msgstr "サインアウト"
@@ -891,7 +894,7 @@ msgid "Total: {0}"
 msgstr "合計: {0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "追跡"
 
 msgid "Tracking Labels"
 msgstr "追跡ラベル"

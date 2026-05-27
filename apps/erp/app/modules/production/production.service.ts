@@ -2039,6 +2039,7 @@ export async function updateJobOperationDueDate(
     .from("jobOperation")
     .update({
       dueDate,
+      manuallyScheduled: dueDate !== null,
       updatedBy,
       updatedAt: new Date().toISOString()
     })

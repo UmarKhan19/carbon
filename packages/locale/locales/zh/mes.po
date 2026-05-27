@@ -403,7 +403,7 @@ msgid "Job Traveler"
 msgstr "工单流转卡"
 
 msgid "Jobs"
-msgstr ""
+msgstr "工作"
 
 msgid "Kit"
 msgstr "套件"
@@ -536,7 +536,7 @@ msgid "No materials"
 msgstr "无物料"
 
 msgid "No open jobs"
-msgstr ""
+msgstr "没有开放的工作"
 
 msgid "No operators"
 msgstr "无操作员"
@@ -597,7 +597,7 @@ msgid "Open"
 msgstr "打开"
 
 msgid "Open Jobs"
-msgstr ""
+msgstr "开放工作"
 
 msgid "Operations"
 msgstr "工序"
@@ -718,7 +718,7 @@ msgid "Search"
 msgstr "搜索"
 
 msgid "Search by job or item ID"
-msgstr ""
+msgstr "按工作或项目ID搜索"
 
 msgid "Search operators..."
 msgstr "搜索操作员..."
@@ -798,6 +798,9 @@ msgstr "使用 Google 登录"
 
 msgid "Sign in with Outlook"
 msgstr "使用 Outlook 登录"
+
+msgid "Sign in with Passkey"
+msgstr "使用密钥登录"
 
 msgid "Sign Out"
 msgstr "退出登录"
@@ -891,7 +894,7 @@ msgid "Total: {0}"
 msgstr "合计：{0}"
 
 msgid "Tracking"
-msgstr ""
+msgstr "追踪"
 
 msgid "Tracking Labels"
 msgstr "追踪标签"

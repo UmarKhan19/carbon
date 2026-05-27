@@ -1,5 +1,8 @@
 import type { Database } from "@carbon/database";
-import type { NotificationEvent } from "@carbon/notifications";
+import type {
+  NotificationDestination,
+  NotificationEvent
+} from "@carbon/notifications";
 
 type ApprovalDocumentType = Database["public"]["Enums"]["approvalDocumentType"];
 
@@ -20,6 +23,19 @@ export type Events = {
         | { type: "users"; userIds: string[] };
       from?: string;
       documentType?: ApprovalDocumentType;
+      // Caller-selected fan-out targets. inApp is always added by the notify
+      // function regardless of what's passed; email and slack are opt-in.
+      destinations?: NotificationDestination[];
+    };
+  };
+
+  // Slack message dispatch (fan-out target from carbon/notify)
+  "carbon/send-slack": {
+    data: {
+      channel: string;
+      text: string;
+      blocks?: any[];
+      companyId: string;
     };
   };
 
