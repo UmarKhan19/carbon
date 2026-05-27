@@ -3744,6 +3744,9 @@ msgstr "隐藏、固定和重新排序列"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "更高的优先级在平局时获胜，并首先应用于加价"
 
+msgid "Highest-tier rule has a maximum"
+msgstr ""
+
 msgid "History"
 msgstr "历史"
 
@@ -5942,6 +5945,10 @@ msgstr "采购订单已成功删除"
 
 msgid "Purchase Orders"
 msgstr "采购订单"
+
+#. placeholder {0}: currencyFormatter.format(poTopTierGap)
+msgid "Purchase orders above {0} will not require approval. Edit the top-tier rule and clear the Maximum Amount, or add a higher rule with no maximum."
+msgstr ""
 
 msgid "Purchase orders required"
 msgstr "采购订单必需"

@@ -9,8 +9,10 @@ import { ApprovalRuleForm } from "~/modules/settings";
 import {
   type ApprovalDocumentType,
   approvalRuleValidator,
+  getApprovalRules,
   upsertApprovalRule
 } from "~/modules/shared";
+import { topTierWouldBeUnbounded } from "~/modules/shared/approval-rules.coverage";
 import { path } from "~/utils/path";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -51,6 +53,31 @@ export async function action({ request }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
+  // Highest-tier coverage check: if this rule would be at (or tied for)
+  // the highest lowerBoundAmount for its doc type AND it has a max set,
+  // make sure at least one rule at that tier remains unbounded above —
+  // otherwise amounts above the new top would silently bypass approval.
+  if (validation.data.documentType === "purchaseOrder") {
+    const existing = await getApprovalRules(serviceRole, companyId);
+    if (
+      !topTierWouldBeUnbounded({
+        existingRules: existing.data ?? [],
+        documentType: "purchaseOrder",
+        candidate: {
+          lowerBoundAmount: validation.data.lowerBoundAmount ?? 0,
+          upperBoundAmount: validation.data.upperBoundAmount ?? null
+        }
+      })
+    ) {
+      return validationError({
+        fieldErrors: {
+          upperBoundAmount:
+            "The highest tier must leave the maximum empty so it covers all amounts above its minimum."
+        }
+      });
+    }
+  }
+
   const result = await upsertApprovalRule(serviceRole, {
     createdBy: userId,
     companyId,
@@ -59,7 +86,7 @@ export async function action({ request }: ActionFunctionArgs) {
     approverGroupIds: validation.data.approverGroupIds || [],
     defaultApproverId: validation.data.defaultApproverId,
     lowerBoundAmount: validation.data.lowerBoundAmount ?? 0,
-    upperBoundAmount: validation.data.upperBoundAmount ?? null
+    upperBoundAmount: validation.data.upperBoundAmount
   });
 
   if (result.error) {

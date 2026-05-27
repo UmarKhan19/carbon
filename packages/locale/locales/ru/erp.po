@@ -3744,6 +3744,9 @@ msgstr "Скрывать, закреплять и переупорядочива
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Более высокий приоритет выигрывает при равенстве и применяется первым для наценок"
 
+msgid "Highest-tier rule has a maximum"
+msgstr ""
+
 msgid "History"
 msgstr "История"
 
@@ -5942,6 +5945,10 @@ msgstr "Заказ на покупку успешно удален"
 
 msgid "Purchase Orders"
 msgstr "Заказы на покупку"
+
+#. placeholder {0}: currencyFormatter.format(poTopTierGap)
+msgid "Purchase orders above {0} will not require approval. Edit the top-tier rule and clear the Maximum Amount, or add a higher rule with no maximum."
+msgstr ""
 
 msgid "Purchase orders required"
 msgstr "Требуются заказы на покупку"

@@ -3744,6 +3744,9 @@ msgstr "Masquer, épingler et réorganiser les colonnes"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "La priorité plus élevée gagne les égalités et s'applique en premier pour les majorations"
 
+msgid "Highest-tier rule has a maximum"
+msgstr ""
+
 msgid "History"
 msgstr "Historique"
 
@@ -5942,6 +5945,10 @@ msgstr "Bon de commande supprimé avec succès"
 
 msgid "Purchase Orders"
 msgstr "Bons de commande"
+
+#. placeholder {0}: currencyFormatter.format(poTopTierGap)
+msgid "Purchase orders above {0} will not require approval. Edit the top-tier rule and clear the Maximum Amount, or add a higher rule with no maximum."
+msgstr ""
 
 msgid "Purchase orders required"
 msgstr "Bons de commande requis"

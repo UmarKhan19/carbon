@@ -3744,6 +3744,9 @@ msgstr "Spalten ausblenden, fixieren und neu anordnen"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Höhere Priorität gewinnt bei Gleichständen und wird zuerst für Aufschläge angewendet"
 
+msgid "Highest-tier rule has a maximum"
+msgstr ""
+
 msgid "History"
 msgstr "Verlauf"
 
@@ -5942,6 +5945,10 @@ msgstr "Bestellung erfolgreich entfernt"
 
 msgid "Purchase Orders"
 msgstr "Bestellungen"
+
+#. placeholder {0}: currencyFormatter.format(poTopTierGap)
+msgid "Purchase orders above {0} will not require approval. Edit the top-tier rule and clear the Maximum Amount, or add a higher rule with no maximum."
+msgstr ""
 
 msgid "Purchase orders required"
 msgstr "Bestellungen erforderlich"

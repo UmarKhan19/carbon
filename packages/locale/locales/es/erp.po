@@ -3744,6 +3744,9 @@ msgstr "Ocultar, anclar y reordenar columnas"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Mayor prioridad gana empates y se aplica primero para márgenes"
 
+msgid "Highest-tier rule has a maximum"
+msgstr ""
+
 msgid "History"
 msgstr "Historial"
 
@@ -5942,6 +5945,10 @@ msgstr "Orden de compra eliminada exitosamente"
 
 msgid "Purchase Orders"
 msgstr "Órdenes de Compra"
+
+#. placeholder {0}: currencyFormatter.format(poTopTierGap)
+msgid "Purchase orders above {0} will not require approval. Edit the top-tier rule and clear the Maximum Amount, or add a higher rule with no maximum."
+msgstr ""
 
 msgid "Purchase orders required"
 msgstr "Órdenes de compra requeridas"
