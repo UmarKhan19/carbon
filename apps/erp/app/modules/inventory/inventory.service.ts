@@ -1365,24 +1365,16 @@ export async function insertManualInventoryAdjustment(
     !currentQuantity
   ) {
     if (readableId) {
-      const entityBySerial = await client
-        .from("trackedEntity")
-        .select("id")
-        .eq("companyId", data.companyId)
-        .eq("readableId", readableId)
-        .maybeSingle();
-      // Verify the entity belongs to this item — trackedEntity.itemId is not always
-      // populated, so the authoritative link is through itemLedger (storageUnitQuantities)
-      const resolvedQtyRow =
-        !entityBySerial.error && entityBySerial.data?.id
-          ? storageUnitQuantities?.data?.find(
-              (q) => q.trackedEntityId == entityBySerial.data!.id
-            )
-          : undefined;
+      // storageUnitQuantities is already scoped to this item + location, so
+      // matching by readableId here is safe even if the same serial exists on
+      // other items in the same company.
+      const resolvedQtyRow = storageUnitQuantities?.data?.find(
+        (q) => q.readableId === readableId && q.trackedEntityId != null
+      );
       if (!resolvedQtyRow) {
         return { error: "Serial number not found" };
       }
-      const resolvedId = entityBySerial.data!.id;
+      const resolvedId = resolvedQtyRow.trackedEntityId as string;
       const resolvedQty = resolvedQtyRow.quantity ?? 0;
       if (data.quantity > resolvedQty) {
         return { error: "Insufficient quantity for negative adjustment" };
