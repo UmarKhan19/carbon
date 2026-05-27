@@ -161,28 +161,42 @@ export async function canApproveRequest(
     return false;
   }
 
+  // Authority flows upward only. Find the tier that matches this request's
+  // amount; a user may approve at that tier or any HIGHER tier, but never
+  // from a lower one (a $1k approver must not approve a $1M order).
+  // Amount-less document types (quality, supplier) match the base tier
+  // (lowerBoundAmount 0), so every rule qualifies and behavior is unchanged.
+  const matched = await getApprovalRuleByAmount(
+    client,
+    approvalRequest.documentType,
+    approvalRequest.companyId,
+    approvalRequest.amount ?? undefined
+  );
+  const tierFloor = matched.data?.lowerBoundAmount ?? 0;
+
   const userGroups = await client.rpc("groups_for_user", { uid: userId });
   const userGroupIds = userGroups.data || [];
 
-  // Check if user can approve via any rule (higher amount approvers can approve lower amounts)
-  return rules.data.some((rule) => {
-    if (rule.defaultApproverId === userId) {
-      return true;
-    }
+  return rules.data
+    .filter((rule) => (rule.lowerBoundAmount ?? 0) >= tierFloor)
+    .some((rule) => {
+      if (rule.defaultApproverId === userId) {
+        return true;
+      }
 
-    const approverGroupIds = rule.approverGroupIds;
-    if (!approverGroupIds || approverGroupIds.length === 0) {
-      return false;
-    }
+      const approverGroupIds = rule.approverGroupIds;
+      if (!approverGroupIds || approverGroupIds.length === 0) {
+        return false;
+      }
 
-    // Check if user ID is directly in approverGroupIds (for individual approvers)
-    if (approverGroupIds.includes(userId)) {
-      return true;
-    }
+      // Direct individual approver
+      if (approverGroupIds.includes(userId)) {
+        return true;
+      }
 
-    // Check if user belongs to any of the approver groups
-    return approverGroupIds.some((groupId) => userGroupIds.includes(groupId));
-  });
+      // Member of an approver group
+      return approverGroupIds.some((groupId) => userGroupIds.includes(groupId));
+    });
 }
 
 /**
