@@ -202,7 +202,7 @@ msgid "Complete"
 msgstr "完了"
 
 msgid "Complete All"
-msgstr ""
+msgstr "すべて完了"
 
 msgid "Completed"
 msgstr "完了済み"
@@ -222,10 +222,10 @@ msgid "Create {0}"
 msgstr "{0}を作成"
 
 msgid "Create Issue"
-msgstr ""
+msgstr "問題を作成"
 
 msgid "Create Quality Issue"
-msgstr ""
+msgstr "品質問題を作成"
 
 msgid "Customer"
 msgstr "顧客"
@@ -253,7 +253,7 @@ msgid "Delete Timecard ({0})"
 msgstr "タイムカードを削除（{0}）"
 
 msgid "Describe the problem..."
-msgstr ""
+msgstr "問題を説明してください..."
 
 msgid "Description"
 msgstr "説明"
@@ -400,7 +400,7 @@ msgid "Issue Material"
 msgstr "材料払出"
 
 msgid "Issue Type"
-msgstr ""
+msgstr "問題タイプ"
 
 msgid "Item"
 msgstr "品目"
@@ -681,10 +681,10 @@ msgid "Progress"
 msgstr "進捗"
 
 msgid "Quality Issue"
-msgstr ""
+msgstr "品質問題"
 
 msgid "Quality issue created"
-msgstr ""
+msgstr "品質問題が作成されました"
 
 msgid "Quantity"
 msgstr "数量"

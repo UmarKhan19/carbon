@@ -202,7 +202,7 @@ msgid "Complete"
 msgstr "Завершить"
 
 msgid "Complete All"
-msgstr ""
+msgstr "Завершить все"
 
 msgid "Completed"
 msgstr "Завершено"
@@ -222,10 +222,10 @@ msgid "Create {0}"
 msgstr "Создать {0}"
 
 msgid "Create Issue"
-msgstr ""
+msgstr "Создать проблему"
 
 msgid "Create Quality Issue"
-msgstr ""
+msgstr "Создать проблему качества"
 
 msgid "Customer"
 msgstr "Заказчик"
@@ -253,7 +253,7 @@ msgid "Delete Timecard ({0})"
 msgstr "Удалить табель ({0})"
 
 msgid "Describe the problem..."
-msgstr ""
+msgstr "Опишите проблему..."
 
 msgid "Description"
 msgstr "Описание"
@@ -400,7 +400,7 @@ msgid "Issue Material"
 msgstr "Выдать материал"
 
 msgid "Issue Type"
-msgstr ""
+msgstr "Тип проблемы"
 
 msgid "Item"
 msgstr "Номенклатура"
@@ -681,10 +681,10 @@ msgid "Progress"
 msgstr "Прогресс"
 
 msgid "Quality Issue"
-msgstr ""
+msgstr "Проблема качества"
 
 msgid "Quality issue created"
-msgstr ""
+msgstr "Проблема качества создана"
 
 msgid "Quantity"
 msgstr "Количество"

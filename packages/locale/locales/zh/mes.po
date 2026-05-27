@@ -202,7 +202,7 @@ msgid "Complete"
 msgstr "完成"
 
 msgid "Complete All"
-msgstr ""
+msgstr "全部完成"
 
 msgid "Completed"
 msgstr "已完成"
@@ -222,10 +222,10 @@ msgid "Create {0}"
 msgstr "创建 {0}"
 
 msgid "Create Issue"
-msgstr ""
+msgstr "创建问题"
 
 msgid "Create Quality Issue"
-msgstr ""
+msgstr "创建质量问题"
 
 msgid "Customer"
 msgstr "客户"
@@ -253,7 +253,7 @@ msgid "Delete Timecard ({0})"
 msgstr "删除考勤记录 ({0})"
 
 msgid "Describe the problem..."
-msgstr ""
+msgstr "描述问题..."
 
 msgid "Description"
 msgstr "描述"
@@ -400,7 +400,7 @@ msgid "Issue Material"
 msgstr "发放物料"
 
 msgid "Issue Type"
-msgstr ""
+msgstr "问题类型"
 
 msgid "Item"
 msgstr "物料"
@@ -681,10 +681,10 @@ msgid "Progress"
 msgstr "进度"
 
 msgid "Quality Issue"
-msgstr ""
+msgstr "质量问题"
 
 msgid "Quality issue created"
-msgstr ""
+msgstr "质量问题已创建"
 
 msgid "Quantity"
 msgstr "数量"

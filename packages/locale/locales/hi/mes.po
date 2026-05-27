@@ -202,7 +202,7 @@ msgid "Complete"
 msgstr "पूर्ण करें"
 
 msgid "Complete All"
-msgstr ""
+msgstr "सभी को पूर्ण करें"
 
 msgid "Completed"
 msgstr "पूर्ण"
@@ -222,10 +222,10 @@ msgid "Create {0}"
 msgstr "{0} बनाएं"
 
 msgid "Create Issue"
-msgstr ""
+msgstr "समस्या बनाएं"
 
 msgid "Create Quality Issue"
-msgstr ""
+msgstr "गुणवत्ता समस्या बनाएं"
 
 msgid "Customer"
 msgstr "ग्राहक"
@@ -253,7 +253,7 @@ msgid "Delete Timecard ({0})"
 msgstr "टाइमकार्ड हटाएं ({0})"
 
 msgid "Describe the problem..."
-msgstr ""
+msgstr "समस्या का वर्णन करें..."
 
 msgid "Description"
 msgstr "विवरण"
@@ -400,7 +400,7 @@ msgid "Issue Material"
 msgstr "सामग्री जारी करें"
 
 msgid "Issue Type"
-msgstr ""
+msgstr "समस्या प्रकार"
 
 msgid "Item"
 msgstr "वस्तु"
@@ -681,10 +681,10 @@ msgid "Progress"
 msgstr "प्रगति"
 
 msgid "Quality Issue"
-msgstr ""
+msgstr "गुणवत्ता समस्या"
 
 msgid "Quality issue created"
-msgstr ""
+msgstr "गुणवत्ता समस्या बनाई गई"
 
 msgid "Quantity"
 msgstr "मात्रा"

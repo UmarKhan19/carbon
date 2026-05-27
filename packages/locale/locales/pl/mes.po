@@ -202,7 +202,7 @@ msgid "Complete"
 msgstr "Ukończ"
 
 msgid "Complete All"
-msgstr ""
+msgstr "Uzupełnij wszystko"
 
 msgid "Completed"
 msgstr "Ukończone"
@@ -222,10 +222,10 @@ msgid "Create {0}"
 msgstr "Utwórz {0}"
 
 msgid "Create Issue"
-msgstr ""
+msgstr "Utwórz Problem"
 
 msgid "Create Quality Issue"
-msgstr ""
+msgstr "Utwórz Problem Jakości"
 
 msgid "Customer"
 msgstr "Klient"
@@ -253,7 +253,7 @@ msgid "Delete Timecard ({0})"
 msgstr "Usuń kartę czasu pracy ({0})"
 
 msgid "Describe the problem..."
-msgstr ""
+msgstr "Opisz problem..."
 
 msgid "Description"
 msgstr "Opis"
@@ -400,7 +400,7 @@ msgid "Issue Material"
 msgstr "Wydaj materiał"
 
 msgid "Issue Type"
-msgstr ""
+msgstr "Typ problemu"
 
 msgid "Item"
 msgstr "Pozycja"
@@ -681,10 +681,10 @@ msgid "Progress"
 msgstr "Postęp"
 
 msgid "Quality Issue"
-msgstr ""
+msgstr "Problem z jakością"
 
 msgid "Quality issue created"
-msgstr ""
+msgstr "Problem z jakością został utworzony"
 
 msgid "Quantity"
 msgstr "Ilość"

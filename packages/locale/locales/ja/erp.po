@@ -299,6 +299,9 @@ msgstr "契約業者を追加"
 msgid "Add Entry"
 msgstr "エントリを追加"
 
+msgid "Add Feature"
+msgstr "機能を追加"
+
 msgid "Add from library…"
 msgstr "ライブラリから追加…"
 
@@ -358,6 +361,9 @@ msgstr "リスクを追加"
 
 msgid "Add rule"
 msgstr "ルールを追加"
+
+msgid "Add Selector"
+msgstr "セレクターを追加"
 
 msgid "Add Shipment"
 msgstr "配送を追加"
@@ -463,6 +469,21 @@ msgstr "アイテムをそれ自体に追加することはできません。"
 
 msgid "and {remaining} more"
 msgstr "そして{remaining}件以上"
+
+msgid "Annotation added"
+msgstr "注釈が追加されました"
+
+msgid "Annotation deleted"
+msgstr "注釈が削除されました"
+
+msgid "Annotation text"
+msgstr "注釈テキスト"
+
+msgid "Annotation text is required"
+msgstr "注釈テキストが必要です"
+
+msgid "Annotation updated"
+msgstr "注釈が更新されました"
 
 msgid "API and Webhooks"
 msgstr "APIとWebhooks"
@@ -787,6 +808,9 @@ msgstr "このアプリケーション承認ルールを削除してもよろし
 msgid "Are you sure you want to delete this gauge?"
 msgstr "このゲージを削除してもよろしいですか？"
 
+msgid "Are you sure you want to delete this inspection document?"
+msgstr "このインスペクションドキュメントを削除してもよろしいですか？"
+
 msgid "Are you sure you want to delete this issue workflow?"
 msgstr "このイシューワークフローを削除してもよろしいですか？"
 
@@ -999,6 +1023,9 @@ msgstr "バックフラッシュ"
 
 msgid "Balance Sheet"
 msgstr "貸借対照表"
+
+msgid "Balloon"
+msgstr "バルーン"
 
 msgid "Base Currency"
 msgstr "基本通貨"
@@ -1280,6 +1307,9 @@ msgstr "検索をクリア"
 msgid "Clear search query"
 msgstr "検索クエリをクリア"
 
+msgid "Click to upload a PDF drawing"
+msgstr "PDFドローイングをアップロードするにはクリック"
+
 msgid "Clock In"
 msgstr "時刻入力"
 
@@ -1313,6 +1343,9 @@ msgstr "すべて折りたたむ"
 
 msgid "Collapse Costs"
 msgstr "コストを折りたたむ"
+
+msgid "Collapse features table"
+msgstr "機能テーブルを折りたたむ"
 
 msgid "Collapse Labor"
 msgstr "労働を折りたたむ"
@@ -1719,6 +1752,19 @@ msgstr "原価計算と転記"
 
 msgid "Costing Method"
 msgstr "原価計算方法"
+
+msgid "Could not analyze cropped region"
+msgstr "トリミングされた領域を分析できませんでした"
+
+#. placeholder {0}: payload.message ?? analyzeRes.statusText
+msgid "Could not analyze region: {0}"
+msgstr "領域を分析できませんでした: {0}"
+
+msgid "Could not build PDF. Try again."
+msgstr "PDFを作成できませんでした。もう一度お試しください。"
+
+msgid "Could not prepare region image for analysis"
+msgstr "分析用の領域画像を準備できませんでした"
 
 msgid "Couldn't load documents"
 msgstr "ドキュメントを読み込めませんでした"
@@ -2436,6 +2482,9 @@ msgstr "詳細"
 msgid "Details"
 msgstr "詳細"
 
+msgid "Diagram saved"
+msgstr "図が保存されました"
+
 msgid "Digital Quote"
 msgstr "デジタル見積"
 
@@ -2517,6 +2566,9 @@ msgstr "ダウンロード"
 msgid "Download CSV"
 msgstr "CSVをダウンロード"
 
+msgid "Download PDF"
+msgstr "PDFをダウンロード"
+
 msgid "Draft"
 msgstr "下書き"
 
@@ -2526,8 +2578,23 @@ msgstr "購入発注書のPDFをここにドラッグアンドドロップする
 msgid "Drag handle"
 msgstr "ドラッグハンドル"
 
+msgid "Drag to place on drawing"
+msgstr "図面上に配置するためにドラッグしてください"
+
 msgid "Drag to reorder"
 msgstr "ドラッグして並べ替え"
+
+msgid "Drag to resize diagram and features"
+msgstr "図と機能をリサイズするにはドラッグしてください"
+
+msgid "Drag to zoom"
+msgstr "ズームするにはドラッグしてください"
+
+msgid "Drawing Number"
+msgstr "図面番号"
+
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+msgstr "図面が置き換わりました。バルーン配置は削除されました。機能行は変更されていません。"
 
 msgid "Drop Shipment"
 msgstr "ドロップシップメント"
@@ -2574,6 +2641,9 @@ msgstr "複製先..."
 
 msgid "Duration"
 msgstr "期間"
+
+msgid "e.g. DWG-1234"
+msgstr "例：DWG-1234"
 
 msgid "Edit"
 msgstr "編集"
@@ -2658,6 +2728,9 @@ msgstr "グループを編集"
 
 msgid "Edit Holiday"
 msgstr "休日を編集"
+
+msgid "Edit Inspection Document"
+msgstr "検査文書を編集"
 
 msgid "Edit Item Group"
 msgstr "アイテムグループを編集"
@@ -3074,6 +3147,9 @@ msgstr "すべて展開"
 msgid "Expand Costs"
 msgstr "コストを展開"
 
+msgid "Expand features table"
+msgstr "機能テーブルを展開"
+
 msgid "Expand Labor"
 msgstr "労働を展開"
 
@@ -3373,6 +3449,9 @@ msgstr "CSVの列データの取得に失敗しました。"
 msgid "Failed to save configuration rule"
 msgstr "設定ルールの保存に失敗しました"
 
+msgid "Failed to save diagram"
+msgstr "図の保存に失敗しました"
+
 msgid "Failed to update batch property"
 msgstr "バッチプロパティの更新に失敗しました"
 
@@ -3420,6 +3499,9 @@ msgstr "ロゴのアップロードに失敗しました: {errorMessage}"
 msgid "Failed to upload model"
 msgstr "モデルのアップロードに失敗しました"
 
+msgid "Failed to upload PDF"
+msgstr "PDFのアップロードに失敗しました"
+
 msgid "Failed to upload thumbnail"
 msgstr "サムネイルのアップロードに失敗しました"
 
@@ -3437,6 +3519,15 @@ msgstr "ファックス"
 
 msgid "Fax Number"
 msgstr "ファックス番号"
+
+msgid "Feature"
+msgstr "機能"
+
+msgid "Feature values suggested from drawing"
+msgstr "図面から提案された機能値"
+
+msgid "Features"
+msgstr "機能"
 
 msgid "Feedback"
 msgstr "フィードバック"
@@ -3806,14 +3897,17 @@ msgstr "次のアイテムを検査"
 msgid "Inspection"
 msgstr "検査"
 
+msgid "Inspection Document"
+msgstr "検査ドキュメント"
+
+msgid "Inspection Documents"
+msgstr "検査ドキュメント"
+
 msgid "Inspection Level"
 msgstr "検査レベル"
 
 msgid "Inspection Status"
 msgstr "検査ステータス"
-
-msgid "Inspections"
-msgstr "検査"
 
 msgid "Inspector"
 msgstr "検査官"
@@ -4746,6 +4840,9 @@ msgstr "新しいグループ"
 msgid "New Holiday"
 msgstr "新しい休日"
 
+msgid "New Inspection Document"
+msgstr "新しい検査文書"
+
 msgid "New Invoice"
 msgstr "新しい請求書"
 
@@ -4925,6 +5022,9 @@ msgstr "次の日付"
 
 msgid "Next Due"
 msgstr "次回期限"
+
+msgid "Next page"
+msgstr "次のページ"
 
 msgid "Next Sequence"
 msgstr "次のシーケンス"
@@ -5125,6 +5225,9 @@ msgstr "範囲内に作業センターの稼働率データがありません"
 
 msgid "No work centers exist"
 msgstr "作業センターが存在しません"
+
+msgid "Nom"
+msgstr "公称値"
 
 msgid "Nominal Cost"
 msgstr "名目原価"
@@ -5396,6 +5499,9 @@ msgstr "見積方法でターゲット製造方法を上書きします"
 msgid "Packing Slip"
 msgstr "梱包明細書"
 
+msgid "Page {pdfViewPage} of {documentPageCount}"
+msgstr "ページ {pdfViewPage} / {documentPageCount}"
+
 msgid "Paid Amount:"
 msgstr "支払済み金額:"
 
@@ -5473,6 +5579,12 @@ msgstr "支払条件"
 
 msgid "PDF"
 msgstr "PDF"
+
+msgid "PDF downloaded"
+msgstr "PDFをダウンロードしました"
+
+msgid "PDF pages"
+msgstr "PDFページ"
 
 msgid "PDF Watermark"
 msgstr "PDF透かし"
@@ -5665,6 +5777,9 @@ msgstr "前へ"
 
 msgid "Previous Date"
 msgstr "前の日付"
+
+msgid "Previous page"
+msgstr "前のページ"
 
 msgid "Price break actions"
 msgstr "価格ブレークアクション"
@@ -6116,6 +6231,9 @@ msgstr "添付ファイルを削除"
 msgid "Remove condition"
 msgstr "条件を削除"
 
+msgid "Remove feature"
+msgstr "機能を削除"
+
 msgid "Remove filter"
 msgstr "フィルターを削除"
 
@@ -6185,8 +6303,17 @@ msgstr "リオーダー数量:"
 msgid "Reordering Policy"
 msgstr "再注文ポリシー"
 
+msgid "Replace drawing?"
+msgstr "図面を置き換えますか？"
+
 msgid "Replace existing pricing with source values"
 msgstr "既存の価格を元の値に置き換える"
+
+msgid "Replace PDF"
+msgstr "PDFを置き換える"
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
+msgstr "PDFを置き換えると、このドキュメント上のすべてのバルーン配置が削除されます。機能行とその値は保持されます。新しい図面上に再度バルーンを配置できます。"
 
 msgid "Replenishment"
 msgstr "補充"
@@ -6252,6 +6379,9 @@ msgstr "PINをリセット"
 #. placeholder {1}: operator.lastName
 msgid "Reset PIN for {0} {1}"
 msgstr "{0} {1}のPINをリセット"
+
+msgid "Reset View"
+msgstr "ビューをリセット"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "NCRを完了する前にこれらを解決してください。すべての行は保留中以外の処分を持つ必要があり、リンクされたエンティティの数量は行の数量と一致する必要があります。"
@@ -7441,6 +7571,9 @@ msgstr "利用規約"
 msgid "Test Value"
 msgstr "テスト値"
 
+msgid "Text size"
+msgstr "テキストサイズ"
+
 msgid "The amount of days after the calculation method that the cash discount is available"
 msgstr "計算方法の後、現金割引が利用可能になるまでの日数"
 
@@ -7669,6 +7802,12 @@ msgstr "プロパティを切り替え"
 msgid "Toggle views"
 msgstr "ビューを切り替える"
 
+msgid "Tol-"
+msgstr "許容差-"
+
+msgid "Tol+"
+msgstr "許容差+"
+
 msgid "Tolerance (+/-)"
 msgstr "許容範囲 (+/-)"
 
@@ -7840,6 +7979,9 @@ msgstr "ルールの割り当てを解除"
 msgid "Unassigned"
 msgstr "未割り当て"
 
+msgid "Unballoon"
+msgstr "バルーンを削除"
+
 msgid "Uninstall"
 msgstr "アンインストール"
 
@@ -7884,6 +8026,9 @@ msgstr "販売注文からジョブのリンクを解除しますか？"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "サポートされていないソースドキュメントタイプ: {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr "無題の図"
 
 msgid "UoM"
 msgstr "UoM"
@@ -7964,6 +8109,9 @@ msgstr "監査履歴のロックを解除するにはアップグレードして
 msgid "Upload"
 msgstr "アップロード"
 
+msgid "Upload a PDF first"
+msgstr "まずPDFをアップロードしてください"
+
 msgid "Upload completed but no file path returned"
 msgstr "アップロードは完了しましたがファイルパスが返されませんでした"
 
@@ -7986,6 +8134,9 @@ msgstr "アップロード中 {0}"
 
 msgid "Uploading {fileName}"
 msgstr "アップロード中 {fileName}"
+
+msgid "Uploading…"
+msgstr "アップロード中…"
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "変換をクリックすると、以下の内部部品番号で部品が作成されます:"
@@ -8458,3 +8609,12 @@ msgstr "お名前"
 
 msgid "yourself"
 msgstr "自分自身"
+
+msgid "Zoom Box"
+msgstr "ズームボックス"
+
+msgid "Zoom in"
+msgstr "ズームイン"
+
+msgid "Zoom out"
+msgstr "ズームアウト"

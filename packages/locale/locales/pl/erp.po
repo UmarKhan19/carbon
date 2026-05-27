@@ -299,6 +299,9 @@ msgstr "Dodaj Wykonawcę"
 msgid "Add Entry"
 msgstr "Dodaj wpis"
 
+msgid "Add Feature"
+msgstr "Dodaj funkcję"
+
 msgid "Add from library…"
 msgstr "Dodaj z biblioteki…"
 
@@ -358,6 +361,9 @@ msgstr "Dodaj ryzyko"
 
 msgid "Add rule"
 msgstr "Dodaj regułę"
+
+msgid "Add Selector"
+msgstr "Dodaj selektor"
 
 msgid "Add Shipment"
 msgstr "Dodaj wysyłkę"
@@ -463,6 +469,21 @@ msgstr "Przedmiot nie może być dodany do siebie."
 
 msgid "and {remaining} more"
 msgstr "i {remaining} więcej"
+
+msgid "Annotation added"
+msgstr "Adnotacja dodana"
+
+msgid "Annotation deleted"
+msgstr "Adnotacja usunięta"
+
+msgid "Annotation text"
+msgstr "Tekst adnotacji"
+
+msgid "Annotation text is required"
+msgstr "Tekst adnotacji jest wymagany"
+
+msgid "Annotation updated"
+msgstr "Adnotacja zaktualizowana"
 
 msgid "API and Webhooks"
 msgstr "API i Webhooks"
@@ -787,6 +808,9 @@ msgstr "Czy na pewno chcesz usunąć tę regułę zatwierdzania? Tej operacji ni
 msgid "Are you sure you want to delete this gauge?"
 msgstr "Czy na pewno chcesz usunąć ten miernik?"
 
+msgid "Are you sure you want to delete this inspection document?"
+msgstr "Czy na pewno chcesz usunąć ten dokument inspekcji?"
+
 msgid "Are you sure you want to delete this issue workflow?"
 msgstr "Czy na pewno chcesz usunąć ten przepływ pracy problemu?"
 
@@ -999,6 +1023,9 @@ msgstr "Cofnięcie"
 
 msgid "Balance Sheet"
 msgstr "Bilans"
+
+msgid "Balloon"
+msgstr "Balon"
 
 msgid "Base Currency"
 msgstr "Waluta bazowa"
@@ -1280,6 +1307,9 @@ msgstr "Wyczyść wyszukiwanie"
 msgid "Clear search query"
 msgstr "Wyczyść zapytanie wyszukiwania"
 
+msgid "Click to upload a PDF drawing"
+msgstr "Kliknij, aby przesłać rysunek PDF"
+
 msgid "Clock In"
 msgstr "Zarejestruj wejście"
 
@@ -1313,6 +1343,9 @@ msgstr "Zwiń wszystko"
 
 msgid "Collapse Costs"
 msgstr "Zwiń koszty"
+
+msgid "Collapse features table"
+msgstr "Zwiń tabelę funkcji"
 
 msgid "Collapse Labor"
 msgstr "Zwiń Pracę"
@@ -1719,6 +1752,19 @@ msgstr "Wycena i księgowanie"
 
 msgid "Costing Method"
 msgstr "Metoda wyceny"
+
+msgid "Could not analyze cropped region"
+msgstr "Nie można było przeanalizować przycętego regionu"
+
+#. placeholder {0}: payload.message ?? analyzeRes.statusText
+msgid "Could not analyze region: {0}"
+msgstr "Nie można analizować regionu: {0}"
+
+msgid "Could not build PDF. Try again."
+msgstr "Nie można było zbudować pliku PDF. Spróbuj ponownie."
+
+msgid "Could not prepare region image for analysis"
+msgstr "Nie można przygotować obrazu regionu do analizy"
 
 msgid "Couldn't load documents"
 msgstr "Nie udało się załadować dokumentów"
@@ -2436,6 +2482,9 @@ msgstr "Szczegóły"
 msgid "Details"
 msgstr "Szczegóły"
 
+msgid "Diagram saved"
+msgstr "Diagram zapisany"
+
 msgid "Digital Quote"
 msgstr "Cyfrowa oferta"
 
@@ -2517,6 +2566,9 @@ msgstr "Pobierz"
 msgid "Download CSV"
 msgstr "Pobierz CSV"
 
+msgid "Download PDF"
+msgstr "Pobierz PDF"
+
 msgid "Draft"
 msgstr "Wersja robocza"
 
@@ -2526,8 +2578,23 @@ msgstr "Przeciągnij i upuść plik PDF zamówienia zakupu tutaj lub kliknij, ab
 msgid "Drag handle"
 msgstr "Uchwyt do przeciągania"
 
+msgid "Drag to place on drawing"
+msgstr "Przeciągnij, aby umieścić na rysunku"
+
 msgid "Drag to reorder"
 msgstr "Przeciągnij, aby zmienić kolejność"
+
+msgid "Drag to resize diagram and features"
+msgstr "Przeciągnij, aby zmienić rozmiar diagramu i funkcji"
+
+msgid "Drag to zoom"
+msgstr "Przeciągnij, aby powiększyć"
+
+msgid "Drawing Number"
+msgstr "Numer rysunku"
+
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+msgstr "Rysunek zastąpiony. Umieszczenia balonów zostały usunięte; wiersze funkcji pozostają niezmienione."
 
 msgid "Drop Shipment"
 msgstr "Wysyłka bezpośrednia"
@@ -2574,6 +2641,9 @@ msgstr "Duplikuj do..."
 
 msgid "Duration"
 msgstr "Czas trwania"
+
+msgid "e.g. DWG-1234"
+msgstr "np. DWG-1234"
 
 msgid "Edit"
 msgstr "Edytuj"
@@ -2658,6 +2728,9 @@ msgstr "Edytuj grupę"
 
 msgid "Edit Holiday"
 msgstr "Edytuj Święto"
+
+msgid "Edit Inspection Document"
+msgstr "Edytuj dokument inspekcji"
 
 msgid "Edit Item Group"
 msgstr "Edytuj grupę pozycji"
@@ -3074,6 +3147,9 @@ msgstr "Rozwiń wszystko"
 msgid "Expand Costs"
 msgstr "Rozwiń koszty"
 
+msgid "Expand features table"
+msgstr "Rozwiń tabelę funkcji"
+
 msgid "Expand Labor"
 msgstr "Rozwiń Pracę"
 
@@ -3373,6 +3449,9 @@ msgstr "Nie udało się pobrać danych kolumn CSV."
 msgid "Failed to save configuration rule"
 msgstr "Nie udało się zapisać reguły konfiguracji"
 
+msgid "Failed to save diagram"
+msgstr "Nie udało się zapisać diagramu"
+
 msgid "Failed to update batch property"
 msgstr "Nie udało się zaktualizować właściwości partii"
 
@@ -3420,6 +3499,9 @@ msgstr "Nie udało się przesłać logo: {errorMessage}"
 msgid "Failed to upload model"
 msgstr "Nie udało się przesłać modelu"
 
+msgid "Failed to upload PDF"
+msgstr "Nie udało się przesłać pliku PDF"
+
 msgid "Failed to upload thumbnail"
 msgstr "Nie udało się przesłać miniatury"
 
@@ -3437,6 +3519,15 @@ msgstr "Faks"
 
 msgid "Fax Number"
 msgstr "Numer faksu"
+
+msgid "Feature"
+msgstr "Funkcja"
+
+msgid "Feature values suggested from drawing"
+msgstr "Wartości funkcji sugerowane z rysunku"
+
+msgid "Features"
+msgstr "Funkcje"
 
 msgid "Feedback"
 msgstr "Opinia"
@@ -3806,14 +3897,17 @@ msgstr "Sprawdź następny element"
 msgid "Inspection"
 msgstr "Inspekcja"
 
+msgid "Inspection Document"
+msgstr "Dokument Inspekcji"
+
+msgid "Inspection Documents"
+msgstr "Dokumenty inspekcji"
+
 msgid "Inspection Level"
 msgstr "Poziom kontroli"
 
 msgid "Inspection Status"
 msgstr "Stan kontroli"
-
-msgid "Inspections"
-msgstr "Inspekcje"
 
 msgid "Inspector"
 msgstr "Inspektor"
@@ -4746,6 +4840,9 @@ msgstr "Nowa Grupa"
 msgid "New Holiday"
 msgstr "Nowe Święto"
 
+msgid "New Inspection Document"
+msgstr "Nowy dokument inspekcji"
+
 msgid "New Invoice"
 msgstr "Nowa Faktura"
 
@@ -4925,6 +5022,9 @@ msgstr "Następna data"
 
 msgid "Next Due"
 msgstr "Następny termin"
+
+msgid "Next page"
+msgstr "Następna strona"
 
 msgid "Next Sequence"
 msgstr "Następna Sekwencja"
@@ -5125,6 +5225,9 @@ msgstr "Brak danych wykorzystania centrum pracy w zakresie"
 
 msgid "No work centers exist"
 msgstr "Nie istnieją żadne centra pracy"
+
+msgid "Nom"
+msgstr "Nom"
 
 msgid "Nominal Cost"
 msgstr "Koszt nominalny"
@@ -5396,6 +5499,9 @@ msgstr "Zastąp docelową metodę produkcji metodą z oferty"
 msgid "Packing Slip"
 msgstr "Dokument wysyłki"
 
+msgid "Page {pdfViewPage} of {documentPageCount}"
+msgstr "Strona {pdfViewPage} z {documentPageCount}"
+
 msgid "Paid Amount:"
 msgstr "Kwota zapłacona:"
 
@@ -5473,6 +5579,12 @@ msgstr "Warunki Płatności"
 
 msgid "PDF"
 msgstr "PDF"
+
+msgid "PDF downloaded"
+msgstr "PDF pobrany"
+
+msgid "PDF pages"
+msgstr "Strony PDF"
 
 msgid "PDF Watermark"
 msgstr "Znak wodny PDF"
@@ -5665,6 +5777,9 @@ msgstr "Poprzedni"
 
 msgid "Previous Date"
 msgstr "Poprzednia data"
+
+msgid "Previous page"
+msgstr "Poprzednia strona"
 
 msgid "Price break actions"
 msgstr "Akcje podziału ceny"
@@ -6116,6 +6231,9 @@ msgstr "Usuń załącznik"
 msgid "Remove condition"
 msgstr "Usuń warunek"
 
+msgid "Remove feature"
+msgstr "Usuń funkcję"
+
 msgid "Remove filter"
 msgstr "Usuń filtr"
 
@@ -6185,8 +6303,17 @@ msgstr "Ilość do ponownego zamówienia:"
 msgid "Reordering Policy"
 msgstr "Polityka zamawiania"
 
+msgid "Replace drawing?"
+msgstr "Zastąpić rysunek?"
+
 msgid "Replace existing pricing with source values"
 msgstr "Zastąp istniejące ceny wartościami ze źródła"
+
+msgid "Replace PDF"
+msgstr "Zamień PDF"
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
+msgstr "Zastąpienie pliku PDF usuwa wszystkie umieszczenia balonów w tym dokumencie. Wiersze funkcji i ich wartości pozostają; możesz ponownie umieścić balony na nowym rysunku."
 
 msgid "Replenishment"
 msgstr "Uzupełnianie"
@@ -6252,6 +6379,9 @@ msgstr "Resetuj PIN"
 #. placeholder {1}: operator.lastName
 msgid "Reset PIN for {0} {1}"
 msgstr "Resetuj PIN dla {0} {1}"
+
+msgid "Reset View"
+msgstr "Resetuj widok"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "Rozwiąż to przed ukończeniem NCR: każdy wiersz musi mieć dyspozycję inną niż Oczekująca, a ilości połączonych jednostek muszą odpowiadać ilości wiersza."
@@ -7441,6 +7571,9 @@ msgstr "Warunki korzystania"
 msgid "Test Value"
 msgstr "Wartość testowa"
 
+msgid "Text size"
+msgstr "Rozmiar tekstu"
+
 msgid "The amount of days after the calculation method that the cash discount is available"
 msgstr "Liczba dni po metodzie obliczeniowej, w której dostępna jest rabat gotówkowy"
 
@@ -7669,6 +7802,12 @@ msgstr "Przełącz właściwości"
 msgid "Toggle views"
 msgstr "Przełącz widoki"
 
+msgid "Tol-"
+msgstr "Tol-"
+
+msgid "Tol+"
+msgstr "Tol+"
+
 msgid "Tolerance (+/-)"
 msgstr "Tolerancja (+/-)"
 
@@ -7840,6 +7979,9 @@ msgstr "Usuń przypisanie reguły"
 msgid "Unassigned"
 msgstr "Nieprzydzielone"
 
+msgid "Unballoon"
+msgstr "Usuń balon"
+
 msgid "Uninstall"
 msgstr "Odinstaluj"
 
@@ -7884,6 +8026,9 @@ msgstr "Odłączyć zadanie od zamówienia sprzedaży?"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Nieobsługiwany typ dokumentu źródłowego: {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr "Diagram bez tytułu"
 
 msgid "UoM"
 msgstr "UoM"
@@ -7964,6 +8109,9 @@ msgstr "Uaktualnij, aby odblokować historię audytu"
 msgid "Upload"
 msgstr "Prześlij"
 
+msgid "Upload a PDF first"
+msgstr "Najpierw prześlij plik PDF"
+
 msgid "Upload completed but no file path returned"
 msgstr "Przesyłanie zakończone, ale ścieżka pliku nie została zwrócona"
 
@@ -7986,6 +8134,9 @@ msgstr "Przesyłanie {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Przesylanie {fileName}"
+
+msgid "Uploading…"
+msgstr "Przesyłanie…"
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "Po kliknięciu przycisku Konwertuj, części zostaną utworzone z następującymi numerami części wewnętrznych:"
@@ -8458,3 +8609,12 @@ msgstr "Twoje imię"
 
 msgid "yourself"
 msgstr "siebie"
+
+msgid "Zoom Box"
+msgstr "Pole powiększenia"
+
+msgid "Zoom in"
+msgstr "Powiększ"
+
+msgid "Zoom out"
+msgstr "Zmniejsz"
