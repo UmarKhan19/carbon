@@ -533,6 +533,9 @@ msgstr ""
 msgid "Approval Date"
 msgstr "Genehmigungsdatum"
 
+msgid "Approval is required at or above this amount, up to the next rule's minimum"
+msgstr ""
+
 msgid "Approval Requirements"
 msgstr "Genehmigungsanforderungen"
 
@@ -2016,9 +2019,6 @@ msgstr "Kundendetails"
 msgid "Customer ID"
 msgstr "Kunden-ID"
 
-msgid "Customer ID cannot be changed after creation"
-msgstr ""
-
 msgid "Customer Invoice Number"
 msgstr "Kundenrechnungsnummer"
 
@@ -2592,9 +2592,6 @@ msgstr "CSV herunterladen"
 
 msgid "Download PDF"
 msgstr "PDF herunterladen"
-
-msgid "Download template"
-msgstr ""
 
 msgid "Draft"
 msgstr "Entwurf"
@@ -3793,12 +3790,6 @@ msgstr "Spalten ausblenden, fixieren und neu anordnen"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Höhere Priorität gewinnt bei Gleichständen und wird zuerst für Aufschläge angewendet"
 
-msgid "Highest-tier rule has a maximum"
-msgstr ""
-
-msgid "Hints in the first row"
-msgstr ""
-
 msgid "History"
 msgstr "Verlauf"
 
@@ -4291,9 +4282,6 @@ msgstr "Alle zugehörigen Belege unverändert lassen"
 msgid "Leave empty for exact match"
 msgstr "Leer lassen für exakte Übereinstimmung"
 
-msgid "Leave empty for no upper limit"
-msgstr ""
-
 msgid "Leave this page"
 msgstr "Diese Seite verlassen"
 
@@ -4635,9 +4623,6 @@ msgstr "Max. Menge"
 msgid "Maximum"
 msgstr "Maximum"
 
-msgid "Maximum Amount"
-msgstr ""
-
 msgid "Maximum Inventory Quantity"
 msgstr "Maximale Bestandsmenge"
 
@@ -4828,9 +4813,6 @@ msgstr "Navigieren"
 
 msgid "NCRs by Type"
 msgstr "NCRs nach Typ"
-
-msgid "Need the right columns?"
-msgstr ""
 
 msgid "Negative Adjustment"
 msgstr "Negative Anpassung"
@@ -6013,10 +5995,6 @@ msgstr "Bestellung erfolgreich entfernt"
 msgid "Purchase Orders"
 msgstr "Bestellungen"
 
-#. placeholder {0}: currencyFormatter.format(poTopTierGap)
-msgid "Purchase orders above {0} will not require approval. Edit the top-tier rule and clear the Maximum Amount, or add a higher rule with no maximum."
-msgstr ""
-
 msgid "Purchase orders required"
 msgstr "Bestellungen erforderlich"
 
@@ -7140,15 +7118,6 @@ msgstr "Kurzbeschreibung"
 msgid "Shortcuts"
 msgstr "Tastenkombinationen"
 
-msgid "Show a readable Customer ID column on the customer list, customer forms, and dropdowns. Customers are still identified internally either way."
-msgstr ""
-
-msgid "Show a readable Supplier ID column on the supplier list, supplier forms, and dropdowns. Suppliers are still identified internally either way."
-msgstr ""
-
-msgid "Show Customer IDs"
-msgstr ""
-
 msgid "Show Durations"
 msgstr "Dauern anzeigen"
 
@@ -7160,9 +7129,6 @@ msgstr "Zeige Teilminiaturen auf Bestellungen an."
 
 msgid "Show part thumbnails on quotes, sales orders, sales invoices, and shipments."
 msgstr "Zeigen Sie Teilminiaturen auf Angeboten, Verkaufsaufträgen, Verkaufsrechnungen und Lieferungen an."
-
-msgid "Show Supplier IDs"
-msgstr ""
 
 msgid "Show sync options"
 msgstr "Synchronisierungsoptionen anzeigen"
@@ -7493,9 +7459,6 @@ msgstr "Lieferantenkontakt"
 
 msgid "Supplier ID"
 msgstr "Lieferanten-ID"
-
-msgid "Supplier ID cannot be changed after creation"
-msgstr ""
 
 msgid "Supplier Invoice Number"
 msgstr "Lieferantenrechnungsnummer"

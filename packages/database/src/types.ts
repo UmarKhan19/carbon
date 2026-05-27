@@ -1726,7 +1726,6 @@ export type Database = {
           lowerBoundAmount: number
           updatedAt: string | null
           updatedBy: string | null
-          upperBoundAmount: number | null
         }
         Insert: {
           approverGroupIds?: string[] | null
@@ -1741,7 +1740,6 @@ export type Database = {
           lowerBoundAmount?: number
           updatedAt?: string | null
           updatedBy?: string | null
-          upperBoundAmount?: number | null
         }
         Update: {
           approverGroupIds?: string[] | null
@@ -1756,7 +1754,6 @@ export type Database = {
           lowerBoundAmount?: number
           updatedAt?: string | null
           updatedBy?: string | null
-          upperBoundAmount?: number | null
         }
         Relationships: [
           {
@@ -3075,8 +3072,6 @@ export type Database = {
           salesJobCompletedNotificationGroup: string[]
           samplingStandard: Database["public"]["Enums"]["samplingStandard"]
           shelfLabelSize: string | null
-          showCustomerReadableId: boolean
-          showSupplierReadableId: boolean
           supplierQuoteNotificationGroup: string[]
           timeCardEnabled: boolean
           updateLeadTimesOnReceipt: boolean
@@ -3120,8 +3115,6 @@ export type Database = {
           salesJobCompletedNotificationGroup?: string[]
           samplingStandard?: Database["public"]["Enums"]["samplingStandard"]
           shelfLabelSize?: string | null
-          showCustomerReadableId?: boolean
-          showSupplierReadableId?: boolean
           supplierQuoteNotificationGroup?: string[]
           timeCardEnabled?: boolean
           updateLeadTimesOnReceipt?: boolean
@@ -3165,8 +3158,6 @@ export type Database = {
           salesJobCompletedNotificationGroup?: string[]
           samplingStandard?: Database["public"]["Enums"]["samplingStandard"]
           shelfLabelSize?: string | null
-          showCustomerReadableId?: boolean
-          showSupplierReadableId?: boolean
           supplierQuoteNotificationGroup?: string[]
           timeCardEnabled?: boolean
           updateLeadTimesOnReceipt?: boolean
@@ -4653,7 +4644,6 @@ export type Database = {
           logo: string | null
           name: string
           phone: string | null
-          readableId: string
           salesContactId: string | null
           tags: string[] | null
           taxPercent: number
@@ -4679,7 +4669,6 @@ export type Database = {
           logo?: string | null
           name: string
           phone?: string | null
-          readableId: string
           salesContactId?: string | null
           tags?: string[] | null
           taxPercent?: number
@@ -4705,7 +4694,6 @@ export type Database = {
           logo?: string | null
           name?: string
           phone?: string | null
-          readableId?: string
           salesContactId?: string | null
           tags?: string[] | null
           taxPercent?: number
@@ -38302,7 +38290,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_6qJP4DpjAYZeV75SoNq112: {
+      searchIndex_LPwQiGPcoBnievXwSmP5Nz: {
         Row: {
           createdAt: string
           description: string | null
@@ -40907,7 +40895,6 @@ export type Database = {
           name: string
           phone: string | null
           purchasingContactId: string | null
-          readableId: string
           supplierStatus:
             | Database["public"]["Enums"]["supplierStatusType"]
             | null
@@ -40935,7 +40922,6 @@ export type Database = {
           name: string
           phone?: string | null
           purchasingContactId?: string | null
-          readableId: string
           supplierStatus?:
             | Database["public"]["Enums"]["supplierStatusType"]
             | null
@@ -40963,7 +40949,6 @@ export type Database = {
           name?: string
           phone?: string | null
           purchasingContactId?: string | null
-          readableId?: string
           supplierStatus?:
             | Database["public"]["Enums"]["supplierStatusType"]
             | null
@@ -41701,7 +41686,6 @@ export type Database = {
           id: string
           itemId: string
           minimumOrderQuantity: number | null
-          orderMultiple: number | null
           supplierId: string
           supplierPartId: string | null
           supplierUnitOfMeasureCode: string | null
@@ -41720,7 +41704,6 @@ export type Database = {
           id?: string
           itemId: string
           minimumOrderQuantity?: number | null
-          orderMultiple?: number | null
           supplierId: string
           supplierPartId?: string | null
           supplierUnitOfMeasureCode?: string | null
@@ -41739,7 +41722,6 @@ export type Database = {
           id?: string
           itemId?: string
           minimumOrderQuantity?: number | null
-          orderMultiple?: number | null
           supplierId?: string
           supplierPartId?: string | null
           supplierUnitOfMeasureCode?: string | null
@@ -49413,7 +49395,6 @@ export type Database = {
           name: string | null
           orderCount: number | null
           phone: string | null
-          readableId: string | null
           salesContactId: string | null
           status: string | null
           tags: string[] | null
@@ -55433,14 +55414,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -61740,7 +61721,6 @@ export type Database = {
           partCount: number | null
           phone: string | null
           purchasingContactId: string | null
-          readableId: string | null
           status: Database["public"]["Enums"]["supplierStatusType"] | null
           supplierTypeId: string | null
           tags: string[] | null

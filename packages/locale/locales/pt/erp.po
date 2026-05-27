@@ -533,6 +533,9 @@ msgstr ""
 msgid "Approval Date"
 msgstr "Data de Aprovação"
 
+msgid "Approval is required at or above this amount, up to the next rule's minimum"
+msgstr ""
+
 msgid "Approval Requirements"
 msgstr "Requisitos de Aprovação"
 
@@ -2016,9 +2019,6 @@ msgstr "Detalhes do Cliente"
 msgid "Customer ID"
 msgstr "ID do Cliente"
 
-msgid "Customer ID cannot be changed after creation"
-msgstr ""
-
 msgid "Customer Invoice Number"
 msgstr "Número de Fatura do Cliente"
 
@@ -2592,9 +2592,6 @@ msgstr "Baixar CSV"
 
 msgid "Download PDF"
 msgstr "Baixar PDF"
-
-msgid "Download template"
-msgstr ""
 
 msgid "Draft"
 msgstr "Rascunho"
@@ -3793,12 +3790,6 @@ msgstr "Ocultar, fixar e reordenar colunas"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Prioridade mais alta vence empates e se aplica primeiro para margens"
 
-msgid "Highest-tier rule has a maximum"
-msgstr ""
-
-msgid "Hints in the first row"
-msgstr ""
-
 msgid "History"
 msgstr "Histórico"
 
@@ -4291,9 +4282,6 @@ msgstr "Deixar qualquer recebimento relacionado intocado"
 msgid "Leave empty for exact match"
 msgstr "Deixe vazio para correspondência exata"
 
-msgid "Leave empty for no upper limit"
-msgstr ""
-
 msgid "Leave this page"
 msgstr "Sair desta página"
 
@@ -4635,9 +4623,6 @@ msgstr "Quantidade Máxima"
 msgid "Maximum"
 msgstr "Máximo"
 
-msgid "Maximum Amount"
-msgstr ""
-
 msgid "Maximum Inventory Quantity"
 msgstr "Quantidade Máxima de Inventário"
 
@@ -4828,9 +4813,6 @@ msgstr "Navegar"
 
 msgid "NCRs by Type"
 msgstr "NCRs por Tipo"
-
-msgid "Need the right columns?"
-msgstr ""
 
 msgid "Negative Adjustment"
 msgstr "Ajuste Negativo"
@@ -6013,10 +5995,6 @@ msgstr "Ordem de compra removida com sucesso"
 msgid "Purchase Orders"
 msgstr "Pedidos de Compra"
 
-#. placeholder {0}: currencyFormatter.format(poTopTierGap)
-msgid "Purchase orders above {0} will not require approval. Edit the top-tier rule and clear the Maximum Amount, or add a higher rule with no maximum."
-msgstr ""
-
 msgid "Purchase orders required"
 msgstr "Ordens de compra necessárias"
 
@@ -7140,15 +7118,6 @@ msgstr "Descrição Breve"
 msgid "Shortcuts"
 msgstr "Atalhos"
 
-msgid "Show a readable Customer ID column on the customer list, customer forms, and dropdowns. Customers are still identified internally either way."
-msgstr ""
-
-msgid "Show a readable Supplier ID column on the supplier list, supplier forms, and dropdowns. Suppliers are still identified internally either way."
-msgstr ""
-
-msgid "Show Customer IDs"
-msgstr ""
-
 msgid "Show Durations"
 msgstr "Mostrar Durações"
 
@@ -7160,9 +7129,6 @@ msgstr "Mostrar miniaturas de peças em pedidos de compra."
 
 msgid "Show part thumbnails on quotes, sales orders, sales invoices, and shipments."
 msgstr "Mostrar miniaturas de peças em cotações, pedidos de venda, faturas de venda e remessas."
-
-msgid "Show Supplier IDs"
-msgstr ""
 
 msgid "Show sync options"
 msgstr "Mostrar opções de sincronização"
@@ -7493,9 +7459,6 @@ msgstr "Contato do Fornecedor"
 
 msgid "Supplier ID"
 msgstr "ID do Fornecedor"
-
-msgid "Supplier ID cannot be changed after creation"
-msgstr ""
 
 msgid "Supplier Invoice Number"
 msgstr "Número da Fatura do Fornecedor"
