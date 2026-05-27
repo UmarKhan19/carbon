@@ -7,7 +7,11 @@ import {
   toast,
   VStack
 } from "@carbon/react";
-import { convertKbToString } from "@carbon/utils";
+import {
+  convertKbToString,
+  PO_EMAIL_ATTACHMENT_LIMIT_MB,
+  PO_EMAIL_ATTACHMENT_WARN_MB
+} from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
@@ -17,30 +21,27 @@ import { useUser } from "~/hooks";
 import { stripSpecialCharacters } from "~/utils/string";
 
 export type ResolvedAttachmentItem = {
-  source: "po" | "company" | "supplier" | "item";
-  sourceLabel: string;
+  source: "company" | "supplier" | "item" | "po";
   name: string;
   size: number | null;
-  /** Full storage path under the `private` bucket. Used as a stable key. */
   path: string;
 };
 
+const sourceLabel: Record<ResolvedAttachmentItem["source"], string> = {
+  company: "From Company",
+  supplier: "From Supplier",
+  item: "From Item",
+  po: "Ad-hoc"
+};
+
 type AttachmentsListProps = {
-  /**
-   * Supplier interaction id — used as the upload destination for ad-hoc files
-   * dropped at finalize time. Files go to
-   * `{companyId}/supplier-interaction/{supplierInteractionId}/` and are
-   * auto-attached by the existing supplier-quote/RFQ flow conventions.
-   */
   supplierInteractionId: string | null;
-  /** Pinned, non-removable. Always sent. Used for the PO PDF preview row. */
   pinned?: Array<{ name: string; sizeKb?: number; label?: string }>;
-  /** Resolved attachments (Company + Supplier + Item + PO ad-hoc). */
   attachments: ResolvedAttachmentItem[];
 };
 
-const WARN_KB = 20 * 1024;
-const LIMIT_KB = 25 * 1024;
+const WARN_KB = PO_EMAIL_ATTACHMENT_WARN_MB * 1024;
+const LIMIT_KB = PO_EMAIL_ATTACHMENT_LIMIT_MB * 1024;
 
 const sourceBadgeVariant: Record<
   ResolvedAttachmentItem["source"],
@@ -52,11 +53,6 @@ const sourceBadgeVariant: Record<
   company: "purple"
 };
 
-/**
- * Read-only preview of every file that's about to ride along on a PO send,
- * plus a drag-drop zone for ad-hoc uploads. No selection UI — everything in
- * the four scope folders auto-attaches, matching the supplier-quote/RFQ flows.
- */
 export default function AttachmentsList({
   supplierInteractionId,
   pinned = [],
@@ -173,7 +169,7 @@ export default function AttachmentsList({
                 variant={sourceBadgeVariant[a.source]}
                 className="flex-shrink-0"
               >
-                {a.sourceLabel}
+                {sourceLabel[a.source]}
               </Badge>
             </HStack>
             <HStack className="gap-2 flex-shrink-0 ml-2">
@@ -194,8 +190,6 @@ export default function AttachmentsList({
         ))}
       </VStack>
 
-      {/* Drag-and-drop — uploads to the supplier-interaction folder, which the
-          send action automatically picks up. */}
       <div
         {...getRootProps()}
         className={`mt-2 w-full border-2 border-dashed rounded-md p-4 text-center cursor-pointer transition-colors ${
@@ -230,13 +224,14 @@ export default function AttachmentsList({
         {overLimit && (
           <span className="ml-2">
             <Trans>
-              Exceeds 25 MB total — remove some attachments to send.
+              Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some
+              attachments to send.
             </Trans>
           </span>
         )}
         {warning && (
           <span className="ml-2">
-            <Trans>Approaching 25 MB cap.</Trans>
+            <Trans>Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap.</Trans>
           </span>
         )}
       </div>

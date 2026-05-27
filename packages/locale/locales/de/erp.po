@@ -506,7 +506,7 @@ msgstr "Preisregeln anwenden"
 msgid "Apply To"
 msgstr "Anwenden auf"
 
-msgid "Approaching 25 MB cap."
+msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
 msgstr ""
 
 msgid "Approval Date"
@@ -3079,7 +3079,7 @@ msgstr "Jede Bedingung muss erfüllt sein"
 msgid "Everything from Starter"
 msgstr "Alles aus dem Starter-Plan"
 
-msgid "Exceeds 25 MB total — remove some attachments to send."
+msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 msgstr ""
 
 msgid "Exchange Rate"

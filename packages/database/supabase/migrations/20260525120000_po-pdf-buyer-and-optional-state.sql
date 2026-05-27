@@ -1,6 +1,11 @@
--- Expose the assignee and supplier-account-manager user details on the
--- purchaseOrders view so the PO PDF can pick a buyer contact in priority order:
--- assignee → supplier.accountManager → createdBy.
+-- Expose assignee + supplier.accountManager user details on the purchaseOrders
+-- view so the PO PDF can pick a buyer contact in priority order:
+--   assignee → supplier.accountManager → createdBy.
+-- And drop the NOT NULL on location.stateProvince — many countries (UK, IE,
+-- JP, most EU, SG) have no state concept. The `company` and `address` tables
+-- already allow NULL.
+
+ALTER TABLE "location" ALTER COLUMN "stateProvince" DROP NOT NULL;
 
 DROP VIEW IF EXISTS "purchaseOrders";
 CREATE OR REPLACE VIEW "purchaseOrders" WITH(SECURITY_INVOKER=true) AS

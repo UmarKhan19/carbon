@@ -203,9 +203,6 @@ msgstr "PerÃƒÆ’Ã‚Â­odo de AcumulaciÃƒÆ’Ã‚Â³n (Semanas)"
 msgid "Accumulation Period:"
 msgstr "PerÃƒÆ’Ã‚Â­odo de AcumulaciÃƒÆ’Ã‚Â³n:"
 
-msgid "Acknowledge & continue"
-msgstr "Reconocer y continuar"
-
 msgid "Action Items"
 msgstr "Elementos de AcciÃƒÆ’Ã‚Â³n"
 
@@ -491,13 +488,25 @@ msgstr "Claves API para acceso programático a tus datos de Carbon."
 msgid "Applies to"
 msgstr "Se aplica a"
 
+msgid "Applies to all"
+msgstr ""
+
+msgid "Applies to all items"
+msgstr ""
+
+msgid "Applies to all storage units"
+msgstr ""
+
+msgid "Applies to all work centers"
+msgstr ""
+
 msgid "Apply pricing rules"
 msgstr "Aplicar reglas de precios"
 
 msgid "Apply To"
 msgstr "Aplicar a"
 
-msgid "Approaching 25 MB cap."
+msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
 msgstr ""
 
 msgid "Approval Date"
@@ -886,6 +895,15 @@ msgstr "Pregunta cualquier cosa"
 msgid "Assembly:"
 msgstr "Ensamblaje:"
 
+msgid "Asset"
+msgstr ""
+
+msgid "Asset Classes"
+msgstr ""
+
+msgid "Assets"
+msgstr ""
+
 msgid "Assign To"
 msgstr "Asignar a"
 
@@ -1190,6 +1208,9 @@ msgstr "Logo de Carbon"
 msgid "Carbon Value"
 msgstr "Valor de Carbon"
 
+msgid "Cards"
+msgstr ""
+
 msgid "Carrier"
 msgstr "Transportista"
 
@@ -1421,9 +1442,6 @@ msgstr "Configura cÃƒÆ’Ã‚Â³mo se generan automÃƒÆ’Ã‚Â¡ticame
 
 msgid "Configure Item"
 msgstr "Configurar ArtÃƒÆ’Ã‚Â­culo"
-
-msgid "Configure Materials"
-msgstr "Configurar Materiales"
 
 msgid "Configure notifications for when gauges go out of calibration."
 msgstr "Configura notificaciones para cuando los calibres se descalibren."
@@ -1931,6 +1949,9 @@ msgstr "Campo Personalizado"
 msgid "Custom Fields"
 msgstr "Campos Personalizados"
 
+msgid "Custom Rules"
+msgstr ""
+
 msgid "Customer"
 msgstr "Cliente"
 
@@ -2415,6 +2436,9 @@ msgstr "Nombre del Departamento"
 msgid "Departments"
 msgstr "Departamentos"
 
+msgid "Depreciation"
+msgstr ""
+
 msgid "Description"
 msgstr "DescripciÃƒÆ’Ã‚Â³n"
 
@@ -2794,6 +2818,9 @@ msgstr "Editar proceso del proveedor"
 msgid "Edit Supplier Type"
 msgstr "Editar Tipo de Proveedor"
 
+msgid "Edit the rule to remove the \"Applies to all\" flag"
+msgstr ""
+
 msgid "Edit Timecard"
 msgstr "Editar Tarjeta de Tiempo"
 
@@ -2851,6 +2878,9 @@ msgstr "Tipos de Empleados"
 msgid "Employees"
 msgstr "Empleados"
 
+msgid "Empty work centers"
+msgstr ""
+
 msgid "Enable audit logging in settings to start tracking changes to your data."
 msgstr "Habilita el registro de auditorÃƒÆ’Ã‚Â­a en la configuraciÃƒÆ’Ã‚Â³n para comenzar a rastrear cambios en tus datos."
 
@@ -2881,6 +2911,9 @@ msgstr "Habilitar para permitir el modo de estaciÃƒÆ’Ã‚Â³n de trabajo 
 msgid "Enable to automatically post transactions to the general ledger."
 msgstr "Habilitar para publicar automÃƒÆ’Ã‚Â¡ticamente transacciones en el libro mayor."
 
+msgid "Enable to configure tax-specific depreciation methods on asset classes (e.g., MACRS, accelerated)."
+msgstr ""
+
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Habilitar para generar IDs y descripciones para materias primas."
 
@@ -2910,12 +2943,6 @@ msgstr "Fecha de Fin"
 
 msgid "End Time"
 msgstr "Hora de FinalizaciÃƒÆ’Ã‚Â³n"
-
-msgid "Enforce constraints on receipts, shipments, transfers and job operations for this item."
-msgstr "Aplicar restricciones en recibos, envÃƒÆ’Ã‚Â­os, transferencias y operaciones de trabajo para este artÃƒÆ’Ã‚Â­culo."
-
-msgid "Enforce per-item validation across receipts, shipments, transfers and adjustments."
-msgstr "Aplicar validaciÃƒÆ’Ã‚Â³n por artÃƒÆ’Ã‚Â­culo en recibos, envÃƒÆ’Ã‚Â­os, transferencias y ajustes."
 
 msgid "Enforce per-item validation and guidelines across receipts, shipments, transfers, and adjustments."
 msgstr "Aplicar validaciÃƒÆ’Ã‚Â³n y directrices por artÃƒÆ’Ã‚Â­culo en recibos, envÃƒÆ’Ã‚Â­os, transferencias y ajustes."
@@ -3016,9 +3043,6 @@ msgstr "Error al eliminar el modelo de la lÃƒÆ’Ã‚Â­nea de orden de ven
 msgid "Error validating serial number"
 msgstr "Error validando nÃƒÆ’Ã‚Âºmero de serie"
 
-msgid "Errors"
-msgstr "Errores"
-
 msgid "Escalation"
 msgstr "Escalada"
 
@@ -3055,7 +3079,7 @@ msgstr "Todas las condiciones deben coincidir"
 msgid "Everything from Starter"
 msgstr "Todo de Starter"
 
-msgid "Exceeds 25 MB total — remove some attachments to send."
+msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 msgstr ""
 
 msgid "Exchange Rate"
@@ -3457,6 +3481,9 @@ msgstr "Obtener"
 msgid "Field"
 msgstr "Campo"
 
+msgid "Field info"
+msgstr ""
+
 msgid "Field Mapping"
 msgstr "Mapeo de campos"
 
@@ -3536,6 +3563,12 @@ msgstr "AÃƒÆ’Ã‚Â±os Fiscales"
 
 msgid "Fixed"
 msgstr "Fijo"
+
+msgid "Fixed Asset"
+msgstr ""
+
+msgid "Fixed Assets"
+msgstr ""
 
 msgid "Fixed Reorder"
 msgstr "Reorden Fijo"
@@ -3792,6 +3825,9 @@ msgstr "Infraestructura"
 msgid "Inherit From Materials"
 msgstr "Heredar de Materiales"
 
+msgid "Inherited from"
+msgstr ""
+
 msgid "Insert rows"
 msgstr "Insertar filas"
 
@@ -3992,9 +4028,6 @@ msgstr "ID de ArtÃƒÆ’Ã‚Â­culo"
 
 msgid "Item Master"
 msgstr "Maestro de ArtÃƒÆ’Ã‚Â­culos"
-
-msgid "Item Rules"
-msgstr "Reglas de ArtÃƒÆ’Ã‚Â­culos"
 
 msgid "Item Scope"
 msgstr "Alcance de ArtÃƒÆ’Ã‚Â­culos"
@@ -4229,6 +4262,9 @@ msgstr "Cargando detalles del artÃƒÆ’Ã‚Â­culo..."
 msgid "Loading..."
 msgstr "Cargando..."
 
+msgid "Loading…"
+msgstr ""
+
 msgid "Location"
 msgstr "UbicaciÃƒÆ’Ã‚Â³n"
 
@@ -4355,6 +4391,9 @@ msgstr "Administra cÃƒÆ’Ã‚Â³mo se rastrea, calcula y aplica la vida Ã
 msgid "Manage Ownership"
 msgstr "Gestionar Propiedad"
 
+msgid "Manage rules"
+msgstr ""
+
 msgid "Manage Subscription"
 msgstr "Administrar SuscripciÃƒÆ’Ã‚Â³n"
 
@@ -4447,6 +4486,9 @@ msgstr "ID de Material"
 
 msgid "Material IDs"
 msgstr "IDs de Material"
+
+msgid "Material Properties"
+msgstr ""
 
 msgid "Material Shape"
 msgstr "Forma de Material"
@@ -5028,6 +5070,9 @@ msgstr "No hay archivos cargados"
 msgid "No Gauge Selected"
 msgstr "Sin calibrador seleccionado"
 
+msgid "No grouped notifications"
+msgstr ""
+
 msgid "No groups assigned"
 msgstr "No hay grupos asignados"
 
@@ -5528,9 +5573,6 @@ msgstr "Selecciona un cliente o tipo de cliente para ver sus precios."
 
 msgid "Pick a date or leave blank to clear it."
 msgstr "Elige una fecha o dÃƒÆ’Ã‚Â©jala en blanco para borrarla."
-
-msgid "Pick an existing rule from the library or create a new one to start enforcing constraints on this item."
-msgstr "Elige una regla existente de la biblioteca o crea una nueva para comenzar a aplicar restricciones en este artÃƒÆ’Ã‚Â­culo."
 
 msgid "Pick List"
 msgstr "Lista de Picking"
@@ -6378,9 +6420,6 @@ msgstr "La regla se aplica a todos los artÃƒÆ’Ã‚Â­culos."
 msgid "Rule Type"
 msgstr "Tipo de Regla"
 
-msgid "Rule Violation"
-msgstr "ViolaciÃƒÆ’Ã‚Â³n de regla"
-
 msgid "Rules"
 msgstr "Reglas"
 
@@ -6542,6 +6581,9 @@ msgstr "Razones de Rechazo"
 
 msgid "Search"
 msgstr "Buscar"
+
+msgid "Search accounts..."
+msgstr ""
 
 msgid "Search across your workspace..."
 msgstr "Buscar en tu espacio de trabajo..."
@@ -6967,6 +7009,9 @@ msgstr "Iniciar sesiÃƒÆ’Ã‚Â³n con Google"
 msgid "Sign in with Outlook"
 msgstr "Iniciar sesiÃƒÆ’Ã‚Â³n con Outlook"
 
+msgid "Sign in with Passkey"
+msgstr ""
+
 msgid "Sign Out"
 msgstr "Cerrar sesiÃƒÆ’Ã‚Â³n"
 
@@ -7167,6 +7212,9 @@ msgstr "Tipos de Almacenamiento"
 
 msgid "Storage Unit"
 msgstr "Unidad de Almacenamiento"
+
+msgid "Storage unit rules"
+msgstr ""
 
 msgid "Storage Units"
 msgstr "Unidades de Almacenamiento"
@@ -7418,6 +7466,9 @@ msgstr "Impuesto"
 msgid "Tax & Additional Costs"
 msgstr "Impuestos y Costos Adicionales"
 
+msgid "Tax & Shipping"
+msgstr ""
+
 msgid "Tax Amount"
 msgstr "Monto de Impuesto"
 
@@ -7572,6 +7623,11 @@ msgstr "Esto sobrescribirÃƒÆ’Ã‚Â¡ el mÃƒÆ’Ã‚Â©todo de cotiza
 msgid "This will recalculate the unit cost from the active make method's bill of materials and processes using the batch size. The current cost will be overwritten. Do you want to continue?"
 msgstr "Esto recalcularÃƒÆ’Ã‚Â¡ el costo unitario del mÃƒÆ’Ã‚Â©todo de fabricaciÃƒÆ’Ã‚Â³n activo basÃƒÆ’Ã‚Â¡ndose en la lista de materiales y procesos utilizando el tamaÃƒÆ’Ã‚Â±o de lote. El costo actual serÃƒÆ’Ã‚Â¡ sobrescrito. Ãƒâ€šÃ‚Â¿Deseas continuar?"
 
+#. placeholder {0}: routeData?.job?.jobId
+#. placeholder {1}: routeData?.job?.salesOrderReadableId
+msgid "This will remove {0}'s link to {1}. The job will no longer appear under the sales order and shipments won't find it."
+msgstr ""
+
 msgid "This will replace all method materials of other revisions with this revision."
 msgstr "Esto reemplazarÃƒÆ’Ã‚Â¡ todos los materiales de mÃƒÆ’Ã‚Â©todo de otras revisiones con esta revisiÃƒÆ’Ã‚Â³n."
 
@@ -7713,6 +7769,12 @@ msgstr "Realiza un seguimiento de cada cambio en tus pedidos, facturas, clientes
 msgid "Track every change to your orders, invoices, customers, suppliers, and more."
 msgstr "Realiza un seguimiento de cada cambio en tus pedidos, facturas, clientes, proveedores y mÃƒÆ’Ã‚Â¡s."
 
+msgid "Track tax depreciation separately"
+msgstr ""
+
+msgid "Track tax depreciation separately from book depreciation and automatically post deferred tax liability entries."
+msgstr ""
+
 msgid "Track when batches or serials of this item expire."
 msgstr "Realiza un seguimiento de cuÃƒÆ’Ã‚Â¡ndo vencen los lotes o nÃƒÆ’Ã‚Âºmeros de serie de este artÃƒÆ’Ã‚Â­culo."
 
@@ -7791,6 +7853,9 @@ msgstr "Papelera"
 msgid "Trial Balance"
 msgstr "Balance de ComprobaciÃƒÆ’Ã‚Â³n"
 
+msgid "Triggers"
+msgstr ""
+
 msgid "Tuesday"
 msgstr "Martes"
 
@@ -7820,6 +7885,9 @@ msgstr "Las entidades no muestreadas permanecerÃƒÆ’Ã‚Â¡n En Espera par
 
 msgid "Unapproved Supplier"
 msgstr "Proveedor No Aprobado"
+
+msgid "Unassign from parent unit to remove"
+msgstr ""
 
 msgid "Unassign rule"
 msgstr "Desasignar regla"
@@ -7865,6 +7933,9 @@ msgstr "Soporte Funcional Ilimitado"
 
 msgid "Unlink"
 msgstr "Desenlazar"
+
+msgid "Unlink job from sales order?"
+msgstr ""
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Tipo de documento de origen no compatible: {sourceDocument}"
@@ -7938,11 +8009,12 @@ msgstr "Actualizar"
 msgid "Upgrade to Business"
 msgstr "Actualizar a Business"
 
+#. placeholder {0}: targetCopy.noun
+msgid "Upgrade to unlock {0} rules"
+msgstr ""
+
 msgid "Upgrade to unlock audit history"
 msgstr "Actualizar para desbloquear el historial de auditorÃƒÆ’Ã‚Â­a"
-
-msgid "Upgrade to unlock item rules"
-msgstr "Actualizar para desbloquear reglas de artÃƒÆ’Ã‚Â­culos"
 
 msgid "Upload"
 msgstr "Cargar"
@@ -8044,6 +8116,9 @@ msgstr "Validando trabajo..."
 
 msgid "Value"
 msgstr "Valor"
+
+msgid "Value source by surface"
+msgstr ""
 
 msgid "VAT Number"
 msgstr "NÃƒÆ’Ã‚Âºmero de IVA"
@@ -8234,9 +8309,6 @@ msgstr "Advertir cuando la persona que inspecciona un artÃƒÆ’Ã‚Â­culo 
 msgid "Warning"
 msgstr "Advertencia"
 
-msgid "Warnings"
-msgstr "Advertencias"
-
 msgid "Watch full video"
 msgstr "Ver video completo"
 
@@ -8296,6 +8368,9 @@ msgstr "Cuando la vida ÃƒÆ’Ã‚Âºtil de un producto terminado se estable
 
 msgid "When expired stock is used"
 msgstr "Cuando se utiliza stock vencido"
+
+msgid "When on, this rule fires for every target of its type. Assignment rows are ignored but preserved."
+msgstr ""
 
 msgid "Who Can Approve"
 msgstr "QuiÃƒÆ’Ã‚Â©n Puede Aprobar"

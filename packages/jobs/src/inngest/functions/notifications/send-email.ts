@@ -13,30 +13,9 @@ export const sendEmailFunction = inngest.createFunction(
   async ({ event, step }) => {
     const payload = event.data;
     const serviceRole = getCarbonServiceRole();
-    const jobLog = `[send-email job ${event.id ?? "?"}]`;
 
-    console.log(`${jobLog} payload received`, {
-      companyId: payload.companyId,
-      from: payload.from,
-      to: payload.to,
-      cc: payload.cc,
-      subject: payload.subject,
-      attachmentCount: Array.isArray(payload.attachments)
-        ? payload.attachments.length
-        : 0,
-      attachmentSpec: Array.isArray(payload.attachments)
-        ? payload.attachments.map((a: any) => ({
-            filename: a?.filename,
-            hasPath: !!a?.path,
-            hasContent: !!a?.content,
-            pathPreview:
-              typeof a?.path === "string" ? a.path.slice(0, 80) : undefined
-          }))
-        : undefined,
-      htmlLength: typeof payload.html === "string" ? payload.html.length : 0,
-      textLength: typeof payload.text === "string" ? payload.text.length : 0
-    });
-
+    // Resend rejects the request if `to` or `cc` contain null/undefined
+    // entries, so strip falsy values regardless of what callers pass.
     const sanitizeRecipients = (
       value: string | string[] | undefined
     ): string | string[] | undefined => {
@@ -54,7 +33,6 @@ export const sendEmailFunction = inngest.createFunction(
     const ccRecipients = sanitizeRecipients(payload.cc);
 
     if (!toRecipients) {
-      console.error(`${jobLog} aborting — no valid 'to' recipients`);
       throw new NonRetriableError(
         "send-email called without any valid `to` recipients"
       );
@@ -95,24 +73,7 @@ export const sendEmailFunction = inngest.createFunction(
 
     const parsedMetadata = EmailConfig.schema.safeParse(metadataWithProvider);
 
-    console.log(`${jobLog} integration status`, {
-      companyName,
-      integrationActive,
-      metadataParsed: parsedMetadata.success,
-      provider:
-        parsedMetadata.success && "provider" in parsedMetadata.data
-          ? parsedMetadata.data.provider
-          : null,
-      validationIssues: parsedMetadata.success
-        ? undefined
-        : parsedMetadata.error.issues
-    });
-
     if (!parsedMetadata.success || !integrationActive) {
-      console.error(`${jobLog} integration invalid or inactive — aborting`, {
-        integrationActive,
-        parseSuccess: parsedMetadata.success
-      });
       return { success: false, message: "Invalid or inactive integration" };
     }
 
@@ -178,27 +139,10 @@ export const sendEmailFunction = inngest.createFunction(
         attachments: payload.attachments
       };
 
-      console.log(`${jobLog} calling Resend`, {
-        from: email.from,
-        to: email.to,
-        cc: email.cc,
-        replyTo: email.reply_to,
-        subject: email.subject,
-        attachmentCount: Array.isArray(email.attachments)
-          ? email.attachments.length
-          : 0,
-        apiKeyPresent: !!data.apiKey,
-        apiKeyPrefix: data.apiKey ? `${data.apiKey.slice(0, 6)}...` : null
-      });
-
+      console.info(`Resend Email Job`);
       const response = await resend.emails.send(email);
 
       if (response.error) {
-        console.error(`${jobLog} Resend returned error`, {
-          name: response.error.name,
-          message: response.error.message,
-          fullError: serializeError(response.error)
-        });
         if (response.error.name === "validation_error") {
           throw new NonRetriableError(
             `Resend validation error: ${serializeError(response.error)}`
@@ -207,7 +151,6 @@ export const sendEmailFunction = inngest.createFunction(
         throw new Error(`Resend error: ${serializeError(response.error)}`);
       }
 
-      console.log(`${jobLog} Resend accepted`, { id: response.data?.id });
       return response.data;
     });
 

@@ -506,7 +506,7 @@ msgstr "価格設定ルールを適用"
 msgid "Apply To"
 msgstr "適用対象"
 
-msgid "Approaching 25 MB cap."
+msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
 msgstr ""
 
 msgid "Approval Date"
@@ -3079,7 +3079,7 @@ msgstr "すべての条件が一致する必要があります"
 msgid "Everything from Starter"
 msgstr "スターターのすべての機能"
 
-msgid "Exceeds 25 MB total — remove some attachments to send."
+msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
 msgstr ""
 
 msgid "Exchange Rate"

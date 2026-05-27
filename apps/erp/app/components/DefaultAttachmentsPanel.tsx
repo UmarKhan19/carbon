@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
   HStack,
   IconButton,
-  Spinner,
   Table,
   Tbody,
   Td,
@@ -25,25 +24,16 @@ import { convertKbToString } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import {
-  LuCloudUpload,
-  LuDownload,
-  LuEllipsisVertical,
-  LuTrash
-} from "react-icons/lu";
+import { LuDownload, LuEllipsisVertical, LuTrash } from "react-icons/lu";
 import { useRevalidator } from "react-router";
 import DocumentIcon from "~/components/DocumentIcon";
 import DocumentPreview from "~/components/DocumentPreview";
+import FileDropzone from "~/components/FileDropzone";
 import { useDateFormatter, useUser } from "~/hooks";
 import { getDocumentType } from "~/modules/shared";
 import { path } from "~/utils/path";
 import { stripSpecialCharacters } from "~/utils/string";
 
-/**
- * Shape returned by Supabase `storage.from("private").list(...)`.
- * Trimmed to the bits this component actually uses.
- */
 export type StorageFile = {
   name: string;
   created_at?: string | null;
@@ -52,13 +42,6 @@ export type StorageFile = {
 
 type Props = {
   files: StorageFile[];
-  /**
-   * Storage path under the `private` bucket where files live (and uploads
-   * go). Should NOT include the leading `{companyId}/` prefix — that's added
-   * automatically from the current user's company.
-   *
-   * Example: "default-attachments/company", "default-attachments/supplier/sup_123"
-   */
   storagePathPrefix: string;
   title: ReactNode;
   description: ReactNode;
@@ -66,11 +49,6 @@ type Props = {
 
 const PREVIEWABLE = new Set(["PDF", "Image"]);
 
-/**
- * Generic management UI for default attachments at any scope
- * (company / supplier / item). Drag-and-drop upload, list, download, delete —
- * all directly against Supabase storage. Same pattern as Documents.tsx.
- */
 export default function DefaultAttachmentsPanel({
   files,
   storagePathPrefix,
@@ -82,7 +60,6 @@ export default function DefaultAttachmentsPanel({
   const { carbon } = useCarbon();
   const { company } = useUser();
   const revalidator = useRevalidator();
-  const [uploading, setUploading] = useState(false);
   const [deletingPath, setDeletingPath] = useState<string | null>(null);
 
   const fullPath = (name: string) =>
@@ -94,36 +71,21 @@ export default function DefaultAttachmentsPanel({
         toast.error(t`Storage client not available`);
         return;
       }
-      setUploading(true);
-      try {
-        for (const file of acceptedFiles) {
-          const safeName = stripSpecialCharacters(file.name);
-          const storagePath = fullPath(safeName);
-
-          const upload = await carbon.storage
-            .from("private")
-            .upload(storagePath, file, {
-              cacheControl: `${12 * 60 * 60}`,
-              upsert: true
-            });
-
-          if (upload.error) {
-            toast.error(t`Failed to upload ${file.name}`);
-          }
-        }
-        revalidator.revalidate();
-      } finally {
-        setUploading(false);
+      for (const file of acceptedFiles) {
+        const safeName = stripSpecialCharacters(file.name);
+        const upload = await carbon.storage
+          .from("private")
+          .upload(fullPath(safeName), file, {
+            cacheControl: `${12 * 60 * 60}`,
+            upsert: true
+          });
+        if (upload.error) toast.error(t`Failed to upload ${file.name}`);
       }
+      revalidator.revalidate();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [carbon, company.id, storagePathPrefix, revalidator, t]
   );
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: true
-  });
 
   const onDownload = useCallback(
     async (name: string) => {
@@ -293,26 +255,7 @@ export default function DefaultAttachmentsPanel({
           </Tbody>
         </Table>
 
-        <div
-          {...getRootProps()}
-          className={`mt-4 w-full border-2 border-dashed rounded-md p-4 text-center cursor-pointer transition-colors ${
-            isDragActive
-              ? "border-primary bg-primary/10"
-              : "border-muted hover:border-primary/50"
-          }`}
-        >
-          <input {...getInputProps()} />
-          {uploading ? (
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Spinner /> <Trans>Uploading…</Trans>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-1 text-sm text-muted-foreground">
-              <LuCloudUpload className="h-6 w-6" />
-              <Trans>Drag &amp; drop files, or click to browse</Trans>
-            </div>
-          )}
-        </div>
+        <FileDropzone onDrop={onDrop} />
       </CardContent>
     </Card>
   );

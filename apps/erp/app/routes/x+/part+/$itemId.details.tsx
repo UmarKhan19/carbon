@@ -60,7 +60,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const requestedMethodId = url.searchParams.get("methodId");
 
-  const makeMethods = await getMakeMethods(client, itemId, companyId);
+  const [makeMethods, defaultAttachmentsResult] = await Promise.all([
+    getMakeMethods(client, itemId, companyId),
+    client.storage
+      .from("private")
+      .list(`${companyId}/default-attachments/item/${itemId}`)
+  ]);
+  const defaultAttachments = defaultAttachmentsResult.data ?? [];
+
   const makeMethod = requestedMethodId
     ? (makeMethods.data?.find((m) => m.id === requestedMethodId) ??
       makeMethods.data?.find((m) => m.status === "Active") ??
@@ -68,43 +75,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     : (makeMethods.data?.find((m) => m.status === "Active") ??
       makeMethods.data?.[0]);
 
-  const listDefaultAttachments = () =>
-    client.storage
-      .from("private")
-      .list(`${companyId}/default-attachments/item/${itemId}`);
-
   if (!makeMethod) {
-    const fallback = await listDefaultAttachments();
-    return {
-      methodData: null,
-      tags: [],
-      defaultAttachments: fallback.data ?? []
-    };
+    return { methodData: null, tags: [], defaultAttachments };
   }
 
   const fullMethod = await getMakeMethodById(client, makeMethod.id, companyId);
   if (fullMethod.error || !fullMethod.data) {
-    const fallback = await listDefaultAttachments();
-    return {
-      methodData: null,
-      tags: [],
-      defaultAttachments: fallback.data ?? []
-    };
+    return { methodData: null, tags: [], defaultAttachments };
   }
 
-  const [
-    methodMaterials,
-    methodOperations,
-    tags,
-    partManufacturing,
-    defaultAttachmentsResult
-  ] = await Promise.all([
-    getMethodMaterialsByMakeMethod(client, fullMethod.data.id),
-    getMethodOperationsByMakeMethodId(client, fullMethod.data.id),
-    getTagsList(client, companyId, "operation"),
-    getItemManufacturing(client, itemId, companyId),
-    listDefaultAttachments()
-  ]);
+  const [methodMaterials, methodOperations, tags, partManufacturing] =
+    await Promise.all([
+      getMethodMaterialsByMakeMethod(client, fullMethod.data.id),
+      getMethodOperationsByMakeMethodId(client, fullMethod.data.id),
+      getTagsList(client, companyId, "operation"),
+      getItemManufacturing(client, itemId, companyId)
+    ]);
 
   const configData = partManufacturing.data?.requiresConfiguration
     ? {
@@ -146,7 +132,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       ...configData
     },
     tags: tags.data ?? [],
-    defaultAttachments: defaultAttachmentsResult.data ?? []
+    defaultAttachments
   };
 }
 

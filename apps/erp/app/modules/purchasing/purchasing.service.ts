@@ -2219,148 +2219,55 @@ export async function getPurchasingRFQSuppliersWithLinks(
     .eq("purchasingRfqId", purchasingRfqId);
 }
 
-// ===========================================================================
-// PO attachments (storage-list pattern)
-//
-// Matches the convention used by Supplier Quote / Purchasing RFQ flows
-// (see getSupplierInteractionDocuments / getSupplierInteractionLineDocuments).
-// Files are stored under predictable storage paths and listed at send time.
-// No DB tables, no per-file metadata, no picker.
-// ===========================================================================
-
-export type ResolvedAttachment = {
-  source: "po" | "company" | "supplier" | "item";
-  sourceLabel: string;
+export type PoDefaultAttachment = {
+  source: "company" | "supplier" | "item";
   name: string;
   size: number | null;
-  /** Full storage path under the `private` bucket — pass to createSignedUrl. */
   path: string;
 };
 
-const listAtPath = async (
-  client: SupabaseClient<Database>,
-  path: string
-): Promise<{ name: string; size: number | null }[]> => {
-  const result = await client.storage.from("private").list(path);
-  return (result.data ?? []).map((f) => ({
-    name: f.name,
-    size:
-      (f.metadata as { size?: number } | null | undefined)?.size != null
-        ? Math.round(((f.metadata as { size?: number }).size as number) / 1024)
-        : null
-  }));
-};
-
-/**
- * Resolve every attachment that should ride along on a PO finalize email,
- * by listing the four canonical storage folders:
- *   - Company defaults: {companyId}/default-attachments/company/*
- *   - Supplier defaults: {companyId}/default-attachments/supplier/{supplierId}/*
- *   - Item defaults:    {companyId}/default-attachments/item/{itemId}/*
- *   - PO ad-hoc:        {companyId}/supplier-interaction/{interactionId}/* (sans the PO PDF itself)
- *
- * Deduped by absolute storage path. Same-named files in different scopes count
- * as separate attachments (different folders).
- */
-export async function getResolvedPoAttachments(
+export async function getDefaultAttachmentsForPO(
   client: SupabaseClient<Database>,
   args: {
     companyId: string;
     supplierId: string | null;
-    supplierInteractionId: string | null;
     itemIds: string[];
   }
-): Promise<ResolvedAttachment[]> {
-  const { companyId, supplierId, supplierInteractionId, itemIds } = args;
+): Promise<PoDefaultAttachment[]> {
+  const { companyId, supplierId, itemIds } = args;
 
-  const companyPrefix = `${companyId}/default-attachments/company`;
-  const supplierPrefix = supplierId
-    ? `${companyId}/default-attachments/supplier/${supplierId}`
-    : null;
-  const itemPrefixes = (itemIds ?? []).map(
-    (id) => `${companyId}/default-attachments/item/${id}`
+  const prefixes: { source: PoDefaultAttachment["source"]; path: string }[] = [
+    { source: "company", path: `${companyId}/default-attachments/company` }
+  ];
+  if (supplierId) {
+    prefixes.push({
+      source: "supplier",
+      path: `${companyId}/default-attachments/supplier/${supplierId}`
+    });
+  }
+  for (const id of itemIds ?? []) {
+    prefixes.push({
+      source: "item",
+      path: `${companyId}/default-attachments/item/${id}`
+    });
+  }
+
+  const results = await Promise.all(
+    prefixes.map(({ path }) => client.storage.from("private").list(path))
   );
-  const poPrefix = supplierInteractionId
-    ? `${companyId}/supplier-interaction/${supplierInteractionId}`
-    : null;
 
-  const [companyFiles, supplierFiles, itemFilesByItem, poFiles] =
-    await Promise.all([
-      listAtPath(client, companyPrefix),
-      supplierPrefix ? listAtPath(client, supplierPrefix) : Promise.resolve([]),
-      Promise.all(itemPrefixes.map((p) => listAtPath(client, p))),
-      poPrefix ? listAtPath(client, poPrefix) : Promise.resolve([])
-    ]);
-
-  const byPath = new Map<string, ResolvedAttachment>();
-
-  for (const f of companyFiles) {
-    const path = `${companyPrefix}/${f.name}`;
-    if (!byPath.has(path))
-      byPath.set(path, {
-        source: "company",
-        sourceLabel: "From Company",
-        name: f.name,
-        size: f.size,
-        path
-      });
-  }
-
-  if (supplierPrefix) {
-    for (const f of supplierFiles) {
-      const path = `${supplierPrefix}/${f.name}`;
-      if (!byPath.has(path))
-        byPath.set(path, {
-          source: "supplier",
-          sourceLabel: "From Supplier",
-          name: f.name,
-          size: f.size,
-          path
-        });
-    }
-  }
-
-  itemPrefixes.forEach((prefix, idx) => {
-    for (const f of itemFilesByItem[idx] ?? []) {
-      const path = `${prefix}/${f.name}`;
-      if (!byPath.has(path))
-        byPath.set(path, {
-          source: "item",
-          sourceLabel: "From Item",
-          name: f.name,
-          size: f.size,
-          path
-        });
-    }
-  });
-
-  if (poPrefix) {
-    for (const f of poFiles) {
-      const path = `${poPrefix}/${f.name}`;
-      if (!byPath.has(path))
-        byPath.set(path, {
-          source: "po",
-          sourceLabel: "Ad-hoc",
-          name: f.name,
-          size: f.size,
-          path
-        });
-    }
-  }
-
-  return Array.from(byPath.values()).sort((a, b) => {
-    const rank: Record<ResolvedAttachment["source"], number> = {
-      company: 0,
-      supplier: 1,
-      item: 2,
-      po: 3
-    };
-    if (a.source !== b.source) return rank[a.source] - rank[b.source];
-    return a.name.localeCompare(b.name);
+  return results.flatMap((result, idx) => {
+    const { source, path: prefix } = prefixes[idx];
+    return (result.data ?? []).map((f) => ({
+      source,
+      name: f.name,
+      size:
+        (f.metadata as { size?: number } | null | undefined)?.size != null
+          ? Math.round(
+              ((f.metadata as { size?: number }).size as number) / 1024
+            )
+          : null,
+      path: `${prefix}/${f.name}`
+    }));
   });
 }
-
-// Hard upper bound for total outbound attachments. Most SMTP providers cap
-// around 25 MB; we warn at 20 in the UI and reject at 25 in the action.
-export const PO_ATTACHMENT_TOTAL_LIMIT_KB = 25 * 1024;
-export const PO_ATTACHMENT_TOTAL_WARN_KB = 20 * 1024;

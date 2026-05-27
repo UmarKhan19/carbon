@@ -139,13 +139,6 @@ const QuotePDF = ({
   const colWidth =
     columnCount === 3 ? "w-1/3" : columnCount === 4 ? "w-1/4" : "w-1/5";
 
-  // Summary row widths: amount sits under the Total column.
-  // Total column = last colWidth (1/colCount) of the right 2/3 of the table.
-  const summaryAmountPct =
-    columnCount === 3 ? 2 / 9 : columnCount === 4 ? 1 / 6 : 2 / 15;
-  const summaryAmountW = `w-[${(summaryAmountPct * 100).toFixed(2)}%]`;
-  const summaryLabelW = `w-[${(100 - summaryAmountPct * 100).toFixed(2)}%]`;
-
   const getMaxLeadTime = () => {
     let maxLeadTime = 0;
     for (const prices of Object.values(pricesByLine)) {
@@ -637,12 +630,10 @@ const QuotePDF = ({
                 { backgroundColor: "rgba(249, 250, 251, 0.6)" }
               ]}
             >
-              <Text
-                style={tw(`${summaryLabelW} text-right pr-3 text-gray-600`)}
-              >
+              <Text style={tw(`w-5/6 text-right pr-3 text-gray-600`)}>
                 Subtotal ({currencyCode})
               </Text>
-              <Text style={tw(`${summaryAmountW} text-center text-gray-800`)}>
+              <Text style={tw(`w-1/6 text-center text-gray-800`)}>
                 {numberFormatter.format(getTotalSubtotal())}
               </Text>
             </View>
@@ -652,12 +643,10 @@ const QuotePDF = ({
                 { backgroundColor: "rgba(249, 250, 251, 0.6)" }
               ]}
             >
-              <Text
-                style={tw(`${summaryLabelW} text-right pr-3 text-gray-600`)}
-              >
+              <Text style={tw(`w-5/6 text-right pr-3 text-gray-600`)}>
                 Shipping ({currencyCode})
               </Text>
-              <Text style={tw(`${summaryAmountW} text-center text-gray-800`)}>
+              <Text style={tw(`w-1/6 text-center text-gray-800`)}>
                 {numberFormatter.format(getTotalShipping())}
               </Text>
             </View>
@@ -668,12 +657,10 @@ const QuotePDF = ({
                   { backgroundColor: "rgba(249, 250, 251, 0.6)" }
                 ]}
               >
-                <Text
-                  style={tw(`${summaryLabelW} text-right pr-3 text-gray-600`)}
-                >
+                <Text style={tw(`w-5/6 text-right pr-3 text-gray-600`)}>
                   Fees ({currencyCode})
                 </Text>
-                <Text style={tw(`${summaryAmountW} text-center text-gray-800`)}>
+                <Text style={tw(`w-1/6 text-center text-gray-800`)}>
                   {numberFormatter.format(getTotalFees())}
                 </Text>
               </View>
@@ -684,29 +671,19 @@ const QuotePDF = ({
                 { backgroundColor: "rgba(249, 250, 251, 0.6)" }
               ]}
             >
-              <Text
-                style={tw(`${summaryLabelW} text-right pr-3 text-gray-600`)}
-              >
+              <Text style={tw(`w-5/6 text-right pr-3 text-gray-600`)}>
                 Taxes ({currencyCode})
               </Text>
-              <Text style={tw(`${summaryAmountW} text-center text-gray-800`)}>
+              <Text style={tw(`w-1/6 text-center text-gray-800`)}>
                 {numberFormatter.format(getTotalTaxes())}
               </Text>
             </View>
             <View style={tw("h-[1px] bg-gray-200")} />
             <View style={tw("flex flex-row py-2 px-3 text-[9px]")}>
-              <Text
-                style={tw(
-                  `${summaryLabelW} text-right pr-3 text-gray-800 font-bold`
-                )}
-              >
+              <Text style={tw(`w-5/6 text-right pr-3 text-gray-800 font-bold`)}>
                 Total ({currencyCode})
               </Text>
-              <Text
-                style={tw(
-                  `${summaryAmountW} text-center text-gray-800 font-bold`
-                )}
-              >
+              <Text style={tw(`w-1/6 text-center text-gray-800 font-bold`)}>
                 {numberFormatter.format(getTotal())}
               </Text>
             </View>

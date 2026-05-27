@@ -6,6 +6,7 @@ import { PurchaseOrderEmail } from "@carbon/documents/email";
 import { validationError, validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
 import { NotificationEvent } from "@carbon/notifications";
+import { PO_EMAIL_ATTACHMENT_LIMIT_MB } from "@carbon/utils";
 import { renderAsync } from "@react-email/components";
 import { parseAcceptLanguage } from "intl-parse-accept-language";
 import type { ActionFunctionArgs } from "react-router";
@@ -14,13 +15,13 @@ import { getPaymentTermsList } from "~/modules/accounting";
 import { upsertDocument } from "~/modules/documents";
 import {
   finalizePurchaseOrder,
+  getDefaultAttachmentsForPO,
   getPurchaseOrder,
   getPurchaseOrderLines,
   getPurchaseOrderLocations,
-  getResolvedPoAttachments,
   getSupplier,
   getSupplierContact,
-  PO_ATTACHMENT_TOTAL_LIMIT_KB,
+  getSupplierInteractionDocuments,
   purchaseOrderFinalizeValidator,
   updatePurchaseOrderStatus
 } from "~/modules/purchasing";
@@ -275,14 +276,8 @@ export async function action(args: ActionFunctionArgs) {
 
   const { notification, supplierContact, cc: ccSelections } = validation.data;
 
-  const logPrefix = `[finalize PO ${orderId}]`;
-
   switch (notification) {
     case "Email":
-      console.log(`${logPrefix} email branch entered`, {
-        supplierContact,
-        ccCount: ccSelections?.length ?? 0
-      });
       try {
         if (!supplierContact) throw new Error("Supplier contact is required");
 
@@ -304,13 +299,8 @@ export async function action(args: ActionFunctionArgs) {
           getUser(serviceRole, userId)
         ]);
 
-        if (!supplier?.data?.contact) {
-          console.error(`${logPrefix} supplier contact lookup failed`, {
-            supplierContactId: supplierContact,
-            supplierResult: supplier
-          });
+        if (!supplier?.data?.contact)
           throw new Error("Failed to get supplier contact");
-        }
         if (!company.data) throw new Error("Failed to get company");
         if (!buyer.data) throw new Error("Failed to get user");
         if (!purchaseOrder.data)
@@ -318,153 +308,100 @@ export async function action(args: ActionFunctionArgs) {
         if (!purchaseOrderLocations.data)
           throw new Error("Failed to get purchase order locations");
         if (!paymentTerms.data) throw new Error("Failed to get payment terms");
+        if (!supplier.data.contact.email) break;
 
-        if (!supplier.data.contact.email) {
-          console.warn(
-            `${logPrefix} supplier contact has no email — skipping send`,
-            { supplierContactId: supplierContact }
-          );
-        }
-        if (supplier.data.contact.email) {
-          const emailTemplate = PurchaseOrderEmail({
-            // @ts-expect-error TS2739 - TODO: fix type
-            company: company.data,
-            locale: locales?.[0] ?? "en-US",
-            purchaseOrder: purchaseOrder.data,
-            purchaseOrderLines: purchaseOrderLines.data ?? [],
-            purchaseOrderLocations: purchaseOrderLocations.data,
-            recipient: {
-              email: supplier.data.contact.email,
-              firstName: supplier.data.contact.firstName ?? undefined,
-              lastName: supplier.data.contact.lastName ?? undefined
-            },
-            sender: {
-              email: buyer.data.email,
-              firstName: buyer.data.firstName,
-              lastName: buyer.data.lastName
-            },
-            paymentTerms: paymentTerms.data
-          });
-
-          const html = await renderAsync(emailTemplate);
-          const text = await renderAsync(emailTemplate, { plainText: true });
-
-          // Resolve cascaded attachments (Company + Supplier + Item + PO ad-hoc).
-          // The freshly-uploaded PO PDF is in supplier-interaction/ and rides
-          // along naturally as a `po`-source file in the cascade.
-          const itemIds = Array.from(
-            new Set(
-              (purchaseOrderLines.data ?? [])
-                .map((l) => l.itemId)
-                .filter((id): id is string => !!id)
-            )
-          );
-          const resolved = await getResolvedPoAttachments(serviceRole, {
-            companyId,
-            supplierId: purchaseOrder.data.supplierId ?? null,
-            supplierInteractionId:
-              purchaseOrder.data.supplierInteractionId ?? null,
-            itemIds
-          });
-          console.log(`${logPrefix} resolved cascaded attachments`, {
-            total: resolved.length,
-            bySource: resolved.reduce<Record<string, number>>((acc, r) => {
-              acc[r.source] = (acc[r.source] ?? 0) + 1;
-              return acc;
-            }, {})
-          });
-
-          // Enforce 25 MB total cap (PO PDF + cascaded attachments).
-          const poPdfSizeKb = Math.round(file.byteLength / 1024);
-          const cascadedSizeKb = resolved.reduce(
-            (sum, r) => sum + (r.size ?? 0),
-            0
-          );
-          console.log(`${logPrefix} size budget`, {
-            poPdfSizeKb,
-            cascadedSizeKb,
-            totalKb: poPdfSizeKb + cascadedSizeKb,
-            limitKb: PO_ATTACHMENT_TOTAL_LIMIT_KB
-          });
-          if (poPdfSizeKb + cascadedSizeKb > PO_ATTACHMENT_TOTAL_LIMIT_KB) {
-            throw new Error(
-              `Total attachments exceed ${PO_ATTACHMENT_TOTAL_LIMIT_KB / 1024} MB limit`
-            );
-          }
-
-          // Sign every cascaded attachment for the email job.
-          const cascadedAttachments = (
-            await Promise.all(
-              resolved.map(async (r) => {
-                const { data, error: signErr } = await serviceRole.storage
-                  .from("private")
-                  .createSignedUrl(r.path, 3600);
-                if (signErr || !data?.signedUrl) {
-                  console.error(
-                    `${logPrefix} failed to sign cascaded attachment`,
-                    {
-                      source: r.source,
-                      name: r.name,
-                      path: r.path,
-                      error: signErr
-                    }
-                  );
-                  return null;
-                }
-                return { path: data.signedUrl, filename: r.name };
-              })
-            )
-          ).filter((a): a is { path: string; filename: string } => a !== null);
-          console.log(`${logPrefix} signed cascaded attachments`, {
-            requested: resolved.length,
-            successful: cascadedAttachments.length
-          });
-
-          const allAttachments = cascadedAttachments;
-
-          const triggerPayload = {
-            to: [buyer.data.email, supplier.data.contact.email],
-            cc: ccSelections?.length ? ccSelections : undefined,
-            from: buyer.data.email,
-            subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
-            html,
-            text,
-            attachments: allAttachments.length ? allAttachments : undefined,
-            companyId
-          };
-
-          console.log(`${logPrefix} dispatching send-email`, {
-            to: triggerPayload.to,
-            cc: triggerPayload.cc,
-            from: triggerPayload.from,
-            subject: triggerPayload.subject,
-            attachmentCount: allAttachments.length,
-            attachmentNames: allAttachments.map((a) => a.filename),
-            htmlLength: html.length,
-            textLength: text.length
-          });
-
-          try {
-            const triggerResult = await trigger("send-email", triggerPayload);
-            console.log(`${logPrefix} send-email dispatched`, {
-              result: triggerResult
-            });
-          } catch (triggerErr) {
-            console.error(`${logPrefix} trigger("send-email") threw`, {
-              name: (triggerErr as Error)?.name,
-              message: (triggerErr as Error)?.message,
-              stack: (triggerErr as Error)?.stack
-            });
-            throw triggerErr;
-          }
-        }
-      } catch (err) {
-        console.error(`${logPrefix} email send failed`, {
-          name: (err as Error)?.name,
-          message: (err as Error)?.message,
-          stack: (err as Error)?.stack,
-          raw: err
+        const emailTemplate = PurchaseOrderEmail({
+          // @ts-expect-error TS2739 - TODO: fix type
+          company: company.data,
+          locale: locales?.[0] ?? "en-US",
+          purchaseOrder: purchaseOrder.data,
+          purchaseOrderLines: purchaseOrderLines.data ?? [],
+          purchaseOrderLocations: purchaseOrderLocations.data,
+          recipient: {
+            email: supplier.data.contact.email,
+            firstName: supplier.data.contact.firstName ?? undefined,
+            lastName: supplier.data.contact.lastName ?? undefined
+          },
+          sender: {
+            email: buyer.data.email,
+            firstName: buyer.data.firstName,
+            lastName: buyer.data.lastName
+          },
+          paymentTerms: paymentTerms.data
         });
+
+        const html = await renderAsync(emailTemplate);
+        const text = await renderAsync(emailTemplate, { plainText: true });
+
+        const attachments: Array<{ filename: string; path: string }> = [];
+
+        const interactionId = purchaseOrder.data.supplierInteractionId;
+        if (interactionId) {
+          const docs = await getSupplierInteractionDocuments(
+            serviceRole,
+            companyId,
+            interactionId
+          );
+          for (const doc of docs) {
+            const storagePath = `${companyId}/supplier-interaction/${interactionId}/${doc.name}`;
+            const { data: signedUrlData } = await serviceRole.storage
+              .from("private")
+              .createSignedUrl(storagePath, 3600);
+            if (signedUrlData?.signedUrl) {
+              attachments.push({
+                filename: doc.name,
+                path: signedUrlData.signedUrl
+              });
+            }
+          }
+        }
+
+        const itemIds = Array.from(
+          new Set(
+            (purchaseOrderLines.data ?? [])
+              .map((l) => l.itemId)
+              .filter((id): id is string => !!id)
+          )
+        );
+        const defaults = await getDefaultAttachmentsForPO(serviceRole, {
+          companyId,
+          supplierId: purchaseOrder.data.supplierId ?? null,
+          itemIds
+        });
+
+        for (const r of defaults) {
+          const { data: signedUrlData } = await serviceRole.storage
+            .from("private")
+            .createSignedUrl(r.path, 3600);
+          if (signedUrlData?.signedUrl) {
+            attachments.push({
+              filename: r.name,
+              path: signedUrlData.signedUrl
+            });
+          }
+        }
+
+        const totalKb = attachments.length
+          ? Math.round(file.byteLength / 1024) +
+            defaults.reduce((sum, r) => sum + (r.size ?? 0), 0)
+          : 0;
+        if (totalKb > PO_EMAIL_ATTACHMENT_LIMIT_MB * 1024) {
+          throw new Error(
+            `Total attachments exceed ${PO_EMAIL_ATTACHMENT_LIMIT_MB} MB limit`
+          );
+        }
+
+        await trigger("send-email", {
+          to: [buyer.data.email, supplier.data.contact.email],
+          cc: ccSelections?.length ? ccSelections : undefined,
+          from: buyer.data.email,
+          subject: `Purchase Order ${purchaseOrder.data.purchaseOrderId} from ${company.data.name}`,
+          html,
+          text,
+          attachments: attachments.length ? attachments : undefined,
+          companyId
+        });
+      } catch (err) {
         throw redirect(
           path.to.purchaseOrder(orderId),
           await flash(request, error(err, "Failed to send email"))

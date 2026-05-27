@@ -50,7 +50,8 @@ export async function updateAccountsPayableBillingAddress(
 ) {
   return client
     .from("companyAccountsPayableBillingAddress")
-    .upsert(sanitize({ id: companyId, ...data, updatedBy }));
+    .update(sanitize({ ...data, updatedBy }))
+    .eq("id", companyId);
 }
 
 export async function updateAccountsReceivableBillingAddress(
