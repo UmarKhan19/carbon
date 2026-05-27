@@ -1027,9 +1027,6 @@ msgstr "Bilan"
 msgid "Balloon"
 msgstr ""
 
-msgid "Balloon #"
-msgstr ""
-
 msgid "Base Currency"
 msgstr "Devise de base"
 
@@ -3522,6 +3519,9 @@ msgstr "Télécopie"
 
 msgid "Fax Number"
 msgstr "Numéro de fax"
+
+msgid "Feature"
+msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -8026,6 +8026,9 @@ msgstr "Dissocier la commande de la commande client ?"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Type de document source non pris en charge : {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr ""
 
 msgid "UoM"
 msgstr "UoM"

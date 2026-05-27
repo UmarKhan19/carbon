@@ -1027,9 +1027,6 @@ msgstr "貸借対照表"
 msgid "Balloon"
 msgstr ""
 
-msgid "Balloon #"
-msgstr ""
-
 msgid "Base Currency"
 msgstr "基本通貨"
 
@@ -3522,6 +3519,9 @@ msgstr "ファックス"
 
 msgid "Fax Number"
 msgstr "ファックス番号"
+
+msgid "Feature"
+msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -8026,6 +8026,9 @@ msgstr "販売注文からジョブのリンクを解除しますか？"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "サポートされていないソースドキュメントタイプ: {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr ""
 
 msgid "UoM"
 msgstr "UoM"

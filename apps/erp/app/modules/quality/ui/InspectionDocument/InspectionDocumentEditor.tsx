@@ -1,9 +1,9 @@
 import { useCarbon } from "@carbon/auth";
 import {
   Button,
-  Heading,
   HStack,
   IconButton,
+  Input,
   Modal,
   ModalBody,
   ModalContent,
@@ -12,6 +12,7 @@ import {
   ModalOverlay,
   ModalTitle,
   toast,
+  useDebounce,
   VStack
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
@@ -21,6 +22,7 @@ import { Circle, Group, Layer, Line, Rect, Stage, Text } from "react-konva";
 import { Document, Page } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import type { Database } from "@carbon/database";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   LuChevronDown,
@@ -37,11 +39,14 @@ import {
   LuUpload
 } from "react-icons/lu";
 import { useFetcher } from "react-router";
-import { EditableText } from "~/components/Editable";
+import type { EditableTableCellComponentProps } from "~/components/Editable";
+import { EditableList, EditableText } from "~/components/Editable";
 import Grid from "~/components/Grid";
+import { ProcedureStepTypeIcon } from "~/components/Icons";
 import { useUser } from "~/hooks";
 import type { BalloonRegionAnalysis } from "~/modules/quality/inspectionBalloonAnalyze";
 import type { InspectionDocumentContent } from "~/modules/quality/types";
+import { procedureStepType } from "~/modules/shared/shared.models";
 import { path } from "~/utils/path";
 import { cropInspectionAnchorToPngBlob } from "./cropInspectionAnchorToPng";
 import { buildInspectionDocumentPdfWithOverlaysBytes } from "./exportInspectionDocumentPdfWithOverlays";
@@ -101,6 +106,7 @@ type InspectionDocumentEditorProps = {
   content: InspectionDocumentContent | null;
   features: Array<Record<string, unknown>>;
   balloons: Array<Record<string, unknown>>;
+  unitOfMeasures: Array<{ code: string; name: string }>;
 };
 
 type PdfMetrics = {
@@ -342,9 +348,48 @@ type FeatureRow = {
   tolerancePlus: string;
   toleranceMinus: string;
   units: string;
+  type: (typeof procedureStepType)[number];
   featureDirty?: boolean;
   geometryDirty?: boolean;
 };
+
+const featureTypeOptions = procedureStepType.map((t) => ({
+  label: t,
+  value: t
+}));
+
+type FeatureMutationFn = (
+  accessorKey: string,
+  newValue: string,
+  row: FeatureRow
+) => Promise<{
+  data: null;
+  error: null;
+  count: null;
+  status: number;
+  statusText: string;
+}>;
+
+const ConditionalMeasurementText =
+  (baseMutation: FeatureMutationFn) =>
+  (props: EditableTableCellComponentProps<FeatureRow>) => {
+    if (props.row.type !== "Measurement") {
+      return <span className="text-muted-foreground text-sm">&mdash;</span>;
+    }
+    return EditableText(baseMutation)(props);
+  };
+
+const ConditionalMeasurementList =
+  (
+    baseMutation: FeatureMutationFn,
+    options: { label: string; value: string }[]
+  ) =>
+  (props: EditableTableCellComponentProps<FeatureRow>) => {
+    if (props.row.type !== "Measurement") {
+      return <span className="text-muted-foreground text-sm">&mdash;</span>;
+    }
+    return EditableList(baseMutation, options)(props);
+  };
 
 const BALLOON_W_NORM = 0.04;
 const BALLOON_H_NORM = 0.04;
@@ -489,6 +534,7 @@ function mapFeatureRowFromRecords(
     tolerancePlus: String(feature.tolerancePlus ?? ""),
     toleranceMinus: String(feature.toleranceMinus ?? ""),
     units: String(feature.unit ?? ""),
+    type: (feature.type as (typeof procedureStepType)[number]) ?? "Measurement",
     featureDirty: false,
     geometryDirty: false
   };
@@ -516,7 +562,8 @@ export default function InspectionDocumentEditor({
   name,
   content,
   features: initialFeatures,
-  balloons
+  balloons,
+  unitOfMeasures
 }: InspectionDocumentEditorProps) {
   const { t } = useLingui();
   const fetcher = useFetcher<{
@@ -528,6 +575,18 @@ export default function InspectionDocumentEditor({
     anchors?: Array<Record<string, unknown>>;
     balloons?: Array<Record<string, unknown>>;
   }>();
+  const nameFetcher = useFetcher();
+  const [title, setTitle] = useState(name);
+  const debouncedSaveName = useDebounce((value: string) => {
+    nameFetcher.submit(
+      { drawingNumber: value },
+      {
+        method: "post",
+        action: path.to.updateInspectionDocumentName(diagramId)
+      }
+    );
+  }, 500);
+
   const { carbon } = useCarbon();
   const user = useUser();
   const companyId = user.company.id;
@@ -571,6 +630,12 @@ export default function InspectionDocumentEditor({
   const [editorStackHeightPx, setEditorStackHeightPx] = useState(0);
   const [isResizingPdfFeatures, setIsResizingPdfFeatures] = useState(false);
   const [pdfExporting, setPdfExporting] = useState(false);
+  const [pdfPageRendered, setPdfPageRendered] = useState(false);
+  const prevPdfViewPageRef = useRef(pdfViewPage);
+  if (prevPdfViewPageRef.current !== pdfViewPage) {
+    prevPdfViewPageRef.current = pdfViewPage;
+    setPdfPageRendered(false);
+  }
   const overlayRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<unknown>(null);
@@ -1079,7 +1144,8 @@ export default function InspectionDocumentEditor({
               nominalValue: "",
               tolerancePlus: "",
               toleranceMinus: "",
-              units: ""
+              units: "",
+              type: "Measurement"
             }
           ];
         });
@@ -1162,6 +1228,7 @@ export default function InspectionDocumentEditor({
                       tolerancePlus: nextPlus,
                       toleranceMinus: nextMinus,
                       units: nextUnits,
+                      type: "Measurement",
                       featureName: nextFeatureName,
                       featureDirty: true
                     };
@@ -1914,7 +1981,8 @@ export default function InspectionDocumentEditor({
         nominalValue: getBalloonValueOrNull(r.nominalValue),
         tolerancePlus: getBalloonValueOrNull(r.tolerancePlus),
         toleranceMinus: getBalloonValueOrNull(r.toleranceMinus),
-        unit: getBalloonValueOrNull(r.units)
+        unit: getBalloonValueOrNull(r.units),
+        type: r.type
       }));
 
     const featuresUpdate = featureRows
@@ -1931,7 +1999,8 @@ export default function InspectionDocumentEditor({
         nominalValue: getBalloonValueOrNull(r.nominalValue),
         tolerancePlus: getBalloonValueOrNull(r.tolerancePlus),
         toleranceMinus: getBalloonValueOrNull(r.toleranceMinus),
-        unit: getBalloonValueOrNull(r.units)
+        unit: getBalloonValueOrNull(r.units),
+        type: r.type
       }));
 
     formData.set(
@@ -2166,7 +2235,8 @@ export default function InspectionDocumentEditor({
           nominalValue: "",
           tolerancePlus: "",
           toleranceMinus: "",
-          units: ""
+          units: "",
+          type: "Measurement"
         }
       ];
     });
@@ -2215,7 +2285,8 @@ export default function InspectionDocumentEditor({
         | "nominalValue"
         | "tolerancePlus"
         | "toleranceMinus"
-        | "units",
+        | "units"
+        | "type",
       value: string
     ) => {
       setFeatureRows((prev) =>
@@ -2245,7 +2316,8 @@ export default function InspectionDocumentEditor({
           | "nominalValue"
           | "tolerancePlus"
           | "toleranceMinus"
-          | "units",
+          | "units"
+          | "type",
         newValue
       );
       return {
@@ -2259,26 +2331,84 @@ export default function InspectionDocumentEditor({
     [updateFeatureField]
   );
 
+  const unitOfMeasureOptions = useMemo(
+    () => unitOfMeasures.map((uom) => ({ value: uom.code, label: uom.name })),
+    [unitOfMeasures]
+  );
+
+  const uomCodeToName = useMemo(
+    () => new Map(unitOfMeasures.map((uom) => [uom.code, uom.name])),
+    [unitOfMeasures]
+  );
+
   const featureEditableComponents = useMemo(
     () => ({
+      type: EditableList(featureMutation, featureTypeOptions),
       label: EditableText(featureMutation),
       featureName: EditableText(featureMutation),
-      nominalValue: EditableText(featureMutation),
-      tolerancePlus: EditableText(featureMutation),
-      toleranceMinus: EditableText(featureMutation),
-      units: EditableText(featureMutation)
+      nominalValue: ConditionalMeasurementText(featureMutation),
+      tolerancePlus: ConditionalMeasurementText(featureMutation),
+      toleranceMinus: ConditionalMeasurementText(featureMutation),
+      units: ConditionalMeasurementList(featureMutation, unitOfMeasureOptions)
     }),
-    [featureMutation]
+    [featureMutation, unitOfMeasureOptions]
   );
 
   const featureColumns = useMemo<ColumnDef<FeatureRow>[]>(
     () => [
-      { accessorKey: "label", header: t`Balloon #`, size: 80 },
+      { accessorKey: "label", header: t`Feature`, size: 80 },
+      {
+        accessorKey: "type",
+        header: t`Type`,
+        size: 140,
+        cell: ({ row }) => (
+          <HStack spacing={1} className="items-center">
+            <ProcedureStepTypeIcon
+              type={
+                row.original
+                  .type as Database["public"]["Enums"]["procedureStepType"]
+              }
+              className="h-4 w-4"
+            />
+            <span className="text-sm">{row.original.type}</span>
+          </HStack>
+        )
+      },
       { accessorKey: "featureName", header: t`Description` },
-      { accessorKey: "nominalValue", header: t`Nom`, size: 112 },
-      { accessorKey: "tolerancePlus", header: t`Tol+`, size: 112 },
-      { accessorKey: "toleranceMinus", header: t`Tol-`, size: 112 },
-      { accessorKey: "units", header: t`Units`, size: 96 },
+      {
+        accessorKey: "nominalValue",
+        header: t`Nom`,
+        size: 112,
+        cell: ({ row }) =>
+          row.original.type === "Measurement" ? row.original.nominalValue : null
+      },
+      {
+        accessorKey: "tolerancePlus",
+        header: t`Tol+`,
+        size: 112,
+        cell: ({ row }) =>
+          row.original.type === "Measurement"
+            ? row.original.tolerancePlus
+            : null
+      },
+      {
+        accessorKey: "toleranceMinus",
+        header: t`Tol-`,
+        size: 112,
+        cell: ({ row }) =>
+          row.original.type === "Measurement"
+            ? row.original.toleranceMinus
+            : null
+      },
+      {
+        accessorKey: "units",
+        header: t`Units`,
+        size: 96,
+        cell: ({ row }) =>
+          row.original.type === "Measurement"
+            ? (uomCodeToName.get(row.original.units) ?? row.original.units)
+            : null
+      },
       {
         id: "actions",
         header: t`Actions`,
@@ -2336,6 +2466,7 @@ export default function InspectionDocumentEditor({
       handlePlaceFeatureOnDrawing,
       handleUnballoon,
       isOverlayReady,
+      uomCodeToName,
       t
     ]
   );
@@ -2456,18 +2587,18 @@ export default function InspectionDocumentEditor({
 
       {/* Header bar — min-height only so controls are not clipped when the row wraps */}
       <div className="flex min-h-[50px] flex-shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 overflow-x-auto border-b border-border bg-card px-4 py-2 scrollbar-hide dark:border-none dark:shadow-[inset_0_0_1px_rgb(255_255_255_/_0.24),_0_0_0_0.5px_rgb(0,0,0,1),0px_0px_4px_rgba(0,_0,_0,_0.08)]">
-        <VStack spacing={0} className="min-w-0 flex-1 pr-2">
-          <HStack>
-            <Heading size="h4" className="flex min-w-0 items-center gap-2">
-              <span className="truncate">{name}</span>
-              {content?.drawingNumber && (
-                <span className="shrink-0 text-sm font-normal text-muted-foreground">
-                  {content.drawingNumber}
-                </span>
-              )}
-            </Heading>
-          </HStack>
-        </VStack>
+        <div className="min-w-0 flex-1 pr-2">
+          <Input
+            borderless
+            value={title}
+            placeholder={t`Untitled Diagram`}
+            className="font-semibold text-base truncate"
+            onChange={(e) => {
+              setTitle(e.target.value);
+              debouncedSaveName(e.target.value);
+            }}
+          />
+        </div>
         <HStack spacing={2} className="flex-shrink-0 flex-wrap justify-end">
           <Button
             variant={placing ? "primary" : "secondary"}
@@ -2681,289 +2812,299 @@ export default function InspectionDocumentEditor({
                             renderTextLayer={false}
                             renderAnnotationLayer={false}
                             className="w-full"
+                            onRenderSuccess={() => setPdfPageRendered(true)}
                           />
                         ) : null}
                       </Document>
                     </div>
                   )}
 
-                  {containerWidth > 0 && overlayHeight > 0 && (
-                    <div className="pointer-events-auto absolute inset-0 z-[9]">
-                      <Stage
-                        ref={stageRef as never}
-                        width={renderedWidth}
-                        height={overlayHeight}
-                        listening
-                        onMouseDown={handleStageMouseDown as never}
-                        onMouseMove={handleStageMouseMove as never}
-                        onMouseUp={handleStageMouseUp as never}
-                      >
-                        <Layer>
-                          {anchorRects
-                            .filter((s) => s.pageNumber === pdfViewPage)
-                            .map((s) => {
-                              const pageHeightPx = overlayHeight;
-                              const x = (s.x / 100) * renderedWidth;
-                              const y = (s.y / 100) * pageHeightPx;
-                              const width = (s.width / 100) * renderedWidth;
-                              const height = (s.height / 100) * pageHeightPx;
-                              const isSelected = s.id === selectedSelectorId;
+                  {pdfPageRendered &&
+                    containerWidth > 0 &&
+                    overlayHeight > 0 && (
+                      <div className="pointer-events-auto absolute inset-0 z-[9]">
+                        <Stage
+                          ref={stageRef as never}
+                          width={renderedWidth}
+                          height={overlayHeight}
+                          listening
+                          onMouseDown={handleStageMouseDown as never}
+                          onMouseMove={handleStageMouseMove as never}
+                          onMouseUp={handleStageMouseUp as never}
+                        >
+                          <Layer>
+                            {anchorRects
+                              .filter((s) => s.pageNumber === pdfViewPage)
+                              .map((s) => {
+                                const pageHeightPx = overlayHeight;
+                                const x = (s.x / 100) * renderedWidth;
+                                const y = (s.y / 100) * pageHeightPx;
+                                const width = (s.width / 100) * renderedWidth;
+                                const height = (s.height / 100) * pageHeightPx;
+                                const isSelected = s.id === selectedSelectorId;
 
-                              return (
-                                <Rect
-                                  key={`konva-rect-${s.id}`}
-                                  x={x}
-                                  y={y}
-                                  width={width}
-                                  height={height}
-                                  stroke={CALLOUT_STROKE}
-                                  strokeWidth={isSelected ? 3 : 2}
-                                  fill={
-                                    isSelected
-                                      ? "rgba(249,115,22,0.12)"
-                                      : undefined
-                                  }
-                                  fillEnabled={isSelected}
-                                  hitStrokeWidth={8}
-                                  listening={false}
-                                />
-                              );
-                            })}
-                          {annotations
-                            .filter((a) => a.pageNumber === pdfViewPage)
-                            .map((annotation) => {
-                              const pageHeightPx = overlayHeight;
-                              const x = (annotation.x / 100) * renderedWidth;
-                              const y = (annotation.y / 100) * pageHeightPx;
-                              const w =
-                                (annotation.width / 100) * renderedWidth;
-                              const h =
-                                (annotation.height / 100) * pageHeightPx;
-                              const isSelected =
-                                annotation.id === selectedAnnotationId;
-                              const previewText =
-                                annotationEditDraft?.id === annotation.id
-                                  ? annotationEditDraft.text
-                                  : annotation.text;
-                              const previewFontSize =
-                                annotationEditDraft?.id === annotation.id
-                                  ? annotationEditDraft.fontSize
-                                  : annotation.fontSize;
-
-                              return (
-                                <Group
-                                  key={`annotation-${annotation.id}`}
-                                  x={x}
-                                  y={y}
-                                >
+                                return (
                                   <Rect
-                                    x={0}
-                                    y={0}
-                                    width={w}
-                                    height={h}
+                                    key={`konva-rect-${s.id}`}
+                                    x={x}
+                                    y={y}
+                                    width={width}
+                                    height={height}
+                                    stroke={CALLOUT_STROKE}
+                                    strokeWidth={isSelected ? 3 : 2}
                                     fill={
                                       isSelected
-                                        ? "rgba(249,115,22,0.22)"
-                                        : "rgba(249,115,22,0.12)"
+                                        ? "rgba(249,115,22,0.12)"
+                                        : undefined
                                     }
-                                    stroke={CALLOUT_STROKE}
-                                    strokeWidth={isSelected ? 2.5 : 1.5}
-                                    cornerRadius={4}
+                                    fillEnabled={isSelected}
+                                    hitStrokeWidth={8}
                                     listening={false}
                                   />
-                                  <Text
-                                    x={8}
-                                    y={6}
-                                    width={Math.max(20, w - 16)}
-                                    height={Math.max(16, h - 12)}
-                                    text={previewText}
-                                    fill={CALLOUT_TEXT}
-                                    fontSize={previewFontSize}
-                                    listening={false}
-                                  />
-                                </Group>
-                              );
-                            })}
-                          {annotationDraft &&
-                            annotationDraft.pageNumber === pdfViewPage &&
-                            (() => {
-                              const pageHeightPx = overlayHeight;
-                              const x =
-                                (annotationDraft.x / 100) * renderedWidth;
-                              const y =
-                                (annotationDraft.y / 100) * pageHeightPx;
-                              const w =
-                                (annotationDraft.width / 100) * renderedWidth;
-                              const h =
-                                (annotationDraft.height / 100) * pageHeightPx;
+                                );
+                              })}
+                            {annotations
+                              .filter((a) => a.pageNumber === pdfViewPage)
+                              .map((annotation) => {
+                                const pageHeightPx = overlayHeight;
+                                const x = (annotation.x / 100) * renderedWidth;
+                                const y = (annotation.y / 100) * pageHeightPx;
+                                const w =
+                                  (annotation.width / 100) * renderedWidth;
+                                const h =
+                                  (annotation.height / 100) * pageHeightPx;
+                                const isSelected =
+                                  annotation.id === selectedAnnotationId;
+                                const previewText =
+                                  annotationEditDraft?.id === annotation.id
+                                    ? annotationEditDraft.text
+                                    : annotation.text;
+                                const previewFontSize =
+                                  annotationEditDraft?.id === annotation.id
+                                    ? annotationEditDraft.fontSize
+                                    : annotation.fontSize;
 
-                              return (
-                                <Group key="annotation-draft" x={x} y={y}>
-                                  <Rect
-                                    x={0}
-                                    y={0}
-                                    width={w}
-                                    height={h}
-                                    fill="rgba(249,115,22,0.16)"
-                                    stroke={CALLOUT_STROKE}
-                                    dash={[4, 4]}
-                                    strokeWidth={2}
-                                    cornerRadius={4}
-                                    listening={false}
-                                  />
-                                  {annotationDraft.text.trim().length > 0 && (
+                                return (
+                                  <Group
+                                    key={`annotation-${annotation.id}`}
+                                    x={x}
+                                    y={y}
+                                  >
+                                    <Rect
+                                      x={0}
+                                      y={0}
+                                      width={w}
+                                      height={h}
+                                      fill={
+                                        isSelected
+                                          ? "rgba(249,115,22,0.22)"
+                                          : "rgba(249,115,22,0.12)"
+                                      }
+                                      stroke={CALLOUT_STROKE}
+                                      strokeWidth={isSelected ? 2.5 : 1.5}
+                                      cornerRadius={4}
+                                      listening={false}
+                                    />
                                     <Text
                                       x={8}
                                       y={6}
                                       width={Math.max(20, w - 16)}
                                       height={Math.max(16, h - 12)}
-                                      text={annotationDraft.text}
+                                      text={previewText}
                                       fill={CALLOUT_TEXT}
-                                      fontSize={annotationDraft.fontSize}
+                                      fontSize={previewFontSize}
                                       listening={false}
                                     />
-                                  )}
-                                </Group>
-                              );
-                            })()}
-                          {featureRows
-                            .filter(
-                              (b) => b.pageNumber === pdfViewPage && b.balloonId
-                            )
-                            .map((b) => {
-                              const pageHeightPx = overlayHeight;
-                              const balloonWidthPx =
-                                (b.width / 100) * renderedWidth;
-                              const balloonHeightPx =
-                                (b.height / 100) * pageHeightPx;
-                              const balloonX = (b.x / 100) * renderedWidth;
-                              const balloonY = (b.y / 100) * pageHeightPx;
-                              const balloonCenterX =
-                                balloonX + balloonWidthPx / 2;
-                              const balloonCenterY =
-                                balloonY + balloonHeightPx / 2;
-                              const radius = Math.max(
-                                8,
-                                Math.min(balloonWidthPx, balloonHeightPx) / 2
-                              );
-                              const balloonLabelFontSize = Math.max(
-                                14,
-                                Math.min(26, Math.round(radius * 1.15))
-                              );
-                              const isSelected =
-                                b.balloonId === selectedBalloonId;
-                              const linkedSelector = anchorRects.find(
-                                (s) => s.id === b.balloonAnchorId
-                              );
-                              let linePoints:
-                                | [number, number, number, number]
-                                | null = null;
-                              if (
-                                linkedSelector &&
-                                linkedSelector.pageNumber === pdfViewPage
-                              ) {
-                                const sx =
-                                  (linkedSelector.x / 100) * renderedWidth;
-                                const sy =
-                                  (linkedSelector.y / 100) * pageHeightPx;
-                                const sw =
-                                  (linkedSelector.width / 100) * renderedWidth;
-                                const sh =
-                                  (linkedSelector.height / 100) * pageHeightPx;
-                                const anchorX = sx + sw / 2;
-                                const anchorY = sy + sh / 2;
-                                linePoints = clippedBalloonToAnchorLine(
-                                  balloonCenterX,
-                                  balloonCenterY,
-                                  radius,
-                                  anchorX,
-                                  anchorY,
-                                  { x: sx, y: sy, w: sw, h: sh }
+                                  </Group>
                                 );
-                              }
+                              })}
+                            {annotationDraft &&
+                              annotationDraft.pageNumber === pdfViewPage &&
+                              (() => {
+                                const pageHeightPx = overlayHeight;
+                                const x =
+                                  (annotationDraft.x / 100) * renderedWidth;
+                                const y =
+                                  (annotationDraft.y / 100) * pageHeightPx;
+                                const w =
+                                  (annotationDraft.width / 100) * renderedWidth;
+                                const h =
+                                  (annotationDraft.height / 100) * pageHeightPx;
 
-                              return (
-                                <Group
-                                  key={`balloon-group-${b.balloonId}`}
-                                  x={balloonX}
-                                  y={balloonY}
-                                  listening={false}
-                                >
-                                  {/* Hit target: children use listening={false}, so without this rect
-                                the group receives no pointer events (no hover cursor, no drag). */}
-                                  <Rect
-                                    x={0}
-                                    y={0}
-                                    width={balloonWidthPx}
-                                    height={balloonHeightPx}
-                                    fill="rgba(0,0,0,0.001)"
-                                    listening={false}
-                                  />
-                                  {linePoints && (
-                                    <Line
-                                      key={`balloon-line-${b.balloonId}`}
-                                      points={[
-                                        linePoints[0] - balloonX,
-                                        linePoints[1] - balloonY,
-                                        linePoints[2] - balloonX,
-                                        linePoints[3] - balloonY
-                                      ]}
+                                return (
+                                  <Group key="annotation-draft" x={x} y={y}>
+                                    <Rect
+                                      x={0}
+                                      y={0}
+                                      width={w}
+                                      height={h}
+                                      fill="rgba(249,115,22,0.16)"
                                       stroke={CALLOUT_STROKE}
+                                      dash={[4, 4]}
                                       strokeWidth={2}
+                                      cornerRadius={4}
                                       listening={false}
                                     />
-                                  )}
-                                  <Circle
-                                    key={`balloon-circle-${b.balloonId}`}
-                                    x={balloonWidthPx / 2}
-                                    y={balloonHeightPx / 2}
-                                    radius={radius}
-                                    fill={
-                                      isSelected
-                                        ? "rgba(249,115,22,0.14)"
-                                        : "rgba(0,0,0,0)"
-                                    }
-                                    fillEnabled
-                                    stroke={CALLOUT_STROKE}
-                                    strokeWidth={isSelected ? 3 : 2}
+                                    {annotationDraft.text.trim().length > 0 && (
+                                      <Text
+                                        x={8}
+                                        y={6}
+                                        width={Math.max(20, w - 16)}
+                                        height={Math.max(16, h - 12)}
+                                        text={annotationDraft.text}
+                                        fill={CALLOUT_TEXT}
+                                        fontSize={annotationDraft.fontSize}
+                                        listening={false}
+                                      />
+                                    )}
+                                  </Group>
+                                );
+                              })()}
+                            {featureRows
+                              .filter(
+                                (b) =>
+                                  b.pageNumber === pdfViewPage && b.balloonId
+                              )
+                              .map((b) => {
+                                const pageHeightPx = overlayHeight;
+                                const balloonWidthPx =
+                                  (b.width / 100) * renderedWidth;
+                                const balloonHeightPx =
+                                  (b.height / 100) * pageHeightPx;
+                                const balloonX = (b.x / 100) * renderedWidth;
+                                const balloonY = (b.y / 100) * pageHeightPx;
+                                const balloonCenterX =
+                                  balloonX + balloonWidthPx / 2;
+                                const balloonCenterY =
+                                  balloonY + balloonHeightPx / 2;
+                                const radius = Math.max(
+                                  8,
+                                  Math.min(balloonWidthPx, balloonHeightPx) / 2
+                                );
+                                const balloonLabelFontSize = Math.max(
+                                  14,
+                                  Math.min(26, Math.round(radius * 1.15))
+                                );
+                                const isSelected =
+                                  b.balloonId === selectedBalloonId;
+                                const linkedSelector = anchorRects.find(
+                                  (s) => s.id === b.balloonAnchorId
+                                );
+                                let linePoints:
+                                  | [number, number, number, number]
+                                  | null = null;
+                                if (
+                                  linkedSelector &&
+                                  linkedSelector.pageNumber === pdfViewPage
+                                ) {
+                                  const sx =
+                                    (linkedSelector.x / 100) * renderedWidth;
+                                  const sy =
+                                    (linkedSelector.y / 100) * pageHeightPx;
+                                  const sw =
+                                    (linkedSelector.width / 100) *
+                                    renderedWidth;
+                                  const sh =
+                                    (linkedSelector.height / 100) *
+                                    pageHeightPx;
+                                  const anchorX = sx + sw / 2;
+                                  const anchorY = sy + sh / 2;
+                                  linePoints = clippedBalloonToAnchorLine(
+                                    balloonCenterX,
+                                    balloonCenterY,
+                                    radius,
+                                    anchorX,
+                                    anchorY,
+                                    { x: sx, y: sy, w: sw, h: sh }
+                                  );
+                                }
+
+                                return (
+                                  <Group
+                                    key={`balloon-group-${b.balloonId}`}
+                                    x={balloonX}
+                                    y={balloonY}
                                     listening={false}
-                                  />
-                                  <Text
-                                    key={`balloon-text-${b.balloonId}`}
-                                    x={balloonWidthPx / 2 - radius}
-                                    y={balloonHeightPx / 2 - radius}
-                                    width={radius * 2}
-                                    height={radius * 2}
-                                    text={b.label}
-                                    align="center"
-                                    verticalAlign="middle"
-                                    fill={CALLOUT_STROKE}
-                                    fontStyle="bold"
-                                    fontSize={balloonLabelFontSize}
-                                    listening={false}
-                                  />
-                                </Group>
-                              );
-                            })}
-                          {previewRect && (
-                            <Rect
-                              x={(previewRect.x / 100) * renderedWidth}
-                              y={(previewRect.y / 100) * overlayHeight}
-                              width={(previewRect.width / 100) * renderedWidth}
-                              height={
-                                (previewRect.height / 100) * overlayHeight
-                              }
-                              stroke={
-                                dragKind === "zoom" ? "#2563eb" : CALLOUT_STROKE
-                              }
-                              strokeWidth={2}
-                              fillEnabled={false}
-                            />
-                          )}
-                        </Layer>
-                      </Stage>
-                    </div>
-                  )}
+                                  >
+                                    {/* Hit target: children use listening={false}, so without this rect
+                                the group receives no pointer events (no hover cursor, no drag). */}
+                                    <Rect
+                                      x={0}
+                                      y={0}
+                                      width={balloonWidthPx}
+                                      height={balloonHeightPx}
+                                      fill="rgba(0,0,0,0.001)"
+                                      listening={false}
+                                    />
+                                    {linePoints && (
+                                      <Line
+                                        key={`balloon-line-${b.balloonId}`}
+                                        points={[
+                                          linePoints[0] - balloonX,
+                                          linePoints[1] - balloonY,
+                                          linePoints[2] - balloonX,
+                                          linePoints[3] - balloonY
+                                        ]}
+                                        stroke={CALLOUT_STROKE}
+                                        strokeWidth={2}
+                                        listening={false}
+                                      />
+                                    )}
+                                    <Circle
+                                      key={`balloon-circle-${b.balloonId}`}
+                                      x={balloonWidthPx / 2}
+                                      y={balloonHeightPx / 2}
+                                      radius={radius}
+                                      fill={
+                                        isSelected
+                                          ? "rgba(249,115,22,0.14)"
+                                          : "rgba(0,0,0,0)"
+                                      }
+                                      fillEnabled
+                                      stroke={CALLOUT_STROKE}
+                                      strokeWidth={isSelected ? 3 : 2}
+                                      listening={false}
+                                    />
+                                    <Text
+                                      key={`balloon-text-${b.balloonId}`}
+                                      x={balloonWidthPx / 2 - radius}
+                                      y={balloonHeightPx / 2 - radius}
+                                      width={radius * 2}
+                                      height={radius * 2}
+                                      text={b.label}
+                                      align="center"
+                                      verticalAlign="middle"
+                                      fill={CALLOUT_STROKE}
+                                      fontStyle="bold"
+                                      fontSize={balloonLabelFontSize}
+                                      listening={false}
+                                    />
+                                  </Group>
+                                );
+                              })}
+                            {previewRect && (
+                              <Rect
+                                x={(previewRect.x / 100) * renderedWidth}
+                                y={(previewRect.y / 100) * overlayHeight}
+                                width={
+                                  (previewRect.width / 100) * renderedWidth
+                                }
+                                height={
+                                  (previewRect.height / 100) * overlayHeight
+                                }
+                                stroke={
+                                  dragKind === "zoom"
+                                    ? "#2563eb"
+                                    : CALLOUT_STROKE
+                                }
+                                strokeWidth={2}
+                                fillEnabled={false}
+                              />
+                            )}
+                          </Layer>
+                        </Stage>
+                      </div>
+                    )}
                 </div>
               ) : (
                 <button
@@ -3194,8 +3335,8 @@ export default function InspectionDocumentEditor({
           <div
             className={
               featuresTableExpanded
-                ? "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm"
-                : "flex max-h-[8.75rem] min-w-0 shrink-0 flex-col overflow-hidden rounded-lg border border-border bg-card shadow-sm"
+                ? "flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg bg-card"
+                : "flex max-h-[14rem] min-w-0 shrink-0 flex-col overflow-hidden rounded-lg bg-card"
             }
             style={
               featuresTableExpanded && editorStackHeightPx > 0
@@ -3203,7 +3344,7 @@ export default function InspectionDocumentEditor({
                 : undefined
             }
           >
-            <div className="flex min-h-10 flex-shrink-0 items-center justify-between gap-2 border-b bg-muted/40 px-2 py-2 pl-3">
+            <div className="flex min-h-10 flex-shrink-0 items-center justify-between gap-2 bg-muted/40 px-2 py-2 pl-3">
               <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
                 {t`Features`} ({featureRows.length})
               </span>

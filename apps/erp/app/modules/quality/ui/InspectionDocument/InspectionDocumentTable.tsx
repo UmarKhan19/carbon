@@ -46,16 +46,6 @@ const InspectionDocumentTable = memo(
     const columns = useMemo<ColumnDef<InspectionDocument>[]>(
       () => [
         {
-          accessorKey: "name",
-          header: t`Name`,
-          cell: ({ row }) => (
-            <Hyperlink to={path.to.inspectionDocument(row.original.id)}>
-              {row.original.name}
-            </Hyperlink>
-          ),
-          meta: { icon: <LuTarget /> }
-        },
-        {
           accessorKey: "partId",
           header: t`Part`,
           cell: ({ row }) => {
@@ -65,7 +55,7 @@ const InspectionDocumentTable = memo(
             }
             const item = items.find((i) => i.id === partId);
             return (
-              <Hyperlink to={path.to.partDetails(partId)}>
+              <Hyperlink to={path.to.inspectionDocument(row.original.id)}>
                 <VStack spacing={0} className="min-w-[160px] leading-tight">
                   <span className="truncate font-medium">
                     {item?.readableIdWithRevision ?? partId}
@@ -79,7 +69,22 @@ const InspectionDocumentTable = memo(
               </Hyperlink>
             );
           },
-          meta: { icon: <LuBookMarked /> }
+          meta: {
+            filter: {
+              type: "static" as const,
+              options: items?.map((item) => ({
+                value: item.id,
+                label: item.readableIdWithRevision
+              }))
+            },
+            icon: <LuBookMarked />
+          }
+        },
+        {
+          accessorKey: "name",
+          header: t`Name`,
+          cell: ({ row }) => row.original.name,
+          meta: { icon: <LuTarget /> }
         },
         {
           id: "createdBy",

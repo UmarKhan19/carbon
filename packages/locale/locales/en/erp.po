@@ -1027,9 +1027,6 @@ msgstr "Balance Sheet"
 msgid "Balloon"
 msgstr "Balloon"
 
-msgid "Balloon #"
-msgstr "Balloon #"
-
 msgid "Base Currency"
 msgstr "Base Currency"
 
@@ -3522,6 +3519,9 @@ msgstr "Fax"
 
 msgid "Fax Number"
 msgstr "Fax Number"
+
+msgid "Feature"
+msgstr "Feature"
 
 msgid "Feature values suggested from drawing"
 msgstr "Feature values suggested from drawing"
@@ -8026,6 +8026,9 @@ msgstr "Unlink job from sales order?"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Unsupported source document type: {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr "Untitled Diagram"
 
 msgid "UoM"
 msgstr "UoM"

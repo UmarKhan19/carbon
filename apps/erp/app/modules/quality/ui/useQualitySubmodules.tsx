@@ -1,4 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
+import { IoBalloonOutline } from "react-icons/io5";
 import {
   LuCircleGauge,
   LuClipboardCheck,
@@ -10,7 +11,6 @@ import {
   LuShieldAlert,
   LuShieldX,
   LuSquareCheck,
-  LuTarget,
   LuWorkflow
 } from "react-icons/lu";
 import { usePermissions } from "~/hooks";
@@ -49,17 +49,6 @@ export default function useQualitySubmodules() {
       ]
     },
     {
-      name: t`Inspections`,
-      routes: [
-        {
-          name: t`Inbound Inspections`,
-          to: path.to.inboundInspections,
-          icon: <LuClipboardCheck />,
-          table: "inboundInspection"
-        }
-      ]
-    },
-    {
       name: t`Calibrations`,
       routes: [
         {
@@ -78,9 +67,15 @@ export default function useQualitySubmodules() {
       name: t`Inspection`,
       routes: [
         {
+          name: t`Inbound Inspections`,
+          to: path.to.inboundInspections,
+          icon: <LuClipboardCheck />,
+          table: "inboundInspection"
+        },
+        {
           name: t`Inspection Documents`,
           to: path.to.inspectionDocuments,
-          icon: <LuTarget />
+          icon: <IoBalloonOutline />
         }
       ]
     },

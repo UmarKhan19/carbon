@@ -1889,13 +1889,13 @@ export async function getInspectionDocuments(
   };
 
   let query = documentClient
-    .from("inspectionDocument")
+    .from("inspectionDocuments")
     .select("*", { count: "exact" })
     .eq("companyId", companyId);
 
   if (args?.search) {
     query = query.or(
-      `drawingNumber.ilike.%${args.search}%,fileName.ilike.%${args.search}%`
+      `drawingNumber.ilike.%${args.search}%,fileName.ilike.%${args.search}%,partReadableId.ilike.%${args.search}%`
     );
   }
 
@@ -2199,6 +2199,7 @@ function mapInspectionFeature(row: Record<string, unknown>) {
     tolerancePlus: (row.tolerancePlus as string | null) ?? null,
     toleranceMinus: (row.toleranceMinus as string | null) ?? null,
     unit: (row.unit as string | null) ?? null,
+    type: (row.type as string) ?? "Measurement",
     balloonId:
       typeof balloonIdRaw === "string"
         ? balloonIdRaw

@@ -10,8 +10,8 @@ import { path } from "~/utils/path";
 import { getGenericQueryFilters } from "~/utils/query";
 
 export const handle: Handle = {
-  breadcrumb: msg`Inspection Documents`,
-  to: path.to.inspectionDocuments
+  breadcrumb: msg`Quality`,
+  to: path.to.quality
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {

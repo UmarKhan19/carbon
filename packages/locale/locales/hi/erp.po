@@ -1027,9 +1027,6 @@ msgstr "बैलेंस शीट"
 msgid "Balloon"
 msgstr ""
 
-msgid "Balloon #"
-msgstr ""
-
 msgid "Base Currency"
 msgstr "आधार मुद्रा"
 
@@ -3522,6 +3519,9 @@ msgstr "फैक्स"
 
 msgid "Fax Number"
 msgstr "फैक्स नंबर"
+
+msgid "Feature"
+msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -8026,6 +8026,9 @@ msgstr "बिक्रय आदेश से नौकरी को अनल�
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "असमर्थित स्रोत दस्तावेज़ प्रकार: {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr ""
 
 msgid "UoM"
 msgstr "UoM"

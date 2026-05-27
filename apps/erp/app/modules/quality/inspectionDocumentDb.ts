@@ -1,6 +1,8 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+type ProcedureStepType = Database["public"]["Enums"]["procedureStepType"];
+
 /** Row shapes for inspection tables until `pnpm db:types` includes them. */
 export type InspectionFeatureRow = {
   id: string;
@@ -13,6 +15,7 @@ export type InspectionFeatureRow = {
   tolerancePlus: string | null;
   toleranceMinus: string | null;
   unit: string | null;
+  type: ProcedureStepType;
   createdBy: string;
   createdAt: string;
   updatedBy: string | null;

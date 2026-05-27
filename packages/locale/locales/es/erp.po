@@ -1027,9 +1027,6 @@ msgstr "Balance General"
 msgid "Balloon"
 msgstr ""
 
-msgid "Balloon #"
-msgstr ""
-
 msgid "Base Currency"
 msgstr "Moneda Base"
 
@@ -3522,6 +3519,9 @@ msgstr "Fax"
 
 msgid "Fax Number"
 msgstr "Número de Fax"
+
+msgid "Feature"
+msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -8026,6 +8026,9 @@ msgstr "¿Desenlazar trabajo de la orden de venta?"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Tipo de documento de origen no compatible: {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr ""
 
 msgid "UoM"
 msgstr "UoM"

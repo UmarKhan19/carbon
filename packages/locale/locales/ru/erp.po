@@ -1027,9 +1027,6 @@ msgstr "Баланс"
 msgid "Balloon"
 msgstr ""
 
-msgid "Balloon #"
-msgstr ""
-
 msgid "Base Currency"
 msgstr "Базовая валюта"
 
@@ -3522,6 +3519,9 @@ msgstr "Факс"
 
 msgid "Fax Number"
 msgstr "Номер факса"
+
+msgid "Feature"
+msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -8026,6 +8026,9 @@ msgstr "Отменить связь задания с заказом на про
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Неподдерживаемый тип исходного документа: {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr ""
 
 msgid "UoM"
 msgstr "УИ"

@@ -891,6 +891,8 @@ export const path = {
     newInspectionDocument: `${x}/quality/inspection/new`,
     saveInspectionDocument: (id: string) =>
       generatePath(`${x}/inspection/${id}/save`),
+    updateInspectionDocumentName: (id: string) =>
+      generatePath(`${x}/inspection/${id}/update-name`),
     gauge: (id: string) => generatePath(`${x}/quality/gauges/${id}`),
     gauges: `${x}/quality/gauges`,
     gaugeCalibrationRecord: (id: string) =>

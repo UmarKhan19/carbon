@@ -190,6 +190,7 @@ export const balloonCreateItemWithOverlayValidator = z
     toleranceMinus: z.string().nullable().optional(),
     unit: z.string().nullable().optional(),
     description: z.string().nullable().optional(),
+    type: z.enum(procedureStepType).optional(),
     data: z.record(z.unknown()).optional()
   })
   .strict();
@@ -225,7 +226,8 @@ export const inspectionSaveFeatureCreateItemValidator = z
     nominalValue: z.string().nullable().optional(),
     tolerancePlus: z.string().nullable().optional(),
     toleranceMinus: z.string().nullable().optional(),
-    unit: z.string().nullable().optional()
+    unit: z.string().nullable().optional(),
+    type: z.enum(procedureStepType).optional()
   })
   .strict();
 
@@ -238,7 +240,8 @@ export const inspectionSaveFeatureUpdateItemValidator = z
     nominalValue: z.string().nullable().optional(),
     tolerancePlus: z.string().nullable().optional(),
     toleranceMinus: z.string().nullable().optional(),
-    unit: z.string().nullable().optional()
+    unit: z.string().nullable().optional(),
+    type: z.enum(procedureStepType).optional()
   })
   .strict();
 
@@ -307,7 +310,8 @@ export const inspectionSaveBalloonCreateItemValidator = z
     tolerancePlus: z.string().nullable().optional(),
     toleranceMinus: z.string().nullable().optional(),
     unit: z.string().nullable().optional(),
-    description: z.string().nullable().optional()
+    description: z.string().nullable().optional(),
+    type: z.enum(procedureStepType).optional()
   })
   .strict();
 
@@ -322,7 +326,8 @@ export const inspectionSaveBalloonUpdateItemValidator = z
     tolerancePlus: z.string().nullable().optional(),
     toleranceMinus: z.string().nullable().optional(),
     unit: z.string().nullable().optional(),
-    description: z.string().nullable().optional()
+    description: z.string().nullable().optional(),
+    type: z.enum(procedureStepType).optional()
   })
   .strict();
 

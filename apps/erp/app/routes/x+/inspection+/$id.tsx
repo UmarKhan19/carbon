@@ -7,6 +7,7 @@ import { msg } from "@lingui/core/macro";
 import { lazy, Suspense } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
+import { getUnitOfMeasuresList } from "~/modules/items/items.service";
 import {
   getBalloons,
   getInspectionDocument,
@@ -28,7 +29,7 @@ export const handle: Handle = {
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const { companyId } = await requirePermissions(request, {
+  const { client, companyId } = await requirePermissions(request, {
     view: "quality"
   });
 
@@ -36,11 +37,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   if (!id) throw new Error("Could not find id");
 
   const serviceRole = await getCarbonServiceRole();
-  const [diagram, featuresResult, balloonsResult] = await Promise.all([
-    getInspectionDocument(serviceRole, id),
-    getInspectionFeatures(serviceRole, id),
-    getBalloons(serviceRole, id)
-  ]);
+  const [diagram, featuresResult, balloonsResult, unitOfMeasuresResult] =
+    await Promise.all([
+      getInspectionDocument(serviceRole, id),
+      getInspectionFeatures(serviceRole, id),
+      getBalloons(serviceRole, id),
+      getUnitOfMeasuresList(client, companyId)
+    ]);
 
   if (diagram.error) {
     throw redirect(
@@ -63,15 +66,19 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const features = featuresResult.data ?? [];
   const balloons = balloonsResult.data ?? [];
 
+  const unitOfMeasures = unitOfMeasuresResult?.data ?? [];
+
   return {
     diagram: diagram.data,
     features,
-    balloons
+    balloons,
+    unitOfMeasures
   };
 }
 
 export default function BalloonDetailRoute() {
-  const { diagram, features, balloons } = useLoaderData<typeof loader>();
+  const { diagram, features, balloons, unitOfMeasures } =
+    useLoaderData<typeof loader>();
   const content = diagram.content as InspectionDocumentContent | null;
 
   return (
@@ -97,6 +104,7 @@ export default function BalloonDetailRoute() {
               content={content}
               features={features}
               balloons={balloons}
+              unitOfMeasures={unitOfMeasures}
             />
           </Suspense>
         )}

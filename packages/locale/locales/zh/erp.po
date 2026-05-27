@@ -1027,9 +1027,6 @@ msgstr "资产负债表"
 msgid "Balloon"
 msgstr ""
 
-msgid "Balloon #"
-msgstr ""
-
 msgid "Base Currency"
 msgstr "基础货币"
 
@@ -3522,6 +3519,9 @@ msgstr "传真"
 
 msgid "Fax Number"
 msgstr "传真号码"
+
+msgid "Feature"
+msgstr ""
 
 msgid "Feature values suggested from drawing"
 msgstr ""
@@ -8026,6 +8026,9 @@ msgstr "从销售订单取消关联工作？"
 
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "不支持的源文档类型：{sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr ""
 
 msgid "UoM"
 msgstr "计量单位"
