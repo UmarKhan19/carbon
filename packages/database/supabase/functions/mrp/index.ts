@@ -317,6 +317,23 @@ serve(async (req: Request) => {
     const salesDemandByKey = new Map<string, number>();
     const jobMaterialDemandByKey = new Map<string, number>();
 
+    // Per-source attribution of BOM-derived demand. Mirrors bomDerivedDemand
+    // but tracks which parent job / sales order line each chunk of quantity
+    // came from. Written to demandForecastSource alongside demandForecast.
+    type DemandContributor =
+      | { sourceType: "Job Material"; jobId: string; parentItemId: string; quantity: number }
+      | { sourceType: "Sales Order"; salesOrderLineId: string; parentItemId: string; quantity: number }
+      | { sourceType: "Demand Projection"; demandProjectionId: string; parentItemId: string; quantity: number };
+    const demandContributors = new Map<string, DemandContributor[]>();
+
+    // Top-level contributors (from sales orders and job materials) — keyed by
+    // grossDemand key. Used as the starting contributor set when BOM explosion
+    // first reaches a level-0 Make item.
+    const topLevelContributors = new Map<string, DemandContributor[]>();
+
+    type DemandForecastSourceInsert =
+      Database["public"]["Tables"]["demandForecastSource"]["Insert"];
+
     // Demand projections (netted against production supply)
     for (const projection of demandProjections.data) {
       if (!projection.itemId || !projection.forecastQuantity) continue;
@@ -329,6 +346,20 @@ serve(async (req: Request) => {
       if (netDemand > 0) {
         const key = `${projection.locationId ?? ""}-${projection.periodId}-${projection.itemId}`;
         grossDemand.set(key, (grossDemand.get(key) ?? 0) + netDemand);
+
+        // Seed top-level contributor for this projection. Use the projection's
+        // surrogate id (added in 20260527115843_demand-projection-source.sql).
+        const projectionId = projection.id;
+        if (projectionId && projection.itemId) {
+          const contributors = topLevelContributors.get(key) ?? [];
+          contributors.push({
+            sourceType: "Demand Projection",
+            demandProjectionId: projectionId,
+            parentItemId: projection.itemId,
+            quantity: netDemand,
+          });
+          topLevelContributors.set(key, contributors);
+        }
       }
     }
 
@@ -350,6 +381,17 @@ serve(async (req: Request) => {
         actualKey,
         (salesDemandByKey.get(actualKey) ?? 0) + line.quantityToSend
       );
+
+      if (line.id && line.itemId) {
+        const contributors = topLevelContributors.get(key) ?? [];
+        contributors.push({
+          sourceType: "Sales Order",
+          salesOrderLineId: line.id,
+          parentItemId: line.itemId,
+          quantity: line.quantityToSend,
+        });
+        topLevelContributors.set(key, contributors);
+      }
     }
 
     // Job material lines
@@ -369,6 +411,17 @@ serve(async (req: Request) => {
         actualKey,
         (jobMaterialDemandByKey.get(actualKey) ?? 0) + line.quantityToIssue
       );
+
+      if (line.jobId && line.itemId) {
+        const contributors = topLevelContributors.get(key) ?? [];
+        contributors.push({
+          sourceType: "Job Material",
+          jobId: line.jobId,
+          parentItemId: line.itemId,
+          quantity: line.quantityToIssue,
+        });
+        topLevelContributors.set(key, contributors);
+      }
     }
 
     // ──────────────────────────────────────────────────────────────
@@ -447,7 +500,7 @@ serve(async (req: Request) => {
 
             // Offset to earlier period based on child's lead time
             const currentPeriodIndex = periods.findIndex(
-              (p: DemandPeriod) => p.id ?? "" === periodId
+              (p: DemandPeriod) => (p.id ?? "") === periodId
             );
             const targetPeriodIndex = Math.max(
               0,
@@ -465,6 +518,24 @@ serve(async (req: Request) => {
                 childKey,
                 (bomDerivedDemand.get(childKey) ?? 0) + childQty
               );
+
+              // Inherit contributors from this level's key (= the parent item's
+              // grossDemand key for this period) and scale by child.quantity.
+              // Level-0 keys read from topLevelContributors (seeded above);
+              // deeper levels read from demandContributors accumulated during
+              // prior explosions of this same parent key at an earlier level.
+              const parentContributors =
+                demandContributors.get(key) ?? topLevelContributors.get(key) ?? [];
+              if (parentContributors.length > 0) {
+                const childContributors = demandContributors.get(childKey) ?? [];
+                for (const pc of parentContributors) {
+                  childContributors.push({
+                    ...pc,
+                    quantity: pc.quantity * child.quantity,
+                  });
+                }
+                demandContributors.set(childKey, childContributors);
+              }
             }
           }
         }
@@ -474,6 +545,7 @@ serve(async (req: Request) => {
     // Write BOM-derived demand to demandForecast.
     // The demand is already at the correct period (lead-time-offset
     // was applied during propagation), so no further offset needed.
+    const demandForecastSourceInserts: DemandForecastSourceInsert[] = [];
     for (const [key, qty] of bomDerivedDemand) {
       if (qty <= 0) continue;
       const [locationId, periodId, itemId] = splitKey(key);
@@ -493,6 +565,52 @@ serve(async (req: Request) => {
           createdBy: userId,
           updatedBy: userId,
         });
+      }
+
+      const contributors = demandContributors.get(key) ?? [];
+      for (const c of contributors) {
+        if (c.quantity <= 0) continue;
+        if (c.sourceType === "Job Material") {
+          demandForecastSourceInserts.push({
+            itemId,
+            locationId,
+            periodId,
+            sourceType: "Job Material",
+            jobId: c.jobId,
+            salesOrderLineId: null,
+            demandProjectionId: null,
+            parentItemId: c.parentItemId,
+            quantity: c.quantity,
+            companyId,
+          });
+        } else if (c.sourceType === "Sales Order") {
+          demandForecastSourceInserts.push({
+            itemId,
+            locationId,
+            periodId,
+            sourceType: "Sales Order",
+            jobId: null,
+            salesOrderLineId: c.salesOrderLineId,
+            demandProjectionId: null,
+            parentItemId: c.parentItemId,
+            quantity: c.quantity,
+            companyId,
+          });
+        } else {
+          // sourceType === "Demand Projection"
+          demandForecastSourceInserts.push({
+            itemId,
+            locationId,
+            periodId,
+            sourceType: "Demand Projection",
+            jobId: null,
+            salesOrderLineId: null,
+            demandProjectionId: c.demandProjectionId,
+            parentItemId: c.parentItemId,
+            quantity: c.quantity,
+            companyId,
+          });
+        }
       }
     }
 
@@ -654,6 +772,14 @@ serve(async (req: Request) => {
         .where("forecastMethod", "=", "mrp")
         .execute();
 
+      // Delete existing MRP forecast source rows. The demandForecast delete
+      // above removes the parent rows; this removes their attribution rows.
+      // demandForecastSource only ever holds MRP-derived rows.
+      await db
+        .deleteFrom("demandForecastSource")
+        .where("companyId", "=", companyId)
+        .execute();
+
       await db
         .deleteFrom("supplyForecast")
         .where(
@@ -678,6 +804,16 @@ serve(async (req: Request) => {
               updatedBy: userId,
             })
           )
+          .execute();
+      }
+
+      // Insert demand forecast source rows in batches. No onConflict — the
+      // upstream delete guarantees no key collisions.
+      for (let i = 0; i < demandForecastSourceInserts.length; i += BATCH_SIZE) {
+        const batch = demandForecastSourceInserts.slice(i, i + BATCH_SIZE);
+        await db
+          .insertInto("demandForecastSource")
+          .values(batch)
           .execute();
       }
 

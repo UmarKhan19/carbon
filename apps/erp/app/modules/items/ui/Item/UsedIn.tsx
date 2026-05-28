@@ -1,3 +1,4 @@
+import { useCarbon } from "@carbon/auth";
 import type { Database, Json } from "@carbon/database";
 import {
   Badge,
@@ -18,7 +19,7 @@ import {
   VStack
 } from "@carbon/react";
 import { useLingui } from "@lingui/react/macro";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import {
   LuChevronRight,
@@ -111,8 +112,100 @@ export function UsedInTree({
   hideSearch?: boolean;
 }) {
   const { t } = useLingui();
+  const { itemId: currentItemId } = useParams();
   const [filterTextInternal, setFilterTextInternal] = useState("");
   const filterText = filterTextProp ?? filterTextInternal;
+
+  // Quantity lookups.
+  // - jobMaterialQuantities: per row of jobMaterial — keyed by jobMaterial.id,
+  //   value = that row's BOM quantity.
+  // - jobQuantities: per job in the Jobs group — keyed by job.id, value =
+  //   total quantity of the current item that the job will consume (summed
+  //   across all of its jobMaterial rows for currentItemId).
+  const [jobMaterialQuantities, setJobMaterialQuantities] = useState<
+    Map<string, number>
+  >(new Map());
+  const [jobQuantities, setJobQuantities] = useState<Map<string, number>>(
+    new Map()
+  );
+
+  const { carbon } = useCarbon();
+
+  useEffect(() => {
+    if (!carbon) return;
+
+    const jobMaterialsNode = tree.find((n) => n.key === "jobMaterials");
+    const jobMaterialIds = (jobMaterialsNode?.children ?? [])
+      .map((c) => c.id)
+      .filter((id): id is string => !!id);
+
+    const jobsNode = tree.find((n) => n.key === "jobs");
+    const jobIds = (jobsNode?.children ?? [])
+      .map((c) => c.id)
+      .filter((id): id is string => !!id);
+
+    if (
+      jobMaterialIds.length === 0 &&
+      (jobIds.length === 0 || !currentItemId)
+    ) {
+      setJobMaterialQuantities(new Map());
+      setJobQuantities(new Map());
+      return;
+    }
+
+    let cancelled = false;
+
+    // One combined fetch: any jobMaterial row whose `id` is a tree-listed
+    // job-material child OR whose (`jobId`, `itemId`) pair matches a
+    // tree-listed job for the current item. Splitting into two server
+    // round-trips wasted a request; the filter is expressed as an `or`.
+    const fetchQuantities = async () => {
+      const orParts: string[] = [];
+      if (jobMaterialIds.length > 0) {
+        orParts.push(`id.in.(${jobMaterialIds.join(",")})`);
+      }
+      if (jobIds.length > 0 && currentItemId) {
+        orParts.push(
+          `and(jobId.in.(${jobIds.join(",")}),itemId.eq.${currentItemId})`
+        );
+      }
+      const { data } = await carbon
+        .from("jobMaterial")
+        .select("id, jobId, itemId, quantity")
+        .or(orParts.join(","));
+      if (cancelled) return;
+
+      const jmQty = new Map<string, number>();
+      const jobQty = new Map<string, number>();
+      const jobMaterialIdSet = new Set(jobMaterialIds);
+      const jobIdSet = new Set(jobIds);
+
+      for (const row of data ?? []) {
+        if (!row.id) continue;
+        if (jobMaterialIdSet.has(row.id)) {
+          jmQty.set(row.id, row.quantity ?? 0);
+        }
+        if (
+          row.jobId &&
+          row.itemId === currentItemId &&
+          jobIdSet.has(row.jobId)
+        ) {
+          jobQty.set(
+            row.jobId,
+            (jobQty.get(row.jobId) ?? 0) + (row.quantity ?? 0)
+          );
+        }
+      }
+      setJobMaterialQuantities(jmQty);
+      setJobQuantities(jobQty);
+    };
+
+    fetchQuantities();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [carbon, tree, currentItemId]);
 
   const revisions = (
     revisionValidator.safeParse(revisionsJson)?.data ?? []
@@ -128,7 +221,7 @@ export function UsedInTree({
     <VStack className="w-full p-2">
       {!hideSearch && (
         <HStack className="w-full py">
-          <InputGroup size="sm" className="flex flex-grow">
+          <InputGroup size="sm" className="flex grow">
             <InputLeftElement>
               <LuSearch className="h-4 w-4" />
             </InputLeftElement>
@@ -158,6 +251,8 @@ export function UsedInTree({
             filterText={filterText}
             node={node}
             itemReadableIdWithRevision={itemReadableIdWithRevision}
+            jobMaterialQuantities={jobMaterialQuantities}
+            jobQuantities={jobQuantities}
           />
         ))}
       </VStack>
@@ -379,11 +474,15 @@ function getNextRevision(maxRevision: string) {
 export function UsedInItem({
   node,
   itemReadableIdWithRevision,
-  filterText
+  filterText,
+  jobMaterialQuantities,
+  jobQuantities
 }: {
   node: UsedInNode;
   filterText: string;
   itemReadableIdWithRevision: string;
+  jobMaterialQuantities?: Map<string, number>;
+  jobQuantities?: Map<string, number>;
 }) {
   const { t } = useLingui();
   const [isExpanded, setIsExpanded] = useState(
@@ -446,6 +545,17 @@ export function UsedInItem({
                   />
                 )}
                 <span className="truncate">{child.documentReadableId}</span>
+                {node.key === "jobMaterials" &&
+                  jobMaterialQuantities?.has(child.id) && (
+                    <Badge variant="outline" className="ml-2">
+                      {jobMaterialQuantities.get(child.id)}
+                    </Badge>
+                  )}
+                {node.key === "jobs" && jobQuantities?.has(child.id) && (
+                  <Badge variant="outline" className="ml-2">
+                    {jobQuantities.get(child.id)}
+                  </Badge>
+                )}
                 {child.version && (
                   <Badge variant="outline" className="ml-2">
                     V{child.version}

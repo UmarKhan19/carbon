@@ -531,6 +531,99 @@ export async function getItemDemand(
   };
 }
 
+export type DemandForecastSourceRow = {
+  itemId: string;
+  locationId: string | null;
+  periodId: string;
+  sourceType: "Job Material" | "Sales Order" | "Demand Projection";
+  quantity: number;
+  jobId: string | null;
+  salesOrderLineId: string | null;
+  demandProjectionId: string | null;
+  parentItemId: string;
+  parentItem: { id: string; readableId: string; name: string } | null;
+  job: {
+    id: string;
+    jobId: string;
+    dueDate: string | null;
+    status: string | null;
+  } | null;
+  salesOrderLine: {
+    id: string;
+    salesOrderId: string;
+    promisedDate: string | null;
+    salesOrder: { id: string; salesOrderId: string } | null;
+  } | null;
+  demandProjection: {
+    id: string;
+    forecastQuantity: number;
+    forecastMethod: string | null;
+    confidence: number | null;
+    notes: string | null;
+    createdBy: string;
+    createdAt: string;
+    period: { startDate: string } | null;
+  } | null;
+};
+
+export async function getDemandForecastSources(
+  client: SupabaseClient<Database>,
+  {
+    itemId,
+    locationId,
+    periods,
+    companyId
+  }: {
+    itemId: string;
+    locationId: string;
+    periods: string[];
+    companyId: string;
+  }
+) {
+  const result = await client
+    .from("demandForecastSource")
+    .select(
+      `
+        itemId,
+        locationId,
+        periodId,
+        sourceType,
+        quantity,
+        jobId,
+        salesOrderLineId,
+        demandProjectionId,
+        parentItemId,
+        parentItem:item!demandForecastSource_parentItemId_fkey(id, readableId, name),
+        job:job!demandForecastSource_jobId_fkey(id, jobId, dueDate, status),
+        salesOrderLine:salesOrderLine!demandForecastSource_salesOrderLineId_fkey(
+          id,
+          salesOrderId,
+          promisedDate,
+          salesOrder:salesOrder(id, salesOrderId)
+        ),
+        demandProjection:demandProjection!demandForecastSource_demandProjectionId_fkey(
+          id,
+          forecastQuantity,
+          forecastMethod,
+          confidence,
+          notes,
+          period(startDate),
+          createdBy,
+          createdAt
+        )
+      `
+    )
+    .eq("itemId", itemId)
+    .eq("locationId", locationId)
+    .eq("companyId", companyId)
+    .in("periodId", periods);
+
+  return {
+    data: result.data ?? [],
+    error: result.error
+  };
+}
+
 export async function getItemFiles(
   client: SupabaseClient<Database>,
   itemId: string,

@@ -2403,6 +2403,12 @@ msgstr "Domanda"
 msgid "Demand Forecast"
 msgstr "Previsione della Domanda"
 
+msgid "Demand Forecast — Driven by"
+msgstr ""
+
+msgid "Demand forecast = BOM-exploded demand from open sales orders, active jobs, and production projections."
+msgstr ""
+
 msgid "Demand Projections"
 msgstr "Proiezioni della Domanda"
 
@@ -2537,6 +2543,9 @@ msgstr "Stati Spedizione Diretta"
 
 msgid "Drop your file here, or click to browse."
 msgstr "Rilascia il tuo file qui, oppure fai clic per sfogliare."
+
+msgid "Due"
+msgstr ""
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 msgid "Due {0}"
@@ -3542,6 +3551,10 @@ msgstr "Per le aziende in crescita che hanno bisogno di supporto"
 msgid "For US companies handling ITAR data"
 msgstr "Per le aziende statunitensi che gestiscono dati ITAR"
 
+#. placeholder {0}: forecastMethod ?? "unknown"
+msgid "Forecast method: <0>{0}</0>. This row was not derived from active jobs, so no parent sources are available."
+msgstr ""
+
 msgid "Forgot to Clock Out?"
 msgstr "Hai dimenticato di timbrare l'uscita?"
 
@@ -3848,6 +3861,9 @@ msgstr "Interno"
 msgid "Internal Notes"
 msgstr "Note Interne"
 
+msgid "inv"
+msgstr ""
+
 msgid "Invalid Invite"
 msgstr "Invito Non Valido"
 
@@ -4127,6 +4143,9 @@ msgstr "Ultimo aggiornamento: {formattedDate}"
 msgid "Lead Time"
 msgstr "Tempo di consegna"
 
+msgid "Lead time (days)"
+msgstr ""
+
 msgid "Lead Time (Days)"
 msgstr "Tempo di consegna (Giorni)"
 
@@ -4204,6 +4223,9 @@ msgstr "Collega problema Linear"
 msgid "Linked entity quantity ({0}) does not match row quantity ({1})."
 msgstr "La quantità dell'entità collegata ({0}) non corrisponde alla quantità della riga ({1})."
 
+msgid "Linked PO"
+msgstr ""
+
 msgid "List Options"
 msgstr "Opzioni Elenco"
 
@@ -4270,6 +4292,9 @@ msgstr "Perso"
 
 msgid "Lot"
 msgstr "Lotto"
+
+msgid "Lot size"
+msgstr ""
 
 msgid "Lot Size"
 msgstr "Dimensione Lotto"
@@ -4674,6 +4699,9 @@ msgstr "Naviga"
 msgid "NCRs by Type"
 msgstr "NCR per tipo"
 
+msgid "Need by"
+msgstr ""
+
 msgid "Negative Adjustment"
 msgstr "Rettifica Negativa"
 
@@ -5072,6 +5100,9 @@ msgstr "Nessun corso di formazione in sospeso"
 msgid "No overtime scheduled"
 msgstr "Nessun straordinario programmato"
 
+msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
+msgstr ""
+
 msgid "No part ID"
 msgstr "Nessun ID parte"
 
@@ -5318,6 +5349,9 @@ msgstr "Opzioni"
 msgid "Order"
 msgstr "Ordine"
 
+msgid "Order by"
+msgstr ""
+
 msgid "Order Date"
 msgstr "Data dell'ordine"
 
@@ -5419,6 +5453,9 @@ msgstr "Dipartimento Principale"
 
 msgid "Parent Group"
 msgstr "Gruppo Padre"
+
+msgid "Parent Item"
+msgstr ""
 
 msgid "Parent Storage Unit"
 msgstr "Unità di Archiviazione Principale"
@@ -5555,6 +5592,12 @@ msgstr "Fine pianificata"
 msgid "Planned End Time"
 msgstr "Ora di fine pianificata"
 
+msgid "Planned Order"
+msgstr ""
+
+msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
+msgstr ""
+
 msgid "Planned Start"
 msgstr "Inizio Pianificato"
 
@@ -5596,6 +5639,9 @@ msgstr "PO"
 
 msgid "PO Number"
 msgstr "Numero OD"
+
+msgid "Policy"
+msgstr ""
 
 msgid "Policy & Procedure"
 msgstr "Politica e Procedura"
@@ -5762,6 +5808,12 @@ msgstr "Progresso"
 msgid "Project"
 msgstr "Progetto"
 
+msgid "Projected stock"
+msgstr ""
+
+msgid "Projection"
+msgstr ""
+
 msgid "Projections"
 msgstr "Proiezioni"
 
@@ -5868,6 +5920,9 @@ msgstr "Codice QR per creare un {0} per questo kanban"
 msgid "QR Code to start the next operation for this kanban"
 msgstr "Codice QR per avviare l'operazione successiva per questo kanban"
 
+msgid "Qty"
+msgstr ""
+
 msgid "Qty to Order"
 msgstr "Qtà da ordinare"
 
@@ -5930,6 +5985,10 @@ msgstr "Quantità per Genitore"
 
 msgid "Quantity Type"
 msgstr "Tipo di Quantità"
+
+#. placeholder {0}: numberFormatter.format(forecastQuantity)
+msgid "Quantity: {0}"
+msgstr ""
 
 msgid "Question"
 msgstr "Domanda"
@@ -6382,6 +6441,9 @@ msgstr "Esegui Test"
 
 msgid "Running Total"
 msgstr "Totale Progressivo"
+
+msgid "Safety stock"
+msgstr ""
 
 msgid "Safety Stock"
 msgstr "Stock di Sicurezza"
@@ -7459,6 +7521,9 @@ msgstr "L'indirizzo di fatturazione utilizzato su preventivi, ordini di vendita,
 msgid "The date the customer expects to receive the goods"
 msgstr "La data in cui il cliente si aspetta di ricevere la merce"
 
+msgid "The date the item is required on-site to cover the period's projected demand."
+msgstr ""
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "L'endpoint che riceve una richiesta POST con i dati aggiornati quando la tabella viene aggiornata"
 
@@ -7467,6 +7532,9 @@ msgstr "I seguenti assiemi non hanno operazioni. Assegnare un'operazione a ciasc
 
 msgid "The following line items are missing prices or lead times:"
 msgstr "I seguenti articoli di riga non hanno prezzi o tempi di consegna:"
+
+msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
+msgstr ""
 
 msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
 msgstr "Il lotto sarà comunque rifiutato, ma un NCR non può essere creato automaticamente fino a quando non è configurato almeno un tipo di problema."
@@ -7860,6 +7928,9 @@ msgstr "Unità di Misura"
 
 msgid "Unit of Measures"
 msgstr "Unità di Misura"
+
+msgid "Unit price"
+msgstr ""
 
 msgid "Unit Price"
 msgstr "Prezzo Unitario"
@@ -8355,6 +8426,9 @@ msgstr "Chi dovrebbe ricevere notifiche quando un lavoro di inventario è comple
 
 msgid "Why is the expiration being changed?"
 msgstr "Perché la data di scadenza viene modificata?"
+
+msgid "Why is this included?"
+msgstr ""
 
 msgid "WIP"
 msgstr "WIP"

@@ -365,67 +365,111 @@ export async function action({ request }: ActionFunctionArgs) {
               continue;
             }
 
-            // Sum up all quantities for this item
-            const totalQuantity = itemOrders.reduce(
-              (sum, { order }) => sum + order.quantity,
-              0
+            // Orders that came from the drawer with an existingLineId already
+            // exist as PO lines — they must be UPDATED in place, not summed and
+            // re-inserted (otherwise every Order click duplicates the line).
+            const existingItemOrders = itemOrders.filter(
+              ({ order }) => !!order.existingLineId
+            );
+            const newItemOrders = itemOrders.filter(
+              ({ order }) => !order.existingLineId
             );
 
-            // Apply minimum order quantity
             const minimumOrderQuantity =
               supplierPart?.minimumOrderQuantity ?? 0;
-
-            let adjustedQuantity = totalQuantity;
-
-            // Apply minimum order quantity
-            if (
-              minimumOrderQuantity > 0 &&
-              adjustedQuantity < minimumOrderQuantity
-            ) {
-              adjustedQuantity = minimumOrderQuantity;
-            }
-
-            // Use the earliest due date from all orders for this item
-            const earliestDueDate = itemOrders.reduce((earliest, { order }) => {
-              if (!earliest) return order.dueDate;
-              if (!order.dueDate) return earliest;
-              return order.dueDate < earliest ? order.dueDate : earliest;
-            }, itemOrders[0].order.dueDate);
-
-            // Use the first order's description
-            const description = itemOrders[0].order.description;
             const unitOfMeasureCode = itemOrders[0].order.unitOfMeasureCode;
 
-            const createPurchaseOrderLine = await upsertPurchaseOrderLine(
-              client,
-              {
-                purchaseOrderId: purchaseOrderId!,
-                itemId: itemId,
-                description: description,
-                purchaseOrderLineType: "Part",
-                purchaseQuantity: adjustedQuantity,
-                purchaseUnitOfMeasureCode:
-                  supplierPart?.supplierUnitOfMeasureCode ?? unitOfMeasureCode,
-                inventoryUnitOfMeasureCode: unitOfMeasureCode,
-                conversionFactor: supplierPart?.conversionFactor ?? 1,
-                supplierUnitPrice: supplierPart?.unitPrice ?? 0,
-                supplierTaxAmount:
-                  ((supplierPart?.unitPrice ?? 0) *
-                    (supplier.taxPercent ?? 0)) /
-                  100,
-                supplierShippingCost: 0,
-                requiredDate: earliestDueDate ?? undefined,
-                locationId,
-                companyId,
-                createdBy: userId
+            // ── UPDATE existing draft/planned lines ──
+            // The user can edit quantity and dueDate of an existing line in
+            // the drawer. Don't apply MOQ here — the user explicitly set this
+            // value, and surprising them by bumping it up is worse than
+            // letting them go below MOQ on an in-progress draft.
+            // Direct .update() instead of upsertPurchaseOrderLine: the helper
+            // requires the full validator shape, which would force us to
+            // re-pass purchaseOrderLineType / conversionFactor / itemId etc.
+            // and `sanitize` would coerce any undefined values to null —
+            // silently wiping the existing line's purchaseOrderLineType (for
+            // non-"Part" lines), conversionFactor, or requiredDate. PostgREST
+            // .update() with a tight payload only touches the columns the
+            // user actually edited in the drawer.
+            let updateError = false;
+            for (const { order } of existingItemOrders) {
+              const updateLine = await client
+                .from("purchaseOrderLine")
+                .update({
+                  purchaseQuantity: order.quantity,
+                  requiredDate: order.dueDate ?? null,
+                  updatedBy: userId
+                })
+                .eq("id", order.existingLineId!);
+              if (updateLine.error) {
+                const errorMsg = `Failed to update existing purchase order line ${order.existingLineId} for item ${itemId}: ${updateLine.error.message}`;
+                console.error(errorMsg);
+                errors.push(errorMsg);
+                updateError = true;
+                break;
               }
-            );
+            }
+            if (updateError) continue;
 
-            if (createPurchaseOrderLine.error) {
-              const errorMsg = `Failed to create purchase order line for item ${itemId}: ${createPurchaseOrderLine.error.message}`;
-              console.error(errorMsg);
-              errors.push(errorMsg);
-              continue;
+            // ── INSERT a single consolidated line for new orders ──
+            if (newItemOrders.length > 0) {
+              const totalQuantity = newItemOrders.reduce(
+                (sum, { order }) => sum + order.quantity,
+                0
+              );
+
+              let adjustedQuantity = totalQuantity;
+              if (
+                minimumOrderQuantity > 0 &&
+                adjustedQuantity < minimumOrderQuantity
+              ) {
+                adjustedQuantity = minimumOrderQuantity;
+              }
+
+              const earliestDueDate = newItemOrders.reduce(
+                (earliest, { order }) => {
+                  if (!earliest) return order.dueDate;
+                  if (!order.dueDate) return earliest;
+                  return order.dueDate < earliest ? order.dueDate : earliest;
+                },
+                newItemOrders[0].order.dueDate
+              );
+
+              const description = newItemOrders[0].order.description;
+
+              const createPurchaseOrderLine = await upsertPurchaseOrderLine(
+                client,
+                {
+                  purchaseOrderId: purchaseOrderId!,
+                  itemId: itemId,
+                  description: description,
+                  purchaseOrderLineType: "Part",
+                  purchaseQuantity: adjustedQuantity,
+                  purchaseUnitOfMeasureCode:
+                    supplierPart?.supplierUnitOfMeasureCode ??
+                    unitOfMeasureCode,
+                  inventoryUnitOfMeasureCode: unitOfMeasureCode,
+                  conversionFactor: supplierPart?.conversionFactor ?? 1,
+                  supplierUnitPrice: supplierPart?.unitPrice ?? 0,
+                  supplierTaxAmount:
+                    ((supplierPart?.unitPrice ?? 0) *
+                      (supplier.taxPercent ?? 0)) /
+                    100,
+                  supplierShippingCost: 0,
+                  requiredDate: earliestDueDate ?? undefined,
+                  locationId,
+                  companyId,
+                  createdBy: userId
+                }
+              );
+
+              if (createPurchaseOrderLine.error) {
+                const errorMsg = `Failed to create purchase order line for item ${itemId}: ${createPurchaseOrderLine.error.message}`;
+                console.error(errorMsg);
+                errors.push(errorMsg);
+                continue;
+              }
             }
 
             processedItems++;
