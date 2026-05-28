@@ -19,3 +19,5 @@ jobs:
           filter: 'blob:none'
           show-progress: false
       - uses: actions/labeler@v6
+        with:
+          sync-labels: true
