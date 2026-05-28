@@ -85,6 +85,9 @@ msgstr "Czy na pewno chcesz usunąć tę kartę czasu pracy? Tej operacji nie mo
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "Czy na pewno chcesz zakończyć wszystkie zdarzenia produkcyjne? Spowoduje to zakończenie wszystkich aktywnych operacji bez ich ukończenia."
 
+msgid "Are you sure you want to leave this page?"
+msgstr "Czy na pewno chcesz opuścić tę stronę?"
+
 msgid "Assigned"
 msgstr "Przypisane"
 
@@ -201,6 +204,9 @@ msgstr "Firma"
 msgid "Complete"
 msgstr "Ukończ"
 
+msgid "Complete All"
+msgstr "Uzupełnij wszystko"
+
 msgid "Completed"
 msgstr "Ukończone"
 
@@ -217,6 +223,12 @@ msgstr "Zużyte wygasłe"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Utwórz {0}"
+
+msgid "Create Issue"
+msgstr "Utwórz Problem"
+
+msgid "Create Quality Issue"
+msgstr "Utwórz Problem Jakości"
 
 msgid "Customer"
 msgstr "Klient"
@@ -242,6 +254,9 @@ msgstr "Usuń krok"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "Usuń kartę czasu pracy ({0})"
+
+msgid "Describe the problem..."
+msgstr "Opisz problem..."
 
 msgid "Description"
 msgstr "Opis"
@@ -387,6 +402,9 @@ msgstr "Wydaj"
 msgid "Issue Material"
 msgstr "Wydaj materiał"
 
+msgid "Issue Type"
+msgstr "Typ problemu"
+
 msgid "Item"
 msgstr "Pozycja"
 
@@ -410,6 +428,9 @@ msgstr "Zestaw"
 
 msgid "Labor"
 msgstr "Robocizna"
+
+msgid "Leave this page"
+msgstr "Opuść tę stronę"
 
 msgid "Let's build something"
 msgstr "Zbudujmy coś"
@@ -665,6 +686,12 @@ msgstr "Procesy"
 msgid "Progress"
 msgstr "Postęp"
 
+msgid "Quality Issue"
+msgstr "Problem z jakością"
+
+msgid "Quality issue created"
+msgstr "Problem z jakością został utworzony"
+
 msgid "Quantity"
 msgstr "Ilość"
 
@@ -835,6 +862,9 @@ msgstr "Status"
 msgid "Statuses"
 msgstr "Statusy"
 
+msgid "Stay on this page"
+msgstr "Zostań na tej stronie"
+
 msgid "Steps"
 msgstr "Kroki"
 
@@ -907,6 +937,9 @@ msgstr "Niewydane materiały seryjne/partyjne"
 
 msgid "Unknown"
 msgstr "Nieznane"
+
+msgid "Unsaved changes"
+msgstr "Niezapisane zmiany"
 
 msgid "Update"
 msgstr "Aktualizuj"

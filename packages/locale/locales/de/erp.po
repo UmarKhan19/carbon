@@ -49,6 +49,9 @@ msgstr "{0} erfolgreich hochgeladen"
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB-Limit"
 
+msgid "{name} deleted"
+msgstr "{name} gelöscht"
+
 msgid "{scopeCount} permissions"
 msgstr "{scopeCount} Berechtigungen"
 
@@ -299,6 +302,9 @@ msgstr "Auftragnehmer hinzufügen"
 msgid "Add Entry"
 msgstr "Eintrag hinzufügen"
 
+msgid "Add Feature"
+msgstr "Feature hinzufügen"
+
 msgid "Add from library…"
 msgstr "Aus Bibliothek hinzufügen…"
 
@@ -358,6 +364,9 @@ msgstr "Risiko hinzufügen"
 
 msgid "Add rule"
 msgstr "Regel hinzufügen"
+
+msgid "Add Selector"
+msgstr "Selektor hinzufügen"
 
 msgid "Add Shipment"
 msgstr "Sendung hinzufügen"
@@ -464,6 +473,21 @@ msgstr "Ein Element kann nicht zu sich selbst hinzugefügt werden."
 msgid "and {remaining} more"
 msgstr "und {remaining} weitere"
 
+msgid "Annotation added"
+msgstr "Anmerkung hinzugefügt"
+
+msgid "Annotation deleted"
+msgstr "Anmerkung gelöscht"
+
+msgid "Annotation text"
+msgstr "Anmerkungstext"
+
+msgid "Annotation text is required"
+msgstr "Annotationstext ist erforderlich"
+
+msgid "Annotation updated"
+msgstr "Anmerkung aktualisiert"
+
 msgid "API and Webhooks"
 msgstr "API und Webhooks"
 
@@ -503,8 +527,14 @@ msgstr "Preisregeln anwenden"
 msgid "Apply To"
 msgstr "Anwenden auf"
 
+msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
+msgstr "Nähert sich dem Limit von {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB."
+
 msgid "Approval Date"
 msgstr "Genehmigungsdatum"
+
+msgid "Approval is required at or above this amount, up to the next rule's minimum"
+msgstr "Genehmigung ist erforderlich bei oder über diesem Betrag, bis zum Minimum der nächsten Regel"
 
 msgid "Approval Requirements"
 msgstr "Genehmigungsanforderungen"
@@ -787,6 +817,9 @@ msgstr "Sind Sie sicher, dass Sie diese Genehmigungsregel löschen möchten? Die
 msgid "Are you sure you want to delete this gauge?"
 msgstr "Sind Sie sicher, dass Sie dieses Messinstrument löschen möchten?"
 
+msgid "Are you sure you want to delete this inspection document?"
+msgstr "Sind Sie sicher, dass Sie dieses Inspektionsdokument löschen möchten?"
+
 msgid "Are you sure you want to delete this issue workflow?"
 msgstr "Sind Sie sicher, dass Sie diesen Issue-Workflow löschen möchten?"
 
@@ -825,6 +858,9 @@ msgstr "Sind Sie sicher, dass Sie das Angebot abschließen möchten?"
 
 msgid "Are you sure you want to finalize the supplier quote?"
 msgstr "Sind Sie sicher, dass Sie das Lieferantengebot abschließen möchten?"
+
+msgid "Are you sure you want to leave this page?"
+msgstr "Möchten Sie diese Seite wirklich verlassen?"
 
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
@@ -928,6 +964,9 @@ msgstr "Datei anhängen"
 msgid "Attachment"
 msgstr "Anlage"
 
+msgid "Attachments"
+msgstr "Anhänge"
+
 msgid "Attribute"
 msgstr "Attribut"
 
@@ -999,6 +1038,9 @@ msgstr "Rücklauf"
 
 msgid "Balance Sheet"
 msgstr "Bilanz"
+
+msgid "Balloon"
+msgstr "Ballon"
 
 msgid "Base Currency"
 msgstr "Basiswährung"
@@ -1175,6 +1217,9 @@ msgstr "Kann nicht gebucht werden – Sendung enthält abgelaufene nachverfölgt
 msgid "Cannot send RFQ"
 msgstr "RFQ kann nicht gesendet werden"
 
+msgid "Cannot upload — supplier interaction not yet created"
+msgstr "Hochladen nicht möglich — Lieferanteninteraktion noch nicht erstellt"
+
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Kann nicht in den Teile-Bucket ohne Element-ID hochgeladen werden"
 
@@ -1280,6 +1325,9 @@ msgstr "Suche löschen"
 msgid "Clear search query"
 msgstr "Suchanfrage löschen"
 
+msgid "Click to upload a PDF drawing"
+msgstr "Klicken Sie, um eine PDF-Zeichnung hochzuladen"
+
 msgid "Clock In"
 msgstr "Einstempeln"
 
@@ -1313,6 +1361,9 @@ msgstr "Alle einklappen"
 
 msgid "Collapse Costs"
 msgstr "Kosten ausblenden"
+
+msgid "Collapse features table"
+msgstr "Features-Tabelle ausblenden"
 
 msgid "Collapse Labor"
 msgstr "Arbeit einklappen"
@@ -1720,6 +1771,19 @@ msgstr "Kalkulation & Buchung"
 msgid "Costing Method"
 msgstr "Kalkulationsmethode"
 
+msgid "Could not analyze cropped region"
+msgstr "Konnte zugeschnittene Region nicht analysieren"
+
+#. placeholder {0}: payload.message ?? analyzeRes.statusText
+msgid "Could not analyze region: {0}"
+msgstr "Region konnte nicht analysiert werden: {0}"
+
+msgid "Could not build PDF. Try again."
+msgstr "PDF konnte nicht erstellt werden. Versuchen Sie es erneut."
+
+msgid "Could not prepare region image for analysis"
+msgstr "Konnte Regionsbild nicht für die Analyse vorbereiten"
+
 msgid "Couldn't load documents"
 msgstr "Dokumente konnten nicht geladen werden"
 
@@ -2118,6 +2182,12 @@ msgstr "Standardkonten"
 msgid "Default Approver"
 msgstr "Standardgenehmiger"
 
+msgid "Default Attachments"
+msgstr "Standardanhänge"
+
+msgid "Default Attachments on Purchase Orders"
+msgstr "Standardanhänge bei Bestellungen"
+
 msgid "Default CC Recipients"
 msgstr "Standard-CC-Empfänger"
 
@@ -2442,6 +2512,9 @@ msgstr "Detail"
 msgid "Details"
 msgstr "Details"
 
+msgid "Diagram saved"
+msgstr "Diagramm gespeichert"
+
 msgid "Digital Quote"
 msgstr "Digitales Angebot"
 
@@ -2523,8 +2596,14 @@ msgstr "Herunterladen"
 msgid "Download CSV"
 msgstr "CSV herunterladen"
 
+msgid "Download PDF"
+msgstr "PDF herunterladen"
+
 msgid "Draft"
 msgstr "Entwurf"
+
+msgid "Drag & drop files, or click to browse"
+msgstr "Dateien ziehen und ablegen oder zum Durchsuchen klicken"
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Ziehen Sie eine Bestellungs-PDF hierher, oder klicken Sie, um eine Datei auszuwählen"
@@ -2532,8 +2611,23 @@ msgstr "Ziehen Sie eine Bestellungs-PDF hierher, oder klicken Sie, um eine Datei
 msgid "Drag handle"
 msgstr "Ziehgriff"
 
+msgid "Drag to place on drawing"
+msgstr "Auf Zeichnung platzieren durch Ziehen"
+
 msgid "Drag to reorder"
 msgstr "Zum Neuordnen ziehen"
+
+msgid "Drag to resize diagram and features"
+msgstr "Ziehen Sie, um das Diagramm und die Funktionen zu ändern"
+
+msgid "Drag to zoom"
+msgstr "Zum Zoomen ziehen"
+
+msgid "Drawing Number"
+msgstr "Zeichnungsnummer"
+
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+msgstr "Zeichnung ersetzt. Ballonplatzierungen wurden entfernt; Funktionszeilen bleiben unverändert."
 
 msgid "Drop Shipment"
 msgstr "Direktversand"
@@ -2583,6 +2677,9 @@ msgstr "Duplizieren zu..."
 
 msgid "Duration"
 msgstr "Dauer"
+
+msgid "e.g. DWG-1234"
+msgstr "z.B. DWG-1234"
 
 msgid "Edit"
 msgstr "Bearbeiten"
@@ -2667,6 +2764,9 @@ msgstr "Gruppe bearbeiten"
 
 msgid "Edit Holiday"
 msgstr "Feiertag bearbeiten"
+
+msgid "Edit Inspection Document"
+msgstr "Inspektionsdokument bearbeiten"
 
 msgid "Edit Item Group"
 msgstr "Artikelgruppe bearbeiten"
@@ -3004,6 +3104,9 @@ msgstr "Fehler beim Laden der Herstellungsmethode"
 msgid "Error moving file"
 msgstr "Fehler beim Verschieben der Datei"
 
+msgid "Error removing file"
+msgstr "Fehler beim Entfernen der Datei"
+
 msgid "Error removing model from {sourceDocument}"
 msgstr "Fehler beim Entfernen des Modells aus {sourceDocument}"
 
@@ -3064,6 +3167,9 @@ msgstr "Jede Bedingung muss erfüllt sein"
 msgid "Everything from Starter"
 msgstr "Alles aus dem Starter-Plan"
 
+msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
+msgstr "Überschreitet {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB insgesamt – entfernen Sie einige Anhänge zum Senden."
+
 msgid "Exchange Rate"
 msgstr "Wechselkurs"
 
@@ -3082,6 +3188,9 @@ msgstr "Alle erweitern"
 
 msgid "Expand Costs"
 msgstr "Kosten erweitern"
+
+msgid "Expand features table"
+msgstr "Features-Tabelle erweitern"
 
 msgid "Expand Labor"
 msgstr "Arbeit ausklappen"
@@ -3382,6 +3491,9 @@ msgstr "Fehler beim Abrufen der CSV-Spaltendaten."
 msgid "Failed to save configuration rule"
 msgstr "Fehler beim Speichern der Konfigurationsregel"
 
+msgid "Failed to save diagram"
+msgstr "Fehler beim Speichern des Diagramms"
+
 msgid "Failed to update batch property"
 msgstr "Fehler beim Aktualisieren der Batch-Eigenschaft"
 
@@ -3406,6 +3518,10 @@ msgstr "Fehler beim Aktualisieren der Lieferantenangebotszeile"
 msgid "Failed to update thumbnail path"
 msgstr "Fehler beim Aktualisieren des Miniaturbildpfads"
 
+#. placeholder {0}: file.name
+msgid "Failed to upload {0}"
+msgstr "Fehler beim Hochladen von {0}"
+
 msgid "Failed to upload CSV file."
 msgstr "CSV-Datei konnte nicht hochgeladen werden."
 
@@ -3429,6 +3545,9 @@ msgstr "Logo-Upload fehlgeschlagen: {errorMessage}"
 msgid "Failed to upload model"
 msgstr "Fehler beim Hochladen des Modells"
 
+msgid "Failed to upload PDF"
+msgstr "PDF-Upload fehlgeschlagen"
+
 msgid "Failed to upload thumbnail"
 msgstr "Fehler beim Hochladen des Vorschaubildes"
 
@@ -3446,6 +3565,15 @@ msgstr "Fax"
 
 msgid "Fax Number"
 msgstr "Faxnummer"
+
+msgid "Feature"
+msgstr "Merkmal"
+
+msgid "Feature values suggested from drawing"
+msgstr "Merkmalswerte aus Zeichnung vorgeschlagen"
+
+msgid "Features"
+msgstr "Funktionen"
 
 msgid "Feedback"
 msgstr "Feedback"
@@ -3496,6 +3624,15 @@ msgstr "Dateityp wird nicht unterstützt. Bitte verwenden Sie JPG, PNG, WebP ode
 
 msgid "Files"
 msgstr "Dateien"
+
+msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
+msgstr "Hier angehängte Dateien werden standardmäßig mit jeder Bestellanfrage-E-Mail mitgesendet. Lieferanten erhalten sie zusammen mit dem Bestellanfrage-PDF."
+
+msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
+msgstr "Hier angehängte Dateien werden mit jeder Bestellanfrage-E-Mail an diesen Lieferanten versendet (zusätzlich zu unternehmensweiten Standardeinstellungen)."
+
+msgid "Files attached here ride along whenever this item appears on a purchase order email."
+msgstr "Dateien, die hier angehängt sind, werden automatisch mitgesendet, wenn dieser Artikel in einer Bestellungs-E-Mail erscheint."
 
 msgid "Filter"
 msgstr "Filter"
@@ -3822,14 +3959,17 @@ msgstr "Nächstes Element prüfen"
 msgid "Inspection"
 msgstr "Inspektion"
 
+msgid "Inspection Document"
+msgstr "Inspektionsdokument"
+
+msgid "Inspection Documents"
+msgstr "Inspektionsdokumente"
+
 msgid "Inspection Level"
 msgstr "Inspektionsstufe"
 
 msgid "Inspection Status"
 msgstr "Inspektionsstatus"
-
-msgid "Inspections"
-msgstr "Inspektionen"
 
 msgid "Inspector"
 msgstr "Inspekteur"
@@ -4163,6 +4303,9 @@ msgstr "Alle zugehörigen Belege unverändert lassen"
 
 msgid "Leave empty for exact match"
 msgstr "Leer lassen für exakte Übereinstimmung"
+
+msgid "Leave this page"
+msgstr "Diese Seite verlassen"
 
 msgid "Left item"
 msgstr "Linkes Element"
@@ -4777,6 +4920,9 @@ msgstr "Neue Gruppe"
 msgid "New Holiday"
 msgstr "Neuer Feiertag"
 
+msgid "New Inspection Document"
+msgstr "Neues Inspektionsdokument"
+
 msgid "New Invoice"
 msgstr "Neue Rechnung"
 
@@ -4957,6 +5103,9 @@ msgstr "Nächstes Datum"
 msgid "Next Due"
 msgstr "Nächste Fälligkeit"
 
+msgid "Next page"
+msgstr "Nächste Seite"
+
 msgid "Next Sequence"
 msgstr "Nächste Sequenz"
 
@@ -4988,6 +5137,9 @@ msgstr "Keine Adressen gefunden"
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "Noch keine archivierten Protokolle. Protokolle älter als {0} Tage werden automatisch archiviert und sind hier zum Download verfügbar."
+
+msgid "No attachments."
+msgstr "Keine Anhänge."
 
 msgid "No available filters"
 msgstr "Keine verfügbaren Filter"
@@ -5030,6 +5182,9 @@ msgstr "Es existieren keine Daten"
 
 msgid "No days off scheduled"
 msgstr "Keine Tage frei geplant"
+
+msgid "No default attachments yet."
+msgstr "Noch keine Standardanhänge vorhanden."
 
 msgid "No draft versions available"
 msgstr "Keine Entwurfsversionen verfügbar"
@@ -5159,6 +5314,9 @@ msgstr "Keine Daten zur Auslastung des Arbeitszentrums im angegebenen Bereich"
 
 msgid "No work centers exist"
 msgstr "Es existieren keine Arbeitszentren"
+
+msgid "Nom"
+msgstr "Nom"
 
 msgid "Nominal Cost"
 msgstr "Nominalkosten"
@@ -5433,6 +5591,9 @@ msgstr "Überschreiben Sie die Zielfertigungsmethode mit der Angebotsmethode"
 msgid "Packing Slip"
 msgstr "Packzettel"
 
+msgid "Page {pdfViewPage} of {documentPageCount}"
+msgstr "Seite {pdfViewPage} von {documentPageCount}"
+
 msgid "Paid Amount:"
 msgstr "Bezahlter Betrag:"
 
@@ -5513,6 +5674,12 @@ msgstr "Zahlungsbedingungen"
 
 msgid "PDF"
 msgstr "PDF"
+
+msgid "PDF downloaded"
+msgstr "PDF heruntergeladen"
+
+msgid "PDF pages"
+msgstr "PDF-Seiten"
 
 msgid "PDF Watermark"
 msgstr "PDF-Wasserzeichen"
@@ -5640,6 +5807,9 @@ msgstr "PO"
 msgid "PO Number"
 msgstr "Bestellnummer"
 
+msgid "PO PDF"
+msgstr "PO PDF"
+
 msgid "Policy"
 msgstr ""
 
@@ -5714,6 +5884,9 @@ msgstr "Zurück"
 
 msgid "Previous Date"
 msgstr "Vorheriges Datum"
+
+msgid "Previous page"
+msgstr "Vorherige Seite"
 
 msgid "Price break actions"
 msgstr "Aktionen für Preisabstufung"
@@ -6178,6 +6351,9 @@ msgstr "Anhang entfernen"
 msgid "Remove condition"
 msgstr "Bedingung entfernen"
 
+msgid "Remove feature"
+msgstr "Feature entfernen"
+
 msgid "Remove filter"
 msgstr "Filter entfernen"
 
@@ -6247,8 +6423,17 @@ msgstr "Nachbestellmenge:"
 msgid "Reordering Policy"
 msgstr "Nachbestellungsrichtlinie"
 
+msgid "Replace drawing?"
+msgstr "Zeichnung ersetzen?"
+
 msgid "Replace existing pricing with source values"
 msgstr "Ersetzen Sie vorhandene Preise durch Quellwerte"
+
+msgid "Replace PDF"
+msgstr "PDF ersetzen"
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
+msgstr "Das Ersetzen der PDF entfernt alle Ballonplatzierungen in diesem Dokument. Funktionszeilen und ihre Werte bleiben erhalten; Sie können Ballons auf der neuen Zeichnung erneut platzieren."
 
 msgid "Replenishment"
 msgstr "Nachschub"
@@ -6314,6 +6499,9 @@ msgstr "PIN zurücksetzen"
 #. placeholder {1}: operator.lastName
 msgid "Reset PIN for {0} {1}"
 msgstr "PIN zurücksetzen für {0} {1}"
+
+msgid "Reset View"
+msgstr "Ansicht zurücksetzen"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "Beheben Sie diese vor Abschluss des NCR: Jede Zeile muss eine nicht ausstehende Disposition haben, und ihre verknüpften Entitätsmengen müssen mit der Zeilenmenge übereinstimmen."
@@ -7193,6 +7381,9 @@ msgstr "Statusverteilung"
 msgid "Statuses"
 msgstr "Status"
 
+msgid "Stay on this page"
+msgstr "Auf dieser Seite bleiben"
+
 msgid "Step"
 msgstr "Schritt"
 
@@ -7216,6 +7407,9 @@ msgstr "Bestandsübertragungs-Assistent"
 
 msgid "Stock Transfers"
 msgstr "Bestandsübertragungen"
+
+msgid "Storage client not available"
+msgstr "Speicherclient nicht verfügbar"
 
 msgid "Storage Type"
 msgstr "Lagertyp"
@@ -7506,6 +7700,9 @@ msgstr "Nutzungsbedingungen"
 msgid "Test Value"
 msgstr "Testwert"
 
+msgid "Text size"
+msgstr "Textgröße"
+
 msgid "The amount of days after the calculation method that the cash discount is available"
 msgstr "Die Anzahl der Tage nach der Berechnungsmethode, für die der Skonto verfügbar ist"
 
@@ -7740,6 +7937,12 @@ msgstr "Eigenschaften umschalten"
 msgid "Toggle views"
 msgstr "Ansichten umschalten"
 
+msgid "Tol-"
+msgstr "Tol-"
+
+msgid "Tol+"
+msgstr "Tol+"
+
 msgid "Tolerance (+/-)"
 msgstr "Toleranz (+/-)"
 
@@ -7884,6 +8087,9 @@ msgstr "Typ"
 msgid "Type a message..."
 msgstr "Geben Sie eine Nachricht ein..."
 
+msgid "Type an email and press Enter to add an external recipient"
+msgstr "Geben Sie eine E-Mail ein und drücken Sie die Eingabetaste, um einen externen Empfänger hinzuzufügen"
+
 msgid "Type of Permission Update"
 msgstr "Berechtigungsupdate-Typ"
 
@@ -7910,6 +8116,9 @@ msgstr "Regel entfernen"
 
 msgid "Unassigned"
 msgstr "Nicht zugewiesen"
+
+msgid "Unballoon"
+msgstr "Ballon entfernen"
 
 msgid "Uninstall"
 msgstr "Deinstallieren"
@@ -7956,8 +8165,14 @@ msgstr "Verknüpfung aufheben"
 msgid "Unlink job from sales order?"
 msgstr "Auftrag von Verkaufsauftrag trennen?"
 
+msgid "Unsaved changes"
+msgstr "Nicht gespeicherte Änderungen"
+
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "Nicht unterstützter Quelldokumenttyp: {sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr "Unbenanntes Diagramm"
 
 msgid "UoM"
 msgstr "UoM"
@@ -8038,6 +8253,9 @@ msgstr "Upgrade freischalten, um Audit-Verlauf zu entsperren"
 msgid "Upload"
 msgstr "Hochladen"
 
+msgid "Upload a PDF first"
+msgstr "Laden Sie zuerst eine PDF-Datei hoch"
+
 msgid "Upload completed but no file path returned"
 msgstr "Upload abgeschlossen, aber kein Dateipfad zurückgegeben"
 
@@ -8060,6 +8278,9 @@ msgstr "Wird hochgeladen {0}"
 
 msgid "Uploading {fileName}"
 msgstr "Wird hochgeladen {fileName}"
+
+msgid "Uploading…"
+msgstr "Wird hochgeladen…"
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "Beim Klicken auf „Konvertieren\" werden Teile mit den folgenden internen Teilenummern erstellt:"
@@ -8535,3 +8756,12 @@ msgstr "Ihr Name"
 
 msgid "yourself"
 msgstr "dir selbst"
+
+msgid "Zoom Box"
+msgstr "Zoom-Feld"
+
+msgid "Zoom in"
+msgstr "Vergrößern"
+
+msgid "Zoom out"
+msgstr "Verkleinern"

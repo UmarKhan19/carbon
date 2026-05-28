@@ -364,7 +364,6 @@ export function RecordModal({
   const { company } = useUser();
   const [file, setFile] = useState<File | null>(null);
   const [filePath, setFilePath] = useState<string | null>(null);
-
   const fetcher = useFetcher<{ success: boolean }>();
 
   const onDrop = async (acceptedFiles: File[]) => {
@@ -419,7 +418,6 @@ export function RecordModal({
           method="post"
           validator={stepRecordValidator}
           action={path.to.record}
-          onSubmit={onClose}
           defaultValues={{
             index: activeStep,
             jobOperationStepId: attribute.id,

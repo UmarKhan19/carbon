@@ -85,6 +85,9 @@ msgstr "Sei sicuro di voler eliminare questo cartellino? Questa azione non può 
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "Sei sicuro di voler terminare tutti gli eventi di produzione? Questo terminerà tutte le operazioni attive senza completarle o finalizzarle."
 
+msgid "Are you sure you want to leave this page?"
+msgstr "Sei sicuro di voler lasciare questa pagina?"
+
 msgid "Assigned"
 msgstr "Assegnato"
 
@@ -201,6 +204,9 @@ msgstr "Azienda"
 msgid "Complete"
 msgstr "Completa"
 
+msgid "Complete All"
+msgstr "Completa tutto"
+
 msgid "Completed"
 msgstr "Completato"
 
@@ -217,6 +223,12 @@ msgstr "Consumato scaduto"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Crea {0}"
+
+msgid "Create Issue"
+msgstr "Crea Problema"
+
+msgid "Create Quality Issue"
+msgstr "Crea Problema di Qualità"
 
 msgid "Customer"
 msgstr "Cliente"
@@ -242,6 +254,9 @@ msgstr "Elimina Fase"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "Elimina Cartellino ({0})"
+
+msgid "Describe the problem..."
+msgstr "Descrivi il problema..."
 
 msgid "Description"
 msgstr "Descrizione"
@@ -387,6 +402,9 @@ msgstr "Preleva"
 msgid "Issue Material"
 msgstr "Preleva Materiale"
 
+msgid "Issue Type"
+msgstr "Tipo di Problema"
+
 msgid "Item"
 msgstr "Articolo"
 
@@ -410,6 +428,9 @@ msgstr "Kit"
 
 msgid "Labor"
 msgstr "Manodopera"
+
+msgid "Leave this page"
+msgstr "Lascia questa pagina"
 
 msgid "Let's build something"
 msgstr "Costruiamo qualcosa"
@@ -665,6 +686,12 @@ msgstr "Processi"
 msgid "Progress"
 msgstr "Avanzamento"
 
+msgid "Quality Issue"
+msgstr "Problema di qualità"
+
+msgid "Quality issue created"
+msgstr "Problema di qualità creato"
+
 msgid "Quantity"
 msgstr "Quantità"
 
@@ -835,6 +862,9 @@ msgstr "Stato"
 msgid "Statuses"
 msgstr "Stati"
 
+msgid "Stay on this page"
+msgstr "Rimani su questa pagina"
+
 msgid "Steps"
 msgstr "Fasi"
 
@@ -907,6 +937,9 @@ msgstr "Materiali seriali/lotto non prelevati"
 
 msgid "Unknown"
 msgstr "Sconosciuto"
+
+msgid "Unsaved changes"
+msgstr "Modifiche non salvate"
 
 msgid "Update"
 msgstr "Aggiorna"

@@ -197,6 +197,17 @@ export async function getFailureModesList(
     .order("name");
 }
 
+export async function getQualityIssueTypesList(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("nonConformanceType")
+    .select("id, name")
+    .eq("companyId", companyId)
+    .order("name");
+}
+
 export function getFileType(fileName: string): (typeof documentTypes)[number] {
   const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
   if (["zip", "rar", "7z", "tar", "gz"].includes(extension)) {
@@ -827,11 +838,17 @@ export async function insertReworkQuantity(
     createdBy: string;
   }
 ) {
+  const {
+    trackedEntityId: _trackedEntityId,
+    trackingType: _trackingType,
+    ...insert
+  } = data;
+
   return client
     .from("productionQuantity")
     .insert(
       sanitize({
-        ...data,
+        ...insert,
         type: "Rework"
       })
     )

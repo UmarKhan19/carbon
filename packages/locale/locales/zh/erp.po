@@ -49,6 +49,9 @@ msgstr "{0} 上传成功"
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB 限制"
 
+msgid "{name} deleted"
+msgstr "{name} 已删除"
+
 msgid "{scopeCount} permissions"
 msgstr "{scopeCount} 个权限"
 
@@ -299,6 +302,9 @@ msgstr "添加承包商"
 msgid "Add Entry"
 msgstr "添加条目"
 
+msgid "Add Feature"
+msgstr "添加功能"
+
 msgid "Add from library…"
 msgstr "从库中添加…"
 
@@ -358,6 +364,9 @@ msgstr "添加风险"
 
 msgid "Add rule"
 msgstr "添加规则"
+
+msgid "Add Selector"
+msgstr "添加选择器"
 
 msgid "Add Shipment"
 msgstr "添加发货"
@@ -464,6 +473,21 @@ msgstr "一个项目不能添加到自身。"
 msgid "and {remaining} more"
 msgstr "和 {remaining} 个更多"
 
+msgid "Annotation added"
+msgstr "注释已添加"
+
+msgid "Annotation deleted"
+msgstr "注释已删除"
+
+msgid "Annotation text"
+msgstr "注释文本"
+
+msgid "Annotation text is required"
+msgstr "注释文本是必需的"
+
+msgid "Annotation updated"
+msgstr "注释已更新"
+
 msgid "API and Webhooks"
 msgstr "API 和 Webhooks"
 
@@ -503,8 +527,14 @@ msgstr "应用定价规则"
 msgid "Apply To"
 msgstr "应用于"
 
+msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
+msgstr "接近 {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB 上限。"
+
 msgid "Approval Date"
 msgstr "批准日期"
+
+msgid "Approval is required at or above this amount, up to the next rule's minimum"
+msgstr "在此金额或以上需要批准，直到下一条规则的最低金额"
 
 msgid "Approval Requirements"
 msgstr "批准要求"
@@ -787,6 +817,9 @@ msgstr "你确定要删除此审批规则吗？此操作无法撤销。"
 msgid "Are you sure you want to delete this gauge?"
 msgstr "你确定要删除此量规吗？"
 
+msgid "Are you sure you want to delete this inspection document?"
+msgstr "你确定要删除此检验文件吗？"
+
 msgid "Are you sure you want to delete this issue workflow?"
 msgstr "你确定要删除此问题工作流吗？"
 
@@ -825,6 +858,9 @@ msgstr "你确定要完成报价吗？"
 
 msgid "Are you sure you want to finalize the supplier quote?"
 msgstr "您确定要完成供应商报价吗？"
+
+msgid "Are you sure you want to leave this page?"
+msgstr "您确定要离开此页面吗？"
 
 #. placeholder {0}: selectedPurchaseInvoice.invoiceId!
 #. placeholder {0}: selectedSalesInvoice.invoiceId!
@@ -928,6 +964,9 @@ msgstr "附加文件"
 msgid "Attachment"
 msgstr "附件"
 
+msgid "Attachments"
+msgstr "附件"
+
 msgid "Attribute"
 msgstr "属性"
 
@@ -999,6 +1038,9 @@ msgstr "反冲"
 
 msgid "Balance Sheet"
 msgstr "资产负债表"
+
+msgid "Balloon"
+msgstr "气球"
 
 msgid "Base Currency"
 msgstr "基础货币"
@@ -1175,6 +1217,9 @@ msgstr "无法发布 — 货运单包含已过期的追踪实体。"
 msgid "Cannot send RFQ"
 msgstr "无法发送询价单"
 
+msgid "Cannot upload — supplier interaction not yet created"
+msgstr "无法上传 — 供应商互动尚未创建"
+
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "无法在没有项目ID的情况下上传到零件存储桶"
 
@@ -1280,6 +1325,9 @@ msgstr "清除搜索"
 msgid "Clear search query"
 msgstr "清除搜索查询"
 
+msgid "Click to upload a PDF drawing"
+msgstr "点击上传 PDF 图纸"
+
 msgid "Clock In"
 msgstr "打卡"
 
@@ -1313,6 +1361,9 @@ msgstr "全部折叠"
 
 msgid "Collapse Costs"
 msgstr "折叠成本"
+
+msgid "Collapse features table"
+msgstr "折叠功能表"
 
 msgid "Collapse Labor"
 msgstr "折叠人工"
@@ -1720,6 +1771,19 @@ msgstr "成本与过账"
 msgid "Costing Method"
 msgstr "成本计算方法"
 
+msgid "Could not analyze cropped region"
+msgstr "无法分析裁剪区域"
+
+#. placeholder {0}: payload.message ?? analyzeRes.statusText
+msgid "Could not analyze region: {0}"
+msgstr "无法分析区域：{0}"
+
+msgid "Could not build PDF. Try again."
+msgstr "无法生成 PDF。请重试。"
+
+msgid "Could not prepare region image for analysis"
+msgstr "无法准备区域图像以进行分析"
+
 msgid "Couldn't load documents"
 msgstr "无法加载文档"
 
@@ -2118,6 +2182,12 @@ msgstr "默认账户"
 msgid "Default Approver"
 msgstr "默认审批人"
 
+msgid "Default Attachments"
+msgstr "默认附件"
+
+msgid "Default Attachments on Purchase Orders"
+msgstr "采购订单上的默认附件"
+
 msgid "Default CC Recipients"
 msgstr "默认抄送收件人"
 
@@ -2442,6 +2512,9 @@ msgstr "详情"
 msgid "Details"
 msgstr "详情"
 
+msgid "Diagram saved"
+msgstr "图表已保存"
+
 msgid "Digital Quote"
 msgstr "数字报价"
 
@@ -2523,8 +2596,14 @@ msgstr "下载"
 msgid "Download CSV"
 msgstr "下载 CSV"
 
+msgid "Download PDF"
+msgstr "下载 PDF"
+
 msgid "Draft"
 msgstr "草稿"
+
+msgid "Drag & drop files, or click to browse"
+msgstr "拖放文件，或点击浏览"
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "将采购订单 PDF 拖放到此处，或点击选择文件"
@@ -2532,8 +2611,23 @@ msgstr "将采购订单 PDF 拖放到此处，或点击选择文件"
 msgid "Drag handle"
 msgstr "拖动手柄"
 
+msgid "Drag to place on drawing"
+msgstr "拖动以在图纸上放置"
+
 msgid "Drag to reorder"
 msgstr "拖动以重新排序"
+
+msgid "Drag to resize diagram and features"
+msgstr "拖动以调整图表和功能的大小"
+
+msgid "Drag to zoom"
+msgstr "拖动以缩放"
+
+msgid "Drawing Number"
+msgstr "图纸编号"
+
+msgid "Drawing replaced. Balloon placements were removed; feature rows are unchanged."
+msgstr "图纸已替换。气球位置已移除；功能行保持不变。"
 
 msgid "Drop Shipment"
 msgstr "直运"
@@ -2583,6 +2677,9 @@ msgstr "复制到..."
 
 msgid "Duration"
 msgstr "时长"
+
+msgid "e.g. DWG-1234"
+msgstr "例如 DWG-1234"
 
 msgid "Edit"
 msgstr "编辑"
@@ -2667,6 +2764,9 @@ msgstr "编辑组"
 
 msgid "Edit Holiday"
 msgstr "编辑假期"
+
+msgid "Edit Inspection Document"
+msgstr "编辑检验文件"
 
 msgid "Edit Item Group"
 msgstr "编辑项目组"
@@ -3004,6 +3104,9 @@ msgstr "加载制造方法出错"
 msgid "Error moving file"
 msgstr "移动文件出错"
 
+msgid "Error removing file"
+msgstr "删除文件出错"
+
 msgid "Error removing model from {sourceDocument}"
 msgstr "从{sourceDocument}中删除模型时出错"
 
@@ -3064,6 +3167,9 @@ msgstr "每个条件都必须匹配"
 msgid "Everything from Starter"
 msgstr "Starter 中的所有功能"
 
+msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
+msgstr "超过 {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB 总限制 — 请删除一些附件以发送。"
+
 msgid "Exchange Rate"
 msgstr "汇率"
 
@@ -3082,6 +3188,9 @@ msgstr "全部展开"
 
 msgid "Expand Costs"
 msgstr "展开成本"
+
+msgid "Expand features table"
+msgstr "展开功能表"
 
 msgid "Expand Labor"
 msgstr "展开人工"
@@ -3382,6 +3491,9 @@ msgstr "未能检索 CSV 列数据。"
 msgid "Failed to save configuration rule"
 msgstr "保存配置规则失败"
 
+msgid "Failed to save diagram"
+msgstr "保存图表失败"
+
 msgid "Failed to update batch property"
 msgstr "批处理属性更新失败"
 
@@ -3406,6 +3518,10 @@ msgstr "未能更新供应商报价行"
 msgid "Failed to update thumbnail path"
 msgstr "无法更新缩略图路径"
 
+#. placeholder {0}: file.name
+msgid "Failed to upload {0}"
+msgstr "上传失败 {0}"
+
 msgid "Failed to upload CSV file."
 msgstr "未能上传 CSV 文件。"
 
@@ -3429,6 +3545,9 @@ msgstr "上传徽标失败：{errorMessage}"
 msgid "Failed to upload model"
 msgstr "上传模型失败"
 
+msgid "Failed to upload PDF"
+msgstr "上传 PDF 失败"
+
 msgid "Failed to upload thumbnail"
 msgstr "上传缩略图失败"
 
@@ -3446,6 +3565,15 @@ msgstr "传真"
 
 msgid "Fax Number"
 msgstr "传真号码"
+
+msgid "Feature"
+msgstr "特征"
+
+msgid "Feature values suggested from drawing"
+msgstr "从绘图中建议的特征值"
+
+msgid "Features"
+msgstr "功能"
 
 msgid "Feedback"
 msgstr "反馈"
@@ -3496,6 +3624,15 @@ msgstr "不支持的文件类型。请使用 JPG、PNG、WebP 或 GIF。"
 
 msgid "Files"
 msgstr "文件"
+
+msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
+msgstr "此处附加的文件将默认随每封采购订单电子邮件一起发送。供应商将与采购订单PDF一起收到它们。"
+
+msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
+msgstr "此处附加的文件将随附在发送给此供应商的每份采购订单电子邮件中（除了公司范围的默认设置）。"
+
+msgid "Files attached here ride along whenever this item appears on a purchase order email."
+msgstr "此处附加的文件会在此项目出现在采购订单电子邮件中时随之附加。"
 
 msgid "Filter"
 msgstr "筛选"
@@ -3822,14 +3959,17 @@ msgstr "检查下一项"
 msgid "Inspection"
 msgstr "检验"
 
+msgid "Inspection Document"
+msgstr "检验文件"
+
+msgid "Inspection Documents"
+msgstr "检验文件"
+
 msgid "Inspection Level"
 msgstr "检验水平"
 
 msgid "Inspection Status"
 msgstr "检验状态"
-
-msgid "Inspections"
-msgstr "检验"
 
 msgid "Inspector"
 msgstr "检查员"
@@ -4163,6 +4303,9 @@ msgstr "保留任何相关收据不变"
 
 msgid "Leave empty for exact match"
 msgstr "留空以精确匹配"
+
+msgid "Leave this page"
+msgstr "离开此页面"
 
 msgid "Left item"
 msgstr "左项"
@@ -4777,6 +4920,9 @@ msgstr "新建群组"
 msgid "New Holiday"
 msgstr "新假期"
 
+msgid "New Inspection Document"
+msgstr "新检验文件"
+
 msgid "New Invoice"
 msgstr "新发票"
 
@@ -4957,6 +5103,9 @@ msgstr "下一个日期"
 msgid "Next Due"
 msgstr "下次到期"
 
+msgid "Next page"
+msgstr "下一页"
+
 msgid "Next Sequence"
 msgstr "下一个序列"
 
@@ -4988,6 +5137,9 @@ msgstr "未找到地址"
 #. placeholder {0}: auditConfig.retentionDays
 msgid "No archived logs yet. Logs older than {0} days will be automatically archived and available for download here."
 msgstr "还没有存档日志。超过 {0} 天的日志将自动存档，并可在此处下载。"
+
+msgid "No attachments."
+msgstr "没有附件。"
 
 msgid "No available filters"
 msgstr "没有可用的筛选器"
@@ -5030,6 +5182,9 @@ msgstr "没有数据存在"
 
 msgid "No days off scheduled"
 msgstr "未安排休息日"
+
+msgid "No default attachments yet."
+msgstr "还没有默认附件。"
 
 msgid "No draft versions available"
 msgstr "没有可用的草稿版本"
@@ -5159,6 +5314,9 @@ msgstr "范围内没有工作中心利用率数据"
 
 msgid "No work centers exist"
 msgstr "没有工作中心存在"
+
+msgid "Nom"
+msgstr "标称值"
 
 msgid "Nominal Cost"
 msgstr "名义成本"
@@ -5433,6 +5591,9 @@ msgstr "用报价方法覆盖目标制造方法"
 msgid "Packing Slip"
 msgstr "装箱单"
 
+msgid "Page {pdfViewPage} of {documentPageCount}"
+msgstr "第 {pdfViewPage} 页，共 {documentPageCount} 页"
+
 msgid "Paid Amount:"
 msgstr "已支付金额："
 
@@ -5513,6 +5674,12 @@ msgstr "付款条款"
 
 msgid "PDF"
 msgstr "PDF"
+
+msgid "PDF downloaded"
+msgstr "PDF已下载"
+
+msgid "PDF pages"
+msgstr "PDF 页面"
 
 msgid "PDF Watermark"
 msgstr "PDF 水印"
@@ -5640,6 +5807,9 @@ msgstr "采购订单"
 msgid "PO Number"
 msgstr "采购订单号"
 
+msgid "PO PDF"
+msgstr "采购订单 PDF"
+
 msgid "Policy"
 msgstr ""
 
@@ -5714,6 +5884,9 @@ msgstr "上一步"
 
 msgid "Previous Date"
 msgstr "上一个日期"
+
+msgid "Previous page"
+msgstr "上一页"
 
 msgid "Price break actions"
 msgstr "价格阶梯操作"
@@ -6178,6 +6351,9 @@ msgstr "移除附件"
 msgid "Remove condition"
 msgstr "移除条件"
 
+msgid "Remove feature"
+msgstr "删除功能"
+
 msgid "Remove filter"
 msgstr "移除筛选"
 
@@ -6247,8 +6423,17 @@ msgstr "重新订购数量："
 msgid "Reordering Policy"
 msgstr "重新订购政策"
 
+msgid "Replace drawing?"
+msgstr "替换绘图？"
+
 msgid "Replace existing pricing with source values"
 msgstr "用源值替换现有定价"
+
+msgid "Replace PDF"
+msgstr "替换 PDF"
+
+msgid "Replacing the PDF removes all balloon placements on this document. Feature rows and their values stay; you can place balloons again on the new drawing."
+msgstr "替换 PDF 将删除此文档上的所有气球标注。功能行及其值保持不变；您可以在新绘图上重新放置气球。"
 
 msgid "Replenishment"
 msgstr "补货"
@@ -6314,6 +6499,9 @@ msgstr "重置PIN"
 #. placeholder {1}: operator.lastName
 msgid "Reset PIN for {0} {1}"
 msgstr "重置 {0} {1} 的 PIN"
+
+msgid "Reset View"
+msgstr "重置视图"
 
 msgid "Resolve these before completing the NCR: every row must have a non-Pending disposition, and its linked entity quantities must match the row quantity."
 msgstr "在完成NCR之前解决这些问题：每一行必须有一个非待处理的处置，其关联实体数量必须与行数量匹配。"
@@ -7193,6 +7381,9 @@ msgstr "状态分布"
 msgid "Statuses"
 msgstr "状态"
 
+msgid "Stay on this page"
+msgstr "留在此页面"
+
 msgid "Step"
 msgstr "步骤"
 
@@ -7216,6 +7407,9 @@ msgstr "库存转移向导"
 
 msgid "Stock Transfers"
 msgstr "库存转移"
+
+msgid "Storage client not available"
+msgstr "存储客户端不可用"
 
 msgid "Storage Type"
 msgstr "存储类型"
@@ -7506,6 +7700,9 @@ msgstr "服务条款"
 msgid "Test Value"
 msgstr "测试值"
 
+msgid "Text size"
+msgstr "文本大小"
+
 msgid "The amount of days after the calculation method that the cash discount is available"
 msgstr "计算方法后可用现金折扣的天数"
 
@@ -7740,6 +7937,12 @@ msgstr "切换属性"
 msgid "Toggle views"
 msgstr "切换视图"
 
+msgid "Tol-"
+msgstr "容差-"
+
+msgid "Tol+"
+msgstr "公差+"
+
 msgid "Tolerance (+/-)"
 msgstr "容差 (+/-)"
 
@@ -7884,6 +8087,9 @@ msgstr "类型"
 msgid "Type a message..."
 msgstr "输入消息..."
 
+msgid "Type an email and press Enter to add an external recipient"
+msgstr "输入电子邮件并按 Enter 键以添加外部收件人"
+
 msgid "Type of Permission Update"
 msgstr "权限更新类型"
 
@@ -7910,6 +8116,9 @@ msgstr "取消分配规则"
 
 msgid "Unassigned"
 msgstr "未分配"
+
+msgid "Unballoon"
+msgstr "取消气球标注"
 
 msgid "Uninstall"
 msgstr "卸载"
@@ -7956,8 +8165,14 @@ msgstr "取消链接"
 msgid "Unlink job from sales order?"
 msgstr "从销售订单取消关联工作？"
 
+msgid "Unsaved changes"
+msgstr "未保存的更改"
+
 msgid "Unsupported source document type: {sourceDocument}"
 msgstr "不支持的源文档类型：{sourceDocument}"
+
+msgid "Untitled Diagram"
+msgstr "未命名图表"
 
 msgid "UoM"
 msgstr "计量单位"
@@ -8038,6 +8253,9 @@ msgstr "升级以解锁审计历史"
 msgid "Upload"
 msgstr "上传"
 
+msgid "Upload a PDF first"
+msgstr "先上传 PDF"
+
 msgid "Upload completed but no file path returned"
 msgstr "上传完成但未返回文件路径"
 
@@ -8060,6 +8278,9 @@ msgstr "正在上传 {0}"
 
 msgid "Uploading {fileName}"
 msgstr "正在上传 {fileName}"
+
+msgid "Uploading…"
+msgstr "上传中…"
 
 msgid "Upon clicking Convert, parts will be created with the following internal part numbers:"
 msgstr "点击转换后，将使用以下内部零件编号创建零件："
@@ -8535,3 +8756,12 @@ msgstr "你的名字"
 
 msgid "yourself"
 msgstr "你自己"
+
+msgid "Zoom Box"
+msgstr "缩放框"
+
+msgid "Zoom in"
+msgstr "放大"
+
+msgid "Zoom out"
+msgstr "缩小"
