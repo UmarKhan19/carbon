@@ -14,6 +14,9 @@ import {
   InputGroup,
   InputLeftElement,
   Skeleton,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
   useDisclosure,
   VStack
 } from "@carbon/react";
@@ -412,7 +415,16 @@ export function UsedInItem({
           <LuChevronRight className={cn("size-4", isExpanded && "rotate-90")} />
         </div>
         <div className="flex flex-grow items-center justify-between gap-2">
-          <span>{node.name}</span>
+          {node.key === "jobMaterials" ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>{node.name}</span>
+              </TooltipTrigger>
+              <TooltipContent>{t`Item was included as a sub-assembly`}</TooltipContent>
+            </Tooltip>
+          ) : (
+            <span>{node.name}</span>
+          )}
           {filteredChildren.length > 0 && (
             <Count count={filteredChildren.length} />
           )}
