@@ -799,6 +799,39 @@ export async function getItemUnitSalePrice(
     .single();
 }
 
+export async function getJobMaterialUsageForItem(
+  client: SupabaseClient<Database>,
+  { itemId, companyId }: { itemId: string; companyId: string }
+): Promise<{
+  byMaterialId: Record<string, number>;
+  byJobId: Record<string, number>;
+}> {
+  const [materials, jobs] = await Promise.all([
+    client
+      .from("jobMaterial")
+      .select("id, estimatedQuantity")
+      .eq("itemId", itemId)
+      .eq("companyId", companyId),
+    client
+      .from("job")
+      .select("id, quantity")
+      .eq("itemId", itemId)
+      .eq("companyId", companyId)
+  ]);
+
+  const byMaterialId: Record<string, number> = {};
+  for (const row of materials.data ?? []) {
+    if (row.id) byMaterialId[row.id] = row.estimatedQuantity ?? 0;
+  }
+
+  const byJobId: Record<string, number> = {};
+  for (const row of jobs.data ?? []) {
+    if (row.id) byJobId[row.id] = row.quantity ?? 0;
+  }
+
+  return { byMaterialId, byJobId };
+}
+
 export async function getMaterialUsedIn(
   client: SupabaseClient<Database>,
   itemId: string,
@@ -814,7 +847,8 @@ export async function getMaterialUsedIn(
     quoteMaterials,
     salesOrderLines,
     shipmentLines,
-    supplierQuotes
+    supplierQuotes,
+    jobMaterialUsage
   ] = await Promise.all([
     client
       .from("nonConformanceItem")
@@ -896,7 +930,8 @@ export async function getMaterialUsedIn(
       )
       .eq("itemId", itemId)
       .eq("companyId", companyId)
-      .limit(100)
+      .limit(100),
+    getJobMaterialUsageForItem(client, { itemId, companyId })
   ]);
 
   return {
@@ -909,7 +944,8 @@ export async function getMaterialUsedIn(
     quoteMaterials: quoteMaterials.data ?? [],
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
-    supplierQuotes: supplierQuotes.data ?? []
+    supplierQuotes: supplierQuotes.data ?? [],
+    jobMaterialUsage
   };
 }
 
@@ -1534,7 +1570,8 @@ export async function getPartUsedIn(
     quoteMaterials,
     salesOrderLines,
     shipmentLines,
-    supplierQuotes
+    supplierQuotes,
+    jobMaterialUsage
   ] = await Promise.all([
     client
       .from("nonConformanceItem")
@@ -1634,7 +1671,8 @@ export async function getPartUsedIn(
       )
       .eq("itemId", itemId)
       .eq("companyId", companyId)
-      .limit(100)
+      .limit(100),
+    getJobMaterialUsageForItem(client, { itemId, companyId })
   ]);
 
   return {
@@ -1649,7 +1687,8 @@ export async function getPartUsedIn(
     quoteMaterials: quoteMaterials.data ?? [],
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
-    supplierQuotes: supplierQuotes.data ?? []
+    supplierQuotes: supplierQuotes.data ?? [],
+    jobMaterialUsage
   };
 }
 
