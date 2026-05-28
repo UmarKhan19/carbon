@@ -2330,7 +2330,7 @@ export const JobOperation = ({
       {reworkModal.isOpen && (
         <ReworkModal
           operation={operation}
-          jobId={job.id}
+          jobId={job.id!}
           isOpen={reworkModal.isOpen}
           onClose={reworkModal.onClose}
         />
