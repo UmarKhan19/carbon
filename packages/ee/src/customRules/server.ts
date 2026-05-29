@@ -439,7 +439,7 @@ export async function evaluateLinesForSurface({
             // `itemPostingGroupId` lives on the 1:1 `itemCost` row — embed it
             // so the `item.itemPostingGroupId` rule field resolves.
             .select(
-              "id, type, replenishmentSystem, itemTrackingType, name, readableId, customFields, itemCost(itemPostingGroupId)"
+              "id, type, replenishmentSystem, itemTrackingType, name, readableId, itemCost(itemPostingGroupId)"
             )
             .in("id", Array.from(itemIds))
         : Promise.resolve({ data: [], error: null }),
