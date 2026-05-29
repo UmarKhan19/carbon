@@ -2474,10 +2474,10 @@ msgid "Demand Forecast"
 msgstr "需要予測"
 
 msgid "Demand Forecast — Driven by"
-msgstr ""
+msgstr "需要予測 — 駆動元"
 
 msgid "Demand forecast = BOM-exploded demand from open sales orders, active jobs, and production projections."
-msgstr ""
+msgstr "需要予測 = BOM展開需要（オープン販売注文、アクティブなジョブ、および生産予測から）"
 
 msgid "Demand Projections"
 msgstr "需要予測"
@@ -2639,7 +2639,7 @@ msgid "Drop your file here, or click to browse."
 msgstr "ファイルをここにドラッグするか、クリックして参照してください。"
 
 msgid "Due"
-msgstr ""
+msgstr "期限"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 msgid "Due {0}"
@@ -3690,7 +3690,7 @@ msgstr "ITAR データを扱う米国企業向け"
 
 #. placeholder {0}: forecastMethod ?? "unknown"
 msgid "Forecast method: <0>{0}</0>. This row was not derived from active jobs, so no parent sources are available."
-msgstr ""
+msgstr "予測方法: <0>{0}</0>。この行はアクティブなジョブから派生していないため、親ソースは利用できません。"
 
 msgid "Forgot to Clock Out?"
 msgstr "時刻記録を忘れましたか？"
@@ -3834,7 +3834,7 @@ msgid "How the resolved price was calculated."
 msgstr "解決された価格がどのように計算されたかを示します。"
 
 msgid "How this price was calculated"
-msgstr ""
+msgstr "この価格がどのように計算されたか"
 
 msgid "Humidity"
 msgstr "湿度"
@@ -4002,7 +4002,7 @@ msgid "Internal Notes"
 msgstr "内部メモ"
 
 msgid "inv"
-msgstr ""
+msgstr "在庫"
 
 msgid "Invalid Invite"
 msgstr "無効な招待"
@@ -4284,7 +4284,7 @@ msgid "Lead Time"
 msgstr "リードタイム"
 
 msgid "Lead time (days)"
-msgstr ""
+msgstr "リードタイム（日数）"
 
 msgid "Lead Time (Days)"
 msgstr "リードタイム（日数）"
@@ -4367,7 +4367,7 @@ msgid "Linked entity quantity ({0}) does not match row quantity ({1})."
 msgstr "リンクされたエンティティの数量({0})が行の数量({1})と一致しません。"
 
 msgid "Linked PO"
-msgstr ""
+msgstr "リンク済みPO"
 
 msgid "List Options"
 msgstr "リストオプション"
@@ -4437,7 +4437,7 @@ msgid "Lot"
 msgstr "ロット"
 
 msgid "Lot size"
-msgstr ""
+msgstr "ロットサイズ"
 
 msgid "Lot Size"
 msgstr "ロットサイズ"
@@ -4843,7 +4843,7 @@ msgid "NCRs by Type"
 msgstr "タイプ別NCR"
 
 msgid "Need by"
-msgstr ""
+msgstr "必要日"
 
 msgid "Negative Adjustment"
 msgstr "負の調整"
@@ -5256,7 +5256,7 @@ msgid "No overtime scheduled"
 msgstr "残業予定なし"
 
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
-msgstr ""
+msgstr "親ソースはまだ記録されていません。計画ページの「再計算」をクリックして属性を更新してください。"
 
 msgid "No part ID"
 msgstr "パーツIDなし"
@@ -5508,7 +5508,7 @@ msgid "Order"
 msgstr "注文"
 
 msgid "Order by"
-msgstr ""
+msgstr "注文日"
 
 msgid "Order Date"
 msgstr "注文日"
@@ -5616,7 +5616,7 @@ msgid "Parent Group"
 msgstr "親グループ"
 
 msgid "Parent Item"
-msgstr ""
+msgstr "親アイテム"
 
 msgid "Parent Storage Unit"
 msgstr "親保管ユニット"
@@ -5760,10 +5760,10 @@ msgid "Planned End Time"
 msgstr "計画終了時刻"
 
 msgid "Planned Order"
-msgstr ""
+msgstr "計画注文"
 
 msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
-msgstr ""
+msgstr "計画注文 = 品目の発注ポリシー（または手動で追加）に基づいて予測需要をカバーするためのMRP提案。"
 
 msgid "Planned Start"
 msgstr "計画開始"
@@ -5811,7 +5811,7 @@ msgid "PO PDF"
 msgstr "PO PDF"
 
 msgid "Policy"
-msgstr ""
+msgstr "ポリシー"
 
 msgid "Policy & Procedure"
 msgstr "ポリシーと手順"
@@ -5982,10 +5982,10 @@ msgid "Project"
 msgstr "プロジェクト"
 
 msgid "Projected stock"
-msgstr ""
+msgstr "予測在庫"
 
 msgid "Projection"
-msgstr ""
+msgstr "予測"
 
 msgid "Projections"
 msgstr "予測"
@@ -6094,7 +6094,7 @@ msgid "QR Code to start the next operation for this kanban"
 msgstr "このカンバンの次の操作を開始するためのQRコード"
 
 msgid "Qty"
-msgstr ""
+msgstr "数量"
 
 msgid "Qty to Order"
 msgstr "注文数量"
@@ -6161,7 +6161,7 @@ msgstr "数量タイプ"
 
 #. placeholder {0}: numberFormatter.format(forecastQuantity)
 msgid "Quantity: {0}"
-msgstr ""
+msgstr "数量: {0}"
 
 msgid "Question"
 msgstr "質問"
@@ -6631,7 +6631,7 @@ msgid "Running Total"
 msgstr "実行中の合計"
 
 msgid "Safety stock"
-msgstr ""
+msgstr "安全在庫"
 
 msgid "Safety Stock"
 msgstr "安全在庫"
@@ -7719,7 +7719,7 @@ msgid "The date the customer expects to receive the goods"
 msgstr "顧客が商品を受け取ることを期待する日付"
 
 msgid "The date the item is required on-site to cover the period's projected demand."
-msgstr ""
+msgstr "その期間の予想需要をカバーするために、アイテムがオンサイトで必要とされる日付。"
 
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "テーブルが更新されたときに、更新されたデータを含むPOSTリクエストを受け取るエンドポイント"
@@ -7731,7 +7731,7 @@ msgid "The following line items are missing prices or lead times:"
 msgstr "以下の行項目は価格またはリードタイムが不足しています:"
 
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
-msgstr ""
+msgstr "このPOを発注して、サプライヤーのリードタイムを考慮した上で、必要日までに到着するための最遅発注日です。"
 
 msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
 msgstr "ロットは引き続き却下されますが、少なくとも1つの問題タイプが設定されるまでNCRは自動作成できません。"
@@ -8139,7 +8139,7 @@ msgid "Unit of Measures"
 msgstr "測定単位"
 
 msgid "Unit price"
-msgstr ""
+msgstr "単価"
 
 msgid "Unit Price"
 msgstr "単価"
@@ -8649,7 +8649,7 @@ msgid "Why is the expiration being changed?"
 msgstr "有効期限が変更されるのはなぜですか？"
 
 msgid "Why is this included?"
-msgstr ""
+msgstr "なぜこれが含まれていますか？"
 
 msgid "WIP"
 msgstr "仕掛品"

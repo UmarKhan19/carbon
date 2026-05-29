@@ -2474,10 +2474,10 @@ msgid "Demand Forecast"
 msgstr "Прогноз спроса"
 
 msgid "Demand Forecast — Driven by"
-msgstr ""
+msgstr "Прогноз спроса — Обусловлено"
 
 msgid "Demand forecast = BOM-exploded demand from open sales orders, active jobs, and production projections."
-msgstr ""
+msgstr "Прогноз спроса = спрос, разложенный по BOM, из открытых заказов на продажу, активных работ и прогнозов производства."
 
 msgid "Demand Projections"
 msgstr "Прогнозы спроса"
@@ -2639,7 +2639,7 @@ msgid "Drop your file here, or click to browse."
 msgstr "Перетащите файл сюда или нажмите для обзора."
 
 msgid "Due"
-msgstr ""
+msgstr "Срок"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 msgid "Due {0}"
@@ -3690,7 +3690,7 @@ msgstr "Для компаний США, работающих с данными I
 
 #. placeholder {0}: forecastMethod ?? "unknown"
 msgid "Forecast method: <0>{0}</0>. This row was not derived from active jobs, so no parent sources are available."
-msgstr ""
+msgstr "Метод прогнозирования: <0>{0}</0>. Эта строка не была получена из активных заданий, поэтому родительские источники недоступны."
 
 msgid "Forgot to Clock Out?"
 msgstr "Забыли отметить уход?"
@@ -3834,7 +3834,7 @@ msgid "How the resolved price was calculated."
 msgstr "Как была рассчитана окончательная цена."
 
 msgid "How this price was calculated"
-msgstr ""
+msgstr "Как была рассчитана эта цена"
 
 msgid "Humidity"
 msgstr "Влажность"
@@ -4002,7 +4002,7 @@ msgid "Internal Notes"
 msgstr "Внутренние примечания"
 
 msgid "inv"
-msgstr ""
+msgstr "инв"
 
 msgid "Invalid Invite"
 msgstr "Недействительное приглашение"
@@ -4284,7 +4284,7 @@ msgid "Lead Time"
 msgstr "Время поставки"
 
 msgid "Lead time (days)"
-msgstr ""
+msgstr "Время доставки (дни)"
 
 msgid "Lead Time (Days)"
 msgstr "Время выполнения (дни)"
@@ -4367,7 +4367,7 @@ msgid "Linked entity quantity ({0}) does not match row quantity ({1})."
 msgstr "Количество связанной сущности ({0}) не совпадает с количеством строки ({1})."
 
 msgid "Linked PO"
-msgstr ""
+msgstr "Связанный ПО"
 
 msgid "List Options"
 msgstr "Параметры списка"
@@ -4437,7 +4437,7 @@ msgid "Lot"
 msgstr "Партия"
 
 msgid "Lot size"
-msgstr ""
+msgstr "Размер партии"
 
 msgid "Lot Size"
 msgstr "Размер партии"
@@ -4843,7 +4843,7 @@ msgid "NCRs by Type"
 msgstr "NCRs по типам"
 
 msgid "Need by"
-msgstr ""
+msgstr "Требуется к"
 
 msgid "Negative Adjustment"
 msgstr "Отрицательная корректировка"
@@ -5256,7 +5256,7 @@ msgid "No overtime scheduled"
 msgstr "Нет запланированных переработок"
 
 msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
-msgstr ""
+msgstr "Родительские источники еще не записаны. Нажмите \"Пересчитать\" на странице планирования, чтобы обновить атрибуцию."
 
 msgid "No part ID"
 msgstr "Нет ID детали"
@@ -5508,7 +5508,7 @@ msgid "Order"
 msgstr "Заказ"
 
 msgid "Order by"
-msgstr ""
+msgstr "Заказать до"
 
 msgid "Order Date"
 msgstr "Дата заказа"
@@ -5616,7 +5616,7 @@ msgid "Parent Group"
 msgstr "Родительская группа"
 
 msgid "Parent Item"
-msgstr ""
+msgstr "Родительский товар"
 
 msgid "Parent Storage Unit"
 msgstr "Родительское хранилище"
@@ -5760,10 +5760,10 @@ msgid "Planned End Time"
 msgstr "Запланированное время окончания"
 
 msgid "Planned Order"
-msgstr ""
+msgstr "Плановый заказ"
 
 msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
-msgstr ""
+msgstr "Плановый заказ = предложение MRP для покрытия прогнозируемого спроса на основе политики переупорядочения товара (или добавлено вручную)."
 
 msgid "Planned Start"
 msgstr "Запланированное начало"
@@ -5811,7 +5811,7 @@ msgid "PO PDF"
 msgstr "ПО PDF"
 
 msgid "Policy"
-msgstr ""
+msgstr "Политика"
 
 msgid "Policy & Procedure"
 msgstr "Политика и процедура"
@@ -5982,10 +5982,10 @@ msgid "Project"
 msgstr "Проект"
 
 msgid "Projected stock"
-msgstr ""
+msgstr "Прогнозируемый запас"
 
 msgid "Projection"
-msgstr ""
+msgstr "Прогноз"
 
 msgid "Projections"
 msgstr "Прогнозы"
@@ -6094,7 +6094,7 @@ msgid "QR Code to start the next operation for this kanban"
 msgstr "QR-код для начала следующей операции для этого канбана"
 
 msgid "Qty"
-msgstr ""
+msgstr "Кол-во"
 
 msgid "Qty to Order"
 msgstr "Кол-во для заказа"
@@ -6161,7 +6161,7 @@ msgstr "Тип количества"
 
 #. placeholder {0}: numberFormatter.format(forecastQuantity)
 msgid "Quantity: {0}"
-msgstr ""
+msgstr "Количество: {0}"
 
 msgid "Question"
 msgstr "Вопрос"
@@ -6631,7 +6631,7 @@ msgid "Running Total"
 msgstr "Итоговая сумма"
 
 msgid "Safety stock"
-msgstr ""
+msgstr "Страховой запас"
 
 msgid "Safety Stock"
 msgstr "Страховой запас"
@@ -7719,7 +7719,7 @@ msgid "The date the customer expects to receive the goods"
 msgstr "Дата, когда клиент ожидает получить товары"
 
 msgid "The date the item is required on-site to cover the period's projected demand."
-msgstr ""
+msgstr "Дата, когда товар должен быть доставлен на объект для покрытия прогнозируемого спроса за период."
 
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "Конечная точка, которая получает POST-запрос с обновленными данными при обновлении таблицы"
@@ -7731,7 +7731,7 @@ msgid "The following line items are missing prices or lead times:"
 msgstr "Следующие позиции отсутствуют цены или сроки поставки:"
 
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
-msgstr ""
+msgstr "Последняя дата размещения этого заказа, чтобы он прибыл к требуемой дате, учитывая время доставки поставщика."
 
 msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
 msgstr "Партия все еще будет отклонена, но NCR не может быть автоматически создана до тех пор, пока не будет настроен хотя бы один тип проблемы."
@@ -8139,7 +8139,7 @@ msgid "Unit of Measures"
 msgstr "Единицы измерения"
 
 msgid "Unit price"
-msgstr ""
+msgstr "Цена за единицу"
 
 msgid "Unit Price"
 msgstr "Цена за единицу"
@@ -8649,7 +8649,7 @@ msgid "Why is the expiration being changed?"
 msgstr "Почему истекает срок действия?"
 
 msgid "Why is this included?"
-msgstr ""
+msgstr "Почему это включено?"
 
 msgid "WIP"
 msgstr "НЗП"
