@@ -1,4 +1,5 @@
 import { INTERNAL_ALERTS_SLACK_CHANNEL } from "@carbon/env";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { getSlackClient } from "./slack.server";
 
 type AlertInput = {
@@ -16,11 +17,9 @@ type AlertInput = {
 export async function extractEdgeError(
   supabaseError: unknown
 ): Promise<unknown> {
-  const context = (supabaseError as { context?: Response } | undefined)
-    ?.context;
-  if (!context || typeof context.text !== "function") return supabaseError;
+  if (!(supabaseError instanceof FunctionsHttpError)) return supabaseError;
   try {
-    const cloned = context.clone();
+    const cloned = supabaseError.context.clone();
     const text = await cloned.text();
     try {
       return JSON.parse(text);
