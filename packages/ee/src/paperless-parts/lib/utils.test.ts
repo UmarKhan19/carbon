@@ -57,7 +57,7 @@ describe("calculatePromisedDate", () => {
 
   it("should account for holidays when calculating ship date", () => {
     // Mock date: August 29, 2024 at 7:00 AM (Thursday)
-    const mockDate = new Date("2024-08-29T07:00:00");
+    const mockDate = new Date("2024-08-29T15:00:00Z");
     vi.useFakeTimers();
     vi.setSystemTime(mockDate);
 
@@ -82,8 +82,7 @@ describe("calculatePromisedDate", () => {
     const result = calculatePromisedDate(leadTime, holidays);
     const resultDate = new Date(result);
 
-    // Expected: September 4, 2024 (Wednesday)
-    // Start: Aug 29 (Thu) before cutoff
+    // Start: Aug 29 (Thu) before cutoff (15:00 UTC = morning in US timezones)
     // Add 3 business days: Aug 30 (Fri) +1, Aug 31-Sep 1 (weekend skip),
     // Sep 2 (Mon holiday skip), Sep 3 (Tue) +2, Sep 4 (Wed) +3
     expect(resultDate.getDate()).toBe(4);
@@ -115,8 +114,8 @@ describe("calculatePromisedDate", () => {
   });
 
   it("should handle multiple holidays correctly", () => {
-    // Mock date: August 29, 2024 at 8:00 AM
-    const mockDate = new Date("2024-08-29T08:00:00");
+    // Mock date: August 29, 2024 before cutoff
+    const mockDate = new Date("2024-08-29T15:00:00Z");
     vi.useFakeTimers();
     vi.setSystemTime(mockDate);
 

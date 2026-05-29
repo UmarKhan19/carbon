@@ -55,7 +55,7 @@ export type BomExplosionOutput = {
 
 export function splitKey(key: string): [string, string, string] {
   const parts = key.split("-");
-  return [parts[0], parts[1], parts.slice(2).join("-")];
+  return [parts[0]!, parts[1]!, parts.slice(2).join("-")];
 }
 
 export function makeKey(
