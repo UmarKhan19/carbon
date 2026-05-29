@@ -142,6 +142,7 @@ const SupplierPartForm = ({
 
   useEffect(() => {
     if (fetcher.data?.success) {
+      if (fetcher.data?.message) toast.success(fetcher.data.message);
       onClose();
     } else if (fetcher.data?.message) {
       toast.error(fetcher.data.message);

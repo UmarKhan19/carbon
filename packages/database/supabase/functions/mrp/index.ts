@@ -465,10 +465,14 @@ serve(async (req: Request) => {
         const effectiveRepSys =
           repSys === "Buy and Make" ? "Buy" : (repSys as "Buy" | "Make" | undefined);
 
-        // ── Inventory Netting ──
+        // ── Inventory + Supply Netting ──
         const invKey = `${locationId}-${itemId}`;
         const onHand = onHandByLocationItem.get(invKey) ?? 0;
-        const netRequirement = Math.max(0, grossQty - Math.max(0, onHand));
+        const productionSupply = jobSupplyByLocationPeriodItem.get(key) ?? 0;
+        const netRequirement = Math.max(
+          0,
+          grossQty - Math.max(0, onHand) - productionSupply
+        );
 
         // Consume on-hand inventory
         if (onHand > 0) {
@@ -486,13 +490,11 @@ serve(async (req: Request) => {
                 ? "Buy"
                 : (childRepSys as "Buy" | "Make" | undefined);
 
-            // Skip Make+Make (produced in-line, not independently planned)
-            if (
+            // Make+Make to Order = produced in-line, not independently planned.
+            // Still propagate to grossDemand so children get exploded.
+            const isInlineProduction =
               child.methodType === "Make to Order" &&
-              childEffRepSys === "Make"
-            ) {
-              continue;
-            }
+              childEffRepSys === "Make";
 
             const childQty = child.quantity * netRequirement;
             const childLeadTimeDays = leadTimeByItem.get(child.itemId) ?? 7;
@@ -514,18 +516,22 @@ serve(async (req: Request) => {
                 childKey,
                 (grossDemand.get(childKey) ?? 0) + childQty
               );
-              bomDerivedDemand.set(
-                childKey,
-                (bomDerivedDemand.get(childKey) ?? 0) + childQty
-              );
+              if (!isInlineProduction) {
+                bomDerivedDemand.set(
+                  childKey,
+                  (bomDerivedDemand.get(childKey) ?? 0) + childQty
+                );
+              }
 
               // Inherit contributors from this level's key (= the parent item's
               // grossDemand key for this period) and scale by child.quantity.
               // Level-0 keys read from topLevelContributors (seeded above);
               // deeper levels read from demandContributors accumulated during
               // prior explosions of this same parent key at an earlier level.
-              const parentContributors =
-                demandContributors.get(key) ?? topLevelContributors.get(key) ?? [];
+              const parentContributors = [
+                ...(demandContributors.get(key) ?? []),
+                ...(topLevelContributors.get(key) ?? []),
+              ];
               if (parentContributors.length > 0) {
                 const childContributors = demandContributors.get(childKey) ?? [];
                 for (const pc of parentContributors) {
@@ -917,15 +923,6 @@ function computeLowLevelCodes(
 
     const children = bomByItem.get(itemId) ?? [];
     for (const child of children) {
-      const childRepSys = replenishmentSystemByItem.get(child.itemId);
-      const childEffRepSys =
-        childRepSys === "Buy and Make" ? "Buy" : childRepSys;
-
-      // Skip Make+Make (produced in-line)
-      if (child.methodType === "Make to Order" && childEffRepSys === "Make") {
-        continue;
-      }
-
       assignLevel(child.itemId, level + 1, new Set(visited));
     }
   }
