@@ -1726,7 +1726,6 @@ export type Database = {
           lowerBoundAmount: number
           updatedAt: string | null
           updatedBy: string | null
-          upperBoundAmount: number | null
         }
         Insert: {
           approverGroupIds?: string[] | null
@@ -1741,7 +1740,6 @@ export type Database = {
           lowerBoundAmount?: number
           updatedAt?: string | null
           updatedBy?: string | null
-          upperBoundAmount?: number | null
         }
         Update: {
           approverGroupIds?: string[] | null
@@ -1756,7 +1754,6 @@ export type Database = {
           lowerBoundAmount?: number
           updatedAt?: string | null
           updatedBy?: string | null
-          upperBoundAmount?: number | null
         }
         Relationships: [
           {
@@ -18267,7 +18264,7 @@ export type Database = {
           longitude: number | null
           name: string
           postalCode: string
-          stateProvince: string
+          stateProvince: string | null
           tags: string[] | null
           timezone: string
           updatedAt: string | null
@@ -18287,7 +18284,7 @@ export type Database = {
           longitude?: number | null
           name: string
           postalCode: string
-          stateProvince: string
+          stateProvince?: string | null
           tags?: string[] | null
           timezone: string
           updatedAt?: string | null
@@ -18307,7 +18304,7 @@ export type Database = {
           longitude?: number | null
           name?: string
           postalCode?: string
-          stateProvince?: string
+          stateProvince?: string | null
           tags?: string[] | null
           timezone?: string
           updatedAt?: string | null
@@ -38517,7 +38514,49 @@ export type Database = {
           },
         ]
       }
-      searchIndex_2Sxt8DZE6659VemyRky693: {
+      searchIndex_PAoZnxZFhuiaaU6EsvyrVS: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
+      searchIndex_WbvVgr1aYFZjGDegRYLAqe: {
         Row: {
           createdAt: string
           description: string | null
@@ -55657,7 +55696,13 @@ export type Database = {
       }
       purchaseOrders: {
         Row: {
+          accountManagerEmail: string | null
+          accountManagerFullName: string | null
+          accountManagerPhone: string | null
           assignee: string | null
+          assigneeEmail: string | null
+          assigneeFullName: string | null
+          assigneePhone: string | null
           closedAt: string | null
           closedBy: string | null
           companyId: string | null
@@ -59075,14 +59120,14 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -59649,14 +59694,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
