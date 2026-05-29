@@ -42,8 +42,6 @@ const EXTERNAL_ID_KEY = "csv";
  * dropped, missing cells become "").
  */
 function parsePermissiveCsv(text: string): Record<string, string>[] {
-  // Tokenize the full text into a 2D array of cells, respecting quoted fields
-  // that may span commas and newlines.
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
@@ -80,7 +78,6 @@ function parsePermissiveCsv(text: string): Record<string, string>[] {
       field += c;
     }
   }
-  // Trailing field / row (no terminating newline)
   if (field !== "" || row.length > 0) {
     row.push(field);
     if (row.length > 1 || (row.length === 1 && row[0] !== "")) {
@@ -852,17 +849,14 @@ serve(async (req: Request) => {
       return record;
     });
 
-    // Determine which enum keys are missing from the first record
     const missingEnumKeys = Object.keys(enumMappings).filter(
       (key) => !(key in mappedRecords[0])
     );
 
     if (missingEnumKeys.length > 0) {
-      // Add default values for missing enum keys
       mappedRecords = mappedRecords.map((record) => {
         const processedRecord = { ...record };
 
-        // Add default values for missing enum keys
         missingEnumKeys.forEach((key) => {
           processedRecord[key] = enumMappings[key]["Default"];
         });
@@ -1519,7 +1513,6 @@ serve(async (req: Request) => {
               .returning(["id", "readableId"])
               .execute();
 
-            // Create CSV mappings for newly inserted items
             await upsertCsvMappings(
               trx,
               "item",
@@ -1621,7 +1614,6 @@ serve(async (req: Request) => {
           });
 
           if (itemUpdates.length > 0) {
-            // Get current readableIds to detect changes
             const currentItems = await trx
               .selectFrom("item")
               .select(["id", "readableId"])
@@ -1643,7 +1635,6 @@ serve(async (req: Request) => {
                 .execute();
             }
 
-            // Update type-specific table id when readableId changes
             for (const update of itemUpdates) {
               const oldReadableId = currentReadableIdMap.get(update.id);
               const newReadableId = update.data.readableId;
