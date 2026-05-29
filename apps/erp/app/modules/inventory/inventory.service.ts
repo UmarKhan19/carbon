@@ -1352,18 +1352,14 @@ export async function insertManualInventoryAdjustment(
     }
   }
 
-  // When a SERIAL item's "Update Inventory" form is submitted without selecting a
-  // specific row, trackedEntityId is always a fresh nanoid() with no ledger history.
-  // For negative adjustments, resolve the correct stock target before the standard
-  // check runs:
-  //   1. If readableId is provided, find and adjust that specific tracked entity.
+  // When no current stock is found for a negative adjustment, resolve the correct
+  // stock target via readableId lookup or legacy (untracked) stock fallback.
+  // This covers SERIAL items submitted from "Update Inventory" (fresh nanoid as
+  // trackedEntityId) as well as cases where trackedEntityId is absent entirely.
+  //   1. If readableId is provided, adjust that specific tracked entity.
   //      If the serial number is not found, return an error — never silently fall back.
   //   2. If no readableId, fall back to untracked (legacy) stock.
-  if (
-    data.entryType === "Negative Adjmt." &&
-    inventoryAdjustment.trackedEntityId &&
-    !currentQuantity
-  ) {
+  if (data.entryType === "Negative Adjmt." && !currentQuantity) {
     if (readableId) {
       // storageUnitQuantities is already scoped to this item + location, so
       // matching by readableId here is safe even if the same serial exists on
