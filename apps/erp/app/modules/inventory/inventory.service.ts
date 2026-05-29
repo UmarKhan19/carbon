@@ -1352,20 +1352,27 @@ export async function insertManualInventoryAdjustment(
     }
   }
 
-  // When no current stock is found for a negative adjustment, resolve the correct
-  // stock target via readableId lookup or legacy (untracked) stock fallback.
-  // This covers SERIAL items submitted from "Update Inventory" (fresh nanoid as
-  // trackedEntityId) as well as cases where trackedEntityId is absent entirely.
-  //   1. If readableId is provided, adjust that specific tracked entity.
-  //      If the serial number is not found, return an error — never silently fall back.
+  // Resolve the correct stock target for a negative adjustment when:
+  //   - readableId is provided: always resolve via serial number (currentQuantity
+  //     may point to the wrong row due to loose null == undefined matching), OR
+  //   - No currentQuantity found at all: fall back to untracked (legacy) stock.
+  //
+  //   1. If readableId is provided, adjust the entity with that serial number that
+  //      has positive stock. If not found, return an error — never silently fall back.
   //   2. If no readableId, fall back to untracked (legacy) stock.
-  if (data.entryType === "Negative Adjmt." && !currentQuantity) {
+  if (
+    data.entryType === "Negative Adjmt." &&
+    (readableId || !currentQuantity)
+  ) {
     if (readableId) {
-      // storageUnitQuantities is already scoped to this item + location, so
-      // matching by readableId here is safe even if the same serial exists on
-      // other items in the same company.
+      // storageUnitQuantities is scoped to this item + location.
+      // Filter to positive-qty rows only — multiple entities can share a readableId
+      // if the same serial was used across repeated positive adjustments.
       const resolvedQtyRow = storageUnitQuantities?.data?.find(
-        (q) => q.readableId === readableId && q.trackedEntityId != null
+        (q) =>
+          q.readableId === readableId &&
+          q.trackedEntityId != null &&
+          (q.quantity ?? 0) > 0
       );
       if (!resolvedQtyRow) {
         return { error: "Serial number not found" };
