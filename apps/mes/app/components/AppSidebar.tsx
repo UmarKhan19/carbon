@@ -222,7 +222,8 @@ export function OperationsNav({
     }
   ];
 
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (

@@ -6,6 +6,7 @@ import { memo, useCallback, useMemo } from "react";
 import {
   LuBriefcase,
   LuMail,
+  LuMapPin,
   LuPencil,
   LuToggleRight,
   LuUser,
@@ -14,6 +15,7 @@ import {
 import { useNavigate } from "react-router";
 import { Avatar, EmployeeAvatar, Hyperlink, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
+import { useLocations } from "~/components/Form/Location";
 import { usePermissions, useUrlParams } from "~/hooks";
 import { DataType } from "~/modules/shared";
 import type { EmployeeType } from "~/modules/users";
@@ -33,6 +35,7 @@ const PeopleTable = memo(
     const { locale } = useLocale();
     const navigate = useNavigate();
     const permissions = usePermissions();
+    const locations = useLocations();
     const [params] = useUrlParams();
 
     const employeeTypesById = useMemo(
@@ -157,6 +160,21 @@ const PeopleTable = memo(
           }
         },
         {
+          id: "locationId",
+          header: t`Location`,
+          cell: ({ row }) => <Enumerable value={row.original.locationName} />,
+          meta: {
+            filter: {
+              type: "static",
+              options: locations.map((location) => ({
+                value: location.value,
+                label: <Enumerable value={location.label} />
+              }))
+            },
+            icon: <LuMapPin />
+          }
+        },
+        {
           accessorKey: "active",
           header: t`Active`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
@@ -197,6 +215,7 @@ const PeopleTable = memo(
       attributeCategories,
       employeeTypes,
       employeeTypesById,
+      locations,
       renderGenericAttribute,
       t
     ]);

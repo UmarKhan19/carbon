@@ -85,6 +85,9 @@ msgstr "Êtes-vous sûr de vouloir supprimer cette fiche de temps ? Cette action
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "Êtes-vous sûr de vouloir mettre fin à tous les événements de production ? Cela arrêtera toutes les opérations actives sans les terminer ni les achever."
 
+msgid "Are you sure you want to leave this page?"
+msgstr "Êtes-vous sûr de vouloir quitter cette page ?"
+
 msgid "Assigned"
 msgstr "Assigné"
 
@@ -201,6 +204,9 @@ msgstr "Entreprise"
 msgid "Complete"
 msgstr "Terminé"
 
+msgid "Complete All"
+msgstr "Tout compléter"
+
 msgid "Completed"
 msgstr "Terminé"
 
@@ -217,6 +223,12 @@ msgstr "Consommé expiré"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Créer {0}"
+
+msgid "Create Issue"
+msgstr "Créer un problème"
+
+msgid "Create Quality Issue"
+msgstr "Créer un problème de qualité"
 
 msgid "Customer"
 msgstr "Client"
@@ -242,6 +254,9 @@ msgstr "Supprimer l'étape"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "Supprimer la fiche de temps ({0})"
+
+msgid "Describe the problem..."
+msgstr "Décrivez le problème..."
 
 msgid "Description"
 msgstr "Description"
@@ -269,8 +284,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Déplacement de {0} annulé."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Échéance {0}"
 
@@ -387,6 +402,9 @@ msgstr "Distribuer"
 msgid "Issue Material"
 msgstr "Distribuer le matériau"
 
+msgid "Issue Type"
+msgstr "Type de problème"
+
 msgid "Item"
 msgstr "Article"
 
@@ -410,6 +428,9 @@ msgstr "Kit"
 
 msgid "Labor"
 msgstr "Main-d'œuvre"
+
+msgid "Leave this page"
+msgstr "Quitter cette page"
 
 msgid "Let's build something"
 msgstr "Construisons quelque chose"
@@ -665,6 +686,12 @@ msgstr "Processus"
 msgid "Progress"
 msgstr "Progression"
 
+msgid "Quality Issue"
+msgstr "Problème de qualité"
+
+msgid "Quality issue created"
+msgstr "Problème de qualité créé"
+
 msgid "Quantity"
 msgstr "Quantité"
 
@@ -835,6 +862,9 @@ msgstr "Statut"
 msgid "Statuses"
 msgstr "Statuts"
 
+msgid "Stay on this page"
+msgstr "Rester sur cette page"
+
 msgid "Steps"
 msgstr "Étapes"
 
@@ -907,6 +937,9 @@ msgstr "Matériaux série/lot non distribués"
 
 msgid "Unknown"
 msgstr "Inconnu"
+
+msgid "Unsaved changes"
+msgstr "Modifications non enregistrées"
 
 msgid "Update"
 msgstr "Mettre à jour"

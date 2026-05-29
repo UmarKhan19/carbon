@@ -89039,6 +89039,16 @@ export default {
         active: {
           format: "boolean",
           type: "boolean"
+        },
+        locationId: {
+          description:
+            "Note:\nThis is a Foreign Key to `location.id`.<fk table='location' column='id'/>",
+          format: "text",
+          type: "string"
+        },
+        locationName: {
+          format: "text",
+          type: "string"
         }
       },
       type: "object"

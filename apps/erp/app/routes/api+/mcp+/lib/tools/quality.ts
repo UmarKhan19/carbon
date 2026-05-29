@@ -78,6 +78,14 @@ import {
   upsertQualityDocument,
   upsertQualityDocumentStep,
   upsertRisk,
+  getInspectionDocuments,
+  getInspectionDocument,
+  upsertInspectionDocument,
+  deleteInspectionDocument,
+  getBalloons,
+  getInspectionFeatures,
+  getInspectionPlan,
+  saveInspectionDocumentAtomic,
 } from "~/modules/quality/quality.service";
 import {
   nonConformanceReviewerValidator,
@@ -90,6 +98,7 @@ import {
   qualityDocumentValidator,
   qualityDocumentStepValidator,
   riskRegisterValidator,
+  inspectionDocumentValidator,
 } from "~/modules/quality/quality.models";
 
 export const registerQualityTools: RegisterTools = (server, ctx) => {
@@ -1167,5 +1176,148 @@ export const registerQualityTools: RegisterTools = (server, ctx) => {
       const result = await upsertRisk(ctx.client, { ...params.risk, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: quality_upsertRisk"),
+  );
+
+  server.registerTool(
+    "quality_getInspectionDocuments",
+    {
+      description: "get inspection documents",
+      inputSchema: {
+      args: z.object({
+    limit: z.number().int().default(100),
+    offset: z.number().int().default(0)
+  }).optional(),
+    },
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getInspectionDocuments(ctx.client, ctx.companyId, params.args);
+      return toMcpResult(result);
+    }, "Failed: quality_getInspectionDocuments"),
+  );
+
+  server.registerTool(
+    "quality_getInspectionDocument",
+    {
+      description: "get inspection document",
+      inputSchema: {
+      id: z.string(),
+    },
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getInspectionDocument(ctx.client, params.id);
+      return toMcpResult(result);
+    }, "Failed: quality_getInspectionDocument"),
+  );
+
+  server.registerTool(
+    "quality_upsertInspectionDocument",
+    {
+      description: "upsert inspection document",
+      inputSchema: {
+      diagram: inspectionDocumentValidator,
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await upsertInspectionDocument(ctx.client, { ...params.diagram, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: quality_upsertInspectionDocument"),
+  );
+
+  server.registerTool(
+    "quality_deleteInspectionDocument",
+    {
+      description: "delete inspection document",
+      inputSchema: {
+      id: z.string(),
+    },
+      annotations: DESTRUCTIVE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await deleteInspectionDocument(ctx.client, params.id);
+      return toMcpResult(result);
+    }, "Failed: quality_deleteInspectionDocument"),
+  );
+
+  server.registerTool(
+    "quality_getBalloons",
+    {
+      description: "get balloons",
+      inputSchema: {
+      inspectionDocumentId: z.string(),
+    },
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getBalloons(ctx.client, params.inspectionDocumentId);
+      return toMcpResult(result);
+    }, "Failed: quality_getBalloons"),
+  );
+
+  server.registerTool(
+    "quality_getInspectionFeatures",
+    {
+      description: "get inspection document features (characteristics grid)",
+      inputSchema: {
+        inspectionDocumentId: z.string()
+      },
+      annotations: READ_ONLY_ANNOTATIONS
+    },
+    withErrorHandling(async (params) => {
+      const result = await getInspectionFeatures(
+        ctx.client,
+        params.inspectionDocumentId
+      );
+      return toMcpResult(result);
+    }, "Failed: quality_getInspectionFeatures")
+  );
+
+  server.registerTool(
+    "quality_getInspectionPlan",
+    {
+      description:
+        "get inspection plan; each measurement id/featureId is inspectionFeature id, balloonId set when placed on drawing",
+      inputSchema: {
+      inspectionDocumentId: z.string(),
+    },
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getInspectionPlan(ctx.client, params.inspectionDocumentId);
+      return toMcpResult(result);
+    }, "Failed: quality_getInspectionPlan"),
+  );
+
+  server.registerTool(
+    "quality_saveInspectionDocumentAtomic",
+    {
+      description:
+        "save inspection document; features {create,update,delete} + balloons geometry {create,update,delete} (delete = unplace)",
+      inputSchema: {
+      args: z.object({
+    inspectionDocumentId: z.string(),
+    pdfUrl: z.string().nullable().optional(),
+    pageCount: z.number().optional(),
+    defaultPageWidth: z.number().optional(),
+    defaultPageHeight: z.number().optional(),
+    features: z.any().optional(),
+    balloons: z.any().optional()
+  }),
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const { features, balloons, ...rest } = params.args;
+      const result = await saveInspectionDocumentAtomic(ctx.client, {
+        ...rest,
+        features: features ?? { create: [], update: [], delete: [] },
+        balloons: balloons ?? { create: [], update: [], delete: [] },
+        companyId: ctx.companyId,
+        userId: ctx.userId
+      });
+      return toMcpResult(result);
+    }, "Failed: quality_saveInspectionDocumentAtomic"),
   );
 };

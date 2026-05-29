@@ -1995,6 +1995,180 @@ export type Database = {
           },
         ]
       }
+      balloon: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          id: string
+          inspectionDocumentId: string
+          inspectionFeatureId: string
+          pageNumber: number
+          regionHeight: number
+          regionWidth: number
+          regionX: number
+          regionY: number
+          updatedAt: string | null
+          updatedBy: string | null
+          xCoordinate: number
+          yCoordinate: number
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          id?: string
+          inspectionDocumentId: string
+          inspectionFeatureId: string
+          pageNumber: number
+          regionHeight: number
+          regionWidth: number
+          regionX: number
+          regionY: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+          xCoordinate: number
+          yCoordinate: number
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          id?: string
+          inspectionDocumentId?: string
+          inspectionFeatureId?: string
+          pageNumber?: number
+          regionHeight?: number
+          regionWidth?: number
+          regionX?: number
+          regionY?: number
+          updatedAt?: string | null
+          updatedBy?: string | null
+          xCoordinate?: number
+          yCoordinate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "balloon_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "balloon_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "balloon_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "balloon_document_company_fkey"
+            columns: ["inspectionDocumentId", "companyId"]
+            isOneToOne: false
+            referencedRelation: "inspectionDocument"
+            referencedColumns: ["id", "companyId"]
+          },
+          {
+            foreignKeyName: "balloon_document_company_fkey"
+            columns: ["inspectionDocumentId", "companyId"]
+            isOneToOne: false
+            referencedRelation: "inspectionDocuments"
+            referencedColumns: ["id", "companyId"]
+          },
+          {
+            foreignKeyName: "balloon_inspectionFeatureId_fkey"
+            columns: ["inspectionFeatureId", "companyId"]
+            isOneToOne: false
+            referencedRelation: "inspectionFeature"
+            referencedColumns: ["id", "companyId"]
+          },
+          {
+            foreignKeyName: "balloon_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "balloon_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       batchProperty: {
         Row: {
           companyId: string
@@ -7347,6 +7521,227 @@ export type Database = {
           },
         ]
       }
+      demandForecastSource: {
+        Row: {
+          companyId: string
+          createdAt: string
+          demandProjectionId: string | null
+          id: string
+          itemId: string
+          jobId: string | null
+          locationId: string | null
+          parentItemId: string
+          periodId: string
+          quantity: number
+          salesOrderLineId: string | null
+          sourceType: Database["public"]["Enums"]["demandForecastSourceType"]
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          demandProjectionId?: string | null
+          id?: string
+          itemId: string
+          jobId?: string | null
+          locationId?: string | null
+          parentItemId: string
+          periodId: string
+          quantity: number
+          salesOrderLineId?: string | null
+          sourceType: Database["public"]["Enums"]["demandForecastSourceType"]
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          demandProjectionId?: string | null
+          id?: string
+          itemId?: string
+          jobId?: string | null
+          locationId?: string | null
+          parentItemId?: string
+          periodId?: string
+          quantity?: number
+          salesOrderLineId?: string | null
+          sourceType?: Database["public"]["Enums"]["demandForecastSourceType"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demandForecastSource_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_demandProjectionId_fkey"
+            columns: ["demandProjectionId"]
+            isOneToOne: false
+            referencedRelation: "demandProjection"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_itemId_fkey"
+            columns: ["itemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_jobId_fkey"
+            columns: ["jobId"]
+            isOneToOne: false
+            referencedRelation: "job"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_jobId_fkey"
+            columns: ["jobId"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_jobId_fkey"
+            columns: ["jobId"]
+            isOneToOne: false
+            referencedRelation: "openProductionOrders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_parentItemId_fkey"
+            columns: ["parentItemId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_parentItemId_fkey"
+            columns: ["parentItemId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_parentItemId_fkey"
+            columns: ["parentItemId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_parentItemId_fkey"
+            columns: ["parentItemId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_parentItemId_fkey"
+            columns: ["parentItemId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_parentItemId_fkey"
+            columns: ["parentItemId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_periodId_fkey"
+            columns: ["periodId"]
+            isOneToOne: false
+            referencedRelation: "period"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_salesOrderLineId_fkey"
+            columns: ["salesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "openSalesOrderLines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_salesOrderLineId_fkey"
+            columns: ["salesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderLine"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demandForecastSource_salesOrderLineId_fkey"
+            columns: ["salesOrderLineId"]
+            isOneToOne: false
+            referencedRelation: "salesOrderLines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demandProjection: {
         Row: {
           companyId: string
@@ -7355,6 +7750,7 @@ export type Database = {
           createdBy: string
           forecastMethod: string | null
           forecastQuantity: number
+          id: string
           itemId: string
           locationId: string
           notes: string | null
@@ -7369,6 +7765,7 @@ export type Database = {
           createdBy: string
           forecastMethod?: string | null
           forecastQuantity?: number
+          id?: string
           itemId: string
           locationId: string
           notes?: string | null
@@ -7383,6 +7780,7 @@ export type Database = {
           createdBy?: string
           forecastMethod?: string | null
           forecastQuantity?: number
+          id?: string
           itemId?: string
           locationId?: string
           notes?: string | null
@@ -12149,6 +12547,403 @@ export type Database = {
           },
           {
             foreignKeyName: "inboundInspectionSample_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      inspectionDocument: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          defaultPageHeight: number | null
+          defaultPageWidth: number | null
+          drawingNumber: string | null
+          fileName: string | null
+          id: string
+          pageCount: number | null
+          partId: string
+          storagePath: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+          uploadedBy: string | null
+          version: number
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          defaultPageHeight?: number | null
+          defaultPageWidth?: number | null
+          drawingNumber?: string | null
+          fileName?: string | null
+          id?: string
+          pageCount?: number | null
+          partId: string
+          storagePath?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+          uploadedBy?: string | null
+          version?: number
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          defaultPageHeight?: number | null
+          defaultPageWidth?: number | null
+          drawingNumber?: string | null
+          fileName?: string | null
+          id?: string
+          pageCount?: number | null
+          partId?: string
+          storagePath?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+          uploadedBy?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspectionDocument_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
+      inspectionFeature: {
+        Row: {
+          companyId: string
+          createdAt: string
+          createdBy: string
+          description: string | null
+          id: string
+          inspectionDocumentId: string
+          label: string
+          nominalValue: string | null
+          pageNumber: number
+          toleranceMinus: string | null
+          tolerancePlus: string | null
+          type: Database["public"]["Enums"]["procedureStepType"]
+          unit: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          companyId: string
+          createdAt?: string
+          createdBy: string
+          description?: string | null
+          id?: string
+          inspectionDocumentId: string
+          label: string
+          nominalValue?: string | null
+          pageNumber: number
+          toleranceMinus?: string | null
+          tolerancePlus?: string | null
+          type?: Database["public"]["Enums"]["procedureStepType"]
+          unit?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          companyId?: string
+          createdAt?: string
+          createdBy?: string
+          description?: string | null
+          id?: string
+          inspectionDocumentId?: string
+          label?: string
+          nominalValue?: string | null
+          pageNumber?: number
+          toleranceMinus?: string | null
+          tolerancePlus?: string | null
+          type?: Database["public"]["Enums"]["procedureStepType"]
+          unit?: string | null
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspectionFeature_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_document_company_fkey"
+            columns: ["inspectionDocumentId", "companyId"]
+            isOneToOne: false
+            referencedRelation: "inspectionDocument"
+            referencedColumns: ["id", "companyId"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_document_company_fkey"
+            columns: ["inspectionDocumentId", "companyId"]
+            isOneToOne: false
+            referencedRelation: "inspectionDocuments"
+            referencedColumns: ["id", "companyId"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionFeature_updatedBy_fkey"
             columns: ["updatedBy"]
             isOneToOne: false
             referencedRelation: "userDefaults"
@@ -17469,7 +18264,7 @@ export type Database = {
           longitude: number | null
           name: string
           postalCode: string
-          stateProvince: string
+          stateProvince: string | null
           tags: string[] | null
           timezone: string
           updatedAt: string | null
@@ -17489,7 +18284,7 @@ export type Database = {
           longitude?: number | null
           name: string
           postalCode: string
-          stateProvince: string
+          stateProvince?: string | null
           tags?: string[] | null
           timezone: string
           updatedAt?: string | null
@@ -17509,7 +18304,7 @@ export type Database = {
           longitude?: number | null
           name?: string
           postalCode?: string
-          stateProvince?: string
+          stateProvince?: string | null
           tags?: string[] | null
           timezone?: string
           updatedAt?: string | null
@@ -37719,7 +38514,49 @@ export type Database = {
           },
         ]
       }
-      searchIndex_G3AKJj1orZNDa3fwn8a6Uy: {
+      searchIndex_PAoZnxZFhuiaaU6EsvyrVS: {
+        Row: {
+          createdAt: string
+          description: string | null
+          entityId: string
+          entityType: string
+          id: number
+          link: string
+          metadata: Json | null
+          searchVector: unknown
+          tags: string[] | null
+          title: string
+          updatedAt: string | null
+        }
+        Insert: {
+          createdAt?: string
+          description?: string | null
+          entityId: string
+          entityType: string
+          id?: number
+          link: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title: string
+          updatedAt?: string | null
+        }
+        Update: {
+          createdAt?: string
+          description?: string | null
+          entityId?: string
+          entityType?: string
+          id?: number
+          link?: string
+          metadata?: Json | null
+          searchVector?: unknown
+          tags?: string[] | null
+          title?: string
+          updatedAt?: string | null
+        }
+        Relationships: []
+      }
+      searchIndex_WbvVgr1aYFZjGDegRYLAqe: {
         Row: {
           createdAt: string
           description: string | null
@@ -49220,6 +50057,8 @@ export type Database = {
           firstName: string | null
           id: string | null
           lastName: string | null
+          locationId: string | null
+          locationName: string | null
           name: string | null
         }
         Relationships: [
@@ -49256,6 +50095,13 @@ export type Database = {
             columns: ["employeeTypeId"]
             isOneToOne: false
             referencedRelation: "employeeType"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employeeJob_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
             referencedColumns: ["id"]
           },
         ]
@@ -49970,6 +50816,203 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "integrations"
             referencedColumns: ["companyId"]
+          },
+        ]
+      }
+      inspectionDocuments: {
+        Row: {
+          companyId: string | null
+          createdAt: string | null
+          createdBy: string | null
+          defaultPageHeight: number | null
+          defaultPageWidth: number | null
+          drawingNumber: string | null
+          fileName: string | null
+          id: string | null
+          pageCount: number | null
+          partId: string | null
+          partReadableId: string | null
+          storagePath: string | null
+          updatedAt: string | null
+          updatedBy: string | null
+          uploadedBy: string | null
+          version: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspectionDocument_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "consumables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_partId_fkey"
+            columns: ["partId"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_updatedBy_fkey"
+            columns: ["updatedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inspectionDocument_uploadedBy_fkey"
+            columns: ["uploadedBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
           },
         ]
       }
@@ -54637,14 +55680,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -54653,7 +55696,13 @@ export type Database = {
       }
       purchaseOrders: {
         Row: {
+          accountManagerEmail: string | null
+          accountManagerFullName: string | null
+          accountManagerPhone: string | null
           assignee: string | null
+          assigneeEmail: string | null
+          assigneeFullName: string | null
+          assigneePhone: string | null
           closedAt: string | null
           closedBy: string | null
           companyId: string | null
@@ -58064,14 +59113,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -58645,14 +59694,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["paymentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["paymentCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -63731,6 +64780,20 @@ export type Database = {
         Args: { p_item_id: string; p_receipt_id: string }
         Returns: string
       }
+      save_inspection_document_atomic: {
+        Args: {
+          p_balloons?: Json
+          p_company_id: string
+          p_default_page_height?: number
+          p_default_page_width?: number
+          p_features?: Json
+          p_inspection_document_id: string
+          p_page_count?: number
+          p_pdf_url?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       search_company_index: {
         Args: {
           p_company_id: string
@@ -64136,6 +65199,10 @@ export type Database = {
         | "Total"
       customRuleTargetType: "item" | "storageUnit" | "workCenter"
       deadlineType: "No Deadline" | "ASAP" | "Soft Deadline" | "Hard Deadline"
+      demandForecastSourceType:
+        | "Job Material"
+        | "Sales Order"
+        | "Demand Projection"
       demandSourceType: "Sales Order" | "Job Material"
       depreciationMethod:
         | "Straight Line"
@@ -65404,6 +66471,11 @@ export const Constants = {
       ],
       customRuleTargetType: ["item", "storageUnit", "workCenter"],
       deadlineType: ["No Deadline", "ASAP", "Soft Deadline", "Hard Deadline"],
+      demandForecastSourceType: [
+        "Job Material",
+        "Sales Order",
+        "Demand Projection",
+      ],
       demandSourceType: ["Sales Order", "Job Material"],
       depreciationMethod: [
         "Straight Line",

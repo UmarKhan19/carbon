@@ -1,6 +1,5 @@
--- In-app notification store. Replaces Novu cloud storage so we own the data
--- and can stream changes to clients via Supabase Realtime instead of Novu's
--- WebSocket service.
+-- In-app notification store. Owns the data so we can stream changes to
+-- clients via Supabase Realtime.
 --
 -- Grouping model: notifications can be flat or grouped under a "digest" row.
 -- A digest is itself a notification row (event = "digest"); its children point

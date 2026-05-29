@@ -85,6 +85,9 @@ msgstr "¿Está seguro de que desea eliminar esta tarjeta de tiempo? Esta acció
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "¿Está seguro de que desea finalizar todos los eventos de producción? Esto terminará todas las operaciones activas sin completarlas ni finalizarlas."
 
+msgid "Are you sure you want to leave this page?"
+msgstr "¿Estás seguro de que quieres salir de esta página?"
+
 msgid "Assigned"
 msgstr "Asignado"
 
@@ -201,6 +204,9 @@ msgstr "Empresa"
 msgid "Complete"
 msgstr "Completar"
 
+msgid "Complete All"
+msgstr "Completar todo"
+
 msgid "Completed"
 msgstr "Completado"
 
@@ -217,6 +223,12 @@ msgstr "Consumido vencido"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Crear {0}"
+
+msgid "Create Issue"
+msgstr "Crear Problema"
+
+msgid "Create Quality Issue"
+msgstr "Crear Problema de Calidad"
 
 msgid "Customer"
 msgstr "Cliente"
@@ -242,6 +254,9 @@ msgstr "Eliminar paso"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "Eliminar tarjeta de tiempo ({0})"
+
+msgid "Describe the problem..."
+msgstr "Describe el problema..."
 
 msgid "Description"
 msgstr "Descripción"
@@ -269,8 +284,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Se canceló el arrastre de {0}."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Vence {0}"
 
@@ -387,6 +402,9 @@ msgstr "Emitir"
 msgid "Issue Material"
 msgstr "Emitir material"
 
+msgid "Issue Type"
+msgstr "Tipo de Problema"
+
 msgid "Item"
 msgstr "Artículo"
 
@@ -410,6 +428,9 @@ msgstr "Kit"
 
 msgid "Labor"
 msgstr "Mano de obra"
+
+msgid "Leave this page"
+msgstr "Salir de esta página"
 
 msgid "Let's build something"
 msgstr "Construyamos algo"
@@ -665,6 +686,12 @@ msgstr "Procesos"
 msgid "Progress"
 msgstr "Progreso"
 
+msgid "Quality Issue"
+msgstr "Problema de Calidad"
+
+msgid "Quality issue created"
+msgstr "Problema de calidad creado"
+
 msgid "Quantity"
 msgstr "Cantidad"
 
@@ -835,6 +862,9 @@ msgstr "Estado"
 msgid "Statuses"
 msgstr "Estados"
 
+msgid "Stay on this page"
+msgstr "Quedarse en esta página"
+
 msgid "Steps"
 msgstr "Pasos"
 
@@ -907,6 +937,9 @@ msgstr "Materiales de serie/lote no emitidos"
 
 msgid "Unknown"
 msgstr "Desconocido"
+
+msgid "Unsaved changes"
+msgstr "Cambios no guardados"
 
 msgid "Update"
 msgstr "Actualizar"

@@ -85,6 +85,9 @@ msgstr "确定要删除此考勤记录吗？此操作无法撤销。"
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "确定要结束所有生产事件吗？这将终止所有活跃工序，而不会完成它们。"
 
+msgid "Are you sure you want to leave this page?"
+msgstr "您确定要离开此页面吗？"
+
 msgid "Assigned"
 msgstr "已分配"
 
@@ -201,6 +204,9 @@ msgstr "公司"
 msgid "Complete"
 msgstr "完成"
 
+msgid "Complete All"
+msgstr "全部完成"
+
 msgid "Completed"
 msgstr "已完成"
 
@@ -217,6 +223,12 @@ msgstr "已消耗过期"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "创建 {0}"
+
+msgid "Create Issue"
+msgstr "创建问题"
+
+msgid "Create Quality Issue"
+msgstr "创建质量问题"
 
 msgid "Customer"
 msgstr "客户"
@@ -242,6 +254,9 @@ msgstr "删除步骤"
 #. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "删除考勤记录 ({0})"
+
+msgid "Describe the problem..."
+msgstr "描述问题..."
 
 msgid "Description"
 msgstr "描述"
@@ -269,8 +284,8 @@ msgid "Dragging {0} cancelled."
 msgstr "拖拽 {0} 已取消。"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "截止 {0}"
 
@@ -387,6 +402,9 @@ msgstr "发放"
 msgid "Issue Material"
 msgstr "发放物料"
 
+msgid "Issue Type"
+msgstr "问题类型"
+
 msgid "Item"
 msgstr "物料"
 
@@ -410,6 +428,9 @@ msgstr "套件"
 
 msgid "Labor"
 msgstr "人工"
+
+msgid "Leave this page"
+msgstr "离开此页面"
 
 msgid "Let's build something"
 msgstr "让我们开始构建"
@@ -665,6 +686,12 @@ msgstr "工艺"
 msgid "Progress"
 msgstr "进度"
 
+msgid "Quality Issue"
+msgstr "质量问题"
+
+msgid "Quality issue created"
+msgstr "质量问题已创建"
+
 msgid "Quantity"
 msgstr "数量"
 
@@ -835,6 +862,9 @@ msgstr "状态"
 msgid "Statuses"
 msgstr "状态"
 
+msgid "Stay on this page"
+msgstr "留在此页面"
+
 msgid "Steps"
 msgstr "步骤"
 
@@ -907,6 +937,9 @@ msgstr "未发放的序列号/批次物料"
 
 msgid "Unknown"
 msgstr "未知"
+
+msgid "Unsaved changes"
+msgstr "未保存的更改"
 
 msgid "Update"
 msgstr "更新"
