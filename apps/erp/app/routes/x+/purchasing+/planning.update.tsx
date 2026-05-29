@@ -360,33 +360,61 @@ export async function action({ request }: ActionFunctionArgs) {
               adjustedQuantity = minimumOrderQuantity;
             }
 
-            const createLine = await upsertPurchaseOrderLine(client, {
-              purchaseOrderId,
-              itemId,
-              description: order.description,
-              purchaseOrderLineType: "Part",
-              purchaseQuantity: adjustedQuantity,
-              purchaseUnitOfMeasureCode:
-                supplierPart?.supplierUnitOfMeasureCode ??
-                order.unitOfMeasureCode,
-              inventoryUnitOfMeasureCode: order.unitOfMeasureCode,
-              conversionFactor: supplierPart?.conversionFactor ?? 1,
-              supplierUnitPrice: supplierPart?.unitPrice ?? 0,
-              supplierTaxAmount:
-                ((supplierPart?.unitPrice ?? 0) * (supplier.taxPercent ?? 0)) /
-                100,
-              supplierShippingCost: 0,
-              requiredDate: order.dueDate ?? undefined,
-              locationId,
-              companyId,
-              createdBy: userId
-            });
+            // Check if this PO already has a line for the same item
+            const { data: existingLines } = await client
+              .from("purchaseOrderLine")
+              .select("id, purchaseQuantity")
+              .eq("purchaseOrderId", purchaseOrderId)
+              .eq("itemId", itemId)
+              .limit(1);
 
-            if (createLine.error) {
-              errors.push(
-                `Failed to create PO line for item ${itemId}: ${createLine.error.message}`
-              );
-              continue;
+            if (existingLines?.[0]) {
+              const existing = existingLines[0];
+              const updateLine = await client
+                .from("purchaseOrderLine")
+                .update({
+                  purchaseQuantity:
+                    (existing.purchaseQuantity ?? 0) + adjustedQuantity,
+                  updatedBy: userId
+                })
+                .eq("id", existing.id);
+
+              if (updateLine.error) {
+                errors.push(
+                  `Failed to update PO line for item ${itemId}: ${updateLine.error.message}`
+                );
+                continue;
+              }
+            } else {
+              const createLine = await upsertPurchaseOrderLine(client, {
+                purchaseOrderId,
+                itemId,
+                description: order.description,
+                purchaseOrderLineType: "Part",
+                purchaseQuantity: adjustedQuantity,
+                purchaseUnitOfMeasureCode:
+                  supplierPart?.supplierUnitOfMeasureCode ??
+                  order.unitOfMeasureCode,
+                inventoryUnitOfMeasureCode: order.unitOfMeasureCode,
+                conversionFactor: supplierPart?.conversionFactor ?? 1,
+                supplierUnitPrice: supplierPart?.unitPrice ?? 0,
+                supplierTaxAmount:
+                  ((supplierPart?.unitPrice ?? 0) *
+                    (supplier.taxPercent ?? 0)) /
+                  100,
+                supplierShippingCost: 0,
+                requiredDate: order.dueDate ?? undefined,
+                locationId,
+                companyId,
+                createdBy: userId
+              });
+
+              if (createLine.error) {
+                errors.push(
+                  `Failed to create PO line for item ${itemId}: ${createLine.error.message}`
+                );
+                continue;
+              }
             }
 
             processedItems++;

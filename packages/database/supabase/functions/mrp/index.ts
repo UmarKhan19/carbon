@@ -256,7 +256,7 @@ serve(async (req: Request) => {
     // PHASE 2: Compute Low Level Codes
     // ──────────────────────────────────────────────────────────────
 
-    const llc = computeLowLevelCodes(bomByItem, replenishmentSystemByItem);
+    const llc = computeLowLevelCodes(bomByItem);
     const maxLevel = llc.size > 0 ? Math.max(...llc.values()) : 0;
 
     // ──────────────────────────────────────────────────────────────
@@ -903,8 +903,7 @@ function findPeriod(
 }
 
 function computeLowLevelCodes(
-  bomByItem: Map<string, BomChild[]>,
-  replenishmentSystemByItem: Map<string, ReplenishmentSystem>
+  bomByItem: Map<string, BomChild[]>
 ): Map<string, number> {
   const llc = new Map<string, number>();
 
