@@ -1,7 +1,8 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { inngest } from "../../client";
+import { extractEdgeError, postInternalAlert } from "@carbon/lib/alerts.server";
+import { defineFunction } from "../../client";
 
-export const mrpFunction = inngest.createFunction(
+export const mrpFunction = defineFunction(
   { id: "mrp", retries: 2 },
   { cron: "0 */3 * * *" },
   async ({ step }) => {
@@ -23,6 +24,11 @@ export const mrpFunction = inngest.createFunction(
               : String(companies.error)
           }`
         );
+        await postInternalAlert({
+          source: "inngest:mrp",
+          error: companies.error,
+          context: { step: "fetch-companies" }
+        });
         return;
       }
 
@@ -38,13 +44,22 @@ export const mrpFunction = inngest.createFunction(
           });
 
           if (result.error) {
+            const edgeError = await extractEdgeError(result.error);
             console.error(
               `Failed to run MRP for company ${company.name}: ${
-                result.error instanceof Error
-                  ? result.error.message
-                  : String(result.error)
+                edgeError instanceof Error
+                  ? edgeError.message
+                  : JSON.stringify(edgeError)
               }`
             );
+            await postInternalAlert({
+              source: "inngest:mrp",
+              error: edgeError,
+              context: {
+                companyId: company.id,
+                companyName: company.name
+              }
+            });
           } else {
             console.log(`Successfully ran MRP for company ${company.name}`);
           }
@@ -54,6 +69,14 @@ export const mrpFunction = inngest.createFunction(
               error instanceof Error ? error.message : String(error)
             }`
           );
+          await postInternalAlert({
+            source: "inngest:mrp",
+            error,
+            context: {
+              companyId: company.id,
+              companyName: company.name
+            }
+          });
         }
       }
     });

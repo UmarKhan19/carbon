@@ -10,6 +10,7 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 
 import { Kysely, sql } from "npm:kysely";
 import z from "npm:zod@^3.24.1";
+import { postInternalAlert } from "../lib/alerts.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
@@ -865,17 +866,47 @@ serve(async (req: Request) => {
       });
     } catch (err) {
       console.error(err);
-      return new Response(JSON.stringify(err), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
+      await postInternalAlert({
+        source: "edge:mrp",
+        error: err,
+        context: { type, companyId, userId, phase: "inner" },
       });
+      return new Response(
+        JSON.stringify({
+          error: err instanceof Error ? err.message : String(err),
+          stack: err instanceof Error ? err.stack : undefined,
+          phase: "inner",
+          type,
+          companyId,
+          userId,
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        }
+      );
     }
   } catch (err) {
     console.error(err);
-    return new Response(JSON.stringify(err), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 500,
+    await postInternalAlert({
+      source: "edge:mrp",
+      error: err,
+      context: { type, companyId, userId, phase: "outer" },
     });
+    return new Response(
+      JSON.stringify({
+        error: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+        phase: "outer",
+        type,
+        companyId,
+        userId,
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      }
+    );
   }
 });
 

@@ -241,6 +241,12 @@ export const SLACK_STATE_SECRET = getEnv("SLACK_STATE_SECRET", {
   isRequired: false,
   isSecret: true
 });
+export const INTERNAL_ALERTS_SLACK_CHANNEL = getEnv(
+  "INTERNAL_ALERTS_SLACK_CHANNEL",
+  {
+    isRequired: false
+  }
+);
 
 export const SUPABASE_SERVICE_ROLE_KEY = getEnv("SUPABASE_SERVICE_ROLE_KEY");
 export const SUPABASE_DB_URL = getEnv("SUPABASE_DB_URL", {

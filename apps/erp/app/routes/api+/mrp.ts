@@ -1,6 +1,7 @@
 import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
+import { extractEdgeError, postInternalAlert } from "@carbon/lib/alerts.server";
 import type { ActionFunctionArgs } from "react-router";
 import { runMRP } from "~/modules/production/production.service";
 
@@ -20,6 +21,20 @@ export async function action({ request }: ActionFunctionArgs) {
     companyId,
     userId
   });
+
+  if (result.error) {
+    const edgeError = await extractEdgeError(result.error);
+    void postInternalAlert({
+      source: "api:/api/mrp",
+      error: edgeError,
+      context: {
+        companyId,
+        userId,
+        locationId: locationId ?? undefined,
+        type: locationId ? "location" : "company"
+      }
+    });
+  }
 
   return result;
 }

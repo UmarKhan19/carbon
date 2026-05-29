@@ -23,6 +23,7 @@
     "typescript": "catalog:"
   },
   "exports": {
+    "./alerts.server": "./src/alerts.server.ts",
     "./events": "./src/events.ts",
     "./inngest": "./src/inngest/client.ts",
     "./resend.server": "./src/resend.server.ts",
