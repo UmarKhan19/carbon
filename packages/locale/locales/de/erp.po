@@ -50,7 +50,7 @@ msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB-Limit"
 
 msgid "{name} deleted"
-msgstr ""
+msgstr "{name} gelöscht"
 
 msgid "{scopeCount} permissions"
 msgstr "{scopeCount} Berechtigungen"
@@ -528,13 +528,13 @@ msgid "Apply To"
 msgstr "Anwenden auf"
 
 msgid "Approaching {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB cap."
-msgstr ""
+msgstr "Nähert sich dem Limit von {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB."
 
 msgid "Approval Date"
 msgstr "Genehmigungsdatum"
 
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
-msgstr ""
+msgstr "Genehmigung ist erforderlich bei oder über diesem Betrag, bis zum Minimum der nächsten Regel"
 
 msgid "Approval Requirements"
 msgstr "Genehmigungsanforderungen"
@@ -965,7 +965,7 @@ msgid "Attachment"
 msgstr "Anlage"
 
 msgid "Attachments"
-msgstr ""
+msgstr "Anhänge"
 
 msgid "Attribute"
 msgstr "Attribut"
@@ -1218,7 +1218,7 @@ msgid "Cannot send RFQ"
 msgstr "RFQ kann nicht gesendet werden"
 
 msgid "Cannot upload — supplier interaction not yet created"
-msgstr ""
+msgstr "Hochladen nicht möglich — Lieferanteninteraktion noch nicht erstellt"
 
 msgid "Cannot upload to parts bucket without item ID"
 msgstr "Kann nicht in den Teile-Bucket ohne Element-ID hochgeladen werden"
@@ -2183,10 +2183,10 @@ msgid "Default Approver"
 msgstr "Standardgenehmiger"
 
 msgid "Default Attachments"
-msgstr ""
+msgstr "Standardanhänge"
 
 msgid "Default Attachments on Purchase Orders"
-msgstr ""
+msgstr "Standardanhänge bei Bestellungen"
 
 msgid "Default CC Recipients"
 msgstr "Standard-CC-Empfänger"
@@ -2473,6 +2473,12 @@ msgstr "Nachfrage"
 msgid "Demand Forecast"
 msgstr "Nachfrageprognose"
 
+msgid "Demand Forecast — Driven by"
+msgstr "Nachfragevorhersage — Angetrieben durch"
+
+msgid "Demand forecast = BOM-exploded demand from open sales orders, active jobs, and production projections."
+msgstr "Bedarfsprognose = BOM-explodierter Bedarf aus offenen Verkaufsaufträgen, aktiven Aufträgen und Produktionsprognosen."
+
 msgid "Demand Projections"
 msgstr "Nachfrageprojektionen"
 
@@ -2597,7 +2603,7 @@ msgid "Draft"
 msgstr "Entwurf"
 
 msgid "Drag & drop files, or click to browse"
-msgstr ""
+msgstr "Dateien ziehen und ablegen oder zum Durchsuchen klicken"
 
 msgid "Drag and drop a Purchase Order PDF here, or click to select a file"
 msgstr "Ziehen Sie eine Bestellungs-PDF hierher, oder klicken Sie, um eine Datei auszuwählen"
@@ -2631,6 +2637,9 @@ msgstr "Drop-Shipment-Status"
 
 msgid "Drop your file here, or click to browse."
 msgstr "Datei hier ablegen oder zum Durchsuchen klicken."
+
+msgid "Due"
+msgstr "Fällig"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(dueDate) )
 msgid "Due {0}"
@@ -3096,7 +3105,7 @@ msgid "Error moving file"
 msgstr "Fehler beim Verschieben der Datei"
 
 msgid "Error removing file"
-msgstr ""
+msgstr "Fehler beim Entfernen der Datei"
 
 msgid "Error removing model from {sourceDocument}"
 msgstr "Fehler beim Entfernen des Modells aus {sourceDocument}"
@@ -3159,7 +3168,7 @@ msgid "Everything from Starter"
 msgstr "Alles aus dem Starter-Plan"
 
 msgid "Exceeds {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB total — remove some attachments to send."
-msgstr ""
+msgstr "Überschreitet {PO_EMAIL_ATTACHMENT_LIMIT_MB} MB insgesamt – entfernen Sie einige Anhänge zum Senden."
 
 msgid "Exchange Rate"
 msgstr "Wechselkurs"
@@ -3511,7 +3520,7 @@ msgstr "Fehler beim Aktualisieren des Miniaturbildpfads"
 
 #. placeholder {0}: file.name
 msgid "Failed to upload {0}"
-msgstr ""
+msgstr "Fehler beim Hochladen von {0}"
 
 msgid "Failed to upload CSV file."
 msgstr "CSV-Datei konnte nicht hochgeladen werden."
@@ -3617,13 +3626,13 @@ msgid "Files"
 msgstr "Dateien"
 
 msgid "Files attached here ride along on every purchase order email by default. Suppliers will receive them alongside the PO PDF."
-msgstr ""
+msgstr "Hier angehängte Dateien werden standardmäßig mit jeder Bestellanfrage-E-Mail mitgesendet. Lieferanten erhalten sie zusammen mit dem Bestellanfrage-PDF."
 
 msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
-msgstr ""
+msgstr "Hier angehängte Dateien werden mit jeder Bestellanfrage-E-Mail an diesen Lieferanten versendet (zusätzlich zu unternehmensweiten Standardeinstellungen)."
 
 msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr ""
+msgstr "Dateien, die hier angehängt sind, werden automatisch mitgesendet, wenn dieser Artikel in einer Bestellungs-E-Mail erscheint."
 
 msgid "Filter"
 msgstr "Filter"
@@ -3678,6 +3687,10 @@ msgstr "Für wachsende Unternehmen, die Unterstützung benötigen"
 
 msgid "For US companies handling ITAR data"
 msgstr "Für US-Unternehmen, die ITAR-Daten verarbeiten"
+
+#. placeholder {0}: forecastMethod ?? "unknown"
+msgid "Forecast method: <0>{0}</0>. This row was not derived from active jobs, so no parent sources are available."
+msgstr "Prognosemethode: <0>{0}</0>. Diese Zeile wurde nicht aus aktiven Aufträgen abgeleitet, daher sind keine übergeordneten Quellen verfügbar."
 
 msgid "Forgot to Clock Out?"
 msgstr "Vergessen auszustempeln?"
@@ -3819,6 +3832,9 @@ msgstr "Stunden/Stück"
 
 msgid "How the resolved price was calculated."
 msgstr "Wie der aufgelöste Preis berechnet wurde."
+
+msgid "How this price was calculated"
+msgstr "Wie dieser Preis berechnet wurde"
 
 msgid "Humidity"
 msgstr "Luftfeuchtigkeit"
@@ -3984,6 +4000,9 @@ msgstr "Intern"
 
 msgid "Internal Notes"
 msgstr "Interne Notizen"
+
+msgid "inv"
+msgstr "Inv"
 
 msgid "Invalid Invite"
 msgstr "Ungültige Einladung"
@@ -4264,6 +4283,9 @@ msgstr "Zuletzt aktualisiert: {formattedDate}"
 msgid "Lead Time"
 msgstr "Lieferzeit"
 
+msgid "Lead time (days)"
+msgstr "Lieferzeit (Tage)"
+
 msgid "Lead Time (Days)"
 msgstr "Lieferzeit (Tage)"
 
@@ -4344,6 +4366,9 @@ msgstr "Linear-Problem verknüpfen"
 msgid "Linked entity quantity ({0}) does not match row quantity ({1})."
 msgstr "Verknüpfte Entitätsmenge ({0}) stimmt nicht mit der Zeilenmenge ({1}) überein."
 
+msgid "Linked PO"
+msgstr "Verknüpfte Bestellung"
+
 msgid "List Options"
 msgstr "Listenoptionen"
 
@@ -4410,6 +4435,9 @@ msgstr "Verloren"
 
 msgid "Lot"
 msgstr "Charge"
+
+msgid "Lot size"
+msgstr "Losgröße"
 
 msgid "Lot Size"
 msgstr "Losgröße"
@@ -4814,6 +4842,9 @@ msgstr "Navigieren"
 msgid "NCRs by Type"
 msgstr "NCRs nach Typ"
 
+msgid "Need by"
+msgstr "Benötigt bis"
+
 msgid "Negative Adjustment"
 msgstr "Negative Anpassung"
 
@@ -5108,7 +5139,7 @@ msgid "No archived logs yet. Logs older than {0} days will be automatically arch
 msgstr "Noch keine archivierten Protokolle. Protokolle älter als {0} Tage werden automatisch archiviert und sind hier zum Download verfügbar."
 
 msgid "No attachments."
-msgstr ""
+msgstr "Keine Anhänge."
 
 msgid "No available filters"
 msgstr "Keine verfügbaren Filter"
@@ -5153,7 +5184,7 @@ msgid "No days off scheduled"
 msgstr "Keine Tage frei geplant"
 
 msgid "No default attachments yet."
-msgstr ""
+msgstr "Noch keine Standardanhänge vorhanden."
 
 msgid "No draft versions available"
 msgstr "Keine Entwurfsversionen verfügbar"
@@ -5223,6 +5254,9 @@ msgstr "Keine ausstehenden Schulungen"
 
 msgid "No overtime scheduled"
 msgstr "Keine Überstunden geplant"
+
+msgid "No parent sources recorded yet. Click Recalculate on the planning page to refresh attribution."
+msgstr "Noch keine übergeordneten Quellen aufgezeichnet. Klicken Sie auf der Planungsseite auf Neu berechnen, um die Zuordnung zu aktualisieren."
 
 msgid "No part ID"
 msgstr "Keine Teile-ID"
@@ -5473,6 +5507,9 @@ msgstr "Optionen"
 msgid "Order"
 msgstr "Bestellung"
 
+msgid "Order by"
+msgstr "Bestellung bis"
+
 msgid "Order Date"
 msgstr "Bestelldatum"
 
@@ -5577,6 +5614,9 @@ msgstr "Übergeordnete Abteilung"
 
 msgid "Parent Group"
 msgstr "Übergeordnete Gruppe"
+
+msgid "Parent Item"
+msgstr "Übergeordneter Artikel"
 
 msgid "Parent Storage Unit"
 msgstr "Übergeordnete Lagereinheit"
@@ -5719,6 +5759,12 @@ msgstr "Geplantes Ende"
 msgid "Planned End Time"
 msgstr "Geplante Endzeit"
 
+msgid "Planned Order"
+msgstr "Geplante Bestellung"
+
+msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
+msgstr "Geplante Bestellung = MRP-Vorschlag zur Deckung der prognostizierten Nachfrage basierend auf der Nachbestellungsrichtlinie des Artikels (oder manuell hinzugefügt)."
+
 msgid "Planned Start"
 msgstr "Geplanter Start"
 
@@ -5762,7 +5808,10 @@ msgid "PO Number"
 msgstr "Bestellnummer"
 
 msgid "PO PDF"
-msgstr ""
+msgstr "PO PDF"
+
+msgid "Policy"
+msgstr "Richtlinie"
 
 msgid "Policy & Procedure"
 msgstr "Richtlinie & Verfahren"
@@ -5932,6 +5981,12 @@ msgstr "Fortschritt"
 msgid "Project"
 msgstr "Projekt"
 
+msgid "Projected stock"
+msgstr "Geplanter Bestand"
+
+msgid "Projection"
+msgstr "Projektion"
+
 msgid "Projections"
 msgstr "Prognosen"
 
@@ -6038,6 +6093,9 @@ msgstr "QR-Code zum Erstellen eines {0} für diesen Kanban"
 msgid "QR Code to start the next operation for this kanban"
 msgstr "QR-Code zum Starten des nächsten Vorgangs für diesen Kanban"
 
+msgid "Qty"
+msgstr "Menge"
+
 msgid "Qty to Order"
 msgstr "Bestellmenge"
 
@@ -6100,6 +6158,10 @@ msgstr "Menge pro Übergeordnete"
 
 msgid "Quantity Type"
 msgstr "Mengentyp"
+
+#. placeholder {0}: numberFormatter.format(forecastQuantity)
+msgid "Quantity: {0}"
+msgstr "Menge: {0}"
 
 msgid "Question"
 msgstr "Frage"
@@ -6567,6 +6629,9 @@ msgstr "Test ausführen"
 
 msgid "Running Total"
 msgstr "Laufender Gesamtbetrag"
+
+msgid "Safety stock"
+msgstr "Sicherheitsbestand"
 
 msgid "Safety Stock"
 msgstr "Sicherheitsbestand"
@@ -7344,7 +7409,7 @@ msgid "Stock Transfers"
 msgstr "Bestandsübertragungen"
 
 msgid "Storage client not available"
-msgstr ""
+msgstr "Speicherclient nicht verfügbar"
 
 msgid "Storage Type"
 msgstr "Lagertyp"
@@ -7653,6 +7718,9 @@ msgstr "Die Rechnungsadresse, die auf Angeboten, Aufträgen, Rechnungen und ande
 msgid "The date the customer expects to receive the goods"
 msgstr "Das Datum, an dem der Kunde die Waren erhalten soll"
 
+msgid "The date the item is required on-site to cover the period's projected demand."
+msgstr "Das Datum, an dem der Artikel vor Ort erforderlich ist, um die prognostizierte Nachfrage des Zeitraums zu decken."
+
 msgid "The endpoint that receives a POST request with the updated data when the table is updated"
 msgstr "Der Endpunkt, der eine POST-Anfrage mit den aktualisierten Daten empfängt, wenn die Tabelle aktualisiert wird"
 
@@ -7661,6 +7729,9 @@ msgstr "Die folgenden Baugruppen haben keine Operationen. Bitte weisen Sie jeder
 
 msgid "The following line items are missing prices or lead times:"
 msgstr "Die folgenden Positionen haben keine Preise oder Lieferzeiten:"
+
+msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
+msgstr "Das späteste Datum, um diese Bestellung aufzugeben, damit sie bis zum erforderlichen Datum ankommt, unter Berücksichtigung der Lieferzeit des Lieferanten."
 
 msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
 msgstr "Das Los wird weiterhin abgelehnt, aber ein NCR kann nicht automatisch erstellt werden, bis mindestens ein Problemtyp konfiguriert ist."
@@ -8017,7 +8088,7 @@ msgid "Type a message..."
 msgstr "Geben Sie eine Nachricht ein..."
 
 msgid "Type an email and press Enter to add an external recipient"
-msgstr ""
+msgstr "Geben Sie eine E-Mail ein und drücken Sie die Eingabetaste, um einen externen Empfänger hinzuzufügen"
 
 msgid "Type of Permission Update"
 msgstr "Berechtigungsupdate-Typ"
@@ -8066,6 +8137,9 @@ msgstr "Maßeinheit"
 
 msgid "Unit of Measures"
 msgstr "Maßeinheiten"
+
+msgid "Unit price"
+msgstr "Stückpreis"
 
 msgid "Unit Price"
 msgstr "Stückpreis"
@@ -8573,6 +8647,9 @@ msgstr "Wer sollte Benachrichtigungen erhalten, wenn ein Bestandsverwaltungsauft
 
 msgid "Why is the expiration being changed?"
 msgstr "Warum wird das Ablaufdatum geändert?"
+
+msgid "Why is this included?"
+msgstr "Warum ist dies enthalten?"
 
 msgid "WIP"
 msgstr "WIP"
