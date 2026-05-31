@@ -256,6 +256,7 @@ export default function PartRoute() {
                                 {
                                   key: "jobMaterials",
                                   name: t`Job Materials`,
+                                  tooltip: t`Item was included as a sub-assembly`,
                                   module: "production",
                                   children: jobMaterials
                                 },
@@ -402,6 +403,7 @@ export default function PartRoute() {
                               {
                                 key: "jobMaterials",
                                 name: "Job Materials",
+                                tooltip: "Item was included as a sub-assembly",
                                 module: "production",
                                 children: jobMaterials
                               },

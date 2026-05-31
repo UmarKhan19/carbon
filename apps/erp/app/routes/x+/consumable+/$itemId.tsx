@@ -120,6 +120,7 @@ export default function ConsumableRoute() {
                       {
                         key: "jobMaterials",
                         name: "Job Materials",
+                        tooltip: "Item was included as a sub-assembly",
                         module: "production",
                         children: jobMaterials
                       },

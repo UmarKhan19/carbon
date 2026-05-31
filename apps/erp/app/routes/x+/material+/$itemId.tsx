@@ -123,6 +123,7 @@ export default function MaterialRoute() {
                       {
                         key: "jobMaterials",
                         name: "Job Materials",
+                        tooltip: "Item was included as a sub-assembly",
                         module: "production",
                         children: jobMaterials
                       },

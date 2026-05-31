@@ -75,6 +75,7 @@ export type UsedInNode = {
   key: UsedInKey;
   name: string;
   module: string;
+  tooltip?: string;
   children: {
     id: string;
     documentReadableId: string;
@@ -415,12 +416,12 @@ export function UsedInItem({
           <LuChevronRight className={cn("size-4", isExpanded && "rotate-90")} />
         </div>
         <div className="flex flex-grow items-center justify-between gap-2">
-          {node.key === "jobMaterials" ? (
+          {node.tooltip ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span>{node.name}</span>
               </TooltipTrigger>
-              <TooltipContent>{t`Item was included as a sub-assembly`}</TooltipContent>
+              <TooltipContent>{node.tooltip}</TooltipContent>
             </Tooltip>
           ) : (
             <span>{node.name}</span>
