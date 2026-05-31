@@ -29,28 +29,31 @@ CREATE INDEX "rework_companyId_idx" ON "rework"("companyId");
 ALTER TABLE "rework" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "SELECT" ON "rework"
-  FOR SELECT
-  USING (
-    has_role('employee', "companyId")
-    AND "companyId" = ANY(
-      SELECT "companyId" FROM "userToCompany" WHERE "userId" = auth.uid()::text
+  FOR SELECT USING (
+    "companyId" = ANY (
+      get_companies_with_employee_permission('production_view')::text[]
     )
   );
 
 CREATE POLICY "INSERT" ON "rework"
-  FOR INSERT
-  WITH CHECK (
-    has_role('employee', "companyId")
-    AND "companyId" = ANY(
-      SELECT "companyId" FROM "userToCompany" WHERE "userId" = auth.uid()::text
+  FOR INSERT WITH CHECK (
+    "companyId" = ANY (
+      get_companies_with_employee_permission('production_create')::text[]
     )
   );
 
 CREATE POLICY "UPDATE" ON "rework"
-  FOR UPDATE
-  USING (
-    has_role('employee', "companyId")
-    AND has_company_permission('production_update', "companyId")
+  FOR UPDATE USING (
+    "companyId" = ANY (
+      get_companies_with_employee_permission('production_update')::text[]
+    )
+  );
+
+CREATE POLICY "DELETE" ON "rework"
+  FOR DELETE USING (
+    "companyId" = ANY (
+      get_companies_with_employee_permission('production_delete')::text[]
+    )
   );
 
 -- 3. Drop views that use jo.* before altering jobOperation
