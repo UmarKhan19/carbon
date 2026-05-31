@@ -83,7 +83,7 @@ msgid "Are you sure you want to end all production events? This will end all act
 msgstr "すべての生産イベントを終了してもよろしいですか？すべてのアクティブな工程が完了せずに終了します。"
 
 msgid "Are you sure you want to finish this operation? This will end all active production events for this operation."
-msgstr ""
+msgstr "この操作を終了してもよろしいですか？これにより、この操作のすべてのアクティブな生産イベントが終了します。"
 
 msgid "Are you sure you want to leave this page?"
 msgstr "このページを離れてもよろしいですか？"
@@ -104,7 +104,7 @@ msgid "Authentication Error"
 msgstr "認証エラー"
 
 msgid "Batch"
-msgstr ""
+msgstr "バッチ"
 
 #. placeholder {0}: batch.readableId
 #. placeholder {1}: batch.quantity
@@ -221,7 +221,7 @@ msgid "Create Quality Issue"
 msgstr "品質問題を作成"
 
 msgid "Create Rework"
-msgstr ""
+msgstr "リワーク作成"
 
 msgid "Customer"
 msgstr "顧客"
@@ -252,7 +252,7 @@ msgid "Describe the problem..."
 msgstr "問題を説明してください..."
 
 msgid "Describe what needs to be reworked..."
-msgstr ""
+msgstr "再加工が必要な内容を説明してください..."
 
 msgid "Description"
 msgstr "説明"
@@ -354,20 +354,20 @@ msgid "Filter"
 msgstr "フィルター"
 
 msgid "Finish"
-msgstr ""
+msgstr "完了"
 
 #. placeholder {0}: operation.itemReadableId
 msgid "Finish {0}"
-msgstr ""
+msgstr "完了 {0}"
 
 msgid "Finish Anyways"
-msgstr ""
+msgstr "とにかく完了"
 
 msgid "Forgot to Clock Out?"
 msgstr "退勤打刻を忘れましたか？"
 
 msgid "Go back to operation"
-msgstr ""
+msgstr "操作に戻る"
 
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "技術的な問題がありますか？<0>Carbonサポート</0>にお問い合わせください。"
@@ -505,7 +505,7 @@ msgid "Model"
 msgstr "モデル"
 
 msgid "More Actions"
-msgstr ""
+msgstr "その他のアクション"
 
 msgid "More options"
 msgstr "その他のオプション"
@@ -599,7 +599,7 @@ msgid "No serial numbers"
 msgstr "シリアル番号なし"
 
 msgid "No serial numbers found"
-msgstr ""
+msgstr "シリアル番号が見つかりません"
 
 msgid "No spare parts added yet"
 msgstr "スペアパーツはまだ追加されていません"
@@ -714,7 +714,7 @@ msgid "Quantity must be greater than 0"
 msgstr "数量は0より大きい値を入力してください"
 
 msgid "Reason for rework"
-msgstr ""
+msgstr "リワークの理由"
 
 msgid "Recent"
 msgstr "最近"
@@ -739,10 +739,10 @@ msgid "Remove part"
 msgstr "パーツを削除"
 
 msgid "Rework"
-msgstr ""
+msgstr "リワーク"
 
 msgid "Rework created successfully"
-msgstr ""
+msgstr "リワーク作成に成功しました"
 
 msgid "Sales Order"
 msgstr "受注"
@@ -757,13 +757,13 @@ msgid "Scan or enter serial number"
 msgstr "シリアル番号をスキャンまたは入力"
 
 msgid "Scan or search serial number..."
-msgstr ""
+msgstr "シリアル番号をスキャンまたは検索..."
 
 msgid "Schedule"
 msgstr "スケジュール"
 
 msgid "Scrap"
-msgstr ""
+msgstr "廃棄"
 
 msgid "Scrap Reason"
 msgstr "スクラップ理由"
@@ -816,7 +816,7 @@ msgid "Select Serial Number"
 msgstr "シリアル番号を選択"
 
 msgid "Select the operation to go back to. All operations from that point to the current operation will be redone."
-msgstr ""
+msgstr "戻る操作を選択してください。その時点から現在の操作までのすべての操作が再度実行されます。"
 
 msgid "Send"
 msgstr "送信"
@@ -839,7 +839,7 @@ msgid "Serial number is required"
 msgstr "シリアル番号は必須です"
 
 msgid "Serial numbers"
-msgstr ""
+msgstr "シリアル番号"
 
 msgid "Serial Numbers"
 msgstr "シリアル番号"
