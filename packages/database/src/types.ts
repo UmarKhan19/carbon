@@ -16125,6 +16125,7 @@ export type Database = {
           quantityComplete: number | null
           quantityReworked: number | null
           quantityScrapped: number | null
+          reworkId: string | null
           setupTime: number
           setupUnit: Database["public"]["Enums"]["factor"]
           startDate: string | null
@@ -16171,6 +16172,7 @@ export type Database = {
           quantityComplete?: number | null
           quantityReworked?: number | null
           quantityScrapped?: number | null
+          reworkId?: string | null
           setupTime?: number
           setupUnit?: Database["public"]["Enums"]["factor"]
           startDate?: string | null
@@ -16217,6 +16219,7 @@ export type Database = {
           quantityComplete?: number | null
           quantityReworked?: number | null
           quantityScrapped?: number | null
+          reworkId?: string | null
           setupTime?: number
           setupUnit?: Database["public"]["Enums"]["factor"]
           startDate?: string | null
@@ -51587,6 +51590,7 @@ export type Database = {
           quantityComplete: number | null
           quantityReworked: number | null
           quantityScrapped: number | null
+          reworkId: string | null
           setupTime: number | null
           setupUnit: Database["public"]["Enums"]["factor"] | null
           startDate: string | null
@@ -51632,6 +51636,7 @@ export type Database = {
           quantityComplete?: number | null
           quantityReworked?: number | null
           quantityScrapped?: number | null
+          reworkId?: string | null
           setupTime?: number | null
           setupUnit?: Database["public"]["Enums"]["factor"] | null
           startDate?: string | null
@@ -51677,6 +51682,7 @@ export type Database = {
           quantityComplete?: number | null
           quantityReworked?: number | null
           quantityScrapped?: number | null
+          reworkId?: string | null
           setupTime?: number | null
           setupUnit?: Database["public"]["Enums"]["factor"] | null
           startDate?: string | null
@@ -51956,6 +51962,7 @@ export type Database = {
           quantityComplete: number | null
           quantityReworked: number | null
           quantityScrapped: number | null
+          reworkId: string | null
           setupTime: number | null
           setupUnit: Database["public"]["Enums"]["factor"] | null
           status: Database["public"]["Enums"]["jobOperationStatus"] | null
@@ -63272,7 +63279,9 @@ export type Database = {
           priority: number
           processId: string
           quantityComplete: number
+          quantityReworked: number
           quantityScrapped: number
+          reworkId: string
           salesOrderId: string
           salesOrderLineId: string
           salesOrderReadableId: string
@@ -63748,6 +63757,7 @@ export type Database = {
           quantityComplete: number
           quantityReworked: number
           quantityScrapped: number
+          reworkId: string
           setupTime: number
           setupUnit: Database["public"]["Enums"]["factor"]
           targetQuantity: number

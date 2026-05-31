@@ -103,6 +103,9 @@ msgstr "附加文件"
 msgid "Authentication Error"
 msgstr "认证错误"
 
+msgid "Batch"
+msgstr ""
+
 #. placeholder {0}: batch.readableId
 #. placeholder {1}: batch.quantity
 msgid "Batch {0} ({1} available)"
@@ -277,8 +280,8 @@ msgid "Dragging {0} cancelled."
 msgstr "拖拽 {0} 已取消。"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "截止 {0}"
 
@@ -595,6 +598,9 @@ msgstr "无排定时间"
 msgid "No serial numbers"
 msgstr "无序列号"
 
+msgid "No serial numbers found"
+msgstr ""
+
 msgid "No spare parts added yet"
 msgstr "尚未添加备件"
 
@@ -750,6 +756,9 @@ msgstr "扫描"
 msgid "Scan or enter serial number"
 msgstr "扫描或输入序列号"
 
+msgid "Scan or search serial number..."
+msgstr ""
+
 msgid "Schedule"
 msgstr "排程"
 
@@ -828,6 +837,9 @@ msgstr "序列号不可用"
 
 msgid "Serial number is required"
 msgstr "序列号为必填项"
+
+msgid "Serial numbers"
+msgstr ""
 
 msgid "Serial Numbers"
 msgstr "序列号"

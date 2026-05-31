@@ -103,6 +103,9 @@ msgstr "फ़ाइल संलग्न करें"
 msgid "Authentication Error"
 msgstr "प्रमाणीकरण त्रुटि"
 
+msgid "Batch"
+msgstr ""
+
 #. placeholder {0}: batch.readableId
 #. placeholder {1}: batch.quantity
 msgid "Batch {0} ({1} available)"
@@ -277,8 +280,8 @@ msgid "Dragging {0} cancelled."
 msgstr "\"{0}\" को ड्रैग करना रद्द किया गया।"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Due {0} के लिए"
 
@@ -595,6 +598,9 @@ msgstr "कोई निर्धारित समय नहीं"
 msgid "No serial numbers"
 msgstr "कोई सीरियल नंबर नहीं"
 
+msgid "No serial numbers found"
+msgstr ""
+
 msgid "No spare parts added yet"
 msgstr "अभी तक कोई स्पेयर पार्ट्स नहीं जोड़े गए हैं"
 
@@ -750,6 +756,9 @@ msgstr "स्कैन करें"
 msgid "Scan or enter serial number"
 msgstr "स्कैन करें या सीरियल नंबर दर्ज करें"
 
+msgid "Scan or search serial number..."
+msgstr ""
+
 msgid "Schedule"
 msgstr "शेड्यूल"
 
@@ -828,6 +837,9 @@ msgstr "सीरियल नंबर उपलब्ध नहीं है"
 
 msgid "Serial number is required"
 msgstr "सीरियल नंबर आवश्यक है"
+
+msgid "Serial numbers"
+msgstr ""
 
 msgid "Serial Numbers"
 msgstr "सीरियल नंबर"

@@ -103,6 +103,9 @@ msgstr "Adjuntar archivo"
 msgid "Authentication Error"
 msgstr "Error de autenticación"
 
+msgid "Batch"
+msgstr ""
+
 #. placeholder {0}: batch.readableId
 #. placeholder {1}: batch.quantity
 msgid "Batch {0} ({1} available)"
@@ -277,8 +280,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Se canceló el arrastre de {0}."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Vence {0}"
 
@@ -595,6 +598,9 @@ msgstr "Sin tiempo programado"
 msgid "No serial numbers"
 msgstr "Sin números de serie"
 
+msgid "No serial numbers found"
+msgstr ""
+
 msgid "No spare parts added yet"
 msgstr "Aún no se han agregado repuestos"
 
@@ -750,6 +756,9 @@ msgstr "Escanear"
 msgid "Scan or enter serial number"
 msgstr "Escanee o ingrese el número de serie"
 
+msgid "Scan or search serial number..."
+msgstr ""
+
 msgid "Schedule"
 msgstr "Programación"
 
@@ -828,6 +837,9 @@ msgstr "El número de serie no está disponible"
 
 msgid "Serial number is required"
 msgstr "El número de serie es obligatorio"
+
+msgid "Serial numbers"
+msgstr ""
 
 msgid "Serial Numbers"
 msgstr "Números de serie"
