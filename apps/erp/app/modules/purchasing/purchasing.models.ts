@@ -228,6 +228,7 @@ export const purchaseOrderLineValidator = z
     purchaseUnitOfMeasureCode: zfd.text(z.string().optional()),
     requiredDate: zfd.text(z.string().optional()),
     storageUnitId: zfd.text(z.string().optional()),
+    supplierPartId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     supplierTaxAmount: zfd.numeric(z.number().optional()),
     supplierUnitPrice: zfd.numeric(z.number().optional())
