@@ -15,6 +15,10 @@ msgstr ""
 msgid " A supplier is a business or person who sells you parts or services."
 msgstr "Поставщик — это компания или лицо, которое продает вам детали или услуги."
 
+#. placeholder {0}: fieldDef?.label ?? condition.field
+msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
+msgstr ""
+
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "«{storageUnitName}» содержит {childCount} прямых вложенных единиц хранения. Удаление приведет к удалению этих единиц и всего, что находится под ними. Это действие невозможно отменить."
 
@@ -464,6 +468,9 @@ msgstr "Тип суммы"
 msgid "An item cannot be added to itself."
 msgstr "Элемент не может быть добавлен к самому себе."
 
+msgid "AND"
+msgstr ""
+
 msgid "and {remaining} more"
 msgstr "и ещё {remaining}"
 
@@ -481,6 +488,12 @@ msgstr "Текст аннотации обязателен"
 
 msgid "Annotation updated"
 msgstr "Аннотация обновлена"
+
+msgid "Any item group"
+msgstr ""
+
+msgid "Any item type"
+msgstr ""
 
 msgid "API and Webhooks"
 msgstr "API и Webhooks"
@@ -505,9 +518,6 @@ msgstr "Применяется к"
 
 msgid "Applies to all"
 msgstr "Применяется ко всем"
-
-msgid "Applies to all items"
-msgstr "Применяется ко всем товарам"
 
 msgid "Applies to all storage units"
 msgstr "Применяется ко всем складским единицам"
@@ -1391,6 +1401,9 @@ msgstr "Видимость и порядок столбцов"
 
 msgid "Columns"
 msgstr "Столбцы"
+
+msgid "Combine filters"
+msgstr ""
 
 msgid "Coming soon"
 msgstr "Скоро"
@@ -2978,6 +2991,9 @@ msgstr "Типы сотрудников"
 msgid "Employees"
 msgstr "Сотрудники"
 
+msgid "Empty = match every item"
+msgstr ""
+
 msgid "Empty work centers"
 msgstr "Пустые рабочие центры"
 
@@ -4151,8 +4167,14 @@ msgstr "Товар"
 msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "Товар {scannedItem} не совпадает с товаром {expectedItem}"
 
+msgid "Item filters"
+msgstr ""
+
 msgid "Item Group"
 msgstr "Группа товаров"
+
+msgid "Item groups"
+msgstr ""
 
 msgid "Item Groups"
 msgstr "Группы товаров"
@@ -4163,11 +4185,20 @@ msgstr "ID товара"
 msgid "Item Master"
 msgstr "Мастер элемента"
 
+msgid "Item must match a selected type AND a selected group"
+msgstr ""
+
+msgid "Item must match a selected type OR a selected group"
+msgstr ""
+
 msgid "Item Scope"
 msgstr "Область применения товара"
 
 msgid "Item Type"
 msgstr "Тип товара"
+
+msgid "Item types"
+msgstr ""
 
 msgid "items"
 msgstr "элементы"
@@ -4585,8 +4616,14 @@ msgstr "Совпадение"
 msgid "Match all"
 msgstr "Совпадают все"
 
+msgid "Match all (AND)"
+msgstr ""
+
 msgid "Match any"
 msgstr "Совпадает с любым"
+
+msgid "Match any (OR)"
+msgstr ""
 
 msgid "Match none"
 msgstr "Не совпадает ни одно"
@@ -5518,6 +5555,9 @@ msgstr "Дополнительный контекст для этого прав
 
 msgid "Options"
 msgstr "Параметры"
+
+msgid "OR"
+msgstr ""
 
 msgid "Order"
 msgstr "Заказ"
