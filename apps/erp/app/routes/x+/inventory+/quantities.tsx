@@ -6,7 +6,12 @@ import { pluckUnique } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import type { InventoryItem } from "~/modules/inventory";
-import { getInventoryItems, getStorageTypesList } from "~/modules/inventory";
+import {
+  expandStorageUnitIdsWithDescendants,
+  getInventoryItems,
+  getStorageTypesList,
+  getStorageUnitsList
+} from "~/modules/inventory";
 import InventoryTable from "~/modules/inventory/ui/Inventory/InventoryTable";
 import {
   getMaterialFormsList,
@@ -30,6 +35,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const { limit, offset, sorts, filters } =
     getGenericQueryFilters(searchParams);
+
+  const storageUnitFilter = filters?.find(
+    (f) => f.column === "storageUnitIds" && f.value
+  );
+  if (storageUnitFilter?.value) {
+    const ids = storageUnitFilter.value.split(",");
+    const expanded = await expandStorageUnitIdsWithDescendants(client, ids);
+    storageUnitFilter.value = expanded.join(",");
+  }
 
   let locationId = searchParams.get("location");
 
@@ -62,7 +76,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     locationId = locations.data?.[0].id as string;
   }
 
-  const [inventoryItems, forms, substances, tags, storageTypes] =
+  const [inventoryItems, forms, substances, tags, storageTypes, storageUnits] =
     await Promise.all([
       getInventoryItems(client, locationId, companyId, {
         search,
@@ -74,7 +88,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
       getMaterialFormsList(client, companyId),
       getMaterialSubstancesList(client, companyId),
       getTagsList(client, companyId),
-      getStorageTypesList(client, companyId)
+      getStorageTypesList(client, companyId),
+      getStorageUnitsList(client, companyId)
     ]);
 
   if (inventoryItems.error) {
@@ -96,7 +111,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     forms: forms.data ?? [],
     substances: substances.data ?? [],
     tags: uniqueTags,
-    storageTypes: storageTypes.data ?? []
+    storageTypes: storageTypes.data ?? [],
+    storageUnits: storageUnits.data ?? []
   };
 }
 
@@ -108,7 +124,8 @@ export default function QuantitiesRoute() {
     forms,
     substances,
     tags,
-    storageTypes
+    storageTypes,
+    storageUnits
   } = useLoaderData<typeof loader>();
 
   return (
@@ -128,6 +145,7 @@ export default function QuantitiesRoute() {
             substances={substances}
             tags={tags}
             storageTypes={storageTypes}
+            storageUnits={storageUnits}
           />
         </ResizablePanel>
         <Outlet />

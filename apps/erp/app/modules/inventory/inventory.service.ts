@@ -1,7 +1,7 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
 import type { StorageItem } from "~/types";
@@ -1029,10 +1029,19 @@ export async function updateTrackedEntityExpiry(
 ) {
   const existing = await client
     .from("trackedEntity")
-    .select("expirationDate, attributes")
+    .select("expirationDate, attributes, status")
     .eq("id", args.trackedEntityId)
     .single();
   if (existing.error) return existing;
+
+  if (existing.data?.status === "Consumed") {
+    return {
+      data: null,
+      error: {
+        message: "Cannot edit expiry of a consumed tracked entity"
+      } as unknown as PostgrestError
+    };
+  }
 
   const prevAttrs =
     (existing.data?.attributes as Record<string, unknown> | null) ?? {};
@@ -1341,6 +1350,71 @@ export async function insertManualInventoryAdjustment(
       }
       return { data: null };
     }
+  }
+
+  // Resolve the correct stock target for a negative adjustment when:
+  //   - readableId is provided: always resolve via serial number (currentQuantity
+  //     may point to the wrong row due to loose null == undefined matching), OR
+  //   - No currentQuantity found at all: fall back to untracked (legacy) stock.
+  //
+  //   1. If readableId is provided, adjust the entity with that serial number that
+  //      has positive stock. If not found, return an error — never silently fall back.
+  //   2. If no readableId, fall back to untracked (legacy) stock.
+  if (
+    data.entryType === "Negative Adjmt." &&
+    (readableId || !currentQuantity)
+  ) {
+    if (readableId) {
+      // storageUnitQuantities is scoped to this item + location.
+      // Filter to positive-qty rows only — multiple entities can share a readableId
+      // if the same serial was used across repeated positive adjustments.
+      const resolvedQtyRow = storageUnitQuantities?.data?.find(
+        (q) =>
+          q.readableId === readableId &&
+          q.trackedEntityId != null &&
+          (q.quantity ?? 0) > 0
+      );
+      if (!resolvedQtyRow) {
+        return { error: "Serial number not found" };
+      }
+      const resolvedId = resolvedQtyRow.trackedEntityId as string;
+      const resolvedQty = resolvedQtyRow.quantity ?? 0;
+      if (data.quantity > resolvedQty) {
+        return { error: "Insufficient quantity for negative adjustment" };
+      }
+      const entityUpdate = await client
+        .from("trackedEntity")
+        .update({ quantity: resolvedQty - data.quantity, readableId })
+        .eq("id", resolvedId);
+      if (entityUpdate.error) return entityUpdate;
+      return client
+        .from("itemLedger")
+        .insert([
+          {
+            ...data,
+            trackedEntityId: resolvedId,
+            quantity: -Math.abs(data.quantity)
+          }
+        ])
+        .select("*")
+        .single();
+    }
+    // No serial number — fall back to legacy (untracked) stock
+    const legacyQty =
+      storageUnitQuantities?.data?.find(
+        (q) =>
+          q.trackedEntityId == null && q.storageUnitId == data.storageUnitId
+      )?.quantity ?? 0;
+    if (data.quantity > legacyQty) {
+      return { error: "Insufficient quantity for negative adjustment" };
+    }
+    return client
+      .from("itemLedger")
+      .insert([
+        { ...data, trackedEntityId: null, quantity: -Math.abs(data.quantity) }
+      ])
+      .select("*")
+      .single();
   }
 
   // Check if it's a negative adjustment and if the quantity is sufficient
@@ -1888,6 +1962,22 @@ export async function getStorageUnitDescendants(
       "id, parentId, locationId, warehouseId, name, active, storageTypeIds, companyId, depth, ancestorPath"
     )
     .contains("ancestorPath", [storageUnitId]);
+}
+
+export async function expandStorageUnitIdsWithDescendants(
+  client: SupabaseClient<Database>,
+  storageUnitIds: string[]
+): Promise<string[]> {
+  if (storageUnitIds.length === 0) return [];
+  const { data } = await client
+    .from("storageUnits_recursive")
+    .select("id")
+    .overlaps("ancestorPath", storageUnitIds);
+  const expanded = new Set<string>(storageUnitIds);
+  (data ?? []).forEach((row) => {
+    if (row.id) expanded.add(row.id);
+  });
+  return Array.from(expanded);
 }
 
 // ----------------------------------------------------------------------------

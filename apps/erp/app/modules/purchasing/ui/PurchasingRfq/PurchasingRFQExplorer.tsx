@@ -19,9 +19,21 @@ import {
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
-import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuCirclePlus,
+  LuEllipsisVertical,
+  LuSettings2,
+  LuTrash
+} from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { Empty, ItemThumbnail } from "~/components";
+import type { DragHandleBindings } from "~/components/LineReorder";
+import {
+  ReorderableLineList,
+  ReorderableRow,
+  ReorderEditBar,
+  useLineOrderEditMode
+} from "~/components/LineReorder";
 import { usePermissions, useRouteData } from "~/hooks";
 import type { MethodItemType } from "~/modules/shared";
 import { path } from "~/utils/path";
@@ -78,6 +90,15 @@ export default function PurchasingRFQExplorer() {
 
   const lines = purchasingRfqData?.lines ?? [];
 
+  const canReorder =
+    !isDisabled && permissions.can("update", "purchasing") && lines.length > 1;
+
+  const editMode = useLineOrderEditMode<PurchasingRFQLine>({
+    actionPath: path.to.purchasingRfqLineOrder(rfqId),
+    lines,
+    getSortOrder: (line) => line.order ?? 0
+  });
+
   return (
     <div data-purchasing-rfq-explorer>
       <VStack className="w-full h-[calc(100dvh-99px)] justify-between">
@@ -86,14 +107,29 @@ export default function PurchasingRFQExplorer() {
           spacing={0}
         >
           {lines.length > 0 ? (
-            lines.map((line) => (
-              <PurchasingRFQLineItem
-                key={line.id}
-                line={line}
-                isDisabled={isDisabled}
-                onDelete={onDeleteLine}
+            editMode.isEditing ? (
+              <ReorderableLineList<PurchasingRFQLine>
+                lines={editMode.draft}
+                activeLine={editMode.activeLine}
+                onDragStart={editMode.handleDragStart}
+                onDragEnd={editMode.handleDragEnd}
+                renderRow={(line, dragHandle) => (
+                  <PurchasingRFQLineBody line={line} dragHandle={dragHandle} />
+                )}
+                renderOverlay={(line) => (
+                  <PurchasingRFQLineBody line={line} isOverlay />
+                )}
               />
-            ))
+            ) : (
+              lines.map((line) => (
+                <PurchasingRFQLineItem
+                  key={line.id}
+                  line={line}
+                  isDisabled={isDisabled}
+                  onDelete={onDeleteLine}
+                />
+              ))
+            )
           ) : (
             <Empty>
               {permissions.can("update", "purchasing") && (
@@ -109,31 +145,51 @@ export default function PurchasingRFQExplorer() {
             </Empty>
           )}
         </VStack>
-        <div className="w-full flex flex-0 sm:flex-row border-t border-border p-4 sm:justify-start sm:space-x-2">
-          <Tooltip>
-            <TooltipTrigger className="w-full">
-              <Button
-                ref={newButtonRef}
-                className="w-full"
-                isDisabled={
-                  isDisabled || !permissions.can("update", "purchasing")
-                }
-                leftIcon={<LuCirclePlus />}
-                variant="secondary"
-                onClick={newPurchasingRFQLineDisclosure.onOpen}
-              >
-                <Trans>Add Line Item</Trans>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <HStack>
-                <span>
-                  <Trans>New Line Item</Trans>
-                </span>
-                <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
-              </HStack>
-            </TooltipContent>
-          </Tooltip>
+        <div className="w-full flex border-t border-border p-4 gap-2">
+          {editMode.isEditing ? (
+            <ReorderEditBar
+              isSaving={editMode.isSaving}
+              isDirty={editMode.isDirty}
+              onSave={editMode.save}
+              onCancel={editMode.cancelEditMode}
+            />
+          ) : (
+            <>
+              <Tooltip>
+                <TooltipTrigger className="flex-1">
+                  <Button
+                    ref={newButtonRef}
+                    className="w-full"
+                    isDisabled={
+                      isDisabled || !permissions.can("update", "purchasing")
+                    }
+                    leftIcon={<LuCirclePlus />}
+                    variant="secondary"
+                    onClick={newPurchasingRFQLineDisclosure.onOpen}
+                  >
+                    <Trans>Add Line Item</Trans>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <HStack>
+                    <span>
+                      <Trans>New Line Item</Trans>
+                    </span>
+                    <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
+                  </HStack>
+                </TooltipContent>
+              </Tooltip>
+              {canReorder && lines.length > 0 && (
+                <IconButton
+                  aria-label="Reorder lines"
+                  icon={<LuSettings2 />}
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={editMode.enterEditMode}
+                />
+              )}
+            </>
+          )}
         </div>
       </VStack>
       {newPurchasingRFQLineDisclosure.isOpen && (
@@ -147,6 +203,35 @@ export default function PurchasingRFQExplorer() {
         <DeletePurchasingRFQLine line={deleteLine!} onCancel={onDeleteCancel} />
       )}
     </div>
+  );
+}
+
+function PurchasingRFQLineBody({
+  line,
+  dragHandle,
+  isOverlay
+}: {
+  line: PurchasingRFQLine;
+  dragHandle?: DragHandleBindings;
+  isOverlay?: boolean;
+}) {
+  return (
+    <ReorderableRow dragHandle={dragHandle} isOverlay={isOverlay}>
+      <HStack spacing={2} className="flex-grow min-w-0 p-2 pr-10">
+        <ItemThumbnail
+          thumbnailPath={line.thumbnailPath}
+          type={line.itemType as MethodItemType}
+        />
+        <VStack spacing={0} className="min-w-0">
+          <span className="font-semibold line-clamp-1">
+            {line.itemReadableId || line.description || "Item"}
+          </span>
+          <span className="font-medium text-muted-foreground text-xs line-clamp-1">
+            {line.description}
+          </span>
+        </VStack>
+      </HStack>
+    </ReorderableRow>
   );
 }
 

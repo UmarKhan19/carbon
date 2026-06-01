@@ -27,7 +27,7 @@ function usePlans() {
   const { t } = useLingui();
   return {
     STARTER: {
-      price: 33,
+      price: 40,
       userMinimum: 0,
       talkToSales: false,
       description: t`Perfect for low-cost evaluation`,
@@ -38,7 +38,7 @@ function usePlans() {
       ]
     },
     BUSINESS: {
-      price: 92,
+      price: 100,
       userMinimum: 5,
       talkToSales: true,
       description: t`For growing businesses that need support`,
@@ -51,7 +51,7 @@ function usePlans() {
       ]
     },
     GOVCLOUD: {
-      price: 92,
+      price: 100,
       userMinimum: 5,
       talkToSales: true,
       description: t`For US companies handling ITAR data`,
@@ -146,7 +146,7 @@ export default function OnboardingPlan() {
   return (
     <>
       <div className="flex flex-col max-w-2xl w-full min-h-screen md:min-h-0">
-        <div className="sticky top-0 bg-background z-10 pb-4">
+        <div className="sticky top-0 bg-background z-10 mb-4 rounded-2xl">
           <CardHeader>
             <CardTitle>
               <Trans>Select a plan</Trans>

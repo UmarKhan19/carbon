@@ -367,6 +367,7 @@ serve(async (req: Request) => {
               conversionFactor: line.conversionFactor,
               exchangeRate: line.exchangeRate ?? 1,
               jobOperationId: line.jobOperationId,
+              sortOrder: line.sortOrder ?? 1,
               companyId,
               createdBy: userId,
             }));
@@ -549,6 +550,7 @@ serve(async (req: Request) => {
                 exchangeRate: quote.data.exchangeRate ?? 1,
                 taxPercent: line.taxPercent,
                 shippingCost: selectedLines![line.id!].shippingCost,
+                sortOrder: line.sortOrder ?? 1,
               };
             });
 
@@ -775,6 +777,7 @@ serve(async (req: Request) => {
                 taxPercent: line.taxPercent ?? 0,
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
                 exchangeRate: line.exchangeRate ?? 1,
+                sortOrder: line.sortOrder ?? 1,
                 companyId,
                 createdBy: userId,
               });
@@ -1074,6 +1077,8 @@ serve(async (req: Request) => {
               quantity: line.quantity,
               status: "Not Started",
               unitOfMeasureCode: line.unitOfMeasureCode,
+              // Sales RFQ uses "order" column; map it to quoteLine.sortOrder
+              sortOrder: line.order ?? 1,
               companyId,
               createdBy: userId,
             }));
@@ -1171,12 +1176,20 @@ serve(async (req: Request) => {
       }
       case "shipmentToSalesInvoice": {
         const shipmentId = id;
-        const [shipment, shipmentLines] = await Promise.all([
-          client.from("shipment").select("*").eq("id", shipmentId).single(),
-          client.from("shipmentLine").select("*").eq("shipmentId", shipmentId),
-        ]);
+        const [shipment, shipmentLines, shipmentFixedAssetLines] =
+          await Promise.all([
+            client.from("shipment").select("*").eq("id", shipmentId).single(),
+            client.from("shipmentLine").select("*").eq("shipmentId", shipmentId),
+            client
+              .from("shipmentFixedAssetLine")
+              .select("*")
+              .eq("shipmentId", shipmentId)
+              .eq("shipped", true),
+          ]);
 
         if (shipmentLines.error) throw shipmentLines.error;
+        if (shipmentFixedAssetLines.error)
+          throw shipmentFixedAssetLines.error;
 
         // Accumulate quantities for each sales order line
         const quantitiesByLine = shipmentLines.data.reduce<
@@ -1186,6 +1199,12 @@ serve(async (req: Request) => {
           acc[lineId] = (acc[lineId] || 0) + line.shippedQuantity;
           return acc;
         }, {});
+
+        // Each shipped fixed asset line counts as quantity 1
+        for (const line of shipmentFixedAssetLines.data) {
+          const lineId = line.salesOrderLineId;
+          quantitiesByLine[lineId] = (quantitiesByLine[lineId] || 0) + 1;
+        }
 
         const salesOrderLineIds = Object.keys(quantitiesByLine);
 
@@ -1347,6 +1366,7 @@ serve(async (req: Request) => {
                 taxPercent: line.taxPercent ?? 0,
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
                 exchangeRate: line.exchangeRate ?? 1,
+                sortOrder: line.sortOrder ?? 1,
                 companyId,
                 createdBy: userId,
               });
@@ -1529,6 +1549,7 @@ serve(async (req: Request) => {
                   supplierShippingCost:
                     selectedLines![line.id!].supplierShippingCost,
                   supplierTaxAmount: selectedLines![line.id!].supplierTaxAmount,
+                  sortOrder: line.sortOrder ?? 1,
                   createdBy: userId,
                   companyId,
                 };

@@ -18,6 +18,8 @@ import type {
   webhookValidator
 } from "./settings.models";
 
+const PUBLIC_STORAGE_URL_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/public/`;
+
 export async function getAccountsPayableBillingAddress(
   client: SupabaseClient<Database>,
   companyId: string
@@ -60,8 +62,7 @@ export async function updateAccountsReceivableBillingAddress(
 ) {
   return client
     .from("companyAccountsReceivableBillingAddress")
-    .update(sanitize({ ...data, updatedBy }))
-    .eq("id", companyId);
+    .upsert(sanitize({ id: companyId, ...data, updatedBy }));
 }
 
 export async function deactivateWebhooks(
@@ -136,17 +137,20 @@ export async function getCompanies(
     data: companies.data.map(({ companyGroup, ...company }) => ({
       ...company,
       companyGroupName: (companyGroup as { name: string } | null)?.name ?? null,
-      logoLightIcon: company.logoLightIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLightIcon}`
-        : null,
-      logoDarkIcon: company.logoDarkIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDarkIcon}`
+      logoLight: company.logoLight
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoLight}`
         : null,
       logoDark: company.logoDark
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoDark}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoDark}`
         : null,
-      logoLight: company.logoLight
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.logoLight}`
+      logoLightIcon: company.logoLightIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoLightIcon}`
+        : null,
+      logoDarkIcon: company.logoDarkIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoDarkIcon}`
+        : null,
+      logoWatermark: company.logoWatermark
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoWatermark}`
         : null
     })),
     error: null
@@ -169,17 +173,20 @@ export async function getCompany(
   return {
     data: {
       ...company.data,
-      logoLightIcon: company.data.logoLightIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLightIcon}`
-        : null,
-      logoDarkIcon: company.data.logoDarkIcon
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDarkIcon}`
+      logoLight: company.data.logoLight
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoLight}`
         : null,
       logoDark: company.data.logoDark
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoDark}`
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoDark}`
         : null,
-      logoLight: company.data.logoLight
-        ? `${SUPABASE_URL}/storage/v1/object/public/public/${company.data.logoLight}`
+      logoLightIcon: company.data.logoLightIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoLightIcon}`
+        : null,
+      logoDarkIcon: company.data.logoDarkIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoDarkIcon}`
+        : null,
+      logoWatermark: company.data.logoWatermark
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.data.logoWatermark}`
         : null
     },
     error: null
@@ -619,6 +626,20 @@ export async function updateAccountingEnabledSetting(
     .eq("id", companyId);
 }
 
+export async function updateAssetTaxDepreciationSettings(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  settings: {
+    assetTaxDepreciationEnabled: boolean;
+    assetTaxRate: number | null;
+  }
+) {
+  return client
+    .from("companySettings")
+    .update(sanitize(settings))
+    .eq("id", companyId);
+}
+
 export async function updateTimeCardSetting(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -686,6 +707,17 @@ export async function updateLogoLightIcon(
   return client
     .from("company")
     .update(sanitize({ logoLightIcon }))
+    .eq("id", companyId);
+}
+
+export async function updateLogoWatermark(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  logoWatermark: string | null
+) {
+  return client
+    .from("company")
+    .update(sanitize({ logoWatermark }))
     .eq("id", companyId);
 }
 

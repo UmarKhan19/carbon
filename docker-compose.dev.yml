@@ -44,9 +44,6 @@ services:
   gotrue:
     image: supabase/gotrue:v2.189.0
     restart: unless-stopped
-    depends_on:
-      postgres:
-        condition: service_healthy
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
@@ -63,9 +60,11 @@ services:
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_MAILER_AUTOCONFIRM: "true"
-      GOTRUE_SMTP_HOST: inbucket
-      GOTRUE_SMTP_PORT: 2500
-      GOTRUE_SMTP_ADMIN_EMAIL: admin@carbon.local
+      GOTRUE_SMTP_HOST: ${GOTRUE_SMTP_HOST:-inbucket}
+      GOTRUE_SMTP_PORT: ${GOTRUE_SMTP_PORT:-2500}
+      GOTRUE_SMTP_USER: ${GOTRUE_SMTP_USER:-}
+      GOTRUE_SMTP_PASS: ${GOTRUE_SMTP_PASS:-}
+      GOTRUE_SMTP_ADMIN_EMAIL: ${GOTRUE_SMTP_ADMIN_EMAIL:-admin@carbon.local}
       GOTRUE_SMTP_SENDER_NAME: Carbon
       GOTRUE_EXTERNAL_GOOGLE_ENABLED: "true"
       GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID: ${SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID:-}
@@ -75,6 +74,17 @@ services:
       GOTRUE_EXTERNAL_AZURE_CLIENT_ID: ${SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_ID:-}
       GOTRUE_EXTERNAL_AZURE_SECRET: ${SUPABASE_AUTH_EXTERNAL_AZURE_CLIENT_SECRET:-}
       GOTRUE_EXTERNAL_AZURE_REDIRECT_URI: ${SUPABASE_AUTH_EXTERNAL_AZURE_REDIRECT_URI}
+      GOTRUE_MAILER_TEMPLATES_MAGIC_LINK: ${ERP_URL}/templates/magic-link.html
+      GOTRUE_MAILER_TEMPLATES_INVITE: ${ERP_URL}/templates/invite.html
+      SSL_CERT_FILE: /etc/ssl/certs/portless-ca.pem
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "${DOMAIN}:host-gateway"
+    volumes:
+      - ${HOME}/.portless/ca.pem:/etc/ssl/certs/portless-ca.pem:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   postgrest:
     image: postgrest/postgrest:v13.0.8
@@ -97,6 +107,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      default:
+        aliases:
+          - realtime-dev
     environment:
       PORT: 4000
       DB_HOST: postgres
@@ -225,17 +239,22 @@ services:
   # Each worktree gets its own logical DB index (0-15) via REDIS_URL.
 
   inngest:
-    image: inngest/inngest:v1.18.0
+    image: inngest/inngest:v1.19.4
     restart: unless-stopped
     ports:
       - "${PORT_INNGEST}:8288"
     command:
       - inngest
       - dev
+      - --sdk-url=${ERP_URL}/api/inngest
+    environment:
+      SSL_CERT_FILE: /etc/ssl/certs/portless-ca.pem
     extra_hosts:
       - "host.docker.internal:host-gateway"
+      - "${INNGEST_TLS_HOST}:host-gateway"
     volumes:
       - inngest:/data
+      - ${HOME}/.portless/ca.pem:/etc/ssl/certs/portless-ca.pem:ro
 
 volumes:
   pgdata:

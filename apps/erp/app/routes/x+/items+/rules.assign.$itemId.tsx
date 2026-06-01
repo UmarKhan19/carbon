@@ -7,9 +7,9 @@ import type {
   ClientActionFunctionArgs
 } from "react-router";
 import { redirect } from "react-router";
-import { assignItemRule } from "~/modules/items";
+import { assignCustomRule } from "~/modules/customRules";
 import { path } from "~/utils/path";
-import { getCompanyId, itemRuleAssignmentsQuery } from "~/utils/react-query";
+import { customRuleAssignmentsQuery, getCompanyId } from "~/utils/react-query";
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
@@ -21,8 +21,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
     request,
     client,
     companyId,
-    feature: "ITEM_RULES",
-    redirectTo: path.to.itemRules
+    feature: "CUSTOM_RULES",
+    redirectTo: path.to.customRules
   });
 
   const { itemId } = params;
@@ -32,13 +32,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const ruleId = String(formData.get("ruleId") ?? "");
   if (!ruleId) {
     throw redirect(
-      request.headers.get("Referer") ?? path.to.itemRules,
+      request.headers.get("Referer") ?? path.to.customRules,
       await flash(request, error(null, "Rule id required"))
     );
   }
 
-  const result = await assignItemRule(client, {
-    itemId,
+  const result = await assignCustomRule(client, {
+    targetType: "item",
+    targetId: itemId,
     ruleId,
     companyId,
     userId
@@ -46,13 +47,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   if (result.error) {
     throw redirect(
-      request.headers.get("Referer") ?? path.to.itemRules,
+      request.headers.get("Referer") ?? path.to.customRules,
       await flash(request, error(result.error, "Failed to assign rule"))
     );
   }
 
   throw redirect(
-    request.headers.get("Referer") ?? path.to.itemRules,
+    request.headers.get("Referer") ?? path.to.customRules,
     await flash(request, success("Rule assigned"))
   );
 }
@@ -64,7 +65,7 @@ export async function clientAction({
   const { itemId } = params;
   if (itemId) {
     window?.clientCache?.setQueryData(
-      itemRuleAssignmentsQuery(itemId, getCompanyId()).queryKey,
+      customRuleAssignmentsQuery("item", itemId, getCompanyId()).queryKey,
       null
     );
   }

@@ -16,6 +16,7 @@ import { memo, useCallback, useMemo } from "react";
 import {
   LuBookMarked,
   LuBox,
+  LuBoxes,
   LuCalculator,
   LuCheck,
   LuCircleCheck,
@@ -33,7 +34,8 @@ import {
   LuShapes,
   LuStar,
   LuTag,
-  LuWarehouse
+  LuWarehouse,
+  LuX
 } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import {
@@ -45,6 +47,7 @@ import {
 } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
+import { StorageUnitDrillSelect } from "~/components/Form/StorageUnitDrillSelect";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { useFilters } from "~/components/Table/components/Filter/useFilters";
 import { useUrlParams } from "~/hooks";
@@ -70,6 +73,7 @@ type InventoryTableProps = {
   substances: ListItem[];
   tags: string[];
   storageTypes: { id: string; name: string }[];
+  storageUnits: { id: string; name: string }[];
 };
 
 const InventoryTable = memo(
@@ -80,7 +84,8 @@ const InventoryTable = memo(
     forms,
     substances,
     tags,
-    storageTypes
+    storageTypes,
+    storageUnits
   }: InventoryTableProps) => {
     const [params] = useUrlParams();
     const { t } = useLingui();
@@ -93,6 +98,10 @@ const InventoryTable = memo(
 
     const locations = useLocations();
     const unitOfMeasures = useUnitOfMeasure();
+    const storageUnitNameById = useMemo(
+      () => new Map(storageUnits.map((s) => [s.id, s.name])),
+      [storageUnits]
+    );
 
     const filters = useFilters();
     const materialSubstanceId = filters.getFilter("materialSubstanceId")?.[0];
@@ -501,6 +510,77 @@ const InventoryTable = memo(
           }
         },
         {
+          accessorKey: "storageUnitIds",
+          header: t`Storage Unit`,
+          cell: ({ row }) => {
+            const ids =
+              (
+                row.original as InventoryItem & {
+                  storageUnitIds?: string[] | null;
+                }
+              ).storageUnitIds ?? [];
+            return (
+              <HStack spacing={0} className="gap-1">
+                {ids.map((id) => (
+                  <Enumerable
+                    key={id}
+                    value={storageUnitNameById.get(id) ?? id}
+                  />
+                ))}
+              </HStack>
+            );
+          },
+          meta: {
+            filter: {
+              type: "custom",
+              isArray: true,
+              getLabel: (v: string) => storageUnitNameById.get(v) ?? v,
+              render: ({ values, toggle }) => {
+                const VISIBLE = 3;
+                const visible = values.slice(0, VISIBLE);
+                const overflow = values.length - visible.length;
+                return (
+                  <div className="flex flex-col gap-2">
+                    {values.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {visible.map((v) => {
+                          const label = storageUnitNameById.get(v) ?? v;
+                          return (
+                            <Badge
+                              key={v}
+                              variant="secondary"
+                              className="cursor-pointer gap-1 max-w-[160px]"
+                              onClick={() => toggle(v)}
+                            >
+                              <span className="truncate">{label}</span>
+                              <LuX className="h-3 w-3 shrink-0" />
+                            </Badge>
+                          );
+                        })}
+                        {overflow > 0 && (
+                          <Badge variant="secondary" className="gap-1">
+                            +{overflow} more
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                    <StorageUnitDrillSelect
+                      locationId={locationId}
+                      value={null}
+                      onChange={(id) => {
+                        if (id) toggle(id);
+                      }}
+                      allowCreate={false}
+                    />
+                  </div>
+                );
+              }
+            },
+            pluralHeader: t`Storage Units`,
+            icon: <LuBoxes />
+          }
+        },
+        {
           accessorKey: "active",
           header: t`Active`,
           cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
@@ -519,6 +599,7 @@ const InventoryTable = memo(
       ];
     }, [
       forms,
+      locationId,
       materialFormId,
       materialSubstanceId,
       formatNumber,
@@ -526,6 +607,7 @@ const InventoryTable = memo(
       substances,
       tags,
       storageTypes,
+      storageUnitNameById,
       unitOfMeasures,
       t,
       translateReplenishment
@@ -539,7 +621,8 @@ const InventoryTable = memo(
       grade: false,
       dimension: false,
       materialType: false,
-      storageTypeIds: false
+      storageTypeIds: false,
+      storageUnitIds: false
     };
 
     const defaultColumnPinning = {

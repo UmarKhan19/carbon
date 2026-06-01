@@ -1,10 +1,10 @@
 import { intro, outro, tasks } from "@clack/prompts";
 import pc from "picocolors";
-import { currentBranch, isLinkedWorktree } from "../lib/git.js";
-import { syncAppPortlessConfigs } from "../lib/render-env.js";
-import { getWorktreeRoot, projectName, resolveSlug } from "../lib/slug.js";
+import { syncAppPortlessConfigs } from "../env.js";
+import { currentBranch } from "../git.js";
 import { stopStack } from "../services/compose.js";
 import { branchToPrefix, unregisterAliases } from "../services/portless.js";
+import { getWorktreeRoot, projectName, resolveSlug } from "../worktree.js";
 
 // silent: post-SIGINT path. clack tasks/spinner would EIO via setRawMode on
 // the freshly-interrupted stdin; fall back to plain printf progress.
@@ -31,20 +31,15 @@ export async function down(opts: { silent?: boolean } = {}) {
       title: "Unregister portless aliases",
       task: async () => {
         const branch = await currentBranch(root);
-        const branchPrefix = branchToPrefix(branch);
+        const branchPrefix = branchToPrefix(branch, slug);
         await unregisterAliases(root, branchPrefix);
         return "aliases removed";
       }
     },
     {
-      title: "Reset app portless.json",
+      title: "Clean up portless.json",
       task: async () => {
-        const linked = await isLinkedWorktree();
-        syncAppPortlessConfigs({
-          worktreeRoot: root,
-          branchPrefix: null,
-          linked
-        });
+        syncAppPortlessConfigs(root);
         return "configs reset";
       }
     }
@@ -64,12 +59,11 @@ async function runPlain(root: string, slug: string, project: string) {
 
   step("unregistering portless aliases");
   const branch = await currentBranch(root);
-  const branchPrefix = branchToPrefix(branch);
+  const branchPrefix = branchToPrefix(branch, slug);
   await unregisterAliases(root, branchPrefix);
   done("aliases removed");
 
-  step("resetting app portless.json");
-  const linked = await isLinkedWorktree();
-  syncAppPortlessConfigs({ worktreeRoot: root, branchPrefix: null, linked });
+  step("cleaning up portless.json");
+  syncAppPortlessConfigs(root);
   done("configs reset");
 }

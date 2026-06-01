@@ -1,5 +1,4 @@
 import {
-  AUTH_PROVIDERS,
   assertIsPost,
   CarbonEdition,
   CLOUDFLARE_TURNSTILE_SECRET_KEY,
@@ -7,14 +6,20 @@ import {
   CONTROLLED_ENVIRONMENT,
   carbonClient,
   error,
+  isAuthProviderEnabled,
   magicLinkValidator,
   RATE_LIMIT
 } from "@carbon/auth";
-import { sendMagicLink, verifyAuthSession } from "@carbon/auth/auth.server";
+import {
+  sendMagicLink,
+  signInWithBypassEmail,
+  verifyAuthSession
+} from "@carbon/auth/auth.server";
 import {
   clearAuthCookies,
   flash,
-  getAuthSession
+  getAuthSession,
+  setAuthSession
 } from "@carbon/auth/session.server";
 import { getUserByEmail } from "@carbon/auth/users.server";
 import { sendVerificationCode } from "@carbon/auth/verification.server";
@@ -30,13 +35,18 @@ import {
   Separator,
   toast,
   useMode,
+  useMount,
   VStack
 } from "@carbon/react";
 import { Edition } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { useEffect, useState } from "react";
-import { LuCircleAlert } from "react-icons/lu";
+import {
+  browserSupportsWebAuthn,
+  startAuthentication
+} from "@simplewebauthn/browser";
+import { useEffect, useRef, useState } from "react";
+import { LuCircleAlert, LuFingerprint } from "react-icons/lu";
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
@@ -58,29 +68,36 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const authSession = await getAuthSession(request);
+  const hasOutlookAuth = isAuthProviderEnabled("azure");
+  const hasGoogleAuth = isAuthProviderEnabled("google");
+  const hasPasskeyAuth = isAuthProviderEnabled("passkey");
+
   if (authSession) {
     if (await verifyAuthSession(authSession)) {
       throw redirect(path.to.authenticatedRoot);
     }
     const cookieHeaders = await clearAuthCookies(request);
     return data(
-      { providers: AUTH_PROVIDERS.split(",") },
+      { hasOutlookAuth, hasGoogleAuth, hasPasskeyAuth },
       { headers: cookieHeaders }
     );
   }
 
-  return { providers: AUTH_PROVIDERS.split(",") };
+  return {
+    hasOutlookAuth,
+    hasGoogleAuth,
+    hasPasskeyAuth
+  };
 }
-
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(RATE_LIMIT, "1 h"),
-  analytics: true
-});
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
+  const ratelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(RATE_LIMIT, "1 h"),
+    analytics: true
+  });
   const { success } = await ratelimit.limit(ip);
 
   if (!success) {
@@ -133,6 +150,21 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const user = await getUserByEmail(email);
 
+  const devBypassEmail = process.env.DEV_BYPASS_EMAIL;
+  if (
+    devBypassEmail &&
+    email.toLowerCase() === devBypassEmail.toLowerCase() &&
+    user.data?.active
+  ) {
+    const authSession = await signInWithBypassEmail(email);
+    if (authSession) {
+      const sessionCookie = await setAuthSession(request, { authSession });
+      return redirect(path.to.authenticatedRoot, {
+        headers: [["Set-Cookie", sessionCookie]]
+      });
+    }
+  }
+
   if (user.data && user.data.active) {
     const magicLink = await sendMagicLink(email);
 
@@ -165,15 +197,17 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function LoginRoute() {
   const { t } = useLingui();
-  const { providers } = useLoaderData<typeof loader>();
-  const hasOutlookAuth = providers.includes("azure");
-  const hasGoogleAuth = providers.includes("google");
+  const { hasOutlookAuth, hasGoogleAuth, hasPasskeyAuth } =
+    useLoaderData<typeof loader>();
 
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get("redirectTo") ?? undefined;
   const [mode, setMode] = useState<"login" | "signup" | "verify">("login");
   const [signupEmail, setSignupEmail] = useState<string>("");
   const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [passkeySupported, setPasskeySupported] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
+  const conditionalAbortRef = useRef<AbortController | null>(null);
 
   const fetcher = useFetcher<Result & { mode?: string; email?: string }>();
   const theme = useMode();
@@ -195,6 +229,105 @@ export default function LoginRoute() {
       }
     }
   }, [fetcher.data, mode, redirectTo]);
+
+  // Detect passkey support and start conditional UI (autofill) on mount
+  useMount(() => {
+    if (!hasPasskeyAuth) return;
+    if (!browserSupportsWebAuthn()) return;
+
+    const checkAndStart = async () => {
+      const conditionalSupported =
+        typeof PublicKeyCredential !== "undefined" &&
+        typeof (PublicKeyCredential as any).isConditionalMediationAvailable ===
+          "function" &&
+        (await (PublicKeyCredential as any).isConditionalMediationAvailable());
+
+      setPasskeySupported(true);
+
+      if (!conditionalSupported) return;
+
+      try {
+        const optRes = await fetch("/api/passkey/authenticate/options", {
+          method: "POST"
+        });
+        if (!optRes.ok) return;
+        const { challengeId, ...options } = await optRes.json();
+
+        const abortCtrl = new AbortController();
+        conditionalAbortRef.current = abortCtrl;
+
+        const credential = await startAuthentication({
+          optionsJSON: options,
+          useBrowserAutofill: true,
+          signal: abortCtrl.signal
+        } as any);
+
+        await completePasskeyAuth(credential, challengeId);
+      } catch {
+        // User dismissed or no passkeys — silently ignore
+      }
+    };
+
+    checkAndStart();
+
+    return () => {
+      conditionalAbortRef.current?.abort();
+    };
+  });
+
+  const completePasskeyAuth = async (credential: any, challengeId: string) => {
+    const verifyRes = await fetch("/api/passkey/authenticate/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential, challengeId, redirectTo })
+    });
+
+    if (verifyRes.redirected) {
+      window.location.href = verifyRes.url;
+      return;
+    }
+
+    if (!verifyRes.ok) {
+      const body = await verifyRes.json().catch(() => ({}));
+      if (verifyRes.status === 404 && body.unknownCredential) {
+        if (
+          typeof (PublicKeyCredential as any).signalUnknownCredential ===
+          "function"
+        ) {
+          await (PublicKeyCredential as any).signalUnknownCredential({
+            rpId: window.location.hostname,
+            credentialId: body.credentialId
+          });
+        }
+      }
+      toast.error(body.message ?? "Passkey sign-in failed");
+    }
+  };
+
+  const onSignInWithPasskey = async () => {
+    if (!passkeySupported) return;
+    setPasskeyLoading(true);
+    conditionalAbortRef.current?.abort();
+
+    try {
+      const optRes = await fetch("/api/passkey/authenticate/options", {
+        method: "POST"
+      });
+      if (!optRes.ok) throw new Error("Failed to get options");
+      const { challengeId, ...options } = await optRes.json();
+
+      const credential = await startAuthentication({
+        optionsJSON: options
+      } as any);
+      await completePasskeyAuth(credential, challengeId);
+    } catch (e: any) {
+      if (e?.name !== "NotAllowedError" && e?.name !== "AbortError") {
+        toast.error("Passkey sign-in failed");
+      }
+    } finally {
+      setPasskeyLoading(false);
+    }
+  };
 
   const onSignInWithGoogle = async () => {
     const { error } = await carbonClient.auth.signInWithOAuth({
@@ -229,11 +362,16 @@ export default function LoginRoute() {
 
   return (
     <>
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center mb-8">
         <img
-          src={CONTROLLED_ENVIRONMENT ? "/flag.png" : "/carbon-logo-mark.svg"}
-          alt={t`Carbon Logo`}
-          className="w-36"
+          src={CONTROLLED_ENVIRONMENT ? "/flag.png" : "/carbon-mark-light.svg"}
+          alt="Carbon Logo"
+          className="w-24 dark:hidden"
+        />
+        <img
+          src={CONTROLLED_ENVIRONMENT ? "/flag.png" : "/carbon-mark-dark.svg"}
+          alt="Carbon Logo"
+          className="w-24 hidden dark:block"
         />
       </div>
       <div className="rounded-lg md:bg-card md:border md:border-border md:shadow-lg p-8 w-[380px]">
@@ -323,13 +461,33 @@ export default function LoginRoute() {
                 </Button>
               )}
 
-              {(hasGoogleAuth || hasOutlookAuth) && (
+              {hasPasskeyAuth && passkeySupported && (
+                <Button
+                  type="button"
+                  size="lg"
+                  className="w-full"
+                  onClick={onSignInWithPasskey}
+                  isDisabled={passkeyLoading || fetcher.state !== "idle"}
+                  isLoading={passkeyLoading}
+                  variant="secondary"
+                  leftIcon={<LuFingerprint className="size-4" />}
+                >
+                  <Trans>Sign in with Passkey</Trans>
+                </Button>
+              )}
+
+              {(hasGoogleAuth || hasOutlookAuth || hasPasskeyAuth) && (
                 <div className="py-3 w-full">
                   <Separator />
                 </div>
               )}
 
-              <Input name="email" label="" placeholder={t`Email Address`} />
+              <Input
+                name="email"
+                label=""
+                placeholder={t`Email Address`}
+                autoComplete={hasPasskeyAuth ? "email webauthn" : "email"}
+              />
 
               <Submit
                 isDisabled={

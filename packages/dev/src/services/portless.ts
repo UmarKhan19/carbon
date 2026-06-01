@@ -1,15 +1,11 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { setTimeout as sleep } from "node:timers/promises";
 import { confirm, isCancel, log, spinner } from "@clack/prompts";
 import { execa, execaSync } from "execa";
 import pc from "picocolors";
-import {
-  ALIAS_SERVICES,
-  type AppId,
-  PORTLESS_MIN_VERSION
-} from "../constants.js";
-import type { PortMap } from "../lib/ports.js";
+import { PORTLESS_MIN_VERSION } from "../constants.js";
+import type { PortMap } from "../worktree.js";
 
 // Strip npm_* / PNPM_* so portless doesn't refuse with "should not be run via
 // npx or pnpm dlx" when invoked from `pnpm exec tsx`. Pair with
@@ -21,6 +17,12 @@ function portlessEnv(): NodeJS.ProcessEnv {
     out[k] = v;
   }
   return out;
+}
+
+// `sudo` preserves HOME so portless state lands in the user's ~/.portless
+// rather than /var/root/.portless.
+function sudoPortless(args: string[]): string[] {
+  return [`HOME=${homedir()}`, "portless", ...args];
 }
 
 export async function ensurePortlessInstalled() {
@@ -161,6 +163,8 @@ export async function ensureProxyPrivileges() {
   const issues = detectPrivilegeIssues();
   if (issues.length === 0) return;
 
+  const isWindows = process.platform === "win32";
+
   log.warn(
     [
       "portless needs a privileged proxy to serve `*.dev` cleanly:",
@@ -172,46 +176,45 @@ export async function ensureProxyPrivileges() {
     ].join("\n")
   );
 
+  const elevateHint = isWindows
+    ? "Will bind :443, install the local CA, and write hosts entries (requires Administrator terminal)."
+    : "Set it up now? Will run sudo to bind :443, install the local CA, and write /etc/hosts entries.";
+
   const proceed = await confirm({
-    message:
-      "Set it up now? Will run sudo to bind :443, install the local CA, and write /etc/hosts entries.",
+    message: elevateHint,
     initialValue: true
   });
   if (isCancel(proceed) || !proceed) {
-    throw new Error(
-      "Aborted. Run manually: `sudo portless proxy stop && sudo portless proxy start --tld dev && sudo portless trust`. Then re-run `crbn up`."
-    );
+    const manual = isWindows
+      ? "Aborted. Run in an Administrator terminal: `portless proxy stop && portless proxy start --tld dev && portless trust`. Then re-run `crbn up`."
+      : "Aborted. Run manually: `sudo portless proxy stop && sudo portless proxy start --tld dev && sudo portless trust`. Then re-run `crbn up`.";
+    throw new Error(manual);
   }
 
-  log.info("running sudo commands — you'll be prompted for your password");
+  if (isWindows) {
+    log.info(
+      "running privileged commands — ensure this terminal is running as Administrator"
+    );
+  } else {
+    log.info("running sudo commands — you'll be prompted for your password");
+  }
 
-  // Preserve user HOME — sudo resets to root's HOME otherwise, sending
-  // portless state (~/.portless) into /var/root/.portless.
-  const sudoEnvArg = `HOME=${homedir()}`;
+  const elevate = (args: string[]) =>
+    isWindows
+      ? execa("portless", args, { stdio: "inherit", reject: false })
+      : execa("sudo", sudoPortless(args), { stdio: "inherit", reject: false });
 
-  await execa("sudo", [sudoEnvArg, "portless", "proxy", "stop"], {
-    stdio: "inherit",
-    reject: false
-  });
+  await elevate(["proxy", "stop"]);
 
-  const start = await execa(
-    "sudo",
-    [sudoEnvArg, "portless", "proxy", "start", "--tld", PORTLESS_TLD],
-    { stdio: "inherit", reject: false }
-  );
+  const start = await elevate(["proxy", "start", "--tld", PORTLESS_TLD]);
   if (start.exitCode !== 0) {
-    throw new Error(
-      `sudo portless proxy start failed (exit ${start.exitCode})`
-    );
+    throw new Error(`portless proxy start failed (exit ${start.exitCode})`);
   }
 
-  const trust = await execa("sudo", [sudoEnvArg, "portless", "trust"], {
-    stdio: "inherit",
-    reject: false
-  });
+  const trust = await elevate(["trust"]);
   if (trust.exitCode !== 0) {
     log.warn(
-      `sudo portless trust failed (exit ${trust.exitCode}); browsers may show cert warnings until you run it manually.`
+      `portless trust failed (exit ${trust.exitCode}); browsers may show cert warnings until you run it manually.`
     );
   }
 
@@ -225,16 +228,22 @@ export async function ensureProxyPrivileges() {
   log.success("portless proxy on :443");
 }
 
-// Push registered routes into /etc/hosts. Needs sudo; idempotent.
+// Push registered routes into /etc/hosts. Needs elevated privileges; idempotent.
 export async function syncHostsFile() {
-  const r = await execa(
-    "sudo",
-    [`HOME=${homedir()}`, "portless", "hosts", "sync"],
-    { stdio: "inherit", reject: false }
-  );
+  const isWindows = process.platform === "win32";
+  const cmd = isWindows ? "portless" : "sudo";
+  const args = isWindows ? ["hosts", "sync"] : sudoPortless(["hosts", "sync"]);
+
+  const r = await execa(cmd, args, {
+    stdio: "inherit",
+    reject: false
+  });
   if (r.exitCode !== 0) {
+    const hint = isWindows
+      ? "Run this command in an Administrator terminal to fix DNS."
+      : "Run it manually to fix DNS.";
     throw new Error(
-      `sudo portless hosts sync failed (exit ${r.exitCode}). Run it manually to fix DNS.`
+      `${isWindows ? "" : "sudo "}portless hosts sync failed (exit ${r.exitCode}). ${hint}`
     );
   }
 }
@@ -309,7 +318,7 @@ export async function waitForProxyReady(timeoutMs = 30_000) {
 
 export async function registerAliases(
   root: string,
-  branchPrefix: string | null,
+  branchPrefix: string,
   ports: PortMap
 ) {
   const aliases = aliasMap(branchPrefix, ports);
@@ -328,12 +337,11 @@ export async function registerAliases(
   return aliases.length;
 }
 
-export async function unregisterAliases(
-  root: string,
-  branchPrefix: string | null
-) {
+export async function unregisterAliases(root: string, branchPrefix: string) {
+  // Use a dummy PortMap — only the names matter for removal, not ports.
+  const names = aliasMap(branchPrefix, {} as PortMap).map((a) => a.name);
   await Promise.all(
-    ALIAS_SERVICES.map((s) => withPrefix(s, branchPrefix)).map((name) =>
+    names.map((name) =>
       execa("portless", ["alias", "--remove", name], {
         cwd: root,
         reject: false,
@@ -346,130 +354,55 @@ export async function unregisterAliases(
   );
 }
 
-// Pre-empt `<prefix>.<app>.{dev,localhost}` routes before spawning apps.
-// Orphan portless processes from a prior `crbn up` keep entries alive,
-// causing `RouteConflictError` on the next run. SIGTERM → 400ms poll →
-// SIGKILL stragglers, then drop matching entries.
-export async function claimAppHosts(
-  branchPrefix: string | null,
-  appIds: readonly AppId[]
-): Promise<number> {
-  const path = `${homedir()}/.portless/routes.json`;
-  if (!existsSync(path)) return 0;
-
-  let routes: { hostname: string; port: number; pid: number }[];
-  try {
-    routes = JSON.parse(readFileSync(path, "utf8"));
-  } catch {
-    return 0;
-  }
-
-  const ourHosts = new Set(
-    appIds.flatMap((id) => {
-      const name = withPrefix(id, branchPrefix);
-      return [`${name}.dev`, `${name}.localhost`];
-    })
-  );
-
-  const pidsToKill = new Set<number>();
-  for (const r of routes) {
-    if (ourHosts.has(r.hostname) && r.pid > 0 && isProcessAlive(r.pid)) {
-      pidsToKill.add(r.pid);
-    }
-  }
-
-  for (const pid of pidsToKill) {
-    try {
-      process.kill(pid, "SIGTERM");
-      // biome-ignore lint/suspicious/noEmptyBlockStatements: ignored using `--suppress`
-    } catch {}
-  }
-
-  const deadline = Date.now() + 400;
-  while (Date.now() < deadline) {
-    let allGone = true;
-    for (const pid of pidsToKill) {
-      if (isProcessAlive(pid)) {
-        allGone = false;
-        break;
-      }
-    }
-    if (allGone) break;
-    await sleep(50);
-  }
-  for (const pid of pidsToKill) {
-    if (isProcessAlive(pid)) {
-      try {
-        process.kill(pid, "SIGKILL");
-        // biome-ignore lint/suspicious/noEmptyBlockStatements: ignored using `--suppress`
-      } catch {}
-    }
-  }
-
-  const filtered = routes.filter((r) => !ourHosts.has(r.hostname));
-  if (filtered.length !== routes.length) {
-    writeFileSync(path, JSON.stringify(filtered, null, 2));
-  }
-
-  return pidsToKill.size;
-}
-
-// Drop stale alias entries (pid=0, our hostname pattern) from routes.json.
-export function pruneStaleRoutes(branchPrefix: string | null) {
-  const path = `${homedir()}/.portless/routes.json`;
-  if (!existsSync(path)) return 0;
-  let routes: { hostname: string; pid: number }[];
-  try {
-    routes = JSON.parse(readFileSync(path, "utf8"));
-  } catch {
-    return 0;
-  }
-  const ourHosts = ALIAS_SERVICES.flatMap((s) => {
-    const name = withPrefix(s, branchPrefix);
-    return [`${name}.dev`, `${name}.localhost`];
+// Let portless handle its own cleanup — kills orphaned dev servers from
+// crashed sessions and removes their stale route entries.
+export async function pruneStaleRoutes() {
+  await execa("portless", ["prune"], {
+    reject: false,
+    stdio: "ignore",
+    extendEnv: false,
+    env: portlessEnv()
   });
-  const before = routes.length;
-  const filtered = routes.filter(
-    (r) => !(r.pid === 0 && ourHosts.includes(r.hostname))
-  );
-  if (filtered.length !== before) {
-    writeFileSync(path, JSON.stringify(filtered, null, 2));
-    return before - filtered.length;
-  }
-  return 0;
 }
 
 // Branch-independent OAuth callback host. Last `crbn up` wins. Keep in sync
 // with SUPABASE_AUTH_EXTERNAL_*_REDIRECT_URI in render-env.ts.
 const STABLE_OAUTH_ALIAS = "api.carbon";
 
-const DEFAULT_BRANCHES = new Set(["main", "master", "trunk", "develop", "dev"]);
-
-// Mirrors portless's branchToPrefix: last `/`-segment, sanitized.
-// Null when branch missing/HEAD/default. e.g. `feat/boo` → `boo`.
+// Always prefix with the branch name (last `/`-segment, sanitized) so every
+// worktree — including main — gets a distinct `<app>.<branch>.dev` host.
+// Bare hosts (`erp.dev`, `api.dev`) are forbidden; falls back to `fallback`
+// (typically the worktree slug) when branch is missing/HEAD-detached.
+// e.g. `feat/boo` → `boo`, `main` → `main`.
 export function branchToPrefix(
-  branch: string | null | undefined
-): string | null {
-  if (!branch || branch === "HEAD" || DEFAULT_BRANCHES.has(branch)) return null;
+  branch: string | null | undefined,
+  fallback: string
+): string {
+  if (!branch || branch === "HEAD") return fallback;
   const last = branch.split("/").pop() ?? "";
   const sanitized = last
     .toLowerCase()
     .replace(/[^a-z0-9-]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .replace(/-+/g, "-");
-  return sanitized || null;
+  return sanitized || fallback;
 }
 
-function withPrefix(name: string, prefix: string | null): string {
-  return prefix ? `${prefix}.${name}` : name;
+function withPrefix(name: string, prefix: string): string {
+  return `${name}.${prefix}`;
 }
 
-// Compose-service host:port aliases mirroring portless's app-host shape.
+// All portless-routed services: compose services + apps. Every hostname
+// follows `<name>.<prefix>.dev` via `portless alias` so we control the
+// exact format without relying on portless auto-prefix (which reverses
+// the order in linked worktrees).
 function aliasMap(
-  branchPrefix: string | null,
+  branchPrefix: string,
   ports: PortMap
 ): { name: string; port: number }[] {
   return [
+    { name: withPrefix("erp", branchPrefix), port: ports.PORT_ERP },
+    { name: withPrefix("mes", branchPrefix), port: ports.PORT_MES },
     { name: withPrefix("api", branchPrefix), port: ports.PORT_API },
     { name: withPrefix("studio", branchPrefix), port: ports.PORT_STUDIO },
     { name: withPrefix("mail", branchPrefix), port: ports.PORT_INBUCKET },

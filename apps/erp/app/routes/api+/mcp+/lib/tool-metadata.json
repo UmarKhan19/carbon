@@ -1,6 +1,6 @@
 {
-  "generated": "2026-05-12T01:38:52.292Z",
-  "totalTools": 1075,
+  "generated": "2026-06-01T00:58:42.627Z",
+  "totalTools": 1083,
   "modules": 15,
   "tools": [
     {
@@ -9955,6 +9955,121 @@
       ]
     },
     {
+      "name": "quality_getInspectionDocuments",
+      "module": "quality",
+      "classification": "READ",
+      "description": "get inspection documents",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ]
+    },
+    {
+      "name": "quality_getInspectionDocument",
+      "module": "quality",
+      "classification": "READ",
+      "description": "get inspection document",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ]
+    },
+    {
+      "name": "quality_upsertInspectionDocument",
+      "module": "quality",
+      "classification": "WRITE",
+      "description": "upsert inspection document",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "diagram"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "quality_deleteInspectionDocument",
+      "module": "quality",
+      "classification": "DESTRUCTIVE",
+      "description": "delete inspection document",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "id"
+      ],
+      "injectAuth": [
+        "companyId"
+      ]
+    },
+    {
+      "name": "quality_getBalloons",
+      "module": "quality",
+      "classification": "READ",
+      "description": "get balloons",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "inspectionDocumentId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ]
+    },
+    {
+      "name": "quality_getInspectionFeatures",
+      "module": "quality",
+      "classification": "READ",
+      "description": "get inspection document features (characteristics grid)",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "inspectionDocumentId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ]
+    },
+    {
+      "name": "quality_getInspectionPlan",
+      "module": "quality",
+      "classification": "READ",
+      "description": "get inspection plan; each measurement id/featureId is inspectionFeature id, balloonId set when placed on drawing",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "inspectionDocumentId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ]
+    },
+    {
+      "name": "quality_saveInspectionDocumentAtomic",
+      "module": "quality",
+      "classification": "WRITE",
+      "description": "save inspection document; features {create,update,delete} + balloons geometry {create,update,delete} (delete = unplace)",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ]
+    },
+    {
       "name": "resources_activateWorkCenter",
       "module": "resources",
       "classification": "WRITE",
@@ -13049,7 +13164,7 @@
       "description": "update sales r f q line order",
       "paramCount": 3,
       "serviceParams": [
-        "client",
+        "db",
         "updates"
       ],
       "injectAuth": [

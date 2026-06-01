@@ -20,9 +20,21 @@ import {
 import { getItemReadableId } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useRef, useState } from "react";
-import { LuCirclePlus, LuEllipsisVertical, LuTrash } from "react-icons/lu";
+import {
+  LuCirclePlus,
+  LuEllipsisVertical,
+  LuSettings2,
+  LuTrash
+} from "react-icons/lu";
 import { Link, useParams } from "react-router";
 import { Empty, ItemThumbnail, MethodItemTypeIcon } from "~/components";
+import type { DragHandleBindings } from "~/components/LineReorder";
+import {
+  ReorderableLineList,
+  ReorderableRow,
+  ReorderEditBar,
+  useLineOrderEditMode
+} from "~/components/LineReorder";
 import {
   useOptimisticLocation,
   usePermissions,
@@ -90,6 +102,15 @@ export default function PurchaseInvoiceExplorer() {
     }
   });
 
+  const lines = purchaseInvoiceData?.purchaseInvoiceLines ?? [];
+  const canReorder =
+    !isDisabled && permissions.can("update", "invoicing") && lines.length > 1;
+
+  const editMode = useLineOrderEditMode<PurchaseInvoiceLine>({
+    actionPath: path.to.purchaseInvoiceLineOrder(invoiceId),
+    lines
+  });
+
   return (
     <>
       <VStack className="w-full h-[calc(100dvh-99px)] justify-between">
@@ -97,15 +118,33 @@ export default function PurchaseInvoiceExplorer() {
           className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent"
           spacing={0}
         >
-          {purchaseInvoiceData?.purchaseInvoiceLines?.length ? (
-            purchaseInvoiceData.purchaseInvoiceLines.map((line) => (
-              <PurchaseInvoiceLineItem
-                key={line.id}
-                isDisabled={isDisabled}
-                line={line}
-                onDelete={onDeleteLine}
+          {lines.length > 0 ? (
+            editMode.isEditing ? (
+              <ReorderableLineList<PurchaseInvoiceLine>
+                lines={editMode.draft}
+                activeLine={editMode.activeLine}
+                onDragStart={editMode.handleDragStart}
+                onDragEnd={editMode.handleDragEnd}
+                renderRow={(line, dragHandle) => (
+                  <PurchaseInvoiceLineBody
+                    line={line}
+                    dragHandle={dragHandle}
+                  />
+                )}
+                renderOverlay={(line) => (
+                  <PurchaseInvoiceLineBody line={line} isOverlay />
+                )}
               />
-            ))
+            ) : (
+              lines.map((line) => (
+                <PurchaseInvoiceLineItem
+                  key={line.id}
+                  isDisabled={isDisabled}
+                  line={line}
+                  onDelete={onDeleteLine}
+                />
+              ))
+            )
           ) : (
             <Empty>
               {permissions.can("update", "sales") && (
@@ -121,29 +160,51 @@ export default function PurchaseInvoiceExplorer() {
             </Empty>
           )}
         </VStack>
-        <div className="w-full flex flex-0 sm:flex-row border-t border-border p-4 sm:justify-start sm:space-x-2">
-          <Tooltip>
-            <TooltipTrigger className="w-full">
-              <Button
-                ref={newButtonRef}
-                className="w-full"
-                isDisabled={isDisabled || !permissions.can("update", "sales")}
-                leftIcon={<LuCirclePlus />}
-                variant="secondary"
-                onClick={newPurchaseInvoiceLineDisclosure.onOpen}
-              >
-                <Trans>Add Line Item</Trans>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <HStack>
-                <span>
-                  <Trans>New Line Item</Trans>
-                </span>
-                <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
-              </HStack>
-            </TooltipContent>
-          </Tooltip>
+        <div className="w-full flex border-t border-border p-4 gap-2">
+          {editMode.isEditing ? (
+            <ReorderEditBar
+              isSaving={editMode.isSaving}
+              isDirty={editMode.isDirty}
+              onSave={editMode.save}
+              onCancel={editMode.cancelEditMode}
+            />
+          ) : (
+            <>
+              <Tooltip>
+                <TooltipTrigger className="flex-1">
+                  <Button
+                    ref={newButtonRef}
+                    className="w-full"
+                    isDisabled={
+                      isDisabled || !permissions.can("update", "sales")
+                    }
+                    leftIcon={<LuCirclePlus />}
+                    variant="secondary"
+                    onClick={newPurchaseInvoiceLineDisclosure.onOpen}
+                  >
+                    <Trans>Add Line Item</Trans>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <HStack>
+                    <span>
+                      <Trans>New Line Item</Trans>
+                    </span>
+                    <Kbd>{prettifyShortcut("Command+Shift+l")}</Kbd>
+                  </HStack>
+                </TooltipContent>
+              </Tooltip>
+              {canReorder && lines.length > 0 && (
+                <IconButton
+                  aria-label="Reorder lines"
+                  icon={<LuSettings2 />}
+                  variant="ghost"
+                  className="text-muted-foreground"
+                  onClick={editMode.enterEditMode}
+                />
+              )}
+            </>
+          )}
         </div>
       </VStack>
       {newPurchaseInvoiceLineDisclosure.isOpen && (
@@ -160,6 +221,37 @@ export default function PurchaseInvoiceExplorer() {
         />
       )}
     </>
+  );
+}
+
+function PurchaseInvoiceLineBody({
+  line,
+  dragHandle,
+  isOverlay
+}: {
+  line: PurchaseInvoiceLine;
+  dragHandle?: DragHandleBindings;
+  isOverlay?: boolean;
+}) {
+  const [items] = useItems();
+  return (
+    <ReorderableRow dragHandle={dragHandle} isOverlay={isOverlay}>
+      <HStack spacing={2} className="flex-grow min-w-0 p-2 pr-10">
+        <ItemThumbnail thumbnailPath={line.thumbnailPath} type="Part" />
+        <VStack spacing={0} className="min-w-0">
+          <span className="font-semibold line-clamp-1">
+            {line.invoiceLineType === "G/L Account"
+              ? line.description || "Indirect Expense"
+              : getItemReadableId(items, line.itemId)}
+          </span>
+          <span className="text-muted-foreground text-xs truncate line-clamp-1">
+            {line.invoiceLineType === "G/L Account"
+              ? "G/L Account"
+              : line.description}
+          </span>
+        </VStack>
+      </HStack>
+    </ReorderableRow>
   );
 }
 
@@ -203,13 +295,17 @@ function PurchaseInvoiceLineItem({
             <VStack spacing={0} className="min-w-0">
               <span className="font-semibold line-clamp-1">
                 {line.invoiceLineType === "G/L Account"
-                  ? line.description || "Indirect Expense"
-                  : getItemReadableId(items, line.itemId)}
+                  ? line.description || "G/L Account"
+                  : line.invoiceLineType === "Fixed Asset"
+                    ? (line as any).assetReadableId || "Fixed Asset"
+                    : getItemReadableId(items, line.itemId)}
               </span>
               <span className="text-muted-foreground text-xs truncate line-clamp-1">
                 {line.invoiceLineType === "G/L Account"
                   ? "G/L Account"
-                  : line.description}
+                  : line.invoiceLineType === "Fixed Asset"
+                    ? line.assetName || line.description
+                    : line.description}
               </span>
             </VStack>
           </HStack>

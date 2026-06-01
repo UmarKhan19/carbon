@@ -106,7 +106,21 @@ export const plannedOrderValidator = z.object({
   supplierId: zfd.text(z.string().optional()),
   itemReadableId: zfd.text(z.string().optional()),
   unitPrice: zfd.numeric(z.number().optional()),
-  unitOfMeasureCode: zfd.text(z.string().optional())
+  unitOfMeasureCode: zfd.text(z.string().optional()),
+  // ── Reorder-policy attribution (populated by calculateOrders for
+  // MRP-suggested orders; absent for user-added "Add Order" rows). ──
+  policyName: zfd.text(z.string().optional()),
+  reason: zfd.text(z.string().optional()),
+  triggerValues: z
+    .object({
+      projectedStock: z.number().optional(),
+      safetyStock: z.number().optional(),
+      reorderPoint: z.number().optional(),
+      reorderQuantity: z.number().optional(),
+      lotSize: z.number().optional(),
+      leadTime: z.number().optional()
+    })
+    .optional()
 });
 
 export type PlannedOrder = z.infer<typeof plannedOrderValidator>;
@@ -190,11 +204,14 @@ export const purchaseOrderLineValidator = z
   .object({
     id: zfd.text(z.string().optional()),
     purchaseOrderId: z.string().min(1, { message: "Order is required" }),
-    purchaseOrderLineType: z.enum([...methodItemType, "G/L Account"], {
-      errorMap: (issue, ctx) => ({
-        message: "Type is required"
-      })
-    }),
+    purchaseOrderLineType: z.enum(
+      [...methodItemType, "G/L Account", "Fixed Asset"],
+      {
+        errorMap: (issue, ctx) => ({
+          message: "Type is required"
+        })
+      }
+    ),
     itemId: zfd.text(z.string().optional()),
     accountId: zfd.text(z.string().optional()),
     costCenterId: zfd.text(z.string().optional()),
@@ -241,6 +258,16 @@ export const purchaseOrderLineValidator = z
     {
       message: "Description is required",
       path: ["description"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.purchaseOrderLineType === "Fixed Asset"
+        ? (data.purchaseQuantity ?? 1) === 1
+        : true,
+    {
+      message: "Fixed Asset quantity must be 1",
+      path: ["purchaseQuantity"]
     }
   );
 

@@ -23,12 +23,18 @@ import {
   timeCardAutoCloseFunction
 } from "./functions/integrations";
 // Import all functions
-import { notifyFunction, sendEmailFunction } from "./functions/notifications";
+import {
+  notifyFunction,
+  sendEmailFunction,
+  sendSlackFunction
+} from "./functions/notifications";
 import {
   auditArchiveFunction,
   cleanupFunction,
   dispatchFunction,
   mrpFunction,
+  notificationDigestFunction,
+  notificationPurgeFunction,
   updateExchangeRatesFunction,
   weeklyFunction
 } from "./functions/scheduled";
@@ -49,6 +55,7 @@ export const functions = [
   // Notifications
   notifyFunction,
   sendEmailFunction,
+  sendSlackFunction,
   // Event handlers
   auditFunction,
   eventQueueFunction,
@@ -74,6 +81,8 @@ export const functions = [
   mrpFunction,
   weeklyFunction,
   updateExchangeRatesFunction,
+  notificationDigestFunction,
+  notificationPurgeFunction,
   // Integrations
   jiraSyncFunction,
   linearSyncFunction,

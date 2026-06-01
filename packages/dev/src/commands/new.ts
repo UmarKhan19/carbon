@@ -1,24 +1,24 @@
-import { copyFileSync, existsSync } from "node:fs";
-import { basename, dirname, join, relative, resolve } from "node:path";
+import { copyFileSync, existsSync, writeFileSync } from "node:fs";
 import { intro, outro, tasks } from "@clack/prompts";
+import { basename, dirname, join, relative, resolve } from "pathe";
 import pc from "picocolors";
-import { addWorktree, currentBranch } from "../lib/git.js";
-import { getWorktreeRoot, slugify } from "../lib/slug.js";
+import { addWorktree, currentBranch } from "../git.js";
 import {
   promptBaseRef,
   promptBranch,
   promptCopyEnv,
   promptDirName
-} from "../ui/prompts.js";
+} from "../prompts.js";
+import { getWorktreeRoot, slugify } from "../worktree.js";
 
-export async function newWorktree() {
+export async function newWorktree(opts?: { branch?: string }) {
   intro("Carbon · new worktree");
 
   const here = await getWorktreeRoot();
   const parentDir = dirname(here);
   const repoBaseName = basename(here).replace(/-[a-z0-9-]+$/i, "");
 
-  const branch = await promptBranch();
+  const branch = await promptBranch(opts?.branch);
 
   const defaultDir = `${repoBaseName}-${slugify(branch)}`;
   const dirName = await promptDirName(parentDir, defaultDir);
@@ -34,8 +34,7 @@ export async function newWorktree() {
       title: `git worktree add ${dirName}`,
       task: async (msg) => {
         msg(`branching from ${baseRef}`);
-        const r = await addWorktree({ path: targetPath, branch, baseRef });
-        if (!r.ok) throw new Error(r.error);
+        await addWorktree({ path: targetPath, branch, baseRef });
         return `worktree at ${relative(here, targetPath)}`;
       }
     },
@@ -54,7 +53,11 @@ export async function newWorktree() {
       : [])
   ]);
 
-  outro(
-    `worktree ready — ${pc.cyan(`crbn checkout ${branch} --up`)} to boot it`
-  );
+  // Write target path so the shell wrapper can cd into the new worktree.
+  const targetFile = process.env.CRBN_NEW_TARGET;
+  if (targetFile) {
+    writeFileSync(targetFile, targetPath);
+  }
+
+  outro(`worktree ready — ${pc.cyan("crbn up")} to boot it`);
 }

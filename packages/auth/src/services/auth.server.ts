@@ -388,7 +388,7 @@ export async function sendInviteByEmail(
   data?: Record<string, unknown>
 ) {
   return getCarbonServiceRole().auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${VERCEL_URL}`,
+    redirectTo: `${VERCEL_URL}/callback`,
     data
   });
 }
@@ -397,9 +397,42 @@ export async function sendMagicLink(email: string) {
   return getCarbonServiceRole().auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${VERCEL_URL}`
+      emailRedirectTo: `${VERCEL_URL}/callback`
     }
   });
+}
+
+export async function signInWithBypassEmail(
+  email: string
+): Promise<AuthSession | null> {
+  const client = getCarbonServiceRole();
+
+  const { data: linkData, error: linkError } =
+    await client.auth.admin.generateLink({ type: "magiclink", email });
+
+  if (linkError || !linkData?.properties?.hashed_token) return null;
+
+  const { data: sessionData, error: verifyError } = await client.auth.verifyOtp(
+    { token_hash: linkData.properties.hashed_token, type: "magiclink" }
+  );
+
+  if (verifyError || !sessionData?.session) return null;
+
+  const companies = await getCompaniesForUser(
+    client,
+    sessionData.session.user.id
+  );
+  const { data: companyRecord } = await client
+    .from("company")
+    .select("companyGroupId")
+    .eq("id", companies?.[0] ?? "")
+    .single();
+
+  return makeAuthSession(
+    sessionData.session,
+    companies?.[0] ?? "",
+    companyRecord?.companyGroupId ?? ""
+  );
 }
 
 export async function signInWithEmail(email: string, password: string) {
@@ -449,4 +482,43 @@ export async function verifyAuthSession(authSession: AuthSession) {
   );
 
   return Boolean(authAccount);
+}
+
+export async function signInWithPasskey(
+  userId: string,
+  email: string
+): Promise<AuthSession | null> {
+  const serviceRole = getCarbonServiceRole();
+
+  // Generate a one-time magic link without sending an email
+  const { data: linkData, error: linkError } =
+    await serviceRole.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+      options: { redirectTo: VERCEL_URL }
+    });
+
+  if (linkError || !linkData.properties?.hashed_token) return null;
+
+  // Verify the token server-side to obtain a Supabase session
+  const { data: sessionData, error: sessionError } =
+    await serviceRole.auth.verifyOtp({
+      token_hash: linkData.properties.hashed_token,
+      type: "magiclink"
+    });
+
+  if (sessionError || !sessionData.session) return null;
+
+  const companies = await getCompaniesForUser(serviceRole, userId);
+  const { data: companyRecord } = await serviceRole
+    .from("company")
+    .select("companyGroupId")
+    .eq("id", companies?.[0] ?? "")
+    .single();
+
+  return makeAuthSession(
+    sessionData.session,
+    companies?.[0] ?? "",
+    companyRecord?.companyGroupId ?? ""
+  );
 }
