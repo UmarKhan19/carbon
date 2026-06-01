@@ -1052,6 +1052,23 @@ export async function updatePurchaseOrder(
     .eq("id", purchaseOrder.id);
 }
 
+/**
+ * Clears the `mrpGenerated` flag once a user edits an MRP-generated purchase
+ * order, so it goes back through the normal approval check on finalize. The
+ * `mrpGenerated = true` guard makes this a no-op for ordinary (manual) orders.
+ */
+export async function clearMrpGeneratedFlag(
+  client: SupabaseClient<Database>,
+  purchaseOrderId: string,
+  updatedBy: string
+) {
+  return client
+    .from("purchaseOrder")
+    .update({ mrpGenerated: false, updatedBy })
+    .eq("id", purchaseOrderId)
+    .eq("mrpGenerated", true);
+}
+
 export async function updatePurchaseOrderExchangeRate(
   client: SupabaseClient<Database>,
   data: {
@@ -1291,6 +1308,7 @@ export async function upsertPurchaseOrder(
       > & {
         purchaseOrderId: string;
         status?: (typeof purchaseOrderStatusType)[number];
+        mrpGenerated?: boolean;
         companyId: string;
         companyGroupId: string;
         createdBy: string;

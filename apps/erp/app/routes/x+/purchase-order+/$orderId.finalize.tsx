@@ -100,12 +100,16 @@ export async function action(args: ActionFunctionArgs) {
   }
 
   const orderAmount = purchaseOrder.data.orderTotal ?? 0;
-  const approvalRequired = await isApprovalRequired(
-    serviceRole,
-    "purchaseOrder",
-    companyId,
-    orderAmount
-  );
+  // MRP-generated orders are system-suggested replenishment and skip approval.
+  // The flag is cleared the moment a user edits the order (see clearMrpGeneratedFlag).
+  const approvalRequired =
+    !purchaseOrder.data.mrpGenerated &&
+    (await isApprovalRequired(
+      serviceRole,
+      "purchaseOrder",
+      companyId,
+      orderAmount
+    ));
 
   const finalize = await finalizePurchaseOrder(client, orderId, userId);
   if (finalize.error) {

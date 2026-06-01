@@ -5,6 +5,7 @@ import { validationError, validator } from "@carbon/form";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect, useParams } from "react-router";
 import {
+  clearMrpGeneratedFlag,
   getPurchaseOrder,
   isPurchaseOrderLocked,
   purchaseOrderLineValidator,
@@ -80,6 +81,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       )
     );
   }
+
+  // Adding a line means the order no longer matches the MRP suggestion, so
+  // re-arm the approval check on finalize.
+  await clearMrpGeneratedFlag(client, orderId, userId);
 
   throw redirect(path.to.purchaseOrderDetails(orderId));
 }

@@ -4,6 +4,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
+  clearMrpGeneratedFlag,
   deletePurchaseOrderLine,
   getPurchaseOrder,
   getPurchaseOrderLine,
@@ -43,7 +44,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client } = await requirePermissions(request, {
+  const { client, userId } = await requirePermissions(request, {
     delete: "purchasing"
   });
 
@@ -72,6 +73,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       )
     );
   }
+
+  // Deleting a line means the order no longer matches the MRP suggestion, so
+  // re-arm the approval check on finalize.
+  await clearMrpGeneratedFlag(client, orderId, userId);
 
   throw redirect(
     path.to.purchaseOrderDetails(orderId),

@@ -303,6 +303,7 @@ export async function action({ request }: ActionFunctionArgs) {
               {
                 purchaseOrderId: nextSequence.data,
                 status: "Planned" as const,
+                mrpGenerated: true,
                 supplierId,
                 purchaseOrderType: "Purchase",
                 currencyCode: supplier.currencyCode ?? baseCurrencyCode,

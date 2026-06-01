@@ -9,6 +9,7 @@ import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { CadModel, DeferredFiles } from "~/components";
 import { usePermissions, useRouteData } from "~/hooks";
 import {
+  clearMrpGeneratedFlag,
   getPurchaseOrder,
   getPurchaseOrderLine,
   getSupplierInteractionLineDocuments,
@@ -130,6 +131,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       )
     );
   }
+
+  // A user edit means the order no longer matches the MRP suggestion, so
+  // re-arm the approval check on finalize.
+  await clearMrpGeneratedFlag(client, orderId, userId);
 
   throw redirect(path.to.purchaseOrderLine(orderId, lineId));
 }

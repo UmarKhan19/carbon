@@ -16,6 +16,7 @@ import type {
   SupplierInteraction
 } from "~/modules/purchasing";
 import {
+  clearMrpGeneratedFlag,
   getPurchaseOrder,
   getPurchaseOrderPayment,
   isPurchaseOrderLocked,
@@ -135,6 +136,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       )
     );
   }
+
+  // A user edit means the order no longer matches the MRP suggestion, so
+  // re-arm the approval check on finalize.
+  await clearMrpGeneratedFlag(client, orderId, userId);
 
   throw redirect(
     path.to.purchaseOrder(orderId),
