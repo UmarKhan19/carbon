@@ -42,7 +42,7 @@ CREATE TABLE "pickingList" (
   CONSTRAINT "pickingList_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "pickingList_pickingListId_key" UNIQUE ("pickingListId", "companyId"),
   CONSTRAINT "pickingList_locationId_fkey" FOREIGN KEY ("locationId") REFERENCES "location"("id") ON DELETE RESTRICT,
-  CONSTRAINT "pickingList_assignee_fkey" FOREIGN KEY ("assignee") REFERENCES "user"("id") ON DELETE RESTRICT,
+  CONSTRAINT "pickingList_assignee_fkey" FOREIGN KEY ("assignee") REFERENCES "user"("id") ON DELETE SET NULL,
   CONSTRAINT "pickingList_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE,
   CONSTRAINT "pickingList_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "user"("id") ON DELETE RESTRICT,
   CONSTRAINT "pickingList_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON DELETE RESTRICT
@@ -82,7 +82,7 @@ CREATE TABLE "pickingListLine" (
   CONSTRAINT "pickingListLine_pickingListId_fkey" FOREIGN KEY ("pickingListId") REFERENCES "pickingList"("id") ON DELETE CASCADE,
   CONSTRAINT "pickingListLine_jobId_fkey" FOREIGN KEY ("jobId") REFERENCES "job"("id") ON DELETE RESTRICT,
   CONSTRAINT "pickingListLine_jobMaterialId_fkey" FOREIGN KEY ("jobMaterialId") REFERENCES "jobMaterial"("id") ON DELETE RESTRICT,
-  CONSTRAINT "pickingListLine_jobOperationId_fkey" FOREIGN KEY ("jobOperationId") REFERENCES "jobOperation"("id") ON DELETE RESTRICT,
+  CONSTRAINT "pickingListLine_jobOperationId_fkey" FOREIGN KEY ("jobOperationId") REFERENCES "jobOperation"("id") ON DELETE SET NULL,
   CONSTRAINT "pickingListLine_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "item"("id") ON DELETE RESTRICT,
   CONSTRAINT "pickingListLine_storageUnitId_fkey" FOREIGN KEY ("storageUnitId") REFERENCES "storageUnit"("id") ON DELETE SET NULL,
   CONSTRAINT "pickingListLine_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "company"("id") ON DELETE CASCADE,
@@ -115,6 +115,9 @@ CREATE TABLE "pickingListLineTrackedEntity" (
   CONSTRAINT "pickingListLineTrackedEntity_pickingListLineId_fkey" FOREIGN KEY ("pickingListLineId") REFERENCES "pickingListLine"("id") ON DELETE CASCADE,
   CONSTRAINT "pickingListLineTrackedEntity_trackedEntityId_fkey" FOREIGN KEY ("trackedEntityId") REFERENCES "trackedEntity"("id") ON DELETE RESTRICT
 );
+
+CREATE INDEX "pickingListLineTrackedEntity_trackedEntityId_idx"
+  ON "pickingListLineTrackedEntity" ("trackedEntityId");
 
 -- ============================================================================
 -- Sequence
@@ -155,15 +158,16 @@ LANGUAGE sql
 STABLE
 AS $$
   WITH RECURSIVE chain AS (
-    SELECT "id", "parentId", "workCenterId"
+    SELECT "id", "parentId", "workCenterId", 1 AS depth
     FROM "storageUnit"
     WHERE "id" = p_storage_unit_id
 
     UNION ALL
 
-    SELECT su."id", su."parentId", su."workCenterId"
+    SELECT su."id", su."parentId", su."workCenterId", c.depth + 1
     FROM "storageUnit" su
     JOIN chain c ON su."id" = c."parentId"
+    WHERE c.depth < 20
   )
   SELECT "workCenterId"
   FROM chain
