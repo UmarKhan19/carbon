@@ -635,9 +635,9 @@ msgstr "Czy na pewno chcesz usunąć {0} z tej operacji? Tej czynności nie moż
 msgid "Are you sure you want to delete {0}?"
 msgstr "Czy na pewno chcesz usunąć {0}?"
 
+#. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 #. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Czy na pewno chcesz usunąć {0}? Tej operacji nie można cofnąć."
 
@@ -2360,6 +2360,9 @@ msgstr "Usuń partnera"
 msgid "Delete Payment Term"
 msgstr "Usuń Warunki Płatności"
 
+msgid "Delete Picking List"
+msgstr ""
+
 msgid "Delete Portal"
 msgstr "Usuń Portal"
 
@@ -2843,6 +2846,9 @@ msgstr "Edytuj Warunki Płatności"
 
 msgid "Edit Permissions"
 msgstr "Uprawnienia do edycji"
+
+msgid "Edit Picking List"
+msgstr ""
 
 msgid "Edit Portal"
 msgstr "Edytuj Portal"
@@ -3770,6 +3776,9 @@ msgstr "Generuj identyfikatory materiałów i opisy na podstawie właściwości 
 
 msgid "Generate new PIN"
 msgstr "Wygeneruj nowy PIN"
+
+msgid "Generate Picking List"
+msgstr ""
 
 msgid "Generated IDs are disabled"
 msgstr "Wygenerowane identyfikatory są wyłączone"
@@ -5032,6 +5041,9 @@ msgstr "Nowe Hasło"
 msgid "New Payment Term"
 msgstr "Nowy Termin Płatności"
 
+msgid "New Picking List"
+msgstr ""
+
 msgid "New PIN"
 msgstr "Nowy PIN"
 
@@ -5288,6 +5300,9 @@ msgstr "Brak nowych powiadomień"
 
 msgid "No notes"
 msgstr "Brak notek"
+
+msgid "No operations require picking at this location"
+msgstr ""
 
 msgid "No operators."
 msgstr "Brak operatorów."
@@ -5783,6 +5798,15 @@ msgstr "Wybierz datę lub pozostaw puste pole, aby je wyczyścić."
 
 msgid "Pick List"
 msgstr "Lista pobrania"
+
+msgid "Picking Lines"
+msgstr ""
+
+msgid "Picking List"
+msgstr ""
+
+msgid "Picking List ID"
+msgstr ""
 
 msgid "Picking Lists"
 msgstr ""
@@ -6899,11 +6923,18 @@ msgstr "Sekundy/Sztuka"
 msgid "Select"
 msgstr "Wybierz"
 
+#. placeholder {0}: item.jobReadableId
+msgid "Select {0}"
+msgstr ""
+
 msgid "Select a assignee"
 msgstr "Wybierz osobę przydzieloną"
 
 msgid "Select a default approver"
 msgstr "Wybierz domyślnego zatwierdzającego"
+
+msgid "Select a location to view the picking schedule"
+msgstr ""
 
 msgid "Select a new owner"
 msgstr "Wybierz nowego właściciela"
@@ -6929,6 +6960,9 @@ msgstr "Wybierz powód, dla którego oferta nie została utworzona."
 
 msgid "Select a team"
 msgstr "Wybierz zespół"
+
+msgid "Select all"
+msgstr ""
 
 msgid "Select an assignee"
 msgstr "Wybierz osobę przydzieloną"
@@ -7424,6 +7458,9 @@ msgstr "Początek roku obrachunkowego"
 
 msgid "Start of Tax Year"
 msgstr "Początek roku podatkowego"
+
+msgid "Start Picking"
+msgstr ""
 
 msgid "Start Time"
 msgstr "Czas rozpoczęcia"
@@ -8028,6 +8065,9 @@ msgstr "Łącznie minut"
 msgid "Total Price"
 msgstr "Cena całkowita"
 
+msgid "Total Qty"
+msgstr ""
+
 msgid "Total Quantity"
 msgstr "Całkowita ilość"
 
@@ -8504,6 +8544,9 @@ msgstr "Wyświetl otwarte zapytania ofertowe"
 
 msgid "View Permissions"
 msgstr "Uprawnienia do wyświetlania"
+
+msgid "View Picking List"
+msgstr ""
 
 msgid "View Production Events"
 msgstr "Wyświetl zdarzenia produkcji"

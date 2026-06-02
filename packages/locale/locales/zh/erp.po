@@ -635,9 +635,9 @@ msgstr "你确定要从此操作中删除 {0} 吗？此操作无法撤销。"
 msgid "Are you sure you want to delete {0}?"
 msgstr "你确定要删除 {0} 吗？"
 
+#. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 #. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "您确定要删除 {0} 吗？此操作无法撤销。"
 
@@ -2360,6 +2360,9 @@ msgstr "删除合作伙伴"
 msgid "Delete Payment Term"
 msgstr "删除付款条款"
 
+msgid "Delete Picking List"
+msgstr ""
+
 msgid "Delete Portal"
 msgstr "删除门户"
 
@@ -2843,6 +2846,9 @@ msgstr "编辑付款条款"
 
 msgid "Edit Permissions"
 msgstr "编辑权限"
+
+msgid "Edit Picking List"
+msgstr ""
 
 msgid "Edit Portal"
 msgstr "编辑门户"
@@ -3770,6 +3776,9 @@ msgstr "根据材料的属性生成材料ID和描述。"
 
 msgid "Generate new PIN"
 msgstr "生成新PIN"
+
+msgid "Generate Picking List"
+msgstr ""
 
 msgid "Generated IDs are disabled"
 msgstr "生成的ID已禁用"
@@ -5032,6 +5041,9 @@ msgstr "新密码"
 msgid "New Payment Term"
 msgstr "新付款条款"
 
+msgid "New Picking List"
+msgstr ""
+
 msgid "New PIN"
 msgstr "新PIN"
 
@@ -5288,6 +5300,9 @@ msgstr "没有新通知"
 
 msgid "No notes"
 msgstr "没有备注"
+
+msgid "No operations require picking at this location"
+msgstr ""
 
 msgid "No operators."
 msgstr "没有运算符。"
@@ -5783,6 +5798,15 @@ msgstr "选择日期或留空以清除。"
 
 msgid "Pick List"
 msgstr "拣货单"
+
+msgid "Picking Lines"
+msgstr ""
+
+msgid "Picking List"
+msgstr ""
+
+msgid "Picking List ID"
+msgstr ""
 
 msgid "Picking Lists"
 msgstr ""
@@ -6899,11 +6923,18 @@ msgstr "秒/件"
 msgid "Select"
 msgstr "选择"
 
+#. placeholder {0}: item.jobReadableId
+msgid "Select {0}"
+msgstr ""
+
 msgid "Select a assignee"
 msgstr "选择受理人"
 
 msgid "Select a default approver"
 msgstr "选择默认审批人"
+
+msgid "Select a location to view the picking schedule"
+msgstr ""
 
 msgid "Select a new owner"
 msgstr "选择新的所有者"
@@ -6929,6 +6960,9 @@ msgstr "选择未创建报价的原因。"
 
 msgid "Select a team"
 msgstr "选择一个团队"
+
+msgid "Select all"
+msgstr ""
 
 msgid "Select an assignee"
 msgstr "选择受理人"
@@ -7424,6 +7458,9 @@ msgstr "财政年度开始"
 
 msgid "Start of Tax Year"
 msgstr "税年开始"
+
+msgid "Start Picking"
+msgstr ""
 
 msgid "Start Time"
 msgstr "开始时间"
@@ -8028,6 +8065,9 @@ msgstr "总分钟"
 msgid "Total Price"
 msgstr "总价"
 
+msgid "Total Qty"
+msgstr ""
+
 msgid "Total Quantity"
 msgstr "总数量"
 
@@ -8504,6 +8544,9 @@ msgstr "查看未结束的询价单"
 
 msgid "View Permissions"
 msgstr "查看权限"
+
+msgid "View Picking List"
+msgstr ""
 
 msgid "View Production Events"
 msgstr "查看生产事件"

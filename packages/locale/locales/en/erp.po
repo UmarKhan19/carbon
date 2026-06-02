@@ -635,9 +635,9 @@ msgstr "Are you sure you want to delete {0} from this operation? This cannot be 
 msgid "Are you sure you want to delete {0}?"
 msgstr "Are you sure you want to delete {0}?"
 
+#. placeholder {0}: pickingList.pickingListId
 #. placeholder {0}: routeData?.consumableSummary?.readableIdWithRevision
 #. placeholder {0}: routeData?.customer?.name!
-#. placeholder {0}: routeData?.document?.name
 msgid "Are you sure you want to delete {0}? This cannot be undone."
 msgstr "Are you sure you want to delete {0}? This cannot be undone."
 
@@ -2360,6 +2360,9 @@ msgstr "Delete Partner"
 msgid "Delete Payment Term"
 msgstr "Delete Payment Term"
 
+msgid "Delete Picking List"
+msgstr "Delete Picking List"
+
 msgid "Delete Portal"
 msgstr "Delete Portal"
 
@@ -2843,6 +2846,9 @@ msgstr "Edit Payment Term"
 
 msgid "Edit Permissions"
 msgstr "Edit Permissions"
+
+msgid "Edit Picking List"
+msgstr "Edit Picking List"
 
 msgid "Edit Portal"
 msgstr "Edit Portal"
@@ -3770,6 +3776,9 @@ msgstr "Generate material IDs and descriptions based on the properties of the ma
 
 msgid "Generate new PIN"
 msgstr "Generate new PIN"
+
+msgid "Generate Picking List"
+msgstr "Generate Picking List"
 
 msgid "Generated IDs are disabled"
 msgstr "Generated IDs are disabled"
@@ -5032,6 +5041,9 @@ msgstr "New Password"
 msgid "New Payment Term"
 msgstr "New Payment Term"
 
+msgid "New Picking List"
+msgstr "New Picking List"
+
 msgid "New PIN"
 msgstr "New PIN"
 
@@ -5288,6 +5300,9 @@ msgstr "No new notifications"
 
 msgid "No notes"
 msgstr "No notes"
+
+msgid "No operations require picking at this location"
+msgstr "No operations require picking at this location"
 
 msgid "No operators."
 msgstr "No operators."
@@ -5783,6 +5798,15 @@ msgstr "Pick a date or leave blank to clear it."
 
 msgid "Pick List"
 msgstr "Pick List"
+
+msgid "Picking Lines"
+msgstr "Picking Lines"
+
+msgid "Picking List"
+msgstr "Picking List"
+
+msgid "Picking List ID"
+msgstr "Picking List ID"
 
 msgid "Picking Lists"
 msgstr "Picking Lists"
@@ -6899,11 +6923,18 @@ msgstr "Seconds/Piece"
 msgid "Select"
 msgstr "Select"
 
+#. placeholder {0}: item.jobReadableId
+msgid "Select {0}"
+msgstr "Select {0}"
+
 msgid "Select a assignee"
 msgstr "Select a assignee"
 
 msgid "Select a default approver"
 msgstr "Select a default approver"
+
+msgid "Select a location to view the picking schedule"
+msgstr "Select a location to view the picking schedule"
 
 msgid "Select a new owner"
 msgstr "Select a new owner"
@@ -6929,6 +6960,9 @@ msgstr "Select a reason for why the quote was not created."
 
 msgid "Select a team"
 msgstr "Select a team"
+
+msgid "Select all"
+msgstr "Select all"
 
 msgid "Select an assignee"
 msgstr "Select an assignee"
@@ -7424,6 +7458,9 @@ msgstr "Start of Fiscal Year"
 
 msgid "Start of Tax Year"
 msgstr "Start of Tax Year"
+
+msgid "Start Picking"
+msgstr "Start Picking"
 
 msgid "Start Time"
 msgstr "Start Time"
@@ -8028,6 +8065,9 @@ msgstr "Total Minutes"
 msgid "Total Price"
 msgstr "Total Price"
 
+msgid "Total Qty"
+msgstr "Total Qty"
+
 msgid "Total Quantity"
 msgstr "Total Quantity"
 
@@ -8504,6 +8544,9 @@ msgstr "View Open RFQs"
 
 msgid "View Permissions"
 msgstr "View Permissions"
+
+msgid "View Picking List"
+msgstr "View Picking List"
 
 msgid "View Production Events"
 msgstr "View Production Events"

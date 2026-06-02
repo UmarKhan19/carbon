@@ -1690,6 +1690,8 @@ export const path = {
       generatePath(`${x}/picking-list/${id}/status`),
     pickingListDelete: (id: string) =>
       generatePath(`${x}/picking-list/${id}/delete`),
+    pickingListLine: (pickingListId: string, lineId: string) =>
+      generatePath(`${x}/picking-list/${pickingListId}/details/${lineId}`),
     shippingMethods: `${x}/inventory/shipping-methods`,
     supplier: (id: string) => generatePath(`${x}/supplier/${id}`),
     supplierApproval: (id: string) =>
