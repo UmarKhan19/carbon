@@ -200,6 +200,9 @@ msgstr "सभी को पूर्ण करें"
 msgid "Completed"
 msgstr "पूर्ण"
 
+msgid "Confirm"
+msgstr ""
+
 msgid "Console"
 msgstr "कंसोल"
 
@@ -365,6 +368,9 @@ msgstr "वैसे भी समाप्त करें"
 
 msgid "Forgot to Clock Out?"
 msgstr "घड़ी से बाहर निकलना भूल गए?"
+
+msgid "From"
+msgstr ""
 
 msgid "Go back to operation"
 msgstr "ऑपरेशन पर वापस जाएं"
@@ -580,6 +586,9 @@ msgstr "कोई विकल्प नहीं मिला।"
 msgid "No options found."
 msgstr "कोई विकल्प नहीं मिला।"
 
+msgid "No picking lists assigned"
+msgstr ""
+
 msgid "No recent operations"
 msgstr "कोई हाल के संचालन नहीं"
 
@@ -665,6 +674,9 @@ msgstr "रोकें"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "कॉलम {0} को स्थिति {1} पर उठाया गया: {2} में से"
 
+msgid "Picking"
+msgstr ""
+
 msgid "Pin Out"
 msgstr "पिन आउट"
 
@@ -700,6 +712,9 @@ msgstr "प्रक्रियाएं"
 
 msgid "Progress"
 msgstr "प्रगति"
+
+msgid "Qty"
+msgstr ""
 
 msgid "Quality Issue"
 msgstr "गुणवत्ता समस्या"
@@ -853,6 +868,9 @@ msgstr "घड़ी बंद करने का समय सेट करे
 msgid "Setup"
 msgstr "सेटअप"
 
+msgid "Short"
+msgstr ""
+
 msgid "Sign in with Email"
 msgstr "ईमेल के साथ साइन इन करें"
 
@@ -967,6 +985,9 @@ msgstr "ट्रैकिंग लेबल"
 
 msgid "Type a message..."
 msgstr "एक संदेश लिखें..."
+
+msgid "Ungrouped"
+msgstr ""
 
 msgid "Unissued serial/batch materials"
 msgstr "अजारी सीरीज़/बैच सामग्री"

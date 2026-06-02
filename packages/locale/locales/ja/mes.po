@@ -200,6 +200,9 @@ msgstr "すべて完了"
 msgid "Completed"
 msgstr "完了済み"
 
+msgid "Confirm"
+msgstr ""
+
 msgid "Console"
 msgstr "コンソール"
 
@@ -365,6 +368,9 @@ msgstr "とにかく完了"
 
 msgid "Forgot to Clock Out?"
 msgstr "退勤打刻を忘れましたか？"
+
+msgid "From"
+msgstr ""
 
 msgid "Go back to operation"
 msgstr "操作に戻る"
@@ -580,6 +586,9 @@ msgstr "オプションが見つかりません。"
 msgid "No options found."
 msgstr "オプションが見つかりません。"
 
+msgid "No picking lists assigned"
+msgstr ""
+
 msgid "No recent operations"
 msgstr "最近の工程はありません"
 
@@ -665,6 +674,9 @@ msgstr "一時停止"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "カラム {0} を位置 {1}/{2} で選択しました"
 
+msgid "Picking"
+msgstr ""
+
 msgid "Pin Out"
 msgstr "ピンアウト"
 
@@ -700,6 +712,9 @@ msgstr "プロセス一覧"
 
 msgid "Progress"
 msgstr "進捗"
+
+msgid "Qty"
+msgstr ""
 
 msgid "Quality Issue"
 msgstr "品質問題"
@@ -853,6 +868,9 @@ msgstr "退勤時間を設定"
 msgid "Setup"
 msgstr "段取り"
 
+msgid "Short"
+msgstr ""
+
 msgid "Sign in with Email"
 msgstr "メールでサインイン"
 
@@ -967,6 +985,9 @@ msgstr "追跡ラベル"
 
 msgid "Type a message..."
 msgstr "メッセージを入力..."
+
+msgid "Ungrouped"
+msgstr ""
 
 msgid "Unissued serial/batch materials"
 msgstr "未払出のシリアル/バッチ材料"

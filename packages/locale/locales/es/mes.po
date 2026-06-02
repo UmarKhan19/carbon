@@ -200,6 +200,9 @@ msgstr "Completar todo"
 msgid "Completed"
 msgstr "Completado"
 
+msgid "Confirm"
+msgstr ""
+
 msgid "Console"
 msgstr "Consola"
 
@@ -365,6 +368,9 @@ msgstr "Finalizar de todas formas"
 
 msgid "Forgot to Clock Out?"
 msgstr "¿Olvidó registrar la salida?"
+
+msgid "From"
+msgstr ""
 
 msgid "Go back to operation"
 msgstr "Volver a la operación"
@@ -580,6 +586,9 @@ msgstr "No se encontró ninguna opción."
 msgid "No options found."
 msgstr "No se encontraron opciones."
 
+msgid "No picking lists assigned"
+msgstr ""
+
 msgid "No recent operations"
 msgstr "No hay operaciones recientes"
 
@@ -665,6 +674,9 @@ msgstr "Pausar"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Se tomó la columna {0} en la posición: {1} de {2}"
 
+msgid "Picking"
+msgstr ""
+
 msgid "Pin Out"
 msgstr "Cerrar sesión con PIN"
 
@@ -700,6 +712,9 @@ msgstr "Procesos"
 
 msgid "Progress"
 msgstr "Progreso"
+
+msgid "Qty"
+msgstr ""
 
 msgid "Quality Issue"
 msgstr "Problema de Calidad"
@@ -853,6 +868,9 @@ msgstr "Establecer hora de salida"
 msgid "Setup"
 msgstr "Preparación"
 
+msgid "Short"
+msgstr ""
+
 msgid "Sign in with Email"
 msgstr "Iniciar sesión con correo electrónico"
 
@@ -967,6 +985,9 @@ msgstr "Etiquetas de seguimiento"
 
 msgid "Type a message..."
 msgstr "Escriba un mensaje..."
+
+msgid "Ungrouped"
+msgstr ""
 
 msgid "Unissued serial/batch materials"
 msgstr "Materiales de serie/lote no emitidos"

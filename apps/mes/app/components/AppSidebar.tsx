@@ -51,6 +51,7 @@ import {
   LuMapPin,
   LuMonitor,
   LuMoon,
+  LuPackageCheck,
   LuShieldCheck,
   LuSun,
   LuUser,
@@ -219,6 +220,11 @@ export function OperationsNav({
       icon: LuWrench,
       label: (activeMaintenanceCount ?? 0).toString(),
       to: path.to.maintenance
+    },
+    {
+      title: t`Picking`,
+      icon: LuPackageCheck,
+      to: path.to.picking
     }
   ];
 

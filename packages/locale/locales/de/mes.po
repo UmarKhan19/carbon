@@ -200,6 +200,9 @@ msgstr "Alles abschließen"
 msgid "Completed"
 msgstr "Abgeschlossen"
 
+msgid "Confirm"
+msgstr ""
+
 msgid "Console"
 msgstr "Konsole"
 
@@ -365,6 +368,9 @@ msgstr "Trotzdem beenden"
 
 msgid "Forgot to Clock Out?"
 msgstr "Vergessen auszustempeln?"
+
+msgid "From"
+msgstr ""
 
 msgid "Go back to operation"
 msgstr "Zurück zur Operation"
@@ -580,6 +586,9 @@ msgstr "Keine Option gefunden."
 msgid "No options found."
 msgstr "Keine Optionen gefunden."
 
+msgid "No picking lists assigned"
+msgstr ""
+
 msgid "No recent operations"
 msgstr "Keine kürzlichen Arbeitsgänge"
 
@@ -665,6 +674,9 @@ msgstr "Pause"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Spalte {0} aufgenommen an Position: {1} von {2}"
 
+msgid "Picking"
+msgstr ""
+
 msgid "Pin Out"
 msgstr "Abmelden"
 
@@ -700,6 +712,9 @@ msgstr "Prozesse"
 
 msgid "Progress"
 msgstr "Fortschritt"
+
+msgid "Qty"
+msgstr ""
 
 msgid "Quality Issue"
 msgstr "Qualitätsproblem"
@@ -853,6 +868,9 @@ msgstr "Ausstempelzeit festlegen"
 msgid "Setup"
 msgstr "Rüsten"
 
+msgid "Short"
+msgstr ""
+
 msgid "Sign in with Email"
 msgstr "Mit E-Mail anmelden"
 
@@ -967,6 +985,9 @@ msgstr "Verfolgungsetiketten"
 
 msgid "Type a message..."
 msgstr "Nachricht eingeben..."
+
+msgid "Ungrouped"
+msgstr ""
 
 msgid "Unissued serial/batch materials"
 msgstr "Nicht ausgegebene Serien-/Chargenmaterialien"

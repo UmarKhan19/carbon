@@ -200,6 +200,9 @@ msgstr "Завершить все"
 msgid "Completed"
 msgstr "Завершено"
 
+msgid "Confirm"
+msgstr ""
+
 msgid "Console"
 msgstr "Консоль"
 
@@ -365,6 +368,9 @@ msgstr "Завершить в любом случае"
 
 msgid "Forgot to Clock Out?"
 msgstr "Забыли отметить уход?"
+
+msgid "From"
+msgstr ""
 
 msgid "Go back to operation"
 msgstr "Вернуться к операции"
@@ -580,6 +586,9 @@ msgstr "Опция не найдена."
 msgid "No options found."
 msgstr "Варианты не найдены."
 
+msgid "No picking lists assigned"
+msgstr ""
+
 msgid "No recent operations"
 msgstr "Нет недавних операций"
 
@@ -665,6 +674,9 @@ msgstr "Пауза"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Столбец {0} взят с позиции: {1} из {2}"
 
+msgid "Picking"
+msgstr ""
+
 msgid "Pin Out"
 msgstr "Выход по PIN"
 
@@ -700,6 +712,9 @@ msgstr "Процессы"
 
 msgid "Progress"
 msgstr "Прогресс"
+
+msgid "Qty"
+msgstr ""
 
 msgid "Quality Issue"
 msgstr "Проблема качества"
@@ -853,6 +868,9 @@ msgstr "Установить время ухода"
 msgid "Setup"
 msgstr "Наладка"
 
+msgid "Short"
+msgstr ""
+
 msgid "Sign in with Email"
 msgstr "Войти по электронной почте"
 
@@ -967,6 +985,9 @@ msgstr "Этикетки отслеживания"
 
 msgid "Type a message..."
 msgstr "Введите сообщение..."
+
+msgid "Ungrouped"
+msgstr ""
 
 msgid "Unissued serial/batch materials"
 msgstr "Невыданные серийные/партионные материалы"

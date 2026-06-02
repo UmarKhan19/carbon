@@ -200,6 +200,9 @@ msgstr "Complete All"
 msgid "Completed"
 msgstr "Completed"
 
+msgid "Confirm"
+msgstr "Confirm"
+
 msgid "Console"
 msgstr "Console"
 
@@ -365,6 +368,9 @@ msgstr "Finish Anyways"
 
 msgid "Forgot to Clock Out?"
 msgstr "Forgot to Clock Out?"
+
+msgid "From"
+msgstr "From"
 
 msgid "Go back to operation"
 msgstr "Go back to operation"
@@ -580,6 +586,9 @@ msgstr "No option found."
 msgid "No options found."
 msgstr "No options found."
 
+msgid "No picking lists assigned"
+msgstr "No picking lists assigned"
+
 msgid "No recent operations"
 msgstr "No recent operations"
 
@@ -665,6 +674,9 @@ msgstr "Pause"
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "Picked up Column {0} at position: {1} of {2}"
 
+msgid "Picking"
+msgstr "Picking"
+
 msgid "Pin Out"
 msgstr "Pin Out"
 
@@ -700,6 +712,9 @@ msgstr "Processes"
 
 msgid "Progress"
 msgstr "Progress"
+
+msgid "Qty"
+msgstr "Qty"
 
 msgid "Quality Issue"
 msgstr "Quality Issue"
@@ -853,6 +868,9 @@ msgstr "Set clock-out time"
 msgid "Setup"
 msgstr "Setup"
 
+msgid "Short"
+msgstr "Short"
+
 msgid "Sign in with Email"
 msgstr "Sign in with Email"
 
@@ -967,6 +985,9 @@ msgstr "Tracking Labels"
 
 msgid "Type a message..."
 msgstr "Type a message..."
+
+msgid "Ungrouped"
+msgstr "Ungrouped"
 
 msgid "Unissued serial/batch materials"
 msgstr "Unissued serial/batch materials"
