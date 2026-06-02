@@ -4,6 +4,7 @@ import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
+import { getNextSequence } from "~/modules/settings";
 import type { StorageItem } from "~/types";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
@@ -14,6 +15,8 @@ import type {
   batchPropertyValidator,
   inventoryAdjustmentValidator,
   kanbanValidator,
+  pickingListLineValidator,
+  pickingListValidator,
   receiptValidator,
   shipmentValidator,
   shippingMethodValidator,
@@ -2125,4 +2128,487 @@ export async function getTrackedEntityExpirations(
     },
     {}
   );
+}
+
+// ----------------------------------------------------------------------------
+// Picking List CRUD
+// ----------------------------------------------------------------------------
+
+export async function getPickingLists(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  args: GenericQueryFilters & {
+    search: string | null;
+    status: string | null;
+    assignee: string | null;
+    locationId: string | null;
+  }
+) {
+  let query = client
+    .from("pickingLists")
+    .select("*", {
+      count: "exact"
+    })
+    .eq("companyId", companyId);
+
+  if (args.search) {
+    query = query.ilike("pickingListId", `%${args.search}%`);
+  }
+
+  if (args.status) {
+    query = query.eq("status", args.status);
+  }
+
+  if (args.assignee) {
+    query = query.eq("assignee", args.assignee);
+  }
+
+  if (args.locationId) {
+    query = query.eq("locationId", args.locationId);
+  }
+
+  query = setGenericQueryFilters(query, args, [
+    { column: "pickingListId", ascending: false }
+  ]);
+  return query;
+}
+
+export async function getPickingList(
+  client: SupabaseClient<Database>,
+  pickingListId: string
+) {
+  return client
+    .from("pickingList")
+    .select(
+      "*, location:location(name), assigneeUser:user!pickingList_assignee_fkey(fullName, avatarUrl)"
+    )
+    .eq("id", pickingListId)
+    .single();
+}
+
+export async function getPickingListLines(
+  client: SupabaseClient<Database>,
+  pickingListId: string
+) {
+  return client
+    .from("pickingListLine")
+    .select(
+      "*, item(name, readableId), job(jobId), jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit(name, locationId)"
+    )
+    .eq("pickingListId", pickingListId)
+    .order("jobOperationId")
+    .order("itemId");
+}
+
+export async function getPickingListLine(
+  client: SupabaseClient<Database>,
+  lineId: string
+) {
+  return client
+    .from("pickingListLine")
+    .select(
+      "*, item(name, readableId), job(jobId), jobOperation(order, processId, workCenterId, process:process(name), workCenter:workCenter(name)), storageUnit(name, locationId), pickingList(pickingListId, status)"
+    )
+    .eq("id", lineId)
+    .single();
+}
+
+export async function getPickingListLineTrackedEntities(
+  client: SupabaseClient<Database>,
+  lineId: string
+) {
+  return client
+    .from("pickingListLineTrackedEntity")
+    .select("*, trackedEntity(readableId, quantity, expirationDate)")
+    .eq("pickingListLineId", lineId);
+}
+
+export async function upsertPickingList(
+  client: SupabaseClient<Database>,
+  pickingList:
+    | (Omit<z.infer<typeof pickingListValidator>, "id" | "pickingListId"> & {
+        pickingListId: string;
+        companyId: string;
+        createdBy: string;
+        customFields?: Json;
+      })
+    | (Omit<z.infer<typeof pickingListValidator>, "id" | "pickingListId"> & {
+        id: string;
+        pickingListId: string;
+        updatedBy: string;
+        customFields?: Json;
+      })
+) {
+  if ("createdBy" in pickingList) {
+    return client
+      .from("pickingList")
+      .insert([pickingList])
+      .select("id")
+      .single();
+  }
+  return client
+    .from("pickingList")
+    .update({
+      ...sanitize(pickingList),
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", pickingList.id)
+    .select("id")
+    .single();
+}
+
+export async function updatePickingListStatus(
+  client: SupabaseClient<Database>,
+  pickingListId: string,
+  status: Database["public"]["Enums"]["pickingListStatus"],
+  updatedBy: string
+) {
+  return client
+    .from("pickingList")
+    .update({
+      status,
+      updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", pickingListId);
+}
+
+export async function upsertPickingListLine(
+  client: SupabaseClient<Database>,
+  line:
+    | (Omit<z.infer<typeof pickingListLineValidator>, "id"> & {
+        companyId: string;
+        createdBy: string;
+      })
+    | (Omit<z.infer<typeof pickingListLineValidator>, "id"> & {
+        id: string;
+        updatedBy: string;
+      })
+) {
+  if ("createdBy" in line) {
+    return client.from("pickingListLine").insert([line]).select("id").single();
+  }
+  return client
+    .from("pickingListLine")
+    .update({
+      ...sanitize(line),
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", line.id)
+    .select("id")
+    .single();
+}
+
+export async function deletePickingList(
+  client: SupabaseClient<Database>,
+  pickingListId: string
+) {
+  return client.from("pickingList").delete().eq("id", pickingListId);
+}
+
+export async function deletePickingListLine(
+  client: SupabaseClient<Database>,
+  lineId: string
+) {
+  return client.from("pickingListLine").delete().eq("id", lineId);
+}
+
+// ----------------------------------------------------------------------------
+// Picking List Business Logic
+// ----------------------------------------------------------------------------
+
+export async function getPickingSchedule(
+  client: SupabaseClient<Database>,
+  args: {
+    locationId: string;
+    companyId: string;
+    workCenterId?: string | null;
+    search?: string | null;
+  }
+) {
+  return client.rpc("get_picking_schedule", {
+    p_location_id: args.locationId,
+    p_company_id: args.companyId,
+    p_work_center_id: args.workCenterId ?? null,
+    p_search: args.search ?? null
+  });
+}
+
+export async function generatePickingList(
+  client: SupabaseClient<Database>,
+  args: {
+    jobOperationIds: string[];
+    locationId: string;
+    companyId: string;
+    createdBy: string;
+    assignee?: string | null;
+    dueDate?: string | null;
+  }
+) {
+  // 1. Get the next sequence number
+  const sequenceResult = await getNextSequence(
+    client,
+    "pickingList",
+    args.companyId
+  );
+  if (sequenceResult.error || !sequenceResult.data) {
+    return {
+      data: null,
+      error: sequenceResult.error ?? "Failed to get sequence"
+    };
+  }
+  const pickingListId = sequenceResult.data as string;
+
+  // 2. Create the picking list header
+  const headerInsert = await client
+    .from("pickingList")
+    .insert([
+      {
+        pickingListId,
+        status: "Draft" as const,
+        locationId: args.locationId,
+        assignee: args.assignee ?? null,
+        dueDate: args.dueDate ?? null,
+        companyId: args.companyId,
+        createdBy: args.createdBy
+      }
+    ])
+    .select("id, pickingListId")
+    .single();
+
+  if (headerInsert.error) {
+    return { data: null, error: headerInsert.error };
+  }
+
+  const plId = headerInsert.data.id;
+
+  // 3. Get jobMaterial records for those operations with quantityToIssue > 0
+  const materials = await client
+    .from("jobMaterial")
+    .select(
+      "id, jobId, jobOperationId, itemId, quantityToIssue, storageUnitId, requiresSerialTracking, requiresBatchTracking"
+    )
+    .in("jobOperationId", args.jobOperationIds)
+    .gt("quantityToIssue", 0);
+
+  if (materials.error) {
+    await client.from("pickingList").delete().eq("id", plId);
+    return { data: null, error: materials.error };
+  }
+
+  let linesCreated = 0;
+
+  for (const mat of materials.data ?? []) {
+    const quantityToIssue = Number(mat.quantityToIssue ?? 0);
+    if (quantityToIssue <= 0) continue;
+
+    // 4. Check if source storage unit is lineside — skip if lineside
+    if (mat.storageUnitId) {
+      const effectiveWc = await client.rpc("get_effective_work_center_id", {
+        p_storage_unit_id: mat.storageUnitId
+      });
+      // If the storage unit resolves to a work center, it's lineside — skip
+      if (effectiveWc.data) continue;
+    }
+
+    // 5. Determine source storage unit
+    const sourceStorageUnitId = mat.storageUnitId ?? null;
+
+    // Create the picking list line
+    const lineInsert = await client
+      .from("pickingListLine")
+      .insert([
+        {
+          pickingListId: plId,
+          jobId: mat.jobId,
+          jobMaterialId: mat.id,
+          jobOperationId: mat.jobOperationId,
+          itemId: mat.itemId,
+          quantityToPick: quantityToIssue,
+          storageUnitId: sourceStorageUnitId,
+          companyId: args.companyId,
+          createdBy: args.createdBy
+        }
+      ])
+      .select("id")
+      .single();
+
+    if (lineInsert.error) continue;
+
+    linesCreated++;
+
+    // 6. For batch/serial tracked items, allocate tracked entities (FIFO)
+    if (mat.requiresBatchTracking || mat.requiresSerialTracking) {
+      const trackedEntities = await client
+        .from("trackedEntity")
+        .select("id, quantity")
+        .eq("sourceDocument", "Item")
+        .eq("sourceDocumentId", mat.itemId)
+        .eq("companyId", args.companyId)
+        .gt("quantity", 0)
+        .in("status", ["Available"])
+        .order("createdAt", { ascending: true });
+
+      if (!trackedEntities.error && trackedEntities.data) {
+        let remaining = quantityToIssue;
+        for (const te of trackedEntities.data) {
+          if (remaining <= 0) break;
+          const teQty = Number(te.quantity ?? 0);
+          const allocateQty = Math.min(remaining, teQty);
+          if (allocateQty <= 0) continue;
+
+          await client.from("pickingListLineTrackedEntity").insert([
+            {
+              pickingListLineId: lineInsert.data.id,
+              trackedEntityId: te.id,
+              quantity: allocateQty
+            }
+          ]);
+
+          remaining -= allocateQty;
+        }
+      }
+    }
+  }
+
+  // 7. If no lines created, delete the empty picking list and return error
+  if (linesCreated === 0) {
+    await client.from("pickingList").delete().eq("id", plId);
+    return {
+      data: null,
+      error: "No materials require picking for the selected operations"
+    };
+  }
+
+  // 8. Return the created picking list
+  return {
+    data: {
+      id: plId,
+      pickingListId
+    },
+    error: null
+  };
+}
+
+export async function confirmPickingListLine(
+  client: SupabaseClient<Database>,
+  args: {
+    pickingListLineId: string;
+    quantityPicked: number;
+    trackedEntities?: Array<{
+      trackedEntityId: string;
+      quantityPicked: number;
+    }>;
+    userId: string;
+  }
+) {
+  // 1. Get the line with jobMaterial join
+  const lineResult = await client
+    .from("pickingListLine")
+    .select(
+      "*, jobMaterial:jobMaterial!pickingListLine_jobMaterialId_fkey(id, jobId, itemId, quantityIssued, storageUnitId), pickingList(locationId, companyId)"
+    )
+    .eq("id", args.pickingListLineId)
+    .single();
+
+  if (lineResult.error || !lineResult.data) {
+    return { data: null, error: lineResult.error ?? "Line not found" };
+  }
+
+  const line = lineResult.data;
+  const jobMaterial = line.jobMaterial;
+  const pickingList = line.pickingList;
+
+  if (!jobMaterial || !pickingList) {
+    return { data: null, error: "Missing related data" };
+  }
+
+  const quantityToPick = Number(line.quantityToPick);
+
+  // 2. Determine line status
+  const lineStatus: "Picked" | "Short" =
+    args.quantityPicked >= quantityToPick ? "Picked" : "Short";
+
+  // Update line quantityPicked and status
+  const lineUpdate = await client
+    .from("pickingListLine")
+    .update({
+      quantityPicked: args.quantityPicked,
+      status: lineStatus,
+      updatedBy: args.userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", args.pickingListLineId);
+
+  if (lineUpdate.error) {
+    return { data: null, error: lineUpdate.error };
+  }
+
+  // 3. Update tracked entity quantities if applicable
+  if (args.trackedEntities?.length) {
+    for (const te of args.trackedEntities) {
+      await client
+        .from("pickingListLineTrackedEntity")
+        .update({ quantityPicked: te.quantityPicked })
+        .eq("pickingListLineId", args.pickingListLineId)
+        .eq("trackedEntityId", te.trackedEntityId);
+    }
+  }
+
+  // 4. Create itemLedger consumption entry
+  if (args.quantityPicked > 0) {
+    await client.from("itemLedger").insert([
+      {
+        entryType: "Consumption" as const,
+        documentType:
+          "Job Consumption" as Database["public"]["Enums"]["itemLedgerDocumentType"],
+        documentId: jobMaterial.jobId,
+        itemId: line.itemId,
+        locationId: pickingList.locationId,
+        storageUnitId: line.storageUnitId,
+        quantity: -args.quantityPicked,
+        companyId: pickingList.companyId,
+        createdBy: args.userId
+      }
+    ]);
+  }
+
+  // 5. Update jobMaterial.quantityIssued
+  const currentIssued = Number(jobMaterial.quantityIssued ?? 0);
+  await client
+    .from("jobMaterial")
+    .update({
+      quantityIssued: currentIssued + args.quantityPicked,
+      updatedBy: args.userId,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", jobMaterial.id);
+
+  // 6. Check if all lines resolved — auto-complete the picking list
+  const allLines = await client
+    .from("pickingListLine")
+    .select("id, status")
+    .eq("pickingListId", line.pickingListId);
+
+  if (!allLines.error && allLines.data) {
+    const allResolved = allLines.data.every(
+      (l) =>
+        l.status === "Picked" ||
+        l.status === "Short" ||
+        l.status === "Cancelled"
+    );
+    if (allResolved) {
+      await updatePickingListStatus(
+        client,
+        line.pickingListId,
+        "Completed",
+        args.userId
+      );
+    }
+  }
+
+  return {
+    data: { id: args.pickingListLineId, status: lineStatus },
+    error: null
+  };
 }
