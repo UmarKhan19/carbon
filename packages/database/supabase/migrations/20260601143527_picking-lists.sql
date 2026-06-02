@@ -176,6 +176,68 @@ AS $$
 $$;
 
 -- ============================================================================
+-- Function: get_picking_schedule
+-- Returns job operations with outstanding pick requirements at a location.
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION get_picking_schedule(
+  p_location_id TEXT,
+  p_company_id TEXT
+)
+RETURNS TABLE (
+  "jobOperationId" TEXT,
+  "jobId" TEXT,
+  "jobReadableId" TEXT,
+  "itemId" TEXT,
+  "itemReadableId" TEXT,
+  "itemName" TEXT,
+  "operationOrder" DOUBLE PRECISION,
+  "processName" TEXT,
+  "workCenterId" TEXT,
+  "workCenterName" TEXT,
+  "dueDate" DATE,
+  "partsToPickCount" BIGINT,
+  "totalQuantityToPick" NUMERIC
+)
+LANGUAGE sql
+STABLE
+SECURITY INVOKER
+AS $$
+  SELECT
+    jo."id" AS "jobOperationId",
+    j."id" AS "jobId",
+    j."jobId" AS "jobReadableId",
+    j."itemId",
+    i."readableId" AS "itemReadableId",
+    i."name" AS "itemName",
+    jo."order" AS "operationOrder",
+    p."name" AS "processName",
+    jo."workCenterId",
+    wc."name" AS "workCenterName",
+    j."dueDate",
+    COUNT(jm."id") AS "partsToPickCount",
+    SUM(jm."quantityToIssue") AS "totalQuantityToPick"
+  FROM "jobOperation" jo
+  JOIN "job" j ON jo."jobId" = j."id"
+  JOIN "item" i ON j."itemId" = i."id"
+  LEFT JOIN "process" p ON jo."processId" = p."id"
+  LEFT JOIN "workCenter" wc ON jo."workCenterId" = wc."id"
+  JOIN "jobMaterial" jm ON jm."jobOperationId" = jo."id"
+  WHERE j."companyId" = p_company_id
+    AND j."locationId" = p_location_id
+    AND j."status" IN ('Ready', 'In Progress')
+    AND jo."status" IN ('Todo', 'Ready', 'In Progress')
+    AND jm."quantityToIssue" > 0
+    AND (
+      jm."storageUnitId" IS NULL
+      OR get_effective_work_center_id(jm."storageUnitId") IS NULL
+    )
+  GROUP BY jo."id", j."id", j."jobId", j."itemId", i."readableId", i."name",
+           jo."order", p."name", jo."workCenterId", wc."name", j."dueDate"
+  HAVING COUNT(jm."id") > 0;
+$$;
+
+-- ============================================================================
 -- View: pickingLists
 -- ============================================================================
 
