@@ -1308,6 +1308,9 @@ msgstr "चैट"
 msgid "Check your email"
 msgstr "अपना ईमेल जांचें"
 
+msgid "Choose a company"
+msgstr ""
+
 msgid "Choose another file"
 msgstr "दूसरी फ़ाइल चुनें"
 
@@ -5400,6 +5403,9 @@ msgstr "सेट नहीं है"
 msgid "Not started training for"
 msgstr "प्रशिक्षण शुरू नहीं किया गया"
 
+msgid "Not you?"
+msgstr ""
+
 msgid "Note"
 msgstr "नोट"
 
@@ -8765,6 +8771,9 @@ msgstr "हाँ, अस्वीकार करें"
 
 msgid "Yes, Update IDs"
 msgstr "हाँ, आईडी अपडेट करें"
+
+msgid "You belong to more than one company. Pick where to work."
+msgstr ""
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "आप किसी भी समय थीम सेटिंग के माध्यम से UI शैली को बदल सकते हैं"

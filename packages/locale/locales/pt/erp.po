@@ -1308,6 +1308,9 @@ msgstr "Chat"
 msgid "Check your email"
 msgstr "Verifique seu email"
 
+msgid "Choose a company"
+msgstr ""
+
 msgid "Choose another file"
 msgstr "Escolher outro arquivo"
 
@@ -5400,6 +5403,9 @@ msgstr "Não definido"
 msgid "Not started training for"
 msgstr "Treinamento não iniciado para"
 
+msgid "Not you?"
+msgstr ""
+
 msgid "Note"
 msgstr "Nota"
 
@@ -8765,6 +8771,9 @@ msgstr "Sim, Rejeitar"
 
 msgid "Yes, Update IDs"
 msgstr "Sim, Atualizar IDs"
+
+msgid "You belong to more than one company. Pick where to work."
+msgstr ""
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "Você pode alterar o estilo da interface a qualquer momento através da configuração de tema"

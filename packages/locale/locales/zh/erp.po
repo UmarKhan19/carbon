@@ -1308,6 +1308,9 @@ msgstr "聊天"
 msgid "Check your email"
 msgstr "检查您的电子邮件"
 
+msgid "Choose a company"
+msgstr ""
+
 msgid "Choose another file"
 msgstr "选择另一个文件"
 
@@ -5400,6 +5403,9 @@ msgstr "未设置"
 msgid "Not started training for"
 msgstr "未开始培训"
 
+msgid "Not you?"
+msgstr ""
+
 msgid "Note"
 msgstr "备注"
 
@@ -8765,6 +8771,9 @@ msgstr "是的，拒绝"
 
 msgid "Yes, Update IDs"
 msgstr "是的，更新 ID"
+
+msgid "You belong to more than one company. Pick where to work."
+msgstr ""
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "您可以随时通过主题设置更改UI样式"

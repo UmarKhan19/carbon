@@ -1308,6 +1308,9 @@ msgstr "チャット"
 msgid "Check your email"
 msgstr "メールを確認してください"
 
+msgid "Choose a company"
+msgstr ""
+
 msgid "Choose another file"
 msgstr "別のファイルを選択"
 
@@ -5400,6 +5403,9 @@ msgstr "未設定"
 msgid "Not started training for"
 msgstr "まだトレーニングを開始していません"
 
+msgid "Not you?"
+msgstr ""
+
 msgid "Note"
 msgstr "メモ"
 
@@ -8765,6 +8771,9 @@ msgstr "はい、拒否します"
 
 msgid "Yes, Update IDs"
 msgstr "はい、IDを更新"
+
+msgid "You belong to more than one company. Pick where to work."
+msgstr ""
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "テーマ設定からいつでもUIスタイルを変更できます"

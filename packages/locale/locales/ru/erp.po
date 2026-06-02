@@ -1308,6 +1308,9 @@ msgstr "Чат"
 msgid "Check your email"
 msgstr "Проверьте вашу почту"
 
+msgid "Choose a company"
+msgstr ""
+
 msgid "Choose another file"
 msgstr "Выбрать другой файл"
 
@@ -5400,6 +5403,9 @@ msgstr "Не установлено"
 msgid "Not started training for"
 msgstr "Обучение не начато для"
 
+msgid "Not you?"
+msgstr ""
+
 msgid "Note"
 msgstr "Примечание"
 
@@ -8765,6 +8771,9 @@ msgstr "Да, отклонить"
 
 msgid "Yes, Update IDs"
 msgstr "Да, обновить ID"
+
+msgid "You belong to more than one company. Pick where to work."
+msgstr ""
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "Вы можете изменить стиль интерфейса в любое время через настройку темы"

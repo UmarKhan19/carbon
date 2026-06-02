@@ -6,6 +6,7 @@ const api = "/api"; // from ~/routes/api+ folder
 const file = "/file"; // from ~/routes/file+ folder
 const share = "/share"; // from ~/routes/shared+ folder
 const onboarding = "/onboarding"; // from ~/routes/onboarding+ folder
+const selectCompany = "/select-company"; // from ~/routes/select-company+ folder
 export const MES_URL = getMESUrl();
 export const ERP_URL = getAppUrl();
 
@@ -388,6 +389,7 @@ export const path = {
       user: `${onboarding}/user`
     },
     authenticatedRoot: x,
+    selectCompany,
     acknowledge: `${x}/acknowledge`,
     approvalRules: `${x}/settings/approval-rules`,
     approvalRule: (id: string) =>
