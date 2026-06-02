@@ -377,3 +377,65 @@ export const stockTransferLineScanValidator = z.object({
     .string()
     .min(1, { message: "Tracked entity ID is required" })
 });
+
+export const pickingListStatusType = [
+  "Draft",
+  "In Progress",
+  "Completed",
+  "Cancelled"
+] as const;
+
+export const pickingListLineStatusType = [
+  "Pending",
+  "Picked",
+  "Short",
+  "Cancelled"
+] as const;
+
+export const pickingListValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  pickingListId: zfd.text(z.string().optional()),
+  locationId: z.string().min(1, { message: "Location is required" }),
+  assignee: zfd.text(z.string().optional()),
+  dueDate: zfd.text(z.string().optional()),
+  notes: zfd.text(z.string().optional())
+});
+
+export const pickingListLineValidator = z.object({
+  id: zfd.text(z.string().optional()),
+  pickingListId: z.string().min(1),
+  jobId: z.string().min(1),
+  jobMaterialId: z.string().min(1),
+  jobOperationId: zfd.text(z.string().optional()),
+  itemId: z.string().min(1),
+  quantityToPick: zfd.numeric(z.number().min(0.0001)),
+  storageUnitId: zfd.text(z.string().optional())
+});
+
+export const pickingListLineTrackedEntityValidator = z.object({
+  pickingListLineId: z.string().min(1),
+  trackedEntityId: z.string().min(1),
+  quantity: zfd.numeric(z.number().min(0.0001))
+});
+
+export const generatePickingListValidator = z.object({
+  locationId: z.string().min(1, { message: "Location is required" }),
+  jobOperationIds: z.array(z.string().min(1)).min(1, {
+    message: "Select at least one operation"
+  }),
+  assignee: zfd.text(z.string().optional()),
+  dueDate: zfd.text(z.string().optional())
+});
+
+export const confirmPickingListLineValidator = z.object({
+  pickingListLineId: z.string().min(1),
+  quantityPicked: zfd.numeric(z.number().min(0)),
+  trackedEntities: z
+    .array(
+      z.object({
+        trackedEntityId: z.string().min(1),
+        quantityPicked: zfd.numeric(z.number().min(0))
+      })
+    )
+    .optional()
+});
