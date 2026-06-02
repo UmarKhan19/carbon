@@ -959,6 +959,9 @@ msgstr "Incarico"
 msgid "Assignments"
 msgstr "Assegnazioni"
 
+msgid "Assigns this storage unit to a work center (lineside)"
+msgstr ""
+
 msgid "At least one condition must match"
 msgstr "Almeno una condizione deve corrispondere"
 
@@ -3980,6 +3983,9 @@ msgstr "Eredita dai Materiali"
 
 msgid "Inherited from"
 msgstr "Ereditato da"
+
+msgid "Inherited from parent"
+msgstr ""
 
 msgid "Insert rows"
 msgstr "Inserisci righe"

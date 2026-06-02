@@ -41004,6 +41004,7 @@ export type Database = {
           updatedAt: string | null
           updatedBy: string | null
           warehouseId: string | null
+          workCenterId: string | null
         }
         Insert: {
           active?: boolean
@@ -41020,6 +41021,7 @@ export type Database = {
           updatedAt?: string | null
           updatedBy?: string | null
           warehouseId?: string | null
+          workCenterId?: string | null
         }
         Update: {
           active?: boolean
@@ -41036,6 +41038,7 @@ export type Database = {
           updatedAt?: string | null
           updatedBy?: string | null
           warehouseId?: string | null
+          workCenterId?: string | null
         }
         Relationships: [
           {
@@ -41155,6 +41158,13 @@ export type Database = {
             columns: ["warehouseId"]
             isOneToOne: false
             referencedRelation: "warehouse"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "storageUnit_workCenterId_fkey"
+            columns: ["workCenterId"]
+            isOneToOne: false
+            referencedRelation: "workCenter"
             referencedColumns: ["id"]
           },
         ]
@@ -63699,6 +63709,12 @@ export type Database = {
           status: Database["public"]["Enums"]["trackedEntityStatus"]
           trackedActivityId: string
         }[]
+      }
+      get_effective_work_center_id: {
+        Args: {
+          p_storage_unit_id: string
+        }
+        Returns: string | null
       }
       get_entity_audit_log: {
         Args: {

@@ -959,6 +959,9 @@ msgstr "Aufgabe"
 msgid "Assignments"
 msgstr "Zuweisungen"
 
+msgid "Assigns this storage unit to a work center (lineside)"
+msgstr ""
+
 msgid "At least one condition must match"
 msgstr "Mindestens eine Bedingung muss erfüllt sein"
 
@@ -3980,6 +3983,9 @@ msgstr "Von Materialien erben"
 
 msgid "Inherited from"
 msgstr "Geerbt von"
+
+msgid "Inherited from parent"
+msgstr ""
 
 msgid "Insert rows"
 msgstr "Zeilen einfügen"

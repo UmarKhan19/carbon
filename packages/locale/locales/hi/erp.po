@@ -959,6 +959,9 @@ msgstr "असाइनमेंट"
 msgid "Assignments"
 msgstr "असाइनमेंट"
 
+msgid "Assigns this storage unit to a work center (lineside)"
+msgstr ""
+
 msgid "At least one condition must match"
 msgstr "कम से कम एक शर्त मेल खानी चाहिए"
 
@@ -3980,6 +3983,9 @@ msgstr "सामग्री से विरासत में प्रा�
 
 msgid "Inherited from"
 msgstr "से विरासत में मिला"
+
+msgid "Inherited from parent"
+msgstr ""
 
 msgid "Insert rows"
 msgstr "पंक्तियाँ सम्मिलित करें"

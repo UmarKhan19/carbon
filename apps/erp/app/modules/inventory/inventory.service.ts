@@ -638,6 +638,15 @@ export async function getStorageUnit(
     .single();
 }
 
+export async function getEffectiveWorkCenterId(
+  client: SupabaseClient<Database>,
+  storageUnitId: string
+) {
+  return client.rpc("get_effective_work_center_id", {
+    p_storage_unit_id: storageUnitId
+  });
+}
+
 // Roots only (depth = 1). Honors search/filter/pagination so the table can
 // paginate top-level storage units while children load lazily on demand.
 export async function getStorageUnitRoots(

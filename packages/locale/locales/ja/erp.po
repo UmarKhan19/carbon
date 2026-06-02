@@ -959,6 +959,9 @@ msgstr "割り当て"
 msgid "Assignments"
 msgstr "割り当て"
 
+msgid "Assigns this storage unit to a work center (lineside)"
+msgstr ""
+
 msgid "At least one condition must match"
 msgstr "少なくとも1つの条件が一致する必要があります"
 
@@ -3980,6 +3983,9 @@ msgstr "材料から継承"
 
 msgid "Inherited from"
 msgstr "継承元"
+
+msgid "Inherited from parent"
+msgstr ""
 
 msgid "Insert rows"
 msgstr "行を挿入"
