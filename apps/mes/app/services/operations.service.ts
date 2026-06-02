@@ -656,6 +656,47 @@ export async function getProductionQuantitiesForJobOperation(
     .eq("jobOperationId", operationId);
 }
 
+export async function getToolsByProcessId(
+  client: SupabaseClient<Database>,
+  processId: string
+) {
+  type Tool = {
+    quantity: number;
+    item: { id: string; name: string; type: string } | null;
+  };
+
+  const methodOp = await client
+    .from("methodOperation")
+    .select("id")
+    .eq("processId", processId)
+    .limit(1)
+    .maybeSingle();
+
+  if (!methodOp.data) return { data: [] as Tool[], error: null };
+
+  const result = await client
+    .from("methodOperationTool")
+    .select("quantity, item:toolId(id, name, type)")
+    .eq("operationId", methodOp.data.id);
+
+  return {
+    data: (result.data ?? []) as unknown as Tool[],
+    error: result.error
+  };
+}
+
+export async function getNcrsByJobOperationId(
+  client: SupabaseClient<Database>,
+  jobOperationId: string
+) {
+  return client
+    .from("nonConformanceJobOperation")
+    .select(
+      "nonConformanceId, nonConformance(id, nonConformanceId, status, priority)"
+    )
+    .eq("jobOperationId", jobOperationId);
+}
+
 export async function getRecentJobOperationsByEmployee(
   client: SupabaseClient<Database>,
   args: {
