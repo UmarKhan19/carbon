@@ -5784,6 +5784,9 @@ msgstr "Выберите дату или оставьте пустым, чтоб
 msgid "Pick List"
 msgstr "Список подбора"
 
+msgid "Picking Lists"
+msgstr ""
+
 msgid "Pieces/Hour"
 msgstr "Штук/час"
 

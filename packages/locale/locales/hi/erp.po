@@ -5784,6 +5784,9 @@ msgstr "एक तारीख चुनें या इसे साफ कर
 msgid "Pick List"
 msgstr "पिक लिस्ट"
 
+msgid "Picking Lists"
+msgstr ""
+
 msgid "Pieces/Hour"
 msgstr "Pieces/Hour"
 

@@ -5784,6 +5784,9 @@ msgstr "Pick a date or leave blank to clear it."
 msgid "Pick List"
 msgstr "Pick List"
 
+msgid "Picking Lists"
+msgstr "Picking Lists"
+
 msgid "Pieces/Hour"
 msgstr "Pieces/Hour"
 

@@ -1,6 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import {
   LuArrowRightLeft,
+  LuClipboardList,
   LuHandCoins,
   LuListChecks,
   LuNetwork,
@@ -48,6 +49,11 @@ export default function useInventorySubmodules() {
           to: path.to.warehouseTransfers,
           icon: <LuArrowRightLeft />,
           table: "warehouseTransfer"
+        },
+        {
+          name: t`Picking Lists`,
+          to: path.to.pickingLists,
+          icon: <LuClipboardList />
         }
       ]
     },

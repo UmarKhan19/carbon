@@ -5784,6 +5784,9 @@ msgstr "Wybierz datę lub pozostaw puste pole, aby je wyczyścić."
 msgid "Pick List"
 msgstr "Lista pobrania"
 
+msgid "Picking Lists"
+msgstr ""
+
 msgid "Pieces/Hour"
 msgstr "Sztuk/Godzina"
 

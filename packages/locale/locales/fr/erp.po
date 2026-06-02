@@ -5784,6 +5784,9 @@ msgstr "Choisissez une date ou laissez vide pour l'effacer."
 msgid "Pick List"
 msgstr "Liste de prélèvement"
 
+msgid "Picking Lists"
+msgstr ""
+
 msgid "Pieces/Hour"
 msgstr "Pièces/Heure"
 

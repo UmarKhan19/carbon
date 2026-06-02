@@ -5784,6 +5784,9 @@ msgstr "选择日期或留空以清除。"
 msgid "Pick List"
 msgstr "拣货单"
 
+msgid "Picking Lists"
+msgstr ""
+
 msgid "Pieces/Hour"
 msgstr "件/小时"
 

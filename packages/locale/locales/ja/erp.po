@@ -5784,6 +5784,9 @@ msgstr "日付を選択するか、空白のままにしてクリアしてくだ
 msgid "Pick List"
 msgstr "ピッキングリスト"
 
+msgid "Picking Lists"
+msgstr ""
+
 msgid "Pieces/Hour"
 msgstr "個/時間"
 

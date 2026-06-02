@@ -5784,6 +5784,9 @@ msgstr "Escolha uma data ou deixe em branco para limpar."
 msgid "Pick List"
 msgstr "Lista de Coleta"
 
+msgid "Picking Lists"
+msgstr ""
+
 msgid "Pieces/Hour"
 msgstr "Peças/Hora"
 
