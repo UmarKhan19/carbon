@@ -316,7 +316,7 @@ const StorageRuleCard = memo(({ rule }: { rule: RuleListItem }) => {
         action={path.to.deleteStorageRule(rule.id)}
         isOpen={deleteDisclosure.isOpen}
         name={`${TARGET_LABEL[rule.targetType]} rule "${rule.name}"`}
-        text="Are you sure you want to delete this custom rule? Assignments will also be removed."
+        text="Are you sure you want to delete this storage rule? Assignments will also be removed."
         onCancel={deleteDisclosure.onClose}
         onSubmit={deleteDisclosure.onClose}
       />

@@ -1,4 +1,4 @@
-// Cross-app DB queries for Custom Rules. Both ERP (admin UI, item/storage
+// Cross-app DB queries for Storage Rules. Both ERP (admin UI, item/storage
 // surfaces) and MES (workCenter surfaces) import from here.
 //
 // ERP-only admin CRUD (list/upsert/delete) stays in the ERP module — it

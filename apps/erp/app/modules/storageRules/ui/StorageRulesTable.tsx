@@ -164,7 +164,7 @@ const StorageRulesTable = memo(({ data, count }: StorageRulesTableProps) => {
         )
       }
       renderContextMenu={renderContextMenu}
-      title={t`Custom Rules`}
+      title={t`Storage Rules`}
     />
   );
 });

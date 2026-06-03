@@ -107,7 +107,7 @@ const BRACES_ICON = <LuBraces />;
 // false greens, no missed reds. Inlined rather than re-exported to avoid a
 // UI → runtime import cycle.
 const TOKEN_RE =
-  /\{(condition\[\d+\]\.(?:field|operator|value)|[a-zA-Z_][\w.]*)\}/g;
+  /\{(condition\[\d+\]\.(?:field|operator|value|name)|[a-zA-Z_][\w.]*)\}/g;
 
 // Runtime accepts arbitrary suffixes under `item.customFields.*` via the
 // generic dotted-path resolver. Treat any such token as known so the editor
@@ -219,7 +219,11 @@ export default function MessageWithTokens({
           },
           {
             token: `condition[${i}].value`,
-            description: "Required value"
+            description: "Required value (raw id/input)"
+          },
+          {
+            token: `condition[${i}].name`,
+            description: "Required value (label)"
           }
         ]
       });

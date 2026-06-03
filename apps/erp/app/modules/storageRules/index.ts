@@ -1,4 +1,4 @@
-// ERP-side Custom Rules module. Re-exports cross-app queries from the
+// ERP-side Storage Rules module. Re-exports cross-app queries from the
 // `@carbon/ee/storage-rules` package alongside ERP-only admin CRUD + form
 // validators.
 

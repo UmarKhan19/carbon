@@ -2020,9 +2020,6 @@ msgstr "कस्टम फील्ड"
 msgid "Custom Fields"
 msgstr "कस्टम फील्ड्स"
 
-msgid "Custom Rules"
-msgstr "कस्टम नियम"
-
 msgid "Customer"
 msgstr "ग्राहक"
 

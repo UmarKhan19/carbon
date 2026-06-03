@@ -299,6 +299,64 @@ describe("interpolateMessage", () => {
   it("does not match malformed tokens", () => {
     expect(interpolateMessage("{nope", {})).toBe("{nope");
   });
+
+  it("condition[N].value renders the raw value, not the label", () => {
+    expect(
+      interpolateMessage(
+        "{condition[0].value}",
+        {},
+        {
+          conditions: [
+            { field: "storageUnit.storageTypeId", op: "eq", value: "cold-id" }
+          ],
+          resolveConditionValue: () => "Cold storage"
+        }
+      )
+    ).toBe("cold-id");
+  });
+
+  it("condition[N].name resolves the value to its label", () => {
+    expect(
+      interpolateMessage(
+        "{condition[0].name}",
+        {},
+        {
+          conditions: [
+            { field: "storageUnit.storageTypeId", op: "eq", value: "cold-id" }
+          ],
+          resolveConditionValue: () => "Cold storage"
+        }
+      )
+    ).toBe("Cold storage");
+  });
+
+  it("condition[N].name falls back to the raw value when unresolved", () => {
+    expect(
+      interpolateMessage(
+        "{condition[0].name}",
+        {},
+        {
+          conditions: [{ field: "transaction.quantity", op: "lt", value: 1000 }]
+        }
+      )
+    ).toBe("1000");
+  });
+
+  it("value and name render em-dash for set/not-set operators", () => {
+    const conditions = [
+      { field: "storageUnit.storageTypeId", op: "isSet" as const }
+    ];
+    expect(
+      interpolateMessage(
+        "{condition[0].value}/{condition[0].name}",
+        {},
+        {
+          conditions,
+          resolveConditionValue: () => "ignored"
+        }
+      )
+    ).toBe("—/—");
+  });
 });
 
 describe("evaluateRules", () => {

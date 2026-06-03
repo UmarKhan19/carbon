@@ -2020,9 +2020,6 @@ msgstr "自定义字段"
 msgid "Custom Fields"
 msgstr "自定义字段"
 
-msgid "Custom Rules"
-msgstr "自定义规则"
-
 msgid "Customer"
 msgstr "客户"
 

@@ -1,4 +1,4 @@
-// Custom Rules evaluator. AST → JIT-compiled closure with LRU cache.
+// Storage Rules evaluator. AST → JIT-compiled closure with LRU cache.
 // Used server-side on transactions (receipt, shipment, stock transfer,
 // inventory adjustment, place, pick, operation start/finish, material
 // issue/receive) to enforce per-entity validation/guideline rules.
@@ -342,9 +342,9 @@ export const __storageRulesCacheSize = (): number => cache.size;
 // ---------------------------------------------------------------------------
 
 const TOKEN_RE =
-  /\{(condition\[\d+\]\.(?:field|operator|value)|[a-zA-Z_][\w.]*)\}/g;
+  /\{(condition\[\d+\]\.(?:field|operator|value|name)|[a-zA-Z_][\w.]*)\}/g;
 
-const CONDITION_TOKEN_RE = /^condition\[(\d+)\]\.(field|operator|value)$/;
+const CONDITION_TOKEN_RE = /^condition\[(\d+)\]\.(field|operator|value|name)$/;
 
 const OPERATOR_LABELS: Record<Operator, string> = {
   eq: "equals",
@@ -384,7 +384,7 @@ export const interpolateMessage = (
     const condMatch = CONDITION_TOKEN_RE.exec(raw);
     if (condMatch) {
       const idx = Number(condMatch[1]);
-      const prop = condMatch[2] as "field" | "operator" | "value";
+      const prop = condMatch[2] as "field" | "operator" | "value" | "name";
       const cond = conditions?.[idx];
       if (!cond) return "—";
       switch (prop) {
@@ -393,6 +393,14 @@ export const interpolateMessage = (
         case "operator":
           return OPERATOR_LABELS[cond.op] ?? cond.op;
         case "value":
+          // Raw stored id / input value, no label resolution. Use `.name`
+          // for the human-readable label.
+          if (cond.op === "isSet" || cond.op === "isNotSet") return "—";
+          return formatConditionValue(cond.value);
+        case "name":
+          // Human-readable label for the value (e.g. id → name via the
+          // field's value-options loader). Falls back to the raw value when
+          // no resolver is supplied or the id has no matching label.
           if (cond.op === "isSet" || cond.op === "isNotSet") return "—";
           if (resolveConditionValue) {
             const resolved = resolveConditionValue(cond, idx);

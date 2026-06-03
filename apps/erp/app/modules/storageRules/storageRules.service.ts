@@ -1,4 +1,4 @@
-// ERP-only admin CRUD for the Settings → Custom Rules page.
+// ERP-only admin CRUD for the Inventory → Storage Rules page.
 // Cross-app queries (assignment loaders, list fetch for tab data, polymorphic
 // assign/unassign) live in `@carbon/ee/storage-rules`.
 

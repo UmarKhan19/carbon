@@ -2020,9 +2020,6 @@ msgstr "Champ personnalisé"
 msgid "Custom Fields"
 msgstr "Champs personnalisés"
 
-msgid "Custom Rules"
-msgstr "Règles personnalisées"
-
 msgid "Customer"
 msgstr "Client"
 

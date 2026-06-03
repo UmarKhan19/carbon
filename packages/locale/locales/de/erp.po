@@ -2020,9 +2020,6 @@ msgstr "Benutzerdefiniertes Feld"
 msgid "Custom Fields"
 msgstr "Benutzerdefinierte Felder"
 
-msgid "Custom Rules"
-msgstr "Benutzerdefinierte Regeln"
-
 msgid "Customer"
 msgstr "Kunde"
 

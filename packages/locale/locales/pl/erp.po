@@ -2020,9 +2020,6 @@ msgstr "Pole niestandardowe"
 msgid "Custom Fields"
 msgstr "Pola niestandardowe"
 
-msgid "Custom Rules"
-msgstr "Reguły niestandardowe"
-
 msgid "Customer"
 msgstr "Klient"
 

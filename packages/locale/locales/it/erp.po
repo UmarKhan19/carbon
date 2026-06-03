@@ -2020,9 +2020,6 @@ msgstr "Campo Personalizzato"
 msgid "Custom Fields"
 msgstr "Campi Personalizzati"
 
-msgid "Custom Rules"
-msgstr "Regole Personalizzate"
-
 msgid "Customer"
 msgstr "Cliente"
 

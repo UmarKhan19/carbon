@@ -84,7 +84,7 @@ export default function StorageRulesUpgradeOverlay() {
         </UpgradeOverlayIcon>
         <UpgradeOverlayContent>
           <UpgradeOverlayTitle>
-            <Trans>Custom Rules</Trans>
+            <Trans>Storage Rules</Trans>
           </UpgradeOverlayTitle>
           <UpgradeOverlayDescription>
             <Trans>

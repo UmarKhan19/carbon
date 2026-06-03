@@ -2020,9 +2020,6 @@ msgstr "Пользовательское поле"
 msgid "Custom Fields"
 msgstr "Пользовательские поля"
 
-msgid "Custom Rules"
-msgstr "Пользовательские правила"
-
 msgid "Customer"
 msgstr "Клиент"
 
