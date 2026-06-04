@@ -12,6 +12,8 @@ import {
   getJobOperationById,
   getJobOperationProcedure,
   getNcrsByJobOperationId,
+  getNonConformanceActions,
+  getProductionEventsForJobOperation,
   getThumbnailPathByItemId,
   getToolsByProcessId,
   getTrackedEntitiesByMakeMethodId
@@ -21,7 +23,7 @@ import { makeDurations } from "~/utils/durations";
 import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  await requirePermissions(request, {});
+  const { userId, companyId } = await requirePermissions(request, {});
 
   const { operationId } = params;
   if (!operationId) throw new Error("Operation ID is required");
@@ -56,21 +58,43 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     jobMakeMethod,
     procedure,
     tools,
-    ncrs
+    ncrs,
+    events,
+    nonConformanceActions
   ] = await Promise.all([
     getThumbnailPathByItemId(serviceRole, op.itemId),
     getTrackedEntitiesByMakeMethodId(serviceRole, op.jobMakeMethodId),
     getJobMakeMethod(serviceRole, op.jobMakeMethodId),
     getJobOperationProcedure(serviceRole, operationId),
     getToolsByProcessId(serviceRole, op.processId),
-    getNcrsByJobOperationId(serviceRole, operationId)
+    getNcrsByJobOperationId(serviceRole, operationId),
+    getProductionEventsForJobOperation(serviceRole, { operationId, userId }),
+    getNonConformanceActions(serviceRole, {
+      itemId: op.itemId,
+      processId: op.processId,
+      companyId
+    })
   ]);
 
-  const materials = await getJobMaterialsByOperationId(serviceRole, {
-    operation: op,
-    trackedEntityId: trackedEntityId ?? undefined,
-    requiresSerialTracking: jobMakeMethod.data?.requiresSerialTracking ?? false
-  });
+  const [materials, openEvent] = await Promise.all([
+    getJobMaterialsByOperationId(serviceRole, {
+      operation: op,
+      trackedEntityId: trackedEntityId ?? undefined,
+      requiresSerialTracking:
+        jobMakeMethod.data?.requiresSerialTracking ?? false
+    }),
+    // Open Labor production event for this operator+operation drives the timer.
+    serviceRole
+      .from("productionEvent")
+      .select("id, startTime")
+      .eq("jobOperationId", op.id)
+      .eq("employeeId", userId)
+      .eq("type", "Labor")
+      .is("endTime", null)
+      .order("startTime", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+  ]);
 
   return {
     job: job.data,
@@ -81,7 +105,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     materials,
     procedure,
     tools: tools.data ?? [],
-    ncrs: ncrs.data ?? []
+    ncrs: ncrs.data ?? [],
+    requiresSerialTracking: jobMakeMethod.data?.requiresSerialTracking ?? false,
+    requiresBatchTracking: jobMakeMethod.data?.requiresBatchTracking ?? false,
+    openEvent: openEvent.data ?? null,
+    events: events.data ?? [],
+    nonConformanceActions
   };
 }
 
