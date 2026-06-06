@@ -2186,7 +2186,6 @@ export interface InsertJobInput {
 }
 
 export interface InsertJobOptions {
-  serviceRoleClient?: SupabaseClient<Database>;
   skipMethod?: boolean;
   skipRecalculate?: boolean;
   methodSource?: "item" | "quoteLine";
@@ -2305,14 +2304,13 @@ export async function insertJob(
   }
 
   const createdJobId = job.data.id;
-  const edgeClient = options?.serviceRoleClient ?? client;
 
   if (!options?.skipMethod) {
     const methodSource =
       options?.methodSource ?? (input.quoteId && input.quoteLineId ? "quoteLine" : "item");
 
     if (methodSource === "quoteLine" && input.quoteId && input.quoteLineId) {
-      const { error } = await edgeClient.functions.invoke("get-method", {
+      const { error } = await client.functions.invoke("get-method", {
         body: {
           type: "quoteLineToJob",
           sourceId: `${input.quoteId}:${input.quoteLineId}`,
@@ -2325,7 +2323,7 @@ export async function insertJob(
         console.error("Failed to copy method from quote line:", error);
       }
     } else {
-      const { error } = await edgeClient.functions.invoke("get-method", {
+      const { error } = await client.functions.invoke("get-method", {
         body: {
           type: "itemToJob",
           sourceId: input.itemId,
@@ -2341,7 +2339,7 @@ export async function insertJob(
   }
 
   if (!options?.skipRecalculate) {
-    await edgeClient.functions.invoke("recalculate", {
+    await client.functions.invoke("recalculate", {
       body: {
         type: "jobRequirements",
         id: createdJobId,

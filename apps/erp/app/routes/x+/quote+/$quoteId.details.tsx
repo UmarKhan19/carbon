@@ -20,7 +20,7 @@ import {
   getQuote,
   isQuoteLocked,
   quoteValidator,
-  upsertQuote
+  updateQuote
 } from "~/modules/sales";
 import {
   OpportunityDocuments,
@@ -86,21 +86,27 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return validationError(validation.error);
   }
 
-  const { quoteId, ...d } = validation.data;
-  if (!quoteId) throw new Error("Could not find quoteId");
-
-  const update = await upsertQuote(client, {
-    id,
-    quoteId,
-    ...d,
-    companyGroupId,
-    customFields: setCustomFields(formData),
-    updatedBy: userId
-  });
-  if (update.error) {
+  const result = await updateQuote(
+    client,
+    {
+      id,
+      name: validation.data.name || null,
+      status: validation.data.status,
+      currencyCode: validation.data.currencyCode,
+      expirationDate: validation.data.expirationDate || null,
+      customerId: validation.data.customerId,
+      customerContactId: validation.data.customerContactId || null,
+      customerLocationId: validation.data.customerLocationId || null,
+      notes: validation.data.notes,
+      customFields: setCustomFields(formData),
+      updatedBy: userId
+    },
+    companyGroupId
+  );
+  if (result.error) {
     throw redirect(
       path.to.quote(id),
-      await flash(request, error(update.error, "Failed to update quote"))
+      await flash(request, error(result.error, "Failed to update quote"))
     );
   }
 

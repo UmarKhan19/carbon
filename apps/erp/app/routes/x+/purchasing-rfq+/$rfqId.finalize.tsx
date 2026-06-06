@@ -14,12 +14,12 @@ import {
   getSupplierContact,
   getSupplierInteractionDocuments,
   getSupplierInteractionLineDocuments,
+  insertSupplierQuote,
   purchasingRfqFinalizeValidator,
   updatePurchasingRFQStatus,
-  upsertSupplierQuote,
   upsertSupplierQuoteLine
 } from "~/modules/purchasing";
-import { getCompany, getNextSequence } from "~/modules/settings";
+import { getCompany } from "~/modules/settings";
 import { upsertExternalLink } from "~/modules/shared";
 import { getUser } from "~/modules/users/users.server";
 import { path } from "~/utils/path";
@@ -119,19 +119,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
       (sc) => sc.supplierId === supplierId
     );
 
-    // Get next sequence number for the supplier quote
-    const sequence = await getNextSequence(client, "supplierQuote", companyId);
-    if (sequence.error || !sequence.data) {
-      console.error("Failed to get sequence:", sequence.error);
-      continue;
-    }
-
     // Create the supplier quote
-    const quoteResult = await upsertSupplierQuote(client, {
-      supplierQuoteId: sequence.data,
-      supplierQuoteType: "Purchase",
+    const quoteResult = await insertSupplierQuote(client, {
       supplierId,
-      quotedDate: new Date().toISOString().split("T")[0],
       companyId,
       companyGroupId,
       createdBy: userId

@@ -20,10 +20,9 @@ import { Submit, Supplier } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { getFixedAsset } from "~/modules/accounting";
 import {
-  upsertPurchaseOrder,
+  insertPurchaseOrder,
   upsertPurchaseOrderLine
 } from "~/modules/purchasing";
-import { getNextSequence } from "~/modules/settings";
 import { getUserDefaults } from "~/modules/users/users.server";
 import { path } from "~/utils/path";
 
@@ -90,23 +89,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const locationId = asset.data.locationId ?? defaults.data?.locationId ?? "";
 
-  const nextSequence = await getNextSequence(
-    client,
-    "purchaseOrder",
-    companyId
-  );
-  if (nextSequence.error) {
-    throw redirect(
-      path.to.fixedAsset(fixedAssetId),
-      await flash(
-        request,
-        error(nextSequence.error, "Failed to get next sequence")
-      )
-    );
-  }
-
-  const newPO = await upsertPurchaseOrder(client, {
-    purchaseOrderId: nextSequence.data!,
+  const newPO = await insertPurchaseOrder(client, {
     supplierId,
     locationId,
     status: "Draft",
@@ -116,7 +99,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     createdBy: userId
   });
 
-  if (newPO.error || !newPO.data?.[0]) {
+  if (newPO.error || !newPO.data) {
     throw redirect(
       path.to.fixedAsset(fixedAssetId),
       await flash(
@@ -126,7 +109,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const purchaseOrderId = newPO.data[0].id;
+  const purchaseOrderId = newPO.data.id;
 
   await upsertPurchaseOrderLine(client, {
     purchaseOrderId,

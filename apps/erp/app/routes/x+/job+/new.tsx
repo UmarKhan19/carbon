@@ -22,7 +22,7 @@ export const handle: Handle = {
 
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { companyId, userId } = await requirePermissions(request, {
     create: "production",
     role: "employee"
   });
@@ -45,17 +45,13 @@ export async function action({ request }: ActionFunctionArgs) {
     }
   }
 
-  const result = await insertJob(
-    client,
-    {
-      ...data,
-      jobId: data.jobId || undefined,
-      companyId,
-      createdBy: userId,
-      customFields: setCustomFields(formData)
-    },
-    { serviceRoleClient: getCarbonServiceRole() }
-  );
+  const result = await insertJob(getCarbonServiceRole(), {
+    ...data,
+    jobId: data.jobId || undefined,
+    companyId,
+    createdBy: userId,
+    customFields: setCustomFields(formData)
+  });
 
   if (result.error || !result.data) {
     throw redirect(
