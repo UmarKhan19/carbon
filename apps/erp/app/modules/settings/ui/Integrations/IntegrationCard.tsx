@@ -1,4 +1,5 @@
 import type { Integration } from "@carbon/ee";
+import { isIntegrationWhitelisted } from "@carbon/ee/plan";
 import {
   Badge,
   Button,
@@ -7,11 +8,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-  cn
+  cn,
+  useRouteData
 } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
 import { Trans } from "@lingui/react/macro";
+import { LuLock } from "react-icons/lu";
 import { Link, useFetcher, useNavigate } from "react-router";
+import { usePlanGate } from "~/hooks/usePlanGate";
 import { path } from "~/utils/path";
 
 export type IntegrationHealth = {
@@ -30,6 +33,9 @@ export function IntegrationCard({
   const fetcher = useFetcher<{}>();
   const navigate = useNavigate();
   const routeData = useRouteData<{ state: string }>(path.to.integrations);
+  const { isGated } = usePlanGate({ feature: "INTEGRATIONS" });
+  const isWhitelisted = isIntegrationWhitelisted(integration.id);
+  const isStarterPlan = isGated && !isWhitelisted;
 
   const getOauthUrl = (integration: Integration) => {
     if ("oauth" in integration && !!integration.oauth) {
@@ -70,7 +76,7 @@ export function IntegrationCard({
   };
 
   return (
-    <Card>
+    <Card data-whitelisted={isGated && isWhitelisted ? "true" : undefined}>
       <div className="pt-6 px-6 h-16 flex items-center justify-between gap-6">
         <integration.logo className="h-10 w-auto" />
         {integration.active ? (
@@ -96,34 +102,54 @@ export function IntegrationCard({
         {integration.description}
       </CardContent>
       <CardFooter className="flex flex-end flex-row-reverse gap-2">
-        <Button isDisabled={!installed} variant="secondary" asChild>
-          <Link to={integration.active && installed ? integration.id : "#"}>
-            <Trans>Details</Trans>
-          </Link>
-        </Button>
-        {installed ? (
-          <fetcher.Form
-            method="post"
-            action={path.to.integrationDeactivate(integration.id)}
-            onSubmit={handleUninstall}
-          >
-            <Button
-              variant="destructive"
-              type="submit"
-              isDisabled={fetcher.state !== "idle"}
-              isLoading={fetcher.state !== "idle"}
-            >
-              <Trans>Uninstall</Trans>
-            </Button>
-          </fetcher.Form>
-        ) : (
-          <Button
-            isDisabled={!integration.active || fetcher.state !== "idle"}
-            isLoading={fetcher.state !== "idle"}
-            onClick={handleInstall}
-          >
-            <Trans>Install</Trans>
+        {isStarterPlan ? (
+          <Button variant="secondary" leftIcon={<LuLock />} asChild>
+            <Link to={path.to.billing}>
+              <Trans>Upgrade</Trans>
+            </Link>
           </Button>
+        ) : (
+          <>
+            <Button
+              isDisabled={!installed}
+              variant="secondary"
+              asChild={!!installed}
+            >
+              {!installed ? (
+                <span>
+                  <Trans>Details</Trans>
+                </span>
+              ) : (
+                <Link to={integration.active ? integration.id : "#"}>
+                  <Trans>Details</Trans>
+                </Link>
+              )}
+            </Button>
+            {installed ? (
+              <fetcher.Form
+                method="post"
+                action={path.to.integrationDeactivate(integration.id)}
+                onSubmit={handleUninstall}
+              >
+                <Button
+                  variant="destructive"
+                  type="submit"
+                  isDisabled={fetcher.state !== "idle"}
+                  isLoading={fetcher.state !== "idle"}
+                >
+                  <Trans>Uninstall</Trans>
+                </Button>
+              </fetcher.Form>
+            ) : (
+              <Button
+                isDisabled={!integration.active || fetcher.state !== "idle"}
+                isLoading={fetcher.state !== "idle"}
+                onClick={handleInstall}
+              >
+                <Trans>Install</Trans>
+              </Button>
+            )}
+          </>
         )}
         {installed && integration.active && (
           <StatusBadge status={installed.health} />

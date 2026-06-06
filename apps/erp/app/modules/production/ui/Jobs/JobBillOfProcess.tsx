@@ -48,14 +48,10 @@ import {
   VStack
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
-import {
-  formatDateTime,
-  formatDurationMilliseconds,
-  formatRelativeTime
-} from "@carbon/utils";
+import { formatDurationMilliseconds } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useNumberFormatter } from "@react-aria/i18n";
+import { useLocale, useNumberFormatter } from "@react-aria/i18n";
 import type { DragControls } from "framer-motion";
 import {
   AnimatePresence,
@@ -81,6 +77,7 @@ import {
   LuMaximize2,
   LuMinimize2,
   LuPaperclip,
+  LuPlay,
   LuRefreshCcw,
   LuSend,
   LuSettings2,
@@ -124,7 +121,13 @@ import InfiniteScroll from "~/components/InfiniteScroll";
 import { ConfirmDelete } from "~/components/Modals";
 import type { Item, SortableItemRenderProps } from "~/components/SortableList";
 import { SortableList, SortableListItem } from "~/components/SortableList";
-import { usePermissions, useRouteData, useUrlParams, useUser } from "~/hooks";
+import {
+  useDateFormatter,
+  usePermissions,
+  useRouteData,
+  useUrlParams,
+  useUser
+} from "~/hooks";
 import type {
   OperationParameter,
   OperationStep,
@@ -158,9 +161,11 @@ import { OperationDueDatePicker } from "./OperationDueDatePicker";
 export type Operation = z.infer<typeof jobOperationValidator> & {
   assignee: string | null;
   dueDate?: string | null;
+  manuallyScheduled?: boolean;
   status: JobOperation["status"];
   tags: string[] | null;
   workInstruction: JSONContent | null;
+  reworkId: string | null;
 };
 
 type ItemWithData = Item & {
@@ -215,9 +220,12 @@ function makeItem(
     id: operation.id!,
     title: (
       <VStack spacing={0}>
-        <h3 className="font-semibold truncate cursor-pointer">
-          {operation.description}
-        </h3>
+        <HStack spacing={2}>
+          <h3 className="font-semibold truncate cursor-pointer">
+            {operation.description}
+          </h3>
+          {operation.reworkId && <Badge variant="red">Rework</Badge>}
+        </HStack>
         {operation.operationType === "Outside" && (
           <SupplierProcessPreview
             processId={operation.processId}
@@ -272,8 +280,29 @@ function makeItem(
           <OperationDueDatePicker
             operationId={operation.id!}
             dueDate={operation.dueDate ?? null}
+            manuallyScheduled={operation.manuallyScheduled}
           />
           <JobOperationTags operation={operation} availableTags={tags} />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <a
+                href={path.to.external.mesJobOperation(operation.id!)}
+                title={t`Open in MES`}
+              >
+                <IconButton
+                  icon={<LuPlay />}
+                  variant="secondary"
+                  aria-label={t`Open in MES`}
+                  size="sm"
+                />
+              </a>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span>
+                <Trans>Open in MES</Trans>
+              </span>
+            </TooltipContent>
+          </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
@@ -325,6 +354,7 @@ const initialOperation: Omit<
   overheadRate: 0,
   processId: "",
   procedureId: "",
+  reworkId: null,
   setupTime: 0,
   setupUnit: "Total Minutes",
   status: "Todo",
@@ -445,6 +475,7 @@ const JobBillOfProcess = ({
       operationsById.set("temporary", {
         ...pendingOperation,
         assignee: null,
+        reworkId: null,
         status: "Todo",
         workInstruction: {},
         jobOperationTool: [],
@@ -1412,6 +1443,7 @@ function StepsListItem({
     createdAt
   } = attribute;
 
+  const { formatRelativeTime } = useDateFormatter();
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
   const submitted = useRef(false);
@@ -1717,6 +1749,7 @@ function StepsListItem({
 }
 
 function PreviewStepRecords({ attribute }: { attribute: JobOperationStep }) {
+  const { formatRelativeTime } = useDateFormatter();
   if (
     !attribute.jobOperationStepRecord ||
     !Array.isArray(attribute.jobOperationStepRecord)
@@ -1771,6 +1804,7 @@ function PreviewStepRecord({
   attribute: JobOperationStep;
   record: any;
 }) {
+  const { formatDateTime } = useDateFormatter();
   const unitOfMeasures = useUnitOfMeasure();
   const [employees] = usePeople();
   const numberFormatter = useNumberFormatter();
@@ -1945,6 +1979,7 @@ function ParametersListItem({
   operationId: string;
   className?: string;
 }) {
+  const { formatRelativeTime } = useDateFormatter();
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
   const submitted = useRef(false);
@@ -2959,6 +2994,7 @@ const getActivityText = (
 };
 
 const ProductionEventActivity = ({ item }: ProductionEventActivityProps) => {
+  const { formatDateTime } = useDateFormatter();
   return (
     <Activity
       employeeId={item.employeeId ?? item.createdBy}
@@ -2991,6 +3027,7 @@ function ToolsListItem({
   operationId: string;
   className?: string;
 }) {
+  const { formatRelativeTime } = useDateFormatter();
   const disclosure = useDisclosure();
   const deleteModalDisclosure = useDisclosure();
   const submitted = useRef(false);
@@ -3215,6 +3252,7 @@ function OperationChat({ jobOperationId }: { jobOperationId: string }) {
   const [employees] = usePeople();
   const [messages, setMessages] = useState<Message[]>([]);
   const { t } = useLingui();
+  const { locale } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { carbon, accessToken } = useCarbon();
@@ -3371,7 +3409,7 @@ function OperationChat({ jobOperationId }: { jobOperationId: string }) {
                           <p className="text-sm">{m.note}</p>
 
                           <span className="text-xs opacity-70">
-                            {new Date(m.createdAt).toLocaleTimeString([], {
+                            {new Date(m.createdAt).toLocaleTimeString(locale, {
                               hour: "2-digit",
                               minute: "2-digit"
                             })}

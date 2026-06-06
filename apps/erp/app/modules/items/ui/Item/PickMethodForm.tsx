@@ -1,5 +1,8 @@
 import { Boolean, useControlField, ValidatedForm } from "@carbon/form";
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
   Card,
   CardAction,
   CardContent,
@@ -8,7 +11,13 @@ import {
   CardTitle,
   ChoiceCardGroup,
   Combobox,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuIcon,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
   HStack,
+  IconButton,
   Label,
   Switch,
   VStack
@@ -16,10 +25,18 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { LuCalendarClock, LuClipboardCheck, LuLayers } from "react-icons/lu";
-import type { z } from "zod";
 import {
-  Combobox as ComboboxFormField,
+  LuCalendarClock,
+  LuClipboardCheck,
+  LuEllipsisVertical,
+  LuLayers,
+  LuSettings,
+  LuTriangleAlert
+} from "react-icons/lu";
+import { Link } from "react-router";
+import type { z } from "zod";
+import { useAuditLog } from "~/components/AuditLog";
+import {
   CustomFormFields,
   Hidden,
   NumberControlled,
@@ -27,7 +44,8 @@ import {
   ShelfLifeStartTiming,
   Submit
 } from "~/components/Form";
-import { usePermissions, useSettings } from "~/hooks";
+import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
+import { usePermissions, useSettings, useUser } from "~/hooks";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import {
@@ -56,6 +74,13 @@ type PickMethodFormProps = {
    * consumed). `Buy and Make` / null keeps every mode.
    */
   replenishmentSystem: ReplenishmentSystem | null;
+  /**
+   * Whether the active make-method has at least one BOM input with a
+   * managed shelf-life policy. Used to warn the user when they pick a
+   * BOM-driven shelf-life option (Calculated mode, or Fixed Duration with
+   * Calculate-from-BOM) but no input would actually contribute an expiry.
+   */
+  bomHasShelfLifeManagedInput?: boolean;
 };
 
 const PickMethodForm = ({
@@ -64,10 +89,12 @@ const PickMethodForm = ({
   storageUnits,
   type,
   itemTrackingType,
-  replenishmentSystem
+  replenishmentSystem,
+  bomHasShelfLifeManagedInput
 }: PickMethodFormProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
+  const { company } = useUser();
 
   const locationOptions = locations.map((location) => ({
     label: location.name,
@@ -76,6 +103,25 @@ const PickMethodForm = ({
 
   const shelfLifeApplicable =
     itemTrackingType === "Serial" || itemTrackingType === "Batch";
+  const { trigger: shelfLifeHistoryTrigger, drawer: shelfLifeHistoryDrawer } =
+    useAuditLog({
+      entityType: "itemShelfLife",
+      entityId: initialValues.itemId,
+      companyId: company.id,
+      variant: "dropdown",
+      triggerLabel: t`Shelf-Life History`,
+      drawerTitle: t`Shelf-Life History`
+    });
+
+  const { trigger: inventoryHistoryTrigger, drawer: inventoryHistoryDrawer } =
+    useAuditLog({
+      entityType: "item",
+      entityId: initialValues.itemId,
+      companyId: company.id,
+      variant: "dropdown",
+      triggerLabel: t`Inventory History`,
+      drawerTitle: t`Inventory History`
+    });
 
   return (
     <Card>
@@ -92,20 +138,42 @@ const PickMethodForm = ({
           </CardHeader>
 
           <CardAction>
-            <Combobox
-              asButton
-              size="sm"
-              value={initialValues.locationId}
-              options={locationOptions}
-              onChange={(selected) => {
-                // hard refresh because initialValues update has no effect otherwise
-                window.location.href = getLocationPath(
-                  initialValues.itemId,
-                  selected,
-                  type
-                );
-              }}
-            />
+            <HStack spacing={2}>
+              <Combobox
+                asButton
+                size="sm"
+                value={initialValues.locationId}
+                options={locationOptions}
+                onChange={(selected) => {
+                  // hard refresh because initialValues update has no effect otherwise
+                  window.location.href = getLocationPath(
+                    initialValues.itemId,
+                    selected,
+                    type
+                  );
+                }}
+              />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <IconButton
+                    aria-label={t`Inventory actions`}
+                    icon={<LuEllipsisVertical />}
+                    size="sm"
+                    variant="secondary"
+                  />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {shelfLifeHistoryTrigger}
+                  {inventoryHistoryTrigger}
+                  <DropdownMenuItem asChild>
+                    <Link to={path.to.auditLog}>
+                      <DropdownMenuIcon icon={<LuSettings />} />
+                      <Trans>Open Audit Log</Trans>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </HStack>
           </CardAction>
         </HStack>
 
@@ -113,10 +181,10 @@ const PickMethodForm = ({
           <Hidden name="itemId" />
           <Hidden name="locationId" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-4 w-full">
-            <ComboboxFormField
+            <StorageUnitDrillSelectField
               name="defaultStorageUnitId"
               label={t`Default Storage Unit`}
-              options={storageUnits}
+              locationId={initialValues.locationId}
               className="w-full"
             />
 
@@ -124,6 +192,7 @@ const PickMethodForm = ({
               <ShelfLifeFields
                 replenishmentSystem={replenishmentSystem}
                 itemId={initialValues.itemId}
+                bomHasShelfLifeManagedInput={bomHasShelfLifeManagedInput}
               />
             )}
 
@@ -136,6 +205,8 @@ const PickMethodForm = ({
           </Submit>
         </CardFooter>
       </ValidatedForm>
+      {shelfLifeHistoryDrawer}
+      {inventoryHistoryDrawer}
     </Card>
   );
 };
@@ -156,10 +227,12 @@ const ALL_SHELF_LIFE_MODES: ManagedShelfLifeMode[] = [
 // (items.service.ts upsertItemShelfLife).
 function ShelfLifeFields({
   replenishmentSystem,
-  itemId
+  itemId,
+  bomHasShelfLifeManagedInput
 }: {
   replenishmentSystem: ReplenishmentSystem | null;
   itemId: string;
+  bomHasShelfLifeManagedInput?: boolean;
 }) {
   const { t } = useLingui();
   const { inventoryShelfLife } = useSettings();
@@ -199,12 +272,8 @@ function ShelfLifeFields({
   );
   const [shelfLifeTriggerProcessId, setShelfLifeTriggerProcessId] =
     useControlField<string | undefined>("shelfLifeTriggerProcessId");
-  const [
-    shelfLifeInheritEarliestInputExpiry,
-    setShelfLifeInheritEarliestInputExpiry
-  ] = useControlField<boolean | undefined>(
-    "shelfLifeInheritEarliestInputExpiry"
-  );
+  const [shelfLifeCalculateFromBom, setShelfLifeCalculateFromBom] =
+    useControlField<boolean | undefined>("shelfLifeCalculateFromBom");
 
   const availableModes = useMemo<ManagedShelfLifeMode[]>(() => {
     return ALL_SHELF_LIFE_MODES.filter((mode) => {
@@ -246,12 +315,12 @@ function ShelfLifeFields({
   useEffect(() => {
     if (replenishmentSystem === "Buy") {
       setShelfLifeTriggerProcessId(undefined);
-      setShelfLifeInheritEarliestInputExpiry(false);
+      setShelfLifeCalculateFromBom(false);
     }
   }, [
     replenishmentSystem,
     setShelfLifeTriggerProcessId,
-    setShelfLifeInheritEarliestInputExpiry
+    setShelfLifeCalculateFromBom
   ]);
 
   // Inherit-from-inputs only applies when mode is Fixed Duration. Coerce
@@ -260,9 +329,9 @@ function ShelfLifeFields({
   // keeps the form submission clean).
   useEffect(() => {
     if (shelfLifeMode !== "Fixed Duration") {
-      setShelfLifeInheritEarliestInputExpiry(false);
+      setShelfLifeCalculateFromBom(false);
     }
-  }, [shelfLifeMode, setShelfLifeInheritEarliestInputExpiry]);
+  }, [shelfLifeMode, setShelfLifeCalculateFromBom]);
 
   const handleToggle = (next: boolean) => {
     setHasShelfLife(next);
@@ -279,7 +348,7 @@ function ShelfLifeFields({
       setShelfLifeMode("");
       setShelfLifeDays(undefined);
       setShelfLifeTriggerProcessId(undefined);
-      setShelfLifeInheritEarliestInputExpiry(false);
+      setShelfLifeCalculateFromBom(false);
     }
   };
 
@@ -351,20 +420,43 @@ function ShelfLifeFields({
               )}
               {/* Make-only: optional input cap. Output expiry never outlasts
                   the earliest input expiry; falls back to the fixed clock
-                  when no input has a date. */}
+                  when no input has a date. Mirrors the inventory-settings
+                  "Calculate from BOM" copy. */}
               <div className="lg:col-span-3">
                 <Boolean
-                  name="shelfLifeInheritEarliestInputExpiry"
-                  label={t`Inherit earliest input expiry`}
+                  name="shelfLifeCalculateFromBom"
+                  label={t`Calculate from BOM`}
                   description={t`Output never outlasts its raw materials. Falls back to the fixed duration when no input has an expiry date.`}
-                  value={!!shelfLifeInheritEarliestInputExpiry}
-                  onChange={(v) => setShelfLifeInheritEarliestInputExpiry(v)}
+                  value={!!shelfLifeCalculateFromBom}
+                  onChange={(v) => setShelfLifeCalculateFromBom(v)}
                 />
               </div>
             </>
           )}
         </>
       )}
+
+      {hasShelfLife &&
+        bomHasShelfLifeManagedInput !== true &&
+        (choiceValue === "Calculated" ||
+          (choiceValue === "Fixed Duration" &&
+            !!shelfLifeCalculateFromBom &&
+            replenishmentSystem !== "Buy")) && (
+          <div className="lg:col-span-3">
+            <Alert variant="warning">
+              <LuTriangleAlert className="h-4 w-4" />
+              <AlertTitle>
+                <Trans>No BOM input has a shelf-life policy</Trans>
+              </AlertTitle>
+              <AlertDescription>
+                <Trans>
+                  This item's bill of materials has no inputs with shelf-life
+                  enabled, so no expiry will be calculated from the BOM.
+                </Trans>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
     </>
   );
 }

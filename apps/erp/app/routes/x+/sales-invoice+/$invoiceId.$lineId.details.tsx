@@ -9,7 +9,6 @@ import { Fragment } from "react/jsx-runtime";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData, useParams } from "react-router";
 import { DeferredFiles } from "~/components";
-import { useRouteData } from "~/hooks";
 import {
   getSalesInvoice,
   getSalesInvoiceLine,
@@ -90,21 +89,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
   const { id, ...d } = validation.data;
 
-  // if (d.invoiceLineType === "G/L Account") {
-  //   d.assetId = undefined;
-  //   d.itemId = undefined;
-  // } else if (d.invoiceLineType === "Fixed Asset") {
-  //   d.accountNumber = undefined;
-  //   d.itemId = undefined;
-  // } else
-  // if (d.invoiceLineType === "Comment") {
-  //   d.accountNumber = undefined;
-  //   d.assetId = undefined;
-  //   d.itemId = undefined;
-  // } else {
-  //   d.accountNumber = undefined;
-  //   d.assetId = undefined;
-  // }
+  if (d.invoiceLineType === "Fixed Asset") {
+    d.accountId = undefined;
+    d.itemId = undefined;
+  } else {
+    d.accountId = undefined;
+    d.assetId = undefined;
+  }
 
   const updateSalesInvoiceLine = await upsertSalesInvoiceLine(client, {
     id: lineId,
@@ -135,11 +126,6 @@ export default function EditSalesInvoiceLineRoute() {
   if (!invoiceId) throw notFound("invoiceId not found");
   if (!lineId) throw notFound("lineId not found");
 
-  const routeData = useRouteData<{
-    salesInvoice: { status: string };
-  }>(path.to.salesInvoice(invoiceId));
-  const isReadOnly = isSalesInvoiceLocked(routeData?.salesInvoice?.status);
-
   const { salesInvoiceLine, files } = useLoaderData<typeof loader>();
 
   const initialValues = {
@@ -149,7 +135,7 @@ export default function EditSalesInvoiceLineRoute() {
     methodType: (salesInvoiceLine?.methodType ??
       "Pull from Inventory") as "Pull from Inventory",
     itemId: salesInvoiceLine?.itemId ?? "",
-    accountNumber: salesInvoiceLine?.accountNumber ?? "",
+    accountId: salesInvoiceLine?.accountId ?? "",
     addOnCost: salesInvoiceLine?.addOnCost ?? 0,
     nonTaxableAddOnCost: salesInvoiceLine?.nonTaxableAddOnCost ?? 0,
     assetId: salesInvoiceLine?.assetId ?? "",
@@ -161,6 +147,8 @@ export default function EditSalesInvoiceLineRoute() {
     exchangeRate: salesInvoiceLine?.exchangeRate ?? 1,
     unitOfMeasureCode: salesInvoiceLine?.unitOfMeasureCode ?? "",
     storageUnitId: salesInvoiceLine?.storageUnitId ?? "",
+    assetReadableId: (salesInvoiceLine as any)?.assetReadableId ?? undefined,
+    assetName: (salesInvoiceLine as any)?.assetName ?? undefined,
     ...getCustomFields(salesInvoiceLine?.customFields)
   };
 
@@ -189,7 +177,6 @@ export default function EditSalesInvoiceLineRoute() {
             lineId={lineId}
             itemId={salesInvoiceLine?.itemId}
             type="Sales Invoice"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

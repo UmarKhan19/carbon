@@ -103,7 +103,6 @@ const Item = ({
   const translateItemType = useTranslatedItemType();
   const [items] = useItems();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   const options = useMemo(() => {
     let results = items
       .filter((item) => {
@@ -160,7 +159,8 @@ const Item = ({
     props.locationId,
     props.replenishmentSystem,
     props.whitelist,
-    type
+    type,
+    validItemTypes
   ]);
 
   const selectTypeModal = useDisclosure();
@@ -405,7 +405,7 @@ const Item = ({
                 : "Make to Order",
             unitCost: 0,
             lotSize: 0,
-            shelfLifeInheritEarliestInputExpiry: false,
+            shelfLifeCalculateFromBom: false,
             tags: []
           }}
         />
@@ -427,7 +427,7 @@ const Item = ({
             replenishmentSystem: "Buy",
             defaultMethodType: "Pull from Inventory",
             unitCost: 0,
-            shelfLifeInheritEarliestInputExpiry: false,
+            shelfLifeCalculateFromBom: false,
             tags: []
           }}
         />
@@ -451,7 +451,7 @@ const Item = ({
             replenishmentSystem: "Buy",
             defaultMethodType: "Pull from Inventory",
             unitCost: 0,
-            shelfLifeInheritEarliestInputExpiry: false,
+            shelfLifeCalculateFromBom: false,
             tags: []
           }}
         />
@@ -478,7 +478,7 @@ const Item = ({
                 ? "Pull from Inventory"
                 : "Make to Order",
             unitCost: 0,
-            shelfLifeInheritEarliestInputExpiry: false,
+            shelfLifeCalculateFromBom: false,
             tags: []
           }}
         />

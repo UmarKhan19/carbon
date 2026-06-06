@@ -3,6 +3,7 @@ import { zfd } from "zod-form-data";
 import { address, contact } from "~/types/validators";
 import { currencyCodes } from "../accounting";
 import {
+  incoterms,
   methodItemType,
   methodOperationOrders,
   methodType,
@@ -46,9 +47,7 @@ export const salesRFQStatusType = [
 
 export const customerAccountingValidator = z.object({
   id: zfd.text(z.string()),
-  customerTypeId: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional())
+  customerTypeId: zfd.text(z.string().optional())
 });
 
 export const customerContactValidator = z.object({
@@ -65,20 +64,53 @@ export const customerLocationValidator = z.object({
 
 export const customerValidator = z.object({
   id: zfd.text(z.string().optional()),
+  readableId: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
   customerStatusId: zfd.text(z.string().optional()),
   customerTypeId: zfd.text(z.string().optional()),
   accountManagerId: zfd.text(z.string().optional()),
   currencyCode: zfd.text(z.string().optional()),
-  taxId: zfd.text(z.string().optional()),
   taxPercent: zfd.numeric(
     z.number().min(0).max(1, { message: "Tax percent must be between 0 and 1" })
   ),
-  vatNumber: zfd.text(z.string().optional()),
   salesContactId: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional())
   // defaultCc: z.array(z.string().email()).default([])
 });
+
+export const taxExemptionReasons = [
+  "Resale",
+  "Government",
+  "Nonprofit",
+  "Agriculture",
+  "Industrial",
+  "Export",
+  "Medical",
+  "Educational",
+  "Religious",
+  "Other"
+] as const;
+
+export const customerTaxValidator = z
+  .object({
+    customerId: z.string().min(1),
+    taxId: zfd.text(z.string().optional()),
+    vatNumber: zfd.text(z.string().optional()),
+    eori: zfd.text(z.string().optional()),
+    taxExempt: z.coerce.boolean().default(false),
+    taxExemptionReason: z.preprocess(
+      (val) => (val === "" ? undefined : val),
+      z.enum(taxExemptionReasons).optional().nullable()
+    ),
+    taxExemptionCertificateNumber: zfd.text(z.string().optional())
+  })
+  .refine(
+    (data) => !data.taxExempt || (data.taxExempt && data.taxExemptionReason),
+    {
+      message: "Exemption reason is required when tax exempt",
+      path: ["taxExemptionReason"]
+    }
+  );
 
 export const customerPaymentValidator = z.object({
   customerId: z.string().min(1, { message: "Customer is required" }),
@@ -94,7 +126,9 @@ export const customerShippingValidator = z.object({
   shippingCustomerLocationId: zfd.text(z.string().optional()),
   shippingCustomerContactId: zfd.text(z.string().optional()),
   // shippingTermId: zfd.text(z.string().optional()),
-  shippingMethodId: zfd.text(z.string().optional())
+  shippingMethodId: zfd.text(z.string().optional()),
+  incoterm: zfd.text(z.enum(incoterms).optional()),
+  incotermLocation: zfd.text(z.string().optional())
 });
 
 export const customerStatusValidator = z.object({
@@ -224,7 +258,6 @@ export const pricingRuleValidator = z
     validFrom: zfd.text(z.string().optional()),
     validTo: zfd.text(z.string().optional()),
     priority: zfd.numeric(z.number().int().min(0).optional().default(0)),
-    minMarginPercent: zfd.numeric(z.number().min(0).max(1).optional()),
     active: zfd.checkbox()
   })
   .refine((d) => d.amountType !== "Percentage" || d.amount <= 1, {
@@ -627,7 +660,9 @@ export const quoteShipmentValidator = z.object({
   locationId: zfd.text(z.string().optional()),
   shippingMethodId: zfd.text(z.string().optional()),
   receiptRequestedDate: zfd.text(z.string().optional()),
-  shippingCost: zfd.numeric(z.number().optional())
+  shippingCost: zfd.numeric(z.number().optional()),
+  incoterm: zfd.text(z.enum(incoterms).optional()),
+  incotermLocation: zfd.text(z.string().optional())
 });
 
 export const salesOrderLineType = [
@@ -704,7 +739,9 @@ export const salesOrderShipmentValidator = z
     supplierId: zfd.text(z.string().optional()),
     supplierLocationId: zfd.text(z.string().optional()),
     shippingCost: zfd.numeric(z.number().optional()),
-    notes: zfd.text(z.string().optional())
+    notes: zfd.text(z.string().optional()),
+    incoterm: zfd.text(z.enum(incoterms).optional()),
+    incotermLocation: zfd.text(z.string().optional())
   })
   .refine(
     (data) => {
@@ -728,7 +765,7 @@ export const salesOrderLineValidator = z
         message: "Type is required"
       })
     }),
-    accountNumber: zfd.text(z.string().optional()),
+    accountId: zfd.text(z.string().optional()),
     shippingCost: zfd.numeric(z.number().optional()),
     addOnCost: zfd.numeric(z.number().optional()),
     nonTaxableAddOnCost: zfd.numeric(z.number().optional()),
@@ -785,8 +822,11 @@ export const salesOrderLineValidator = z
   )
   .refine(
     (data) => {
-      // If sales order line type is not "Comment", we require a method type
-      if (data.salesOrderLineType !== "Comment" && !data.methodType) {
+      if (
+        data.salesOrderLineType !== "Comment" &&
+        data.salesOrderLineType !== "Fixed Asset" &&
+        !data.methodType
+      ) {
         return false;
       }
       return true;
@@ -794,6 +834,16 @@ export const salesOrderLineValidator = z
     {
       message: "Method type is required",
       path: ["methodType"]
+    }
+  )
+  .refine(
+    (data) =>
+      data.salesOrderLineType === "Fixed Asset"
+        ? (data.saleQuantity ?? 1) === 1
+        : true,
+    {
+      message: "Fixed Asset quantity must be 1",
+      path: ["saleQuantity"]
     }
   );
 

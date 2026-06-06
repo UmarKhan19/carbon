@@ -4,10 +4,13 @@ import {
   LuCog,
   LuContact,
   LuCreditCard,
+  LuFiles,
   LuLayoutList,
   LuMapPin,
   LuPackageSearch,
-  LuShieldAlert
+  LuReceipt,
+  LuShieldAlert,
+  LuTruck
 } from "react-icons/lu";
 import { useParams } from "react-router";
 import { usePermissions } from "~/hooks";
@@ -56,11 +59,31 @@ export function useSupplierSidebar({ contacts, locations }: Props) {
       shortcut: "Command+Shift+p"
     },
     {
+      name: t`Tax`,
+      to: path.to.supplierTax(supplierId),
+      role: ["employee"],
+      icon: <LuReceipt />,
+      shortcut: "Command+Shift+t"
+    },
+    {
+      name: t`Shipping`,
+      to: path.to.supplierShipping(supplierId),
+      role: ["employee"],
+      icon: <LuTruck />,
+      shortcut: "Command+Shift+s"
+    },
+    {
       name: t`Processes`,
       to: path.to.supplierProcesses(supplierId),
       role: ["employee"],
       icon: <LuCog />,
       shortcut: "Command+Shift+r"
+    },
+    {
+      name: t`Default Attachments`,
+      to: path.to.supplierDefaultAttachments(supplierId),
+      role: ["employee"],
+      icon: <LuFiles />
     },
     {
       name: t`Risks`,

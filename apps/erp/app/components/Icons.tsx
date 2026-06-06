@@ -7,42 +7,59 @@ import {
   Status,
   Tooltip,
   TooltipContent,
-  TooltipTrigger
+  TooltipTrigger,
+  useMode
 } from "@carbon/react";
-import { useMode } from "@carbon/remix";
 import { getColor } from "@carbon/utils";
 import type { ReactNode } from "react";
 import { AiOutlinePartition } from "react-icons/ai";
 import { FaCodePullRequest } from "react-icons/fa6";
 import {
+  LuArrowLeftRight,
   LuAtom,
   LuBarcode,
+  LuBookOpen,
   LuBox,
+  LuBuilding,
+  LuBuilding2,
   LuCircle,
   LuCircleCheck,
   LuCircleDashed,
+  LuCircleDollarSign,
+  LuCirclePlay,
   LuCircleX,
   LuClipboardCheck,
   LuClock,
   LuClock3,
+  LuCog,
+  LuContainer,
+  LuCreditCard,
   LuExternalLink,
   LuEye,
   LuFlaskConical,
   LuGroup,
   LuHammer,
+  LuHandCoins,
   LuHardHat,
   LuHeadphones,
   LuImage,
+  LuLandmark,
   LuList,
+  LuMapPin,
+  LuPackage,
   LuPizza,
   LuQrCode,
+  LuRotateCcw,
   LuShoppingCart,
   LuSquare,
+  LuTags,
   LuTarget,
   LuTimer,
   LuToggleLeft,
   LuTruck,
-  LuUser
+  LuUser,
+  LuUsers,
+  LuWrench
 } from "react-icons/lu";
 import { RxCodesandboxLogo } from "react-icons/rx";
 import { TbTargetOff } from "react-icons/tb";
@@ -50,6 +67,10 @@ import { Link } from "react-router";
 import { AlmostDoneIcon } from "~/assets/icons/AlmostDoneIcon";
 import { InProgressStatusIcon } from "~/assets/icons/InProgressStatusIcon";
 import { TodoStatusIcon } from "~/assets/icons/TodoStatusIcon";
+import type {
+  dimensionEntityTypes,
+  journalEntrySourceTypes
+} from "~/modules/accounting";
 import type { JobOperation } from "~/modules/production/types";
 import type { nonConformanceTaskStatus } from "~/modules/quality";
 import type { MethodType } from "~/modules/shared";
@@ -533,6 +554,84 @@ export const JiraIcon = (props: React.SVGProps<SVGSVGElement>) => {
       />
     </svg>
   );
+};
+
+export const JournalEntrySourceTypeIcon = ({
+  sourceType,
+  className
+}: {
+  sourceType: (typeof journalEntrySourceTypes)[number];
+  className?: string;
+}) => {
+  switch (sourceType) {
+    case "Manual":
+      return <LuBookOpen className={className} />;
+    case "Purchase Receipt":
+      return <LuHandCoins className={className} />;
+    case "Purchase Invoice":
+      return <LuCreditCard className={className} />;
+    case "Purchase Return":
+      return <LuRotateCcw className={className} />;
+    case "Sales Invoice":
+      return <LuCreditCard className={className} />;
+    case "Sales Shipment":
+      return <LuTruck className={className} />;
+    case "Sales Return":
+      return <LuRotateCcw className={className} />;
+    case "Transfer Receipt":
+      return <LuArrowLeftRight className={className} />;
+    case "Inventory Adjustment":
+      return <LuPackage className={className} />;
+    case "Production Order":
+      return <LuCirclePlay className={className} />;
+    case "Job Consumption":
+      return <LuHammer className={className} />;
+    case "Job Receipt":
+      return <LuClipboardCheck className={className} />;
+    case "Production Event":
+      return <LuHardHat className={className} />;
+    case "Job Close":
+      return <LuCircleCheck className={className} />;
+    case "Asset Depreciation":
+      return <LuClock className={className} />;
+    case "Asset Disposal":
+      return <LuBuilding2 className={className} />;
+  }
+
+  return <LuSquare className={cn("text-muted-foreground", className)} />;
+};
+
+export const DimensionEntityTypeIcon = ({
+  entityType,
+  className
+}: {
+  entityType: (typeof dimensionEntityTypes)[number];
+  className?: string;
+}) => {
+  switch (entityType) {
+    case "Custom":
+      return <LuTags className={className} />;
+    case "Location":
+      return <LuMapPin className={className} />;
+    case "ItemPostingGroup":
+      return <LuGroup className={className} />;
+    case "SupplierType":
+      return <LuContainer className={className} />;
+    case "CustomerType":
+      return <LuUsers className={className} />;
+    case "Department":
+      return <LuBuilding className={className} />;
+    case "Employee":
+      return <LuUser className={className} />;
+    case "FixedAssetClass":
+      return <LuLandmark className={className} />;
+    case "CostCenter":
+      return <LuCircleDollarSign className={className} />;
+    case "WorkCenter":
+      return <LuWrench className={className} />;
+    case "Process":
+      return <LuCog className={className} />;
+  }
 };
 
 export const JiraIssueStatusBadge = (props: {

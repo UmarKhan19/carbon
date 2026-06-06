@@ -14,6 +14,9 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { useState } from "react";
 import type { FetcherWithComponents } from "react-router";
 import { useParams } from "react-router";
+import AttachmentsList, {
+  type ResolvedAttachmentItem
+} from "~/components/AttachmentsList";
 import {
   EmailRecipients,
   SelectControlled,
@@ -29,13 +32,15 @@ type PurchaseOrderFinalizeModalProps = {
   fetcher: FetcherWithComponents<unknown>;
   onClose: () => void;
   defaultCc?: string[];
+  resolvedAttachments?: ResolvedAttachmentItem[];
 };
 
 const PurchaseOrderFinalizeModal = ({
   purchaseOrder,
   onClose,
   fetcher,
-  defaultCc = []
+  defaultCc = [],
+  resolvedAttachments = []
 }: PurchaseOrderFinalizeModalProps) => {
   const { orderId } = useParams();
   if (!orderId) throw new Error("orderId not found");
@@ -103,10 +108,22 @@ const PurchaseOrderFinalizeModal = ({
               {notificationType === "Email" && (
                 <>
                   <SupplierContact
+                    isOptional={false}
                     name="supplierContact"
                     supplier={purchaseOrder?.supplierId ?? undefined}
                   />
-                  <EmailRecipients name="cc" label={t`CC`} type="employee" />
+                  <EmailRecipients
+                    name="cc"
+                    label={t`CC`}
+                    type="supplier"
+                    helperText={t`Type an email and press Enter to add an external recipient`}
+                  />
+                  <AttachmentsList
+                    supplierInteractionId={
+                      purchaseOrder?.supplierInteractionId ?? null
+                    }
+                    attachments={resolvedAttachments}
+                  />
                 </>
               )}
             </VStack>

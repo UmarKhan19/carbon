@@ -9,12 +9,14 @@ import { validator } from "@carbon/form";
 import { LocaleProvider, resolveLanguage } from "@carbon/locale";
 import {
   Button,
+  getPreferenceHeaders,
   Heading,
   OperatingSystemContextProvider,
   Toaster,
+  TooltipProvider,
+  useMode,
   useMount
 } from "@carbon/react";
-import { getPreferenceHeaders, useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
 import { modeValidator, themes } from "@carbon/utils";
 import { I18nProvider } from "@react-aria/i18n";
@@ -52,10 +54,10 @@ export const clientMiddleware = [flashClientMiddleware];
 
 export const links: LinksFunction = () => {
   return [
-    { rel: "stylesheet", href: Tailwind },
-    { rel: "stylesheet", href: Background },
-    { rel: "stylesheet", href: NProgress },
-    { rel: "stylesheet", href: SonnerStyle }
+    { href: Tailwind, rel: "stylesheet" },
+    { href: Background, rel: "stylesheet" },
+    { href: NProgress, rel: "stylesheet" },
+    { href: SonnerStyle, rel: "stylesheet" }
   ];
 };
 
@@ -69,6 +71,7 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request, context }: LoaderFunctionArgs) {
   const {
+    AUTH_PROVIDERS,
     CARBON_EDITION,
     CARBON_API_URL,
     CLOUDFLARE_TURNSTILE_SITE_KEY,
@@ -77,14 +80,13 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     GOOGLE_PLACES_API_KEY,
     JIRA_CLIENT_ID,
     MES_URL,
-    NOVU_APPLICATION_ID,
-    NOVU_API_URL,
     ONSHAPE_CLIENT_ID,
     POSTHOG_API_HOST,
     POSTHOG_PROJECT_PUBLIC_KEY,
     QUICKBOOKS_CLIENT_ID,
     SUPABASE_ANON_KEY,
     SUPABASE_URL,
+    DEFAULT_LANGUAGE,
     VERCEL_ENV,
     VERCEL_URL,
     XERO_CLIENT_ID
@@ -97,16 +99,16 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
   return data(
     {
       env: {
-        CARBON_EDITION,
+        AUTH_PROVIDERS,
         CARBON_API_URL,
+        CARBON_EDITION,
         CLOUDFLARE_TURNSTILE_SITE_KEY,
         CONTROLLED_ENVIRONMENT,
+        DEFAULT_LANGUAGE,
         ERP_URL,
         GOOGLE_PLACES_API_KEY,
         JIRA_CLIENT_ID,
         MES_URL,
-        NOVU_APPLICATION_ID,
-        NOVU_API_URL,
         ONSHAPE_CLIENT_ID,
         POSTHOG_API_HOST,
         POSTHOG_PROJECT_PUBLIC_KEY,
@@ -117,11 +119,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
         VERCEL_URL,
         XERO_CLIENT_ID
       },
-      mode: getMode(request),
-      theme: getTheme(request),
-      preferences: getPreferenceHeaders(request),
       linguiCatalog,
-      result: context.get(flashResultContext)
+      mode: getMode(request),
+      preferences: getPreferenceHeaders(request),
+      result: context.get(flashResultContext),
+      theme: getTheme(request)
     },
     {
       headers: context.get(flashHeadersContext) ?? undefined
@@ -130,6 +132,14 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (
+    !contentType.includes("multipart/form-data") &&
+    !contentType.includes("application/x-www-form-urlencoded")
+  ) {
+    return data({ error: "Invalid content type" }, { status: 400 });
+  }
+
   const validation = await validator(modeValidator).validate(
     await request.formData()
   );
@@ -231,9 +241,9 @@ export default function App() {
       window.clientCache = new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: Infinity,
+            gcTime: Infinity,
             refetchOnWindowFocus: false,
-            gcTime: Infinity
+            staleTime: Infinity
           }
         }
       });
@@ -244,14 +254,16 @@ export default function App() {
     <OperatingSystemContextProvider platform={prefs.platform}>
       <LocaleProvider locale={appLanguage} catalog={linguiCatalog}>
         <I18nProvider locale={prefs.locale}>
-          <Document mode={mode} theme={theme} lang={appLanguage}>
-            <Outlet />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.env = ${JSON.stringify(env)};`
-              }}
-            />
-          </Document>
+          <TooltipProvider delayDuration={200}>
+            <Document mode={mode} theme={theme} lang={appLanguage}>
+              <Outlet />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `window.env = ${JSON.stringify(env)};`
+                }}
+              />
+            </Document>
+          </TooltipProvider>
         </I18nProvider>
       </LocaleProvider>
     </OperatingSystemContextProvider>
@@ -270,9 +282,14 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       <div className="light">
         <div className="flex flex-col w-full h-screen items-center justify-center space-y-4 ">
           <img
-            src="/carbon-logo-mark.svg"
+            src="/carbon-mark-light.svg"
             alt="Carbon Logo"
-            className="block max-w-[60px]"
+            className="block max-w-[60px] dark:hidden"
+          />
+          <img
+            src="/carbon-mark-dark.svg"
+            alt="Carbon Logo"
+            className="max-w-[60px] hidden dark:block"
           />
           <Heading size="h1">Something went wrong</Heading>
           <p className="text-muted-foreground max-w-2xl">{message}</p>

@@ -1,5 +1,9 @@
 import { CONTROLLED_ENVIRONMENT } from "@carbon/auth";
 import {
+  getSortedLanguageSelectOptions,
+  resolveLanguage
+} from "@carbon/locale";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuIcon,
@@ -12,17 +16,22 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  ItarDisclosure,
   Switch,
-  useDisclosure
+  useDisclosure,
+  useEdition,
+  useMode
 } from "@carbon/react";
-import { ItarDisclosure, useEdition, useMode } from "@carbon/remix";
 import { Edition, themes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useRef, useState } from "react";
+import { useLocale } from "@react-aria/i18n";
+import { useMemo, useState } from "react";
 import {
+  LuCheck,
   LuCreditCard,
   LuFileText,
   LuHouse,
+  LuLanguages,
   LuLogOut,
   LuMoon,
   LuPalette,
@@ -35,6 +44,7 @@ import { Avatar } from "~/components";
 import { usePermissions, useUser } from "~/hooks";
 import { useTheme } from "~/hooks/useTheme";
 import type { action } from "~/root";
+import { startModeTransition } from "~/utils/dom";
 import { path } from "~/utils/path";
 
 const AvatarMenu = () => {
@@ -48,11 +58,27 @@ const AvatarMenu = () => {
   const serverTheme = useTheme();
 
   const nextMode = mode === "dark" ? "light" : "dark";
-  const modeSubmitRef = useRef<HTMLButtonElement>(null);
 
   const fetcher = useFetcher<typeof action>();
+
+  const onModeToggle = () => {
+    const formData = new FormData();
+    formData.append("mode", nextMode);
+    startModeTransition(nextMode, () => {
+      fetcher.submit(formData, { method: "post", action: path.to.root });
+    });
+  };
+  const localeFetcher = useFetcher<{ ok?: boolean }>();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
+
+  const { locale } = useLocale();
+  const resolvedLocale = resolveLanguage(locale);
+
+  const languageOptions = useMemo(
+    () => getSortedLanguageSelectOptions(locale),
+    [locale]
+  );
 
   const onThemeChange = (t: string) => {
     const newTheme = themes.find((theme) => theme.name === t);
@@ -81,7 +107,7 @@ const AvatarMenu = () => {
         <DropdownMenuTrigger className="outline-none focus-visible:outline-none">
           <Avatar path={user.avatarUrl} name={name} />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuContent align="end" className="w-64">
           <DropdownMenuLabel>{t`Signed in as ${name}`}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
@@ -110,23 +136,8 @@ const AvatarMenu = () => {
               <div>
                 <Switch
                   checked={mode === "dark"}
-                  onCheckedChange={() => modeSubmitRef.current?.click()}
+                  onCheckedChange={onModeToggle}
                 />
-                <fetcher.Form
-                  action={path.to.root}
-                  method="post"
-                  onSubmit={() => {
-                    document.body.removeAttribute("style");
-                  }}
-                  className="sr-only"
-                >
-                  <input type="hidden" name="mode" value={nextMode} />
-                  <button
-                    ref={modeSubmitRef}
-                    className="sr-only"
-                    type="submit"
-                  />
-                </fetcher.Form>
               </div>
             </div>
           </DropdownMenuItem>
@@ -154,7 +165,7 @@ const AvatarMenu = () => {
                     }
                   >
                     <div className="flex items-center">
-                      <div className="w-4 h-4 rounded-full mr-2 bg-[--theme-primary]" />
+                      <div className="w-4 h-4 rounded-full mr-2 bg-[var(--theme-primary)]" />
                       {t.label}
                     </div>
                   </DropdownMenuRadioItem>
@@ -162,7 +173,44 @@ const AvatarMenu = () => {
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger disabled={localeFetcher.state !== "idle"}>
+              <DropdownMenuIcon icon={<LuLanguages />} />
+              <Trans>Language</Trans>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <localeFetcher.Form method="post" action="/api/locale">
+                {languageOptions.map((opt) => (
+                  <DropdownMenuItem key={opt.value} asChild>
+                    <button
+                      type="submit"
+                      name="locale"
+                      value={opt.value}
+                      disabled={
+                        localeFetcher.state !== "idle" ||
+                        opt.value === resolvedLocale
+                      }
+                      className="flex w-full cursor-default items-center rounded-sm px-2 py-1.5 text-left text-sm outline-none focus:bg-accent data-[highlighted]:bg-accent"
+                    >
+                      <span
+                        className={
+                          opt.value === resolvedLocale
+                            ? "font-medium"
+                            : undefined
+                        }
+                      >
+                        {opt.label}
+                      </span>
+                      {opt.value === resolvedLocale ? (
+                        <LuCheck className="ml-auto h-4 w-4 shrink-0" />
+                      ) : null}
+                    </button>
+                  </DropdownMenuItem>
+                ))}
+              </localeFetcher.Form>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to={path.to.profile}>

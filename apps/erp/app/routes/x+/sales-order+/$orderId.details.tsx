@@ -107,7 +107,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     message: "Cannot modify a locked sales order. Reopen it first."
   });
 
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -125,6 +125,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     id,
     salesOrderId,
     ...d,
+    companyGroupId,
     customFields: setCustomFields(formData),
     updatedBy: userId
   });
@@ -157,8 +158,6 @@ export default function SalesOrderDetailsRoute() {
 
   if (!orderData) throw new Error("Could not find order data");
 
-  const isReadOnly = isSalesOrderLocked(orderData.salesOrder.status);
-
   const shipmentFormRef = useRef<SalesOrderShipmentFormRef>(null);
 
   const handleEditShippingCost = () => {
@@ -179,6 +178,8 @@ export default function SalesOrderDetailsRoute() {
     customerId: shipment?.customerId ?? "",
     customerLocationId: shipment?.customerLocationId ?? "",
     shippingCost: shipment?.shippingCost ?? 0,
+    incoterm: shipment?.incoterm ?? undefined,
+    incotermLocation: shipment?.incotermLocation ?? "",
     ...getCustomFields(shipment?.customFields)
   };
 
@@ -215,7 +216,6 @@ export default function SalesOrderDetailsRoute() {
             attachments={resolvedFiles}
             id={orderId}
             type="Sales Order"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

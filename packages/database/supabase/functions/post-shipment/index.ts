@@ -1,11 +1,16 @@
 import { serve } from "https://deno.land/std@0.175.0/http/server.ts";
 import { format } from "https://deno.land/std@0.205.0/datetime/mod.ts";
+import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/mod.ts";
 import { z } from "https://deno.land/x/zod@v3.21.4/mod.ts";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import type { Database, Json } from "../lib/types.ts";
-import { TrackedEntityAttributes } from "../lib/utils.ts";
+import { TrackedEntityAttributes, credit, debit, journalReference } from "../lib/utils.ts";
+import { calculateCOGS } from "../shared/calculate-cogs.ts";
+import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
+import { getNextSequence } from "../shared/get-next-sequence.ts";
+import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -139,8 +144,66 @@ serve(async (req: Request) => {
               .single();
             if (customer.error) throw new Error("Failed to fetch customer");
 
+            const [companyRecord, accountingSettings] = await Promise.all([
+              client
+                .from("company")
+                .select("companyGroupId")
+                .eq("id", companyId)
+                .single(),
+              client
+                .from("companySettings")
+                .select("accountingEnabled")
+                .eq("id", companyId)
+                .single(),
+            ]);
+            if (companyRecord.error) throw new Error("Failed to fetch company");
+            const companyGroupId = companyRecord.data.companyGroupId;
+            const accountingEnabled = accountingSettings.data?.accountingEnabled ?? false;
+
+            const accountDefaults = accountingEnabled
+              ? await getDefaultPostingGroup(client, companyId)
+              : null;
+            if (accountingEnabled && (accountDefaults?.error || !accountDefaults?.data)) {
+              throw new Error("Error getting account defaults");
+            }
+
+            const dimensions = accountingEnabled
+              ? await client
+                  .from("dimension")
+                  .select("id, entityType")
+                  .eq("companyGroupId", companyGroupId)
+                  .eq("active", true)
+                  .in("entityType", [
+                    "CustomerType",
+                    "ItemPostingGroup",
+                    "Location",
+                    "CostCenter",
+                    "FixedAssetClass",
+                  ])
+              : null;
+
+            const dimensionMap = new Map<string, string>();
+            if (dimensions?.data) {
+              for (const dim of dimensions.data) {
+                if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
+              }
+            }
+
             const itemLedgerInserts: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
               [];
+
+            const journalLineInserts: Omit<
+              Database["public"]["Tables"]["journalLine"]["Insert"],
+              "journalId"
+            >[] = [];
+
+            const journalLineDimensionsMeta: {
+              customerTypeId: string | null;
+              itemPostingGroupId: string | null;
+              locationId: string | null;
+              costCenterId: string | null;
+              fixedAssetClassId: string | null;
+            }[] = [];
 
             const jobUpdates: Record<
               string,
@@ -151,6 +214,10 @@ serve(async (req: Request) => {
 
             const locationId = shipment.data.locationId;
             for await (const shipmentLine of shipmentLines.data) {
+              const salesOrderLine = salesOrderLines.data.find(
+                (sol) => sol.id === shipmentLine.lineId
+              );
+
               if (
                 shipmentLine.fulfillment?.type === "Job" &&
                 shipmentLine.fulfillment?.jobId
@@ -258,7 +325,6 @@ serve(async (req: Request) => {
                     quantityShipped: newQuantityShipped,
                   };
                 }
-                continue;
               }
 
               const itemTrackingType =
@@ -341,6 +407,62 @@ serve(async (req: Request) => {
                   }
                 });
               }
+
+              // COGS journal entries for this shipment line
+              if (
+                accountingEnabled &&
+                accountDefaults?.data &&
+                shipmentLine.itemId &&
+                shippedQuantity > 0 &&
+                itemTrackingType !== "Non-Inventory"
+              ) {
+                const itemPostingGroupId =
+                  itemCosts.data.find(
+                    (cost) => cost.itemId === shipmentLine.itemId
+                  )?.itemPostingGroupId ?? null;
+
+                const salesOrderLine = salesOrderLines.data.find(
+                  (sol) => sol.id === shipmentLine.lineId
+                );
+
+                const journalLineReference = nanoid();
+
+                journalLineInserts.push({
+                  accountId: accountDefaults.data.costOfGoodsSoldAccount,
+                  description: "Cost of Goods Sold",
+                  amount: 0,
+                  quantity: shippedQuantity,
+                  documentType: "Sales Shipment",
+                  documentId: shipment.data?.id,
+                  externalDocumentId: salesOrder.data?.customerReference ?? undefined,
+                  documentLineReference: journalReference.to.shipment(shipmentLine.id),
+                  journalLineReference,
+                  companyId,
+                });
+
+                journalLineInserts.push({
+                  accountId: accountDefaults.data.inventoryAccount,
+                  description: "Inventory Account",
+                  amount: 0,
+                  quantity: shippedQuantity,
+                  documentType: "Sales Shipment",
+                  documentId: shipment.data?.id,
+                  externalDocumentId: salesOrder.data?.customerReference ?? undefined,
+                  documentLineReference: journalReference.to.shipment(shipmentLine.id),
+                  journalLineReference,
+                  companyId,
+                });
+
+                for (let i = 0; i < 2; i++) {
+                  journalLineDimensionsMeta.push({
+                    customerTypeId: customer.data.customerTypeId ?? null,
+                    itemPostingGroupId,
+                    locationId: shipmentLine.locationId ?? locationId ?? null,
+                    costCenterId: salesOrderLine?.costCenterId ?? null,
+                    fixedAssetClassId: null,
+                  });
+                }
+              }
             }
 
             const shipmentLinesBySalesOrderLineId = shipmentLines.data.reduce<
@@ -412,6 +534,154 @@ serve(async (req: Request) => {
               return acc;
             }, {});
 
+            // Process Fixed Asset SO lines (no shipment lines — handled directly from SO)
+            const { data: shipmentFaLines } = await client
+              .from("shipmentFixedAssetLine")
+              .select("salesOrderLineId, serialNumber")
+              .eq("shipmentId", shipmentId)
+              .eq("shipped", true);
+            const shippedFaSoLineIds = new Set(
+              (shipmentFaLines ?? []).map((r) => r.salesOrderLineId)
+            );
+
+            const faSalesOrderLines = salesOrderLines.data.filter(
+              (sol) =>
+                sol.salesOrderLineType === "Fixed Asset" &&
+                sol.assetId &&
+                !sol.sentComplete &&
+                sol.saleQuantity &&
+                sol.saleQuantity > 0 &&
+                shippedFaSoLineIds.has(sol.id)
+            );
+
+            for (const faSoLine of faSalesOrderLines) {
+              if (accountingEnabled && accountDefaults?.data) {
+                const assetRecord = await client
+                  .from("fixedAsset")
+                  .select(
+                    "id, status, acquisitionCost, accumulatedDepreciation, locationId, fixedAssetClassId, fixedAssetClass:fixedAssetClassId(assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
+                  )
+                  .eq("id", faSoLine.assetId!)
+                  .single();
+
+                if (assetRecord.error)
+                  throw new Error("Failed to fetch fixed asset for disposal");
+
+                const assetClass = assetRecord.data.fixedAssetClass as any;
+                const acquisitionCost =
+                  Number(assetRecord.data.acquisitionCost) ?? 0;
+                const accumulatedDepreciation =
+                  Number(assetRecord.data.accumulatedDepreciation) ?? 0;
+                const nbv = acquisitionCost - accumulatedDepreciation;
+
+                if (accumulatedDepreciation > 0) {
+                  const jlRef = nanoid();
+                  journalLineInserts.push({
+                    accountId: assetClass.accumulatedDepreciationAccountId,
+                    description: "Clear accumulated depreciation",
+                    amount: debit("asset", accumulatedDepreciation),
+                    quantity: 1,
+                    documentType: "Sales Shipment",
+                    documentId: shipment.data?.id,
+                    externalDocumentId:
+                      salesOrder.data?.customerReference ?? undefined,
+                    documentLineReference: journalReference.to.shipment(
+                      faSoLine.id
+                    ),
+                    journalLineReference: jlRef,
+                    companyId,
+                  });
+
+                  journalLineDimensionsMeta.push({
+                    customerTypeId: customer.data.customerTypeId ?? null,
+                    itemPostingGroupId: null,
+                    locationId: locationId ?? assetRecord.data.locationId ?? null,
+                    costCenterId: faSoLine.costCenterId ?? null,
+                    fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
+                  });
+                }
+
+                if (nbv > 0) {
+                  const nbvJlRef = nanoid();
+                  journalLineInserts.push({
+                    accountId: assetClass.writeOffAccountId,
+                    description: "Write-off remaining book value",
+                    amount: debit("expense", nbv),
+                    quantity: 1,
+                    documentType: "Sales Shipment",
+                    documentId: shipment.data?.id,
+                    externalDocumentId:
+                      salesOrder.data?.customerReference ?? undefined,
+                    documentLineReference: journalReference.to.shipment(
+                      faSoLine.id
+                    ),
+                    journalLineReference: nbvJlRef,
+                    companyId,
+                  });
+
+                  journalLineDimensionsMeta.push({
+                    customerTypeId: customer.data.customerTypeId ?? null,
+                    itemPostingGroupId: null,
+                    locationId: locationId ?? assetRecord.data.locationId ?? null,
+                    costCenterId: faSoLine.costCenterId ?? null,
+                    fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
+                  });
+                }
+
+                const removeJlRef = nanoid();
+                journalLineInserts.push({
+                  accountId: assetClass.assetAccountId,
+                  description: "Remove asset at cost",
+                  amount: credit("asset", acquisitionCost),
+                  quantity: 1,
+                  documentType: "Sales Shipment",
+                  documentId: shipment.data?.id,
+                  externalDocumentId:
+                    salesOrder.data?.customerReference ?? undefined,
+                  documentLineReference: journalReference.to.shipment(
+                    faSoLine.id
+                  ),
+                  journalLineReference: removeJlRef,
+                  companyId,
+                });
+
+                journalLineDimensionsMeta.push({
+                  customerTypeId: customer.data.customerTypeId ?? null,
+                  itemPostingGroupId: null,
+                  locationId: locationId ?? assetRecord.data.locationId ?? null,
+                  costCenterId: faSoLine.costCenterId ?? null,
+                  fixedAssetClassId: assetRecord.data.fixedAssetClassId ?? null,
+                });
+
+                await client
+                  .from("fixedAsset")
+                  .update({
+                    status: "Disposed",
+                    disposalDate: today,
+                    disposalMethod: "Sale",
+                    updatedBy: userId,
+                  })
+                  .eq("id", faSoLine.assetId!);
+
+                await client.from("fixedAssetDisposal").insert({
+                  fixedAssetId: faSoLine.assetId!,
+                  disposalMethod: "Sale",
+                  disposalDate: today,
+                  saleProceeds: 0,
+                  netBookValueAtDisposal: nbv,
+                  gainLoss: -nbv,
+                  companyId,
+                  createdBy: userId,
+                });
+              }
+
+              salesOrderLineUpdates[faSoLine.id] = {
+                quantitySent: faSoLine.saleQuantity,
+                sentComplete: true,
+                sentDate: today,
+              };
+            }
+
             const trackedEntitySplits: Record<
               string,
               {
@@ -476,6 +746,18 @@ serve(async (req: Request) => {
 
                 return acc;
               }, {}) ?? {};
+
+            // Resolve accounting period BEFORE opening the Kysely transaction.
+            // getCurrentAccountingPeriod uses the Supabase REST client; calling
+            // it mid-transaction parks the pg connection in idle-in-transaction
+            // (ClientRead) while the REST hop runs, and any hang there leaves
+            // an orphan that exhausts the pool (size 1) for every subsequent
+            // post-shipment invocation.
+            const accountingPeriodId = await getCurrentAccountingPeriod(
+              client,
+              companyId,
+              db
+            );
 
             await db.transaction().execute(async (trx) => {
               for await (const [salesOrderLineId, update] of Object.entries(
@@ -808,6 +1090,168 @@ serve(async (req: Request) => {
                     .set(update)
                     .where("id", "=", jobId)
                     .execute();
+                }
+              }
+
+              // Calculate COGS and create journal entries
+              if (accountingEnabled && journalLineInserts.length > 0) {
+                const itemShipmentQuantities = new Map<
+                  string,
+                  { totalQuantity: number; lineIndices: number[] }
+                >();
+
+                for (let i = 0; i < journalLineInserts.length; i += 2) {
+                  const jl = journalLineInserts[i];
+                  const ref = jl.documentLineReference;
+                  const shipmentLine = shipmentLines.data.find(
+                    (sl) => ref === journalReference.to.shipment(sl.id)
+                  );
+                  if (!shipmentLine?.itemId) continue;
+
+                  const existing = itemShipmentQuantities.get(shipmentLine.itemId);
+                  if (existing) {
+                    existing.totalQuantity += jl.quantity ?? 0;
+                    existing.lineIndices.push(i);
+                  } else {
+                    itemShipmentQuantities.set(shipmentLine.itemId, {
+                      totalQuantity: jl.quantity ?? 0,
+                      lineIndices: [i],
+                    });
+                  }
+                }
+
+                for (const [itemId, info] of itemShipmentQuantities) {
+                  const cogsResult = await calculateCOGS(trx, {
+                    itemId,
+                    quantity: info.totalQuantity,
+                    companyId,
+                  });
+
+                  let costAssigned = 0;
+                  for (let idx = 0; idx < info.lineIndices.length; idx++) {
+                    const jlIdx = info.lineIndices[idx];
+                    const lineQty = journalLineInserts[jlIdx].quantity ?? 0;
+                    const lineCost =
+                      idx === info.lineIndices.length - 1
+                        ? cogsResult.totalCost - costAssigned
+                        : (lineQty / info.totalQuantity) * cogsResult.totalCost;
+
+                    costAssigned += lineCost;
+                    journalLineInserts[jlIdx].amount = debit("expense", lineCost);
+                    journalLineInserts[jlIdx + 1].amount = credit("asset", lineCost);
+                  }
+
+                  await trx
+                    .insertInto("costLedger")
+                    .values({
+                      itemLedgerType: "Sale",
+                      costLedgerType: "Direct Cost",
+                      adjustment: false,
+                      documentType: "Sales Shipment",
+                      documentId: shipment.data?.id ?? "",
+                      itemId,
+                      quantity: -info.totalQuantity,
+                      cost: -cogsResult.totalCost,
+                      remainingQuantity: 0,
+                      companyId,
+                    })
+                    .execute();
+                }
+
+                const journalEntryId = await getNextSequence(
+                  trx,
+                  "journalEntry",
+                  companyId
+                );
+
+                const journalResult = await trx
+                  .insertInto("journal")
+                  .values({
+                    journalEntryId,
+                    accountingPeriodId,
+                    description: `Sales Shipment ${shipment.data.shipmentId}`,
+                    postingDate: today,
+                    companyId,
+                    sourceType: "Sales Shipment",
+                    status: "Posted",
+                    postedAt: new Date().toISOString(),
+                    postedBy: userId,
+                    createdBy: userId,
+                  })
+                  .returning(["id"])
+                  .executeTakeFirstOrThrow();
+
+                const journalLineResults = await trx
+                  .insertInto("journalLine")
+                  .values(
+                    journalLineInserts.map((line) => ({
+                      ...line,
+                      journalId: journalResult.id,
+                    }))
+                  )
+                  .returning(["id"])
+                  .execute();
+
+                if (dimensionMap.size > 0) {
+                  const journalLineDimensionInserts: {
+                    journalLineId: string;
+                    dimensionId: string;
+                    valueId: string;
+                    companyId: string;
+                  }[] = [];
+
+                  journalLineResults.forEach((jl, index) => {
+                    const meta = journalLineDimensionsMeta[index];
+                    if (!meta) return;
+
+                    if (meta.customerTypeId && dimensionMap.has("CustomerType")) {
+                      journalLineDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("CustomerType")!,
+                        valueId: meta.customerTypeId,
+                        companyId,
+                      });
+                    }
+                    if (meta.itemPostingGroupId && dimensionMap.has("ItemPostingGroup")) {
+                      journalLineDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("ItemPostingGroup")!,
+                        valueId: meta.itemPostingGroupId,
+                        companyId,
+                      });
+                    }
+                    if (meta.locationId && dimensionMap.has("Location")) {
+                      journalLineDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("Location")!,
+                        valueId: meta.locationId,
+                        companyId,
+                      });
+                    }
+                    if (meta.costCenterId && dimensionMap.has("CostCenter")) {
+                      journalLineDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("CostCenter")!,
+                        valueId: meta.costCenterId,
+                        companyId,
+                      });
+                    }
+                    if (meta.fixedAssetClassId && dimensionMap.has("FixedAssetClass")) {
+                      journalLineDimensionInserts.push({
+                        journalLineId: jl.id,
+                        dimensionId: dimensionMap.get("FixedAssetClass")!,
+                        valueId: meta.fixedAssetClassId,
+                        companyId,
+                      });
+                    }
+                  });
+
+                  if (journalLineDimensionInserts.length > 0) {
+                    await trx
+                      .insertInto("journalLineDimension")
+                      .values(journalLineDimensionInserts)
+                      .execute();
+                  }
                 }
               }
             });
@@ -1367,7 +1811,12 @@ serve(async (req: Request) => {
             if (!shipment.data.sourceDocumentId)
               throw new Error("Shipment has no sourceDocumentId");
 
-            const [salesOrder, salesOrderLines] = await Promise.all([
+            const [
+              salesOrder,
+              salesOrderLines,
+              originalJournalLines,
+              accountingSettings,
+            ] = await Promise.all([
               client
                 .from("salesOrder")
                 .select("*")
@@ -1377,11 +1826,46 @@ serve(async (req: Request) => {
                 .from("salesOrderLine")
                 .select("*")
                 .eq("salesOrderId", shipment.data.sourceDocumentId),
+              client
+                .from("journalLine")
+                .select("*")
+                .eq("documentId", shipmentId)
+                .eq("documentType", "Sales Shipment")
+                .eq("companyId", companyId),
+              client
+                .from("companySettings")
+                .select("accountingEnabled")
+                .eq("id", companyId)
+                .single(),
             ]);
             if (salesOrder.error)
               throw new Error("Failed to fetch sales order");
             if (salesOrderLines.error)
               throw new Error("Failed to fetch sales order lines");
+            if (originalJournalLines.error)
+              throw new Error("Failed to fetch journal lines");
+
+            const accountingEnabled =
+              accountingSettings.data?.accountingEnabled ?? false;
+
+            const reversingJournalLines: Omit<
+              Database["public"]["Tables"]["journalLine"]["Insert"],
+              "journalId"
+            >[] = accountingEnabled
+              ? originalJournalLines.data.map((entry) => ({
+                  accountId: entry.accountId,
+                  accrual: entry.accrual,
+                  description: `VOID: ${entry.description}`,
+                  amount: -entry.amount,
+                  quantity: -entry.quantity,
+                  documentType: entry.documentType,
+                  documentId: entry.documentId,
+                  externalDocumentId: entry.externalDocumentId,
+                  documentLineReference: entry.documentLineReference,
+                  journalLineReference: entry.journalLineReference,
+                  companyId,
+                }))
+              : [];
 
             const customer = await client
               .from("customer")
@@ -1467,8 +1951,6 @@ serve(async (req: Request) => {
                   quantityComplete: newQuantityComplete,
                   quantityShipped: newQuantityShipped,
                 };
-
-                continue;
               }
 
               const itemTrackingType =
@@ -1623,6 +2105,46 @@ serve(async (req: Request) => {
               return acc;
             }, {});
 
+            // Reverse FA SO line disposals on void
+            const faSoLinesForVoid = salesOrderLines.data.filter(
+              (sol) =>
+                sol.salesOrderLineType === "Fixed Asset" &&
+                sol.assetId &&
+                sol.sentComplete
+            );
+
+            for (const faSoLine of faSoLinesForVoid) {
+              const hasShipmentEntries = originalJournalLines.data.some(
+                (jl) =>
+                  jl.documentLineReference ===
+                  journalReference.to.shipment(faSoLine.id)
+              );
+
+              if (hasShipmentEntries) {
+                salesOrderLineUpdates[faSoLine.id] = {
+                  quantitySent: 0,
+                  sentComplete: false,
+                  sentDate: null,
+                };
+
+                await client
+                  .from("fixedAsset")
+                  .update({
+                    status: "Active",
+                    disposalDate: null,
+                    disposalMethod: null,
+                    updatedBy: userId,
+                  })
+                  .eq("id", faSoLine.assetId!);
+
+                await client
+                  .from("fixedAssetDisposal")
+                  .delete()
+                  .eq("fixedAssetId", faSoLine.assetId!)
+                  .eq("companyId", companyId);
+              }
+            }
+
             // Restore tracked entities to available status
             const trackedEntityUpdates =
               shipmentLineTracking.data?.reduce<
@@ -1647,6 +2169,11 @@ serve(async (req: Request) => {
 
                 return acc;
               }, {}) ?? {};
+
+            const accountingPeriodId =
+              accountingEnabled && reversingJournalLines.length > 0
+                ? await getCurrentAccountingPeriod(client, companyId, db)
+                : null;
 
             await db.transaction().execute(async (trx) => {
               // Update sales order lines to reverse shipped quantities
@@ -1783,6 +2310,46 @@ serve(async (req: Request) => {
                     .where("id", "=", jobId)
                     .execute();
                 }
+              }
+
+              // Create reversing journal entries
+              if (
+                accountingEnabled &&
+                reversingJournalLines.length > 0 &&
+                accountingPeriodId
+              ) {
+                const voidJournalEntryId = await getNextSequence(
+                  trx,
+                  "journalEntry",
+                  companyId
+                );
+
+                const voidJournalResult = await trx
+                  .insertInto("journal")
+                  .values({
+                    journalEntryId: voidJournalEntryId,
+                    accountingPeriodId,
+                    description: `VOID: Sales Shipment ${shipment.data.shipmentId}`,
+                    postingDate: today,
+                    companyId,
+                    sourceType: "Sales Shipment",
+                    status: "Posted",
+                    postedAt: new Date().toISOString(),
+                    postedBy: userId,
+                    createdBy: userId,
+                  })
+                  .returning(["id"])
+                  .executeTakeFirstOrThrow();
+
+                await trx
+                  .insertInto("journalLine")
+                  .values(
+                    reversingJournalLines.map((line) => ({
+                      ...line,
+                      journalId: voidJournalResult.id,
+                    }))
+                  )
+                  .execute();
               }
             });
             break;

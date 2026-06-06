@@ -297,8 +297,6 @@ export default function QuoteLine() {
     supplierPriceMap: SupplierPriceMap;
   }>(path.to.quote(quoteId));
 
-  const isReadOnly = isQuoteLocked(quoteData?.quote?.status);
-
   const methodTree = useMemo(
     () => quoteData?.methods?.find((m) => m.data.quoteLineId === line.id),
     [quoteData, line.id]
@@ -419,7 +417,6 @@ export default function QuoteLine() {
             itemId={line?.itemId}
             modelUpload={line ?? undefined}
             type="Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

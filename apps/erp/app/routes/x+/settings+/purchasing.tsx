@@ -1,7 +1,14 @@
 import { error, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Input, Select, Submit, ValidatedForm, validator } from "@carbon/form";
+import {
+  Input,
+  PhoneInput,
+  Select,
+  Submit,
+  ValidatedForm,
+  validator
+} from "@carbon/form";
 import type { JSONContent } from "@carbon/react";
 import {
   Badge,
@@ -30,6 +37,7 @@ import { useCallback, useEffect, useState } from "react";
 import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
+import CompanyDefaultAttachmentsCard from "~/components/CompanyDefaultAttachmentsCard";
 import { EmailRecipients, Users } from "~/components/Form";
 import Country from "~/components/Form/Country";
 import { usePermissions, useUser } from "~/hooks";
@@ -48,7 +56,7 @@ import {
   updateLeadTimesOnReceiptSetting,
   updatePurchasePriceUpdateTimingSetting,
   updatePurchasingPdfThumbnails,
-  updateSupplierApprovalSetting,
+  updateShowSupplierReadableIdSetting,
   updateSupplierQuoteNotificationSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -64,11 +72,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "settings"
   });
 
-  const [companySettings, terms, apBillingAddress] = await Promise.all([
-    getCompanySettings(client, companyId),
-    getTerms(client, companyId),
-    getAccountsPayableBillingAddress(client, companyId)
-  ]);
+  const [companySettings, terms, apBillingAddress, defaultAttachmentsResult] =
+    await Promise.all([
+      getCompanySettings(client, companyId),
+      getTerms(client, companyId),
+      getAccountsPayableBillingAddress(client, companyId),
+      client.storage
+        .from("private")
+        .list(`${companyId}/default-attachments/company`)
+    ]);
 
   if (companySettings.error) {
     throw redirect(
@@ -90,7 +102,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return {
     companySettings: companySettings.data,
     terms: terms.data,
-    apBillingAddress: apBillingAddress.data
+    apBillingAddress: apBillingAddress.data,
+    defaultAttachments: defaultAttachmentsResult.data ?? []
   };
 }
 
@@ -103,31 +116,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const intent = formData.get("intent");
 
   switch (intent) {
-    case "supplierApproval":
-      const supplierApprovalEnabled =
-        formData.get("supplierApproval") === "true";
-      const supplierApprovalResult = await updateSupplierApprovalSetting(
-        client,
-        companyId,
-        supplierApprovalEnabled
-      );
-
-      if (supplierApprovalResult.error) {
-        console.error(
-          "Failed to update supplier approval setting:",
-          supplierApprovalResult.error
-        );
-        return {
-          success: false,
-          message: supplierApprovalResult.error.message
-        };
-      }
-
-      return {
-        success: true,
-        message: `Supplier approval ${supplierApprovalEnabled ? "enabled" : "disabled"}`
-      };
-
     case "accountsPayableAddressToggle":
       const apToggleEnabled = formData.get("enabled") === "true";
       const apToggleResult = await updateAccountsPayableAddressSetting(
@@ -203,6 +191,31 @@ export async function action({ request }: ActionFunctionArgs) {
       return {
         success: true,
         message: `Lead time updates on receipt ${updateLeadTimesOnReceipt ? "enabled" : "disabled"}`
+      };
+
+    case "showSupplierReadableIdToggle":
+      const showSupplierReadableId = formData.get("enabled") === "true";
+      const showSupplierReadableIdResult =
+        await updateShowSupplierReadableIdSetting(
+          client,
+          companyId,
+          showSupplierReadableId
+        );
+
+      if (showSupplierReadableIdResult.error) {
+        console.error(
+          "Failed to update supplier ID visibility setting:",
+          showSupplierReadableIdResult.error
+        );
+        return {
+          success: false,
+          message: showSupplierReadableIdResult.error.message
+        };
+      }
+
+      return {
+        success: true,
+        message: `Supplier IDs ${showSupplierReadableId ? "shown" : "hidden"}`
       };
 
     case "supplierQuoteNotification":
@@ -322,7 +335,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function PurchasingSettingsRoute() {
   const { t } = useLingui();
-  const { companySettings, terms, apBillingAddress } =
+  const { companySettings, terms, apBillingAddress, defaultAttachments } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const permissions = usePermissions();
@@ -344,21 +357,6 @@ export default function PurchasingSettingsRoute() {
 
   const toggleFetcher = useFetcher<typeof action>();
 
-  const [supplierApprovalEnabled, setSupplierApprovalEnabled] = useState(
-    companySettings.supplierApproval ?? false
-  );
-
-  const handleSupplierApprovalToggle = useCallback(
-    (checked: boolean) => {
-      setSupplierApprovalEnabled(checked);
-      toggleFetcher.submit(
-        { intent: "supplierApproval", supplierApproval: checked.toString() },
-        { method: "POST" }
-      );
-    },
-    [toggleFetcher]
-  );
-
   const [apAddressEnabled, setApAddressEnabled] = useState(
     companySettings.accountsPayableAddress ?? false
   );
@@ -366,6 +364,20 @@ export default function PurchasingSettingsRoute() {
   const [leadTimesOnReceiptEnabled, setLeadTimesOnReceiptEnabled] = useState(
     (companySettings as { updateLeadTimesOnReceipt?: boolean })
       .updateLeadTimesOnReceipt ?? false
+  );
+
+  const [showSupplierReadableIdEnabled, setShowSupplierReadableIdEnabled] =
+    useState(companySettings.showSupplierReadableId ?? false);
+
+  const handleShowSupplierReadableIdToggle = useCallback(
+    (checked: boolean) => {
+      setShowSupplierReadableIdEnabled(checked);
+      toggleFetcher.submit(
+        { intent: "showSupplierReadableIdToggle", enabled: checked.toString() },
+        { method: "POST" }
+      );
+    },
+    [toggleFetcher]
   );
 
   const handleApAddressToggle = useCallback(
@@ -444,6 +456,10 @@ export default function PurchasingSettingsRoute() {
           <Trans>Purchasing</Trans>
         </Heading>
 
+        <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
+          <Trans>Documents</Trans>
+        </p>
+
         <Card>
           <HStack className="justify-between items-start">
             <CardHeader>
@@ -483,17 +499,63 @@ export default function PurchasingSettingsRoute() {
             )}
           </CardContent>
         </Card>
+        <CompanyDefaultAttachmentsCard
+          files={(defaultAttachments ?? []) as any}
+        />
+        <Card>
+          <ValidatedForm
+            method="post"
+            validator={defaultSupplierCcValidator}
+            defaultValues={{
+              defaultSupplierCc: companySettings.defaultSupplierCc ?? []
+            }}
+            fetcher={fetcher}
+          >
+            <input type="hidden" name="intent" value="emails" />
+            <CardHeader>
+              <CardTitle>
+                <Trans>Emails</Trans>
+              </CardTitle>
+              <CardDescription>
+                <Trans>
+                  These email addresses will be automatically CC'd on all emails
+                  sent to suppliers (quotes, purchase orders, etc.).
+                </Trans>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-8 max-w-[400px]">
+                <EmailRecipients
+                  name="defaultSupplierCc"
+                  label={t`Default CC Recipients`}
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Submit
+                isDisabled={fetcher.state !== "idle"}
+                isLoading={
+                  fetcher.state !== "idle" &&
+                  fetcher.formData?.get("intent") === "defaultSupplierCc"
+                }
+              >
+                <Trans>Save</Trans>
+              </Submit>
+            </CardFooter>
+          </ValidatedForm>
+        </Card>
+
         <Card>
           <CardHeader>
             <HStack className="justify-between items-center">
               <div>
                 <CardTitle>
-                  <Trans>Accounts Payable Billing Address</Trans>
+                  <Trans>Centralized Billing Address</Trans>
                 </CardTitle>
                 <CardDescription>
                   <Trans>
-                    The billing address used on purchase orders and other
-                    purchasing documents.
+                    Route all AP invoices to one address (e.g. corporate
+                    headquarters) instead of individual purchasers.
                   </Trans>
                 </CardDescription>
               </div>
@@ -544,8 +606,8 @@ export default function PurchasingSettingsRoute() {
                   <Input name="state" label={t`State / Province`} />
                   <Input name="postalCode" label={t`Postal Code`} />
                   <Country name="countryCode" />
-                  <Input name="phone" label={t`Phone`} />
-                  <Input name="fax" label={t`Fax`} />
+                  <PhoneInput name="phone" label={t`Phone`} />
+                  <PhoneInput name="fax" label={t`Fax`} />
                 </div>
               </CardContent>
               <CardFooter>
@@ -565,6 +627,37 @@ export default function PurchasingSettingsRoute() {
         )}
 
         <Card>
+          <CardHeader>
+            <HStack className="justify-between items-center">
+              <div>
+                <CardTitle>
+                  <Trans>Include Thumbnails on Purchasing Documents</Trans>
+                </CardTitle>
+                <CardDescription>
+                  <Trans>Show part thumbnails on purchase order PDFs.</Trans>
+                </CardDescription>
+              </div>
+              <Switch
+                checked={
+                  companySettings.includeThumbnailsOnPurchasingPdfs ?? true
+                }
+                onCheckedChange={(checked) => {
+                  toggleFetcher.submit(
+                    { intent: "pdfs", enabled: String(checked) },
+                    { method: "POST" }
+                  );
+                }}
+                disabled={toggleFetcher.state !== "idle"}
+              />
+            </HStack>
+          </CardHeader>
+        </Card>
+
+        <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
+          <Trans>Automatic Updates</Trans>
+        </p>
+
+        <Card>
           <ValidatedForm
             method="post"
             validator={purchasePriceUpdateTimingValidator}
@@ -582,11 +675,11 @@ export default function PurchasingSettingsRoute() {
             />
             <CardHeader>
               <CardTitle>
-                <Trans>Purchase Price Updates</Trans>
+                <Trans>Automatic Cost Updates</Trans>
               </CardTitle>
               <CardDescription>
                 <Trans>
-                  Configure when purchased item prices should be updated from
+                  Configure when purchased item costs should be updated from
                   supplier transactions.
                 </Trans>
               </CardDescription>
@@ -595,7 +688,7 @@ export default function PurchasingSettingsRoute() {
               <div className="flex flex-col gap-8 max-w-[400px]">
                 <Select
                   name="purchasePriceUpdateTiming"
-                  label={t`Update prices on`}
+                  label={t`Update costs on`}
                   options={purchasePriceUpdateTimingTypes.map((type) => ({
                     label: type,
                     value: type
@@ -622,7 +715,7 @@ export default function PurchasingSettingsRoute() {
             <HStack className="justify-between items-center">
               <div>
                 <CardTitle>
-                  <Trans>Lead Time Updates</Trans>
+                  <Trans>Automatic Lead Time Updates</Trans>
                 </CardTitle>
                 <CardDescription>
                   <Trans>
@@ -638,27 +731,38 @@ export default function PurchasingSettingsRoute() {
             </HStack>
           </CardHeader>
         </Card>
+        <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
+          <Trans>Suppliers</Trans>
+        </p>
+
         <Card>
           <CardHeader>
             <HStack className="justify-between items-center">
               <div>
                 <CardTitle>
-                  <Trans>Supplier Approval Required</Trans>
+                  <Trans>Show Supplier IDs</Trans>
                 </CardTitle>
                 <CardDescription>
                   <Trans>
-                    Require approval before suppliers can be set to Active
+                    Show a readable Supplier ID column on the supplier list,
+                    supplier forms, and dropdowns. Suppliers are still
+                    identified internally either way.
                   </Trans>
                 </CardDescription>
               </div>
               <Switch
-                checked={supplierApprovalEnabled}
-                onCheckedChange={handleSupplierApprovalToggle}
+                checked={showSupplierReadableIdEnabled}
+                onCheckedChange={handleShowSupplierReadableIdToggle}
                 disabled={toggleFetcher.state !== "idle"}
               />
             </HStack>
           </CardHeader>
         </Card>
+
+        <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
+          <Trans>Notifications</Trans>
+        </p>
+
         <Card>
           <ValidatedForm
             method="post"
@@ -712,94 +816,6 @@ export default function PurchasingSettingsRoute() {
               </Submit>
             </CardFooter>
           </ValidatedForm>
-        </Card>
-        <Card>
-          <ValidatedForm
-            method="post"
-            validator={defaultSupplierCcValidator}
-            defaultValues={{
-              defaultSupplierCc: companySettings.defaultSupplierCc ?? []
-            }}
-            fetcher={fetcher}
-          >
-            <input type="hidden" name="intent" value="emails" />
-            <CardHeader>
-              <CardTitle>
-                <Trans>Emails</Trans>
-              </CardTitle>
-              <CardDescription>
-                <Trans>
-                  These email addresses will be automatically CC'd on all emails
-                  sent to suppliers (quotes, purchase orders, etc.).
-                </Trans>
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-8 max-w-[400px]">
-                <EmailRecipients
-                  name="defaultSupplierCc"
-                  label={t`Default CC Recipients`}
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Submit
-                isDisabled={fetcher.state !== "idle"}
-                isLoading={
-                  fetcher.state !== "idle" &&
-                  fetcher.formData?.get("intent") === "defaultSupplierCc"
-                }
-              >
-                <Trans>Save</Trans>
-              </Submit>
-            </CardFooter>
-          </ValidatedForm>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Trans>PDFs</Trans>
-            </CardTitle>
-            <CardDescription>
-              <Trans>Show part thumbnails on purchase orders.</Trans>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
-                <span className="font-medium">
-                  {companySettings.includeThumbnailsOnPurchasingPdfs ? (
-                    <Trans>Thumbnails are included</Trans>
-                  ) : (
-                    <Trans>Thumbnails are not included</Trans>
-                  )}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {companySettings.includeThumbnailsOnPurchasingPdfs ? (
-                    <Trans>
-                      Part thumbnails are shown on purchase order PDFs.
-                    </Trans>
-                  ) : (
-                    <Trans>
-                      Enable to show part thumbnails on purchase order PDFs.
-                    </Trans>
-                  )}
-                </span>
-              </VStack>
-              <Switch
-                checked={
-                  companySettings.includeThumbnailsOnPurchasingPdfs ?? true
-                }
-                onCheckedChange={(checked) => {
-                  toggleFetcher.submit(
-                    { intent: "pdfs", enabled: String(checked) },
-                    { method: "POST" }
-                  );
-                }}
-                disabled={toggleFetcher.state !== "idle"}
-              />
-            </HStack>
-          </CardContent>
         </Card>
       </VStack>
     </ScrollArea>

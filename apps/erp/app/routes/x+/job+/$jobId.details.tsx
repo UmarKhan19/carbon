@@ -232,14 +232,12 @@ export default function JobDetailsRoute() {
 
   if (!jobData) throw new Error("Could not find job data");
 
-  const isReadOnly = isJobLocked(jobData?.job?.status);
-
   useRealtime("modelUpload", `modelPath=eq.(${jobData?.job.modelPath})`);
 
   const methodId = makeMethod?.id;
 
   return (
-    <div className="h-[calc(100dvh-49px)] w-full items-start overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
+    <div className="h-full w-full items-start overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-accent">
       <VStack spacing={2} className="p-2">
         <JobMakeMethodTools makeMethod={makeMethod ?? undefined} />
 
@@ -315,7 +313,6 @@ export default function JobDetailsRoute() {
               bucket="parts"
               itemId={makeMethod?.itemId ?? jobData.job.itemId}
               modelUpload={{ ...jobData.job }}
-              isReadOnly={isReadOnly}
             />
           )}
         </DeferredFiles>

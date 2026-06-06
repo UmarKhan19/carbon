@@ -6,7 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CreatableCombobox,
+  Checkbox,
   cn,
   DatePicker,
   DropdownMenu,
@@ -40,7 +40,7 @@ import { labelSizes } from "@carbon/utils";
 import { parseDate } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import {
   LuCalendar,
   LuCircleAlert,
@@ -64,7 +64,7 @@ import { DocumentPreview, Empty, ItemThumbnail } from "~/components";
 import DocumentIcon from "~/components/DocumentIcon";
 import { Enumerable } from "~/components/Enumerable";
 import FileDropzone from "~/components/FileDropzone";
-import { useStorageUnits } from "~/components/Form/StorageUnit";
+import { StorageUnitDrillSelect } from "~/components/Form/StorageUnitDrillSelect";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useRouteData, useUser } from "~/hooks";
@@ -74,9 +74,8 @@ import type {
   Receipt,
   ReceiptLine
 } from "~/modules/inventory";
-import { StorageUnitForm, splitValidator } from "~/modules/inventory";
+import { splitValidator } from "~/modules/inventory";
 import { getDocumentType } from "~/modules/shared/shared.service";
-import type { action as receiptLinesUpdateAction } from "~/routes/x+/receipt+/lines.update";
 import { useItems } from "~/stores";
 import type { StorageItem } from "~/types";
 import { path } from "~/utils/path";
@@ -88,11 +87,22 @@ const ReceiptLines = () => {
   const { receiptId } = useParams();
   if (!receiptId) throw new Error("receiptId not found");
 
-  const fetcher = useFetcher<typeof receiptLinesUpdateAction>();
+  const fetcher = useFetcher();
+
   const { upload, deleteFile, getPath } = useReceiptFiles(receiptId);
   const routeData = useRouteData<{
     receipt: Receipt;
     receiptLines: ReceiptLine[];
+    fixedAssetLines: {
+      id: string;
+      purchaseOrderLineId: string;
+      assetId: string;
+      assetName: string | null;
+      assetReadableId: string | null;
+      description: string | null;
+      received: boolean;
+      serialNumber: string | null;
+    }[];
     receiptFiles: PostgrestResponse<StorageItem>;
     receiptLineTracking: ItemTracking[];
     batchProperties: PostgrestResponse<BatchProperty>;
@@ -279,10 +289,102 @@ const ReceiptLines = () => {
           </div>
         </CardContent>
       </Card>
+      {routeData?.fixedAssetLines && routeData.fixedAssetLines.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Fixed Assets</Trans>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="border rounded-lg">
+              {routeData.fixedAssetLines.map((line, index) => (
+                <ReceiptFixedAssetLineItem
+                  key={line.id}
+                  line={line}
+                  isReadOnly={isPosted}
+                  className={
+                    index < routeData.fixedAssetLines.length - 1
+                      ? "border-b"
+                      : ""
+                  }
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <Outlet />
     </>
   );
 };
+
+function ReceiptFixedAssetLineItem({
+  line,
+  isReadOnly,
+  className
+}: {
+  line: {
+    id: string;
+    purchaseOrderLineId: string;
+    assetId: string;
+    assetName: string | null;
+    assetReadableId: string | null;
+    description: string | null;
+    received: boolean;
+    serialNumber: string | null;
+  };
+  isReadOnly: boolean;
+  className?: string;
+}) {
+  const fetcher = useFetcher();
+  const [serialNumber, setSerialNumber] = useState(line.serialNumber ?? "");
+
+  const updateField = (field: string, value: string) => {
+    const formData = new FormData();
+    formData.append("id", line.id);
+    formData.append("field", field);
+    formData.append("value", value);
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.receiptFixedAssetLineUpdate
+    });
+  };
+
+  return (
+    <div className={cn("flex items-center gap-4 p-6", className)}>
+      <Checkbox
+        isChecked={line.received}
+        disabled={isReadOnly}
+        onCheckedChange={(checked) =>
+          updateField("received", String(checked === true))
+        }
+      />
+      <VStack spacing={0} className="flex-1 min-w-0">
+        <span className="text-sm font-medium">
+          {line.assetName ?? line.description ?? "Fixed Asset"}
+        </span>
+        {line.assetReadableId && (
+          <span className="text-xs text-muted-foreground">
+            {line.assetReadableId}
+          </span>
+        )}
+      </VStack>
+      <Input
+        placeholder="Serial Number"
+        value={serialNumber}
+        isDisabled={isReadOnly}
+        className="w-48"
+        onChange={(e) => setSerialNumber(e.target.value)}
+        onBlur={() => {
+          if (serialNumber !== (line.serialNumber ?? "")) {
+            updateField("serialNumber", serialNumber);
+          }
+        }}
+      />
+    </div>
+  );
+}
 
 function ReceiptLineItem({
   line,
@@ -467,18 +569,23 @@ function ReceiptLineItem({
             </VStack>
           </HStack>
 
-          <StorageUnit
-            locationId={line.locationId}
-            storageUnitId={line.storageUnitId}
-            isReadOnly={isReadOnly}
-            onChange={(storageUnit) => {
-              onUpdate({
-                lineId: line.id!,
-                field: "storageUnitId",
-                value: storageUnit
-              });
-            }}
-          />
+          <div className="flex flex-col items-start gap-1 min-w-[140px] text-sm">
+            <label className="text-xs text-muted-foreground">
+              Storage Unit
+            </label>
+            <StorageUnitDrillSelect
+              locationId={line.locationId}
+              value={line.storageUnitId}
+              isReadOnly={isReadOnly}
+              onChange={(storageUnit) => {
+                onUpdate({
+                  lineId: line.id!,
+                  field: "storageUnitId",
+                  value: storageUnit
+                });
+              }}
+            />
+          </div>
         </div>
       </div>
       {line.requiresBatchTracking && (
@@ -656,7 +763,7 @@ function BatchForm({
           .reduce((acc, [key, value]) => ({ ...acc, [key]: value || "" }), {})
       };
     });
-  }, [tracking?.id, tracking?.expirationDate, tracking?.readableId]);
+  }, [tracking]);
 
   const updateBatchNumber = async (newValues: typeof values, isNew = false) => {
     if (!receipt?.id || !newValues.number.trim()) return;
@@ -1163,69 +1270,6 @@ function SplitReceiptLineModal({
         </ValidatedForm>
       </ModalContent>
     </Modal>
-  );
-}
-
-function StorageUnit({
-  locationId,
-  storageUnitId,
-  isReadOnly,
-  onChange
-}: {
-  locationId: string | null;
-  storageUnitId: string | null;
-  isReadOnly: boolean;
-  onChange: (storageUnit: string) => void;
-}) {
-  const { options } = useStorageUnits(locationId ?? undefined);
-  const newStorageUnitModal = useDisclosure();
-  const [created, setCreated] = useState<string>("");
-  const triggerRef = useRef<HTMLButtonElement>(null);
-
-  if (!locationId) return null;
-
-  const StorageUnitPreview = (
-    value: string,
-    options: { value: string; label: string | JSX.Element }[]
-  ) => {
-    const storageUnit = options.find((o) => o.value === value);
-    if (!storageUnit) return null;
-    return storageUnit.label;
-  };
-
-  return (
-    <div className="flex flex-col items-start gap-1 min-w-[140px] text-sm">
-      <label className="text-xs text-muted-foreground">Storage Unit</label>
-      <CreatableCombobox
-        ref={triggerRef}
-        options={options}
-        value={storageUnitId ?? undefined}
-        onChange={onChange}
-        disabled={isReadOnly}
-        isReadOnly={isReadOnly}
-        inline={StorageUnitPreview}
-        onCreateOption={(option) => {
-          newStorageUnitModal.onOpen();
-          setCreated(option);
-        }}
-      />
-      {newStorageUnitModal.isOpen && (
-        <StorageUnitForm
-          locationId={locationId}
-          type="modal"
-          onClose={() => {
-            setCreated("");
-            newStorageUnitModal.onClose();
-            triggerRef.current?.click();
-          }}
-          initialValues={{
-            name: created,
-            locationId: locationId,
-            storageTypeIds: []
-          }}
-        />
-      )}
-    </div>
   );
 }
 

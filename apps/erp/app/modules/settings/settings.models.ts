@@ -63,7 +63,7 @@ const company = {
   addressLine1: z.string().min(1, { message: "Address is required" }),
   addressLine2: zfd.text(z.string().optional()),
   city: z.string().min(1, { message: "City is required" }),
-  stateProvince: z.string().min(1, { message: "State / Province is required" }),
+  stateProvince: zfd.text(z.string().optional()),
   postalCode: z.string().min(1, { message: "Postal Code is required" }),
   countryCode: z.string().min(1, { message: "Country is required" }),
   baseCurrencyCode: zfd.text(z.string()),
@@ -71,7 +71,8 @@ const company = {
   fax: zfd.text(z.string().optional()),
   email: zfd.text(z.string().optional()),
   website: zfd.text(z.string().optional()),
-  vatNumber: zfd.text(z.string().optional())
+  vatNumber: zfd.text(z.string().optional()),
+  eori: zfd.text(z.string().optional())
 };
 
 export const companyValidator = z.object(company);
@@ -89,7 +90,8 @@ export const customFieldValidator = z
       z.number().min(1, { message: "Data type is required" })
     ),
     listOptions: z.string().min(1).array().optional(),
-    tags: z.array(z.string()).optional()
+    tags: z.array(z.string()).optional(),
+    required: zfd.checkbox()
   })
   .refine((input) => {
     // allows bar to be optional only when foo is 'foo'
@@ -248,6 +250,12 @@ export const defaultCustomerCcValidator = z.object({
   defaultCustomerCc: z.array(z.string().email()).optional()
 });
 
+export const subsidiaryValidator = z.object({
+  ...company,
+  id: zfd.text(z.string().optional()),
+  parentCompanyId: zfd.text(z.string().optional())
+});
+
 export const sequenceValidator = z.object({
   table: z.string().min(1, { message: "Table is required" }),
   prefix: zfd.text(z.string().optional()),
@@ -329,10 +337,6 @@ const billingAddress = {
   fax: zfd.text(z.string().optional()),
   email: zfd.text(z.string().email().optional())
 };
-
-export const supplierApprovalValidator = z.object({
-  supplierApproval: zfd.checkbox()
-});
 
 export const accountsPayableBillingAddressValidator = z.object(billingAddress);
 export const accountsReceivableBillingAddressValidator =

@@ -8,6 +8,7 @@ import CustomerAvatar from "./CustomerAvatar";
 import { DateSelect } from "./DateSelect";
 import { DeferredFiles } from "./DeferredFiles";
 import { DirectionAwareTabs } from "./DirectionAwareTabs";
+import DocumentHeader from "./DocumentHeader";
 import DocumentPreview from "./DocumentPreview";
 import Documents from "./Documents";
 import EmployeeAvatar from "./EmployeeAvatar";
@@ -30,6 +31,7 @@ import Location from "./Location";
 import New from "./New";
 import RealtimeDataProvider from "./RealtimeDataProvider";
 import SearchFilter from "./SearchFilter";
+import { SearchLandingPage } from "./SearchLandingPage";
 import Select from "./Select";
 import SupplierAvatar from "./SupplierAvatar";
 import Table from "./Table";
@@ -47,6 +49,7 @@ export {
   DateSelect,
   DeferredFiles,
   DirectionAwareTabs,
+  DocumentHeader,
   DocumentPreview,
   Documents,
   EmployeeAvatar,
@@ -64,6 +67,7 @@ export {
   OperationStatusIcon,
   RealtimeDataProvider,
   SearchFilter,
+  SearchLandingPage,
   Select,
   SourcingTypeIcon,
   SupplierAvatar,

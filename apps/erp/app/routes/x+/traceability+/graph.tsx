@@ -1,35 +1,32 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import {
-  Button,
-  Heading,
-  HStack,
-  Loading,
-  useHydrated,
-  VStack
-} from "@carbon/react";
-import { useUrlParams } from "@carbon/remix";
+import type { Database } from "@carbon/database";
+import { Button, Loading, useHydrated, VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { ParentSize } from "@visx/responsive";
-import { useEffect, useMemo, useState } from "react";
-import type { LoaderFunctionArgs } from "react-router";
+import { ReactFlowProvider, useReactFlow, useStore } from "@xyflow/react";
+import XYFlowStyle from "@xyflow/react/dist/style.css?url";
+import { useCallback, useMemo, useState } from "react";
+import type { LinksFunction, LoaderFunctionArgs } from "react-router";
 import { Link, redirect, useLoaderData, useNavigation } from "react-router";
 import { Empty } from "~/components";
-import type {
-  Activity,
-  ActivityInput,
-  ActivityOutput,
-  GraphData,
-  GraphLink,
-  GraphNode,
-  TrackedEntity
-} from "~/modules/inventory";
+import type { Activity, TrackedEntity } from "~/modules/inventory";
 import {
-  TraceabilityGraph,
-  TraceabilitySidebar
-} from "~/modules/inventory/ui/Traceability/TraceabilityGraph";
+  fetchContainmentsForEntities,
+  fetchJobScopedLineage,
+  fetchLineageSubgraph,
+  type LineagePayload
+} from "~/modules/inventory/lineage.server";
+import { clampDepth } from "~/modules/inventory/ui/Traceability/constants";
+import { TraceabilityGraph } from "~/modules/inventory/ui/Traceability/TraceabilityGraph";
+import { TraceabilitySidebar } from "~/modules/inventory/ui/Traceability/TraceabilitySidebar";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
+
+export const links: LinksFunction = () => [
+  { rel: "stylesheet", href: XYFlowStyle }
+];
 
 export const handle: Handle = {
   breadcrumb: msg`Traceability`,
@@ -44,233 +41,336 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   const url = new URL(request.url);
-  const searchParams = new URLSearchParams(url.search);
-  const trackedEntityId = searchParams.get("trackedEntityId");
-  const trackedActivityId = searchParams.get("trackedActivityId");
+  const trackedEntityId = url.searchParams.get("trackedEntityId");
+  const trackedActivityId = url.searchParams.get("trackedActivityId");
+  const jobId = url.searchParams.get("jobId");
+  const depthParam = url.searchParams.get("depth");
+  const depth = clampDepth(Number(depthParam) || 1);
 
-  if (!trackedEntityId && !trackedActivityId) {
+  if (!trackedEntityId && !trackedActivityId && !jobId) {
     throw redirect(path.to.traceability);
   }
 
   if (trackedEntityId) {
-    const [entity, descendants, ancestors] = await Promise.all([
-      client
-        .from("trackedEntity")
-        .select("*")
-        .eq("id", trackedEntityId)
-        .single(),
-      client.rpc("get_direct_descendants_of_tracked_entity_strict", {
-        p_tracked_entity_id: trackedEntityId
-      }),
-      client.rpc("get_direct_ancestors_of_tracked_entity_strict", {
-        p_tracked_entity_id: trackedEntityId
-      })
-    ]);
-
-    const [inputs, outputs] = await Promise.all([
-      client
-        .from("trackedActivityInput")
-        .select("*")
-        .in(
-          "trackedEntityId",
-          Array.from(
-            new Set([
-              ...(descendants?.data?.map((descendant) => descendant.id) || []),
-              trackedEntityId
-            ])
-          )
-        ),
-      client
-        .from("trackedActivityOutput")
-        .select("*")
-        .in(
-          "trackedEntityId",
-          Array.from(
-            new Set([
-              trackedEntityId,
-              ...(ancestors?.data?.map((ancestor) => ancestor.id) || [])
-            ])
-          )
-        )
-    ]);
-
-    const uniqueActivityIds = Array.from(
-      new Set([
-        ...(inputs?.data?.map((input) => input.trackedActivityId) || []),
-        ...(outputs?.data?.map((output) => output.trackedActivityId) || [])
-      ])
+    let payload = await fetchLineageSubgraph(
+      client,
+      trackedEntityId,
+      depth,
+      "both"
     );
+    const rootEntity = payload.entities.find((e) => e.id === trackedEntityId);
+    const associatedJobId = jobId ?? getEntityJobId(rootEntity);
 
-    const activities = await client
-      .from("trackedActivity")
-      .select("*")
-      .in("id", uniqueActivityIds);
+    if (associatedJobId) {
+      const jobPayload = await fetchJobScopedLineage(
+        client,
+        associatedJobId,
+        depth
+      );
+      const jobReadableId = await getJobReadableId(client, associatedJobId);
+      payload = mergeLineagePayloads(
+        payload,
+        withJobNode(jobPayload, associatedJobId, jobReadableId)
+      );
+    }
 
+    const containments = await fetchContainmentsForEntities(
+      client,
+      payload.entities.map((e) => e.id)
+    );
     return {
-      entities: [
-        ...(entity?.data ? [entity.data] : []),
-        ...(descendants?.data ?? []),
-        ...(ancestors?.data ?? [])
-      ].reduce((acc, curr) => {
-        if (!acc.some((item) => item.id === curr.id)) {
-          acc.push(curr as TrackedEntity);
-        }
-        return acc;
-      }, [] as TrackedEntity[]),
-      inputs: inputs?.data ?? [],
-      outputs: outputs?.data ?? [],
-      activities: activities?.data ?? []
+      ...payload,
+      containments,
+      rootId: trackedEntityId,
+      rootType: "entity" as const,
+      depth
     };
   }
 
-  if (trackedActivityId) {
-    // Get the initial activity and its direct inputs/outputs
-    const [activity, directInputs, directOutputs] = await Promise.all([
-      client.from("trackedActivity").select("*").eq("id", trackedActivityId),
-      client
-        .from("trackedActivityInput")
-        .select("*")
-        .eq("trackedActivityId", trackedActivityId),
-      client
-        .from("trackedActivityOutput")
-        .select("*")
-        .eq("trackedActivityId", trackedActivityId)
-    ]);
-
-    // Get the direct entities connected to this activity
-    const directEntityIds = Array.from(
-      new Set([
-        ...(directInputs?.data?.map((input) => input.trackedEntityId) || []),
-        ...(directOutputs?.data?.map((output) => output.trackedEntityId) || [])
-      ])
+  if (jobId) {
+    const jobReadableId = await getJobReadableId(client, jobId);
+    const payload = withJobNode(
+      await fetchJobScopedLineage(client, jobId, depth),
+      jobId,
+      jobReadableId
     );
+    return {
+      ...payload,
+      rootId: jobId,
+      rootType: "job" as const,
+      depth
+    };
+  }
 
-    // Get the direct entities
-    const directEntities = await client
-      .from("trackedEntity")
+  // Legacy 1-hop activity-rooted view.
+  const [activity, directInputs, directOutputs] = await Promise.all([
+    client.from("trackedActivity").select("*").eq("id", trackedActivityId!),
+    client
+      .from("trackedActivityInput")
       .select("*")
-      .in("id", directEntityIds);
-
-    // Get additional activities connected to these entities
-    const [additionalInputs, additionalOutputs] = await Promise.all([
-      client
-        .from("trackedActivityInput")
-        .select("*")
-        .in("trackedEntityId", directEntityIds)
-        .neq("trackedActivityId", trackedActivityId),
-      client
-        .from("trackedActivityOutput")
-        .select("*")
-        .in("trackedEntityId", directEntityIds)
-        .neq("trackedActivityId", trackedActivityId)
-    ]);
-
-    // Get additional activity IDs
-    const additionalActivityIds = Array.from(
-      new Set([
-        ...(additionalInputs?.data?.map((input) => input.trackedActivityId) ||
-          []),
-        ...(additionalOutputs?.data?.map(
-          (output) => output.trackedActivityId
-        ) || [])
-      ])
-    );
-
-    // Get additional activities
-    const additionalActivities = await client
-      .from("trackedActivity")
+      .eq("trackedActivityId", trackedActivityId!),
+    client
+      .from("trackedActivityOutput")
       .select("*")
-      .in("id", additionalActivityIds);
+      .eq("trackedActivityId", trackedActivityId!)
+  ]);
 
-    // Combine all inputs and outputs
-    const allInputs = [
-      ...(directInputs?.data || []),
-      ...(additionalInputs?.data || [])
-    ];
+  const directEntityIds = Array.from(
+    new Set([
+      ...(directInputs?.data?.map((input) => input.trackedEntityId) || []),
+      ...(directOutputs?.data?.map((output) => output.trackedEntityId) || [])
+    ])
+  );
 
-    const allOutputs = [
+  const directEntities = await client
+    .from("trackedEntity")
+    .select("*")
+    .in("id", directEntityIds);
+
+  const [additionalInputs, additionalOutputs] = await Promise.all([
+    client
+      .from("trackedActivityInput")
+      .select("*")
+      .in("trackedEntityId", directEntityIds)
+      .neq("trackedActivityId", trackedActivityId!),
+    client
+      .from("trackedActivityOutput")
+      .select("*")
+      .in("trackedEntityId", directEntityIds)
+      .neq("trackedActivityId", trackedActivityId!)
+  ]);
+
+  const additionalActivityIds = Array.from(
+    new Set([
+      ...(additionalInputs?.data?.map((input) => input.trackedActivityId) ||
+        []),
+      ...(additionalOutputs?.data?.map((output) => output.trackedActivityId) ||
+        [])
+    ])
+  );
+
+  const additionalActivities = await client
+    .from("trackedActivity")
+    .select("*")
+    .in("id", additionalActivityIds);
+
+  const allEntities = (directEntities?.data ?? []) as TrackedEntity[];
+  const allActivities = [
+    ...((activity?.data || []) as unknown as Activity[]),
+    ...((additionalActivities?.data || []) as unknown as Activity[])
+  ];
+
+  const containments = await fetchContainmentsForEntities(
+    client,
+    allEntities.map((e) => e.id)
+  );
+
+  return {
+    entities: allEntities,
+    inputs: [...(directInputs?.data || []), ...(additionalInputs?.data || [])],
+    outputs: [
       ...(directOutputs?.data || []),
       ...(additionalOutputs?.data || [])
-    ];
-
-    // Combine all activities
-    const allActivities = [
-      ...(activity?.data || []),
-      ...(additionalActivities?.data || [])
-    ];
-
-    return {
-      entities: directEntities?.data ?? [],
-      inputs: allInputs,
-      outputs: allOutputs,
-      activities: allActivities
-    };
-  }
-
-  throw new Error("Invalid query parameters");
+    ],
+    activities: allActivities,
+    containments,
+    rootId: trackedActivityId!,
+    rootType: "activity" as const,
+    depth: 1
+  };
 }
-export default function TraceabilityRoute() {
-  const [params, setParams] = useUrlParams();
-  const selectedId =
-    params.get("trackedEntityId") ?? params.get("trackedActivityId");
 
-  const { entities, inputs, outputs, activities } =
-    useLoaderData<typeof loader>();
-  const [graphData, setGraphData] = useState<GraphData>({
-    nodes: [],
-    links: []
+function getEntityJobId(entity: TrackedEntity | undefined): string | null {
+  const attrs = entity?.attributes;
+  if (!attrs || typeof attrs !== "object" || Array.isArray(attrs)) return null;
+  const job = (attrs as Record<string, unknown>).Job;
+  return typeof job === "string" && job.length > 0 ? job : null;
+}
+
+async function getJobReadableId(
+  client: SupabaseClient<Database>,
+  jobId: string
+): Promise<string> {
+  const job = await client.from("job").select("jobId").eq("id", jobId).single();
+  return job.data?.jobId ?? jobId;
+}
+
+function withJobNode(
+  payload: LineagePayload,
+  jobId: string,
+  jobReadableId: string
+): LineagePayload {
+  const jobNodeId = `job:${jobId}`;
+  const existingActivityIds = new Set(payload.activities.map((a) => a.id));
+  const existingOutputKeys = new Set(
+    payload.outputs.map((o) => `${o.trackedActivityId}:${o.trackedEntityId}`)
+  );
+  const jobEntities = payload.entities.filter((entity) => {
+    if (getEntityJobId(entity) !== jobId) return false;
+    return entity.status === "Reserved" || entity.sourceDocument === "Item";
   });
 
-  const isEmpty = useMemo(() => {
-    return entities.length === 0 && activities.length === 0;
-  }, [entities, activities]);
-
-  useEffect(() => {
-    // Cast the data from the loader to the correct types
-    const validEntities = entities.filter(
-      Boolean
-    ) as unknown as TrackedEntity[];
-    const validActivities = activities.filter(Boolean) as unknown as Activity[];
-
-    // Show all nodes and links
-    const allNodes = getAllNodes(validEntities, validActivities);
-    const allLinks = getAllLinks(inputs, outputs);
-    setGraphData({ nodes: allNodes, links: allLinks });
-  }, [entities, activities, inputs, outputs]);
-
-  const handleNodeClick = (node: GraphNode) => {
-    if (node.data.id === selectedId) {
-      return;
-    }
-
-    if (node.type === "entity") {
-      setParams({
-        trackedEntityId: node.data.id,
-        trackedActivityId: null
-      });
-    } else {
-      setParams({
-        trackedEntityId: null,
-        trackedActivityId: node.data.id
-      });
-    }
+  return {
+    ...payload,
+    activities: existingActivityIds.has(jobNodeId)
+      ? payload.activities
+      : [
+          {
+            id: jobNodeId,
+            type: "Job",
+            sourceDocument: "Job",
+            sourceDocumentId: jobId,
+            sourceDocumentReadableId: jobReadableId,
+            attributes: { Job: jobId }
+          },
+          ...payload.activities
+        ],
+    outputs: [
+      ...payload.outputs,
+      ...jobEntities
+        .map((entity) => ({
+          trackedActivityId: jobNodeId,
+          trackedEntityId: entity.id,
+          quantity: entity.quantity
+        }))
+        .filter(
+          (output) =>
+            !existingOutputKeys.has(
+              `${output.trackedActivityId}:${output.trackedEntityId}`
+            )
+        )
+    ]
   };
+}
+
+function mergeLineagePayloads(
+  base: LineagePayload,
+  incoming: LineagePayload
+): LineagePayload {
+  const entityIds = new Set(base.entities.map((e) => e.id));
+  const activityIds = new Set(base.activities.map((a) => a.id));
+  const inputKeys = new Set(
+    base.inputs.map((i) => `${i.trackedActivityId}:${i.trackedEntityId}`)
+  );
+  const outputKeys = new Set(
+    base.outputs.map((o) => `${o.trackedActivityId}:${o.trackedEntityId}`)
+  );
+  const baseContainments = base.containments ?? [];
+  const incomingContainments = incoming.containments ?? [];
+  const containmentKeys = new Set(
+    baseContainments.map((c) => `${c.id}:${c.trackedEntityId}`)
+  );
+
+  return {
+    entities: [
+      ...base.entities,
+      ...incoming.entities.filter((e) => !entityIds.has(e.id))
+    ],
+    activities: [
+      ...base.activities,
+      ...incoming.activities.filter((a) => !activityIds.has(a.id))
+    ],
+    inputs: [
+      ...base.inputs,
+      ...incoming.inputs.filter(
+        (i) => !inputKeys.has(`${i.trackedActivityId}:${i.trackedEntityId}`)
+      )
+    ],
+    outputs: [
+      ...base.outputs,
+      ...incoming.outputs.filter(
+        (o) => !outputKeys.has(`${o.trackedActivityId}:${o.trackedEntityId}`)
+      )
+    ],
+    stepRecords: base.stepRecords ?? incoming.stepRecords,
+    containments:
+      incomingContainments.length === 0 && baseContainments.length === 0
+        ? undefined
+        : [
+            ...baseContainments,
+            ...incomingContainments.filter(
+              (c) => !containmentKeys.has(`${c.id}:${c.trackedEntityId}`)
+            )
+          ]
+  };
+}
+
+export default function TraceabilityRoute() {
+  return (
+    <ReactFlowProvider>
+      <TraceabilityRouteInner />
+    </ReactFlowProvider>
+  );
+}
+
+function TraceabilityRouteInner() {
+  const {
+    entities,
+    inputs,
+    outputs,
+    activities,
+    containments,
+    rootId,
+    rootType
+  } = useLoaderData<typeof loader>();
+
+  const isEmpty = useMemo(
+    () => entities.length === 0 && activities.length === 0,
+    [entities, activities]
+  );
 
   const isHydrated = useHydrated();
   const navigation = useNavigation();
 
+  // Selection lives in the React Flow store. Subscribe to the nodes ref
+  // (stable until xyflow updates it) and derive ids via useMemo so the
+  // returned array stays referentially stable across unrelated renders.
+  const flowNodes = useStore((s) => s.nodes);
+  const selectedIds = useMemo(() => {
+    const ids: string[] = [];
+    for (let i = 0; i < flowNodes.length; i++) {
+      if (flowNodes[i].selected) ids.push(flowNodes[i].id);
+    }
+    return ids;
+  }, [flowNodes]);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const safeIndex =
+    selectedIds.length > 0 ? Math.min(focusedIndex, selectedIds.length - 1) : 0;
+  const focusedSelectedId = selectedIds[safeIndex] ?? null;
+  const rootHasNode =
+    entities.some((e) => e?.id === rootId) ||
+    activities.some((a) => a?.id === rootId);
+  const fallbackSidebarId = rootHasNode
+    ? rootId
+    : (entities[0]?.id ?? activities[0]?.id ?? rootId);
+  const sidebarId = focusedSelectedId ?? fallbackSidebarId;
+
+  const { setNodes } = useReactFlow();
+  const selectNode = useCallback(
+    (id: string | null) => {
+      setNodes((nodes) =>
+        nodes.map((n) => {
+          const wantsSelected = id !== null && n.id === id;
+          if (n.selected === wantsSelected) return n;
+          return { ...n, selected: wantsSelected };
+        })
+      );
+    },
+    [setNodes]
+  );
+
+  const selectedEntity =
+    (entities.find((e) => e?.id === sidebarId) as TrackedEntity | undefined) ??
+    null;
+  const selectedActivity =
+    (activities.find((a) => a?.id === sidebarId) as Activity | undefined) ??
+    null;
+
   return (
     <div className="flex bg-card h-[calc(100dvh-49px)] w-full overflow-hidden scrollbar-hide">
-      <VStack className="flex-1 min-w-0 h-full">
-        <HStack className="px-4 py-6 justify-between w-full relative">
-          <HStack spacing={1}>
-            <Heading size={"h2"}>
-              <Trans>Traceability</Trans>
-            </Heading>
-          </HStack>
-        </HStack>
-        <div className="flex flex-1 w-full h-full overflow-y-auto scrollbar-hide p-4">
-          <div className="w-full max-w-full overflow-x-auto text-muted-foreground">
+      <VStack className="flex-1 min-w-0 h-full" spacing={0}>
+        <div className="flex flex-1 w-full h-full overflow-hidden">
+          <div className="w-full h-full">
             {isEmpty ? (
               <Empty className="h-full w-full">
                 <Button asChild>
@@ -286,10 +386,14 @@ export default function TraceabilityRoute() {
                     isLoading={!isHydrated || navigation.state !== "idle"}
                   >
                     <TraceabilityGraph
-                      key={`graph-${selectedId}`}
-                      data={graphData}
-                      onNodeClick={handleNodeClick}
-                      selectedId={selectedId}
+                      key={`graph-${rootId}`}
+                      entities={entities as TrackedEntity[]}
+                      activities={activities as Activity[]}
+                      inputs={inputs}
+                      outputs={outputs}
+                      containments={containments}
+                      rootId={rootId}
+                      rootType={rootType}
                       width={width}
                       height={height}
                     />
@@ -302,260 +406,22 @@ export default function TraceabilityRoute() {
       </VStack>
       {!isEmpty && (
         <TraceabilitySidebar
-          key={`sidebar-${selectedId}`}
-          entity={
-            entities
-              .filter(Boolean)
-              .find(
-                (entity) => entity?.id === selectedId
-              ) as TrackedEntity | null
-          }
-          activity={
-            activities
-              .filter(Boolean)
-              .find(
-                (activity) => activity?.id === selectedId
-              ) as Activity | null
-          }
+          key={`sidebar-${sidebarId}`}
+          entity={selectedEntity}
+          activity={selectedActivity}
+          payload={{
+            entities: entities as TrackedEntity[],
+            activities: activities as Activity[],
+            inputs,
+            outputs,
+            containments
+          }}
+          onSelect={selectNode}
+          focusedIndex={safeIndex}
+          onFocusedIndexChange={setFocusedIndex}
+          selectedIds={selectedIds}
         />
       )}
     </div>
   );
 }
-
-// Function to filter graph data based on selected node
-export const filterGraphByNode = (
-  allEntities: TrackedEntity[],
-  allActivities: Activity[],
-  allInputs: ActivityInput[],
-  allOutputs: ActivityOutput[],
-  selectedNode: GraphNode | null
-): GraphData => {
-  if (!selectedNode) {
-    // Return empty graph if no node is selected
-    return { nodes: [], links: [] };
-  }
-
-  const nodes: GraphNode[] = [];
-  const links: GraphLink[] = [];
-  const nodeIds = new Set<string>();
-
-  // Add the selected node with depth 0
-  nodes.push({
-    ...selectedNode,
-    depth: 0,
-    parentId: null
-  });
-  nodeIds.add(selectedNode.id);
-
-  if (selectedNode.type === "entity") {
-    // For entity nodes, show direct parents (activities that output this entity)
-    // and direct children (activities that use this entity as input)
-
-    // Find activities that output this entity
-    const parentActivities = allOutputs
-      .filter((output) => output.trackedEntityId === selectedNode.id)
-      .map((output) => {
-        const activity = allActivities.find(
-          (a) => a.id === output.trackedActivityId
-        );
-        if (activity && !nodeIds.has(activity.id)) {
-          nodeIds.add(activity.id);
-          return {
-            id: activity.id,
-            type: "activity" as const,
-            data: activity,
-            depth: -1, // Parent activities are at depth -1
-            parentId: selectedNode.id
-          } as GraphNode;
-        }
-        return null;
-      })
-      .filter((node): node is NonNullable<typeof node> => node !== null);
-
-    nodes.push(...parentActivities);
-
-    // Add links from parent activities to this entity
-    parentActivities.forEach((activity) => {
-      if (activity) {
-        links.push({
-          source: activity.id,
-          target: selectedNode.id,
-          type: "output",
-          quantity:
-            allOutputs.find(
-              (o) =>
-                o.trackedActivityId === activity.id &&
-                o.trackedEntityId === selectedNode.id
-            )?.quantity || 1
-        });
-      }
-    });
-
-    // Find activities that use this entity as input
-    const childActivities = allInputs
-      .filter((input) => input.trackedEntityId === selectedNode.id)
-      .map((input) => {
-        const activity = allActivities.find(
-          (a) => a.id === input.trackedActivityId
-        );
-        if (activity && !nodeIds.has(activity.id)) {
-          nodeIds.add(activity.id);
-          return {
-            id: activity.id,
-            type: "activity" as const,
-            data: activity,
-            depth: 1, // Child activities are at depth 1
-            parentId: selectedNode.id
-          } as GraphNode;
-        }
-        return null;
-      })
-      .filter((node): node is NonNullable<typeof node> => node !== null);
-
-    nodes.push(...childActivities);
-
-    // Add links from this entity to child activities
-    childActivities.forEach((activity) => {
-      if (activity) {
-        links.push({
-          source: selectedNode.id,
-          target: activity.id,
-          type: "input",
-          quantity:
-            allInputs.find(
-              (i) =>
-                i.trackedActivityId === activity.id &&
-                i.trackedEntityId === selectedNode.id
-            )?.quantity || 1
-        });
-      }
-    });
-  } else if (selectedNode.type === "activity") {
-    // For activity nodes, show all input entities and all output entities
-
-    // Find all input entities for this activity
-    const inputEntities = allInputs
-      .filter((input) => input.trackedActivityId === selectedNode.id)
-      .map((input) => {
-        const entity = allEntities.find((e) => e.id === input.trackedEntityId);
-        if (entity && !nodeIds.has(entity.id)) {
-          nodeIds.add(entity.id);
-          return {
-            id: entity.id,
-            type: "entity" as const,
-            data: entity,
-            depth: -1, // Input entities are at depth -1
-            parentId: selectedNode.id
-          } as GraphNode;
-        }
-        return null;
-      })
-      .filter((node): node is NonNullable<typeof node> => node !== null);
-
-    nodes.push(...inputEntities);
-
-    // Add links from input entities to this activity
-    inputEntities.forEach((entity) => {
-      if (entity) {
-        links.push({
-          source: entity.id,
-          target: selectedNode.id,
-          type: "input",
-          quantity:
-            allInputs.find(
-              (i) =>
-                i.trackedActivityId === selectedNode.id &&
-                i.trackedEntityId === entity.id
-            )?.quantity || 1
-        });
-      }
-    });
-
-    // Find all output entities for this activity
-    const outputEntities = allOutputs
-      .filter((output) => output.trackedActivityId === selectedNode.id)
-      .map((output) => {
-        const entity = allEntities.find((e) => e.id === output.trackedEntityId);
-        if (entity && !nodeIds.has(entity.id)) {
-          nodeIds.add(entity.id);
-          return {
-            id: entity.id,
-            type: "entity" as const,
-            data: entity,
-            depth: 1, // Output entities are at depth 1
-            parentId: selectedNode.id
-          } as GraphNode;
-        }
-        return null;
-      })
-      .filter((node): node is NonNullable<typeof node> => node !== null);
-
-    nodes.push(...outputEntities);
-
-    // Add links from this activity to output entities
-    outputEntities.forEach((entity) => {
-      if (entity) {
-        links.push({
-          source: selectedNode.id,
-          target: entity.id,
-          type: "output",
-          quantity:
-            allOutputs.find(
-              (o) =>
-                o.trackedActivityId === selectedNode.id &&
-                o.trackedEntityId === entity.id
-            )?.quantity || 1
-        });
-      }
-    });
-  }
-
-  return { nodes, links };
-};
-
-// Function to get all nodes for initial display
-export const getAllNodes = (
-  entities: TrackedEntity[],
-  activities: Activity[]
-): GraphNode[] => {
-  const entityNodes: GraphNode[] = entities.map((entity) => ({
-    id: entity.id,
-    type: "entity",
-    data: entity,
-    depth: 0,
-    parentId: null
-  }));
-
-  const activityNodes: GraphNode[] = activities.map((activity) => ({
-    id: activity.id,
-    type: "activity",
-    data: activity,
-    depth: 0,
-    parentId: null
-  }));
-
-  return [...entityNodes, ...activityNodes];
-};
-
-// Function to get all links
-export const getAllLinks = (
-  inputs: ActivityInput[],
-  outputs: ActivityOutput[]
-): GraphLink[] => {
-  const inputLinks: GraphLink[] = inputs.map((input) => ({
-    source: input.trackedEntityId,
-    target: input.trackedActivityId,
-    type: "input",
-    quantity: input.quantity
-  }));
-
-  const outputLinks: GraphLink[] = outputs.map((output) => ({
-    source: output.trackedActivityId,
-    target: output.trackedEntityId,
-    type: "output",
-    quantity: output.quantity
-  }));
-
-  return [...inputLinks, ...outputLinks];
-};

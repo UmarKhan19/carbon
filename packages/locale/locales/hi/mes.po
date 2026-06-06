@@ -1,6 +1,5 @@
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2026-04-11 20:22-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -15,17 +14,14 @@ msgstr ""
 
 #. placeholder {0}: attribute.name
 #. placeholder {1}: activeStep + 1
-#: apps/mes/app/components/JobOperation/components/Step.tsx:434
 msgid "{0} - Set {1}"
 msgstr "{0} - सेट {1}"
 
 #. placeholder {0}: employeeIds.length
-#: apps/mes/app/components/Kanban/components/ItemCard.tsx:262
 msgid "{0} Active"
 msgstr "{0} सक्रिय"
 
 #. placeholder {0}: batch.quantity
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:147
 msgid "{0} available"
 msgstr "{0} उपलब्ध"
 
@@ -33,232 +29,148 @@ msgstr "{0} उपलब्ध"
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
 #. placeholder {1}: operation.targetQuantity
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:639
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:853
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1812
 msgid "{0} of {1}"
 msgstr "{0} में से {1}"
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:876
 msgid "{0} of {1} complete"
 msgstr "{0} में से {1} पूर्ण"
 
 #. placeholder {0}: attributes.filter((a) => a.jobOperationStepRecord.some( (r) => r.index === activeStep ) ).length
 #. placeholder {1}: attributes.length
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1836
 msgid "{0} of {1} completed"
 msgstr "{0} में से {1} पूर्ण"
 
 #. placeholder {0}: item.quantityScrapped
-#: apps/mes/app/components/Kanban/components/ItemCard.tsx:281
 msgid "{0} Scrapped"
 msgstr "{0} स्क्रैप किया गया"
 
-#: apps/mes/app/components/AppSidebar.tsx:558
 msgid "About"
 msgstr "के बारे में"
 
-#: apps/mes/app/components/AppSidebar.tsx:412
 msgid "Account Settings"
 msgstr "खाता सेटिंग्स"
 
-#: apps/mes/app/components/AppSidebar.tsx:199
-#: apps/mes/app/routes/x+/active.tsx:69
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:409
-#: apps/mes/app/routes/x+/timecard.tsx:424
 msgid "Active"
 msgstr "सक्रिय"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1019
 msgid "Actual"
 msgstr "वास्तविक"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:431
 msgid "Add"
 msgstr "जोड़ें"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:668
 msgid "Add & Issue"
 msgstr "जोड़ें और जारी करें"
 
-#: apps/mes/app/components/AdjustInventory.tsx:114
-#: apps/mes/app/components/AdjustInventory.tsx:119
-#: apps/mes/app/components/AdjustInventory.tsx:142
-#: apps/mes/app/components/AdjustInventory.tsx:195
 msgid "Add Inventory"
 msgstr "इन्वेंटरी जोड़ें"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:303
 msgid "Add Spare Part"
 msgstr "स्पेयर पार्ट जोड़ें"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:417
 msgid "All"
 msgstr "सभी"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:84
-msgid "Are you sure you want to close out this operation? This will end all active production events for this operation."
-msgstr "क्या आप सुनिश्चित हैं कि आप इस ऑपरेशन को बंद करना चाहते हैं? यह इस ऑपरेशन के लिए सभी सक्रिय उत्पादन इवेंट को समाप्त कर देगा।"
-
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2381
 msgid "Are you sure you want to delete this step?"
 msgstr "क्या आप सुनिश्चित हैं कि आप इस चरण को हटाना चाहते हैं?"
 
-#: apps/mes/app/routes/x+/timecard.tsx:495
 msgid "Are you sure you want to delete this timecard? This cannot be undone."
 msgstr "क्या आप सुनिश्चित हैं कि आप इस टाइमकार्ड को हटाना चाहते हैं? यह पूर्ववत नहीं किया जा सकता।"
 
-#: apps/mes/app/components/EndShift.tsx:89
 msgid "Are you sure you want to end all production events? This will end all active operations without completing or finishing them."
 msgstr "क्या आप सुनिश्चित हैं कि आप सभी उत्पादन घटनाओं को समाप्त करना चाहते हैं? यह सभी सक्रिय संचालन को पूरा किए बिना या समाप्त किए बिना समाप्त कर देगा।"
 
-#: apps/mes/app/components/AppSidebar.tsx:194
-#: apps/mes/app/routes/x+/maintenance.tsx:362
+msgid "Are you sure you want to finish this operation? This will end all active production events for this operation."
+msgstr "क्या आप सुनिश्चित हैं कि आप इस ऑपरेशन को समाप्त करना चाहते हैं? यह इस ऑपरेशन के लिए सभी सक्रिय उत्पादन इवेंट को समाप्त कर देगा।"
+
+msgid "Are you sure you want to leave this page?"
+msgstr "क्या आप वाकई इस पृष्ठ को छोड़ना चाहते हैं?"
+
 msgid "Assigned"
 msgstr "निर्दिष्ट"
 
-#: apps/mes/app/routes/x+/assigned.tsx:89
-#: apps/mes/app/routes/x+/maintenance.tsx:433
 msgid "Assigned to Me"
 msgstr "मुझे असाइन किया गया"
 
-#: apps/mes/app/routes/x+/operations.tsx:405
 msgid "Assignee"
 msgstr "असाइनी"
 
-#: apps/mes/app/components/Feedback.tsx:151
 msgid "Attach File"
 msgstr "फ़ाइल संलग्न करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:190
 msgid "Authentication Error"
 msgstr "प्रमाणीकरण त्रुटि"
 
+msgid "Batch"
+msgstr "बैच"
+
 #. placeholder {0}: batch.readableId
 #. placeholder {1}: batch.quantity
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:146
 msgid "Batch {0} ({1} available)"
 msgstr "बैच {0} ({1} उपलब्ध)"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:182
 msgid "Batch is not available"
 msgstr "बैच उपलब्ध नहीं है"
 
 #. placeholder {0}: index + 1
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:502
 msgid "Batch Number {0}"
 msgstr "बैच नंबर {0}"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:175
 msgid "Batch number is required"
 msgstr "बैच नंबर आवश्यक है"
 
 #. placeholder {0}: column.blockingDispatchReadableId
-#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:129
 msgid "Blocked by {0}"
 msgstr "{0} द्वारा अवरुद्ध"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:441
 msgid "Blocking"
 msgstr "अवरुद्ध"
 
-#: apps/mes/app/routes/_public+/callback.tsx:153
 msgid "But don't worry. You can use the forgot password flow to request a new magic link."
 msgstr "लेकिन चिंता न करें। आप नया जादुई लिंक अनुरोध करने के लिए भूल गए पासवर्ड प्रवाह का उपयोग कर सकते हैं।"
 
-#: apps/mes/app/routes/_public+/login.tsx:249
 msgid "By signing in, you agree to the <0>Terms of Service</0> and <1>Privacy Policy.</1>"
 msgstr "साइन इन करके, आप <0>सेवा की शर्तें</0> और <1>गोपनीयता नीति</1> से सहमत हैं।"
 
-#: apps/mes/app/components/AdjustInventory.tsx:190
-#: apps/mes/app/components/EndShift.tsx:141
-#: apps/mes/app/components/Feedback.tsx:139
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:268
-#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:139
-#: apps/mes/app/components/JobOperation/components/Step.tsx:556
-#: apps/mes/app/components/JobOperation/components/Step.tsx:604
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:658
-#: apps/mes/app/components/Suggestion.tsx:199
-#: apps/mes/app/routes/x+/timecard.tsx:408
-#: apps/mes/app/routes/x+/timecard.tsx:505
 msgid "Cancel"
 msgstr "रद्द करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:159
 msgid "Carbon Logo"
 msgstr "कार्बन लोगो"
 
-#: apps/mes/app/routes/x+/operations.tsx:470
 msgid "Cards"
 msgstr "कार्ड"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:475
 msgid "Chat"
 msgstr "चैट"
 
-#: apps/mes/app/routes/_public+/login.tsx:168
 msgid "Check your email"
 msgstr "अपना ईमेल जांचें"
 
-#: apps/mes/app/components/Feedback.tsx:147
-#: apps/mes/app/components/Suggestion.tsx:207
 msgid "Clear"
 msgstr "साफ़ करें"
 
-#: apps/mes/app/components/Filter/Filter.tsx:121
-#: apps/mes/app/routes/x+/operations.tsx:528
 msgid "Clear Filters"
 msgstr "फ़िल्टर साफ़ करें"
 
-#: apps/mes/app/routes/x+/active.tsx:103
-#: apps/mes/app/routes/x+/assigned.tsx:137
-#: apps/mes/app/routes/x+/maintenance.tsx:287
-#: apps/mes/app/routes/x+/recent.tsx:103
 msgid "Clear Search"
 msgstr "खोज साफ़ करें"
 
-#: apps/mes/app/components/TimeCardButton.tsx:90
-#: apps/mes/app/components/TimeCardButton.tsx:97
-#: apps/mes/app/routes/x+/timecard.tsx:264
-#: apps/mes/app/routes/x+/timecard.tsx:319
 msgid "Clock In"
 msgstr "घड़ी में प्रवेश करें"
 
-#: apps/mes/app/components/TimeCardButton.tsx:71
-#: apps/mes/app/components/TimeCardButton.tsx:78
-#: apps/mes/app/routes/x+/timecard.tsx:253
-#: apps/mes/app/routes/x+/timecard.tsx:322
 msgid "Clock Out"
 msgstr "घड़ी बंद करें"
 
-#. placeholder {0}: formatTime(openEntry.clockIn)
-#: apps/mes/app/routes/x+/timecard.tsx:272
+#. placeholder {0}: formatTime(openEntry.clockIn, locale)
 msgid "Clocked in since {0}"
 msgstr "Clocked in since {0}"
-
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:98
-msgid "Close"
-msgstr "बंद करें"
-
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:98
-msgid "Close Anyways"
-msgstr "वैसे भी बंद करें"
-
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2129
-msgid "Close Out"
-msgstr "बंद करें"
-
-#. placeholder {0}: operation.itemReadableId
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:74
-msgid "Close out {0}"
-msgstr "{0} को बंद करें"
 
 #. placeholder {0}: active.data.current.column.title
 #. placeholder {1}: overColumnPosition + 1
 #. placeholder {2}: columnOrder.length
-#: apps/mes/app/components/Kanban/Kanban.tsx:113
 msgid "Column {0} was dropped into position {1} of {2}"
 msgstr "कॉलम {0} को स्थिति {1} में {2} में गिराया गया"
 
@@ -266,1068 +178,834 @@ msgstr "कॉलम {0} को स्थिति {1} में {2} में �
 #. placeholder {1}: over.data.current.column.title
 #. placeholder {2}: overIndex + 1
 #. placeholder {3}: columnOrder.length
-#: apps/mes/app/components/Kanban/Kanban.tsx:97
 msgid "Column {0} was moved over {1} at position {2} of {3}"
 msgstr "कॉलम {0} को {1} के ऊपर स्थिति {2} में {3} में स्थानांतरित किया गया"
 
 #. placeholder {0}: column.title
-#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:71
 msgid "Column: {0}"
 msgstr "कॉलम: {0}"
 
-#: apps/mes/app/routes/x+/operations.tsx:447
 msgid "Columns"
 msgstr "कॉलम"
 
-#: apps/mes/app/components/AppSidebar.tsx:420
 msgid "Company"
 msgstr "कंपनी"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:188
 msgid "Complete"
 msgstr "पूर्ण करें"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:632
+msgid "Complete All"
+msgstr "सभी को पूर्ण करें"
+
 msgid "Completed"
 msgstr "पूर्ण"
 
-#: apps/mes/app/components/AppSidebar.tsx:353
 msgid "Console"
 msgstr "कंसोल"
 
-#: apps/mes/app/components/AppSidebar.tsx:525
 msgid "Console Mode"
 msgstr "कंसोल मोड"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1103
 msgid "Consumed expired"
 msgstr "खपत की गई समाप्त"
 
 #. placeholder {0}: search.trim() === "" ? (createLabel ?? label) : search
 #. placeholder {0}: search.trim() === "" ? label : search
-#: packages/react/src/CreateableCombobox.tsx:291
-#: packages/react/src/CreateableMultiSelect.tsx:333
 msgid "Create {0}"
 msgstr "{0} बनाएं"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2002
-#: apps/mes/app/routes/x+/operations.tsx:473
+msgid "Create Issue"
+msgstr "समस्या बनाएं"
+
+msgid "Create Quality Issue"
+msgstr "गुणवत्ता समस्या बनाएं"
+
+msgid "Create Rework"
+msgstr "रीवर्क बनाएं"
+
 msgid "Customer"
 msgstr "ग्राहक"
 
-#: apps/mes/app/components/AppSidebar.tsx:489
 msgid "Dark Mode"
 msgstr "डार्क मोड"
 
-#: apps/mes/app/routes/x+/timecard.tsx:316
 msgid "Date"
 msgstr "तारीख"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2029
 msgid "Deadline"
 msgstr "समय सीमा"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1135
 msgid "Default Storage Unit"
 msgstr "डिफ़ॉल्ट स्टोरेज यूनिट"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:613
-#: apps/mes/app/routes/x+/timecard.tsx:457
-#: apps/mes/app/routes/x+/timecard.tsx:517
 msgid "Delete"
 msgstr "हटाएं"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2380
 msgid "Delete Step"
 msgstr "चरण हटाएं"
 
-#. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString()
-#: apps/mes/app/routes/x+/timecard.tsx:488
+#. placeholder {0}: new Date(deletingEntry.clockIn).toLocaleString(locale)
 msgid "Delete Timecard ({0})"
 msgstr "टाइमकार्ड हटाएं ({0})"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2016
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:284
-#: apps/mes/app/routes/x+/operations.tsx:474
+msgid "Describe the problem..."
+msgstr "समस्या का वर्णन करें..."
+
+msgid "Describe what needs to be reworked..."
+msgstr "वर्णन करें कि क्या रीवर्क करने की आवश्यकता है..."
+
 msgid "Description"
 msgstr "विवरण"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:457
 msgid "Details"
 msgstr "विवरण"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:224
 msgid "Dispatch not found"
 msgstr "डिस्पैच नहीं मिला"
 
-#: apps/mes/app/routes/x+/operations.tsx:441
 msgid "Display"
 msgstr "प्रदर्शन"
 
-#: apps/mes/app/components/MaintenanceOeeImpact.tsx:28
-#: apps/mes/app/routes/x+/maintenance.tsx:373
 msgid "Down"
 msgstr "डाउन"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1483
 msgid "Download"
 msgstr "डाउनलोड"
 
-#: apps/mes/app/components/FileDropzone.tsx:29
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "यहाँ एक फ़ाइल को ड्रैग और ड्रॉप करें, या फ़ाइल चुनने के लिए क्लिक करें"
 
 #. placeholder {0}: active.data.current?.type
-#: apps/mes/app/components/Kanban/Kanban.tsx:122
 msgid "Dragging {0} cancelled."
 msgstr "\"{0}\" को ड्रैग करना रद्द किया गया।"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:580
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:681
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2048
-#: apps/mes/app/components/Kanban/components/ItemCard.tsx:229
-#: apps/mes/app/components/OperationsList.tsx:187
 msgid "Due {0}"
 msgstr "Due {0} के लिए"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:660
-#: apps/mes/app/routes/x+/operations.tsx:475
 msgid "Due Date"
 msgstr "देय तारीख"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:180
 msgid "Duplicate batch number"
 msgstr "डुप्लिकेट बैच नंबर"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:165
 msgid "Duplicate serial number"
 msgstr "डुप्लिकेट सीरियल नंबर"
 
-#: apps/mes/app/routes/x+/operations.tsx:476
-#: apps/mes/app/routes/x+/timecard.tsx:325
 msgid "Duration"
 msgstr "अवधि"
 
-#: apps/mes/app/routes/x+/timecard.tsx:445
 msgid "Edit"
 msgstr "संपादित करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:229
 msgid "Email Address"
 msgstr "ईमेल पता"
 
-#: apps/mes/app/routes/x+/operations.tsx:450
 msgid "Empty work centers"
 msgstr "खाली कार्य केंद्र"
 
-#: apps/mes/app/components/EndShift.tsx:72
-#: apps/mes/app/components/EndShift.tsx:75
-#: apps/mes/app/components/EndShift.tsx:86
-#: apps/mes/app/components/EndShift.tsx:154
 msgid "End Operations"
 msgstr "संचालन समाप्त करें"
 
 #. placeholder {0}: selectedPerson.name
-#: apps/mes/app/components/PinInOverlay.tsx:290
 msgid "Enter PIN for {0}"
 msgstr "{0} के लिए PIN दर्ज करें"
 
-#: apps/mes/app/routes/_public+/callback.tsx:146
 msgid "Error"
 msgstr "त्रुटि"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1016
 msgid "Estimated"
 msgstr "अनुमानित"
 
-#: apps/mes/app/components/AdjustInventory.tsx:96
 msgid "Failed to complete inventory adjustment"
 msgstr "इन्वेंटरी समायोजन पूरा करने में विफल"
 
-#: apps/mes/app/components/EndShift.tsx:48
 msgid "Failed to end operations"
 msgstr "संचालन समाप्त करने में विफल"
 
-#: apps/mes/app/components/EndShift.tsx:64
 msgid "Failed to fetch active operations"
 msgstr "सक्रिय संचालन प्राप्त करने में विफल"
 
-#: apps/mes/app/components/AdjustInventory.tsx:65
 msgid "Failed to fetch storageUnits"
 msgstr "storageUnits को प्राप्त करने में विफल"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:385
 msgid "Failed to upload file: {0}"
 msgstr "फ़ाइल अपलोड करने में विफल: {0}"
 
-#: apps/mes/app/components/Feedback.tsx:74
-#: apps/mes/app/components/Suggestion.tsx:94
 msgid "Failed to upload image"
 msgstr "छवि अपलोड करने में विफल"
 
-#: apps/mes/app/components/Feedback.tsx:92
 msgid "Feedback"
 msgstr "प्रतिक्रिया"
 
-#: apps/mes/app/components/Feedback.tsx:61
-#: apps/mes/app/components/Suggestion.tsx:80
 msgid "File size exceeds 10MB limit"
 msgstr "फ़ाइल का आकार 10MB की सीमा से अधिक है"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1410
 msgid "Files"
 msgstr "फ़ाइलें"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1413
 msgid "Files related to the job and the opportunity line."
 msgstr "नौकरी और अवसर लाइन से संबंधित फाइलें।"
 
-#: apps/mes/app/components/Filter/Filter.tsx:151
 msgid "Filter"
 msgstr "फ़िल्टर"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:107
+msgid "Finish"
+msgstr "समाप्त करें"
+
+#. placeholder {0}: operation.itemReadableId
+msgid "Finish {0}"
+msgstr "{0} को समाप्त करें"
+
+msgid "Finish Anyways"
+msgstr "वैसे भी समाप्त करें"
+
 msgid "Forgot to Clock Out?"
 msgstr "घड़ी से बाहर निकलना भूल गए?"
 
-#: apps/mes/app/components/Feedback.tsx:165
+msgid "Go back to operation"
+msgstr "ऑपरेशन पर वापस जाएं"
+
 msgid "Have a technical issue? Contact <0>Carbon Support.</0>"
 msgstr "क्या आपको कोई तकनीकी समस्या है? <0>Carbon Support</0> से संपर्क करें।"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:197
 msgid "I understand and want to complete without issuing"
 msgstr "मैं समझता हूँ और बिना जारी किए पूरा करना चाहता हूँ"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:140
 msgid "I'm Still Working"
 msgstr "मैं अभी भी काम कर रहा हूँ"
 
-#: apps/mes/app/components/Feedback.tsx:116
 msgid "Ideas, suggestions or problems with this page?"
 msgstr "इस पृष्ठ के बारे में विचार, सुझाव या समस्याएं?"
 
-#: apps/mes/app/components/Suggestion.tsx:139
 msgid "Ideas, suggestions or problems?"
 msgstr "विचार, सुझाव या समस्याएं?"
 
-#: apps/mes/app/components/MaintenanceOeeImpact.tsx:48
-#: apps/mes/app/routes/x+/maintenance.tsx:375
 msgid "Impact"
 msgstr "प्रभाव"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:363
 msgid "In Progress"
 msgstr "प्रगति में"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:209
 msgid "Insufficient quantity"
 msgstr "अपर्याप्त मात्रा"
 
-#: apps/mes/app/components/AdjustInventory.tsx:91
 msgid "Inventory adjustment completed"
 msgstr "इन्वेंटरी समायोजन पूर्ण हुआ"
 
-#: apps/mes/app/components/AppSidebar.tsx:269
 msgid "Inventory Adjustments"
 msgstr "इन्वेंटरी समायोजन"
 
-#: apps/mes/app/components/Filter/ActiveFilters.tsx:139
 msgid "is"
 msgstr "है"
 
-#: apps/mes/app/components/Filter/ActiveFilters.tsx:141
 msgid "is any of"
 msgstr "इनमें से कोई भी है"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1216
 msgid "Issue"
 msgstr "जारी करें"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:975
 msgid "Issue Material"
 msgstr "सामग्री जारी करें"
 
-#: apps/mes/app/components/AdjustInventory.tsx:164
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1979
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:314
+msgid "Issue Type"
+msgstr "समस्या प्रकार"
+
 msgid "Item"
 msgstr "वस्तु"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:517
 msgid "Item Master"
 msgstr "आइटम मास्टर"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1990
 msgid "Job"
 msgstr "नौकरी"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:508
 msgid "Job Details"
 msgstr "नौकरी विवरण"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:502
 msgid "Job Traveler"
 msgstr "जॉब ट्रैवलर"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1118
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1286
+msgid "Jobs"
+msgstr "नौकरियां"
+
 msgid "Kit"
 msgstr "किट"
 
-#: apps/mes/app/components/JobOperation/components/Controls.tsx:182
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2180
 msgid "Labor"
 msgstr "श्रम"
 
-#: apps/mes/app/routes/_public+/_layout.tsx:30
+msgid "Leave this page"
+msgstr "इस पृष्ठ को छोड़ें"
+
 msgid "Let's build something"
 msgstr "चलिए कुछ बनाते हैं"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:326
 msgid "Loading item details..."
 msgstr "आइटम विवरण लोड हो रहे हैं..."
 
-#: apps/mes/app/components/Filter/ActiveFilters.tsx:170
-#: apps/mes/app/components/Filter/Filter.tsx:167
 msgid "Loading..."
 msgstr "लोड हो रहा है..."
 
-#: apps/mes/app/components/AppSidebar.tsx:460
 msgid "Location"
 msgstr "स्थान"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:97
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2119
 msgid "Log Completed"
 msgstr "पूर्ण लॉग करें"
 
 #. placeholder {0}: operation.itemReadableId
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:73
 msgid "Log completed for {0}"
 msgstr "{0} के लिए पूर्ण लॉग करें"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:96
 msgid "Log Rework"
 msgstr "रीवर्क लॉग करें"
 
 #. placeholder {0}: operation.itemReadableId
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:72
 msgid "Log rework for {0}"
 msgstr "{0} के लिए रीवर्क लॉग करें"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:95
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2102
 msgid "Log Scrap"
 msgstr "स्क्रैप लॉग करें"
 
 #. placeholder {0}: operation.itemReadableId
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:71
 msgid "Log scrap for {0}"
 msgstr "{0} के लिए स्क्रैप लॉग करें"
 
-#: apps/mes/app/routes/_public+/callback.tsx:160
 msgid "Login"
 msgstr "लॉगिन"
 
-#: apps/mes/app/components/JobOperation/components/Controls.tsx:198
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2213
 msgid "Machine"
 msgstr "मशीन"
 
-#: apps/mes/app/components/AppSidebar.tsx:210
-#: apps/mes/app/routes/x+/maintenance.tsx:404
 msgid "Maintenance"
 msgstr "रखरखाव"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:543
 msgid "Maintenance Completed"
 msgstr "रखरखाव पूर्ण"
 
-#: apps/mes/app/components/AdjustInventory.tsx:149
 msgid "Manually add items to inventory"
 msgstr "इन्वेंटरी में आइटम मैन्युअली जोड़ें"
 
-#: apps/mes/app/components/AdjustInventory.tsx:151
 msgid "Manually remove items from inventory"
 msgstr "इन्वेंटरी से आइटम को मैन्युअली हटाएं"
 
-#: apps/mes/app/components/Filter/ActiveFilters.tsx:142
 msgid "matches"
 msgstr "मेल खाता है"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:962
 msgid "Materials"
 msgstr "सामग्री"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:837
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1796
 msgid "Maximum number of records reached"
 msgstr "रिकॉर्ड की अधिकतम संख्या तक पहुंच गई"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:463
 msgid "Model"
 msgstr "मॉडल"
 
-#: apps/mes/app/routes/x+/timecard.tsx:435
+msgid "More Actions"
+msgstr "अधिक क्रियाएं"
+
 msgid "More options"
 msgstr "अधिक विकल्प"
 
 #. placeholder {0}: column.title
-#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:153
 msgid "Move column: {0}"
 msgstr "कॉलम को स्थानांतरित करें: {0}"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:115
 msgid "Must be < {maxValue} {unitOfMeasureCode}"
 msgstr "{maxValue} {unitOfMeasureCode} से कम होना चाहिए"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:113
 msgid "Must be > {minValue} {unitOfMeasureCode}"
 msgstr "{minValue} से अधिक होना चाहिए {unitOfMeasureCode}"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:111
 msgid "Must be between {minValue} and {maxValue} {unitOfMeasureCode}"
 msgstr "{minValue} और {maxValue} के बीच होना चाहिए {unitOfMeasureCode}"
 
-#: apps/mes/app/components/TimeCardButton.tsx:105
-#: apps/mes/app/components/TimeCardButton.tsx:115
-#: apps/mes/app/routes/x+/timecard.tsx:242
 msgid "My Hours"
 msgstr "मेरे घंटे"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1427
 msgid "Name"
 msgstr "नाम"
 
-#: packages/react/src/CreateableCombobox.tsx:217
-#: packages/react/src/CreateableMultiSelect.tsx:255
 msgid "New"
 msgstr "नया"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:848
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1807
 msgid "New Record"
 msgstr "नया रिकॉर्ड"
 
-#: apps/mes/app/routes/x+/timecard.tsx:295
-#: apps/mes/app/routes/x+/timecard.tsx:299
 msgid "Next"
 msgstr "अगला"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:479
 msgid "No active maintenance dispatches"
 msgstr "कोई सक्रिय रखरखाव प्रेषण नहीं"
 
-#: apps/mes/app/components/EndShift.tsx:103
-#: apps/mes/app/routes/x+/active.tsx:112
 msgid "No active operations"
 msgstr "कोई सक्रिय संचालन नहीं"
 
-#: apps/mes/app/routes/x+/assigned.tsx:146
 msgid "No assigned operations"
 msgstr "कोई नियुक्त ऑपरेशन नहीं"
 
-#: apps/mes/app/components/Filter/Filter.tsx:167
 msgid "No available filters"
 msgstr "कोई उपलब्ध फ़िल्टर नहीं"
 
-#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:77
 msgid "No available serial numbers found"
 msgstr "कोई उपलब्ध सीरियल नंबर नहीं मिला"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:519
 msgid "No dispatches assigned to you"
 msgstr "आपको कोई डिस्पैच असाइन नहीं किया गया है"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1442
 msgid "No files"
 msgstr "कोई फ़ाइलें नहीं"
 
-#: apps/mes/app/components/MaintenanceOeeImpact.tsx:58
-#: apps/mes/app/routes/x+/maintenance.tsx:258
-#: apps/mes/app/routes/x+/maintenance.tsx:376
 msgid "No Impact"
 msgstr "कोई प्रभाव नहीं"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:499
 msgid "No maintenance scheduled for today"
 msgstr "आज के लिए कोई रखरखाव निर्धारित नहीं है"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1031
 msgid "No materials"
 msgstr "कोई सामग्री नहीं"
 
-#: apps/mes/app/components/PinInOverlay.tsx:223
+msgid "No open jobs"
+msgstr "कोई खुली नौकरी नहीं"
+
 msgid "No operators"
 msgstr "कोई ऑपरेटर नहीं"
 
-#: packages/react/src/CreateableMultiSelect.tsx:285
-#: packages/react/src/MultiSelect.tsx:271
 msgid "No option found."
 msgstr "कोई विकल्प नहीं मिला।"
 
-#: apps/mes/app/components/Filter/ActiveFilters.tsx:170
 msgid "No options found."
 msgstr "कोई विकल्प नहीं मिला।"
 
-#: apps/mes/app/routes/x+/recent.tsx:112
 msgid "No recent operations"
 msgstr "कोई हाल के संचालन नहीं"
 
-#: apps/mes/app/components/PinInOverlay.tsx:223
-#: apps/mes/app/routes/x+/operations.tsx:525
 msgid "No results"
 msgstr "कोई परिणाम नहीं"
 
-#: apps/mes/app/routes/x+/active.tsx:100
-#: apps/mes/app/routes/x+/assigned.tsx:134
-#: apps/mes/app/routes/x+/recent.tsx:100
 msgid "No results exist"
 msgstr "कोई परिणाम मौजूद नहीं है"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:475
-#: apps/mes/app/routes/x+/maintenance.tsx:494
-#: apps/mes/app/routes/x+/maintenance.tsx:515
-#: apps/mes/app/routes/x+/maintenance.tsx:534
 msgid "No results found"
 msgstr "कोई परिणाम नहीं मिला"
 
-#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:147
 msgid "No scheduled time"
 msgstr "कोई निर्धारित समय नहीं"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1622
 msgid "No serial numbers"
 msgstr "कोई सीरियल नंबर नहीं"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:475
+msgid "No serial numbers found"
+msgstr "कोई सीरियल नंबर नहीं मिला"
+
 msgid "No spare parts added yet"
 msgstr "अभी तक कोई स्पेयर पार्ट्स नहीं जोड़े गए हैं"
 
-#: apps/mes/app/routes/x+/timecard.tsx:337
 msgid "No time entries for this week"
 msgstr "इस सप्ताह के लिए कोई समय प्रविष्टि नहीं"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:538
 msgid "No work centers are blocked"
 msgstr "कोई कार्य केंद्र अवरुद्ध नहीं हैं"
 
-#: apps/mes/app/routes/x+/operations.tsx:537
 msgid "No work centers exist"
 msgstr "कोई कार्य केंद्र मौजूद नहीं है"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:247
 msgid "Notes"
 msgstr "नोट्स"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:369
 msgid "OEE Impact"
 msgstr "OEE प्रभाव"
 
-#: apps/mes/app/components/MaintenanceSeverity.tsx:58
 msgid "OEM Required"
 msgstr "OEM आवश्यक"
 
 #. placeholder {0}: batch.quantity
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:183
 msgid "Only {0} available"
 msgstr "केवल {0} उपलब्ध"
 
-#: apps/mes/app/routes/_index.tsx:16
 msgid "Oops. You shouldn't see this page. Eventually it will be a landing page."
 msgstr "अरे। आपको यह पृष्ठ नहीं देखना चाहिए। आखिरकार यह एक लैंडिंग पृष्ठ होगा।"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:361
 msgid "Open"
 msgstr "खुला"
 
-#: apps/mes/app/components/AppSidebar.tsx:223
+msgid "Open Jobs"
+msgstr "खुली नौकरियां"
+
 msgid "Operations"
 msgstr "संचालन"
 
-#: apps/mes/app/components/EndShift.tsx:44
 msgid "Operations ended"
 msgstr "संचालन समाप्त"
 
-#: apps/mes/app/components/MaintenanceSeverity.tsx:38
 msgid "Operator Performed"
 msgstr "ऑपरेटर द्वारा निष्पादित"
 
-#: packages/react/src/Form/FormLabel.tsx:44
 msgid "Optional"
 msgstr "वैकल्पिक"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1715
 msgid "Parameters"
 msgstr "पैरामीटर"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1010
 msgid "Part"
 msgstr "भाग"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:541
 msgid "Passed Inspection"
 msgstr "निरीक्षण पास किया"
 
-#: apps/mes/app/components/JobOperation/components/Controls.tsx:319
 msgid "Pause"
 msgstr "रोकें"
 
 #. placeholder {0}: startColumn?.title
 #. placeholder {1}: startIndex + 1
 #. placeholder {2}: columnOrder.length
-#: apps/mes/app/components/Kanban/Kanban.tsx:84
 msgid "Picked up Column {0} at position: {1} of {2}"
 msgstr "कॉलम {0} को स्थिति {1} पर उठाया गया: {2} में से"
 
-#: apps/mes/app/components/PinInOverlay.tsx:357
 msgid "Pin Out"
 msgstr "पिन आउट"
 
-#: apps/mes/app/components/MaintenanceOeeImpact.tsx:38
-#: apps/mes/app/routes/x+/maintenance.tsx:374
 msgid "Planned"
 msgstr "नियोजित"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:226
 msgid "Please record all steps for this operation before closing."
 msgstr "कृपया बंद करने से पहले इस ऑपरेशन के लिए सभी चरणों को रिकॉर्ड करें।"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:191
 msgid "Please select an item"
 msgstr "कृपया एक आइटम चुनें"
 
-#: apps/mes/app/routes/x+/timecard.tsx:280
 msgid "Prev"
 msgstr "पिछला"
 
-#: apps/mes/app/components/MaintenanceSeverity.tsx:28
 msgid "Preventive"
 msgstr "निवारक"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:345
 msgid "Priority"
 msgstr "प्राथमिकता"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:472
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:516
 msgid "Procedure"
 msgstr "प्रक्रिया"
 
-#: apps/mes/app/routes/x+/operations.tsx:377
 msgid "Process"
 msgstr "प्रक्रिया"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:926
 msgid "Process Parameters"
 msgstr "प्रक्रिया पैरामीटर"
 
-#: apps/mes/app/routes/x+/operations.tsx:378
 msgid "Processes"
 msgstr "प्रक्रियाएं"
 
-#: apps/mes/app/routes/x+/operations.tsx:477
 msgid "Progress"
 msgstr "प्रगति"
 
-#: apps/mes/app/components/AdjustInventory.tsx:170
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:236
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2245
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:336
+msgid "Quality Issue"
+msgstr "गुणवत्ता समस्या"
+
+msgid "Quality issue created"
+msgstr "गुणवत्ता समस्या बनाई गई"
+
 msgid "Quantity"
 msgstr "मात्रा"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:176
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:258
 msgid "Quantity must be greater than 0"
 msgstr "मात्रा 0 से अधिक होनी चाहिए"
 
-#: apps/mes/app/components/AppSidebar.tsx:205
-#: apps/mes/app/components/PinInOverlay.tsx:230
-#: apps/mes/app/routes/x+/recent.tsx:69
+msgid "Reason for rework"
+msgstr "रीवर्क का कारण"
+
 msgid "Recent"
 msgstr "हाल ही में"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:205
-#: apps/mes/app/components/JobOperation/components/Step.tsx:567
 msgid "Record"
 msgstr "रिकॉर्ड"
 
 #. placeholder {0}: activeStep + 1
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:805
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1771
 msgid "Record {0}"
 msgstr "रिकॉर्ड {0}"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:511
 msgid "Remove"
 msgstr "हटाएं"
 
-#: apps/mes/app/components/Filter/ActiveFilters.tsx:200
-#: apps/mes/app/components/Filter/Filter.tsx:129
 msgid "Remove filter"
 msgstr "फ़िल्टर हटाएं"
 
-#: apps/mes/app/components/AdjustInventory.tsx:114
-#: apps/mes/app/components/AdjustInventory.tsx:119
-#: apps/mes/app/components/AdjustInventory.tsx:144
-#: apps/mes/app/components/AdjustInventory.tsx:197
 msgid "Remove Inventory"
 msgstr "इन्वेंटरी हटाएं"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:460
 msgid "Remove part"
 msgstr "भाग हटाएं"
 
-#: apps/mes/app/routes/x+/operations.tsx:479
+msgid "Rework"
+msgstr "रीवर्क"
+
+msgid "Rework created successfully"
+msgstr "रीवर्क सफलतापूर्वक बनाया गया"
+
 msgid "Sales Order"
 msgstr "बिक्रय आदेश"
 
-#: apps/mes/app/routes/x+/timecard.tsx:401
 msgid "Save"
 msgstr "सहेजें"
 
-#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:65
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1599
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:364
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:484
 msgid "Scan"
 msgstr "स्कैन करें"
 
-#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:108
 msgid "Scan or enter serial number"
 msgstr "स्कैन करें या सीरियल नंबर दर्ज करें"
 
-#: apps/mes/app/components/AppSidebar.tsx:189
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:451
-#: apps/mes/app/routes/x+/operations.tsx:423
+msgid "Scan or search serial number..."
+msgstr "सीरियल नंबर स्कैन या खोजें..."
+
 msgid "Schedule"
 msgstr "शेड्यूल"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:246
-#: apps/mes/app/components/JobOperation/components/ScrapReason.tsx:20
+msgid "Scrap"
+msgstr "स्क्रैप"
+
 msgid "Scrap Reason"
 msgstr "स्क्रैप कारण"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:649
 msgid "Scrapped"
 msgstr "स्क्रैप किया गया"
 
-#: apps/mes/app/routes/x+/active.tsx:83
-#: apps/mes/app/routes/x+/assigned.tsx:103
-#: apps/mes/app/routes/x+/maintenance.tsx:453
-#: apps/mes/app/routes/x+/operations.tsx:430
-#: apps/mes/app/routes/x+/recent.tsx:83
 msgid "Search"
 msgstr "खोजें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:207
+msgid "Search by job or item ID"
+msgstr "जॉब या आइटम आईडी से खोजें"
+
 msgid "Search operators..."
 msgstr "ऑपरेटर खोजें..."
 
-#: apps/mes/app/components/Filter/ActiveFilters.tsx:166
-#: apps/mes/app/components/Filter/Filter.tsx:163
-#: packages/react/src/Combobox.tsx:193
-#: packages/react/src/CreateableCombobox.tsx:237
-#: packages/react/src/CreateableMultiSelect.tsx:163
-#: packages/react/src/CreateableMultiSelect.tsx:275
-#: packages/react/src/MultiSelect.tsx:268
 msgid "Search..."
 msgstr "खोजें..."
 
-#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:69
-#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:94
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1666
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:368
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:488
-#: packages/react/src/Combobox.tsx:111
-#: packages/react/src/CreateableCombobox.tsx:121
-#: packages/react/src/MultiSelect.tsx:178
 msgid "Select"
 msgstr "चुनें"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:83
 msgid "Select a completion quantity"
 msgstr "पूर्ण मात्रा का चयन करें"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:82
 msgid "Select a rework quantity"
 msgstr "रीवर्क मात्रा चुनें"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:81
 msgid "Select a scrap quantity and reason"
 msgstr "स्क्रैप मात्रा और कारण चुनें"
 
-#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:55
 msgid "Select a serial number to continue with this operation"
 msgstr "इस ऑपरेशन को जारी रखने के लिए एक सीरियल नंबर चुनें"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:306
 msgid "Select an item and specify the quantity to issue"
 msgstr "एक आइटम चुनें और जारी करने के लिए मात्रा निर्दिष्ट करें"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:317
 msgid "Select an item..."
 msgstr "एक आइटम चुनें..."
 
 #. placeholder {0}: index + 1
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:592
 msgid "Select Batch {0}"
 msgstr "बैच {0} चुनें"
 
 #. placeholder {0}: index + 1
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:440
 msgid "Select Serial {0}"
 msgstr "सीरियल {0} चुनें"
 
-#: apps/mes/app/components/JobOperation/components/SerialSelectorModal.tsx:52
 msgid "Select Serial Number"
 msgstr "सीरियल नंबर चुनें"
 
-#: apps/mes/app/components/Feedback.tsx:160
-#: apps/mes/app/components/JobOperation/components/Chat.tsx:222
-#: apps/mes/app/components/Suggestion.tsx:220
+msgid "Select the operation to go back to. All operations from that point to the current operation will be redone."
+msgstr "उस ऑपरेशन को चुनें जिस पर वापस जाना है। उस बिंदु से वर्तमान ऑपरेशन तक के सभी ऑपरेशन फिर से किए जाएंगे।"
+
 msgid "Send"
 msgstr "भेजें"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1609
 msgid "Serial"
 msgstr "सीरीज़"
 
 #. placeholder {0}: sn.readableId
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:128
 msgid "Serial {0}"
 msgstr "सीरियल {0}"
 
 #. placeholder {0}: index + 1
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:382
 msgid "Serial Number {0}"
 msgstr "सीरियल नंबर {0}"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:167
 msgid "Serial number is not available"
 msgstr "सीरियल नंबर उपलब्ध नहीं है"
 
-#: apps/mes/app/components/MaintenanceDispatch/MaintenanceAddPartModal.tsx:161
 msgid "Serial number is required"
 msgstr "सीरियल नंबर आवश्यक है"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1580
+msgid "Serial numbers"
+msgstr "सीरियल नंबर"
+
 msgid "Serial Numbers"
 msgstr "सीरियल नंबर"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:147
 msgid "Set Clock Out"
 msgstr "क्लॉक आउट सेट करें"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:128
 msgid "Set clock-out time"
 msgstr "घड़ी बंद करने का समय सेट करें"
 
-#: apps/mes/app/components/JobOperation/components/Controls.tsx:166
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:2147
 msgid "Setup"
 msgstr "सेटअप"
 
-#: apps/mes/app/routes/_public+/login.tsx:239
 msgid "Sign in with Email"
 msgstr "ईमेल के साथ साइन इन करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:206
 msgid "Sign in with Google"
 msgstr "Google के साथ साइन इन करें"
 
-#: apps/mes/app/routes/_public+/login.tsx:219
 msgid "Sign in with Outlook"
 msgstr "Outlook के साथ साइन इन करें"
 
-#: apps/mes/app/components/AppSidebar.tsx:566
+msgid "Sign in with Passkey"
+msgstr "पासकी के साथ साइन इन करें"
+
 msgid "Sign Out"
 msgstr "साइन आउट"
 
-#: apps/mes/app/components/AppSidebar.tsx:406
 msgid "Signed in as {stationName}"
 msgstr "के रूप में साइन इन किया गया {stationName}"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1430
 msgid "Size"
 msgstr "आकार"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1013
 msgid "Source"
 msgstr "स्रोत"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:424
 msgid "Spare Parts"
 msgstr "स्पेयर पार्ट्स"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:487
 msgid "Spare Parts Used"
 msgstr "उपयोग किए गए स्पेयर पार्ट्स"
 
-#: apps/mes/app/components/JobOperation/components/Controls.tsx:332
 msgid "Start"
 msgstr "शुरू करें"
 
-#: apps/mes/app/components/PinInOverlay.tsx:271
 msgid "Station User"
 msgstr "स्टेशन उपयोगकर्ता"
 
-#: apps/mes/app/components/AppSidebar.tsx:400
 msgid "Station: {stationName}"
 msgstr "स्टेशन: {stationName}"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:356
-#: apps/mes/app/routes/x+/operations.tsx:478
 msgid "Status"
 msgstr "स्थिति"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:357
 msgid "Statuses"
 msgstr "स्थितियाँ"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:751
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:862
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1712
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1822
+msgid "Stay on this page"
+msgstr "इस पृष्ठ पर रहें"
+
 msgid "Steps"
 msgstr "चरण"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:223
 msgid "Steps are missing"
 msgstr "चरण गायब हैं"
 
-#: apps/mes/app/components/AdjustInventory.tsx:172
 msgid "Storage Unit"
 msgstr "भंडारण इकाई"
 
-#: apps/mes/app/components/Suggestion.tsx:160
 msgid "Submit anonymously"
 msgstr "गुमनाम रूप से सबमिट करें"
 
-#: apps/mes/app/components/Suggestion.tsx:114
-#: apps/mes/app/components/Suggestion.tsx:117
 msgid "Suggestion"
 msgstr "सुझाव"
 
-#: apps/mes/app/components/MaintenanceSeverity.tsx:48
 msgid "Support Required"
 msgstr "समर्थन आवश्यक"
 
-#: apps/mes/app/components/AppSidebar.tsx:396
 msgid "Switch Operator"
 msgstr "ऑपरेटर स्विच करें"
 
-#: apps/mes/app/routes/x+/operations.tsx:394
 msgid "Tag"
 msgstr "टैग"
 
 #. placeholder {0}: operation.operationQuantity
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:212
 msgid "The completed quantity for this operation is less than the required quantity of {0}."
 msgstr "इस ऑपरेशन के लिए पूर्ण मात्रा आवश्यक मात्रा {0} से कम है।"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:182
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "बिल ऑफ मेटेरियल पर सीरियल या बैच ट्रैक किए गए मेटेरियल हैं जो पूरी तरह से जारी नहीं किए गए हैं। जारी किए बिना पूरा करने से गलत ट्रेसेबिलिटी रिकॉर्ड हो सकते हैं।"
 
-#: apps/mes/app/routes/x+/operations.tsx:480
 msgid "Thumbnail"
 msgstr "थंबनेल"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:385
 msgid "Time Entries"
 msgstr "समय प्रविष्टियाँ"
 
 #. placeholder {0}: formatDuration(totalDuration)
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:306
 msgid "Time Worked: {0}"
 msgstr "समय काम किया: {0}"
 
-#: apps/mes/app/routes/x+/maintenance.tsx:425
 msgid "Today"
 msgstr "आज"
 
-#: apps/mes/app/components/AppSidebar.tsx:282
 msgid "Tools"
 msgstr "उपकरण"
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:253
 msgid "Total Quantity"
 msgstr "कुल मात्रा"
 
 #. placeholder {0}: formatDuration(totalDuration)
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:546
 msgid "Total time: {0}"
 msgstr "कुल समय: {0}"
 
 #. placeholder {0}: formatTotalHours(entries)
-#: apps/mes/app/routes/x+/timecard.tsx:471
 msgid "Total: {0}"
 msgstr "कुल: {0}"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1596
+msgid "Tracking"
+msgstr "ट्रैकिंग"
+
 msgid "Tracking Labels"
 msgstr "ट्रैकिंग लेबल"
 
-#: apps/mes/app/components/JobOperation/components/Chat.tsx:211
 msgid "Type a message..."
 msgstr "एक संदेश लिखें..."
 
-#: apps/mes/app/components/JobOperation/components/QuantityModal.tsx:179
 msgid "Unissued serial/batch materials"
 msgstr "अजारी सीरीज़/बैच सामग्री"
 
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:264
 msgid "Unknown"
 msgstr "अज्ञात"
 
-#: apps/mes/app/components/JobOperation/components/Step.tsx:154
+msgid "Unsaved changes"
+msgstr "असहेजे परिवर्तन"
+
 msgid "Update"
 msgstr "अपडेट करें"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:68
 msgid "Updated successfully"
 msgstr "सफलतापूर्वक अपडेट किया गया"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:387
 msgid "Uploaded: {0}"
 msgstr "अपलोड किया गया: {0}"
 
 #. placeholder {0}: fileUpload.name
-#: apps/mes/app/components/JobOperation/components/Step.tsx:373
 msgid "Uploading {0}"
 msgstr "अपलोड किया जा रहा है {0}"
 
-#: apps/mes/app/components/Kanban/components/ColumnCard.tsx:137
 msgid "View maintenance dispatch"
 msgstr "रखरखाव डिस्पैच देखें"
 
-#: apps/mes/app/routes/_public+/login.tsx:171
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "हमने आपके खाते में साइन इन करने के लिए आपको एक जादुई लिंक भेजा है।"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1134
 msgid "WIP"
 msgstr "WIP"
 
-#: apps/mes/app/components/JobOperation/JobOperation.tsx:1952
-#: apps/mes/app/routes/x+/dispatch.$dispatchId.tsx:258
-#: apps/mes/app/routes/x+/maintenance.tsx:332
-#: apps/mes/app/routes/x+/operations.tsx:366
 msgid "Work Center"
 msgstr "कार्य केंद्र"
 
-#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString()
-#: apps/mes/app/components/TimeCardWarning.tsx:119
+#. placeholder {0}: new Date(openClockEntry.clockIn).toLocaleString(locale)
 msgid "You clocked in at {0}. You can edit your clock-out time below or acknowledge that you're still working."
 msgstr "आप {0} पर क्लॉक इन हुए हैं। आप नीचे अपने क्लॉक-आउट समय को संपादित कर सकते हैं या यह स्वीकार कर सकते हैं कि आप अभी भी काम कर रहे हैं।"
 
-#: apps/mes/app/components/TimeCardWarning.tsx:110
 msgid "You've been clocked in for {hoursElapsed} hours. Did you forget to clock out?"
 msgstr "आप {hoursElapsed} घंटे के लिए क्लॉक इन हैं। क्या आप क्लॉक आउट करना भूल गए?"

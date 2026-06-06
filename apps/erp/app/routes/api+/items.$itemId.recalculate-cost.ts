@@ -1,6 +1,7 @@
 import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import type { Database } from "@carbon/database";
+import { pluckUnique } from "@carbon/utils";
 import type { ActionFunctionArgs } from "react-router";
 import { flattenTree } from "~/components/TreeView";
 import { getMethodTree } from "~/modules/items";
@@ -48,11 +49,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   // Get all method operations for cost calculation
-  const makeMethodIds = [
-    ...new Set(methods.map((method) => method.data.makeMethodId))
-  ];
+  const makeMethodIds = pluckUnique(methods, (m) => m.data.makeMethodId);
 
-  const itemIds = [...new Set(methods.map((m) => m.data.itemId))];
+  const itemIds = pluckUnique(methods, (m) => m.data.itemId);
 
   const [methodOperations, workCentersResult, lotSizesResult] =
     await Promise.all([

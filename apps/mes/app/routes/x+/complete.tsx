@@ -28,18 +28,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const serviceRole = await getCarbonServiceRole();
 
   // Get current job operation and production quantities to check if operation will be finished
-  const [jobOperation, productionQuantities] = await Promise.all([
-    serviceRole
-      .from("jobOperation")
-      .select("*")
-      .eq("id", validation.data.jobOperationId)
-      .maybeSingle(),
-    serviceRole
-      .from("productionQuantity")
-      .select("*")
-      .eq("type", "Production")
-      .eq("jobOperationId", validation.data.jobOperationId)
-  ]);
+  const jobOperation = await serviceRole
+    .from("jobOperation")
+    .select("*")
+    .eq("id", validation.data.jobOperationId)
+    .maybeSingle();
 
   if (jobOperation.error || !jobOperation.data) {
     return data(
@@ -51,12 +44,14 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const currentQuantity =
-    productionQuantities.data?.reduce((acc, curr) => acc + curr.quantity, 0) ??
-    0;
+  const totalAccountedQuantity =
+    (jobOperation.data.quantityComplete ?? 0) +
+    (jobOperation.data.quantityReworked ?? 0) +
+    (jobOperation.data.quantityScrapped ?? 0) +
+    validation.data.quantity;
 
   const willBeFinished =
-    validation.data.quantity + currentQuantity >=
+    totalAccountedQuantity >=
     (jobOperation.data.targetQuantity ??
       jobOperation.data.operationQuantity ??
       0);
@@ -71,12 +66,23 @@ export async function action({ request }: ActionFunctionArgs) {
       }
     });
 
+    if (response.error) {
+      return data(
+        {},
+        await flash(request, {
+          ...error(response.error, "Failed to complete job operation"),
+          flash: "error"
+        })
+      );
+    }
+
     const trackedEntityId = response.data?.newTrackedEntityId;
 
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
         jobOperationId: jobOperation.data.id,
-        userId
+        userId,
+        companyId
       });
 
       if (finishOperation.error) {
@@ -131,7 +137,8 @@ export async function action({ request }: ActionFunctionArgs) {
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
         jobOperationId: jobOperation.data.id,
-        userId
+        userId,
+        companyId
       });
 
       if (finishOperation.error) {
@@ -187,8 +194,8 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (issue.error) {
-      throw data(
-        insertProduction.data,
+      return data(
+        {},
         await flash(request, {
           ...error(issue.error, "Failed to issue materials"),
           flash: "error"
@@ -199,7 +206,8 @@ export async function action({ request }: ActionFunctionArgs) {
     if (willBeFinished) {
       const finishOperation = await finishJobOperation(serviceRole, {
         jobOperationId: jobOperation.data.id,
-        userId
+        userId,
+        companyId
       });
 
       if (finishOperation.error) {

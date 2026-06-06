@@ -20,7 +20,7 @@ import {
   useDisclosure,
   VStack
 } from "@carbon/react";
-import { formatDate, getSalesOrderJobStatus } from "@carbon/utils";
+import { getSalesOrderJobStatus } from "@carbon/utils";
 import {
   getLocalTimeZone,
   isSameDay,
@@ -42,7 +42,12 @@ import {
 import { Link, useParams } from "react-router";
 import { CustomerAvatar, Hyperlink, MethodIcon } from "~/components";
 import { Confirm } from "~/components/Modals";
-import { usePercentFormatter, usePermissions, useRouteData } from "~/hooks";
+import {
+  useDateFormatter,
+  usePercentFormatter,
+  usePermissions,
+  useRouteData
+} from "~/hooks";
 import JobStatus from "~/modules/production/ui/Jobs/JobStatus";
 import { getPrivateUrl, path } from "~/utils/path";
 import { isSalesOrderLocked } from "../../sales.models";
@@ -63,6 +68,7 @@ const SalesOrderSummary = ({
   const { t } = useLingui();
   const { orderId } = useParams();
   if (!orderId) throw new Error("Could not find orderId");
+  const { formatDate } = useDateFormatter();
 
   const routeData = useRouteData<{
     salesOrder: SalesOrder;
@@ -403,7 +409,9 @@ function LineItems({
                         className="flex min-w-0 flex-shrink-0"
                       >
                         <Heading className="truncate">
-                          {line.itemReadableId}
+                          {line.salesOrderLineType === "Fixed Asset"
+                            ? (line as any).assetReadableId || "Fixed Asset"
+                            : line.itemReadableId}
                         </Heading>
                         <Button
                           asChild
@@ -456,9 +464,11 @@ function LineItems({
                           className="flex items-center gap-2"
                         >
                           {line.saleQuantity}
-                          <MethodIcon
-                            type={line.methodType ?? "Pull from Inventory"}
-                          />
+                          {line.salesOrderLineType !== "Fixed Asset" && (
+                            <MethodIcon
+                              type={line.methodType ?? "Pull from Inventory"}
+                            />
+                          )}
                         </Badge>
                         <Badge variant="green">
                           {formatter.format(line.unitPrice ?? 0)}{" "}

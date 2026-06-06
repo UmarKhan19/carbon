@@ -1,6 +1,6 @@
 import type { ValidationErrorResponseData } from "@carbon/form";
 import type { FileObject } from "@supabase/storage-js";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { IconType } from "react-icons";
 import type { useSettings } from "~/hooks";
 
@@ -27,6 +27,23 @@ export type FormActionData = Promise<ValidationErrorResponseData | Result>;
 export type ListItem = {
   id: string;
   name: string;
+  email?: string;
+};
+
+// Topbar notification shape. `payload` mirrors what notify.ts writes into
+// the notification row's payload jsonb column.
+export type Notification = {
+  _id: string;
+  read: boolean;
+  seen: boolean;
+  createdAt: string;
+  payload: {
+    documentId?: string;
+    description?: string;
+    event?: string;
+    from?: string;
+    documentType?: string;
+  };
 };
 
 export type ModelUpload = {
@@ -59,6 +76,7 @@ export type Route<T = {}> = T & {
   name: string;
   to: string;
   icon?: any;
+  tag?: ReactNode;
   setting?: keyof ReturnType<typeof useSettings>;
   views?: {
     id: string;

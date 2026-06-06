@@ -1,5 +1,6 @@
 import { ValidatedForm } from "@carbon/form";
 import {
+  Badge,
   BarProgress,
   Card,
   CardContent,
@@ -19,9 +20,7 @@ import {
 } from "@carbon/react";
 import {
   convertDateStringToIsoString,
-  formatDate,
-  formatDurationMilliseconds,
-  formatRelativeTime
+  formatDurationMilliseconds
 } from "@carbon/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -48,6 +47,7 @@ import { Link } from "react-router";
 import { z } from "zod";
 import { Assignee, CustomerAvatar, EmployeeAvatarGroup } from "~/components";
 import { Tags } from "~/components/Form";
+import { useDateFormatter } from "~/hooks";
 import { useTags } from "~/hooks/useTags";
 import { getDeadlineIcon } from "~/modules/production/ui/Jobs/Deadline";
 import { JobOperationStatus } from "~/modules/production/ui/Jobs/JobOperationStatus";
@@ -99,6 +99,7 @@ type ItemCardProps = {
 
 export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
   const { t } = useLingui();
+  const { formatDate, formatRelativeTime } = useDateFormatter();
   const { displaySettings, selectedGroup, setSelectedGroup, tags } =
     useKanban();
   const {
@@ -248,6 +249,18 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
           Number(item.targetQuantity ?? item.quantity) > 0 && (
             <HStack>
               <BarProgress
+                segments={[
+                  {
+                    value: item.quantityCompleted ?? 0,
+                    className: "bg-emerald-500"
+                  },
+                  {
+                    value: item.quantityReworked ?? 0,
+                    className: "bg-yellow-500"
+                  },
+                  { value: item.quantityScrapped ?? 0, className: "bg-red-500" }
+                ]}
+                max={(item.targetQuantity ?? item.quantity) || 1}
                 progress={
                   item.quantityCompleted &&
                   (item.targetQuantity ?? item.quantity)
@@ -275,6 +288,7 @@ export function ItemCard({ item, isOverlay, progressByItemId }: ItemCardProps) {
         <HStack className="justify-start space-x-2">
           <LuCirclePlay className="text-muted-foreground" />
           <span className="text-sm line-clamp-1">{item.title}</span>
+          {item.reworkId && <Badge variant="red">Rework</Badge>}
         </HStack>
         {displaySettings.showDescription && item.description && (
           <HStack className="justify-start space-x-2">

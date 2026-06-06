@@ -1,7 +1,7 @@
-import { getMESUrl } from "@carbon/auth";
 import type { Database } from "@carbon/database";
+import { getMESUrl } from "@carbon/env";
 import type { JSONContent } from "@carbon/react";
-import { formatDurationMinutes } from "@carbon/utils";
+import { formatDate, formatFactor } from "@carbon/utils";
 import { Image, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import { generateQRCode } from "../qr/qr-code";
@@ -109,6 +109,7 @@ type JobHeaderProps = {
   bomId?: string;
   thumbnail?: string | null;
   methodRevision?: string | null;
+  locale?: string;
 };
 
 const JobHeader = ({
@@ -118,6 +119,7 @@ const JobHeader = ({
   customer,
   item,
   job,
+  locale,
   methodRevision,
   thumbnail,
   jobOperations
@@ -204,7 +206,7 @@ const JobHeader = ({
           <View style={jobHeaderStyles.infoRow}>
             <Text style={jobHeaderStyles.label}>Start Date:</Text>
             <Text style={jobHeaderStyles.value}>
-              {new Date(job.startDate).toLocaleDateString()}
+              {formatDate(job.startDate, undefined, locale)}
             </Text>
           </View>
         )}
@@ -213,7 +215,7 @@ const JobHeader = ({
           <View style={jobHeaderStyles.infoRow}>
             <Text style={jobHeaderStyles.label}>Due Date:</Text>
             <Text style={jobHeaderStyles.value}>
-              {new Date(job.dueDate).toLocaleDateString()}
+              {formatDate(job.dueDate, undefined, locale)}
             </Text>
           </View>
         )}
@@ -249,11 +251,12 @@ export const JobTravelerPageContent = ({
   item,
   batchNumber,
   bomId,
+  locale,
   notes,
   thumbnail,
   methodRevision,
   includeWorkInstructions = false
-}: Omit<JobTravelerProps, "meta" | "title" | "locale" | "jobMakeMethod"> & {
+}: Omit<JobTravelerProps, "meta" | "title" | "jobMakeMethod"> & {
   methodRevision?: string | null;
 }) => {
   return (
@@ -264,7 +267,13 @@ export const JobTravelerPageContent = ({
           company={company}
           title="Job Traveler"
           documentId={job.jobId}
+          documentSubId={
+            job.salesOrderReadableId
+              ? `SO# ${job.salesOrderReadableId}`
+              : undefined
+          }
           date={job.startDate}
+          locale={locale}
         />
       </View>
 
@@ -277,6 +286,7 @@ export const JobTravelerPageContent = ({
           item={item}
           batchNumber={batchNumber}
           bomId={bomId}
+          locale={locale}
           thumbnail={thumbnail}
           methodRevision={methodRevision}
           jobOperations={jobOperations}
@@ -327,17 +337,17 @@ export const JobTravelerPageContent = ({
               );
             }
 
-            const setupTimeFormatted = formatDurationMinutes(
+            const setupTimeFormatted = formatFactor(
               operation.setupTime,
-              { style: "short" }
+              operation.setupUnit
             );
-            const laborTimeFormatted = formatDurationMinutes(
+            const laborTimeFormatted = formatFactor(
               operation.laborTime,
-              { style: "short" }
+              operation.laborUnit
             );
-            const machineTimeFormatted = formatDurationMinutes(
+            const machineTimeFormatted = formatFactor(
               operation.machineTime,
-              { style: "short" }
+              operation.machineUnit
             );
             const hasExpectedTimes =
               setupTimeFormatted || laborTimeFormatted || machineTimeFormatted;
@@ -545,6 +555,7 @@ const JobTravelerPDF = ({
   item,
   batchNumber,
   bomId,
+  locale,
   meta,
   notes,
   thumbnail,
@@ -568,6 +579,7 @@ const JobTravelerPDF = ({
         item={item}
         batchNumber={batchNumber}
         bomId={bomId}
+        locale={locale}
         notes={notes}
         thumbnail={thumbnail}
         methodRevision={jobMakeMethod.version?.toString()}

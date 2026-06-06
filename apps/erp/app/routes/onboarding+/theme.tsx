@@ -11,9 +11,9 @@ import {
   cn,
   HStack,
   useKeyboardShortcuts,
+  useMode,
   VStack
 } from "@carbon/react";
-import { useMode } from "@carbon/remix";
 import type { Theme } from "@carbon/utils";
 import { themes } from "@carbon/utils";
 import { msg } from "@lingui/core/macro";
@@ -85,6 +85,10 @@ export default function OnboardingTheme() {
     Object.entries(variables).forEach(([key, value]) => {
       document.body.style.setProperty(`--${key}`, value);
     });
+
+    window.dispatchEvent(
+      new CustomEvent("onboarding-theme-change", { detail: t.name })
+    );
   };
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -200,7 +204,7 @@ export default function OnboardingTheme() {
                 >
                   <span
                     className={cn(
-                      "mr-1 flex h-5 w-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-[--theme-primary]"
+                      "mr-1 flex h-5 w-5 shrink-0 -translate-x-1 items-center justify-center rounded-full bg-[var(--theme-primary)]"
                     )}
                   >
                     {isActive && <RxCheck className="h-4 w-4 text-white" />}

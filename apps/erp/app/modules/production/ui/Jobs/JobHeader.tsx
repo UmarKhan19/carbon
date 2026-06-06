@@ -60,7 +60,8 @@ import {
   LuSquareSigma,
   LuTable,
   LuTrash,
-  LuTriangleAlert
+  LuTriangleAlert,
+  LuWorkflow
 } from "react-icons/lu";
 import { RiProgress8Line } from "react-icons/ri";
 import type { FetcherWithComponents } from "react-router";
@@ -71,14 +72,17 @@ import { usePanels } from "~/components/Layout";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import Select from "~/components/Select";
 import SupplierAvatar from "~/components/SupplierAvatar";
+import { flattenTree } from "~/components/TreeView";
 import {
   useOptimisticLocation,
   usePermissions,
   useRouteData,
   useUser
 } from "~/hooks";
+import { generateBomIds } from "~/utils/bom";
 import { path } from "~/utils/path";
 import { isJobLocked, jobCompleteValidator } from "../../production.models";
+import { getJobMethodTree } from "../../production.service";
 import type { Job } from "../../types";
 import JobStatus from "./JobStatus";
 
@@ -91,6 +95,8 @@ const JobHeader = () => {
         return t`Materials`;
       case "operations":
         return t`Operations`;
+      case "dag":
+        return "Workflow";
       case "step-records":
         return t`Step Records`;
       case "events":
@@ -135,6 +141,7 @@ const JobHeader = () => {
       return "events";
     if (location.pathname.includes(path.to.jobProductionQuantities(jobId)))
       return "quantities";
+    if (location.pathname.includes(path.to.jobDag(jobId))) return "dag";
     return "details";
   };
 
@@ -179,6 +186,32 @@ const JobHeader = () => {
             <DropdownMenuContent>
               {auditLogTrigger}
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                disabled={
+                  !["Cancelled", "Completed"].includes(
+                    routeData?.job?.status ?? ""
+                  ) ||
+                  statusFetcher.state !== "idle" ||
+                  !permissions.can("update", "production")
+                }
+                onClick={() => {
+                  statusFetcher.submit(
+                    {
+                      status:
+                        routeData?.job?.status === "Cancelled"
+                          ? "Draft"
+                          : "In Progress"
+                    },
+                    {
+                      method: "post",
+                      action: path.to.jobStatus(jobId)
+                    }
+                  );
+                }}
+              >
+                <DropdownMenuIcon icon={<LuLoaderCircle />} />
+                Reopen
+              </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={
                   !permissions.can("delete", "production") ||
@@ -254,7 +287,11 @@ const JobHeader = () => {
                   {getExplorerLabel("details")}
                 </DropdownMenuRadioItem>
                 <DropdownMenuSeparator />
-                {["materials", "operations"].map((i) => (
+                {[
+                  "materials",
+                  "operations",
+                  ...(status !== "Draft" && status !== "Planned" ? ["dag"] : [])
+                ].map((i) => (
                   <DropdownMenuRadioItem value={i} key={i}>
                     <DropdownMenuIcon icon={getExplorerMenuIcon(i)} />
                     {getExplorerLabel(i)}
@@ -373,32 +410,6 @@ const JobHeader = () => {
           >
             Cancel
           </Button>
-          <statusFetcher.Form method="post" action={path.to.jobStatus(jobId)}>
-            <input
-              type="hidden"
-              name="status"
-              value={status === "Cancelled" ? "Draft" : "In Progress"}
-            />
-            <Button
-              isLoading={
-                statusFetcher.state !== "idle" &&
-                ["Draft", "Planned", "In Progress"].includes(
-                  (statusFetcher.formData?.get("status") as string) ?? ""
-                )
-              }
-              isDisabled={
-                !["Cancelled", "Completed"].includes(status ?? "") ||
-                statusFetcher.state !== "idle" ||
-                !permissions.can("update", "production")
-              }
-              leftIcon={<LuLoaderCircle />}
-              type="submit"
-              variant="secondary"
-            >
-              Reopen
-            </Button>
-          </statusFetcher.Form>
-
           <IconButton
             aria-label={t`Toggle Properties`}
             icon={<LuPanelRight />}
@@ -456,6 +467,8 @@ function getExplorerMenuIcon(type: string) {
       return <LuPackage />;
     case "operations":
       return <LuSettings />;
+    case "dag":
+      return <LuWorkflow />;
     case "step-records":
       return <LuClipboardList />;
     case "events":
@@ -473,6 +486,8 @@ const getExplorePath = (jobId: string, type: string) => {
       return path.to.jobMaterials(jobId);
     case "operations":
       return path.to.jobOperations(jobId);
+    case "dag":
+      return path.to.jobDag(jobId);
     case "step-records":
       return path.to.jobOperationStepRecords(jobId);
     case "events":
@@ -495,8 +510,9 @@ export function JobStartModal({
 }) {
   const { carbon } = useCarbon();
   const [loading, setLoading] = useState(true);
-  const [eachAssemblyHasAnOperation, setEachAssemblyHasAnOperation] =
-    useState(false);
+  const [missingOperationAssemblies, setMissingOperationAssemblies] = useState<
+    { bomId: string; description: string }[]
+  >([]);
   const [
     eachOutsideOperationHasASupplier,
     setEachOutsideOperationHasASupplier
@@ -513,7 +529,7 @@ export function JobStartModal({
 
   const validate = async () => {
     if (!carbon || !job) return;
-    const [makeMethod, materials, operations] = await Promise.all([
+    const [makeMethod, materials, operations, methodTree] = await Promise.all([
       carbon
         .from("jobMakeMethod")
         .select("*")
@@ -524,7 +540,8 @@ export function JobStartModal({
         .from("jobMaterialWithMakeMethodId")
         .select("*")
         .eq("jobId", job.id!),
-      carbon.from("jobOperation").select("*").eq("jobId", job.id!)
+      carbon.from("jobOperation").select("*").eq("jobId", job.id!),
+      getJobMethodTree(carbon, job.id!)
     ]);
 
     // Check for existing purchase order lines for outside operations
@@ -619,15 +636,39 @@ export function JobStartModal({
     // top-level make method
     uniqueMakeMethodIds.add(makeMethod.data?.id!);
 
-    flushSync(() => {
-      setEachAssemblyHasAnOperation(
-        Array.from(uniqueMakeMethodIds).every(
-          (makeMethodId) =>
+    const flatMethod =
+      methodTree.data && methodTree.data.length > 0
+        ? flattenTree(methodTree.data[0])
+        : [];
+    const bomIds = generateBomIds(flatMethod);
+    const bomInfoByMakeMethodId = new Map(
+      flatMethod.map((node, index) => [
+        node.data.jobMaterialMakeMethodId,
+        {
+          bomId: bomIds[index],
+          description: node.data.description || node.data.itemReadableId
+        }
+      ])
+    );
+
+    const missingAssemblies = Array.from(uniqueMakeMethodIds)
+      .filter(
+        (makeMethodId) =>
+          !(
             operations.data?.some(
               (op) => op.jobMakeMethodId === makeMethodId
             ) ?? false
-        )
-      );
+          )
+      )
+      .map((makeMethodId) => {
+        const info = bomInfoByMakeMethodId.get(makeMethodId ?? "");
+        return info
+          ? { bomId: info.bomId, description: info.description }
+          : { bomId: "?", description: makeMethodId ?? "Unknown" };
+      });
+
+    flushSync(() => {
+      setMissingOperationAssemblies(missingAssemblies);
 
       // Only show purchase order UI if there are outside operations that need purchase orders
       setHasOutsideOperations(operationsNeedingPurchaseOrders.length > 0);
@@ -684,7 +725,7 @@ export function JobStartModal({
           <>
             <ModalBody>
               <VStack>
-                {eachAssemblyHasAnOperation &&
+                {missingOperationAssemblies.length === 0 &&
                   eachOutsideOperationHasASupplier && (
                     <p className="text-sm">
                       <Trans>
@@ -753,7 +794,7 @@ export function JobStartModal({
                     )}
                   </>
                 )}
-                {!eachAssemblyHasAnOperation && (
+                {missingOperationAssemblies.length > 0 && (
                   <Alert variant="warning">
                     <LuTriangleAlert />
                     <AlertTitle>
@@ -761,10 +802,25 @@ export function JobStartModal({
                     </AlertTitle>
                     <AlertDescription>
                       <Trans>
-                        There are Bills of Processes associated with this job
-                        that have no operations. Please assign an operation to
-                        each make method before releasing it.
+                        The following assemblies have no operations. Please
+                        assign an operation to each before releasing.
                       </Trans>
+                      <ul className="mt-2 list-disc pl-4 space-y-1">
+                        {[...missingOperationAssemblies]
+                          .sort((a, b) =>
+                            a.bomId.localeCompare(b.bomId, undefined, {
+                              numeric: true
+                            })
+                          )
+                          .map((assembly) => (
+                            <li key={assembly.bomId}>
+                              <span className="font-medium">
+                                {assembly.bomId}
+                              </span>{" "}
+                              — {assembly.description}
+                            </li>
+                          ))}
+                      </ul>
                     </AlertDescription>
                   </Alert>
                 )}
@@ -808,7 +864,7 @@ export function JobStartModal({
                   }
                   isDisabled={
                     fetcher.state !== "idle" ||
-                    !eachAssemblyHasAnOperation ||
+                    missingOperationAssemblies.length > 0 ||
                     !eachOutsideOperationHasASupplier
                   }
                   type="submit"

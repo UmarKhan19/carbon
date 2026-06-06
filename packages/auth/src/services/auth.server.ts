@@ -1,12 +1,18 @@
 import type { Database } from "@carbon/database";
 import { checkApiKeyRateLimit } from "@carbon/database/ratelimit";
+import { Edition, Plan } from "@carbon/utils";
 import type {
   AuthSession as SupabaseAuthSession,
   SupabaseClient
 } from "@supabase/supabase-js";
 import { createHash } from "crypto";
 import { redirect } from "react-router";
-import { REFRESH_ACCESS_TOKEN_THRESHOLD, VERCEL_URL } from "../config/env";
+import {
+  CarbonEdition,
+  REFRESH_ACCESS_TOKEN_THRESHOLD,
+  STRIPE_BYPASS_COMPANY_IDS,
+  VERCEL_URL
+} from "../config/env";
 import { getCarbon } from "../lib/supabase";
 import { getCarbonAPIKeyClient } from "../lib/supabase/client";
 import { getCarbonServiceRole } from "../lib/supabase/client.server";
@@ -76,6 +82,7 @@ export function hashOAuthSecret(raw: string): string {
 type ApiKeyRecord = {
   id: string;
   companyId: string;
+  companyGroupId: string;
   createdBy: string;
   scopes: Record<string, string[]>;
   rateLimit: number;
@@ -89,7 +96,7 @@ function getCompanyIdFromAPIKey(apiKey: string) {
   return serviceRole
     .from("apiKey")
     .select(
-      "id, companyId, createdBy, scopes, rateLimit, rateLimitWindow, expiresAt"
+      "id, companyId, ...company(companyGroupId), createdBy, scopes, rateLimit, rateLimitWindow, expiresAt"
     )
     .eq("keyHash", keyHash)
     .single();
@@ -97,7 +104,8 @@ function getCompanyIdFromAPIKey(apiKey: string) {
 
 function makeAuthSession(
   supabaseSession: SupabaseAuthSession | null,
-  companyId: string
+  companyId: string,
+  companyGroupId: string
 ): AuthSession | null {
   if (!supabaseSession) return null;
 
@@ -110,6 +118,7 @@ function makeAuthSession(
   return {
     accessToken: supabaseSession.access_token,
     companyId,
+    companyGroupId,
     refreshToken: supabaseSession.refresh_token,
     userId: supabaseSession.user.id,
     email: supabaseSession.user.email,
@@ -172,17 +181,20 @@ export async function requirePermissions(
 ): Promise<{
   client: SupabaseClient<Database>;
   companyId: string;
+  companyGroupId: string;
   email: string;
   userId: string;
   sessionUserId: string;
   consoleMode: boolean;
 }> {
   const apiKey = request.headers.get("carbon-key");
+
   if (apiKey) {
     const company = await getCompanyIdFromAPIKey(apiKey);
     if (company.data) {
       const apiKeyData = company.data as unknown as ApiKeyRecord;
       const companyId = apiKeyData.companyId;
+      const companyGroupId = apiKeyData.companyGroupId;
       const userId = apiKeyData.createdBy;
 
       // Check expiration
@@ -245,10 +257,38 @@ export async function requirePermissions(
         });
       }
 
+      // Plan gate: API access is a Business-tier feature. Block Starter
+      // companies from authenticating with their API key. Self-hosted editions
+      // and bypass-listed companies are never gated.
+      if (CarbonEdition === Edition.Cloud) {
+        const isBypass = STRIPE_BYPASS_COMPANY_IDS
+          ? STRIPE_BYPASS_COMPANY_IDS.split(",")
+              .map((id: string) => id.trim())
+              .includes(companyId)
+          : false;
+
+        if (!isBypass) {
+          const { data: planData } = await serviceRole
+            .from("companyPlan")
+            .select("planId")
+            .eq("id", companyId)
+            .single();
+
+          if (planData?.planId === Plan.Starter) {
+            throw new Response(
+              "API access requires the Business plan and above. Please upgrade your plan to use API keys.",
+              { status: 403 }
+            );
+          }
+        }
+      }
+
       const client = getCarbonAPIKeyClient(apiKey);
+
       return {
         client,
         companyId,
+        companyGroupId,
         userId,
         sessionUserId: userId,
         email: "",
@@ -257,8 +297,9 @@ export async function requirePermissions(
     }
   }
 
+  const { accessToken, companyId, companyGroupId, email, userId } =
+    await requireAuthSession(request);
   const authSession = await requireAuthSession(request);
-  const { accessToken, companyId, email, userId } = authSession;
   const consoleMode = authSession.console === companyId;
 
   const myClaims = await getUserClaims(userId, companyId);
@@ -271,6 +312,7 @@ export async function requirePermissions(
           ? getCarbonServiceRole()
           : getCarbon(accessToken),
       companyId,
+      companyGroupId,
       email,
       userId: getEffectiveUser(request, companyId, userId, consoleMode),
       sessionUserId: userId,
@@ -328,6 +370,7 @@ export async function requirePermissions(
         ? getCarbonServiceRole()
         : getCarbon(accessToken),
     companyId,
+    companyGroupId,
     email,
     userId: getEffectiveUser(request, companyId, userId, consoleMode),
     sessionUserId: userId,
@@ -350,7 +393,7 @@ export async function sendInviteByEmail(
   data?: Record<string, unknown>
 ) {
   return getCarbonServiceRole().auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${VERCEL_URL}`,
+    redirectTo: `${VERCEL_URL}/callback`,
     data
   });
 }
@@ -359,9 +402,42 @@ export async function sendMagicLink(email: string) {
   return getCarbonServiceRole().auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${VERCEL_URL}`
+      emailRedirectTo: `${VERCEL_URL}/callback`
     }
   });
+}
+
+export async function signInWithBypassEmail(
+  email: string
+): Promise<AuthSession | null> {
+  const client = getCarbonServiceRole();
+
+  const { data: linkData, error: linkError } =
+    await client.auth.admin.generateLink({ type: "magiclink", email });
+
+  if (linkError || !linkData?.properties?.hashed_token) return null;
+
+  const { data: sessionData, error: verifyError } = await client.auth.verifyOtp(
+    { token_hash: linkData.properties.hashed_token, type: "magiclink" }
+  );
+
+  if (verifyError || !sessionData?.session) return null;
+
+  const companies = await getCompaniesForUser(
+    client,
+    sessionData.session.user.id
+  );
+  const { data: companyRecord } = await client
+    .from("company")
+    .select("companyGroupId")
+    .eq("id", companies?.[0] ?? "")
+    .single();
+
+  return makeAuthSession(
+    sessionData.session,
+    companies?.[0] ?? "",
+    companyRecord?.companyGroupId ?? ""
+  );
 }
 
 export async function signInWithEmail(email: string, password: string) {
@@ -374,12 +450,23 @@ export async function signInWithEmail(email: string, password: string) {
   if (!data.session || error) return null;
   const companies = await getCompaniesForUser(client, data.user.id);
 
-  return makeAuthSession(data.session, companies[0] ?? "");
+  const { data: companyRecord } = await client
+    .from("company")
+    .select("companyGroupId")
+    .eq("id", companies?.[0] ?? "")
+    .single();
+
+  return makeAuthSession(
+    data.session,
+    companies?.[0] ?? "",
+    companyRecord?.companyGroupId ?? ""
+  );
 }
 
 export async function refreshAccessToken(
   refreshToken?: string,
-  companyId?: string
+  companyId?: string,
+  companyGroupId?: string
 ): Promise<AuthSession | null> {
   if (!refreshToken) return null;
 
@@ -391,7 +478,7 @@ export async function refreshAccessToken(
 
   if (!data.session || error) return null;
 
-  return makeAuthSession(data.session, companyId!);
+  return makeAuthSession(data.session, companyId!, companyGroupId!);
 }
 
 export async function verifyAuthSession(authSession: AuthSession) {
@@ -400,4 +487,43 @@ export async function verifyAuthSession(authSession: AuthSession) {
   );
 
   return Boolean(authAccount);
+}
+
+export async function signInWithPasskey(
+  userId: string,
+  email: string
+): Promise<AuthSession | null> {
+  const serviceRole = getCarbonServiceRole();
+
+  // Generate a one-time magic link without sending an email
+  const { data: linkData, error: linkError } =
+    await serviceRole.auth.admin.generateLink({
+      type: "magiclink",
+      email,
+      options: { redirectTo: VERCEL_URL }
+    });
+
+  if (linkError || !linkData.properties?.hashed_token) return null;
+
+  // Verify the token server-side to obtain a Supabase session
+  const { data: sessionData, error: sessionError } =
+    await serviceRole.auth.verifyOtp({
+      token_hash: linkData.properties.hashed_token,
+      type: "magiclink"
+    });
+
+  if (sessionError || !sessionData.session) return null;
+
+  const companies = await getCompaniesForUser(serviceRole, userId);
+  const { data: companyRecord } = await serviceRole
+    .from("company")
+    .select("companyGroupId")
+    .eq("id", companies?.[0] ?? "")
+    .single();
+
+  return makeAuthSession(
+    sessionData.session,
+    companies?.[0] ?? "",
+    companyRecord?.companyGroupId ?? ""
+  );
 }

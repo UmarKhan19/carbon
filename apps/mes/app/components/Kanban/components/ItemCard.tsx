@@ -10,14 +10,12 @@ import {
   HStack,
   Tooltip,
   TooltipContent,
-  TooltipTrigger
+  TooltipTrigger,
+  useRouteData
 } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
 import {
   convertDateStringToIsoString,
-  formatDate,
-  formatDurationMilliseconds,
-  formatRelativeTime
+  formatDurationMilliseconds
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { cva } from "class-variance-authority";
@@ -39,6 +37,7 @@ import { TodoStatusIcon } from "~/assets/icons/TodoStatusIcon";
 import Avatar from "~/components/Avatar";
 import EmployeeAvatar from "~/components/EmployeeAvatar";
 import { DeadlineIcon } from "~/components/Icons";
+import { useDateFormatter } from "~/hooks";
 import { getPrivateUrl, path } from "~/utils/path";
 import type { DisplaySettings, Item } from "../types";
 
@@ -87,6 +86,7 @@ export function ItemCard({
   showThumbnail
 }: ItemCardProps) {
   const { t } = useLingui();
+  const { formatDate, formatRelativeTime } = useDateFormatter();
   const routeData = useRouteData<{
     customers: { id: string; name: string }[];
   }>("/x/operations");
@@ -126,11 +126,11 @@ export function ItemCard({
                   {item.itemReadableId}
                 </span>
               )}
-              <span className="mr-auto font-semibold line-clamp-2 leading-tight">
+              <span className="mr-auto font-semibold line-clamp-2 leading-tight text-foreground">
                 {item.itemDescription || item.itemReadableId}
               </span>
             </div>
-            <Heading size="h4" className="text-muted-foreground/70">
+            <Heading size="h4" className="text-foreground">
               {item.targetQuantity}
             </Heading>
           </div>
@@ -166,6 +166,21 @@ export function ItemCard({
             Number(item.quantity) > 0 && (
               <HStack className="mt-2">
                 <BarProgress
+                  segments={[
+                    {
+                      value: item.quantityCompleted ?? 0,
+                      className: "bg-emerald-500"
+                    },
+                    {
+                      value: item.quantityReworked ?? 0,
+                      className: "bg-yellow-500"
+                    },
+                    {
+                      value: item.quantityScrapped ?? 0,
+                      className: "bg-red-500"
+                    }
+                  ]}
+                  max={item.targetQuantity || 1}
                   progress={
                     item.quantityCompleted && item.targetQuantity
                       ? (item.quantityCompleted / item.targetQuantity) * 100
@@ -190,6 +205,7 @@ export function ItemCard({
           <HStack className="justify-start space-x-2">
             <LuCirclePlay className="text-muted-foreground" />
             <span className="text-sm line-clamp-1">{item.title}</span>
+            {item.reworkId && <Badge variant="red">Rework</Badge>}
           </HStack>
 
           {showDescription && item.description && (

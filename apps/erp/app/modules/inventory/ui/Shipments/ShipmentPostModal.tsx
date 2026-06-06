@@ -1,4 +1,5 @@
 import { useCarbon } from "@carbon/auth";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
 import {
   Alert,
   AlertDescription,
@@ -14,20 +15,23 @@ import {
   ModalOverlay,
   ModalTitle,
   toast,
-  useMount
+  useMount,
+  useRouteData
 } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
 import type { TrackedEntityAttributes } from "@carbon/utils";
 import { getItemReadableId } from "@carbon/utils";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { LuTriangleAlert } from "react-icons/lu";
-import { useFetcher, useNavigation, useParams } from "react-router";
-import { useUser } from "~/hooks";
+import { useNavigation, useParams } from "react-router";
+import { useSettings, useUser } from "~/hooks";
 import { useItems } from "~/stores";
 import { path } from "~/utils/path";
 import type { ShipmentLine } from "../..";
 import { getShipmentTracking } from "../..";
+
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
 
 const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
   const { shipmentId } = useParams();
@@ -37,6 +41,10 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
   const [items] = useItems();
   const routeData = useRouteData<{
     shipmentLines: ShipmentLine[];
+    fixedAssetLines: {
+      id: string;
+      shipped: boolean;
+    }[];
   }>(path.to.shipment(shipmentId));
 
   const navigation = useNavigation();
@@ -54,6 +62,28 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
   const {
     company: { id: companyId }
   } = useUser();
+  const settings = useSettings();
+  const expiredPolicy: ExpiredEntityPolicy =
+    (
+      (settings.inventoryShelfLife as {
+        expiredEntityPolicy?: ExpiredEntityPolicy;
+      } | null) ?? null
+    )?.expiredEntityPolicy ?? "Block";
+
+  const [expiredWarnings, setExpiredWarnings] = useState<
+    {
+      itemReadableId: string | null;
+      readableId: string;
+      expirationDate: string;
+    }[]
+  >([]);
+  const [expiredErrors, setExpiredErrors] = useState<
+    {
+      itemReadableId: string | null;
+      readableId: string;
+      expirationDate: string;
+    }[]
+  >([]);
 
   const validateShipmentTracking = async () => {
     const errors: {
@@ -73,10 +103,14 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
       companyId
     );
 
-    if (
-      routeData?.shipmentLines.length === 0 ||
-      routeData?.shipmentLines.every((line) => line.shippedQuantity === 0)
-    ) {
+    const hasShipmentLines = routeData?.shipmentLines.some(
+      (line) => (line.shippedQuantity ?? 0) > 0
+    );
+    const hasFaLines = (routeData?.fixedAssetLines ?? []).some(
+      (line) => line.shipped
+    );
+
+    if (!hasShipmentLines && !hasFaLines) {
       setValidationErrors([
         {
           itemReadableId: null,
@@ -85,6 +119,26 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
         }
       ]);
     }
+
+    const todayLocal = today(getLocalTimeZone());
+    const isExpired = (expirationDate: string | null | undefined) => {
+      if (!expirationDate) return false;
+      try {
+        return parseDate(expirationDate).compare(todayLocal) < 0;
+      } catch {
+        return false;
+      }
+    };
+    const expiredCollected: {
+      itemReadableId: string | null;
+      readableId: string;
+      expirationDate: string;
+    }[] = [];
+    const expiredBlocked: {
+      itemReadableId: string | null;
+      readableId: string;
+      expirationDate: string;
+    }[] = [];
 
     routeData?.shipmentLines.forEach((line: ShipmentLine) => {
       if (line.requiresBatchTracking) {
@@ -99,6 +153,24 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
             shippedQuantity: line.shippedQuantity ?? 0,
             shippedQuantityError: "Tracked entity is not available"
           });
+        }
+
+        if (trackedEntity && isExpired(trackedEntity.expirationDate)) {
+          const itemReadableId = getItemReadableId(items, line.itemId) ?? null;
+          const readableId = trackedEntity.readableId ?? trackedEntity.id;
+          const entry = {
+            itemReadableId,
+            readableId,
+            expirationDate: trackedEntity.expirationDate as string
+          };
+          if (
+            expiredPolicy === "Block" ||
+            expiredPolicy === "BlockWithOverride"
+          ) {
+            expiredBlocked.push(entry);
+          } else {
+            expiredCollected.push(entry);
+          }
         }
       }
 
@@ -123,10 +195,31 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
             shippedQuantityError: "Serial numbers are missing or unavailable"
           });
         }
+
+        trackedEntities?.forEach((trackedEntity) => {
+          if (!isExpired(trackedEntity.expirationDate)) return;
+          const itemReadableId = getItemReadableId(items, line.itemId) ?? null;
+          const readableId = trackedEntity.readableId ?? trackedEntity.id;
+          const entry = {
+            itemReadableId,
+            readableId,
+            expirationDate: trackedEntity.expirationDate as string
+          };
+          if (
+            expiredPolicy === "Block" ||
+            expiredPolicy === "BlockWithOverride"
+          ) {
+            expiredBlocked.push(entry);
+          } else {
+            expiredCollected.push(entry);
+          }
+        });
       }
     });
 
     setValidationErrors(errors);
+    setExpiredWarnings(expiredCollected);
+    setExpiredErrors(expiredBlocked);
     setValidated(true);
   };
 
@@ -134,14 +227,11 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
     validateShipmentTracking();
   });
 
-  const fetcher = useFetcher<{}>();
-  const submitted = useRef(false);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
-  useEffect(() => {
-    if (fetcher.state === "idle" && submitted.current) {
-      onClose();
-    }
-  }, [fetcher.state]);
+  const ruleViolations = useCustomRuleViolations({
+    action: path.to.shipmentPost(shipmentId),
+    onSuccess: onClose
+  });
+  const { fetcher } = ruleViolations;
 
   return (
     <Modal
@@ -184,17 +274,65 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
               </AlertDescription>
             </Alert>
           )}
+          {expiredErrors.length > 0 && (
+            <Alert variant="destructive" className="mt-4">
+              <LuTriangleAlert className="h-4 w-4" />
+              <AlertTitle>
+                <Trans>Expired Batches</Trans>
+              </AlertTitle>
+              <AlertDescription>
+                <Trans>
+                  Cannot post — shipment contains expired tracked entities.
+                </Trans>
+                <ul className="list-disc pl-4 mt-2 space-y-1">
+                  {expiredErrors.map((w, index) => (
+                    <li key={index} className="text-sm font-medium">
+                      <span className="font-mono">{w.itemReadableId}</span>
+                      <span className="text-muted-foreground ml-2">
+                        {w.readableId}
+                      </span>
+                      <span className="block mt-0.5 text-red-500 font-normal">
+                        Expired on {w.expirationDate}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+          {expiredWarnings.length > 0 && (
+            <Alert variant="warning" className="mt-4">
+              <LuTriangleAlert className="h-4 w-4" />
+              <AlertTitle>
+                <Trans>Expired Batches</Trans>
+              </AlertTitle>
+              <AlertDescription>
+                <ul className="list-disc pl-4 mt-2 space-y-1">
+                  {expiredWarnings.map((w, index) => (
+                    <li key={index} className="text-sm font-medium">
+                      <span className="font-mono">{w.itemReadableId}</span>
+                      <span className="text-muted-foreground ml-2">
+                        {w.readableId}
+                      </span>
+                      <span className="block mt-0.5 text-amber-600 font-normal">
+                        Expired on {w.expirationDate}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
         </ModalBody>
         <ModalFooter>
           <HStack>
             <Button variant="solid" onClick={onClose}>
               <Trans>Cancel</Trans>
             </Button>
-            <fetcher.Form
-              action={path.to.shipmentPost(shipmentId)}
-              method="post"
-              onSubmit={() => {
-                submitted.current = true;
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                ruleViolations.submit(new FormData());
               }}
             >
               <Button
@@ -203,16 +341,18 @@ const ShipmentPostModal = ({ onClose }: { onClose: () => void }) => {
                   fetcher.state !== "idle" ||
                   navigation.state !== "idle" ||
                   !validated ||
-                  validationErrors.length > 0
+                  validationErrors.length > 0 ||
+                  expiredErrors.length > 0
                 }
                 type="submit"
               >
                 Post Shipment
               </Button>
-            </fetcher.Form>
+            </form>
           </HStack>
         </ModalFooter>
       </ModalContent>
+      <ruleViolations.ViolationModal />
     </Modal>
   );
 };

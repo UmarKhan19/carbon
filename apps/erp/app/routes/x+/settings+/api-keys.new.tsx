@@ -1,6 +1,7 @@
 import { assertIsPost, error } from "@carbon/auth";
 import { hashApiKey, requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { requirePlan } from "@carbon/ee/plan.server";
 import { validationError, validator } from "@carbon/form";
 import { nanoid } from "nanoid";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -21,6 +22,14 @@ export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {
     update: "users"
+  });
+
+  await requirePlan({
+    request,
+    client,
+    companyId,
+    feature: "API_KEYS",
+    redirectTo: path.to.apiKeys
   });
 
   const formData = await request.formData();

@@ -120,14 +120,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id, ...d } = validation.data;
 
   if (d.salesOrderLineType === "Comment") {
-    d.accountNumber = undefined;
+    d.accountId = undefined;
     d.assetId = undefined;
     d.itemId = undefined;
   } else if (d.salesOrderLineType === "Fixed Asset") {
-    d.accountNumber = undefined;
+    d.accountId = undefined;
     d.itemId = undefined;
   } else {
-    d.accountNumber = undefined;
+    d.accountId = undefined;
     d.assetId = undefined;
   }
 
@@ -176,7 +176,7 @@ export default function EditSalesOrderLineRoute() {
     salesOrderLineType:
       line?.salesOrderLineType ?? ("Part" as SalesOrderLineType),
     itemId: line?.itemId ?? "",
-    accountNumber: line?.accountNumber ?? "",
+    accountId: line?.accountId ?? "",
     addOnCost: line?.addOnCost ?? 0,
     assetId: line?.assetId ?? "",
     description: line?.description ?? "",
@@ -191,6 +191,8 @@ export default function EditSalesOrderLineRoute() {
     unitPrice: line?.unitPrice ?? 0,
     taxPercent: line?.taxPercent ?? 0,
     shippingCost: line?.shippingCost ?? 0,
+    assetReadableId: (line as any)?.assetReadableId ?? undefined,
+    assetName: (line as any)?.assetName ?? undefined,
     ...getCustomFields(line?.customFields)
   };
 
@@ -265,7 +267,6 @@ export default function EditSalesOrderLineRoute() {
             itemId={line?.itemId}
             modelUpload={line ?? undefined}
             type="Sales Order"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

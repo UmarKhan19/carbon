@@ -18,41 +18,43 @@ import {
   type PriceBreak,
   type SupplierPriceMap
 } from "../shared";
-import type {
-  configurationParameterGroupOrderValidator,
-  configurationParameterGroupValidator,
-  configurationParameterOrderValidator,
-  configurationParameterValidator,
-  configurationRuleValidator,
-  consumableValidator,
-  customerPartValidator,
-  getMethodValidator,
-  itemCostValidator,
-  itemManufacturingValidator,
-  itemPlanningValidator,
-  itemPostingGroupValidator,
-  itemPurchasingValidator,
-  itemUnitSalePriceValidator,
-  itemValidator,
-  makeMethodVersionValidator,
-  materialDimensionValidator,
-  materialFinishValidator,
-  materialFormValidator,
-  materialGradeValidator,
-  materialSubstanceValidator,
-  materialTypeValidator,
-  materialValidator,
-  methodMaterialValidator,
-  methodOperationValidator,
-  partValidator,
-  pickMethodValidator,
-  serviceValidator,
-  shelfLifeModes,
-  shelfLifeTriggerTimings,
-  supplierPartValidator,
-  toolValidator,
-  unitOfMeasureValidator
+import {
+  type configurationParameterGroupOrderValidator,
+  type configurationParameterGroupValidator,
+  type configurationParameterOrderValidator,
+  type configurationParameterValidator,
+  type configurationRuleValidator,
+  type consumableValidator,
+  type customerPartValidator,
+  type getMethodValidator,
+  ItemTrackingType,
+  type itemCostValidator,
+  type itemManufacturingValidator,
+  type itemPlanningValidator,
+  type itemPostingGroupValidator,
+  type itemPurchasingValidator,
+  type itemUnitSalePriceValidator,
+  type itemValidator,
+  type makeMethodVersionValidator,
+  type materialDimensionValidator,
+  type materialFinishValidator,
+  type materialFormValidator,
+  type materialGradeValidator,
+  type materialSubstanceValidator,
+  type materialTypeValidator,
+  type materialValidator,
+  type methodMaterialValidator,
+  type methodOperationValidator,
+  type partValidator,
+  type pickMethodValidator,
+  type serviceValidator,
+  type shelfLifeModes,
+  type shelfLifeTriggerTimings,
+  type supplierPartValidator,
+  type toolValidator,
+  type unitOfMeasureValidator
 } from "./items.models";
+import type { InventoryItemType } from "./types";
 
 export async function activateMethodVersion(
   client: SupabaseClient<Database>,
@@ -109,7 +111,15 @@ export async function copyMakeMethod(
       sourceId: args.sourceId,
       targetId: args.targetId,
       companyId: args.companyId,
-      userId: args.userId
+      userId: args.userId,
+      parts: {
+        billOfMaterial: args.billOfMaterial,
+        billOfProcess: args.billOfProcess,
+        parameters: args.parameters,
+        tools: args.tools,
+        steps: args.steps,
+        workInstructions: args.workInstructions
+      }
     }
   });
 }
@@ -294,6 +304,13 @@ export async function assertMethodOperationIsDraft(
       `Cannot modify steps on a method version with status "${status}". Only Draft versions can be modified.`
     );
   }
+}
+
+export async function deleteMethodOperation(
+  client: SupabaseClient<Database>,
+  methodOperationId: string
+) {
+  return client.from("methodOperation").delete().eq("id", methodOperationId);
 }
 
 export async function deleteMethodOperationStep(
@@ -529,6 +546,99 @@ export async function getItemDemand(
   };
 }
 
+export type DemandForecastSourceRow = {
+  itemId: string;
+  locationId: string | null;
+  periodId: string;
+  sourceType: "Job Material" | "Sales Order" | "Demand Projection";
+  quantity: number;
+  jobId: string | null;
+  salesOrderLineId: string | null;
+  demandProjectionId: string | null;
+  parentItemId: string;
+  parentItem: { id: string; readableId: string; name: string } | null;
+  job: {
+    id: string;
+    jobId: string;
+    dueDate: string | null;
+    status: string | null;
+  } | null;
+  salesOrderLine: {
+    id: string;
+    salesOrderId: string;
+    promisedDate: string | null;
+    salesOrder: { id: string; salesOrderId: string } | null;
+  } | null;
+  demandProjection: {
+    id: string;
+    forecastQuantity: number;
+    forecastMethod: string | null;
+    confidence: number | null;
+    notes: string | null;
+    createdBy: string;
+    createdAt: string;
+    period: { startDate: string } | null;
+  } | null;
+};
+
+export async function getDemandForecastSources(
+  client: SupabaseClient<Database>,
+  {
+    itemId,
+    locationId,
+    periods,
+    companyId
+  }: {
+    itemId: string;
+    locationId: string;
+    periods: string[];
+    companyId: string;
+  }
+) {
+  const result = await client
+    .from("demandForecastSource")
+    .select(
+      `
+        itemId,
+        locationId,
+        periodId,
+        sourceType,
+        quantity,
+        jobId,
+        salesOrderLineId,
+        demandProjectionId,
+        parentItemId,
+        parentItem:item!demandForecastSource_parentItemId_fkey(id, readableId, name),
+        job:job!demandForecastSource_jobId_fkey(id, jobId, dueDate, status),
+        salesOrderLine:salesOrderLine!demandForecastSource_salesOrderLineId_fkey(
+          id,
+          salesOrderId,
+          promisedDate,
+          salesOrder:salesOrder(id, salesOrderId)
+        ),
+        demandProjection:demandProjection!demandForecastSource_demandProjectionId_fkey(
+          id,
+          forecastQuantity,
+          forecastMethod,
+          confidence,
+          notes,
+          period(startDate),
+          createdBy,
+          createdAt
+        )
+      `
+    )
+    .eq("itemId", itemId)
+    .eq("locationId", locationId)
+    .eq("companyId", companyId)
+    .in("periodId", periods);
+
+  return {
+    data: result.data ?? [],
+    error: result.error
+  };
+}
+
 export async function getItemFiles(
   client: SupabaseClient<Database>,
   itemId: string,
@@ -704,6 +814,39 @@ export async function getItemUnitSalePrice(
     .single();
 }
 
+export async function getJobMaterialUsageForItem(
+  client: SupabaseClient<Database>,
+  { itemId, companyId }: { itemId: string; companyId: string }
+): Promise<{
+  byMaterialId: Record<string, number>;
+  byJobId: Record<string, number>;
+}> {
+  const [materials, jobs] = await Promise.all([
+    client
+      .from("jobMaterial")
+      .select("id, estimatedQuantity")
+      .eq("itemId", itemId)
+      .eq("companyId", companyId),
+    client
+      .from("job")
+      .select("id, quantity")
+      .eq("itemId", itemId)
+      .eq("companyId", companyId)
+  ]);
+
+  const byMaterialId: Record<string, number> = {};
+  for (const row of materials.data ?? []) {
+    if (row.id) byMaterialId[row.id] = row.estimatedQuantity ?? 0;
+  }
+
+  const byJobId: Record<string, number> = {};
+  for (const row of jobs.data ?? []) {
+    if (row.id) byJobId[row.id] = row.quantity ?? 0;
+  }
+
+  return { byMaterialId, byJobId };
+}
+
 export async function getMaterialUsedIn(
   client: SupabaseClient<Database>,
   itemId: string,
@@ -719,7 +862,8 @@ export async function getMaterialUsedIn(
     quoteMaterials,
     salesOrderLines,
     shipmentLines,
-    supplierQuotes
+    supplierQuotes,
+    jobMaterialUsage
   ] = await Promise.all([
     client
       .from("nonConformanceItem")
@@ -801,7 +945,8 @@ export async function getMaterialUsedIn(
       )
       .eq("itemId", itemId)
       .eq("companyId", companyId)
-      .limit(100)
+      .limit(100),
+    getJobMaterialUsageForItem(client, { itemId, companyId })
   ]);
 
   return {
@@ -814,7 +959,8 @@ export async function getMaterialUsedIn(
     quoteMaterials: quoteMaterials.data ?? [],
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
-    supplierQuotes: supplierQuotes.data ?? []
+    supplierQuotes: supplierQuotes.data ?? [],
+    jobMaterialUsage
   };
 }
 
@@ -1439,7 +1585,8 @@ export async function getPartUsedIn(
     quoteMaterials,
     salesOrderLines,
     shipmentLines,
-    supplierQuotes
+    supplierQuotes,
+    jobMaterialUsage
   ] = await Promise.all([
     client
       .from("nonConformanceItem")
@@ -1539,7 +1686,8 @@ export async function getPartUsedIn(
       )
       .eq("itemId", itemId)
       .eq("companyId", companyId)
-      .limit(100)
+      .limit(100),
+    getJobMaterialUsageForItem(client, { itemId, companyId })
   ]);
 
   return {
@@ -1554,7 +1702,8 @@ export async function getPartUsedIn(
     quoteMaterials: quoteMaterials.data ?? [],
     salesOrderLines: salesOrderLines.data ?? [],
     shipmentLines: shipmentLines.data ?? [],
-    supplierQuotes: supplierQuotes.data ?? []
+    supplierQuotes: supplierQuotes.data ?? [],
+    jobMaterialUsage
   };
 }
 
@@ -1797,7 +1946,7 @@ export async function updateDefaultRevision(
   const [item, makeMethod] = await Promise.all([
     client
       .from("item")
-      .select("id,readableId, readableIdWithRevision")
+      .select("id,readableId, readableIdWithRevision, type, companyId")
       .eq("id", data.id)
       .single(),
     client
@@ -1807,11 +1956,14 @@ export async function updateDefaultRevision(
       .maybeSingle()
   ]);
   if (item.error) return item;
-  const readableId = item.data.readableId;
+  const { readableId, type, companyId } = item.data;
+  if (!companyId) return item;
   const relatedItems = await client
     .from("item")
     .select("id")
-    .eq("readableId", readableId);
+    .eq("readableId", readableId)
+    .eq("type", type)
+    .eq("companyId", companyId);
 
   const itemIds = relatedItems.data?.map((item) => item.id) ?? [];
 
@@ -2137,11 +2289,49 @@ export async function getItemShelfLife(
 ) {
   return client
     .from("itemShelfLife")
-    .select(
-      "mode, days, triggerProcessId, triggerTiming, inheritEarliestInputExpiry"
-    )
+    .select("mode, days, triggerProcessId, triggerTiming, calculateFromBom")
     .eq("itemId", itemId)
     .maybeSingle();
+}
+
+/**
+ * Returns true when the item's active make-method has at least one BOM
+ * input with a managed shelf-life policy. Used to surface a warning when
+ * the user picks a BOM-driven shelf-life mode (Calculated, or Fixed
+ * Duration with calculateFromBom) but no input would actually contribute
+ * an expiry date.
+ *
+ * Returns false when there is no make-method, no materials, or every
+ * material has shelf-life NotManaged. Errors are coerced to false — this
+ * is a UI hint, not a correctness gate.
+ */
+export async function getBomHasShelfLifeManagedInput(
+  client: SupabaseClient<Database>,
+  itemId: string,
+  companyId: string
+): Promise<boolean> {
+  const makeMethods = await getMakeMethods(client, itemId, companyId);
+  if (makeMethods.error || !makeMethods.data?.length) return false;
+
+  const active =
+    makeMethods.data.find((m) => m.status === "Active") ?? makeMethods.data[0];
+
+  const materials = await getMethodMaterialsByMakeMethod(client, active.id);
+  const inputItemIds = (materials.data ?? [])
+    .map((m) => m.itemId)
+    .filter((id): id is string => !!id);
+  if (inputItemIds.length === 0) return false;
+
+  // Any row in itemShelfLife is by definition managed - the upsert path
+  // deletes the row when mode = 'NotManaged' and the column enum has no
+  // such value, so presence is sufficient.
+  const managed = await client
+    .from("itemShelfLife")
+    .select("itemId")
+    .in("itemId", inputItemIds)
+    .limit(1);
+
+  return !managed.error && (managed.data?.length ?? 0) > 0;
 }
 
 export async function upsertItemShelfLife(
@@ -2154,7 +2344,7 @@ export async function upsertItemShelfLife(
     days?: number;
     triggerProcessId?: string;
     triggerTiming?: (typeof shelfLifeTriggerTimings)[number];
-    inheritEarliestInputExpiry?: boolean;
+    calculateFromBom?: boolean;
   }
 ) {
   if (args.mode === undefined) {
@@ -2174,13 +2364,11 @@ export async function upsertItemShelfLife(
   const triggerTiming = triggerProcessId
     ? (args.triggerTiming ?? "After")
     : "After";
-  // Inherit-earliest-input is meaningful only on Fixed Duration; the table
+  // Calculate-from-BOM is meaningful only on Fixed Duration; the table
   // CHECK enforces the same rule. Coerce any stale flag back to false on
   // mode switches so the row never carries an inconsistent combo.
-  const inheritEarliestInputExpiry =
-    args.mode === "Fixed Duration"
-      ? (args.inheritEarliestInputExpiry ?? false)
-      : false;
+  const calculateFromBom =
+    args.mode === "Fixed Duration" ? (args.calculateFromBom ?? false) : false;
 
   // Reject trigger processes that aren't on the item's active recipe.
   // The set-shelf-life helper gates on processId equality, so a process
@@ -2222,7 +2410,7 @@ export async function upsertItemShelfLife(
         days,
         triggerProcessId,
         triggerTiming,
-        inheritEarliestInputExpiry,
+        calculateFromBom,
         updatedBy: args.userId,
         updatedAt: new Date().toISOString()
       })
@@ -2246,7 +2434,7 @@ export async function upsertItemShelfLife(
     days,
     triggerProcessId,
     triggerTiming,
-    inheritEarliestInputExpiry,
+    calculateFromBom,
     companyId: companyId!,
     createdBy: args.userId
   });
@@ -2274,7 +2462,7 @@ export async function upsertPickMethodWithShelfLife(
       days?: number;
       triggerProcessId?: string;
       triggerTiming?: (typeof shelfLifeTriggerTimings)[number];
-      inheritEarliestInputExpiry?: boolean;
+      calculateFromBom?: boolean;
     };
   }
 ) {
@@ -2293,13 +2481,8 @@ export async function upsertPickMethodWithShelfLife(
       .where("locationId", "=", args.locationId)
       .execute();
 
-    const {
-      mode,
-      days,
-      triggerProcessId,
-      triggerTiming,
-      inheritEarliestInputExpiry
-    } = args.shelfLife;
+    const { mode, days, triggerProcessId, triggerTiming, calculateFromBom } =
+      args.shelfLife;
 
     // mode undefined = caller didn't surface the field; leave any existing
     // row alone (matches upsertItemShelfLife semantics).
@@ -2319,8 +2502,8 @@ export async function upsertPickMethodWithShelfLife(
     const normalizedTriggerTiming = normalizedTriggerProcess
       ? (triggerTiming ?? "After")
       : "After";
-    const normalizedInherit =
-      mode === "Fixed Duration" ? (inheritEarliestInputExpiry ?? false) : false;
+    const normalizedCalcFromBom =
+      mode === "Fixed Duration" ? (calculateFromBom ?? false) : false;
 
     // Reject trigger processes that aren't on the item's active recipe.
     // The set-shelf-life helper gates on processId equality, so picking a
@@ -2359,7 +2542,7 @@ export async function upsertPickMethodWithShelfLife(
           days: normalizedDays,
           triggerProcessId: normalizedTriggerProcess,
           triggerTiming: normalizedTriggerTiming,
-          inheritEarliestInputExpiry: normalizedInherit,
+          calculateFromBom: normalizedCalcFromBom,
           updatedBy: args.userId,
           updatedAt
         })
@@ -2386,10 +2569,152 @@ export async function upsertPickMethodWithShelfLife(
         days: normalizedDays,
         triggerProcessId: normalizedTriggerProcess,
         triggerTiming: normalizedTriggerTiming,
-        inheritEarliestInputExpiry: normalizedInherit,
+        calculateFromBom: normalizedCalcFromBom,
         companyId: itemRow.companyId,
         createdBy: args.userId
       })
+      .execute();
+  });
+}
+
+/**
+ * Cascades a change to item.itemTrackingType onto the snapshot columns
+ * `requiresSerialTracking` and `requiresBatchTracking` on child rows that
+ * belong to OPEN parents (jobs, receipts, shipments, stock transfers).
+ *
+ * Without this, snapshot flags drift from the live item value and leave the
+ * UI reading stale (often sticky-true) tracking flags after an item is
+ * flipped back to Inventory / Non-Inventory.
+ */
+export async function cascadeItemTrackingType(
+  db: Kysely<KyselyDatabase>,
+  args: {
+    itemIds: string[];
+    companyId: string;
+    newType: InventoryItemType;
+    userId: string;
+  }
+) {
+  if (args.itemIds.length === 0) return;
+
+  const requiresSerialTracking = args.newType === ItemTrackingType.Serial;
+  const requiresBatchTracking = args.newType === ItemTrackingType.Batch;
+  const updatedAt = now(getLocalTimeZone()).toAbsoluteString();
+
+  return db.transaction().execute(async (trx) => {
+    await trx
+      .updateTable("jobMakeMethod")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "jobId",
+          "in",
+          eb
+            .selectFrom("job")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "in", ["Draft", "Planned"])
+        )
+      )
+      .execute();
+
+    await trx
+      .updateTable("jobMaterial")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "jobId",
+          "in",
+          eb
+            .selectFrom("job")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "in", ["Draft", "Planned"])
+        )
+      )
+      .execute();
+
+    await trx
+      .updateTable("receiptLine")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "receiptId",
+          "in",
+          eb
+            .selectFrom("receipt")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "=", "Draft")
+        )
+      )
+      .execute();
+
+    await trx
+      .updateTable("shipmentLine")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "shipmentId",
+          "in",
+          eb
+            .selectFrom("shipment")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "=", "Draft")
+        )
+      )
+      .execute();
+
+    await trx
+      .updateTable("stockTransferLine")
+      .set({
+        requiresSerialTracking,
+        requiresBatchTracking,
+        updatedBy: args.userId,
+        updatedAt
+      })
+      .where("itemId", "in", args.itemIds)
+      .where("companyId", "=", args.companyId)
+      .where((eb) =>
+        eb(
+          "stockTransferId",
+          "in",
+          eb
+            .selectFrom("stockTransfer")
+            .select("id")
+            .where("companyId", "=", args.companyId)
+            .where("status", "=", "Draft")
+        )
+      )
       .execute();
   });
 }
@@ -2464,8 +2789,7 @@ export async function upsertConsumable(
         days: consumable.shelfLifeDays,
         triggerProcessId: consumable.shelfLifeTriggerProcessId,
         triggerTiming: consumable.shelfLifeTriggerTiming,
-        inheritEarliestInputExpiry:
-          consumable.shelfLifeInheritEarliestInputExpiry
+        calculateFromBom: consumable.shelfLifeCalculateFromBom
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -2509,7 +2833,7 @@ export async function upsertConsumable(
         ...sanitize(consumableUpdate),
         updatedAt: today(getLocalTimeZone()).toString()
       })
-      .eq("itemId", consumable.id)
+      .eq("id", consumable.id)
   ]);
 
   if (updateItem.error) return updateItem;
@@ -2528,7 +2852,7 @@ export async function upsertConsumable(
     days: consumable.shelfLifeDays,
     triggerProcessId: consumable.shelfLifeTriggerProcessId,
     triggerTiming: consumable.shelfLifeTriggerTiming,
-    inheritEarliestInputExpiry: consumable.shelfLifeInheritEarliestInputExpiry
+    calculateFromBom: consumable.shelfLifeCalculateFromBom
   });
   if (shelfLife.error) return shelfLife;
 
@@ -2619,7 +2943,7 @@ export async function upsertPart(
         days: part.shelfLifeDays,
         triggerProcessId: part.shelfLifeTriggerProcessId,
         triggerTiming: part.shelfLifeTriggerTiming,
-        inheritEarliestInputExpiry: part.shelfLifeInheritEarliestInputExpiry
+        calculateFromBom: part.shelfLifeCalculateFromBom
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -2663,7 +2987,7 @@ export async function upsertPart(
         ...sanitize(partUpdate),
         updatedAt: today(getLocalTimeZone()).toString()
       })
-      .eq("itemId", part.id)
+      .eq("id", part.id)
   ]);
 
   if (updateItem.error) return updateItem;
@@ -2682,7 +3006,7 @@ export async function upsertPart(
     days: part.shelfLifeDays,
     triggerProcessId: part.shelfLifeTriggerProcessId,
     triggerTiming: part.shelfLifeTriggerTiming,
-    inheritEarliestInputExpiry: part.shelfLifeInheritEarliestInputExpiry
+    calculateFromBom: part.shelfLifeCalculateFromBom
   });
   if (shelfLife.error) return shelfLife;
 
@@ -3275,7 +3599,7 @@ export async function upsertMaterial(
         days: material.shelfLifeDays,
         triggerProcessId: material.shelfLifeTriggerProcessId,
         triggerTiming: material.shelfLifeTriggerTiming,
-        inheritEarliestInputExpiry: material.shelfLifeInheritEarliestInputExpiry
+        calculateFromBom: material.shelfLifeCalculateFromBom
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -3342,7 +3666,7 @@ export async function upsertMaterial(
         ...sanitize(materialUpdate),
         updatedAt: today(getLocalTimeZone()).toString()
       })
-      .eq("itemId", material.id)
+      .eq("id", material.id)
   ]);
 
   if (updateItem.error) return updateItem;
@@ -3361,7 +3685,7 @@ export async function upsertMaterial(
     days: material.shelfLifeDays,
     triggerProcessId: material.shelfLifeTriggerProcessId,
     triggerTiming: material.shelfLifeTriggerTiming,
-    inheritEarliestInputExpiry: material.shelfLifeInheritEarliestInputExpiry
+    calculateFromBom: material.shelfLifeCalculateFromBom
   });
   if (shelfLife.error) return shelfLife;
 
@@ -3803,7 +4127,7 @@ export async function upsertTool(
         days: tool.shelfLifeDays,
         triggerProcessId: tool.shelfLifeTriggerProcessId,
         triggerTiming: tool.shelfLifeTriggerTiming,
-        inheritEarliestInputExpiry: tool.shelfLifeInheritEarliestInputExpiry
+        calculateFromBom: tool.shelfLifeCalculateFromBom
       });
       if (shelfLife.error) return shelfLife;
     }
@@ -3847,7 +4171,7 @@ export async function upsertTool(
         ...sanitize(toolUpdate),
         updatedAt: today(getLocalTimeZone()).toString()
       })
-      .eq("itemId", tool.id)
+      .eq("id", tool.id)
   ]);
 
   if (updateItem.error) return updateItem;
@@ -3866,7 +4190,7 @@ export async function upsertTool(
     days: tool.shelfLifeDays,
     triggerProcessId: tool.shelfLifeTriggerProcessId,
     triggerTiming: tool.shelfLifeTriggerTiming,
-    inheritEarliestInputExpiry: tool.shelfLifeInheritEarliestInputExpiry
+    calculateFromBom: tool.shelfLifeCalculateFromBom
   });
   if (shelfLife.error) return shelfLife;
 

@@ -3,13 +3,18 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { JSONContent } from "@carbon/react";
 import { VStack } from "@carbon/react";
+import { pluckUnique } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { useStorageUnits } from "~/components/Form/StorageUnit";
-import { InventoryDetails } from "~/modules/inventory";
+import {
+  getTrackedEntityExpirations,
+  InventoryDetails
+} from "~/modules/inventory";
 import {
   getItem,
   getItemQuantities,
+  getItemShelfLife,
   getItemStorageUnitQuantities,
   getMakeMethodById,
   getMakeMethods,
@@ -141,6 +146,17 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  // Pull shelf-life policy + current expiration dates so the adjustment modal
+  // can pre-fill / surface the existing value when the user edits a batch.
+  const trackedEntityIds = pluckUnique(
+    itemStorageUnitQuantities.data,
+    (row) => row.trackedEntityId
+  );
+  const [itemShelfLife, trackedEntityExpirations] = await Promise.all([
+    getItemShelfLife(client, itemId),
+    getTrackedEntityExpirations(client, trackedEntityIds)
+  ]);
+
   // Load manufacturing data for manufactured parts
   let methodData = null;
   let tags: { name: string }[] = [];
@@ -193,14 +209,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     quantities: quantities.data,
     itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     item: item.data,
+    itemShelfLife: itemShelfLife.data ?? null,
+    trackedEntityExpirations,
     methodData,
     tags
   };
 }
 
 export default function ItemInventoryRoute() {
-  const { pickMethod, quantities, itemStorageUnitQuantities, item } =
-    useLoaderData<typeof loader>();
+  const {
+    pickMethod,
+    quantities,
+    itemStorageUnitQuantities,
+    item,
+    itemShelfLife,
+    trackedEntityExpirations
+  } = useLoaderData<typeof loader>();
 
   const [items] = useItems();
   const itemTrackingType = items.find(
@@ -215,6 +239,8 @@ export default function ItemInventoryRoute() {
         itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={item.unitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
+        itemShelfLife={itemShelfLife}
+        trackedEntityExpirations={trackedEntityExpirations}
         pickMethod={{
           ...pickMethod,
           defaultStorageUnitId: pickMethod.defaultStorageUnitId ?? undefined

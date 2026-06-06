@@ -27,6 +27,7 @@ export type SelectProps = Omit<SelectBaseProps, "onChange"> & {
   helperText?: string;
   isConfigured?: boolean;
   isOptional?: boolean;
+  isRequired?: boolean;
   onChange?: (
     newValue: { value: string; label: string | JSX.Element } | null
   ) => void;
@@ -43,6 +44,7 @@ const Select = ({
   helperText,
   isConfigured = false,
   isOptional,
+  isRequired,
   isLoading,
   options,
   onConfigure,
@@ -53,7 +55,8 @@ const Select = ({
   const formState = useFormStateContext();
   const isDisabled = formState.isDisabled || props.isDisabled;
   const isReadOnly = formState.isReadOnly || props.isReadOnly;
-  const resolvedIsOptional = isOptional ?? fieldIsOptional ?? false;
+  const resolvedIsOptional =
+    isOptional ?? (isRequired ? false : (fieldIsOptional ?? false));
 
   const onChange = (value: string) => {
     if (value) {
@@ -64,7 +67,11 @@ const Select = ({
   };
 
   return (
-    <FormControl isInvalid={!!error} className={props.className}>
+    <FormControl
+      isInvalid={!!error}
+      isRequired={isRequired}
+      className={props.className}
+    >
       {label && (
         <FormLabel
           htmlFor={name}
@@ -210,11 +217,17 @@ export const SelectBase = forwardRef<HTMLButtonElement, SelectBaseProps>(
             )}
           </SelectTrigger>
           <SelectContent>
-            {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
+            {options.length === 0 ? (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                No options available
+              </div>
+            ) : (
+              options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </CarbonSelect>
         {isClearable && !isNonInteractive && value && (

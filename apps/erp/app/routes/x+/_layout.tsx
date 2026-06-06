@@ -5,15 +5,20 @@ import {
   getCarbon,
   getMESUrl
 } from "@carbon/auth";
-import { setCompanyId } from "@carbon/auth/company.server";
+import { getCompanyId, setCompanyId } from "@carbon/auth/company.server";
 import {
   destroyAuthSession,
   requireAuthSession,
   updateCompanySession
 } from "@carbon/auth/session.server";
 import { isAuditLogEnabled } from "@carbon/database/audit";
-import { TooltipProvider, useMount } from "@carbon/react";
-import { ItarPopup, useKeyboardWedge, useNProgress } from "@carbon/remix";
+import {
+  ItarPopup,
+  TooltipProvider,
+  useKeyboardWedge,
+  useMount,
+  useNProgress
+} from "@carbon/react";
 import { getStripeCustomerByCompanyId } from "@carbon/stripe/stripe.server";
 import { Edition } from "@carbon/utils";
 import posthog from "posthog-js";
@@ -39,11 +44,16 @@ import { getOpenClockEntry } from "~/modules/people";
 import {
   getCompanies,
   getCompanyIntegrations,
-  getCompanySettings
+  getCompanySettings,
+  getEmployeeCompanies
 } from "~/modules/settings";
 import { getCustomFieldsSchemas } from "~/modules/shared/shared.server";
-import { getSavedViews } from "~/modules/shared/shared.service";
 import {
+  getSavedViews,
+  isApprovalRequired
+} from "~/modules/shared/shared.service";
+import {
+  getModulePreferences,
   getUser,
   getUserClaims,
   getUserDefaults,
@@ -92,6 +102,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // Parallelize all requests
   const [
     companies,
+    employeeCompaniesResult,
     stripeCustomer,
     customFields,
     integrations,
@@ -101,9 +112,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
     claims,
     groups,
     defaults,
-    auditLogEnabled
+    auditLogEnabled,
+    modulePreferences
   ] = await Promise.all([
     getCompanies(client, userId),
+    getEmployeeCompanies(client, userId),
     getStripeCustomerByCompanyId(companyId, userId),
     getCustomFieldsSchemas(client, { companyId }),
     getCompanyIntegrations(client, companyId),
@@ -113,18 +126,48 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUserClaims(userId, companyId),
     getUserGroups(client, userId),
     getUserDefaults(client, userId, companyId),
-    isAuditLogEnabled(client, companyId)
+    isAuditLogEnabled(client, companyId),
+    getModulePreferences(client, userId, companyId)
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
-    await destroyAuthSession(request);
+    throw await destroyAuthSession(request);
+  }
+
+  const employeeCompanies = employeeCompaniesResult.data ?? [];
+  const hasMultipleCompanies = employeeCompanies.length > 1;
+
+  // Send multi-company users to the picker, preserving where they were headed.
+  const redirectToPicker = () => {
+    const url = new URL(request.url);
+    const dest = `${url.pathname}${url.search}`;
+    return redirect(
+      `${path.to.selectCompany}?redirectTo=${encodeURIComponent(dest)}`
+    );
+  };
+
+  // Multi-company users must actively choose a company. The companyId cookie is
+  // the "has chosen this session" marker — set only by the picker / company
+  // switch and cleared on logout. Until it's present, force the picker so we
+  // never silently serve the alphabetically-first company.
+  if (hasMultipleCompanies && !getCompanyId(request)) {
+    throw redirectToPicker();
   }
 
   let company = companies.data?.find((c) => c.companyId === companyId);
 
   if (!company && companies.data?.length) {
-    company = companies.data[0];
-    const sessionCookie = await updateCompanySession(request, company.id!);
+    // Session company is no longer valid (e.g. access revoked). Multi-company
+    // users re-pick; single-company users auto-enter their only company.
+    if (hasMultipleCompanies) {
+      throw redirectToPicker();
+    }
+    company = employeeCompanies[0] ?? companies.data[0];
+    const sessionCookie = await updateCompanySession(
+      request,
+      company.id!,
+      company.companyGroupId ?? ""
+    );
     const companyIdCookie = setCompanyId(company.id!);
     throw redirect(path.to.authenticatedRoot, {
       headers: [
@@ -149,7 +192,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     auditLogEnabled,
     company,
     companies: companies.data ?? [],
-    companySettings: companySettings.data,
+    companySettings: companySettings.data ?? null,
     customFields: customFields.data ?? [],
     defaults: defaults.data,
     integrations: integrations.data ?? [],
@@ -158,7 +201,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     plan: stripeCustomer?.planId,
     role: claims?.role,
     user: user.data,
+    modulePreferences: modulePreferences.data ?? [],
     savedViews: savedViews.data ?? [],
+    supplierApprovalRequired: isApprovalRequired(client, "supplier", companyId),
     openClockEntry: companySettings.data?.timeCardEnabled
       ? getOpenClockEntry(client, userId, companyId)
       : null

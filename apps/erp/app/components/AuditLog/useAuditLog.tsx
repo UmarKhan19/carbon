@@ -5,10 +5,8 @@ import {
   DropdownMenuItem,
   useDisclosure
 } from "@carbon/react";
-import { usePlan } from "@carbon/remix";
-import { Plan } from "@carbon/utils";
 import { LuHistory } from "react-icons/lu";
-import { useFlags } from "~/hooks/useFlags";
+import { usePlanGate } from "~/hooks/usePlanGate";
 import AuditLogDrawer from "./AuditLogDrawer";
 
 type UseAuditLogOptions = {
@@ -16,6 +14,8 @@ type UseAuditLogOptions = {
   entityId: string;
   companyId: string;
   variant: "dropdown" | "card-action";
+  triggerLabel?: React.ReactNode;
+  drawerTitle?: React.ReactNode;
 };
 
 /**
@@ -31,19 +31,18 @@ export function useAuditLog({
   entityType,
   entityId,
   companyId,
-  variant
+  variant,
+  triggerLabel = "History",
+  drawerTitle
 }: UseAuditLogOptions) {
   const disclosure = useDisclosure();
-  const plan = usePlan();
-  const { isCloud } = useFlags();
-
-  const isStarterTeaser = isCloud && plan === Plan.Starter;
+  const { isGated } = usePlanGate({ feature: "AUDIT_LOG" });
 
   const trigger =
     variant === "dropdown" ? (
       <DropdownMenuItem onClick={disclosure.onOpen}>
         <DropdownMenuIcon icon={<LuHistory />} />
-        History
+        {triggerLabel}
       </DropdownMenuItem>
     ) : (
       <CardAction>
@@ -52,7 +51,7 @@ export function useAuditLog({
           leftIcon={<LuHistory />}
           onClick={disclosure.onOpen}
         >
-          History
+          {triggerLabel}
         </Button>
       </CardAction>
     );
@@ -64,7 +63,8 @@ export function useAuditLog({
       entityType={entityType}
       entityId={entityId}
       companyId={companyId}
-      planRestricted={isStarterTeaser}
+      title={drawerTitle}
+      planRestricted={isGated}
     />
   );
 

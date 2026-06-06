@@ -54,15 +54,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
   };
 }
 
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(RATE_LIMIT, "1 h"),
-  analytics: true
-});
-
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
+  const ratelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(RATE_LIMIT, "1 h"),
+    analytics: true
+  });
   const { success } = await ratelimit.limit(ip);
 
   if (!success) {
@@ -144,8 +143,17 @@ export default function LoginRoute() {
 
   return (
     <>
-      <div className="flex justify-center mb-4">
-        <img src="/carbon-logo-mark.svg" alt="Carbon Logo" className="w-36" />
+      <div className="flex justify-center mb-8">
+        <img
+          src="/carbon-mark-light.svg"
+          alt="Carbon Logo"
+          className="w-24 dark:hidden"
+        />
+        <img
+          src="/carbon-mark-dark.svg"
+          alt="Carbon Logo"
+          className="w-24 hidden dark:block"
+        />
       </div>
       <div className="rounded-lg md:bg-card md:border md:border-border md:shadow-lg p-8 w-[380px]">
         {fetcher.data?.success === true ? (

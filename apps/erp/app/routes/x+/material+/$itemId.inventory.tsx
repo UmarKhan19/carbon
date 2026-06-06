@@ -1,15 +1,22 @@
 import { assertIsPost, error, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
+import { getCustomRulesDataForTarget } from "@carbon/ee/custom-rules.server";
 import { validationError, validator } from "@carbon/form";
 import { VStack } from "@carbon/react";
+import { pluckUnique } from "@carbon/utils";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData } from "react-router";
 import { useStorageUnits } from "~/components/Form/StorageUnit";
 import { useRouteData } from "~/hooks";
-import { InventoryDetails } from "~/modules/inventory";
+import RuleAssignmentsList from "~/modules/customRules/ui/RuleAssignmentsList";
+import {
+  getTrackedEntityExpirations,
+  InventoryDetails
+} from "~/modules/inventory";
 import type { Material, UnitOfMeasureListItem } from "~/modules/items";
 import {
+  getBomHasShelfLifeManagedInput,
   getItemQuantities,
   getItemShelfLife,
   getItemStorageUnitQuantities,
@@ -141,15 +148,38 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const shelfLife = await getItemShelfLife(client, itemId);
+  const trackedEntityIds = pluckUnique(
+    itemStorageUnitQuantities.data,
+    (row) => row.trackedEntityId
+  );
+
+  const [
+    shelfLife,
+    bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
+    rulesData
+  ] = await Promise.all([
+    getItemShelfLife(client, itemId),
+    getBomHasShelfLifeManagedInput(client, itemId, companyId),
+    getTrackedEntityExpirations(client, trackedEntityIds),
+    getCustomRulesDataForTarget(client, {
+      targetType: "item",
+      targetId: itemId,
+      companyId
+    })
+  ]);
 
   return {
     materialInventory: materialInventory.data,
     itemStorageUnitQuantities: itemStorageUnitQuantities.data,
     quantities: quantities.data,
     shelfLife: shelfLife.data,
+    bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
     itemId,
-    locationId
+    locationId,
+    ruleAssignments: rulesData.assignments,
+    ruleLibrary: rulesData.library
   };
 }
 
@@ -176,7 +206,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     shelfLifeDays,
     shelfLifeTriggerProcessId,
     shelfLifeTriggerTiming,
-    shelfLifeInheritEarliestInputExpiry,
+    shelfLifeCalculateFromBom,
     ...pickMethodFields
   } = validation.data;
 
@@ -192,7 +222,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         days: shelfLifeDays,
         triggerProcessId: shelfLifeTriggerProcessId,
         triggerTiming: shelfLifeTriggerTiming,
-        inheritEarliestInputExpiry: shelfLifeInheritEarliestInputExpiry
+        calculateFromBom: shelfLifeCalculateFromBom
       }
     });
   } catch (err) {
@@ -219,7 +249,11 @@ export default function MaterialInventoryRoute() {
     itemStorageUnitQuantities,
     quantities,
     shelfLife,
-    itemId
+    bomHasShelfLifeManagedInput,
+    trackedEntityExpirations,
+    itemId,
+    ruleAssignments,
+    ruleLibrary
   } = useLoaderData<typeof loader>();
 
   const materialData = useRouteData<{
@@ -238,8 +272,7 @@ export default function MaterialInventoryRoute() {
     shelfLifeDays: shelfLife?.days ?? undefined,
     shelfLifeTriggerProcessId: shelfLife?.triggerProcessId ?? undefined,
     shelfLifeTriggerTiming: shelfLife?.triggerTiming ?? undefined,
-    shelfLifeInheritEarliestInputExpiry:
-      shelfLife?.inheritEarliestInputExpiry ?? false,
+    shelfLifeCalculateFromBom: shelfLife?.calculateFromBom ?? false,
     ...getCustomFields(materialInventory.customFields ?? {})
   };
 
@@ -260,14 +293,23 @@ export default function MaterialInventoryRoute() {
         type="Material"
         itemTrackingType={itemTrackingType ?? "Inventory"}
         replenishmentSystem={replenishmentSystem}
+        bomHasShelfLifeManagedInput={bomHasShelfLifeManagedInput}
       />
       <InventoryDetails
         itemStorageUnitQuantities={itemStorageUnitQuantities}
         itemUnitOfMeasureCode={itemUnitOfMeasureCode ?? "EA"}
         itemTrackingType={itemTrackingType ?? "Inventory"}
+        itemShelfLife={shelfLife ?? null}
+        trackedEntityExpirations={trackedEntityExpirations}
         pickMethod={initialValues}
         quantities={quantities}
         storageUnits={storageUnits.options}
+      />
+      <RuleAssignmentsList
+        targetType="item"
+        targetId={itemId}
+        assignments={ruleAssignments as never}
+        library={ruleLibrary as never}
       />
     </VStack>
   );

@@ -2,19 +2,16 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
-import { VStack } from "@carbon/react";
 import { msg } from "@lingui/core/macro";
 import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useParams } from "react-router";
-import { PanelProvider } from "~/components/Layout";
 import {
   getBatchProperties,
   getReceipt,
   getReceiptFiles,
   getReceiptLines,
   getReceiptTracking,
-  getShelfLifeForItems,
-  ReceiptHeader
+  getShelfLifeForItems
 } from "~/modules/inventory";
 import { getCompanySettings } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -72,9 +69,49 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       .filter((itemId) => itemId !== null) as string[];
   }
 
+  let fixedAssetLines: {
+    id: string;
+    purchaseOrderLineId: string;
+    assetId: string;
+    assetName: string | null;
+    assetReadableId: string | null;
+    description: string | null;
+    received: boolean;
+    serialNumber: string | null;
+  }[] = [];
+
+  if (receipt.data.sourceDocument === "Purchase Order") {
+    const faLineRecords = await serviceRole
+      .from("receiptFixedAssetLine")
+      .select(
+        "id, purchaseOrderLineId, received, serialNumber, purchaseOrderLine:purchaseOrderLineId(assetId, description, fixedAsset:assetId(name, fixedAssetId, serialNumber))"
+      )
+      .eq("receiptId", receiptId);
+
+    fixedAssetLines = (faLineRecords.data ?? [])
+      .filter((row) => {
+        const pol = row.purchaseOrderLine as any;
+        return pol?.assetId;
+      })
+      .map((row) => {
+        const pol = row.purchaseOrderLine as any;
+        return {
+          id: row.id,
+          purchaseOrderLineId: row.purchaseOrderLineId,
+          assetId: pol.assetId,
+          assetName: pol.fixedAsset?.name ?? null,
+          assetReadableId: pol.fixedAsset?.fixedAssetId ?? null,
+          description: pol.description,
+          received: row.received,
+          serialNumber: row.serialNumber ?? pol.fixedAsset?.serialNumber ?? null
+        };
+      });
+  }
+
   return {
     receipt: receipt.data,
     receiptLines: receiptLines.data ?? [],
+    fixedAssetLines,
     receiptFiles: getReceiptFiles(serviceRole, companyId, receiptLineIds) ?? [],
     receiptLineTracking: receiptLineTracking.data ?? [],
     batchProperties:
@@ -91,18 +128,12 @@ export default function ReceiptRoute() {
   if (!receiptId) throw new Error("Could not find receiptId");
 
   return (
-    <PanelProvider>
-      <div className="flex flex-col h-[calc(100dvh-49px)] overflow-hidden w-full">
-        <ReceiptHeader />
-        <div className="flex h-[calc(100dvh-99px)] overflow-y-auto scrollbar-hide w-full">
-          <VStack
-            spacing={4}
-            className="h-full p-2 w-full max-w-5xl mx-auto pb-32"
-          >
-            <Outlet />
-          </VStack>
+    <div className="flex h-[calc(100dvh-49px)] overflow-y-auto scrollbar-hide w-full">
+      <div className="h-full p-4 w-full max-w-5xl mx-auto">
+        <div className="flex flex-col gap-2 pb-16 w-full">
+          <Outlet />
         </div>
       </div>
-    </PanelProvider>
+    </div>
   );
 }

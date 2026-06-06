@@ -338,6 +338,8 @@ serve(async (req: Request) => {
                 purchaseOrderDelivery.data.supplierShippingCost ?? 0,
               shippingMethodId: purchaseOrderDelivery.data.shippingMethodId,
               shippingTermId: purchaseOrderDelivery.data.shippingTermId,
+              incoterm: purchaseOrderDelivery.data.incoterm,
+              incotermLocation: purchaseOrderDelivery.data.incotermLocation,
               companyId,
               updatedBy: userId,
             })
@@ -352,7 +354,8 @@ serve(async (req: Request) => {
               itemId: line.itemId,
               locationId: line.locationId,
               storageUnitId: line.storageUnitId,
-              accountNumber: line.accountNumber,
+              accountId: line.accountId,
+              costCenterId: line.costCenterId,
               assetId: line.assetId,
               description: line.description,
               quantity: line.quantityToInvoice,
@@ -364,6 +367,7 @@ serve(async (req: Request) => {
               conversionFactor: line.conversionFactor,
               exchangeRate: line.exchangeRate ?? 1,
               jobOperationId: line.jobOperationId,
+              sortOrder: line.sortOrder ?? 1,
               companyId,
               createdBy: userId,
             }));
@@ -546,6 +550,7 @@ serve(async (req: Request) => {
                 exchangeRate: quote.data.exchangeRate ?? 1,
                 taxPercent: line.taxPercent,
                 shippingCost: selectedLines![line.id!].shippingCost,
+                sortOrder: line.sortOrder ?? 1,
               };
             });
 
@@ -737,6 +742,8 @@ serve(async (req: Request) => {
               shippingCost: salesOrderShipment.data.shippingCost ?? 0,
               shippingMethodId: salesOrderShipment.data.shippingMethodId,
               shippingTermId: salesOrderShipment.data.shippingTermId,
+              incoterm: salesOrderShipment.data.incoterm,
+              incotermLocation: salesOrderShipment.data.incotermLocation,
               companyId,
               createdBy: userId,
             })
@@ -759,7 +766,7 @@ serve(async (req: Request) => {
                 itemId: line.itemId,
                 locationId: line.locationId,
                 storageUnitId: line.storageUnitId,
-                accountNumber: line.accountNumber,
+                accountId: line.accountId,
                 assetId: line.assetId,
                 description: line.description,
                 quantity: line.quantityToInvoice,
@@ -770,6 +777,7 @@ serve(async (req: Request) => {
                 taxPercent: line.taxPercent ?? 0,
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
                 exchangeRate: line.exchangeRate ?? 1,
+                sortOrder: line.sortOrder ?? 1,
                 companyId,
                 createdBy: userId,
               });
@@ -919,7 +927,7 @@ serve(async (req: Request) => {
           invoiceCustomerLocationId,
         } = customerPayment.data;
 
-        const { shippingMethodId, shippingTermId } = customerShipping.data;
+        const { shippingMethodId, shippingTermId, incoterm, incotermLocation } = customerShipping.data;
 
         let insertedQuoteId = "";
         let insertedQuoteLines: {
@@ -1040,6 +1048,8 @@ serve(async (req: Request) => {
               locationId: salesRfq.data?.locationId,
               shippingMethodId: shippingMethodId,
               shippingTermId: shippingTermId,
+              incoterm: incoterm,
+              incotermLocation: incotermLocation,
               companyId,
             })
             .execute();
@@ -1067,6 +1077,8 @@ serve(async (req: Request) => {
               quantity: line.quantity,
               status: "Not Started",
               unitOfMeasureCode: line.unitOfMeasureCode,
+              // Sales RFQ uses "order" column; map it to quoteLine.sortOrder
+              sortOrder: line.order ?? 1,
               companyId,
               createdBy: userId,
             }));
@@ -1164,12 +1176,20 @@ serve(async (req: Request) => {
       }
       case "shipmentToSalesInvoice": {
         const shipmentId = id;
-        const [shipment, shipmentLines] = await Promise.all([
-          client.from("shipment").select("*").eq("id", shipmentId).single(),
-          client.from("shipmentLine").select("*").eq("shipmentId", shipmentId),
-        ]);
+        const [shipment, shipmentLines, shipmentFixedAssetLines] =
+          await Promise.all([
+            client.from("shipment").select("*").eq("id", shipmentId).single(),
+            client.from("shipmentLine").select("*").eq("shipmentId", shipmentId),
+            client
+              .from("shipmentFixedAssetLine")
+              .select("*")
+              .eq("shipmentId", shipmentId)
+              .eq("shipped", true),
+          ]);
 
         if (shipmentLines.error) throw shipmentLines.error;
+        if (shipmentFixedAssetLines.error)
+          throw shipmentFixedAssetLines.error;
 
         // Accumulate quantities for each sales order line
         const quantitiesByLine = shipmentLines.data.reduce<
@@ -1179,6 +1199,12 @@ serve(async (req: Request) => {
           acc[lineId] = (acc[lineId] || 0) + line.shippedQuantity;
           return acc;
         }, {});
+
+        // Each shipped fixed asset line counts as quantity 1
+        for (const line of shipmentFixedAssetLines.data) {
+          const lineId = line.salesOrderLineId;
+          quantitiesByLine[lineId] = (quantitiesByLine[lineId] || 0) + 1;
+        }
 
         const salesOrderLineIds = Object.keys(quantitiesByLine);
 
@@ -1305,6 +1331,8 @@ serve(async (req: Request) => {
               shippingCost: salesOrderShipment.data.shippingCost ?? 0,
               shippingMethodId: salesOrderShipment.data.shippingMethodId,
               shippingTermId: salesOrderShipment.data.shippingTermId,
+              incoterm: salesOrderShipment.data.incoterm,
+              incotermLocation: salesOrderShipment.data.incotermLocation,
               companyId,
               createdBy: userId,
             })
@@ -1327,7 +1355,7 @@ serve(async (req: Request) => {
                 itemId: line.itemId,
                 locationId: line.locationId,
                 storageUnitId: line.storageUnitId,
-                accountNumber: line.accountNumber,
+                accountId: line.accountId,
                 assetId: line.assetId,
                 description: line.description,
                 quantity: line.quantityToInvoice,
@@ -1338,6 +1366,7 @@ serve(async (req: Request) => {
                 taxPercent: line.taxPercent ?? 0,
                 unitOfMeasureCode: line.unitOfMeasureCode ?? "EA",
                 exchangeRate: line.exchangeRate ?? 1,
+                sortOrder: line.sortOrder ?? 1,
                 companyId,
                 createdBy: userId,
               });
@@ -1477,6 +1506,8 @@ serve(async (req: Request) => {
                 locationId: employeeJob.data?.locationId,
                 shippingMethodId: supplierShipping.data.shippingMethodId,
                 shippingTermId: supplierShipping.data.shippingTermId,
+                incoterm: supplierShipping.data.incoterm,
+                incotermLocation: supplierShipping.data.incotermLocation,
                 companyId: companyId,
               })
               .execute(),
@@ -1492,12 +1523,17 @@ serve(async (req: Request) => {
                   selectedLines[line.id].quantity > 0
               )
               .map((line) => {
+                const isIndirect = line.supplierQuoteLineType === "G/L Account";
                 return {
                   purchaseOrderId: insertedPurchaseOrderId,
-                  purchaseOrderLineType: line.item?.type as "Part",
+                  purchaseOrderLineType: isIndirect
+                    ? ("G/L Account" as const)
+                    : (line.item?.type as "Part"),
                   description: line.description,
-                  itemId: line.itemId,
-                  locationId: employeeJob.data?.locationId,
+                  itemId: isIndirect ? null : line.itemId,
+                  accountId: isIndirect ? line.accountId : null,
+                  costCenterId: isIndirect ? line.costCenterId : null,
+                  locationId: isIndirect ? null : employeeJob.data?.locationId,
                   storageUnitId:
                     pickMethods.data?.find(
                       (method) => method.itemId === line.itemId
@@ -1513,6 +1549,7 @@ serve(async (req: Request) => {
                   supplierShippingCost:
                     selectedLines![line.id!].supplierShippingCost,
                   supplierTaxAmount: selectedLines![line.id!].supplierTaxAmount,
+                  sortOrder: line.sortOrder ?? 1,
                   createdBy: userId,
                   companyId,
                 };
@@ -1524,15 +1561,16 @@ serve(async (req: Request) => {
               .values(purchaseOrderLineInserts)
               .execute();
 
-            await trx
-              .updateTable("item")
-              .set({ active: true })
-              .where(
-                "id",
-                "in",
-                purchaseOrderLineInserts.map((insert) => insert.itemId)
-              )
-              .execute();
+            const itemIdsToActivate = purchaseOrderLineInserts
+              .map((insert) => insert.itemId)
+              .filter((id): id is string => !!id);
+            if (itemIdsToActivate.length > 0) {
+              await trx
+                .updateTable("item")
+                .set({ active: true })
+                .where("id", "in", itemIdsToActivate)
+                .execute();
+            }
           }
 
           // Create a map to deduplicate supplier parts by itemId and supplierId

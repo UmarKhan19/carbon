@@ -5,10 +5,13 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export interface McpContext {
   client: SupabaseClient<Database>;
   companyId: string;
+  companyGroupId: string;
   userId: string;
 }
 
 export type RegisterTools = (server: McpServer, ctx: McpContext) => void;
+
+export type AuthField = "companyId" | "createdBy" | "updatedBy";
 
 export const READ_ONLY_ANNOTATIONS = {
   readOnlyHint: true,

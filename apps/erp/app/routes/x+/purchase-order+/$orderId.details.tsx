@@ -199,6 +199,8 @@ export default function PurchaseOrderBasicRoute() {
     customerId: orderData?.purchaseOrderDelivery.customerId ?? "",
     customerLocationId:
       orderData?.purchaseOrderDelivery.customerLocationId ?? "",
+    incoterm: orderData?.purchaseOrderDelivery.incoterm ?? undefined,
+    incotermLocation: orderData?.purchaseOrderDelivery.incotermLocation ?? "",
     ...getCustomFields(orderData?.purchaseOrderDelivery.customFields)
   };
   const paymentInitialValues = {
@@ -214,8 +216,6 @@ export default function PurchaseOrderBasicRoute() {
   };
 
   const { company } = useUser();
-
-  const isReadOnly = isPurchaseOrderLocked(orderData.purchaseOrder.status);
 
   return (
     <>
@@ -236,7 +236,6 @@ export default function PurchaseOrderBasicRoute() {
             id={orderId}
             interactionId={orderData.purchaseOrder.supplierInteractionId!}
             type="Purchase Order"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

@@ -2,7 +2,7 @@ import { assertIsPost, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
-import { useRouteData } from "@carbon/remix";
+import { useRouteData } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useNavigate, useParams } from "react-router";
 import type { MaterialSummary } from "~/modules/items";
@@ -149,6 +149,7 @@ export default function EditMaterialSupplierRoute() {
     unitPrice: supplierPart.unitPrice ?? 0,
     supplierUnitOfMeasureCode: supplierPart.supplierUnitOfMeasureCode ?? "EA",
     minimumOrderQuantity: supplierPart.minimumOrderQuantity ?? 1,
+    orderMultiple: supplierPart.orderMultiple ?? 1,
     conversionFactor: supplierPart.conversionFactor ?? 1
   };
 

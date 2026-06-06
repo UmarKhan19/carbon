@@ -10,9 +10,9 @@ import {
   Tabs,
   TabsContent,
   TabsList,
-  TabsTrigger
+  TabsTrigger,
+  useRouteData
 } from "@carbon/react";
-import { useRouteData } from "@carbon/remix";
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { Suspense, useState } from "react";
@@ -230,7 +230,8 @@ export default function ToolRoute() {
                                 quoteMaterials,
                                 salesOrderLines,
                                 shipmentLines,
-                                supplierQuotes
+                                supplierQuotes,
+                                jobMaterialUsage
                               } = resolvedUsedIn;
 
                               const tree: UsedInNode[] = [
@@ -336,6 +337,7 @@ export default function ToolRoute() {
                                     toolData.toolSummary
                                       ?.readableIdWithRevision ?? ""
                                   }
+                                  jobMaterialUsage={jobMaterialUsage}
                                   filterText={filterText}
                                   hideSearch
                                 />
@@ -376,7 +378,8 @@ export default function ToolRoute() {
                               quoteMaterials,
                               salesOrderLines,
                               shipmentLines,
-                              supplierQuotes
+                              supplierQuotes,
+                              jobMaterialUsage
                             } = resolvedUsedIn;
 
                             const tree: UsedInNode[] = [
@@ -482,6 +485,7 @@ export default function ToolRoute() {
                                   toolData.toolSummary
                                     ?.readableIdWithRevision ?? ""
                                 }
+                                jobMaterialUsage={jobMaterialUsage}
                                 filterText={filterText}
                                 hideSearch
                               />

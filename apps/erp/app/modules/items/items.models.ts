@@ -32,6 +32,13 @@ export const itemTrackingTypes = [
   "Batch"
 ] as const;
 
+export const ItemTrackingType = {
+  Inventory: "Inventory",
+  NonInventory: "Non-Inventory",
+  Serial: "Serial",
+  Batch: "Batch"
+} as const satisfies Record<string, (typeof itemTrackingTypes)[number]>;
+
 export const itemCostingMethods = [
   "Standard",
   "Average",
@@ -128,7 +135,8 @@ export const itemValidator = z.object({
   // Fixed Duration + Make items only: when true, the produced expiry is
   // capped by the earliest input expiry — the output cannot outlast its
   // raw materials. Falls back to today + days when no input has a date.
-  shelfLifeInheritEarliestInputExpiry: zfd.checkbox(),
+  // Mirrors the inventory-settings "Calculate from BOM" copy.
+  shelfLifeCalculateFromBom: zfd.checkbox(),
   requiresInspection: zfd.checkbox().optional()
 });
 
@@ -203,22 +211,20 @@ const applyStorageAndShelfLifeRefines = <T extends z.AnyZodObject>(
     )
     .refine(
       (data: z.infer<T>) =>
-        !data.shelfLifeInheritEarliestInputExpiry ||
+        !data.shelfLifeCalculateFromBom ||
         data.shelfLifeMode === "Fixed Duration",
       {
-        message:
-          "Inheriting the earliest input expiry only applies to Fixed Duration shelf life",
-        path: ["shelfLifeInheritEarliestInputExpiry"]
+        message: "Calculate from BOM only applies to Fixed Duration shelf life",
+        path: ["shelfLifeCalculateFromBom"]
       }
     )
     .refine(
       (data: z.infer<T>) =>
-        !data.shelfLifeInheritEarliestInputExpiry ||
-        data.replenishmentSystem !== "Buy",
+        !data.shelfLifeCalculateFromBom || data.replenishmentSystem !== "Buy",
       {
         message:
-          "Inheriting input expiry requires a BoM - only Make or Buy and Make items qualify",
-        path: ["shelfLifeInheritEarliestInputExpiry"]
+          "Calculate from BOM requires a BoM - only Make or Buy and Make items qualify",
+        path: ["shelfLifeCalculateFromBom"]
       }
     ) as z.ZodEffects<z.ZodTypeAny, z.infer<T>, z.input<T>>;
 
@@ -492,11 +498,11 @@ export const methodOperationValidator = z
 export const itemCostValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
   itemPostingGroupId: zfd.text(z.string().optional()),
-  // costingMethod: z.enum(itemCostingMethods, {
-  //   errorMap: (issue, ctx) => ({
-  //     message: "Costing method is required",
-  //   }),
-  // }),
+  costingMethod: z.enum(itemCostingMethods, {
+    errorMap: () => ({
+      message: "Costing method is required"
+    })
+  }),
   // standardCost: zfd.numeric(z.number().min(0)),
   unitCost: zfd.numeric(z.number().min(0))
   // costIsAdjusted: zfd.checkbox(),
@@ -665,7 +671,7 @@ export const pickMethodWithShelfLifeValidator = pickMethodValidator
       shelfLifeDays: zfd.numeric(z.number().positive().optional()),
       shelfLifeTriggerProcessId: zfd.text(z.string().optional()),
       shelfLifeTriggerTiming: z.enum(shelfLifeTriggerTimings).optional(),
-      shelfLifeInheritEarliestInputExpiry: zfd.checkbox()
+      shelfLifeCalculateFromBom: zfd.checkbox()
     })
   )
   .refine(
@@ -700,12 +706,11 @@ export const pickMethodWithShelfLifeValidator = pickMethodValidator
   )
   .refine(
     (data) =>
-      !data.shelfLifeInheritEarliestInputExpiry ||
+      !data.shelfLifeCalculateFromBom ||
       data.shelfLifeMode === "Fixed Duration",
     {
-      message:
-        "Inheriting the earliest input expiry only applies to Fixed Duration shelf life",
-      path: ["shelfLifeInheritEarliestInputExpiry"]
+      message: "Calculate from BOM only applies to Fixed Duration shelf life",
+      path: ["shelfLifeCalculateFromBom"]
     }
   );
 
@@ -743,6 +748,7 @@ export const supplierPartValidator = z.object({
   supplierPartId: z.string().optional(),
   supplierUnitOfMeasureCode: zfd.text(z.string().optional()),
   minimumOrderQuantity: zfd.numeric(z.number().min(0)),
+  orderMultiple: zfd.numeric(z.number().min(1)).optional(),
   conversionFactor: zfd.numeric(z.number().min(0)),
   unitPrice: zfd.numeric(z.number().min(0).optional())
 });

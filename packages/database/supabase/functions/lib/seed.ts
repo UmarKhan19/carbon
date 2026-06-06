@@ -4,20 +4,18 @@
  */
 
 export {
-  accountCategories,
   accountDefaults,
   accounts,
   currencies,
   customerStatuses,
+  dimensions,
   failureModes,
   fiscalYearSettings,
+  fixedAssetClasses,
   gaugeTypes,
   nonConformanceRequiredActions,
   nonConformanceTypes,
   paymentTerms,
-  postingGroupInventory,
-  postingGroupPurchasing,
-  postingGroupSales,
   scrapReasons,
   sequences,
   unitOfMeasures,

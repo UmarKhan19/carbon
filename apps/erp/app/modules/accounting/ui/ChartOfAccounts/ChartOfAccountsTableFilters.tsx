@@ -2,6 +2,9 @@ import {
   Button,
   DatePicker,
   HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
   Popover,
   PopoverContent,
   PopoverHeader,
@@ -9,12 +12,19 @@ import {
 } from "@carbon/react";
 import { parseDate } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { LuCalendarDays, LuX } from "react-icons/lu";
-import { New, Select } from "~/components";
+import { LuCalendarDays, LuSearch, LuX } from "react-icons/lu";
+import { New } from "~/components";
 import { usePermissions, useUrlParams } from "~/hooks";
-import { incomeBalanceTypes } from "../../accounting.models";
 
-const ChartOfAccountsTableFilters = () => {
+type ChartOfAccountsTableFiltersProps = {
+  search: string;
+  onSearchChange: (value: string) => void;
+};
+
+const ChartOfAccountsTableFilters = ({
+  search,
+  onSearchChange
+}: ChartOfAccountsTableFiltersProps) => {
   const { t } = useLingui();
   const [params, setParams] = useUrlParams();
   const permissions = usePermissions();
@@ -22,22 +32,19 @@ const ChartOfAccountsTableFilters = () => {
   const startDate = params.get("startDate");
   const endDate = params.get("endDate");
 
-  const incomeBalanceOptions = incomeBalanceTypes.map((type) => ({
-    label: type,
-    value: type
-  }));
-
   return (
     <div className="flex px-4 py-3 items-center space-x-4 justify-between bg-card border-b border-border w-full">
       <HStack>
-        <Select
-          value={params.get("incomeBalance") ?? ""}
-          placeholder={t`Income/Balance Sheet`}
-          options={incomeBalanceOptions}
-          size="sm"
-          isClearable
-          onChange={(newValue) => setParams({ incomeBalance: newValue })}
-        />
+        <InputGroup size="sm" className="w-64">
+          <InputLeftElement>
+            <LuSearch className="h-4 w-4 text-muted-foreground" />
+          </InputLeftElement>
+          <Input
+            placeholder={t`Search accounts...`}
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
+        </InputGroup>
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="secondary" leftIcon={<LuCalendarDays />}>
@@ -78,11 +85,10 @@ const ChartOfAccountsTableFilters = () => {
         </Popover>
         {[...params.entries()].length > 0 && (
           <Button
-            variant="solid"
+            variant="secondary"
             rightIcon={<LuX />}
             onClick={() =>
               setParams({
-                incomeBalance: undefined,
                 startDate: undefined,
                 endDate: undefined
               })
@@ -94,7 +100,10 @@ const ChartOfAccountsTableFilters = () => {
       </HStack>
       <HStack>
         {permissions.can("create", "accounting") && (
-          <New label={t`Account`} to={`new?${params.toString()}`} />
+          <>
+            <New label={t`Group`} to={`new-group?${params.toString()}`} />
+            <New label={t`Account`} to={`new?${params.toString()}`} />
+          </>
         )}
       </HStack>
     </div>

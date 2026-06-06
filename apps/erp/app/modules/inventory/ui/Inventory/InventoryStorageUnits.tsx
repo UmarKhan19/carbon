@@ -1,10 +1,16 @@
-import { Hidden, NumberControlled, Submit, ValidatedForm } from "@carbon/form";
+import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
+import {
+  DatePicker,
+  Hidden,
+  NumberControlled,
+  Submit,
+  ValidatedForm
+} from "@carbon/form";
 import {
   Button,
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   Copy,
@@ -35,6 +41,7 @@ import {
   VStack
 } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { nanoid } from "nanoid";
 import { useMemo, useState } from "react";
@@ -47,13 +54,8 @@ import {
 import { Outlet } from "react-router";
 import type { z } from "zod";
 import { Enumerable } from "~/components/Enumerable";
-import {
-  Input,
-  Location,
-  Select,
-  StorageUnit,
-  TextArea
-} from "~/components/Form";
+import { Input, Location, Select, TextArea } from "~/components/Form";
+import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions } from "~/hooks";
 import type {
@@ -69,6 +71,11 @@ type InventoryStorageUnitsProps = {
   itemStorageUnitQuantities: ItemStorageUnitQuantities[];
   itemUnitOfMeasureCode: string;
   itemTrackingType: (typeof itemTrackingTypes)[number];
+  itemShelfLife: {
+    mode: string | null;
+    days: number | null;
+  } | null;
+  trackedEntityExpirations: Record<string, string | null>;
   storageUnits: { value: string; label: string }[];
 };
 
@@ -76,12 +83,18 @@ const InventoryStorageUnits = ({
   itemStorageUnitQuantities,
   itemUnitOfMeasureCode,
   itemTrackingType,
+  itemShelfLife,
+  trackedEntityExpirations,
   pickMethod,
   storageUnits
 }: InventoryStorageUnitsProps) => {
   const permissions = usePermissions();
   const { t } = useLingui();
   const adjustmentModal = useDisclosure();
+  const ruleViolations = useCustomRuleViolations({
+    action: path.to.inventoryItemAdjustment(pickMethod.itemId),
+    onSuccess: adjustmentModal.onClose
+  });
 
   const unitOfMeasures = useUnitOfMeasure();
 
@@ -106,6 +119,30 @@ const InventoryStorageUnits = ({
   const [isEditingRow, setIsEditingRow] = useState(false);
 
   const isEditing = selectedTrackedEntityId !== null;
+
+  const showExpirationField = isBatch || isSerial;
+
+  const defaultExpirationDate = useMemo(() => {
+    if (!showExpirationField) return undefined;
+    if (selectedTrackedEntityId) {
+      return trackedEntityExpirations[selectedTrackedEntityId] ?? undefined;
+    }
+    if (
+      itemShelfLife?.mode === "Fixed Duration" &&
+      itemShelfLife.days &&
+      Number(itemShelfLife.days) > 0
+    ) {
+      return today(getLocalTimeZone())
+        .add({ days: Number(itemShelfLife.days) })
+        .toString();
+    }
+    return undefined;
+  }, [
+    showExpirationField,
+    selectedTrackedEntityId,
+    trackedEntityExpirations,
+    itemShelfLife
+  ]);
 
   const openAdjustmentModal = (
     storageUnitId?: string,
@@ -150,17 +187,17 @@ const InventoryStorageUnits = ({
         <HStack className="w-full justify-between">
           <CardHeader>
             <CardTitle>
-              <Trans>Storage Units</Trans>
+              <HStack className="gap-2 items-center">
+                <Trans>Storage Units</Trans>
+                <Enumerable
+                  value={
+                    unitOfMeasures.find(
+                      (uom) => uom.value === itemUnitOfMeasureCode
+                    )?.label || itemUnitOfMeasureCode
+                  }
+                />
+              </HStack>
             </CardTitle>
-            <CardDescription>
-              <Enumerable
-                value={
-                  unitOfMeasures.find(
-                    (uom) => uom.value === itemUnitOfMeasureCode
-                  )?.label || itemUnitOfMeasureCode
-                }
-              />
-            </CardDescription>
           </CardHeader>
           <CardAction>
             <Button onClick={() => openAdjustmentModal()}>
@@ -281,6 +318,7 @@ const InventoryStorageUnits = ({
             <ValidatedForm
               method="post"
               validator={inventoryAdjustmentValidator}
+              fetcher={ruleViolations.fetcher}
               action={path.to.inventoryItemAdjustment(pickMethod.itemId)}
               defaultValues={{
                 itemId: pickMethod.itemId,
@@ -292,9 +330,9 @@ const InventoryStorageUnits = ({
                   : undefined,
                 adjustmentType: "Set Quantity",
                 trackedEntityId: selectedTrackedEntityId || nanoid(),
-                readableId: selectedReadableId || undefined
+                readableId: selectedReadableId || undefined,
+                expirationDate: defaultExpirationDate
               }}
-              onSubmit={adjustmentModal.onClose}
             >
               <ModalHeader>
                 <ModalTitle>
@@ -307,7 +345,7 @@ const InventoryStorageUnits = ({
 
                 <VStack spacing={2}>
                   <Location name="locationId" label={t`Location`} isReadOnly />
-                  <StorageUnit
+                  <StorageUnitDrillSelectField
                     name="storageUnitId"
                     locationId={pickMethod.locationId}
                     label={t`Storage Unit`}
@@ -352,6 +390,12 @@ const InventoryStorageUnits = ({
                         name="readableId"
                         label={isSerial ? t`Serial Number` : t`Batch Number`}
                       />
+                      {showExpirationField && (
+                        <DatePicker
+                          name="expirationDate"
+                          label={t`Expiration Date`}
+                        />
+                      )}
                     </>
                   )}
                   <NumberControlled
@@ -388,6 +432,7 @@ const InventoryStorageUnits = ({
           </ModalContent>
         </Modal>
       )}
+      <ruleViolations.ViolationModal />
       <Outlet />
     </>
   );

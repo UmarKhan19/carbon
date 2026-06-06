@@ -13,6 +13,7 @@ import {
   toCalendarDateTime,
   toZoned
 } from "@internationalized/date";
+import { useLocale } from "@react-aria/i18n";
 import { useState } from "react";
 import { flushSync } from "react-dom";
 import { useField } from "../hooks";
@@ -21,6 +22,7 @@ import { useFormStateContext } from "../internal/formStateContext";
 type DateTimePickerProps = {
   name: string;
   label?: string;
+  size?: "sm" | "md" | "lg";
   isDisabled?: boolean;
   minValue?: CalendarDateTime;
   maxValue?: CalendarDateTime;
@@ -32,6 +34,7 @@ type DateTimePickerProps = {
 const DateTimePicker = ({
   name,
   label,
+  size,
   isDisabled: isDisabledProp = false,
   minValue,
   maxValue,
@@ -39,6 +42,7 @@ const DateTimePicker = ({
   helperText,
   onChange
 }: DateTimePickerProps) => {
+  const { locale } = useLocale();
   const formState = useFormStateContext();
   const isDisabled =
     formState.isDisabled || formState.isReadOnly || isDisabledProp;
@@ -79,7 +83,7 @@ const DateTimePicker = ({
 
   const DateTimePickerPreview = (
     <span className="flex flex-grow line-clamp-1 items-center">
-      {formatDateTime(utcValue)}
+      {formatDateTime(utcValue, locale)}
     </span>
   );
 
@@ -95,6 +99,7 @@ const DateTimePicker = ({
         value={date}
         onChange={handleChange as any}
         isDisabled={isDisabled}
+        size={size}
         minValue={minValue}
         maxValue={maxValue}
         inline={inline ? DateTimePickerPreview : undefined}

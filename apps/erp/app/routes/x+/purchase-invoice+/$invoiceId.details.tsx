@@ -172,12 +172,12 @@ export default function PurchaseInvoiceBasicRoute() {
     supplierShippingCost: purchaseInvoiceDelivery.supplierShippingCost ?? 0,
     shippingMethodId: purchaseInvoiceDelivery.shippingMethodId ?? "",
     shippingTermId: purchaseInvoiceDelivery.shippingTermId ?? "",
+    incoterm: purchaseInvoiceDelivery.incoterm ?? undefined,
+    incotermLocation: purchaseInvoiceDelivery.incotermLocation ?? "",
     ...getCustomFields(purchaseInvoiceDelivery.customFields)
   };
 
   const { company } = useUser();
-
-  const isReadOnly = isPurchaseInvoiceLocked(purchaseInvoice.status);
 
   return (
     <Fragment key={invoiceId}>
@@ -196,7 +196,6 @@ export default function PurchaseInvoiceBasicRoute() {
             attachments={resolvedFiles}
             id={invoiceId}
             type="Purchase Invoice"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

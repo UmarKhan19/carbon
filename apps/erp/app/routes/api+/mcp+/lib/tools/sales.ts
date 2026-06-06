@@ -122,6 +122,8 @@ import {
   updateCustomerLocation,
   updateCustomerPayment,
   updateCustomerShipping,
+  getCustomerTax,
+  updateCustomerTax,
   upsertCustomerStatus,
   upsertCustomerType,
   upsertNoQuoteReason,
@@ -170,6 +172,7 @@ import {
   customerAccountingValidator,
   customerPaymentValidator,
   customerShippingValidator,
+  customerTaxValidator,
   customerStatusValidator,
   customerTypeValidator,
   noQuoteReasonValidator,
@@ -1916,6 +1919,36 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
+    "sales_getCustomerTax",
+    {
+      description: "get customer tax",
+      inputSchema: {
+      customerId: z.string(),
+    },
+      annotations: READ_ONLY_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await getCustomerTax(ctx.client, params.customerId);
+      return toMcpResult(result);
+    }, "Failed: sales_getCustomerTax"),
+  );
+
+  server.registerTool(
+    "sales_updateCustomerTax",
+    {
+      description: "update customer tax",
+      inputSchema: {
+      customerTax: customerTaxValidator,
+    },
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updateCustomerTax(ctx.client, { ...params.customerTax, updatedBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: sales_updateCustomerTax"),
+  );
+
+  server.registerTool(
     "sales_upsertCustomerStatus",
     {
       description: "upsert customer status",
@@ -2202,7 +2235,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await upsertQuote(ctx.client, { ...params.quote, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
+      const result = await upsertQuote(ctx.client, { ...params.quote, companyId: ctx.companyId, companyGroupId: ctx.companyGroupId, createdBy: ctx.userId, updatedBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: sales_upsertQuote"),
   );
@@ -2500,7 +2533,7 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await upsertSalesOrder(ctx.client, { ...params.salesOrder, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
+      const result = await upsertSalesOrder(ctx.client, { ...params.salesOrder, companyId: ctx.companyId, companyGroupId: ctx.companyGroupId, createdBy: ctx.userId, updatedBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: sales_upsertSalesOrder"),
   );

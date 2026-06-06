@@ -8,10 +8,10 @@ import {
   REFRESH_ACCESS_TOKEN_THRESHOLD,
   SESSION_KEY,
   SESSION_MAX_AGE,
-  SESSION_SECRET,
-  VERCEL_ENV
+  SESSION_SECRET
 } from "../config/env";
 import type { AuthSession, Result } from "../types";
+import { getCookieDomain } from "../utils/cookie";
 import { getCurrentPath, isGet, makeRedirectToFromHere } from "../utils/http";
 import { path } from "../utils/path";
 import { refreshAccessToken, verifyAuthSession } from "./auth.server";
@@ -35,15 +35,17 @@ async function assertAuthSession(
 
 export const isTestEdition = CarbonEdition === Edition.Test;
 
+const cookieDomain = isTestEdition ? undefined : getCookieDomain(DOMAIN);
+
 const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "carbon",
-    httpOnly: VERCEL_ENV === "production",
+    httpOnly: true,
     path: "/",
     sameSite: isTestEdition ? "none" : "lax",
     secrets: [SESSION_SECRET!],
-    secure: VERCEL_ENV === "production",
-    domain: VERCEL_ENV === "production" ? DOMAIN : undefined // eg. carbon.ms
+    secure: !!cookieDomain,
+    domain: cookieDomain
   }
 });
 
@@ -64,17 +66,20 @@ export async function setAuthSession(
   return sessionStorage.commitSession(session, { maxAge: SESSION_MAX_AGE });
 }
 
-export async function destroyAuthSession(request: Request) {
+export async function clearAuthCookies(request: Request) {
   const session = await getSession(request);
-
   const sessionCookie = await sessionStorage.destroySession(session);
   const companyIdCookie = setCompanyId(null);
+  return [
+    ["Set-Cookie", sessionCookie] as [string, string],
+    ["Set-Cookie", companyIdCookie] as [string, string]
+  ];
+}
 
+export async function destroyAuthSession(request: Request) {
+  const headers = await clearAuthCookies(request);
   return redirect(path.to.login, {
-    headers: [
-      ["Set-Cookie", sessionCookie],
-      ["Set-Cookie", companyIdCookie]
-    ]
+    headers
   });
 }
 
@@ -168,7 +173,8 @@ export async function refreshAuthSession(
 
   const refreshedAuthSession = await refreshAccessToken(
     authSession?.refreshToken,
-    authSession?.companyId
+    authSession?.companyId,
+    authSession?.companyGroupId
   );
 
   // Preserve console mode across token refresh
@@ -228,7 +234,8 @@ export async function updateSessionConsole(
 
 export async function updateCompanySession(
   request: Request,
-  companyId: string
+  companyId: string,
+  companyGroupId: string
 ) {
   const session = await getSession(request);
   const authSession = await getAuthSession(request);
@@ -237,7 +244,8 @@ export async function updateCompanySession(
     await redis.del(getPermissionCacheKey(authSession?.userId!));
     session.set(SESSION_KEY, {
       ...authSession,
-      companyId
+      companyId,
+      companyGroupId
     });
   }
 

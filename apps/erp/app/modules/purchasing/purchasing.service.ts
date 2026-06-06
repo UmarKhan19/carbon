@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import { getPurchaseOrderStatus } from "@carbon/utils";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import type {
@@ -34,6 +35,7 @@ import type {
   supplierQuoteStatusType,
   supplierQuoteValidator,
   supplierShippingValidator,
+  supplierTaxValidator,
   supplierTypeValidator,
   supplierValidator
 } from "./purchasing.models";
@@ -281,6 +283,7 @@ export async function getPurchaseOrderLines(
     .from("purchaseOrderLines")
     .select("*")
     .eq("purchaseOrderId", purchaseOrderId)
+    .order("sortOrder", { ascending: true })
     .order("createdAt", { ascending: true });
 }
 
@@ -729,7 +732,8 @@ export async function getSupplierQuoteLines(
   return client
     .from("supplierQuoteLines")
     .select("*")
-    .eq("supplierQuoteId", supplierQuoteId);
+    .eq("supplierQuoteId", supplierQuoteId)
+    .order("sortOrder", { ascending: true });
 }
 
 export async function getSupplierQuoteLinePrices(
@@ -1253,6 +1257,31 @@ export async function updateSupplierShipping(
     .eq("supplierId", supplierShipping.supplierId);
 }
 
+export async function getSupplierTax(
+  client: SupabaseClient<Database>,
+  supplierId: string
+) {
+  return client
+    .from("supplierTax")
+    .select("*")
+    .eq("supplierId", supplierId)
+    .maybeSingle();
+}
+
+export async function updateSupplierTax(
+  client: SupabaseClient<Database>,
+  supplierTax: z.infer<typeof supplierTaxValidator> & {
+    companyId: string;
+    updatedBy: string;
+    taxExemptionCertificatePath?: string | null;
+  }
+) {
+  return client
+    .from("supplierTax")
+    .update(sanitize(supplierTax))
+    .eq("supplierId", supplierTax.supplierId);
+}
+
 export async function upsertPurchaseOrder(
   client: SupabaseClient<Database>,
   purchaseOrder:
@@ -1263,6 +1292,7 @@ export async function upsertPurchaseOrder(
         purchaseOrderId: string;
         status?: (typeof purchaseOrderStatusType)[number];
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -1308,12 +1338,13 @@ export async function upsertPurchaseOrder(
     invoiceSupplierLocationId
   } = supplierPayment.data;
 
-  const { shippingMethodId, shippingTermId } = supplierShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    supplierShipping.data;
 
   if (purchaseOrder.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      purchaseOrder.companyId,
+      purchaseOrder.companyGroupId,
       purchaseOrder.currencyCode
     );
     if (currency.data) {
@@ -1329,7 +1360,11 @@ export async function upsertPurchaseOrder(
     purchaseOrder.locationId ?? purchaser?.data?.locationId ?? null;
 
   // locationId is not a column on purchaseOrder -- it belongs on the delivery record
-  const { locationId: _locationId, ...purchaseOrderData } = purchaseOrder;
+  const {
+    locationId: _locationId,
+    companyGroupId: _companyGroupId,
+    ...purchaseOrderData
+  } = purchaseOrder;
 
   const order = await client
     .from("purchaseOrder")
@@ -1354,6 +1389,8 @@ export async function upsertPurchaseOrder(
         locationId: locationId,
         shippingMethodId: shippingMethodId,
         shippingTermId: shippingTermId,
+        incoterm: incoterm,
+        incotermLocation: incotermLocation,
         companyId: purchaseOrder.companyId
       }
     ]),
@@ -1432,11 +1469,37 @@ export async function upsertPurchaseOrderLine(
       .select("id")
       .single();
   }
+
+  const existing = await client
+    .from("purchaseOrderLine")
+    .select("sortOrder")
+    .eq("purchaseOrderId", purchaseOrderLine.purchaseOrderId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("purchaseOrderLine")
-    .insert([purchaseOrderLine])
+    .insert([{ ...purchaseOrderLine, sortOrder: maxSortOrder + 1 }])
     .select("id")
     .single();
+}
+
+export async function updatePurchaseOrderLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchaseOrderLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertPurchaseOrderPayment(
@@ -1537,6 +1600,7 @@ export async function upsertSupplierQuote(
       > & {
         supplierQuoteId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
@@ -1546,6 +1610,7 @@ export async function upsertSupplierQuote(
       > & {
         id: string;
         supplierQuoteId: string;
+        companyGroupId: string;
         updatedBy: string;
         customFields?: Json;
       })
@@ -1554,7 +1619,7 @@ export async function upsertSupplierQuote(
     if (supplierQuote.currencyCode) {
       const currency = await getCurrencyByCode(
         client,
-        supplierQuote.companyId,
+        supplierQuote.companyGroupId,
         supplierQuote.currencyCode
       );
       if (currency.data) {
@@ -1574,12 +1639,14 @@ export async function upsertSupplierQuote(
 
     if (supplierInteraction.error) return supplierInteraction;
 
+    const { companyGroupId: _companyGroupId, ...supplierQuoteData } =
+      supplierQuote;
     const insert = await client
       .from("supplierQuote")
       .insert([
         {
-          ...supplierQuote,
-          status: supplierQuote.status ?? "Draft",
+          ...supplierQuoteData,
+          status: supplierQuoteData.status ?? "Draft",
           supplierInteractionId: supplierInteraction.data?.id
         }
       ])
@@ -1620,17 +1687,13 @@ export async function upsertSupplierQuote(
     // Only update the exchange rate if the currency code has changed
     const existingQuote = await client
       .from("supplierQuote")
-      .select("companyId, currencyCode, status")
+      .select("currencyCode, status")
       .eq("id", supplierQuote.id)
       .single();
 
     if (existingQuote.error) return existingQuote;
 
-    const {
-      companyId,
-      currencyCode,
-      status: existingStatus
-    } = existingQuote.data;
+    const { currencyCode, status: existingStatus } = existingQuote.data;
 
     if (
       supplierQuote.currencyCode &&
@@ -1638,7 +1701,7 @@ export async function upsertSupplierQuote(
     ) {
       const currency = await getCurrencyByCode(
         client,
-        companyId,
+        supplierQuote.companyGroupId,
         supplierQuote.currencyCode
       );
       if (currency.data) {
@@ -1646,10 +1709,12 @@ export async function upsertSupplierQuote(
         supplierQuote.exchangeRateUpdatedAt = new Date().toISOString();
       }
     }
+    const { companyGroupId: _companyGroupId2, ...supplierQuoteUpdateData } =
+      supplierQuote;
     return client
       .from("supplierQuote")
       .update({
-        ...sanitize(supplierQuote),
+        ...sanitize(supplierQuoteUpdateData),
         status:
           supplierQuote.expirationDate &&
           today(getLocalTimeZone()).toString() > supplierQuote.expirationDate
@@ -1683,11 +1748,43 @@ export async function upsertSupplierQuoteLine(
       .select("id")
       .single();
   }
+
+  const existing = await client
+    .from("supplierQuoteLine")
+    .select("sortOrder")
+    .eq("supplierQuoteId", supplierQuoteLine.supplierQuoteId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
   return client
     .from("supplierQuoteLine")
-    .insert([supplierQuoteLine])
+    .insert([
+      {
+        ...supplierQuoteLine,
+        description: supplierQuoteLine.description ?? "",
+        sortOrder: maxSortOrder + 1
+      }
+    ])
     .select("id")
     .single();
+}
+
+export async function updateSupplierQuoteLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("supplierQuoteLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertSupplierType(
@@ -1875,6 +1972,21 @@ export async function upsertPurchasingRFQLine(
     .insert([purchasingRfqLine])
     .select("id")
     .single();
+}
+
+export async function updatePurchasingRFQLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("purchasingRfqLine")
+        .set({ order: sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertPurchasingRFQSuppliers(
@@ -2105,4 +2217,57 @@ export async function getPurchasingRFQSuppliersWithLinks(
     .from("purchasingRfqSupplier")
     .select("*, supplier:supplierId(id, name)")
     .eq("purchasingRfqId", purchasingRfqId);
+}
+
+export type PoDefaultAttachment = {
+  source: "company" | "supplier" | "item";
+  name: string;
+  size: number | null;
+  path: string;
+};
+
+export async function getDefaultAttachmentsForPO(
+  client: SupabaseClient<Database>,
+  args: {
+    companyId: string;
+    supplierId: string | null;
+    itemIds: string[];
+  }
+): Promise<PoDefaultAttachment[]> {
+  const { companyId, supplierId, itemIds } = args;
+
+  const prefixes: { source: PoDefaultAttachment["source"]; path: string }[] = [
+    { source: "company", path: `${companyId}/default-attachments/company` }
+  ];
+  if (supplierId) {
+    prefixes.push({
+      source: "supplier",
+      path: `${companyId}/default-attachments/supplier/${supplierId}`
+    });
+  }
+  for (const id of itemIds ?? []) {
+    prefixes.push({
+      source: "item",
+      path: `${companyId}/default-attachments/item/${id}`
+    });
+  }
+
+  const results = await Promise.all(
+    prefixes.map(({ path }) => client.storage.from("private").list(path))
+  );
+
+  return results.flatMap((result, idx) => {
+    const { source, path: prefix } = prefixes[idx];
+    return (result.data ?? []).map((f) => ({
+      source,
+      name: f.name,
+      size:
+        (f.metadata as { size?: number } | null | undefined)?.size != null
+          ? Math.round(
+              ((f.metadata as { size?: number }).size as number) / 1024
+            )
+          : null,
+      path: `${prefix}/${f.name}`
+    }));
+  });
 }

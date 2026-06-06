@@ -1,7 +1,7 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
 import type { z } from "zod";
 import type { StorageItem } from "~/types";
@@ -569,6 +569,32 @@ export async function getStorageUnitsListForLocation(
   );
 }
 
+// Tree shape from storageUnits_recursive view: each row has its 1-based depth
+// and the full ancestorPath (root → node ids). Sort by ancestorPath so the
+// caller can render a flat list that visually nests by depth.
+export async function getStorageUnitsTreeForLocation(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  locationId: string
+) {
+  return fetchAllFromTable<{
+    id: string;
+    name: string;
+    parentId: string | null;
+    depth: number;
+    ancestorPath: string[];
+  }>(
+    client,
+    "storageUnits_recursive",
+    "id, name, parentId, depth, ancestorPath",
+    (query) =>
+      query
+        .eq("active", true)
+        .eq("companyId", companyId)
+        .eq("locationId", locationId)
+  );
+}
+
 export async function getStorageUnits(
   client: SupabaseClient<Database>,
   locationId: string,
@@ -998,14 +1024,24 @@ export async function updateTrackedEntityExpiry(
     expirationDate: string | null;
     reason: string;
     userId: string;
+    source?: string;
   }
 ) {
   const existing = await client
     .from("trackedEntity")
-    .select("expirationDate, attributes")
+    .select("expirationDate, attributes, status")
     .eq("id", args.trackedEntityId)
     .single();
   if (existing.error) return existing;
+
+  if (existing.data?.status === "Consumed") {
+    return {
+      data: null,
+      error: {
+        message: "Cannot edit expiry of a consumed tracked entity"
+      } as unknown as PostgrestError
+    };
+  }
 
   const prevAttrs =
     (existing.data?.attributes as Record<string, unknown> | null) ?? {};
@@ -1021,6 +1057,7 @@ export async function updateTrackedEntityExpiry(
         previous: existing.data?.expirationDate ?? null,
         next: args.expirationDate,
         reason: args.reason,
+        source: args.source ?? null,
         userId: args.userId,
         at: now(getLocalTimeZone()).toAbsoluteString()
       }
@@ -1139,6 +1176,7 @@ export async function insertManualInventoryAdjustment(
     readableId,
     originalStorageUnitId,
     comment,
+    expirationDate: providedExpirationDate,
     ...rest
   } = inventoryAdjustment;
   const data = {
@@ -1146,6 +1184,53 @@ export async function insertManualInventoryAdjustment(
     entryType:
       adjustmentType === "Set Quantity" ? "Positive Adjmt." : adjustmentType, // This will be overwritten below
     comment: comment || null
+  };
+
+  // For new tracked entities created here, fall back to the item's Fixed
+  // Duration shelf-life policy when the user did not type an expiry. Other
+  // modes (Calculated, Set on Receipt) intentionally stay NULL — they get
+  // resolved at production / receipt time, not on a manual adjustment.
+  const resolveExpirationForNewEntity = async (): Promise<string | null> => {
+    if (providedExpirationDate) return providedExpirationDate;
+    const shelfLife = await client
+      .from("itemShelfLife")
+      .select("mode, days")
+      .eq("itemId", inventoryAdjustment.itemId)
+      .maybeSingle();
+    if (
+      !shelfLife.error &&
+      shelfLife.data?.mode === "Fixed Duration" &&
+      shelfLife.data.days
+    ) {
+      return today(getLocalTimeZone())
+        .add({ days: Number(shelfLife.data.days) })
+        .toString();
+    }
+    return null;
+  };
+
+  // For existing tracked entities, only write when the user supplied a value
+  // and it differs from the current row. Routes through updateTrackedEntityExpiry
+  // so the override is captured in attributes.expiryOverrides for traceability.
+  const applyExpirationOverride = async (trackedEntityId: string) => {
+    if (!providedExpirationDate) return null;
+    const current = await client
+      .from("trackedEntity")
+      .select("expirationDate")
+      .eq("id", trackedEntityId)
+      .single();
+    if (
+      !current.error &&
+      current.data?.expirationDate === providedExpirationDate
+    )
+      return null;
+    return updateTrackedEntityExpiry(client, {
+      trackedEntityId,
+      expirationDate: providedExpirationDate,
+      reason: comment?.trim() || "Updated via inventory adjustment",
+      source: "Inventory Adjustment",
+      userId: data.createdBy
+    });
   };
 
   const storageUnitQuantities = await client.rpc(
@@ -1188,6 +1273,13 @@ export async function insertManualInventoryAdjustment(
       if (trackedEntityUpdate.error) {
         return trackedEntityUpdate;
       }
+    }
+
+    if (inventoryAdjustment.trackedEntityId) {
+      const expiryOverride = await applyExpirationOverride(
+        inventoryAdjustment.trackedEntityId
+      );
+      if (expiryOverride?.error) return expiryOverride;
     }
 
     // Create negative adjustment at original storage unit
@@ -1242,15 +1334,87 @@ export async function insertManualInventoryAdjustment(
       data.entryType = "Negative Adjmt.";
       data.quantity = -Math.abs(quantityDifference);
     } else {
-      // No change in quantity, but readableId might have changed
+      // No change in quantity, but readableId / expirationDate might have changed
       if (inventoryAdjustment.trackedEntityId && readableId !== undefined) {
-        return client
+        const trackedEntityUpdate = await client
           .from("trackedEntity")
           .update({ readableId })
           .eq("id", inventoryAdjustment.trackedEntityId);
+        if (trackedEntityUpdate.error) return trackedEntityUpdate;
+      }
+      if (inventoryAdjustment.trackedEntityId) {
+        const expiryOverride = await applyExpirationOverride(
+          inventoryAdjustment.trackedEntityId
+        );
+        if (expiryOverride?.error) return expiryOverride;
       }
       return { data: null };
     }
+  }
+
+  // Resolve the correct stock target for a negative adjustment when:
+  //   - readableId is provided: always resolve via serial number (currentQuantity
+  //     may point to the wrong row due to loose null == undefined matching), OR
+  //   - No currentQuantity found at all: fall back to untracked (legacy) stock.
+  //
+  //   1. If readableId is provided, adjust the entity with that serial number that
+  //      has positive stock. If not found, return an error — never silently fall back.
+  //   2. If no readableId, fall back to untracked (legacy) stock.
+  if (
+    data.entryType === "Negative Adjmt." &&
+    (readableId || !currentQuantity)
+  ) {
+    if (readableId) {
+      // storageUnitQuantities is scoped to this item + location.
+      // Filter to positive-qty rows only — multiple entities can share a readableId
+      // if the same serial was used across repeated positive adjustments.
+      const resolvedQtyRow = storageUnitQuantities?.data?.find(
+        (q) =>
+          q.readableId === readableId &&
+          q.trackedEntityId != null &&
+          (q.quantity ?? 0) > 0
+      );
+      if (!resolvedQtyRow) {
+        return { error: "Serial number not found" };
+      }
+      const resolvedId = resolvedQtyRow.trackedEntityId as string;
+      const resolvedQty = resolvedQtyRow.quantity ?? 0;
+      if (data.quantity > resolvedQty) {
+        return { error: "Insufficient quantity for negative adjustment" };
+      }
+      const entityUpdate = await client
+        .from("trackedEntity")
+        .update({ quantity: resolvedQty - data.quantity, readableId })
+        .eq("id", resolvedId);
+      if (entityUpdate.error) return entityUpdate;
+      return client
+        .from("itemLedger")
+        .insert([
+          {
+            ...data,
+            trackedEntityId: resolvedId,
+            quantity: -Math.abs(data.quantity)
+          }
+        ])
+        .select("*")
+        .single();
+    }
+    // No serial number — fall back to legacy (untracked) stock
+    const legacyQty =
+      storageUnitQuantities?.data?.find(
+        (q) =>
+          q.trackedEntityId == null && q.storageUnitId == data.storageUnitId
+      )?.quantity ?? 0;
+    if (data.quantity > legacyQty) {
+      return { error: "Insufficient quantity for negative adjustment" };
+    }
+    return client
+      .from("itemLedger")
+      .insert([
+        { ...data, trackedEntityId: null, quantity: -Math.abs(data.quantity) }
+      ])
+      .select("*")
+      .single();
   }
 
   // Check if it's a negative adjustment and if the quantity is sufficient
@@ -1277,12 +1441,43 @@ export async function insertManualInventoryAdjustment(
       if (trackedEntityUpdate.error) {
         return trackedEntityUpdate;
       }
+
+      const expiryOverride = await applyExpirationOverride(
+        inventoryAdjustment.trackedEntityId
+      );
+      if (expiryOverride?.error) return expiryOverride;
     } else {
-      const item = await client
-        .from("item")
-        .select("*")
-        .eq("id", data.itemId)
-        .single();
+      const [item, expirationDate] = await Promise.all([
+        client.from("item").select("*").eq("id", data.itemId).single(),
+        resolveExpirationForNewEntity()
+      ]);
+
+      // Stamp the trace blob so the popover Source / Override steps can show
+      // the entity originated from a manual inventory adjustment, by whom,
+      // and when. Mirrors the receipt/job markers consumed by
+      // ExpiryTracePopover (attrs.Receipt, attrs.Job).
+      const adjustmentStamp = {
+        userId: data.createdBy,
+        at: now(getLocalTimeZone()).toAbsoluteString(),
+        reason: comment?.trim() || "Created via inventory adjustment"
+      };
+      const attributes: Record<string, unknown> = {
+        "Inventory Adjustment": adjustmentStamp,
+        ...(expirationDate
+          ? {
+              expiryOverrides: [
+                {
+                  previous: null,
+                  next: expirationDate,
+                  reason: adjustmentStamp.reason,
+                  source: "Inventory Adjustment",
+                  userId: adjustmentStamp.userId,
+                  at: adjustmentStamp.at
+                }
+              ]
+            }
+          : {})
+      };
 
       // Create a new tracked entity
       const trackedEntityInsert = await client
@@ -1296,6 +1491,8 @@ export async function insertManualInventoryAdjustment(
             readableId: readableId,
             quantity: data.quantity,
             status: "Available",
+            expirationDate,
+            attributes: attributes as unknown as Json,
             companyId: data.companyId,
             createdBy: data.createdBy
           }
@@ -1767,6 +1964,22 @@ export async function getStorageUnitDescendants(
     .contains("ancestorPath", [storageUnitId]);
 }
 
+export async function expandStorageUnitIdsWithDescendants(
+  client: SupabaseClient<Database>,
+  storageUnitIds: string[]
+): Promise<string[]> {
+  if (storageUnitIds.length === 0) return [];
+  const { data } = await client
+    .from("storageUnits_recursive")
+    .select("id")
+    .overlaps("ancestorPath", storageUnitIds);
+  const expanded = new Set<string>(storageUnitIds);
+  (data ?? []).forEach((row) => {
+    if (row.id) expanded.add(row.id);
+  });
+  return Array.from(expanded);
+}
+
 // ----------------------------------------------------------------------------
 // storageType CRUD (mirrors materialType in items.service.ts)
 // ----------------------------------------------------------------------------
@@ -1889,4 +2102,27 @@ export async function getShelfLifeForItems(
     .from("itemShelfLife")
     .select("itemId, mode, days")
     .in("itemId", itemIds);
+}
+
+/**
+ * Map of trackedEntityId → expirationDate (or null) for a set of ids.
+ * Used by the inventory adjustment modal to prefill the date picker when
+ * editing an existing batch / serial.
+ */
+export async function getTrackedEntityExpirations(
+  client: SupabaseClient<Database>,
+  trackedEntityIds: string[]
+): Promise<Record<string, string | null>> {
+  if (trackedEntityIds.length === 0) return {};
+  const result = await client
+    .from("trackedEntity")
+    .select("id, expirationDate")
+    .in("id", trackedEntityIds);
+  return (result.data ?? []).reduce<Record<string, string | null>>(
+    (acc, row) => {
+      acc[row.id] = row.expirationDate ?? null;
+      return acc;
+    },
+    {}
+  );
 }

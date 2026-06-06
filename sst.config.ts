@@ -17,6 +17,8 @@ export default $config({
       forceUpgrade: "v2",
     });
     const erp = cluster.addService("CarbonERPService", {
+      cpu: "2 vCPU",
+      memory: "4 GB",
       image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.${process.env.AWS_REGION}.amazonaws.com/carbon/erp:${process.env.IMAGE_TAG}`,
       loadBalancer: {
         domain: {
@@ -62,9 +64,6 @@ export default $config({
         JIRA_STATE_SECRET: process.env.JIRA_STATE_SECRET,
         MES_URL: process.env.URL_MES ? `https://${process.env.URL_MES}` : "https://mes.itar.carbon.ms",
         NODE_ENV: "production",
-        NOVU_APPLICATION_ID: process.env.NOVU_APPLICATION_ID,
-        NOVU_API_URL: process.env.NOVU_API_URL,
-        NOVU_SECRET_KEY: process.env.NOVU_SECRET_KEY,
         OPENAI_API_KEY: process.env.OPENAI_API_KEY,
         ONSHAPE_CLIENT_ID: process.env.ONSHAPE_CLIENT_ID,
         ONSHAPE_CLIENT_SECRET: process.env.ONSHAPE_CLIENT_SECRET,
@@ -113,6 +112,8 @@ export default $config({
     });
 
     const mes = cluster.addService("CarbonMESService", {
+      cpu: "2 vCPU",
+      memory: "4 GB",
       image: `${process.env.AWS_ACCOUNT_ID}.dkr.ecr.${process.env.AWS_REGION}.amazonaws.com/carbon/mes:${process.env.IMAGE_TAG}`,
       loadBalancer: {
         domain: {
@@ -154,9 +155,6 @@ export default $config({
         INNGEST_SIGNING_KEY: process.env.INNGEST_SIGNING_KEY,
         MES_URL: process.env.URL_MES ? `https://${process.env.URL_MES}` : "https://mes.itar.carbon.ms",
         NODE_ENV: "production",
-        NOVU_API_URL: process.env.NOVU_API_URL,
-        NOVU_APPLICATION_ID: process.env.NOVU_APPLICATION_ID,
-        NOVU_SECRET_KEY: process.env.NOVU_SECRET_KEY,
         ONSHAPE_CLIENT_ID: process.env.ONSHAPE_CLIENT_ID,
         ONSHAPE_CLIENT_SECRET: process.env.ONSHAPE_CLIENT_SECRET,
         ONSHAPE_OAUTH_REDIRECT_URL: process.env.ONSHAPE_OAUTH_REDIRECT_URL,

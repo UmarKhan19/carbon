@@ -6,10 +6,12 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
 import { getSupabaseServiceRole } from "../lib/supabase.ts";
 import type { Database } from "../lib/types.ts";
+
 import { credit, debit, journalReference } from "../lib/utils.ts";
 import { getCurrentAccountingPeriod } from "../shared/get-accounting-period.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 import { getDefaultPostingGroup } from "../shared/get-posting-group.ts";
+import { calculateCOGS } from "../shared/calculate-cogs.ts";
 
 const pool = getConnectionPool(1);
 const db = getDatabaseClient<DB>(pool);
@@ -46,6 +48,22 @@ serve(async (req: Request) => {
       req.headers.get("carbon-key") ?? "",
       companyId
     );
+
+    const [companyRecord, accountingSettings] = await Promise.all([
+      client
+        .from("company")
+        .select("companyGroupId")
+        .eq("id", companyId)
+        .single(),
+      client
+        .from("companySettings")
+        .select("accountingEnabled")
+        .eq("id", companyId)
+        .single(),
+    ]);
+    if (companyRecord.error) throw new Error("Failed to fetch company");
+    const companyGroupId = companyRecord.data.companyGroupId;
+    const accountingEnabled = accountingSettings.data?.accountingEnabled ?? false;
 
     const [salesInvoice, salesInvoiceLines, salesInvoiceShipment] =
       await Promise.all([
@@ -120,7 +138,7 @@ serve(async (req: Request) => {
             .eq("companyId", companyId),
           client
             .from("itemCost")
-            .select("itemId, itemPostingGroupId")
+            .select("itemId, itemPostingGroupId, costingMethod")
             .in("itemId", itemIds),
           client
             .from("customer")
@@ -132,6 +150,13 @@ serve(async (req: Request) => {
         if (items.error) throw new Error("Failed to fetch items");
         if (itemCosts.error) throw new Error("Failed to fetch item costs");
         if (customer.error) throw new Error("Failed to fetch customer");
+
+        // Detect intercompany transaction
+        const isIntercompany =
+          customer.data.intercompanyCompanyId != null;
+        const intercompanyPartnerId = isIntercompany
+          ? customer.data.intercompanyCompanyId
+          : null;
 
         const salesOrders = await client
           .from("salesOrder")
@@ -212,9 +237,58 @@ serve(async (req: Request) => {
         }, {});
 
         // Get account defaults (once for all lines)
-        const accountDefaults = await getDefaultPostingGroup(client, companyId);
-        if (accountDefaults.error || !accountDefaults.data) {
+        const accountDefaults = accountingEnabled
+          ? await getDefaultPostingGroup(client, companyId)
+          : null;
+        if (accountingEnabled && (accountDefaults?.error || !accountDefaults?.data)) {
           throw new Error("Error getting account defaults");
+        }
+
+        const dimensions = accountingEnabled
+          ? await client
+              .from("dimension")
+              .select("id, entityType")
+              .eq("companyGroupId", companyGroupId)
+              .eq("active", true)
+              .in("entityType", [
+                "CustomerType",
+                "ItemPostingGroup",
+                "Location",
+                "CostCenter",
+                "FixedAssetClass",
+              ])
+          : null;
+
+        const dimensionMap = new Map<string, string>();
+        if (dimensions?.data) {
+          for (const dim of dimensions.data) {
+            if (dim.entityType) dimensionMap.set(dim.entityType, dim.id);
+          }
+        }
+
+        const journalLineDimensionsMeta: {
+          customerTypeId: string | null;
+          itemPostingGroupId: string | null;
+          locationId: string | null;
+          costCenterId: string | null;
+          fixedAssetClassId: string | null;
+        }[] = [];
+
+        // For IC transactions, use IC Receivables (1130) instead of regular AR
+        let receivablesAccountId: string | undefined;
+        if (isIntercompany && companyGroupId) {
+          // TODO: consider storing the IC receivables account ID in a config
+          // rather than looking it up by number each time
+          const icAccount = await client
+            .from("account")
+            .select("id")
+            .eq("number", "1130")
+            .eq("companyGroupId", companyGroupId)
+            .single();
+          if (icAccount.error) throw new Error("Failed to fetch IC receivables account 1130");
+          receivablesAccountId = icAccount.data.id;
+        } else {
+          receivablesAccountId = accountDefaults?.data?.receivablesAccount;
         }
 
         for await (const invoiceLine of salesInvoiceLines.data) {
@@ -290,136 +364,113 @@ serve(async (req: Request) => {
 
                   // create the normal GL entries for a part
 
-                  journalLineReference = nanoid();
+                  if (accountingEnabled && accountDefaults?.data) {
+                    const lineItemPostingGroupId =
+                      itemCosts.data.find(
+                        (cost) => cost.itemId === invoiceLine.itemId
+                      )?.itemPostingGroupId ?? null;
 
-                  if (itemTrackingType === "Inventory") {
-                    // debit the inventory account
-                    journalLineInserts.push({
-                      accountNumber: accountDefaults.data.inventoryAccount,
-                      description: "Inventory Account",
-                      amount: credit(
-                        "asset",
-                        totalLineCostWithWeightedShipping
-                      ),
-                      quantity: invoiceLineQuantityInInventoryUnit,
-                      documentType: "Invoice",
-                      documentId: salesInvoice.data?.id,
-                      externalDocumentId: salesInvoice.data?.customerReference,
-                      journalLineReference,
-                      companyId,
-                    });
-
-                    // creidt the cost of goods sold account
-                    journalLineInserts.push({
-                      accountNumber:
-                        accountDefaults.data.costOfGoodsSoldAccount,
-                      description: "Cost of Goods Sold",
-                      amount: debit(
-                        "expense",
-                        totalLineCostWithWeightedShipping
-                      ),
-                      quantity: invoiceLineQuantityInInventoryUnit,
-                      documentType: "Invoice",
-                      documentId: salesInvoice.data?.id,
-                      externalDocumentId: salesInvoice.data?.customerReference,
-                      journalLineReference,
-                      companyId,
-                    });
-                  }
-
-                  journalLineReference = nanoid();
-
-                  // credit the sales account
-                  journalLineInserts.push({
-                    accountNumber: accountDefaults.data.salesAccount,
-                    description: "Sales Account",
-                    amount: credit(
-                      "revenue",
-                      totalLineCostWithWeightedShipping
-                    ),
-                    quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Invoice",
-                    documentId: salesInvoice.data?.id,
-                    externalDocumentId: salesInvoice.data?.customerReference,
-                    documentLineReference: journalReference.to.salesInvoice(
-                      invoiceLine.salesOrderLineId!
-                    ),
-                    journalLineReference,
-                    companyId,
-                  });
-
-                  // debit the accounts receivable account
-                  journalLineInserts.push({
-                    accountNumber: accountDefaults.data.receivablesAccount,
-                    description: "Accounts Receivable",
-                    amount: debit("asset", totalLineCostWithWeightedShipping),
-                    quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Invoice",
-                    documentId: salesInvoice.data?.id,
-                    externalDocumentId: salesInvoice.data?.customerReference,
-                    documentLineReference: journalReference.to.salesInvoice(
-                      invoiceLine.salesOrderLineId!
-                    ),
-                    journalLineReference,
-                    companyId,
-                  });
-                } // if the line is associated with a sales order line, we do accrual/reversing
-                else {
-                  // Create the normal GL entries for the invoice
-                  journalLineReference = nanoid();
-
-                  // Credit the sales account
-                  journalLineInserts.push({
-                    accountNumber: accountDefaults.data.salesAccount,
-                    description: "Sales Account",
-                    amount: credit(
-                      "revenue",
-                      totalLineCostWithWeightedShipping
-                    ),
-                    quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Invoice",
-                    documentId: salesInvoice.data?.id,
-                    externalDocumentId: salesInvoice.data?.customerReference,
-                    documentLineReference: invoiceLine.salesOrderLineId
-                      ? journalReference.to.salesInvoice(
-                          invoiceLine.salesOrderLineId
-                        )
-                      : null,
-                    journalLineReference,
-                    companyId,
-                  });
-
-                  // Debit the accounts receivable account
-                  journalLineInserts.push({
-                    accountNumber: accountDefaults.data.receivablesAccount,
-                    description: "Accounts Receivable",
-                    amount: debit("asset", totalLineCostWithWeightedShipping),
-                    quantity: invoiceLineQuantityInInventoryUnit,
-                    documentType: "Invoice",
-                    documentId: salesInvoice.data?.id,
-                    externalDocumentId: salesInvoice.data?.customerReference,
-                    documentLineReference: invoiceLine.salesOrderLineId
-                      ? journalReference.to.salesInvoice(
-                          invoiceLine.salesOrderLineId
-                        )
-                      : null,
-                    journalLineReference,
-                    companyId,
-                  });
-
-                  // For inventory items, handle COGS and inventory
-                  if (itemTrackingType !== "Non-Inventory") {
                     journalLineReference = nanoid();
 
-                    // Debit cost of goods sold
+                    // credit the sales account
                     journalLineInserts.push({
-                      accountNumber:
-                        accountDefaults.data.costOfGoodsSoldAccount,
-                      description: "Cost of Goods Sold",
-                      amount: debit(
-                        "expense",
-                        invoiceLineQuantityInInventoryUnit *
-                          invoiceLineUnitCostInInventoryUnit
+                      accountId: accountDefaults.data.salesAccount,
+                      description: "Sales Account",
+                      amount: credit(
+                        "revenue",
+                        totalLineCostWithWeightedShipping
+                      ),
+                      quantity: invoiceLineQuantityInInventoryUnit,
+                      documentType: "Invoice",
+                      documentId: salesInvoice.data?.id,
+                      externalDocumentId: salesInvoice.data?.customerReference,
+                      documentLineReference: journalReference.to.salesInvoice(
+                        invoiceLine.salesOrderLineId!
+                      ),
+                      journalLineReference,
+                      companyId,
+                    });
+
+                    // debit the accounts receivable account
+                    journalLineInserts.push({
+                      accountId: receivablesAccountId,
+                      description: isIntercompany
+                        ? "IC Receivables"
+                        : "Accounts Receivable",
+                      amount: debit("asset", totalLineCostWithWeightedShipping),
+                      quantity: invoiceLineQuantityInInventoryUnit,
+                      documentType: "Invoice",
+                      documentId: salesInvoice.data?.id,
+                      externalDocumentId: salesInvoice.data?.customerReference,
+                      documentLineReference: journalReference.to.salesInvoice(
+                        invoiceLine.salesOrderLineId!
+                      ),
+                      journalLineReference,
+                      intercompanyPartnerId,
+                      companyId,
+                    });
+
+                    for (let i = 0; i < 2; i++) {
+                      journalLineDimensionsMeta.push({
+                        customerTypeId: customer.data.customerTypeId ?? null,
+                        itemPostingGroupId: lineItemPostingGroupId,
+                        locationId: invoiceLine.locationId ?? null,
+                        costCenterId: null,
+                        fixedAssetClassId: null,
+                      });
+                    }
+
+                    if (itemTrackingType === "Inventory") {
+                      const cogsJournalLineReference = nanoid();
+
+                      journalLineInserts.push({
+                        accountId: accountDefaults.data.costOfGoodsSoldAccount,
+                        description: "Cost of Goods Sold",
+                        amount: 0,
+                        quantity: invoiceLineQuantityInInventoryUnit,
+                        documentType: "Invoice",
+                        documentId: salesInvoice.data?.id,
+                        externalDocumentId: salesInvoice.data?.customerReference,
+                        journalLineReference: cogsJournalLineReference,
+                        companyId,
+                      });
+
+                      journalLineInserts.push({
+                        accountId: accountDefaults.data.inventoryAccount,
+                        description: "Inventory Account",
+                        amount: 0,
+                        quantity: invoiceLineQuantityInInventoryUnit,
+                        documentType: "Invoice",
+                        documentId: salesInvoice.data?.id,
+                        externalDocumentId: salesInvoice.data?.customerReference,
+                        journalLineReference: cogsJournalLineReference,
+                        companyId,
+                      });
+
+                      for (let i = 0; i < 2; i++) {
+                        journalLineDimensionsMeta.push({
+                          customerTypeId: customer.data.customerTypeId ?? null,
+                          itemPostingGroupId: lineItemPostingGroupId,
+                          locationId: invoiceLine.locationId ?? null,
+                          costCenterId: null,
+                          fixedAssetClassId: null,
+                        });
+                      }
+                    }
+                  }
+                } // if the line is associated with a sales order line, COGS was posted at shipment — keep only AR + Revenue
+                else {
+                  if (accountingEnabled && accountDefaults?.data) {
+                    // Create the normal GL entries for the invoice
+                    journalLineReference = nanoid();
+
+                    // Credit the sales account
+                    journalLineInserts.push({
+                      accountId: accountDefaults.data.salesAccount,
+                      description: "Sales Account",
+                      amount: credit(
+                        "revenue",
+                        totalLineCostWithWeightedShipping
                       ),
                       quantity: invoiceLineQuantityInInventoryUnit,
                       documentType: "Invoice",
@@ -434,15 +485,13 @@ serve(async (req: Request) => {
                       companyId,
                     });
 
-                    // Credit inventory account
+                    // Debit the accounts receivable account
                     journalLineInserts.push({
-                      accountNumber: accountDefaults.data.inventoryAccount,
-                      description: "Inventory Account",
-                      amount: credit(
-                        "asset",
-                        invoiceLineQuantityInInventoryUnit *
-                          invoiceLineUnitCostInInventoryUnit
-                      ),
+                      accountId: receivablesAccountId,
+                      description: isIntercompany
+                        ? "IC Receivables"
+                        : "Accounts Receivable",
+                      amount: debit("asset", totalLineCostWithWeightedShipping),
                       quantity: invoiceLineQuantityInInventoryUnit,
                       documentType: "Invoice",
                       documentId: salesInvoice.data?.id,
@@ -453,16 +502,314 @@ serve(async (req: Request) => {
                           )
                         : null,
                       journalLineReference,
+                      intercompanyPartnerId,
                       companyId,
                     });
+
+                    const itemPostingGroupId =
+                      itemCosts.data.find(
+                        (cost) => cost.itemId === invoiceLine.itemId
+                      )?.itemPostingGroupId ?? null;
+
+                    for (let i = 0; i < 2; i++) {
+                      journalLineDimensionsMeta.push({
+                        customerTypeId: customer.data.customerTypeId ?? null,
+                        itemPostingGroupId,
+                        locationId: invoiceLine.locationId ?? null,
+                        costCenterId: null,
+                        fixedAssetClassId: null,
+                      });
+                    }
                   }
                 }
               }
 
               break;
-            case "Fixed Asset":
-              // TODO: fixed assets
+            case "Fixed Asset": {
+              if (accountingEnabled && accountDefaults?.data && invoiceLine.assetId) {
+                const salesOrderLine = salesOrderLines?.find(
+                  (sol) => sol.id === invoiceLine.salesOrderLineId
+                );
+                const wasShipped = salesOrderLine?.sentComplete === true;
+                const saleProceeds = totalLineCostWithWeightedShipping;
+
+                if (wasShipped && invoiceLine.salesOrderLineId) {
+                  // Shipment already handled disposal — just post AR/proceeds
+                  const assetRecord = await client
+                    .from("fixedAsset")
+                    .select(
+                      "locationId, fixedAssetClassId, fixedAssetClass:fixedAssetClassId(writeOffAccountId)"
+                    )
+                    .eq("id", invoiceLine.assetId)
+                    .single();
+
+                  if (assetRecord.error)
+                    throw new Error("Failed to fetch fixed asset");
+
+                  const writeOffAccountId = (
+                    assetRecord.data.fixedAssetClass as any
+                  ).writeOffAccountId;
+
+                  const arJournalLineReference = nanoid();
+
+                  journalLineInserts.push({
+                    accountId: receivablesAccountId,
+                    description: "Accounts Receivable",
+                    amount: debit("asset", saleProceeds),
+                    quantity: invoiceLineQuantityInInventoryUnit,
+                    documentType: "Invoice",
+                    documentId: salesInvoice.data?.id ?? undefined,
+                    externalDocumentId:
+                      salesInvoice.data?.customerReference ?? undefined,
+                    documentLineReference: journalReference.to.salesInvoice(
+                      invoiceLine.salesOrderLineId
+                    ),
+                    journalLineReference: arJournalLineReference,
+                    intercompanyPartnerId,
+                    companyId,
+                  });
+
+                  journalLineInserts.push({
+                    accountId: writeOffAccountId,
+                    description: "Disposal proceeds",
+                    amount: credit("expense", saleProceeds),
+                    quantity: invoiceLineQuantityInInventoryUnit,
+                    documentType: "Invoice",
+                    documentId: salesInvoice.data?.id ?? undefined,
+                    externalDocumentId:
+                      salesInvoice.data?.customerReference ?? undefined,
+                    documentLineReference: journalReference.to.salesInvoice(
+                      invoiceLine.salesOrderLineId
+                    ),
+                    journalLineReference: arJournalLineReference,
+                    intercompanyPartnerId,
+                    companyId,
+                  });
+
+                  for (let i = 0; i < 2; i++) {
+                    journalLineDimensionsMeta.push({
+                      customerTypeId: customer.data.customerTypeId ?? null,
+                      itemPostingGroupId: null,
+                      locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
+                      costCenterId: null,
+                      fixedAssetClassId: (assetRecord.data.fixedAssetClass as any)?.id ?? null,
+                    });
+                  }
+
+                  // Update fixedAssetDisposal with sale proceeds
+                  const disposal = await client
+                    .from("fixedAssetDisposal")
+                    .select("id, netBookValueAtDisposal")
+                    .eq("fixedAssetId", invoiceLine.assetId)
+                    .order("createdAt", { ascending: false })
+                    .limit(1)
+                    .single();
+
+                  if (!disposal.error && disposal.data) {
+                    const nbv = Number(disposal.data.netBookValueAtDisposal);
+                    await client
+                      .from("fixedAssetDisposal")
+                      .update({
+                        saleProceeds,
+                        gainLoss: saleProceeds - nbv,
+                      })
+                      .eq("id", disposal.data.id);
+                  }
+
+                  await client
+                    .from("fixedAsset")
+                    .update({
+                      saleProceeds,
+                      updatedBy: userId,
+                    })
+                    .eq("id", invoiceLine.assetId);
+                } else {
+                  // Direct invoice (no prior shipment) — full disposal + AR
+                  const assetRecord = await client
+                    .from("fixedAsset")
+                    .select(
+                      "id, status, acquisitionCost, accumulatedDepreciation, locationId, fixedAssetClass:fixedAssetClassId(id, assetAccountId, accumulatedDepreciationAccountId, writeOffAccountId)"
+                    )
+                    .eq("id", invoiceLine.assetId)
+                    .single();
+
+                  if (assetRecord.error)
+                    throw new Error(
+                      "Failed to fetch fixed asset for disposal"
+                    );
+
+                  const assetClass =
+                    assetRecord.data.fixedAssetClass as any;
+                  const acquisitionCost =
+                    Number(assetRecord.data.acquisitionCost) ?? 0;
+                  const accumulatedDepreciation =
+                    Number(assetRecord.data.accumulatedDepreciation) ?? 0;
+                  const nbv = acquisitionCost - accumulatedDepreciation;
+
+                  if (accumulatedDepreciation > 0) {
+                    journalLineReference = nanoid();
+                    journalLineInserts.push({
+                      accountId:
+                        assetClass.accumulatedDepreciationAccountId,
+                      description: "Clear accumulated depreciation",
+                      amount: debit("asset", accumulatedDepreciation),
+                      quantity: 1,
+                      documentType: "Invoice",
+                      documentId: salesInvoice.data?.id ?? undefined,
+                      externalDocumentId:
+                        salesInvoice.data?.customerReference ?? undefined,
+                      documentLineReference: invoiceLine.salesOrderLineId
+                        ? journalReference.to.salesInvoice(
+                            invoiceLine.salesOrderLineId
+                          )
+                        : null,
+                      journalLineReference,
+                      companyId,
+                    });
+
+                    journalLineDimensionsMeta.push({
+                      customerTypeId:
+                        customer.data.customerTypeId ?? null,
+                      itemPostingGroupId: null,
+                      locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
+                      costCenterId: null,
+                      fixedAssetClassId: (assetRecord.data.fixedAssetClass as any)?.id ?? null,
+                    });
+                  }
+
+                  if (nbv > 0) {
+                    const nbvJournalLineReference = nanoid();
+                    journalLineInserts.push({
+                      accountId: assetClass.writeOffAccountId,
+                      description: "Write-off remaining book value",
+                      amount: debit("expense", nbv),
+                      quantity: 1,
+                      documentType: "Invoice",
+                      documentId: salesInvoice.data?.id ?? undefined,
+                      externalDocumentId:
+                        salesInvoice.data?.customerReference ?? undefined,
+                      documentLineReference: invoiceLine.salesOrderLineId
+                        ? journalReference.to.salesInvoice(
+                            invoiceLine.salesOrderLineId
+                          )
+                        : null,
+                      journalLineReference: nbvJournalLineReference,
+                      companyId,
+                    });
+
+                    journalLineDimensionsMeta.push({
+                      customerTypeId:
+                        customer.data.customerTypeId ?? null,
+                      itemPostingGroupId: null,
+                      locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
+                      costCenterId: null,
+                      fixedAssetClassId: (assetRecord.data.fixedAssetClass as any)?.id ?? null,
+                    });
+                  }
+
+                  const removeJournalLineReference = nanoid();
+                  journalLineInserts.push({
+                    accountId: assetClass.assetAccountId,
+                    description: "Remove asset at cost",
+                    amount: credit("asset", acquisitionCost),
+                    quantity: 1,
+                    documentType: "Invoice",
+                    documentId: salesInvoice.data?.id ?? undefined,
+                    externalDocumentId:
+                      salesInvoice.data?.customerReference ?? undefined,
+                    documentLineReference: invoiceLine.salesOrderLineId
+                      ? journalReference.to.salesInvoice(
+                          invoiceLine.salesOrderLineId
+                        )
+                      : null,
+                    journalLineReference: removeJournalLineReference,
+                    companyId,
+                  });
+
+                  journalLineDimensionsMeta.push({
+                    customerTypeId:
+                      customer.data.customerTypeId ?? null,
+                    itemPostingGroupId: null,
+                    locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? null,
+                    costCenterId: null,
+                    fixedAssetClassId: (assetRecord.data.fixedAssetClass as any)?.id ?? null,
+                  });
+
+                  const arJournalLineReference = nanoid();
+                  journalLineInserts.push({
+                    accountId: receivablesAccountId,
+                    description: "Accounts Receivable",
+                    amount: debit("asset", saleProceeds),
+                    quantity: invoiceLineQuantityInInventoryUnit,
+                    documentType: "Invoice",
+                    documentId: salesInvoice.data?.id ?? undefined,
+                    externalDocumentId:
+                      salesInvoice.data?.customerReference ?? undefined,
+                    documentLineReference: invoiceLine.salesOrderLineId
+                      ? journalReference.to.salesInvoice(
+                          invoiceLine.salesOrderLineId
+                        )
+                      : null,
+                    journalLineReference: arJournalLineReference,
+                    intercompanyPartnerId,
+                    companyId,
+                  });
+
+                  journalLineInserts.push({
+                    accountId: assetClass.writeOffAccountId,
+                    description: "Disposal proceeds",
+                    amount: credit("expense", saleProceeds),
+                    quantity: invoiceLineQuantityInInventoryUnit,
+                    documentType: "Invoice",
+                    documentId: salesInvoice.data?.id ?? undefined,
+                    externalDocumentId:
+                      salesInvoice.data?.customerReference ?? undefined,
+                    documentLineReference: invoiceLine.salesOrderLineId
+                      ? journalReference.to.salesInvoice(
+                          invoiceLine.salesOrderLineId
+                        )
+                      : null,
+                    journalLineReference: arJournalLineReference,
+                    intercompanyPartnerId,
+                    companyId,
+                  });
+
+                  for (let i = 0; i < 2; i++) {
+                    journalLineDimensionsMeta.push({
+                      customerTypeId:
+                        customer.data.customerTypeId ?? null,
+                      itemPostingGroupId: null,
+                      locationId: invoiceLine.locationId ?? salesOrderLine?.locationId ?? assetRecord.data.locationId ?? null,
+                      costCenterId: null,
+                      fixedAssetClassId: (assetRecord.data.fixedAssetClass as any)?.id ?? null,
+                    });
+                  }
+
+                  await client
+                    .from("fixedAsset")
+                    .update({
+                      status: "Disposed",
+                      disposalDate: today,
+                      disposalMethod: "Sale",
+                      saleProceeds,
+                      updatedBy: userId,
+                    })
+                    .eq("id", invoiceLine.assetId);
+
+                  await client.from("fixedAssetDisposal").insert({
+                    fixedAssetId: invoiceLine.assetId,
+                    disposalMethod: "Sale",
+                    disposalDate: today,
+                    saleProceeds,
+                    netBookValueAtDisposal: nbv,
+                    gainLoss: saleProceeds - nbv,
+                    companyId,
+                    createdBy: userId,
+                  });
+                }
+              }
               break;
+            }
             case "Comment":
               break;
 
@@ -471,11 +818,9 @@ serve(async (req: Request) => {
           }
         }
 
-        const accountingPeriodId = await getCurrentAccountingPeriod(
-          client,
-          companyId,
-          db
-        );
+        const accountingPeriodId = accountingEnabled
+          ? await getCurrentAccountingPeriod(client, companyId, db)
+          : null;
 
         await db.transaction().execute(async (trx) => {
           if (shipmentLineInserts.length > 0) {
@@ -605,30 +950,159 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          const journal = await trx
-            .insertInto("journal")
-            .values({
-              accountingPeriodId,
-              description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
-              postingDate: today,
+          // Calculate COGS for direct invoice items (no sales order)
+          const directInvoiceItems = salesInvoiceLines.data.filter(
+            (line) => line.salesOrderLineId === null && line.itemId
+          );
+
+          for (const directLine of directInvoiceItems) {
+            if (!directLine.itemId) continue;
+
+            const itemTrackingType =
+              items.data.find((item) => item.id === directLine.itemId)
+                ?.itemTrackingType ?? "Inventory";
+
+            if (itemTrackingType !== "Inventory") continue;
+
+            const cogsResult = await calculateCOGS(trx, {
+              itemId: directLine.itemId,
+              quantity: directLine.quantity,
               companyId,
-            })
-            .returning(["id"])
-            .execute();
+            });
 
-          const journalId = journal[0].id;
-          if (!journalId) throw new Error("Failed to insert journal");
+            for (let i = 0; i < journalLineInserts.length; i++) {
+              const jl = journalLineInserts[i];
+              if (
+                jl.description === "Cost of Goods Sold" &&
+                jl.amount === 0 &&
+                jl.quantity === directLine.quantity
+              ) {
+                journalLineInserts[i].amount = debit("expense", cogsResult.totalCost);
+                if (i + 1 < journalLineInserts.length) {
+                  journalLineInserts[i + 1].amount = credit("asset", cogsResult.totalCost);
+                }
 
-          await trx
-            .insertInto("journalLine")
-            .values(
-              journalLineInserts.map((journalLine) => ({
-                ...journalLine,
-                journalId,
-              }))
-            )
-            .returning(["id"])
-            .execute();
+                await trx
+                  .insertInto("costLedger")
+                  .values({
+                    itemLedgerType: "Sale",
+                    costLedgerType: "Direct Cost",
+                    adjustment: false,
+                    documentType: "Sales Shipment",
+                    documentId: salesInvoice.data?.id ?? "",
+                    itemId: directLine.itemId,
+                    quantity: -directLine.quantity,
+                    cost: -cogsResult.totalCost,
+                    remainingQuantity: 0,
+                    companyId,
+                  })
+                  .execute();
+
+                break;
+              }
+            }
+          }
+
+          let journalLineResults: { id: string }[] = [];
+          if (accountingEnabled) {
+            const journalEntryId = await getNextSequence(
+              trx,
+              "journalEntry",
+              companyId
+            );
+
+            const journalResult = await trx
+              .insertInto("journal")
+              .values({
+                journalEntryId,
+                accountingPeriodId,
+                description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
+                postingDate: today,
+                companyId,
+                sourceType: "Sales Invoice",
+                status: "Posted",
+                postedAt: new Date().toISOString(),
+                postedBy: userId,
+                createdBy: userId,
+              })
+              .returning(["id"])
+              .executeTakeFirstOrThrow();
+
+            if (journalLineInserts.length > 0) {
+              journalLineResults = await trx
+                .insertInto("journalLine")
+                .values(
+                  journalLineInserts.map((line) => ({
+                    ...line,
+                    journalId: journalResult.id,
+                  }))
+                )
+                .returning(["id"])
+                .execute();
+            }
+
+            if (dimensionMap.size > 0) {
+              const journalLineDimensionInserts: {
+                journalLineId: string;
+                dimensionId: string;
+                valueId: string;
+                companyId: string;
+              }[] = [];
+
+              journalLineResults.forEach((jl, index) => {
+                const meta = journalLineDimensionsMeta[index];
+                if (!meta) return;
+
+                if (meta.customerTypeId && dimensionMap.has("CustomerType")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("CustomerType")!,
+                    valueId: meta.customerTypeId,
+                    companyId,
+                  });
+                }
+                if (meta.itemPostingGroupId && dimensionMap.has("ItemPostingGroup")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("ItemPostingGroup")!,
+                    valueId: meta.itemPostingGroupId,
+                    companyId,
+                  });
+                }
+                if (meta.locationId && dimensionMap.has("Location")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("Location")!,
+                    valueId: meta.locationId,
+                    companyId,
+                  });
+                }
+                if (meta.costCenterId && dimensionMap.has("CostCenter")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("CostCenter")!,
+                    valueId: meta.costCenterId,
+                    companyId,
+                  });
+                }
+                if (meta.fixedAssetClassId && dimensionMap.has("FixedAssetClass")) {
+                  journalLineDimensionInserts.push({
+                    journalLineId: jl.id,
+                    dimensionId: dimensionMap.get("FixedAssetClass")!,
+                    valueId: meta.fixedAssetClassId,
+                    companyId,
+                  });
+                }
+              });
+
+              if (journalLineDimensionInserts.length > 0) {
+                await trx
+                  .insertInto("journalLineDimension")
+                  .values(journalLineDimensionInserts)
+                  .execute();
+              }
+            }
+          }
 
           if (itemLedgerInserts.length > 0) {
             await trx
@@ -645,6 +1119,29 @@ serve(async (req: Request) => {
                 invoiced: true,
               })
               .where("id", "=", salesInvoice.data.shipmentId)
+              .execute();
+          }
+
+          // Create intercompany transaction record if IC
+          if (accountingEnabled && isIntercompany && intercompanyPartnerId) {
+            const icJournalLineId = journalLineResults.length > 0
+              ? journalLineResults[0].id
+              : null;
+
+            await trx
+              .insertInto("intercompanyTransaction")
+              .values({
+                companyGroupId: companyGroupId!,
+                sourceCompanyId: companyId,
+                targetCompanyId: intercompanyPartnerId,
+                sourceJournalLineId: icJournalLineId,
+                amount: totalLinesCost,
+                currencyCode: salesInvoice.data?.currencyCode ?? "USD",
+                description: `Sales Invoice ${salesInvoice.data?.invoiceId}`,
+                documentType: "Invoice",
+                documentId: salesInvoice.data?.id,
+                status: "Unmatched",
+              })
               .execute();
           }
 
@@ -730,18 +1227,20 @@ serve(async (req: Request) => {
         }, {});
 
         // Create reversing journal entries
-        const reversingJournalEntries = journalEntries.map((entry) => ({
-          accountNumber: entry.accountNumber,
-          description: `VOID: ${entry.description}`,
-          amount: -entry.amount, // Reverse the amount
-          quantity: -entry.quantity,
-          documentType: "Invoice" as const,
-          documentId: salesInvoice.data?.id,
-          externalDocumentId: entry.externalDocumentId,
-          documentLineReference: entry.documentLineReference,
-          journalLineReference: entry.journalLineReference,
-          companyId,
-        }));
+        const reversingJournalEntries = accountingEnabled
+          ? journalEntries.map((entry) => ({
+              accountId: entry.accountId,
+              description: `VOID: ${entry.description}`,
+              amount: -entry.amount, // Reverse the amount
+              quantity: -entry.quantity,
+              documentType: "Invoice" as const,
+              documentId: salesInvoice.data?.id,
+              externalDocumentId: entry.externalDocumentId,
+              documentLineReference: entry.documentLineReference,
+              journalLineReference: entry.journalLineReference,
+              companyId,
+            }))
+          : [];
 
         // Create reversing item ledger entries
         const reversingItemLedgerEntries: Database["public"]["Tables"]["itemLedger"]["Insert"][] =
@@ -774,11 +1273,9 @@ serve(async (req: Request) => {
           });
         }
 
-        const accountingPeriodId = await getCurrentAccountingPeriod(
-          client,
-          companyId,
-          db
-        );
+        const accountingPeriodId = accountingEnabled
+          ? await getCurrentAccountingPeriod(client, companyId, db)
+          : null;
 
         await db.transaction().execute(async (trx) => {
           // Update sales order lines to reverse invoiced quantities
@@ -851,32 +1348,43 @@ serve(async (req: Request) => {
               .execute();
           }
 
-          // Create reversing journal
-          const journal = await trx
-            .insertInto("journal")
-            .values({
-              accountingPeriodId,
-              description: `VOID Sales Invoice ${salesInvoice.data?.invoiceId}`,
-              postingDate: today,
-              companyId,
-            })
-            .returning(["id"])
-            .execute();
+          if (accountingEnabled) {
+            const voidJournalEntryId = await getNextSequence(
+              trx,
+              "journalEntry",
+              companyId
+            );
 
-          const journalId = journal[0].id;
-          if (!journalId) throw new Error("Failed to insert journal");
+            const voidJournalResult = await trx
+              .insertInto("journal")
+              .values({
+                journalEntryId: voidJournalEntryId,
+                accountingPeriodId,
+                description: `VOID Sales Invoice ${salesInvoice.data?.invoiceId}`,
+                postingDate: today,
+                companyId,
+                sourceType: "Sales Invoice",
+                status: "Posted",
+                postedAt: new Date().toISOString(),
+                postedBy: userId,
+                createdBy: userId,
+              })
+              .returning(["id"])
+              .executeTakeFirstOrThrow();
 
-          // Insert reversing journal entries
-          await trx
-            .insertInto("journalLine")
-            .values(
-              reversingJournalEntries.map((journalLine) => ({
-                ...journalLine,
-                journalId,
-              }))
-            )
-            .returning(["id"])
-            .execute();
+            if (reversingJournalEntries.length > 0) {
+              await trx
+                .insertInto("journalLine")
+                .values(
+                  reversingJournalEntries.map((line) => ({
+                    ...line,
+                    journalId: voidJournalResult.id,
+                  }))
+                )
+                .returning(["id"])
+                .execute();
+            }
+          }
 
           // Insert reversing item ledger entries
           if (reversingItemLedgerEntries.length > 0) {

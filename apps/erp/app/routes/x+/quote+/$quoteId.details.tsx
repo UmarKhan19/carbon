@@ -61,7 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
 export async function action({ request, params }: ActionFunctionArgs) {
   assertIsPost(request);
-  const { client, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -93,6 +93,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     id,
     quoteId,
     ...d,
+    companyGroupId,
     customFields: setCustomFields(formData),
     updatedBy: userId
   });
@@ -125,8 +126,6 @@ export default function QuoteDetailsRoute() {
 
   if (!quoteData) throw new Error("Could not find quote data");
 
-  const isReadOnly = isQuoteLocked(quoteData?.quote?.status);
-
   const shipmentFormRef = useRef<QuoteShipmentFormRef>(null);
 
   const handleEditShippingCost = () => {
@@ -157,7 +156,9 @@ export default function QuoteDetailsRoute() {
     shippingMethodId: quoteData?.shipment?.shippingMethodId ?? "",
     shippingTermId: quoteData?.shipment?.shippingTermId ?? "",
     receiptRequestedDate: quoteData?.shipment?.receiptRequestedDate ?? "",
-    shippingCost: quoteData?.shipment?.shippingCost ?? 0
+    shippingCost: quoteData?.shipment?.shippingCost ?? 0,
+    incoterm: quoteData?.shipment?.incoterm ?? undefined,
+    incotermLocation: quoteData?.shipment?.incotermLocation ?? ""
   };
 
   const paymentInitialValues = {
@@ -191,7 +192,6 @@ export default function QuoteDetailsRoute() {
             attachments={resolvedFiles}
             id={quoteId}
             type="Quote"
-            isReadOnly={isReadOnly}
           />
         )}
       </DeferredFiles>

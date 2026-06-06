@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  Checkbox,
   Combobox,
   cn,
   DropdownMenu,
@@ -44,6 +45,7 @@ import {
   LuCircleAlert,
   LuEllipsisVertical,
   LuGroup,
+  LuInfo,
   LuQrCode,
   LuSplit,
   LuTrash
@@ -85,6 +87,16 @@ const ShipmentLines = () => {
     shipment: Shipment;
     shipmentLines: ShipmentLine[];
     shipmentLineTracking: ShipmentLineTracking[];
+    fixedAssetLines: {
+      id: string;
+      salesOrderLineId: string;
+      assetId: string;
+      assetName: string | null;
+      assetReadableId: string | null;
+      description: string | null;
+      shipped: boolean;
+      serialNumber: string | null;
+    }[];
   }>(path.to.shipment(shipmentId));
 
   const shipmentsById = new Map<string, ShipmentLine>(
@@ -283,10 +295,102 @@ const ShipmentLines = () => {
           </div>
         </CardContent>
       </Card>
+      {routeData?.fixedAssetLines && routeData.fixedAssetLines.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Trans>Fixed Assets</Trans>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="border rounded-lg">
+              {routeData.fixedAssetLines.map((line, index) => (
+                <ShipmentFixedAssetLineItem
+                  key={line.id}
+                  line={line}
+                  isReadOnly={isReadOnly}
+                  className={
+                    index < routeData.fixedAssetLines.length - 1
+                      ? "border-b"
+                      : ""
+                  }
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
       <Outlet />
     </>
   );
 };
+
+function ShipmentFixedAssetLineItem({
+  line,
+  isReadOnly,
+  className
+}: {
+  line: {
+    id: string;
+    salesOrderLineId: string;
+    assetId: string;
+    assetName: string | null;
+    assetReadableId: string | null;
+    description: string | null;
+    shipped: boolean;
+    serialNumber: string | null;
+  };
+  isReadOnly: boolean;
+  className?: string;
+}) {
+  const fetcher = useFetcher();
+  const [serialNumber, setSerialNumber] = useState(line.serialNumber ?? "");
+
+  const updateField = (field: string, value: string) => {
+    const formData = new FormData();
+    formData.append("id", line.id);
+    formData.append("field", field);
+    formData.append("value", value);
+    fetcher.submit(formData, {
+      method: "post",
+      action: path.to.shipmentFixedAssetLineUpdate
+    });
+  };
+
+  return (
+    <div className={cn("flex items-center gap-4 p-6", className)}>
+      <Checkbox
+        isChecked={line.shipped}
+        disabled={isReadOnly}
+        onCheckedChange={(checked) =>
+          updateField("shipped", String(checked === true))
+        }
+      />
+      <VStack spacing={0} className="flex-1 min-w-0">
+        <span className="text-sm font-medium">
+          {line.assetName ?? line.description ?? "Fixed Asset"}
+        </span>
+        {line.assetReadableId && (
+          <span className="text-xs text-muted-foreground">
+            {line.assetReadableId}
+          </span>
+        )}
+      </VStack>
+      <Input
+        placeholder="Serial Number"
+        value={serialNumber}
+        isDisabled={isReadOnly}
+        className="w-48"
+        onChange={(e) => setSerialNumber(e.target.value)}
+        onBlur={() => {
+          if (serialNumber !== (line.serialNumber ?? "")) {
+            updateField("serialNumber", serialNumber);
+          }
+        }}
+      />
+    </div>
+  );
+}
 
 function ShipmentLineItem({
   line,
@@ -577,7 +681,7 @@ function BatchForm({
   }>(() => {
     if (tracking) {
       return {
-        number: tracking.readableId || tracking.id || "",
+        number: tracking.readableId || "",
         properties: Object.entries(
           (tracking.attributes ?? {}) as TrackedEntityAttributes
         )
@@ -738,6 +842,7 @@ function BatchForm({
       const attributes = batchNumber.attributes as TrackedEntityAttributes;
       if (
         attributes["Shipment Line"] &&
+        attributes["Shipment Line"] !== line.id &&
         // biome-ignore lint/complexity/useLiteralKeys: suppressed due to migration
         attributes["Shipment"] === shipment?.id
       ) {
@@ -837,31 +942,30 @@ function BatchForm({
                 )}
               </InputRightElement>
             </InputGroup>
-            {values.number &&
-              batchNumbers?.data &&
-              (() => {
-                const batchNumber = resolveTrackedEntity(
-                  values.number,
-                  batchNumbers.data
-                );
-                if (batchNumber) {
-                  // @ts-expect-error TS2339 - TODO: fix type
-                  if ((line.shippedQuantity || 0) < batchNumber.quantity) {
-                    return (
-                      <span className="text-xs text-muted-foreground">
-                        Shipped quantity is less than batch quantity. A new
-                        batch will be created for the remaining quantity when
-                        posted.
-                      </span>
-                    );
-                  }
-                }
-                return null;
-              })()}
             {error && <span className="text-xs text-destructive">{error}</span>}
           </div>
         </div>
       </div>
+      {values.number &&
+        batchNumbers?.data &&
+        (() => {
+          const batchNumber = resolveTrackedEntity(
+            values.number,
+            batchNumbers.data
+          );
+          if (!batchNumber) return null;
+          // @ts-expect-error TS2339 - TODO: fix type
+          if ((line.shippedQuantity || 0) >= batchNumber.quantity) return null;
+          return (
+            <div className="flex items-center gap-2 rounded-md border border-border bg-muted/40 px-2.5 py-1.5 text-xs text-muted-foreground">
+              <LuInfo className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>
+                Shipped quantity is less than batch quantity. A new batch will
+                be created for the remaining quantity when posted.
+              </span>
+            </div>
+          );
+        })()}
     </div>
   );
 }

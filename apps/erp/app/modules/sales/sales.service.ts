@@ -1,5 +1,6 @@
 import type { Database, Json } from "@carbon/database";
 import { fetchAllFromTable } from "@carbon/database";
+import type { Kysely, KyselyDatabase } from "@carbon/database/client";
 import type { PickPartial } from "@carbon/utils";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
 import type {
@@ -29,6 +30,7 @@ import type {
   customerPaymentValidator,
   customerShippingValidator,
   customerStatusValidator,
+  customerTaxValidator,
   customerTypeValidator,
   customerValidator,
   getMethodValidator,
@@ -70,8 +72,7 @@ import type {
 
 export function applyPriceRules(
   startingPrice: number,
-  matchedRules: MatchedRule[],
-  unitCost: number | null = null
+  matchedRules: MatchedRule[]
 ): { finalPrice: number; appendedTrace: PriceTraceStep[] } {
   const appendedTrace: PriceTraceStep[] = [];
   let finalPrice = startingPrice;
@@ -99,18 +100,14 @@ export function applyPriceRules(
 
     const winner = ranked[0];
     if (winner && winner.effective > 0) {
-      finalPrice = clampAndTrace(
-        finalPrice - winner.effective,
-        unitCost,
-        winner.rule,
-        appendedTrace,
-        {
-          step: "Discount",
-          source: `Rule: ${winner.rule.name}`,
-          adjustment: -winner.effective,
-          ruleId: winner.rule.id
-        }
-      );
+      finalPrice = finalPrice - winner.effective;
+      appendedTrace.push({
+        step: "Discount",
+        source: `Rule: ${winner.rule.name}`,
+        amount: finalPrice,
+        adjustment: -winner.effective,
+        ruleId: winner.rule.id
+      });
     }
   }
 
@@ -122,19 +119,14 @@ export function applyPriceRules(
   for (const rule of sortedMarkups) {
     const adjustment =
       rule.amountType === "Percentage" ? finalPrice * rule.amount : rule.amount;
-
-    finalPrice = clampAndTrace(
-      finalPrice + adjustment,
-      unitCost,
-      rule,
-      appendedTrace,
-      {
-        step: "Markup",
-        source: `Rule: ${rule.name}`,
-        adjustment,
-        ruleId: rule.id
-      }
-    );
+    finalPrice = finalPrice + adjustment;
+    appendedTrace.push({
+      step: "Markup",
+      source: `Rule: ${rule.name}`,
+      amount: finalPrice,
+      adjustment,
+      ruleId: rule.id
+    });
   }
 
   if (finalPrice < 0) {
@@ -148,34 +140,6 @@ export function applyPriceRules(
   }
 
   return { finalPrice, appendedTrace };
-}
-
-// If the rule carries a minMarginPercent and cost is known, enforce the floor
-// (price >= cost / (1 - margin)) and log a trace entry on clamp.
-function clampAndTrace(
-  proposedPrice: number,
-  unitCost: number | null,
-  rule: MatchedRule,
-  trace: PriceTraceStep[],
-  baseEntry: Omit<PriceTraceStep, "amount">
-): number {
-  const margin = rule.minMarginPercent;
-  if (margin !== null && margin < 1 && unitCost !== null && unitCost > 0) {
-    const floor = unitCost / (1 - margin);
-    if (proposedPrice < floor) {
-      trace.push({ ...baseEntry, amount: floor });
-      trace.push({
-        step: "Min Margin",
-        source: `Rule: ${rule.name} (floor ${(margin * 100).toFixed(1)}%)`,
-        amount: floor,
-        adjustment: floor - proposedPrice,
-        ruleId: rule.id
-      });
-      return floor;
-    }
-  }
-  trace.push({ ...baseEntry, amount: proposedPrice });
-  return proposedPrice;
 }
 
 export async function closeSalesOrder(
@@ -292,7 +256,6 @@ export async function createPricingRule(
         validFrom: data.validFrom || null,
         validTo: data.validTo || null,
         priority: data.priority ?? 0,
-        minMarginPercent: data.minMarginPercent ?? null,
         active: data.active ?? true,
         companyId,
         createdBy: userId
@@ -499,7 +462,6 @@ export async function duplicatePricingRule(
         validFrom: original.validFrom,
         validTo: original.validTo,
         priority: original.priority,
-        minMarginPercent: original.minMarginPercent,
         active: false,
         companyId,
         createdBy: userId
@@ -647,6 +609,17 @@ export async function getCustomerShipping(
 ) {
   return client
     .from("customerShipping")
+    .select("*")
+    .eq("customerId", customerId)
+    .single();
+}
+
+export async function getCustomerTax(
+  client: SupabaseClient<Database>,
+  customerId: string
+) {
+  return client
+    .from("customerTax")
     .select("*")
     .eq("customerId", customerId)
     .single();
@@ -1346,6 +1319,7 @@ export async function getQuoteLines(
     .from("quoteLines")
     .select("*")
     .eq("quoteId", quoteId)
+    .order("sortOrder", { ascending: true })
     .order("itemReadableId", { ascending: true });
 }
 
@@ -1671,6 +1645,13 @@ export async function getSalesOrdersList(
   );
 }
 
+export async function getSalesOrdersByIds(
+  client: SupabaseClient<Database>,
+  ids: string[]
+) {
+  return client.from("salesOrder").select("id, salesOrderId").in("id", ids);
+}
+
 export async function getSalesOrderPayment(
   client: SupabaseClient<Database>,
   salesOrderId: string
@@ -1712,6 +1693,7 @@ export async function getSalesOrderLines(
     .from("salesOrderLines")
     .select("*")
     .eq("salesOrderId", salesOrderId)
+    .order("sortOrder", { ascending: true })
     .order("itemReadableId", { ascending: true });
 }
 
@@ -1840,6 +1822,7 @@ export async function getSalesRFQLines(
     .from("salesRfqLines")
     .select("*")
     .eq("salesRfqId", salesRfqId)
+    .order("order", { ascending: true })
     .order("customerPartId", { ascending: true });
 }
 
@@ -2008,22 +1991,17 @@ export async function resolvePrice(
     resolvedCustomerTypeId = cust?.customerTypeId ?? null;
   }
 
-  // Pull posting group + unit cost from itemCost. The posting group is needed
-  // to match rules scoped to itemPostingGroupId; the unit cost feeds
-  // rule-level minMarginPercent clamps.
+  // Pull posting group from itemCost so we can match rules scoped to
+  // itemPostingGroupId.
   let resolvedItemPostingGroupId = input.itemPostingGroupId ?? null;
-  let unitCost: number | null = null;
-  const { data: costRow } = await client
-    .from("itemCost")
-    .select("itemPostingGroupId, unitCost")
-    .eq("itemId", input.itemId)
-    .eq("companyId", companyId)
-    .maybeSingle();
-  if (costRow) {
-    if (!resolvedItemPostingGroupId) {
-      resolvedItemPostingGroupId = costRow.itemPostingGroupId ?? null;
-    }
-    unitCost = costRow.unitCost ?? null;
+  if (!resolvedItemPostingGroupId) {
+    const { data: costRow } = await client
+      .from("itemCost")
+      .select("itemPostingGroupId")
+      .eq("itemId", input.itemId)
+      .eq("companyId", companyId)
+      .maybeSingle();
+    resolvedItemPostingGroupId = costRow?.itemPostingGroupId ?? null;
   }
 
   let basePrice: number;
@@ -2170,7 +2148,7 @@ export async function resolvePrice(
       return true;
     }) as MatchedRule[];
 
-    const ruleResult = applyPriceRules(startingPrice, matchedRules, unitCost);
+    const ruleResult = applyPriceRules(startingPrice, matchedRules);
     finalPrice = ruleResult.finalPrice;
     trace.push(...ruleResult.appendedTrace);
   }
@@ -2256,7 +2234,7 @@ export async function resolvePriceList(
   let itemQuery = client
     .from("item")
     .select(
-      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice), itemCost(itemPostingGroupId, unitCost)",
+      "id, readableId, name, thumbnailPath, itemUnitSalePrice(unitSalePrice), itemCost(itemPostingGroupId)",
       { count: "exact" }
     )
     .eq("active", true)
@@ -2379,7 +2357,6 @@ export async function resolvePriceList(
       ? item.itemCost[0]
       : item.itemCost;
     const itemPostingGroupId = itemCostRow?.itemPostingGroupId ?? null;
-    const unitCost = itemCostRow?.unitCost ?? null;
     const trace: PriceTraceStep[] = [];
 
     let startingPrice = basePrice;
@@ -2489,7 +2466,7 @@ export async function resolvePriceList(
         return true;
       });
 
-      const ruleResult = applyPriceRules(startingPrice, matchedRules, unitCost);
+      const ruleResult = applyPriceRules(startingPrice, matchedRules);
       finalPrice = ruleResult.finalPrice;
       trace.push(...ruleResult.appendedTrace);
       hasRuleAdjustment = ruleResult.appendedTrace.length > 0;
@@ -2992,6 +2969,19 @@ export async function updateCustomerShipping(
     .eq("customerId", customerShipping.customerId);
 }
 
+export async function updateCustomerTax(
+  client: SupabaseClient<Database>,
+  customerTax: z.infer<typeof customerTaxValidator> & {
+    updatedBy: string;
+    taxExemptionCertificatePath?: string | null;
+  }
+) {
+  return client
+    .from("customerTax")
+    .update(sanitize(customerTax))
+    .eq("customerId", customerTax.customerId);
+}
+
 export async function updatePricingRule(
   client: SupabaseClient<Database>,
   id: string,
@@ -3104,20 +3094,6 @@ export async function updateSalesRFQFavorite(
       .from("salesRfqFavorite")
       .insert({ rfqId: id, userId: userId });
   }
-}
-
-export async function updateSalesRFQLineOrder(
-  client: SupabaseClient<Database>,
-  updates: {
-    id: string;
-    order: number;
-    updatedBy: string;
-  }[]
-) {
-  const updatePromises = updates.map(({ id, order, updatedBy }) =>
-    client.from("salesRfqLine").update({ order, updatedBy }).eq("id", id)
-  );
-  return Promise.all(updatePromises);
 }
 
 export async function updateQuoteExchangeRate(
@@ -3335,12 +3311,14 @@ export async function upsertQuote(
     | (Omit<z.infer<typeof quoteValidator>, "id" | "quoteId"> & {
         quoteId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
     | (Omit<z.infer<typeof quoteValidator>, "id" | "quoteId"> & {
         id: string;
         quoteId: string;
+        companyGroupId: string;
         updatedBy: string;
         customFields?: Json;
       })
@@ -3370,12 +3348,13 @@ export async function upsertQuote(
       invoiceCustomerLocationId
     } = customerPayment.data;
 
-    const { shippingMethodId, shippingTermId } = customerShipping.data;
+    const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+      customerShipping.data;
 
     if (quote.currencyCode) {
       const currency = await getCurrencyByCode(
         client,
-        quote.companyId,
+        quote.companyGroupId,
         quote.currencyCode
       );
       if (currency.data) {
@@ -3388,11 +3367,12 @@ export async function upsertQuote(
     }
 
     const locationId = employee?.data?.locationId ?? null;
+    const { companyGroupId: _companyGroupId, ...quoteData } = quote;
     const insert = await client
       .from("quote")
       .insert([
         {
-          ...quote,
+          ...quoteData,
           opportunityId: opportunity.data?.id
         }
       ])
@@ -3411,6 +3391,8 @@ export async function upsertQuote(
           locationId: locationId,
           shippingMethodId: shippingMethodId,
           shippingTermId: shippingTermId,
+          incoterm: incoterm,
+          incotermLocation: incotermLocation,
           companyId: quote.companyId
         }
       ]),
@@ -3463,12 +3445,12 @@ export async function upsertQuote(
 
     if (existingQuote.error) return existingQuote;
 
-    const { companyId, currencyCode, opportunityId } = existingQuote.data;
+    const { currencyCode, opportunityId } = existingQuote.data;
 
     if (quote.currencyCode && currencyCode !== quote.currencyCode) {
       const currency = await getCurrencyByCode(
         client,
-        companyId,
+        quote.companyGroupId,
         quote.currencyCode
       );
       if (currency.data) {
@@ -3485,10 +3467,11 @@ export async function upsertQuote(
         .eq("id", opportunityId);
     }
 
+    const { companyGroupId: _cgId, ...quoteUpdateData } = quote;
     return client
       .from("quote")
       .update({
-        ...sanitize(quote),
+        ...sanitize(quoteUpdateData),
         updatedAt: today(getLocalTimeZone()).toString()
       })
       .eq("id", quote.id);
@@ -3517,7 +3500,37 @@ export async function upsertQuoteLine(
       .select("id")
       .single();
   }
-  return client.from("quoteLine").insert([quotationLine]).select("*").single();
+
+  const existing = await client
+    .from("quoteLine")
+    .select("sortOrder")
+    .eq("quoteId", quotationLine.quoteId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
+
+  return client
+    .from("quoteLine")
+    .insert([{ ...quotationLine, sortOrder: maxSortOrder + 1 }])
+    .select("*")
+    .single();
+}
+
+export async function updateQuoteLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("quoteLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertQuoteLineAdditionalCharges(
@@ -4643,12 +4656,14 @@ export async function upsertSalesOrder(
     | (Omit<z.infer<typeof salesOrderValidator>, "id" | "salesOrderId"> & {
         salesOrderId: string;
         companyId: string;
+        companyGroupId: string;
         createdBy: string;
         customFields?: Json;
       })
     | (Omit<z.infer<typeof salesOrderValidator>, "id" | "salesOrderId"> & {
         id: string;
         salesOrderId: string;
+        companyGroupId: string;
         updatedBy: string;
         customFields?: Json;
       })
@@ -4663,12 +4678,12 @@ export async function upsertSalesOrder(
 
     if (existingSalesOrder.error) return existingSalesOrder;
 
-    const { companyId, currencyCode, opportunityId } = existingSalesOrder.data;
+    const { currencyCode, opportunityId } = existingSalesOrder.data;
 
     if (salesOrder.currencyCode && currencyCode !== salesOrder.currencyCode) {
       const currency = await getCurrencyByCode(
         client,
-        companyId,
+        salesOrder.companyGroupId,
         salesOrder.currencyCode
       );
       if (currency.data) {
@@ -4685,9 +4700,10 @@ export async function upsertSalesOrder(
         .eq("id", opportunityId);
     }
 
+    const { companyGroupId: _cgId, ...salesOrderUpdateData } = salesOrder;
     return client
       .from("salesOrder")
-      .update(sanitize(salesOrder))
+      .update(sanitize(salesOrderUpdateData))
       .eq("id", salesOrder.id)
       .select("id, salesOrderId");
   }
@@ -4719,14 +4735,15 @@ export async function upsertSalesOrder(
     invoiceCustomerLocationId
   } = customerPayment.data;
 
-  const { shippingMethodId, shippingTermId } = customerShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    customerShipping.data;
 
   const locationId = employee?.data?.locationId ?? null;
 
   if (salesOrder.currencyCode) {
     const currency = await getCurrencyByCode(
       client,
-      salesOrder.companyId,
+      salesOrder.companyGroupId,
       salesOrder.currencyCode
     );
     if (currency.data) {
@@ -4738,7 +4755,12 @@ export async function upsertSalesOrder(
     salesOrder.exchangeRateUpdatedAt = new Date().toISOString();
   }
 
-  const { requestedDate, promisedDate, ...orderData } = salesOrder;
+  const {
+    requestedDate,
+    promisedDate,
+    companyGroupId: _companyGroupId,
+    ...orderData
+  } = salesOrder;
 
   const order = await client
     .from("salesOrder")
@@ -4771,6 +4793,8 @@ export async function upsertSalesOrder(
         receiptRequestedDate: requestedDate,
         receiptPromisedDate: promisedDate,
         shippingTermId: shippingTermId,
+        incoterm: incoterm,
+        incotermLocation: incotermLocation,
         companyId: salesOrder.companyId
       }
     ]),
@@ -4852,16 +4876,46 @@ export async function upsertSalesOrderLine(
       .select("id")
       .single();
   }
+
   const salesOrder = await getSalesOrder(client, salesOrderLine.salesOrderId);
   if (salesOrder.error) return salesOrder;
 
-  salesOrderLine.exchangeRate = salesOrder.data?.exchangeRate ?? 1;
+  const existing = await client
+    .from("salesOrderLine")
+    .select("sortOrder")
+    .eq("salesOrderId", salesOrderLine.salesOrderId);
+
+  const maxSortOrder = (existing.data ?? []).reduce(
+    (max, row) => Math.max(max, row.sortOrder ?? 0),
+    0
+  );
 
   return client
     .from("salesOrderLine")
-    .insert([salesOrderLine])
+    .insert([
+      {
+        ...salesOrderLine,
+        exchangeRate: salesOrder.data?.exchangeRate ?? 1,
+        sortOrder: maxSortOrder + 1
+      }
+    ])
     .select("id")
     .single();
+}
+
+export async function updateSalesOrderLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("salesOrderLine")
+        .set({ sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }
 
 export async function upsertSalesOrderPayment(
@@ -4976,9 +5030,19 @@ export async function upsertSalesRFQLine(
       })
 ) {
   if ("createdBy" in salesRfqLine) {
+    const existing = await client
+      .from("salesRfqLine")
+      .select("order")
+      .eq("salesRfqId", salesRfqLine.salesRfqId);
+
+    const maxOrder = (existing.data ?? []).reduce(
+      (max, row) => Math.max(max, row.order ?? 0),
+      0
+    );
+
     return client
       .from("salesRfqLine")
-      .insert([salesRfqLine])
+      .insert([{ ...salesRfqLine, order: maxOrder + 1 }])
       .select("id")
       .single();
   }
@@ -4988,4 +5052,19 @@ export async function upsertSalesRFQLine(
     .eq("id", salesRfqLine.id)
     .select("id")
     .single();
+}
+
+export async function updateSalesRFQLineOrder(
+  db: Kysely<KyselyDatabase>,
+  updates: { id: string; sortOrder: number; updatedBy: string }[]
+) {
+  return db.transaction().execute(async (trx) => {
+    for (const { id, sortOrder, updatedBy } of updates) {
+      await trx
+        .updateTable("salesRfqLine")
+        .set({ order: sortOrder, updatedBy })
+        .where("id", "=", id)
+        .execute();
+    }
+  });
 }

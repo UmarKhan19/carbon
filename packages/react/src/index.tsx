@@ -1,5 +1,12 @@
 import type { JSONContent } from "@tiptap/react";
 
+export {
+  CarbonContext,
+  type ICarbonStore,
+  setCarbonHmrStore,
+  useCarbon
+} from "./CarbonContext";
+
 import {
   Accordion,
   AccordionContent,
@@ -20,6 +27,16 @@ import {
 import type { BadgeProps } from "./Badge";
 import { Badge, BadgeCloseButton } from "./Badge";
 import { BarProgress } from "./BarProgress";
+import {
+  BottomSheet,
+  BottomSheetBody,
+  BottomSheetClose,
+  BottomSheetContent,
+  BottomSheetDescription,
+  BottomSheetHeader,
+  BottomSheetTitle,
+  BottomSheetTrigger
+} from "./BottomSheet";
 import type { ButtonProps } from "./Button";
 import { Button, buttonVariants } from "./Button";
 import {
@@ -306,11 +323,14 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from "./Tooltip";
+import { TruncatedTooltipText } from "./TruncatedTooltipText";
 import { cn } from "./utils/cn";
 import { copyToClipboard } from "./utils/dom";
 import { getValidChildren, reactNodeToString } from "./utils/react";
 import { VStack } from "./VStack";
 
+export * from "./Acknowledge";
+export * from "./getPreferenceHeaders";
 export * from "./hooks";
 export {
   Accordion,
@@ -318,6 +338,14 @@ export {
   AccordionItem,
   AccordionTrigger,
   BarProgress,
+  BottomSheet,
+  BottomSheetBody,
+  BottomSheetClose,
+  BottomSheetContent,
+  BottomSheetDescription,
+  BottomSheetHeader,
+  BottomSheetTitle,
+  BottomSheetTrigger,
   ActionBar,
   ActionBarButton,
   ActionMenu,
@@ -566,6 +594,7 @@ export {
   Toggle,
   ToggleGroup,
   ToggleGroupItem,
+  TruncatedTooltipText,
   Tooltip,
   TooltipContent,
   TooltipProvider,

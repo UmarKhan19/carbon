@@ -35,7 +35,7 @@ import {
   CarouselNext,
   CarouselPrevious
 } from "@carbon/react/Carousel";
-import { formatDate } from "@carbon/utils";
+
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -54,7 +54,12 @@ import {
   UnitOfMeasure
 } from "~/components/Form";
 import Grid from "~/components/Grid";
-import { useCurrencyFormatter, usePermissions, useUser } from "~/hooks";
+import {
+  useCurrencyFormatter,
+  useDateFormatter,
+  usePermissions,
+  useUser
+} from "~/hooks";
 import { path } from "~/utils/path";
 import { supplierPartValidator } from "../../items.models";
 
@@ -135,13 +140,15 @@ const SupplierPartForm = ({
   const action = getAction(isEditing, type, itemId, initialValues.id);
   const fetcher = useFetcher<{ success: boolean; message: string }>();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: onClose must be excluded — it is a new ref each render in route components, which would cause an infinite re-fire loop
   useEffect(() => {
     if (fetcher.data?.success) {
+      if (fetcher.data?.message) toast.success(fetcher.data.message);
       onClose();
     } else if (fetcher.data?.message) {
       toast.error(fetcher.data.message);
     }
-  }, [fetcher.data?.success, fetcher.data?.message, onClose]);
+  }, [fetcher.data?.success, fetcher.data?.message]);
 
   return (
     <Drawer
@@ -200,6 +207,11 @@ const SupplierPartForm = ({
                   label={t`Minimum Order Quantity`}
                   minValue={0}
                 />
+                <Number
+                  name="orderMultiple"
+                  label={t`Order Multiple`}
+                  minValue={1}
+                />
                 <CustomFormFields table="partSupplier" />
               </div>
               <PriceBreaks
@@ -246,6 +258,7 @@ function PurchaseHistory({
   baseCurrency: string;
 }) {
   const { t } = useLingui();
+  const { formatDate } = useDateFormatter();
   if (history.length === 0) return null;
 
   return (

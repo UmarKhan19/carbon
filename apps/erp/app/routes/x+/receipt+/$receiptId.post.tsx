@@ -2,6 +2,11 @@ import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
+import {
+  dedupeViolations,
+  evaluateLinesForSurface,
+  isBlocked
+} from "@carbon/ee/custom-rules.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -13,6 +18,87 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { receiptId } = params;
   if (!receiptId) throw new Error("receiptId not found");
+
+  const formData = await request.formData();
+  const acknowledged = formData.get("acknowledged") === "true";
+
+  // Item Rule evaluation across every line on this receipt before posting.
+  // Use service role so item / storageUnit reads are not blocked by RLS for
+  // users who have `inventory.update` but not `parts.view` etc.
+  const serviceRole = getCarbonServiceRole();
+  const { data: lines } = await serviceRole
+    .from("receiptLine")
+    .select(
+      "id, itemId, storageUnitId, receivedQuantity, locationId, receiptId"
+    )
+    .eq("receiptId", receiptId)
+    .eq("companyId", companyId);
+
+  // Receipt source determines which surface(s) eval. Receipts originating from
+  // an Inbound Transfer ALSO eval the `warehouseTransfer` surface — the post
+  // auto-completes the parent transfer, so warehouse-scoped rules need to
+  // fire here too.
+  const { data: receiptForSurface } = await serviceRole
+    .from("receipt")
+    .select("sourceDocument")
+    .eq("id", receiptId)
+    .single();
+  const surfaces: ("receipt" | "warehouseTransfer")[] = ["receipt"];
+  if (receiptForSurface?.sourceDocument === "Inbound Transfer") {
+    surfaces.push("warehouseTransfer");
+  }
+
+  const evalLines = (lines ?? []).map((l) => ({
+    lineId: l.id as string,
+    itemId: l.itemId as string | null,
+    storageUnitId: l.storageUnitId as string | null,
+    quantity: Number(l.receivedQuantity ?? 0),
+    locationId: l.locationId as string | null
+  }));
+
+  const allViolations = [];
+  const allRuleNames: Record<string, string> = {};
+  for (const surface of surfaces) {
+    const { violations, ruleNames } = await evaluateLinesForSurface({
+      client: serviceRole,
+      companyId,
+      userId,
+      targetType: "item",
+      surface,
+      lines: evalLines
+    });
+    allViolations.push(...violations);
+    Object.assign(allRuleNames, ruleNames);
+  }
+
+  // Storage-unit pass — place side of the receipt. Same lines, different
+  // target. Transfers double-up via the warehouseTransfer surface.
+  const storageUnitSurfaces: ("place" | "warehouseTransfer")[] = ["place"];
+  if (receiptForSurface?.sourceDocument === "Inbound Transfer") {
+    storageUnitSurfaces.push("warehouseTransfer");
+  }
+  for (const surface of storageUnitSurfaces) {
+    const { violations, ruleNames } = await evaluateLinesForSurface({
+      client: serviceRole,
+      companyId,
+      userId,
+      targetType: "storageUnit",
+      surface,
+      lines: evalLines
+    });
+    allViolations.push(...violations);
+    Object.assign(allRuleNames, ruleNames);
+  }
+
+  const deduped = dedupeViolations(allViolations);
+  if (deduped.length > 0 && isBlocked(deduped, acknowledged)) {
+    return {
+      error: null,
+      data: null,
+      violations: deduped,
+      ruleNames: allRuleNames
+    };
+  }
 
   const setPendingState = await client
     .from("receipt")
@@ -32,8 +118,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 
   try {
-    const serviceRole = await getCarbonServiceRole();
-
     const receiptMetadata = await serviceRole
       .from("receipt")
       .select("sourceDocument,sourceDocumentId")

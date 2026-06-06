@@ -11,11 +11,11 @@ import {
   Switch,
   VStack
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { memo, useCallback } from "react";
 import { LuDownload } from "react-icons/lu";
 import { useFetcher } from "react-router";
+import { useDateFormatter } from "~/hooks";
 
 type AuditLogSettingsProps = {
   enabled: boolean;
@@ -32,6 +32,7 @@ function formatBytes(bytes: number): string {
 
 const AuditLogSettings = memo(
   ({ enabled, archives }: AuditLogSettingsProps) => {
+    const { formatDate } = useDateFormatter();
     const fetcher = useFetcher();
 
     const isToggling = fetcher.state !== "idle";
@@ -69,7 +70,7 @@ const AuditLogSettings = memo(
           </CardHeader>
           <CardContent>
             <HStack className="justify-between items-center">
-              <VStack className="items-start gap-1">
+              <VStack className="items-start" spacing={1}>
                 <span className="font-medium">
                   {enabled ? (
                     <Trans>Audit logging is enabled</Trans>

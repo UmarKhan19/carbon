@@ -10,6 +10,12 @@ export function parseBoolean<T>(
   if (!value) return defaultValue;
 
   if (typeof value === "boolean") return value;
+
+  // Fast-path the canonical lowercased forms before allocating
+  // `trim().toLowerCase()` strings.
+  if (value === "true" || value === "1") return true;
+  if (value === "false" || value === "0") return false;
+
   const normalized = value.trim().toLowerCase();
   if (normalized === "true" || normalized === "1") return true;
   if (normalized === "false" || normalized === "0") return false;

@@ -6,7 +6,7 @@ import { isPurchaseInvoiceLocked } from "~/modules/invoicing";
 import { requireUnlockedBulk } from "~/utils/lockedGuard.server";
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, companyGroupId, userId } = await requirePermissions(request, {
     update: "sales"
   });
 
@@ -28,12 +28,15 @@ export async function action({ request }: ActionFunctionArgs) {
     .select("id, status")
     .in("id", ids as string[]);
 
-  const lockedError = requireUnlockedBulk({
-    statuses: (data ?? []).map((d) => d.status),
-    checkFn: isPurchaseInvoiceLocked,
-    message: "Cannot modify a confirmed purchase invoice."
-  });
-  if (lockedError) return lockedError;
+  const editableFields = ["dateIssued", "dateDue", "datePaid"];
+  if (!editableFields.includes(field)) {
+    const lockedError = requireUnlockedBulk({
+      statuses: (data ?? []).map((d) => d.status),
+      checkFn: isPurchaseInvoiceLocked,
+      message: "Cannot modify a confirmed purchase invoice."
+    });
+    if (lockedError) return lockedError;
+  }
 
   switch (field) {
     case "invoiceSupplierId":
@@ -49,7 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
           currencyCode = supplier.data.currencyCode;
           const currency = await getCurrencyByCode(
             client,
-            companyId,
+            companyGroupId,
             currencyCode
           );
           return await client
@@ -111,7 +114,7 @@ export async function action({ request }: ActionFunctionArgs) {
       if (value) {
         const currency = await getCurrencyByCode(
           client,
-          companyId,
+          companyGroupId,
           value as string
         );
         if (currency.data) {

@@ -6,7 +6,6 @@ import {
   MenuItem,
   useDisclosure
 } from "@carbon/react";
-import { formatDate } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo, useState } from "react";
@@ -15,6 +14,7 @@ import {
   LuCalendar,
   LuEuro,
   LuGlobe,
+  LuHash,
   LuPencil,
   LuPhone,
   LuPrinter,
@@ -35,7 +35,7 @@ import {
 import { Enumerable } from "~/components/Enumerable";
 import { useCustomerTypes } from "~/components/Form/CustomerType";
 import { ConfirmDelete } from "~/components/Modals";
-import { usePermissions } from "~/hooks";
+import { useCompanySettings, useDateFormatter, usePermissions } from "~/hooks";
 import { useCustomColumns } from "~/hooks/useCustomColumns";
 import { usePeople } from "~/stores";
 import { path } from "~/utils/path";
@@ -53,6 +53,7 @@ const CustomersTable = memo(
     const { t, i18n } = useLingui();
     const navigate = useNavigate();
     const permissions = usePermissions();
+    const { formatDate } = useDateFormatter();
     const [people] = usePeople();
     const deleteModal = useDisclosure();
     const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -65,10 +66,26 @@ const CustomersTable = memo(
     );
 
     const customerTypes = useCustomerTypes();
+    const companySettings = useCompanySettings();
+    const showCustomerReadableId =
+      companySettings?.showCustomerReadableId ?? false;
 
     const customColumns = useCustomColumns<Customer>("customer");
     const columns = useMemo<ColumnDef<Customer>[]>(() => {
+      const idColumn: ColumnDef<Customer> = {
+        accessorKey: "readableId",
+        header: t`ID`,
+        cell: ({ row }) => (
+          <span className="font-mono text-xs text-muted-foreground">
+            {row.original.readableId ?? ""}
+          </span>
+        ),
+        meta: {
+          icon: <LuHash />
+        }
+      };
       const defaultColumns: ColumnDef<Customer>[] = [
+        ...(showCustomerReadableId ? [idColumn] : []),
         {
           accessorKey: "name",
           header: t`Name`,
@@ -255,7 +272,9 @@ const CustomersTable = memo(
       customColumns,
       tags,
       t,
-      translateStatus
+      translateStatus,
+      formatDate,
+      showCustomerReadableId
     ]);
 
     const renderContextMenu = useMemo(

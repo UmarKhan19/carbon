@@ -1,11 +1,11 @@
 <p align="center">
    <a href="https://carbon.ms">
-      <img width="auto" height="100" alt="Carbon Logo" src="https://github.com/user-attachments/assets/86a5e583-adac-4bf9-8192-508a0adf2308" />
+      <img width="auto" height="100" alt="Carbon Logo" src="https://github.com/user-attachments/assets/177634ca-5c37-43e2-8d55-1b9f490866d5" />
    </a>
 </p>
 
 <p align="center">
-    The operating system for manufacturing
+    The open core for manufacturing
     <br />
     <br />
     <a href="https://discord.gg/yGUJWhNqzy">Discord</a>
@@ -39,9 +39,9 @@ We built Carbon to solve these problems ☝️
 
 Carbon is designed to make it easy for you to extend the platform by building your own apps through our API. We provide some examples to get you started in the [examples](https://github.com/crbnos/carbon/blob/main/examples) folder.
 
-![Carbon Functonality](https://github.com/user-attachments/assets/150c3025-ddcb-4ae4-b7b4-27c670d6cb81)
+![Carbon Functionality](https://github.com/user-attachments/assets/d73b3297-afb4-4bd4-a381-61b31a78aa38)
 
-![Carbon Architecture](https://github.com/user-attachments/assets/3674b2d0-28c7-415f-a8ea-4d8c796337eb)
+![Carbon Architecture](https://github.com/user-attachments/assets/e5532a5f-609c-4404-8706-aa9bd59e180b)
 
 Features:
 
@@ -85,7 +85,6 @@ Technical highlights:
 - [Inngest](https://inngest.com) - jobs
 - [Resend](https://resend.com) – email
 - [Lingui](https://lingui.dev) - i18n
-- [Novu](https://novu.co) – notifications
 - [Vercel](https://vercel.com) – hosting
 - [Stripe](https://stripe.com) - billing
 
@@ -99,12 +98,14 @@ The monorepo follows the Turborepo convention of grouping packages into one of t
 
 ### `/apps`
 
-| Package Name | Description     | Local Command         |
-| ------------ | --------------- | --------------------- |
-| `erp`        | ERP Application | `npm run dev`         |
-| `mes`        | MES             | `npm run dev:mes`     |
-| `academy`    | Academy         | `npm run dev:academy` |
-| `starter`    | Starter         | `npm run dev:starter` |
+| Package Name | Description     | How to run                                          |
+| ------------ | --------------- | --------------------------------------------------- |
+| `erp`        | ERP Application | `pnpm dev` (boots stack + ERP via `crbn up` picker) |
+| `mes`        | MES             | `pnpm dev` (select MES in picker, or both)          |
+| `academy`    | Academy         | `pnpm dev:academy`                                  |
+| `starter`    | Starter         | `pnpm dev:starter`                                  |
+
+`pnpm dev` runs the per-worktree dev CLI (`crbn up`). ERP and MES are first-class — the CLI boots the docker stack, applies migrations, regenerates types/swagger, and spawns the selected apps behind portless. Academy and starter are standalone Turborepo entries.
 
 ### `/packages`
 
@@ -147,7 +148,6 @@ In addition you must configure the following external services:
 | Posthog | Product analytics platform | [https://us.posthog.com/signup](https://us.posthog.com/signup) |
 | Stripe | Payments service | [https://dashboard.stripe.com/login](https://dashboard.stripe.com/login) |
 | Resend | Email service | [https://resend.com](https://resend.com) |
-| Novu | Notifications service | [https://dashboard.novu.co/auth/sign-in](https://dashboard.novu.co/auth/sign-in) |
 
 Posthog has a free tier which should be plenty to support local development. If you're self hosting and you don't want to use Posthog, it's pretty easy to remove the analytics.
 
@@ -155,11 +155,60 @@ Posthog has a free tier which should be plenty to support local development. If 
 
 First download and initialize the repository dependencies.
 
+This repo uses **pnpm** as its package manager. Enable Corepack so the correct pnpm version (pinned via `packageManager` in `package.json`) is used automatically:
+
 ```bash
-$ nvm use           # use node v20
-$ npm install       # install dependencies
-$ npm run db:start  # pull and run the containers
+$ corepack enable    # one-time: activates pnpm shim from packageManager field
 ```
+
+Then install dependencies:
+
+```bash
+$ nvm use            # use node v22
+$ pnpm install       # install dependencies
+```
+
+The dev stack (Postgres, GoTrue, Kong, Storage, Inngest, Inbucket, Studio, Realtime) is booted later by `crbn up` — see [Local dev CLI](#local-dev-cli-crbn) below. There is no separate "start the database" step.
+
+### Local dev CLI (`crbn`)
+
+[![](https://cdn.loom.com/sessions/thumbnails/690e6a4ec1c24216b56a22aa2667ba51-ee9275cabb59a0aa-full-play.gif#t=0.1)](https://www.loom.com/embed/690e6a4ec1c24216b56a22aa2667ba51)
+
+`crbn` is a small CLI at `packages/dev/bin/crbn` that wraps two things:
+
+- **Git worktrees** — every feature branch can live in its own checkout dir, so you can switch branches without stashing.
+- **Per-worktree docker compose stack** — each worktree gets its own Postgres / Supabase services on dynamic ports, isolated under `carbon-<slug>` compose project. Routing is handled by [portless](https://github.com/portless-dev/portless) (a local HTTPS reverse proxy that serves `*.dev` hostnames on `:443` with locally-trusted certs — installed automatically on first `crbn up`).
+
+> **Windows users:** the dev CLI (`crbn`, `setup.sh`) is POSIX-only and expects **WSL or Git Bash**. Native cmd.exe / PowerShell shells are not supported. From a WSL/Git Bash prompt, the standard flow (`./setup.sh`, `pnpm dev`, `crbn checkout …`) works the same as on macOS/Linux.
+
+Run `setup.sh` once to put `crbn` on your `$PATH` and install the `crbn` shell function (so `crbn checkout` can change cwd):
+
+```bash
+$ ./setup.sh                   # writes a sentinel block to ~/.zshrc or ~/.bashrc
+$ source ~/.zshrc              # or open a new shell
+$ crbn                         # shows commands
+```
+
+Common flows:
+
+```bash
+$ crbn checkout sid/cool-thing       # cd into worktree (creates if missing,
+                                     # auto-fetches from origin if needed)
+$ crbn checkout -b feat/new-thing    # new branch off origin/main + worktree
+$ crbn checkout sid/cool-thing --up  # …and boot the stack inside it
+$ crbn checkout 760                  # fetch GitHub PR #760 into a `pr-760`
+                                     # branch + worktree (fork PRs work too)
+$ crbn copy                          # re-sync .env from main checkout
+$ crbn up | down | reset | status    # per-worktree compose stack
+$ crbn new | list | remove           # interactive worktree management
+```
+
+`crbn up` flags:
+
+- `--no-migrate` — skip `supabase migration up` (use when schema is already current and you just want to re-boot containers fast)
+- `--no-regen` — skip regenerating `packages/database/src/types.ts` + `swagger-docs-schema.ts` (auto-skipped when `--no-migrate` is set, since no schema change implies no type drift)
+
+Files synced by `crbn copy` are listed under `package.json#crbn.copy` (defaults to `[".env"]`). To uninstall the rc block: `./setup.sh --uninstall`.
 
 Create an `.env` file and copy the contents of `.env.example` file into it
 
@@ -171,20 +220,24 @@ $ cp ./.env.example ./.env
 
 - Email requires a Resend API key (you'll set this up later on)
 - Sign-in with Google requires a Google auth client with these variables. [See the Supabase docs for instructions on how to set this up](https://supabase.com/docs/guides/auth/social-login/auth-google):
-  - Set `Authorized JavaScript origins` to only `http://127.0.0.1:54321`
-  - Set `Authorized redirect URIs` to `http://127.0.0.1:54321/auth/v1/callback`
+  - Set `Authorized JavaScript origins` to `https://api.carbon.dev`
+  - Set `Authorized redirect URIs` to `https://api.carbon.dev/auth/v1/callback`
+  - **About the two API URLs you'll see:** each worktree has its own scoped Supabase URL (`https://<worktree>.api.dev`) for app traffic, **and** there is one stable alias `https://api.carbon.dev` registered on whichever worktree is currently `up`. The stable alias exists only so OAuth callbacks have a single registered redirect URI — one Google Console entry covers every worktree. Day-to-day, your app talks to its worktree-scoped URL; only the OAuth callback hits the stable alias.
 - You should set environment variables like the following.
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID="******.apps.googleusercontent.com"`
   - `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET="GOCSPX-****************"`
 
-2. **Supabase**: Start up the backend services using `npm run db:start`. Find the following values in its output to set the supabase entries:
+2. **Supabase**: Backend services run inside the per-worktree docker stack — `crbn up` boots them and writes everything you need into `.env.local` automatically:
 
-- `SUPABASE_SERVICE_ROLE_KEY=[service_role key]`
-- `SUPABASE_ANON_KEY=[anon key]`
+- `SUPABASE_URL` — portless alias (e.g. `https://local-dev.api.dev`)
+- `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` — keys minted per-worktree from a random `SUPABASE_JWT_SECRET`
+- `SUPABASE_DB_URL` — direct Postgres URL on a dynamic port
 
-3. **Redis** (Caching): Set up a Redis instance (local or cloud) and add the connection URL. You can set one up in the cloud easily using [Upstash](https://console.upstash.com/auth/sign-in):
+`.env.local` is generated; do not commit it or hand-edit values that came from `crbn up` (they are re-derived on each boot). Put genuine secrets (OAuth client IDs, Stripe keys, Resend) in `.env` only.
 
-- `REDIS_URL=[redis://user:password@host:port]`
+Run `crbn status` at any time to see the live port assignment and the URLs portless is serving.
+
+3. **Redis** (Caching): No setup needed for local dev — `crbn up` boots a shared Redis container and writes `REDIS_URL` into `.env.local` automatically (each worktree gets its own logical Redis DB). For self-hosted production, set `REDIS_URL` to any Redis-compatible endpoint (Upstash, AWS ElastiCache, etc.) in your prod environment.
 
 4. **Posthog** (Analytics): In Posthog go to [https://[region].posthog.com/project/[project-id]/settings/project-details](https://[region].posthog.com/project/[project-id]/settings/project-details) to find your Project ID and Project API key:
 
@@ -203,38 +256,27 @@ $ cp ./.env.example ./.env
 
 Resend is used for transactional emails (user invitations, email verification, onboarding). All three variables are stored in `packages/auth/src/config/env.ts`.
 
-7. **Novu** (In-app notifications) - [Create a Novu account](https://dashboard.novu.co/auth/sign-in) and configure:
-
-- `NOVU_APPLICATION_ID="********************"` (Client-side, public)
-- `NOVU_SECRET_KEY="********************"` (Server-side secret, backend only)
-
-Novu is used for in-app notifications and notification workflows. After standing up the application and tunnelling port 3000, sync your Novu workflows:
+Finally, boot the stack and the apps:
 
 ```bash
-npm run novu:sync
+$ pnpm dev                # equivalent to `crbn up` — picker lets you choose ERP/MES
 ```
 
-This command syncs your Novu workflows with the Carbon application using the bridge URL.
+`crbn up` prints a summary box with the live URLs once the stack is healthy. Defaults look like:
 
-Finally, start the apps and packages:
+| Surface         | URL                                                            |
+| --------------- | -------------------------------------------------------------- |
+| ERP             | `https://<worktree>.erp.dev`                                   |
+| MES             | `https://<worktree>.mes.dev`                                   |
+| Supabase API    | `https://<worktree>.api.dev`                                   |
+| Supabase Studio | `https://<worktree>.studio.dev`                                |
+| Inngest         | `https://<worktree>.inngest.dev`                               |
+| Mail (Inbucket) | `https://<worktree>.mail.dev`                                  |
+| Postgres        | `postgresql://postgres:postgres@localhost:<PORT_DB>/postgres`  |
 
-```bash
-$ npm run dev
-$ npm run dev:mes        # npm run dev in all apps & packages
-```
+`<worktree>` is derived from the branch name (e.g. `sid-local-dev` → `local-dev`). The main checkout drops the prefix and just uses `erp.dev`, `mes.dev`, etc. Ports for raw TCP services (Postgres, Inbucket, Inngest) are dynamic per-worktree — `crbn status` is the source of truth.
 
-After installation you should be able run the apps locally.
-| Application     | URL                                                                                                                |
-| --------------- | ------------------------------------------------------------------------------------------------------------------ |
-| ERP             | [http://localhost:3000](http://localhost:3000)                                                                     |
-| MES             | [http://localhost:3001](http://localhost:3001)                                                                     |
-| Academy         | [http://localhost:4111](http://localhost:4111)                                                                     |
-| Starter         | [http://localhost:4000](http://localhost:4000)                                                                     |
-| Background Jobs | [http://localhost:8288](http://localhost:8288)                                                                     |
-| Postgres        | [postgresql://postgres:postgres@localhost:54322/postgres](postgresql://postgres:postgres@localhost:54322/postgres) |
-| Supabase Studio | [http://localhost:54323/project/default](http://localhost:54323/project/default)                                   |
-| Mailpit         | [http://localhost:54324](http://localhost:54324)                                                                   |
-| Edge Functions  | [http://localhost:54321/functions/v1/<function-name>](http://localhost:54321/functions/v1/<function-name>)         |
+Academy and starter still run on classic localhost ports via `pnpm dev:academy` / `pnpm dev:starter` (they are not part of the per-worktree stack).
 
 ### Code Formatting
 
@@ -257,60 +299,71 @@ This project uses [Biome](https://biomejs.dev/) for code formatting and linting.
 To add an edge function
 
 ```bash
-$ npm run db:function:new <name>
+$ pnpm run db:function:new <name>
 ```
 
 To add a database migration
 
 ```bash
-$ npm run db:migrate:new <name>
+$ pnpm run db:migrate:new <name>
 ```
 
 To add an AI agent
 
 ```bash
-$ npm run agent:new <name>
+$ pnpm run agent:new <name>
 ```
 
 To add an AI tool
 
 ```bash
-$ npm run tool:new <name>
+$ pnpm run tool:new <name>
 ```
 
-To kill the database containers in a non-recoverable way, you can run:
+To stop the stack (keeps volumes — data preserved):
 
 ```bash
-$ npm run db:kill   # stop and delete all database containers
+$ crbn down
 ```
 
-To restart and reseed the database, you can run:
+To wipe the stack and start clean (destroys Postgres volume + flushes the redis db for this worktree):
 
 ```bash
-$ npm run db:build # runs db:kill, db:start, and setup
+$ crbn reset
 ```
 
-To run a particular application, use the `-w workspace` flag.
-
-For example, to run test command in the `@carbon/react` package you can run:
-
-```
-$ npm run test -w @carbon/react
-```
-
-To restore a production database locally:
-
-1. Download the production database as a .backup file
-2. Rename the `migrations` folder to `_migrations`
-3. Restore the database with the following command:
+To regenerate types or swagger schema manually (normally `crbn up` does this for you after applying migrations):
 
 ```bash
-$ npm run db:build # this should error out at the seed step
-$ PGPASSWORD=postgres psql -h localhost -p 54322 -U supabase_admin -d postgres < ~/Downloads/db_cluster-17-11-2025@09-03-36.backup
-$ npm run dev
+$ pnpm db:types          # → packages/database/src/types.ts + functions/lib/types.ts
+$ pnpm generate:swagger  # → packages/database/src/swagger-docs-schema.ts
 ```
 
-4. Rename the `_migraitons` folder back to `migrations`
+To run a command against a single workspace, use `pnpm --filter`:
+
+```bash
+$ pnpm --filter @carbon/react test
+```
+
+To restore a production database snapshot locally:
+
+1. Export a backup from your production Supabase project (`pg_dump` or Supabase Dashboard → Database → Backups).
+2. Boot the stack **without applying migrations** so they don't fight the dump's schema state:
+   ```bash
+   $ crbn up --no-migrate
+   ```
+3. Find the live Postgres port (`crbn status` shows it; or read `PORT_DB` from `.env.local`).
+4. Pipe the backup into the local DB as the superuser (`supabase_admin` for plain-text dumps, or use `pg_restore` for `.dump` archives):
+   ```bash
+   $ source .env.local
+   $ PGPASSWORD=postgres psql -h localhost -p "$PORT_DB" -U supabase_admin -d postgres < /path/to/backup.sql
+   # …or for .dump archives:
+   $ PGPASSWORD=postgres pg_restore -h localhost -p "$PORT_DB" -U supabase_admin -d postgres --no-owner /path/to/backup.dump
+   ```
+5. Regenerate types so app code reflects the restored schema:
+   ```bash
+   $ pnpm db:types
+   ```
 
 ## API
 
@@ -379,7 +432,7 @@ const { data, error } = await carbon
 
 ## Translations
 
-In order to run `npm run translate` you must first run:
+In order to run `pnpm run translate` you must first run:
 
 ```bash
 brew install ollama
@@ -404,3 +457,12 @@ Background jobs have been migrated from [Trigger.dev](https://trigger.dev) to [I
 ### Upstash to Local Redis
 
 The caching layer (`@carbon/kv`) no longer depends on Upstash. A standard Redis instance is used instead. The `REDIS_URL` environment variable still applies, but you can point it at any Redis-compatible server (including a local Docker container).
+
+### Supabase CLI to docker compose (`crbn`)
+
+Local dev no longer relies on `supabase start` / `supabase stop`. The full backend stack (Postgres 15, GoTrue, Kong, Storage, Realtime, Studio, Inngest, Inbucket, edge-runtime) runs from `docker-compose.dev.yml` under a per-worktree compose project (`carbon-<slug>`), managed by `crbn up` / `down` / `reset`. Ports are allocated dynamically per worktree so multiple branches can run side-by-side. Key changes:
+
+- `pnpm db:start` / `db:stop` / `db:kill` / `db:build` are removed — use `crbn up` / `down` / `reset`.
+- `.env.local` is generated by `crbn up` (worktree-specific URLs, ports, JWT secret, anon/service keys). Genuine secrets stay in `.env`.
+- `pnpm db:migrate` now drives `supabase migration up --db-url $SUPABASE_DB_URL`; it falls back to the CLI's linked-project mode when `SUPABASE_DB_URL` is unset.
+- `pnpm db:types` generates types directly from `$SUPABASE_DB_URL` (no `supabase gen types --local`).

@@ -38,6 +38,7 @@ export async function acceptInvite(
     .select("*")
     .eq("code", code)
     .is("acceptedAt", null)
+    .is("revokedAt", null)
     .single();
 
   if (invite.error) return invite;
@@ -371,6 +372,20 @@ export async function createEmployeeAccount(
 
   if (user.data) {
     userId = user.data.id;
+
+    const existingEmployee = await client
+      .from("employee")
+      .select("id")
+      .eq("id", userId)
+      .eq("companyId", companyId)
+      .maybeSingle();
+
+    if (existingEmployee.data) {
+      return {
+        success: false,
+        message: "This user is already an employee in this company"
+      };
+    }
   } else {
     isNewUser = true;
     const createSupabaseUser = await serviceRole.auth.admin.createUser({
@@ -424,8 +439,6 @@ export async function createEmployeeAccount(
   if (employeeInsert.error) {
     if (isNewUser) {
       await deleteAuthAccount(serviceRole, userId);
-    } else {
-      await deactivateEmployee(serviceRole, userId, companyId);
     }
     return { success: false, message: employeeInsert.error.message };
   }
@@ -686,6 +699,38 @@ export async function getUserDefaults(
     .eq("userId", userId)
     .eq("companyId", companyId)
     .maybeSingle();
+}
+
+export async function getModulePreferences(
+  client: SupabaseClient<Database>,
+  userId: string,
+  companyId: string
+) {
+  return client
+    .from("userModulePreference")
+    .select("module, position, hidden")
+    .eq("userId", userId)
+    .eq("companyId", companyId)
+    .order("position");
+}
+
+export async function upsertModulePreferences(
+  client: SupabaseClient<Database>,
+  userId: string,
+  companyId: string,
+  preferences: { module: string; position: number; hidden: boolean }[]
+) {
+  return client.from("userModulePreference").upsert(
+    preferences.map((p) => ({
+      userId,
+      companyId,
+      module: p.module,
+      position: p.position,
+      hidden: p.hidden,
+      updatedAt: new Date().toISOString()
+    })),
+    { onConflict: "userId,companyId,module" }
+  );
 }
 
 async function insertCustomerAccount(
@@ -1305,9 +1350,13 @@ async function setUserPermissions(
     }
   });
 
-  return client
+  const result = await client
     .from("userPermission")
     .upsert({ id: userId, permissions: newPermissions });
+
+  await redis.del(getPermissionCacheKey(userId));
+
+  return result;
 }
 
 export async function updateEmployee(

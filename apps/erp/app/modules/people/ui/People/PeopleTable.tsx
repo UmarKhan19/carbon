@@ -1,18 +1,22 @@
-import { Checkbox, HStack, MenuIcon, MenuItem } from "@carbon/react";
+import { Badge, Checkbox, HStack, MenuIcon, MenuItem } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
+import { useLocale } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
 import { memo, useCallback, useMemo } from "react";
 import {
   LuBriefcase,
   LuMail,
+  LuMapPin,
   LuPencil,
   LuToggleRight,
   LuUser,
+  LuUserCheck,
   LuUsers
 } from "react-icons/lu";
 import { useNavigate } from "react-router";
 import { Avatar, EmployeeAvatar, Hyperlink, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
+import { useLocations } from "~/components/Form/Location";
 import { usePermissions, useUrlParams } from "~/hooks";
 import { DataType } from "~/modules/shared";
 import type { EmployeeType } from "~/modules/users";
@@ -29,8 +33,10 @@ type PeopleTableProps = {
 const PeopleTable = memo(
   ({ attributeCategories, data, count, employeeTypes }: PeopleTableProps) => {
     const { t } = useLingui();
+    const { locale } = useLocale();
     const navigate = useNavigate();
     const permissions = usePermissions();
+    const locations = useLocations();
     const [params] = useUrlParams();
 
     const employeeTypesById = useMemo(
@@ -62,7 +68,7 @@ const PeopleTable = memo(
         }
 
         if (dataType === DataType.Date) {
-          return new Date(value as string).toLocaleDateString();
+          return new Date(value as string).toLocaleDateString(locale);
         }
 
         if (dataType === DataType.Numeric) {
@@ -89,7 +95,7 @@ const PeopleTable = memo(
 
         return "Unknown";
       },
-      []
+      [locale]
     );
 
     const columns = useMemo<ColumnDef<(typeof data)[number]>[]>(() => {
@@ -155,17 +161,50 @@ const PeopleTable = memo(
           }
         },
         {
-          accessorKey: "active",
-          header: t`Active`,
-          cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
+          id: "locationId",
+          header: t`Location`,
+          cell: ({ row }) => <Enumerable value={row.original.locationName} />,
+          meta: {
+            filter: {
+              type: "static",
+              options: locations.map((location) => ({
+                value: location.value,
+                label: <Enumerable value={location.label} />
+              }))
+            },
+            icon: <LuMapPin />
+          }
+        },
+        {
+          accessorKey: "status",
+          header: t`Status`,
+          cell: (item) => {
+            const status = item.getValue<
+              "Active" | "Invited" | "Inactive" | null
+            >();
+            if (status === "Active")
+              return <Badge variant="green">{t`Active`}</Badge>;
+            if (status === "Invited")
+              return <Badge variant="yellow">{t`Invited`}</Badge>;
+            return <Badge variant="secondary">{t`Inactive`}</Badge>;
+          },
           meta: {
             filter: {
               type: "static",
               options: [
-                { value: "true", label: t`Active` },
-                { value: "false", label: t`Inactive` }
+                { value: "Active", label: t`Active` },
+                { value: "Invited", label: t`Invited` },
+                { value: "Inactive", label: t`Inactive` }
               ]
             },
+            icon: <LuUserCheck />
+          }
+        },
+        {
+          accessorKey: "active",
+          header: t`Active`,
+          cell: (item) => <Checkbox isChecked={item.getValue<boolean>()} />,
+          meta: {
             icon: <LuToggleRight />
           }
         }
@@ -195,6 +234,7 @@ const PeopleTable = memo(
       attributeCategories,
       employeeTypes,
       employeeTypesById,
+      locations,
       renderGenericAttribute,
       t
     ]);

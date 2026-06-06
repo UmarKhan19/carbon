@@ -61,12 +61,11 @@ export default function CustomerEditRoute() {
   const initialValues = {
     ...routeData.customer,
     id: routeData?.customer?.id ?? undefined,
+    readableId: routeData?.customer?.readableId ?? undefined,
     name: routeData?.customer?.name ?? "",
     customerTypeId: routeData?.customer?.customerTypeId ?? undefined,
     customerStatusId: routeData?.customer?.customerStatusId ?? undefined,
     accountManagerId: routeData?.customer?.accountManagerId ?? undefined,
-    taxId: routeData?.customer?.taxId ?? "",
-    vatNumber: routeData?.customer?.vatNumber ?? "",
     currencyCode: routeData?.customer?.currencyCode ?? undefined,
     taxPercent: routeData?.customer?.taxPercent ?? 0,
     website: routeData?.customer?.website ?? "",
