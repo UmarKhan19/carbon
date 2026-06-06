@@ -2241,6 +2241,100 @@ export async function getPurchasingRFQSuppliers(
     .eq("purchasingRfqId", purchasingRfqId);
 }
 
+export interface InsertPurchasingRFQInput {
+  companyId: string;
+  createdBy: string;
+  rfqId?: string;
+  rfqDate?: string;
+  expirationDate?: string;
+  locationId?: string;
+  employeeId?: string;
+  status?: (typeof purchasingRfqStatusType)[number];
+  notes?: string;
+  customFields?: Json;
+}
+
+export async function insertPurchasingRFQ(
+  client: SupabaseClient<Database>,
+  input: InsertPurchasingRFQInput
+): Promise<{
+  data: { id: string; rfqId: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  let rfqId: string;
+  if (input.rfqId) {
+    rfqId = input.rfqId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "purchasingRfq",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error: seq.error ?? ({ message: "Failed to generate purchasingRfq sequence" } as import("@supabase/supabase-js").PostgrestError)
+      };
+    }
+    rfqId = seq.data;
+  }
+
+  const rfq = await client
+    .from("purchasingRfq")
+    .insert({
+      rfqId,
+      rfqDate: input.rfqDate ?? today(getLocalTimeZone()).toString(),
+      expirationDate: input.expirationDate,
+      locationId: input.locationId,
+      employeeId: input.employeeId,
+      status: input.status ?? "Draft",
+      notes: input.notes,
+      customFields: input.customFields,
+      companyId: input.companyId,
+      createdBy: input.createdBy,
+      updatedBy: input.createdBy
+    })
+    .select("id, rfqId")
+    .single();
+
+  if (rfq.error) return { data: null, error: rfq.error };
+
+  return { data: { id: rfq.data.id, rfqId: rfq.data.rfqId }, error: null };
+}
+
+export interface UpdatePurchasingRFQInput {
+  id: string;
+  updatedBy: string;
+  rfqDate?: string;
+  expirationDate?: string | null;
+  locationId?: string;
+  employeeId?: string | null;
+  status?: (typeof purchasingRfqStatusType)[number];
+  notes?: string | null;
+  customFields?: Json;
+}
+
+export async function updatePurchasingRFQ(
+  client: SupabaseClient<Database>,
+  input: UpdatePurchasingRFQInput
+): Promise<{
+  data: { id: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  const { id, updatedBy, ...updates } = input;
+
+  return client
+    .from("purchasingRfq")
+    .update({
+      ...sanitize(updates),
+      updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select("id")
+    .single();
+}
+
+/** @deprecated Use insertPurchasingRFQ for new RFQs, updatePurchasingRFQ for existing RFQs */
 export async function upsertPurchasingRFQ(
   client: SupabaseClient<Database>,
   purchasingRfq: {

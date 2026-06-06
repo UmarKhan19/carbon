@@ -5374,6 +5374,139 @@ export async function upsertSalesOrderPayment(
     .single();
 }
 
+export interface InsertSalesRFQInput {
+  customerId: string;
+  companyId: string;
+  createdBy: string;
+  rfqId?: string;
+  rfqDate?: string;
+  expirationDate?: string;
+  locationId?: string;
+  salesPersonId?: string;
+  customerContactId?: string;
+  customerReference?: string;
+  status?: "Draft" | "Open" | "Closed" | "Cancelled";
+  notes?: string;
+  customFields?: Json;
+}
+
+export async function insertSalesRFQ(
+  client: SupabaseClient<Database>,
+  input: InsertSalesRFQInput
+): Promise<{
+  data: { id: string; rfqId: string } | null;
+  error: PostgrestError | null;
+}> {
+  let rfqId: string;
+  if (input.rfqId) {
+    rfqId = input.rfqId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "salesRfq",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error: seq.error ?? ({ message: "Failed to generate salesRfq sequence" } as PostgrestError)
+      };
+    }
+    rfqId = seq.data;
+  }
+
+  const opportunity = await client
+    .from("opportunity")
+    .insert({
+      companyId: input.companyId,
+      customerId: input.customerId,
+      createdBy: input.createdBy
+    })
+    .select("id")
+    .single();
+
+  if (opportunity.error) return { data: null, error: opportunity.error };
+
+  const rfq = await client
+    .from("salesRfq")
+    .insert({
+      rfqId,
+      customerId: input.customerId,
+      customerContactId: input.customerContactId,
+      customerReference: input.customerReference,
+      rfqDate: input.rfqDate ?? today(getLocalTimeZone()).toString(),
+      expirationDate: input.expirationDate,
+      locationId: input.locationId,
+      salesPersonId: input.salesPersonId,
+      status: input.status ?? "Draft",
+      notes: input.notes,
+      customFields: input.customFields,
+      opportunityId: opportunity.data.id,
+      companyId: input.companyId,
+      createdBy: input.createdBy,
+      updatedBy: input.createdBy
+    })
+    .select("id, rfqId")
+    .single();
+
+  if (rfq.error) return { data: null, error: rfq.error };
+
+  return { data: { id: rfq.data.id, rfqId: rfq.data.rfqId }, error: null };
+}
+
+export interface UpdateSalesRFQInput {
+  id: string;
+  updatedBy: string;
+  customerId?: string;
+  customerContactId?: string | null;
+  customerReference?: string | null;
+  rfqDate?: string;
+  expirationDate?: string | null;
+  locationId?: string;
+  salesPersonId?: string | null;
+  status?: "Draft" | "Open" | "Closed" | "Cancelled";
+  notes?: string | null;
+  customFields?: Json;
+}
+
+export async function updateSalesRFQ(
+  client: SupabaseClient<Database>,
+  input: UpdateSalesRFQInput
+): Promise<{
+  data: { id: string } | null;
+  error: PostgrestError | null;
+}> {
+  const { id, updatedBy, customerId, ...updates } = input;
+
+  // If customerId is being updated, also update the opportunity's customerId
+  if (customerId) {
+    const existingRfq = await client
+      .from("salesRfq")
+      .select("opportunityId")
+      .eq("id", id)
+      .single();
+
+    if (existingRfq.data?.opportunityId) {
+      await client
+        .from("opportunity")
+        .update({ customerId })
+        .eq("id", existingRfq.data.opportunityId);
+    }
+  }
+
+  return client
+    .from("salesRfq")
+    .update({
+      ...sanitize(updates),
+      ...(customerId && { customerId }),
+      updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select("id")
+    .single();
+}
+
+/** @deprecated Use insertSalesRFQ for new RFQs, updateSalesRFQ for existing RFQs */
 export async function upsertSalesRFQ(
   client: SupabaseClient<Database>,
   rfq:

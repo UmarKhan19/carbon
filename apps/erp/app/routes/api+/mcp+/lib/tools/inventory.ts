@@ -75,10 +75,12 @@ import {
   upsertStorageUnit,
   upsertShippingMethod,
   upsertShipment,
-  upsertStockTransfer,
+  insertStockTransfer,
+  updateStockTransfer,
   upsertStockTransferLine,
   upsertStockTransferLines,
-  upsertWarehouseTransfer,
+  insertWarehouseTransfer,
+  updateWarehouseTransfer,
   updateWarehouseTransferStatus,
   upsertWarehouseTransferLine,
   getDefaultStorageUnitForJob,
@@ -1133,18 +1135,55 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "inventory_upsertStockTransfer",
+    "inventory_insertStockTransfer",
     {
-      description: "upsert stock transfer",
+      description: "Create a stock transfer with lines. Generates sequence ID automatically.",
       inputSchema: z.object({
-      stockTransfer: z.any(),
-    }),
+        locationId: z.string().describe("Location ID for the stock transfer"),
+        lines: z.array(z.object({
+          itemId: z.string().describe("Item ID"),
+          fromStorageUnitId: z.string().optional().describe("Source storage unit ID"),
+          toStorageUnitId: z.string().optional().describe("Destination storage unit ID"),
+          quantity: z.number().optional().describe("Quantity to transfer"),
+          requiresSerialTracking: z.boolean().optional().describe("Whether the item requires serial tracking"),
+          requiresBatchTracking: z.boolean().optional().describe("Whether the item requires batch tracking"),
+        })).min(1).describe("Transfer lines (at least one required)"),
+        stockTransferId: z.string().optional().describe("Optional custom stock transfer ID (sequence generated if not provided)"),
+      }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await upsertStockTransfer(ctx.client, { ...params.stockTransfer, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
+      const result = await insertStockTransfer(ctx.client, {
+        locationId: params.locationId,
+        lines: params.lines,
+        stockTransferId: params.stockTransferId,
+        companyId: ctx.companyId,
+        createdBy: ctx.userId,
+      });
       return toMcpResult(result);
-    }, "Failed: inventory_upsertStockTransfer"),
+    }, "Failed: inventory_insertStockTransfer"),
+  );
+
+  server.registerTool(
+    "inventory_updateStockTransfer",
+    {
+      description: "Update an existing stock transfer",
+      inputSchema: z.object({
+        id: z.string().describe("Stock transfer ID"),
+        locationId: z.string().optional().describe("Location ID"),
+        stockTransferId: z.string().optional().describe("Stock transfer readable ID"),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updateStockTransfer(ctx.client, {
+        id: params.id,
+        locationId: params.locationId,
+        stockTransferId: params.stockTransferId,
+        updatedBy: ctx.userId,
+      });
+      return toMcpResult(result);
+    }, "Failed: inventory_updateStockTransfer"),
   );
 
   server.registerTool(
@@ -1178,18 +1217,70 @@ export const registerInventoryTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "inventory_upsertWarehouseTransfer",
+    "inventory_insertWarehouseTransfer",
     {
-      description: "upsert warehouse transfer",
+      description: "Create a warehouse transfer between locations. Generates sequence ID automatically.",
       inputSchema: z.object({
-      transfer: warehouseTransferValidator,
-    }),
+        fromLocationId: z.string().describe("Source location ID"),
+        toLocationId: z.string().describe("Destination location ID"),
+        transferId: z.string().optional().describe("Optional custom transfer ID (sequence generated if not provided)"),
+        status: z.enum(["Draft", "To Ship and Receive", "To Ship", "To Receive", "Completed", "Cancelled"]).optional().describe("Transfer status (defaults to Draft)"),
+        transferDate: z.string().optional().describe("Transfer date (ISO format)"),
+        expectedReceiptDate: z.string().optional().describe("Expected receipt date (ISO format)"),
+        notes: z.string().optional().describe("Internal notes"),
+        reference: z.string().optional().describe("External reference"),
+      }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await upsertWarehouseTransfer(ctx.client, { ...params.transfer, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId });
+      const result = await insertWarehouseTransfer(ctx.client, {
+        fromLocationId: params.fromLocationId,
+        toLocationId: params.toLocationId,
+        transferId: params.transferId,
+        status: params.status,
+        transferDate: params.transferDate,
+        expectedReceiptDate: params.expectedReceiptDate,
+        notes: params.notes,
+        reference: params.reference,
+        companyId: ctx.companyId,
+        createdBy: ctx.userId,
+      });
       return toMcpResult(result);
-    }, "Failed: inventory_upsertWarehouseTransfer"),
+    }, "Failed: inventory_insertWarehouseTransfer"),
+  );
+
+  server.registerTool(
+    "inventory_updateWarehouseTransfer",
+    {
+      description: "Update an existing warehouse transfer",
+      inputSchema: z.object({
+        id: z.string().describe("Warehouse transfer ID"),
+        fromLocationId: z.string().optional().describe("Source location ID"),
+        toLocationId: z.string().optional().describe("Destination location ID"),
+        transferId: z.string().optional().describe("Transfer readable ID"),
+        status: z.enum(["Draft", "To Ship and Receive", "To Ship", "To Receive", "Completed", "Cancelled"]).optional().describe("Transfer status"),
+        transferDate: z.string().optional().describe("Transfer date (ISO format)"),
+        expectedReceiptDate: z.string().optional().describe("Expected receipt date (ISO format)"),
+        notes: z.string().optional().describe("Internal notes"),
+        reference: z.string().optional().describe("External reference"),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updateWarehouseTransfer(ctx.client, {
+        id: params.id,
+        fromLocationId: params.fromLocationId,
+        toLocationId: params.toLocationId,
+        transferId: params.transferId,
+        status: params.status,
+        transferDate: params.transferDate,
+        expectedReceiptDate: params.expectedReceiptDate,
+        notes: params.notes,
+        reference: params.reference,
+        updatedBy: ctx.userId,
+      });
+      return toMcpResult(result);
+    }, "Failed: inventory_updateWarehouseTransfer"),
   );
 
   server.registerTool(

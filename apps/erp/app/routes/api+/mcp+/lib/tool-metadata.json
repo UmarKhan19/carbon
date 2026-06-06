@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-06T02:50:37.002Z",
-  "totalTools": 1093,
+  "generated": "2026-06-06T05:16:57.367Z",
+  "totalTools": 1094,
   "modules": 15,
   "tools": [
     {
@@ -2359,18 +2359,33 @@
       ]
     },
     {
-      "name": "inventory_upsertStockTransfer",
+      "name": "inventory_insertStockTransfer",
       "module": "inventory",
       "classification": "WRITE",
-      "description": "upsert stock transfer",
-      "paramCount": 1,
+      "description": "Create a stock transfer with lines. Generates sequence ID automatically.",
+      "paramCount": 8,
       "serviceParams": [
         "client",
-        "stockTransfer"
+        "input"
       ],
       "injectAuth": [
         "companyId",
         "createdBy",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "inventory_updateStockTransfer",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "Update an existing stock transfer",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "input"
+      ],
+      "injectAuth": [
+        "companyId",
         "updatedBy"
       ]
     },
@@ -2407,18 +2422,33 @@
       ]
     },
     {
-      "name": "inventory_upsertWarehouseTransfer",
+      "name": "inventory_insertWarehouseTransfer",
       "module": "inventory",
       "classification": "WRITE",
-      "description": "upsert warehouse transfer",
-      "paramCount": 0,
+      "description": "Create a warehouse transfer between locations. Generates sequence ID automatically.",
+      "paramCount": 8,
       "serviceParams": [
         "client",
-        "transfer"
+        "input"
       ],
       "injectAuth": [
         "companyId",
         "createdBy",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "inventory_updateWarehouseTransfer",
+      "module": "inventory",
+      "classification": "WRITE",
+      "description": "Update an existing warehouse transfer",
+      "paramCount": 9,
+      "serviceParams": [
+        "client",
+        "input"
+      ],
+      "injectAuth": [
+        "companyId",
         "updatedBy"
       ]
     },
@@ -7146,23 +7176,6 @@
       ],
       "injectAuth": [
         "companyId",
-        "updatedBy"
-      ]
-    },
-    {
-      "name": "production_upsertJob",
-      "module": "production",
-      "classification": "WRITE",
-      "description": "upsert job",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "job",
-        "status"
-      ],
-      "injectAuth": [
-        "companyId",
-        "createdBy",
         "updatedBy"
       ]
     },
