@@ -23,9 +23,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const url = new URL(request.url);
   const clientId = url.searchParams.get("client_id");
+  const redirectUri = url.searchParams.get("redirect_uri");
   const scope = url.searchParams.get("scope");
 
   let clientName = "Unknown Application";
+  let redirectDomain: string | null = null;
   if (clientId) {
     const serviceRole = getCarbonServiceRole();
     const oauthClient = await serviceRole
@@ -37,11 +39,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
       clientName = oauthClient.data.name;
     }
   }
+  if (redirectUri) {
+    try {
+      redirectDomain = new URL(redirectUri).hostname;
+    } catch {
+      // invalid URL — will be caught by the action validator
+    }
+  }
 
   return {
     companyId,
     companies,
     clientName,
+    redirectDomain,
     scope
   };
 }
@@ -153,7 +163,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AuthorizeRoute() {
-  const { clientName, companyId, companies, scope } =
+  const { clientName, companyId, companies, redirectDomain, scope } =
     useLoaderData<typeof loader>();
 
   return (
@@ -178,8 +188,11 @@ export default function AuthorizeRoute() {
                 Authorize Application
               </Heading>
               <p className="text-center text-sm text-pretty text-muted-foreground">
-                <strong className="text-foreground">{clientName}</strong> is
-                requesting access to your Carbon account.
+                <strong className="text-foreground">{clientName}</strong>
+                {redirectDomain && (
+                  <span className="text-xs"> ({redirectDomain})</span>
+                )}{" "}
+                is requesting access to your Carbon account.
               </p>
               <div className="flex w-full flex-col gap-1.5">
                 <label

@@ -26,7 +26,7 @@ function postgrestServiceKey(authorizationHeader: string | null): string {
   return envKey;
 }
 
-function isTrustedServiceBearer(authorizationHeader: string | null): boolean {
+function isTrustedBearer(authorizationHeader: string | null): boolean {
   const envKey = (Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "").trim();
   const token =
     authorizationHeader?.replace(/^Bearer\s+/i, "").trim() ?? "";
@@ -35,8 +35,8 @@ function isTrustedServiceBearer(authorizationHeader: string | null): boolean {
   const parts = token.split(".");
   if (parts.length !== 3) return false;
   try {
-    return (JSON.parse(atob(parts[1]!)) as { role?: string }).role ===
-      "service_role";
+    const role = (JSON.parse(atob(parts[1]!)) as { role?: string }).role;
+    return role === "service_role" || role === "authenticated";
   } catch {
     return false;
   }
@@ -183,8 +183,8 @@ export const getSupabaseServiceRole = async (
   }
 
   if (authorizationHeader) {
-    if (!isTrustedServiceBearer(authorizationHeader)) {
-      throw new Error("Service role is required");
+    if (!isTrustedBearer(authorizationHeader)) {
+      throw new Error("Valid authorization is required");
     }
 
     return serviceRole;
