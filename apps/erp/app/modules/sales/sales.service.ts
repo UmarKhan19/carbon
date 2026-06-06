@@ -3305,6 +3305,222 @@ export async function upsertMakeMethodFromQuoteMethod(
   return { data: null, error: null };
 }
 
+export interface InsertQuoteInput {
+  customerId: string;
+  companyId: string;
+  companyGroupId: string;
+  createdBy: string;
+  quoteId?: string;
+  name?: string;
+  locationId?: string;
+  status?: (typeof quoteStatusType)[number];
+  currencyCode?: string;
+  expirationDate?: string;
+  customerContactId?: string;
+  customerLocationId?: string;
+  salesRfqId?: string;
+  opportunityId?: string;
+  notes?: string;
+  customFields?: Json;
+}
+
+export async function insertQuote(
+  client: SupabaseClient<Database>,
+  input: InsertQuoteInput
+): Promise<{
+  data: { id: string; quoteId: string } | null;
+  error: PostgrestError | null;
+}> {
+  let quoteId: string;
+  if (input.quoteId) {
+    quoteId = input.quoteId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "quote",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error: seq.error ?? ({ message: "Failed to generate quote sequence" } as PostgrestError)
+      };
+    }
+    quoteId = seq.data;
+  }
+
+  let opportunityId = input.opportunityId;
+  if (!opportunityId) {
+    const opportunity = await client
+      .from("opportunity")
+      .insert({
+        customerId: input.customerId,
+        companyId: input.companyId,
+        createdBy: input.createdBy
+      })
+      .select("id")
+      .single();
+
+    if (opportunity.error) return { data: null, error: opportunity.error };
+    opportunityId = opportunity.data.id;
+  }
+
+  const [customerPayment, customerShipping, seller] = await Promise.all([
+    getCustomerPayment(client, input.customerId),
+    getCustomerShipping(client, input.customerId),
+    getEmployeeJob(client, input.createdBy, input.companyId)
+  ]);
+
+  if (customerPayment.error) return { data: null, error: customerPayment.error };
+  if (customerShipping.error) return { data: null, error: customerShipping.error };
+
+  const { paymentTermId } = customerPayment.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } = customerShipping.data;
+
+  let exchangeRate = 1;
+  let exchangeRateUpdatedAt = new Date().toISOString();
+  if (input.currencyCode) {
+    const currency = await getCurrencyByCode(client, input.companyGroupId, input.currencyCode);
+    if (currency.data) {
+      exchangeRate = currency.data.exchangeRate ?? 1;
+      exchangeRateUpdatedAt = new Date().toISOString();
+    }
+  }
+
+  const locationId = input.locationId ?? seller?.data?.locationId ?? null;
+
+  const quote = await client
+    .from("quote")
+    .insert({
+      quoteId,
+      name: input.name,
+      customerId: input.customerId,
+      customerContactId: input.customerContactId,
+      customerLocationId: input.customerLocationId,
+      opportunityId,
+      salesRfqId: input.salesRfqId,
+      status: input.status ?? "Draft",
+      expirationDate: input.expirationDate,
+      currencyCode: input.currencyCode,
+      exchangeRate,
+      exchangeRateUpdatedAt,
+      locationId,
+      notes: input.notes,
+      customFields: input.customFields,
+      companyId: input.companyId,
+      createdBy: input.createdBy,
+      updatedBy: input.createdBy
+    })
+    .select("id, quoteId")
+    .single();
+
+  if (quote.error) return { data: null, error: quote.error };
+
+  const createdQuoteId = quote.data.id;
+
+  const [payment, shipment, externalLink] = await Promise.all([
+    client.from("quotePayment").insert({
+      id: createdQuoteId,
+      paymentTermId,
+      companyId: input.companyId
+    }),
+    client.from("quoteShipment").insert({
+      id: createdQuoteId,
+      locationId,
+      shippingMethodId,
+      shippingTermId,
+      incoterm,
+      incotermLocation,
+      companyId: input.companyId
+    }),
+    upsertExternalLink(client, {
+      documentType: "Quote",
+      documentId: createdQuoteId,
+      customerId: input.customerId,
+      expiresAt: input.expirationDate,
+      companyId: input.companyId
+    })
+  ]);
+
+  if (payment.error || shipment.error) {
+    await deleteQuote(client, createdQuoteId);
+    return { data: null, error: payment.error ?? shipment.error };
+  }
+
+  if (externalLink.data) {
+    await client
+      .from("quote")
+      .update({ externalLinkId: externalLink.data.id })
+      .eq("id", createdQuoteId);
+  }
+
+  return { data: { id: createdQuoteId, quoteId }, error: null };
+}
+
+export interface UpdateQuoteInput {
+  id: string;
+  updatedBy: string;
+  name?: string | null;
+  status?: (typeof quoteStatusType)[number];
+  currencyCode?: string;
+  expirationDate?: string | null;
+  customerContactId?: string | null;
+  customerLocationId?: string | null;
+  customerId?: string;
+  notes?: string | null;
+  customFields?: Json;
+}
+
+export async function updateQuote(
+  client: SupabaseClient<Database>,
+  input: UpdateQuoteInput,
+  companyGroupId?: string
+): Promise<{
+  data: { id: string } | null;
+  error: PostgrestError | null;
+}> {
+  const { id, updatedBy, ...updates } = input;
+
+  let exchangeRate: number | undefined;
+  let exchangeRateUpdatedAt: string | undefined;
+
+  const existing = await client
+    .from("quote")
+    .select("currencyCode, opportunityId")
+    .eq("id", id)
+    .single();
+
+  if (existing.error) return { data: null, error: existing.error };
+
+  if (updates.currencyCode && companyGroupId && existing.data.currencyCode !== updates.currencyCode) {
+    const currency = await getCurrencyByCode(client, companyGroupId, updates.currencyCode);
+    if (currency.data) {
+      exchangeRate = currency.data.exchangeRate ?? 1;
+      exchangeRateUpdatedAt = new Date().toISOString();
+    }
+  }
+
+  if (updates.customerId && existing.data.opportunityId) {
+    await client
+      .from("opportunity")
+      .update({ customerId: updates.customerId })
+      .eq("id", existing.data.opportunityId);
+  }
+
+  return client
+    .from("quote")
+    .update({
+      ...sanitize(updates),
+      ...(exchangeRate !== undefined && { exchangeRate }),
+      ...(exchangeRateUpdatedAt && { exchangeRateUpdatedAt }),
+      updatedBy,
+      updatedAt: today(getLocalTimeZone()).toString()
+    })
+    .eq("id", id)
+    .select("id")
+    .single();
+}
+
+/** @deprecated Use insertQuote for new quotes, updateQuote for existing quotes */
 export async function upsertQuote(
   client: SupabaseClient<Database>,
   quote:
@@ -4650,6 +4866,218 @@ export async function updateSalesOrderStatus(
   return client.from("salesOrder").update(updateData).eq("id", update.id);
 }
 
+export interface InsertSalesOrderInput {
+  customerId: string;
+  companyId: string;
+  companyGroupId: string;
+  createdBy: string;
+  salesOrderId?: string;
+  locationId?: string;
+  status?: (typeof salesOrderStatusType)[number];
+  currencyCode?: string;
+  orderDate?: string;
+  customerContactId?: string;
+  customerLocationId?: string;
+  quoteId?: string;
+  opportunityId?: string;
+  requestedDate?: string;
+  promisedDate?: string;
+  notes?: string;
+  customFields?: Json;
+}
+
+export async function insertSalesOrder(
+  client: SupabaseClient<Database>,
+  input: InsertSalesOrderInput
+): Promise<{
+  data: { id: string; salesOrderId: string } | null;
+  error: PostgrestError | null;
+}> {
+  let salesOrderId: string;
+  if (input.salesOrderId) {
+    salesOrderId = input.salesOrderId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "salesOrder",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error: seq.error ?? ({ message: "Failed to generate SO sequence" } as PostgrestError)
+      };
+    }
+    salesOrderId = seq.data;
+  }
+
+  let opportunityId = input.opportunityId;
+  if (!opportunityId) {
+    const opportunity = await client
+      .from("opportunity")
+      .insert({
+        customerId: input.customerId,
+        companyId: input.companyId,
+        createdBy: input.createdBy
+      })
+      .select("id")
+      .single();
+
+    if (opportunity.error) return { data: null, error: opportunity.error };
+    opportunityId = opportunity.data.id;
+  }
+
+  const [customerPayment, customerShipping, seller] = await Promise.all([
+    getCustomerPayment(client, input.customerId),
+    getCustomerShipping(client, input.customerId),
+    getEmployeeJob(client, input.createdBy, input.companyId)
+  ]);
+
+  if (customerPayment.error) return { data: null, error: customerPayment.error };
+  if (customerShipping.error) return { data: null, error: customerShipping.error };
+
+  const {
+    paymentTermId,
+    invoiceCustomerId,
+    invoiceCustomerContactId,
+    invoiceCustomerLocationId
+  } = customerPayment.data;
+
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } = customerShipping.data;
+
+  let exchangeRate = 1;
+  let exchangeRateUpdatedAt = new Date().toISOString();
+  if (input.currencyCode) {
+    const currency = await getCurrencyByCode(client, input.companyGroupId, input.currencyCode);
+    if (currency.data) {
+      exchangeRate = currency.data.exchangeRate ?? 1;
+      exchangeRateUpdatedAt = new Date().toISOString();
+    }
+  }
+
+  const locationId = input.locationId ?? seller?.data?.locationId ?? null;
+
+  const order = await client
+    .from("salesOrder")
+    .insert({
+      salesOrderId,
+      customerId: input.customerId,
+      customerContactId: input.customerContactId,
+      customerLocationId: input.customerLocationId,
+      opportunityId,
+      quoteId: input.quoteId,
+      status: input.status ?? "Draft",
+      orderDate: input.orderDate ?? new Date().toISOString().split("T")[0],
+      currencyCode: input.currencyCode,
+      exchangeRate,
+      exchangeRateUpdatedAt,
+      locationId,
+      notes: input.notes,
+      customFields: input.customFields,
+      companyId: input.companyId,
+      createdBy: input.createdBy,
+      updatedBy: input.createdBy
+    })
+    .select("id, salesOrderId")
+    .single();
+
+  if (order.error) return { data: null, error: order.error };
+
+  const orderId = order.data.id;
+
+  const [shipment, payment] = await Promise.all([
+    client.from("salesOrderShipment").insert({
+      id: orderId,
+      locationId,
+      receiptRequestedDate: input.requestedDate ?? null,
+      receiptPromisedDate: input.promisedDate ?? null,
+      shippingMethodId,
+      shippingTermId,
+      incoterm,
+      incotermLocation,
+      companyId: input.companyId
+    }),
+    client.from("salesOrderPayment").insert({
+      id: orderId,
+      paymentTermId,
+      invoiceCustomerId: invoiceCustomerId ?? input.customerId,
+      invoiceCustomerContactId,
+      invoiceCustomerLocationId,
+      companyId: input.companyId
+    })
+  ]);
+
+  if (shipment.error || payment.error) {
+    await deleteSalesOrder(client, orderId);
+    return { data: null, error: shipment.error ?? payment.error };
+  }
+
+  return { data: { id: orderId, salesOrderId }, error: null };
+}
+
+export interface UpdateSalesOrderInput {
+  id: string;
+  updatedBy: string;
+  status?: (typeof salesOrderStatusType)[number];
+  currencyCode?: string;
+  orderDate?: string;
+  customerContactId?: string | null;
+  customerLocationId?: string | null;
+  customerId?: string;
+  notes?: string | null;
+  customFields?: Json;
+}
+
+export async function updateSalesOrder(
+  client: SupabaseClient<Database>,
+  input: UpdateSalesOrderInput,
+  companyGroupId?: string
+): Promise<{
+  data: { id: string } | null;
+  error: PostgrestError | null;
+}> {
+  const { id, updatedBy, ...updates } = input;
+
+  let exchangeRate: number | undefined;
+  let exchangeRateUpdatedAt: string | undefined;
+
+  const existing = await client
+    .from("salesOrder")
+    .select("currencyCode, opportunityId")
+    .eq("id", id)
+    .single();
+
+  if (existing.error) return { data: null, error: existing.error };
+
+  if (updates.currencyCode && companyGroupId && existing.data.currencyCode !== updates.currencyCode) {
+    const currency = await getCurrencyByCode(client, companyGroupId, updates.currencyCode);
+    if (currency.data) {
+      exchangeRate = currency.data.exchangeRate ?? 1;
+      exchangeRateUpdatedAt = new Date().toISOString();
+    }
+  }
+
+  if (updates.customerId && existing.data.opportunityId) {
+    await client
+      .from("opportunity")
+      .update({ customerId: updates.customerId })
+      .eq("id", existing.data.opportunityId);
+  }
+
+  return client
+    .from("salesOrder")
+    .update({
+      ...sanitize(updates),
+      ...(exchangeRate !== undefined && { exchangeRate }),
+      ...(exchangeRateUpdatedAt && { exchangeRateUpdatedAt }),
+      updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select("id")
+    .single();
+}
+
+/** @deprecated Use insertSalesOrder for new orders, updateSalesOrder for existing orders */
 export async function upsertSalesOrder(
   client: SupabaseClient<Database>,
   salesOrder:
