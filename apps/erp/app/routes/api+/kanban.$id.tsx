@@ -24,7 +24,6 @@ import {
   insertPurchaseOrder,
   upsertPurchaseOrderLine
 } from "~/modules/purchasing";
-import { getNextSequence } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 async function handleKanban({
@@ -73,40 +72,19 @@ async function handleKanban({
       };
     }
 
-    const [nextSequence, manufacturing, defaultStorageUnit] = await Promise.all(
-      [
-        getNextSequence(client, "job", companyId),
-        getItemReplenishment(client, kanban.data.itemId!, companyId),
-        getDefaultStorageUnitForJob(
-          client,
-          kanban.data.itemId!,
-          kanban.data.locationId!,
-          companyId
-        )
-      ]
-    );
+    const [manufacturing, defaultStorageUnit] = await Promise.all([
+      getItemReplenishment(client, kanban.data.itemId!, companyId),
+      getDefaultStorageUnitForJob(
+        client,
+        kanban.data.itemId!,
+        kanban.data.locationId!,
+        companyId
+      )
+    ]);
 
-    if (nextSequence.error) {
-      console.error(nextSequence.error);
-      return {
-        data: null,
-        error: "Failed to create job"
-      };
-    }
-
-    let jobReadableId = nextSequence.data;
-    let leadTime = manufacturing.data?.leadTime ?? 7;
-
+    const leadTime = manufacturing.data?.leadTime ?? 7;
     const startDate = today(getLocalTimeZone());
     const dueDate = startDate.add({ days: leadTime }).toString();
-
-    if (!jobReadableId) {
-      console.error("Failed to get next job id");
-      return {
-        data: null,
-        error: "Failed to create job"
-      };
-    }
 
     // Use storage unit from kanban if it exists, otherwise use default storage unit
     const storageUnitId =
@@ -117,7 +95,6 @@ async function handleKanban({
     const createdJob = await insertJob(
       serviceRole,
       {
-        jobId: jobReadableId,
         itemId: kanban.data.itemId!,
         quantity: kanban.data.quantity!,
         locationId: kanban.data.locationId!,
