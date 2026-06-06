@@ -17,7 +17,7 @@ msgstr "Ein Lieferant ist ein Unternehmen oder eine Person, die dir Teile oder D
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr ""
+msgstr "„{0}\" ist auf der/den ausgewählten Oberfläche(n) nicht verfügbar. Wählen Sie ein anderes Feld."
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "„${storageUnitName}\" hat ${childCount} direkt verschachtelte Speichereinheiten. Das Löschen führt auch zum Löschen dieser und aller darunter liegenden Einheiten. Dies kann nicht rückgängig gemacht werden."
@@ -469,7 +469,7 @@ msgid "An item cannot be added to itself."
 msgstr "Ein Element kann nicht zu sich selbst hinzugefügt werden."
 
 msgid "AND"
-msgstr ""
+msgstr "UND"
 
 msgid "and {remaining} more"
 msgstr "und {remaining} weitere"
@@ -490,10 +490,10 @@ msgid "Annotation updated"
 msgstr "Anmerkung aktualisiert"
 
 msgid "Any item group"
-msgstr ""
+msgstr "Beliebige Artikelgruppe"
 
 msgid "Any item type"
-msgstr ""
+msgstr "Beliebiger Artikeltyp"
 
 msgid "API and Webhooks"
 msgstr "API und Webhooks"
@@ -1306,7 +1306,7 @@ msgid "Check your email"
 msgstr "Überprüfen Sie Ihre E-Mail"
 
 msgid "Choose a company"
-msgstr ""
+msgstr "Wählen Sie ein Unternehmen"
 
 msgid "Choose another file"
 msgstr "Wählen Sie eine andere Datei"
@@ -1403,7 +1403,7 @@ msgid "Columns"
 msgstr "Spalten"
 
 msgid "Combine filters"
-msgstr ""
+msgstr "Filter kombinieren"
 
 msgid "Coming soon"
 msgstr "Demnächst verfügbar"
@@ -2204,9 +2204,6 @@ msgstr "Standardgenehmiger"
 msgid "Default Attachments"
 msgstr "Standardanhänge"
 
-msgid "Default Attachments on Purchase Orders"
-msgstr "Standardanhänge bei Bestellungen"
-
 msgid "Default CC Recipients"
 msgstr "Standard-CC-Empfänger"
 
@@ -2989,7 +2986,7 @@ msgid "Employees"
 msgstr "Mitarbeiter"
 
 msgid "Empty = match every item"
-msgstr ""
+msgstr "Leer = alle Artikel abgleichen"
 
 msgid "Empty work centers"
 msgstr "Leere Arbeitszentren"
@@ -3650,9 +3647,6 @@ msgstr "Hier angehängte Dateien werden standardmäßig mit jeder Bestellanfrage
 msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
 msgstr "Hier angehängte Dateien werden mit jeder Bestellanfrage-E-Mail an diesen Lieferanten versendet (zusätzlich zu unternehmensweiten Standardeinstellungen)."
 
-msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr "Dateien, die hier angehängt sind, werden automatisch mitgesendet, wenn dieser Artikel in einer Bestellungs-E-Mail erscheint."
-
 msgid "Filter"
 msgstr "Filter"
 
@@ -4060,7 +4054,7 @@ msgid "Invite"
 msgstr "Einladen"
 
 msgid "Invited"
-msgstr ""
+msgstr "Eingeladen"
 
 msgid "Invoice"
 msgstr "Rechnung"
@@ -4165,13 +4159,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "Artikel {scannedItem} ist nicht derselbe wie der Artikel {expectedItem}"
 
 msgid "Item filters"
-msgstr ""
+msgstr "Artikelfilter"
 
 msgid "Item Group"
 msgstr "Artikelgruppe"
 
 msgid "Item groups"
-msgstr ""
+msgstr "Artikelgruppen"
 
 msgid "Item Groups"
 msgstr "Artikelgruppen"
@@ -4183,10 +4177,10 @@ msgid "Item Master"
 msgstr "Artikelstamm"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr ""
+msgstr "Element muss einem ausgewählten Typ UND einer ausgewählten Gruppe entsprechen"
 
 msgid "Item must match a selected type OR a selected group"
-msgstr ""
+msgstr "Artikel muss einem ausgewählten Typ ODER einer ausgewählten Gruppe entsprechen"
 
 msgid "Item Scope"
 msgstr "Artikelbereich"
@@ -4195,7 +4189,7 @@ msgid "Item Type"
 msgstr "Artikeltyp"
 
 msgid "Item types"
-msgstr ""
+msgstr "Artikeltypen"
 
 msgid "items"
 msgstr "Artikel"
@@ -4611,13 +4605,13 @@ msgid "Match all"
 msgstr "Alle abgleichen"
 
 msgid "Match all (AND)"
-msgstr ""
+msgstr "Alle abgleichen (UND)"
 
 msgid "Match any"
 msgstr "Beliebige abgleichen"
 
 msgid "Match any (OR)"
-msgstr ""
+msgstr "Beliebige abgleichen (ODER)"
 
 msgid "Match none"
 msgstr "Keine Übereinstimmung"
@@ -5395,7 +5389,7 @@ msgid "Not started training for"
 msgstr "Noch nicht mit dem Training begonnen für"
 
 msgid "Not you?"
-msgstr ""
+msgstr "Nicht du?"
 
 msgid "Note"
 msgstr "Notiz"
@@ -5554,7 +5548,7 @@ msgid "Options"
 msgstr "Optionen"
 
 msgid "OR"
-msgstr ""
+msgstr "ODER"
 
 msgid "Order"
 msgstr "Bestellung"
@@ -7473,7 +7467,7 @@ msgid "Storage client not available"
 msgstr "Speicherclient nicht verfügbar"
 
 msgid "Storage Rules"
-msgstr ""
+msgstr "Lagerungsregeln"
 
 msgid "Storage Type"
 msgstr "Lagertyp"
@@ -8761,7 +8755,7 @@ msgid "Yes, Update IDs"
 msgstr "Ja, IDs aktualisieren"
 
 msgid "You belong to more than one company. Pick where to work."
-msgstr ""
+msgstr "Du gehörst mehr als einem Unternehmen an. Wähle aus, wo du arbeiten möchtest."
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "Sie können den UI-Stil jederzeit über die Design-Einstellung ändern"

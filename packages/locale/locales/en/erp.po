@@ -2204,9 +2204,6 @@ msgstr "Default Approver"
 msgid "Default Attachments"
 msgstr "Default Attachments"
 
-msgid "Default Attachments on Purchase Orders"
-msgstr "Default Attachments on Purchase Orders"
-
 msgid "Default CC Recipients"
 msgstr "Default CC Recipients"
 
@@ -3649,9 +3646,6 @@ msgstr "Files attached here ride along on every purchase order email by default.
 
 msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
 msgstr "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
-
-msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr "Files attached here ride along whenever this item appears on a purchase order email."
 
 msgid "Filter"
 msgstr "Filter"

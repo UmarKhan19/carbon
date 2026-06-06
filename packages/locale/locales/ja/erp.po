@@ -17,7 +17,7 @@ msgstr "サプライヤーは、あなたに部品またはサービスを販売
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr ""
+msgstr "「{0}」は選択されたサーフェス上で利用できません。別のフィールドを選択してください。"
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "「{storageUnitName}」には{childCount}個の直下の階層化されたストレージユニットがあります。これを削除すると、それらとその下にあるすべてのものも削除されます。この操作は取り消せません。"
@@ -469,7 +469,7 @@ msgid "An item cannot be added to itself."
 msgstr "アイテムをそれ自体に追加することはできません。"
 
 msgid "AND"
-msgstr ""
+msgstr "AND"
 
 msgid "and {remaining} more"
 msgstr "そして{remaining}件以上"
@@ -490,10 +490,10 @@ msgid "Annotation updated"
 msgstr "注釈が更新されました"
 
 msgid "Any item group"
-msgstr ""
+msgstr "任意のアイテムグループ"
 
 msgid "Any item type"
-msgstr ""
+msgstr "任意のアイテムタイプ"
 
 msgid "API and Webhooks"
 msgstr "APIとWebhooks"
@@ -1306,7 +1306,7 @@ msgid "Check your email"
 msgstr "メールを確認してください"
 
 msgid "Choose a company"
-msgstr ""
+msgstr "会社を選択"
 
 msgid "Choose another file"
 msgstr "別のファイルを選択"
@@ -1403,7 +1403,7 @@ msgid "Columns"
 msgstr "列"
 
 msgid "Combine filters"
-msgstr ""
+msgstr "フィルターを組み合わせる"
 
 msgid "Coming soon"
 msgstr "近日公開予定"
@@ -2204,9 +2204,6 @@ msgstr "デフォルト承認者"
 msgid "Default Attachments"
 msgstr "デフォルト添付ファイル"
 
-msgid "Default Attachments on Purchase Orders"
-msgstr "購買注文のデフォルト添付ファイル"
-
 msgid "Default CC Recipients"
 msgstr "デフォルトCC受信者"
 
@@ -2989,7 +2986,7 @@ msgid "Employees"
 msgstr "従業員"
 
 msgid "Empty = match every item"
-msgstr ""
+msgstr "空 = すべてのアイテムに一致"
 
 msgid "Empty work centers"
 msgstr "空の作業センター"
@@ -3650,9 +3647,6 @@ msgstr "ここに添付されたファイルは、デフォルトではすべて
 msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
 msgstr "ここに添付されたファイルは、このサプライヤーに送信されるすべての発注メールに含まれます（会社全体のデフォルトに加えて）。"
 
-msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr "このファイルは、このアイテムが購買注文メールに表示されるたびに添付されます。"
-
 msgid "Filter"
 msgstr "フィルター"
 
@@ -4060,7 +4054,7 @@ msgid "Invite"
 msgstr "招待"
 
 msgid "Invited"
-msgstr ""
+msgstr "招待済み"
 
 msgid "Invoice"
 msgstr "請求書"
@@ -4165,13 +4159,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "アイテム {scannedItem} は、アイテム {expectedItem} と同じではありません"
 
 msgid "Item filters"
-msgstr ""
+msgstr "アイテムフィルター"
 
 msgid "Item Group"
 msgstr "品目グループ"
 
 msgid "Item groups"
-msgstr ""
+msgstr "アイテムグループ"
 
 msgid "Item Groups"
 msgstr "アイテムグループ"
@@ -4183,10 +4177,10 @@ msgid "Item Master"
 msgstr "アイテムマスター"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr ""
+msgstr "アイテムは選択されたタイプと選択されたグループの両方に一致する必要があります"
 
 msgid "Item must match a selected type OR a selected group"
-msgstr ""
+msgstr "アイテムは選択されたタイプまたは選択されたグループと一致する必要があります"
 
 msgid "Item Scope"
 msgstr "アイテムスコープ"
@@ -4195,7 +4189,7 @@ msgid "Item Type"
 msgstr "アイテムタイプ"
 
 msgid "Item types"
-msgstr ""
+msgstr "アイテムタイプ"
 
 msgid "items"
 msgstr "アイテム"
@@ -4611,13 +4605,13 @@ msgid "Match all"
 msgstr "すべてに一致"
 
 msgid "Match all (AND)"
-msgstr ""
+msgstr "すべてに一致 (AND)"
 
 msgid "Match any"
 msgstr "いずれかに一致"
 
 msgid "Match any (OR)"
-msgstr ""
+msgstr "任意に一致 (OR)"
 
 msgid "Match none"
 msgstr "いずれにも一致しない"
@@ -5395,7 +5389,7 @@ msgid "Not started training for"
 msgstr "まだトレーニングを開始していません"
 
 msgid "Not you?"
-msgstr ""
+msgstr "違いますか？"
 
 msgid "Note"
 msgstr "メモ"
@@ -5554,7 +5548,7 @@ msgid "Options"
 msgstr "オプション"
 
 msgid "OR"
-msgstr ""
+msgstr "または"
 
 msgid "Order"
 msgstr "注文"
@@ -7473,7 +7467,7 @@ msgid "Storage client not available"
 msgstr "ストレージクライアントが利用できません"
 
 msgid "Storage Rules"
-msgstr ""
+msgstr "保管ルール"
 
 msgid "Storage Type"
 msgstr "ストレージタイプ"
@@ -8761,7 +8755,7 @@ msgid "Yes, Update IDs"
 msgstr "はい、IDを更新"
 
 msgid "You belong to more than one company. Pick where to work."
-msgstr ""
+msgstr "複数の企業に属しています。どこで働くかを選択してください。"
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "テーマ設定からいつでもUIスタイルを変更できます"
