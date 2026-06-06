@@ -116,7 +116,6 @@ import {
   upsertProductionQuantity,
   insertJob,
   updateJob,
-  upsertJob,
   upsertJobMaterial,
   upsertJobOperation,
   upsertJobOperationStep,
@@ -1922,22 +1921,6 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
       const result = await updateJob(ctx.client, { ...params, updatedBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: production_updateJob"),
-  );
-
-  server.registerTool(
-    "production_upsertJob",
-    {
-      description: "upsert job",
-      inputSchema: z.object({
-      job: jobValidator,
-      status: z.any().optional(),
-    }),
-      annotations: WRITE_ANNOTATIONS,
-    },
-    withErrorHandling(async (params) => {
-      const result = await upsertJob(ctx.client, { ...params.job, companyId: ctx.companyId, createdBy: ctx.userId, updatedBy: ctx.userId }, params.status);
-      return toMcpResult(result);
-    }, "Failed: production_upsertJob"),
   );
 
   server.registerTool(
