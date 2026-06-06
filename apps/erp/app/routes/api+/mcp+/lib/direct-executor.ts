@@ -173,6 +173,13 @@ export async function executeFunction(
         // and any LLM that guesses a key name (e.g. `{ item: {...} }`).
         const value = Object.values(normalizedArgs)[0];
         functionArgs.push(enrichWithAuthContext(value, context, injectAuth));
+      } else if (normalizedArgs && Object.keys(normalizedArgs).length > 0) {
+        // No key matched — pass the entire args object as a positional param.
+        // Handles functions like upsertPart(client, part) where the caller
+        // passes flat fields instead of nesting under the param name.
+        functionArgs.push(
+          enrichWithAuthContext({ ...normalizedArgs }, context, injectAuth)
+        );
       } else {
         // Skip optional parameters
         continue;

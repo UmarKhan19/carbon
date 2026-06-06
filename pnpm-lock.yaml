@@ -168,6 +168,9 @@ catalogs:
     isbot:
       specifier: '5'
       version: 5.1.37
+    jose:
+      specifier: 6.0.11
+      version: 6.0.11
     kysely:
       specifier: 0.28.15
       version: 0.28.15
@@ -1639,6 +1642,9 @@ importers:
       dompurify:
         specifier: 'catalog:'
         version: 3.4.0
+      jose:
+        specifier: 'catalog:'
+        version: 6.0.11
       nanoid:
         specifier: 'catalog:'
         version: 5.1.7
@@ -10291,6 +10297,9 @@ packages:
 
   jose@5.2.3:
     resolution: {integrity: sha512-KUXdbctm1uHVL8BYhnyHkgp3zDX5KW8ZhAKVFEfUbU2P8Alpzjb+48hHvjOdQIyPshoblhzsuqOwEEAbtHVirA==}
+
+  jose@6.0.11:
+    resolution: {integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==}
 
   jose@6.2.2:
     resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
@@ -21885,6 +21894,8 @@ snapshots:
   jose@4.15.9: {}
 
   jose@5.2.3: {}
+
+  jose@6.0.11: {}
 
   jose@6.2.2: {}
 

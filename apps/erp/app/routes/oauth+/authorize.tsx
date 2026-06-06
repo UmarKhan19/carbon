@@ -1,7 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { validator } from "@carbon/form";
-import { Button } from "@carbon/react";
+import { Button, Heading, VStack } from "@carbon/react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { data, Form, redirect, useLoaderData } from "react-router";
 import { z } from "zod";
@@ -11,68 +11,51 @@ export async function loader({ request }: LoaderFunctionArgs) {
     update: "settings"
   });
 
-  const [companies] = await Promise.all([
-    client.from("userToCompany").select("companyId").eq("userId", userId)
-  ]);
+  const userCompanies = await client
+    .from("userToCompany")
+    .select("companyId, company:companyId(name)")
+    .eq("userId", userId);
 
-  if (!companies.data) {
-    throw new Error("Failed to load companies for user");
-  }
+  const companies = (userCompanies.data ?? []).map((uc) => ({
+    id: uc.companyId,
+    name: (uc.company as unknown as { name: string })?.name ?? uc.companyId
+  }));
 
   const url = new URL(request.url);
   const clientId = url.searchParams.get("client_id");
-  const redirectUri = url.searchParams.get("redirect_uri");
-  const responseType = url.searchParams.get("response_type");
-  const state = url.searchParams.get("state");
   const scope = url.searchParams.get("scope");
-  const codeChallenge = url.searchParams.get("code_challenge");
-  const codeChallengeMethod = url.searchParams.get("code_challenge_method");
 
-  // Validate client exists (static or dynamic)
   let clientName = "Unknown Application";
   if (clientId) {
     const serviceRole = getCarbonServiceRole();
-    const [staticClient, dynamicClient] = await Promise.all([
-      serviceRole.from("oauthClient").select("name").eq("clientId", clientId).single(),
-      serviceRole.from("oauthDynamicClient").select("clientName").eq("clientId", clientId).single()
-    ]);
-    if (staticClient.data) {
-      clientName = staticClient.data.name;
-    } else if (dynamicClient.data) {
-      clientName = dynamicClient.data.clientName;
+    const oauthClient = await serviceRole
+      .from("oauthClient")
+      .select("name")
+      .eq("clientId", clientId)
+      .single();
+    if (oauthClient.data) {
+      clientName = oauthClient.data.name;
     }
   }
 
   return {
     companyId,
     companies,
-    clientId,
     clientName,
-    redirectUri,
-    responseType,
-    state,
-    scope,
-    codeChallenge,
-    codeChallengeMethod
+    scope
   };
 }
 
-const authorizeValidator = z.object({
-  client_id: z.string(),
-  redirect_uri: z.string().url(),
-  response_type: z.literal("code"),
-  state: z.string().optional(),
-  scope: z.string().optional(),
-  code_challenge: z.string().optional(),
-  code_challenge_method: z.enum(["S256", "plain"]).optional()
+const formValidator = z.object({
+  company_id: z.string()
 });
 
 export async function action({ request }: ActionFunctionArgs) {
-  const { client, companyId, userId } = await requirePermissions(request, {
+  const { client, userId } = await requirePermissions(request, {
     update: "settings"
   });
 
-  const validation = await validator(authorizeValidator).validate(
+  const validation = await validator(formValidator).validate(
     await request.formData()
   );
 
@@ -80,39 +63,58 @@ export async function action({ request }: ActionFunctionArgs) {
     return data({ error: "Invalid request" }, { status: 400 });
   }
 
-  const {
-    client_id,
-    redirect_uri,
-    state,
-    scope,
-    code_challenge,
-    code_challenge_method
-  } = validation.data;
+  const { company_id } = validation.data;
+
+  // Read OAuth params from the URL (not the form) to avoid whitespace
+  // corruption from copy-paste line wrapping in hidden input values
+  const url = new URL(request.url);
+  const param = (key: string) =>
+    url.searchParams.get(key)?.replace(/\s/g, "") ?? null;
+  const client_id = param("client_id");
+  const redirect_uri = url.searchParams.get("redirect_uri");
+  const state = url.searchParams.get("state");
+  const scope = url.searchParams.get("scope");
+  const code_challenge = param("code_challenge");
+  const code_challenge_method = param("code_challenge_method");
+
+  if (!client_id || !redirect_uri) {
+    return data(
+      { error: "Missing client_id or redirect_uri" },
+      { status: 400 }
+    );
+  }
+
+  // Verify the user belongs to the selected company
+  const membership = await client
+    .from("userToCompany")
+    .select("companyId")
+    .eq("userId", userId)
+    .eq("companyId", company_id)
+    .single();
+
+  if (!membership.data) {
+    return data({ error: "Invalid company" }, { status: 403 });
+  }
 
   const serviceRole = getCarbonServiceRole();
 
-  // Check static clients first, then dynamic clients
-  const [staticClient, dynamicClient] = await Promise.all([
-    serviceRole.from("oauthClient").select("*").eq("clientId", client_id).single(),
-    serviceRole.from("oauthDynamicClient").select("*").eq("clientId", client_id).single()
-  ]);
+  const oauthClientResult = await serviceRole
+    .from("oauthClient")
+    .select("*")
+    .eq("clientId", client_id)
+    .single();
 
-  const oauthClient = staticClient.data || dynamicClient.data;
-
-  if (!oauthClient) {
+  if (!oauthClientResult.data) {
     return data({ error: "Invalid client" }, { status: 400 });
   }
 
-  // Verify redirect URI
+  const oauthClient = oauthClientResult.data;
+
   if (!oauthClient.redirectUris.includes(redirect_uri)) {
     return data({ error: "Invalid redirect URI" }, { status: 400 });
   }
 
-  // For public clients (dynamic clients with token_endpoint_auth_method: none), PKCE is required
-  const isDynamicClient = !!dynamicClient.data;
-  const isPublicClient = isDynamicClient && dynamicClient.data.tokenEndpointAuthMethod === "none";
-
-  if (isPublicClient && !code_challenge) {
+  if (oauthClient.tokenEndpointAuthMethod === "none" && !code_challenge) {
     return data({ error: "PKCE required for public clients" }, { status: 400 });
   }
 
@@ -123,7 +125,7 @@ export async function action({ request }: ActionFunctionArgs) {
       code,
       clientId: client_id,
       userId,
-      companyId,
+      companyId: company_id,
       redirectUri: redirect_uri,
       scope: scope || null,
       codeChallenge: code_challenge || null,
@@ -151,42 +153,79 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function AuthorizeRoute() {
-  const {
-    clientId,
-    clientName,
-    redirectUri,
-    responseType,
-    state,
-    scope,
-    codeChallenge,
-    codeChallengeMethod
-  } = useLoaderData<typeof loader>();
+  const { clientName, companyId, companies, scope } =
+    useLoaderData<typeof loader>();
 
   return (
-    <div className="max-w-md mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-4">Authorize Application</h2>
-      <p className="mb-4">
-        <strong>{clientName}</strong> is requesting access to your Carbon account.
-      </p>
-      {scope && (
-        <p className="mb-4 text-sm text-muted-foreground">
-          Requested scope: {scope}
-        </p>
-      )}
-      <Form method="post">
-        <input type="hidden" name="client_id" value={clientId || ""} />
-        <input type="hidden" name="redirect_uri" value={redirectUri || ""} />
-        <input type="hidden" name="response_type" value={responseType || ""} />
-        {state && <input type="hidden" name="state" value={state} />}
-        {scope && <input type="hidden" name="scope" value={scope} />}
-        {codeChallenge && (
-          <input type="hidden" name="code_challenge" value={codeChallenge} />
-        )}
-        {codeChallengeMethod && (
-          <input type="hidden" name="code_challenge_method" value={codeChallengeMethod} />
-        )}
-        <Button>Authorize</Button>
-      </Form>
+    <div className="flex min-h-dvh items-center justify-center p-4">
+      <div className="flex w-[380px] flex-col items-center space-y-6">
+        <div className="flex justify-center">
+          <img
+            src="/carbon-mark-light.svg"
+            alt="Carbon Logo"
+            className="w-24 dark:hidden"
+          />
+          <img
+            src="/carbon-mark-dark.svg"
+            alt="Carbon Logo"
+            className="hidden w-24 dark:block"
+          />
+        </div>
+        <div className="w-full rounded-lg p-8 md:border md:border-border md:bg-card md:shadow-lg">
+          <Form method="post">
+            <VStack spacing={4} className="items-center">
+              <Heading size="h3" className="text-balance text-center">
+                Authorize Application
+              </Heading>
+              <p className="text-center text-sm text-pretty text-muted-foreground">
+                <strong className="text-foreground">{clientName}</strong> is
+                requesting access to your Carbon account.
+              </p>
+              <div className="flex w-full flex-col gap-1.5">
+                <label
+                  htmlFor="company_id"
+                  className="text-sm font-medium text-foreground"
+                >
+                  Company
+                </label>
+                {companies.length === 1 ? (
+                  <>
+                    <input
+                      type="hidden"
+                      name="company_id"
+                      value={companies[0].id}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      {companies[0].name}
+                    </p>
+                  </>
+                ) : (
+                  <select
+                    id="company_id"
+                    name="company_id"
+                    defaultValue={companyId}
+                    className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  >
+                    {companies.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              {scope && (
+                <div className="w-full rounded-md border border-border bg-muted/50 px-3 py-2 text-center text-sm text-muted-foreground">
+                  Scope: {scope}
+                </div>
+              )}
+              <Button type="submit" size="lg" className="w-full">
+                Authorize
+              </Button>
+            </VStack>
+          </Form>
+        </div>
+      </div>
     </div>
   );
 }

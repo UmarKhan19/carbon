@@ -86,36 +86,25 @@ export async function action({ request }: ActionFunctionArgs) {
     code_verifier
   } = validation.data;
 
-  // Check both static and dynamic clients
-  const [staticClient, dynamicClient] = await Promise.all([
-    client.from("oauthClient").select("*").eq("clientId", client_id).single(),
-    client
-      .from("oauthDynamicClient")
-      .select("*")
-      .eq("clientId", client_id)
-      .single()
-  ]);
+  const oauthClientResult = await client
+    .from("oauthClient")
+    .select("*")
+    .eq("clientId", client_id)
+    .single();
 
-  const oauthClient = staticClient.data || dynamicClient.data;
-
-  if (!oauthClient) {
+  if (!oauthClientResult.data) {
     return jsonResponse(
       { error: "invalid_client", error_description: "Unknown client" },
       401
     );
   }
 
-  // For static clients or confidential dynamic clients, verify client_secret
-  const isDynamicClient = !!dynamicClient.data;
-  const isPublicClient =
-    isDynamicClient && dynamicClient.data.tokenEndpointAuthMethod === "none";
+  const oauthClient = oauthClientResult.data;
 
-  if (!isPublicClient) {
-    const expectedSecretHash =
-      staticClient.data?.clientSecret || dynamicClient.data?.clientSecret;
+  if (oauthClient.tokenEndpointAuthMethod !== "none") {
     if (
       !client_secret ||
-      expectedSecretHash !== hashOAuthSecret(client_secret)
+      oauthClient.clientSecret !== hashOAuthSecret(client_secret)
     ) {
       return jsonResponse(
         {

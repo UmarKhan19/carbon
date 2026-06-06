@@ -86,11 +86,11 @@ export async function action({ request }: ActionFunctionArgs) {
   const rawClientSecret =
     token_endpoint_auth_method !== "none" ? crypto.randomUUID() : null;
 
-  const insertResult = await client.from("oauthDynamicClient").insert([
+  const insertResult = await client.from("oauthClient").insert([
     {
       clientId,
       clientSecret: rawClientSecret ? hashOAuthSecret(rawClientSecret) : null,
-      clientName: client_name,
+      name: client_name,
       redirectUris: redirect_uris,
       grantTypes: grant_types,
       responseTypes: response_types,
