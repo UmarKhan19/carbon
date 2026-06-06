@@ -114,6 +114,8 @@ import {
   upsertProductionEvent,
   updateProductionQuantity,
   upsertProductionQuantity,
+  insertJob,
+  updateJob,
   upsertJob,
   upsertJobMaterial,
   upsertJobOperation,
@@ -1846,6 +1848,80 @@ export const registerProductionTools: RegisterTools = (server, ctx) => {
       const result = await upsertProductionQuantity(ctx.client, { ...params.productionQuantity, companyId: ctx.companyId, updatedBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: production_upsertProductionQuantity"),
+  );
+
+  server.registerTool(
+    "production_insertJob",
+    {
+      description: "Create a new job with all business logic - generates sequence, resolves location, copies method from item, recalculates requirements. LLM can create a job with just itemId and quantity.",
+      inputSchema: z.object({
+        itemId: z.string().describe("The item to produce"),
+        quantity: z.number().describe("Quantity to produce"),
+        jobId: z.string().optional().describe("Custom job ID (auto-generated if not provided)"),
+        locationId: z.string().optional().describe("Location ID (defaults to employee's location or first company location)"),
+        dueDate: z.string().optional().describe("Due date in YYYY-MM-DD format"),
+        startDate: z.string().optional().describe("Start date (calculated from dueDate - leadTime if not provided)"),
+        priority: z.number().optional().describe("Priority (calculated based on deadline if not provided)"),
+        status: z.enum(["Draft", "Pending", "In Progress", "Completed", "Cancelled"]).optional(),
+        deadlineType: z.enum(["ASAP", "Hard Deadline", "Soft Deadline", "No Deadline"]).optional(),
+        storageUnitId: z.string().optional(),
+        unitOfMeasureCode: z.string().optional().default("EA"),
+        customerId: z.string().optional(),
+        salesOrderId: z.string().optional(),
+        salesOrderLineId: z.string().optional(),
+        quoteId: z.string().optional(),
+        quoteLineId: z.string().optional(),
+        parentJobId: z.string().optional(),
+        modelUploadId: z.string().optional(),
+        notes: z.string().optional(),
+        customFields: z.any().optional(),
+        skipMethod: z.boolean().optional().describe("Skip copying method from item"),
+        skipRecalculate: z.boolean().optional().describe("Skip recalculating requirements"),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const { skipMethod, skipRecalculate, ...input } = params;
+      const result = await insertJob(
+        ctx.client,
+        { ...input, companyId: ctx.companyId, createdBy: ctx.userId },
+        { skipMethod, skipRecalculate }
+      );
+      return toMcpResult(result);
+    }, "Failed: production_insertJob"),
+  );
+
+  server.registerTool(
+    "production_updateJob",
+    {
+      description: "Update an existing job - handles priority recalculation when deadline changes",
+      inputSchema: z.object({
+        id: z.string().describe("The job ID to update"),
+        quantity: z.number().optional(),
+        dueDate: z.string().nullable().optional(),
+        startDate: z.string().nullable().optional(),
+        status: z.enum(["Draft", "Pending", "In Progress", "Completed", "Cancelled"]).optional(),
+        priority: z.number().optional(),
+        deadlineType: z.enum(["ASAP", "Hard Deadline", "Soft Deadline", "No Deadline"]).optional(),
+        locationId: z.string().optional(),
+        storageUnitId: z.string().optional(),
+        unitOfMeasureCode: z.string().optional(),
+        customerId: z.string().nullable().optional(),
+        salesOrderId: z.string().nullable().optional(),
+        salesOrderLineId: z.string().nullable().optional(),
+        quoteId: z.string().nullable().optional(),
+        quoteLineId: z.string().nullable().optional(),
+        parentJobId: z.string().nullable().optional(),
+        modelUploadId: z.string().nullable().optional(),
+        notes: z.string().nullable().optional(),
+        customFields: z.any().optional(),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updateJob(ctx.client, { ...params, updatedBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: production_updateJob"),
   );
 
   server.registerTool(

@@ -67,7 +67,7 @@ import {
   insertSupplierLocation,
   finalizePurchaseOrder,
   sendSupplierQuote,
-  updatePurchaseOrder,
+  updatePurchaseOrderStatusLegacy,
   updatePurchaseOrderExchangeRate,
   updatePurchaseOrderFavorite,
   updatePurchaseOrderStatus,
@@ -81,6 +81,10 @@ import {
   updateSupplierShipping,
   getSupplierTax,
   updateSupplierTax,
+  insertPurchaseOrder,
+  updatePurchaseOrder,
+  insertSupplierQuote,
+  updateSupplierQuote,
   upsertPurchaseOrder,
   upsertPurchaseOrderDelivery,
   upsertPurchaseOrderLine,
@@ -1012,21 +1016,98 @@ export const registerPurchasingTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
-    "purchasing_updatePurchaseOrder",
+    "purchasing_insertPurchaseOrder",
     {
-      description: "update purchase order",
+      description: "Create a new purchase order with all business logic - generates sequence, creates supplier interaction, resolves payment/shipping defaults from supplier. LLM can create a PO with just supplierId.",
       inputSchema: z.object({
-      purchaseOrder: z.object({
-    id: z.string(),
-    status: z.any()
-  }),
-    }),
+        supplierId: z.string().describe("The supplier to order from"),
+        purchaseOrderId: z.string().optional().describe("Custom PO number (auto-generated if not provided)"),
+        locationId: z.string().optional().describe("Delivery location (defaults to employee's location)"),
+        status: z.enum(["Draft", "Pending", "In Progress", "Completed", "Cancelled", "To Receive", "To Receive and Invoice"]).optional(),
+        currencyCode: z.string().optional().describe("Currency code (e.g., USD, EUR)"),
+        orderDate: z.string().optional().describe("Order date in YYYY-MM-DD format (defaults to today)"),
+        supplierContactId: z.string().optional(),
+        supplierLocationId: z.string().optional(),
+        supplierQuoteId: z.string().optional(),
+        receiptRequestedDate: z.string().optional(),
+        notes: z.string().optional(),
+        customFields: z.any().optional(),
+      }),
       annotations: WRITE_ANNOTATIONS,
     },
     withErrorHandling(async (params) => {
-      const result = await updatePurchaseOrder(ctx.client, { ...params.purchaseOrder, updatedBy: ctx.userId });
+      const result = await insertPurchaseOrder(ctx.client, { ...params, companyId: ctx.companyId, companyGroupId: ctx.companyGroupId, createdBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: purchasing_insertPurchaseOrder"),
+  );
+
+  server.registerTool(
+    "purchasing_updatePurchaseOrder",
+    {
+      description: "Update an existing purchase order - handles exchange rate updates when currency changes",
+      inputSchema: z.object({
+        id: z.string().describe("The purchase order ID to update"),
+        status: z.enum(["Draft", "Pending", "In Progress", "Completed", "Cancelled", "To Receive", "To Receive and Invoice"]).optional(),
+        currencyCode: z.string().optional(),
+        orderDate: z.string().optional(),
+        supplierContactId: z.string().nullable().optional(),
+        supplierLocationId: z.string().nullable().optional(),
+        notes: z.string().nullable().optional(),
+        customFields: z.any().optional(),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updatePurchaseOrder(ctx.client, { ...params, updatedBy: ctx.userId }, ctx.companyGroupId);
       return toMcpResult(result);
     }, "Failed: purchasing_updatePurchaseOrder"),
+  );
+
+  server.registerTool(
+    "purchasing_insertSupplierQuote",
+    {
+      description: "Create a new supplier quote with all business logic - generates sequence, creates supplier interaction, sets up external link. LLM can create a quote with just supplierId.",
+      inputSchema: z.object({
+        supplierId: z.string().describe("The supplier providing the quote"),
+        supplierQuoteId: z.string().optional().describe("Custom quote number (auto-generated if not provided)"),
+        locationId: z.string().optional(),
+        status: z.enum(["Draft", "Open", "Received", "Closed", "Expired"]).optional(),
+        currencyCode: z.string().optional(),
+        expirationDate: z.string().optional().describe("Quote expiration date in YYYY-MM-DD format"),
+        supplierContactId: z.string().optional(),
+        supplierLocationId: z.string().optional(),
+        purchasingRfqId: z.string().optional(),
+        notes: z.string().optional(),
+        customFields: z.any().optional(),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await insertSupplierQuote(ctx.client, { ...params, companyId: ctx.companyId, companyGroupId: ctx.companyGroupId, createdBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: purchasing_insertSupplierQuote"),
+  );
+
+  server.registerTool(
+    "purchasing_updateSupplierQuote",
+    {
+      description: "Update an existing supplier quote - handles exchange rate updates when currency changes",
+      inputSchema: z.object({
+        id: z.string().describe("The supplier quote ID to update"),
+        status: z.enum(["Draft", "Open", "Received", "Closed", "Expired"]).optional(),
+        currencyCode: z.string().optional(),
+        expirationDate: z.string().nullable().optional(),
+        supplierContactId: z.string().nullable().optional(),
+        supplierLocationId: z.string().nullable().optional(),
+        notes: z.string().nullable().optional(),
+        customFields: z.any().optional(),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updateSupplierQuote(ctx.client, { ...params, updatedBy: ctx.userId }, ctx.companyGroupId);
+      return toMcpResult(result);
+    }, "Failed: purchasing_updateSupplierQuote"),
   );
 
   server.registerTool(

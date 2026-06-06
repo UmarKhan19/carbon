@@ -1038,7 +1038,8 @@ export async function sendSupplierQuote(
   return { data: null, error: null };
 }
 
-export async function updatePurchaseOrder(
+/** @deprecated Use updatePurchaseOrderStatus or the new updatePurchaseOrder instead */
+export async function updatePurchaseOrderStatusLegacy(
   client: SupabaseClient<Database>,
   purchaseOrder: {
     id: string;

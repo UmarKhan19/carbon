@@ -137,6 +137,10 @@ import {
   updateQuoteMaterialOrder,
   updateQuoteOperationOrder,
   updateQuoteStatus,
+  insertQuote,
+  updateQuote,
+  insertSalesOrder,
+  updateSalesOrder,
   upsertMakeMethodFromQuoteLine,
   upsertMakeMethodFromQuoteMethod,
   upsertQuote,
@@ -2226,6 +2230,57 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
   );
 
   server.registerTool(
+    "sales_insertQuote",
+    {
+      description: "Create a new quote with all business logic - generates sequence, creates opportunity, resolves payment/shipping defaults from customer. LLM can create a quote with just customerId.",
+      inputSchema: z.object({
+        customerId: z.string().describe("The customer to quote for"),
+        quoteId: z.string().optional().describe("Custom quote number (auto-generated if not provided)"),
+        name: z.string().optional().describe("Quote name/title"),
+        locationId: z.string().optional().describe("Location (defaults to employee's location)"),
+        status: z.enum(["Draft", "Pending", "Sent", "Won", "Lost", "Expired"]).optional(),
+        currencyCode: z.string().optional().describe("Currency code (e.g., USD, EUR)"),
+        expirationDate: z.string().optional().describe("Quote expiration date in YYYY-MM-DD format"),
+        customerContactId: z.string().optional(),
+        customerLocationId: z.string().optional(),
+        salesRfqId: z.string().optional(),
+        opportunityId: z.string().optional().describe("Existing opportunity ID (new one created if not provided)"),
+        notes: z.string().optional(),
+        customFields: z.any().optional(),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await insertQuote(ctx.client, { ...params, companyId: ctx.companyId, companyGroupId: ctx.companyGroupId, createdBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: sales_insertQuote"),
+  );
+
+  server.registerTool(
+    "sales_updateQuote",
+    {
+      description: "Update an existing quote - handles exchange rate updates when currency changes, syncs customer to opportunity",
+      inputSchema: z.object({
+        id: z.string().describe("The quote ID to update"),
+        name: z.string().nullable().optional(),
+        status: z.enum(["Draft", "Pending", "Sent", "Won", "Lost", "Expired"]).optional(),
+        currencyCode: z.string().optional(),
+        expirationDate: z.string().nullable().optional(),
+        customerContactId: z.string().nullable().optional(),
+        customerLocationId: z.string().nullable().optional(),
+        customerId: z.string().optional(),
+        notes: z.string().nullable().optional(),
+        customFields: z.any().optional(),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updateQuote(ctx.client, { ...params, updatedBy: ctx.userId }, ctx.companyGroupId);
+      return toMcpResult(result);
+    }, "Failed: sales_updateQuote"),
+  );
+
+  server.registerTool(
     "sales_upsertQuote",
     {
       description: "upsert quote",
@@ -2521,6 +2576,57 @@ export const registerSalesTools: RegisterTools = (server, ctx) => {
       const result = await updateSalesOrderStatus(ctx.client, { ...params.update, updatedBy: ctx.userId });
       return toMcpResult(result);
     }, "Failed: sales_updateSalesOrderStatus"),
+  );
+
+  server.registerTool(
+    "sales_insertSalesOrder",
+    {
+      description: "Create a new sales order with all business logic - generates sequence, creates opportunity, resolves payment/shipping defaults from customer. LLM can create a sales order with just customerId.",
+      inputSchema: z.object({
+        customerId: z.string().describe("The customer for this order"),
+        salesOrderId: z.string().optional().describe("Custom order number (auto-generated if not provided)"),
+        locationId: z.string().optional().describe("Location (defaults to employee's location)"),
+        status: z.enum(["Draft", "Pending", "Confirmed", "In Progress", "Completed", "Cancelled", "To Ship", "To Ship and Invoice"]).optional(),
+        currencyCode: z.string().optional().describe("Currency code (e.g., USD, EUR)"),
+        orderDate: z.string().optional().describe("Order date in YYYY-MM-DD format (defaults to today)"),
+        customerContactId: z.string().optional(),
+        customerLocationId: z.string().optional(),
+        quoteId: z.string().optional().describe("Source quote ID if converting from quote"),
+        opportunityId: z.string().optional().describe("Existing opportunity ID (new one created if not provided)"),
+        requestedDate: z.string().optional().describe("Customer requested delivery date"),
+        promisedDate: z.string().optional().describe("Promised delivery date"),
+        notes: z.string().optional(),
+        customFields: z.any().optional(),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await insertSalesOrder(ctx.client, { ...params, companyId: ctx.companyId, companyGroupId: ctx.companyGroupId, createdBy: ctx.userId });
+      return toMcpResult(result);
+    }, "Failed: sales_insertSalesOrder"),
+  );
+
+  server.registerTool(
+    "sales_updateSalesOrder",
+    {
+      description: "Update an existing sales order - handles exchange rate updates when currency changes, syncs customer to opportunity",
+      inputSchema: z.object({
+        id: z.string().describe("The sales order ID to update"),
+        status: z.enum(["Draft", "Pending", "Confirmed", "In Progress", "Completed", "Cancelled", "To Ship", "To Ship and Invoice"]).optional(),
+        currencyCode: z.string().optional(),
+        orderDate: z.string().optional(),
+        customerContactId: z.string().nullable().optional(),
+        customerLocationId: z.string().nullable().optional(),
+        customerId: z.string().optional(),
+        notes: z.string().nullable().optional(),
+        customFields: z.any().optional(),
+      }),
+      annotations: WRITE_ANNOTATIONS,
+    },
+    withErrorHandling(async (params) => {
+      const result = await updateSalesOrder(ctx.client, { ...params, updatedBy: ctx.userId }, ctx.companyGroupId);
+      return toMcpResult(result);
+    }, "Failed: sales_updateSalesOrder"),
   );
 
   server.registerTool(

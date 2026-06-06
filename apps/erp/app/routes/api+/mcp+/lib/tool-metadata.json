@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-03T15:49:36.429Z",
-  "totalTools": 1084,
+  "generated": "2026-06-06T02:50:37.002Z",
+  "totalTools": 1093,
   "modules": 15,
   "tools": [
     {
@@ -7118,6 +7118,38 @@
       ]
     },
     {
+      "name": "production_insertJob",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "Create a new job with all business logic - generates sequence, resolves location, copies method from item, recalculates requirements. LLM can create a job with just itemId and quantity.",
+      "paramCount": 22,
+      "serviceParams": [
+        "client",
+        "input",
+        "options"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "production_updateJob",
+      "module": "production",
+      "classification": "WRITE",
+      "description": "Update an existing job - handles priority recalculation when deadline changes",
+      "paramCount": 19,
+      "serviceParams": [
+        "client",
+        "input"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ]
+    },
+    {
       "name": "production_upsertJob",
       "module": "production",
       "classification": "WRITE",
@@ -8349,14 +8381,63 @@
       ]
     },
     {
+      "name": "purchasing_insertPurchaseOrder",
+      "module": "purchasing",
+      "classification": "WRITE",
+      "description": "Create a new purchase order with all business logic - generates sequence, creates supplier interaction, resolves payment/shipping defaults from supplier. LLM can create a PO with just supplierId.",
+      "paramCount": 12,
+      "serviceParams": [
+        "client",
+        "input"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ]
+    },
+    {
       "name": "purchasing_updatePurchaseOrder",
       "module": "purchasing",
       "classification": "WRITE",
-      "description": "update purchase order",
-      "paramCount": 3,
+      "description": "Update an existing purchase order - handles exchange rate updates when currency changes",
+      "paramCount": 8,
       "serviceParams": [
         "client",
-        "purchaseOrder"
+        "input",
+        "companyGroupId"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "purchasing_insertSupplierQuote",
+      "module": "purchasing",
+      "classification": "WRITE",
+      "description": "Create a new supplier quote with all business logic - generates sequence, creates supplier interaction, sets up external link. LLM can create a quote with just supplierId.",
+      "paramCount": 11,
+      "serviceParams": [
+        "client",
+        "input"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "purchasing_updateSupplierQuote",
+      "module": "purchasing",
+      "classification": "WRITE",
+      "description": "Update an existing supplier quote - handles exchange rate updates when currency changes",
+      "paramCount": 8,
+      "serviceParams": [
+        "client",
+        "input",
+        "companyGroupId"
       ],
       "injectAuth": [
         "companyId",
@@ -13340,6 +13421,38 @@
       ]
     },
     {
+      "name": "sales_insertQuote",
+      "module": "sales",
+      "classification": "WRITE",
+      "description": "Create a new quote with all business logic - generates sequence, creates opportunity, resolves payment/shipping defaults from customer. LLM can create a quote with just customerId.",
+      "paramCount": 13,
+      "serviceParams": [
+        "client",
+        "input"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "sales_updateQuote",
+      "module": "sales",
+      "classification": "WRITE",
+      "description": "Update an existing quote - handles exchange rate updates when currency changes, syncs customer to opportunity",
+      "paramCount": 10,
+      "serviceParams": [
+        "client",
+        "input",
+        "companyGroupId"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ]
+    },
+    {
       "name": "sales_upsertQuote",
       "module": "sales",
       "classification": "WRITE",
@@ -13608,6 +13721,38 @@
       "serviceParams": [
         "client",
         "update"
+      ],
+      "injectAuth": [
+        "companyId",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "sales_insertSalesOrder",
+      "module": "sales",
+      "classification": "WRITE",
+      "description": "Create a new sales order with all business logic - generates sequence, creates opportunity, resolves payment/shipping defaults from customer. LLM can create a sales order with just customerId.",
+      "paramCount": 14,
+      "serviceParams": [
+        "client",
+        "input"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ]
+    },
+    {
+      "name": "sales_updateSalesOrder",
+      "module": "sales",
+      "classification": "WRITE",
+      "description": "Update an existing sales order - handles exchange rate updates when currency changes, syncs customer to opportunity",
+      "paramCount": 9,
+      "serviceParams": [
+        "client",
+        "input",
+        "companyGroupId"
       ],
       "injectAuth": [
         "companyId",
