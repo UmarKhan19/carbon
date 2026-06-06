@@ -170,7 +170,7 @@ async function handleKanban({
           .update({
             status: "Ready" as const
           })
-          .eq("id", jobReadableId)
+          .eq("id", id)
       ]);
     } else if (upsertMethod.error) {
       console.error(upsertMethod.error);

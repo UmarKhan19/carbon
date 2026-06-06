@@ -36,18 +36,19 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const { id: _id, configuration: configStr, ...data } = validation.data;
 
-  let configuration = undefined;
+  let configuration: Record<string, unknown> | undefined;
   if (configStr) {
     try {
       configuration = JSON.parse(configStr);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // invalid JSON — skip configuration
     }
   }
 
   const result = await insertJob(getCarbonServiceRole(), {
     ...data,
     jobId: data.jobId || undefined,
+    configuration,
     companyId,
     createdBy: userId,
     customFields: setCustomFields(formData)

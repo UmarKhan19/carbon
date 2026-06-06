@@ -11,7 +11,7 @@ async function authenticateOAuthToken(accessToken: string) {
   const serviceRole = getCarbonServiceRole();
   const tokenResult = await serviceRole
     .from("oauthToken")
-    .select("userId, companyId, expiresAt, scope")
+    .select("userId, companyId, expiresAt")
     .eq("accessToken", hashOAuthSecret(accessToken))
     .single();
 
@@ -26,8 +26,7 @@ async function authenticateOAuthToken(accessToken: string) {
 
   return {
     userId: tokenResult.data.userId,
-    companyId: tokenResult.data.companyId,
-    scope: tokenResult.data.scope
+    companyId: tokenResult.data.companyId
   };
 }
 
@@ -55,9 +54,16 @@ export async function action({ request }: ActionFunctionArgs) {
       });
 
       const client = await getUserScopedClient(oauthAuth.userId);
+      const companyResult = await client
+        .from("company")
+        .select("companyGroupId")
+        .eq("id", oauthAuth.companyId)
+        .single();
       const server = createMcpServer({
         client,
         companyId: oauthAuth.companyId,
+        companyGroupId:
+          companyResult.data?.companyGroupId ?? oauthAuth.companyId,
         userId: oauthAuth.userId
       });
       const transport = new WebStandardStreamableHTTPServerTransport({

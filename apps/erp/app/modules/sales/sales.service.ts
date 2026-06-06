@@ -3342,7 +3342,9 @@ export async function insertQuote(
     if (seq.error || !seq.data) {
       return {
         data: null,
-        error: seq.error ?? ({ message: "Failed to generate quote sequence" } as PostgrestError)
+        error:
+          seq.error ??
+          ({ message: "Failed to generate quote sequence" } as PostgrestError)
       };
     }
     quoteId = seq.data;
@@ -3354,8 +3356,7 @@ export async function insertQuote(
       .from("opportunity")
       .insert({
         customerId: input.customerId,
-        companyId: input.companyId,
-        createdBy: input.createdBy
+        companyId: input.companyId
       })
       .select("id")
       .single();
@@ -3370,16 +3371,23 @@ export async function insertQuote(
     getEmployeeJob(client, input.createdBy, input.companyId)
   ]);
 
-  if (customerPayment.error) return { data: null, error: customerPayment.error };
-  if (customerShipping.error) return { data: null, error: customerShipping.error };
+  if (customerPayment.error)
+    return { data: null, error: customerPayment.error };
+  if (customerShipping.error)
+    return { data: null, error: customerShipping.error };
 
   const { paymentTermId } = customerPayment.data;
-  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } = customerShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    customerShipping.data;
 
   let exchangeRate = 1;
   let exchangeRateUpdatedAt = new Date().toISOString();
   if (input.currencyCode) {
-    const currency = await getCurrencyByCode(client, input.companyGroupId, input.currencyCode);
+    const currency = await getCurrencyByCode(
+      client,
+      input.companyGroupId,
+      input.currencyCode
+    );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;
       exchangeRateUpdatedAt = new Date().toISOString();
@@ -3478,7 +3486,7 @@ export async function updateQuote(
   data: { id: string } | null;
   error: PostgrestError | null;
 }> {
-  const { id, updatedBy, ...updates } = input;
+  const { id, updatedBy, notes, ...updates } = input;
 
   let exchangeRate: number | undefined;
   let exchangeRateUpdatedAt: string | undefined;
@@ -3491,8 +3499,16 @@ export async function updateQuote(
 
   if (existing.error) return { data: null, error: existing.error };
 
-  if (updates.currencyCode && companyGroupId && existing.data.currencyCode !== updates.currencyCode) {
-    const currency = await getCurrencyByCode(client, companyGroupId, updates.currencyCode);
+  if (
+    updates.currencyCode &&
+    companyGroupId &&
+    existing.data.currencyCode !== updates.currencyCode
+  ) {
+    const currency = await getCurrencyByCode(
+      client,
+      companyGroupId,
+      updates.currencyCode
+    );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;
       exchangeRateUpdatedAt = new Date().toISOString();
@@ -3512,6 +3528,7 @@ export async function updateQuote(
       ...sanitize(updates),
       ...(exchangeRate !== undefined && { exchangeRate }),
       ...(exchangeRateUpdatedAt && { exchangeRateUpdatedAt }),
+      ...(notes !== undefined && { internalNotes: notes }),
       updatedBy,
       updatedAt: today(getLocalTimeZone()).toString()
     })
@@ -4904,7 +4921,9 @@ export async function insertSalesOrder(
     if (seq.error || !seq.data) {
       return {
         data: null,
-        error: seq.error ?? ({ message: "Failed to generate SO sequence" } as PostgrestError)
+        error:
+          seq.error ??
+          ({ message: "Failed to generate SO sequence" } as PostgrestError)
       };
     }
     salesOrderId = seq.data;
@@ -4916,8 +4935,7 @@ export async function insertSalesOrder(
       .from("opportunity")
       .insert({
         customerId: input.customerId,
-        companyId: input.companyId,
-        createdBy: input.createdBy
+        companyId: input.companyId
       })
       .select("id")
       .single();
@@ -4932,8 +4950,10 @@ export async function insertSalesOrder(
     getEmployeeJob(client, input.createdBy, input.companyId)
   ]);
 
-  if (customerPayment.error) return { data: null, error: customerPayment.error };
-  if (customerShipping.error) return { data: null, error: customerShipping.error };
+  if (customerPayment.error)
+    return { data: null, error: customerPayment.error };
+  if (customerShipping.error)
+    return { data: null, error: customerShipping.error };
 
   const {
     paymentTermId,
@@ -4942,12 +4962,28 @@ export async function insertSalesOrder(
     invoiceCustomerLocationId
   } = customerPayment.data;
 
-  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } = customerShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    customerShipping.data;
+
+  // Look up the base currency if none was provided
+  let currencyCode = input.currencyCode;
+  if (!currencyCode) {
+    const companyResult = await client
+      .from("company")
+      .select("baseCurrencyCode")
+      .eq("id", input.companyId)
+      .single();
+    currencyCode = companyResult.data?.baseCurrencyCode ?? "USD";
+  }
 
   let exchangeRate = 1;
   let exchangeRateUpdatedAt = new Date().toISOString();
   if (input.currencyCode) {
-    const currency = await getCurrencyByCode(client, input.companyGroupId, input.currencyCode);
+    const currency = await getCurrencyByCode(
+      client,
+      input.companyGroupId,
+      input.currencyCode
+    );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;
       exchangeRateUpdatedAt = new Date().toISOString();
@@ -4964,14 +5000,13 @@ export async function insertSalesOrder(
       customerContactId: input.customerContactId,
       customerLocationId: input.customerLocationId,
       opportunityId,
-      quoteId: input.quoteId,
       status: input.status ?? "Draft",
       orderDate: input.orderDate ?? new Date().toISOString().split("T")[0],
-      currencyCode: input.currencyCode,
+      currencyCode,
       exchangeRate,
       exchangeRateUpdatedAt,
       locationId,
-      notes: input.notes,
+      internalNotes: input.notes ?? null,
       customFields: input.customFields,
       companyId: input.companyId,
       createdBy: input.createdBy,
@@ -5035,7 +5070,7 @@ export async function updateSalesOrder(
   data: { id: string } | null;
   error: PostgrestError | null;
 }> {
-  const { id, updatedBy, ...updates } = input;
+  const { id, updatedBy, notes, ...updates } = input;
 
   let exchangeRate: number | undefined;
   let exchangeRateUpdatedAt: string | undefined;
@@ -5048,8 +5083,16 @@ export async function updateSalesOrder(
 
   if (existing.error) return { data: null, error: existing.error };
 
-  if (updates.currencyCode && companyGroupId && existing.data.currencyCode !== updates.currencyCode) {
-    const currency = await getCurrencyByCode(client, companyGroupId, updates.currencyCode);
+  if (
+    updates.currencyCode &&
+    companyGroupId &&
+    existing.data.currencyCode !== updates.currencyCode
+  ) {
+    const currency = await getCurrencyByCode(
+      client,
+      companyGroupId,
+      updates.currencyCode
+    );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;
       exchangeRateUpdatedAt = new Date().toISOString();
@@ -5069,6 +5112,7 @@ export async function updateSalesOrder(
       ...sanitize(updates),
       ...(exchangeRate !== undefined && { exchangeRate }),
       ...(exchangeRateUpdatedAt && { exchangeRateUpdatedAt }),
+      ...(notes !== undefined && { internalNotes: notes }),
       updatedBy,
       updatedAt: new Date().toISOString()
     })
@@ -5385,7 +5429,7 @@ export interface InsertSalesRFQInput {
   salesPersonId?: string;
   customerContactId?: string;
   customerReference?: string;
-  status?: "Draft" | "Open" | "Closed" | "Cancelled";
+  status?: "Draft" | "Ready for Quote" | "Quoted" | "Closed";
   notes?: string;
   customFields?: Json;
 }
@@ -5408,7 +5452,11 @@ export async function insertSalesRFQ(
     if (seq.error || !seq.data) {
       return {
         data: null,
-        error: seq.error ?? ({ message: "Failed to generate salesRfq sequence" } as PostgrestError)
+        error:
+          seq.error ??
+          ({
+            message: "Failed to generate salesRfq sequence"
+          } as PostgrestError)
       };
     }
     rfqId = seq.data;
@@ -5438,7 +5486,7 @@ export async function insertSalesRFQ(
       locationId: input.locationId,
       salesPersonId: input.salesPersonId,
       status: input.status ?? "Draft",
-      notes: input.notes,
+      internalNotes: input.notes ?? null,
       customFields: input.customFields,
       opportunityId: opportunity.data.id,
       companyId: input.companyId,
@@ -5463,7 +5511,7 @@ export interface UpdateSalesRFQInput {
   expirationDate?: string | null;
   locationId?: string;
   salesPersonId?: string | null;
-  status?: "Draft" | "Open" | "Closed" | "Cancelled";
+  status?: "Draft" | "Ready for Quote" | "Quoted" | "Closed";
   notes?: string | null;
   customFields?: Json;
 }
@@ -5475,7 +5523,7 @@ export async function updateSalesRFQ(
   data: { id: string } | null;
   error: PostgrestError | null;
 }> {
-  const { id, updatedBy, customerId, ...updates } = input;
+  const { id, updatedBy, customerId, notes, ...updates } = input;
 
   // If customerId is being updated, also update the opportunity's customerId
   if (customerId) {
@@ -5498,6 +5546,7 @@ export async function updateSalesRFQ(
     .update({
       ...sanitize(updates),
       ...(customerId && { customerId }),
+      ...(notes !== undefined && { internalNotes: notes }),
       updatedBy,
       updatedAt: new Date().toISOString()
     })

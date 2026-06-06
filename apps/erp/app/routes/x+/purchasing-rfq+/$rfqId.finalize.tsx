@@ -201,7 +201,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
         emailsToSend.push({
           contactEmail: supplierContact.data.contact.email,
           contactFirstName: supplierContact.data.contact.firstName ?? "there",
-          supplierQuoteId: sequence.data,
+          supplierQuoteId,
           externalLinkId: externalLinkResult.data.id
         });
       }

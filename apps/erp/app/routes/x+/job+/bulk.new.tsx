@@ -4,15 +4,10 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validator } from "@carbon/form";
 import { batchTrigger } from "@carbon/jobs";
-import {
-  parseDate,
-  parseDateTime,
-  toCalendarDateTime
-} from "@internationalized/date";
+import { parseDateTime, toCalendarDateTime } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { getDefaultStorageUnitForJob } from "~/modules/inventory";
-import { getItemReplenishment } from "~/modules/items";
 import { bulkJobValidator, insertJob } from "~/modules/production";
 import { setCustomFields } from "~/utils/form";
 import { path } from "~/utils/path";
@@ -40,28 +35,22 @@ export async function action({ request }: ActionFunctionArgs) {
   const {
     dueDateOfFirstJob,
     dueDateOfLastJob,
-    scrapQuantityPerJob,
     totalQuantity,
     quantityPerJob,
+    configuration: configStr,
     ...jobData
   } = validation.data;
-  const jobs = Math.ceil(totalQuantity / quantityPerJob);
-  const quantityOfLastJob = totalQuantity - (jobs - 1) * quantityPerJob;
 
-  let configuration = undefined;
-  if (jobData.configuration) {
+  let configuration: Record<string, unknown> | undefined;
+  if (configStr) {
     try {
-      configuration = JSON.parse(jobData.configuration);
-    } catch (error) {
-      console.error(error);
+      configuration = JSON.parse(configStr);
+    } catch {
+      // invalid JSON — skip configuration
     }
   }
-
-  const manufacturing = await getItemReplenishment(
-    serviceRole,
-    jobData.itemId,
-    companyId
-  );
+  const jobs = Math.ceil(totalQuantity / quantityPerJob);
+  const quantityOfLastJob = totalQuantity - (jobs - 1) * quantityPerJob;
 
   // Calculate due date distribution if both dates are provided
   let dueDateDistribution: string[] = [];
@@ -116,11 +105,12 @@ export async function action({ request }: ActionFunctionArgs) {
         quantity: i === jobs - 1 ? quantityOfLastJob : quantityPerJob,
         dueDate,
         storageUnitId: storageUnitId ?? undefined,
+        configuration,
         companyId,
         createdBy: userId,
         customFields: setCustomFields(formData)
       },
-      { skipMethod: true, skipRecalculate: true }
+      { skipRecalculate: true }
     );
 
     if (createJob.error || !createJob.data) {

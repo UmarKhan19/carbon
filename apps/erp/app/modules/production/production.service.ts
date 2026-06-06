@@ -2183,6 +2183,7 @@ export interface InsertJobInput {
   modelUploadId?: string;
   notes?: string;
   customFields?: Json;
+  configuration?: Record<string, unknown>;
 }
 
 export interface InsertJobOptions {
@@ -2195,7 +2196,10 @@ export async function insertJob(
   client: SupabaseClient<Database>,
   input: InsertJobInput,
   options?: InsertJobOptions
-): Promise<{ data: { id: string; jobId: string } | null; error: PostgrestError | null }> {
+): Promise<{
+  data: { id: string; jobId: string } | null;
+  error: PostgrestError | null;
+}> {
   let jobId: string;
   if (input.jobId) {
     jobId = input.jobId;
@@ -2207,7 +2211,9 @@ export async function insertJob(
     if (seq.error || !seq.data) {
       return {
         data: null,
-        error: seq.error ?? ({ message: "Failed to generate job sequence" } as PostgrestError)
+        error:
+          seq.error ??
+          ({ message: "Failed to generate job sequence" } as PostgrestError)
       };
     }
     jobId = seq.data;
@@ -2215,8 +2221,12 @@ export async function insertJob(
 
   let locationId = input.locationId;
   if (!locationId) {
-    const employeeJob = await getEmployeeJob(client, input.createdBy, input.companyId);
-    locationId = employeeJob.data?.locationId ?? null;
+    const employeeJob = await getEmployeeJob(
+      client,
+      input.createdBy,
+      input.companyId
+    );
+    locationId = employeeJob.data?.locationId ?? undefined;
 
     if (!locationId) {
       const defaultLocation = await client
@@ -2225,7 +2235,7 @@ export async function insertJob(
         .eq("companyId", input.companyId)
         .limit(1)
         .single();
-      locationId = defaultLocation.data?.id ?? null;
+      locationId = defaultLocation.data?.id ?? undefined;
     }
 
     if (!locationId) {
@@ -2249,9 +2259,12 @@ export async function insertJob(
   const dueDate = input.dueDate ?? null;
   const startDate =
     input.startDate ??
-    (dueDate ? parseDate(dueDate).subtract({ days: leadTime }).toString() : null);
+    (dueDate
+      ? parseDate(dueDate).subtract({ days: leadTime }).toString()
+      : null);
 
-  const deadlineType = input.deadlineType ?? (dueDate ? "Hard Deadline" : "No Deadline");
+  const deadlineType =
+    input.deadlineType ?? (dueDate ? "Hard Deadline" : "No Deadline");
 
   const priority =
     input.priority ??
@@ -2264,9 +2277,15 @@ export async function insertJob(
 
   const storageUnitId =
     input.storageUnitId ??
-    (await getDefaultStorageUnitForJob(client, input.itemId, locationId, input.companyId));
+    (await getDefaultStorageUnitForJob(
+      client,
+      input.itemId,
+      locationId,
+      input.companyId
+    ));
 
-  const scrapQuantity = scrapPercentage > 0 ? Math.ceil(input.quantity * scrapPercentage) : 0;
+  const scrapQuantity =
+    scrapPercentage > 0 ? Math.ceil(input.quantity * scrapPercentage) : 0;
 
   const job = await client
     .from("job")
@@ -2307,31 +2326,32 @@ export async function insertJob(
 
   if (!options?.skipMethod) {
     const methodSource =
-      options?.methodSource ?? (input.quoteId && input.quoteLineId ? "quoteLine" : "item");
+      options?.methodSource ??
+      (input.quoteId && input.quoteLineId ? "quoteLine" : "item");
 
     if (methodSource === "quoteLine" && input.quoteId && input.quoteLineId) {
-      const { error } = await client.functions.invoke("get-method", {
-        body: {
-          type: "quoteLineToJob",
-          sourceId: `${input.quoteId}:${input.quoteLineId}`,
-          targetId: createdJobId,
-          companyId: input.companyId,
-          userId: input.createdBy
-        }
-      });
+      const body: Record<string, unknown> = {
+        type: "quoteLineToJob",
+        sourceId: `${input.quoteId}:${input.quoteLineId}`,
+        targetId: createdJobId,
+        companyId: input.companyId,
+        userId: input.createdBy
+      };
+      if (input.configuration) body.configuration = input.configuration;
+      const { error } = await client.functions.invoke("get-method", { body });
       if (error) {
         console.error("Failed to copy method from quote line:", error);
       }
     } else {
-      const { error } = await client.functions.invoke("get-method", {
-        body: {
-          type: "itemToJob",
-          sourceId: input.itemId,
-          targetId: createdJobId,
-          companyId: input.companyId,
-          userId: input.createdBy
-        }
-      });
+      const body: Record<string, unknown> = {
+        type: "itemToJob",
+        sourceId: input.itemId,
+        targetId: createdJobId,
+        companyId: input.companyId,
+        userId: input.createdBy
+      };
+      if (input.configuration) body.configuration = input.configuration;
+      const { error } = await client.functions.invoke("get-method", { body });
       if (error) {
         console.error("Failed to copy method from item:", error);
       }

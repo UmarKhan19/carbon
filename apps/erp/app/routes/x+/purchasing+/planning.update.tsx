@@ -2,7 +2,6 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
-import { getCurrencyByCode } from "~/modules/accounting/accounting.service";
 import {
   insertPurchaseOrder,
   plannedOrderValidator,

@@ -99,7 +99,10 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const oauthClient = oauthClientResult.data;
+  const oauthClient =
+    oauthClientResult.data as typeof oauthClientResult.data & {
+      tokenEndpointAuthMethod?: string;
+    };
 
   if (oauthClient.tokenEndpointAuthMethod !== "none") {
     if (
@@ -144,7 +147,14 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    if (oauthCode.data.clientId !== client_id) {
+    // codeChallenge, codeChallengeMethod, scope exist in DB but not yet in generated types
+    const codeData = oauthCode.data as typeof oauthCode.data & {
+      codeChallenge?: string | null;
+      codeChallengeMethod?: string | null;
+      scope?: string | null;
+    };
+
+    if (codeData.clientId !== client_id) {
       return jsonResponse(
         {
           error: "invalid_grant",
@@ -154,7 +164,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    if (oauthCode.data.redirectUri !== redirect_uri) {
+    if (codeData.redirectUri !== redirect_uri) {
       return jsonResponse(
         { error: "invalid_grant", error_description: "Redirect URI mismatch" },
         400
@@ -162,7 +172,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     // Check if code has expired
-    if (new Date(oauthCode.data.expiresAt) < new Date()) {
+    if (new Date(codeData.expiresAt) < new Date()) {
       await client.from("oauthCode").delete().eq("code", code);
       return jsonResponse(
         {
@@ -174,7 +184,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     // Verify PKCE if code_challenge was stored
-    if (oauthCode.data.codeChallenge) {
+    if (codeData.codeChallenge) {
       if (!code_verifier) {
         return jsonResponse(
           {
@@ -185,14 +195,8 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
-      const method = oauthCode.data.codeChallengeMethod || "plain";
-      if (
-        !verifyCodeChallenge(
-          code_verifier,
-          oauthCode.data.codeChallenge,
-          method
-        )
-      ) {
+      const method = codeData.codeChallengeMethod || "plain";
+      if (!verifyCodeChallenge(code_verifier, codeData.codeChallenge, method)) {
         return jsonResponse(
           {
             error: "invalid_grant",
@@ -207,18 +211,17 @@ export async function action({ request }: ActionFunctionArgs) {
     const rawAccessToken = crypto.randomUUID();
     const rawRefreshToken = crypto.randomUUID();
 
-    const tokenResult = await client.from("oauthToken").insert([
-      {
-        accessToken: hashOAuthSecret(rawAccessToken),
-        refreshToken: hashOAuthSecret(rawRefreshToken),
-        clientId: client_id,
-        userId: oauthCode.data.userId,
-        companyId: oauthCode.data.companyId,
-        scope: oauthCode.data.scope || null,
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString()
-      }
-    ]);
+    const tokenInsert = {
+      accessToken: hashOAuthSecret(rawAccessToken),
+      refreshToken: hashOAuthSecret(rawRefreshToken),
+      clientId: client_id,
+      userId: codeData.userId,
+      companyId: codeData.companyId,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 3600 * 1000).toISOString()
+    };
+
+    const tokenResult = await client.from("oauthToken").insert([tokenInsert]);
 
     if (tokenResult.error) {
       return jsonResponse(
@@ -235,7 +238,7 @@ export async function action({ request }: ActionFunctionArgs) {
       token_type: "Bearer",
       expires_in: 3600,
       refresh_token: rawRefreshToken,
-      scope: oauthCode.data.scope || undefined
+      scope: codeData.scope || undefined
     });
   } else if (grant_type === "refresh_token") {
     if (!refresh_token) {
@@ -262,7 +265,12 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    if (tokenResult.data.clientId !== client_id) {
+    // scope exists in DB but not yet in generated types
+    const refreshTokenData = tokenResult.data as typeof tokenResult.data & {
+      scope?: string | null;
+    };
+
+    if (refreshTokenData.clientId !== client_id) {
       return jsonResponse(
         {
           error: "invalid_grant",
@@ -294,7 +302,7 @@ export async function action({ request }: ActionFunctionArgs) {
       access_token: rawNewAccessToken,
       token_type: "Bearer",
       expires_in: 3600,
-      scope: tokenResult.data.scope || undefined
+      scope: refreshTokenData.scope || undefined
     });
   }
 

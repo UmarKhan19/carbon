@@ -33,16 +33,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { id: _id, ...d } = validation.data;
 
-  const methodSource =
-    d.quoteId && d.quoteLineId ? "quoteLine" : "item";
+  const methodSource = d.quoteId && d.quoteLineId ? "quoteLine" : "item";
 
-  const createJob = await insertJob(serviceRole, {
-    ...d,
-    jobId: d.jobId || undefined,
-    companyId,
-    createdBy: userId,
-    customFields: setCustomFields(formData)
-  }, { methodSource });
+  const createJob = await insertJob(
+    serviceRole,
+    {
+      ...d,
+      jobId: d.jobId || undefined,
+      companyId,
+      createdBy: userId,
+      customFields: setCustomFields(formData)
+    },
+    { methodSource }
+  );
 
   if (createJob.error || !createJob.data) {
     console.error(createJob.error);

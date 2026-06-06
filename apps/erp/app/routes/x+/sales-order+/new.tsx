@@ -46,10 +46,7 @@ export async function action({ request }: ActionFunctionArgs) {
   if (result.error || !result.data) {
     throw redirect(
       path.to.salesOrders,
-      await flash(
-        request,
-        error(result.error, "Failed to insert sales order")
-      )
+      await flash(request, error(result.error, "Failed to insert sales order"))
     );
   }
 

@@ -2159,8 +2159,8 @@ export async function insertStockTransfer(
   let stockTransferId = input.stockTransferId;
   if (!stockTransferId) {
     const sequence = await client.rpc("get_next_sequence", {
-      p_sequence_name: "stockTransfer",
-      p_company_id: companyId
+      sequence_name: "stockTransfer",
+      company_id: companyId
     });
     if (sequence.error || !sequence.data) {
       return {
@@ -2176,11 +2176,7 @@ export async function insertStockTransfer(
       if (line.quantity && !Number.isInteger(line.quantity)) {
         return acc;
       }
-      if (
-        line.requiresSerialTracking &&
-        line.quantity &&
-        line.quantity > 1
-      ) {
+      if (line.requiresSerialTracking && line.quantity && line.quantity > 1) {
         acc.push(
           ...Array.from({ length: line.quantity }, () => ({
             ...line,
@@ -2296,8 +2292,8 @@ export async function insertWarehouseTransfer(
   let transferId = input.transferId;
   if (!transferId) {
     const sequence = await client.rpc("get_next_sequence", {
-      p_sequence_name: "warehouseTransfer",
-      p_company_id: companyId
+      sequence_name: "warehouseTransfer",
+      company_id: companyId
     });
     if (sequence.error || !sequence.data) {
       return {

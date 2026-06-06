@@ -1289,6 +1289,7 @@ export interface InsertPurchaseOrderInput {
   companyGroupId: string;
   createdBy: string;
   purchaseOrderId?: string;
+  purchaseOrderType?: "Purchase" | "Return" | "Outside Processing";
   locationId?: string;
   status?: (typeof purchaseOrderStatusType)[number];
   currencyCode?: string;
@@ -1321,22 +1322,28 @@ export async function insertPurchaseOrder(
         data: null,
         error:
           seq.error ??
-          ({ message: "Failed to generate PO sequence" } as import("@supabase/supabase-js").PostgrestError)
+          ({
+            message: "Failed to generate PO sequence"
+          } as import("@supabase/supabase-js").PostgrestError)
       };
     }
     purchaseOrderId = seq.data;
   }
 
-  const [supplierInteraction, supplierPayment, supplierShipping, purchaser] = await Promise.all([
-    insertSupplierInteraction(client, input.companyId, input.supplierId),
-    getSupplierPayment(client, input.supplierId),
-    getSupplierShipping(client, input.supplierId),
-    getEmployeeJob(client, input.createdBy, input.companyId)
-  ]);
+  const [supplierInteraction, supplierPayment, supplierShipping, purchaser] =
+    await Promise.all([
+      insertSupplierInteraction(client, input.companyId, input.supplierId),
+      getSupplierPayment(client, input.supplierId),
+      getSupplierShipping(client, input.supplierId),
+      getEmployeeJob(client, input.createdBy, input.companyId)
+    ]);
 
-  if (supplierInteraction.error) return { data: null, error: supplierInteraction.error };
-  if (supplierPayment.error) return { data: null, error: supplierPayment.error };
-  if (supplierShipping.error) return { data: null, error: supplierShipping.error };
+  if (supplierInteraction.error)
+    return { data: null, error: supplierInteraction.error };
+  if (supplierPayment.error)
+    return { data: null, error: supplierPayment.error };
+  if (supplierShipping.error)
+    return { data: null, error: supplierShipping.error };
 
   const {
     paymentTermId,
@@ -1345,12 +1352,17 @@ export async function insertPurchaseOrder(
     invoiceSupplierLocationId
   } = supplierPayment.data;
 
-  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } = supplierShipping.data;
+  const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
+    supplierShipping.data;
 
   let exchangeRate = 1;
   let exchangeRateUpdatedAt = new Date().toISOString();
   if (input.currencyCode) {
-    const currency = await getCurrencyByCode(client, input.companyGroupId, input.currencyCode);
+    const currency = await getCurrencyByCode(
+      client,
+      input.companyGroupId,
+      input.currencyCode
+    );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;
       exchangeRateUpdatedAt = new Date().toISOString();
@@ -1363,17 +1375,17 @@ export async function insertPurchaseOrder(
     .from("purchaseOrder")
     .insert({
       purchaseOrderId,
+      purchaseOrderType: input.purchaseOrderType,
       supplierId: input.supplierId,
       supplierContactId: input.supplierContactId,
       supplierLocationId: input.supplierLocationId,
       supplierInteractionId: supplierInteraction.data?.id,
-      supplierQuoteId: input.supplierQuoteId,
       status: input.status ?? "Draft",
       orderDate: input.orderDate ?? new Date().toISOString().split("T")[0],
       currencyCode: input.currencyCode,
       exchangeRate,
       exchangeRateUpdatedAt,
-      notes: input.notes,
+      internalNotes: input.notes ?? null,
       customFields: input.customFields,
       companyId: input.companyId,
       createdBy: input.createdBy,
@@ -1435,12 +1447,16 @@ export async function updatePurchaseOrder(
   data: { id: string } | null;
   error: import("@supabase/supabase-js").PostgrestError | null;
 }> {
-  const { id, updatedBy, ...updates } = input;
+  const { id, updatedBy, notes, ...updates } = input;
 
   let exchangeRate: number | undefined;
   let exchangeRateUpdatedAt: string | undefined;
   if (updates.currencyCode && companyGroupId) {
-    const currency = await getCurrencyByCode(client, companyGroupId, updates.currencyCode);
+    const currency = await getCurrencyByCode(
+      client,
+      companyGroupId,
+      updates.currencyCode
+    );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;
       exchangeRateUpdatedAt = new Date().toISOString();
@@ -1453,6 +1469,7 @@ export async function updatePurchaseOrder(
       ...sanitize(updates),
       ...(exchangeRate !== undefined && { exchangeRate }),
       ...(exchangeRateUpdatedAt && { exchangeRateUpdatedAt }),
+      ...(notes !== undefined && { internalNotes: notes }),
       updatedBy,
       updatedAt: new Date().toISOString()
     })
@@ -1808,7 +1825,9 @@ export async function insertSupplierQuote(
         data: null,
         error:
           seq.error ??
-          ({ message: "Failed to generate supplier quote sequence" } as import("@supabase/supabase-js").PostgrestError)
+          ({
+            message: "Failed to generate supplier quote sequence"
+          } as import("@supabase/supabase-js").PostgrestError)
       };
     }
     supplierQuoteId = seq.data;
@@ -1817,7 +1836,11 @@ export async function insertSupplierQuote(
   let exchangeRate = 1;
   let exchangeRateUpdatedAt = new Date().toISOString();
   if (input.currencyCode) {
-    const currency = await getCurrencyByCode(client, input.companyGroupId, input.currencyCode);
+    const currency = await getCurrencyByCode(
+      client,
+      input.companyGroupId,
+      input.currencyCode
+    );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;
       exchangeRateUpdatedAt = new Date().toISOString();
@@ -1830,7 +1853,8 @@ export async function insertSupplierQuote(
     input.supplierId
   );
 
-  if (supplierInteraction.error) return { data: null, error: supplierInteraction.error };
+  if (supplierInteraction.error)
+    return { data: null, error: supplierInteraction.error };
 
   const quote = await client
     .from("supplierQuote")
@@ -1912,8 +1936,16 @@ export async function updateSupplierQuote(
 
   if (existing.error) return { data: null, error: existing.error };
 
-  if (updates.currencyCode && companyGroupId && existing.data.currencyCode !== updates.currencyCode) {
-    const currency = await getCurrencyByCode(client, companyGroupId, updates.currencyCode);
+  if (
+    updates.currencyCode &&
+    companyGroupId &&
+    existing.data.currencyCode !== updates.currencyCode
+  ) {
+    const currency = await getCurrencyByCode(
+      client,
+      companyGroupId,
+      updates.currencyCode
+    );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;
       exchangeRateUpdatedAt = new Date().toISOString();
@@ -2272,7 +2304,11 @@ export async function insertPurchasingRFQ(
     if (seq.error || !seq.data) {
       return {
         data: null,
-        error: seq.error ?? ({ message: "Failed to generate purchasingRfq sequence" } as import("@supabase/supabase-js").PostgrestError)
+        error:
+          seq.error ??
+          ({
+            message: "Failed to generate purchasingRfq sequence"
+          } as import("@supabase/supabase-js").PostgrestError)
       };
     }
     rfqId = seq.data;

@@ -118,7 +118,10 @@ export async function action({ request }: ActionFunctionArgs) {
     return data({ error: "Invalid client" }, { status: 400 });
   }
 
-  const oauthClient = oauthClientResult.data;
+  const oauthClient =
+    oauthClientResult.data as typeof oauthClientResult.data & {
+      tokenEndpointAuthMethod?: string;
+    };
 
   if (!oauthClient.redirectUris.includes(redirect_uri)) {
     return data({ error: "Invalid redirect URI" }, { status: 400 });
@@ -130,6 +133,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // Generate and store authorization code
   const code = crypto.randomUUID();
+  // scope, codeChallenge, codeChallengeMethod exist in DB but not yet in generated types
   const codeResult = await serviceRole.from("oauthCode").insert([
     {
       code,
@@ -142,7 +146,7 @@ export async function action({ request }: ActionFunctionArgs) {
       codeChallengeMethod: code_challenge_method || null,
       createdAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
-    }
+    } as any // eslint-disable-line @typescript-eslint/no-explicit-any
   ]);
 
   if (codeResult.error) {
