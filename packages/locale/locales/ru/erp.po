@@ -17,7 +17,7 @@ msgstr "Поставщик — это компания или лицо, кото
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr ""
+msgstr "\"{0}\" недоступно на выбранной поверхности (поверхностях). Выберите другое поле."
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "«{storageUnitName}» содержит {childCount} прямых вложенных единиц хранения. Удаление приведет к удалению этих единиц и всего, что находится под ними. Это действие невозможно отменить."
@@ -469,7 +469,7 @@ msgid "An item cannot be added to itself."
 msgstr "Элемент не может быть добавлен к самому себе."
 
 msgid "AND"
-msgstr ""
+msgstr "И"
 
 msgid "and {remaining} more"
 msgstr "и ещё {remaining}"
@@ -490,10 +490,10 @@ msgid "Annotation updated"
 msgstr "Аннотация обновлена"
 
 msgid "Any item group"
-msgstr ""
+msgstr "Любая группа товаров"
 
 msgid "Any item type"
-msgstr ""
+msgstr "Любой тип товара"
 
 msgid "API and Webhooks"
 msgstr "API и Webhooks"
@@ -1306,7 +1306,7 @@ msgid "Check your email"
 msgstr "Проверьте вашу почту"
 
 msgid "Choose a company"
-msgstr ""
+msgstr "Выберите компанию"
 
 msgid "Choose another file"
 msgstr "Выбрать другой файл"
@@ -1403,7 +1403,7 @@ msgid "Columns"
 msgstr "Столбцы"
 
 msgid "Combine filters"
-msgstr ""
+msgstr "Объединить фильтры"
 
 msgid "Coming soon"
 msgstr "Скоро"
@@ -2986,7 +2986,7 @@ msgid "Employees"
 msgstr "Сотрудники"
 
 msgid "Empty = match every item"
-msgstr ""
+msgstr "Пусто = соответствует каждому товару"
 
 msgid "Empty work centers"
 msgstr "Пустые рабочие центры"
@@ -4054,7 +4054,7 @@ msgid "Invite"
 msgstr "Пригласить"
 
 msgid "Invited"
-msgstr ""
+msgstr "Приглашено"
 
 msgid "Invoice"
 msgstr "Счет"
@@ -4159,13 +4159,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "Товар {scannedItem} не совпадает с товаром {expectedItem}"
 
 msgid "Item filters"
-msgstr ""
+msgstr "Фильтры товаров"
 
 msgid "Item Group"
 msgstr "Группа товаров"
 
 msgid "Item groups"
-msgstr ""
+msgstr "Группы товаров"
 
 msgid "Item Groups"
 msgstr "Группы товаров"
@@ -4177,10 +4177,10 @@ msgid "Item Master"
 msgstr "Мастер элемента"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr ""
+msgstr "Товар должен соответствовать выбранному типу И выбранной группе"
 
 msgid "Item must match a selected type OR a selected group"
-msgstr ""
+msgstr "Товар должен соответствовать выбранному типу ИЛИ выбранной группе"
 
 msgid "Item Scope"
 msgstr "Область применения товара"
@@ -4189,7 +4189,7 @@ msgid "Item Type"
 msgstr "Тип товара"
 
 msgid "Item types"
-msgstr ""
+msgstr "Типы товаров"
 
 msgid "items"
 msgstr "элементы"
@@ -4605,13 +4605,13 @@ msgid "Match all"
 msgstr "Совпадают все"
 
 msgid "Match all (AND)"
-msgstr ""
+msgstr "Совпадать со всеми (И)"
 
 msgid "Match any"
 msgstr "Совпадает с любым"
 
 msgid "Match any (OR)"
-msgstr ""
+msgstr "Совпадение с любым (ИЛИ)"
 
 msgid "Match none"
 msgstr "Не совпадает ни одно"
@@ -5389,7 +5389,7 @@ msgid "Not started training for"
 msgstr "Обучение не начато для"
 
 msgid "Not you?"
-msgstr ""
+msgstr "Это не вы?"
 
 msgid "Note"
 msgstr "Примечание"
@@ -5548,7 +5548,7 @@ msgid "Options"
 msgstr "Параметры"
 
 msgid "OR"
-msgstr ""
+msgstr "ИЛИ"
 
 msgid "Order"
 msgstr "Заказ"
@@ -7467,7 +7467,7 @@ msgid "Storage client not available"
 msgstr "Клиент хранилища недоступен"
 
 msgid "Storage Rules"
-msgstr ""
+msgstr "Правила хранения"
 
 msgid "Storage Type"
 msgstr "Тип хранилища"
@@ -8755,7 +8755,7 @@ msgid "Yes, Update IDs"
 msgstr "Да, обновить ID"
 
 msgid "You belong to more than one company. Pick where to work."
-msgstr ""
+msgstr "Вы принадлежите более чем одной компании. Выберите, где работать."
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "Вы можете изменить стиль интерфейса в любое время через настройку темы"

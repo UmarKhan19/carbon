@@ -17,7 +17,7 @@ msgstr "एक आपूर्तिकर्ता एक व्यवसाय
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr ""
+msgstr "\"{0}\" चयनित सतह(सतहों) पर उपलब्ध नहीं है। कोई अन्य फ़ील्ड चुनें।"
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "\"{storageUnitName}\" के {childCount} सीधे नेस्टेड स्टोरेज यूनिट हैं। इसे हटाने से वे और उनके अंदर की सभी चीजें भी हट जाएंगी। यह पूर्ववत नहीं किया जा सकता।"
@@ -469,7 +469,7 @@ msgid "An item cannot be added to itself."
 msgstr "एक आइटम को स्वयं में नहीं जोड़ा जा सकता।"
 
 msgid "AND"
-msgstr ""
+msgstr "और"
 
 msgid "and {remaining} more"
 msgstr "और {remaining} अधिक"
@@ -490,10 +490,10 @@ msgid "Annotation updated"
 msgstr "एनोटेशन अपडेट किया गया"
 
 msgid "Any item group"
-msgstr ""
+msgstr "कोई भी आइटम समूह"
 
 msgid "Any item type"
-msgstr ""
+msgstr "किसी भी आइटम प्रकार"
 
 msgid "API and Webhooks"
 msgstr "API और Webhooks"
@@ -1306,7 +1306,7 @@ msgid "Check your email"
 msgstr "अपना ईमेल जांचें"
 
 msgid "Choose a company"
-msgstr ""
+msgstr "कंपनी चुनें"
 
 msgid "Choose another file"
 msgstr "दूसरी फ़ाइल चुनें"
@@ -1403,7 +1403,7 @@ msgid "Columns"
 msgstr "कॉलम"
 
 msgid "Combine filters"
-msgstr ""
+msgstr "फ़िल्टर को संयोजित करें"
 
 msgid "Coming soon"
 msgstr "जल्द ही आ रहा है"
@@ -2986,7 +2986,7 @@ msgid "Employees"
 msgstr "कर्मचारी"
 
 msgid "Empty = match every item"
-msgstr ""
+msgstr "खाली = हर आइटम से मेल खाएं"
 
 msgid "Empty work centers"
 msgstr "खाली कार्य केंद्र"
@@ -4054,7 +4054,7 @@ msgid "Invite"
 msgstr "आमंत्रित करें"
 
 msgid "Invited"
-msgstr ""
+msgstr "आमंत्रित"
 
 msgid "Invoice"
 msgstr "चालान"
@@ -4159,13 +4159,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "आइटम {scannedItem} आइटम {expectedItem} के समान नहीं है"
 
 msgid "Item filters"
-msgstr ""
+msgstr "आइटम फ़िल्टर"
 
 msgid "Item Group"
 msgstr "आइटम समूह"
 
 msgid "Item groups"
-msgstr ""
+msgstr "आइटम समूह"
 
 msgid "Item Groups"
 msgstr "आइटम समूह"
@@ -4177,10 +4177,10 @@ msgid "Item Master"
 msgstr "आइटम मास्टर"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr ""
+msgstr "आइटम को एक चयनित प्रकार और एक चयनित समूह से मेल खाना चाहिए"
 
 msgid "Item must match a selected type OR a selected group"
-msgstr ""
+msgstr "आइटम को एक चयनित प्रकार OR एक चयनित समूह से मेल खाना चाहिए"
 
 msgid "Item Scope"
 msgstr "आइटम स्कोप"
@@ -4189,7 +4189,7 @@ msgid "Item Type"
 msgstr "आइटम प्रकार"
 
 msgid "Item types"
-msgstr ""
+msgstr "आइटम प्रकार"
 
 msgid "items"
 msgstr "आइटम"
@@ -4605,13 +4605,13 @@ msgid "Match all"
 msgstr "सभी से मेल खाएं"
 
 msgid "Match all (AND)"
-msgstr ""
+msgstr "सभी से मेल खाएं (AND)"
 
 msgid "Match any"
 msgstr "किसी भी को मिलाएं"
 
 msgid "Match any (OR)"
-msgstr ""
+msgstr "किसी भी से मेल खाएं (OR)"
 
 msgid "Match none"
 msgstr "कोई भी मेल न खाएं"
@@ -5389,7 +5389,7 @@ msgid "Not started training for"
 msgstr "प्रशिक्षण शुरू नहीं किया गया"
 
 msgid "Not you?"
-msgstr ""
+msgstr "क्या आप नहीं हैं?"
 
 msgid "Note"
 msgstr "नोट"
@@ -5548,7 +5548,7 @@ msgid "Options"
 msgstr "विकल्प"
 
 msgid "OR"
-msgstr ""
+msgstr "या"
 
 msgid "Order"
 msgstr "आदेश"
@@ -7467,7 +7467,7 @@ msgid "Storage client not available"
 msgstr "स्टोरेज क्लाइंट उपलब्ध नहीं है"
 
 msgid "Storage Rules"
-msgstr ""
+msgstr "भंडारण नियम"
 
 msgid "Storage Type"
 msgstr "स्टोरेज प्रकार"
@@ -8755,7 +8755,7 @@ msgid "Yes, Update IDs"
 msgstr "हाँ, आईडी अपडेट करें"
 
 msgid "You belong to more than one company. Pick where to work."
-msgstr ""
+msgstr "आप एक से अधिक कंपनी से संबंधित हैं। चुनें कि कहां काम करना है।"
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "आप किसी भी समय थीम सेटिंग के माध्यम से UI शैली को बदल सकते हैं"
