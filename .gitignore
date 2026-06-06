@@ -64,3 +64,4 @@ docs/superpowers
 llm/tasks
 apps/*/portless.json
 packages/database/supabase/snippets/**
+.pr-review

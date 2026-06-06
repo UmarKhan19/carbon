@@ -86,6 +86,16 @@
 - NEVER update the cache about staged/uncommitted code.
 - NEVER rebuild the database to test changes. Wait for the user to do that.
 
+## New Entity Conventions
+
+When creating a new database entity (table), ALWAYS include the following:
+
+- **Sequence for readable IDs:** Create a `CREATE SEQUENCE` and a trigger function to auto-generate human-readable IDs (e.g., "PL-000001"). Follow the pattern used by `warehouseTransfer` or similar recent entities.
+- **Custom fields:** Add `customFields JSONB` column on all primary entities and their line-item tables.
+- **RLS policies:** Enable Row Level Security and create policies named `"SELECT"`, `"INSERT"`, `"UPDATE"`, `"DELETE"`. Always qualify with `"public"."tableName"`, cast helper function results with `::text[]`, and use `get_companies_with_employee_role()` (SELECT) / `get_companies_with_employee_permission('module_action')` (INSERT/UPDATE/DELETE). Reference `20260228000000_rls-refactor-3.sql` for the current pattern.
+
+These are non-negotiable defaults, not optional add-ons. Do not skip any of them.
+
 ## Browser Automation
 
 Use `agent-browser` for web automation. Run `agent-browser --help` for all commands.
