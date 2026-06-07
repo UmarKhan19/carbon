@@ -8,7 +8,7 @@ import type {
 } from "@supabase/supabase-js";
 
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
-import { getSupabaseServiceRole } from "../lib/supabase.ts";
+import { requirePermissions } from "../lib/supabase.ts";
 import type { Database } from "../lib/types.ts";
 
 import { Transaction } from "kysely";
@@ -96,11 +96,7 @@ serve(async (req: Request) => {
       configuration,
     });
 
-    const client = await getSupabaseServiceRole(
-      req.headers.get("Authorization"),
-      req.headers.get("carbon-key") ?? "",
-      companyId
-    );
+    const client = await requirePermissions(req, companyId, userId, { update: "production" });
 
     switch (type) {
       case "itemToItem": {

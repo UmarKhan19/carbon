@@ -4978,11 +4978,11 @@ export async function insertSalesOrder(
 
   let exchangeRate = 1;
   let exchangeRateUpdatedAt = new Date().toISOString();
-  if (input.currencyCode) {
+  if (currencyCode) {
     const currency = await getCurrencyByCode(
       client,
       input.companyGroupId,
-      input.currencyCode
+      currencyCode
     );
     if (currency.data) {
       exchangeRate = currency.data.exchangeRate ?? 1;

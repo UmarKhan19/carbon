@@ -19,7 +19,7 @@ import {
 import { Kysely, sql } from "npm:kysely";
 import z from "npm:zod@^3.24.1";
 import { corsHeaders } from "../lib/headers.ts";
-import { getSupabaseServiceRole } from "../lib/supabase.ts";
+import { requirePermissions } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 
 const pool = getConnectionPool(1);
@@ -85,11 +85,7 @@ serve(async (req: Request) => {
   const ranges = getStartAndEndDates(today, "Week");
   const periods = await getOrCreateDemandPeriods(db, ranges, "Week");
 
-  const client = await getSupabaseServiceRole(
-    req.headers.get("Authorization"),
-    req.headers.get("carbon-key") ?? "",
-    companyId
-  );
+  const client = await requirePermissions(req, companyId, userId, { update: "production" });
 
   const locations = await client
     .from("location")

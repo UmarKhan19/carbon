@@ -5,7 +5,7 @@ import { sql } from "npm:kysely@0.27.6";
 import z from "npm:zod@^3.24.1";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
-import { getSupabaseServiceRole } from "../lib/supabase.ts";
+import { requirePermissions } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 import { getReadableIdWithRevision } from "../lib/utils.ts";
 
@@ -806,11 +806,7 @@ serve(async (req: Request) => {
       userId,
     });
 
-    const client = await getSupabaseServiceRole(
-      req.headers.get("Authorization"),
-      req.headers.get("carbon-key") ?? "",
-      companyId
-    );
+    const client = await requirePermissions(req, companyId, userId, { create: "resources" });
 
     const csvFile = await client.storage.from("private").download(filePath);
     if (!csvFile.data) {
