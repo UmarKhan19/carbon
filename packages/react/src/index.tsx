@@ -173,6 +173,7 @@ import {
 import { Kbd } from "./Kbd";
 import { Label } from "./Label";
 import { Loading } from "./Loading";
+import { LoadingBars } from "./LoadingBars";
 import {
   Menu,
   MenuCheckboxItem,
@@ -464,6 +465,7 @@ export {
   Kbd,
   Label,
   Loading,
+  LoadingBars,
   Menu,
   MenuCheckboxItem,
   MenuGroup,
