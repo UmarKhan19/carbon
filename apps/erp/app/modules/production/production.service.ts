@@ -2160,42 +2160,38 @@ export async function upsertProductionQuantity(
   }
 }
 
-export interface InsertJobInput {
-  itemId: string;
-  quantity: number;
-  companyId: string;
-  createdBy: string;
-  jobId?: string;
-  locationId?: string;
-  dueDate?: string;
-  startDate?: string;
-  priority?: number;
-  status?: (typeof jobStatus)[number];
-  deadlineType?: (typeof deadlineTypes)[number];
-  storageUnitId?: string;
-  unitOfMeasureCode?: string;
-  customerId?: string;
-  salesOrderId?: string;
-  salesOrderLineId?: string;
-  quoteId?: string;
-  quoteLineId?: string;
-  parentJobId?: string;
-  modelUploadId?: string;
-  notes?: string;
-  customFields?: Json;
-  configuration?: Record<string, unknown>;
-}
-
-export interface InsertJobOptions {
-  skipMethod?: boolean;
-  skipRecalculate?: boolean;
-  methodSource?: "item" | "quoteLine";
-}
-
 export async function insertJob(
   client: SupabaseClient<Database>,
-  input: InsertJobInput,
-  options?: InsertJobOptions
+  input: {
+    itemId: string;
+    quantity: number;
+    companyId: string;
+    createdBy: string;
+    jobId?: string;
+    locationId?: string;
+    dueDate?: string;
+    startDate?: string;
+    priority?: number;
+    status?: (typeof jobStatus)[number];
+    deadlineType?: (typeof deadlineTypes)[number];
+    storageUnitId?: string;
+    unitOfMeasureCode?: string;
+    customerId?: string;
+    salesOrderId?: string;
+    salesOrderLineId?: string;
+    quoteId?: string;
+    quoteLineId?: string;
+    parentJobId?: string;
+    modelUploadId?: string;
+    notes?: string;
+    customFields?: Json;
+    configuration?: Record<string, unknown>;
+  },
+  options?: {
+    skipMethod?: boolean;
+    skipRecalculate?: boolean;
+    methodSource?: "item" | "quoteLine";
+  }
 ): Promise<{
   data: { id: string; jobId: string } | null;
   error: PostgrestError | null;
@@ -2372,6 +2368,68 @@ export async function insertJob(
   return { data: { id: createdJobId, jobId }, error: null };
 }
 
+export async function updateJob(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    updatedBy: string;
+    quantity?: number;
+    dueDate?: string | null;
+    startDate?: string | null;
+    status?: (typeof jobStatus)[number];
+    priority?: number;
+    deadlineType?: (typeof deadlineTypes)[number];
+    locationId?: string;
+    storageUnitId?: string;
+    unitOfMeasureCode?: string;
+    customerId?: string | null;
+    salesOrderId?: string | null;
+    salesOrderLineId?: string | null;
+    quoteId?: string | null;
+    quoteLineId?: string | null;
+    parentJobId?: string | null;
+    modelUploadId?: string | null;
+    notes?: string | null;
+    customFields?: Json;
+  }
+): Promise<{ data: { id: string } | null; error: PostgrestError | null }> {
+  const { id, updatedBy, ...updates } = input;
+
+  let priority = updates.priority;
+  if (
+    (updates.dueDate !== undefined || updates.deadlineType !== undefined) &&
+    priority === undefined
+  ) {
+    const existing = await client
+      .from("job")
+      .select("dueDate, deadlineType, companyId, locationId")
+      .eq("id", id)
+      .single();
+
+    if (existing.data) {
+      priority = await calculateJobPriority(client, {
+        jobId: id,
+        dueDate: updates.dueDate ?? existing.data.dueDate,
+        deadlineType: updates.deadlineType ?? existing.data.deadlineType,
+        companyId: existing.data.companyId,
+        locationId: existing.data.locationId
+      });
+    }
+  }
+
+  return client
+    .from("job")
+    .update({
+      ...sanitize(updates),
+      ...(priority !== undefined && { priority }),
+      updatedBy,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select("id")
+    .single();
+}
+
 /** @deprecated Use insertJob for new jobs, updateJob for existing jobs */
 export async function upsertJob(
   client: SupabaseClient<Database>,
@@ -2414,70 +2472,6 @@ export async function upsertJob(
       .select("id")
       .single();
   }
-}
-
-export interface UpdateJobInput {
-  id: string;
-  updatedBy: string;
-  quantity?: number;
-  dueDate?: string | null;
-  startDate?: string | null;
-  status?: (typeof jobStatus)[number];
-  priority?: number;
-  deadlineType?: (typeof deadlineTypes)[number];
-  locationId?: string;
-  storageUnitId?: string;
-  unitOfMeasureCode?: string;
-  customerId?: string | null;
-  salesOrderId?: string | null;
-  salesOrderLineId?: string | null;
-  quoteId?: string | null;
-  quoteLineId?: string | null;
-  parentJobId?: string | null;
-  modelUploadId?: string | null;
-  notes?: string | null;
-  customFields?: Json;
-}
-
-export async function updateJob(
-  client: SupabaseClient<Database>,
-  input: UpdateJobInput
-): Promise<{ data: { id: string } | null; error: PostgrestError | null }> {
-  const { id, updatedBy, ...updates } = input;
-
-  let priority = updates.priority;
-  if (
-    (updates.dueDate !== undefined || updates.deadlineType !== undefined) &&
-    priority === undefined
-  ) {
-    const existing = await client
-      .from("job")
-      .select("dueDate, deadlineType, companyId, locationId")
-      .eq("id", id)
-      .single();
-
-    if (existing.data) {
-      priority = await calculateJobPriority(client, {
-        jobId: id,
-        dueDate: updates.dueDate ?? existing.data.dueDate,
-        deadlineType: updates.deadlineType ?? existing.data.deadlineType,
-        companyId: existing.data.companyId,
-        locationId: existing.data.locationId
-      });
-    }
-  }
-
-  return client
-    .from("job")
-    .update({
-      ...sanitize(updates),
-      ...(priority !== undefined && { priority }),
-      updatedBy,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", id)
-    .select("id")
-    .single();
 }
 
 export async function upsertJobMaterial(

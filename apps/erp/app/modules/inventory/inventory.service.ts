@@ -2127,29 +2127,23 @@ export async function getTrackedEntityExpirations(
   );
 }
 
-// ----------------------------------------------------------------------------
-// Fat insert functions (encapsulate sequence generation and business logic)
-// ----------------------------------------------------------------------------
-
-export interface InsertStockTransferInput {
-  locationId: string;
-  lines: Array<{
-    itemId: string;
-    fromStorageUnitId?: string | null;
-    toStorageUnitId?: string | null;
-    quantity?: number;
-    requiresSerialTracking?: boolean;
-    requiresBatchTracking?: boolean;
-  }>;
-  companyId: string;
-  createdBy: string;
-  stockTransferId?: string;
-  customFields?: Json;
-}
-
 export async function insertStockTransfer(
   client: SupabaseClient<Database>,
-  input: InsertStockTransferInput
+  input: {
+    locationId: string;
+    lines: Array<{
+      itemId: string;
+      fromStorageUnitId?: string | null;
+      toStorageUnitId?: string | null;
+      quantity?: number;
+      requiresSerialTracking?: boolean;
+      requiresBatchTracking?: boolean;
+    }>;
+    companyId: string;
+    createdBy: string;
+    stockTransferId?: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string; stockTransferId: string } | null;
   error: PostgrestError | { message: string } | null;
@@ -2231,47 +2225,21 @@ export async function insertStockTransfer(
   };
 }
 
-export interface UpdateStockTransferInput {
-  id: string;
-  locationId?: string;
-  stockTransferId?: string;
-  updatedBy: string;
-  customFields?: Json;
-}
-
-export async function updateStockTransfer(
-  client: SupabaseClient<Database>,
-  input: UpdateStockTransferInput
-): Promise<{
-  data: { id: string } | null;
-  error: PostgrestError | null;
-}> {
-  const { id, updatedBy, customFields, ...fields } = input;
-  return client
-    .from("stockTransfer")
-    .update(sanitize({ ...fields, customFields, updatedBy }))
-    .eq("id", id)
-    .select("id")
-    .single();
-}
-
-export interface InsertWarehouseTransferInput {
-  fromLocationId: string;
-  toLocationId: string;
-  companyId: string;
-  createdBy: string;
-  transferId?: string;
-  status?: Database["public"]["Enums"]["warehouseTransferStatus"];
-  transferDate?: string;
-  expectedReceiptDate?: string;
-  notes?: string;
-  reference?: string;
-  customFields?: Json;
-}
-
 export async function insertWarehouseTransfer(
   client: SupabaseClient<Database>,
-  input: InsertWarehouseTransferInput
+  input: {
+    fromLocationId: string;
+    toLocationId: string;
+    companyId: string;
+    createdBy: string;
+    transferId?: string;
+    status?: Database["public"]["Enums"]["warehouseTransferStatus"];
+    transferDate?: string;
+    expectedReceiptDate?: string;
+    notes?: string;
+    reference?: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string; transferId: string } | null;
   error: PostgrestError | { message: string } | null;
@@ -2332,23 +2300,43 @@ export async function insertWarehouseTransfer(
   };
 }
 
-export interface UpdateWarehouseTransferInput {
-  id: string;
-  fromLocationId?: string;
-  toLocationId?: string;
-  transferId?: string;
-  status?: Database["public"]["Enums"]["warehouseTransferStatus"];
-  transferDate?: string;
-  expectedReceiptDate?: string;
-  notes?: string;
-  reference?: string;
-  updatedBy: string;
-  customFields?: Json;
+export async function updateStockTransfer(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    locationId?: string;
+    stockTransferId?: string;
+    updatedBy: string;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string } | null;
+  error: PostgrestError | null;
+}> {
+  const { id, updatedBy, customFields, ...fields } = input;
+  return client
+    .from("stockTransfer")
+    .update(sanitize({ ...fields, customFields, updatedBy }))
+    .eq("id", id)
+    .select("id")
+    .single();
 }
 
 export async function updateWarehouseTransfer(
   client: SupabaseClient<Database>,
-  input: UpdateWarehouseTransferInput
+  input: {
+    id: string;
+    fromLocationId?: string;
+    toLocationId?: string;
+    transferId?: string;
+    status?: Database["public"]["Enums"]["warehouseTransferStatus"];
+    transferDate?: string;
+    expectedReceiptDate?: string;
+    notes?: string;
+    reference?: string;
+    updatedBy: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string } | null;
   error: PostgrestError | null;

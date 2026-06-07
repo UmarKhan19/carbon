@@ -3305,28 +3305,26 @@ export async function upsertMakeMethodFromQuoteMethod(
   return { data: null, error: null };
 }
 
-export interface InsertQuoteInput {
-  customerId: string;
-  companyId: string;
-  companyGroupId: string;
-  createdBy: string;
-  quoteId?: string;
-  name?: string;
-  locationId?: string;
-  status?: (typeof quoteStatusType)[number];
-  currencyCode?: string;
-  expirationDate?: string;
-  customerContactId?: string;
-  customerLocationId?: string;
-  salesRfqId?: string;
-  opportunityId?: string;
-  notes?: string;
-  customFields?: Json;
-}
-
 export async function insertQuote(
   client: SupabaseClient<Database>,
-  input: InsertQuoteInput
+  input: {
+    customerId: string;
+    companyId: string;
+    companyGroupId: string;
+    createdBy: string;
+    quoteId?: string;
+    name?: string;
+    locationId?: string;
+    status?: (typeof quoteStatusType)[number];
+    currencyCode?: string;
+    expirationDate?: string;
+    customerContactId?: string;
+    customerLocationId?: string;
+    salesRfqId?: string;
+    opportunityId?: string;
+    notes?: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string; quoteId: string } | null;
   error: PostgrestError | null;
@@ -3464,23 +3462,21 @@ export async function insertQuote(
   return { data: { id: createdQuoteId, quoteId }, error: null };
 }
 
-export interface UpdateQuoteInput {
-  id: string;
-  updatedBy: string;
-  name?: string | null;
-  status?: (typeof quoteStatusType)[number];
-  currencyCode?: string;
-  expirationDate?: string | null;
-  customerContactId?: string | null;
-  customerLocationId?: string | null;
-  customerId?: string;
-  notes?: string | null;
-  customFields?: Json;
-}
-
 export async function updateQuote(
   client: SupabaseClient<Database>,
-  input: UpdateQuoteInput,
+  input: {
+    id: string;
+    updatedBy: string;
+    name?: string | null;
+    status?: (typeof quoteStatusType)[number];
+    currencyCode?: string;
+    expirationDate?: string | null;
+    customerContactId?: string | null;
+    customerLocationId?: string | null;
+    customerId?: string;
+    notes?: string | null;
+    customFields?: Json;
+  },
   companyGroupId?: string
 ): Promise<{
   data: { id: string } | null;
@@ -4883,29 +4879,27 @@ export async function updateSalesOrderStatus(
   return client.from("salesOrder").update(updateData).eq("id", update.id);
 }
 
-export interface InsertSalesOrderInput {
-  customerId: string;
-  companyId: string;
-  companyGroupId: string;
-  createdBy: string;
-  salesOrderId?: string;
-  locationId?: string;
-  status?: (typeof salesOrderStatusType)[number];
-  currencyCode?: string;
-  orderDate?: string;
-  customerContactId?: string;
-  customerLocationId?: string;
-  quoteId?: string;
-  opportunityId?: string;
-  requestedDate?: string;
-  promisedDate?: string;
-  notes?: string;
-  customFields?: Json;
-}
-
 export async function insertSalesOrder(
   client: SupabaseClient<Database>,
-  input: InsertSalesOrderInput
+  input: {
+    customerId: string;
+    companyId: string;
+    companyGroupId: string;
+    createdBy: string;
+    salesOrderId?: string;
+    locationId?: string;
+    status?: (typeof salesOrderStatusType)[number];
+    currencyCode?: string;
+    orderDate?: string;
+    customerContactId?: string;
+    customerLocationId?: string;
+    quoteId?: string;
+    opportunityId?: string;
+    requestedDate?: string;
+    promisedDate?: string;
+    notes?: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string; salesOrderId: string } | null;
   error: PostgrestError | null;
@@ -5049,22 +5043,20 @@ export async function insertSalesOrder(
   return { data: { id: orderId, salesOrderId }, error: null };
 }
 
-export interface UpdateSalesOrderInput {
-  id: string;
-  updatedBy: string;
-  status?: (typeof salesOrderStatusType)[number];
-  currencyCode?: string;
-  orderDate?: string;
-  customerContactId?: string | null;
-  customerLocationId?: string | null;
-  customerId?: string;
-  notes?: string | null;
-  customFields?: Json;
-}
-
 export async function updateSalesOrder(
   client: SupabaseClient<Database>,
-  input: UpdateSalesOrderInput,
+  input: {
+    id: string;
+    updatedBy: string;
+    status?: (typeof salesOrderStatusType)[number];
+    currencyCode?: string;
+    orderDate?: string;
+    customerContactId?: string | null;
+    customerLocationId?: string | null;
+    customerId?: string;
+    notes?: string | null;
+    customFields?: Json;
+  },
   companyGroupId?: string
 ): Promise<{
   data: { id: string } | null;
@@ -5418,25 +5410,23 @@ export async function upsertSalesOrderPayment(
     .single();
 }
 
-export interface InsertSalesRFQInput {
-  customerId: string;
-  companyId: string;
-  createdBy: string;
-  rfqId?: string;
-  rfqDate?: string;
-  expirationDate?: string;
-  locationId?: string;
-  salesPersonId?: string;
-  customerContactId?: string;
-  customerReference?: string;
-  status?: "Draft" | "Ready for Quote" | "Quoted" | "Closed";
-  notes?: string;
-  customFields?: Json;
-}
-
 export async function insertSalesRFQ(
   client: SupabaseClient<Database>,
-  input: InsertSalesRFQInput
+  input: {
+    customerId: string;
+    companyId: string;
+    createdBy: string;
+    rfqId?: string;
+    rfqDate?: string;
+    expirationDate?: string;
+    locationId?: string;
+    salesPersonId?: string;
+    customerContactId?: string;
+    customerReference?: string;
+    status?: "Draft" | "Ready for Quote" | "Quoted" | "Closed";
+    notes?: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string; rfqId: string } | null;
   error: PostgrestError | null;
@@ -5501,24 +5491,22 @@ export async function insertSalesRFQ(
   return { data: { id: rfq.data.id, rfqId: rfq.data.rfqId }, error: null };
 }
 
-export interface UpdateSalesRFQInput {
-  id: string;
-  updatedBy: string;
-  customerId?: string;
-  customerContactId?: string | null;
-  customerReference?: string | null;
-  rfqDate?: string;
-  expirationDate?: string | null;
-  locationId?: string;
-  salesPersonId?: string | null;
-  status?: "Draft" | "Ready for Quote" | "Quoted" | "Closed";
-  notes?: string | null;
-  customFields?: Json;
-}
-
 export async function updateSalesRFQ(
   client: SupabaseClient<Database>,
-  input: UpdateSalesRFQInput
+  input: {
+    id: string;
+    updatedBy: string;
+    customerId?: string;
+    customerContactId?: string | null;
+    customerReference?: string | null;
+    rfqDate?: string;
+    expirationDate?: string | null;
+    locationId?: string;
+    salesPersonId?: string | null;
+    status?: "Draft" | "Ready for Quote" | "Quoted" | "Closed";
+    notes?: string | null;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string } | null;
   error: PostgrestError | null;

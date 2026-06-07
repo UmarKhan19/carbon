@@ -1283,28 +1283,26 @@ export async function updateSupplierTax(
     .eq("supplierId", supplierTax.supplierId);
 }
 
-export interface InsertPurchaseOrderInput {
-  supplierId: string;
-  companyId: string;
-  companyGroupId: string;
-  createdBy: string;
-  purchaseOrderId?: string;
-  purchaseOrderType?: "Purchase" | "Return" | "Outside Processing";
-  locationId?: string;
-  status?: (typeof purchaseOrderStatusType)[number];
-  currencyCode?: string;
-  orderDate?: string;
-  supplierContactId?: string;
-  supplierLocationId?: string;
-  supplierQuoteId?: string;
-  receiptRequestedDate?: string;
-  notes?: string;
-  customFields?: Json;
-}
-
 export async function insertPurchaseOrder(
   client: SupabaseClient<Database>,
-  input: InsertPurchaseOrderInput
+  input: {
+    supplierId: string;
+    companyId: string;
+    companyGroupId: string;
+    createdBy: string;
+    purchaseOrderId?: string;
+    purchaseOrderType?: "Purchase" | "Return" | "Outside Processing";
+    locationId?: string;
+    status?: (typeof purchaseOrderStatusType)[number];
+    currencyCode?: string;
+    orderDate?: string;
+    supplierContactId?: string;
+    supplierLocationId?: string;
+    supplierQuoteId?: string;
+    receiptRequestedDate?: string;
+    notes?: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string; purchaseOrderId: string } | null;
   error: import("@supabase/supabase-js").PostgrestError | null;
@@ -1427,21 +1425,19 @@ export async function insertPurchaseOrder(
   return { data: { id: orderId, purchaseOrderId }, error: null };
 }
 
-export interface UpdatePurchaseOrderInput {
-  id: string;
-  updatedBy: string;
-  status?: (typeof purchaseOrderStatusType)[number];
-  currencyCode?: string;
-  orderDate?: string;
-  supplierContactId?: string | null;
-  supplierLocationId?: string | null;
-  notes?: string | null;
-  customFields?: Json;
-}
-
 export async function updatePurchaseOrder(
   client: SupabaseClient<Database>,
-  input: UpdatePurchaseOrderInput,
+  input: {
+    id: string;
+    updatedBy: string;
+    status?: (typeof purchaseOrderStatusType)[number];
+    currencyCode?: string;
+    orderDate?: string;
+    supplierContactId?: string | null;
+    supplierLocationId?: string | null;
+    notes?: string | null;
+    customFields?: Json;
+  },
   companyGroupId?: string
 ): Promise<{
   data: { id: string } | null;
@@ -1788,26 +1784,24 @@ export async function upsertSupplierProcess(
     .single();
 }
 
-export interface InsertSupplierQuoteInput {
-  supplierId: string;
-  companyId: string;
-  companyGroupId: string;
-  createdBy: string;
-  supplierQuoteId?: string;
-  locationId?: string;
-  status?: (typeof supplierQuoteStatusType)[number];
-  currencyCode?: string;
-  expirationDate?: string;
-  supplierContactId?: string;
-  supplierLocationId?: string;
-  purchasingRfqId?: string;
-  notes?: string;
-  customFields?: Json;
-}
-
 export async function insertSupplierQuote(
   client: SupabaseClient<Database>,
-  input: InsertSupplierQuoteInput
+  input: {
+    supplierId: string;
+    companyId: string;
+    companyGroupId: string;
+    createdBy: string;
+    supplierQuoteId?: string;
+    locationId?: string;
+    status?: (typeof supplierQuoteStatusType)[number];
+    currencyCode?: string;
+    expirationDate?: string;
+    supplierContactId?: string;
+    supplierLocationId?: string;
+    purchasingRfqId?: string;
+    notes?: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string; supplierQuoteId: string } | null;
   error: import("@supabase/supabase-js").PostgrestError | null;
@@ -1903,21 +1897,19 @@ export async function insertSupplierQuote(
   return { data: { id: createdQuoteId, supplierQuoteId }, error: null };
 }
 
-export interface UpdateSupplierQuoteInput {
-  id: string;
-  updatedBy: string;
-  status?: (typeof supplierQuoteStatusType)[number];
-  currencyCode?: string;
-  expirationDate?: string | null;
-  supplierContactId?: string | null;
-  supplierLocationId?: string | null;
-  notes?: string | null;
-  customFields?: Json;
-}
-
 export async function updateSupplierQuote(
   client: SupabaseClient<Database>,
-  input: UpdateSupplierQuoteInput,
+  input: {
+    id: string;
+    updatedBy: string;
+    status?: (typeof supplierQuoteStatusType)[number];
+    currencyCode?: string;
+    expirationDate?: string | null;
+    supplierContactId?: string | null;
+    supplierLocationId?: string | null;
+    notes?: string | null;
+    customFields?: Json;
+  },
   companyGroupId?: string
 ): Promise<{
   data: { id: string } | null;
@@ -2273,22 +2265,20 @@ export async function getPurchasingRFQSuppliers(
     .eq("purchasingRfqId", purchasingRfqId);
 }
 
-export interface InsertPurchasingRFQInput {
-  companyId: string;
-  createdBy: string;
-  rfqId?: string;
-  rfqDate?: string;
-  expirationDate?: string;
-  locationId?: string;
-  employeeId?: string;
-  status?: (typeof purchasingRfqStatusType)[number];
-  notes?: string;
-  customFields?: Json;
-}
-
 export async function insertPurchasingRFQ(
   client: SupabaseClient<Database>,
-  input: InsertPurchasingRFQInput
+  input: {
+    companyId: string;
+    createdBy: string;
+    rfqId?: string;
+    rfqDate?: string;
+    expirationDate?: string;
+    locationId?: string;
+    employeeId?: string;
+    status?: (typeof purchasingRfqStatusType)[number];
+    notes?: string;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string; rfqId: string } | null;
   error: import("@supabase/supabase-js").PostgrestError | null;
@@ -2337,21 +2327,19 @@ export async function insertPurchasingRFQ(
   return { data: { id: rfq.data.id, rfqId: rfq.data.rfqId }, error: null };
 }
 
-export interface UpdatePurchasingRFQInput {
-  id: string;
-  updatedBy: string;
-  rfqDate?: string;
-  expirationDate?: string | null;
-  locationId?: string;
-  employeeId?: string | null;
-  status?: (typeof purchasingRfqStatusType)[number];
-  notes?: string | null;
-  customFields?: Json;
-}
-
 export async function updatePurchasingRFQ(
   client: SupabaseClient<Database>,
-  input: UpdatePurchasingRFQInput
+  input: {
+    id: string;
+    updatedBy: string;
+    rfqDate?: string;
+    expirationDate?: string | null;
+    locationId?: string;
+    employeeId?: string | null;
+    status?: (typeof purchasingRfqStatusType)[number];
+    notes?: string | null;
+    customFields?: Json;
+  }
 ): Promise<{
   data: { id: string } | null;
   error: import("@supabase/supabase-js").PostgrestError | null;
