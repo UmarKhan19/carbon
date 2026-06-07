@@ -3,6 +3,7 @@ import {
   getCarbonServiceRole,
   getUserScopedClient
 } from "@carbon/auth/client.server";
+import { getAppUrl } from "@carbon/env";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ActionFunctionArgs } from "react-router";
@@ -52,6 +53,17 @@ async function authenticateOAuthToken(
   };
 }
 
+function make401Response(request: Request): Response {
+  const origin = getAppUrl() || new URL(request.url).origin;
+  return new Response(null, {
+    status: 401,
+    headers: {
+      "WWW-Authenticate": `Bearer resource_metadata="${origin}/.well-known/oauth-protected-resource"`,
+      ...corsHeaders
+    }
+  });
+}
+
 async function resolveAuth(request: Request): Promise<{
   ctx: McpContext;
   request: Request;
@@ -85,15 +97,7 @@ async function resolveAuth(request: Request): Promise<{
         };
       }
 
-      // OAuth token was provided but invalid — return 401 so the client
-      // can re-authenticate rather than falling through to cookie auth
-      throw new Response(null, {
-        status: 401,
-        headers: {
-          "WWW-Authenticate": `Bearer resource_metadata="${new URL(request.url).origin}/.well-known/oauth-protected-resource"`,
-          ...corsHeaders
-        }
-      });
+      throw make401Response(request);
     }
 
     // Fall back to carbon-key auth
@@ -104,13 +108,7 @@ async function resolveAuth(request: Request): Promise<{
 
   // No Authorization header at all — return 401 for OAuth discovery
   if (!authHeader && !hasCarbonKey) {
-    throw new Response(null, {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": `Bearer resource_metadata="${new URL(request.url).origin}/.well-known/oauth-protected-resource"`,
-        ...corsHeaders
-      }
-    });
+    throw make401Response(request);
   }
 
   const { client, companyId, companyGroupId, userId } =

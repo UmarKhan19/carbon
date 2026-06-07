@@ -116,6 +116,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const response: Record<string, unknown> = {
     client_id: clientId,
+    client_id_issued_at: Math.floor(Date.now() / 1000),
     client_name,
     redirect_uris,
     grant_types,
@@ -125,6 +126,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (rawClientSecret) {
     response.client_secret = rawClientSecret;
+    response.client_secret_expires_at = 0;
   }
 
   if (client_uri) response.client_uri = client_uri;

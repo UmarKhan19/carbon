@@ -7,9 +7,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const metadata = {
     issuer,
-    authorization_endpoint: `${issuer}/oauth/authorize`,
-    token_endpoint: `${issuer}/oauth/token`,
-    registration_endpoint: `${issuer}/oauth/register`,
+    authorization_endpoint: `${issuer}/authorize`,
+    token_endpoint: `${issuer}/token`,
+    registration_endpoint: `${issuer}/register`,
     token_endpoint_auth_methods_supported: ["client_secret_post", "none"],
     grant_types_supported: ["authorization_code", "refresh_token"],
     response_types_supported: ["code"],
