@@ -1925,7 +1925,16 @@ export async function insertSalesOrderLines(
     customFields?: Json;
   })[]
 ) {
-  return client.from("salesOrderLine").insert(salesOrderLines).select("id");
+  const linesWithDefaults = salesOrderLines.map((line) => ({
+    ...line,
+    setupPrice: line.setupPrice ?? 0,
+    unitPrice: line.unitPrice ?? 0,
+    shippingCost: line.shippingCost ?? 0,
+    addOnCost: line.addOnCost ?? 0,
+    nonTaxableAddOnCost: line.nonTaxableAddOnCost ?? 0,
+    taxPercent: line.taxPercent ?? 0
+  }));
+  return client.from("salesOrderLine").insert(linesWithDefaults).select("id");
 }
 
 export async function finalizeQuote(
@@ -5380,6 +5389,12 @@ export async function upsertSalesOrderLine(
     .insert([
       {
         ...salesOrderLine,
+        setupPrice: salesOrderLine.setupPrice ?? 0,
+        unitPrice: salesOrderLine.unitPrice ?? 0,
+        shippingCost: salesOrderLine.shippingCost ?? 0,
+        addOnCost: salesOrderLine.addOnCost ?? 0,
+        nonTaxableAddOnCost: salesOrderLine.nonTaxableAddOnCost ?? 0,
+        taxPercent: salesOrderLine.taxPercent ?? 0,
         exchangeRate: salesOrder.data?.exchangeRate ?? 1,
         sortOrder: maxSortOrder + 1
       }
