@@ -279,9 +279,6 @@ msgstr "Ajoutez des notes sur votre décision..."
 msgid "Add Approval Requirement"
 msgstr "Ajouter une exigence d'approbation"
 
-msgid "Add attachments"
-msgstr "Ajouter des pièces jointes"
-
 msgid "Add Calibration Record"
 msgstr "Ajouter un enregistrement d'étalonnage"
 
@@ -919,10 +916,6 @@ msgstr "En tant que propriétaire de l'entreprise, vous pouvez transférer la pr
 msgid "Ascending"
 msgstr "Croissant"
 
-#. js-lingui-explicit-id
-msgid "Ask anything"
-msgstr "Demandez n'importe quoi"
-
 msgid "Assembly:"
 msgstr "Assemblage :"
 
@@ -1036,9 +1029,6 @@ msgstr "Jours moy. pour fermer"
 
 msgid "Back"
 msgstr "Retour"
-
-msgid "Back to home"
-msgstr "Retour à l'accueil"
 
 msgid "Back to traceability"
 msgstr "Retour à la traçabilité"
@@ -1634,9 +1624,6 @@ msgstr "Convertir en devis"
 msgid "Copied link to clipboard"
 msgstr "Lien copié dans le presse-papiers"
 
-msgid "Copied!"
-msgstr "Copié !"
-
 msgid "Copy"
 msgstr "Copier"
 
@@ -1741,9 +1728,6 @@ msgstr "Copier le devis"
 
 msgid "Copy Quote number"
 msgstr "Copier le numéro de devis"
-
-msgid "Copy response"
-msgstr "Copier la réponse"
 
 msgid "Copy this item's pricing to another scope."
 msgstr "Copiez la tarification de cet article vers une autre portée."
@@ -2269,9 +2253,6 @@ msgstr "Supprimer l'attribut"
 
 msgid "Delete Category"
 msgstr "Supprimer la catégorie"
-
-msgid "Delete chat"
-msgstr "Supprimer le chat"
 
 msgid "Delete Consumable"
 msgstr "Supprimer la consommable"
@@ -4415,9 +4396,6 @@ msgstr "Rechargement en direct"
 msgid "Load Templates"
 msgstr "Charger les modèles"
 
-msgid "Loader"
-msgstr "Chargement"
-
 msgid "Loading item details..."
 msgstr "Chargement des détails de l'article..."
 
@@ -4888,9 +4866,6 @@ msgstr "Besoin des bonnes colonnes ?"
 msgid "Negative Adjustment"
 msgstr "Ajustement Négatif"
 
-msgid "Negative feedback"
-msgstr "Retour négatif"
-
 msgid "Never"
 msgstr "Jamais"
 
@@ -4914,9 +4889,6 @@ msgstr "Nouvel Attribut"
 
 msgid "New Attribute Category"
 msgstr "Nouvelle Catégorie d'Attribut"
-
-msgid "New chat"
-msgstr "Nouveau chat"
 
 msgid "New Consumable"
 msgstr "Nouveau consommable"
@@ -5193,12 +5165,6 @@ msgstr "Aucun enregistrement d'étalonnage trouvé"
 msgid "No changes recorded"
 msgstr "Aucune modification enregistrée"
 
-msgid "No chat history"
-msgstr "Aucun historique de chat"
-
-msgid "No chats found"
-msgstr "Aucun chat trouvé"
-
 msgid "No comments yet. Be the first to add a comment."
 msgstr "Aucun commentaire pour le moment. Soyez le premier à ajouter un commentaire."
 
@@ -5462,9 +5428,6 @@ msgstr "Actions ouvertes"
 
 msgid "Open Audit Log"
 msgstr "Ouvrir le journal d'audit"
-
-msgid "Open chat history"
-msgstr "Ouvrir l'historique des conversations"
 
 msgid "Open Date"
 msgstr "Date d'ouverture"
@@ -5861,9 +5824,6 @@ msgstr "Portails"
 
 msgid "Positive Adjustment"
 msgstr "Ajustement positif"
-
-msgid "Positive feedback"
-msgstr "Retour positif"
 
 msgid "Post"
 msgstr "Publier"
@@ -6382,9 +6342,6 @@ msgstr "Supprimer"
 msgid "Remove {0}"
 msgstr "Supprimer {0}"
 
-msgid "Remove attachment"
-msgstr "Supprimer la pièce jointe"
-
 msgid "Remove condition"
 msgstr "Supprimer la condition"
 
@@ -6403,9 +6360,6 @@ msgstr "Supprimer de la liste de prix"
 msgid "Remove item"
 msgstr "Supprimer l'article"
 
-msgid "Remove negative feedback"
-msgstr "Supprimer les commentaires négatifs"
-
 msgid "Remove order"
 msgstr "Supprimer la commande"
 
@@ -6414,9 +6368,6 @@ msgstr "Supprimer la commande"
 
 msgid "Remove pair"
 msgstr "Supprimer la paire"
-
-msgid "Remove positive feedback"
-msgstr "Supprimer les commentaires positifs"
 
 msgid "Remove sort by column"
 msgstr "Supprimer le tri par colonne"
@@ -6566,9 +6517,6 @@ msgstr "Résultats par page"
 
 msgid "Retry"
 msgstr "Réessayer"
-
-msgid "Retry response"
-msgstr "Réessayer la réponse"
 
 msgid "Return Home"
 msgstr "Retour à l'accueil"
@@ -6856,9 +6804,6 @@ msgstr "Rechercher des champs..."
 msgid "Search for existing or create a new one"
 msgstr "Rechercher un existant ou en créer un nouveau"
 
-msgid "Search history"
-msgstr "Historique de recherche"
-
 msgid "Search Job"
 msgstr "Rechercher un travail"
 
@@ -6873,10 +6818,6 @@ msgstr "Rechercher les articles associés..."
 
 msgid "Search suppliers..."
 msgstr "Rechercher des fournisseurs..."
-
-#. js-lingui-explicit-id
-msgid "Search the web"
-msgstr "Rechercher sur le web"
 
 msgid "Search..."
 msgstr "Rechercher..."
@@ -7337,9 +7278,6 @@ msgstr "Méthode source"
 msgid "Source Version"
 msgstr "Version source"
 
-msgid "Sources"
-msgstr "Sources"
-
 msgid "Sourcing Type"
 msgstr "Type d'approvisionnement"
 
@@ -7502,9 +7440,6 @@ msgstr "Sous-départements"
 msgid "Subassembly"
 msgstr "Sous-assemblage"
 
-msgid "Submit"
-msgstr "Soumettre"
-
 msgid "Submit anonymously"
 msgstr "Soumettre anonymement"
 
@@ -7543,9 +7478,6 @@ msgstr "Révision créée avec succès"
 
 msgid "Suffix"
 msgstr "Suffixe"
-
-msgid "Suggested Actions"
-msgstr "Actions suggérées"
 
 msgid "Suggestion"
 msgstr "Suggestion"
@@ -8535,9 +8467,6 @@ msgstr "Visibilité"
 msgid "Visible on a user's public profile"
 msgstr "Visible sur le profil public d'un utilisateur"
 
-msgid "Voice"
-msgstr "Voix"
-
 msgid "Void"
 msgstr "Annuler"
 
@@ -8603,9 +8532,6 @@ msgstr "Nous avons envoyé un code de vérification à {signupEmail}"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Nous vous avons envoyé un lien magique pour vous connecter à votre compte."
-
-msgid "Web Search"
-msgstr "Recherche Web"
 
 msgid "Webhook"
 msgstr "Webhook"

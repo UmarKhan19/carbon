@@ -43,6 +43,7 @@ const functionRegistry = {
 export interface ExecutorContext {
   client: SupabaseClient<Database>;
   companyId: string;
+  companyGroupId: string;
   userId: string;
 }
 
@@ -69,6 +70,9 @@ function enrichWithAuthContext(
   }
   if (fields.includes("companyId")) {
     enriched.companyId = context.companyId;
+  }
+  if (fields.includes("companyGroupId")) {
+    enriched.companyGroupId = context.companyGroupId;
   }
 
   return enriched;
@@ -154,6 +158,8 @@ export async function executeFunction(
         functionArgs.push(context.userId);
       } else if (paramName === "companyId") {
         functionArgs.push(context.companyId);
+      } else if (paramName === "companyGroupId") {
+        functionArgs.push(context.companyGroupId);
       } else if (paramName === "args") {
         // For 'args' parameter, pass the entire args object or a default
         // This is the parameter that most service functions expect
@@ -166,7 +172,9 @@ export async function executeFunction(
       } else if (
         normalizedArgs &&
         Object.keys(normalizedArgs).length === 1 &&
-        !paramNames.some((p: string) => p in normalizedArgs)
+        !paramNames.some((p: string) => p in normalizedArgs) &&
+        typeof Object.values(normalizedArgs)[0] === "object" &&
+        Object.values(normalizedArgs)[0] !== null
       ) {
         // Single-key payload whose name doesn't match any parameter — unwrap
         // and use as positional. Hits the documented `{ args: {...} }` wrapper

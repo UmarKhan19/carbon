@@ -279,9 +279,6 @@ msgstr "添加关于您的决定的任何备注..."
 msgid "Add Approval Requirement"
 msgstr "添加批准要求"
 
-msgid "Add attachments"
-msgstr "添加附件"
-
 msgid "Add Calibration Record"
 msgstr "添加校准记录"
 
@@ -919,10 +916,6 @@ msgstr "作为公司所有者，您可以将所有权转移给另一名员工。
 msgid "Ascending"
 msgstr "升序"
 
-#. js-lingui-explicit-id
-msgid "Ask anything"
-msgstr "随便问"
-
 msgid "Assembly:"
 msgstr "装配体："
 
@@ -1036,9 +1029,6 @@ msgstr "平均关闭天数"
 
 msgid "Back"
 msgstr "返回"
-
-msgid "Back to home"
-msgstr "返回主页"
 
 msgid "Back to traceability"
 msgstr "返回可追溯性"
@@ -1634,9 +1624,6 @@ msgstr "转换为报价"
 msgid "Copied link to clipboard"
 msgstr "已复制链接到剪贴板"
 
-msgid "Copied!"
-msgstr "已复制！"
-
 msgid "Copy"
 msgstr "复制"
 
@@ -1741,9 +1728,6 @@ msgstr "复制报价"
 
 msgid "Copy Quote number"
 msgstr "复制报价单号"
-
-msgid "Copy response"
-msgstr "复制回复"
 
 msgid "Copy this item's pricing to another scope."
 msgstr "将此项目的定价复制到另一个范围。"
@@ -2269,9 +2253,6 @@ msgstr "删除属性"
 
 msgid "Delete Category"
 msgstr "删除分类"
-
-msgid "Delete chat"
-msgstr "删除聊天"
 
 msgid "Delete Consumable"
 msgstr "删除耗材"
@@ -4415,9 +4396,6 @@ msgstr "实时重新加载"
 msgid "Load Templates"
 msgstr "加载模板"
 
-msgid "Loader"
-msgstr "加载器"
-
 msgid "Loading item details..."
 msgstr "正在加载项目详情..."
 
@@ -4888,9 +4866,6 @@ msgstr "需要正确的列吗？"
 msgid "Negative Adjustment"
 msgstr "负调整"
 
-msgid "Negative feedback"
-msgstr "负面反馈"
-
 msgid "Never"
 msgstr "永不"
 
@@ -4914,9 +4889,6 @@ msgstr "新属性"
 
 msgid "New Attribute Category"
 msgstr "新属性类别"
-
-msgid "New chat"
-msgstr "新聊天"
 
 msgid "New Consumable"
 msgstr "新消耗品"
@@ -5193,12 +5165,6 @@ msgstr "未找到校准记录"
 msgid "No changes recorded"
 msgstr "未记录任何更改"
 
-msgid "No chat history"
-msgstr "没有聊天历史"
-
-msgid "No chats found"
-msgstr "未找到聊天"
-
 msgid "No comments yet. Be the first to add a comment."
 msgstr "还没有评论。成为第一个添加评论的人。"
 
@@ -5462,9 +5428,6 @@ msgstr "开放操作"
 
 msgid "Open Audit Log"
 msgstr "打开审计日志"
-
-msgid "Open chat history"
-msgstr "打开聊天历史"
 
 msgid "Open Date"
 msgstr "开放日期"
@@ -5861,9 +5824,6 @@ msgstr "门户"
 
 msgid "Positive Adjustment"
 msgstr "正向调整"
-
-msgid "Positive feedback"
-msgstr "正面反馈"
 
 msgid "Post"
 msgstr "过账"
@@ -6382,9 +6342,6 @@ msgstr "移除"
 msgid "Remove {0}"
 msgstr "删除 {0}"
 
-msgid "Remove attachment"
-msgstr "移除附件"
-
 msgid "Remove condition"
 msgstr "移除条件"
 
@@ -6403,9 +6360,6 @@ msgstr "从价格列表中移除"
 msgid "Remove item"
 msgstr "删除项目"
 
-msgid "Remove negative feedback"
-msgstr "移除负面反馈"
-
 msgid "Remove order"
 msgstr "删除订单"
 
@@ -6414,9 +6368,6 @@ msgstr "删除订单"
 
 msgid "Remove pair"
 msgstr "移除配对"
-
-msgid "Remove positive feedback"
-msgstr "移除正面反馈"
 
 msgid "Remove sort by column"
 msgstr "删除按列排序"
@@ -6566,9 +6517,6 @@ msgstr "每页结果数"
 
 msgid "Retry"
 msgstr "重试"
-
-msgid "Retry response"
-msgstr "重试响应"
 
 msgid "Return Home"
 msgstr "返回首页"
@@ -6856,9 +6804,6 @@ msgstr "搜索字段..."
 msgid "Search for existing or create a new one"
 msgstr "搜索现有问题或创建新问题"
 
-msgid "Search history"
-msgstr "搜索历史"
-
 msgid "Search Job"
 msgstr "搜索任务"
 
@@ -6873,10 +6818,6 @@ msgstr "搜索相关项目..."
 
 msgid "Search suppliers..."
 msgstr "搜索供应商..."
-
-#. js-lingui-explicit-id
-msgid "Search the web"
-msgstr "搜索网络"
 
 msgid "Search..."
 msgstr "搜索..."
@@ -7337,9 +7278,6 @@ msgstr "源方法"
 msgid "Source Version"
 msgstr "源版本"
 
-msgid "Sources"
-msgstr "来源"
-
 msgid "Sourcing Type"
 msgstr "采购类型"
 
@@ -7502,9 +7440,6 @@ msgstr "子部门"
 msgid "Subassembly"
 msgstr "小组件"
 
-msgid "Submit"
-msgstr "提交"
-
 msgid "Submit anonymously"
 msgstr "匿名提交"
 
@@ -7543,9 +7478,6 @@ msgstr "成功创建新版本"
 
 msgid "Suffix"
 msgstr "后缀"
-
-msgid "Suggested Actions"
-msgstr "建议操作"
 
 msgid "Suggestion"
 msgstr "建议"
@@ -8535,9 +8467,6 @@ msgstr "可见性"
 msgid "Visible on a user's public profile"
 msgstr "在用户的公开资料中可见"
 
-msgid "Voice"
-msgstr "语音"
-
 msgid "Void"
 msgstr "作废"
 
@@ -8603,9 +8532,6 @@ msgstr "我们已向 {signupEmail} 发送了验证码"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "我们已向您发送了一个魔法链接以登录您的账户。"
-
-msgid "Web Search"
-msgstr "网络搜索"
 
 msgid "Webhook"
 msgstr "Webhook"

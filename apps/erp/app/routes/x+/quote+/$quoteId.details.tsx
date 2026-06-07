@@ -97,6 +97,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
       customerId: validation.data.customerId,
       customerContactId: validation.data.customerContactId || null,
       customerLocationId: validation.data.customerLocationId || null,
+      customerEngineeringContactId:
+        validation.data.customerEngineeringContactId || null,
+      customerReference: validation.data.customerReference || null,
+      salesPersonId: validation.data.salesPersonId || null,
+      estimatorId: validation.data.estimatorId || null,
+      locationId: validation.data.locationId,
+      dueDate: validation.data.dueDate || null,
+      digitalQuoteAcceptedBy: validation.data.digitalQuoteAcceptedBy || null,
+      digitalQuoteAcceptedByEmail:
+        validation.data.digitalQuoteAcceptedByEmail || null,
       notes: validation.data.notes,
       customFields: setCustomFields(formData),
       updatedBy: userId

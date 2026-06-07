@@ -279,9 +279,6 @@ msgstr "Добавьте любые заметки о вашем решении.
 msgid "Add Approval Requirement"
 msgstr "Добавить требование утверждения"
 
-msgid "Add attachments"
-msgstr "Добавить вложения"
-
 msgid "Add Calibration Record"
 msgstr "Добавить запись калибровки"
 
@@ -919,10 +916,6 @@ msgstr "Как владелец компании, вы можете переда
 msgid "Ascending"
 msgstr "По возрастанию"
 
-#. js-lingui-explicit-id
-msgid "Ask anything"
-msgstr "Спросите что угодно"
-
 msgid "Assembly:"
 msgstr "Сборка:"
 
@@ -1036,9 +1029,6 @@ msgstr "Среднее количество дней до закрытия"
 
 msgid "Back"
 msgstr "Назад"
-
-msgid "Back to home"
-msgstr "Вернуться на главную"
 
 msgid "Back to traceability"
 msgstr "Вернуться к отслеживанию"
@@ -1634,9 +1624,6 @@ msgstr "Преобразовать в предложение"
 msgid "Copied link to clipboard"
 msgstr "Ссылка скопирована в буфер обмена"
 
-msgid "Copied!"
-msgstr "Скопировано!"
-
 msgid "Copy"
 msgstr "Копировать"
 
@@ -1741,9 +1728,6 @@ msgstr "Копировать предложение"
 
 msgid "Copy Quote number"
 msgstr "Копировать номер предложения"
-
-msgid "Copy response"
-msgstr "Копировать ответ"
 
 msgid "Copy this item's pricing to another scope."
 msgstr "Скопируйте цены этого товара в другую область."
@@ -2269,9 +2253,6 @@ msgstr "Удалить атрибут"
 
 msgid "Delete Category"
 msgstr "Удалить категорию"
-
-msgid "Delete chat"
-msgstr "Удалить чат"
 
 msgid "Delete Consumable"
 msgstr "Удалить расходный материал"
@@ -4415,9 +4396,6 @@ msgstr "Живая перезагрузка"
 msgid "Load Templates"
 msgstr "Загрузить шаблоны"
 
-msgid "Loader"
-msgstr "Загрузчик"
-
 msgid "Loading item details..."
 msgstr "Загрузка деталей товара..."
 
@@ -4888,9 +4866,6 @@ msgstr "Нужны правильные столбцы?"
 msgid "Negative Adjustment"
 msgstr "Отрицательная корректировка"
 
-msgid "Negative feedback"
-msgstr "Отрицательный отзыв"
-
 msgid "Never"
 msgstr "Никогда"
 
@@ -4914,9 +4889,6 @@ msgstr "Новый атрибут"
 
 msgid "New Attribute Category"
 msgstr "Новая категория атрибутов"
-
-msgid "New chat"
-msgstr "Новый чат"
 
 msgid "New Consumable"
 msgstr "Новый расходный материал"
@@ -5193,12 +5165,6 @@ msgstr "Записи о калибровке не найдены"
 msgid "No changes recorded"
 msgstr "Изменений не записано"
 
-msgid "No chat history"
-msgstr "Нет истории чатов"
-
-msgid "No chats found"
-msgstr "Чаты не найдены"
-
 msgid "No comments yet. Be the first to add a comment."
 msgstr "Нет комментариев. Будьте первым, кто добавит комментарий."
 
@@ -5462,9 +5428,6 @@ msgstr "Открытые действия"
 
 msgid "Open Audit Log"
 msgstr "Открыть журнал аудита"
-
-msgid "Open chat history"
-msgstr "Открыть историю чатов"
 
 msgid "Open Date"
 msgstr "Дата открытия"
@@ -5861,9 +5824,6 @@ msgstr "Порталы"
 
 msgid "Positive Adjustment"
 msgstr "Положительная корректировка"
-
-msgid "Positive feedback"
-msgstr "Положительный отзыв"
 
 msgid "Post"
 msgstr "Опубликовать"
@@ -6382,9 +6342,6 @@ msgstr "Удалить"
 msgid "Remove {0}"
 msgstr "Удалить {0}"
 
-msgid "Remove attachment"
-msgstr "Удалить вложение"
-
 msgid "Remove condition"
 msgstr "Удалить условие"
 
@@ -6403,9 +6360,6 @@ msgstr "Удалить из прайс-листа"
 msgid "Remove item"
 msgstr "Удалить товар"
 
-msgid "Remove negative feedback"
-msgstr "Удалить отрицательный отзыв"
-
 msgid "Remove order"
 msgstr "Удалить заказ"
 
@@ -6414,9 +6368,6 @@ msgstr "Удалить заказ"
 
 msgid "Remove pair"
 msgstr "Удалить пару"
-
-msgid "Remove positive feedback"
-msgstr "Удалить положительный отзыв"
 
 msgid "Remove sort by column"
 msgstr "Удалить сортировку по столбцу"
@@ -6566,9 +6517,6 @@ msgstr "Результатов на странице"
 
 msgid "Retry"
 msgstr "Повторить"
-
-msgid "Retry response"
-msgstr "Повторить ответ"
 
 msgid "Return Home"
 msgstr "Вернуться на главную"
@@ -6856,9 +6804,6 @@ msgstr "Поиск полей..."
 msgid "Search for existing or create a new one"
 msgstr "Поиск существующей или создание новой"
 
-msgid "Search history"
-msgstr "Поиск в истории"
-
 msgid "Search Job"
 msgstr "Поиск задания"
 
@@ -6873,10 +6818,6 @@ msgstr "Поиск связанных элементов..."
 
 msgid "Search suppliers..."
 msgstr "Поиск поставщиков..."
-
-#. js-lingui-explicit-id
-msgid "Search the web"
-msgstr "Поиск в интернете"
 
 msgid "Search..."
 msgstr "Поиск..."
@@ -7337,9 +7278,6 @@ msgstr "Исходный метод"
 msgid "Source Version"
 msgstr "Исходная версия"
 
-msgid "Sources"
-msgstr "Источники"
-
 msgid "Sourcing Type"
 msgstr "Тип источника"
 
@@ -7502,9 +7440,6 @@ msgstr "Подразделения"
 msgid "Subassembly"
 msgstr "Узел в сборке"
 
-msgid "Submit"
-msgstr "Отправить"
-
 msgid "Submit anonymously"
 msgstr "Отправить анонимно"
 
@@ -7543,9 +7478,6 @@ msgstr "Успешно создана новая редакция"
 
 msgid "Suffix"
 msgstr "Суффикс"
-
-msgid "Suggested Actions"
-msgstr "Предлагаемые действия"
 
 msgid "Suggestion"
 msgstr "Предложение"
@@ -8535,9 +8467,6 @@ msgstr "Видимость"
 msgid "Visible on a user's public profile"
 msgstr "Видно в общедоступном профиле пользователя"
 
-msgid "Voice"
-msgstr "Голос"
-
 msgid "Void"
 msgstr "Аннулировать"
 
@@ -8603,9 +8532,6 @@ msgstr "Мы отправили код подтверждения на {signupEm
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Мы отправили вам волшебную ссылку для входа в ваш аккаунт."
-
-msgid "Web Search"
-msgstr "Веб-поиск"
 
 msgid "Webhook"
 msgstr "Вебхук"

@@ -13,7 +13,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     token_endpoint_auth_methods_supported: ["client_secret_post", "none"],
     grant_types_supported: ["authorization_code", "refresh_token"],
     response_types_supported: ["code"],
-    code_challenge_methods_supported: ["S256", "plain"],
+    code_challenge_methods_supported: ["S256"],
     scopes_supported: ["mcp:tools"],
     service_documentation: `${issuer}/docs/api`
   };

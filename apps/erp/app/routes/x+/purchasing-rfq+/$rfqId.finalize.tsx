@@ -110,6 +110,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     contactEmail: string;
     contactFirstName: string;
     supplierQuoteId: string;
+    supplierQuoteReadableId: string;
     externalLinkId: string;
   }> = [];
 
@@ -133,6 +134,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
 
     const supplierQuoteId = quoteResult.data.id;
+    const supplierQuoteReadableId = quoteResult.data.supplierQuoteId;
     createdQuotes.push(supplierQuoteId);
 
     // Create quote lines for each RFQ line that has an itemId
@@ -202,6 +204,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           contactEmail: supplierContact.data.contact.email,
           contactFirstName: supplierContact.data.contact.firstName ?? "there",
           supplierQuoteId,
+          supplierQuoteReadableId,
           externalLinkId: externalLinkResult.data.id
         });
       }
@@ -270,7 +273,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     for (const email of emailsToSend) {
       try {
         const externalQuoteUrl = `${baseUrl}${path.to.externalSupplierQuote(email.externalLinkId)}`;
-        const emailSubject = `Supplier Quote ${email.supplierQuoteId} from ${company.data.name}`;
+        const emailSubject = `Supplier Quote ${email.supplierQuoteReadableId} from ${company.data.name}`;
         const emailBody = `Hey ${email.contactFirstName},\n\nPlease provide pricing and lead time(s) for the linked quote:`;
         const emailSignature = `Thanks,\n${user.data.firstName} ${user.data.lastName}\n${company.data.name}`;
 

@@ -297,9 +297,8 @@ export async function requirePermissions(
     }
   }
 
-  const { accessToken, companyId, companyGroupId, email, userId } =
-    await requireAuthSession(request);
   const authSession = await requireAuthSession(request);
+  const { accessToken, companyId, companyGroupId, email, userId } = authSession;
   const consoleMode = authSession.console === companyId;
 
   const myClaims = await getUserClaims(userId, companyId);

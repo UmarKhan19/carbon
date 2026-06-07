@@ -1862,7 +1862,7 @@ export async function reverseJournalEntry(
   client: SupabaseClient<Database>,
   id: string,
   data: {
-    journalEntryId: string;
+    journalEntryId?: string;
     companyId: string;
     userId: string;
   }
@@ -1877,11 +1877,31 @@ export async function reverseJournalEntry(
     };
   }
 
-  // 2. Create reversing entry as Posted
+  // 2. Generate sequence if not provided
+  let journalEntryId: string;
+  if (data.journalEntryId) {
+    journalEntryId = data.journalEntryId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "journalEntry",
+      company_id: data.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error: seq.error ?? {
+          message: "Failed to generate journalEntry sequence"
+        }
+      };
+    }
+    journalEntryId = seq.data;
+  }
+
+  // 3. Create reversing entry as Posted
   const reversed = await client
     .from("journal")
     .insert({
-      journalEntryId: data.journalEntryId,
+      journalEntryId,
       companyId: data.companyId,
       description: `Reversal of ${original.data.journalEntryId}`,
       postingDate: new Date().toISOString().split("T")[0],
@@ -2072,6 +2092,127 @@ export async function getFixedAssetsListForSale(
     .order("fixedAssetId");
 }
 
+export async function insertFixedAsset(
+  client: SupabaseClient<Database>,
+  input: {
+    companyId: string;
+    createdBy: string;
+    fixedAssetId?: string;
+    fixedAssetClassId: string;
+    name: string;
+    description?: string;
+    serialNumber?: string;
+    depreciationMethod: string;
+    usefulLifeMonths: number;
+    residualValuePercent: number;
+    assetLifetimeUsage?: number | null;
+    locationId?: string;
+    status?: string;
+    taxDepreciationMethod?: string | null;
+    taxUsefulLifeMonths?: number | null;
+    taxResidualValuePercent?: number | null;
+    macrsPropertyClass?: string | null;
+    macrsConvention?: string | null;
+    bonusDepreciationPercent?: number | null;
+  }
+): Promise<{
+  data: { id: string; fixedAssetId: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  let fixedAssetId: string;
+  if (input.fixedAssetId) {
+    fixedAssetId = input.fixedAssetId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "fixedAsset",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error:
+          seq.error ??
+          ({
+            message: "Failed to generate fixedAsset sequence"
+          } as import("@supabase/supabase-js").PostgrestError)
+      };
+    }
+    fixedAssetId = seq.data;
+  }
+
+  const asset = await client
+    .from("fixedAsset")
+    .insert({
+      fixedAssetId,
+      fixedAssetClassId: input.fixedAssetClassId,
+      name: input.name,
+      description: input.description ?? null,
+      serialNumber: input.serialNumber ?? null,
+      depreciationMethod: input.depreciationMethod as any,
+      usefulLifeMonths: input.usefulLifeMonths,
+      residualValuePercent: input.residualValuePercent,
+      assetLifetimeUsage: input.assetLifetimeUsage ?? null,
+      locationId: input.locationId ?? null,
+      status: (input.status as any) ?? "Draft",
+      taxDepreciationMethod: (input.taxDepreciationMethod as any) ?? null,
+      taxUsefulLifeMonths: input.taxUsefulLifeMonths ?? null,
+      taxResidualValuePercent: input.taxResidualValuePercent ?? null,
+      macrsPropertyClass: (input.macrsPropertyClass as any) ?? null,
+      macrsConvention: (input.macrsConvention as any) ?? null,
+      bonusDepreciationPercent: input.bonusDepreciationPercent ?? null,
+      companyId: input.companyId,
+      createdBy: input.createdBy,
+      updatedBy: input.createdBy
+    })
+    .select("id, fixedAssetId")
+    .single();
+
+  if (asset.error) return { data: null, error: asset.error };
+
+  return {
+    data: { id: asset.data.id, fixedAssetId: asset.data.fixedAssetId },
+    error: null
+  };
+}
+
+export async function updateFixedAsset(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    updatedBy: string;
+    fixedAssetClassId?: string;
+    name?: string;
+    description?: string | null;
+    serialNumber?: string | null;
+    depreciationMethod?: string;
+    usefulLifeMonths?: number;
+    residualValuePercent?: number;
+    assetLifetimeUsage?: number | null;
+    locationId?: string | null;
+    taxDepreciationMethod?: string | null;
+    taxUsefulLifeMonths?: number | null;
+    taxResidualValuePercent?: number | null;
+    macrsPropertyClass?: string | null;
+    macrsConvention?: string | null;
+    bonusDepreciationPercent?: number | null;
+  }
+): Promise<{
+  data: { id: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  const { id, ...rest } = input;
+  const result = await client
+    .from("fixedAsset")
+    .update(sanitize(rest))
+    .eq("id", id)
+    .select("id")
+    .single();
+
+  if (result.error) return { data: null, error: result.error };
+  return { data: { id: result.data.id }, error: null };
+}
+
+/** @deprecated Use insertFixedAsset for new assets, updateFixedAsset for existing assets */
 export async function upsertFixedAsset(
   client: SupabaseClient<Database>,
   data:
@@ -2103,6 +2244,86 @@ export async function deleteFixedAsset(
   id: string
 ) {
   return client.from("fixedAsset").delete().eq("id", id).eq("status", "Draft");
+}
+
+export async function insertDepreciationRun(
+  client: SupabaseClient<Database>,
+  input: {
+    companyId: string;
+    createdBy: string;
+    depreciationRunId?: string;
+    periodEnd: string;
+    lines: Array<{
+      fixedAssetId: string;
+      amount: number;
+      taxAmount?: number;
+    }>;
+  }
+): Promise<{
+  data: { id: string; depreciationRunId: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  let depreciationRunId: string;
+  if (input.depreciationRunId) {
+    depreciationRunId = input.depreciationRunId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "depreciationRun",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error:
+          seq.error ??
+          ({
+            message: "Failed to generate depreciationRun sequence"
+          } as import("@supabase/supabase-js").PostgrestError)
+      };
+    }
+    depreciationRunId = seq.data;
+  }
+
+  const run = await client
+    .from("depreciationRun")
+    .insert({
+      depreciationRunId,
+      periodEnd: input.periodEnd,
+      status: "Draft" as const,
+      companyId: input.companyId,
+      createdBy: input.createdBy
+    })
+    .select("id, depreciationRunId")
+    .single();
+
+  if (run.error) return { data: null, error: run.error };
+
+  if (input.lines.length > 0) {
+    const lineInserts = input.lines.map((line) => ({
+      depreciationRunId: run.data.id,
+      fixedAssetId: line.fixedAssetId,
+      amount: line.amount,
+      taxAmount: line.taxAmount,
+      companyId: input.companyId
+    }));
+
+    const lineResult = await client
+      .from("depreciationRunLine")
+      .insert(lineInserts);
+
+    if (lineResult.error) {
+      await client.from("depreciationRun").delete().eq("id", run.data.id);
+      return { data: null, error: lineResult.error };
+    }
+  }
+
+  return {
+    data: {
+      id: run.data.id,
+      depreciationRunId: run.data.depreciationRunId
+    },
+    error: null
+  };
 }
 
 export async function deleteDepreciationRun(

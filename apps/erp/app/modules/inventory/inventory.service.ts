@@ -2316,7 +2316,14 @@ export async function updateStockTransfer(
   const { id, updatedBy, customFields, ...fields } = input;
   return client
     .from("stockTransfer")
-    .update(sanitize({ ...fields, customFields, updatedBy }))
+    .update(
+      sanitize({
+        ...fields,
+        customFields,
+        updatedBy,
+        updatedAt: new Date().toISOString()
+      })
+    )
     .eq("id", id)
     .select("id")
     .single();

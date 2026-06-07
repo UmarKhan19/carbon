@@ -40,10 +40,7 @@ function verifyCodeChallenge(
   codeChallenge: string,
   method: string
 ): boolean {
-  if (method === "plain") {
-    return codeVerifier === codeChallenge;
-  }
-  // S256: BASE64URL(SHA256(code_verifier))
+  if (method !== "S256") return false;
   const hash = createHash("sha256").update(codeVerifier).digest();
   const base64url = hash
     .toString("base64")
@@ -99,10 +96,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const oauthClient =
-    oauthClientResult.data as typeof oauthClientResult.data & {
-      tokenEndpointAuthMethod?: string;
-    };
+  const oauthClient = oauthClientResult.data;
 
   if (oauthClient.tokenEndpointAuthMethod !== "none") {
     if (
@@ -130,11 +124,12 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    // Verify the authorization code
+    // Atomically consume the authorization code (delete-first prevents replay)
     const oauthCode = await client
       .from("oauthCode")
-      .select("*")
+      .delete()
       .eq("code", code)
+      .select("*")
       .single();
 
     if (!oauthCode.data) {
@@ -147,12 +142,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    // codeChallenge, codeChallengeMethod, scope exist in DB but not yet in generated types
-    const codeData = oauthCode.data as typeof oauthCode.data & {
-      codeChallenge?: string | null;
-      codeChallengeMethod?: string | null;
-      scope?: string | null;
-    };
+    const codeData = oauthCode.data;
 
     if (codeData.clientId !== client_id) {
       return jsonResponse(
@@ -171,9 +161,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    // Check if code has expired
     if (new Date(codeData.expiresAt) < new Date()) {
-      await client.from("oauthCode").delete().eq("code", code);
       return jsonResponse(
         {
           error: "invalid_grant",
@@ -195,7 +183,7 @@ export async function action({ request }: ActionFunctionArgs) {
         );
       }
 
-      const method = codeData.codeChallengeMethod || "plain";
+      const method = codeData.codeChallengeMethod || "S256";
       if (!verifyCodeChallenge(code_verifier, codeData.codeChallenge, method)) {
         return jsonResponse(
           {
@@ -230,9 +218,6 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    // Delete the used authorization code
-    await client.from("oauthCode").delete().eq("code", code);
-
     return jsonResponse({
       access_token: rawAccessToken,
       token_type: "Bearer",
@@ -265,10 +250,7 @@ export async function action({ request }: ActionFunctionArgs) {
       );
     }
 
-    // scope exists in DB but not yet in generated types
-    const refreshTokenData = tokenResult.data as typeof tokenResult.data & {
-      scope?: string | null;
-    };
+    const refreshTokenData = tokenResult.data;
 
     if (refreshTokenData.clientId !== client_id) {
       return jsonResponse(

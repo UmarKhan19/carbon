@@ -1300,6 +1300,7 @@ export async function insertPurchaseOrder(
     supplierLocationId?: string;
     supplierQuoteId?: string;
     receiptRequestedDate?: string;
+    supplierReference?: string;
     notes?: string;
     customFields?: Json;
   }
@@ -1383,6 +1384,7 @@ export async function insertPurchaseOrder(
       currencyCode: input.currencyCode,
       exchangeRate,
       exchangeRateUpdatedAt,
+      supplierReference: input.supplierReference ?? null,
       internalNotes: input.notes ?? null,
       customFields: input.customFields,
       companyId: input.companyId,
@@ -1433,8 +1435,11 @@ export async function updatePurchaseOrder(
     status?: (typeof purchaseOrderStatusType)[number];
     currencyCode?: string;
     orderDate?: string;
+    supplierId?: string;
     supplierContactId?: string | null;
     supplierLocationId?: string | null;
+    supplierReference?: string;
+    purchaseOrderType?: string;
     notes?: string | null;
     customFields?: Json;
   },
@@ -1798,9 +1803,11 @@ export async function insertSupplierQuote(
     expirationDate?: string;
     supplierContactId?: string;
     supplierLocationId?: string;
-    purchasingRfqId?: string;
     notes?: string;
     customFields?: Json;
+    quotedDate?: string;
+    supplierReference?: string;
+    supplierQuoteType?: string;
   }
 ): Promise<{
   data: { id: string; supplierQuoteId: string } | null;
@@ -1858,14 +1865,16 @@ export async function insertSupplierQuote(
       supplierContactId: input.supplierContactId,
       supplierLocationId: input.supplierLocationId,
       supplierInteractionId: supplierInteraction.data?.id,
-      purchasingRfqId: input.purchasingRfqId,
       status: input.status ?? "Draft",
       expirationDate: input.expirationDate,
       currencyCode: input.currencyCode,
       exchangeRate,
       exchangeRateUpdatedAt,
-      notes: input.notes,
+      internalNotes: input.notes,
       customFields: input.customFields,
+      quotedDate: input.quotedDate ?? new Date().toISOString(),
+      supplierReference: input.supplierReference ?? null,
+      supplierQuoteType: input.supplierQuoteType ?? "Purchase",
       companyId: input.companyId,
       createdBy: input.createdBy,
       updatedBy: input.createdBy
@@ -1915,7 +1924,7 @@ export async function updateSupplierQuote(
   data: { id: string } | null;
   error: import("@supabase/supabase-js").PostgrestError | null;
 }> {
-  const { id, updatedBy, ...updates } = input;
+  const { id, updatedBy, notes, ...updates } = input;
 
   let exchangeRate: number | undefined;
   let exchangeRateUpdatedAt: string | undefined;
@@ -1950,6 +1959,7 @@ export async function updateSupplierQuote(
       ...sanitize(updates),
       ...(exchangeRate !== undefined && { exchangeRate }),
       ...(exchangeRateUpdatedAt && { exchangeRateUpdatedAt }),
+      ...(notes !== undefined && { internalNotes: notes }),
       updatedBy,
       updatedAt: new Date().toISOString()
     })

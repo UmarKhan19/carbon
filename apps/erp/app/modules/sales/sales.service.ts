@@ -3313,14 +3313,17 @@ export async function insertQuote(
     companyGroupId: string;
     createdBy: string;
     quoteId?: string;
-    name?: string;
     locationId?: string;
     status?: (typeof quoteStatusType)[number];
     currencyCode?: string;
     expirationDate?: string;
     customerContactId?: string;
     customerLocationId?: string;
-    salesRfqId?: string;
+    customerEngineeringContactId?: string;
+    customerReference?: string;
+    salesPersonId?: string;
+    estimatorId?: string;
+    dueDate?: string;
     opportunityId?: string;
     notes?: string;
     customFields?: Json;
@@ -3374,7 +3377,12 @@ export async function insertQuote(
   if (customerShipping.error)
     return { data: null, error: customerShipping.error };
 
-  const { paymentTermId } = customerPayment.data;
+  const {
+    paymentTermId,
+    invoiceCustomerId,
+    invoiceCustomerContactId,
+    invoiceCustomerLocationId
+  } = customerPayment.data;
   const { shippingMethodId, shippingTermId, incoterm, incotermLocation } =
     customerShipping.data;
 
@@ -3398,19 +3406,22 @@ export async function insertQuote(
     .from("quote")
     .insert({
       quoteId,
-      name: input.name,
       customerId: input.customerId,
       customerContactId: input.customerContactId,
       customerLocationId: input.customerLocationId,
+      customerEngineeringContactId: input.customerEngineeringContactId,
+      customerReference: input.customerReference,
+      salesPersonId: input.salesPersonId,
+      estimatorId: input.estimatorId,
+      dueDate: input.dueDate,
       opportunityId,
-      salesRfqId: input.salesRfqId,
       status: input.status ?? "Draft",
       expirationDate: input.expirationDate,
       currencyCode: input.currencyCode,
       exchangeRate,
       exchangeRateUpdatedAt,
       locationId,
-      notes: input.notes,
+      internalNotes: input.notes,
       customFields: input.customFields,
       companyId: input.companyId,
       createdBy: input.createdBy,
@@ -3427,6 +3438,9 @@ export async function insertQuote(
     client.from("quotePayment").insert({
       id: createdQuoteId,
       paymentTermId,
+      invoiceCustomerId,
+      invoiceCustomerContactId,
+      invoiceCustomerLocationId,
       companyId: input.companyId
     }),
     client.from("quoteShipment").insert({
@@ -3467,13 +3481,20 @@ export async function updateQuote(
   input: {
     id: string;
     updatedBy: string;
-    name?: string | null;
     status?: (typeof quoteStatusType)[number];
     currencyCode?: string;
     expirationDate?: string | null;
     customerContactId?: string | null;
     customerLocationId?: string | null;
+    customerEngineeringContactId?: string | null;
+    customerReference?: string | null;
     customerId?: string;
+    salesPersonId?: string | null;
+    estimatorId?: string | null;
+    locationId?: string;
+    dueDate?: string | null;
+    digitalQuoteAcceptedBy?: string | null;
+    digitalQuoteAcceptedByEmail?: string | null;
     notes?: string | null;
     customFields?: Json;
   },
@@ -5456,8 +5477,7 @@ export async function insertSalesRFQ(
     .from("opportunity")
     .insert({
       companyId: input.companyId,
-      customerId: input.customerId,
-      createdBy: input.createdBy
+      customerId: input.customerId
     })
     .select("id")
     .single();

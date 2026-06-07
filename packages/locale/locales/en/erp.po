@@ -279,9 +279,6 @@ msgstr "Add any notes about your decision..."
 msgid "Add Approval Requirement"
 msgstr "Add Approval Requirement"
 
-msgid "Add attachments"
-msgstr "Add attachments"
-
 msgid "Add Calibration Record"
 msgstr "Add Calibration Record"
 
@@ -919,10 +916,6 @@ msgstr "As the company owner, you can transfer ownership to another employee. Th
 msgid "Ascending"
 msgstr "Ascending"
 
-#. js-lingui-explicit-id
-msgid "Ask anything"
-msgstr "Ask anything"
-
 msgid "Assembly:"
 msgstr "Assembly:"
 
@@ -1036,9 +1029,6 @@ msgstr "Avg Days to Close"
 
 msgid "Back"
 msgstr "Back"
-
-msgid "Back to home"
-msgstr "Back to home"
 
 msgid "Back to traceability"
 msgstr "Back to traceability"
@@ -1634,9 +1624,6 @@ msgstr "Convert to Quote"
 msgid "Copied link to clipboard"
 msgstr "Copied link to clipboard"
 
-msgid "Copied!"
-msgstr "Copied!"
-
 msgid "Copy"
 msgstr "Copy"
 
@@ -1741,9 +1728,6 @@ msgstr "Copy Quote"
 
 msgid "Copy Quote number"
 msgstr "Copy Quote number"
-
-msgid "Copy response"
-msgstr "Copy response"
 
 msgid "Copy this item's pricing to another scope."
 msgstr "Copy this item's pricing to another scope."
@@ -2269,9 +2253,6 @@ msgstr "Delete Attribute"
 
 msgid "Delete Category"
 msgstr "Delete Category"
-
-msgid "Delete chat"
-msgstr "Delete chat"
 
 msgid "Delete Consumable"
 msgstr "Delete Consumable"
@@ -4415,9 +4396,6 @@ msgstr "Live reloading"
 msgid "Load Templates"
 msgstr "Load Templates"
 
-msgid "Loader"
-msgstr "Loader"
-
 msgid "Loading item details..."
 msgstr "Loading item details..."
 
@@ -4888,9 +4866,6 @@ msgstr "Need the right columns?"
 msgid "Negative Adjustment"
 msgstr "Negative Adjustment"
 
-msgid "Negative feedback"
-msgstr "Negative feedback"
-
 msgid "Never"
 msgstr "Never"
 
@@ -4914,9 +4889,6 @@ msgstr "New Attribute"
 
 msgid "New Attribute Category"
 msgstr "New Attribute Category"
-
-msgid "New chat"
-msgstr "New chat"
 
 msgid "New Consumable"
 msgstr "New Consumable"
@@ -5193,12 +5165,6 @@ msgstr "No calibration records found"
 msgid "No changes recorded"
 msgstr "No changes recorded"
 
-msgid "No chat history"
-msgstr "No chat history"
-
-msgid "No chats found"
-msgstr "No chats found"
-
 msgid "No comments yet. Be the first to add a comment."
 msgstr "No comments yet. Be the first to add a comment."
 
@@ -5462,9 +5428,6 @@ msgstr "Open Actions"
 
 msgid "Open Audit Log"
 msgstr "Open Audit Log"
-
-msgid "Open chat history"
-msgstr "Open chat history"
 
 msgid "Open Date"
 msgstr "Open Date"
@@ -5861,9 +5824,6 @@ msgstr "Portals"
 
 msgid "Positive Adjustment"
 msgstr "Positive Adjustment"
-
-msgid "Positive feedback"
-msgstr "Positive feedback"
 
 msgid "Post"
 msgstr "Post"
@@ -6382,9 +6342,6 @@ msgstr "Remove"
 msgid "Remove {0}"
 msgstr "Remove {0}"
 
-msgid "Remove attachment"
-msgstr "Remove attachment"
-
 msgid "Remove condition"
 msgstr "Remove condition"
 
@@ -6403,9 +6360,6 @@ msgstr "Remove from Price List"
 msgid "Remove item"
 msgstr "Remove item"
 
-msgid "Remove negative feedback"
-msgstr "Remove negative feedback"
-
 msgid "Remove order"
 msgstr "Remove order"
 
@@ -6414,9 +6368,6 @@ msgstr "Remove Order"
 
 msgid "Remove pair"
 msgstr "Remove pair"
-
-msgid "Remove positive feedback"
-msgstr "Remove positive feedback"
 
 msgid "Remove sort by column"
 msgstr "Remove sort by column"
@@ -6566,9 +6517,6 @@ msgstr "Results per page"
 
 msgid "Retry"
 msgstr "Retry"
-
-msgid "Retry response"
-msgstr "Retry response"
 
 msgid "Return Home"
 msgstr "Return Home"
@@ -6856,9 +6804,6 @@ msgstr "Search fields..."
 msgid "Search for existing or create a new one"
 msgstr "Search for existing or create a new one"
 
-msgid "Search history"
-msgstr "Search history"
-
 msgid "Search Job"
 msgstr "Search Job"
 
@@ -6873,10 +6818,6 @@ msgstr "Search related items..."
 
 msgid "Search suppliers..."
 msgstr "Search suppliers..."
-
-#. js-lingui-explicit-id
-msgid "Search the web"
-msgstr "Search the web"
 
 msgid "Search..."
 msgstr "Search..."
@@ -7337,9 +7278,6 @@ msgstr "Source Method"
 msgid "Source Version"
 msgstr "Source Version"
 
-msgid "Sources"
-msgstr "Sources"
-
 msgid "Sourcing Type"
 msgstr "Sourcing Type"
 
@@ -7502,9 +7440,6 @@ msgstr "Sub-Departments"
 msgid "Subassembly"
 msgstr "Subassembly"
 
-msgid "Submit"
-msgstr "Submit"
-
 msgid "Submit anonymously"
 msgstr "Submit anonymously"
 
@@ -7543,9 +7478,6 @@ msgstr "Successfully created a new revision"
 
 msgid "Suffix"
 msgstr "Suffix"
-
-msgid "Suggested Actions"
-msgstr "Suggested Actions"
 
 msgid "Suggestion"
 msgstr "Suggestion"
@@ -8535,9 +8467,6 @@ msgstr "Visibility"
 msgid "Visible on a user's public profile"
 msgstr "Visible on a user's public profile"
 
-msgid "Voice"
-msgstr "Voice"
-
 msgid "Void"
 msgstr "Void"
 
@@ -8603,9 +8532,6 @@ msgstr "We've sent a verification code to {signupEmail}"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "We've sent you a magic link to sign in to your account."
-
-msgid "Web Search"
-msgstr "Web Search"
 
 msgid "Webhook"
 msgstr "Webhook"

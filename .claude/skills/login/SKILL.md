@@ -50,3 +50,7 @@ If the snapshot instead shows "Authentication Error" or remains on `/login`, log
 ## Output
 
 After successful login the browser session is authenticated. Subsequent `agent-browser` commands in the same session will carry the auth cookies. Do **not** call `agent-browser close` — leave the session open for the caller.
+
+## Navigating to the MES
+
+The MES app is at a separate URL. Read `MES_URL` from `.env.local` to navigate there. The same auth cookies apply — no separate login is needed.

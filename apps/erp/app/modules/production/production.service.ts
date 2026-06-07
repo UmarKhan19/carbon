@@ -2391,6 +2391,8 @@ export async function updateJob(
     modelUploadId?: string | null;
     notes?: string | null;
     customFields?: Json;
+    scrapQuantity?: number;
+    itemId?: string;
   }
 ): Promise<{ data: { id: string } | null; error: PostgrestError | null }> {
   const { id, updatedBy, ...updates } = input;

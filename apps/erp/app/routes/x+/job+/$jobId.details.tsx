@@ -170,6 +170,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const result = await updateJob(client, {
     id,
     quantity: validation.data.quantity,
+    scrapQuantity: validation.data.scrapQuantity,
+    itemId: validation.data.itemId,
     dueDate: validation.data.dueDate || null,
     startDate: validation.data.startDate || null,
     deadlineType: validation.data.deadlineType,

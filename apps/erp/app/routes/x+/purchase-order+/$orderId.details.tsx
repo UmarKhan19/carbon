@@ -121,10 +121,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
     {
       id: orderId,
       status: validation.data.status,
+      supplierId: validation.data.supplierId,
       currencyCode: validation.data.currencyCode,
       orderDate: validation.data.orderDate,
       supplierContactId: validation.data.supplierContactId || null,
       supplierLocationId: validation.data.supplierLocationId || null,
+      supplierReference: validation.data.supplierReference,
+      purchaseOrderType: validation.data.purchaseOrderType,
       notes: validation.data.notes,
       customFields: setCustomFields(formData),
       updatedBy: userId

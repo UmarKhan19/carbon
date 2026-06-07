@@ -86,8 +86,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const rawClientSecret =
     token_endpoint_auth_method !== "none" ? crypto.randomUUID() : null;
 
-  // grantTypes, responseTypes, tokenEndpointAuthMethod, clientUri, logoUri, scope
-  // exist in DB but not yet in generated types
   const insertResult = await client.from("oauthClient").insert([
     {
       clientId,
@@ -102,7 +100,7 @@ export async function action({ request }: ActionFunctionArgs) {
       scope: scope || null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    } as any // eslint-disable-line @typescript-eslint/no-explicit-any
+    }
   ]);
 
   if (insertResult.error) {

@@ -80,12 +80,20 @@ export async function action({ request }: ActionFunctionArgs) {
   const url = new URL(request.url);
   const param = (key: string) =>
     url.searchParams.get(key)?.replace(/\s/g, "") ?? null;
+  const response_type = url.searchParams.get("response_type");
   const client_id = param("client_id");
   const redirect_uri = url.searchParams.get("redirect_uri");
   const state = url.searchParams.get("state");
   const scope = url.searchParams.get("scope");
   const code_challenge = param("code_challenge");
   const code_challenge_method = param("code_challenge_method");
+
+  if (response_type !== "code") {
+    return data(
+      { error: "Unsupported response_type. Must be 'code'." },
+      { status: 400 }
+    );
+  }
 
   if (!client_id || !redirect_uri) {
     return data(
@@ -118,10 +126,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return data({ error: "Invalid client" }, { status: 400 });
   }
 
-  const oauthClient =
-    oauthClientResult.data as typeof oauthClientResult.data & {
-      tokenEndpointAuthMethod?: string;
-    };
+  const oauthClient = oauthClientResult.data;
 
   if (!oauthClient.redirectUris.includes(redirect_uri)) {
     return data({ error: "Invalid redirect URI" }, { status: 400 });
@@ -133,7 +138,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
   // Generate and store authorization code
   const code = crypto.randomUUID();
-  // scope, codeChallenge, codeChallengeMethod exist in DB but not yet in generated types
   const codeResult = await serviceRole.from("oauthCode").insert([
     {
       code,
@@ -146,7 +150,7 @@ export async function action({ request }: ActionFunctionArgs) {
       codeChallengeMethod: code_challenge_method || null,
       createdAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString()
-    } as any // eslint-disable-line @typescript-eslint/no-explicit-any
+    }
   ]);
 
   if (codeResult.error) {
