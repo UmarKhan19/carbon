@@ -24,9 +24,10 @@ type ApprovalDocumentType = Database["public"]["Enums"]["approvalDocumentType"];
 function buildNotificationLink(
   event: NotificationEvent,
   documentId: string,
+  companyId: string,
   documentType?: ApprovalDocumentType
 ): string {
-  const params = new URLSearchParams({ event, documentId });
+  const params = new URLSearchParams({ event, documentId, companyId });
   if (documentType) params.set("documentType", documentType);
   return `${ERP_URL}/api/link?${params.toString()}`;
 }
@@ -781,6 +782,7 @@ export const notifyFunction = inngest.createFunction(
           const ctaUrl = buildNotificationLink(
             payload.event,
             payload.documentId,
+            payload.companyId,
             payload.documentType
           );
 
@@ -851,6 +853,7 @@ export const notifyFunction = inngest.createFunction(
           const ctaUrl = buildNotificationLink(
             payload.event,
             payload.documentId,
+            payload.companyId,
             payload.documentType
           );
           const text = `${description}\n<${ctaUrl}|View in Carbon>`;
