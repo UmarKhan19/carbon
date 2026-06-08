@@ -99,11 +99,14 @@ export function CancelSalesOrderModal({
           <ModalTitle>
             <Trans>Cancel Sales Order</Trans>
           </ModalTitle>
-          <ModalDescription>
-            <Trans>
-              This sales order has associated jobs. Choose what to do with them.
-            </Trans>
-          </ModalDescription>
+          {!isLoading && jobs.length > 0 && (
+            <ModalDescription>
+              <Trans>
+                This sales order has associated jobs. Choose what to do with
+                them.
+              </Trans>
+            </ModalDescription>
+          )}
         </ModalHeader>
         <ModalBody>
           {isLoading ? (
