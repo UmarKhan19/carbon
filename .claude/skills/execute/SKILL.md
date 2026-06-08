@@ -55,6 +55,25 @@ Track progress in `llm/tasks/todo.md`:
 ...
 ```
 
+## Carbon-Specific Skills to Load
+
+When executing tasks, load the appropriate Carbon skill for guidance:
+
+| Task Type | Skill/Workflow | Load When |
+|-----------|----------------|-----------|
+| Database migrations | `llm/workflows/database-migration.md` | Creating tables, columns, RLS |
+| Forms & validators | `/forms` skill | Building UI forms |
+| Multi-row writes | `/database-transactions` skill | Bulk updates, atomic operations |
+| UI polish | `/make-interfaces-feel-better` skill | Animations, shadows, typography |
+
+**For migrations:** Read `llm/workflows/database-migration.md` before writing SQL to ensure:
+- `id()` function for primary keys
+- `companyId` with composite primary key
+- Standardized RLS policies (SELECT, INSERT, UPDATE, DELETE)
+- Audit columns (createdBy, createdAt, updatedBy, updatedAt)
+
+**For forms:** Invoke `/forms` to get ValidatedForm patterns, zod conventions, and action handlers.
+
 ## Step 2: Execute Each Task
 
 For each task:

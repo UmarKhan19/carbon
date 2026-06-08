@@ -37,6 +37,34 @@ Extract:
 - Edge cases to handle
 - Integration points
 
+## Carbon-Specific References
+
+**IMPORTANT:** Before writing tasks, load these Carbon-specific resources:
+
+| Task Type | Reference | What It Covers |
+|-----------|-----------|----------------|
+| Database migrations | `llm/workflows/database-migration.md` | Multi-tenancy, RLS, id(), audit columns, indexes |
+| Forms & UI | `/forms` skill | ValidatedForm, zod validators, form components |
+| Database writes | `/database-transactions` skill | Kysely transactions, atomic operations |
+
+### Migration Tasks Must Follow
+
+From `llm/workflows/database-migration.md`:
+- Use `id()` for primary keys, not UUID
+- Include `companyId` with composite primary key `("id", "companyId")`
+- Add standard audit columns (createdBy, createdAt, updatedBy, updatedAt)
+- Use standardized RLS policy names (SELECT, INSERT, UPDATE, DELETE)
+- Never use `000000` as HHMMSS in migration filename (use random digits)
+- Update corresponding `.models.ts` with zod validators
+
+### Form Tasks Must Follow
+
+Invoke `/forms` skill to get:
+- ValidatedForm patterns
+- Zod validator conventions
+- Form component usage
+- Action handler patterns
+
 ## Step 2: Decompose Into Tasks
 
 ### 2.1 Task Granularity
@@ -155,6 +183,8 @@ Before presenting:
 - [ ] All commands include expected output
 - [ ] Tasks follow TDD order
 - [ ] Dependencies are clear
+- [ ] Migration tasks follow `llm/workflows/database-migration.md`
+- [ ] Form tasks reference `/forms` skill patterns
 
 ### 4.3 Get Approval
 
