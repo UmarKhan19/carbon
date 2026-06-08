@@ -1197,6 +1197,24 @@ msgstr "Annuler"
 msgid "Cancel Job"
 msgstr "Annuler le travail"
 
+msgid "Cancel Sales Order"
+msgstr ""
+
+msgid "Cancel SO"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr ""
+
+msgid "Cancel SO only"
+msgstr ""
+
 msgid "Canceled"
 msgstr "Annulé"
 
@@ -4424,6 +4442,9 @@ msgstr "Charger les modèles"
 msgid "Loader"
 msgstr "Chargement"
 
+msgid "Loading associated jobs..."
+msgstr ""
+
 msgid "Loading item details..."
 msgstr "Chargement des détails de l'article..."
 
@@ -5170,6 +5191,9 @@ msgstr "Aucun accès"
 
 msgid "No action needed"
 msgstr "Aucune action requise"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr ""
 
 msgid "No active plan"
 msgstr "Aucun plan actif"
@@ -6924,6 +6948,9 @@ msgstr "Sélectionnez une raison pour laquelle le devis n'a pas été créé."
 msgid "Select a team"
 msgstr "Sélectionner une équipe"
 
+msgid "Select all"
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "Sélectionner un assigné"
 
@@ -7871,6 +7898,9 @@ msgstr "Ce travail sera reçu en inventaire. Il ne sera plus disponible sur l'at
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "Ce travail ne sera plus disponible sur l'atelier."
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr ""
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Cette commande client contient des lignes qui nécessitent la création de tâches"

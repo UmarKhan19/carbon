@@ -1197,6 +1197,24 @@ msgstr "取消"
 msgid "Cancel Job"
 msgstr "取消工作"
 
+msgid "Cancel Sales Order"
+msgstr ""
+
+msgid "Cancel SO"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr ""
+
+msgid "Cancel SO only"
+msgstr ""
+
 msgid "Canceled"
 msgstr "已取消"
 
@@ -4424,6 +4442,9 @@ msgstr "加载模板"
 msgid "Loader"
 msgstr "加载器"
 
+msgid "Loading associated jobs..."
+msgstr ""
+
 msgid "Loading item details..."
 msgstr "正在加载项目详情..."
 
@@ -5170,6 +5191,9 @@ msgstr "无权限"
 
 msgid "No action needed"
 msgstr "无需操作"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr ""
 
 msgid "No active plan"
 msgstr "没有活跃的计划"
@@ -6924,6 +6948,9 @@ msgstr "选择未创建报价的原因。"
 msgid "Select a team"
 msgstr "选择一个团队"
 
+msgid "Select all"
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "选择受理人"
 
@@ -7871,6 +7898,9 @@ msgstr "此工作将被接收到库存中。它将不再在车间可用。"
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "此工作将不再在车间可用。"
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr ""
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "此销售订单有需要创建工作的行项目"

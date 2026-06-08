@@ -1197,6 +1197,24 @@ msgstr "キャンセル"
 msgid "Cancel Job"
 msgstr "ジョブをキャンセル"
 
+msgid "Cancel Sales Order"
+msgstr ""
+
+msgid "Cancel SO"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr ""
+
+msgid "Cancel SO only"
+msgstr ""
+
 msgid "Canceled"
 msgstr "キャンセル済み"
 
@@ -4424,6 +4442,9 @@ msgstr "テンプレートを読み込む"
 msgid "Loader"
 msgstr "ローダー"
 
+msgid "Loading associated jobs..."
+msgstr ""
+
 msgid "Loading item details..."
 msgstr "アイテムの詳細を読み込み中..."
 
@@ -5170,6 +5191,9 @@ msgstr "アクセスなし"
 
 msgid "No action needed"
 msgstr "対応は不要です"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr ""
 
 msgid "No active plan"
 msgstr "アクティブなプランなし"
@@ -6924,6 +6948,9 @@ msgstr "見積が作成されなかった理由を選択してください。"
 msgid "Select a team"
 msgstr "チームを選択"
 
+msgid "Select all"
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "担当者を選択"
 
@@ -7871,6 +7898,9 @@ msgstr "このジョブはインベントリに受け取られます。ショッ
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "このジョブはショップフロアで利用できなくなります。"
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr ""
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "この販売注文には、ジョブを作成する必要があるラインがあります"

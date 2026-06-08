@@ -1197,6 +1197,24 @@ msgstr "Anuluj"
 msgid "Cancel Job"
 msgstr "Anuluj zadanie"
 
+msgid "Cancel Sales Order"
+msgstr ""
+
+msgid "Cancel SO"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr ""
+
+msgid "Cancel SO only"
+msgstr ""
+
 msgid "Canceled"
 msgstr "Anulowano"
 
@@ -4424,6 +4442,9 @@ msgstr "Załaduj szablony"
 msgid "Loader"
 msgstr "Ładowarka"
 
+msgid "Loading associated jobs..."
+msgstr ""
+
 msgid "Loading item details..."
 msgstr "Ładowanie szczegółów przedmiotu..."
 
@@ -5170,6 +5191,9 @@ msgstr "Brak dostępu"
 
 msgid "No action needed"
 msgstr "Brak wymaganych działań"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr ""
 
 msgid "No active plan"
 msgstr "Brak aktywnego planu"
@@ -6924,6 +6948,9 @@ msgstr "Wybierz powód, dla którego oferta nie została utworzona."
 msgid "Select a team"
 msgstr "Wybierz zespół"
 
+msgid "Select all"
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "Wybierz osobę przydzieloną"
 
@@ -7871,6 +7898,9 @@ msgstr "To zadanie zostanie przyjęte do magazynu. Nie będzie już dostępne na
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "Ta praca nie będzie już dostępna na hali produkcyjnej."
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr ""
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "To zamówienie sprzedaży zawiera linie, które wymagają utworzenia zadań"

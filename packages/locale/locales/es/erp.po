@@ -1197,6 +1197,24 @@ msgstr "Cancelar"
 msgid "Cancel Job"
 msgstr "Cancelar Trabajo"
 
+msgid "Cancel Sales Order"
+msgstr ""
+
+msgid "Cancel SO"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr ""
+
+msgid "Cancel SO only"
+msgstr ""
+
 msgid "Canceled"
 msgstr "Cancelado"
 
@@ -4424,6 +4442,9 @@ msgstr "Cargar Plantillas"
 msgid "Loader"
 msgstr "Cargador"
 
+msgid "Loading associated jobs..."
+msgstr ""
+
 msgid "Loading item details..."
 msgstr "Cargando detalles del artículo..."
 
@@ -5170,6 +5191,9 @@ msgstr "Sin acceso"
 
 msgid "No action needed"
 msgstr "Sin acción necesaria"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr ""
 
 msgid "No active plan"
 msgstr "Sin plan activo"
@@ -6924,6 +6948,9 @@ msgstr "Selecciona una razón por la que la cotización no fue creada."
 msgid "Select a team"
 msgstr "Selecciona un equipo"
 
+msgid "Select all"
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "Seleccionar un asignado"
 
@@ -7871,6 +7898,9 @@ msgstr "Este trabajo será recibido en el inventario. Ya no estará disponible e
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "Este trabajo ya no estará disponible en el piso de producción."
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr ""
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Esta orden de venta tiene líneas que requieren que se creen trabajos"
