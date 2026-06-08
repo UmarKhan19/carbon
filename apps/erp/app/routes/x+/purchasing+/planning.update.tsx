@@ -2,13 +2,11 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { z } from "zod";
-import { getCurrencyByCode } from "~/modules/accounting/accounting.service";
 import {
+  insertPurchaseOrder,
   plannedOrderValidator,
-  upsertPurchaseOrder,
   upsertPurchaseOrderLine
 } from "~/modules/purchasing";
-import { getNextSequence } from "~/modules/settings/settings.service";
 
 const itemsValidator = z
   .object({
@@ -274,54 +272,24 @@ export async function action({ request }: ActionFunctionArgs) {
           }
 
           if (!purchaseOrderId) {
-            const nextSequence = await getNextSequence(
-              client,
-              "purchaseOrder",
-              companyId
-            );
-            if (nextSequence.error || !nextSequence.data) {
-              errors.push(
-                `Failed to generate PO sequence for supplier ${supplierId}`
-              );
-              continue;
-            }
+            const createPO = await insertPurchaseOrder(client, {
+              status: "Planned",
+              supplierId,
+              purchaseOrderType: "Purchase",
+              currencyCode: supplier.currencyCode ?? baseCurrencyCode,
+              companyId,
+              companyGroupId,
+              createdBy: userId
+            });
 
-            let exchangeRate = 1;
-            if (supplier.currencyCode !== baseCurrencyCode) {
-              const currency = await getCurrencyByCode(
-                client,
-                companyGroupId,
-                supplier.currencyCode ?? baseCurrencyCode
-              );
-              if (!currency.error && currency.data) {
-                exchangeRate = currency.data.exchangeRate ?? 1;
-              }
-            }
-
-            const createPO = await upsertPurchaseOrder(
-              client,
-              {
-                purchaseOrderId: nextSequence.data,
-                status: "Planned" as const,
-                supplierId,
-                purchaseOrderType: "Purchase",
-                currencyCode: supplier.currencyCode ?? baseCurrencyCode,
-                exchangeRate,
-                companyId,
-                companyGroupId,
-                createdBy: userId
-              },
-              undefined
-            );
-
-            if (createPO.error || !createPO.data?.[0]) {
+            if (createPO.error || !createPO.data) {
               errors.push(
                 `Failed to create PO for supplier ${supplierId}: ${createPO.error?.message ?? "no data returned"}`
               );
               continue;
             }
 
-            purchaseOrderId = createPO.data[0].id;
+            purchaseOrderId = createPO.data.id;
           }
 
           poCache.set(key, purchaseOrderId);

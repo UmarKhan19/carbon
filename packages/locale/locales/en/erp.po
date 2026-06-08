@@ -15,6 +15,10 @@ msgstr ""
 msgid " A supplier is a business or person who sells you parts or services."
 msgstr " A supplier is a business or person who sells you parts or services."
 
+#. placeholder {0}: fieldDef?.label ?? condition.field
+msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
+msgstr "\"{0}\" isn't available on the selected surface(s). Pick another field."
+
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 
@@ -191,12 +195,6 @@ msgstr "Accounting is enabled"
 msgid "Accounts"
 msgstr "Accounts"
 
-msgid "Accounts Payable Billing Address"
-msgstr "Accounts Payable Billing Address"
-
-msgid "Accounts Receivable Billing Address"
-msgstr "Accounts Receivable Billing Address"
-
 msgid "Accumulation Period (Weeks)"
 msgstr "Accumulation Period (Weeks)"
 
@@ -280,9 +278,6 @@ msgstr "Add any notes about your decision..."
 
 msgid "Add Approval Requirement"
 msgstr "Add Approval Requirement"
-
-msgid "Add attachments"
-msgstr "Add attachments"
 
 msgid "Add Calibration Record"
 msgstr "Add Calibration Record"
@@ -473,6 +468,9 @@ msgstr "Amount Type"
 msgid "An item cannot be added to itself."
 msgstr "An item cannot be added to itself."
 
+msgid "AND"
+msgstr "AND"
+
 msgid "and {remaining} more"
 msgstr "and {remaining} more"
 
@@ -490,6 +488,12 @@ msgstr "Annotation text is required"
 
 msgid "Annotation updated"
 msgstr "Annotation updated"
+
+msgid "Any item group"
+msgstr "Any item group"
+
+msgid "Any item type"
+msgstr "Any item type"
 
 msgid "API and Webhooks"
 msgstr "API and Webhooks"
@@ -514,12 +518,6 @@ msgstr "Applies to"
 
 msgid "Applies to all"
 msgstr "Applies to all"
-
-msgid "Applies to all items"
-msgstr "Applies to all items"
-
-msgid "Applies to all storage units"
-msgstr "Applies to all storage units"
 
 msgid "Applies to all work centers"
 msgstr "Applies to all work centers"
@@ -925,10 +923,6 @@ msgstr "As the company owner, you can transfer ownership to another employee. Th
 msgid "Ascending"
 msgstr "Ascending"
 
-#. js-lingui-explicit-id
-msgid "Ask anything"
-msgstr "Ask anything"
-
 msgid "Assembly:"
 msgstr "Assembly:"
 
@@ -1022,6 +1016,15 @@ msgstr "Auto Start Job"
 msgid "Auto-generated QR Code"
 msgstr "Auto-generated QR Code"
 
+msgid "Automatic Cost Updates"
+msgstr "Automatic Cost Updates"
+
+msgid "Automatic Lead Time Updates"
+msgstr "Automatic Lead Time Updates"
+
+msgid "Automatic Updates"
+msgstr "Automatic Updates"
+
 msgid "Automatically release the job when the kanban is scanned"
 msgstr "Automatically release the job when the kanban is scanned"
 
@@ -1036,9 +1039,6 @@ msgstr "Avg Days to Close"
 
 msgid "Back"
 msgstr "Back"
-
-msgid "Back to home"
-msgstr "Back to home"
 
 msgid "Back to traceability"
 msgstr "Back to traceability"
@@ -1269,6 +1269,9 @@ msgstr "Category Name"
 msgid "CC"
 msgstr "CC"
 
+msgid "Centralized Billing Address"
+msgstr "Centralized Billing Address"
+
 msgid "Change"
 msgstr "Change"
 
@@ -1301,6 +1304,9 @@ msgstr "Chat"
 
 msgid "Check your email"
 msgstr "Check your email"
+
+msgid "Choose a company"
+msgstr "Choose a company"
 
 msgid "Choose another file"
 msgstr "Choose another file"
@@ -1395,6 +1401,9 @@ msgstr "Column visibility and order"
 
 msgid "Columns"
 msgstr "Columns"
+
+msgid "Combine filters"
+msgstr "Combine filters"
 
 msgid "Coming soon"
 msgstr "Coming soon"
@@ -1513,8 +1522,8 @@ msgstr "Configure the default accounts used for various transaction types across
 msgid "Configure the start months for your fiscal and tax years"
 msgstr "Configure the start months for your fiscal and tax years"
 
-msgid "Configure when purchased item prices should be updated from supplier transactions."
-msgstr "Configure when purchased item prices should be updated from supplier transactions."
+msgid "Configure when purchased item costs should be updated from supplier transactions."
+msgstr "Configure when purchased item costs should be updated from supplier transactions."
 
 msgid "Configure who should receive notifications when a supplier submits a quote."
 msgstr "Configure who should receive notifications when a supplier submits a quote."
@@ -1625,9 +1634,6 @@ msgstr "Convert to Quote"
 msgid "Copied link to clipboard"
 msgstr "Copied link to clipboard"
 
-msgid "Copied!"
-msgstr "Copied!"
-
 msgid "Copy"
 msgstr "Copy"
 
@@ -1732,9 +1738,6 @@ msgstr "Copy Quote"
 
 msgid "Copy Quote number"
 msgstr "Copy Quote number"
-
-msgid "Copy response"
-msgstr "Copy response"
 
 msgid "Copy this item's pricing to another scope."
 msgstr "Copy this item's pricing to another scope."
@@ -2011,9 +2014,6 @@ msgstr "Custom Field"
 msgid "Custom Fields"
 msgstr "Custom Fields"
 
-msgid "Custom Rules"
-msgstr "Custom Rules"
-
 msgid "Customer"
 msgstr "Customer"
 
@@ -2028,6 +2028,9 @@ msgstr "Customer Details"
 
 msgid "Customer ID"
 msgstr "Customer ID"
+
+msgid "Customer ID cannot be changed after creation"
+msgstr "Customer ID cannot be changed after creation"
 
 msgid "Customer Invoice Number"
 msgstr "Customer Invoice Number"
@@ -2195,9 +2198,6 @@ msgstr "Default Approver"
 msgid "Default Attachments"
 msgstr "Default Attachments"
 
-msgid "Default Attachments on Purchase Orders"
-msgstr "Default Attachments on Purchase Orders"
-
 msgid "Default CC Recipients"
 msgstr "Default CC Recipients"
 
@@ -2263,9 +2263,6 @@ msgstr "Delete Attribute"
 
 msgid "Delete Category"
 msgstr "Delete Category"
-
-msgid "Delete chat"
-msgstr "Delete chat"
 
 msgid "Delete Consumable"
 msgstr "Delete Consumable"
@@ -2608,6 +2605,9 @@ msgstr "Download CSV"
 
 msgid "Download PDF"
 msgstr "Download PDF"
+
+msgid "Download template"
+msgstr "Download template"
 
 msgid "Draft"
 msgstr "Draft"
@@ -2979,6 +2979,9 @@ msgstr "Employee Types"
 msgid "Employees"
 msgstr "Employees"
 
+msgid "Empty = match every item"
+msgstr "Empty = match every item"
+
 msgid "Empty work centers"
 msgstr "Empty work centers"
 
@@ -3020,12 +3023,6 @@ msgstr "Enable to generate IDs and descriptions for raw materials."
 
 msgid "Enable to include work instructions on job traveler PDFs."
 msgstr "Enable to include work instructions on job traveler PDFs."
-
-msgid "Enable to show part thumbnails on purchase order PDFs."
-msgstr "Enable to show part thumbnails on purchase order PDFs."
-
-msgid "Enable to show part thumbnails on sales PDFs."
-msgstr "Enable to show part thumbnails on sales PDFs."
 
 msgid "Enable to start tracking changes to your data."
 msgstr "Enable to start tracking changes to your data."
@@ -3644,9 +3641,6 @@ msgstr "Files attached here ride along on every purchase order email by default.
 msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
 msgstr "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
 
-msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr "Files attached here ride along whenever this item appears on a purchase order email."
-
 msgid "Filter"
 msgstr "Filter"
 
@@ -3816,6 +3810,9 @@ msgstr "Hide, pin and reorder columns"
 msgid "Higher priority wins ties and applies first for markups"
 msgstr "Higher priority wins ties and applies first for markups"
 
+msgid "Hints in the first row"
+msgstr "Hints in the first row"
+
 msgid "History"
 msgstr "History"
 
@@ -3924,6 +3921,12 @@ msgstr "Include extra parts in shipment"
 msgid "Include Inactive"
 msgstr "Include Inactive"
 
+msgid "Include Thumbnails on Purchasing Documents"
+msgstr "Include Thumbnails on Purchasing Documents"
+
+msgid "Include Thumbnails on Sales Documents"
+msgstr "Include Thumbnails on Sales Documents"
+
 msgid "Includes tax and shipping costs"
 msgstr "Includes tax and shipping costs"
 
@@ -3950,9 +3953,6 @@ msgstr "Infrastructure"
 
 msgid "Inherit From Materials"
 msgstr "Inherit From Materials"
-
-msgid "Inherited from"
-msgstr "Inherited from"
 
 msgid "Insert rows"
 msgstr "Insert rows"
@@ -4046,6 +4046,9 @@ msgstr "Inventory Unit of Measure"
 
 msgid "Invite"
 msgstr "Invite"
+
+msgid "Invited"
+msgstr "Invited"
 
 msgid "Invoice"
 msgstr "Invoice"
@@ -4149,8 +4152,14 @@ msgstr "Item"
 msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "Item {scannedItem} is not the same as the item {expectedItem}"
 
+msgid "Item filters"
+msgstr "Item filters"
+
 msgid "Item Group"
 msgstr "Item Group"
+
+msgid "Item groups"
+msgstr "Item groups"
 
 msgid "Item Groups"
 msgstr "Item Groups"
@@ -4161,11 +4170,20 @@ msgstr "Item ID"
 msgid "Item Master"
 msgstr "Item Master"
 
+msgid "Item must match a selected type AND a selected group"
+msgstr "Item must match a selected type AND a selected group"
+
+msgid "Item must match a selected type OR a selected group"
+msgstr "Item must match a selected type OR a selected group"
+
 msgid "Item Scope"
 msgstr "Item Scope"
 
 msgid "Item Type"
 msgstr "Item Type"
+
+msgid "Item types"
+msgstr "Item types"
 
 msgid "items"
 msgstr "items"
@@ -4302,9 +4320,6 @@ msgstr "Lead time (days)"
 msgid "Lead Time (Days)"
 msgstr "Lead Time (Days)"
 
-msgid "Lead Time Updates"
-msgstr "Lead Time Updates"
-
 msgid "Lead Time:"
 msgstr "Lead Time:"
 
@@ -4396,9 +4411,6 @@ msgstr "Live reloading"
 
 msgid "Load Templates"
 msgstr "Load Templates"
-
-msgid "Loader"
-msgstr "Loader"
 
 msgid "Loading item details..."
 msgstr "Loading item details..."
@@ -4538,9 +4550,6 @@ msgstr "Manage how shelf life is tracked, computed, and enforced across inventor
 msgid "Manage Ownership"
 msgstr "Manage Ownership"
 
-msgid "Manage rules"
-msgstr "Manage rules"
-
 msgid "Manage Subscription"
 msgstr "Manage Subscription"
 
@@ -4589,8 +4598,14 @@ msgstr "Match"
 msgid "Match all"
 msgstr "Match all"
 
+msgid "Match all (AND)"
+msgstr "Match all (AND)"
+
 msgid "Match any"
 msgstr "Match any"
+
+msgid "Match any (OR)"
+msgstr "Match any (OR)"
 
 msgid "Match none"
 msgstr "Match none"
@@ -4864,11 +4879,11 @@ msgstr "NCRs by Type"
 msgid "Need by"
 msgstr "Need by"
 
+msgid "Need the right columns?"
+msgstr "Need the right columns?"
+
 msgid "Negative Adjustment"
 msgstr "Negative Adjustment"
-
-msgid "Negative feedback"
-msgstr "Negative feedback"
 
 msgid "Never"
 msgstr "Never"
@@ -4893,9 +4908,6 @@ msgstr "New Attribute"
 
 msgid "New Attribute Category"
 msgstr "New Attribute Category"
-
-msgid "New chat"
-msgstr "New chat"
 
 msgid "New Consumable"
 msgstr "New Consumable"
@@ -5172,12 +5184,6 @@ msgstr "No calibration records found"
 msgid "No changes recorded"
 msgstr "No changes recorded"
 
-msgid "No chat history"
-msgstr "No chat history"
-
-msgid "No chats found"
-msgstr "No chats found"
-
 msgid "No comments yet. Be the first to add a comment."
 msgstr "No comments yet. Be the first to add a comment."
 
@@ -5373,6 +5379,9 @@ msgstr "Not set"
 msgid "Not started training for"
 msgstr "Not started training for"
 
+msgid "Not you?"
+msgstr "Not you?"
+
 msgid "Note"
 msgstr "Note"
 
@@ -5444,9 +5453,6 @@ msgstr "Open Actions"
 
 msgid "Open Audit Log"
 msgstr "Open Audit Log"
-
-msgid "Open chat history"
-msgstr "Open chat history"
 
 msgid "Open Date"
 msgstr "Open Date"
@@ -5528,6 +5534,9 @@ msgstr "Optional context for this rule"
 
 msgid "Options"
 msgstr "Options"
+
+msgid "OR"
+msgstr "OR"
 
 msgid "Order"
 msgstr "Order"
@@ -5664,12 +5673,6 @@ msgstr "Part ID"
 msgid "Part is configured for manufacturing"
 msgstr "Part is configured for manufacturing"
 
-msgid "Part thumbnails are shown on purchase order PDFs."
-msgstr "Part thumbnails are shown on purchase order PDFs."
-
-msgid "Part thumbnails are shown on sales PDFs."
-msgstr "Part thumbnails are shown on sales PDFs."
-
 msgid "Partial"
 msgstr "Partial"
 
@@ -5717,9 +5720,6 @@ msgstr "PDF Preview"
 
 msgid "PDF Watermark"
 msgstr "PDF Watermark"
-
-msgid "PDFs"
-msgstr "PDFs"
 
 msgid "Pending"
 msgstr "Pending"
@@ -5861,9 +5861,6 @@ msgstr "Portals"
 
 msgid "Positive Adjustment"
 msgstr "Positive Adjustment"
-
-msgid "Positive feedback"
-msgstr "Positive feedback"
 
 msgid "Post"
 msgstr "Post"
@@ -6109,9 +6106,6 @@ msgstr "Purchase Orders"
 msgid "Purchase orders required"
 msgstr "Purchase orders required"
 
-msgid "Purchase Price Updates"
-msgstr "Purchase Price Updates"
-
 msgid "Purchase Qty"
 msgstr "Purchase Qty"
 
@@ -6261,6 +6255,9 @@ msgstr "Quoted Date"
 msgid "Quotes"
 msgstr "Quotes"
 
+msgid "Quoting"
+msgstr "Quoting"
+
 msgid "Rate Limit"
 msgstr "Rate Limit"
 
@@ -6401,9 +6398,6 @@ msgstr "Remove"
 msgid "Remove {0}"
 msgstr "Remove {0}"
 
-msgid "Remove attachment"
-msgstr "Remove attachment"
-
 msgid "Remove condition"
 msgstr "Remove condition"
 
@@ -6422,9 +6416,6 @@ msgstr "Remove from Price List"
 msgid "Remove item"
 msgstr "Remove item"
 
-msgid "Remove negative feedback"
-msgstr "Remove negative feedback"
-
 msgid "Remove order"
 msgstr "Remove order"
 
@@ -6433,9 +6424,6 @@ msgstr "Remove Order"
 
 msgid "Remove pair"
 msgstr "Remove pair"
-
-msgid "Remove positive feedback"
-msgstr "Remove positive feedback"
 
 msgid "Remove sort by column"
 msgstr "Remove sort by column"
@@ -6592,9 +6580,6 @@ msgstr "Results per page"
 msgid "Retry"
 msgstr "Retry"
 
-msgid "Retry response"
-msgstr "Retry response"
-
 msgid "Return Home"
 msgstr "Return Home"
 
@@ -6667,6 +6652,12 @@ msgstr "Role"
 
 msgid "Role:"
 msgstr "Role:"
+
+msgid "Route all AP invoices to one address (e.g. corporate headquarters) instead of individual purchasers."
+msgstr "Route all AP invoices to one address (e.g. corporate headquarters) instead of individual purchasers."
+
+msgid "Route all AR invoices to one address (e.g. corporate headquarters) instead of individual locations."
+msgstr "Route all AR invoices to one address (e.g. corporate headquarters) instead of individual locations."
 
 msgid "rows"
 msgstr "rows"
@@ -6875,9 +6866,6 @@ msgstr "Search fields..."
 msgid "Search for existing or create a new one"
 msgstr "Search for existing or create a new one"
 
-msgid "Search history"
-msgstr "Search history"
-
 msgid "Search Job"
 msgstr "Search Job"
 
@@ -6892,10 +6880,6 @@ msgstr "Search related items..."
 
 msgid "Search suppliers..."
 msgstr "Search suppliers..."
-
-#. js-lingui-explicit-id
-msgid "Search the web"
-msgstr "Search the web"
 
 msgid "Search..."
 msgstr "Search..."
@@ -7245,17 +7229,29 @@ msgstr "Short Description"
 msgid "Shortcuts"
 msgstr "Shortcuts"
 
+msgid "Show a readable Customer ID column on the customer list, customer forms, and dropdowns. Customers are still identified internally either way."
+msgstr "Show a readable Customer ID column on the customer list, customer forms, and dropdowns. Customers are still identified internally either way."
+
+msgid "Show a readable Supplier ID column on the supplier list, supplier forms, and dropdowns. Suppliers are still identified internally either way."
+msgstr "Show a readable Supplier ID column on the supplier list, supplier forms, and dropdowns. Suppliers are still identified internally either way."
+
+msgid "Show Customer IDs"
+msgstr "Show Customer IDs"
+
 msgid "Show Durations"
 msgstr "Show Durations"
 
 msgid "Show parent items"
 msgstr "Show parent items"
 
-msgid "Show part thumbnails on purchase orders."
-msgstr "Show part thumbnails on purchase orders."
+msgid "Show part thumbnails on purchase order PDFs."
+msgstr "Show part thumbnails on purchase order PDFs."
 
-msgid "Show part thumbnails on quotes, sales orders, sales invoices, and shipments."
-msgstr "Show part thumbnails on quotes, sales orders, sales invoices, and shipments."
+msgid "Show part thumbnails on quotes, sales orders, invoices, and shipments."
+msgstr "Show part thumbnails on quotes, sales orders, invoices, and shipments."
+
+msgid "Show Supplier IDs"
+msgstr "Show Supplier IDs"
 
 msgid "Show sync options"
 msgstr "Show sync options"
@@ -7343,9 +7339,6 @@ msgstr "Source Method"
 
 msgid "Source Version"
 msgstr "Source Version"
-
-msgid "Sources"
-msgstr "Sources"
 
 msgid "Sourcing Type"
 msgstr "Sourcing Type"
@@ -7473,6 +7466,9 @@ msgstr "Stock Transfers"
 msgid "Storage client not available"
 msgstr "Storage client not available"
 
+msgid "Storage Rules"
+msgstr "Storage Rules"
+
 msgid "Storage Type"
 msgstr "Storage Type"
 
@@ -7481,9 +7477,6 @@ msgstr "Storage Types"
 
 msgid "Storage Unit"
 msgstr "Storage Unit"
-
-msgid "Storage unit rules"
-msgstr "Storage unit rules"
 
 msgid "Storage Units"
 msgstr "Storage Units"
@@ -7508,9 +7501,6 @@ msgstr "Sub-Departments"
 
 msgid "Subassembly"
 msgstr "Subassembly"
-
-msgid "Submit"
-msgstr "Submit"
 
 msgid "Submit anonymously"
 msgstr "Submit anonymously"
@@ -7551,9 +7541,6 @@ msgstr "Successfully created a new revision"
 msgid "Suffix"
 msgstr "Suffix"
 
-msgid "Suggested Actions"
-msgstr "Suggested Actions"
-
 msgid "Suggestion"
 msgstr "Suggestion"
 
@@ -7586,6 +7573,9 @@ msgstr "Supplier Contact"
 
 msgid "Supplier ID"
 msgstr "Supplier ID"
+
+msgid "Supplier ID cannot be changed after creation"
+msgstr "Supplier ID cannot be changed after creation"
 
 msgid "Supplier Invoice Number"
 msgstr "Supplier Invoice Number"
@@ -7777,12 +7767,6 @@ msgstr "The amount of days after the calculation method that the cash discount i
 msgid "The amount of days after the calculation method that the payment is due"
 msgstr "The amount of days after the calculation method that the payment is due"
 
-msgid "The billing address used on purchase orders and other purchasing documents."
-msgstr "The billing address used on purchase orders and other purchasing documents."
-
-msgid "The billing address used on quotes, sales orders, invoices, and other sales documents."
-msgstr "The billing address used on quotes, sales orders, invoices, and other sales documents."
-
 msgid "The date the customer expects to receive the goods"
 msgstr "The date the customer expects to receive the goods"
 
@@ -7926,12 +7910,6 @@ msgstr "Thumbnail removed"
 
 msgid "Thumbnail uploaded"
 msgstr "Thumbnail uploaded"
-
-msgid "Thumbnails are included"
-msgstr "Thumbnails are included"
-
-msgid "Thumbnails are not included"
-msgstr "Thumbnails are not included"
 
 msgid "Thursday"
 msgstr "Thursday"
@@ -8176,9 +8154,6 @@ msgstr "Un-sampled entities will remain On Hold so you can keep inspecting and d
 msgid "Unapproved Supplier"
 msgstr "Unapproved Supplier"
 
-msgid "Unassign from parent unit to remove"
-msgstr "Unassign from parent unit to remove"
-
 msgid "Unassign rule"
 msgstr "Unassign rule"
 
@@ -8248,6 +8223,9 @@ msgstr "UoM"
 msgid "Update"
 msgstr "Update"
 
+msgid "Update costs on"
+msgstr "Update costs on"
+
 msgid "Update Inventory"
 msgstr "Update Inventory"
 
@@ -8268,9 +8246,6 @@ msgstr "Update Password"
 
 msgid "Update Permissions"
 msgstr "Update Permissions"
-
-msgid "Update prices on"
-msgstr "Update prices on"
 
 msgid "Update Quantity"
 msgstr "Update Quantity"
@@ -8563,9 +8538,6 @@ msgstr "Visibility"
 msgid "Visible on a user's public profile"
 msgstr "Visible on a user's public profile"
 
-msgid "Voice"
-msgstr "Voice"
-
 msgid "Void"
 msgstr "Void"
 
@@ -8631,9 +8603,6 @@ msgstr "We've sent a verification code to {signupEmail}"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "We've sent you a magic link to sign in to your account."
-
-msgid "Web Search"
-msgstr "Web Search"
 
 msgid "Webhook"
 msgstr "Webhook"
@@ -8781,6 +8750,9 @@ msgstr "Yes, Reject"
 
 msgid "Yes, Update IDs"
 msgstr "Yes, Update IDs"
+
+msgid "You belong to more than one company. Pick where to work."
+msgstr "You belong to more than one company. Pick where to work."
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "You can change the UI style any time through the theme setting"

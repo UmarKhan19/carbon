@@ -15,6 +15,7 @@
     "@carbon/database": "workspace:*",
     "@carbon/documents": "workspace:*",
     "@carbon/ee": "workspace:*",
+    "@carbon/env": "workspace:*",
     "@carbon/form": "workspace:*",
     "@carbon/jobs": "workspace:*",
     "@carbon/kv": "workspace:*",

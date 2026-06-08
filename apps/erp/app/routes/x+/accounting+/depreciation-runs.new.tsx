@@ -3,11 +3,11 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import { insertDepreciationRun } from "~/modules/accounting";
 import {
   buildDepreciationLines,
   getNextPeriodEnd
 } from "~/modules/accounting/accounting.utils";
-import { getNextSequence } from "~/modules/settings";
 import { path } from "~/utils/path";
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -110,69 +110,25 @@ export async function action({ request }: ActionFunctionArgs) {
     usageMap
   );
 
-  const nextSequence = await getNextSequence(
-    client,
-    "depreciationRun",
-    companyId
-  );
-  if (nextSequence.error) {
+  const result = await insertDepreciationRun(client, {
+    periodEnd,
+    lines,
+    companyId,
+    createdBy: userId
+  });
+
+  if (result.error || !result.data) {
     throw redirect(
       path.to.depreciationRuns,
       await flash(
         request,
-        error(nextSequence.error, "Failed to generate run ID")
+        error(result.error, "Failed to create depreciation run")
       )
     );
-  }
-
-  const run = await client
-    .from("depreciationRun")
-    .insert({
-      depreciationRunId: nextSequence.data,
-      periodEnd,
-      status: "Draft",
-      companyId,
-      createdBy: userId
-    })
-    .select("id")
-    .single();
-
-  if (run.error) {
-    throw redirect(
-      path.to.depreciationRuns,
-      await flash(
-        request,
-        error(run.error, "Failed to create depreciation run")
-      )
-    );
-  }
-
-  if (lines.length > 0) {
-    const lineInserts = lines.map((line) => ({
-      depreciationRunId: run.data.id,
-      fixedAssetId: line.fixedAssetId,
-      amount: line.amount,
-      taxAmount: line.taxAmount,
-      companyId
-    }));
-
-    const lineResult = await client
-      .from("depreciationRunLine")
-      .insert(lineInserts);
-
-    if (lineResult.error) {
-      throw redirect(
-        path.to.depreciationRuns,
-        await flash(
-          request,
-          error(lineResult.error, "Failed to create run lines")
-        )
-      );
-    }
   }
 
   throw redirect(
-    path.to.depreciationRun(run.data.id),
+    path.to.depreciationRun(result.data.id),
     await flash(request, success("Depreciation run created"))
   );
 }

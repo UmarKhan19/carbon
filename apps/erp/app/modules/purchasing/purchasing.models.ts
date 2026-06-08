@@ -133,11 +133,14 @@ export const purchaseOrderValidator = z.object({
       message: "Type is required"
     })
   }),
+  status: z.enum(purchaseOrderStatusType).optional(),
   supplierId: z.string().min(1, { message: "Supplier is required" }),
   locationId: zfd.text(z.string().optional()),
   supplierLocationId: zfd.text(z.string().optional()),
   supplierContactId: zfd.text(z.string().optional()),
   supplierReference: zfd.text(z.string().optional()),
+  orderDate: zfd.text(z.string().optional()),
+  notes: z.any().optional(),
   currencyCode: zfd.text(z.string().optional()),
   exchangeRate: zfd.numeric(z.number().optional()),
   exchangeRateUpdatedAt: zfd.text(z.string().optional())
@@ -228,6 +231,7 @@ export const purchaseOrderLineValidator = z
     purchaseUnitOfMeasureCode: zfd.text(z.string().optional()),
     requiredDate: zfd.text(z.string().optional()),
     storageUnitId: zfd.text(z.string().optional()),
+    supplierPartId: zfd.text(z.string().optional()),
     supplierShippingCost: zfd.numeric(z.number().optional()),
     supplierTaxAmount: zfd.numeric(z.number().optional()),
     supplierUnitPrice: zfd.numeric(z.number().optional())
@@ -325,6 +329,7 @@ export const selectedLinesValidator = z.record(z.string(), selectedLineSchema);
 
 export const supplierValidator = z.object({
   id: zfd.text(z.string().optional()),
+  readableId: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
   supplierStatus: z.preprocess(
     (val) => (val === "" ? undefined : val),
@@ -340,6 +345,7 @@ export const supplierValidator = z.object({
 
 export const supplierApprovalValidator = z.object({
   id: zfd.text(z.string().optional()),
+  readableId: zfd.text(z.string().optional()),
   name: z.string().min(1, { message: "Name is required" }),
   supplierStatus: z.enum(supplierStatusType, {
     errorMap: (issue, ctx) => ({

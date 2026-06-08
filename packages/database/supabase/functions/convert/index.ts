@@ -10,7 +10,7 @@ import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 
 import { format } from "https://deno.land/std@0.205.0/datetime/format.ts";
 import { corsHeaders } from "../lib/headers.ts";
-import { getSupabaseServiceRole } from "../lib/supabase.ts";
+import { requirePermissions } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 import { getNextSequence } from "../shared/get-next-sequence.ts";
 
@@ -122,10 +122,23 @@ serve(async (req: Request) => {
       userId,
     });
 
-    const client = await getSupabaseServiceRole(
-      req.headers.get("Authorization"),
-      req.headers.get("carbon-key") ?? "",
-      companyId
+    const permissionsByType: Record<string, { view?: string | string[]; create?: string | string[]; update?: string | string[]; delete?: string | string[] }> = {
+      methodVersionToActive: { update: "resources" },
+      purchaseOrderToPurchaseInvoice: { update: "invoicing" },
+      quoteToSalesOrder: { update: "sales" },
+      salesOrderToSalesInvoice: { update: "invoicing" },
+      salesRfqToQuote: { update: "sales" },
+      shipmentToSalesInvoice: { update: "invoicing" },
+      supplierQuoteToPurchaseOrder: { update: "purchasing" },
+      warehouseTransferToShipment: { update: "inventory" },
+      warehouseTransferToReceipt: { update: "inventory" },
+    };
+
+    const client = await requirePermissions(
+      req,
+      companyId,
+      userId,
+      permissionsByType[type] ?? { update: "settings" }
     );
 
     switch (type) {

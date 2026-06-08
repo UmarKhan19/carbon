@@ -89,6 +89,9 @@ export function renderEnv(opts: {
   // `erp.main.dev` host the SDK URL points at).
   lines.push(`INNGEST_TLS_HOST=${portless ? host("erp") : "localhost"}`);
   lines.push("");
+  lines.push("# Dev auth bypass");
+  lines.push("DEV_BYPASS_EMAIL=test@carbon.ms");
+  lines.push("");
   return lines.join("\n");
 }
 

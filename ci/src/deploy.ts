@@ -27,7 +27,7 @@ export type Workspace = {
   access_token: string | null;
   anon_key: string | null;
   database_password: string | null;
-  jwt_key: string | null;
+  jwt_secret: string | null;
   service_role_key: string | null;
 
   // App Configuration
@@ -123,6 +123,7 @@ async function deploy(): Promise<void> {
         jira_client_secret,
         jira_oauth_redirect_url,
         jira_state_secret,
+        jwt_secret,
         openai_api_key,
         posthog_api_host,
         posthog_project_public_key,
@@ -292,6 +293,7 @@ async function deploy(): Promise<void> {
           STRIPE_WEBHOOK_SECRET: stripe_webhook_secret ?? undefined,
           SUPABASE_ANON_KEY: anon_key,
           SUPABASE_DB_URL: database_connection_pooler_url,
+          SUPABASE_JWT_SECRET: jwt_secret ?? undefined,
           SUPABASE_SERVICE_ROLE_KEY: service_role_key,
           SUPABASE_URL: database_url,
           URL_ERP: url_erp,
