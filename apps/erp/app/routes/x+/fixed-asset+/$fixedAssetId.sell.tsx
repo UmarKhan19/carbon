@@ -19,8 +19,7 @@ import { z } from "zod";
 import { Customer, Submit } from "~/components/Form";
 import { usePermissions } from "~/hooks";
 import { getFixedAsset } from "~/modules/accounting";
-import { upsertSalesOrder } from "~/modules/sales";
-import { getNextSequence } from "~/modules/settings";
+import { insertSalesOrder } from "~/modules/sales";
 import { getUserDefaults } from "~/modules/users/users.server";
 import { path } from "~/utils/path";
 
@@ -85,29 +84,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     );
   }
 
-  const nextSequence = await getNextSequence(client, "salesOrder", companyId);
-  if (nextSequence.error) {
-    throw redirect(
-      path.to.fixedAsset(fixedAssetId),
-      await flash(
-        request,
-        error(nextSequence.error, "Failed to get next sequence")
-      )
-    );
-  }
-
   const locationId = asset.data.locationId ?? defaults.data?.locationId ?? "";
 
-  const company = await client
-    .from("company")
-    .select("baseCurrencyCode")
-    .eq("id", companyId)
-    .single();
-
-  const newSO = await upsertSalesOrder(client, {
-    salesOrderId: nextSequence.data!,
+  const newSO = await insertSalesOrder(client, {
     customerId,
-    currencyCode: company.data?.baseCurrencyCode ?? "USD",
     locationId: locationId ?? "",
     status: "Draft",
     companyId,
@@ -115,14 +95,14 @@ export async function action({ request, params }: ActionFunctionArgs) {
     createdBy: userId
   });
 
-  if (newSO.error || !newSO.data?.[0]) {
+  if (newSO.error || !newSO.data) {
     throw redirect(
       path.to.fixedAsset(fixedAssetId),
       await flash(request, error(newSO.error, "Failed to create sales order"))
     );
   }
 
-  const salesOrderId = newSO.data[0].id;
+  const salesOrderId = newSO.data.id;
 
   const nbv =
     Number(asset.data.acquisitionCost) -

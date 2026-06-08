@@ -157,6 +157,51 @@ export async function getCompanies(
   };
 }
 
+/**
+ * The companies a user can enter in the ERP. ERP is an employee app, so
+ * supplier/customer-only memberships (which belong to the portals) are
+ * excluded. Single source of truth for the login callback, the select-company
+ * picker, and the x+/_layout enforcement guard — keep those in sync via this.
+ */
+export async function getEmployeeCompanies(
+  client: SupabaseClient<Database>,
+  userId: string
+) {
+  const companies = await client
+    .from("companies")
+    .select("*, companyGroup(name)")
+    .eq("userId", userId)
+    .eq("role", "employee")
+    .order("name");
+
+  if (companies.error) {
+    return companies;
+  }
+
+  return {
+    data: companies.data.map(({ companyGroup, ...company }) => ({
+      ...company,
+      companyGroupName: (companyGroup as { name: string } | null)?.name ?? null,
+      logoLight: company.logoLight
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoLight}`
+        : null,
+      logoDark: company.logoDark
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoDark}`
+        : null,
+      logoLightIcon: company.logoLightIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoLightIcon}`
+        : null,
+      logoDarkIcon: company.logoDarkIcon
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoDarkIcon}`
+        : null,
+      logoWatermark: company.logoWatermark
+        ? `${PUBLIC_STORAGE_URL_PREFIX}${company.logoWatermark}`
+        : null
+    })),
+    error: null
+  };
+}
+
 export async function getCompany(
   client: SupabaseClient<Database>,
   companyId: string

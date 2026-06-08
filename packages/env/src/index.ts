@@ -243,6 +243,10 @@ export const SLACK_STATE_SECRET = getEnv("SLACK_STATE_SECRET", {
 });
 
 export const SUPABASE_SERVICE_ROLE_KEY = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+export const SUPABASE_JWT_SECRET = getEnv("SUPABASE_JWT_SECRET", {
+  isSecret: true,
+  isRequired: false
+});
 export const SUPABASE_DB_URL = getEnv("SUPABASE_DB_URL", {
   isRequired: true,
   isSecret: true

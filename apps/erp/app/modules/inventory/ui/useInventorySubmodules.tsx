@@ -7,6 +7,7 @@ import {
   LuNetwork,
   LuQrCode,
   LuScanQrCode,
+  LuShieldCheck,
   LuTag,
   LuTally5,
   LuTruck,
@@ -103,6 +104,12 @@ export default function useInventorySubmodules() {
           role: "employee",
           icon: <LuTag />,
           table: "storageType"
+        },
+        {
+          name: t`Storage Rules`,
+          to: path.to.storageRules,
+          role: "employee",
+          icon: <LuShieldCheck />
         },
         {
           name: t`Shipping Methods`,

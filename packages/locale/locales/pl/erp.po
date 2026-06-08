@@ -17,7 +17,7 @@ msgstr "Dostawca to firma lub osoba, która sprzedaje Ci części lub usługi."
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr ""
+msgstr "\"{0}\" nie jest dostępne na wybranej powierzchni/powierzchniach. Wybierz inne pole."
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "„{storageUnitName}\" ma {childCount} bezpośrednio zagnieżdżonych jednostek magazynowych. Usunięcie go spowoduje również usunięcie ich i wszystkiego pod nimi. Tej operacji nie można cofnąć."
@@ -279,9 +279,6 @@ msgstr "Dodaj dowolne notatki dotyczące Twojej decyzji..."
 msgid "Add Approval Requirement"
 msgstr "Dodaj wymóg zatwierdzenia"
 
-msgid "Add attachments"
-msgstr "Dodaj załączniki"
-
 msgid "Add Calibration Record"
 msgstr "Dodaj Rekord Kalibracji"
 
@@ -469,7 +466,7 @@ msgid "An item cannot be added to itself."
 msgstr "Przedmiot nie może być dodany do siebie."
 
 msgid "AND"
-msgstr ""
+msgstr "I"
 
 msgid "and {remaining} more"
 msgstr "i {remaining} więcej"
@@ -490,10 +487,10 @@ msgid "Annotation updated"
 msgstr "Adnotacja zaktualizowana"
 
 msgid "Any item group"
-msgstr ""
+msgstr "Dowolna grupa artykułów"
 
 msgid "Any item type"
-msgstr ""
+msgstr "Dowolny typ przedmiotu"
 
 msgid "API and Webhooks"
 msgstr "API i Webhooks"
@@ -518,9 +515,6 @@ msgstr "Dotyczy"
 
 msgid "Applies to all"
 msgstr "Dotyczy wszystkich"
-
-msgid "Applies to all storage units"
-msgstr "Dotyczy wszystkich jednostek magazynowych"
 
 msgid "Applies to all work centers"
 msgstr "Dotyczy wszystkich centrów pracy"
@@ -922,10 +916,6 @@ msgstr "Jako właściciel firmy możesz przenieść własność na innego pracow
 msgid "Ascending"
 msgstr "Rosnąco"
 
-#. js-lingui-explicit-id
-msgid "Ask anything"
-msgstr "Zapytaj o cokolwiek"
-
 msgid "Assembly:"
 msgstr "Zespół:"
 
@@ -1042,9 +1032,6 @@ msgstr "Średnia liczba dni do zamknięcia"
 
 msgid "Back"
 msgstr "Wstecz"
-
-msgid "Back to home"
-msgstr "Powrót do strony głównej"
 
 msgid "Back to traceability"
 msgstr "Wróć do śledzenia"
@@ -1311,6 +1298,9 @@ msgstr "Czat"
 msgid "Check your email"
 msgstr "Sprawdź swoją pocztę"
 
+msgid "Choose a company"
+msgstr "Wybierz firmę"
+
 msgid "Choose another file"
 msgstr "Wybierz inny plik"
 
@@ -1406,7 +1396,7 @@ msgid "Columns"
 msgstr "Kolumny"
 
 msgid "Combine filters"
-msgstr ""
+msgstr "Łącz filtry"
 
 msgid "Coming soon"
 msgstr "Wkrótce"
@@ -1637,9 +1627,6 @@ msgstr "Konwertuj na Ofertę"
 msgid "Copied link to clipboard"
 msgstr "Skopiowano link do schowka"
 
-msgid "Copied!"
-msgstr "Skopiowano!"
-
 msgid "Copy"
 msgstr "Kopiuj"
 
@@ -1744,9 +1731,6 @@ msgstr "Skopiuj Ofertę"
 
 msgid "Copy Quote number"
 msgstr "Skopiuj numer oferty"
-
-msgid "Copy response"
-msgstr "Skopiuj odpowiedź"
 
 msgid "Copy this item's pricing to another scope."
 msgstr "Skopiuj ceny tego artykułu do innego zakresu."
@@ -2023,9 +2007,6 @@ msgstr "Pole niestandardowe"
 msgid "Custom Fields"
 msgstr "Pola niestandardowe"
 
-msgid "Custom Rules"
-msgstr "Reguły niestandardowe"
-
 msgid "Customer"
 msgstr "Klient"
 
@@ -2210,9 +2191,6 @@ msgstr "Domyślny Zatwierdzający"
 msgid "Default Attachments"
 msgstr "Domyślne załączniki"
 
-msgid "Default Attachments on Purchase Orders"
-msgstr "Domyślne załączniki w zamówieniach zakupu"
-
 msgid "Default CC Recipients"
 msgstr "Domyślni odbiorcy DW"
 
@@ -2278,9 +2256,6 @@ msgstr "Usuń atrybut"
 
 msgid "Delete Category"
 msgstr "Usuń kategorię"
-
-msgid "Delete chat"
-msgstr "Usuń czat"
 
 msgid "Delete Consumable"
 msgstr "Usuń materiał eksploatacyjny"
@@ -3001,7 +2976,7 @@ msgid "Employees"
 msgstr "Pracownicy"
 
 msgid "Empty = match every item"
-msgstr ""
+msgstr "Puste = dopasuj każdy element"
 
 msgid "Empty work centers"
 msgstr "Puste centra pracy"
@@ -3662,9 +3637,6 @@ msgstr "Pliki dołączone tutaj są automatycznie wysyłane z każdym e-mailem z
 msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
 msgstr "Pliki dołączone tutaj są wysyłane wraz z każdym emailem zamówienia zakupu wysłanym do tego dostawcy (dodatkowo do ustawień domyślnych całej firmy)."
 
-msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr "Pliki dołączone tutaj są automatycznie dodawane za każdym razem, gdy ten element pojawia się w wiadomości e-mail zamówienia zakupu."
-
 msgid "Filter"
 msgstr "Filtr"
 
@@ -3981,9 +3953,6 @@ msgstr "Infrastruktura"
 msgid "Inherit From Materials"
 msgstr "Dziedzicz z Materiałów"
 
-msgid "Inherited from"
-msgstr "Odziedziczone z"
-
 msgid "Inherited from parent"
 msgstr ""
 
@@ -4079,6 +4048,9 @@ msgstr "Jednostka miary zapasów"
 
 msgid "Invite"
 msgstr "Zaproś"
+
+msgid "Invited"
+msgstr "Zaproszony"
 
 msgid "Invoice"
 msgstr "Faktura"
@@ -4183,13 +4155,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "Pozycja {scannedItem} nie jest taka sama jak pozycja {expectedItem}"
 
 msgid "Item filters"
-msgstr ""
+msgstr "Filtry elementów"
 
 msgid "Item Group"
 msgstr "Grupa Pozycji"
 
 msgid "Item groups"
-msgstr ""
+msgstr "Grupy artykułów"
 
 msgid "Item Groups"
 msgstr "Grupy Pozycji"
@@ -4201,10 +4173,10 @@ msgid "Item Master"
 msgstr "Główny element"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr ""
+msgstr "Element musi pasować do wybranego typu I wybranej grupy"
 
 msgid "Item must match a selected type OR a selected group"
-msgstr ""
+msgstr "Element musi pasować do wybranego typu LUB wybranej grupy"
 
 msgid "Item Scope"
 msgstr "Zakres Pozycji"
@@ -4213,7 +4185,7 @@ msgid "Item Type"
 msgstr "Typ przedmiotu"
 
 msgid "Item types"
-msgstr ""
+msgstr "Typy przedmiotów"
 
 msgid "items"
 msgstr "elementy"
@@ -4439,9 +4411,6 @@ msgstr "Odświeżanie na żywo"
 msgid "Load Templates"
 msgstr "Załaduj szablony"
 
-msgid "Loader"
-msgstr "Ładowarka"
-
 msgid "Loading item details..."
 msgstr "Ładowanie szczegółów przedmiotu..."
 
@@ -4580,9 +4549,6 @@ msgstr "Zarządzaj sposobem śledzenia, obliczania i egzekwowania okresu przydat
 msgid "Manage Ownership"
 msgstr "Zarządzaj własnością"
 
-msgid "Manage rules"
-msgstr "Zarządzaj regułami"
-
 msgid "Manage Subscription"
 msgstr "Zarzadzaj subskrypcja"
 
@@ -4632,13 +4598,13 @@ msgid "Match all"
 msgstr "Dopasuj wszystkie"
 
 msgid "Match all (AND)"
-msgstr ""
+msgstr "Dopasuj wszystkie (AND)"
 
 msgid "Match any"
 msgstr "Dopasuj dowolny"
 
 msgid "Match any (OR)"
-msgstr ""
+msgstr "Dopasuj dowolny (LUB)"
 
 msgid "Match none"
 msgstr "Nie dopasuj żaden"
@@ -4915,9 +4881,6 @@ msgstr "Potrzebujesz odpowiednich kolumn?"
 msgid "Negative Adjustment"
 msgstr "Ujemna Korekta"
 
-msgid "Negative feedback"
-msgstr "Negatywna opinia"
-
 msgid "Never"
 msgstr "Nigdy"
 
@@ -4941,9 +4904,6 @@ msgstr "Nowy atrybut"
 
 msgid "New Attribute Category"
 msgstr "Nowa Kategoria Atrybutu"
-
-msgid "New chat"
-msgstr "Nowy czat"
 
 msgid "New Consumable"
 msgstr "Nowy materiał zużywalny"
@@ -5223,12 +5183,6 @@ msgstr "Nie znaleziono rekordów kalibracji"
 msgid "No changes recorded"
 msgstr "Brak zarejestrowanych zmian"
 
-msgid "No chat history"
-msgstr "Brak historii czatów"
-
-msgid "No chats found"
-msgstr "Nie znaleziono czatów"
-
 msgid "No comments yet. Be the first to add a comment."
 msgstr "Brak komentarzy. Bądź pierwszy i dodaj komentarz."
 
@@ -5421,6 +5375,9 @@ msgstr "Nie ustawiono"
 msgid "Not started training for"
 msgstr "Nie rozpoczęto szkolenia dla"
 
+msgid "Not you?"
+msgstr "To nie ty?"
+
 msgid "Note"
 msgstr "Notatka"
 
@@ -5492,9 +5449,6 @@ msgstr "Otwarte Działania"
 
 msgid "Open Audit Log"
 msgstr "Otwórz dziennik audytu"
-
-msgid "Open chat history"
-msgstr "Otwórz historię czatu"
 
 msgid "Open Date"
 msgstr "Data otwarcia"
@@ -5578,7 +5532,7 @@ msgid "Options"
 msgstr "Opcje"
 
 msgid "OR"
-msgstr ""
+msgstr "LUB"
 
 msgid "Order"
 msgstr "Zamówienie"
@@ -5903,9 +5857,6 @@ msgstr "Portale"
 
 msgid "Positive Adjustment"
 msgstr "Dodatnia Korekta"
-
-msgid "Positive feedback"
-msgstr "Pozytywna opinia"
 
 msgid "Post"
 msgstr "Opublikuj"
@@ -6424,9 +6375,6 @@ msgstr "Usuń"
 msgid "Remove {0}"
 msgstr "Usuń {0}"
 
-msgid "Remove attachment"
-msgstr "Usuń załącznik"
-
 msgid "Remove condition"
 msgstr "Usuń warunek"
 
@@ -6445,9 +6393,6 @@ msgstr "Usuń z listy cen"
 msgid "Remove item"
 msgstr "Usuń element"
 
-msgid "Remove negative feedback"
-msgstr "Usuń negatywną opinię"
-
 msgid "Remove order"
 msgstr "Usuń zamówienie"
 
@@ -6456,9 +6401,6 @@ msgstr "Usuń zamówienie"
 
 msgid "Remove pair"
 msgstr "Usuń parę"
-
-msgid "Remove positive feedback"
-msgstr "Usuń pozytywną opinię"
 
 msgid "Remove sort by column"
 msgstr "Usuń sortowanie według kolumny"
@@ -6608,9 +6550,6 @@ msgstr "Wyniki na stronę"
 
 msgid "Retry"
 msgstr "Ponów"
-
-msgid "Retry response"
-msgstr "Ponów odpowiedź"
 
 msgid "Return Home"
 msgstr "Wróć do domu"
@@ -6898,9 +6837,6 @@ msgstr "Wyszukaj pola..."
 msgid "Search for existing or create a new one"
 msgstr "Wyszukaj istniejący lub utwórz nowy"
 
-msgid "Search history"
-msgstr "Przeszukaj historię"
-
 msgid "Search Job"
 msgstr "Szukaj zadania"
 
@@ -6915,10 +6851,6 @@ msgstr "Szukaj powiązanych elementów..."
 
 msgid "Search suppliers..."
 msgstr "Szukaj dostawców..."
-
-#. js-lingui-explicit-id
-msgid "Search the web"
-msgstr "Przeszukaj internet"
 
 msgid "Search..."
 msgstr "Szukaj..."
@@ -7389,9 +7321,6 @@ msgstr "Metoda źródłowa"
 msgid "Source Version"
 msgstr "Wersja źródłowa"
 
-msgid "Sources"
-msgstr "Źródła"
-
 msgid "Sourcing Type"
 msgstr "Typ pozyskiwania"
 
@@ -7521,6 +7450,9 @@ msgstr "Transfery Zapasów"
 msgid "Storage client not available"
 msgstr "Klient magazynu niedostępny"
 
+msgid "Storage Rules"
+msgstr "Reguły przechowywania"
+
 msgid "Storage Type"
 msgstr "Typ magazynu"
 
@@ -7529,9 +7461,6 @@ msgstr "Typy magazynowania"
 
 msgid "Storage Unit"
 msgstr "Jednostka magazynowa"
-
-msgid "Storage unit rules"
-msgstr "Reguły jednostki magazynowej"
 
 msgid "Storage Units"
 msgstr "Jednostki magazynowe"
@@ -7556,9 +7485,6 @@ msgstr "Poddziały"
 
 msgid "Subassembly"
 msgstr "Podzespół"
-
-msgid "Submit"
-msgstr "Wyślij"
 
 msgid "Submit anonymously"
 msgstr "Wyslij anonimowo"
@@ -7598,9 +7524,6 @@ msgstr "Pomyślnie utworzono nową wersję"
 
 msgid "Suffix"
 msgstr "Sufiks"
-
-msgid "Suggested Actions"
-msgstr "Sugerowane akcje"
 
 msgid "Suggestion"
 msgstr "Sugestia"
@@ -8212,9 +8135,6 @@ msgstr "Nieprzetestowane jednostki pozostaną w stanie Wstrzymane, aby można by
 msgid "Unapproved Supplier"
 msgstr "Niezatwierdzony dostawca"
 
-msgid "Unassign from parent unit to remove"
-msgstr "Usuń przypisanie z jednostki nadrzędnej, aby usunąć"
-
 msgid "Unassign rule"
 msgstr "Usuń przypisanie reguły"
 
@@ -8599,9 +8519,6 @@ msgstr "Widoczność"
 msgid "Visible on a user's public profile"
 msgstr "Widoczne w publicznym profilu użytkownika"
 
-msgid "Voice"
-msgstr "Głos"
-
 msgid "Void"
 msgstr "Anuluj"
 
@@ -8667,9 +8584,6 @@ msgstr "Wysłaliśmy kod weryfikacyjny na {signupEmail}"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "Wysłaliśmy Ci magiczny link, aby zalogować się na Twoje konto."
-
-msgid "Web Search"
-msgstr "Wyszukiwanie internetowe"
 
 msgid "Webhook"
 msgstr "Webhook"
@@ -8817,6 +8731,9 @@ msgstr "Tak, Odrzuć"
 
 msgid "Yes, Update IDs"
 msgstr "Tak, Aktualizuj identyfikatory"
+
+msgid "You belong to more than one company. Pick where to work."
+msgstr "Należysz do więcej niż jednej firmy. Wybierz, gdzie chcesz pracować."
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "Możesz zmienić styl interfejsu użytkownika w dowolnym momencie za pośrednictwem ustawień motywu"

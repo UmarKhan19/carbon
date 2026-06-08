@@ -20,6 +20,7 @@ import type { inspectionStatus } from "../shared";
 import type {
   gaugeCalibrationRecordValidator,
   gaugeCalibrationStatus,
+  gaugeRole,
   gaugeTypeValidator,
   gaugeValidator,
   inspectionDocumentValidator,
@@ -27,6 +28,7 @@ import type {
   issueValidator,
   issueWorkflowValidator,
   itemSamplingPlanValidator,
+  nonConformanceApprovalRequirement,
   nonConformanceReviewerValidator,
   nonConformanceStatus,
   qualityDocumentStepValidator,
@@ -1312,6 +1314,123 @@ export async function updateRiskStatus(
   return client.from("riskRegister").update({ status }).eq("id", riskId);
 }
 
+export async function insertGauge(
+  client: SupabaseClient<Database>,
+  input: {
+    companyId: string;
+    createdBy: string;
+    gaugeId?: string;
+    gaugeTypeId: string;
+    gaugeRole: (typeof gaugeRole)[number];
+    gaugeCalibrationStatus: (typeof gaugeCalibrationStatus)[number];
+    supplierId?: string;
+    modelNumber?: string;
+    serialNumber?: string;
+    description?: string;
+    dateAcquired?: string;
+    lastCalibrationDate?: string;
+    nextCalibrationDate?: string;
+    locationId?: string;
+    storageUnitId?: string;
+    calibrationIntervalInMonths?: number;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string; gaugeId: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  let gaugeId: string;
+  if (input.gaugeId) {
+    gaugeId = input.gaugeId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "gauge",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error:
+          seq.error ??
+          ({
+            message: "Failed to generate gauge sequence"
+          } as import("@supabase/supabase-js").PostgrestError)
+      };
+    }
+    gaugeId = seq.data;
+  }
+
+  const gauge = await client
+    .from("gauges")
+    .insert({
+      gaugeId,
+      gaugeTypeId: input.gaugeTypeId,
+      gaugeRole: input.gaugeRole,
+      gaugeCalibrationStatus: input.gaugeCalibrationStatus,
+      supplierId: input.supplierId ?? null,
+      modelNumber: input.modelNumber ?? null,
+      serialNumber: input.serialNumber ?? null,
+      description: input.description ?? null,
+      dateAcquired: input.dateAcquired ?? null,
+      lastCalibrationDate: input.lastCalibrationDate ?? null,
+      nextCalibrationDate: input.nextCalibrationDate ?? null,
+      locationId: input.locationId ?? null,
+      storageUnitId: input.storageUnitId ?? null,
+      calibrationIntervalInMonths: input.calibrationIntervalInMonths ?? 6,
+      customFields: input.customFields,
+      companyId: input.companyId,
+      createdBy: input.createdBy,
+      updatedBy: input.createdBy
+    })
+    .select("id, gaugeId")
+    .single();
+
+  if (gauge.error) return { data: null, error: gauge.error };
+
+  return {
+    data: { id: gauge.data.id!, gaugeId: gauge.data.gaugeId! },
+    error: null
+  };
+}
+
+export async function updateGauge(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    updatedBy: string;
+    gaugeId?: string;
+    gaugeTypeId?: string;
+    gaugeRole?: (typeof gaugeRole)[number];
+    gaugeCalibrationStatus?: (typeof gaugeCalibrationStatus)[number];
+    supplierId?: string | null;
+    modelNumber?: string | null;
+    serialNumber?: string | null;
+    description?: string | null;
+    dateAcquired?: string | null;
+    lastCalibrationDate?: string | null;
+    nextCalibrationDate?: string | null;
+    locationId?: string | null;
+    storageUnitId?: string | null;
+    calibrationIntervalInMonths?: number;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  const { id, ...rest } = input;
+  const result = await client
+    .from("gauges")
+    .update(sanitize(rest))
+    .eq("id", id)
+    .select("id")
+    .single();
+
+  if (result.error) return { data: null, error: result.error };
+  return { data: { id: result.data.id! }, error: null };
+}
+
+/** @deprecated Use insertGauge for new gauges, updateGauge for existing gauges */
 export async function upsertGauge(
   client: SupabaseClient<Database>,
   gauge:
@@ -1445,6 +1564,249 @@ export async function upsertGaugeType(
   }
 }
 
+export async function insertIssue(
+  client: SupabaseClient<Database>,
+  input: {
+    companyId: string;
+    createdBy: string;
+    nonConformanceId?: string;
+    name: string;
+    priority: "Low" | "Medium" | "High" | "Critical";
+    source: "Internal" | "External";
+    locationId: string;
+    nonConformanceTypeId: string;
+    openDate: string;
+    description?: string;
+    nonConformanceWorkflowId?: string;
+    dueDate?: string;
+    closeDate?: string;
+    quantity?: number;
+    requiredActionIds?: string[];
+    approvalRequirements?: (typeof nonConformanceApprovalRequirement)[number][];
+    items?: string[];
+    jobOperationId?: string;
+    customerId?: string;
+    salesOrderLineId?: string;
+    operationSupplierProcessId?: string;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string; nonConformanceId: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  let nonConformanceId: string;
+  if (input.nonConformanceId) {
+    nonConformanceId = input.nonConformanceId;
+  } else {
+    const seq = await client.rpc("get_next_sequence", {
+      sequence_name: "nonConformance",
+      company_id: input.companyId
+    });
+    if (seq.error || !seq.data) {
+      return {
+        data: null,
+        error:
+          seq.error ??
+          ({
+            message: "Failed to generate nonConformance sequence"
+          } as import("@supabase/supabase-js").PostgrestError)
+      };
+    }
+    nonConformanceId = seq.data;
+  }
+
+  const {
+    items,
+    jobOperationId,
+    customerId,
+    salesOrderLineId,
+    operationSupplierProcessId,
+    ...data
+  } = input;
+
+  const result = await client
+    .from("nonConformance")
+    .insert({
+      nonConformanceId,
+      name: data.name,
+      priority: data.priority,
+      source: data.source,
+      locationId: data.locationId,
+      nonConformanceTypeId: data.nonConformanceTypeId,
+      openDate: data.openDate,
+      description: data.description ?? null,
+      nonConformanceWorkflowId: data.nonConformanceWorkflowId ?? null,
+      dueDate: data.dueDate ?? null,
+      closeDate: data.closeDate ?? null,
+      quantity: data.quantity ?? 1,
+      requiredActionIds: data.requiredActionIds ?? [],
+      approvalRequirements: data.approvalRequirements ?? [],
+      customFields: data.customFields,
+      companyId: data.companyId,
+      createdBy: data.createdBy
+    })
+    .select("id, nonConformanceId")
+    .single();
+
+  if (result.error || !result.data) {
+    return { data: null, error: result.error };
+  }
+
+  const ncrId = result.data.id;
+
+  if (items && items.length > 0) {
+    const itemInsert = await client.from("nonConformanceItem").insert(
+      items.map((item) => ({
+        nonConformanceId: ncrId,
+        itemId: item,
+        companyId: input.companyId,
+        createdBy: input.createdBy
+      }))
+    );
+    if (itemInsert.error) {
+      console.error(itemInsert);
+    }
+  }
+
+  if (jobOperationId) {
+    const jobOperation = await client
+      .from("jobOperation")
+      .select("*")
+      .eq("id", jobOperationId)
+      .single();
+    if (jobOperation?.data) {
+      const job = await client
+        .from("job")
+        .select("*")
+        .eq("id", jobOperation.data.jobId)
+        .single();
+      if (job.data) {
+        const jobOperationInsert = await client
+          .from("nonConformanceJobOperation")
+          .insert([
+            {
+              jobId: jobOperation.data.jobId,
+              jobOperationId,
+              nonConformanceId: ncrId,
+              jobReadableId: job.data?.jobId,
+              companyId: input.companyId,
+              createdBy: input.createdBy
+            }
+          ]);
+        if (jobOperationInsert.error) {
+          console.error(jobOperationInsert);
+        }
+      }
+    }
+  }
+
+  if (customerId) {
+    const customerInsert = await client.from("nonConformanceCustomer").insert([
+      {
+        companyId: input.companyId,
+        createdBy: input.createdBy,
+        customerId: customerId,
+        nonConformanceId: ncrId
+      }
+    ]);
+    if (customerInsert.error) {
+      console.error(customerInsert);
+    }
+  }
+
+  if (salesOrderLineId) {
+    const salesOrderLine = await client
+      .from("salesOrderLine")
+      .select("*, salesOrder(salesOrderId)")
+      .eq("id", salesOrderLineId)
+      .single();
+    if (salesOrderLine.data) {
+      const salesOrderLineInsert = await client
+        .from("nonConformanceSalesOrderLine")
+        .insert([
+          {
+            companyId: input.companyId,
+            createdBy: input.createdBy,
+            salesOrderLineId: salesOrderLineId,
+            salesOrderId: salesOrderLine.data.salesOrderId,
+            salesOrderReadableId: salesOrderLine.data.salesOrder.salesOrderId,
+            nonConformanceId: ncrId
+          }
+        ]);
+      if (salesOrderLineInsert.error) {
+        console.error(salesOrderLineInsert);
+      }
+    }
+  }
+
+  if (operationSupplierProcessId) {
+    const operationSupplierProcess = await client
+      .from("supplierProcess")
+      .select("*")
+      .eq("id", operationSupplierProcessId)
+      .single();
+
+    if (operationSupplierProcess.data) {
+      const nonConformanceSupplierInsert = await client
+        .from("nonConformanceSupplier")
+        .insert([
+          {
+            companyId: input.companyId,
+            createdBy: input.createdBy,
+            supplierId: operationSupplierProcess.data.supplierId,
+            nonConformanceId: ncrId
+          }
+        ]);
+      if (nonConformanceSupplierInsert.error) {
+        console.error(nonConformanceSupplierInsert);
+      }
+    }
+  }
+
+  return {
+    data: { id: ncrId, nonConformanceId: result.data.nonConformanceId },
+    error: null
+  };
+}
+
+export async function updateIssue(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    updatedBy: string;
+    nonConformanceId?: string;
+    name?: string;
+    priority?: "Low" | "Medium" | "High" | "Critical";
+    source?: "Internal" | "External";
+    locationId?: string;
+    nonConformanceTypeId?: string;
+    nonConformanceWorkflowId?: string | null;
+    openDate?: string;
+    dueDate?: string | null;
+    closeDate?: string | null;
+    description?: string | null;
+    quantity?: number;
+    requiredActionIds?: string[];
+    approvalRequirements?: (typeof nonConformanceApprovalRequirement)[number][];
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  const { id, ...rest } = input;
+  const result = await client
+    .from("nonConformance")
+    .update(sanitize(rest))
+    .eq("id", id)
+    .select("id")
+    .single();
+
+  if (result.error) return { data: null, error: result.error };
+  return { data: { id: result.data.id }, error: null };
+}
+
+/** @deprecated Use insertIssue for new issues, updateIssue for existing issues */
 export async function upsertIssue(
   client: SupabaseClient<Database>,
   nonConformance:

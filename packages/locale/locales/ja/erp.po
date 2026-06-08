@@ -17,7 +17,7 @@ msgstr "サプライヤーは、あなたに部品またはサービスを販売
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr ""
+msgstr "「{0}」は選択されたサーフェス上で利用できません。別のフィールドを選択してください。"
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "「{storageUnitName}」には{childCount}個の直下の階層化されたストレージユニットがあります。これを削除すると、それらとその下にあるすべてのものも削除されます。この操作は取り消せません。"
@@ -279,9 +279,6 @@ msgstr "あなたの決定についてのメモを追加してください..."
 msgid "Add Approval Requirement"
 msgstr "承認要件を追加"
 
-msgid "Add attachments"
-msgstr "添付ファイルを追加"
-
 msgid "Add Calibration Record"
 msgstr "キャリブレーション記録を追加"
 
@@ -469,7 +466,7 @@ msgid "An item cannot be added to itself."
 msgstr "アイテムをそれ自体に追加することはできません。"
 
 msgid "AND"
-msgstr ""
+msgstr "AND"
 
 msgid "and {remaining} more"
 msgstr "そして{remaining}件以上"
@@ -490,10 +487,10 @@ msgid "Annotation updated"
 msgstr "注釈が更新されました"
 
 msgid "Any item group"
-msgstr ""
+msgstr "任意のアイテムグループ"
 
 msgid "Any item type"
-msgstr ""
+msgstr "任意のアイテムタイプ"
 
 msgid "API and Webhooks"
 msgstr "APIとWebhooks"
@@ -518,9 +515,6 @@ msgstr "適用対象"
 
 msgid "Applies to all"
 msgstr "すべてに適用"
-
-msgid "Applies to all storage units"
-msgstr "すべての保管ユニットに適用"
 
 msgid "Applies to all work centers"
 msgstr "すべてのワークセンターに適用"
@@ -922,10 +916,6 @@ msgstr "会社のオーナーとして、別の従業員に所有権を譲渡で
 msgid "Ascending"
 msgstr "昇順"
 
-#. js-lingui-explicit-id
-msgid "Ask anything"
-msgstr "何でも聞いてください"
-
 msgid "Assembly:"
 msgstr "アセンブリ:"
 
@@ -1042,9 +1032,6 @@ msgstr "平均クローズ日数"
 
 msgid "Back"
 msgstr "戻る"
-
-msgid "Back to home"
-msgstr "ホームに戻る"
 
 msgid "Back to traceability"
 msgstr "トレーサビリティに戻る"
@@ -1311,6 +1298,9 @@ msgstr "チャット"
 msgid "Check your email"
 msgstr "メールを確認してください"
 
+msgid "Choose a company"
+msgstr "会社を選択"
+
 msgid "Choose another file"
 msgstr "別のファイルを選択"
 
@@ -1406,7 +1396,7 @@ msgid "Columns"
 msgstr "列"
 
 msgid "Combine filters"
-msgstr ""
+msgstr "フィルターを組み合わせる"
 
 msgid "Coming soon"
 msgstr "近日公開予定"
@@ -1637,9 +1627,6 @@ msgstr "見積に変換"
 msgid "Copied link to clipboard"
 msgstr "クリップボードにリンクをコピーしました"
 
-msgid "Copied!"
-msgstr "コピーしました!"
-
 msgid "Copy"
 msgstr "コピー"
 
@@ -1744,9 +1731,6 @@ msgstr "見積書をコピー"
 
 msgid "Copy Quote number"
 msgstr "見積番号をコピー"
-
-msgid "Copy response"
-msgstr "レスポンスをコピー"
 
 msgid "Copy this item's pricing to another scope."
 msgstr "このアイテムの価格設定を別のスコープにコピーします。"
@@ -2023,9 +2007,6 @@ msgstr "カスタムフィールド"
 msgid "Custom Fields"
 msgstr "カスタムフィールド"
 
-msgid "Custom Rules"
-msgstr "カスタムルール"
-
 msgid "Customer"
 msgstr "顧客"
 
@@ -2210,9 +2191,6 @@ msgstr "デフォルト承認者"
 msgid "Default Attachments"
 msgstr "デフォルト添付ファイル"
 
-msgid "Default Attachments on Purchase Orders"
-msgstr "購買注文のデフォルト添付ファイル"
-
 msgid "Default CC Recipients"
 msgstr "デフォルトCC受信者"
 
@@ -2278,9 +2256,6 @@ msgstr "属性を削除"
 
 msgid "Delete Category"
 msgstr "カテゴリを削除"
-
-msgid "Delete chat"
-msgstr "チャットを削除"
 
 msgid "Delete Consumable"
 msgstr "消耗品を削除"
@@ -3001,7 +2976,7 @@ msgid "Employees"
 msgstr "従業員"
 
 msgid "Empty = match every item"
-msgstr ""
+msgstr "空 = すべてのアイテムに一致"
 
 msgid "Empty work centers"
 msgstr "空の作業センター"
@@ -3662,9 +3637,6 @@ msgstr "ここに添付されたファイルは、デフォルトではすべて
 msgid "Files attached here ride along on every purchase order email sent to this supplier (in addition to company-wide defaults)."
 msgstr "ここに添付されたファイルは、このサプライヤーに送信されるすべての発注メールに含まれます（会社全体のデフォルトに加えて）。"
 
-msgid "Files attached here ride along whenever this item appears on a purchase order email."
-msgstr "このファイルは、このアイテムが購買注文メールに表示されるたびに添付されます。"
-
 msgid "Filter"
 msgstr "フィルター"
 
@@ -3981,9 +3953,6 @@ msgstr "インフラストラクチャ"
 msgid "Inherit From Materials"
 msgstr "材料から継承"
 
-msgid "Inherited from"
-msgstr "継承元"
-
 msgid "Inherited from parent"
 msgstr ""
 
@@ -4079,6 +4048,9 @@ msgstr "在庫単位"
 
 msgid "Invite"
 msgstr "招待"
+
+msgid "Invited"
+msgstr "招待済み"
 
 msgid "Invoice"
 msgstr "請求書"
@@ -4183,13 +4155,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "アイテム {scannedItem} は、アイテム {expectedItem} と同じではありません"
 
 msgid "Item filters"
-msgstr ""
+msgstr "アイテムフィルター"
 
 msgid "Item Group"
 msgstr "品目グループ"
 
 msgid "Item groups"
-msgstr ""
+msgstr "アイテムグループ"
 
 msgid "Item Groups"
 msgstr "アイテムグループ"
@@ -4201,10 +4173,10 @@ msgid "Item Master"
 msgstr "アイテムマスター"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr ""
+msgstr "アイテムは選択されたタイプと選択されたグループの両方に一致する必要があります"
 
 msgid "Item must match a selected type OR a selected group"
-msgstr ""
+msgstr "アイテムは選択されたタイプまたは選択されたグループと一致する必要があります"
 
 msgid "Item Scope"
 msgstr "アイテムスコープ"
@@ -4213,7 +4185,7 @@ msgid "Item Type"
 msgstr "アイテムタイプ"
 
 msgid "Item types"
-msgstr ""
+msgstr "アイテムタイプ"
 
 msgid "items"
 msgstr "アイテム"
@@ -4439,9 +4411,6 @@ msgstr "ライブリロード中"
 msgid "Load Templates"
 msgstr "テンプレートを読み込む"
 
-msgid "Loader"
-msgstr "ローダー"
-
 msgid "Loading item details..."
 msgstr "アイテムの詳細を読み込み中..."
 
@@ -4580,9 +4549,6 @@ msgstr "棚卸資産全体で賞味期限がどのように追跡、計算、お
 msgid "Manage Ownership"
 msgstr "所有権を管理"
 
-msgid "Manage rules"
-msgstr "ルールを管理"
-
 msgid "Manage Subscription"
 msgstr "サブスクリプションを管理"
 
@@ -4632,13 +4598,13 @@ msgid "Match all"
 msgstr "すべてに一致"
 
 msgid "Match all (AND)"
-msgstr ""
+msgstr "すべてに一致 (AND)"
 
 msgid "Match any"
 msgstr "いずれかに一致"
 
 msgid "Match any (OR)"
-msgstr ""
+msgstr "任意に一致 (OR)"
 
 msgid "Match none"
 msgstr "いずれにも一致しない"
@@ -4915,9 +4881,6 @@ msgstr "正しい列が必要ですか？"
 msgid "Negative Adjustment"
 msgstr "負の調整"
 
-msgid "Negative feedback"
-msgstr "ネガティブフィードバック"
-
 msgid "Never"
 msgstr "なし"
 
@@ -4941,9 +4904,6 @@ msgstr "新しい属性"
 
 msgid "New Attribute Category"
 msgstr "新しい属性カテゴリ"
-
-msgid "New chat"
-msgstr "新しいチャット"
 
 msgid "New Consumable"
 msgstr "新しい消耗品"
@@ -5223,12 +5183,6 @@ msgstr "キャリブレーション記録が見つかりません"
 msgid "No changes recorded"
 msgstr "変更が記録されていません"
 
-msgid "No chat history"
-msgstr "チャット履歴がありません"
-
-msgid "No chats found"
-msgstr "チャットが見つかりません"
-
 msgid "No comments yet. Be the first to add a comment."
 msgstr "まだコメントがありません。最初のコメントを追加してください。"
 
@@ -5421,6 +5375,9 @@ msgstr "未設定"
 msgid "Not started training for"
 msgstr "まだトレーニングを開始していません"
 
+msgid "Not you?"
+msgstr "違いますか？"
+
 msgid "Note"
 msgstr "メモ"
 
@@ -5492,9 +5449,6 @@ msgstr "オープンアクション"
 
 msgid "Open Audit Log"
 msgstr "監査ログを開く"
-
-msgid "Open chat history"
-msgstr "チャット履歴を開く"
 
 msgid "Open Date"
 msgstr "開始日"
@@ -5578,7 +5532,7 @@ msgid "Options"
 msgstr "オプション"
 
 msgid "OR"
-msgstr ""
+msgstr "または"
 
 msgid "Order"
 msgstr "注文"
@@ -5903,9 +5857,6 @@ msgstr "ポータル"
 
 msgid "Positive Adjustment"
 msgstr "正の調整"
-
-msgid "Positive feedback"
-msgstr "ポジティブなフィードバック"
 
 msgid "Post"
 msgstr "転記"
@@ -6424,9 +6375,6 @@ msgstr "削除"
 msgid "Remove {0}"
 msgstr "{0}を削除"
 
-msgid "Remove attachment"
-msgstr "添付ファイルを削除"
-
 msgid "Remove condition"
 msgstr "条件を削除"
 
@@ -6445,9 +6393,6 @@ msgstr "価格リストから削除"
 msgid "Remove item"
 msgstr "アイテムを削除"
 
-msgid "Remove negative feedback"
-msgstr "ネガティブフィードバックを削除"
-
 msgid "Remove order"
 msgstr "注文を削除"
 
@@ -6456,9 +6401,6 @@ msgstr "注文を削除"
 
 msgid "Remove pair"
 msgstr "ペアを削除"
-
-msgid "Remove positive feedback"
-msgstr "ポジティブフィードバックを削除"
 
 msgid "Remove sort by column"
 msgstr "列でソートを削除"
@@ -6608,9 +6550,6 @@ msgstr "ページあたりの結果数"
 
 msgid "Retry"
 msgstr "再試行"
-
-msgid "Retry response"
-msgstr "再度応答を試みる"
 
 msgid "Return Home"
 msgstr "ホームに戻る"
@@ -6898,9 +6837,6 @@ msgstr "フィールドを検索..."
 msgid "Search for existing or create a new one"
 msgstr "既存のものを検索するか、新しいものを作成してください"
 
-msgid "Search history"
-msgstr "履歴を検索"
-
 msgid "Search Job"
 msgstr "ジョブを検索"
 
@@ -6915,10 +6851,6 @@ msgstr "関連アイテムを検索..."
 
 msgid "Search suppliers..."
 msgstr "サプライヤーを検索..."
-
-#. js-lingui-explicit-id
-msgid "Search the web"
-msgstr "ウェブを検索"
 
 msgid "Search..."
 msgstr "検索..."
@@ -7389,9 +7321,6 @@ msgstr "ソース方法"
 msgid "Source Version"
 msgstr "ソースバージョン"
 
-msgid "Sources"
-msgstr "ソース"
-
 msgid "Sourcing Type"
 msgstr "調達タイプ"
 
@@ -7521,6 +7450,9 @@ msgstr "在庫移動"
 msgid "Storage client not available"
 msgstr "ストレージクライアントが利用できません"
 
+msgid "Storage Rules"
+msgstr "保管ルール"
+
 msgid "Storage Type"
 msgstr "ストレージタイプ"
 
@@ -7529,9 +7461,6 @@ msgstr "ストレージタイプ"
 
 msgid "Storage Unit"
 msgstr "保管単位"
-
-msgid "Storage unit rules"
-msgstr "保管ユニットルール"
 
 msgid "Storage Units"
 msgstr "保管単位"
@@ -7556,9 +7485,6 @@ msgstr "サブ部門"
 
 msgid "Subassembly"
 msgstr "サブアセンブリ"
-
-msgid "Submit"
-msgstr "送信"
 
 msgid "Submit anonymously"
 msgstr "匿名で送信"
@@ -7598,9 +7524,6 @@ msgstr "新しいリビジョンが正常に作成されました"
 
 msgid "Suffix"
 msgstr "サフィックス"
-
-msgid "Suggested Actions"
-msgstr "提案されたアクション"
 
 msgid "Suggestion"
 msgstr "提案"
@@ -8212,9 +8135,6 @@ msgstr "未サンプリングされたエンティティは保留中のままに
 msgid "Unapproved Supplier"
 msgstr "未承認サプライヤー"
 
-msgid "Unassign from parent unit to remove"
-msgstr "親ユニットから割り当て解除して削除"
-
 msgid "Unassign rule"
 msgstr "ルールの割り当てを解除"
 
@@ -8599,9 +8519,6 @@ msgstr "可視性"
 msgid "Visible on a user's public profile"
 msgstr "ユーザーの公開プロフィールに表示されます"
 
-msgid "Voice"
-msgstr "音声"
-
 msgid "Void"
 msgstr "無効化"
 
@@ -8667,9 +8584,6 @@ msgstr "検証コードを {signupEmail} に送信しました"
 
 msgid "We've sent you a magic link to sign in to your account."
 msgstr "あなたのアカウントにサインインするためのマジックリンクを送信しました。"
-
-msgid "Web Search"
-msgstr "ウェブ検索"
 
 msgid "Webhook"
 msgstr "ウェブフック"
@@ -8817,6 +8731,9 @@ msgstr "はい、拒否します"
 
 msgid "Yes, Update IDs"
 msgstr "はい、IDを更新"
+
+msgid "You belong to more than one company. Pick where to work."
+msgstr "複数の企業に属しています。どこで働くかを選択してください。"
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "テーマ設定からいつでもUIスタイルを変更できます"
