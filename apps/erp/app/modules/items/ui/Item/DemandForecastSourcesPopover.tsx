@@ -86,8 +86,11 @@ export function DemandForecastSourcesPopover({
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-xl max-h-112 overflow-y-auto">
-        <div className="flex flex-col gap-2 p-2">
+      <PopoverContent
+        className="w-xl max-h-112 overflow-y-auto pointer-events-auto"
+        onWheel={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col gap-2">
           <div className="text-sm font-medium">
             <Trans>Demand Forecast — Driven by</Trans>
           </div>
