@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-08T20:42:15.020Z",
-  "totalTools": 1180,
+  "generated": "2026-06-09T22:45:33.081Z",
+  "totalTools": 1188,
   "modules": 15,
   "tools": [
     {
@@ -33036,6 +33036,243 @@
       "schema": {
         "type": "object",
         "properties": {}
+      }
+    },
+    {
+      "name": "settings_getDocumentTemplate",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document template",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "documentType"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {}
+        },
+        "required": [
+          "documentType"
+        ]
+      }
+    },
+    {
+      "name": "settings_upsertDocumentTemplate",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "upsert document template",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "documentTemplate"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {},
+          "blocks": {
+            "type": "array",
+            "items": {}
+          },
+          "theme": {},
+          "settings": {},
+          "headerSectionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "footerSectionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "documentType",
+          "blocks",
+          "theme",
+          "settings",
+          "headerSectionId",
+          "footerSectionId"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentSections",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document sections",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "settings_getDocumentSection",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document section",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentSectionsByIds",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document sections by ids",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "ids"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      }
+    },
+    {
+      "name": "settings_upsertDocumentSection",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "upsert document section",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "documentSection"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "placement": {},
+          "content": {},
+          "config": {},
+          "} & ({ createdBy": {}
+        },
+        "required": [
+          "name",
+          "placement",
+          "content",
+          "} & ({ createdBy"
+        ]
+      }
+    },
+    {
+      "name": "settings_deleteDocumentSection",
+      "module": "settings",
+      "classification": "DESTRUCTIVE",
+      "description": "delete document section",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "settings_resolveSections",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "resolve sections",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "ids"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
       }
     },
     {
