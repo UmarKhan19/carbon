@@ -67,6 +67,8 @@ const headerBlock = z.object({
 });
 const partiesBlock = builtInBlock("parties");
 const notesBlock = builtInBlock("notes");
+/** Data-bound metadata block (e.g. shipment/transfer details). */
+const detailsBlock = builtInBlock("details");
 const lineItemsBlock = z.object({
   ...baseFields,
   type: z.literal("lineItems"),
@@ -123,6 +125,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   headerBlock,
   partiesBlock,
   notesBlock,
+  detailsBlock,
   lineItemsBlock,
   summaryBlock,
   termsBlock,
@@ -227,7 +230,8 @@ export const documentTemplateTypeSchema = z.enum([
   "salesInvoice",
   "salesOrder",
   "purchaseOrder",
-  "quote"
+  "quote",
+  "packingSlip"
 ]);
 
 /**

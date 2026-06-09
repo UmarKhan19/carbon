@@ -4,25 +4,28 @@ import { KeyValueBlock } from "../KeyValueBlock";
 import { RichTextBlock } from "../RichTextBlock";
 import { SharedBlock } from "../SharedBlock";
 import { SpacerBlock } from "../SpacerBlock";
+import { DetailsBlock } from "./DetailsBlock";
 import { HeaderBlock } from "./HeaderBlock";
 import { LineItemsBlock } from "./LineItemsBlock";
 import { NotesBlock } from "./NotesBlock";
 import { PartiesBlock } from "./PartiesBlock";
-import { QuoteSummaryBlock } from "./SummaryBlock";
 import { TermsBlock } from "./TermsBlock";
 import type { BlockRenderer } from "./types";
 
-/** Block-type → renderer for Quote. Extension blocks are shared. */
-export const quoteBlockRegistry: Record<DocumentBlockType, BlockRenderer> = {
+/** Block-type → renderer for Packing Slip (fulfillment; no summary/pricing). */
+export const packingSlipBlockRegistry: Record<
+  DocumentBlockType,
+  BlockRenderer
+> = {
   header: ({ data }) => <HeaderBlock data={data} />,
   parties: ({ data }) => <PartiesBlock data={data} />,
   notes: ({ data }) => <NotesBlock data={data} />,
-  details: () => null,
+  details: ({ data }) => <DetailsBlock data={data} />,
   lineItems: ({ block, data }) =>
     block.type === "lineItems" ? (
       <LineItemsBlock block={block} data={data} />
     ) : null,
-  summary: ({ data }) => <QuoteSummaryBlock data={data} />,
+  summary: () => null,
   terms: ({ data }) => <TermsBlock data={data} />,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
@@ -43,7 +46,7 @@ export const quoteBlockRegistry: Record<DocumentBlockType, BlockRenderer> = {
       <CustomFieldBlock
         block={block}
         customFields={
-          (data.quote?.customFields ?? {}) as Record<string, unknown>
+          (data.shipment?.customFields ?? {}) as Record<string, unknown>
         }
       />
     ) : null

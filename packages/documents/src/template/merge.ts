@@ -122,12 +122,29 @@ const QUOTE_MERGE_FIELDS: MergeField[] = [
   { token: "company.country", label: "Company Country", group: "Company" }
 ];
 
+const PACKING_SLIP_MERGE_FIELDS: MergeField[] = [
+  { token: "shipment.number", label: "Shipment Number", group: "Shipment" },
+  {
+    token: "shipment.trackingNumber",
+    label: "Tracking Number",
+    group: "Shipment"
+  },
+  { token: "customer.name", label: "Customer Name", group: "Customer" },
+  { token: "customer.addressLine1", label: "Address", group: "Customer" },
+  { token: "customer.city", label: "City", group: "Customer" },
+  { token: "customer.country", label: "Country", group: "Customer" },
+  { token: "company.name", label: "Company Name", group: "Company" },
+  { token: "company.city", label: "Company City", group: "Company" },
+  { token: "company.country", label: "Company Country", group: "Company" }
+];
+
 /** Catalog of insertable merge fields per document type (editor-facing). */
 export const MERGE_FIELDS: Record<string, MergeField[]> = {
   salesInvoice: SALES_INVOICE_MERGE_FIELDS,
   salesOrder: SALES_ORDER_MERGE_FIELDS,
   purchaseOrder: PURCHASE_ORDER_MERGE_FIELDS,
-  quote: QUOTE_MERGE_FIELDS
+  quote: QUOTE_MERGE_FIELDS,
+  packingSlip: PACKING_SLIP_MERGE_FIELDS
 };
 
 export function getMergeFields(documentType: string): MergeField[] {

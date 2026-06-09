@@ -1,6 +1,8 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { PackingSlipPDF } from "@carbon/documents/pdf";
+import { ensureFont, PackingSlipPDF } from "@carbon/documents/pdf";
+import type { DocumentTemplate } from "@carbon/documents/template";
+import { collectSectionIds, resolveTemplate } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
 import { getPreferenceHeaders } from "@carbon/react";
 import { renderToStream } from "@react-pdf/renderer";
@@ -23,7 +25,12 @@ import {
   getSalesOrderShipment,
   getSalesTerms
 } from "~/modules/sales";
-import { getCompany, getCompanySettings } from "~/modules/settings";
+import {
+  getCompany,
+  getCompanySettings,
+  getDocumentTemplate,
+  resolveSections
+} from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -73,6 +80,37 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const { locale } = getPreferenceHeaders(request);
+
+  const documentTemplate = await getDocumentTemplate(
+    client,
+    companyId,
+    "packingSlip"
+  );
+  const templateConfig: DocumentTemplate | null = documentTemplate.data
+    ? {
+        formatVersion:
+          (documentTemplate.data as { formatVersion?: number }).formatVersion ??
+          1,
+        documentType: "packingSlip",
+        blocks: documentTemplate.data.blocks as DocumentTemplate["blocks"],
+        theme: documentTemplate.data.theme as DocumentTemplate["theme"],
+        settings: (documentTemplate.data as { settings?: unknown })
+          .settings as DocumentTemplate["settings"],
+        headerSectionId:
+          (documentTemplate.data as { headerSectionId?: string })
+            .headerSectionId ?? null,
+        footerSectionId:
+          (documentTemplate.data as { footerSectionId?: string })
+            .footerSectionId ?? null
+      }
+    : null;
+  const resolvedTemplate = resolveTemplate("packingSlip", templateConfig);
+  const templateSections = await resolveSections(
+    client,
+    companyId,
+    collectSectionIds(resolvedTemplate)
+  );
+  await ensureFont(resolvedTemplate.settings.fontFamily);
 
   switch (shipment.data.sourceDocument) {
     case "Sales Order": {
@@ -171,6 +209,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           trackedEntities={shipmentTracking.data ?? []}
           title="Packing Slip"
           thumbnails={thumbnails}
+          template={templateConfig}
+          sections={templateSections}
         />
       );
 
@@ -290,6 +330,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           trackedEntities={shipmentTracking.data ?? []}
           title="Packing Slip"
           thumbnails={thumbnails}
+          template={templateConfig}
+          sections={templateSections}
         />
       );
 
@@ -404,6 +446,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
           trackedEntities={poShipmentTracking.data ?? []}
           title="Packing Slip"
           thumbnails={poThumbnails}
+          template={templateConfig}
+          sections={templateSections}
         />
       );
 

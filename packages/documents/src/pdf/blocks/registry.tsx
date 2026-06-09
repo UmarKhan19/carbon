@@ -24,6 +24,7 @@ export const salesInvoiceBlockRegistry: Record<
   header: ({ data }) => <HeaderBlock data={data} />,
   parties: ({ data }) => <PartiesBlock data={data} />,
   notes: ({ data }) => <NotesBlock data={data} />,
+  details: () => null,
   lineItems: ({ block, data }) =>
     block.type === "lineItems" ? (
       <LineItemsBlock block={block} data={data} />

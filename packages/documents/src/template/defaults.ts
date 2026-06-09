@@ -106,6 +106,13 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     hideable: true,
     addable: false
   },
+  details: {
+    label: "Details",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
   lineItems: {
     label: "Line Items",
     isBuiltIn: true,
@@ -189,6 +196,18 @@ function transactionalBlocks(): DocumentBlock[] {
   ];
 }
 
+/** Standard layout for a fulfillment document (packing slip): no summary. */
+function fulfillmentBlocks(): DocumentBlock[] {
+  return [
+    { id: "header", type: "header", visible: true },
+    { id: "parties", type: "parties", visible: true },
+    { id: "details", type: "details", visible: true },
+    { id: "lineItems", type: "lineItems", visible: true },
+    { id: "notes", type: "notes", visible: true },
+    { id: "terms", type: "terms", visible: true }
+  ];
+}
+
 /**
  * Default template per supported document type. Adding a document = wire its
  * PDF to consume a template, then add its default here + to the schema enum.
@@ -226,6 +245,15 @@ export const DEFAULT_TEMPLATES: Record<DocumentTemplateType, DocumentTemplate> =
       formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
       documentType: "quote",
       blocks: transactionalBlocks(),
+      theme: { ...DEFAULT_THEME },
+      settings: { ...DEFAULT_DOCUMENT_SETTINGS },
+      headerSectionId: BUILT_IN_SECTION_IDS.header,
+      footerSectionId: BUILT_IN_SECTION_IDS.footer
+    },
+    packingSlip: {
+      formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
+      documentType: "packingSlip",
+      blocks: fulfillmentBlocks(),
       theme: { ...DEFAULT_THEME },
       settings: { ...DEFAULT_DOCUMENT_SETTINGS },
       headerSectionId: BUILT_IN_SECTION_IDS.header,
@@ -379,7 +407,7 @@ export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
     type: "packingSlip",
     label: "Packing Slip",
     group: "Inventory",
-    supported: false
+    supported: true
   },
   {
     type: "stockTransfer",
