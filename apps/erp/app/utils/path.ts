@@ -1552,6 +1552,8 @@ export const path = {
       generatePath(`${x}/sales-order/${id}/release`),
     salesOrderStatus: (id: string) =>
       generatePath(`${x}/sales-order/${id}/status`),
+    salesOrderCancelPreview: (id: string) =>
+      generatePath(`${x}/sales-order/${id}/cancel-preview`),
     salesOrders: `${x}/sales/orders`,
     salesPriceList: `${x}/sales/price-list`,
     deletePriceOverride: (id: string) =>

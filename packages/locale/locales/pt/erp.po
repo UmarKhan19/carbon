@@ -17,7 +17,7 @@ msgstr "Um fornecedor é uma empresa ou pessoa que vende peças ou serviços par
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr "\"{0}\" não está disponível na(s) superfície(s) selecionada(s). Escolha outro campo."
+msgstr ""
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "\"{storageUnitName}\" tem {childCount} unidades de armazenamento aninhadas diretas. Deletá-la também excluirá essas unidades e tudo que está abaixo delas. Isso não pode ser desfeito."
@@ -466,7 +466,7 @@ msgid "An item cannot be added to itself."
 msgstr "Um item não pode ser adicionado a si mesmo."
 
 msgid "AND"
-msgstr "E"
+msgstr ""
 
 msgid "and {remaining} more"
 msgstr "e {remaining} mais"
@@ -487,10 +487,10 @@ msgid "Annotation updated"
 msgstr "Anotação atualizada"
 
 msgid "Any item group"
-msgstr "Qualquer grupo de itens"
+msgstr ""
 
 msgid "Any item type"
-msgstr "Qualquer tipo de item"
+msgstr ""
 
 msgid "API and Webhooks"
 msgstr "API e Webhooks"
@@ -1187,6 +1187,24 @@ msgstr "Cancelar"
 msgid "Cancel Job"
 msgstr "Cancelar Trabalho"
 
+msgid "Cancel Sales Order"
+msgstr ""
+
+msgid "Cancel SO"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr ""
+
+msgid "Cancel SO only"
+msgstr ""
+
 msgid "Canceled"
 msgstr "Cancelado"
 
@@ -1296,7 +1314,7 @@ msgid "Check your email"
 msgstr "Verifique seu email"
 
 msgid "Choose a company"
-msgstr "Escolha uma empresa"
+msgstr ""
 
 msgid "Choose another file"
 msgstr "Escolher outro arquivo"
@@ -1393,7 +1411,7 @@ msgid "Columns"
 msgstr "Colunas"
 
 msgid "Combine filters"
-msgstr "Combinar filtros"
+msgstr ""
 
 msgid "Coming soon"
 msgstr "Em breve"
@@ -2967,7 +2985,7 @@ msgid "Employees"
 msgstr "Funcionários"
 
 msgid "Empty = match every item"
-msgstr "Vazio = corresponder a todos os itens"
+msgstr ""
 
 msgid "Empty work centers"
 msgstr "Centros de trabalho vazios"
@@ -4035,7 +4053,7 @@ msgid "Invite"
 msgstr "Convidar"
 
 msgid "Invited"
-msgstr "Convidado"
+msgstr ""
 
 msgid "Invoice"
 msgstr "Fatura"
@@ -4140,13 +4158,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "Item {scannedItem} não é o mesmo que o item {expectedItem}"
 
 msgid "Item filters"
-msgstr "Filtros de itens"
+msgstr ""
 
 msgid "Item Group"
 msgstr "Grupo de Itens"
 
 msgid "Item groups"
-msgstr "Grupos de itens"
+msgstr ""
 
 msgid "Item Groups"
 msgstr "Grupos de Itens"
@@ -4158,10 +4176,10 @@ msgid "Item Master"
 msgstr "Mestre de Item"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr "Item deve corresponder a um tipo selecionado E um grupo selecionado"
+msgstr ""
 
 msgid "Item must match a selected type OR a selected group"
-msgstr "Item deve corresponder a um tipo selecionado OU um grupo selecionado"
+msgstr ""
 
 msgid "Item Scope"
 msgstr "Escopo do Item"
@@ -4170,7 +4188,7 @@ msgid "Item Type"
 msgstr "Tipo de Item"
 
 msgid "Item types"
-msgstr "Tipos de item"
+msgstr ""
 
 msgid "items"
 msgstr "itens"
@@ -4396,6 +4414,9 @@ msgstr "Recarregamento ao vivo"
 msgid "Load Templates"
 msgstr "Carregar Modelos"
 
+msgid "Loading associated jobs..."
+msgstr ""
+
 msgid "Loading item details..."
 msgstr "Carregando detalhes do item..."
 
@@ -4583,13 +4604,13 @@ msgid "Match all"
 msgstr "Corresponder a todos"
 
 msgid "Match all (AND)"
-msgstr "Corresponder a todos (E)"
+msgstr ""
 
 msgid "Match any"
 msgstr "Corresponder a qualquer"
 
 msgid "Match any (OR)"
-msgstr "Corresponder a qualquer (OU)"
+msgstr ""
 
 msgid "Match none"
 msgstr "Não corresponder a nenhum"
@@ -5137,6 +5158,9 @@ msgstr "Sem Acesso"
 msgid "No action needed"
 msgstr "Nenhuma ação necessária"
 
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr ""
+
 msgid "No active plan"
 msgstr "Nenhum plano ativo"
 
@@ -5355,7 +5379,7 @@ msgid "Not started training for"
 msgstr "Treinamento não iniciado para"
 
 msgid "Not you?"
-msgstr "Não é você?"
+msgstr ""
 
 msgid "Note"
 msgstr "Nota"
@@ -5511,7 +5535,7 @@ msgid "Options"
 msgstr "Opções"
 
 msgid "OR"
-msgstr "OU"
+msgstr ""
 
 msgid "Order"
 msgstr "Pedido"
@@ -6859,6 +6883,9 @@ msgstr "Selecione um motivo pelo qual a cotação não foi criada."
 msgid "Select a team"
 msgstr "Selecione uma equipe"
 
+msgid "Select all"
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "Selecione um responsável"
 
@@ -7405,7 +7432,7 @@ msgid "Storage client not available"
 msgstr "Cliente de armazenamento não disponível"
 
 msgid "Storage Rules"
-msgstr "Regras de Armazenamento"
+msgstr ""
 
 msgid "Storage Type"
 msgstr "Tipo de Armazenamento"
@@ -7797,6 +7824,9 @@ msgstr "Este trabalho será recebido no inventário. Não estará mais disponív
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "Este trabalho não estará mais disponível no chão de fábrica."
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr ""
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Esta ordem de venda tem linhas que requerem a criação de trabalhos"
@@ -8681,7 +8711,7 @@ msgid "Yes, Update IDs"
 msgstr "Sim, Atualizar IDs"
 
 msgid "You belong to more than one company. Pick where to work."
-msgstr "Você pertence a mais de uma empresa. Escolha onde trabalhar."
+msgstr ""
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "Você pode alterar o estilo da interface a qualquer momento através da configuração de tema"

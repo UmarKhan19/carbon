@@ -17,7 +17,7 @@ msgstr "サプライヤーは、あなたに部品またはサービスを販売
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr "「{0}」は選択されたサーフェス上で利用できません。別のフィールドを選択してください。"
+msgstr ""
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "「{storageUnitName}」には{childCount}個の直下の階層化されたストレージユニットがあります。これを削除すると、それらとその下にあるすべてのものも削除されます。この操作は取り消せません。"
@@ -466,7 +466,7 @@ msgid "An item cannot be added to itself."
 msgstr "アイテムをそれ自体に追加することはできません。"
 
 msgid "AND"
-msgstr "AND"
+msgstr ""
 
 msgid "and {remaining} more"
 msgstr "そして{remaining}件以上"
@@ -487,10 +487,10 @@ msgid "Annotation updated"
 msgstr "注釈が更新されました"
 
 msgid "Any item group"
-msgstr "任意のアイテムグループ"
+msgstr ""
 
 msgid "Any item type"
-msgstr "任意のアイテムタイプ"
+msgstr ""
 
 msgid "API and Webhooks"
 msgstr "APIとWebhooks"
@@ -1187,6 +1187,24 @@ msgstr "キャンセル"
 msgid "Cancel Job"
 msgstr "ジョブをキャンセル"
 
+msgid "Cancel Sales Order"
+msgstr ""
+
+msgid "Cancel SO"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr ""
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr ""
+
+msgid "Cancel SO only"
+msgstr ""
+
 msgid "Canceled"
 msgstr "キャンセル済み"
 
@@ -1296,7 +1314,7 @@ msgid "Check your email"
 msgstr "メールを確認してください"
 
 msgid "Choose a company"
-msgstr "会社を選択"
+msgstr ""
 
 msgid "Choose another file"
 msgstr "別のファイルを選択"
@@ -1393,7 +1411,7 @@ msgid "Columns"
 msgstr "列"
 
 msgid "Combine filters"
-msgstr "フィルターを組み合わせる"
+msgstr ""
 
 msgid "Coming soon"
 msgstr "近日公開予定"
@@ -2967,7 +2985,7 @@ msgid "Employees"
 msgstr "従業員"
 
 msgid "Empty = match every item"
-msgstr "空 = すべてのアイテムに一致"
+msgstr ""
 
 msgid "Empty work centers"
 msgstr "空の作業センター"
@@ -4035,7 +4053,7 @@ msgid "Invite"
 msgstr "招待"
 
 msgid "Invited"
-msgstr "招待済み"
+msgstr ""
 
 msgid "Invoice"
 msgstr "請求書"
@@ -4140,13 +4158,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "アイテム {scannedItem} は、アイテム {expectedItem} と同じではありません"
 
 msgid "Item filters"
-msgstr "アイテムフィルター"
+msgstr ""
 
 msgid "Item Group"
 msgstr "品目グループ"
 
 msgid "Item groups"
-msgstr "アイテムグループ"
+msgstr ""
 
 msgid "Item Groups"
 msgstr "アイテムグループ"
@@ -4158,10 +4176,10 @@ msgid "Item Master"
 msgstr "アイテムマスター"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr "アイテムは選択されたタイプと選択されたグループの両方に一致する必要があります"
+msgstr ""
 
 msgid "Item must match a selected type OR a selected group"
-msgstr "アイテムは選択されたタイプまたは選択されたグループと一致する必要があります"
+msgstr ""
 
 msgid "Item Scope"
 msgstr "アイテムスコープ"
@@ -4170,7 +4188,7 @@ msgid "Item Type"
 msgstr "アイテムタイプ"
 
 msgid "Item types"
-msgstr "アイテムタイプ"
+msgstr ""
 
 msgid "items"
 msgstr "アイテム"
@@ -4396,6 +4414,9 @@ msgstr "ライブリロード中"
 msgid "Load Templates"
 msgstr "テンプレートを読み込む"
 
+msgid "Loading associated jobs..."
+msgstr ""
+
 msgid "Loading item details..."
 msgstr "アイテムの詳細を読み込み中..."
 
@@ -4583,13 +4604,13 @@ msgid "Match all"
 msgstr "すべてに一致"
 
 msgid "Match all (AND)"
-msgstr "すべてに一致 (AND)"
+msgstr ""
 
 msgid "Match any"
 msgstr "いずれかに一致"
 
 msgid "Match any (OR)"
-msgstr "任意に一致 (OR)"
+msgstr ""
 
 msgid "Match none"
 msgstr "いずれにも一致しない"
@@ -5137,6 +5158,9 @@ msgstr "アクセスなし"
 msgid "No action needed"
 msgstr "対応は不要です"
 
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr ""
+
 msgid "No active plan"
 msgstr "アクティブなプランなし"
 
@@ -5355,7 +5379,7 @@ msgid "Not started training for"
 msgstr "まだトレーニングを開始していません"
 
 msgid "Not you?"
-msgstr "違いますか？"
+msgstr ""
 
 msgid "Note"
 msgstr "メモ"
@@ -5511,7 +5535,7 @@ msgid "Options"
 msgstr "オプション"
 
 msgid "OR"
-msgstr "または"
+msgstr ""
 
 msgid "Order"
 msgstr "注文"
@@ -6859,6 +6883,9 @@ msgstr "見積が作成されなかった理由を選択してください。"
 msgid "Select a team"
 msgstr "チームを選択"
 
+msgid "Select all"
+msgstr ""
+
 msgid "Select an assignee"
 msgstr "担当者を選択"
 
@@ -7405,7 +7432,7 @@ msgid "Storage client not available"
 msgstr "ストレージクライアントが利用できません"
 
 msgid "Storage Rules"
-msgstr "保管ルール"
+msgstr ""
 
 msgid "Storage Type"
 msgstr "ストレージタイプ"
@@ -7797,6 +7824,9 @@ msgstr "このジョブはインベントリに受け取られます。ショッ
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "このジョブはショップフロアで利用できなくなります。"
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr ""
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "この販売注文には、ジョブを作成する必要があるラインがあります"
@@ -8681,7 +8711,7 @@ msgid "Yes, Update IDs"
 msgstr "はい、IDを更新"
 
 msgid "You belong to more than one company. Pick where to work."
-msgstr "複数の企業に属しています。どこで働くかを選択してください。"
+msgstr ""
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "テーマ設定からいつでもUIスタイルを変更できます"

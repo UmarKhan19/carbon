@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-07T18:36:42.934Z",
-  "totalTools": 1179,
+  "generated": "2026-06-08T20:42:15.020Z",
+  "totalTools": 1180,
   "modules": 15,
   "tools": [
     {
@@ -31777,6 +31777,37 @@
             ]
           },
           "customFields": {}
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "sales_cancelSalesOrder",
+      "module": "sales",
+      "classification": "WRITE",
+      "description": "cancel sales order",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         },
         "required": [
           "id"

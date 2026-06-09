@@ -1187,6 +1187,24 @@ msgstr "Cancel"
 msgid "Cancel Job"
 msgstr "Cancel Job"
 
+msgid "Cancel Sales Order"
+msgstr "Cancel Sales Order"
+
+msgid "Cancel SO"
+msgstr "Cancel SO"
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr "Cancel SO + {0} job{1}"
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr "Cancel SO + {0} selected"
+
+msgid "Cancel SO only"
+msgstr "Cancel SO only"
+
 msgid "Canceled"
 msgstr "Canceled"
 
@@ -4396,6 +4414,9 @@ msgstr "Live reloading"
 msgid "Load Templates"
 msgstr "Load Templates"
 
+msgid "Loading associated jobs..."
+msgstr "Loading associated jobs..."
+
 msgid "Loading item details..."
 msgstr "Loading item details..."
 
@@ -5136,6 +5157,9 @@ msgstr "No Access"
 
 msgid "No action needed"
 msgstr "No action needed"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr "No active jobs found for this sales order. The order will be cancelled directly."
 
 msgid "No active plan"
 msgstr "No active plan"
@@ -6859,6 +6883,9 @@ msgstr "Select a reason for why the quote was not created."
 msgid "Select a team"
 msgstr "Select a team"
 
+msgid "Select all"
+msgstr "Select all"
+
 msgid "Select an assignee"
 msgstr "Select an assignee"
 
@@ -7797,6 +7824,9 @@ msgstr "This job will be received to inventory. It will no longer be available o
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "This job will no longer be available on the shop floor."
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr "This sales order has associated jobs. Choose what to do with them."
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "This sales order has lines that require jobs to be created"
