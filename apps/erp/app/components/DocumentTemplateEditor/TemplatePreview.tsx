@@ -17,7 +17,8 @@ export function TemplatePreview({ previewPath }: { previewPath: string }) {
     settings,
     headerSectionId,
     footerSectionId,
-    sections
+    sections,
+    previewId
   } = useDocumentTemplate();
   const [url, setUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +35,7 @@ export function TemplatePreview({ previewPath }: { previewPath: string }) {
         formData.append("settings", JSON.stringify(settings));
         formData.append("headerSectionId", headerSectionId ?? "");
         formData.append("footerSectionId", footerSectionId ?? "");
+        if (previewId) formData.append("previewId", previewId);
         const response = await fetch(previewPath, {
           method: "post",
           body: formData,
@@ -65,6 +67,7 @@ export function TemplatePreview({ previewPath }: { previewPath: string }) {
     headerSectionId,
     footerSectionId,
     sections,
+    previewId,
     previewPath
   ]);
 

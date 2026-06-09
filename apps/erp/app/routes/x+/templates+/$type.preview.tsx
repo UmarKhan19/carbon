@@ -14,6 +14,7 @@ import { renderToStream } from "@react-pdf/renderer";
 import type { ActionFunctionArgs } from "react-router";
 import { z } from "zod";
 import { getCompany, resolveSections } from "~/modules/settings";
+import { buildPreviewProps } from "~/modules/settings/documentPreview.server";
 
 /**
  * Renders a sample of the document with the draft block layout, server-side.
@@ -21,9 +22,12 @@ import { getCompany, resolveSections } from "~/modules/settings";
  * Buffer/streams) and guarantees the preview matches the real PDF route.
  */
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { client, companyId } = await requirePermissions(request, {
-    view: "settings"
-  });
+  const { client, companyId, companyGroupId } = await requirePermissions(
+    request,
+    {
+      view: "settings"
+    }
+  );
 
   const documentType = documentTemplateTypeSchema.parse(params.type);
 
@@ -60,16 +64,33 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   const { Component, sample } = DOCUMENT_PDFS[documentType];
 
-  // Use the real company so the preview shows the actual logo / branding;
-  // everything else (line items, totals) stays sample data.
-  const company = await getCompany(client, companyId);
-  const previewCompany = company.data ?? sample.company;
+  // When a record is picked, render the draft layout against its live data.
+  // Otherwise fall back to sample data with the real company branding.
+  const previewId = String(formData.get("previewId") ?? "") || null;
+  const real = previewId
+    ? await buildPreviewProps(
+        client,
+        companyId,
+        companyGroupId,
+        documentType,
+        previewId,
+        locale
+      )
+    : null;
+
+  let baseProps: Record<string, unknown>;
+  if (real) {
+    baseProps = real;
+  } else {
+    // Use the real company so the preview shows the actual logo / branding;
+    // everything else (line items, totals) stays sample data.
+    const company = await getCompany(client, companyId);
+    baseProps = { ...sample, company: company.data ?? sample.company, locale };
+  }
 
   const stream = await renderToStream(
     <Component
-      {...sample}
-      company={previewCompany}
-      locale={locale}
+      {...baseProps}
       template={{
         formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
         documentType,

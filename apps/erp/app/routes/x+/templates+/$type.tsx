@@ -24,6 +24,7 @@ import {
   getDocumentTemplate,
   upsertDocumentTemplate
 } from "~/modules/settings";
+import { listPreviewEntities } from "~/modules/settings/documentPreview.server";
 import { getCustomFieldsSchemas } from "~/modules/shared/shared.server";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -40,13 +41,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const documentType = documentTemplateTypeSchema.parse(params.type);
 
-  const [stored, sections, customFieldSchemas] = await Promise.all([
-    getDocumentTemplate(client, companyId, documentType),
-    getDocumentSections(client, companyId),
-    // Custom field definitions for this record type, to offer as insertable
-    // blocks. The customField `table` matches the document type ("salesInvoice").
-    getCustomFieldsSchemas(client, { companyId, table: documentType })
-  ]);
+  const [stored, sections, customFieldSchemas, previewEntities] =
+    await Promise.all([
+      getDocumentTemplate(client, companyId, documentType),
+      getDocumentSections(client, companyId),
+      // Custom field definitions for this record type, to offer as insertable
+      // blocks. The customField `table` matches the document type.
+      getCustomFieldsSchemas(client, { companyId, table: documentType }),
+      // Recent records to optionally preview against live data.
+      listPreviewEntities(client, companyId, documentType)
+    ]);
 
   const customFields = (
     ((customFieldSchemas.data ?? []).find((t) => t.table === documentType)
@@ -81,7 +85,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       content: (s as { content?: JSONContent }).content,
       config: (s as { config?: Record<string, unknown> }).config
     })),
-    customFields
+    customFields,
+    previewEntities
   };
 }
 
@@ -147,7 +152,8 @@ export default function DocumentTemplateRoute() {
     headerSectionId,
     footerSectionId,
     sections,
-    customFields
+    customFields,
+    previewEntities
   } = useLoaderData<typeof loader>();
   const permissions = usePermissions();
 
@@ -163,6 +169,7 @@ export default function DocumentTemplateRoute() {
       initialFooterSectionId={footerSectionId}
       sections={sections}
       customFields={customFields}
+      previewEntities={previewEntities}
       canEdit={permissions.can("update", "settings")}
     />
   );

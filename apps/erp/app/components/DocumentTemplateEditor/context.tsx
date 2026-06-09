@@ -48,6 +48,12 @@ export interface CustomFieldRef {
   name: string;
 }
 
+/** A real record the preview can render against (id + readable label). */
+export interface PreviewEntity {
+  id: string;
+  label: string;
+}
+
 /**
  * Generic editor interface: state + actions + meta. The provider is the only
  * place that knows blocks live in React state and persist via a fetcher;
@@ -65,6 +71,11 @@ interface DocumentTemplateContextValue {
   sections: SectionRef[];
   /** Custom fields available to insert as blocks. */
   customFields: CustomFieldRef[];
+  /** Real records the preview can render against. */
+  previewEntities: PreviewEntity[];
+  /** Selected record id for live-data preview (null = sample data). */
+  previewId: string | null;
+  setPreviewId: (id: string | null) => void;
   selectedId: string | null;
   // actions
   select: (id: string | null) => void;
@@ -124,6 +135,7 @@ export function DocumentTemplateProvider({
   initialFooterSectionId,
   sections,
   customFields,
+  previewEntities,
   children
 }: PropsWithChildren<{
   documentType: DocumentTemplateType;
@@ -135,6 +147,7 @@ export function DocumentTemplateProvider({
   initialFooterSectionId: string | null;
   sections: SectionRef[];
   customFields: CustomFieldRef[];
+  previewEntities: PreviewEntity[];
 }>) {
   const fetcher = useFetcher<{ success?: boolean }>();
   const [blocks, setBlocks] = useState<DocumentBlock[]>(initialBlocks);
@@ -147,6 +160,7 @@ export function DocumentTemplateProvider({
     initialFooterSectionId
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [previewId, setPreviewId] = useState<string | null>(null);
   const submittedRef = useRef(false);
 
   const isSaving = fetcher.state !== "idle";
@@ -304,6 +318,9 @@ export function DocumentTemplateProvider({
       footerSectionId,
       sections,
       customFields,
+      previewEntities,
+      previewId,
+      setPreviewId,
       selectedId,
       select: setSelectedId,
       addBlock,
@@ -331,6 +348,8 @@ export function DocumentTemplateProvider({
       footerSectionId,
       sections,
       customFields,
+      previewEntities,
+      previewId,
       selectedId,
       addBlock,
       addSharedBlock,

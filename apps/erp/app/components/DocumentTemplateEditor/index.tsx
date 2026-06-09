@@ -7,6 +7,7 @@ import type {
 import { getDocumentLabel } from "@carbon/documents/template";
 import {
   Button,
+  Combobox,
   Heading,
   ScrollArea,
   Tabs,
@@ -20,7 +21,7 @@ import { Link } from "react-router";
 import { path } from "~/utils/path";
 import { BlockConfig } from "./BlockConfig";
 import { BlockList } from "./BlockList";
-import type { CustomFieldRef, SectionRef } from "./context";
+import type { CustomFieldRef, PreviewEntity, SectionRef } from "./context";
 import { DocumentTemplateProvider, useDocumentTemplate } from "./context";
 import { FontConfig } from "./FontConfig";
 import { TemplatePreview } from "./TemplatePreview";
@@ -36,6 +37,7 @@ export function DocumentTemplateEditor({
   initialFooterSectionId,
   sections,
   customFields,
+  previewEntities,
   canEdit
 }: {
   documentType: DocumentTemplateType;
@@ -47,6 +49,7 @@ export function DocumentTemplateEditor({
   initialFooterSectionId: string | null;
   sections: SectionRef[];
   customFields: CustomFieldRef[];
+  previewEntities: PreviewEntity[];
   canEdit: boolean;
 }) {
   return (
@@ -60,6 +63,7 @@ export function DocumentTemplateEditor({
       initialFooterSectionId={initialFooterSectionId}
       sections={sections}
       customFields={customFields}
+      previewEntities={previewEntities}
     >
       <div className="flex h-full w-full min-w-0 flex-col bg-background">
         <EditorToolbar
@@ -159,10 +163,18 @@ function EditorToolbar({
   title: string;
   canEdit: boolean;
 }) {
-  const { isDirty, isSaving, reset, save } = useDocumentTemplate();
+  const {
+    isDirty,
+    isSaving,
+    reset,
+    save,
+    previewEntities,
+    previewId,
+    setPreviewId
+  } = useDocumentTemplate();
 
   return (
-    <div className="flex items-center justify-between border-b bg-card px-4 py-3">
+    <div className="flex items-center justify-between gap-3 border-b bg-card px-4 py-3">
       <div className="flex items-center gap-3">
         <Link
           to={path.to.documentTemplates}
@@ -176,6 +188,21 @@ function EditorToolbar({
           <p className="text-xs text-muted-foreground">{title}</p>
         </div>
       </div>
+      {previewEntities.length > 0 && (
+        <div className="flex min-w-0 max-w-[280px] flex-1 justify-center">
+          <Combobox
+            size="sm"
+            className="w-full"
+            value={previewId ?? ""}
+            options={previewEntities.map((e) => ({
+              label: e.label,
+              value: e.id
+            }))}
+            onChange={(value) => setPreviewId(value || null)}
+            placeholder="Sample data"
+          />
+        </div>
+      )}
       {canEdit && (
         <div className="flex items-center gap-2">
           <Button
