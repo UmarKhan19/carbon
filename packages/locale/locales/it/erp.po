@@ -2100,6 +2100,12 @@ msgstr "Tipi di Cliente"
 msgid "Customers"
 msgstr "Clienti"
 
+msgid "Customize layout"
+msgstr ""
+
+msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
+msgstr ""
+
 msgid "Daily Usage"
 msgstr "Utilizzo Giornaliero"
 
@@ -2592,6 +2598,9 @@ msgstr "Documento"
 
 msgid "Document Control"
 msgstr "Controllo Documenti"
+
+msgid "Document Templates"
+msgstr ""
 
 msgid "Document:"
 msgstr "Documento:"
@@ -7098,6 +7107,9 @@ msgstr "Condividi Link"
 msgid "Share Quote"
 msgstr "Condividi Preventivo"
 
+msgid "Shared Sections"
+msgstr ""
+
 msgid "Shelf life"
 msgstr "Durata di conservazione"
 
@@ -7268,6 +7280,9 @@ msgstr "Saltato"
 
 msgid "Something went wrong. Please try again."
 msgstr "Qualcosa è andato storto. Riprova."
+
+msgid "Soon"
+msgstr ""
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "La scadenza più prossima tra tutti i materiali determina il prodotto finito."
@@ -7707,6 +7722,9 @@ msgstr "Imposta:"
 
 msgid "Temperature"
 msgstr "Temperatura"
+
+msgid "Templates"
+msgstr ""
 
 msgid "Terms and Privacy"
 msgstr "Termini e Privacy"

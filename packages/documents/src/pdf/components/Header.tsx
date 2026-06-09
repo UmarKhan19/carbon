@@ -1,6 +1,7 @@
 import { formatCityStatePostalCode } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
+import { DEFAULT_HEADER_OPTIONS, type HeaderOptions } from "../../template";
 import type { Company } from "../../types";
 
 type HeaderProps = {
@@ -11,6 +12,8 @@ type HeaderProps = {
   date?: string | null;
   currencyCode?: string | null;
   locale?: string;
+  /** Per-template display options (logo + which fields show). */
+  options?: HeaderOptions;
   /**
    * When true, the header is wrapped in <View fixed> so it repeats on
    * every page. Used by PO PDF; sales PDFs default to non-fixed (page 1 only).
@@ -42,51 +45,60 @@ const Header = ({
   title,
   documentId,
   documentSubId,
+  options,
   fixed
 }: HeaderProps) => {
+  const opts = { ...DEFAULT_HEADER_OPTIONS, ...options };
+  // Prefer the full light logo; fall back to the square icon.
+  const logoSrc = company.logoLight ?? company.logoLightIcon;
+  const showLogo = opts.showLogo && Boolean(logoSrc);
+  // Name fallback only when a logo is wanted but missing. With the logo turned
+  // off, render nothing here (the company name still shows in the details block).
+  const showNameFallback = opts.showLogo && !logoSrc;
+
   const headerView = (
     <View style={tw("flex flex-row justify-between mb-1")}>
       <View style={tw("flex flex-row")}>
-        {company.logoLightIcon ? (
+        {showLogo ? (
           <Image
-            src={company.logoLightIcon}
-            style={{ height: 50, width: "auto", marginRight: 12 }}
+            src={logoSrc!}
+            style={{ height: opts.logoHeight, width: "auto", marginRight: 12 }}
           />
-        ) : (
-          <Text
-            style={tw("text-2xl font-bold text-gray-800 tracking-tight mr-3")}
-          >
+        ) : showNameFallback ? (
+          <Text style={tw("text-2xl font-bold text-gray-800 mr-3")}>
             {company.name}
           </Text>
+        ) : null}
+        {opts.showCompanyDetails && (
+          <View style={tw("flex flex-col text-[9px] text-gray-800")}>
+            {company.name && (
+              <Text style={tw("font-bold")}>{company.name}</Text>
+            )}
+            {company.addressLine1 && <Text>{company.addressLine1}</Text>}
+            {company.addressLine2 && <Text>{company.addressLine2}</Text>}
+            {(company.city || company.stateProvince || company.postalCode) && (
+              <Text>
+                {formatCityStatePostalCode(
+                  company.city,
+                  company.stateProvince,
+                  company.postalCode
+                )}
+              </Text>
+            )}
+          </View>
         )}
-        <View style={tw("flex flex-col text-[9px] text-gray-800")}>
-          {company.name && <Text style={tw("font-bold")}>{company.name}</Text>}
-          {company.addressLine1 && <Text>{company.addressLine1}</Text>}
-          {company.addressLine2 && <Text>{company.addressLine2}</Text>}
-          {(company.city || company.stateProvince || company.postalCode) && (
-            <Text>
-              {formatCityStatePostalCode(
-                company.city,
-                company.stateProvince,
-                company.postalCode
-              )}
-            </Text>
-          )}
-        </View>
       </View>
       <View style={tw("flex flex-col items-end justify-start")}>
-        <Text style={tw("text-2xl font-bold text-gray-800 tracking-tight")}>
-          {title}
-        </Text>
-        {documentId && (
-          <Text
-            style={tw("text-sm font-bold text-gray-600 tracking-tight -mt-4")}
-          >
+        {opts.showDocumentTitle && (
+          <Text style={tw("text-2xl font-bold text-gray-800")}>{title}</Text>
+        )}
+        {opts.showDocumentId && documentId && (
+          <Text style={tw("text-sm font-bold text-gray-600 -mt-4")}>
             {documentId}
           </Text>
         )}
         {documentSubId && (
-          <Text style={tw("text-[8px] font-bold text-gray-600 tracking-tight")}>
+          <Text style={tw("text-[8px] font-bold text-gray-600")}>
             {documentSubId}
           </Text>
         )}

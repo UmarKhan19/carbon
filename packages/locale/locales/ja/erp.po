@@ -2100,6 +2100,12 @@ msgstr "顧客タイプ"
 msgid "Customers"
 msgstr "顧客"
 
+msgid "Customize layout"
+msgstr ""
+
+msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
+msgstr ""
+
 msgid "Daily Usage"
 msgstr "日次使用量"
 
@@ -2592,6 +2598,9 @@ msgstr "ドキュメント"
 
 msgid "Document Control"
 msgstr "ドキュメント管理"
+
+msgid "Document Templates"
+msgstr ""
 
 msgid "Document:"
 msgstr "ドキュメント:"
@@ -7098,6 +7107,9 @@ msgstr "リンクを共有"
 msgid "Share Quote"
 msgstr "見積もりを共有"
 
+msgid "Shared Sections"
+msgstr ""
+
 msgid "Shelf life"
 msgstr "棚卸し期間"
 
@@ -7268,6 +7280,9 @@ msgstr "スキップ"
 
 msgid "Something went wrong. Please try again."
 msgstr "何か問題が発生しました。もう一度お試しください。"
+
+msgid "Soon"
+msgstr ""
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "最も早い有効期限が完成品を決定します。"
@@ -7707,6 +7722,9 @@ msgstr "税:"
 
 msgid "Temperature"
 msgstr "温度"
+
+msgid "Templates"
+msgstr ""
 
 msgid "Terms and Privacy"
 msgstr "利用規約とプライバシー"

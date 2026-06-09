@@ -2100,6 +2100,12 @@ msgstr "ग्राहक प्रकार"
 msgid "Customers"
 msgstr "ग्राहक"
 
+msgid "Customize layout"
+msgstr ""
+
+msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
+msgstr ""
+
 msgid "Daily Usage"
 msgstr "दैनिक उपयोग"
 
@@ -2592,6 +2598,9 @@ msgstr "दस्तावेज़"
 
 msgid "Document Control"
 msgstr "दस्तावेज़ नियंत्रण"
+
+msgid "Document Templates"
+msgstr ""
 
 msgid "Document:"
 msgstr "दस्तावेज़:"
@@ -7098,6 +7107,9 @@ msgstr "लिंक साझा करें"
 msgid "Share Quote"
 msgstr "उद्धरण साझा करें"
 
+msgid "Shared Sections"
+msgstr ""
+
 msgid "Shelf life"
 msgstr "शेल्फ लाइफ"
 
@@ -7268,6 +7280,9 @@ msgstr "छोड़ा गया"
 
 msgid "Something went wrong. Please try again."
 msgstr "कुछ गलत हो गया। कृपया पुनः प्रयास करें।"
+
+msgid "Soon"
+msgstr ""
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "सबसे जल्दी समाप्त होने वाली सामग्री तैयार माल को निर्धारित करती है।"
@@ -7707,6 +7722,9 @@ msgstr "कर:"
 
 msgid "Temperature"
 msgstr "तापमान"
+
+msgid "Templates"
+msgstr ""
 
 msgid "Terms and Privacy"
 msgstr "शर्तें और गोपनीयता"

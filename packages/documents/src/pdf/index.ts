@@ -1,4 +1,5 @@
 import { Footer } from "./components";
+import { ensureFont } from "./fonts";
 import IssuePDF from "./IssuePDF";
 import JobTravelerPDF, { JobTravelerPageContent } from "./JobTravelerPDF";
 import KanbanLabelPDF from "./KanbanLabelPDF";
@@ -9,7 +10,9 @@ import QuotePDF from "./QuotePDF";
 import SalesInvoicePDF from "./SalesInvoicePDF";
 import SalesOrderPDF from "./SalesOrderPDF";
 import StockTransferPDF from "./StockTransferPDF";
+import { SAMPLE_SALES_INVOICE } from "./samples";
 export {
+  ensureFont,
   Footer,
   IssuePDF,
   JobTravelerPageContent,
@@ -20,6 +23,7 @@ export {
   PurchaseOrderPDF,
   QuotePDF,
   SalesInvoicePDF,
+  SAMPLE_SALES_INVOICE,
   SalesOrderPDF,
   StockTransferPDF
 };

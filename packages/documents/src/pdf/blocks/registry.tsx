@@ -1,0 +1,52 @@
+import type { DocumentBlockType } from "../../template";
+import { CustomFieldBlock } from "./CustomFieldBlock";
+import { HeaderBlock } from "./HeaderBlock";
+import { KeyValueBlock } from "./KeyValueBlock";
+import { LineItemsBlock } from "./LineItemsBlock";
+import { NotesBlock } from "./NotesBlock";
+import { PartiesBlock } from "./PartiesBlock";
+import { RichTextBlock } from "./RichTextBlock";
+import { SharedBlock } from "./SharedBlock";
+import { SpacerBlock } from "./SpacerBlock";
+import { SummaryBlock } from "./SummaryBlock";
+import { TermsBlock } from "./TermsBlock";
+import type { BlockRenderer, SalesInvoiceData } from "./types";
+
+/**
+ * Maps each block type to its react-pdf renderer. Built-in renderers read
+ * from `data`; extension renderers narrow `block` by its discriminant. The
+ * driver looks up by `block.type` — an O(1) Map lookup per block.
+ */
+export const salesInvoiceBlockRegistry: Record<
+  DocumentBlockType,
+  BlockRenderer<SalesInvoiceData>
+> = {
+  header: ({ data }) => <HeaderBlock data={data} />,
+  parties: ({ data }) => <PartiesBlock data={data} />,
+  notes: ({ data }) => <NotesBlock data={data} />,
+  lineItems: ({ block, data }) =>
+    block.type === "lineItems" ? (
+      <LineItemsBlock block={block} data={data} />
+    ) : null,
+  summary: ({ block, data }) =>
+    block.type === "summary" ? (
+      <SummaryBlock block={block} data={data} />
+    ) : null,
+  terms: ({ data }) => <TermsBlock data={data} />,
+  richText: ({ block, data }) =>
+    block.type === "richText" ? (
+      <RichTextBlock block={block} data={data} />
+    ) : null,
+  keyValue: ({ block, data }) =>
+    block.type === "keyValue" ? (
+      <KeyValueBlock block={block} data={data} />
+    ) : null,
+  spacer: ({ block }) =>
+    block.type === "spacer" ? <SpacerBlock block={block} /> : null,
+  shared: ({ block, data }) =>
+    block.type === "shared" ? <SharedBlock block={block} data={data} /> : null,
+  customField: ({ block, data }) =>
+    block.type === "customField" ? (
+      <CustomFieldBlock block={block} data={data} />
+    ) : null
+};

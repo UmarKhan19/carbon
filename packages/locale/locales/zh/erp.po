@@ -2100,6 +2100,12 @@ msgstr "客户类型"
 msgid "Customers"
 msgstr "客户"
 
+msgid "Customize layout"
+msgstr ""
+
+msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
+msgstr ""
+
 msgid "Daily Usage"
 msgstr "日常使用"
 
@@ -2592,6 +2598,9 @@ msgstr "文档"
 
 msgid "Document Control"
 msgstr "文件控制"
+
+msgid "Document Templates"
+msgstr ""
 
 msgid "Document:"
 msgstr "文档："
@@ -7098,6 +7107,9 @@ msgstr "分享链接"
 msgid "Share Quote"
 msgstr "分享报价"
 
+msgid "Shared Sections"
+msgstr ""
+
 msgid "Shelf life"
 msgstr "保质期"
 
@@ -7268,6 +7280,9 @@ msgstr "已跳过"
 
 msgid "Something went wrong. Please try again."
 msgstr "出现问题。请重试。"
+
+msgid "Soon"
+msgstr ""
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "最早的过期日期决定了成品的保质期。"
@@ -7707,6 +7722,9 @@ msgstr "税:"
 
 msgid "Temperature"
 msgstr "温度"
+
+msgid "Templates"
+msgstr ""
 
 msgid "Terms and Privacy"
 msgstr "条款和隐私"

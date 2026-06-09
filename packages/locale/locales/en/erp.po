@@ -2100,6 +2100,12 @@ msgstr "Customer Types"
 msgid "Customers"
 msgstr "Customers"
 
+msgid "Customize layout"
+msgstr "Customize layout"
+
+msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
+msgstr "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
+
 msgid "Daily Usage"
 msgstr "Daily Usage"
 
@@ -2592,6 +2598,9 @@ msgstr "Document"
 
 msgid "Document Control"
 msgstr "Document Control"
+
+msgid "Document Templates"
+msgstr "Document Templates"
 
 msgid "Document:"
 msgstr "Document:"
@@ -7098,6 +7107,9 @@ msgstr "Share Link"
 msgid "Share Quote"
 msgstr "Share Quote"
 
+msgid "Shared Sections"
+msgstr "Shared Sections"
+
 msgid "Shelf life"
 msgstr "Shelf life"
 
@@ -7268,6 +7280,9 @@ msgstr "Skipped"
 
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
+
+msgid "Soon"
+msgstr "Soon"
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "Soonest expiry across every material sets the finished good."
@@ -7707,6 +7722,9 @@ msgstr "Tax:"
 
 msgid "Temperature"
 msgstr "Temperature"
+
+msgid "Templates"
+msgstr "Templates"
 
 msgid "Terms and Privacy"
 msgstr "Terms and Privacy"

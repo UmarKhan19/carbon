@@ -13,7 +13,8 @@
     "nanoid": "catalog:",
     "react-icons": "catalog:",
     "react-pdf-tailwind": "2.3.0",
-    "sst": "catalog:"
+    "sst": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@carbon/config": "workspace:*",
@@ -30,6 +31,7 @@
   "exports": {
     "./email": "./src/email/index.ts",
     "./pdf": "./src/pdf/index.ts",
+    "./template": "./src/template/index.ts",
     "./zpl": "./src/zpl/index.ts",
     "./qr": "./src/qr/qr-code.ts"
   },
