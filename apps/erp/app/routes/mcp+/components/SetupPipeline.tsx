@@ -31,7 +31,7 @@ function stepsFor(c: Client): PipeStep[] {
     caption:
       "Ask it to search Carbon. If it lists tools, you’re connected to your ERP.",
     alt: `${c.name} — “Search Carbon for sales-order tools” returning a list of tools`,
-    img: "/mcp/verify.png"
+    img: `/mcp/verify-${c.slug}.png`
   };
 
   if (c.flow === "connector") {
@@ -43,7 +43,7 @@ function stepsFor(c: Client): PipeStep[] {
         caption: `Open ${c.where}, choose Add custom connector, then paste the endpoint.`,
         code: ENDPOINT,
         alt: `${c.name} — the “Add custom connector” dialog with the Carbon MCP URL`,
-        img: "/mcp/add-claude-ai"
+        img: `/mcp/add-${c.slug}.png`
       },
       {
         num: "02",
@@ -75,7 +75,7 @@ function stepsFor(c: Client): PipeStep[] {
       caption: "Paste it in, swapping in the key the modal gave you:",
       code: c.code,
       alt: `${c.name} — the Carbon MCP server configured with your key`,
-      img: "/mcp/command.png"
+      img: `/mcp/add-${c.slug}.png`
     },
     verify
   ];

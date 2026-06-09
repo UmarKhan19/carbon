@@ -56,9 +56,10 @@ export const TOC = [
 // Connector clients authorize via OAuth (no key); command clients paste a snippet
 // carrying a scoped key. `code`/`target`/`action` describe step 2 of the command flow.
 export type Client =
-  | { name: string; flow: "connector"; where: string }
+  | { name: string; slug: string; flow: "connector"; where: string }
   | {
       name: string;
+      slug: string;
       flow: "command";
       target: string;
       action: string;
@@ -70,6 +71,7 @@ export type Client =
 export const CLIENTS: Client[] = [
   {
     name: "Claude Code",
+    slug: "claude-code",
     flow: "command",
     target: "Terminal · Claude Code",
     action: "Run the command",
@@ -77,11 +79,13 @@ export const CLIENTS: Client[] = [
   },
   {
     name: "Claude Desktop & Web",
+    slug: "claude-ai",
     flow: "connector",
     where: "Settings → Connectors"
   },
   {
     name: "Cursor",
+    slug: "cursor",
     flow: "command",
     target: ".cursor/mcp.json",
     action: "Add to your config",
