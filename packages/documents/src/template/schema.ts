@@ -231,7 +231,8 @@ export const documentTemplateTypeSchema = z.enum([
   "salesOrder",
   "purchaseOrder",
   "quote",
-  "packingSlip"
+  "packingSlip",
+  "stockTransfer"
 ]);
 
 /**

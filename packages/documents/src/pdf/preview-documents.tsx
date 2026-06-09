@@ -8,8 +8,10 @@ import QuotePDF from "./QuotePDF";
 import { SAMPLE_QUOTE } from "./quote.samples";
 import SalesInvoicePDF from "./SalesInvoicePDF";
 import SalesOrderPDF from "./SalesOrderPDF";
+import StockTransferPDF from "./StockTransferPDF";
 import { SAMPLE_SALES_ORDER } from "./salesOrder.samples";
 import { SAMPLE_SALES_INVOICE } from "./samples";
+import { SAMPLE_STOCK_TRANSFER } from "./stockTransfer.samples";
 
 /**
  * Maps a document type to its PDF component + sample fixture, so the template
@@ -27,5 +29,9 @@ export const DOCUMENT_PDFS: Record<DocumentTemplateType, PreviewEntry> = {
     sample: SAMPLE_PURCHASE_ORDER
   },
   quote: { Component: QuotePDF, sample: SAMPLE_QUOTE },
-  packingSlip: { Component: PackingSlipPDF, sample: SAMPLE_PACKING_SLIP }
+  packingSlip: { Component: PackingSlipPDF, sample: SAMPLE_PACKING_SLIP },
+  stockTransfer: {
+    Component: StockTransferPDF,
+    sample: SAMPLE_STOCK_TRANSFER
+  }
 };

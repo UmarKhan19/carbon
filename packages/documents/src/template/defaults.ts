@@ -208,6 +208,15 @@ function fulfillmentBlocks(): DocumentBlock[] {
   ];
 }
 
+/** Internal warehouse doc (stock transfer): header + details + line items. */
+function transferBlocks(): DocumentBlock[] {
+  return [
+    { id: "header", type: "header", visible: true },
+    { id: "details", type: "details", visible: true },
+    { id: "lineItems", type: "lineItems", visible: true }
+  ];
+}
+
 /**
  * Default template per supported document type. Adding a document = wire its
  * PDF to consume a template, then add its default here + to the schema enum.
@@ -254,6 +263,15 @@ export const DEFAULT_TEMPLATES: Record<DocumentTemplateType, DocumentTemplate> =
       formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
       documentType: "packingSlip",
       blocks: fulfillmentBlocks(),
+      theme: { ...DEFAULT_THEME },
+      settings: { ...DEFAULT_DOCUMENT_SETTINGS },
+      headerSectionId: BUILT_IN_SECTION_IDS.header,
+      footerSectionId: BUILT_IN_SECTION_IDS.footer
+    },
+    stockTransfer: {
+      formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
+      documentType: "stockTransfer",
+      blocks: transferBlocks(),
       theme: { ...DEFAULT_THEME },
       settings: { ...DEFAULT_DOCUMENT_SETTINGS },
       headerSectionId: BUILT_IN_SECTION_IDS.header,
@@ -413,7 +431,7 @@ export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
     type: "stockTransfer",
     label: "Stock Transfer",
     group: "Inventory",
-    supported: false
+    supported: true
   },
   {
     type: "jobTraveler",

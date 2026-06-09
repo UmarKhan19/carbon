@@ -1,10 +1,16 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { StockTransferPDF } from "@carbon/documents/pdf";
+import { ensureFont, StockTransferPDF } from "@carbon/documents/pdf";
+import type { DocumentTemplate } from "@carbon/documents/template";
+import { collectSectionIds, resolveTemplate } from "@carbon/documents/template";
 import { getPreferenceHeaders } from "@carbon/react";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
 import { getStockTransfer, getStockTransferLines } from "~/modules/inventory";
-import { getCompany } from "~/modules/settings";
+import {
+  getCompany,
+  getDocumentTemplate,
+  resolveSections
+} from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -56,6 +62,37 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const { locale } = getPreferenceHeaders(request);
 
+  const documentTemplate = await getDocumentTemplate(
+    client,
+    companyId,
+    "stockTransfer"
+  );
+  const templateConfig: DocumentTemplate | null = documentTemplate.data
+    ? {
+        formatVersion:
+          (documentTemplate.data as { formatVersion?: number }).formatVersion ??
+          1,
+        documentType: "stockTransfer",
+        blocks: documentTemplate.data.blocks as DocumentTemplate["blocks"],
+        theme: documentTemplate.data.theme as DocumentTemplate["theme"],
+        settings: (documentTemplate.data as { settings?: unknown })
+          .settings as DocumentTemplate["settings"],
+        headerSectionId:
+          (documentTemplate.data as { headerSectionId?: string })
+            .headerSectionId ?? null,
+        footerSectionId:
+          (documentTemplate.data as { footerSectionId?: string })
+            .footerSectionId ?? null
+      }
+    : null;
+  const resolved = resolveTemplate("stockTransfer", templateConfig);
+  const sections = await resolveSections(
+    client,
+    companyId,
+    collectSectionIds(resolved)
+  );
+  await ensureFont(resolved.settings.fontFamily);
+
   // Get thumbnails for items
   const thumbnailPaths = stockTransferLines.data?.reduce<
     Record<string, string | null>
@@ -101,6 +138,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       }}
       title="Stock Transfer"
       thumbnails={thumbnails}
+      template={templateConfig}
+      sections={sections}
     />
   );
 
