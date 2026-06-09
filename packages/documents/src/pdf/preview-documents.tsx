@@ -2,6 +2,8 @@ import type { ComponentType } from "react";
 import type { DocumentTemplateType } from "../template";
 import PurchaseOrderPDF from "./PurchaseOrderPDF";
 import { SAMPLE_PURCHASE_ORDER } from "./purchaseOrder.samples";
+import QuotePDF from "./QuotePDF";
+import { SAMPLE_QUOTE } from "./quote.samples";
 import SalesInvoicePDF from "./SalesInvoicePDF";
 import SalesOrderPDF from "./SalesOrderPDF";
 import { SAMPLE_SALES_ORDER } from "./salesOrder.samples";
@@ -21,5 +23,6 @@ export const DOCUMENT_PDFS: Record<DocumentTemplateType, PreviewEntry> = {
   purchaseOrder: {
     Component: PurchaseOrderPDF,
     sample: SAMPLE_PURCHASE_ORDER
-  }
+  },
+  quote: { Component: QuotePDF, sample: SAMPLE_QUOTE }
 };

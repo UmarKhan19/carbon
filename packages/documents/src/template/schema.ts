@@ -226,7 +226,8 @@ export const documentSettingsSchema = z.object({
 export const documentTemplateTypeSchema = z.enum([
   "salesInvoice",
   "salesOrder",
-  "purchaseOrder"
+  "purchaseOrder",
+  "quote"
 ]);
 
 /**

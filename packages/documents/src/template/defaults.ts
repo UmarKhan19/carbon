@@ -221,6 +221,15 @@ export const DEFAULT_TEMPLATES: Record<DocumentTemplateType, DocumentTemplate> =
       settings: { ...DEFAULT_DOCUMENT_SETTINGS },
       headerSectionId: BUILT_IN_SECTION_IDS.header,
       footerSectionId: BUILT_IN_SECTION_IDS.footer
+    },
+    quote: {
+      formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
+      documentType: "quote",
+      blocks: transactionalBlocks(),
+      theme: { ...DEFAULT_THEME },
+      settings: { ...DEFAULT_DOCUMENT_SETTINGS },
+      headerSectionId: BUILT_IN_SECTION_IDS.header,
+      footerSectionId: BUILT_IN_SECTION_IDS.footer
     }
   };
 
@@ -347,7 +356,7 @@ export interface DocumentCatalogEntry {
 }
 
 export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
-  { type: "quote", label: "Quote", group: "Sales", supported: false },
+  { type: "quote", label: "Quote", group: "Sales", supported: true },
   {
     type: "salesOrder",
     label: "Sales Order",
