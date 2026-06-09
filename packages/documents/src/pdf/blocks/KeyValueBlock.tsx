@@ -2,14 +2,14 @@ import { Text, View } from "@react-pdf/renderer";
 import type { KeyValueBlock as KeyValueBlockType } from "../../template";
 import { interpolateString } from "../../template";
 import { tw } from "./tw";
-import type { SalesInvoiceData } from "./types";
 
+/** Extension block — doc-agnostic. Takes only the merge-field `vars`. */
 export function KeyValueBlock({
   block,
-  data
+  vars
 }: {
   block: KeyValueBlockType;
-  data: SalesInvoiceData;
+  vars: Record<string, string>;
 }) {
   const rows = block.rows ?? [];
   if (rows.length === 0 && !block.title) return null;
@@ -29,10 +29,10 @@ export function KeyValueBlock({
               style={tw("flex flex-row mb-0.5")}
             >
               <Text style={tw("w-1/3 text-gray-600")}>
-                {interpolateString(row.label, data.vars)}
+                {interpolateString(row.label, vars)}
               </Text>
               <Text style={tw("w-2/3 text-gray-800")}>
-                {interpolateString(row.value, data.vars)}
+                {interpolateString(row.value, vars)}
               </Text>
             </View>
           ))}

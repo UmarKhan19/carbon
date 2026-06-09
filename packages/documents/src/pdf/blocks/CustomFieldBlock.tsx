@@ -1,7 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { CustomFieldBlock as CustomFieldBlockType } from "../../template";
 import { tw } from "./tw";
-import type { SalesInvoiceData } from "./types";
 
 function formatValue(raw: unknown): string {
   if (raw === "on" || raw === true) return "Yes";
@@ -10,17 +9,14 @@ function formatValue(raw: unknown): string {
   return String(raw);
 }
 
+/** Extension block — doc-agnostic. Takes the record's `customFields` map. */
 export function CustomFieldBlock({
   block,
-  data
+  customFields
 }: {
   block: CustomFieldBlockType;
-  data: SalesInvoiceData;
+  customFields: Record<string, unknown>;
 }) {
-  const customFields = (data.salesInvoice?.customFields ?? {}) as Record<
-    string,
-    unknown
-  >;
   const value = formatValue(customFields[block.fieldId]);
 
   return (

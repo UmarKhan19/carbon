@@ -1,18 +1,23 @@
 import { Text, View } from "@react-pdf/renderer";
-import type { SharedBlock as SharedBlockType } from "../../template";
+import type {
+  ResolvedSection,
+  SharedBlock as SharedBlockType
+} from "../../template";
 import { interpolateContent } from "../../template";
 import { Note } from "../components";
 import { tw } from "./tw";
-import type { SalesInvoiceData } from "./types";
 
+/** Extension block — doc-agnostic. Takes resolved sections + merge `vars`. */
 export function SharedBlock({
   block,
-  data
+  sections,
+  vars
 }: {
   block: SharedBlockType;
-  data: SalesInvoiceData;
+  sections: Record<string, ResolvedSection>;
+  vars: Record<string, string>;
 }) {
-  const section = data.sections[block.sectionId];
+  const section = sections[block.sectionId];
   if (!section) return null;
 
   const hasContent =
@@ -30,7 +35,7 @@ export function SharedBlock({
           {section.name}
         </Text>
         <View style={tw("text-[9px] text-gray-800")}>
-          <Note content={interpolateContent(section.content, data.vars)} />
+          <Note content={interpolateContent(section.content, vars)} />
         </View>
       </View>
     </View>

@@ -3,14 +3,17 @@ import type { RichTextBlock as RichTextBlockType } from "../../template";
 import { interpolateContent } from "../../template";
 import { Note } from "../components";
 import { tw } from "./tw";
-import type { SalesInvoiceData } from "./types";
 
+/**
+ * Extension block — doc-agnostic. Takes only the merge-field `vars` so any
+ * document's registry can reuse it.
+ */
 export function RichTextBlock({
   block,
-  data
+  vars
 }: {
   block: RichTextBlockType;
-  data: SalesInvoiceData;
+  vars: Record<string, string>;
 }) {
   const hasContent =
     block.content &&
@@ -21,7 +24,7 @@ export function RichTextBlock({
   if (!hasContent && !block.title) return null;
 
   const content = hasContent
-    ? interpolateContent(block.content, data.vars)
+    ? interpolateContent(block.content, vars)
     : block.content;
 
   return (

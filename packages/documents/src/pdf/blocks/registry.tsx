@@ -35,18 +35,25 @@ export const salesInvoiceBlockRegistry: Record<
   terms: ({ data }) => <TermsBlock data={data} />,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
-      <RichTextBlock block={block} data={data} />
+      <RichTextBlock block={block} vars={data.vars} />
     ) : null,
   keyValue: ({ block, data }) =>
     block.type === "keyValue" ? (
-      <KeyValueBlock block={block} data={data} />
+      <KeyValueBlock block={block} vars={data.vars} />
     ) : null,
   spacer: ({ block }) =>
     block.type === "spacer" ? <SpacerBlock block={block} /> : null,
   shared: ({ block, data }) =>
-    block.type === "shared" ? <SharedBlock block={block} data={data} /> : null,
+    block.type === "shared" ? (
+      <SharedBlock block={block} sections={data.sections} vars={data.vars} />
+    ) : null,
   customField: ({ block, data }) =>
     block.type === "customField" ? (
-      <CustomFieldBlock block={block} data={data} />
+      <CustomFieldBlock
+        block={block}
+        customFields={
+          (data.salesInvoice?.customFields ?? {}) as Record<string, unknown>
+        }
+      />
     ) : null
 };

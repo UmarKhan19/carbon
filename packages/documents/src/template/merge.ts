@@ -68,9 +68,28 @@ const SALES_INVOICE_MERGE_FIELDS: MergeField[] = [
   { token: "company.country", label: "Company Country", group: "Company" }
 ];
 
+const SALES_ORDER_MERGE_FIELDS: MergeField[] = [
+  { token: "order.number", label: "Order Number", group: "Order" },
+  { token: "order.date", label: "Order Date", group: "Order" },
+  {
+    token: "order.customerReference",
+    label: "Customer Reference",
+    group: "Order"
+  },
+  { token: "order.currency", label: "Currency", group: "Order" },
+  { token: "customer.name", label: "Customer Name", group: "Customer" },
+  { token: "customer.addressLine1", label: "Address", group: "Customer" },
+  { token: "customer.city", label: "City", group: "Customer" },
+  { token: "customer.country", label: "Country", group: "Customer" },
+  { token: "company.name", label: "Company Name", group: "Company" },
+  { token: "company.city", label: "Company City", group: "Company" },
+  { token: "company.country", label: "Company Country", group: "Company" }
+];
+
 /** Catalog of insertable merge fields per document type (editor-facing). */
 export const MERGE_FIELDS: Record<string, MergeField[]> = {
-  salesInvoice: SALES_INVOICE_MERGE_FIELDS
+  salesInvoice: SALES_INVOICE_MERGE_FIELDS,
+  salesOrder: SALES_ORDER_MERGE_FIELDS
 };
 
 export function getMergeFields(documentType: string): MergeField[] {

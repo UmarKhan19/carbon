@@ -1,9 +1,5 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import {
-  ensureFont,
-  SAMPLE_SALES_INVOICE,
-  SalesInvoicePDF
-} from "@carbon/documents/pdf";
+import { DOCUMENT_PDFS, ensureFont } from "@carbon/documents/pdf";
 import {
   blockSchema,
   CURRENT_TEMPLATE_FORMAT_VERSION,
@@ -62,15 +58,17 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
   await ensureFont(settings.fontFamily);
 
+  const { Component, sample } = DOCUMENT_PDFS[documentType];
+
   // Use the real company so the preview shows the actual logo / branding;
   // everything else (line items, totals) stays sample data.
   const company = await getCompany(client, companyId);
-  const previewCompany = company.data ?? SAMPLE_SALES_INVOICE.company;
+  const previewCompany = company.data ?? sample.company;
 
   const stream = await renderToStream(
-    <SalesInvoicePDF
-      {...SAMPLE_SALES_INVOICE}
-      company={previewCompany as typeof SAMPLE_SALES_INVOICE.company}
+    <Component
+      {...sample}
+      company={previewCompany}
       locale={locale}
       template={{
         formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,

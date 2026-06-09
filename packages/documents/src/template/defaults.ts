@@ -203,6 +203,15 @@ export const DEFAULT_TEMPLATES: Record<DocumentTemplateType, DocumentTemplate> =
       settings: { ...DEFAULT_DOCUMENT_SETTINGS },
       headerSectionId: BUILT_IN_SECTION_IDS.header,
       footerSectionId: BUILT_IN_SECTION_IDS.footer
+    },
+    salesOrder: {
+      formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
+      documentType: "salesOrder",
+      blocks: transactionalBlocks(),
+      theme: { ...DEFAULT_THEME },
+      settings: { ...DEFAULT_DOCUMENT_SETTINGS },
+      headerSectionId: BUILT_IN_SECTION_IDS.header,
+      footerSectionId: BUILT_IN_SECTION_IDS.footer
     }
   };
 
@@ -334,7 +343,7 @@ export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
     type: "salesOrder",
     label: "Sales Order",
     group: "Sales",
-    supported: false
+    supported: true
   },
   {
     type: "salesInvoice",
