@@ -225,7 +225,8 @@ export const documentSettingsSchema = z.object({
 /** Document types that support a customizable template. Widen as docs ship. */
 export const documentTemplateTypeSchema = z.enum([
   "salesInvoice",
-  "salesOrder"
+  "salesOrder",
+  "purchaseOrder"
 ]);
 
 /**

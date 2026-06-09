@@ -1,5 +1,7 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
-import { PurchaseOrderPDF } from "@carbon/documents/pdf";
+import { ensureFont, PurchaseOrderPDF } from "@carbon/documents/pdf";
+import type { DocumentTemplate } from "@carbon/documents/template";
+import { collectSectionIds, resolveTemplate } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
 import { getPreferenceHeaders } from "@carbon/react";
 import { renderToStream } from "@react-pdf/renderer";
@@ -14,7 +16,9 @@ import {
 import {
   getAccountsPayableBillingAddress,
   getCompany,
-  getCompanySettings
+  getCompanySettings,
+  getDocumentTemplate,
+  resolveSections
 } from "~/modules/settings";
 import { getBase64ImageFromSupabase } from "~/modules/shared";
 
@@ -34,7 +38,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     purchaseOrderLines,
     purchaseOrderLocations,
     terms,
-    paymentTerms
+    paymentTerms,
+    documentTemplate
   ] = await Promise.all([
     getCompany(client, companyId),
     getCompanySettings(client, companyId),
@@ -43,7 +48,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getPurchaseOrderLines(client, orderId),
     getPurchaseOrderLocations(client, orderId),
     getPurchasingTerms(client, companyId),
-    getPaymentTermsList(client, companyId)
+    getPaymentTermsList(client, companyId),
+    getDocumentTemplate(client, companyId, "purchaseOrder")
   ]);
 
   if (company.error) {
@@ -115,6 +121,33 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const { locale } = getPreferenceHeaders(request);
 
+  const templateConfig: DocumentTemplate | null = documentTemplate.data
+    ? {
+        formatVersion:
+          (documentTemplate.data as { formatVersion?: number }).formatVersion ??
+          1,
+        documentType: "purchaseOrder",
+        blocks: documentTemplate.data.blocks as DocumentTemplate["blocks"],
+        theme: documentTemplate.data.theme as DocumentTemplate["theme"],
+        settings: (documentTemplate.data as { settings?: unknown })
+          .settings as DocumentTemplate["settings"],
+        headerSectionId:
+          (documentTemplate.data as { headerSectionId?: string })
+            .headerSectionId ?? null,
+        footerSectionId:
+          (documentTemplate.data as { footerSectionId?: string })
+            .footerSectionId ?? null
+      }
+    : null;
+
+  const resolved = resolveTemplate("purchaseOrder", templateConfig);
+  const sections = await resolveSections(
+    client,
+    companyId,
+    collectSectionIds(resolved)
+  );
+  await ensureFont(resolved.settings.fontFamily);
+
   const stream = await renderToStream(
     <PurchaseOrderPDF
       company={company.data as any}
@@ -131,6 +164,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       purchaseOrderLocations={purchaseOrderLocations.data}
       terms={(terms?.data?.purchasingTerms || {}) as JSONContent}
       thumbnails={thumbnails}
+      template={templateConfig}
+      sections={sections}
     />
   );
 
