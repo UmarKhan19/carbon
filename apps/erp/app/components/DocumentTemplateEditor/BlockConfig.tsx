@@ -20,7 +20,6 @@ import {
   IconButton,
   Input,
   Label,
-  NumberField,
   Select,
   SelectContent,
   SelectItem,
@@ -41,6 +40,7 @@ import { Link } from "react-router";
 import { path } from "~/utils/path";
 import { FOOTER_BLOCK_ID, useDocumentTemplate } from "./context";
 import { MergeFieldMenu } from "./MergeFieldMenu";
+import { NumberRow } from "./NumberRow";
 import { SectionFormModal } from "./SectionFormModal";
 
 /** Append a `{{token}}` snippet to the end of a tiptap doc (inline if possible). */
@@ -517,14 +517,12 @@ function SpacerConfig({ block }: { block: SpacerBlock }) {
       </div>
 
       {block.variant === "space" && (
-        <NumberField
+        <NumberRow
           label="Height (pt)"
           minValue={0}
           maxValue={200}
           value={block.size ?? 16}
-          onChange={(v) =>
-            updateBlock(block.id, { size: Number.isNaN(v) ? 0 : v })
-          }
+          onChange={(v) => updateBlock(block.id, { size: v })}
         />
       )}
     </div>

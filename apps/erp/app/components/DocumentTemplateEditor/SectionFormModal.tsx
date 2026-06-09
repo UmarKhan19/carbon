@@ -14,7 +14,6 @@ import {
   ModalFooter,
   ModalHeader,
   ModalTitle,
-  NumberField,
   Select,
   SelectContent,
   SelectItem,
@@ -26,6 +25,7 @@ import {
 import { Editor } from "@carbon/react/Editor";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
+import { NumberRow } from "./NumberRow";
 
 export type SectionFormValue = {
   id: string;
@@ -164,19 +164,14 @@ export function SectionFormModal({
                     onChange={(v) => setConfigKey("showLogo", v)}
                   />
                   {config.showLogo && (
-                    <NumberField
+                    <NumberRow
                       label="Logo height (pt)"
                       minValue={16}
                       maxValue={120}
-                      value={config.logoHeight}
-                      onChange={(v) =>
-                        setConfigKey(
-                          "logoHeight",
-                          Number.isNaN(v)
-                            ? DEFAULT_HEADER_OPTIONS.logoHeight
-                            : v
-                        )
+                      value={
+                        config.logoHeight ?? DEFAULT_HEADER_OPTIONS.logoHeight
                       }
+                      onChange={(v) => setConfigKey("logoHeight", v)}
                     />
                   )}
                   <ConfigSwitch
