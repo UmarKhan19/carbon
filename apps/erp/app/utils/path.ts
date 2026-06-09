@@ -1385,6 +1385,8 @@ export const path = {
       generatePath(`${x}/purchase-invoice/${id}/void`),
     purchaseInvoices: `${x}/purchasing/invoices`,
     purchaseOrder: (id: string) => generatePath(`${x}/purchase-order/${id}`),
+    purchaseOrderDuplicate: (id: string) =>
+      generatePath(`${x}/purchase-order/${id}/duplicate`),
     purchaseOrderDelivery: (id: string) =>
       generatePath(`${x}/purchase-order/${id}/delivery`),
     purchaseOrderDetails: (id: string) =>
