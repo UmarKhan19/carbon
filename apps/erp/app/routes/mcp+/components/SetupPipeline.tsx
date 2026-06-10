@@ -163,7 +163,7 @@ export function SetupPipeline() {
               <img
                 src={s.img}
                 alt={s.alt}
-                className="w-full rounded-[9px] block outline outline-1 outline-black/10 -outline-offset-1"
+                className="-mx-4 -mb-4 w-[calc(100%+2rem)] max-w-none block rounded-b-xl border-t border-black/10"
               />
             </div>
             {i < steps.length - 1 && (
