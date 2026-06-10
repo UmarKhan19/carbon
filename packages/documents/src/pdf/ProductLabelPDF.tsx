@@ -60,18 +60,11 @@ const ProductLabelPDF = ({
   const effectiveLabelWidthPt = rotated ? labelHeightPt : labelWidthPt;
   const effectiveLabelHeightPt = rotated ? labelWidthPt : labelHeightPt;
 
-  // Determine page size based on rows and columns
-  let pageWidth, pageHeight;
-
-  if (rows > 1 || columns > 1) {
-    // Using standard letter size paper
-    pageWidth = LETTER_WIDTH;
-    pageHeight = LETTER_HEIGHT;
-  } else {
-    // Single label per page - use effective dimensions for rotated labels
-    pageWidth = effectiveLabelWidthPt;
-    pageHeight = effectiveLabelHeightPt;
-  }
+  // Always print on a standard letter sheet, so a single label looks the same
+  // as a multi-up sheet (top-left on a full page) rather than a tiny
+  // label-sized page.
+  const pageWidth = LETTER_WIDTH;
+  const pageHeight = LETTER_HEIGHT;
 
   // Calculate font sizes based on label height
   // Base sizes are optimized for labelSize.height = 1
@@ -93,12 +86,16 @@ const ProductLabelPDF = ({
   // Reserve space for the footer (page number) at the bottom
   const footerHeight = 35;
 
-  // Calculate margins to center labels on the page
-  // Use effective dimensions for rotated labels
-  const horizontalMargin = (pageWidth - columns * effectiveLabelWidthPt) / 2;
-  const availableHeight =
-    rows > 1 || columns > 1 ? pageHeight - footerHeight : pageHeight;
-  const verticalMargin = (availableHeight - rows * effectiveLabelHeightPt) / 2;
+  // Multi-up sheets center their grid; a single label sits at the top-left.
+  const isMultiUp = rows > 1 || columns > 1;
+  const singleLabelMargin = 24;
+  const availableHeight = pageHeight - footerHeight;
+  const horizontalMargin = isMultiUp
+    ? (pageWidth - columns * effectiveLabelWidthPt) / 2
+    : singleLabelMargin;
+  const verticalMargin = isMultiUp
+    ? (availableHeight - rows * effectiveLabelHeightPt) / 2
+    : singleLabelMargin;
 
   const showFooter = resolved.footerSectionId !== null;
 
