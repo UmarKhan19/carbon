@@ -97,6 +97,13 @@ const issueDetailsBlock = builtInBlock("issueDetails");
 const associationsBlock = builtInBlock("associations");
 const actionTasksBlock = builtInBlock("actionTasks");
 const reviewersBlock = builtInBlock("reviewers");
+/** Tracking-label fields (data-bound; one per label element). */
+const labelHeadingBlock = builtInBlock("labelHeading");
+const labelRevisionBlock = builtInBlock("labelRevision");
+const labelQuantityBlock = builtInBlock("labelQuantity");
+const labelTrackingBlock = builtInBlock("labelTracking");
+const labelQrCodeBlock = builtInBlock("labelQrCode");
+const labelEntityIdBlock = builtInBlock("labelEntityId");
 
 /** Extension blocks are user-authored and fully removable. */
 const richTextBlock = z.object({
@@ -152,6 +159,12 @@ export const blockSchema = z.discriminatedUnion("type", [
   associationsBlock,
   actionTasksBlock,
   reviewersBlock,
+  labelHeadingBlock,
+  labelRevisionBlock,
+  labelQuantityBlock,
+  labelTrackingBlock,
+  labelQrCodeBlock,
+  labelEntityIdBlock,
   richTextBlock,
   keyValueBlock,
   spacerBlock,
@@ -257,7 +270,8 @@ export const documentTemplateTypeSchema = z.enum([
   "packingSlip",
   "stockTransfer",
   "jobTraveler",
-  "issue"
+  "issue",
+  "trackingLabel"
 ]);
 
 /**
@@ -326,3 +340,8 @@ export type AssociationsBlock = Extract<
 >;
 export type ActionTasksBlock = Extract<DocumentBlock, { type: "actionTasks" }>;
 export type ReviewersBlock = Extract<DocumentBlock, { type: "reviewers" }>;
+export type LabelHeadingBlock = Extract<
+  DocumentBlock,
+  { type: "labelHeading" }
+>;
+export type LabelQrCodeBlock = Extract<DocumentBlock, { type: "labelQrCode" }>;

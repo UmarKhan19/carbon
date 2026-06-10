@@ -4,24 +4,32 @@ import { KeyValueBlock } from "../KeyValueBlock";
 import { RichTextBlock } from "../RichTextBlock";
 import { SharedBlock } from "../SharedBlock";
 import { SpacerBlock } from "../SpacerBlock";
-import { DetailsBlock } from "./DetailsBlock";
-import { HeaderBlock } from "./HeaderBlock";
-import { LineItemsBlock } from "./LineItemsBlock";
+import {
+  LabelEntityIdBlock,
+  LabelHeadingBlock,
+  LabelQrCodeBlock,
+  LabelQuantityBlock,
+  LabelRevisionBlock,
+  LabelTrackingBlock
+} from "./LabelBlocks";
 import type { BlockRenderer } from "./types";
 
-/** Block-type → renderer for Stock Transfer (internal; header/details/lines). */
-export const stockTransferBlockRegistry: Record<
+/** Block-type → renderer for a tracking label (per-field elements). */
+export const trackingLabelBlockRegistry: Record<
   DocumentBlockType,
   BlockRenderer
 > = {
-  header: ({ data }) => <HeaderBlock data={data} />,
-  details: ({ data }) => <DetailsBlock data={data} />,
-  lineItems: ({ block, data }) =>
-    block.type === "lineItems" ? (
-      <LineItemsBlock block={block} data={data} />
-    ) : null,
+  labelHeading: ({ data }) => <LabelHeadingBlock data={data} />,
+  labelRevision: ({ data }) => <LabelRevisionBlock data={data} />,
+  labelQuantity: ({ data }) => <LabelQuantityBlock data={data} />,
+  labelTracking: ({ data }) => <LabelTrackingBlock data={data} />,
+  labelQrCode: ({ data }) => <LabelQrCodeBlock data={data} />,
+  labelEntityId: ({ data }) => <LabelEntityIdBlock data={data} />,
+  header: () => null,
   parties: () => null,
   notes: () => null,
+  details: () => null,
+  lineItems: () => null,
   summary: () => null,
   terms: () => null,
   jobDetails: () => null,
@@ -30,12 +38,6 @@ export const stockTransferBlockRegistry: Record<
   associations: () => null,
   actionTasks: () => null,
   reviewers: () => null,
-  labelHeading: () => null,
-  labelRevision: () => null,
-  labelQuantity: () => null,
-  labelTracking: () => null,
-  labelQrCode: () => null,
-  labelEntityId: () => null,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
       <RichTextBlock block={block} vars={data.vars} />
@@ -50,13 +52,8 @@ export const stockTransferBlockRegistry: Record<
     block.type === "shared" ? (
       <SharedBlock block={block} sections={data.sections} vars={data.vars} />
     ) : null,
-  customField: ({ block, data }) =>
+  customField: ({ block }) =>
     block.type === "customField" ? (
-      <CustomFieldBlock
-        block={block}
-        customFields={
-          (data.stockTransfer?.customFields ?? {}) as Record<string, unknown>
-        }
-      />
+      <CustomFieldBlock block={block} customFields={{}} />
     ) : null
 };

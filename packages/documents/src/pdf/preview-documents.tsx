@@ -5,6 +5,7 @@ import { SAMPLE_ISSUE } from "./issue.samples";
 import JobTravelerPDF from "./JobTravelerPDF";
 import { SAMPLE_JOB_TRAVELER } from "./jobTraveler.samples";
 import PackingSlipPDF from "./PackingSlipPDF";
+import ProductLabelPDF from "./ProductLabelPDF";
 import PurchaseOrderPDF from "./PurchaseOrderPDF";
 import { SAMPLE_PACKING_SLIP } from "./packingSlip.samples";
 import { SAMPLE_PURCHASE_ORDER } from "./purchaseOrder.samples";
@@ -16,6 +17,7 @@ import StockTransferPDF from "./StockTransferPDF";
 import { SAMPLE_SALES_ORDER } from "./salesOrder.samples";
 import { SAMPLE_SALES_INVOICE } from "./samples";
 import { SAMPLE_STOCK_TRANSFER } from "./stockTransfer.samples";
+import { SAMPLE_TRACKING_LABEL } from "./trackingLabel.samples";
 
 /**
  * Maps a document type to its PDF component + sample fixture, so the template
@@ -42,5 +44,9 @@ export const DOCUMENT_PDFS: Record<DocumentTemplateType, PreviewEntry> = {
     Component: JobTravelerPDF,
     sample: SAMPLE_JOB_TRAVELER
   },
-  issue: { Component: IssuePDF, sample: SAMPLE_ISSUE }
+  issue: { Component: IssuePDF, sample: SAMPLE_ISSUE },
+  trackingLabel: {
+    Component: ProductLabelPDF,
+    sample: SAMPLE_TRACKING_LABEL
+  }
 };

@@ -27,6 +27,12 @@ export const issueBlockRegistry: Record<DocumentBlockType, BlockRenderer> = {
   terms: () => null,
   jobDetails: () => null,
   operations: () => null,
+  labelHeading: () => null,
+  labelRevision: () => null,
+  labelQuantity: () => null,
+  labelTracking: () => null,
+  labelQrCode: () => null,
+  labelEntityId: () => null,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
       <RichTextBlock block={block} vars={data.vars} />

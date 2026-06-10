@@ -4,7 +4,7 @@ import { labelSizes } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { getCompany } from "~/modules/settings";
+import { getCompany, getDocumentTemplateConfig } from "~/modules/settings";
 import { path } from "~/utils/path";
 import { getEntityLabelData } from "./labels.server";
 
@@ -45,8 +45,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  const template = await getDocumentTemplateConfig(
+    client,
+    companyId,
+    "trackingLabel"
+  );
+
   const stream = await renderToStream(
-    <ProductLabelPDF items={[labelItem!]} labelSize={labelSize} />
+    <ProductLabelPDF
+      items={[labelItem!]}
+      labelSize={labelSize}
+      template={template}
+    />
   );
 
   const body: Buffer = await new Promise((resolve, reject) => {

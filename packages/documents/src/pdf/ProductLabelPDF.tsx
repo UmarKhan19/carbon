@@ -1,12 +1,21 @@
 import type { LabelSize, ProductLabelItem } from "@carbon/utils";
-import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
+import { Document, Page, View } from "@react-pdf/renderer";
+import { Fragment } from "react";
 import { createTw } from "react-pdf-tailwind";
-import { generateQRCode } from "../qr/qr-code";
+import type { DocumentTemplate, ResolvedSection } from "../template";
+import { resolveTemplate } from "../template";
+import type { LabelData } from "./blocks/trackingLabel";
+import {
+  buildLabelVars,
+  trackingLabelBlockRegistry
+} from "./blocks/trackingLabel";
 import Footer from "./components/Footer";
 
 interface ProductLabelProps {
   items: ProductLabelItem[];
   labelSize: LabelSize;
+  template?: DocumentTemplate | null;
+  sections?: Record<string, ResolvedSection>;
 }
 
 // Initialize tailwind-styled-components
@@ -25,11 +34,19 @@ const tw = createTw({
   }
 });
 
-const ProductLabelPDF = ({ items, labelSize }: ProductLabelProps) => {
+const ProductLabelPDF = ({
+  items,
+  labelSize,
+  template,
+  sections = {}
+}: ProductLabelProps) => {
   // Default to 1 row and 1 column if not specified
   const rows = labelSize.rows || 1;
   const columns = labelSize.columns || 1;
   const rotated = labelSize.rotated || false;
+
+  const resolved = resolveTemplate("trackingLabel", template ?? null);
+  const visibleBlocks = resolved.blocks.filter((block) => block.visible);
 
   // Standard letter size paper (8.5 x 11 inches in points)
   const LETTER_WIDTH = 8.5 * 72;
@@ -83,6 +100,8 @@ const ProductLabelPDF = ({ items, labelSize }: ProductLabelProps) => {
     rows > 1 || columns > 1 ? pageHeight - footerHeight : pageHeight;
   const verticalMargin = (availableHeight - rows * effectiveLabelHeightPt) / 2;
 
+  const showFooter = resolved.footerSectionId !== null;
+
   return (
     <Document>
       {Array.from({ length: pageCount }).map((_, pageIndex) => (
@@ -109,6 +128,16 @@ const ProductLabelPDF = ({ items, labelSize }: ProductLabelProps) => {
                     />
                   );
 
+                const data: LabelData = {
+                  item,
+                  theme: resolved.theme,
+                  vars: buildLabelVars(item),
+                  titleFontSize,
+                  descriptionFontSize,
+                  qrCodeSize,
+                  sections
+                };
+
                 return (
                   <View
                     key={`label-${itemIndex}`}
@@ -120,99 +149,27 @@ const ProductLabelPDF = ({ items, labelSize }: ProductLabelProps) => {
                     }}
                     wrap={false}
                   >
-                    <View style={tw("flex flex-row justify-between")}>
-                      <View
-                        style={tw("flex flex-col justify-center flex-1 pr-2")}
-                      >
-                        <Text
-                          style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            maxWidth: "100%",
-                            ...tw("mb-2"),
-                            fontWeight: "bold",
-                            fontSize: `${titleFontSize}pt`
-                          }}
-                        >
-                          {item.itemId}
-                        </Text>
-
-                        {item.revision && (
-                          <Text
-                            style={{
-                              ...tw("mb-1"),
-                              fontSize: `${descriptionFontSize}pt`
-                            }}
-                          >
-                            Rev: {item.revision}
-                          </Text>
-                        )}
-
-                        {["Serial", "Batch"].includes(item.trackingType) && (
-                          <Text
-                            style={{
-                              ...tw("mb-1"),
-                              fontSize: `${descriptionFontSize}pt`
-                            }}
-                          >
-                            Qty: {item.quantity}
-                          </Text>
-                        )}
-
-                        {item.trackingType === "Serial" && item.number && (
-                          <Text
-                            style={{
-                              ...tw("mb-1"),
-                              fontSize: `${descriptionFontSize}pt`
-                            }}
-                          >
-                            S/N: {item.number}
-                          </Text>
-                        )}
-                        {item.trackingType === "Batch" && item.number && (
-                          <Text
-                            style={{
-                              ...tw("mb-1"),
-                              fontSize: `${descriptionFontSize}pt`
-                            }}
-                          >
-                            Batch: {item.number}
-                          </Text>
-                        )}
-                      </View>
-
-                      <View style={tw("flex items-center justify-center")}>
-                        <Image
-                          src={generateQRCode(
-                            item.trackedEntityId,
-                            qrCodeSize / 72
-                          )}
-                          style={{
-                            width: qrCodeSize,
-                            height: qrCodeSize,
-                            objectFit: "contain"
-                          }}
-                        />
-                      </View>
-                    </View>
-
-                    {item.trackedEntityId && (
-                      <Text
-                        style={{
-                          ...tw("mt-1 text-center"),
-                          fontSize: `${descriptionFontSize - 1}pt`,
-                          width: "100%"
-                        }}
-                      >
-                        {item.trackedEntityId}
-                      </Text>
-                    )}
+                    {visibleBlocks.map((block) => {
+                      const render = trackingLabelBlockRegistry[block.type];
+                      if (!render) return null;
+                      return (
+                        <Fragment key={block.id}>
+                          {render({ block, data })}
+                        </Fragment>
+                      );
+                    })}
                   </View>
                 );
               })}
             </View>
           ))}
-          <Footer />
+          {showFooter && (
+            <Footer
+              showPageNumbers={resolved.settings.showPageNumbers}
+              pageNumberFormat={resolved.settings.pageNumberFormat}
+              showRegistrationLine={resolved.settings.showRegistrationLine}
+            />
+          )}
         </Page>
       ))}
     </Document>

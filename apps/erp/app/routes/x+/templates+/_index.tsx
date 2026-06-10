@@ -17,7 +17,8 @@ const GROUP_ORDER = [
   "Purchasing",
   "Inventory",
   "Production",
-  "Quality"
+  "Quality",
+  "Labels"
 ];
 
 export default function DocumentTemplatesIndexRoute() {

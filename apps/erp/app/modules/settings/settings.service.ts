@@ -4,6 +4,7 @@ import type {
   DocumentBlock,
   DocumentSectionPlacement,
   DocumentSettings,
+  DocumentTemplate,
   DocumentTemplateType,
   DocumentTheme,
   ResolvedSection
@@ -488,6 +489,37 @@ export async function getDocumentTemplate(
     .eq("companyId", companyId)
     .eq("documentType", documentType)
     .maybeSingle();
+}
+
+/**
+ * Load a stored document template as a `DocumentTemplate | null` ready to pass
+ * to a PDF (which runs it through `resolveTemplate`). Returns null when no row
+ * is stored, so the PDF falls back to the type's default.
+ */
+export async function getDocumentTemplateConfig(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  documentType: DocumentTemplateType
+): Promise<DocumentTemplate | null> {
+  const stored = await getDocumentTemplate(client, companyId, documentType);
+  if (!stored.data) return null;
+  const row = stored.data as {
+    formatVersion?: number;
+    blocks?: unknown;
+    theme?: unknown;
+    settings?: unknown;
+    headerSectionId?: string | null;
+    footerSectionId?: string | null;
+  };
+  return {
+    formatVersion: row.formatVersion ?? CURRENT_TEMPLATE_FORMAT_VERSION,
+    documentType,
+    blocks: row.blocks as DocumentTemplate["blocks"],
+    theme: row.theme as DocumentTemplate["theme"],
+    settings: row.settings as DocumentTemplate["settings"],
+    headerSectionId: row.headerSectionId ?? null,
+    footerSectionId: row.footerSectionId ?? null
+  };
 }
 
 export async function upsertDocumentTemplate(

@@ -31,6 +31,12 @@ export const quoteBlockRegistry: Record<DocumentBlockType, BlockRenderer> = {
   associations: () => null,
   actionTasks: () => null,
   reviewers: () => null,
+  labelHeading: () => null,
+  labelRevision: () => null,
+  labelQuantity: () => null,
+  labelTracking: () => null,
+  labelQrCode: () => null,
+  labelEntityId: () => null,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
       <RichTextBlock block={block} vars={data.vars} />

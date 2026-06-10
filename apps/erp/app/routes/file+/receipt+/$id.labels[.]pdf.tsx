@@ -6,7 +6,7 @@ import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { getReceiptTracking } from "~/modules/inventory";
-import { getCompany } from "~/modules/settings";
+import { getCompany, getDocumentTemplateConfig } from "~/modules/settings";
 import { getCompanySettings } from "~/modules/settings/settings.service";
 import { path } from "~/utils/path";
 
@@ -90,8 +90,18 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
+  const template = await getDocumentTemplateConfig(
+    client,
+    companyId,
+    "trackingLabel"
+  );
+
   const stream = await renderToStream(
-    <ProductLabelPDF items={items ?? []} labelSize={labelSize} />
+    <ProductLabelPDF
+      items={items ?? []}
+      labelSize={labelSize}
+      template={template}
+    />
   );
 
   const body: Buffer = await new Promise((resolve, reject) => {

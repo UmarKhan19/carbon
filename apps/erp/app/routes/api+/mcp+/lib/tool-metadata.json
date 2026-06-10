@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-09T22:45:33.081Z",
-  "totalTools": 1188,
+  "generated": "2026-06-10T02:55:14.212Z",
+  "totalTools": 1189,
   "modules": 15,
   "tools": [
     {
@@ -33043,6 +33043,30 @@
       "module": "settings",
       "classification": "READ",
       "description": "get document template",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "documentType"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {}
+        },
+        "required": [
+          "documentType"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentTemplateConfig",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document template config",
       "paramCount": 1,
       "serviceParams": [
         "client",

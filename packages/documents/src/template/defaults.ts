@@ -176,6 +176,48 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     hideable: true,
     addable: false
   },
+  labelHeading: {
+    label: "Item ID",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  labelRevision: {
+    label: "Revision",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  labelQuantity: {
+    label: "Quantity",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  labelTracking: {
+    label: "Serial / Batch",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  labelQrCode: {
+    label: "QR Code",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  labelEntityId: {
+    label: "Tracked Entity ID",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
   richText: {
     label: "Rich Text",
     isBuiltIn: false,
@@ -269,6 +311,21 @@ function jobTravelerBlocks(): DocumentBlock[] {
   ];
 }
 
+/**
+ * Tracking label: per-field elements stacked vertically inside each label tile.
+ * No header/footer chrome belongs to the label body itself.
+ */
+function labelBlocks(): DocumentBlock[] {
+  return [
+    { id: "labelHeading", type: "labelHeading", visible: true },
+    { id: "labelRevision", type: "labelRevision", visible: true },
+    { id: "labelQuantity", type: "labelQuantity", visible: true },
+    { id: "labelTracking", type: "labelTracking", visible: true },
+    { id: "labelQrCode", type: "labelQrCode", visible: true },
+    { id: "labelEntityId", type: "labelEntityId", visible: true }
+  ];
+}
+
 /** Quality doc (issue): header + details + associations + notes + tasks + MRB. */
 function issueBlocks(): DocumentBlock[] {
   return [
@@ -357,6 +414,16 @@ export const DEFAULT_TEMPLATES: Record<DocumentTemplateType, DocumentTemplate> =
       theme: { ...DEFAULT_THEME },
       settings: { ...DEFAULT_DOCUMENT_SETTINGS },
       headerSectionId: BUILT_IN_SECTION_IDS.header,
+      footerSectionId: BUILT_IN_SECTION_IDS.footer
+    },
+    trackingLabel: {
+      formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
+      documentType: "trackingLabel",
+      blocks: labelBlocks(),
+      theme: { ...DEFAULT_THEME },
+      settings: { ...DEFAULT_DOCUMENT_SETTINGS },
+      // Labels have no page header; the footer keeps page numbers (toggleable).
+      headerSectionId: null,
       footerSectionId: BUILT_IN_SECTION_IDS.footer
     }
   };
@@ -521,7 +588,13 @@ export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
     group: "Production",
     supported: true
   },
-  { type: "issue", label: "Issue", group: "Quality", supported: true }
+  { type: "issue", label: "Issue", group: "Quality", supported: true },
+  {
+    type: "trackingLabel",
+    label: "Tracking Label",
+    group: "Labels",
+    supported: true
+  }
 ];
 
 export function getDocumentLabel(documentType: string): string {

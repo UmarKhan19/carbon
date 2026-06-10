@@ -171,6 +171,15 @@ const ISSUE_MERGE_FIELDS: MergeField[] = [
   { token: "company.country", label: "Company Country", group: "Company" }
 ];
 
+const TRACKING_LABEL_MERGE_FIELDS: MergeField[] = [
+  { token: "item.id", label: "Item ID", group: "Item" },
+  { token: "item.revision", label: "Revision", group: "Item" },
+  { token: "label.quantity", label: "Quantity", group: "Label" },
+  { token: "label.trackingType", label: "Tracking Type", group: "Label" },
+  { token: "label.number", label: "Serial / Batch Number", group: "Label" },
+  { token: "label.trackedEntityId", label: "Tracked Entity ID", group: "Label" }
+];
+
 /** Catalog of insertable merge fields per document type (editor-facing). */
 export const MERGE_FIELDS: Record<string, MergeField[]> = {
   salesInvoice: SALES_INVOICE_MERGE_FIELDS,
@@ -180,7 +189,8 @@ export const MERGE_FIELDS: Record<string, MergeField[]> = {
   packingSlip: PACKING_SLIP_MERGE_FIELDS,
   stockTransfer: STOCK_TRANSFER_MERGE_FIELDS,
   jobTraveler: JOB_TRAVELER_MERGE_FIELDS,
-  issue: ISSUE_MERGE_FIELDS
+  issue: ISSUE_MERGE_FIELDS,
+  trackingLabel: TRACKING_LABEL_MERGE_FIELDS
 };
 
 export function getMergeFields(documentType: string): MergeField[] {

@@ -15,6 +15,7 @@ import SalesOrderPDF from "./SalesOrderPDF";
 import StockTransferPDF from "./StockTransferPDF";
 import { SAMPLE_SALES_ORDER } from "./salesOrder.samples";
 import { SAMPLE_SALES_INVOICE } from "./samples";
+import { SAMPLE_TRACKING_LABEL } from "./trackingLabel.samples";
 export {
   DOCUMENT_PDFS,
   ensureFont,
@@ -32,6 +33,7 @@ export {
   SAMPLE_JOB_TRAVELER,
   SAMPLE_SALES_INVOICE,
   SAMPLE_SALES_ORDER,
+  SAMPLE_TRACKING_LABEL,
   SalesOrderPDF,
   StockTransferPDF
 };
