@@ -1,9 +1,4 @@
 import type { DocumentBlockType } from "../../../template";
-import { CustomFieldBlock } from "../CustomFieldBlock";
-import { KeyValueBlock } from "../KeyValueBlock";
-import { RichTextBlock } from "../RichTextBlock";
-import { SharedBlock } from "../SharedBlock";
-import { SpacerBlock } from "../SpacerBlock";
 import {
   LabelEntityIdBlock,
   LabelHeadingBlock,
@@ -38,22 +33,10 @@ export const trackingLabelBlockRegistry: Record<
   associations: () => null,
   actionTasks: () => null,
   reviewers: () => null,
-  richText: ({ block, data }) =>
-    block.type === "richText" ? (
-      <RichTextBlock block={block} vars={data.vars} />
-    ) : null,
-  keyValue: ({ block, data }) =>
-    block.type === "keyValue" ? (
-      <KeyValueBlock block={block} vars={data.vars} />
-    ) : null,
-  spacer: ({ block }) =>
-    block.type === "spacer" ? <SpacerBlock block={block} /> : null,
-  shared: ({ block, data }) =>
-    block.type === "shared" ? (
-      <SharedBlock block={block} sections={data.sections} vars={data.vars} />
-    ) : null,
-  customField: ({ block }) =>
-    block.type === "customField" ? (
-      <CustomFieldBlock block={block} customFields={{}} />
-    ) : null
+  // Labels stay in parity with ZPL — extension/custom blocks are never rendered.
+  richText: () => null,
+  keyValue: () => null,
+  spacer: () => null,
+  shared: () => null,
+  customField: () => null
 };

@@ -549,6 +549,12 @@ export interface DocumentCatalogEntry {
   label: string;
   group: string;
   supported: boolean;
+  /**
+   * When true, the document only renders its built-in blocks — user-authored
+   * extension blocks (rich text, key-value, custom fields, …) are not offered
+   * or rendered. Used by labels, where the output must stay in parity with ZPL.
+   */
+  builtInOnly?: boolean;
 }
 
 export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
@@ -594,7 +600,8 @@ export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
     type: "trackingLabel",
     label: "Tracking Label",
     group: "Labels",
-    supported: true
+    supported: true,
+    builtInOnly: true
   }
 ];
 
@@ -603,4 +610,13 @@ export function getDocumentLabel(documentType: string): string {
     DOCUMENT_CATALOG.find((entry) => entry.type === documentType)?.label ??
     documentType
   );
+}
+
+/**
+ * Whether a document accepts user-authored extension blocks. False for
+ * built-in-only docs (labels), whose output must mirror ZPL.
+ */
+export function supportsCustomBlocks(documentType: string): boolean {
+  return !DOCUMENT_CATALOG.find((entry) => entry.type === documentType)
+    ?.builtInOnly;
 }

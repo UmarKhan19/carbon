@@ -1,4 +1,8 @@
-import { BLOCK_META, BUILT_IN_SECTION_IDS } from "@carbon/documents/template";
+import {
+  BLOCK_META,
+  BUILT_IN_SECTION_IDS,
+  supportsCustomBlocks
+} from "@carbon/documents/template";
 import {
   Button,
   cn,
@@ -72,6 +76,7 @@ const ADD_OPTIONS: {
 
 export function BlockList() {
   const {
+    documentType,
     blocks,
     reorder,
     addBlock,
@@ -80,6 +85,7 @@ export function BlockList() {
     sections,
     customFields
   } = useDocumentTemplate();
+  const canAddBlocks = supportsCustomBlocks(documentType);
   const bodySections = sections.filter((s) => s.placement === "body");
   // Header & footer are page chrome — pinned (not reorderable). Only the body
   // blocks between them are sortable.
@@ -120,84 +126,86 @@ export function BlockList() {
         </SortableContext>
       </DndContext>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="secondary"
-            leftIcon={<LuPlus />}
-            className="w-full border-dashed"
+      {canAddBlocks && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="secondary"
+              leftIcon={<LuPlus />}
+              className="w-full border-dashed"
+            >
+              Add block
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="w-[--radix-popper-anchor-width] min-w-64"
           >
-            Add block
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="start"
-          className="w-[--radix-popper-anchor-width] min-w-64"
-        >
-          {ADD_OPTIONS.map(({ type, icon, description }) => (
-            <DropdownMenuItem
-              key={type}
-              onClick={() => addBlock(type)}
-              className="flex items-start gap-2.5 py-2"
-            >
-              <span className="mt-0.5 text-muted-foreground">{icon}</span>
-              <span className="flex flex-col">
-                <span className="text-sm font-medium">
-                  {BLOCK_META[type].label}
+            {ADD_OPTIONS.map(({ type, icon, description }) => (
+              <DropdownMenuItem
+                key={type}
+                onClick={() => addBlock(type)}
+                className="flex items-start gap-2.5 py-2"
+              >
+                <span className="mt-0.5 text-muted-foreground">{icon}</span>
+                <span className="flex flex-col">
+                  <span className="text-sm font-medium">
+                    {BLOCK_META[type].label}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {description}
+                  </span>
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {description}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Shared sections</DropdownMenuLabel>
+            {bodySections.map((section) => (
+              <DropdownMenuItem
+                key={section.id}
+                onClick={() => addSharedBlock(section.id)}
+                className="flex items-center gap-2.5"
+              >
+                <LuLibrary className="size-4 text-muted-foreground" />
+                <span className="text-sm">{section.name}</span>
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuItem asChild className="flex items-center gap-2.5">
+              <Link to={path.to.documentSections}>
+                <LuPlus className="size-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {bodySections.length > 0
+                    ? "New shared section"
+                    : "Create a shared section"}
                 </span>
-              </span>
+              </Link>
             </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Shared sections</DropdownMenuLabel>
-          {bodySections.map((section) => (
-            <DropdownMenuItem
-              key={section.id}
-              onClick={() => addSharedBlock(section.id)}
-              className="flex items-center gap-2.5"
-            >
-              <LuLibrary className="size-4 text-muted-foreground" />
-              <span className="text-sm">{section.name}</span>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuItem asChild className="flex items-center gap-2.5">
-            <Link to={path.to.documentSections}>
-              <LuPlus className="size-4 text-muted-foreground" />
-              <span className="text-sm">
-                {bodySections.length > 0
-                  ? "New shared section"
-                  : "Create a shared section"}
-              </span>
-            </Link>
-          </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Custom fields</DropdownMenuLabel>
-          {customFields.map((field) => (
-            <DropdownMenuItem
-              key={field.id}
-              onClick={() => addCustomFieldBlock(field.id, field.name)}
-              className="flex items-center gap-2.5"
-            >
-              <LuTag className="size-4 text-muted-foreground" />
-              <span className="text-sm">{field.name}</span>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Custom fields</DropdownMenuLabel>
+            {customFields.map((field) => (
+              <DropdownMenuItem
+                key={field.id}
+                onClick={() => addCustomFieldBlock(field.id, field.name)}
+                className="flex items-center gap-2.5"
+              >
+                <LuTag className="size-4 text-muted-foreground" />
+                <span className="text-sm">{field.name}</span>
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuItem asChild className="flex items-center gap-2.5">
+              <Link to={path.to.customFields}>
+                <LuPlus className="size-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {customFields.length > 0
+                    ? "Manage custom fields"
+                    : "Create a custom field"}
+                </span>
+              </Link>
             </DropdownMenuItem>
-          ))}
-          <DropdownMenuItem asChild className="flex items-center gap-2.5">
-            <Link to={path.to.customFields}>
-              <LuPlus className="size-4 text-muted-foreground" />
-              <span className="text-sm">
-                {customFields.length > 0
-                  ? "Manage custom fields"
-                  : "Create a custom field"}
-              </span>
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 }
