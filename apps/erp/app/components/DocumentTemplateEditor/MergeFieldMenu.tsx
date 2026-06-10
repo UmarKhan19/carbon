@@ -13,7 +13,7 @@ import { useDocumentTemplate } from "./context";
 
 /**
  * Dropdown of the document's merge fields. Inserting one hands the caller the
- * `{{token}}` snippet to splice into whatever it's editing (a key-value cell,
+ * `{token}` snippet to splice into whatever it's editing (a key-value cell,
  * rich text, etc.).
  */
 export function MergeFieldMenu({

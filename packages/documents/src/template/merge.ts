@@ -1,10 +1,11 @@
 import type { JSONContent } from "@carbon/react";
 
 /**
- * Merge fields — `{{token}}` placeholders that resolve to live document data at
+ * Merge fields — `{token}` placeholders that resolve to live document data at
  * render time. Inspired by Bindery's `{ expression }` content model, but kept
  * as inline string tokens so they compose inside rich text and key-value rows
- * the user already authors, with no separate value|expression object.
+ * the user already authors, with no separate value|expression object. Uses
+ * single braces to match the storage-rules condition builder.
  */
 export interface MergeField {
   /** Token text without braces, e.g. `invoice.number`. */
@@ -13,9 +14,9 @@ export interface MergeField {
   group: string;
 }
 
-const TOKEN_RE = /\{\{\s*([\w.]+)\s*\}\}/g;
+const TOKEN_RE = /\{\s*([\w.]+)\s*\}/g;
 
-/** Replace every `{{token}}` in a string with its variable value ("" if unknown). */
+/** Replace every `{token}` in a string with its variable value ("" if unknown). */
 export function interpolateString(
   text: string,
   vars: Record<string, string>
@@ -24,7 +25,7 @@ export function interpolateString(
 }
 
 /**
- * Deep-clone a tiptap document, replacing `{{token}}` inside every text node.
+ * Deep-clone a tiptap document, replacing `{token}` inside every text node.
  * Pure — never mutates the input (block state stays as the user authored it).
  */
 export function interpolateContent(
@@ -46,7 +47,7 @@ export function interpolateContent(
 
 /** Wrap a token for insertion into authored content. */
 export function mergeToken(token: string): string {
-  return `{{${token}}}`;
+  return `{${token}}`;
 }
 
 const SALES_INVOICE_MERGE_FIELDS: MergeField[] = [

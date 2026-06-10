@@ -12,7 +12,8 @@ import {
   BLOCK_META,
   BUILT_IN_SECTION_IDS,
   DEFAULT_LINE_ITEMS_OPTIONS,
-  DEFAULT_SUMMARY_OPTIONS
+  DEFAULT_SUMMARY_OPTIONS,
+  getMergeFields
 } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
 import {
@@ -383,10 +384,11 @@ function LineItemsConfig({ block }: { block: LineItemsBlock }) {
 }
 
 function RichTextConfig({ block }: { block: RichTextBlock }) {
-  const { updateBlock } = useDocumentTemplate();
+  const { updateBlock, documentType } = useDocumentTemplate();
   // Bumped on insert to remount the Editor so the appended token shows (Tiptap
   // only reads `initialValue` on mount).
   const [nonce, setNonce] = useState(0);
+  const knownTokens = getMergeFields(documentType).map((f) => f.token);
 
   const insertField = (snippet: string) => {
     updateBlock(block.id, { content: appendText(block.content, snippet) });
@@ -413,6 +415,7 @@ function RichTextConfig({ block }: { block: RichTextBlock }) {
           className="min-h-[140px] w-full rounded-md border bg-background p-3"
           initialValue={block.content}
           onChange={(content) => updateBlock(block.id, { content })}
+          highlightTokens={knownTokens}
           disableFileUpload
         />
       </div>
@@ -433,8 +436,9 @@ function hasDocContent(content?: JSONContent | null): boolean {
  * point.
  */
 function TermsConfig({ block }: { block: TermsBlock }) {
-  const { updateBlock, termsSeed } = useDocumentTemplate();
+  const { updateBlock, termsSeed, documentType } = useDocumentTemplate();
   const [nonce, setNonce] = useState(0);
+  const knownTokens = getMergeFields(documentType).map((f) => f.token);
 
   const initialValue: JSONContent = (hasDocContent(block.content)
     ? block.content
@@ -464,6 +468,7 @@ function TermsConfig({ block }: { block: TermsBlock }) {
           className="min-h-[160px] w-full rounded-md border bg-background p-3"
           initialValue={initialValue}
           onChange={(content) => updateBlock(block.id, { content })}
+          highlightTokens={knownTokens}
           disableFileUpload
         />
       </div>
