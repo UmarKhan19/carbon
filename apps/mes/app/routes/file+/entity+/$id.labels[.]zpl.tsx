@@ -18,12 +18,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     getTrackedEntity(client, id)
   ]);
 
-  // Get the label size from query params or default to zebra2x1
+  // Get the label size from query params or default to label2x1
   const url = new URL(request.url);
   const labelParam = url.searchParams.get("labelSize");
 
   const labelSizeId =
-    labelParam || companySettings.data?.productLabelSize || "zebra2x1";
+    labelParam || companySettings.data?.productLabelSize || "label2x1";
 
   // Find the label size configuration
   let labelSize = labelSizes.find((size) => size.id === labelSizeId);

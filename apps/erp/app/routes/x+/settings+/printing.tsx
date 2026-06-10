@@ -255,12 +255,12 @@ export async function action({ request }: ActionFunctionArgs) {
       };
       const assignments = { ...current.assignments };
 
-      const emptyContext = { printerRouteId: null, autoPrint: false };
+      const emptyContext = { printerRouteId: null, autoPrint: true };
       const locationAssignment: LocationAssignment = assignments[locationId]
         ? { ...assignments[locationId] }
         : {
             defaultPrinterRouteId: null,
-            defaultAutoPrint: false,
+            defaultAutoPrint: true,
             shipping: { ...emptyContext },
             receiving: { ...emptyContext },
             workCenters: {}
@@ -590,7 +590,7 @@ export default function PrintingSettingsRoute() {
               </ModalHeader>
               <ModalBody>
                 <div className="flex flex-col gap-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <Input
                       name="name"
                       label={t`Name`}
@@ -601,8 +601,7 @@ export default function PrintingSettingsRoute() {
                       label={t`Format`}
                       options={formatOptions}
                     />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
+
                     <Select
                       name="mediaSizeId"
                       label={t`Media Size`}
@@ -613,8 +612,7 @@ export default function PrintingSettingsRoute() {
                       label={t`Template ID`}
                       placeholder={t`Leave blank for built-in`}
                     />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
+
                     <Input
                       name="printerUrl"
                       label={t`Printer URL`}
@@ -705,7 +703,7 @@ function LocationSection({
         isBold
         printerRouteId={defaultPrinterId}
         inheritedName={null}
-        autoPrint={assignment?.defaultAutoPrint ?? false}
+        autoPrint={assignment?.defaultAutoPrint ?? true}
         printerRouteOptions={printerRouteOptions}
         onPrinterChange={(printerRouteId) =>
           onUpdate({
@@ -734,7 +732,7 @@ function LocationSection({
         isIndented
         printerRouteId={assignment?.shipping?.printerRouteId ?? null}
         inheritedName={defaultPrinterName}
-        autoPrint={assignment?.shipping?.autoPrint ?? false}
+        autoPrint={assignment?.shipping?.autoPrint ?? true}
         printerRouteOptions={printerRouteOptions}
         onPrinterChange={(printerRouteId) =>
           onUpdate({
@@ -763,7 +761,7 @@ function LocationSection({
         isIndented
         printerRouteId={assignment?.receiving?.printerRouteId ?? null}
         inheritedName={defaultPrinterName}
-        autoPrint={assignment?.receiving?.autoPrint ?? false}
+        autoPrint={assignment?.receiving?.autoPrint ?? true}
         printerRouteOptions={printerRouteOptions}
         onPrinterChange={(printerRouteId) =>
           onUpdate({
@@ -796,7 +794,7 @@ function LocationSection({
             isIndented
             printerRouteId={wcAssignment?.printerRouteId ?? null}
             inheritedName={defaultPrinterName}
-            autoPrint={wcAssignment?.autoPrint ?? false}
+            autoPrint={wcAssignment?.autoPrint ?? true}
             printerRouteOptions={printerRouteOptions}
             onPrinterChange={(printerRouteId) =>
               onUpdate({

@@ -22,6 +22,7 @@ import {
 import { labelSizes, type ProductLabelItem } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { NonRetriableError } from "inngest";
 import { inngest } from "../../client";
 
 type Payload = {
@@ -56,7 +57,7 @@ const resolvers: Record<string, ResolverFn> = {
 };
 
 export const printJobFunction = inngest.createFunction(
-  { id: "print-job", retries: 1 },
+  { id: "print-job", retries: 0 },
   { event: "carbon/print-job" },
   async ({ event, step }) => {
     const client = getCarbonServiceRole();
@@ -70,9 +71,24 @@ export const printJobFunction = inngest.createFunction(
       workCenterId
     } = payload;
 
+    const thirtySecondsAgo = new Date(Date.now() - 30_000).toISOString();
+    const { count: recentJobCount } = await client
+      .from("printJob")
+      .select("id", { count: "exact", head: true })
+      .eq("sourceDocumentId", sourceDocumentId)
+      .eq("companyId", companyId)
+      .eq("origin", "auto")
+      .gte("createdAt", thirtySecondsAgo);
+
+    if (recentJobCount && recentJobCount > 0) {
+      throw new NonRetriableError(
+        `Print jobs already exist for ${sourceDocument} ${sourceDocumentId}`
+      );
+    }
+
     const { data: companySettings } = await client
       .from("companySettings")
-      .select("productLabelSize, printing")
+      .select("printing")
       .eq("id", companyId)
       .single();
 
@@ -94,7 +110,7 @@ export const printJobFunction = inngest.createFunction(
         locationId,
         workCenterId,
         printing,
-        mediaSizeId: companySettings?.productLabelSize || "label2x1"
+        mediaSizeId: "label2x1"
       });
 
       allPrintJobIds.push(...printJobIds);

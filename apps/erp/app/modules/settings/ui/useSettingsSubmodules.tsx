@@ -43,6 +43,14 @@ export default function useSettingsSubmodules() {
         name: t`Company`,
         routes: [
           {
+            name: t`Billing`,
+            to: path.to.billing,
+            role: "employee",
+            icon: <LuCreditCard />,
+            requiresOwnership: true,
+            requiresCloudEnvironment: true
+          },
+          {
             name: t`Company`,
             to: path.to.company,
             role: "employee",
@@ -55,24 +63,16 @@ export default function useSettingsSubmodules() {
             icon: <LuNetwork />
           },
           {
-            name: t`Billing`,
-            to: path.to.billing,
+            name: t`Logos`,
+            to: path.to.logos,
             role: "employee",
-            icon: <LuCreditCard />,
-            requiresOwnership: true,
-            requiresCloudEnvironment: true
+            icon: <LuImage />
           },
           {
             name: t`Printing`,
             to: path.to.printingSettings,
             role: "employee",
             icon: <LuPrinter />
-          },
-          {
-            name: t`Logos`,
-            to: path.to.logos,
-            role: "employee",
-            icon: <LuImage />
           }
         ]
       },

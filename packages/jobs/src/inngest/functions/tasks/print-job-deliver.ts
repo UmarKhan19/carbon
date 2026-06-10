@@ -6,7 +6,7 @@ import { inngest } from "../../client";
 export const printJobDeliverFunction = inngest.createFunction(
   {
     id: "print-job-deliver",
-    retries: 3
+    retries: 0
   },
   { event: "carbon/print-job-deliver" },
   async ({ event }) => {

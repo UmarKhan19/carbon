@@ -196,7 +196,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       if (locationId) {
         const printing = companySettings.data
           ?.printing as PrintingSettings | null;
-        if (printing?.assignments?.[locationId]?.receiving?.autoPrint) {
+        if (printing?.assignments?.[locationId]?.receiving?.autoPrint ?? true) {
           await trigger("print-job", {
             sourceDocument: "Receipt",
             sourceDocumentId: receiptId,

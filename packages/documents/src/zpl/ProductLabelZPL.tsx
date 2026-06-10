@@ -32,12 +32,11 @@ export function generateProductLabelZPL(
     ? widthDots - qrSize - 15 // Tighter spacing on small labels
     : widthDots - qrSize - 40; // More spacing on larger labels
 
-  // Start ZPL command sequence
-  let zpl = "^XA"; // Start format
-
-  // Set label dimensions
+  let zpl = "^XA";
   zpl += `^PW${widthDots}`;
   zpl += `^LL${heightDots}`;
+  zpl += "^MNW"; // gap/web sensing mode
+  zpl += "^CI28"; // UTF-8
 
   // Item ID (larger font)
   zpl += `^FO${textStartX},30^A0N,${fontSize},${fontSize}^FD${item.itemId}^FS`;
@@ -65,9 +64,7 @@ export function generateProductLabelZPL(
   // QR Code for tracked entity ID
   // Using proper error correction level (M) and input mode (A)
   const qrYPosition = isSmallLabel ? 30 : 40;
-  zpl += `^FO${qrStartX},${qrYPosition}^BQN,2,${isSmallLabel ? 5 : 7},M,A^FD${
-    item.trackedEntityId
-  }^FS`;
+  zpl += `^FO${qrStartX},${qrYPosition}^BQN,2,${isSmallLabel ? 4 : 6}^FDMA,${item.trackedEntityId}^FS`;
 
   // Tracked entity ID at bottom
   const idYPosition = isSmallLabel ? heightDots - 25 : heightDots - 35;

@@ -210,7 +210,7 @@ function ZplPreview({ zpl }: { zpl: string }) {
         <p className="text-sm text-destructive">
           <Trans>Preview failed: {error}</Trans>
         </p>
-        <pre className="text-xs font-mono bg-muted p-4 rounded-md overflow-auto whitespace-pre-wrap max-h-[40vh]">
+        <pre className="text-xs font-mono bg-muted p-4 rounded-md overflow-auto whitespace-pre-wrap break-all max-h-[40vh]">
           {zpl}
         </pre>
       </div>
@@ -224,7 +224,7 @@ function ZplPreview({ zpl }: { zpl: string }) {
         alt={t`ZPL Label Preview`}
         className="border border-border rounded-md max-h-[350px] object-contain self-start"
       />
-      <pre className="text-xs font-mono bg-muted p-4 rounded-md overflow-auto whitespace-pre-wrap max-h-[30vh]">
+      <pre className="text-xs font-mono bg-muted p-4 rounded-md overflow-auto whitespace-pre-wrap break-all max-h-[30vh]">
         {zpl}
       </pre>
     </div>

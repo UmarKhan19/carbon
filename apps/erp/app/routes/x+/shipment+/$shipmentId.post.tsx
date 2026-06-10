@@ -288,7 +288,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           .eq("id", companyId)
           .single();
         const printing = cs?.printing as PrintingSettings | null;
-        if (printing?.assignments?.[locationId]?.shipping?.autoPrint) {
+        if (printing?.assignments?.[locationId]?.shipping?.autoPrint ?? true) {
           await trigger("print-job", {
             sourceDocument: "Shipment",
             sourceDocumentId: shipmentId,
