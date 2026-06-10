@@ -17,9 +17,18 @@ export const trackingLabelBlockRegistry: Record<
   BlockRenderer
 > = {
   labelHeading: ({ data }) => <LabelHeadingBlock data={data} />,
-  labelRevision: ({ data }) => <LabelRevisionBlock data={data} />,
-  labelQuantity: ({ data }) => <LabelQuantityBlock data={data} />,
-  labelTracking: ({ data }) => <LabelTrackingBlock data={data} />,
+  labelRevision: ({ block, data }) =>
+    block.type === "labelRevision" ? (
+      <LabelRevisionBlock block={block} data={data} />
+    ) : null,
+  labelQuantity: ({ block, data }) =>
+    block.type === "labelQuantity" ? (
+      <LabelQuantityBlock block={block} data={data} />
+    ) : null,
+  labelTracking: ({ block, data }) =>
+    block.type === "labelTracking" ? (
+      <LabelTrackingBlock block={block} data={data} />
+    ) : null,
   labelQrCode: ({ data }) => <LabelQrCodeBlock data={data} />,
   labelEntityId: ({ data }) => <LabelEntityIdBlock data={data} />,
   header: () => null,

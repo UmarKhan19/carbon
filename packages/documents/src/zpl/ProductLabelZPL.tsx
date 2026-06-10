@@ -80,22 +80,23 @@ export function generateProductLabelZPL(
         break;
       case "labelRevision":
         if (item.revision) {
-          textLine(descFontSize, `Rev: ${item.revision}`);
+          textLine(descFontSize, `${block.label || "Rev"}: ${item.revision}`);
           yPosition += descGap;
         }
         break;
       case "labelQuantity":
         if (["Serial", "Batch"].includes(item.trackingType)) {
-          textLine(descFontSize, `Qty: ${item.quantity}`);
+          textLine(descFontSize, `${block.label || "Qty"}: ${item.quantity}`);
           yPosition += descGap;
         }
         break;
       case "labelTracking":
-        if (item.trackingType === "Serial" && item.number) {
-          textLine(descFontSize, `S/N: ${item.number}`);
-          yPosition += descGap;
-        } else if (item.trackingType === "Batch" && item.number) {
-          textLine(descFontSize, `Batch: ${item.number}`);
+        if (item.number && ["Serial", "Batch"].includes(item.trackingType)) {
+          const defaultName = item.trackingType === "Serial" ? "S/N" : "Batch";
+          textLine(
+            descFontSize,
+            `${block.label || defaultName}: ${item.number}`
+          );
           yPosition += descGap;
         }
         break;

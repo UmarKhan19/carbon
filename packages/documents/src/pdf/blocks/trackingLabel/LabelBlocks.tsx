@@ -1,6 +1,6 @@
 import { Image, Text, View } from "@react-pdf/renderer";
 import { generateQRCode } from "../../../qr/qr-code";
-import type { FieldBlock } from "../../../template";
+import type { FieldBlock, LabelNamedBlock } from "../../../template";
 import { interpolateString } from "../../../template";
 import { tw } from "./tw";
 import type { LabelData } from "./types";
@@ -44,41 +44,59 @@ export function LabelHeadingBlock({ data }: { data: LabelData }) {
 }
 
 /** Revision row. */
-export function LabelRevisionBlock({ data }: { data: LabelData }) {
+export function LabelRevisionBlock({
+  block,
+  data
+}: {
+  block: LabelNamedBlock;
+  data: LabelData;
+}) {
   const { item, descriptionFontSize } = data;
   if (!item.revision) return null;
   return (
     <Text style={{ ...tw("mb-1"), fontSize: `${descriptionFontSize}pt` }}>
-      Rev: {item.revision}
+      {block.label || "Rev"}: {item.revision}
     </Text>
   );
 }
 
 /** Quantity row (serial/batch-tracked items only). */
-export function LabelQuantityBlock({ data }: { data: LabelData }) {
+export function LabelQuantityBlock({
+  block,
+  data
+}: {
+  block: LabelNamedBlock;
+  data: LabelData;
+}) {
   const { item, descriptionFontSize } = data;
   if (!["Serial", "Batch"].includes(item.trackingType)) return null;
   return (
     <Text style={{ ...tw("mb-1"), fontSize: `${descriptionFontSize}pt` }}>
-      Qty: {item.quantity}
+      {block.label || "Qty"}: {item.quantity}
     </Text>
   );
 }
 
 /** Serial / Batch number row. */
-export function LabelTrackingBlock({ data }: { data: LabelData }) {
+export function LabelTrackingBlock({
+  block,
+  data
+}: {
+  block: LabelNamedBlock;
+  data: LabelData;
+}) {
   const { item, descriptionFontSize } = data;
   if (!item.number) return null;
-  const prefix =
+  const defaultName =
     item.trackingType === "Serial"
       ? "S/N"
       : item.trackingType === "Batch"
         ? "Batch"
         : null;
-  if (!prefix) return null;
+  if (!defaultName) return null;
   return (
     <Text style={{ ...tw("mb-1"), fontSize: `${descriptionFontSize}pt` }}>
-      {prefix}: {item.number}
+      {block.label || defaultName}: {item.number}
     </Text>
   );
 }

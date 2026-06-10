@@ -3,6 +3,7 @@ import type {
   DocumentBlockType,
   FieldBlock,
   KeyValueBlock,
+  LabelNamedBlock,
   LineItemsBlock,
   RichTextBlock,
   SpacerBlock,
@@ -108,7 +109,10 @@ export function BlockConfig() {
     block.type === "header" ||
     block.type === "lineItems" ||
     block.type === "summary" ||
-    block.type === "terms";
+    block.type === "terms" ||
+    block.type === "labelRevision" ||
+    block.type === "labelQuantity" ||
+    block.type === "labelTracking";
 
   return (
     <div className="flex flex-col gap-4">
@@ -132,6 +136,11 @@ export function BlockConfig() {
       {block.type === "lineItems" && <LineItemsConfig block={block} />}
       {block.type === "summary" && <SummaryConfig block={block} />}
       {block.type === "terms" && <TermsConfig block={block} />}
+      {(block.type === "labelRevision" ||
+        block.type === "labelQuantity" ||
+        block.type === "labelTracking") && (
+        <LabelFieldNameConfig block={block} />
+      )}
       {block.type === "richText" && <RichTextConfig block={block} />}
       {block.type === "keyValue" && <KeyValueConfig block={block} />}
       {block.type === "spacer" && <SpacerConfig block={block} />}
@@ -349,6 +358,33 @@ function FieldConfig({ block }: { block: FieldBlock }) {
           onChange={(e) => updateBlock(block.id, { value: e.target.value })}
         />
       </div>
+    </div>
+  );
+}
+
+const LABEL_FIELD_DEFAULT_NAME: Record<LabelNamedBlock["type"], string> = {
+  labelRevision: "Rev",
+  labelQuantity: "Qty",
+  labelTracking: "S/N"
+};
+
+/** Edit the printed name (prefix before the value) of a built-in label field. */
+function LabelFieldNameConfig({ block }: { block: LabelNamedBlock }) {
+  const { updateBlock } = useDocumentTemplate();
+  const placeholder = LABEL_FIELD_DEFAULT_NAME[block.type];
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor="label-field-name">Field name</Label>
+      <Input
+        id="label-field-name"
+        value={block.label ?? ""}
+        placeholder={placeholder}
+        onChange={(e) => updateBlock(block.id, { label: e.target.value })}
+      />
+      <p className="text-xs text-muted-foreground">
+        Printed before the value, e.g. “{block.label || placeholder}: …”.
+      </p>
     </div>
   );
 }

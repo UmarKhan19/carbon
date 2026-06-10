@@ -99,9 +99,16 @@ const actionTasksBlock = builtInBlock("actionTasks");
 const reviewersBlock = builtInBlock("reviewers");
 /** Tracking-label fields (data-bound; one per label element). */
 const labelHeadingBlock = builtInBlock("labelHeading");
-const labelRevisionBlock = builtInBlock("labelRevision");
-const labelQuantityBlock = builtInBlock("labelQuantity");
-const labelTrackingBlock = builtInBlock("labelTracking");
+/** A label field whose printed name (the prefix before the value) is editable. */
+const labelNamedField = <T extends string>(type: T) =>
+  z.object({
+    ...baseFields,
+    type: z.literal(type),
+    label: z.string().optional()
+  });
+const labelRevisionBlock = labelNamedField("labelRevision");
+const labelQuantityBlock = labelNamedField("labelQuantity");
+const labelTrackingBlock = labelNamedField("labelTracking");
 const labelQrCodeBlock = builtInBlock("labelQrCode");
 const labelEntityIdBlock = builtInBlock("labelEntityId");
 
@@ -359,3 +366,8 @@ export type LabelHeadingBlock = Extract<
   { type: "labelHeading" }
 >;
 export type LabelQrCodeBlock = Extract<DocumentBlock, { type: "labelQrCode" }>;
+/** Label fields whose printed name is editable. */
+export type LabelNamedBlock = Extract<
+  DocumentBlock,
+  { type: "labelRevision" | "labelQuantity" | "labelTracking" }
+>;
