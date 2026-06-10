@@ -24,6 +24,12 @@ export const stockTransferBlockRegistry: Record<
   notes: () => null,
   summary: () => null,
   terms: () => null,
+  jobDetails: () => null,
+  operations: () => null,
+  issueDetails: () => null,
+  associations: () => null,
+  actionTasks: () => null,
+  reviewers: () => null,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
       <RichTextBlock block={block} vars={data.vars} />

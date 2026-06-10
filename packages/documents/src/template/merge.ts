@@ -147,6 +147,29 @@ const STOCK_TRANSFER_MERGE_FIELDS: MergeField[] = [
   { token: "company.country", label: "Company Country", group: "Company" }
 ];
 
+const JOB_TRAVELER_MERGE_FIELDS: MergeField[] = [
+  { token: "job.number", label: "Job Number", group: "Job" },
+  { token: "job.startDate", label: "Start Date", group: "Job" },
+  { token: "job.dueDate", label: "Due Date", group: "Job" },
+  { token: "item.readableId", label: "Item ID", group: "Item" },
+  { token: "item.name", label: "Item Name", group: "Item" },
+  { token: "customer.name", label: "Customer Name", group: "Customer" },
+  { token: "company.name", label: "Company Name", group: "Company" },
+  { token: "company.city", label: "Company City", group: "Company" },
+  { token: "company.country", label: "Company Country", group: "Company" }
+];
+
+const ISSUE_MERGE_FIELDS: MergeField[] = [
+  { token: "issue.number", label: "Issue Number", group: "Issue" },
+  { token: "issue.name", label: "Issue Name", group: "Issue" },
+  { token: "issue.status", label: "Status", group: "Issue" },
+  { token: "issue.openDate", label: "Open Date", group: "Issue" },
+  { token: "issue.closeDate", label: "Close Date", group: "Issue" },
+  { token: "company.name", label: "Company Name", group: "Company" },
+  { token: "company.city", label: "Company City", group: "Company" },
+  { token: "company.country", label: "Company Country", group: "Company" }
+];
+
 /** Catalog of insertable merge fields per document type (editor-facing). */
 export const MERGE_FIELDS: Record<string, MergeField[]> = {
   salesInvoice: SALES_INVOICE_MERGE_FIELDS,
@@ -154,7 +177,9 @@ export const MERGE_FIELDS: Record<string, MergeField[]> = {
   purchaseOrder: PURCHASE_ORDER_MERGE_FIELDS,
   quote: QUOTE_MERGE_FIELDS,
   packingSlip: PACKING_SLIP_MERGE_FIELDS,
-  stockTransfer: STOCK_TRANSFER_MERGE_FIELDS
+  stockTransfer: STOCK_TRANSFER_MERGE_FIELDS,
+  jobTraveler: JOB_TRAVELER_MERGE_FIELDS,
+  issue: ISSUE_MERGE_FIELDS
 };
 
 export function getMergeFields(documentType: string): MergeField[] {

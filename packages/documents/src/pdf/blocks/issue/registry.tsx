@@ -4,35 +4,29 @@ import { KeyValueBlock } from "../KeyValueBlock";
 import { RichTextBlock } from "../RichTextBlock";
 import { SharedBlock } from "../SharedBlock";
 import { SpacerBlock } from "../SpacerBlock";
-import { DetailsBlock } from "./DetailsBlock";
+import { ActionTasksBlock } from "./ActionTasksBlock";
+import { AssociationsBlock } from "./AssociationsBlock";
 import { HeaderBlock } from "./HeaderBlock";
-import { LineItemsBlock } from "./LineItemsBlock";
+import { IssueDetailsBlock } from "./IssueDetailsBlock";
 import { NotesBlock } from "./NotesBlock";
-import { PartiesBlock } from "./PartiesBlock";
-import { TermsBlock } from "./TermsBlock";
+import { ReviewersBlock } from "./ReviewersBlock";
 import type { BlockRenderer } from "./types";
 
-/** Block-type → renderer for Packing Slip (fulfillment; no summary/pricing). */
-export const packingSlipBlockRegistry: Record<
-  DocumentBlockType,
-  BlockRenderer
-> = {
+/** Block-type → renderer for the Issue report. */
+export const issueBlockRegistry: Record<DocumentBlockType, BlockRenderer> = {
   header: ({ data }) => <HeaderBlock data={data} />,
-  parties: ({ data }) => <PartiesBlock data={data} />,
+  issueDetails: ({ data }) => <IssueDetailsBlock data={data} />,
+  associations: ({ data }) => <AssociationsBlock data={data} />,
   notes: ({ data }) => <NotesBlock data={data} />,
-  details: ({ data }) => <DetailsBlock data={data} />,
-  lineItems: ({ block, data }) =>
-    block.type === "lineItems" ? (
-      <LineItemsBlock block={block} data={data} />
-    ) : null,
+  actionTasks: ({ data }) => <ActionTasksBlock data={data} />,
+  reviewers: ({ data }) => <ReviewersBlock data={data} />,
+  parties: () => null,
+  details: () => null,
+  lineItems: () => null,
   summary: () => null,
-  terms: ({ data }) => <TermsBlock data={data} />,
+  terms: () => null,
   jobDetails: () => null,
   operations: () => null,
-  issueDetails: () => null,
-  associations: () => null,
-  actionTasks: () => null,
-  reviewers: () => null,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
       <RichTextBlock block={block} vars={data.vars} />
@@ -52,7 +46,7 @@ export const packingSlipBlockRegistry: Record<
       <CustomFieldBlock
         block={block}
         customFields={
-          (data.shipment?.customFields ?? {}) as Record<string, unknown>
+          (data.nonConformance?.customFields ?? {}) as Record<string, unknown>
         }
       />
     ) : null

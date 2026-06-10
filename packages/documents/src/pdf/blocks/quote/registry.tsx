@@ -24,6 +24,12 @@ export const quoteBlockRegistry: Record<DocumentBlockType, BlockRenderer> = {
     ) : null,
   summary: ({ data }) => <QuoteSummaryBlock data={data} />,
   terms: ({ data }) => <TermsBlock data={data} />,
+  jobDetails: () => null,
+  operations: () => null,
+  issueDetails: () => null,
+  associations: () => null,
+  actionTasks: () => null,
+  reviewers: () => null,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
       <RichTextBlock block={block} vars={data.vars} />

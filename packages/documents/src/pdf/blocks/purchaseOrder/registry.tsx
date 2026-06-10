@@ -30,6 +30,12 @@ export const purchaseOrderBlockRegistry: Record<
       <SummaryBlock block={block} data={data} />
     ) : null,
   terms: ({ data }) => <TermsBlock data={data} />,
+  jobDetails: () => null,
+  operations: () => null,
+  issueDetails: () => null,
+  associations: () => null,
+  actionTasks: () => null,
+  reviewers: () => null,
   richText: ({ block, data }) =>
     block.type === "richText" ? (
       <RichTextBlock block={block} vars={data.vars} />

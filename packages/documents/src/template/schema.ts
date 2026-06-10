@@ -80,6 +80,14 @@ const summaryBlock = z.object({
   options: summaryOptionsSchema.optional()
 });
 const termsBlock = builtInBlock("terms");
+/** Job Traveler built-ins (data-bound; render the existing bespoke content). */
+const jobDetailsBlock = builtInBlock("jobDetails");
+const operationsBlock = builtInBlock("operations");
+/** Issue built-ins (data-bound; render the existing bespoke content). */
+const issueDetailsBlock = builtInBlock("issueDetails");
+const associationsBlock = builtInBlock("associations");
+const actionTasksBlock = builtInBlock("actionTasks");
+const reviewersBlock = builtInBlock("reviewers");
 
 /** Extension blocks are user-authored and fully removable. */
 const richTextBlock = z.object({
@@ -129,6 +137,12 @@ export const blockSchema = z.discriminatedUnion("type", [
   lineItemsBlock,
   summaryBlock,
   termsBlock,
+  jobDetailsBlock,
+  operationsBlock,
+  issueDetailsBlock,
+  associationsBlock,
+  actionTasksBlock,
+  reviewersBlock,
   richTextBlock,
   keyValueBlock,
   spacerBlock,
@@ -232,7 +246,9 @@ export const documentTemplateTypeSchema = z.enum([
   "purchaseOrder",
   "quote",
   "packingSlip",
-  "stockTransfer"
+  "stockTransfer",
+  "jobTraveler",
+  "issue"
 ]);
 
 /**
@@ -288,3 +304,15 @@ export type LineItemsOptions = z.infer<typeof lineItemsOptionsSchema>;
 export type SummaryBlock = Extract<DocumentBlock, { type: "summary" }>;
 export type SummaryOptions = z.infer<typeof summaryOptionsSchema>;
 export type CustomFieldBlock = Extract<DocumentBlock, { type: "customField" }>;
+export type JobDetailsBlock = Extract<DocumentBlock, { type: "jobDetails" }>;
+export type OperationsBlock = Extract<DocumentBlock, { type: "operations" }>;
+export type IssueDetailsBlock = Extract<
+  DocumentBlock,
+  { type: "issueDetails" }
+>;
+export type AssociationsBlock = Extract<
+  DocumentBlock,
+  { type: "associations" }
+>;
+export type ActionTasksBlock = Extract<DocumentBlock, { type: "actionTasks" }>;
+export type ReviewersBlock = Extract<DocumentBlock, { type: "reviewers" }>;

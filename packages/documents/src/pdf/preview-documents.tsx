@@ -1,5 +1,9 @@
 import type { ComponentType } from "react";
 import type { DocumentTemplateType } from "../template";
+import IssuePDF from "./IssuePDF";
+import { SAMPLE_ISSUE } from "./issue.samples";
+import JobTravelerPDF from "./JobTravelerPDF";
+import { SAMPLE_JOB_TRAVELER } from "./jobTraveler.samples";
 import PackingSlipPDF from "./PackingSlipPDF";
 import PurchaseOrderPDF from "./PurchaseOrderPDF";
 import { SAMPLE_PACKING_SLIP } from "./packingSlip.samples";
@@ -33,5 +37,10 @@ export const DOCUMENT_PDFS: Record<DocumentTemplateType, PreviewEntry> = {
   stockTransfer: {
     Component: StockTransferPDF,
     sample: SAMPLE_STOCK_TRANSFER
-  }
+  },
+  jobTraveler: {
+    Component: JobTravelerPDF,
+    sample: SAMPLE_JOB_TRAVELER
+  },
+  issue: { Component: IssuePDF, sample: SAMPLE_ISSUE }
 };

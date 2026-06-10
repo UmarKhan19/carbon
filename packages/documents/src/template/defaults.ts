@@ -134,6 +134,48 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     hideable: true,
     addable: false
   },
+  jobDetails: {
+    label: "Job Details",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  operations: {
+    label: "Operations",
+    isBuiltIn: true,
+    removable: false,
+    hideable: false,
+    addable: false
+  },
+  issueDetails: {
+    label: "Issue Details",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  associations: {
+    label: "Associations",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  actionTasks: {
+    label: "Action Tasks",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
+  reviewers: {
+    label: "Reviewers",
+    isBuiltIn: true,
+    removable: false,
+    hideable: true,
+    addable: false
+  },
   richText: {
     label: "Rich Text",
     isBuiltIn: false,
@@ -217,6 +259,28 @@ function transferBlocks(): DocumentBlock[] {
   ];
 }
 
+/** Manufacturing routing doc (job traveler): header + job box + ops + notes. */
+function jobTravelerBlocks(): DocumentBlock[] {
+  return [
+    { id: "header", type: "header", visible: true },
+    { id: "jobDetails", type: "jobDetails", visible: true },
+    { id: "operations", type: "operations", visible: true },
+    { id: "notes", type: "notes", visible: true }
+  ];
+}
+
+/** Quality doc (issue): header + details + associations + notes + tasks + MRB. */
+function issueBlocks(): DocumentBlock[] {
+  return [
+    { id: "header", type: "header", visible: true },
+    { id: "issueDetails", type: "issueDetails", visible: true },
+    { id: "associations", type: "associations", visible: true },
+    { id: "notes", type: "notes", visible: true },
+    { id: "actionTasks", type: "actionTasks", visible: true },
+    { id: "reviewers", type: "reviewers", visible: true }
+  ];
+}
+
 /**
  * Default template per supported document type. Adding a document = wire its
  * PDF to consume a template, then add its default here + to the schema enum.
@@ -272,6 +336,24 @@ export const DEFAULT_TEMPLATES: Record<DocumentTemplateType, DocumentTemplate> =
       formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
       documentType: "stockTransfer",
       blocks: transferBlocks(),
+      theme: { ...DEFAULT_THEME },
+      settings: { ...DEFAULT_DOCUMENT_SETTINGS },
+      headerSectionId: BUILT_IN_SECTION_IDS.header,
+      footerSectionId: BUILT_IN_SECTION_IDS.footer
+    },
+    jobTraveler: {
+      formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
+      documentType: "jobTraveler",
+      blocks: jobTravelerBlocks(),
+      theme: { ...DEFAULT_THEME },
+      settings: { ...DEFAULT_DOCUMENT_SETTINGS },
+      headerSectionId: BUILT_IN_SECTION_IDS.header,
+      footerSectionId: BUILT_IN_SECTION_IDS.footer
+    },
+    issue: {
+      formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
+      documentType: "issue",
+      blocks: issueBlocks(),
       theme: { ...DEFAULT_THEME },
       settings: { ...DEFAULT_DOCUMENT_SETTINGS },
       headerSectionId: BUILT_IN_SECTION_IDS.header,
@@ -437,9 +519,9 @@ export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
     type: "jobTraveler",
     label: "Job Traveler",
     group: "Production",
-    supported: false
+    supported: true
   },
-  { type: "issue", label: "Issue", group: "Quality", supported: false }
+  { type: "issue", label: "Issue", group: "Quality", supported: true }
 ];
 
 export function getDocumentLabel(documentType: string): string {

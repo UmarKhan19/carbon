@@ -4,31 +4,26 @@ import { KeyValueBlock } from "../KeyValueBlock";
 import { RichTextBlock } from "../RichTextBlock";
 import { SharedBlock } from "../SharedBlock";
 import { SpacerBlock } from "../SpacerBlock";
-import { DetailsBlock } from "./DetailsBlock";
 import { HeaderBlock } from "./HeaderBlock";
-import { LineItemsBlock } from "./LineItemsBlock";
+import { JobDetailsBlock } from "./JobDetailsBlock";
 import { NotesBlock } from "./NotesBlock";
-import { PartiesBlock } from "./PartiesBlock";
-import { TermsBlock } from "./TermsBlock";
+import { OperationsBlock } from "./OperationsBlock";
 import type { BlockRenderer } from "./types";
 
-/** Block-type → renderer for Packing Slip (fulfillment; no summary/pricing). */
-export const packingSlipBlockRegistry: Record<
+/** Block-type → renderer for the Job Traveler (header/jobDetails/operations/notes). */
+export const jobTravelerBlockRegistry: Record<
   DocumentBlockType,
   BlockRenderer
 > = {
   header: ({ data }) => <HeaderBlock data={data} />,
-  parties: ({ data }) => <PartiesBlock data={data} />,
+  jobDetails: ({ data }) => <JobDetailsBlock data={data} />,
+  operations: ({ data }) => <OperationsBlock data={data} />,
   notes: ({ data }) => <NotesBlock data={data} />,
-  details: ({ data }) => <DetailsBlock data={data} />,
-  lineItems: ({ block, data }) =>
-    block.type === "lineItems" ? (
-      <LineItemsBlock block={block} data={data} />
-    ) : null,
+  parties: () => null,
+  details: () => null,
+  lineItems: () => null,
   summary: () => null,
-  terms: ({ data }) => <TermsBlock data={data} />,
-  jobDetails: () => null,
-  operations: () => null,
+  terms: () => null,
   issueDetails: () => null,
   associations: () => null,
   actionTasks: () => null,
@@ -51,9 +46,7 @@ export const packingSlipBlockRegistry: Record<
     block.type === "customField" ? (
       <CustomFieldBlock
         block={block}
-        customFields={
-          (data.shipment?.customFields ?? {}) as Record<string, unknown>
-        }
+        customFields={(data.job?.customFields ?? {}) as Record<string, unknown>}
       />
     ) : null
 };
