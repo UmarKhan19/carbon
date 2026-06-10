@@ -78,6 +78,16 @@ page numbers, toggleable). Routes load the template via
 `getDocumentTemplateConfig(client, companyId, "trackingLabel")`
 (`settings.service.ts`) — a helper that returns `DocumentTemplate | null`.
 
+**ZPL output** honors the same template: `generateProductLabelZPL(item,
+labelSize, template?)` (`packages/documents/src/zpl/ProductLabelZPL.tsx`)
+resolves `trackingLabel` and emits only visible fields in block order (text
+stacked, QR top-right, entity id bottom; extension/custom blocks skipped — no
+ZPL equivalent). Both ERP and MES label routes (`file+/{entity,receipt,
+shipment,operation}+/$id.labels[.]{pdf,zpl}.tsx`) pass the template. MES has its
+own `getDocumentTemplateConfig` in `apps/mes/app/services/inventory.service.ts`
+(mirrors the ERP helper). Label size/ZPL-vs-PDF is still the print-time
+`?labelSize=` choice (ZPL sizes have a `zpl` config + DPI; others render PDF).
+
 ## Editor (`apps/erp/app/components/DocumentTemplateEditor/`)
 
 `context.tsx` (state/actions provider), `index.tsx` (rails + toolbar; toolbar has
