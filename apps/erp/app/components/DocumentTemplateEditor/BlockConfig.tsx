@@ -1,6 +1,7 @@
 import type {
   CustomFieldBlock,
   DocumentBlockType,
+  FieldBlock,
   KeyValueBlock,
   LineItemsBlock,
   RichTextBlock,
@@ -134,6 +135,7 @@ export function BlockConfig() {
       {block.type === "richText" && <RichTextConfig block={block} />}
       {block.type === "keyValue" && <KeyValueConfig block={block} />}
       {block.type === "spacer" && <SpacerConfig block={block} />}
+      {block.type === "field" && <FieldConfig block={block} />}
       {block.type === "customField" && <CustomFieldConfig block={block} />}
       {block.type === "shared" && (
         <div className="flex flex-col gap-2">
@@ -171,6 +173,7 @@ function categoryOf(type: DocumentBlockType): BlockCategory {
     type === "richText" ||
     type === "keyValue" ||
     type === "spacer" ||
+    type === "field" ||
     type === "customField"
   ) {
     return "custom";
@@ -307,6 +310,43 @@ function FooterSettings() {
           label="Registration line"
           checked={settings.showRegistrationLine}
           onChange={(v) => setSetting("showRegistrationLine", v)}
+        />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A single authored line. With a `label` it's a key-value; without, plain text.
+ * The value is a single-line string (ZPL-safe) and supports merge fields.
+ */
+function FieldConfig({ block }: { block: FieldBlock }) {
+  const { updateBlock } = useDocumentTemplate();
+  const hasLabel = block.label !== undefined;
+  const insertField = (snippet: string) =>
+    updateBlock(block.id, { value: (block.value ?? "") + snippet });
+
+  return (
+    <div className="flex flex-col gap-3">
+      {hasLabel && (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="field-label">Label</Label>
+          <Input
+            id="field-label"
+            value={block.label ?? ""}
+            onChange={(e) => updateBlock(block.id, { label: e.target.value })}
+          />
+        </div>
+      )}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="field-value">{hasLabel ? "Value" : "Text"}</Label>
+          <MergeFieldMenu onInsert={insertField} label="Insert field" />
+        </div>
+        <Input
+          id="field-value"
+          value={block.value ?? ""}
+          onChange={(e) => updateBlock(block.id, { value: e.target.value })}
         />
       </div>
     </div>

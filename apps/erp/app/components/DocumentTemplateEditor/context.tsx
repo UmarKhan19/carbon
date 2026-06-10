@@ -84,6 +84,8 @@ interface DocumentTemplateContextValue {
   addBlock: (type: AddableBlockType) => void;
   addSharedBlock: (sectionId: string) => void;
   addCustomFieldBlock: (fieldId: string, label: string) => void;
+  /** Add a single-line field. `withLabel` seeds an empty label (key-value). */
+  addField: (withLabel: boolean) => void;
   removeBlock: (id: string) => void;
   toggleVisible: (id: string) => void;
   reorder: (activeId: string, overId: string) => void;
@@ -219,6 +221,18 @@ export function DocumentTemplateProvider({
     setSelectedId(block.id);
   }, []);
 
+  const addField = useCallback((withLabel: boolean) => {
+    const block: DocumentBlock = {
+      id: nanoid(),
+      type: "field",
+      visible: true,
+      value: "",
+      ...(withLabel ? { label: "" } : {})
+    };
+    setBlocks((prev) => [...prev, block]);
+    setSelectedId(block.id);
+  }, []);
+
   const removeBlock = useCallback((id: string) => {
     setBlocks((prev) => prev.filter((b) => b.id !== id));
     setSelectedId((current) => (current === id ? null : current));
@@ -331,6 +345,7 @@ export function DocumentTemplateProvider({
       addBlock,
       addSharedBlock,
       addCustomFieldBlock,
+      addField,
       removeBlock,
       toggleVisible,
       reorder,
@@ -360,6 +375,7 @@ export function DocumentTemplateProvider({
       addBlock,
       addSharedBlock,
       addCustomFieldBlock,
+      addField,
       removeBlock,
       toggleVisible,
       reorder,

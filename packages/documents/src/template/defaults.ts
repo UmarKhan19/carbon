@@ -255,6 +255,14 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     removable: true,
     hideable: true,
     addable: false
+  },
+  field: {
+    // Added via the label add menu ("Text" / "Key-value"), not the generic one.
+    label: "Field",
+    isBuiltIn: false,
+    removable: true,
+    hideable: true,
+    addable: false
   }
 };
 
@@ -544,17 +552,21 @@ export function collectSectionIds(template: {
  * disabled ("coming soon") in the picker. Keep `type` of supported entries in
  * sync with `documentTemplateTypeSchema`.
  */
+/**
+ * Which user-authored extension blocks a document supports:
+ * - "all": rich text, key-value, custom field, spacer, shared section.
+ * - "text": only the plain-text blocks (rich text, key-value, custom field) —
+ *   used by labels, where every block must also be renderable as ZPL text.
+ */
+export type ExtensionSupport = "all" | "text";
+
 export interface DocumentCatalogEntry {
   type: string;
   label: string;
   group: string;
   supported: boolean;
-  /**
-   * When true, the document only renders its built-in blocks — user-authored
-   * extension blocks (rich text, key-value, custom fields, …) are not offered
-   * or rendered. Used by labels, where the output must stay in parity with ZPL.
-   */
-  builtInOnly?: boolean;
+  /** Defaults to "all". */
+  extensions?: ExtensionSupport;
 }
 
 export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
@@ -601,7 +613,7 @@ export const DOCUMENT_CATALOG: DocumentCatalogEntry[] = [
     label: "Tracking Label",
     group: "Labels",
     supported: true,
-    builtInOnly: true
+    extensions: "text"
   }
 ];
 
@@ -612,11 +624,10 @@ export function getDocumentLabel(documentType: string): string {
   );
 }
 
-/**
- * Whether a document accepts user-authored extension blocks. False for
- * built-in-only docs (labels), whose output must mirror ZPL.
- */
-export function supportsCustomBlocks(documentType: string): boolean {
-  return !DOCUMENT_CATALOG.find((entry) => entry.type === documentType)
-    ?.builtInOnly;
+/** Which extension blocks a document supports (defaults to "all"). */
+export function extensionSupport(documentType: string): ExtensionSupport {
+  return (
+    DOCUMENT_CATALOG.find((entry) => entry.type === documentType)?.extensions ??
+    "all"
+  );
 }

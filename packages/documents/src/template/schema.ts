@@ -135,6 +135,18 @@ const sharedBlock = z.object({
   sectionId: z.string()
 });
 
+/**
+ * A single authored line: an optional `label` plus a `value`. With no label it
+ * is plain text; with a label it is a single key-value. Maps 1:1 to one ZPL
+ * `^FD` line, so it's the label-safe alternative to rich text / key-value lists.
+ */
+const fieldBlock = z.object({
+  ...baseFields,
+  type: z.literal("field"),
+  label: z.string().optional(),
+  value: z.string().default("")
+});
+
 /** Displays a single custom-field value (label + value) from the record. */
 const customFieldBlock = z.object({
   ...baseFields,
@@ -169,6 +181,7 @@ export const blockSchema = z.discriminatedUnion("type", [
   keyValueBlock,
   spacerBlock,
   sharedBlock,
+  fieldBlock,
   customFieldBlock
 ]);
 
@@ -327,6 +340,7 @@ export type LineItemsBlock = Extract<DocumentBlock, { type: "lineItems" }>;
 export type LineItemsOptions = z.infer<typeof lineItemsOptionsSchema>;
 export type SummaryBlock = Extract<DocumentBlock, { type: "summary" }>;
 export type SummaryOptions = z.infer<typeof summaryOptionsSchema>;
+export type FieldBlock = Extract<DocumentBlock, { type: "field" }>;
 export type CustomFieldBlock = Extract<DocumentBlock, { type: "customField" }>;
 export type JobDetailsBlock = Extract<DocumentBlock, { type: "jobDetails" }>;
 export type OperationsBlock = Extract<DocumentBlock, { type: "operations" }>;

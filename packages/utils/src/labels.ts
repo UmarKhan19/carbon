@@ -5,6 +5,8 @@ export type ProductLabelItem = {
   number: string;
   trackedEntityId: string;
   trackingType: string;
+  /** Custom-field values for the tracked entity, keyed by field id. */
+  customFields?: Record<string, unknown>;
 };
 
 export type LabelSize = {

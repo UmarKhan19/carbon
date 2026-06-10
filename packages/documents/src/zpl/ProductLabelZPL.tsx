@@ -1,6 +1,19 @@
 import type { LabelSize, ProductLabelItem } from "@carbon/utils";
 import type { DocumentTemplate } from "../template";
-import { resolveTemplate } from "../template";
+import { interpolateString, resolveTemplate } from "../template";
+
+/** Merge-field values for a label (kept in sync with buildLabelVars). */
+function labelVars(item: ProductLabelItem): Record<string, string> {
+  const str = (v: unknown): string => (v == null ? "" : String(v));
+  return {
+    "item.id": str(item.itemId),
+    "item.revision": str(item.revision),
+    "label.quantity": str(item.quantity),
+    "label.trackingType": str(item.trackingType),
+    "label.number": str(item.number),
+    "label.trackedEntityId": str(item.trackedEntityId)
+  };
+}
 
 /**
  * Generate ZPL for a tracked-entity label. Honors the `trackingLabel` template:
@@ -45,6 +58,7 @@ export function generateProductLabelZPL(
 
   const resolved = resolveTemplate("trackingLabel", template ?? null);
   const visibleBlocks = resolved.blocks.filter((block) => block.visible);
+  const vars = labelVars(item);
 
   let zpl = "^XA"; // Start format
   zpl += `^PW${widthDots}`;
@@ -102,7 +116,26 @@ export function generateProductLabelZPL(
           zpl += `^FO${textStartX},${idYPosition}^A0N,${smallFontSize},${smallFontSize}^FD${item.trackedEntityId}^FS`;
         }
         break;
-      // Extension/custom blocks have no ZPL equivalent — skip.
+      case "field": {
+        // A single authored line: "label: value" (or just the value).
+        const value = interpolateString(block.value ?? "", vars);
+        const text = block.label ? `${block.label}: ${value}` : value;
+        if (text) {
+          textLine(descFontSize, text);
+          yPosition += descGap;
+        }
+        break;
+      }
+      case "customField": {
+        const value = item.customFields?.[block.fieldId];
+        if (value != null && value !== "") {
+          textLine(descFontSize, `${block.label}: ${value}`);
+          yPosition += descGap;
+        }
+        break;
+      }
+      // Rich text / key-value lists / spacers / shared sections have no
+      // single-line ZPL equivalent — skip.
       default:
         break;
     }

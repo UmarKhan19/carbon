@@ -1,6 +1,8 @@
 import type { DocumentBlockType } from "../../../template";
+import { CustomFieldBlock } from "../CustomFieldBlock";
 import {
   LabelEntityIdBlock,
+  LabelFieldBlock,
   LabelHeadingBlock,
   LabelQrCodeBlock,
   LabelQuantityBlock,
@@ -33,10 +35,21 @@ export const trackingLabelBlockRegistry: Record<
   associations: () => null,
   actionTasks: () => null,
   reviewers: () => null,
-  // Labels stay in parity with ZPL — extension/custom blocks are never rendered.
+  // Single-line fields are supported (and mirrored in ZPL). Rich text /
+  // key-value lists / spacers / shared sections are not.
+  field: ({ block, data }) =>
+    block.type === "field" ? (
+      <LabelFieldBlock block={block} data={data} />
+    ) : null,
+  customField: ({ block, data }) =>
+    block.type === "customField" ? (
+      <CustomFieldBlock
+        block={block}
+        customFields={(data.item.customFields ?? {}) as Record<string, unknown>}
+      />
+    ) : null,
   richText: () => null,
   keyValue: () => null,
   spacer: () => null,
-  shared: () => null,
-  customField: () => null
+  shared: () => null
 };

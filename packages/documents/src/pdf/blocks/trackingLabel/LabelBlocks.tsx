@@ -1,7 +1,27 @@
 import { Image, Text, View } from "@react-pdf/renderer";
 import { generateQRCode } from "../../../qr/qr-code";
+import type { FieldBlock } from "../../../template";
+import { interpolateString } from "../../../template";
 import { tw } from "./tw";
 import type { LabelData } from "./types";
+
+/** A single authored line: `label: value` (or just the value when no label). */
+export function LabelFieldBlock({
+  block,
+  data
+}: {
+  block: FieldBlock;
+  data: LabelData;
+}) {
+  const value = interpolateString(block.value ?? "", data.vars);
+  const text = block.label ? `${block.label}: ${value}` : value;
+  if (!text) return null;
+  return (
+    <Text style={{ ...tw("mb-1"), fontSize: `${data.descriptionFontSize}pt` }}>
+      {text}
+    </Text>
+  );
+}
 
 /** Item ID — the bold label heading. */
 export function LabelHeadingBlock({ data }: { data: LabelData }) {
