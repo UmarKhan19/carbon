@@ -71,6 +71,18 @@ a centered `Combobox` to preview against a live record), `BlockList`/`BlockConfi
 `NumberRow` wraps react-aria `NumberField` with the required composed
 `NumberInputGroup` child (a bare `label` prop renders no input).
 
+## Terms & Conditions (per-document)
+
+The built-in `terms` block carries its own optional rich-text `content` (schema
+`termsBlock`). Renderers (`blocks/**/TermsBlock.tsx`) use `resolveTerms(block,
+data.terms, vars)` from `blocks/resolveTerms.ts`: the block's authored content
+(interpolated with merge fields) when present, else `data.terms` — the company
+`terms` table setting (`salesTerms`/`purchasingTerms`), still passed by the PDF
+file routes as the fallback. The editor `TermsConfig` (BlockConfig.tsx) seeds the
+field from that setting via `termsSeed` (threaded loader→context→config). The
+global Terms editors were removed from `settings+/sales.tsx` +
+`settings+/purchasing.tsx`; the `terms` table remains as the seed + fallback.
+
 ## Routes / persistence
 
 - `x+/templates+/$type.tsx` — loader resolves template + sections + customFields +
