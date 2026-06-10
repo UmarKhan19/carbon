@@ -2245,12 +2245,6 @@ msgstr "Defaults"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "Define the default size of the product label. Used for tracking items in inventory."
 
-msgid "Define the terms and conditions for purchase orders"
-msgstr "Define the terms and conditions for purchase orders"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "Define the terms and conditions for quotes and sales orders"
-
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 
@@ -6104,9 +6098,6 @@ msgstr "Purchasing"
 msgid "Purchasing Contact"
 msgstr "Purchasing Contact"
 
-msgid "Purchasing Terms & Conditions"
-msgstr "Purchasing Terms & Conditions"
-
 msgid "Purchasing Unit of Measure"
 msgstr "Purchasing Unit of Measure"
 
@@ -6710,9 +6701,6 @@ msgstr "Sales Person"
 
 msgid "Sales Revenue"
 msgstr "Sales Revenue"
-
-msgid "Sales Terms & Conditions"
-msgstr "Sales Terms & Conditions"
 
 msgid "Sample"
 msgstr "Sample"

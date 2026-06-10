@@ -5,6 +5,7 @@ import type {
   DocumentTheme
 } from "@carbon/documents/template";
 import { getDocumentLabel } from "@carbon/documents/template";
+import type { JSONContent } from "@carbon/react";
 import {
   Button,
   Combobox,
@@ -38,6 +39,7 @@ export function DocumentTemplateEditor({
   sections,
   customFields,
   previewEntities,
+  termsSeed,
   canEdit
 }: {
   documentType: DocumentTemplateType;
@@ -50,6 +52,7 @@ export function DocumentTemplateEditor({
   sections: SectionRef[];
   customFields: CustomFieldRef[];
   previewEntities: PreviewEntity[];
+  termsSeed?: JSONContent;
   canEdit: boolean;
 }) {
   return (
@@ -64,6 +67,7 @@ export function DocumentTemplateEditor({
       sections={sections}
       customFields={customFields}
       previewEntities={previewEntities}
+      termsSeed={termsSeed}
     >
       <div className="flex h-full w-full min-w-0 flex-col bg-background">
         <EditorToolbar

@@ -79,7 +79,16 @@ const summaryBlock = z.object({
   type: z.literal("summary"),
   options: summaryOptionsSchema.optional()
 });
-const termsBlock = builtInBlock("terms");
+/**
+ * Terms & Conditions. Built-in (not addable/removable) but carries its own
+ * rich-text `content` — per-document, seeded from the company terms setting.
+ * Empty content falls back to that setting at render time.
+ */
+const termsBlock = z.object({
+  ...baseFields,
+  type: z.literal("terms"),
+  content: jsonContentSchema.optional()
+});
 /** Job Traveler built-ins (data-bound; render the existing bespoke content). */
 const jobDetailsBlock = builtInBlock("jobDetails");
 const operationsBlock = builtInBlock("operations");
@@ -296,6 +305,7 @@ export type DocumentTemplateType = z.infer<typeof documentTemplateTypeSchema>;
 export type RichTextBlock = Extract<DocumentBlock, { type: "richText" }>;
 export type KeyValueBlock = Extract<DocumentBlock, { type: "keyValue" }>;
 export type SpacerBlock = Extract<DocumentBlock, { type: "spacer" }>;
+export type TermsBlock = Extract<DocumentBlock, { type: "terms" }>;
 export type HeaderBlock = Extract<DocumentBlock, { type: "header" }>;
 export type HeaderOptions = z.infer<typeof headerOptionsSchema>;
 export type SectionConfig = z.infer<typeof sectionConfigSchema>;

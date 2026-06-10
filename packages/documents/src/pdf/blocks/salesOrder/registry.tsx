@@ -27,7 +27,8 @@ export const salesOrderBlockRegistry: Record<DocumentBlockType, BlockRenderer> =
       block.type === "summary" ? (
         <SummaryBlock block={block} data={data} />
       ) : null,
-    terms: ({ data }) => <TermsBlock data={data} />,
+    terms: ({ block, data }) =>
+      block.type === "terms" ? <TermsBlock block={block} data={data} /> : null,
     jobDetails: () => null,
     operations: () => null,
     issueDetails: () => null,

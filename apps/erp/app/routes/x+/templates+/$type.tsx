@@ -22,6 +22,7 @@ import {
   documentTemplateValidator,
   getDocumentSections,
   getDocumentTemplate,
+  getTerms,
   upsertDocumentTemplate
 } from "~/modules/settings";
 import { listPreviewEntities } from "~/modules/settings/documentPreview.server";
@@ -41,7 +42,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const documentType = documentTemplateTypeSchema.parse(params.type);
 
-  const [stored, sections, customFieldSchemas, previewEntities] =
+  const [stored, sections, customFieldSchemas, previewEntities, terms] =
     await Promise.all([
       getDocumentTemplate(client, companyId, documentType),
       getDocumentSections(client, companyId),
@@ -49,8 +50,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       // blocks. The customField `table` matches the document type.
       getCustomFieldsSchemas(client, { companyId, table: documentType }),
       // Recent records to optionally preview against live data.
-      listPreviewEntities(client, companyId, documentType)
+      listPreviewEntities(client, companyId, documentType),
+      // Company terms setting — seeds the Terms block when it has no content.
+      getTerms(client, companyId)
     ]);
+
+  // Map the document type to the relevant company terms setting (the Terms
+  // block's default/fallback). Internal docs have no terms.
+  const TERMS_FIELD: Partial<
+    Record<typeof documentType, "salesTerms" | "purchasingTerms">
+  > = {
+    salesInvoice: "salesTerms",
+    salesOrder: "salesTerms",
+    quote: "salesTerms",
+    packingSlip: "salesTerms",
+    purchaseOrder: "purchasingTerms"
+  };
+  const termsField = TERMS_FIELD[documentType];
+  const termsSeed = termsField
+    ? ((terms.data as Record<string, JSONContent> | null)?.[termsField] ??
+      undefined)
+    : undefined;
 
   const customFields = (
     ((customFieldSchemas.data ?? []).find((t) => t.table === documentType)
@@ -86,7 +106,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       config: (s as { config?: Record<string, unknown> }).config
     })),
     customFields,
-    previewEntities
+    previewEntities,
+    termsSeed
   };
 }
 
@@ -153,7 +174,8 @@ export default function DocumentTemplateRoute() {
     footerSectionId,
     sections,
     customFields,
-    previewEntities
+    previewEntities,
+    termsSeed
   } = useLoaderData<typeof loader>();
   const permissions = usePermissions();
 
@@ -170,6 +192,7 @@ export default function DocumentTemplateRoute() {
       sections={sections}
       customFields={customFields}
       previewEntities={previewEntities}
+      termsSeed={termsSeed as JSONContent | undefined}
       canEdit={permissions.can("update", "settings")}
     />
   );

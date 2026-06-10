@@ -71,6 +71,8 @@ interface DocumentTemplateContextValue {
   sections: SectionRef[];
   /** Custom fields available to insert as blocks. */
   customFields: CustomFieldRef[];
+  /** Company terms setting — seeds the Terms block when it has no content. */
+  termsSeed?: JSONContent;
   /** Real records the preview can render against. */
   previewEntities: PreviewEntity[];
   /** Selected record id for live-data preview (null = sample data). */
@@ -136,6 +138,7 @@ export function DocumentTemplateProvider({
   sections,
   customFields,
   previewEntities,
+  termsSeed,
   children
 }: PropsWithChildren<{
   documentType: DocumentTemplateType;
@@ -148,6 +151,7 @@ export function DocumentTemplateProvider({
   sections: SectionRef[];
   customFields: CustomFieldRef[];
   previewEntities: PreviewEntity[];
+  termsSeed?: JSONContent;
 }>) {
   const fetcher = useFetcher<{ success?: boolean }>();
   const [blocks, setBlocks] = useState<DocumentBlock[]>(initialBlocks);
@@ -318,6 +322,7 @@ export function DocumentTemplateProvider({
       footerSectionId,
       sections,
       customFields,
+      termsSeed,
       previewEntities,
       previewId,
       setPreviewId,
@@ -348,6 +353,7 @@ export function DocumentTemplateProvider({
       footerSectionId,
       sections,
       customFields,
+      termsSeed,
       previewEntities,
       previewId,
       selectedId,

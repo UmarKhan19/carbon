@@ -5,7 +5,8 @@ import type {
   LineItemsBlock,
   RichTextBlock,
   SpacerBlock,
-  SummaryBlock
+  SummaryBlock,
+  TermsBlock
 } from "@carbon/documents/template";
 import {
   BLOCK_META,
@@ -104,7 +105,8 @@ export function BlockConfig() {
   const hasOwnConfig =
     block.type === "header" ||
     block.type === "lineItems" ||
-    block.type === "summary";
+    block.type === "summary" ||
+    block.type === "terms";
 
   return (
     <div className="flex flex-col gap-4">
@@ -127,6 +129,7 @@ export function BlockConfig() {
       {block.type === "header" && <ChromeConfig kind="header" />}
       {block.type === "lineItems" && <LineItemsConfig block={block} />}
       {block.type === "summary" && <SummaryConfig block={block} />}
+      {block.type === "terms" && <TermsConfig block={block} />}
       {block.type === "richText" && <RichTextConfig block={block} />}
       {block.type === "keyValue" && <KeyValueConfig block={block} />}
       {block.type === "spacer" && <SpacerConfig block={block} />}
@@ -409,6 +412,57 @@ function RichTextConfig({ block }: { block: RichTextBlock }) {
           key={`${block.id}-${nonce}`}
           className="min-h-[140px] w-full rounded-md border bg-background p-3"
           initialValue={block.content}
+          onChange={(content) => updateBlock(block.id, { content })}
+          disableFileUpload
+        />
+      </div>
+    </div>
+  );
+}
+
+function hasDocContent(content?: JSONContent | null): boolean {
+  return Boolean(
+    content && Array.isArray(content.content) && content.content.length > 0
+  );
+}
+
+/**
+ * Per-document Terms & Conditions. The block stores its own content; when left
+ * empty it falls back to the company terms setting at render. The editor seeds
+ * the field with that setting (`termsSeed`) so the current value is the starting
+ * point.
+ */
+function TermsConfig({ block }: { block: TermsBlock }) {
+  const { updateBlock, termsSeed } = useDocumentTemplate();
+  const [nonce, setNonce] = useState(0);
+
+  const initialValue: JSONContent = (hasDocContent(block.content)
+    ? block.content
+    : termsSeed) ?? {
+    type: "doc",
+    content: []
+  };
+
+  const insertField = (snippet: string) => {
+    updateBlock(block.id, { content: appendText(initialValue, snippet) });
+    setNonce((n) => n + 1);
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-xs text-muted-foreground">
+        Shown on this document only. Leave empty to use your company's default
+        terms.
+      </p>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <Label>Content</Label>
+          <MergeFieldMenu onInsert={insertField} label="Insert field" />
+        </div>
+        <Editor
+          key={`${block.id}-${nonce}`}
+          className="min-h-[160px] w-full rounded-md border bg-background p-3"
+          initialValue={initialValue}
           onChange={(content) => updateBlock(block.id, { content })}
           disableFileUpload
         />

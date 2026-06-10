@@ -2245,12 +2245,6 @@ msgstr "Значения по умолчанию"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "Определите размер этикетки продукта по умолчанию. Используется для отслеживания товаров в инвентаре."
 
-msgid "Define the terms and conditions for purchase orders"
-msgstr "Определите условия и положения для заказов на покупку"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "Определите условия и положения для предложений и заказов на продажу"
-
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "Определяет, сколько отслеживаемых объектов проверяется на партию и сколько отказов допускается перед отклонением партии."
 
@@ -6104,9 +6098,6 @@ msgstr "Закупки"
 msgid "Purchasing Contact"
 msgstr "Контакт по закупкам"
 
-msgid "Purchasing Terms & Conditions"
-msgstr "Условия закупки"
-
 msgid "Purchasing Unit of Measure"
 msgstr "Единица измерения закупки"
 
@@ -6710,9 +6701,6 @@ msgstr "Менеджер по продажам"
 
 msgid "Sales Revenue"
 msgstr "Выручка от продаж"
-
-msgid "Sales Terms & Conditions"
-msgstr "Условия продажи"
 
 msgid "Sample"
 msgstr "Образец"

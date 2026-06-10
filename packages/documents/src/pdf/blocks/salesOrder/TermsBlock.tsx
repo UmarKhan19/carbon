@@ -1,11 +1,20 @@
 import { Text, View } from "@react-pdf/renderer";
+import type { TermsBlock as TermsBlockType } from "../../../template";
 import { Note } from "../../components";
+import { hasContent, resolveTerms } from "../resolveTerms";
 import { tw } from "../tw";
 import type { SalesOrderData } from "./types";
 
-export function TermsBlock({ data }: { data: SalesOrderData }) {
-  const { terms, theme } = data;
-  if (!terms?.content || terms.content.length === 0) return null;
+export function TermsBlock({
+  block,
+  data
+}: {
+  block: TermsBlockType;
+  data: SalesOrderData;
+}) {
+  const { theme, vars } = data;
+  const terms = resolveTerms(block, data.terms, vars);
+  if (!hasContent(terms)) return null;
 
   return (
     <View break>
@@ -19,7 +28,7 @@ export function TermsBlock({ data }: { data: SalesOrderData }) {
           Terms & Conditions
         </Text>
       </View>
-      <Note content={terms} />
+      <Note content={terms!} />
     </View>
   );
 }

@@ -2245,12 +2245,6 @@ msgstr "默认值"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "定义产品标签的默认大小。用于跟踪库存中的物品。"
 
-msgid "Define the terms and conditions for purchase orders"
-msgstr "定义采购订单的条款和条件"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "定义报价单和销售订单的条款和条件"
-
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "定义每批检查多少个跟踪实体，以及在批次被拒绝前允许多少个失败。"
 
@@ -6104,9 +6098,6 @@ msgstr "采购"
 msgid "Purchasing Contact"
 msgstr "采购联系人"
 
-msgid "Purchasing Terms & Conditions"
-msgstr "采购条款和条件"
-
 msgid "Purchasing Unit of Measure"
 msgstr "采购计量单位"
 
@@ -6710,9 +6701,6 @@ msgstr "销售人员"
 
 msgid "Sales Revenue"
 msgstr "销售收入"
-
-msgid "Sales Terms & Conditions"
-msgstr "销售条款和条件"
 
 msgid "Sample"
 msgstr "样本"

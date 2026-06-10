@@ -2245,12 +2245,6 @@ msgstr "デフォルト"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "製品ラベルのデフォルトサイズを定義します。在庫内のアイテムを追跡するために使用されます。"
 
-msgid "Define the terms and conditions for purchase orders"
-msgstr "購買注文の利用規約と条件を定義します"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "見積書と販売注文の利用規約と条件を定義します"
-
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "ロットごとに検査される追跡対象エンティティの数と、ロットが却下される前に許容される失敗の数を定義します。"
 
@@ -6104,9 +6098,6 @@ msgstr "購買"
 msgid "Purchasing Contact"
 msgstr "購買担当者"
 
-msgid "Purchasing Terms & Conditions"
-msgstr "購買条件"
-
 msgid "Purchasing Unit of Measure"
 msgstr "購買単位"
 
@@ -6710,9 +6701,6 @@ msgstr "営業担当者"
 
 msgid "Sales Revenue"
 msgstr "売上収益"
-
-msgid "Sales Terms & Conditions"
-msgstr "営業条件"
 
 msgid "Sample"
 msgstr "サンプル"

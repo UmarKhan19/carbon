@@ -2245,12 +2245,6 @@ msgstr "Standardwerte"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "Definieren Sie die Standardgröße des Produktetiketts. Wird zur Verfolgung von Artikeln im Bestand verwendet."
 
-msgid "Define the terms and conditions for purchase orders"
-msgstr "Definieren Sie die Bedingungen für Bestellungen"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "Definieren Sie die Bedingungen für Angebote und Verkaufsaufträge"
-
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "Definiert, wie viele nachverfolgten Entitäten pro Charge inspiziert werden und wie viele Fehler toleriert werden, bevor die Charge abgelehnt wird."
 
@@ -6104,9 +6098,6 @@ msgstr "Beschaffung"
 msgid "Purchasing Contact"
 msgstr "Einkaufskontakt"
 
-msgid "Purchasing Terms & Conditions"
-msgstr "Einkaufsbedingungen"
-
 msgid "Purchasing Unit of Measure"
 msgstr "Einkaufsmaßeinheit"
 
@@ -6710,9 +6701,6 @@ msgstr "Verkäufer"
 
 msgid "Sales Revenue"
 msgstr "Verkaufsumsatz"
-
-msgid "Sales Terms & Conditions"
-msgstr "Verkaufsbedingungen"
 
 msgid "Sample"
 msgstr "Probe"

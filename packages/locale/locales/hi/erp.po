@@ -2245,12 +2245,6 @@ msgstr "डिफ़ॉल्ट"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "उत्पाद लेबल का डिफ़ॉल्ट आकार परिभाषित करें। इन्वेंटरी में आइटम ट्रैक करने के लिए उपयोग किया जाता है।"
 
-msgid "Define the terms and conditions for purchase orders"
-msgstr "क्रय आदेशों के लिए शर्तें और शर्तें परिभाषित करें"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "उद्धरण और बिक्री आदेशों के लिए शर्तें और शर्तें परिभाषित करें"
-
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "परिभाषित करता है कि प्रति लॉट कितनी ट्रैक की गई संस्थाओं का निरीक्षण किया जाता है, और लॉट को अस्वीकार करने से पहले कितनी विफलताओं को सहन किया जाता है।"
 
@@ -6104,9 +6098,6 @@ msgstr "क्रय"
 msgid "Purchasing Contact"
 msgstr "क्रय संपर्क"
 
-msgid "Purchasing Terms & Conditions"
-msgstr "क्रय शर्तें और शर्तें"
-
 msgid "Purchasing Unit of Measure"
 msgstr "क्रय माप की इकाई"
 
@@ -6710,9 +6701,6 @@ msgstr "विक्रय व्यक्ति"
 
 msgid "Sales Revenue"
 msgstr "बिक्रय राजस्व"
-
-msgid "Sales Terms & Conditions"
-msgstr "बिक्रय शर्तें और शर्तें"
 
 msgid "Sample"
 msgstr "नमूना"

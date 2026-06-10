@@ -2245,12 +2245,6 @@ msgstr "Paramètres par défaut"
 msgid "Define the default size of the product label. Used for tracking items in inventory."
 msgstr "Définissez la taille par défaut de l'étiquette produit. Utilisé pour le suivi des articles en inventaire."
 
-msgid "Define the terms and conditions for purchase orders"
-msgstr "Définir les conditions générales pour les commandes d'achat"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "Définir les conditions générales pour les devis et les commandes de vente"
-
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "Définit le nombre d'entités suivies inspectées par lot et le nombre de défaillances tolérées avant le rejet du lot."
 
@@ -6104,9 +6098,6 @@ msgstr "Approvisionnement"
 msgid "Purchasing Contact"
 msgstr "Contact d'achat"
 
-msgid "Purchasing Terms & Conditions"
-msgstr "Conditions générales d'achat"
-
 msgid "Purchasing Unit of Measure"
 msgstr "Unité de mesure d'achat"
 
@@ -6710,9 +6701,6 @@ msgstr "Responsable commercial"
 
 msgid "Sales Revenue"
 msgstr "Chiffre d'affaires"
-
-msgid "Sales Terms & Conditions"
-msgstr "Conditions générales de vente"
 
 msgid "Sample"
 msgstr "Échantillon"
