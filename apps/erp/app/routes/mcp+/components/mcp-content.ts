@@ -5,14 +5,13 @@ export const PROMPTS: string[] = [
   "Create a job for 50 units of SKU-1042 on the CNC work center.",
   "Which purchase orders are past their promised receipt date?",
   "What's the on-hand quantity and reorder point for BRACKET-200 across locations?",
-  "Draft a quote for Acme for 200 aluminum housings and email it.",
+  "Draft a quote for Acme for 200 aluminum housings.",
   "List every job behind schedule and who's assigned."
 ];
 
 export const SPECIFICITY = {
   broad: "“Sort out my late orders.”",
-  specific:
-    "“Move every sales order stuck in Needs Approval for 3+ days to Confirmed and email the owner.”"
+  specific: "“Release every sales order stuck in Needs Approval for 3+ days.”"
 };
 
 export const FAQ: { q: string; a: string }[] = [

@@ -36,7 +36,7 @@ export function ToolDiscovery({ total }: { total: number }) {
       <FlowDiagram
         vertical
         label={'WORKFLOW — "CHASE DOWN EVERYTHING SHIPPING LATE THIS WEEK"'}
-        caption="One sentence from you → five tool calls → a summary back."
+        caption="One sentence from you → three tool calls → a summary back."
         steps={[
           {
             name: "search_tools",
@@ -54,13 +54,8 @@ export function ToolDiscovery({ total }: { total: number }) {
             text: "Flags the linked jobs running behind schedule."
           },
           {
-            name: "sales_sendCustomerUpdate",
-            tag: "WRITE",
-            text: "Drafts a status note to each affected customer."
-          },
-          {
             name: "Summary",
-            text: "Returns the list, the delays, and the drafts — for your approval."
+            text: "Returns the list and the delays — for your review."
           }
         ]}
       />
