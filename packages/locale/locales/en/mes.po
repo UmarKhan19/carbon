@@ -21,10 +21,6 @@ msgstr "{0} - Set {1}"
 msgid "{0} Active"
 msgstr "{0} Active"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} available"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -105,11 +101,6 @@ msgstr "Authentication Error"
 
 msgid "Batch"
 msgstr "Batch"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "Batch {0} ({1} available)"
 
 msgid "Batch is not available"
 msgstr "Batch is not available"
@@ -683,9 +674,6 @@ msgstr "Prev"
 msgid "Preventive"
 msgstr "Preventive"
 
-msgid "Print Manager"
-msgstr "Print Manager"
-
 msgid "Priority"
 msgstr "Priority"
 
@@ -826,10 +814,6 @@ msgstr "Send"
 
 msgid "Serial"
 msgstr "Serial"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "Serial {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"

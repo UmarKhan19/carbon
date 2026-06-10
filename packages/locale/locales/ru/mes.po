@@ -21,10 +21,6 @@ msgstr "{0} — Набор {1}"
 msgid "{0} Active"
 msgstr "{0} Активных"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} доступно"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -105,11 +101,6 @@ msgstr "Ошибка аутентификации"
 
 msgid "Batch"
 msgstr "Партия"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "Партия {0} ({1} доступно)"
 
 msgid "Batch is not available"
 msgstr "Партия недоступна"
@@ -683,9 +674,6 @@ msgstr "Назад"
 msgid "Preventive"
 msgstr "Профилактическое"
 
-msgid "Print Manager"
-msgstr ""
-
 msgid "Priority"
 msgstr "Приоритет"
 
@@ -826,10 +814,6 @@ msgstr "Отправить"
 
 msgid "Serial"
 msgstr "Серийный"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "Серийный {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"

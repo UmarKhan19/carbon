@@ -69,5 +69,31 @@ export const labelSizes: LabelSize[] = [
       width: 4,
       height: 2
     }
+  },
+  {
+    id: "label100x50mm",
+    name: "Label 100x50mm",
+    width: 3.937,
+    height: 1.969,
+    description: "Thermal Labels (50mm x 100mm)",
+    rotated: false,
+    zpl: {
+      dpi: 203,
+      width: 3.937,
+      height: 1.969
+    }
+  },
+  {
+    id: "label50x25mm",
+    name: "Label 50x25mm",
+    width: 1.969,
+    height: 0.984,
+    description: "Thermal Labels (25mm x 50mm)",
+    rotated: false,
+    zpl: {
+      dpi: 203,
+      width: 1.969,
+      height: 0.984
+    }
   }
 ];

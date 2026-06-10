@@ -1010,19 +1010,19 @@ export const JobOperation = ({
 
                       return (
                         <>
-                          <Table className="w-full">
+                          <Table className="w-full text-base">
                             <Thead>
                               <Tr>
-                                <Th>
+                                <Th className="text-sm">
                                   <Trans>Part</Trans>
                                 </Th>
-                                <Th className="lg:table-cell hidden">
+                                <Th className="text-sm lg:table-cell hidden">
                                   <Trans>Source</Trans>
                                 </Th>
-                                <Th>
+                                <Th className="text-sm">
                                   <Trans>Estimated</Trans>
                                 </Th>
-                                <Th>
+                                <Th className="text-sm">
                                   <Trans>Actual</Trans>
                                 </Th>
                                 <Th className="text-right" />
@@ -1061,6 +1061,7 @@ export const JobOperation = ({
                                       <Tr
                                         key={`material-${material.id}`}
                                         className={cn(
+                                          "[&>td]:py-3",
                                           !isRelatedToOperation &&
                                             "opacity-50 hover:opacity-100"
                                         )}
@@ -1071,13 +1072,13 @@ export const JobOperation = ({
                                             className="justify-between"
                                           >
                                             <VStack spacing={0}>
-                                              <span className="font-semibold">
+                                              <span className="font-semibold text-base">
                                                 {getItemReadableId(
                                                   items,
                                                   material.itemId ?? ""
                                                 )}
                                               </span>
-                                              <span className="text-muted-foreground text-xs">
+                                              <span className="text-muted-foreground text-sm">
                                                 {material.description}
                                               </span>
                                             </VStack>
@@ -1206,6 +1207,7 @@ export const JobOperation = ({
                                             material.requiresSerialTracking) && (
                                             <Button
                                               className="flex-shrink-0"
+                                              size="lg"
                                               variant={
                                                 someRelatedMaterialIsIssued ||
                                                 !isRelatedToOperation
@@ -1427,13 +1429,13 @@ export const JobOperation = ({
                 >
                   <Await resolve={files}>
                     {(resolvedFiles) => (
-                      <Table className="w-full">
+                      <Table className="w-full text-base">
                         <Thead>
                           <Tr>
-                            <Th>
+                            <Th className="text-sm">
                               <Trans>Name</Trans>
                             </Th>
-                            <Th>
+                            <Th className="text-sm">
                               <Trans>Size</Trans>
                             </Th>
                             <Th></Th>
@@ -1452,14 +1454,14 @@ export const JobOperation = ({
                           ) : (
                             <>
                               {modelUpload?.modelName && (
-                                <Tr>
+                                <Tr className="[&>td]:py-3">
                                   <Td>
                                     <HStack>
                                       <LuAxis3D className="text-emerald-500 w-6 h-6" />
                                       <span>{modelUpload.modelName}</span>
                                     </HStack>
                                   </Td>
-                                  <Td className="text-xs font-mono">
+                                  <Td className="text-sm font-mono">
                                     {modelUpload.modelSize
                                       ? convertKbToString(
                                           Math.floor(
@@ -1498,7 +1500,10 @@ export const JobOperation = ({
                               {resolvedFiles.map((file) => {
                                 const type = getFileType(file.name);
                                 return (
-                                  <Tr key={`file-${file.id}`}>
+                                  <Tr
+                                    key={`file-${file.id}`}
+                                    className="[&>td]:py-3"
+                                  >
                                     <Td>
                                       <HStack>
                                         <FileIcon type={type} />
@@ -1534,7 +1539,7 @@ export const JobOperation = ({
                                         </span>
                                       </HStack>
                                     </Td>
-                                    <Td className="text-xs font-mono">
+                                    <Td className="text-sm font-mono">
                                       {convertKbToString(
                                         Math.floor(
                                           (file.metadata?.size ?? 0) / 1024
@@ -1614,10 +1619,10 @@ export const JobOperation = ({
                       )}
                     </HStack>
 
-                    <Table className="w-full">
+                    <Table className="w-full text-base">
                       <Thead>
                         <Tr>
-                          <Th>
+                          <Th className="text-sm">
                             <Trans>Serial</Trans>
                           </Th>
                           <Th className="text-right" />
@@ -1636,20 +1641,25 @@ export const JobOperation = ({
                           </Tr>
                         ) : (
                           trackedEntities?.map((entity) => (
-                            <Tr key={`serial-${entity.id}`}>
-                              <Td className="flex gap-2 items-center">
-                                <span>{entity.id}</span>
-                                {entity.id === trackedEntityId && (
-                                  <LuCheck className="text-emerald-500 size-4" />
-                                )}
-                                <Copy text={entity.id} />
+                            <Tr
+                              key={`serial-${entity.id}`}
+                              className="[&>td]:py-3"
+                            >
+                              <Td>
+                                <div className="flex gap-2 items-center">
+                                  <span>{entity.id}</span>
+                                  {entity.id === trackedEntityId && (
+                                    <LuCheck className="text-emerald-500 size-4" />
+                                  )}
+                                  <Copy text={entity.id} />
+                                </div>
                               </Td>
 
                               <Td className="text-right">
                                 <div className="flex justify-end gap-2">
                                   <IconButton
                                     aria-label="Print Label"
-                                    size="sm"
+                                    size="lg"
                                     icon={<LuPrinter />}
                                     variant="secondary"
                                     onClick={() => {
@@ -1660,7 +1670,7 @@ export const JobOperation = ({
                                   />
                                   <Button
                                     variant="secondary"
-                                    size="sm"
+                                    size="lg"
                                     isDisabled={entity.id === trackedEntityId}
                                     onClick={() => {
                                       const entityIndex =

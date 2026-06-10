@@ -73,14 +73,23 @@ export async function action({ request }: ActionFunctionArgs) {
     const completedEntityId = validation.data.trackedEntityId;
 
     // Auto-print label on first operation only (entity was just minted)
-    if (completedEntityId) {
+    const printEntityId = completedEntityId || newTrackedEntityId;
+    if (printEntityId) {
       try {
-        const { count: priorActivities } = await serviceRole
-          .from("trackedActivityOutput")
-          .select("trackedActivityId", { count: "exact", head: true })
-          .eq("trackedEntityId", completedEntityId);
+        const { data: printEntity } = await serviceRole
+          .from("trackedEntity")
+          .select("attributes")
+          .eq("id", printEntityId)
+          .single();
 
-        const isFirstOperation = (priorActivities ?? 0) <= 1;
+        const attrs = (printEntity?.attributes ?? {}) as Record<
+          string,
+          unknown
+        >;
+        const operationCount = Object.keys(attrs).filter((k) =>
+          k.startsWith("Operation ")
+        ).length;
+        const isFirstOperation = operationCount <= 1;
 
         if (isFirstOperation) {
           let locationId: string | undefined;
@@ -108,8 +117,8 @@ export async function action({ request }: ActionFunctionArgs) {
               : (assignment?.defaultAutoPrint ?? true);
             if (shouldAutoPrint) {
               await trigger("print-job", {
-                sourceDocument: "Entity",
-                sourceDocumentId: completedEntityId,
+                sourceDocument: "Job",
+                sourceDocumentId: printEntityId,
                 companyId,
                 userId,
                 locationId,
@@ -193,12 +202,20 @@ export async function action({ request }: ActionFunctionArgs) {
     // Auto-print label on first operation only (batch entity was just minted)
     if (validation.data.trackedEntityId) {
       try {
-        const { count: batchPriorActivities } = await serviceRole
-          .from("trackedActivityOutput")
-          .select("trackedActivityId", { count: "exact", head: true })
-          .eq("trackedEntityId", validation.data.trackedEntityId);
+        const { data: batchEntity } = await serviceRole
+          .from("trackedEntity")
+          .select("attributes")
+          .eq("id", validation.data.trackedEntityId)
+          .single();
 
-        const isFirstOperation = (batchPriorActivities ?? 0) <= 1;
+        const batchAttrs = (batchEntity?.attributes ?? {}) as Record<
+          string,
+          unknown
+        >;
+        const batchOpCount = Object.keys(batchAttrs).filter((k) =>
+          k.startsWith("Operation ")
+        ).length;
+        const isFirstOperation = batchOpCount <= 1;
 
         if (isFirstOperation) {
           let batchLocationId: string | undefined;
@@ -226,7 +243,7 @@ export async function action({ request }: ActionFunctionArgs) {
               : (assignment?.defaultAutoPrint ?? true);
             if (shouldAutoPrint) {
               await trigger("print-job", {
-                sourceDocument: "Entity",
+                sourceDocument: "Job",
                 sourceDocumentId: validation.data.trackedEntityId,
                 companyId,
                 userId,

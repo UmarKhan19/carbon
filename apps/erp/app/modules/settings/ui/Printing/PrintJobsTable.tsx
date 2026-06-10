@@ -313,7 +313,8 @@ const PrintJobsTable = memo(({ jobs, count }: PrintJobsTableProps) => {
               { label: "Operation", value: "operation" },
               { label: "Job", value: "job" },
               { label: "Item", value: "item" },
-              { label: "Kanban", value: "kanban" }
+              { label: "Kanban", value: "kanban" },
+              { label: "Split", value: "split" }
             ]
           }
         }

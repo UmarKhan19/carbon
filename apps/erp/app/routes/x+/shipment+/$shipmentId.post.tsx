@@ -301,6 +301,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
     } catch (e) {
       console.error("Auto-print failed:", e);
     }
+
+    // Auto-print labels for batch split entities
+    const splitEntityIds = postShipment.data?.splitEntityIds || [];
+    if (splitEntityIds.length > 0) {
+      try {
+        for (const entityId of splitEntityIds) {
+          await trigger("print-job", {
+            sourceDocument: "Split",
+            sourceDocumentId: entityId,
+            companyId,
+            userId
+          });
+        }
+      } catch (e) {
+        console.error("Auto-print for split entities failed:", e);
+      }
+    }
   } catch (thrown) {
     if (thrown instanceof Response) throw thrown;
     await client

@@ -7,12 +7,7 @@ export const printerRouteValidator = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   format: z.enum(["zpl", "pdf"]),
   mediaSizeId: z.string().min(1, { message: "Media size is required" }),
-  printerUrl: z
-    .string()
-    .url({ message: "Must be a valid URL" })
-    .refine((url) => !url.includes("pbxz.io"), {
-      message: "Please change the URL from pbxz.io to pbxz.cloud"
-    }),
+  printerUrl: z.string().url({ message: "Must be a valid URL" }),
   apiKey: zfd.text(z.string().optional()),
   templateId: zfd.text(z.string().optional())
 });

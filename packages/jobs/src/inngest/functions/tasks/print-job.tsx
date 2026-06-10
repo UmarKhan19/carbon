@@ -589,6 +589,44 @@ async function queryTrackedEntities(
         readableId: trackedEntity?.readableId ?? null
       };
     }
+    case "Job": {
+      const { data: trackedEntity } = await client
+        .from("trackedEntity")
+        .select("*")
+        .eq("id", sourceDocumentId)
+        .single();
+
+      if (!trackedEntity) return { trackedEntities: null, readableId: null };
+
+      const jobId = (trackedEntity.attributes as Record<string, unknown>)
+        ?.Job as string | undefined;
+      let readableId: string | null = null;
+      if (jobId) {
+        const { data: job } = await client
+          .from("job")
+          .select("jobId")
+          .eq("id", jobId)
+          .single();
+        readableId = job?.jobId ?? null;
+      }
+
+      return {
+        trackedEntities: [trackedEntity],
+        readableId
+      };
+    }
+    case "Split": {
+      const { data: trackedEntity } = await client
+        .from("trackedEntity")
+        .select("*")
+        .eq("id", sourceDocumentId)
+        .single();
+
+      return {
+        trackedEntities: trackedEntity ? [trackedEntity] : null,
+        readableId: trackedEntity?.readableId ?? null
+      };
+    }
     default:
       return { trackedEntities: null, readableId: null };
   }
@@ -621,7 +659,7 @@ async function enrichTrackedEntities(
       return {
         itemId: item.readableId,
         revision: item.revision ?? "0",
-        number: te.readableId ?? "",
+        number: te.readableId || te.id,
         trackedEntityId: te.id,
         quantity: te.quantity ?? 1,
         trackingType: (te.quantity ?? 1) > 1 ? "Batch" : ("Serial" as string)

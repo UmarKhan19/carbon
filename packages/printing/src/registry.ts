@@ -11,7 +11,14 @@ export const documentTypeRegistry = [
   {
     id: "productLabel",
     displayName: "Product Label",
-    sourceDocuments: ["Receipt", "Shipment", "Operation", "Entity"],
+    sourceDocuments: [
+      "Receipt",
+      "Shipment",
+      "Operation",
+      "Entity",
+      "Job",
+      "Split"
+    ],
     builtInRenderer: "zpl" as const,
     defaultFormat: "zpl" as const,
     description: "Labels for tracked entities (serial/batch numbers)"

@@ -21,10 +21,6 @@ msgstr "{0} - 组 {1}"
 msgid "{0} Active"
 msgstr "{0} 个活跃"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} 可用"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -105,11 +101,6 @@ msgstr "认证错误"
 
 msgid "Batch"
 msgstr "批次"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "批次 {0}（{1} 可用）"
 
 msgid "Batch is not available"
 msgstr "批次不可用"
@@ -683,9 +674,6 @@ msgstr "上一个"
 msgid "Preventive"
 msgstr "预防性"
 
-msgid "Print Manager"
-msgstr ""
-
 msgid "Priority"
 msgstr "优先级"
 
@@ -826,10 +814,6 @@ msgstr "发送"
 
 msgid "Serial"
 msgstr "序列号"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "序列号 {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"

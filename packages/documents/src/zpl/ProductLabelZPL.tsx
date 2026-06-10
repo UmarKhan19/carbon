@@ -10,68 +10,60 @@ export function generateProductLabelZPL(
   const { width, height } = labelSize.zpl;
   const dpi = labelSize.zpl.dpi || 203;
 
-  // Convert inches to dots based on DPI
   const widthDots = Math.round(width * dpi);
   const heightDots = Math.round(height * dpi);
 
-  // Determine if this is a small or large label
-  const isSmallLabel = width <= 2.5; // Consider 2x1 as small
+  // Scale everything relative to a 2"x1" baseline (406x203 dots at 203dpi)
+  const wScale = widthDots / 406;
+  const hScale = heightDots / 203;
+  const scale = Math.min(wScale, hScale);
 
-  // Calculate positions based on label size
-  const textStartX = 20;
-  let fontSize = isSmallLabel ? 25 : 35; // Smaller font for small labels
-  let descFontSize = isSmallLabel ? 18 : 25;
-  let smallFontSize = isSmallLabel ? 12 : 18;
+  const margin = Math.round(20 * Math.max(scale, 0.8));
+  const titleFont = Math.round(25 * scale);
+  const descFont = Math.round(18 * scale);
+  const smallFont = Math.round(12 * scale);
+  const lineGap = Math.round(25 * scale);
 
-  // QR code positioning and sizing
-  const qrSize = isSmallLabel
-    ? Math.min(heightDots * 0.6, widthDots * 0.35) // Smaller QR for small labels
-    : Math.min(heightDots * 0.7, widthDots * 0.25); // Larger QR with more space on bigger labels
-
-  const qrStartX = isSmallLabel
-    ? widthDots - qrSize - 15 // Tighter spacing on small labels
-    : widthDots - qrSize - 40; // More spacing on larger labels
+  // QR module size scales with the smaller dimension
+  const qrModuleSize = Math.max(2, Math.min(8, Math.round(4 * scale)));
+  // Approximate QR pixel width: module * (21 + 2*error_correction_overhead) ≈ module * 29
+  const qrPixelSize = qrModuleSize * 29;
+  const qrX = widthDots - qrPixelSize - margin;
+  const qrY = Math.round(30 * hScale);
 
   let zpl = "^XA";
   zpl += `^PW${widthDots}`;
   zpl += `^LL${heightDots}`;
-  zpl += "^MNW"; // gap/web sensing mode
-  zpl += "^CI28"; // UTF-8
+  zpl += "^MNW";
+  zpl += "^CI28";
 
-  // Item ID (larger font)
-  zpl += `^FO${textStartX},30^A0N,${fontSize},${fontSize}^FD${item.itemId}^FS`;
+  let y = Math.round(30 * hScale);
 
-  // Revision if available
-  let yPosition = isSmallLabel ? 65 : 80;
+  zpl += `^FO${margin},${y}^A0N,${titleFont},${titleFont}^FD${item.itemId}^FS`;
+  y += titleFont + Math.round(10 * hScale);
+
   if (item.revision) {
-    zpl += `^FO${textStartX},${yPosition}^A0N,${descFontSize},${descFontSize}^FDRev: ${item.revision}^FS`;
-    yPosition += isSmallLabel ? 25 : 35;
+    zpl += `^FO${margin},${y}^A0N,${descFont},${descFont}^FDRev: ${item.revision}^FS`;
+    y += lineGap;
   }
 
-  // Quantity
   if (["Serial", "Batch"].includes(item.trackingType)) {
-    zpl += `^FO${textStartX},${yPosition}^A0N,${descFontSize},${descFontSize}^FDQty: ${item.quantity}^FS`;
-    yPosition += isSmallLabel ? 25 : 35;
+    zpl += `^FO${margin},${y}^A0N,${descFont},${descFont}^FDQty: ${item.quantity}^FS`;
+    y += lineGap;
   }
 
-  // Serial or Batch number
   if (item.trackingType === "Serial") {
-    zpl += `^FO${textStartX},${yPosition}^A0N,${descFontSize},${descFontSize}^FDS/N: ${item.number}^FS`;
+    zpl += `^FO${margin},${y}^A0N,${descFont},${descFont}^FDS/N: ${item.number}^FS`;
   } else if (item.trackingType === "Batch") {
-    zpl += `^FO${textStartX},${yPosition}^A0N,${descFontSize},${descFontSize}^FDBatch: ${item.number}^FS`;
+    zpl += `^FO${margin},${y}^A0N,${descFont},${descFont}^FDBatch: ${item.number}^FS`;
   }
 
-  // QR Code for tracked entity ID
-  // Using proper error correction level (M) and input mode (A)
-  const qrYPosition = isSmallLabel ? 30 : 40;
-  zpl += `^FO${qrStartX},${qrYPosition}^BQN,2,${isSmallLabel ? 4 : 6}^FDMA,${item.trackedEntityId}^FS`;
+  zpl += `^FO${qrX},${qrY}^BQN,2,${qrModuleSize}^FDMA,${item.trackedEntityId}^FS`;
 
-  // Tracked entity ID at bottom
-  const idYPosition = isSmallLabel ? heightDots - 25 : heightDots - 35;
-  zpl += `^FO${textStartX},${idYPosition}^A0N,${smallFontSize},${smallFontSize}^FD${item.trackedEntityId}^FS`;
+  const idY = heightDots - smallFont - Math.round(10 * hScale);
+  zpl += `^FO${margin},${idY}^A0N,${smallFont},${smallFont}^FD${item.trackedEntityId}^FS`;
 
-  // End ZPL command sequence
-  zpl += "^XZ"; // End format
+  zpl += "^XZ";
 
   return zpl;
 }

@@ -2106,6 +2106,7 @@ serve(async (req: Request) => {
                 .insertInto("trackedEntity")
                 .values({
                   id: newTrackedEntityId,
+                  readableId: trackedEntity.readableId,
                   sourceDocumentId: trackedEntity.sourceDocumentId,
                   sourceDocument: "Item",
                   sourceDocumentReadableId:
@@ -3151,6 +3152,7 @@ serve(async (req: Request) => {
                 .insertInto("trackedEntity")
                 .values({
                   id: newTrackedEntityId,
+                  readableId: trackedEntity.readableId,
                   sourceDocumentId: trackedEntity.sourceDocumentId,
                   sourceDocument: "Item",
                   sourceDocumentReadableId:

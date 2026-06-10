@@ -181,29 +181,24 @@ export function IssueMaterialModal({
         )
         .map((sn) => {
           const expired = isExpiryPast(sn.expirationDate);
-          const labelText = sn.id ?? "";
-          // ComboboxBase.label accepts JSX, so render the readableId next to a
-          // small destructive Badge for expired stock — pops in the dropdown
-          // far better than a plain "EXPIRED" prefix in the helper line.
-          const label = expired ? (
+          const label = (
             <span key={sn.id} className="flex items-center gap-2">
-              <span className="truncate">{labelText}</span>
-              <Badge variant="red">Expired</Badge>
+              {sn.readableId && (
+                <span className="font-medium">{sn.readableId}</span>
+              )}
+              <span className="text-xs text-muted-foreground font-mono truncate">
+                {sn.id}
+              </span>
+              {expired && <Badge variant="red">Expired</Badge>}
             </span>
-          ) : (
-            labelText
           );
-          const helperParts = [
-            sn.readableId ? `Serial ${sn.readableId}` : null,
-            sn.expirationDate
-              ? `${expired ? "Expired" : "Expires"} ${formatExpiry(sn.expirationDate)}`
-              : null
-          ].filter(Boolean) as string[];
+          const helper = sn.expirationDate
+            ? `${expired ? "Expired" : "Expires"} ${formatExpiry(sn.expirationDate)}`
+            : undefined;
           return {
             label,
             value: sn.id,
-            helper:
-              helperParts.length > 0 ? helperParts.join(" · ") : undefined,
+            helper,
             expirationDate: sn.expirationDate ?? null,
             isExpired: expired
           };
@@ -226,18 +221,27 @@ export function IssueMaterialModal({
         )
         .map((bn) => {
           const expired = isExpiryPast(bn.expirationDate);
-          const expiryNote = bn.expirationDate
-            ? expired
-              ? `EXPIRED ${formatExpiry(bn.expirationDate)}`
-              : `Expires ${formatExpiry(bn.expirationDate)}`
-            : null;
-          const stockHelper = bn.readableId
-            ? `${bn.id.slice(0, 10)} - ${bn.quantity} Available of Batch ${bn.readableId}`
-            : `${bn.id.slice(0, 10)} - ${bn.quantity} Available`;
+          const label = (
+            <span key={bn.id} className="flex items-center gap-2">
+              {bn.readableId && (
+                <span className="font-medium">{bn.readableId}</span>
+              )}
+              <span className="text-xs text-muted-foreground font-mono truncate">
+                {bn.id.slice(0, 10)}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {bn.quantity} available
+              </span>
+              {expired && <Badge variant="red">Expired</Badge>}
+            </span>
+          );
+          const helper = bn.expirationDate
+            ? `${expired ? "Expired" : "Expires"} ${formatExpiry(bn.expirationDate)}`
+            : undefined;
           return {
-            label: bn.sourceDocumentReadableId ?? "",
+            label,
             value: bn.id,
-            helper: [expiryNote, stockHelper].filter(Boolean).join(" · "),
+            helper,
             availableQuantity: bn.quantity,
             expirationDate: bn.expirationDate ?? null,
             isExpired: expired
@@ -249,9 +253,20 @@ export function IssueMaterialModal({
   // Unconsume options for batch
   const unconsumeOptions = useMemo(() => {
     return trackedInputs.map((input) => ({
-      label: input.id,
-      value: input.id,
-      helper: `${input.quantity} ${input.readableId ? `of Batch ${input.readableId}` : ""}`
+      label: (
+        <span className="flex items-center gap-2">
+          {input.readableId && (
+            <span className="font-medium">{input.readableId}</span>
+          )}
+          <span className="text-xs text-muted-foreground font-mono truncate">
+            {input.id.slice(0, 10)}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            qty {input.quantity}
+          </span>
+        </span>
+      ),
+      value: input.id
     }));
   }, [trackedInputs]);
 

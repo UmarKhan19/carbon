@@ -2,7 +2,6 @@ import { assertIsPost } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { trigger } from "@carbon/jobs";
-import type { PrintingSettings } from "@carbon/printing";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
 import { issueTrackedEntityValidator } from "~/services/models";
@@ -92,32 +91,15 @@ export async function action({ request }: ActionFunctionArgs) {
         locationId = wc?.locationId ?? undefined;
       }
 
-      if (locationId) {
-        const { data: cs } = await serviceRole
-          .from("companySettings")
-          .select("printing")
-          .eq("id", companyId)
-          .single();
-        const printing = cs?.printing as PrintingSettings | null;
-        const assignment = printing?.assignments?.[locationId];
-        const shouldAutoPrint = workCenterId
-          ? (assignment?.workCenters?.[workCenterId]?.autoPrint ??
-            assignment?.defaultAutoPrint ??
-            true)
-          : (assignment?.defaultAutoPrint ?? true);
-
-        if (shouldAutoPrint) {
-          for (const split of splitEntities) {
-            await trigger("print-job", {
-              sourceDocument: "Entity",
-              sourceDocumentId: split.newId,
-              companyId,
-              userId,
-              locationId,
-              workCenterId
-            });
-          }
-        }
+      for (const split of splitEntities) {
+        await trigger("print-job", {
+          sourceDocument: "Split",
+          sourceDocumentId: split.newId,
+          companyId,
+          userId,
+          locationId,
+          workCenterId
+        });
       }
     } catch (e) {
       console.error("Auto-print for split entities failed:", e);
