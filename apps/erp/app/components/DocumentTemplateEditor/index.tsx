@@ -79,7 +79,7 @@ export function DocumentTemplateEditor({
         />
         <ResizablePanelGroup
           direction="horizontal"
-          autoSaveId="document-template-editor-v2"
+          autoSaveId="document-template-editor"
           className="flex-1 overflow-hidden"
         >
           {/* LEFT — blocks + theme */}
@@ -96,7 +96,7 @@ export function DocumentTemplateEditor({
           <ResizableHandle withHandle />
 
           {/* CENTER — canvas */}
-          <ResizablePanel id="canvas" order={2} defaultSize={48} minSize={28}>
+          <ResizablePanel id="canvas" order={2} defaultSize={56} minSize={30}>
             <div className="flex h-full min-w-0 flex-col bg-muted/40 p-6">
               <TemplatePreview previewPath={`${actionPath}/preview`} />
             </div>
@@ -108,9 +108,9 @@ export function DocumentTemplateEditor({
           <ResizablePanel
             id="config"
             order={3}
-            defaultSize={30}
-            minSize={18}
-            maxSize={42}
+            defaultSize={22}
+            minSize={16}
+            maxSize={34}
           >
             <ScrollArea className="h-full bg-card">
               <div className="flex flex-col gap-1.5 p-3">
