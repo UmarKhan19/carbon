@@ -66,7 +66,7 @@ const Download = ({
         const raw = (row as Record<string, unknown>)[key];
         const map = idNameMaps[key];
         out[columnAccessors[key]] =
-          map && raw != null ? map.get(String(raw)) ?? raw : raw;
+          map && raw != null ? (map.get(String(raw)) ?? raw) : raw;
       }
       return out;
     });
