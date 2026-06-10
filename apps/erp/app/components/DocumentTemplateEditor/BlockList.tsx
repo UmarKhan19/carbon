@@ -145,20 +145,12 @@ export function BlockList() {
           className="w-[--radix-popper-anchor-width] min-w-64"
         >
           {isTextOnly ? (
-            <>
-              <AddMenuItem
-                icon={<LuType className="size-4" />}
-                title="Text"
-                description="A single line of text"
-                onClick={() => addField(false)}
-              />
-              <AddMenuItem
-                icon={<LuTable className="size-4" />}
-                title="Key-value"
-                description="A label and a value"
-                onClick={() => addField(true)}
-              />
-            </>
+            <AddMenuItem
+              icon={<LuType className="size-4" />}
+              title="Text field"
+              description="A label and a value"
+              onClick={() => addField(true)}
+            />
           ) : (
             ADD_OPTIONS.map(({ type, icon, description }) => (
               <AddMenuItem

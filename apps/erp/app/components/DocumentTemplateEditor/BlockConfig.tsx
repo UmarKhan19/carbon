@@ -331,25 +331,22 @@ function FooterSettings() {
  */
 function FieldConfig({ block }: { block: FieldBlock }) {
   const { updateBlock } = useDocumentTemplate();
-  const hasLabel = block.label !== undefined;
   const insertField = (snippet: string) =>
     updateBlock(block.id, { value: (block.value ?? "") + snippet });
 
   return (
     <div className="flex flex-col gap-3">
-      {hasLabel && (
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="field-label">Label</Label>
-          <Input
-            id="field-label"
-            value={block.label ?? ""}
-            onChange={(e) => updateBlock(block.id, { label: e.target.value })}
-          />
-        </div>
-      )}
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="field-label">Label (optional)</Label>
+        <Input
+          id="field-label"
+          value={block.label ?? ""}
+          onChange={(e) => updateBlock(block.id, { label: e.target.value })}
+        />
+      </div>
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <Label htmlFor="field-value">{hasLabel ? "Value" : "Text"}</Label>
+          <Label htmlFor="field-value">Value</Label>
           <MergeFieldMenu onInsert={insertField} label="Insert field" />
         </div>
         <Input
