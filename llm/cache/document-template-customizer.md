@@ -7,9 +7,10 @@ Editor lives at `apps/erp/app/routes/x+/templates+/`.
 ## Supported documents
 
 `documentTemplateTypeSchema` enum (`packages/documents/src/template/schema.ts`)
-and `DOCUMENT_CATALOG` (`defaults.ts`, `supported: true`) currently cover all 8:
+and `DOCUMENT_CATALOG` (`defaults.ts`, `supported: true`) currently cover 9:
 salesInvoice, salesOrder, purchaseOrder, quote (transactional); packingSlip
-(fulfillment); stockTransfer (transfer); jobTraveler, issue (Phase C).
+(fulfillment); stockTransfer (transfer); jobTraveler, issue; and trackingLabel
+(the tracked-entity label — group "Labels").
 
 ## Template model (`packages/documents/src/template/`)
 
@@ -62,6 +63,20 @@ Multi-make-method: the route
 block-driven body, exported from `JobTravelerPDF.tsx`) + its own `Footer`. The
 single-page `JobTravelerPDF` default export wraps the same body in `Template`
 and is what the editor **preview** uses.
+
+## Tracking Label specifics
+
+`trackingLabel` is `ProductLabelPDF` (used by the entity/receipt/shipment/
+operation `*.labels.pdf.tsx` routes). It's block-driven via
+`pdf/blocks/trackingLabel/` (per-field blocks: labelHeading, labelRevision,
+labelQuantity, labelTracking, labelQrCode, labelEntityId — stacked vertically
+in each tile). Label **size/grid** is NOT in the template — it stays a print-
+time `?labelSize=` choice (Avery presets in `@carbon/utils` labelSizes; ZPL
+sizes redirect). Default template: `headerSectionId: null` (no header block at
+all → editor's HeaderRow auto-hides), `footerSectionId: system-footer` (keeps
+page numbers, toggleable). Routes load the template via
+`getDocumentTemplateConfig(client, companyId, "trackingLabel")`
+(`settings.service.ts`) — a helper that returns `DocumentTemplate | null`.
 
 ## Editor (`apps/erp/app/components/DocumentTemplateEditor/`)
 
