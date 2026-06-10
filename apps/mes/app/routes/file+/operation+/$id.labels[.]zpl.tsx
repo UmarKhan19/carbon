@@ -3,7 +3,10 @@ import { generateProductLabelZPL } from "@carbon/documents/zpl";
 import { labelSizes } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
-import { getCompanySettings } from "~/services/inventory.service";
+import {
+  getCompanySettings,
+  getDocumentTemplateConfig
+} from "~/services/inventory.service";
 import { getTrackedEntitiesByMakeMethodId } from "~/services/operations.service";
 import { path } from "~/utils/path";
 
@@ -82,9 +85,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Invalid label size or missing ZPL configuration");
   }
 
+  const template = await getDocumentTemplateConfig(
+    client,
+    companyId,
+    "trackingLabel"
+  );
+
   // Generate ZPL for each item
   const zplCommands = items.map((item) =>
-    generateProductLabelZPL(item, labelSize)
+    generateProductLabelZPL(item, labelSize, template)
   );
   const zplOutput = zplCommands.join("\n");
 

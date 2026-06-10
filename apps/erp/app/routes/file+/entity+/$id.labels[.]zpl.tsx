@@ -3,6 +3,7 @@ import { generateProductLabelZPL } from "@carbon/documents/zpl";
 import { labelSizes } from "@carbon/utils";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
+import { getDocumentTemplateConfig } from "~/modules/settings";
 import { path } from "~/utils/path";
 import { getEntityLabelData } from "./labels.server";
 
@@ -37,7 +38,13 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     );
   }
 
-  const zplOutput = generateProductLabelZPL(labelItem!, labelSize);
+  const template = await getDocumentTemplateConfig(
+    client,
+    companyId,
+    "trackingLabel"
+  );
+
+  const zplOutput = generateProductLabelZPL(labelItem!, labelSize, template);
 
   const headers = new Headers({
     "Content-Type": "application/zpl",
