@@ -15,5 +15,9 @@ export const handle: Handle = {
 };
 
 export default function TemplatesRoute() {
-  return <Outlet />;
+  return (
+    <div className="h-full w-full bg-background">
+      <Outlet />
+    </div>
+  );
 }
