@@ -138,6 +138,29 @@ const ProductLabelPDF = ({
                   sections
                 };
 
+                const renderBlock = (block: (typeof visibleBlocks)[number]) => {
+                  const render = trackingLabelBlockRegistry[block.type];
+                  if (!render) return null;
+                  return (
+                    <Fragment key={block.id}>
+                      {render({ block, data })}
+                    </Fragment>
+                  );
+                };
+
+                // Keep the proven label layout: text fields on the left, QR on
+                // the right, entity id full-width below. Reorder/hide still
+                // applies within each group.
+                const qrBlocks = visibleBlocks.filter(
+                  (b) => b.type === "labelQrCode"
+                );
+                const entityBlocks = visibleBlocks.filter(
+                  (b) => b.type === "labelEntityId"
+                );
+                const textBlocks = visibleBlocks.filter(
+                  (b) => b.type !== "labelQrCode" && b.type !== "labelEntityId"
+                );
+
                 return (
                   <View
                     key={`label-${itemIndex}`}
@@ -149,15 +172,19 @@ const ProductLabelPDF = ({
                     }}
                     wrap={false}
                   >
-                    {visibleBlocks.map((block) => {
-                      const render = trackingLabelBlockRegistry[block.type];
-                      if (!render) return null;
-                      return (
-                        <Fragment key={block.id}>
-                          {render({ block, data })}
-                        </Fragment>
-                      );
-                    })}
+                    <View style={tw("flex flex-row justify-between")}>
+                      <View
+                        style={tw("flex flex-col justify-center flex-1 pr-2")}
+                      >
+                        {textBlocks.map(renderBlock)}
+                      </View>
+                      {qrBlocks.length > 0 && (
+                        <View style={tw("flex items-center justify-center")}>
+                          {qrBlocks.map(renderBlock)}
+                        </View>
+                      )}
+                    </View>
+                    {entityBlocks.map(renderBlock)}
                   </View>
                 );
               })}
