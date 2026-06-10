@@ -10,6 +10,9 @@ import {
   Button,
   Combobox,
   Heading,
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
   ScrollArea,
   Tabs,
   TabsContent,
@@ -74,23 +77,49 @@ export function DocumentTemplateEditor({
           title={getDocumentLabel(documentType)}
           canEdit={canEdit}
         />
-        <div className="grid flex-1 grid-cols-[minmax(260px,300px)_minmax(0,1fr)_minmax(280px,320px)] overflow-hidden">
+        <ResizablePanelGroup
+          direction="horizontal"
+          autoSaveId="document-template-editor"
+          className="flex-1 overflow-hidden"
+        >
           {/* LEFT — blocks + theme */}
-          <ControlRail />
+          <ResizablePanel
+            id="rail"
+            order={1}
+            defaultSize={22}
+            minSize={16}
+            maxSize={34}
+          >
+            <ControlRail />
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
 
           {/* CENTER — canvas */}
-          <div className="flex min-w-0 flex-col bg-muted/40 p-6">
-            <TemplatePreview previewPath={`${actionPath}/preview`} />
-          </div>
+          <ResizablePanel id="canvas" order={2} defaultSize={56} minSize={30}>
+            <div className="flex h-full min-w-0 flex-col bg-muted/40 p-6">
+              <TemplatePreview previewPath={`${actionPath}/preview`} />
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
 
           {/* RIGHT — contextual config, always present */}
-          <ScrollArea className="border-l bg-card">
-            <div className="flex flex-col gap-1.5 p-3">
-              <h2 className={RAIL_HEADING}>Configure</h2>
-              <BlockConfig />
-            </div>
-          </ScrollArea>
-        </div>
+          <ResizablePanel
+            id="config"
+            order={3}
+            defaultSize={22}
+            minSize={16}
+            maxSize={34}
+          >
+            <ScrollArea className="h-full bg-card">
+              <div className="flex flex-col gap-1.5 p-3">
+                <h2 className={RAIL_HEADING}>Configure</h2>
+                <BlockConfig />
+              </div>
+            </ScrollArea>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </DocumentTemplateProvider>
   );
@@ -108,7 +137,7 @@ function ControlRail() {
   const [tab, setTab] = useState<"style">("style");
 
   return (
-    <ScrollArea className="border-r bg-card">
+    <ScrollArea className="h-full bg-card">
       <div className="flex flex-col gap-4 p-3">
         <section className="flex flex-col gap-1.5">
           <h2 className={RAIL_HEADING}>Blocks</h2>
