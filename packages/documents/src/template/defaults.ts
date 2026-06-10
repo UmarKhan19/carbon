@@ -422,9 +422,10 @@ export const DEFAULT_TEMPLATES: Record<DocumentTemplateType, DocumentTemplate> =
       blocks: labelBlocks(),
       theme: { ...DEFAULT_THEME },
       settings: { ...DEFAULT_DOCUMENT_SETTINGS },
-      // Labels have no page header; the footer keeps page numbers (toggleable).
+      // Labels render clean — no page header and no footer (page number /
+      // registration line). Both are toggleable in the editor.
       headerSectionId: null,
-      footerSectionId: BUILT_IN_SECTION_IDS.footer
+      footerSectionId: null
     }
   };
 
