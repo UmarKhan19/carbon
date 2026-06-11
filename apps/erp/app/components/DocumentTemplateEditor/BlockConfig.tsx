@@ -1,11 +1,7 @@
 import type {
   CustomFieldBlock,
   DocumentBlockType,
-  FieldBlock,
   KeyValueBlock,
-  LabelBarcodeBlock,
-  LabelLogoBlock,
-  LabelNamedBlock,
   LineItemsBlock,
   RichTextBlock,
   SpacerBlock,
@@ -15,7 +11,6 @@ import type {
 import {
   BLOCK_META,
   BUILT_IN_SECTION_IDS,
-  DEFAULT_HEADER_OPTIONS,
   DEFAULT_LINE_ITEMS_OPTIONS,
   DEFAULT_SUMMARY_OPTIONS,
   getMergeFields
@@ -31,11 +26,10 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-  Switch
+  SelectValue
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   LuExternalLink,
   LuPencil,
@@ -44,14 +38,20 @@ import {
   LuTrash2
 } from "react-icons/lu";
 import { Link } from "react-router";
-import { useUser } from "~/hooks";
 import { path } from "~/utils/path";
+import { ToggleRow } from "./configHelpers";
 import { FOOTER_BLOCK_ID, useDocumentTemplate } from "./context";
-import { LogoCropper } from "./LogoCropper";
+import {
+  FieldConfig,
+  HeaderLogoConfig,
+  LabelBarcodeConfig,
+  LabelFieldNameConfig,
+  LabelLogoConfig
+} from "./labelConfigs";
 import { MergeFieldMenu } from "./MergeFieldMenu";
 import { NumberRow } from "./NumberRow";
 import { SectionFormModal } from "./SectionFormModal";
-import { HEADER_LOGO_ID, useHeaderConfig } from "./useHeaderConfig";
+import { HEADER_LOGO_ID } from "./useHeaderConfig";
 
 /** Append a `{{token}}` snippet to the end of a tiptap doc (inline if possible). */
 function appendText(content: JSONContent, text: string): JSONContent {
@@ -222,27 +222,6 @@ function TypeBadge({ category }: { category: BlockCategory }) {
   return <Badge variant="secondary">{CATEGORY_LABEL[category]}</Badge>;
 }
 
-function ToggleRow({
-  label,
-  checked,
-  onChange
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className="text-sm">{label}</span>
-      <Switch
-        variant="small"
-        checked={checked}
-        onCheckedChange={(value) => onChange(Boolean(value))}
-      />
-    </div>
-  );
-}
-
 /**
  * Header & footer are global shared sections — their fields (logo, which
  * company details show) and banner content are edited in a dialog opened right
@@ -349,297 +328,6 @@ function FooterSettings() {
           onChange={(v) => setSetting("showRegistrationLine", v)}
         />
       </div>
-    </div>
-  );
-}
-
-/**
- * A single authored line. With a `label` it's a key-value; without, plain text.
- * The value is a single-line string (ZPL-safe) and supports merge fields.
- */
-function FieldConfig({ block }: { block: FieldBlock }) {
-  const { updateBlock } = useDocumentTemplate();
-  const insertField = (snippet: string) =>
-    updateBlock(block.id, { value: (block.value ?? "") + snippet });
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="field-label">Label (optional)</Label>
-        <Input
-          id="field-label"
-          value={block.label ?? ""}
-          onChange={(e) => updateBlock(block.id, { label: e.target.value })}
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="field-value">Value</Label>
-          <MergeFieldMenu onInsert={insertField} label="Insert field" />
-        </div>
-        <Input
-          id="field-value"
-          value={block.value ?? ""}
-          onChange={(e) => updateBlock(block.id, { value: e.target.value })}
-        />
-      </div>
-    </div>
-  );
-}
-
-const BARCODE_SYMBOLOGIES: { value: string; label: string }[] = [
-  { value: "pdf417", label: "PDF417" },
-  { value: "code128", label: "Code 128" },
-  { value: "datamatrix", label: "Data Matrix" },
-  { value: "qrcode", label: "QR Code" }
-];
-
-/** Symbology + value + height for a barcode block. */
-function LabelBarcodeConfig({ block }: { block: LabelBarcodeBlock }) {
-  const { updateBlock } = useDocumentTemplate();
-  const insertField = (snippet: string) =>
-    updateBlock(block.id, { value: (block.value ?? "") + snippet });
-
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1.5">
-        <Label>Type</Label>
-        <Select
-          value={block.symbology}
-          onValueChange={(value) =>
-            updateBlock(block.id, {
-              symbology: value as LabelBarcodeBlock["symbology"]
-            })
-          }
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {BARCODE_SYMBOLOGIES.map((s) => (
-              <SelectItem key={s.value} value={s.value}>
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="barcode-value">Value</Label>
-          <MergeFieldMenu onInsert={insertField} label="Insert field" />
-        </div>
-        <Input
-          id="barcode-value"
-          value={block.value ?? ""}
-          onChange={(e) => updateBlock(block.id, { value: e.target.value })}
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label>Placement</Label>
-        <Select
-          value={block.placement}
-          onValueChange={(value) =>
-            updateBlock(block.id, {
-              placement: value as LabelBarcodeBlock["placement"]
-            })
-          }
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="right">Top-right</SelectItem>
-            <SelectItem value="full">Full width</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <NumberRow
-        label="Height (pt)"
-        minValue={16}
-        maxValue={300}
-        value={block.height ?? 56}
-        onChange={(v) => updateBlock(block.id, { height: v })}
-      />
-    </div>
-  );
-}
-
-/**
- * The document header logo, edited inline (no dialog). Local draft for snappy
- * UI; persists to the header section (debounced) so the crop drag doesn't spam
- * the server. The preview refreshes once the section save revalidates.
- */
-function HeaderLogoConfig() {
-  const { company } = useUser();
-  const { section, config, submit } = useHeaderConfig();
-  const [draft, setDraft] = useState(config);
-
-  // Re-seed when the persisted config changes (revalidation / external edit).
-  // biome-ignore lint/correctness/useExhaustiveDependencies: seed on server value only
-  useEffect(() => {
-    setDraft(config);
-  }, [JSON.stringify(config)]);
-
-  // Debounced persist — only when the draft actually diverges from the server
-  // value, so re-seeding after a save can't loop back into another submit.
-  useEffect(() => {
-    if (JSON.stringify(draft) === JSON.stringify(config)) return;
-    const t = setTimeout(() => submit(draft), 400);
-    return () => clearTimeout(t);
-  }, [draft, config, submit]);
-
-  if (!section) {
-    return (
-      <p className="text-xs text-muted-foreground">
-        The header section isn't available yet — save the template first.
-      </p>
-    );
-  }
-
-  const variant = draft.logoVariant ?? "mark";
-  const src =
-    variant === "icon"
-      ? (company?.logoLightIcon ?? company?.logoLight)
-      : (company?.logoLight ?? company?.logoLightIcon);
-  const set = (patch: Partial<typeof draft>) =>
-    setDraft((prev) => ({ ...prev, ...patch }));
-
-  return (
-    <div className="flex flex-col gap-3">
-      {!draft.showLogo && (
-        <p className="text-xs text-muted-foreground">
-          Logo is hidden — turn it on with the eye toggle in the list.
-        </p>
-      )}
-      <div className="flex flex-col gap-1.5">
-        <Label>Logo</Label>
-        <Select
-          value={variant}
-          onValueChange={(value) =>
-            // Switching source invalidates the crop aspect.
-            set({
-              logoVariant: value as typeof draft.logoVariant,
-              logoCrop: undefined
-            })
-          }
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="mark">Wordmark</SelectItem>
-            <SelectItem value="icon">Mark</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      {src ? (
-        <LogoCropper
-          src={src}
-          crop={draft.logoCrop}
-          onChange={(crop) => set({ logoCrop: crop })}
-        />
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          No company logo set — upload one in company settings to crop it.
-        </p>
-      )}
-      <NumberRow
-        label="Height (pt)"
-        minValue={16}
-        maxValue={120}
-        value={draft.logoHeight ?? DEFAULT_HEADER_OPTIONS.logoHeight}
-        onChange={(v) => set({ logoHeight: v })}
-      />
-    </div>
-  );
-}
-
-/** Company logo: B&W toggle + height. */
-function LabelLogoConfig({ block }: { block: LabelLogoBlock }) {
-  const { updateBlock } = useDocumentTemplate();
-  const { company } = useUser();
-  const variant = block.variant ?? "mark";
-  const src =
-    variant === "icon"
-      ? (company?.logoLightIcon ?? company?.logoLight)
-      : (company?.logoLight ?? company?.logoLightIcon);
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1.5">
-        <Label>Logo</Label>
-        <Select
-          value={variant}
-          onValueChange={(value) =>
-            // Switching source invalidates the old crop's aspect.
-            updateBlock(block.id, {
-              variant: value as LabelLogoBlock["variant"],
-              crop: undefined
-            })
-          }
-        >
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="mark">Wordmark</SelectItem>
-            <SelectItem value="icon">Mark</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      {src ? (
-        <LogoCropper
-          src={src}
-          crop={block.crop}
-          onChange={(crop) => updateBlock(block.id, { crop })}
-        />
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          No company logo set — upload one in company settings to crop it.
-        </p>
-      )}
-      <ToggleRow
-        label="Print in black & white"
-        checked={block.monochrome ?? false}
-        onChange={(v) => updateBlock(block.id, { monochrome: v })}
-      />
-      <NumberRow
-        label="Height (pt)"
-        minValue={16}
-        maxValue={160}
-        value={block.height ?? 50}
-        onChange={(v) => updateBlock(block.id, { height: v })}
-      />
-      <p className="text-xs text-muted-foreground">
-        Label printers always print the logo in black & white.
-      </p>
-    </div>
-  );
-}
-
-const LABEL_FIELD_DEFAULT_NAME: Record<LabelNamedBlock["type"], string> = {
-  labelRevision: "Rev",
-  labelQuantity: "Qty",
-  labelTracking: "S/N"
-};
-
-/** Edit the printed name (prefix before the value) of a built-in label field. */
-function LabelFieldNameConfig({ block }: { block: LabelNamedBlock }) {
-  const { updateBlock } = useDocumentTemplate();
-  const placeholder = LABEL_FIELD_DEFAULT_NAME[block.type];
-
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor="label-field-name">Field name</Label>
-      <Input
-        id="label-field-name"
-        value={block.label ?? ""}
-        placeholder={placeholder}
-        onChange={(e) => updateBlock(block.id, { label: e.target.value })}
-      />
-      <p className="text-xs text-muted-foreground">
-        Printed before the value, e.g. “{block.label || placeholder}: …”.
-      </p>
     </div>
   );
 }
