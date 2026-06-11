@@ -13,7 +13,8 @@ import {
   createPurchaseInvoiceFromPurchaseOrder,
   insertPurchaseInvoice,
   PurchaseInvoiceForm,
-  purchaseInvoiceValidator
+  purchaseInvoiceValidator,
+  upsertPurchaseInvoiceLine
 } from "~/modules/invoicing";
 import { setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
@@ -99,6 +100,35 @@ export async function action({ request }: ActionFunctionArgs) {
         error(result.error, "Failed to insert purchase invoice")
       )
     );
+  }
+
+  const extractedLineItemsStr = formData.get("extractedLineItems") as string;
+  let extractedLineItems: any[] = [];
+  if (extractedLineItemsStr) {
+    try {
+      extractedLineItems = JSON.parse(extractedLineItemsStr);
+    } catch {
+      // ignore
+    }
+  }
+
+  if (extractedLineItems.length > 0) {
+    for (const item of extractedLineItems) {
+      if (!item.description && !item.partNumber) continue;
+      await upsertPurchaseInvoiceLine(client, {
+        invoiceId: result.data.id,
+        invoiceLineType: "Comment",
+        description: item.description || item.partNumber || "Line Item",
+        quantity: item.quantity || 1,
+        supplierUnitPrice: item.unitPrice || 0,
+        supplierShippingCost: 0,
+        supplierTaxAmount: 0,
+        locationId: d.locationId,
+        companyId,
+        createdBy: userId,
+        customFields: {}
+      });
+    }
   }
 
   throw redirect(path.to.purchaseInvoice(result.data.id));

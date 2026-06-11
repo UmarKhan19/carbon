@@ -8,7 +8,11 @@ import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { useUrlParams, useUser } from "~/hooks";
 import type { SalesRFQStatusType } from "~/modules/sales";
-import { insertSalesRFQ, salesRfqValidator } from "~/modules/sales";
+import {
+  insertSalesRFQ,
+  salesRfqValidator,
+  upsertSalesRFQLine
+} from "~/modules/sales";
 import { SalesRFQForm } from "~/modules/sales/ui/SalesRFQ";
 import { setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
@@ -45,6 +49,35 @@ export async function action({ request }: ActionFunctionArgs) {
       path.to.salesRfqs,
       await flash(request, error(result.error, "Failed to insert RFQ"))
     );
+  }
+
+  const extractedLineItemsStr = formData.get("extractedLineItems") as string;
+  let extractedLineItems: any[] = [];
+  if (extractedLineItemsStr) {
+    try {
+      extractedLineItems = JSON.parse(extractedLineItemsStr);
+    } catch {
+      // ignore
+    }
+  }
+
+  if (extractedLineItems.length > 0) {
+    let order = 10;
+    for (const item of extractedLineItems) {
+      if (!item.partNumber && !item.description) continue;
+      await upsertSalesRFQLine(client, {
+        salesRfqId: result.data.id,
+        customerPartId: item.partNumber || "Unknown",
+        description: item.description || item.partNumber || "Line Item",
+        quantity: [item.quantity || 1],
+        unitOfMeasureCode: "EA",
+        order: order,
+        companyId,
+        createdBy: userId,
+        customFields: {}
+      });
+      order += 10;
+    }
   }
 
   throw redirect(path.to.salesRfq(result.data.id));

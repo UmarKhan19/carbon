@@ -30,6 +30,7 @@ import {
   SupplierLocation
 } from "~/components/Form";
 import PaymentTerm from "~/components/Form/PaymentTerm";
+import { PdfExtractor } from "~/components/Form/PdfExtractor";
 import {
   usePermissions,
   useRouteData,
@@ -57,6 +58,142 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
     invoiceId ? path.to.purchaseInvoice(invoiceId) : ""
   );
   const isLocked = isPurchaseInvoiceLocked(routeData?.purchaseInvoice?.status);
+  const [extractedSupplierName, setExtractedSupplierName] = useState<
+    string | undefined
+  >();
+  const [extractedLineItems, setExtractedLineItems] = useState<any[]>([]);
+
+  const [formKey, setFormKey] = useState(0);
+  const [currentValues, setCurrentValues] = useState(initialValues);
+
+  const handleExtractionComplete = async (data: Record<string, any>) => {
+    let resolvedSupplierId = currentValues.supplierId;
+    let resolvedPaymentTermId = currentValues.paymentTermId;
+    let resolvedCurrencyCode = currentValues.currencyCode;
+
+    let foundSupplierInDb = false;
+
+    if (carbon) {
+      if (data.supplierName) {
+        const { data: supplierData } = await carbon
+          .from("supplier")
+          .select("id, currencyCode")
+          .ilike("name", `%${data.supplierName.trim()}%`)
+          .limit(1);
+
+        if (supplierData && supplierData.length > 0) {
+          resolvedSupplierId = supplierData[0].id;
+          resolvedCurrencyCode =
+            supplierData[0].currencyCode ?? resolvedCurrencyCode;
+          foundSupplierInDb = true;
+        }
+      }
+
+      if (data.paymentTerms) {
+        const { data: termData } = await carbon
+          .from("paymentTerm")
+          .select("id")
+          .ilike("name", `%${data.paymentTerms}%`)
+          .limit(1);
+
+        if (termData && termData.length > 0) {
+          resolvedPaymentTermId = termData[0].id;
+        }
+      }
+    }
+
+    if (data.currencyCode) {
+      resolvedCurrencyCode = data.currencyCode;
+    }
+
+    setCurrentValues((prev) => ({
+      ...prev,
+      supplierId: resolvedSupplierId || prev.supplierId,
+      invoiceSupplierId: resolvedSupplierId || prev.invoiceSupplierId,
+      supplierReference: data.invoiceNumber || prev.supplierReference,
+      dateIssued: data.invoiceDate || prev.dateIssued,
+      dateDue: data.dueDate || prev.dateDue,
+      currencyCode: resolvedCurrencyCode || prev.currencyCode,
+      paymentTermId: resolvedPaymentTermId || prev.paymentTermId,
+      supplierShippingCost: data.shippingCost || prev.supplierShippingCost
+    }));
+
+    if (data.supplierName && !foundSupplierInDb) {
+      setExtractedSupplierName(data.supplierName);
+      toast.info(
+        t`Extracted supplier "${data.supplierName}" was not found. Please create it or select an existing one.`
+      );
+    } else {
+      setExtractedSupplierName(undefined);
+    }
+
+    if (data.lineItems && Array.isArray(data.lineItems)) {
+      setExtractedLineItems(data.lineItems);
+    }
+
+    if (resolvedSupplierId && resolvedSupplierId !== invoiceSupplier.id) {
+      flushSync(() => {
+        setSupplier({ id: resolvedSupplierId });
+        setInvoiceSupplier({
+          id: resolvedSupplierId,
+          currencyCode: resolvedCurrencyCode ?? undefined,
+          paymentTermId: resolvedPaymentTermId ?? undefined,
+          invoiceSupplierContactId: undefined,
+          invoiceSupplierLocationId: undefined
+        });
+      });
+
+      const [supplierDetails, paymentTermData] = await Promise.all([
+        carbon
+          ?.from("supplier")
+          .select(
+            "currencyCode, purchasingContactId, supplierShipping!supplierId(shippingSupplierLocationId)"
+          )
+          .eq("id", resolvedSupplierId)
+          .single(),
+        carbon
+          ?.from("supplierPayment")
+          .select("*")
+          .eq("supplierId", resolvedSupplierId)
+          .single()
+      ]);
+
+      if (
+        supplierDetails &&
+        !supplierDetails.error &&
+        paymentTermData &&
+        !paymentTermData.error
+      ) {
+        setInvoiceSupplier((prev) => ({
+          ...prev,
+          invoiceSupplierContactId:
+            paymentTermData.data.invoiceSupplierContactId ??
+            supplierDetails.data.purchasingContactId ??
+            undefined,
+          invoiceSupplierLocationId:
+            paymentTermData.data.invoiceSupplierLocationId ??
+            supplierDetails.data.supplierShipping?.shippingSupplierLocationId ??
+            undefined,
+          currencyCode:
+            resolvedCurrencyCode ??
+            supplierDetails.data.currencyCode ??
+            undefined,
+          paymentTermId:
+            resolvedPaymentTermId ??
+            paymentTermData.data.paymentTermId ??
+            undefined
+        }));
+      }
+    } else {
+      setInvoiceSupplier((prev) => ({
+        ...prev,
+        currencyCode: resolvedCurrencyCode ?? prev.currencyCode,
+        paymentTermId: resolvedPaymentTermId ?? prev.paymentTermId
+      }));
+    }
+
+    setFormKey((prev) => prev + 1);
+  };
 
   const [invoiceSupplier, setInvoiceSupplier] = useState<{
     id: string | undefined;
@@ -157,9 +294,10 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
 
   return (
     <ValidatedForm
+      key={formKey}
       method="post"
       validator={purchaseInvoiceValidator}
-      defaultValues={initialValues}
+      defaultValues={currentValues}
       isDisabled={isEditing && isLocked}
     >
       <Card>
@@ -177,7 +315,25 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
           )}
         </CardHeader>
         <CardContent>
+          <PdfExtractor
+            documentType="purchaseInvoice"
+            sourceDocument="Purchase Invoice"
+            sourceDocumentId={initialValues.id}
+            onExtractionComplete={handleExtractionComplete}
+          />
           <Hidden name="id" />
+          <input
+            type="hidden"
+            name="extractedLineItems"
+            value={JSON.stringify(extractedLineItems)}
+          />
+          {currentValues.supplierShippingCost !== undefined && (
+            <input
+              type="hidden"
+              name="supplierShippingCost"
+              value={currentValues.supplierShippingCost}
+            />
+          )}
           {isEditing && <Hidden name="invoiceId" />}
           <VStack>
             <div
@@ -198,6 +354,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               <Supplier
                 name="supplierId"
                 label={t`Supplier`}
+                extractedValue={extractedSupplierName}
                 onChange={onSupplierChange}
                 onlyApproved={supplierApprovalRequired}
               />
@@ -209,6 +366,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
               <Supplier
                 name="invoiceSupplierId"
                 label={t`Invoice Supplier`}
+                extractedValue={extractedSupplierName}
                 value={invoiceSupplier.id}
                 onChange={onInvoiceSupplierChange}
                 onlyApproved={supplierApprovalRequired}

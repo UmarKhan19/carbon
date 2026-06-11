@@ -400,6 +400,7 @@ export async function insertPurchaseInvoice(
     dateDue?: string;
     exchangeRate?: number;
     exchangeRateUpdatedAt?: string;
+    supplierShippingCost?: number;
     customFields?: Json;
   }
 ): Promise<{
@@ -499,6 +500,7 @@ export async function insertPurchaseInvoice(
     shippingTermId,
     incoterm,
     incotermLocation,
+    supplierShippingCost: input.supplierShippingCost ?? 0,
     companyId: input.companyId
   });
 
