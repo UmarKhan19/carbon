@@ -97,6 +97,13 @@ export async function getCompanySettings(
     .single();
 }
 
+export async function getCompany(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client.from("company").select("*").eq("id", companyId).single();
+}
+
 export async function getSerialNumbersForItem(
   client: SupabaseClient<Database>,
   args: {

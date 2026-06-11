@@ -43,7 +43,7 @@ export function generateProductLabelZPL(
   item: ProductLabelItem,
   labelSize: LabelSize,
   template?: DocumentTemplate | null,
-  logo?: { gfa?: string; widthDots?: number } | null
+  logo?: { gfa?: string | null; widthDots?: number } | null
 ): string {
   if (!labelSize.zpl) {
     throw new Error("Invalid label size or missing ZPL configuration");

@@ -5,9 +5,11 @@ import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import {
+  getCompany,
   getCompanySettings,
   getDocumentTemplateConfig
 } from "~/services/inventory.service";
+import { resolveLabelLogo } from "~/services/labelLogo.server";
 import { getTrackedEntity } from "~/services/operations.service";
 import { path } from "~/utils/path";
 
@@ -70,11 +72,16 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "trackingLabel"
   );
 
+  const company = await getCompany(client, companyId);
+  const logo = await resolveLabelLogo(company.data, template, labelSize);
+
   const stream = await renderToStream(
     <ProductLabelPDF
       items={items ?? []}
       labelSize={labelSize}
       template={template}
+      company={company.data as any}
+      logo={logo}
     />
   );
 

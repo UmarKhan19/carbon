@@ -7,6 +7,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { getShipmentTracking } from "~/modules/inventory";
 import { getCompany, getDocumentTemplateConfig } from "~/modules/settings";
+import { resolveLabelLogo } from "~/modules/settings/labelLogo.server";
 import { getCompanySettings } from "~/modules/settings/settings.service";
 import { path } from "~/utils/path";
 
@@ -133,11 +134,15 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "trackingLabel"
   );
 
+  const logo = await resolveLabelLogo(company.data, template, labelSize);
+
   const stream = await renderToStream(
     <ProductLabelPDF
       items={items ?? []}
       labelSize={labelSize}
       template={template}
+      company={company.data as any}
+      logo={logo}
     />
   );
 
