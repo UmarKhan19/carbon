@@ -8,6 +8,7 @@ import {
   updateAssignmentValidator,
   upsertPrinterRoute
 } from "@carbon/printing";
+import { invalidatePrinterCache } from "@carbon/printing/printing.server";
 import {
   Button,
   Card,
@@ -45,6 +46,7 @@ import {
   LuEllipsisVertical,
   LuHandCoins,
   LuMapPin,
+  LuPackage,
   LuPlay,
   LuPlus,
   LuPrinter,
@@ -172,6 +174,8 @@ export async function action({ request }: ActionFunctionArgs) {
       if (result.error)
         return { success: false, message: result.error.message };
 
+      await invalidatePrinterCache(companyId);
+
       return {
         success: true,
         message: validation.data.id
@@ -263,6 +267,7 @@ export async function action({ request }: ActionFunctionArgs) {
             defaultAutoPrint: true,
             shipping: { ...emptyContext },
             receiving: { ...emptyContext },
+            inventory: { ...emptyContext },
             workCenters: {}
           };
 
@@ -279,6 +284,12 @@ export async function action({ request }: ActionFunctionArgs) {
           break;
         case "receiving":
           locationAssignment.receiving = {
+            printerRouteId: printerRouteId || null,
+            autoPrint
+          };
+          break;
+        case "inventory":
+          locationAssignment.inventory = {
             printerRouteId: printerRouteId || null,
             autoPrint
           };
@@ -307,6 +318,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
       if (result.error)
         return { success: false, message: result.error.message };
+
+      await invalidatePrinterCache(companyId);
 
       return { success: true, message: "Assignment updated" };
     }
@@ -778,6 +791,35 @@ function LocationSection({
             locationId,
             context: "receiving",
             printerRouteId: assignment?.receiving?.printerRouteId ?? undefined,
+            autoPrint
+          })
+        }
+      />
+
+      {/* Inventory */}
+      <AssignmentRow
+        label="Inventory"
+        icon={<LuPackage />}
+        isIndented
+        printerRouteId={assignment?.inventory?.printerRouteId ?? null}
+        inheritedName={defaultPrinterName}
+        autoPrint={assignment?.inventory?.autoPrint ?? true}
+        printerRouteOptions={printerRouteOptions}
+        onPrinterChange={(printerRouteId) =>
+          onUpdate({
+            locationId,
+            context: "inventory",
+            printerRouteId,
+            autoPrint: printerRouteId
+              ? true
+              : (assignment?.inventory?.autoPrint ?? false)
+          })
+        }
+        onAutoPrintChange={(autoPrint) =>
+          onUpdate({
+            locationId,
+            context: "inventory",
+            printerRouteId: assignment?.inventory?.printerRouteId ?? undefined,
             autoPrint
           })
         }

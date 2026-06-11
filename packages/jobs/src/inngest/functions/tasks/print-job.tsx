@@ -4,21 +4,23 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
 import { KanbanLabelPDF } from "@carbon/documents/pdf";
-import { generateProductLabelZPL } from "@carbon/documents/zpl";
+import {
+  generateProductLabelZPL,
+  generateStorageUnitLabelZPL
+} from "@carbon/documents/zpl";
 import { BINDERY_PRESS_API_KEY, ERP_URL } from "@carbon/env";
-import type {
-  DocumentTypeDefinition,
-  PrintingSettings
-} from "@carbon/printing";
+import type { DocumentTypeDefinition } from "@carbon/printing";
 import {
   createPrintJob,
   getDocumentType,
   getDocumentTypesForSource,
-  getPrinterRoute,
-  renderWithBinderyPress,
   updatePrintJobContent,
   updatePrintJobStatus
 } from "@carbon/printing";
+import {
+  getCachedPrinterConfig,
+  renderWithBinderyPress
+} from "@carbon/printing/printing.server";
 import { labelSizes, type ProductLabelItem } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -32,6 +34,7 @@ type Payload = {
   userId: string;
   locationId?: string;
   workCenterId?: string;
+  printerRouteId?: string;
 };
 
 type GeneratedContent = {
@@ -53,7 +56,8 @@ type ResolverFn = (
 
 const resolvers: Record<string, ResolverFn> = {
   productLabel: resolveTrackedEntityData,
-  kanbanCard: resolveKanbanData
+  kanbanCard: resolveKanbanData,
+  storageUnitLabel: resolveStorageUnitData
 };
 
 export const printJobFunction = inngest.createFunction(
@@ -68,7 +72,8 @@ export const printJobFunction = inngest.createFunction(
       companyId,
       userId,
       locationId,
-      workCenterId
+      workCenterId,
+      printerRouteId: explicitPrinterRouteId
     } = payload;
 
     const thirtySecondsAgo = new Date(Date.now() - 30_000).toISOString();
@@ -86,13 +91,45 @@ export const printJobFunction = inngest.createFunction(
       );
     }
 
-    const { data: companySettings } = await client
-      .from("companySettings")
-      .select("printing")
-      .eq("id", companyId)
-      .single();
+    let printerConfig: Awaited<ReturnType<typeof getCachedPrinterConfig>> =
+      null;
 
-    const printing = companySettings?.printing as PrintingSettings | null;
+    if (explicitPrinterRouteId) {
+      const { data: route } = await client
+        .from("printerRoute")
+        .select("id, name, format, mediaSizeId, printerUrl, apiKey, templateId")
+        .eq("id", explicitPrinterRouteId)
+        .eq("companyId", companyId)
+        .single();
+      if (route) {
+        printerConfig = {
+          printerUrl: route.printerUrl,
+          format: route.format as "zpl" | "pdf",
+          mediaSizeId: route.mediaSizeId,
+          templateId: route.templateId
+        };
+      }
+    } else if (locationId) {
+      const context =
+        sourceDocument === "Shipment"
+          ? ("shipping" as const)
+          : sourceDocument === "Receipt"
+            ? ("receiving" as const)
+            : sourceDocument === "StockTransfer" ||
+                sourceDocument === "StorageUnit"
+              ? ("inventory" as const)
+              : workCenterId
+                ? ("workCenter" as const)
+                : ("default" as const);
+
+      printerConfig = await getCachedPrinterConfig(
+        client,
+        companyId,
+        locationId,
+        context,
+        workCenterId
+      );
+    }
 
     const documentTypeIds = getDocumentTypesForSource(sourceDocument);
     const allPrintJobIds: string[] = [];
@@ -107,10 +144,10 @@ export const printJobFunction = inngest.createFunction(
         sourceDocumentId,
         companyId,
         userId,
-        locationId,
-        workCenterId,
-        printing,
-        mediaSizeId: "label2x1"
+        printerUrl: printerConfig?.printerUrl ?? "",
+        format: printerConfig?.format ?? docType.defaultFormat,
+        mediaSizeId: printerConfig?.mediaSizeId ?? "label2x1",
+        templateId: printerConfig?.templateId ?? null
       });
 
       allPrintJobIds.push(...printJobIds);
@@ -134,10 +171,10 @@ async function processDocumentType(
     sourceDocumentId: string;
     companyId: string;
     userId: string;
-    locationId?: string;
-    workCenterId?: string;
-    printing: PrintingSettings | null;
+    printerUrl: string;
+    format: "zpl" | "pdf";
     mediaSizeId: string;
+    templateId: string | null;
   }
 ): Promise<string[]> {
   const {
@@ -146,49 +183,11 @@ async function processDocumentType(
     sourceDocumentId,
     companyId,
     userId,
-    locationId,
-    workCenterId,
-    printing,
-    mediaSizeId: fallbackMediaSizeId
+    printerUrl,
+    format,
+    mediaSizeId,
+    templateId
   } = ctx;
-
-  const locationAssignment = locationId
-    ? (printing?.assignments?.[locationId] ?? null)
-    : null;
-
-  let printerRouteId: string | null = null;
-  if (locationAssignment) {
-    if (sourceDocument === "Shipment") {
-      printerRouteId = locationAssignment.shipping.printerRouteId;
-    } else if (sourceDocument === "Receipt") {
-      printerRouteId = locationAssignment.receiving.printerRouteId;
-    } else if (workCenterId) {
-      printerRouteId =
-        locationAssignment.workCenters[workCenterId]?.printerRouteId ?? null;
-    }
-    if (!printerRouteId) {
-      printerRouteId = locationAssignment.defaultPrinterRouteId;
-    }
-  }
-
-  let printerUrl = "";
-  let format: "zpl" | "pdf" = docType.defaultFormat;
-  let mediaSizeId = fallbackMediaSizeId;
-  let templateId: string | null = null;
-
-  if (printerRouteId) {
-    const { data: route } = await getPrinterRoute(
-      client,
-      printerRouteId,
-      companyId
-    );
-    if (route) {
-      printerUrl = route.printerUrl;
-      format = route.format as "zpl" | "pdf";
-      if (route.mediaSizeId) mediaSizeId = route.mediaSizeId;
-      templateId = route.templateId ?? null;
-    }
-  }
 
   const resolver = resolvers[docType.id];
   if (!resolver) {
@@ -409,6 +408,8 @@ async function renderBuiltIn(
       return renderBuiltInProductLabel(resolved, format, mediaSizeId);
     case "kanbanCard":
       return renderBuiltInKanban(client, resolved, format);
+    case "storageUnitLabel":
+      return renderBuiltInStorageUnitLabel(resolved, format, mediaSizeId);
     default:
       throw new Error(`No built-in renderer for ${docType.id}`);
   }
@@ -627,6 +628,45 @@ async function queryTrackedEntities(
         readableId: trackedEntity?.readableId ?? null
       };
     }
+    case "StockTransfer": {
+      const { data: stockTransfer } = await client
+        .from("stockTransfer")
+        .select("stockTransferId")
+        .eq("id", sourceDocumentId)
+        .single();
+
+      const { data: lines } = await client
+        .from("stockTransferLine")
+        .select("trackedEntityId")
+        .eq("stockTransferId", sourceDocumentId)
+        .not("trackedEntityId", "is", null);
+
+      const entityIds = [
+        ...new Set(
+          (lines ?? [])
+            .map((l) => l.trackedEntityId)
+            .filter((id): id is string => !!id)
+        )
+      ];
+
+      if (entityIds.length === 0) {
+        return {
+          trackedEntities: null,
+          readableId: stockTransfer?.stockTransferId ?? null
+        };
+      }
+
+      const { data: trackedEntities } = await client
+        .from("trackedEntity")
+        .select("*")
+        .in("id", entityIds)
+        .eq("companyId", companyId);
+
+      return {
+        trackedEntities,
+        readableId: stockTransfer?.stockTransferId ?? null
+      };
+    }
     default:
       return { trackedEntities: null, readableId: null };
   }
@@ -666,4 +706,49 @@ async function enrichTrackedEntities(
       };
     })
     .filter(Boolean) as ProductLabelItem[];
+}
+
+async function resolveStorageUnitData(
+  client: SupabaseClient<Database>,
+  _sourceDocument: string,
+  sourceDocumentId: string,
+  _companyId: string
+): Promise<ResolvedData | null> {
+  const { data: unit } = await client
+    .from("storageUnit")
+    .select("id, name")
+    .eq("id", sourceDocumentId)
+    .single();
+
+  if (!unit) return null;
+
+  return {
+    items: [{ name: unit.name, id: unit.id }],
+    readableId: unit.name
+  };
+}
+
+function renderBuiltInStorageUnitLabel(
+  resolved: ResolvedData,
+  format: "zpl" | "pdf",
+  mediaSizeId: string
+): GeneratedContent[] {
+  if (format === "pdf") {
+    throw new Error(
+      "Built-in storage unit label generation only supports ZPL printers. Use a BinderyPress template for PDF output."
+    );
+  }
+
+  const mediaSize = labelSizes.find((s) => s.id === mediaSizeId);
+  if (!mediaSize?.zpl) {
+    throw new Error(`Media size ${mediaSizeId} does not support ZPL`);
+  }
+
+  return resolved.items.map((item) => ({
+    content: generateStorageUnitLabelZPL(
+      { name: item.name as string, id: item.id as string },
+      mediaSize
+    ),
+    contentType: "zpl" as const
+  }));
 }

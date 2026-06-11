@@ -263,6 +263,9 @@ msgstr "停机"
 msgid "Download"
 msgstr "下载"
 
+msgid "Download Labels"
+msgstr ""
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "拖放文件到此处，或点击选择文件"
 
@@ -674,6 +677,9 @@ msgstr "上一个"
 msgid "Preventive"
 msgstr "预防性"
 
+msgid "Print"
+msgstr ""
+
 msgid "Priority"
 msgstr "优先级"
 
@@ -798,6 +804,9 @@ msgstr "选择物料..."
 #. placeholder {0}: index + 1
 msgid "Select Batch {0}"
 msgstr "选择批次 {0}"
+
+msgid "Select Printer"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
@@ -948,9 +957,6 @@ msgstr "合计：{0}"
 
 msgid "Tracking"
 msgstr "追踪"
-
-msgid "Tracking Labels"
-msgstr "追踪标签"
 
 msgid "Type a message..."
 msgstr "输入消息..."

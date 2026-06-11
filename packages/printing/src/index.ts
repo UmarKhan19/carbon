@@ -1,6 +1,3 @@
-export { sendToProxyBox } from "./delivery/proxybox";
-export { renderWithBinderyPress } from "./generation/binderypress";
-
 export {
   printerRouteValidator,
   reprintValidator,

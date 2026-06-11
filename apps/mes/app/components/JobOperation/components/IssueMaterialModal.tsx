@@ -43,7 +43,6 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
-
 import { getItemReadableId } from "@carbon/utils";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { useNumberFormatter } from "@react-aria/i18n";
@@ -56,7 +55,6 @@ import {
   LuCirclePlus,
   LuGitBranch,
   LuList,
-  LuPrinter,
   LuQrCode,
   LuScale,
   LuTrash,
@@ -64,6 +62,7 @@ import {
   LuX
 } from "react-icons/lu";
 import { useFetcher } from "react-router";
+import { PrintButton } from "~/components";
 import type {
   getBatchNumbersForItem,
   getSerialNumbersForItem
@@ -87,6 +86,8 @@ type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
 export function IssueMaterialModal({
   operationId,
   expiredEntityPolicy = "Block",
+  locationId,
+  workCenterId,
   material,
   parentId,
   parentIdIsSerialized,
@@ -95,6 +96,8 @@ export function IssueMaterialModal({
 }: {
   operationId: string;
   expiredEntityPolicy?: ExpiredEntityPolicy;
+  locationId?: string;
+  workCenterId?: string;
   material?: JobMaterial;
   parentId?: string;
   parentIdIsSerialized?: boolean;
@@ -889,21 +892,17 @@ export function IssueMaterialModal({
                             </span>
                           </div>
                           <div className="flex gap-2 mt-4">
-                            <Button
-                              variant="primary"
-                              leftIcon={<LuPrinter />}
-                              onClick={() => {
-                                window.open(
-                                  window.location.origin +
-                                    path.to.file.trackedEntityLabelPdf(
-                                      split.newId
-                                    ),
-                                  "_blank"
-                                );
+                            <PrintButton
+                              sourceDocument="Split"
+                              sourceDocumentId={split.newId}
+                              locationId={locationId}
+                              context="workCenter"
+                              workCenterId={workCenterId}
+                              fileRoutes={{
+                                pdf: path.to.file.trackedEntityLabelPdf,
+                                zpl: path.to.file.trackedEntityLabelZpl
                               }}
-                            >
-                              Print Label
-                            </Button>
+                            />
                             <Button
                               variant="secondary"
                               leftIcon={<LuArrowRightLeft />}

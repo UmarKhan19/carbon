@@ -5,6 +5,7 @@ import FilePreview from "./FilePreview";
 import Hyperlink from "./Hyperlink";
 import { DeadlineIcon, FileIcon, OperationStatusIcon } from "./Icons";
 import { OperationsList } from "./OperationsList";
+import { PrintButton } from "./PrintButton";
 
 export {
   AppSidebar,
@@ -14,5 +15,6 @@ export {
   FilePreview,
   Hyperlink,
   OperationsList,
-  OperationStatusIcon
+  OperationStatusIcon,
+  PrintButton
 };

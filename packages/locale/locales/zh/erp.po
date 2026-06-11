@@ -2228,9 +2228,6 @@ msgstr "默认单位"
 msgid "Defaults"
 msgstr "默认值"
 
-msgid "Define the default size of the product label. Used for tracking items in inventory."
-msgstr "定义产品标签的默认大小。用于跟踪库存中的物品。"
-
 msgid "Define the terms and conditions for purchase orders"
 msgstr "定义采购订单的条款和条件"
 
@@ -2602,6 +2599,9 @@ msgstr "下载"
 
 msgid "Download CSV"
 msgstr "下载 CSV"
+
+msgid "Download Labels"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "下载 PDF"
@@ -5955,6 +5955,13 @@ msgstr "定价规则"
 msgid "Pricing Trace"
 msgstr "定价追踪"
 
+msgid "Print"
+msgstr ""
+
+#. placeholder {0}: selectedIds.size
+msgid "Print {0} Labels"
+msgstr ""
+
 msgid "Print Jobs"
 msgstr ""
 
@@ -6003,9 +6010,6 @@ msgstr "流程类型"
 
 msgid "Processes"
 msgstr "流程"
-
-msgid "Product Label Size"
-msgstr "产品标签尺寸"
 
 msgid "Production"
 msgstr "生产"
@@ -6977,6 +6981,9 @@ msgstr "选择项目类型"
 
 msgid "Select items"
 msgstr "选择项目"
+
+msgid "Select Printer"
+msgstr ""
 
 msgid "Select Quantities"
 msgstr "选择数量"
@@ -8063,9 +8070,6 @@ msgstr "追踪"
 
 msgid "Tracking ID"
 msgstr "追踪ID"
-
-msgid "Tracking Labels"
-msgstr "追踪标签"
 
 msgid "Tracking Number"
 msgstr "跟踪号码"

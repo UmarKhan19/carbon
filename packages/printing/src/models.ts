@@ -14,7 +14,13 @@ export const printerRouteValidator = z.object({
 
 export const updateAssignmentValidator = z.object({
   locationId: z.string().min(1),
-  context: z.enum(["default", "shipping", "receiving", "workCenter"]),
+  context: z.enum([
+    "default",
+    "shipping",
+    "receiving",
+    "inventory",
+    "workCenter"
+  ]),
   contextId: zfd.text(z.string().optional()),
   printerRouteId: zfd.text(z.string().optional()),
   autoPrint: zfd.checkbox()

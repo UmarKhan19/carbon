@@ -2228,9 +2228,6 @@ msgstr "Unidade Padrão"
 msgid "Defaults"
 msgstr "Padrões"
 
-msgid "Define the default size of the product label. Used for tracking items in inventory."
-msgstr "Defina o tamanho padrão do rótulo do produto. Usado para rastrear itens no inventário."
-
 msgid "Define the terms and conditions for purchase orders"
 msgstr "Defina os termos e condições para pedidos de compra"
 
@@ -2602,6 +2599,9 @@ msgstr "Baixar"
 
 msgid "Download CSV"
 msgstr "Baixar CSV"
+
+msgid "Download Labels"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "Baixar PDF"
@@ -5955,6 +5955,13 @@ msgstr "Regras de Preço"
 msgid "Pricing Trace"
 msgstr "Rastreamento de Preços"
 
+msgid "Print"
+msgstr ""
+
+#. placeholder {0}: selectedIds.size
+msgid "Print {0} Labels"
+msgstr ""
+
 msgid "Print Jobs"
 msgstr ""
 
@@ -6003,9 +6010,6 @@ msgstr "Tipo de Processo"
 
 msgid "Processes"
 msgstr "Processos"
-
-msgid "Product Label Size"
-msgstr "Tamanho da Etiqueta do Produto"
 
 msgid "Production"
 msgstr "Produção"
@@ -6977,6 +6981,9 @@ msgstr "Selecionar Tipo de Item"
 
 msgid "Select items"
 msgstr "Selecionar itens"
+
+msgid "Select Printer"
+msgstr ""
 
 msgid "Select Quantities"
 msgstr "Selecionar Quantidades"
@@ -8063,9 +8070,6 @@ msgstr "Rastreamento"
 
 msgid "Tracking ID"
 msgstr "ID de Rastreamento"
-
-msgid "Tracking Labels"
-msgstr "Etiquetas de Rastreamento"
 
 msgid "Tracking Number"
 msgstr "Número de Rastreamento"

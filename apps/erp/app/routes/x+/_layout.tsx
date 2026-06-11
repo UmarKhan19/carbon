@@ -12,6 +12,7 @@ import {
   updateCompanySession
 } from "@carbon/auth/session.server";
 import { isAuditLogEnabled } from "@carbon/database/audit";
+import { getPrinterRoutes } from "@carbon/printing";
 import {
   ItarPopup,
   TooltipProvider,
@@ -113,7 +114,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     groups,
     defaults,
     auditLogEnabled,
-    modulePreferences
+    modulePreferences,
+    printerRoutes
   ] = await Promise.all([
     getCompanies(client, userId),
     getEmployeeCompanies(client, userId),
@@ -127,7 +129,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     getUserGroups(client, userId),
     getUserDefaults(client, userId, companyId),
     isAuditLogEnabled(client, companyId),
-    getModulePreferences(client, userId, companyId)
+    getModulePreferences(client, userId, companyId),
+    getPrinterRoutes(client, companyId)
   ]);
 
   if (!claims || user.error || !user.data || !groups.data) {
@@ -203,6 +206,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     user: user.data,
     modulePreferences: modulePreferences.data ?? [],
     savedViews: savedViews.data ?? [],
+    printerRoutes: printerRoutes.data ?? [],
     supplierApprovalRequired: isApprovalRequired(client, "supplier", companyId),
     openClockEntry: companySettings.data?.timeCardEnabled
       ? getOpenClockEntry(client, userId, companyId)

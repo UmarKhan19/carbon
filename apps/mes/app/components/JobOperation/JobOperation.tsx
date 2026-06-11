@@ -28,7 +28,6 @@ import {
   ScrollArea,
   Separator,
   SidebarTrigger,
-  SplitButton,
   Table,
   Tabs,
   TabsContent,
@@ -46,6 +45,7 @@ import {
   useDisclosure,
   useKeyboardWedge,
   useMode,
+  useRouteData,
   VStack
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
@@ -53,8 +53,7 @@ import {
   convertDateStringToIsoString,
   convertKbToString,
   formatDurationMilliseconds,
-  getItemReadableId,
-  labelSizes
+  getItemReadableId
 } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestSingleResponse } from "@supabase/supabase-js";
@@ -78,7 +77,6 @@ import {
   LuGitPullRequest,
   LuHammer,
   LuHardHat,
-  LuPrinter,
   LuQrCode,
   LuSquareUser,
   LuTimer,
@@ -90,7 +88,8 @@ import {
   DeadlineIcon,
   FileIcon,
   FilePreview,
-  OperationStatusIcon
+  OperationStatusIcon,
+  PrintButton
 } from "~/components";
 import {
   MethodIcon,
@@ -386,36 +385,10 @@ export const JobOperation = ({
     attributeRecordDeleteModal.onClose();
   };
 
-  const navigateToTrackingLabels = (
-    zpl?: boolean,
-    {
-      labelSize,
-      trackedEntityId
-    }: { labelSize?: string; trackedEntityId?: string } = {}
-  ) => {
-    if (!window) return;
-    if (!operationId) return;
-
-    if (zpl) {
-      window.open(
-        window.location.origin +
-          path.to.file.operationLabelsZpl(operationId, {
-            labelSize,
-            trackedEntityId
-          }),
-        "_blank"
-      );
-    } else {
-      window.open(
-        window.location.origin +
-          path.to.file.operationLabelsPdf(operationId, {
-            labelSize,
-            trackedEntityId
-          }),
-        "_blank"
-      );
-    }
-  };
+  const layoutData = useRouteData<{ location: string }>(
+    path.to.authenticatedRoot
+  );
+  const locationId = layoutData?.location;
 
   const completeFetcher = useFetcher<Result>();
   useKeyboardWedge({
@@ -1390,6 +1363,8 @@ export const JobOperation = ({
                             <IssueMaterialModal
                               operationId={operation.id}
                               expiredEntityPolicy={expiredEntityPolicy}
+                              locationId={locationId}
+                              workCenterId={operation.workCenterId ?? undefined}
                               material={selectedMaterial ?? undefined}
                               parentId={trackedEntityId ?? ""}
                               parentIdIsSerialized={
@@ -1593,21 +1568,17 @@ export const JobOperation = ({
                       </Heading>
                       {trackedEntities?.length > 0 && (
                         <HStack>
-                          <SplitButton
-                            leftIcon={<LuQrCode />}
-                            size="lg"
-                            dropdownItems={labelSizes.map((size) => ({
-                              label: size.name,
-                              onClick: () =>
-                                navigateToTrackingLabels(!!size.zpl, {
-                                  labelSize: size.id
-                                })
-                            }))}
-                            // TODO: if we knew the preferred label size, we could use that here
-                            onClick={() => navigateToTrackingLabels(false)}
-                          >
-                            <Trans>Tracking Labels</Trans>
-                          </SplitButton>
+                          <PrintButton
+                            sourceDocument="Operation"
+                            sourceDocumentId={operationId!}
+                            locationId={locationId}
+                            context="workCenter"
+                            workCenterId={operation.workCenterId ?? undefined}
+                            fileRoutes={{
+                              pdf: path.to.file.operationLabelsPdf,
+                              zpl: path.to.file.operationLabelsZpl
+                            }}
+                          />
                           <Button
                             variant="secondary"
                             size="lg"
@@ -1657,15 +1628,17 @@ export const JobOperation = ({
 
                               <Td className="text-right">
                                 <div className="flex justify-end gap-2">
-                                  <IconButton
-                                    aria-label="Print Label"
-                                    size="lg"
-                                    icon={<LuPrinter />}
-                                    variant="secondary"
-                                    onClick={() => {
-                                      navigateToTrackingLabels(false, {
-                                        trackedEntityId: entity.id
-                                      });
+                                  <PrintButton
+                                    sourceDocument="Entity"
+                                    sourceDocumentId={entity.id}
+                                    locationId={locationId}
+                                    context="workCenter"
+                                    workCenterId={
+                                      operation.workCenterId ?? undefined
+                                    }
+                                    fileRoutes={{
+                                      pdf: path.to.file.trackedEntityLabelPdf,
+                                      zpl: path.to.file.trackedEntityLabelZpl
                                     }}
                                   />
                                   <Button

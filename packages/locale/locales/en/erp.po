@@ -2228,9 +2228,6 @@ msgstr "Default Unit"
 msgid "Defaults"
 msgstr "Defaults"
 
-msgid "Define the default size of the product label. Used for tracking items in inventory."
-msgstr "Define the default size of the product label. Used for tracking items in inventory."
-
 msgid "Define the terms and conditions for purchase orders"
 msgstr "Define the terms and conditions for purchase orders"
 
@@ -2602,6 +2599,9 @@ msgstr "Download"
 
 msgid "Download CSV"
 msgstr "Download CSV"
+
+msgid "Download Labels"
+msgstr "Download Labels"
 
 msgid "Download PDF"
 msgstr "Download PDF"
@@ -5955,6 +5955,13 @@ msgstr "Pricing Rules"
 msgid "Pricing Trace"
 msgstr "Pricing Trace"
 
+msgid "Print"
+msgstr "Print"
+
+#. placeholder {0}: selectedIds.size
+msgid "Print {0} Labels"
+msgstr "Print {0} Labels"
+
 msgid "Print Jobs"
 msgstr "Print Jobs"
 
@@ -6003,9 +6010,6 @@ msgstr "Process Type"
 
 msgid "Processes"
 msgstr "Processes"
-
-msgid "Product Label Size"
-msgstr "Product Label Size"
 
 msgid "Production"
 msgstr "Production"
@@ -6977,6 +6981,9 @@ msgstr "Select Item Type"
 
 msgid "Select items"
 msgstr "Select items"
+
+msgid "Select Printer"
+msgstr "Select Printer"
 
 msgid "Select Quantities"
 msgstr "Select Quantities"
@@ -8063,9 +8070,6 @@ msgstr "Tracking"
 
 msgid "Tracking ID"
 msgstr "Tracking ID"
-
-msgid "Tracking Labels"
-msgstr "Tracking Labels"
 
 msgid "Tracking Number"
 msgstr "Tracking Number"

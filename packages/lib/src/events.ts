@@ -286,6 +286,7 @@ export type Events = {
       userId: string;
       locationId?: string;
       workCenterId?: string;
+      printerRouteId?: string;
     };
   };
 

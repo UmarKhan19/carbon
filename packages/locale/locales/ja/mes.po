@@ -263,6 +263,9 @@ msgstr "停止"
 msgid "Download"
 msgstr "ダウンロード"
 
+msgid "Download Labels"
+msgstr ""
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "ファイルをここにドラッグ＆ドロップするか、クリックしてファイルを選択してください"
 
@@ -674,6 +677,9 @@ msgstr "前へ"
 msgid "Preventive"
 msgstr "予防保全"
 
+msgid "Print"
+msgstr ""
+
 msgid "Priority"
 msgstr "優先度"
 
@@ -798,6 +804,9 @@ msgstr "品目を選択..."
 #. placeholder {0}: index + 1
 msgid "Select Batch {0}"
 msgstr "バッチ {0} を選択"
+
+msgid "Select Printer"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
@@ -948,9 +957,6 @@ msgstr "合計: {0}"
 
 msgid "Tracking"
 msgstr "追跡"
-
-msgid "Tracking Labels"
-msgstr "追跡ラベル"
 
 msgid "Type a message..."
 msgstr "メッセージを入力..."

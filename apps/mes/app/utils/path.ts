@@ -115,6 +115,7 @@ export const path = {
     issueTrackedEntity: `${x}/issue-tracked-entity`,
     qualityIssueNew: `${x}/quality-issue/new`,
     location: `${x}/location`,
+    manualPrint: `${x}/print`,
     login: "/login",
     logout: "/logout",
     maintenance: `${x}/maintenance`,

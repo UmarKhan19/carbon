@@ -263,6 +263,9 @@ msgstr "Fermo"
 msgid "Download"
 msgstr "Scarica"
 
+msgid "Download Labels"
+msgstr ""
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Trascina e rilascia un file qui, o clicca per selezionare un file"
 
@@ -674,6 +677,9 @@ msgstr "Precedente"
 msgid "Preventive"
 msgstr "Preventivo"
 
+msgid "Print"
+msgstr ""
+
 msgid "Priority"
 msgstr "Priorità"
 
@@ -798,6 +804,9 @@ msgstr "Seleziona un articolo..."
 #. placeholder {0}: index + 1
 msgid "Select Batch {0}"
 msgstr "Seleziona Lotto {0}"
+
+msgid "Select Printer"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
@@ -948,9 +957,6 @@ msgstr "Totale: {0}"
 
 msgid "Tracking"
 msgstr "Tracciamento"
-
-msgid "Tracking Labels"
-msgstr "Etichette di Tracciabilità"
 
 msgid "Type a message..."
 msgstr "Scrivi un messaggio..."

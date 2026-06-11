@@ -125,8 +125,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
         sourceDocument: "Split",
         sourceDocumentId: transferResult.splitEntityId,
         companyId,
-        userId
+        userId,
+        locationId: locationId || undefined
       });
+      // Reprint the original batch too — its quantity changed in the split
+      if (trackedEntityId) {
+        await trigger("print-job", {
+          sourceDocument: "Entity",
+          sourceDocumentId: trackedEntityId,
+          companyId,
+          userId,
+          locationId: locationId || undefined
+        });
+      }
     } catch (e) {
       console.error("Auto-print for split entity failed:", e);
     }

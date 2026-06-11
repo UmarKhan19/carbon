@@ -27,7 +27,6 @@ import {
   ModalTitle,
   NumberField,
   NumberInput,
-  SplitButton,
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -36,7 +35,6 @@ import {
   VStack
 } from "@carbon/react";
 import type { TrackedEntityAttributes } from "@carbon/utils";
-import { labelSizes } from "@carbon/utils";
 import { parseDate } from "@internationalized/date";
 import { Trans, useLingui } from "@lingui/react/macro";
 import type { PostgrestResponse } from "@supabase/supabase-js";
@@ -46,7 +44,6 @@ import {
   LuCircleAlert,
   LuEllipsisVertical,
   LuGroup,
-  LuQrCode,
   LuSplit,
   LuTrash,
   LuX
@@ -60,7 +57,12 @@ import {
   useRevalidator,
   useSubmit
 } from "react-router";
-import { DocumentPreview, Empty, ItemThumbnail } from "~/components";
+import {
+  DocumentPreview,
+  Empty,
+  ItemThumbnail,
+  PrintButton
+} from "~/components";
 import DocumentIcon from "~/components/DocumentIcon";
 import { Enumerable } from "~/components/Enumerable";
 import FileDropzone from "~/components/FileDropzone";
@@ -822,28 +824,6 @@ function BatchForm({
     updateBatchNumber(newValues);
   };
 
-  const navigateToLineTrackingLabels = (zpl?: boolean, labelSize?: string) => {
-    if (!window) return;
-    if (zpl) {
-      window.open(
-        window.location.origin +
-          path.to.file.receiptLabelsZpl(receipt?.id ?? "", {
-            lineId: line.id!,
-            labelSize
-          }),
-        "_blank"
-      );
-    } else {
-      window.open(
-        window.location.origin +
-          path.to.file.receiptLabelsPdf(receipt?.id ?? "", {
-            lineId: line.id!,
-            labelSize
-          }),
-        "_blank"
-      );
-    }
-  };
   const propertiesDisclosure = useDisclosure();
 
   return (
@@ -851,18 +831,24 @@ function BatchForm({
       <div className="flex justify-between items-center gap-4">
         <Heading size="h4">Batch Properties</Heading>
         <div className="flex items-center gap-2">
-          <SplitButton
-            size="sm"
-            leftIcon={<LuQrCode />}
-            dropdownItems={labelSizes.map((size) => ({
-              label: size.name,
-              onClick: () => navigateToLineTrackingLabels(!!size.zpl, size.id)
-            }))}
-            onClick={() => navigateToLineTrackingLabels(false)}
-            variant="secondary"
-          >
-            Tracking Labels
-          </SplitButton>
+          <PrintButton
+            sourceDocument="Receipt"
+            sourceDocumentId={receipt?.id ?? ""}
+            locationId={receipt?.locationId ?? undefined}
+            context="receiving"
+            fileRoutes={{
+              pdf: (id, opts) =>
+                path.to.file.receiptLabelsPdf(id, {
+                  ...opts,
+                  lineId: line.id!
+                }),
+              zpl: (id, opts) =>
+                path.to.file.receiptLabelsZpl(id, {
+                  ...opts,
+                  lineId: line.id!
+                })
+            }}
+          />
           <Button
             variant="secondary"
             leftIcon={<LuGroup />}
@@ -1075,28 +1061,6 @@ function SerialForm({
     [line.id, line.itemId, receipt?.id, validateSerialNumber, expiryDate]
   );
 
-  const navigateToLineTrackingLabels = (zpl?: boolean, labelSize?: string) => {
-    if (!window) return;
-    if (zpl) {
-      window.open(
-        window.location.origin +
-          path.to.file.receiptLabelsZpl(receipt?.id ?? "", {
-            lineId: line.id!,
-            labelSize
-          }),
-        "_blank"
-      );
-    } else {
-      window.open(
-        window.location.origin +
-          path.to.file.receiptLabelsPdf(receipt?.id ?? "", {
-            lineId: line.id!,
-            labelSize
-          }),
-        "_blank"
-      );
-    }
-  };
   const propertiesDisclosure = useDisclosure();
   console.log({ serialNumbers, expiryDate });
   return (
@@ -1104,18 +1068,24 @@ function SerialForm({
       <div className="flex justify-between items-center gap-6">
         <Heading size="h4">Serial Numbers</Heading>
         <div className="flex items-center gap-2">
-          <SplitButton
-            size="sm"
-            leftIcon={<LuQrCode />}
-            dropdownItems={labelSizes.map((size) => ({
-              label: size.name,
-              onClick: () => navigateToLineTrackingLabels(!!size.zpl, size.id)
-            }))}
-            onClick={() => navigateToLineTrackingLabels(false)}
-            variant="secondary"
-          >
-            Tracking Labels
-          </SplitButton>
+          <PrintButton
+            sourceDocument="Receipt"
+            sourceDocumentId={receipt?.id ?? ""}
+            locationId={receipt?.locationId ?? undefined}
+            context="receiving"
+            fileRoutes={{
+              pdf: (id, opts) =>
+                path.to.file.receiptLabelsPdf(id, {
+                  ...opts,
+                  lineId: line.id!
+                }),
+              zpl: (id, opts) =>
+                path.to.file.receiptLabelsZpl(id, {
+                  ...opts,
+                  lineId: line.id!
+                })
+            }}
+          />
         </div>
       </div>
 

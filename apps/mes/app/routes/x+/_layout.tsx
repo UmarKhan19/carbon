@@ -11,6 +11,7 @@ import {
   destroyAuthSession,
   requireAuthSession
 } from "@carbon/auth/session.server";
+import { getPrinterRoutes } from "@carbon/printing";
 import {
   ItarPopup,
   SidebarProvider,
@@ -105,7 +106,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     activeEvents,
     companySettings,
     openClockEntry,
-    locationEmployees
+    locationEmployees,
+    printerRoutes
   ] = await Promise.all([
     getStripeCustomerByCompanyId(companyId, userId),
     getLocationsByCompany(client, companyId),
@@ -115,7 +117,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     }),
     client
       .from("companySettings")
-      .select("timeCardEnabled, consoleEnabled")
+      .select("timeCardEnabled, consoleEnabled, printing")
       .eq("id", companyId)
       .single(),
     getOpenClockEntry(client, effectiveUserId, companyId),
@@ -126,7 +128,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
           .select("id")
           .eq("locationId", locationId)
           .eq("companyId", companyId)
-      : Promise.resolve({ data: [] as { id: string }[] })
+      : Promise.resolve({ data: [] as { id: string }[] }),
+    getPrinterRoutes(serviceRole, companyId)
   ]);
 
   const locationEmployeeIds =
@@ -185,6 +188,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       effectiveUserId,
       pinnedInUser,
       plan: companyPlan?.planId,
+      printing: (companySettings.data as any)?.printing ?? null,
+      printerRoutes: printerRoutes.data ?? [],
       timeCardEnabled,
       user: user.data
     },

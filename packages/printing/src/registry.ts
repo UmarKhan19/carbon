@@ -17,7 +17,8 @@ export const documentTypeRegistry = [
       "Operation",
       "Entity",
       "Job",
-      "Split"
+      "Split",
+      "StockTransfer"
     ],
     builtInRenderer: "zpl" as const,
     defaultFormat: "zpl" as const,
@@ -30,6 +31,14 @@ export const documentTypeRegistry = [
     builtInRenderer: "pdf" as const,
     defaultFormat: "pdf" as const,
     description: "Replenishment cards for kanban bins"
+  },
+  {
+    id: "storageUnitLabel",
+    displayName: "Storage Unit Label",
+    sourceDocuments: ["StorageUnit"],
+    builtInRenderer: "zpl" as const,
+    defaultFormat: "zpl" as const,
+    description: "Labels for shelves, bins, and storage locations"
   }
 ] as const satisfies readonly DocumentTypeDefinition[];
 

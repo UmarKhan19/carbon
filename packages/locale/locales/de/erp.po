@@ -2228,9 +2228,6 @@ msgstr "Standardeinheit"
 msgid "Defaults"
 msgstr "Standardwerte"
 
-msgid "Define the default size of the product label. Used for tracking items in inventory."
-msgstr "Definieren Sie die Standardgröße des Produktetiketts. Wird zur Verfolgung von Artikeln im Bestand verwendet."
-
 msgid "Define the terms and conditions for purchase orders"
 msgstr "Definieren Sie die Bedingungen für Bestellungen"
 
@@ -2602,6 +2599,9 @@ msgstr "Herunterladen"
 
 msgid "Download CSV"
 msgstr "CSV herunterladen"
+
+msgid "Download Labels"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "PDF herunterladen"
@@ -5955,6 +5955,13 @@ msgstr "Preisregeln"
 msgid "Pricing Trace"
 msgstr "Preisablauf"
 
+msgid "Print"
+msgstr ""
+
+#. placeholder {0}: selectedIds.size
+msgid "Print {0} Labels"
+msgstr ""
+
 msgid "Print Jobs"
 msgstr ""
 
@@ -6003,9 +6010,6 @@ msgstr "Prozesstyp"
 
 msgid "Processes"
 msgstr "Prozesse"
-
-msgid "Product Label Size"
-msgstr "Produktetikettengröße"
 
 msgid "Production"
 msgstr "Produktion"
@@ -6977,6 +6981,9 @@ msgstr "Elementtyp auswählen"
 
 msgid "Select items"
 msgstr "Artikel auswählen"
+
+msgid "Select Printer"
+msgstr ""
 
 msgid "Select Quantities"
 msgstr "Mengen auswählen"
@@ -8063,9 +8070,6 @@ msgstr "Verfolgung"
 
 msgid "Tracking ID"
 msgstr "Verfolgungskennung"
-
-msgid "Tracking Labels"
-msgstr "Verfolgungsetiketten"
 
 msgid "Tracking Number"
 msgstr "Verfolgungsnummer"

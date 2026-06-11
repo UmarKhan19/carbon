@@ -8,6 +8,7 @@ export type LocationAssignment = {
   defaultAutoPrint: boolean;
   shipping: ContextAssignment;
   receiving: ContextAssignment;
+  inventory: ContextAssignment;
   workCenters: Record<string, ContextAssignment>;
 };
 

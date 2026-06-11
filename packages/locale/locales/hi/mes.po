@@ -263,6 +263,9 @@ msgstr "डाउन"
 msgid "Download"
 msgstr "डाउनलोड"
 
+msgid "Download Labels"
+msgstr ""
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "यहाँ एक फ़ाइल को ड्रैग और ड्रॉप करें, या फ़ाइल चुनने के लिए क्लिक करें"
 
@@ -674,6 +677,9 @@ msgstr "पिछला"
 msgid "Preventive"
 msgstr "निवारक"
 
+msgid "Print"
+msgstr ""
+
 msgid "Priority"
 msgstr "प्राथमिकता"
 
@@ -798,6 +804,9 @@ msgstr "एक आइटम चुनें..."
 #. placeholder {0}: index + 1
 msgid "Select Batch {0}"
 msgstr "बैच {0} चुनें"
+
+msgid "Select Printer"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
@@ -948,9 +957,6 @@ msgstr "कुल: {0}"
 
 msgid "Tracking"
 msgstr "ट्रैकिंग"
-
-msgid "Tracking Labels"
-msgstr "ट्रैकिंग लेबल"
 
 msgid "Type a message..."
 msgstr "एक संदेश लिखें..."

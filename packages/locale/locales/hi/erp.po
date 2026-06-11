@@ -2228,9 +2228,6 @@ msgstr "डिफ़ॉल्ट यूनिट"
 msgid "Defaults"
 msgstr "डिफ़ॉल्ट"
 
-msgid "Define the default size of the product label. Used for tracking items in inventory."
-msgstr "उत्पाद लेबल का डिफ़ॉल्ट आकार परिभाषित करें। इन्वेंटरी में आइटम ट्रैक करने के लिए उपयोग किया जाता है।"
-
 msgid "Define the terms and conditions for purchase orders"
 msgstr "क्रय आदेशों के लिए शर्तें और शर्तें परिभाषित करें"
 
@@ -2602,6 +2599,9 @@ msgstr "डाउनलोड करें"
 
 msgid "Download CSV"
 msgstr "CSV डाउनलोड करें"
+
+msgid "Download Labels"
+msgstr ""
 
 msgid "Download PDF"
 msgstr "PDF डाउनलोड करें"
@@ -5955,6 +5955,13 @@ msgstr "मूल्य निर्धारण नियम"
 msgid "Pricing Trace"
 msgstr "मूल्य निर्धारण ट्रेस"
 
+msgid "Print"
+msgstr ""
+
+#. placeholder {0}: selectedIds.size
+msgid "Print {0} Labels"
+msgstr ""
+
 msgid "Print Jobs"
 msgstr ""
 
@@ -6003,9 +6010,6 @@ msgstr "प्रक्रिया प्रकार"
 
 msgid "Processes"
 msgstr "प्रक्रियाएं"
-
-msgid "Product Label Size"
-msgstr "उत्पाद लेबल आकार"
 
 msgid "Production"
 msgstr "उत्पादन"
@@ -6977,6 +6981,9 @@ msgstr "आइटम प्रकार चुनें"
 
 msgid "Select items"
 msgstr "आइटम चुनें"
+
+msgid "Select Printer"
+msgstr ""
 
 msgid "Select Quantities"
 msgstr "मात्रा चुनें"
@@ -8063,9 +8070,6 @@ msgstr "ट्रैकिंग"
 
 msgid "Tracking ID"
 msgstr "ट्रैकिंग आईडी"
-
-msgid "Tracking Labels"
-msgstr "ट्रैकिंग लेबल"
 
 msgid "Tracking Number"
 msgstr "ट्रैकिंग नंबर"

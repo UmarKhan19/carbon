@@ -4,7 +4,7 @@ import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
 import { validationError, validator } from "@carbon/form";
 import { trigger } from "@carbon/jobs";
-import type { PrintingSettings } from "@carbon/printing";
+import { getCachedPrinterConfig } from "@carbon/printing/printing.server";
 import type { ActionFunctionArgs } from "react-router";
 import { data, redirect } from "react-router";
 import { nonScrapQuantityValidator } from "~/services/models";
@@ -103,19 +103,14 @@ export async function action({ request }: ActionFunctionArgs) {
             locationId = wc?.locationId ?? undefined;
           }
           if (locationId) {
-            const { data: cs } = await serviceRole
-              .from("companySettings")
-              .select("printing")
-              .eq("id", companyId)
-              .single();
-            const printing = cs?.printing as PrintingSettings | null;
-            const assignment = printing?.assignments?.[locationId];
-            const shouldAutoPrint = workCenterId
-              ? (assignment?.workCenters?.[workCenterId]?.autoPrint ??
-                assignment?.defaultAutoPrint ??
-                true)
-              : (assignment?.defaultAutoPrint ?? true);
-            if (shouldAutoPrint) {
+            const config = await getCachedPrinterConfig(
+              serviceRole,
+              companyId,
+              locationId,
+              "workCenter",
+              workCenterId
+            );
+            if (config?.autoPrint ?? true) {
               await trigger("print-job", {
                 sourceDocument: "Job",
                 sourceDocumentId: printEntityId,
@@ -229,19 +224,14 @@ export async function action({ request }: ActionFunctionArgs) {
             batchLocationId = wc?.locationId ?? undefined;
           }
           if (batchLocationId) {
-            const { data: cs } = await serviceRole
-              .from("companySettings")
-              .select("printing")
-              .eq("id", companyId)
-              .single();
-            const printing = cs?.printing as PrintingSettings | null;
-            const assignment = printing?.assignments?.[batchLocationId];
-            const shouldAutoPrint = workCenterId
-              ? (assignment?.workCenters?.[workCenterId]?.autoPrint ??
-                assignment?.defaultAutoPrint ??
-                true)
-              : (assignment?.defaultAutoPrint ?? true);
-            if (shouldAutoPrint) {
+            const config = await getCachedPrinterConfig(
+              serviceRole,
+              companyId,
+              batchLocationId,
+              "workCenter",
+              workCenterId
+            );
+            if (config?.autoPrint ?? true) {
               await trigger("print-job", {
                 sourceDocument: "Job",
                 sourceDocumentId: validation.data.trackedEntityId,

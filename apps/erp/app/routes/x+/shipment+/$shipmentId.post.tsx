@@ -8,7 +8,7 @@ import {
   isBlocked
 } from "@carbon/ee/storage-rules.server";
 import { trigger } from "@carbon/jobs";
-import type { PrintingSettings } from "@carbon/printing";
+import { getCachedPrinterConfig } from "@carbon/printing/printing.server";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
@@ -282,13 +282,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
         .single();
       const locationId = shipmentForPrint?.locationId as string | undefined;
       if (locationId) {
-        const { data: cs } = await serviceRole
-          .from("companySettings")
-          .select("printing")
-          .eq("id", companyId)
-          .single();
-        const printing = cs?.printing as PrintingSettings | null;
-        if (printing?.assignments?.[locationId]?.shipping?.autoPrint ?? true) {
+        const config = await getCachedPrinterConfig(
+          serviceRole,
+          companyId,
+          locationId,
+          "shipping"
+        );
+        if (config?.autoPrint ?? true) {
           await trigger("print-job", {
             sourceDocument: "Shipment",
             sourceDocumentId: shipmentId,

@@ -29,6 +29,7 @@ import {
 import ItemThumbnail from "./ItemThumbnail";
 import Location from "./Location";
 import New from "./New";
+import { PrintButton } from "./PrintButton";
 import RealtimeDataProvider from "./RealtimeDataProvider";
 import SearchFilter from "./SearchFilter";
 import { SearchLandingPage } from "./SearchLandingPage";
@@ -65,6 +66,7 @@ export {
   ModuleIcon,
   New,
   OperationStatusIcon,
+  PrintButton,
   RealtimeDataProvider,
   SearchFilter,
   SearchLandingPage,

@@ -3,6 +3,7 @@ import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import type { PrintingSettings } from "@carbon/printing";
 import { deletePrinterRoute } from "@carbon/printing";
+import { invalidatePrinterCache } from "@carbon/printing/printing.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -82,6 +83,8 @@ export async function action({ request, params }: ActionFunctionArgs) {
         .eq("id", companyId);
     }
   }
+
+  await invalidatePrinterCache(companyId);
 
   throw redirect(
     path.to.printingSettings,

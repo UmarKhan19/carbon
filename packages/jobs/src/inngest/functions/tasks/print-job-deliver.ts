@@ -1,5 +1,6 @@
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
-import { sendToProxyBox, updatePrintJobStatus } from "@carbon/printing";
+import { updatePrintJobStatus } from "@carbon/printing";
+import { sendToProxyBox } from "@carbon/printing/printing.server";
 import { NonRetriableError } from "inngest";
 import { inngest } from "../../client";
 

@@ -263,6 +263,9 @@ msgstr "Awaria"
 msgid "Download"
 msgstr "Pobierz"
 
+msgid "Download Labels"
+msgstr ""
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Przeciągnij i upuść plik tutaj lub kliknij, aby wybrać plik"
 
@@ -674,6 +677,9 @@ msgstr "Poprzedni"
 msgid "Preventive"
 msgstr "Prewencyjne"
 
+msgid "Print"
+msgstr ""
+
 msgid "Priority"
 msgstr "Priorytet"
 
@@ -798,6 +804,9 @@ msgstr "Wybierz pozycję..."
 #. placeholder {0}: index + 1
 msgid "Select Batch {0}"
 msgstr "Wybierz partię {0}"
+
+msgid "Select Printer"
+msgstr ""
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
@@ -948,9 +957,6 @@ msgstr "Razem: {0}"
 
 msgid "Tracking"
 msgstr "Śledzenie"
-
-msgid "Tracking Labels"
-msgstr "Etykiety śledzenia"
 
 msgid "Type a message..."
 msgstr "Wpisz wiadomość..."

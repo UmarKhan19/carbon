@@ -1,6 +1,7 @@
 {
   "name": "@carbon/printing",
   "dependencies": {
+    "@carbon/kv": "workspace:*",
     "zod": "catalog:",
     "zod-form-data": "catalog:"
   },
@@ -12,7 +13,8 @@
     "typescript": "catalog:"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./printing.server": "./src/printing.server.ts"
   },
   "private": true,
   "scripts": {
