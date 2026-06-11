@@ -16,7 +16,9 @@ export async function generateBarcode(
     bcid: symbology,
     text: text || " ",
     scale: opts.scale ?? 3,
-    height: opts.height ?? 10,
+    // `height` distorts 2D square codes (QR / DataMatrix) — only set it for the
+    // linear/stacked symbologies that need a bar height.
+    ...(opts.height ? { height: opts.height } : {}),
     includetext: opts.includetext ?? false,
     textxalign: "center"
   });

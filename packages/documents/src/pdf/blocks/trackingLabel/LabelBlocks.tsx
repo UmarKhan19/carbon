@@ -165,9 +165,15 @@ export function LabelBarcodeBlock({
 }) {
   const value = interpolateString(block.value ?? "", data.vars);
   if (!value) return null;
-  const src = generateBarcode(value, block.symbology, {
-    height: block.symbology === "pdf417" ? 8 : 12
-  });
+  // 2D square codes scale by module (no height, or they distort); linear and
+  // stacked codes take a bar/row height.
+  const isSquare =
+    block.symbology === "qrcode" || block.symbology === "datamatrix";
+  const src = generateBarcode(
+    value,
+    block.symbology,
+    isSquare ? { scale: 4 } : { height: block.symbology === "pdf417" ? 8 : 12 }
+  );
 
   if (block.placement === "full") {
     const height = block.height ?? 56;
