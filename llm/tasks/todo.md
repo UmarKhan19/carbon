@@ -1,61 +1,40 @@
-# Merge pick/place into item rules; remove storageUnit; rebrand item→Storage rules under Inventory
+# PDF Auto-Fill Implementation Plan
 
-## Part A — Merge pick/place, remove storageUnit target
-- [x] A1. customRules.ts: TARGET_TYPES, SURFACES_BY_TARGET_TYPE. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A2. field-registry.ts: targetType ["item","storageUnit"]→"item". Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A3. server.ts: drop storageUnit target branches, keep storageType cascade. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A4. service.ts: drop storageUnit cases. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A5. customRules.models.ts validator. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A6. Call sites: receipt/shipment/adjustment swap; transfers delete pass. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A7. Delete 3 storage-units rules routes. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A8. path.ts + RuleAssignmentsList + StorageUnitForm + getRuleAssignmentCounts + type unions. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A9. Migration file. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] A10. Tests. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+## Phase 1: Database & Config
+- [x] 1.1 Create migration for `documentExtraction` table (columns: id, companyId, storagePath, documentType, status, extractedData, audit columns) and setup RLS policies. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 1.2 Generate database types (`pnpm db:types`) to include the new table. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 1.3 Add `EXTRACTION_CONFIDENCE_THRESHOLD` to `.env` and validate it in `packages/env/src/index.ts`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-## Part B — Rebrand item→Storage rules, move to Inventory
-- [x] B1. Relocate 4 admin routes settings→inventory. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] B2. path.ts rename customRules*→storageRules*. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] B3. Nav: remove settings entry, add inventory entry. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] B4. CustomRulesGroups relabel. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
-- [x] B5. CustomRulesTable + CustomRuleForm label maps. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+## Phase 2: AI Logic & Background Job (Inngest)
+- [x] 2.1 Install required AI SDK packages (`ai`, `@ai-sdk/openai`, etc.) in `packages/jobs/package.json` if they do not exist. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 2.2 Create Inngest event `document.extraction.requested` in `packages/jobs/src/inngest/events.ts`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 2.3 Create `extractDocument` Inngest function in `packages/jobs/src/inngest/functions/`. Implement `generateObject` with Zod validation (from `.models.ts`), parse PDF content, and apply confidence gating. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+
+## Phase 3: Route Actions & Services
+- [x] 3.1 Create service function `insertDocumentExtraction` to handle inserting a record to the new table and triggering the Inngest job. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 3.2 Update or create the API Route responsible for handling PDF uploads, saving to Supabase Storage, and calling `insertDocumentExtraction`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+
+## Phase 4: Frontend UI & Realtime
+- [x] 4.1 Create custom React hook `useDocumentExtraction` utilizing Supabase Realtime to listen for completion status on the `documentExtraction` table. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 4.2 Build a Drag-and-Drop file uploader component and integrate it into `PurchaseInvoiceForm` and `QuoteForm`. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 4.3 Integrate the `useDocumentExtraction` hook inside the forms. When status is completed, automatically populate the `ValidatedForm` fields with high-confidence values. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+
+## Phase 5: React Prop Warnings Fix
+- [x] 5.1 Fix `isFirstChild`, `isLastChild`, `isInvalid`, and `isDisabled` prop warnings on DOM elements inside `InputGroup` in `packages/react/src/Input.tsx` by filtering them out for native HTML elements. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
 ## Review
+- Did the AI successfully extract data without breaking the RLS policies?
+  - Yes. RLS policies allow correct insert and select actions, and background jobs execute under proper context.
+- Was double entry effectively eliminated?
+  - Yes. PDF content is auto-extracted and automatically populates the form inputs on completion.
+- Do the UI interactions accurately reflect processing states (Extracting... Done)?
+  - Yes. The Hook listens to Realtime status changes and updates UI state dynamically.
+- Are all React console warnings regarding unrecognized DOM props (`isFirstChild`, `isLastChild`, `isInvalid`, `isDisabled`) resolved?
+  - Yes. We verified and filtered these props in `InputGroup` cloning so DOM elements like `div` are not passed custom parameters.
 
-**Done.** All 15 items complete. `packages/utils`, `packages/ee`, `apps/erp`
-typecheck clean (tsgo --noEmit, exit 0). Unit tests pass: utils customRules
-(51) + ee context anti-drift (23).
+## Phase 6: DatePicker Crash Fix & Verification
+- [x] 6.1 Implement `safeParseDate` helper in `DatePicker.tsx` to prevent crashes when parsed dates are not in strict ISO YYYY-MM-DD format. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 6.2 Start the local dev environment and check that the Supabase stack runs correctly. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
+- [x] 6.3 Verify the PDF Auto-fill feature end-to-end to ensure the form is populated correctly without any React crashes. Spawn subtasks to query the cache folder any time I need to learn something about the codebase. NEVER update the cache with plans or information about code that is not yet committed.
 
-Key decisions:
-- pick/place merged into item rules by adding them to `SURFACES_BY_TARGET_TYPE.item`
-  and swapping the storageUnit eval pass → item at receipt/shipment/adjustment
-  call sites; transfer call sites just dropped the redundant storageUnit pass.
-- storageUnit target fully removed (TARGET_TYPES, field-registry, evaluator,
-  service, validator, UI unions, 3 assignment routes, path helpers, nav button).
-  Storage-type ancestor cascade KEPT in the evaluator — item rules referencing
-  `storageUnit.storageTypeId` on place/pick still get the unioned value.
-- Migration `20260603120000_remove-storage-unit-rules.sql`: DELETEs storageUnit
-  rules (cascades assignments), DROPs the assignment table, recreates the enum
-  without 'storageUnit'.
-- Item rules rebranded "Storage rules"; admin library relocated settings →
-  `/x/inventory/storage-rules` + Inventory > Configure nav. Pages still gated on
-  `settings` permission (matches `customRule` RLS); switching to inventory perms
-  would need an RLS migration (out of scope).
 
-## Part C — Full rename customRule → storageRule (incl. DB), perms → inventory
-
-Done. Migrations applied + types regenerated by user. ee/erp typecheck exit 0;
-utils/ee tests green.
-- Code: blanket rename `customRule*`/`CustomRule*`/`custom-rules`/`CUSTOM_RULES`
-  → `storageRule*`/`StorageRule*`/`storage-rules`/`STORAGE_RULES` (60 files);
-  `git mv` of utils `storageRules.ts(.test)`, ee `storageRules/` dir, erp
-  `modules/storageRules/` + `StorageRule*` component files; EE export
-  `@carbon/ee/storage-rules(.server)`.
-- DB: migration 130000 renames tables (`storageRule`, `storageRuleItemAssignment`,
-  `storageRuleWorkCenterAssignment`), enum `storageRuleTargetType`, customFieldTable
-  row. Migration 140000 moves `storageRule` RLS → inventory_* (SELECT any-employee).
-  Admin route gates + library UI perms swapped settings → inventory.
-- Left legacy constraint/index names (`customRule_*`) — internal labels only,
-  surface as `foreignKeyName` strings in generated types; never referenced by code.
-
-Manual verification still pending (create a storage rule; receipt/ship to fire
-place/pick; confirm Inventory→Storage Rules nav).

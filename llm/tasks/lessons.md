@@ -61,3 +61,34 @@ Patterns learned from corrections. Review at the start of each session.
 ## Bash fallbacks when tools are missing
 
 - `pandoc` is not on the user's machine. For `.docx` extraction, use the `anthropic-skills:docx` skill's `unpack.py` (needs `defusedxml`; install via `mise x python@3.14.2 -- pip install defusedxml`) or an equivalent Python/JS extraction, rather than assuming pandoc is available.
+
+## React Prop Warnings in Child Cloning
+
+- When using `React.cloneElement` to pass context/layout props (like `isFirstChild`, `isLastChild`, `isInvalid`, `isDisabled`) to children, **ALWAYS** check if the child is a standard DOM element (`typeof child.type === "string"`).
+- Native DOM elements do not recognize these custom props and React will throw a console warning (`React does not recognize the ... prop on a DOM element`).
+- Only pass custom/internal props to React components (non-string types), or explicitly filter them out before rendering elements to the DOM.
+
+## Docker Loopback Connectivity and Vite Host Binding
+
+- When using local containers (like Inngest) in non-portless mode, they connect back to the host application using `host.docker.internal`.
+- For the connection to succeed on Linux, host applications (Vite/React Router dev servers) must listen on all interfaces (`0.0.0.0`) instead of only loopback (`127.0.0.1`), as Docker traffic arrives via the virtual bridge gateway IP rather than local loopback.
+- Additionally, Vite's `server.allowedHosts` config must contain `"host.docker.internal"`; otherwise, Vite dev server blocks the Docker requests and returns a `403 Forbidden` response.
+
+## DeepSeek/Ollama Multimodal File Limitation
+
+- OpenAI-compatible third-party APIs (like DeepSeek or Ollama) do not support the `{ type: "file" }` message structure in `/chat/completions` requests. Sending a binary PDF file inside the `messages` array throws a deserialization API error.
+- To make PDF auto-fill/data extraction compatible with DeepSeek and similar APIs, parse the PDF binary to raw text on the server first (using `pdfjs-dist/legacy/build/pdf.mjs` in Node.js) and send the extracted text within a standard `{ type: "text" }` message.
+
+## DeepSeek / OpenAI-compatible API Compatibility Limits
+
+- **Structured Output Limit (`json_schema`):** Some providers (like DeepSeek) do not support the newer OpenAI structured JSON schema output (`response_format: { type: "json_schema" }`). When calling `generateObject`, it internally uses this format and triggers a `"This response_format type is unavailable now"` error. In such cases, use `generateText` with standard prompts describing the schema, clean any markdown blocks, and parse the JSON manually using `JSON.parse` and validate with Zod (`schema.parse(...)`).
+## Entity Resolution in Auto-Fill
+
+- In PDF auto-fill/data extraction features, the AI extracts raw text values (such as `supplierName: "Dinamika Gerak Pres"` or `paymentTerms: "Net 30"`).
+- However, form validation and submission require relational database IDs (UUIDs).
+- **ALWAYS** implement dynamic database lookups (e.g., using `ilike` name matching on `supplier`, `customer`, or `paymentTerm` tables) on the frontend form side when the extraction completes.
+- Once the entity ID is resolved, update the related states and fetch secondary dependent information (like supplier contact, location, and billing settings) to fully populate the form, matching the behavior of a manual selection.
+
+
+
+
