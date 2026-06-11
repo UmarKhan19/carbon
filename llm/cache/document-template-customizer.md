@@ -78,8 +78,24 @@ page numbers, toggleable). Routes load the template via
 `getDocumentTemplateConfig(client, companyId, "trackingLabel")`
 (`settings.service.ts`) — a helper that returns `DocumentTemplate | null`.
 
+Label blocks beyond the built-in fields: a single-line `field` (label+value), a
+`labelBarcode` (pdf417/code128/datamatrix/qrcode; PDF via `bwip-js`
+`qr/barcode.ts`, ZPL via `^B7/^BC/^BX/^BQ`), and a `labelLogo` (company logo;
+color URL in PDF, monochrome toggle). Layout slots: fields top-left (two-column
+aligned), logo+QR top-right, barcode full-width bottom, entity id bottom.
+
+**Logo monochrome / ZPL `^GF`:** the `logo-resizer` Supabase edge function
+(`supabase/functions/logo-resizer/`, magick-wasm; mirror of `image-resizer`)
+flattens→grays→thresholds→resizes the logo and returns `{ monoPng, gfa }` — the
+mono PNG drives the PDF B&W logo, `gfa` is a self-rolled `^GFA` (no `zpl-image`
+dep). `resolveLabelLogo(company, template, labelSize)` (ERP
+`modules/settings/labelLogo.server.ts` + MES `services/labelLogo.server.ts`)
+calls it when a visible `labelLogo` block exists and threads `{color, mono, gfa,
+widthDots}` into `ProductLabelPDF` (`company`/`logo` props) +
+`generateProductLabelZPL` (`logo` arg). All 12 ERP/MES label routes pass it.
+
 **ZPL output** honors the same template: `generateProductLabelZPL(item,
-labelSize, template?)` (`packages/documents/src/zpl/ProductLabelZPL.tsx`)
+labelSize, template?, logo?)` (`packages/documents/src/zpl/ProductLabelZPL.tsx`)
 resolves `trackingLabel` and emits only visible fields in block order (text
 stacked, QR top-right, entity id bottom; extension/custom blocks skipped — no
 ZPL equivalent). Both ERP and MES label routes (`file+/{entity,receipt,
