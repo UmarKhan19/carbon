@@ -12,7 +12,8 @@ import type {
 import {
   CURRENT_TEMPLATE_FORMAT_VERSION,
   getBuiltInSection,
-  isBuiltInSectionId
+  isBuiltInSectionId,
+  toDocumentTemplate
 } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -502,24 +503,7 @@ export async function getDocumentTemplateConfig(
   documentType: DocumentTemplateType
 ): Promise<DocumentTemplate | null> {
   const stored = await getDocumentTemplate(client, companyId, documentType);
-  if (!stored.data) return null;
-  const row = stored.data as {
-    formatVersion?: number;
-    blocks?: unknown;
-    theme?: unknown;
-    settings?: unknown;
-    headerSectionId?: string | null;
-    footerSectionId?: string | null;
-  };
-  return {
-    formatVersion: row.formatVersion ?? CURRENT_TEMPLATE_FORMAT_VERSION,
-    documentType,
-    blocks: row.blocks as DocumentTemplate["blocks"],
-    theme: row.theme as DocumentTemplate["theme"],
-    settings: row.settings as DocumentTemplate["settings"],
-    headerSectionId: row.headerSectionId ?? null,
-    footerSectionId: row.footerSectionId ?? null
-  };
+  return toDocumentTemplate(stored.data, documentType);
 }
 
 export async function upsertDocumentTemplate(

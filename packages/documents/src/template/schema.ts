@@ -380,6 +380,39 @@ export type DocumentSettings = z.infer<typeof documentSettingsSchema>;
 export type DocumentTemplate = z.infer<typeof documentTemplateSchema>;
 export type DocumentTemplateType = z.infer<typeof documentTemplateTypeSchema>;
 
+/** The stored `documentTemplate` row shape (JSON columns are untyped here). */
+export interface StoredDocumentTemplateRow {
+  formatVersion?: number | null;
+  blocks?: unknown;
+  theme?: unknown;
+  settings?: unknown;
+  headerSectionId?: string | null;
+  footerSectionId?: string | null;
+}
+
+/**
+ * Map a stored `documentTemplate` row to a `DocumentTemplate` (or null). The one
+ * place the JSON columns are cast — callers (services + PDF/ZPL routes) use this
+ * instead of re-deriving the shape. The result still passes through
+ * `resolveTemplate` at render, which applies defaults/validation.
+ */
+export function toDocumentTemplate(
+  row: unknown,
+  documentType: DocumentTemplateType
+): DocumentTemplate | null {
+  if (!row) return null;
+  const r = row as StoredDocumentTemplateRow;
+  return {
+    formatVersion: r.formatVersion ?? CURRENT_TEMPLATE_FORMAT_VERSION,
+    documentType,
+    blocks: r.blocks as DocumentTemplate["blocks"],
+    theme: r.theme as DocumentTemplate["theme"],
+    settings: r.settings as DocumentTemplate["settings"],
+    headerSectionId: r.headerSectionId ?? null,
+    footerSectionId: r.footerSectionId ?? null
+  };
+}
+
 /** Narrowing helpers for the extension blocks (used by editor + renderers). */
 export type RichTextBlock = Extract<DocumentBlock, { type: "richText" }>;
 export type KeyValueBlock = Extract<DocumentBlock, { type: "keyValue" }>;

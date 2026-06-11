@@ -4,7 +4,7 @@ import type {
   DocumentTemplate,
   DocumentTemplateType
 } from "@carbon/documents/template";
-import { CURRENT_TEMPLATE_FORMAT_VERSION } from "@carbon/documents/template";
+import { toDocumentTemplate } from "@carbon/documents/template";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
@@ -25,24 +25,7 @@ export async function getDocumentTemplateConfig(
     .eq("companyId", companyId)
     .eq("documentType", documentType)
     .maybeSingle();
-  if (!stored.data) return null;
-  const row = stored.data as {
-    formatVersion?: number;
-    blocks?: unknown;
-    theme?: unknown;
-    settings?: unknown;
-    headerSectionId?: string | null;
-    footerSectionId?: string | null;
-  };
-  return {
-    formatVersion: row.formatVersion ?? CURRENT_TEMPLATE_FORMAT_VERSION,
-    documentType,
-    blocks: row.blocks as DocumentTemplate["blocks"],
-    theme: row.theme as DocumentTemplate["theme"],
-    settings: row.settings as DocumentTemplate["settings"],
-    headerSectionId: row.headerSectionId ?? null,
-    footerSectionId: row.footerSectionId ?? null
-  };
+  return toDocumentTemplate(stored.data, documentType);
 }
 
 export const inventoryAdjustmentValidator = z.object({

@@ -1,10 +1,6 @@
 import type { DocumentBlockType } from "../../../template";
 import { CustomFieldBlock } from "../CustomFieldBlock";
-import { FieldBlock } from "../FieldBlock";
-import { KeyValueBlock } from "../KeyValueBlock";
-import { RichTextBlock } from "../RichTextBlock";
-import { SharedBlock } from "../SharedBlock";
-import { SpacerBlock } from "../SpacerBlock";
+import { extensionBlocks } from "../extensionRegistry";
 import { HeaderBlock } from "./HeaderBlock";
 import { LineItemsBlock } from "./LineItemsBlock";
 import { NotesBlock } from "./NotesBlock";
@@ -14,14 +10,13 @@ import { TermsBlock } from "./TermsBlock";
 import type { BlockRenderer } from "./types";
 
 /** Block-type → renderer for Purchase Order. Extension blocks are shared. */
-export const purchaseOrderBlockRegistry: Record<
-  DocumentBlockType,
-  BlockRenderer
+export const purchaseOrderBlockRegistry: Partial<
+  Record<DocumentBlockType, BlockRenderer>
 > = {
+  ...extensionBlocks,
   header: ({ data }) => <HeaderBlock data={data} />,
   parties: ({ data }) => <PartiesBlock data={data} />,
   notes: ({ data }) => <NotesBlock data={data} />,
-  details: () => null,
   lineItems: ({ block, data }) =>
     block.type === "lineItems" ? (
       <LineItemsBlock block={block} data={data} />
@@ -32,37 +27,6 @@ export const purchaseOrderBlockRegistry: Record<
     ) : null,
   terms: ({ block, data }) =>
     block.type === "terms" ? <TermsBlock block={block} data={data} /> : null,
-  jobDetails: () => null,
-  operations: () => null,
-  issueDetails: () => null,
-  associations: () => null,
-  actionTasks: () => null,
-  reviewers: () => null,
-  labelHeading: () => null,
-  labelRevision: () => null,
-  labelQuantity: () => null,
-  labelTracking: () => null,
-  labelEntityId: () => null,
-  richText: ({ block, data }) =>
-    block.type === "richText" ? (
-      <RichTextBlock block={block} vars={data.vars} />
-    ) : null,
-  keyValue: ({ block, data }) =>
-    block.type === "keyValue" ? (
-      <KeyValueBlock block={block} vars={data.vars} />
-    ) : null,
-  spacer: ({ block }) =>
-    block.type === "spacer" ? <SpacerBlock block={block} /> : null,
-  shared: ({ block, data }) =>
-    block.type === "shared" ? (
-      <SharedBlock block={block} sections={data.sections} vars={data.vars} />
-    ) : null,
-  labelBarcode: () => null,
-  labelLogo: () => null,
-  field: ({ block, data }) =>
-    block.type === "field" ? (
-      <FieldBlock block={block} vars={data.vars} />
-    ) : null,
   customField: ({ block, data }) =>
     block.type === "customField" ? (
       <CustomFieldBlock

@@ -33,7 +33,8 @@
     "./pdf": "./src/pdf/index.ts",
     "./template": "./src/template/index.ts",
     "./zpl": "./src/zpl/index.ts",
-    "./qr": "./src/qr/qr-code.ts"
+    "./qr": "./src/qr/qr-code.ts",
+    "./labels": "./src/labels/index.ts"
   },
   "private": true,
   "scripts": {

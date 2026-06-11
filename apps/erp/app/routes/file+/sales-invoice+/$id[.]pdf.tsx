@@ -1,7 +1,10 @@
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { ensureFont, SalesInvoicePDF } from "@carbon/documents/pdf";
-import type { DocumentTemplate } from "@carbon/documents/template";
-import { collectSectionIds, resolveTemplate } from "@carbon/documents/template";
+import {
+  collectSectionIds,
+  resolveTemplate,
+  toDocumentTemplate
+} from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
 import { getPreferenceHeaders } from "@carbon/react";
 import { renderToStream } from "@react-pdf/renderer";
@@ -154,24 +157,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const { locale } = getPreferenceHeaders(request);
 
-  const templateConfig: DocumentTemplate | null = documentTemplate.data
-    ? {
-        formatVersion:
-          (documentTemplate.data as { formatVersion?: number }).formatVersion ??
-          1,
-        documentType: "salesInvoice",
-        blocks: documentTemplate.data.blocks as DocumentTemplate["blocks"],
-        theme: documentTemplate.data.theme as DocumentTemplate["theme"],
-        settings: (documentTemplate.data as { settings?: unknown })
-          .settings as DocumentTemplate["settings"],
-        headerSectionId:
-          (documentTemplate.data as { headerSectionId?: string })
-            .headerSectionId ?? null,
-        footerSectionId:
-          (documentTemplate.data as { footerSectionId?: string })
-            .footerSectionId ?? null
-      }
-    : null;
+  const templateConfig = toDocumentTemplate(
+    documentTemplate.data,
+    "salesInvoice"
+  );
 
   // Resolve against the effective template (default when nothing is stored) so
   // built-in / forked header & footer sections render even before a company

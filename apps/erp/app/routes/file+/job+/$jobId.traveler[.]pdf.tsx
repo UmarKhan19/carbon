@@ -5,11 +5,11 @@ import {
   Footer,
   JobTravelerPageContent
 } from "@carbon/documents/pdf";
-import type { DocumentTemplate } from "@carbon/documents/template";
 import {
   collectSectionIds,
   interpolateContent,
-  resolveTemplate
+  resolveTemplate,
+  toDocumentTemplate
 } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
 import { getPreferenceHeaders } from "@carbon/react";
@@ -168,24 +168,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     companyId,
     "jobTraveler"
   );
-  const templateConfig: DocumentTemplate | null = documentTemplate.data
-    ? {
-        formatVersion:
-          (documentTemplate.data as { formatVersion?: number }).formatVersion ??
-          1,
-        documentType: "jobTraveler",
-        blocks: documentTemplate.data.blocks as DocumentTemplate["blocks"],
-        theme: documentTemplate.data.theme as DocumentTemplate["theme"],
-        settings: (documentTemplate.data as { settings?: unknown })
-          .settings as DocumentTemplate["settings"],
-        headerSectionId:
-          (documentTemplate.data as { headerSectionId?: string })
-            .headerSectionId ?? null,
-        footerSectionId:
-          (documentTemplate.data as { footerSectionId?: string })
-            .footerSectionId ?? null
-      }
-    : null;
+  const templateConfig = toDocumentTemplate(
+    documentTemplate.data,
+    "jobTraveler"
+  );
   const resolved = resolveTemplate("jobTraveler", templateConfig);
   const sections = await resolveSections(
     serviceRole,
