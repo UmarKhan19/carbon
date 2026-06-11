@@ -61,12 +61,11 @@ export function LabelHeadingBlock({ data }: { data: LabelData }) {
   return (
     <Text
       style={{
-        overflow: "hidden",
-        textOverflow: "ellipsis",
         maxWidth: "100%",
         ...tw("mb-1"),
         fontWeight: "bold",
-        fontSize: `${titleFontSize}pt`
+        fontSize: `${titleFontSize}pt`,
+        lineHeight: 1.2
       }}
     >
       {item.itemId}
@@ -145,7 +144,8 @@ export function LabelEntityIdBlock({ data }: { data: LabelData }) {
       style={{
         ...tw("mt-1 text-center"),
         fontSize: `${descriptionFontSize - 1}pt`,
-        width: "100%"
+        width: "100%",
+        flexShrink: 0
       }}
     >
       {item.trackedEntityId}
@@ -182,7 +182,7 @@ export function LabelBarcodeBlock({
     const height =
       block.height ?? Math.max(28, Math.min(64, data.labelHeightPt * 0.32));
     return (
-      <View style={tw("w-full flex items-center mt-1")}>
+      <View style={{ ...tw("w-full flex items-center mt-1"), flexShrink: 0 }}>
         <Image
           src={src}
           style={{ width: "100%", height, objectFit: "contain" }}

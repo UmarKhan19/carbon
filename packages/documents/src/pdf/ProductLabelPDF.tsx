@@ -189,7 +189,12 @@ const ProductLabelPDF = ({
                     }}
                     wrap={false}
                   >
-                    <View style={tw("flex flex-row justify-between")}>
+                    <View
+                      style={{
+                        ...tw("flex flex-row justify-between"),
+                        flexShrink: 0
+                      }}
+                    >
                       <View
                         style={{
                           ...tw("flex flex-col justify-start pr-2"),
