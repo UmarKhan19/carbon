@@ -10,6 +10,7 @@ import {
   Separator,
   SidebarTrigger,
   Status,
+  TruncatedTooltipText,
   useDisclosure,
   useMode
 } from "@carbon/react";
@@ -101,7 +102,11 @@ type Props = {
   job: { itemReadableIdWithRevision?: string | null } | null;
   operation: Operation | null;
   thumbnailPath: string | null | undefined;
-  trackedEntities: { id: string; readableId?: string | null }[];
+  trackedEntities: {
+    id: string;
+    readableId?: string | null;
+    status?: string | null;
+  }[];
   trackedEntityId: string | null;
   materials: { materials?: any[]; trackedInputs?: any[] } | null;
   procedure: { attributes: Step[]; parameters: any[] };
@@ -298,35 +303,45 @@ export function AssemblyView({
     p.key?.toLowerCase().includes("torque")
   );
 
-  // Units this job actually builds = the operation quantity. The trackedEntity
-  // table can also hold extra pre-generated/pool serials (status "Available")
-  // that aren't part of this run, so cap navigation/count to the operation
-  // quantity rather than the raw serial count (which over-counts, e.g. 25).
   const unitCount = Math.max(
     1,
     Math.round(operation?.operationQuantity ?? trackedEntities.length)
   );
 
-  // Resolve the unit being worked on from the FULL serial list so the consume
-  // target (modal parentId), the materials filter (the loader keys off the URL
-  // trackedEntityId) and the step-record index all line up. Earlier we sliced
-  // first, which made currentEntity drift from the URL entity → the modal
-  // consumed into the wrong/empty parent and nothing showed up.
-  const currentEntityIndex = trackedEntityId
+  // Real production units for this job. A make method can have extra
+  // pre-generated serials sitting in the pool (status "Available") that aren't
+  // part of this run — e.g. 24 unused serials on a qty-1 job. We work only with
+  // the real (non-"Available") units; everything (the unit selector, the
+  // consume target, the step-record counts) keys off these.
+  const realEntities = trackedEntities.filter(
+    (te) => te.status !== "Available"
+  );
+  const unitPool = realEntities.length > 0 ? realEntities : trackedEntities;
+
+  // The unit being worked on: the URL entity if it's a real unit, otherwise the
+  // first real unit. Invalid or pool serials in the URL fall back to a real
+  // unit instead of silently snapping to list index 0.
+  const currentEntity =
+    (trackedEntityId
+      ? unitPool.find((te) => te.id === trackedEntityId)
+      : undefined) ?? unitPool[0];
+
+  // Step records are stored against the unit's position in the FULL serial list
+  // (that's how the operation view writes them), so activeIndex must use the
+  // full-list index — not the filtered position — to read them back.
+  const currentEntityIndex = currentEntity
     ? Math.max(
         0,
-        trackedEntities.findIndex((te) => te.id === trackedEntityId)
+        trackedEntities.findIndex((te) => te.id === currentEntity.id)
       )
     : 0;
-  const currentEntity = trackedEntities[currentEntityIndex];
 
-  // Pageable units = capped to the operation quantity (skip the pre-generated
-  // "Available" serial pool). Used only for the "of N" count + prev/next.
-  const unitEntities = trackedEntities.slice(0, unitCount);
+  // Pageable units (the "of N" count + prev/next) = the real units.
+  const unitEntities = unitPool.slice(0, Math.max(unitCount, 1));
   const isSerial = isTracked && unitEntities.length > 0;
   const navIndex = unitEntities.findIndex((te) => te.id === currentEntity?.id);
-  // Position to show in "Unit X of N" — clamp so a stale/pool serial in the URL
-  // never produces e.g. "Unit 6 of 1".
+  // Position to show in "Unit X of N" — clamp so a stale/pool serial never
+  // produces e.g. "Unit 6 of 1".
   const displayUnitIndex = navIndex >= 0 ? navIndex : 0;
   const prevEntity = navIndex > 0 ? unitEntities[navIndex - 1] : null;
   const nextEntity =
@@ -917,9 +932,9 @@ export function AssemblyView({
           </div>
 
           {/* ── ACTIONS: Complete Step + Skip, side by side ── */}
-          <div className="flex shrink-0 items-stretch gap-2 border-t border-border p-3">
+          <div className="flex w-full shrink-0 items-stretch gap-2 border-t border-border p-3">
             {step && (
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <StepCompleteAction
                   step={step}
                   activeIndex={activeIndex}
@@ -930,7 +945,7 @@ export function AssemblyView({
             <Button
               variant="outline"
               size="lg"
-              className="flex-1"
+              className="shrink-0"
               rightIcon={<LuSkipForward />}
               isDisabled={isLastStep}
               onClick={() => goToStep(currentStep + 1)}
@@ -946,7 +961,7 @@ export function AssemblyView({
           operationId={operationId}
           expiredEntityPolicy={expiredEntityPolicy}
           material={selectedMaterial ?? undefined}
-          parentId={trackedEntityId ?? currentEntity?.id ?? ""}
+          parentId={currentEntity?.id ?? trackedEntityId ?? ""}
           parentIdIsSerialized={requiresSerialTracking}
           trackedInputs={materials?.trackedInputs ?? []}
           onClose={() => {
@@ -1203,12 +1218,28 @@ function StepCompleteAction({
     else if (record.value) recordedDisplay = record.value;
     else if (record.userValue) recordedDisplay = record.userValue;
 
+    // File steps store a long storage path — show just the file name; the full
+    // path stays available in the truncation tooltip.
+    const displayText =
+      type === "File" && recordedDisplay
+        ? recordedDisplay.split("/").pop() || recordedDisplay
+        : recordedDisplay;
+
     return (
       <div className="flex h-full items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2">
         <LuCheck className="size-4 shrink-0 text-emerald-500" />
-        <span className="flex-1 text-sm text-emerald-600 dark:text-emerald-400">
-          {recordedDisplay ? `Recorded: ${recordedDisplay}` : "Completed"}
-        </span>
+        {displayText ? (
+          <TruncatedTooltipText
+            tooltip={recordedDisplay}
+            className="min-w-0 flex-1 truncate text-sm text-emerald-600 dark:text-emerald-400"
+          >
+            Recorded: {displayText}
+          </TruncatedTooltipText>
+        ) : (
+          <span className="min-w-0 flex-1 truncate text-sm text-emerald-600 dark:text-emerald-400">
+            Completed
+          </span>
+        )}
         <Button
           variant="ghost"
           size="sm"

@@ -86,14 +86,23 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const expiredEntityPolicy: ExpiredEntityPolicy =
     inventoryShelfLife?.expiredEntityPolicy ?? "Block";
 
+  // Resolve the real production unit. Ignore the pre-generated "Available"
+  // serial pool (e.g. 24 unused serials on a qty-1 job); use the URL entity
+  // only if it's a real unit, else fall back to the first real unit. The
+  // materials filter, the consume target and the step counts must all agree on
+  // this same unit — otherwise issuing/recording appears to "do nothing".
+  const allEntities = trackedEntities.data ?? [];
+  const realEntities = allEntities.filter((te) => te.status !== "Available");
+  const unitPool = realEntities.length > 0 ? realEntities : allEntities;
+  const effectiveEntityId =
+    (trackedEntityId
+      ? unitPool.find((te) => te.id === trackedEntityId)?.id
+      : undefined) ?? unitPool[0]?.id;
+
   const [materials, openEvent] = await Promise.all([
     getJobMaterialsByOperationId(serviceRole, {
       operation: op,
-      // Default to the first serial when no unit is in the URL, so the issued
-      // counts shown match the unit the modal will consume into (mirrors the
-      // operation view). Otherwise issuing from this view appears to "do
-      // nothing" because the displayed material is filtered to a different unit.
-      trackedEntityId: trackedEntityId ?? trackedEntities.data?.[0]?.id,
+      trackedEntityId: effectiveEntityId,
       requiresSerialTracking:
         jobMakeMethod.data?.requiresSerialTracking ?? false
     }),
@@ -115,7 +124,9 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     operation: makeDurations(op) as OperationWithDetails,
     thumbnailPath,
     trackedEntities: trackedEntities.data ?? [],
-    trackedEntityId,
+    // The resolved real unit (not the raw URL value) so the component's current
+    // unit, consume target and step counts match the loaded materials.
+    trackedEntityId: effectiveEntityId ?? trackedEntityId,
     materials,
     procedure,
     tools: tools.data ?? [],
