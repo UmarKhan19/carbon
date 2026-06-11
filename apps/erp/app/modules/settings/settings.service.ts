@@ -1,5 +1,5 @@
 import { SUPABASE_URL } from "@carbon/auth";
-import type { Database } from "@carbon/database";
+import type { Database, Json } from "@carbon/database";
 import type {
   DocumentBlock,
   DocumentSectionPlacement,
@@ -594,8 +594,8 @@ export async function upsertDocumentSection(
           companyId: documentSection.companyId,
           name: documentSection.name,
           placement: documentSection.placement,
-          content: documentSection.content,
-          config: documentSection.config ?? {},
+          content: documentSection.content as Json,
+          config: (documentSection.config ?? {}) as Json,
           createdBy: actor,
           updatedBy: actor,
           updatedAt: new Date().toISOString()
@@ -606,12 +606,24 @@ export async function upsertDocumentSection(
   }
 
   if ("createdBy" in documentSection) {
-    return client.from("documentSection").insert(documentSection).select("id");
+    return client
+      .from("documentSection")
+      .insert({
+        ...documentSection,
+        content: documentSection.content as Json,
+        config: (documentSection.config ?? {}) as Json
+      })
+      .select("id");
   }
   const { id, companyId, ...update } = documentSection;
   return client
     .from("documentSection")
-    .update({ ...update, updatedAt: new Date().toISOString() })
+    .update({
+      ...update,
+      content: update.content as Json,
+      config: (update.config ?? {}) as Json,
+      updatedAt: new Date().toISOString()
+    })
     .eq("id", id ?? "")
     .eq("companyId", companyId)
     .select("id");
