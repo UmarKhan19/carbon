@@ -12,12 +12,15 @@ import {
   getJobMaterialsByOperationId,
   getJobOperationById,
   getJobOperationProcedure,
+  getKanbanByJobId,
   getNcrsByJobOperationId,
   getNonConformanceActions,
   getProductionEventsForJobOperation,
+  getProductionQuantitiesForJobOperation,
   getThumbnailPathByItemId,
   getToolsByProcessId,
-  getTrackedEntitiesByMakeMethodId
+  getTrackedEntitiesByMakeMethodId,
+  getWorkCenter
 } from "~/services/operations.service";
 import type { OperationWithDetails } from "~/services/types";
 import { makeDurations } from "~/utils/durations";
@@ -79,6 +82,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     })
   ]);
 
+  const [quantities, workCenter, kanban] = await Promise.all([
+    getProductionQuantitiesForJobOperation(serviceRole, operationId),
+    getWorkCenter(serviceRole, op.workCenterId),
+    job.data.id ? getKanbanByJobId(serviceRole, job.data.id) : null
+  ]);
+
+  const productionQuantities = (quantities.data ?? []).reduce(
+    (acc, curr) => {
+      if (curr.type === "Scrap") acc.scrap += curr.quantity;
+      else if (curr.type === "Production") acc.production += curr.quantity;
+      else if (curr.type === "Rework") acc.rework += curr.quantity;
+      return acc;
+    },
+    { scrap: 0, production: 0, rework: 0 }
+  );
+
   // Expiry policy for the issue-material modal — same source as the operation view.
   const companySettings = await getCompanySettings(serviceRole, companyId);
   const inventoryShelfLife = (companySettings.data?.inventoryShelfLife ??
@@ -86,18 +105,20 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const expiredEntityPolicy: ExpiredEntityPolicy =
     inventoryShelfLife?.expiredEntityPolicy ?? "Block";
 
-  // Resolve the real production unit. Ignore the pre-generated "Available"
-  // serial pool (e.g. 24 unused serials on a qty-1 job); use the URL entity
-  // only if it's a real unit, else fall back to the first real unit. The
-  // materials filter, the consume target and the step counts must all agree on
-  // this same unit — otherwise issuing/recording appears to "do nothing".
+  // Resolve the unit the materials/consume target key off. Navigable units are
+  // capped to the operation quantity (a job can have extra pre-generated serials
+  // beyond the quantity). Use the URL entity if it's within that set, else the
+  // first unit — so the materials filter and the view agree on the same unit.
   const allEntities = trackedEntities.data ?? [];
-  const realEntities = allEntities.filter((te) => te.status !== "Available");
-  const unitPool = realEntities.length > 0 ? realEntities : allEntities;
+  const opQty = Math.max(
+    1,
+    Math.round((op.operationQuantity as number) ?? allEntities.length)
+  );
+  const navEntities = allEntities.slice(0, opQty);
   const effectiveEntityId =
     (trackedEntityId
-      ? unitPool.find((te) => te.id === trackedEntityId)?.id
-      : undefined) ?? unitPool[0]?.id;
+      ? navEntities.find((te) => te.id === trackedEntityId)?.id
+      : undefined) ?? navEntities[0]?.id;
 
   const [materials, openEvent] = await Promise.all([
     getJobMaterialsByOperationId(serviceRole, {
@@ -136,7 +157,22 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     openEvent: openEvent.data ?? null,
     events: events.data ?? [],
     nonConformanceActions,
-    expiredEntityPolicy
+    expiredEntityPolicy,
+    productionQuantities,
+    workCenter:
+      (workCenter.data as {
+        id: string;
+        name: string;
+        isBlocked: boolean | null;
+        blockingDispatchId: string | null;
+        blockingDispatchReadableId: string | null;
+      } | null) ?? null,
+    kanban: kanban?.data ?? null,
+    jobId: job.data.id ?? null,
+    modelPath:
+      (op as { itemModelPath?: string | null }).itemModelPath ??
+      (job.data as { modelPath?: string | null }).modelPath ??
+      null
   };
 }
 

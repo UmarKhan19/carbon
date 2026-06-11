@@ -4,40 +4,60 @@ import {
   AccordionItem,
   AccordionTrigger,
   Badge,
+  BottomSheet,
+  BottomSheetBody,
+  BottomSheetContent,
   Button,
   cn,
   generateHTML,
+  ModelViewer,
   Separator,
   SidebarTrigger,
   Status,
   TruncatedTooltipText,
   useDisclosure,
-  useMode
+  useKeyboardWedge,
+  useMode,
+  useRealtimeChannel
 } from "@carbon/react";
 import { formatDurationMilliseconds } from "@carbon/utils";
 import { getLocalTimeZone } from "@internationalized/date";
 import { useEffect, useState } from "react";
 import {
+  LuBarcode,
   LuCheck,
   LuChevronLeft,
   LuChevronRight,
+  LuEllipsisVertical,
   LuFlag,
   LuGitBranchPlus,
+  LuGitPullRequest,
   LuHammer,
   LuHardHat,
   LuImage,
   LuPause,
   LuPlay,
+  LuPrinter,
   LuQrCode,
   LuSkipForward,
   LuTimer,
+  LuTrash,
   LuUndo2,
   LuWrench
 } from "react-icons/lu";
-import { useFetcher, useNavigate, useSearchParams } from "react-router";
+import {
+  useFetcher,
+  useNavigate,
+  useRevalidator,
+  useSearchParams
+} from "react-router";
+import { OperationChat } from "~/components/JobOperation/components/Chat";
 import { IssueMaterialModal } from "~/components/JobOperation/components/IssueMaterialModal";
+import { MaintenanceDispatch } from "~/components/JobOperation/components/MaintenanceDispatch";
 import { QualityIssueModal } from "~/components/JobOperation/components/QualityIssueModal";
 import { QuantityModal } from "~/components/JobOperation/components/QuantityModal";
+import { ReworkModal } from "~/components/JobOperation/components/ReworkModal";
+import { SerialSelectorModal } from "~/components/JobOperation/components/SerialSelectorModal";
 import { RecordModal } from "~/components/JobOperation/components/Step";
 import { useUser } from "~/hooks";
 import type {
@@ -129,6 +149,17 @@ type Props = {
   events: ProductionEvent[];
   nonConformanceActions: ContainmentAction[];
   expiredEntityPolicy?: "Warn" | "Block" | "BlockWithOverride";
+  productionQuantities?: { scrap: number; production: number; rework: number };
+  workCenter?: {
+    id: string;
+    name: string;
+    isBlocked: boolean | null;
+    blockingDispatchId: string | null;
+    blockingDispatchReadableId: string | null;
+  } | null;
+  kanban?: { id?: string; completedBarcodeOverride?: string | null } | null;
+  jobId?: string | null;
+  modelPath?: string | null;
 };
 
 // Real Carbon item types, in display order. Fasteners is NOT a Carbon concept.
@@ -240,16 +271,29 @@ export function AssemblyView({
   openEvent,
   events,
   nonConformanceActions,
-  expiredEntityPolicy = "Block"
+  expiredEntityPolicy = "Block",
+  workCenter,
+  kanban,
+  jobId,
+  modelPath
 }: Props) {
   const user = useUser();
   const mode = useMode();
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
   const [searchParams, setSearchParams] = useSearchParams();
+  // Which main panel is shown: the assembly details, the 3D model, or chat.
+  const [tab, setTab] = useState<"details" | "model" | "chat">("details");
 
   const issueModal = useDisclosure();
   const qualityModal = useDisclosure();
   const completeModal = useDisclosure();
+  const scrapModal = useDisclosure();
+  const reworkModal = useDisclosure();
+  const finishModal = useDisclosure();
+  const maintenanceModal = useDisclosure();
+  const serialModal = useDisclosure();
+  const actionsSheet = useDisclosure();
   // Which reference image fills the main panel: a step photo (index) or the
   // finished-assembly image ("assy").
   const [selected, setSelected] = useState<number | "assy">("assy");
@@ -258,6 +302,102 @@ export function AssemblyView({
 
   // Cumulative timer progress from all production events
   const progress = useCumulativeProgress(events);
+
+  // Live sync — refresh loader data when this operation's events, step records,
+  // job, or tracked entities change (incl. edits from the operation view).
+  useRealtimeChannel({
+    topic: `assembly:${operationId}`,
+    dependencies: [operationId],
+    setup(channel) {
+      const refresh = () => revalidator.revalidate();
+      return channel
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "productionEvent",
+            filter: `jobOperationId=eq.${operationId}`
+          },
+          refresh
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "jobOperationStepRecord" },
+          refresh
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "trackedActivity" },
+          refresh
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "jobOperation",
+            filter: `id=eq.${operationId}`
+          },
+          refresh
+        );
+    }
+  });
+
+  // Kanban barcode scan → complete the operation (matches the operation view).
+  const completeFetcher = useFetcher();
+  useKeyboardWedge({
+    test: (input) =>
+      kanban?.completedBarcodeOverride
+        ? input === kanban.completedBarcodeOverride
+        : kanban?.id
+          ? input === path.to.kanbanComplete(kanban.id)
+          : false,
+    callback: () => completeFetcher.load(path.to.endOperation(operationId)),
+    active: !!kanban?.id
+  });
+
+  // Lazily create an Inspection step for each NCR action that doesn't have one
+  // yet (mirrors the operation view; idempotent — skips ones already created).
+  const inspectionFetcher = useFetcher();
+  // biome-ignore lint/correctness/useExhaustiveDependencies: run on data change
+  useEffect(() => {
+    if (nonConformanceActions.length === 0) return;
+    const attrs = procedure.attributes ?? [];
+    const existing = new Set(
+      attrs
+        .filter(
+          (s) =>
+            s.type === "Inspection" &&
+            (s as { nonConformanceActionId?: string | null })
+              .nonConformanceActionId != null
+        )
+        .map(
+          (s) =>
+            (s as { nonConformanceActionId?: string | null })
+              .nonConformanceActionId
+        )
+    );
+    let maxSort = Math.max(0, ...attrs.map((s) => s.sortOrder ?? 0));
+    const newSteps = nonConformanceActions
+      .filter((a) => a.id && !existing.has(a.id))
+      .map((a) => ({
+        companyId: user.company.id,
+        createdBy: user.id,
+        operationId,
+        name: `${a.actionTypeName} - ${a.nonConformanceId}`,
+        type: "Inspection" as const,
+        sortOrder: ++maxSort,
+        nonConformanceActionId: a.id
+      }));
+    if (newSteps.length > 0) {
+      inspectionFetcher.submit(JSON.stringify(newSteps), {
+        method: "post",
+        action: path.to.inspectionSteps,
+        encType: "application/json"
+      });
+    }
+  }, [nonConformanceActions, procedure, operationId]);
 
   // Which work types this operation actually uses (only show/select these).
   const workTypes = (
@@ -311,32 +451,26 @@ export function AssemblyView({
     p.key?.toLowerCase().includes("torque")
   );
 
+  // How many units this operation produces — matches the operation view's
+  // "X of N" (it uses operationQuantity, NOT the raw serial count). A job can
+  // have extra pre-generated serials beyond the quantity (e.g. 25 serials for a
+  // qty-1 job), so the navigable set is capped to the operation quantity.
   const unitCount = Math.max(
     1,
     Math.round(operation?.operationQuantity ?? trackedEntities.length)
   );
+  const unitEntities = trackedEntities.slice(0, unitCount);
+  const isSerial = isTracked && unitEntities.length > 0;
 
-  // Real production units for this job. A make method can have extra
-  // pre-generated serials sitting in the pool (status "Available") that aren't
-  // part of this run — e.g. 24 unused serials on a qty-1 job. We work only with
-  // the real (non-"Available") units; everything (the unit selector, the
-  // consume target, the step-record counts) keys off these.
-  const realEntities = trackedEntities.filter(
-    (te) => te.status !== "Available"
-  );
-  const unitPool = realEntities.length > 0 ? realEntities : trackedEntities;
-
-  // The unit being worked on: the URL entity if it's a real unit, otherwise the
-  // first real unit. Invalid or pool serials in the URL fall back to a real
-  // unit instead of silently snapping to list index 0.
+  // The unit being worked on: the URL entity if it's within the navigable set,
+  // else the first unit. (Stale/pool serials beyond the quantity fall back.)
   const currentEntity =
     (trackedEntityId
-      ? unitPool.find((te) => te.id === trackedEntityId)
-      : undefined) ?? unitPool[0];
+      ? unitEntities.find((te) => te.id === trackedEntityId)
+      : undefined) ?? unitEntities[0];
 
-  // Step records are stored against the unit's position in the FULL serial list
-  // (that's how the operation view writes them), so activeIndex must use the
-  // full-list index — not the filtered position — to read them back.
+  // Step records are stored against the unit's position in the full serial list
+  // (how the operation view writes them), so activeIndex uses the full index.
   const currentEntityIndex = currentEntity
     ? Math.max(
         0,
@@ -344,12 +478,9 @@ export function AssemblyView({
       )
     : 0;
 
-  // Pageable units (the "of N" count + prev/next) = the real units.
-  const unitEntities = unitPool.slice(0, Math.max(unitCount, 1));
-  const isSerial = isTracked && unitEntities.length > 0;
-  const navIndex = unitEntities.findIndex((te) => te.id === currentEntity?.id);
-  // Position to show in "Unit X of N" — clamp so a stale/pool serial never
-  // produces e.g. "Unit 6 of 1".
+  const navIndex = currentEntity
+    ? unitEntities.findIndex((te) => te.id === currentEntity.id)
+    : -1;
   const displayUnitIndex = navIndex >= 0 ? navIndex : 0;
   const prevEntity = navIndex > 0 ? unitEntities[navIndex - 1] : null;
   const nextEntity =
@@ -516,6 +647,32 @@ export function AssemblyView({
               >
                 <LuChevronRight />
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                isIcon
+                aria-label="Select unit"
+                onClick={serialModal.onOpen}
+              >
+                <LuBarcode />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                isIcon
+                aria-label="Print label"
+                onClick={() =>
+                  window.open(
+                    window.location.origin +
+                      path.to.file.operationLabelsPdf(operationId, {
+                        trackedEntityId: currentEntity?.id
+                      }),
+                    "_blank"
+                  )
+                }
+              >
+                <LuPrinter />
+              </Button>
             </div>
           </div>
         )}
@@ -539,6 +696,17 @@ export function AssemblyView({
               onClick={completeModal.onOpen}
             >
               Complete
+            </Button>
+          ) : null}
+          {operation ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              isIcon
+              aria-label="More actions"
+              onClick={actionsSheet.onOpen}
+            >
+              <LuEllipsisVertical />
             </Button>
           ) : null}
         </div>
@@ -752,110 +920,153 @@ export function AssemblyView({
           )}
         </aside>
 
-        {/* ── MAIN: reference image + containment + current step ── */}
+        {/* ── MAIN: tabbed — details (image + step) · model · chat ── */}
         <main className="flex w-full flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
-          <div className="flex h-[42vh] shrink-0 flex-col gap-2 border-b border-border p-4 lg:h-auto lg:min-h-0 lg:grow-[7] lg:basis-0">
-            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
-              {mainImage ? (
-                <img
-                  src={mainImage}
-                  alt="Assembly reference"
-                  className="max-h-full max-w-full object-contain"
-                />
-              ) : (
-                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                  <LuImage className="size-8" />
-                  <span className="text-xs">No reference image</span>
-                </div>
-              )}
-            </div>
-
-            {/* Slots = this step's photos · "Completed assy" = the finished product. */}
-            <div className="flex shrink-0 items-center gap-2">
-              {THUMB_SLOTS.map((slotKey, i) => {
-                const src = stepImages[i] ?? null;
-                return (
-                  <button
-                    key={slotKey}
-                    type="button"
-                    disabled={!src}
-                    aria-label={`Step image ${i + 1}`}
-                    onClick={() => src && setSelected(i)}
-                    className={cn(
-                      "flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border-2 bg-muted/40",
-                      src && selected === i
-                        ? "border-foreground"
-                        : "border-transparent",
-                      !src && "cursor-default"
-                    )}
-                  >
-                    {src ? (
-                      <img
-                        src={src}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <LuImage className="size-4 text-muted-foreground" />
-                    )}
-                  </button>
-                );
-              })}
-              <div className="flex-1" />
-              <Button
-                variant={selected === "assy" ? "primary" : "outline"}
-                size="sm"
-                className="gap-2"
-                isDisabled={!assemblyImage}
-                onClick={() => setSelected("assy")}
+          {/* Tab bar */}
+          <div className="flex shrink-0 items-center gap-1 border-b border-border px-3 py-1.5">
+            <TabButton
+              active={tab === "details"}
+              onClick={() => setTab("details")}
+            >
+              Details
+            </TabButton>
+            {modelPath ? (
+              <TabButton
+                active={tab === "model"}
+                onClick={() => setTab("model")}
               >
-                {assemblyImage ? (
-                  <span className="flex h-7 w-9 items-center justify-center overflow-hidden rounded bg-muted/40">
-                    <img
-                      src={assemblyImage}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  </span>
-                ) : (
-                  <LuImage className="size-4" />
-                )}
-                Completed assy
-              </Button>
-            </div>
+                Model
+              </TabButton>
+            ) : null}
+            <TabButton active={tab === "chat"} onClick={() => setTab("chat")}>
+              Chat
+            </TabButton>
           </div>
 
-          {/* Current step */}
-          <div className="flex flex-col gap-3 p-6 lg:min-h-0 lg:grow-[3] lg:basis-0 lg:overflow-y-auto">
-            {step ? (
-              <>
-                <div className="flex items-center gap-2">
-                  <span className="flex size-7 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
-                    {currentStep + 1}
-                  </span>
-                  {isStepDone(step) && <Badge variant="green">Done</Badge>}
-                  {step.type ? (
-                    <Badge variant="secondary" className="normal-case">
-                      {step.type}
-                    </Badge>
-                  ) : null}
+          {tab === "model" && modelPath ? (
+            <div className="min-h-0 flex-1">
+              <ModelViewer
+                file={null}
+                key={`model-${modelPath}`}
+                url={`/file/preview/private/${modelPath}`}
+                mode={mode}
+                className="rounded-none"
+              />
+            </div>
+          ) : tab === "chat" && operation ? (
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <OperationChat
+                operation={operation as unknown as OperationWithDetails}
+              />
+            </div>
+          ) : (
+            <>
+              <div className="flex h-[42vh] shrink-0 flex-col gap-2 border-b border-border p-4 lg:h-auto lg:min-h-0 lg:grow-[7] lg:basis-0">
+                <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
+                  {mainImage ? (
+                    <img
+                      src={mainImage}
+                      alt="Assembly reference"
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <LuImage className="size-8" />
+                      <span className="text-xs">No reference image</span>
+                    </div>
+                  )}
                 </div>
-                <p className="text-lg font-medium leading-relaxed">
-                  {step.name ?? `Step ${currentStep + 1}`}
-                </p>
-                {stepDescriptionHtml ? (
-                  <div
-                    className="prose prose-sm max-w-none text-sm text-foreground dark:prose-invert"
-                    dangerouslySetInnerHTML={{ __html: stepDescriptionHtml }}
-                  />
-                ) : null}
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No steps defined for this operation.
-              </p>
-            )}
-          </div>
+
+                {/* Slots = this step's photos · "Completed assy" = the finished product. */}
+                <div className="flex shrink-0 items-center gap-2">
+                  {THUMB_SLOTS.map((slotKey, i) => {
+                    const src = stepImages[i] ?? null;
+                    return (
+                      <button
+                        key={slotKey}
+                        type="button"
+                        disabled={!src}
+                        aria-label={`Step image ${i + 1}`}
+                        onClick={() => src && setSelected(i)}
+                        className={cn(
+                          "flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md border-2 bg-muted/40",
+                          src && selected === i
+                            ? "border-foreground"
+                            : "border-transparent",
+                          !src && "cursor-default"
+                        )}
+                      >
+                        {src ? (
+                          <img
+                            src={src}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <LuImage className="size-4 text-muted-foreground" />
+                        )}
+                      </button>
+                    );
+                  })}
+                  <div className="flex-1" />
+                  <Button
+                    variant={selected === "assy" ? "primary" : "outline"}
+                    size="sm"
+                    className="gap-2"
+                    isDisabled={!assemblyImage}
+                    onClick={() => setSelected("assy")}
+                  >
+                    {assemblyImage ? (
+                      <span className="flex h-7 w-9 items-center justify-center overflow-hidden rounded bg-muted/40">
+                        <img
+                          src={assemblyImage}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      </span>
+                    ) : (
+                      <LuImage className="size-4" />
+                    )}
+                    Completed assy
+                  </Button>
+                </div>
+              </div>
+
+              {/* Current step */}
+              <div className="flex flex-col gap-3 p-6 lg:min-h-0 lg:grow-[3] lg:basis-0 lg:overflow-y-auto">
+                {step ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="flex size-7 items-center justify-center rounded-full bg-foreground text-xs font-bold text-background">
+                        {currentStep + 1}
+                      </span>
+                      {isStepDone(step) && <Badge variant="green">Done</Badge>}
+                      {step.type ? (
+                        <Badge variant="secondary" className="normal-case">
+                          {step.type}
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <p className="text-lg font-medium leading-relaxed">
+                      {step.name ?? `Step ${currentStep + 1}`}
+                    </p>
+                    {stepDescriptionHtml ? (
+                      <div
+                        className="prose prose-sm max-w-none text-sm text-foreground dark:prose-invert"
+                        dangerouslySetInnerHTML={{
+                          __html: stepDescriptionHtml
+                        }}
+                      />
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No steps defined for this operation.
+                  </p>
+                )}
+              </div>
+            </>
+          )}
         </main>
 
         {/* ── SIDEBAR: materials, tools, NCRs, torque ── */}
@@ -1034,7 +1245,145 @@ export function AssemblyView({
           onClose={completeModal.onClose}
         />
       )}
+
+      {scrapModal.isOpen && operation && (
+        <QuantityModal
+          type="scrap"
+          operation={operation as unknown as OperationWithDetails}
+          parentIsSerial={requiresSerialTracking}
+          parentIsBatch={requiresBatchTracking}
+          trackedEntityId={currentEntity?.id ?? ""}
+          setupProductionEvent={openByType("Setup")}
+          laborProductionEvent={openByType("Labor")}
+          machineProductionEvent={openByType("Machine")}
+          onClose={scrapModal.onClose}
+        />
+      )}
+
+      {finishModal.isOpen && operation && (
+        <QuantityModal
+          type="finish"
+          operation={operation as unknown as OperationWithDetails}
+          parentIsSerial={requiresSerialTracking}
+          parentIsBatch={requiresBatchTracking}
+          trackedEntityId={currentEntity?.id ?? ""}
+          setupProductionEvent={openByType("Setup")}
+          laborProductionEvent={openByType("Labor")}
+          machineProductionEvent={openByType("Machine")}
+          allStepsRecorded={allStepsRecorded}
+          onClose={finishModal.onClose}
+        />
+      )}
+
+      {reworkModal.isOpen && operation && jobId && (
+        <ReworkModal
+          operation={operation as unknown as OperationWithDetails}
+          jobId={jobId}
+          isOpen={reworkModal.isOpen}
+          onClose={reworkModal.onClose}
+          trackedEntities={trackedEntities as never}
+          parentIsSerial={requiresSerialTracking}
+          parentIsBatch={requiresBatchTracking}
+        />
+      )}
+
+      {workCenter && (
+        <MaintenanceDispatch
+          workCenter={workCenter}
+          isOpen={maintenanceModal.isOpen}
+          onClose={maintenanceModal.onClose}
+        />
+      )}
+
+      {serialModal.isOpen && (
+        <SerialSelectorModal
+          availableEntities={unitEntities as never}
+          onClose={serialModal.onClose}
+          onCancel={serialModal.onClose}
+          onSelect={(entity) => {
+            navigateEntity(entity);
+            serialModal.onClose();
+          }}
+        />
+      )}
+
+      <BottomSheet
+        open={actionsSheet.isOpen}
+        onOpenChange={(open) => {
+          if (!open) actionsSheet.onClose();
+        }}
+      >
+        <BottomSheetContent className="mx-auto max-w-md">
+          <BottomSheetBody>
+            <div className="flex flex-col gap-2 pb-2">
+              <ActionSheetButton
+                icon={<LuTrash className="size-4 shrink-0" />}
+                label="Scrap"
+                onClick={() => {
+                  actionsSheet.onClose();
+                  scrapModal.onOpen();
+                }}
+              />
+              <ActionSheetButton
+                icon={<LuGitPullRequest className="size-4 shrink-0" />}
+                label="Rework"
+                onClick={() => {
+                  actionsSheet.onClose();
+                  reworkModal.onOpen();
+                }}
+              />
+              <ActionSheetButton
+                icon={<LuCheck className="size-4 shrink-0" />}
+                label="Finish"
+                onClick={() => {
+                  actionsSheet.onClose();
+                  finishModal.onOpen();
+                }}
+              />
+              {workCenter && !workCenter.isBlocked ? (
+                <ActionSheetButton
+                  icon={<LuWrench className="size-4 shrink-0" />}
+                  label="Maintenance"
+                  onClick={() => {
+                    actionsSheet.onClose();
+                    maintenanceModal.onOpen();
+                  }}
+                />
+              ) : null}
+              <ActionSheetButton
+                icon={<LuFlag className="size-4 shrink-0" />}
+                label="Quality Issue"
+                onClick={() => {
+                  actionsSheet.onClose();
+                  qualityModal.onOpen();
+                }}
+              />
+            </div>
+          </BottomSheetBody>
+        </BottomSheetContent>
+      </BottomSheet>
     </div>
+  );
+}
+
+function ActionSheetButton({
+  icon,
+  label,
+  onClick
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className="flex items-center gap-3 rounded-lg bg-accent px-4 py-4 text-accent-foreground ring-1 ring-black/5 transition-transform active:scale-[0.98]"
+      onClick={onClick}
+    >
+      {icon}
+      <span className="text-base/6 font-medium">{label}</span>
+    </button>
   );
 }
 
@@ -1155,12 +1504,18 @@ function MaterialRow({
   material: any;
   onIssue?: () => void;
 }) {
-  const required = material.estimatedQuantity ?? material.quantity ?? 0;
+  const isTracked =
+    material.requiresSerialTracking || material.requiresBatchTracking;
+  // Tracked sub-assemblies are issued PER UNIT, so the requirement is the
+  // per-unit `quantity` (e.g. 1), not `estimatedQuantity` (the total across all
+  // units, e.g. 20). Non-tracked materials use the total estimated quantity.
+  // Mirrors the operation view (issued/quantity for tracked, total otherwise).
+  const required = isTracked
+    ? (material.quantity ?? material.estimatedQuantity ?? 0)
+    : (material.estimatedQuantity ?? material.quantity ?? 0);
   const issued = material.quantityIssued ?? 0;
   const fullyIssued = required > 0 && issued >= required;
   const partiallyIssued = issued > 0 && !fullyIssued;
-  const isTracked =
-    material.requiresSerialTracking || material.requiresBatchTracking;
 
   return (
     <div className="flex items-center gap-2 py-1">
@@ -1341,6 +1696,32 @@ function StepCompleteAction({
         />
       )}
     </>
+  );
+}
+
+// Compact tab button for the main panel (Details / Model / Chat).
+function TabButton({
+  active,
+  onClick,
+  children
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+        active
+          ? "bg-foreground text-background"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}
+    >
+      {children}
+    </button>
   );
 }
 
