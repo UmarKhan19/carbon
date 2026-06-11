@@ -67,8 +67,17 @@ export function getBuiltInSection(id: string): ResolvedSection | undefined {
 export function withBuiltInSections<T extends { id: string }>(
   rows: T[]
 ): (T | ResolvedSection)[] {
+  const builtInIds = new Set(BUILT_IN_SECTIONS.map((s) => s.id));
   const overridden = new Set(rows.map((r) => r.id));
-  return [...BUILT_IN_SECTIONS.filter((s) => !overridden.has(s.id)), ...rows];
+  // A built-in section the user has customized exists as a DB row — keep its
+  // `builtIn` flag so it still reads as System (editable, not deletable).
+  const flaggedRows = rows.map((r) =>
+    builtInIds.has(r.id) ? { ...r, builtIn: true } : r
+  );
+  return [
+    ...BUILT_IN_SECTIONS.filter((s) => !overridden.has(s.id)),
+    ...flaggedRows
+  ];
 }
 
 export interface BlockMeta {
