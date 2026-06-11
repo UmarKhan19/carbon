@@ -28,6 +28,7 @@ import {
   SequenceOrCustomId,
   Submit
 } from "~/components/Form";
+import { PdfExtractor } from "~/components/Form/PdfExtractor";
 import { usePermissions, useRouteData } from "~/hooks";
 import { path } from "~/utils/path";
 import { isSalesRfqLocked, salesRfqValidator } from "../../sales.models";
@@ -60,9 +61,86 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
   }>(initialValues.id ? path.to.salesRfq(initialValues.id) : "");
 
   const isLocked = isSalesRfqLocked(routeData?.rfqSummary?.status);
+  const [extractedCustomerName, setExtractedCustomerName] = useState<
+    string | undefined
+  >();
+  const [extractedLineItems, setExtractedLineItems] = useState<any[]>([]);
   const isDraft = ["Draft", "Ready to Quote"].includes(
     initialValues.status ?? ""
   );
+
+  const [formKey, setFormKey] = useState(0);
+  const [currentValues, setCurrentValues] = useState(initialValues);
+
+  const handleExtractionComplete = async (data: Record<string, any>) => {
+    let resolvedCustomerId = currentValues.customerId;
+
+    let foundCustomerInDb = false;
+
+    if (carbon && data.customerName) {
+      const { data: customerData } = await carbon
+        .from("customer")
+        .select("id")
+        .ilike("name", `%${data.customerName.trim()}%`)
+        .limit(1);
+
+      if (customerData && customerData.length > 0) {
+        resolvedCustomerId = customerData[0].id;
+        foundCustomerInDb = true;
+      }
+    }
+
+    setCurrentValues((prev) => ({
+      ...prev,
+      customerId: resolvedCustomerId || prev.customerId,
+      customerReference: data.rfqNumber || prev.customerReference,
+      rfqDate: data.rfqDate || prev.rfqDate,
+      expirationDate: data.dueDate || prev.expirationDate
+    }));
+
+    if (data.customerName && !foundCustomerInDb) {
+      setExtractedCustomerName(data.customerName);
+      toast.info(
+        t`Extracted customer "${data.customerName}" was not found. Please create it or select an existing one.`
+      );
+    } else {
+      setExtractedCustomerName(undefined);
+    }
+
+    if (data.lineItems && Array.isArray(data.lineItems)) {
+      setExtractedLineItems(data.lineItems);
+    }
+
+    if (resolvedCustomerId && resolvedCustomerId !== customer.id) {
+      flushSync(() => {
+        setCustomer({
+          id: resolvedCustomerId,
+          customerContactId: undefined,
+          customerLocationId: undefined
+        });
+      });
+
+      const { data: customerDetails, error } = await carbon
+        ?.from("customer")
+        .select(
+          "salesContactId, customerShipping!customerId(shippingCustomerLocationId)"
+        )
+        .eq("id", resolvedCustomerId)
+        .single();
+
+      if (customerDetails && !error) {
+        setCustomer((prev) => ({
+          ...prev,
+          customerContactId: customerDetails.salesContactId ?? undefined,
+          customerLocationId:
+            customerDetails.customerShipping?.shippingCustomerLocationId ??
+            undefined
+        }));
+      }
+    }
+
+    setFormKey((prev) => prev + 1);
+  };
 
   const onCustomerChange = async (
     newValue: {
@@ -112,9 +190,10 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
   return (
     <Card>
       <ValidatedForm
+        key={formKey}
         method="post"
         validator={salesRfqValidator}
-        defaultValues={initialValues}
+        defaultValues={currentValues}
         isDisabled={isEditing && isLocked}
       >
         <CardHeader>
@@ -132,7 +211,18 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
           )}
         </CardHeader>
         <CardContent>
+          <PdfExtractor
+            documentType="salesRfq"
+            sourceDocument="Request for Quote"
+            sourceDocumentId={initialValues.id}
+            onExtractionComplete={handleExtractionComplete}
+          />
           {isEditing && <Hidden name="rfqId" />}
+          <input
+            type="hidden"
+            name="extractedLineItems"
+            value={JSON.stringify(extractedLineItems)}
+          />
           <VStack>
             <div
               className={cn(
@@ -154,6 +244,7 @@ const SalesRFQForm = ({ initialValues }: SalesRFQFormProps) => {
                 autoFocus={!isEditing}
                 name="customerId"
                 label={t`Customer`}
+                extractedValue={extractedCustomerName}
                 onChange={onCustomerChange}
               />
               <Input name="customerReference" label={t`Customer RFQ`} />
