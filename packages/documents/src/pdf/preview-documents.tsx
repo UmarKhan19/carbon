@@ -24,7 +24,6 @@ import { SAMPLE_TRACKING_LABEL } from "./trackingLabel.samples";
  * preview route can render any supported document generically. Adding a doc =
  * add an entry here (plus its enum / default template / registry).
  */
-// biome-ignore lint/suspicious/noExplicitAny: each PDF has a distinct prop shape
 type PreviewEntry = { Component: ComponentType<any>; sample: any };
 
 export const DOCUMENT_PDFS: Record<DocumentTemplateType, PreviewEntry> = {

@@ -24,6 +24,7 @@ export function TemplatePreview({ previewPath }: { previewPath: string }) {
   const [isLoading, setIsLoading] = useState(true);
   const urlRef = useRef<string | null>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `sections` is intentionally a dep so editing a header/footer section re-renders the preview.
   useEffect(() => {
     const controller = new AbortController();
     const handle = setTimeout(async () => {

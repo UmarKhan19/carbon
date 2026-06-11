@@ -37,7 +37,9 @@ export async function ensureFont(family: string): Promise<void> {
   let pending = inFlight.get(family);
   if (!pending) {
     pending = registerGoogleFont(meta)
-      .catch(() => {})
+      .catch(() => {
+        // Font load failure is non-fatal; PDF falls back to the default face.
+      })
       .finally(() => {
         done.add(family);
         inFlight.delete(family);
@@ -67,7 +69,6 @@ async function registerGoogleFont(meta: {
   const re =
     /font-weight:\s*(\d+);[\s\S]*?src:\s*url\((https:\/\/fonts\.gstatic\.com\/[^)]+?\.ttf)\)/g;
   let match: RegExpExecArray | null;
-  // biome-ignore lint/suspicious/noAssignInExpressions: standard regex exec loop
   while ((match = re.exec(css)) !== null) {
     const weight = Number(match[1]);
     if (seen.has(weight)) continue;
