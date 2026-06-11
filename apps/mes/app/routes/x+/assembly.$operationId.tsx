@@ -5,6 +5,7 @@ import { flash } from "@carbon/auth/session.server";
 import type { LoaderFunctionArgs } from "react-router";
 import { redirect, useLoaderData, useParams } from "react-router";
 import { AssemblyView } from "~/components/AssemblyView";
+import { getCompanySettings } from "~/services/inventory.service";
 import {
   getJobByOperationId,
   getJobMakeMethod,
@@ -21,6 +22,8 @@ import {
 import type { OperationWithDetails } from "~/services/types";
 import { makeDurations } from "~/utils/durations";
 import { path } from "~/utils/path";
+
+type ExpiredEntityPolicy = "Warn" | "Block" | "BlockWithOverride";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { userId, companyId } = await requirePermissions(request, {});
@@ -76,10 +79,21 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     })
   ]);
 
+  // Expiry policy for the issue-material modal — same source as the operation view.
+  const companySettings = await getCompanySettings(serviceRole, companyId);
+  const inventoryShelfLife = (companySettings.data?.inventoryShelfLife ??
+    null) as { expiredEntityPolicy?: ExpiredEntityPolicy } | null;
+  const expiredEntityPolicy: ExpiredEntityPolicy =
+    inventoryShelfLife?.expiredEntityPolicy ?? "Block";
+
   const [materials, openEvent] = await Promise.all([
     getJobMaterialsByOperationId(serviceRole, {
       operation: op,
-      trackedEntityId: trackedEntityId ?? undefined,
+      // Default to the first serial when no unit is in the URL, so the issued
+      // counts shown match the unit the modal will consume into (mirrors the
+      // operation view). Otherwise issuing from this view appears to "do
+      // nothing" because the displayed material is filtered to a different unit.
+      trackedEntityId: trackedEntityId ?? trackedEntities.data?.[0]?.id,
       requiresSerialTracking:
         jobMakeMethod.data?.requiresSerialTracking ?? false
     }),
@@ -110,7 +124,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     requiresBatchTracking: jobMakeMethod.data?.requiresBatchTracking ?? false,
     openEvent: openEvent.data ?? null,
     events: events.data ?? [],
-    nonConformanceActions
+    nonConformanceActions,
+    expiredEntityPolicy
   };
 }
 

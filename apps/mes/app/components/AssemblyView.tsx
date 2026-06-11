@@ -3,7 +3,6 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  Avatar,
   Badge,
   Button,
   cn,
@@ -37,7 +36,13 @@ import {
 import { useFetcher, useNavigate, useSearchParams } from "react-router";
 import { IssueMaterialModal } from "~/components/JobOperation/components/IssueMaterialModal";
 import { QualityIssueModal } from "~/components/JobOperation/components/QualityIssueModal";
+import { QuantityModal } from "~/components/JobOperation/components/QuantityModal";
 import { useUser } from "~/hooks";
+import type {
+  JobMaterial,
+  OperationWithDetails,
+  ProductionEvent as ProductionEventType
+} from "~/services/types";
 import { getPrivateUrl, path } from "~/utils/path";
 
 type StepRecord = {
@@ -110,6 +115,7 @@ type Props = {
   openEvent: { id: string; startTime: string } | null;
   events: ProductionEvent[];
   nonConformanceActions: ContainmentAction[];
+  expiredEntityPolicy?: "Warn" | "Block" | "BlockWithOverride";
 };
 
 // Real Carbon item types, in display order. Fasteners is NOT a Carbon concept.
@@ -220,7 +226,8 @@ export function AssemblyView({
   requiresBatchTracking,
   openEvent,
   events,
-  nonConformanceActions
+  nonConformanceActions,
+  expiredEntityPolicy = "Block"
 }: Props) {
   const user = useUser();
   const mode = useMode();
@@ -229,6 +236,7 @@ export function AssemblyView({
 
   const issueModal = useDisclosure();
   const qualityModal = useDisclosure();
+  const completeModal = useDisclosure();
   // Which reference image fills the main panel: a step photo (index) or the
   // finished-assembly image ("assy").
   const [selected, setSelected] = useState<number | "assy">("assy");
@@ -255,7 +263,6 @@ export function AssemblyView({
     (selectedWorkType === "Labor" ? openEvent : null);
 
   const isTracked = requiresSerialTracking || requiresBatchTracking;
-  const isSerial = isTracked && trackedEntities.length > 0;
 
   const steps = (procedure.attributes ?? []).toSorted(
     (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
@@ -276,17 +283,35 @@ export function AssemblyView({
     return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
   });
 
-  // First serial/batch-tracked material — the generic "Scan" button pre-selects
-  // it so the modal opens straight into the serial-number scan view (not the
-  // empty "select an item" picker).
-  const firstTrackedMaterial = rawMaterials.find(
-    (m) => m.requiresSerialTracking || m.requiresBatchTracking
-  );
+  // Material the generic "Scan" button pre-selects. Prefer a tracked material
+  // that still NEEDS issuing (otherwise the modal opens straight into the
+  // "Unconsume" view because that material is already fully consumed).
+  const isTrackedMat = (m: any) =>
+    m.requiresSerialTracking || m.requiresBatchTracking;
+  const remainingToIssue = (m: any) =>
+    (m.estimatedQuantity ?? m.quantity ?? 0) - (m.quantityIssued ?? 0);
+  const firstTrackedMaterial =
+    rawMaterials.find((m) => isTrackedMat(m) && remainingToIssue(m) > 0) ??
+    rawMaterials.find(isTrackedMat);
 
   const torqueParam = parameters.find((p) =>
     p.key?.toLowerCase().includes("torque")
   );
 
+  // Units this job actually builds = the operation quantity. The trackedEntity
+  // table can also hold extra pre-generated/pool serials (status "Available")
+  // that aren't part of this run, so cap navigation/count to the operation
+  // quantity rather than the raw serial count (which over-counts, e.g. 25).
+  const unitCount = Math.max(
+    1,
+    Math.round(operation?.operationQuantity ?? trackedEntities.length)
+  );
+
+  // Resolve the unit being worked on from the FULL serial list so the consume
+  // target (modal parentId), the materials filter (the loader keys off the URL
+  // trackedEntityId) and the step-record index all line up. Earlier we sliced
+  // first, which made currentEntity drift from the URL entity → the modal
+  // consumed into the wrong/empty parent and nothing showed up.
   const currentEntityIndex = trackedEntityId
     ? Math.max(
         0,
@@ -294,11 +319,19 @@ export function AssemblyView({
       )
     : 0;
   const currentEntity = trackedEntities[currentEntityIndex];
-  const prevEntity =
-    currentEntityIndex > 0 ? trackedEntities[currentEntityIndex - 1] : null;
+
+  // Pageable units = capped to the operation quantity (skip the pre-generated
+  // "Available" serial pool). Used only for the "of N" count + prev/next.
+  const unitEntities = trackedEntities.slice(0, unitCount);
+  const isSerial = isTracked && unitEntities.length > 0;
+  const navIndex = unitEntities.findIndex((te) => te.id === currentEntity?.id);
+  // Position to show in "Unit X of N" — clamp so a stale/pool serial in the URL
+  // never produces e.g. "Unit 6 of 1".
+  const displayUnitIndex = navIndex >= 0 ? navIndex : 0;
+  const prevEntity = navIndex > 0 ? unitEntities[navIndex - 1] : null;
   const nextEntity =
-    currentEntityIndex < trackedEntities.length - 1
-      ? trackedEntities[currentEntityIndex + 1]
+    navIndex >= 0 && navIndex < unitEntities.length - 1
+      ? unitEntities[navIndex + 1]
       : null;
 
   // The record "index" axis: per-unit when tracked, single pass (0) otherwise.
@@ -307,6 +340,16 @@ export function AssemblyView({
   const isStepDone = (step: Step) =>
     (step.jobOperationStepRecord ?? []).some((r) => r.index === activeIndex);
   const doneCount = steps.filter(isStepDone).length;
+  // All steps recorded for the current unit — drives the "Steps are missing"
+  // warning in the complete/finish flow (soft warning, mirrors operation view).
+  const allStepsRecorded = steps.length > 0 && doneCount === steps.length;
+
+  // Open production events per work type (to pass to the complete flow so it
+  // can close them on completion).
+  const openByType = (type: string) =>
+    (events.find((e) => e.type === type && !e.endTime) ?? undefined) as
+      | ProductionEventType
+      | undefined;
 
   const currentStep = Math.max(
     0,
@@ -365,7 +408,6 @@ export function AssemblyView({
     navigate(url.pathname + url.search);
   }
 
-  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
   const companyLogo =
     mode === "dark" ? user.company.logoDarkIcon : user.company.logoLightIcon;
 
@@ -388,14 +430,14 @@ export function AssemblyView({
           )}
         </div>
 
-        <div className="flex h-full items-center gap-2 border-r border-border px-5">
-          <span className="text-sm font-semibold">
+        <div className="flex h-full min-w-0 items-center gap-2 border-r border-border px-3 md:px-5">
+          <span className="truncate text-sm font-semibold">
             {job?.itemReadableIdWithRevision ?? "—"}
           </span>
           {operation?.description ? (
             <>
-              <span className="text-muted-foreground">·</span>
-              <span className="text-sm text-foreground/90">
+              <span className="hidden text-muted-foreground md:inline">·</span>
+              <span className="hidden truncate text-sm text-foreground/90 lg:inline">
                 {operation.description}
               </span>
             </>
@@ -405,9 +447,9 @@ export function AssemblyView({
         {isSerial && (
           <div className="flex h-full items-center gap-3 border-r border-border px-5">
             <span className="whitespace-nowrap text-sm font-medium">
-              Unit <span className="font-bold">{currentEntityIndex + 1}</span>{" "}
+              Unit <span className="font-bold">{displayUnitIndex + 1}</span>{" "}
               <span className="text-muted-foreground">
-                of {trackedEntities.length}
+                of {unitEntities.length}
               </span>
             </span>
             <div className="flex h-[18px] items-end gap-0.5">
@@ -415,7 +457,7 @@ export function AssemblyView({
                 const filled =
                   i <=
                   Math.floor(
-                    ((currentEntityIndex + 1) / trackedEntities.length) *
+                    ((displayUnitIndex + 1) / unitEntities.length) *
                       SIGNAL_HEIGHTS.length
                   );
                 return (
@@ -457,16 +499,7 @@ export function AssemblyView({
 
         <div className="flex-1" />
 
-        {operation ? (
-          <TimerControl
-            operation={operation}
-            openEvent={openEventForType}
-            workType={selectedWorkType}
-            trackedEntityId={isTracked ? currentEntity?.id : undefined}
-          />
-        ) : null}
-
-        <div className="flex h-full items-center border-l border-border px-4">
+        <div className="flex h-full items-center gap-2 border-l border-border px-4">
           <Button
             variant="outline"
             size="sm"
@@ -475,15 +508,26 @@ export function AssemblyView({
           >
             Flag issue
           </Button>
+          {operation ? (
+            <Button
+              variant="primary"
+              size="sm"
+              leftIcon={<LuCheck />}
+              onClick={completeModal.onOpen}
+            >
+              Complete
+            </Button>
+          ) : null}
         </div>
 
-        <div className="flex h-full items-center px-4">
-          <Avatar
-            name={fullName || "?"}
-            src={user.avatarUrl ?? undefined}
-            size="md"
+        {operation ? (
+          <TimerControl
+            operation={operation}
+            openEvent={openEventForType}
+            workType={selectedWorkType}
+            trackedEntityId={isTracked ? currentEntity?.id : undefined}
           />
-        </div>
+        ) : null}
       </header>
 
       {/* ── STEPS BAR (segmented, click to jump; green = done) ── */}
@@ -516,10 +560,11 @@ export function AssemblyView({
         </div>
       )}
 
-      {/* ── BODY ── */}
-      <div className="flex flex-1 overflow-hidden">
+      {/* ── BODY ── stacks vertically (page scrolls) on phones/tablets,
+          three columns side-by-side on lg+. ── */}
+      <div className="flex flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
         {/* ── LEFT PANEL: part detail + timer + containment ── */}
-        <aside className="flex w-[280px] shrink-0 flex-col overflow-hidden border-r border-border bg-card">
+        <aside className="hidden w-[220px] shrink-0 flex-col overflow-hidden border-r border-border bg-card lg:flex xl:w-[280px]">
           {/* Part info */}
           <div className="shrink-0 border-b border-border px-3 py-2.5">
             <p className="truncate text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
@@ -652,8 +697,8 @@ export function AssemblyView({
         </aside>
 
         {/* ── MAIN: reference image + containment + current step ── */}
-        <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="flex min-h-0 grow-[7] basis-0 flex-col gap-2 border-b border-border p-4">
+        <main className="flex w-full flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
+          <div className="flex h-[42vh] shrink-0 flex-col gap-2 border-b border-border p-4 lg:h-auto lg:min-h-0 lg:grow-[7] lg:basis-0">
             <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/40">
               {mainImage ? (
                 <img
@@ -725,7 +770,7 @@ export function AssemblyView({
           </div>
 
           {/* Current step */}
-          <div className="flex min-h-0 grow-[3] basis-0 flex-col gap-3 overflow-y-auto p-6">
+          <div className="flex flex-col gap-3 p-6 lg:min-h-0 lg:grow-[3] lg:basis-0 lg:overflow-y-auto">
             {step ? (
               <>
                 <div className="flex items-center gap-2">
@@ -758,8 +803,8 @@ export function AssemblyView({
         </main>
 
         {/* ── SIDEBAR: materials, tools, NCRs, torque ── */}
-        <aside className="flex w-[320px] shrink-0 flex-col overflow-hidden bg-card border-l border-border">
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <aside className="flex w-full shrink-0 flex-col border-t border-border bg-card lg:w-[280px] lg:overflow-hidden lg:border-l lg:border-t-0 xl:w-[320px]">
+          <div className="flex flex-col lg:min-h-0 lg:flex-1 lg:overflow-hidden">
             {groupEntries.length > 0 ? (
               groupEntries.map(([type, mats]) => (
                 <SidebarSection key={type} title={pluralize(type)} scrollable>
@@ -899,8 +944,9 @@ export function AssemblyView({
       {issueModal.isOpen && (
         <IssueMaterialModal
           operationId={operationId}
+          expiredEntityPolicy={expiredEntityPolicy}
           material={selectedMaterial ?? undefined}
-          parentId={currentEntity?.id ?? ""}
+          parentId={trackedEntityId ?? currentEntity?.id ?? ""}
           parentIdIsSerialized={requiresSerialTracking}
           trackedInputs={materials?.trackedInputs ?? []}
           onClose={() => {
@@ -916,6 +962,22 @@ export function AssemblyView({
         isOpen={qualityModal.isOpen}
         onClose={qualityModal.onClose}
       />
+
+      {completeModal.isOpen && operation && (
+        <QuantityModal
+          type="complete"
+          operation={operation as unknown as OperationWithDetails}
+          materials={(materials?.materials ?? []) as JobMaterial[]}
+          parentIsSerial={requiresSerialTracking}
+          parentIsBatch={requiresBatchTracking}
+          trackedEntityId={currentEntity?.id ?? ""}
+          setupProductionEvent={openByType("Setup")}
+          laborProductionEvent={openByType("Labor")}
+          machineProductionEvent={openByType("Machine")}
+          allStepsRecorded={allStepsRecorded}
+          onClose={completeModal.onClose}
+        />
+      )}
     </div>
   );
 }
@@ -1008,7 +1070,10 @@ function SidebarSection({
     <div
       className={cn(
         "flex flex-col",
-        scrollable ? "min-h-0 flex-1" : "shrink-0"
+        // On mobile every section flows at its natural height (the page
+        // scrolls). On lg+ scrollable sections share the panel and scroll
+        // internally.
+        scrollable ? "lg:min-h-0 lg:flex-1" : "shrink-0"
       )}
     >
       <Separator />
@@ -1018,7 +1083,7 @@ function SidebarSection({
       <div
         className={cn(
           "px-3.5 pb-2.5",
-          scrollable && "min-h-0 flex-1 overflow-y-auto"
+          scrollable && "lg:min-h-0 lg:flex-1 lg:overflow-y-auto"
         )}
       >
         {children}
@@ -1055,8 +1120,9 @@ function MaterialRow({
       </div>
       <div className="flex shrink-0 items-center gap-1">
         {fullyIssued ? (
-          <span className="flex size-4 items-center justify-center rounded-full bg-emerald-500">
-            <LuCheck className="size-2.5 text-white" />
+          <span className="flex items-center gap-1 text-[10px] font-medium tabular-nums text-emerald-500">
+            {issued}/{required}
+            <LuCheck className="size-3" />
           </span>
         ) : partiallyIssued ? (
           <span className="text-[10px] tabular-nums text-amber-500">
@@ -1067,7 +1133,8 @@ function MaterialRow({
             ×{required}
           </span>
         )}
-        {onIssue && (
+        {/* Once fully issued there's nothing left to scan/add — hide the action. */}
+        {onIssue && !fullyIssued && (
           <button
             type="button"
             aria-label={isTracked ? "Scan material" : "Issue material"}
