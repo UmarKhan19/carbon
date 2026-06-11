@@ -1,8 +1,9 @@
 import { formatCityStatePostalCode } from "@carbon/utils";
-import { Image, Text, View } from "@react-pdf/renderer";
+import { Text, View } from "@react-pdf/renderer";
 import { createTw } from "react-pdf-tailwind";
 import { DEFAULT_HEADER_OPTIONS, type HeaderOptions } from "../../template";
 import type { Company } from "../../types";
+import { LogoImage } from "./LogoImage";
 
 type HeaderProps = {
   company: Company;
@@ -49,8 +50,11 @@ const Header = ({
   fixed
 }: HeaderProps) => {
   const opts = { ...DEFAULT_HEADER_OPTIONS, ...options };
-  // Prefer the full light logo; fall back to the square icon.
-  const logoSrc = company.logoLight ?? company.logoLightIcon;
+  // `icon` variant prefers the square logo; `mark` prefers the full logo.
+  const logoSrc =
+    opts.logoVariant === "icon"
+      ? (company.logoLightIcon ?? company.logoLight)
+      : (company.logoLight ?? company.logoLightIcon);
   const showLogo = opts.showLogo && Boolean(logoSrc);
   // Name fallback only when a logo is wanted but missing. With the logo turned
   // off, render nothing here (the company name still shows in the details block).
@@ -60,9 +64,11 @@ const Header = ({
     <View style={tw("flex flex-row justify-between mb-1")}>
       <View style={tw("flex flex-row")}>
         {showLogo ? (
-          <Image
+          <LogoImage
             src={logoSrc!}
-            style={{ height: opts.logoHeight, width: "auto", marginRight: 12 }}
+            height={opts.logoHeight}
+            crop={opts.logoCrop}
+            marginRight={12}
           />
         ) : showNameFallback ? (
           <Text style={tw("text-2xl font-bold text-gray-800 mr-3")}>

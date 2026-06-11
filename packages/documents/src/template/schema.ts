@@ -23,9 +23,25 @@ const baseFields = {
 const builtInBlock = <T extends string>(type: T) =>
   z.object({ ...baseFields, type: z.literal(type) });
 
+/**
+ * A crop rectangle, normalized to the source image (0..1). `aspect` is the
+ * pixel aspect ratio of the cropped region (cropPxW / cropPxH) so renderers can
+ * size a clip box without knowing the image's intrinsic dimensions. Shared by
+ * the document header logo and the tracking-label logo block.
+ */
+export const cropSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  width: z.number().min(0).max(1),
+  height: z.number().min(0).max(1),
+  aspect: z.number().positive()
+});
+export type LogoCrop = z.infer<typeof cropSchema>;
+
 /** Per-block display options for the Header block (logo + which fields show). */
 export const DEFAULT_HEADER_OPTIONS = {
   showLogo: true,
+  logoVariant: "mark",
   logoHeight: 50,
   showCompanyDetails: true,
   showDocumentTitle: true,
@@ -34,7 +50,11 @@ export const DEFAULT_HEADER_OPTIONS = {
 
 export const headerOptionsSchema = z.object({
   showLogo: z.boolean().default(true),
+  /** Which company logo to use: full logo (`mark`) or the square `icon`. */
+  logoVariant: z.enum(["mark", "icon"]).default("mark"),
   logoHeight: z.number().min(16).max(120).default(50),
+  /** Optional crop applied before rendering (PDF clip box). */
+  logoCrop: cropSchema.optional(),
   showCompanyDetails: z.boolean().default(true),
   showDocumentTitle: z.boolean().default(true),
   showDocumentId: z.boolean().default(true)
@@ -124,19 +144,6 @@ const labelBarcodeBlock = z.object({
   placement: z.enum(["right", "full"]).default("right"),
   height: z.number().min(16).max(300).optional()
 });
-/**
- * A crop rectangle, normalized to the source image (0..1). `aspect` is the
- * pixel aspect ratio of the cropped region (cropPxW / cropPxH) so renderers can
- * size a clip box without knowing the image's intrinsic dimensions.
- */
-const cropSchema = z.object({
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
-  width: z.number().min(0).max(1),
-  height: z.number().min(0).max(1),
-  aspect: z.number().positive()
-});
-
 /** The company logo. Color in the PDF by default; `monochrome` for B&W / ZPL. */
 const labelLogoBlock = z.object({
   ...baseFields,
