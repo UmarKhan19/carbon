@@ -386,4 +386,12 @@ export type Events = {
       };
     };
   };
+
+  // Document extraction (PDF auto-fill)
+  "carbon/extract-document": {
+    data: {
+      documentExtractionId: string;
+      companyId: string;
+    };
+  };
 };
