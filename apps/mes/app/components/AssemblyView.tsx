@@ -38,9 +38,11 @@ import { useFetcher, useNavigate, useSearchParams } from "react-router";
 import { IssueMaterialModal } from "~/components/JobOperation/components/IssueMaterialModal";
 import { QualityIssueModal } from "~/components/JobOperation/components/QualityIssueModal";
 import { QuantityModal } from "~/components/JobOperation/components/QuantityModal";
+import { RecordModal } from "~/components/JobOperation/components/Step";
 import { useUser } from "~/hooks";
 import type {
   JobMaterial,
+  JobOperationStep,
   OperationWithDetails,
   ProductionEvent as ProductionEventType
 } from "~/services/types";
@@ -53,6 +55,7 @@ type StepRecord = {
   numericValue?: number | null;
   booleanValue?: boolean | null;
   userValue?: string | null;
+  createdBy?: string | null;
 };
 
 type Step = {
@@ -95,6 +98,11 @@ type Operation = {
   machineDuration?: number | null;
   itemDescription?: string | null;
   itemReadableId?: string | null;
+  jobReadableId?: string | null;
+  operationStatus?: string | null;
+  jobStatus?: string | null;
+  duration?: number | null;
+  jobDeadlineType?: string | null;
 };
 
 type Props = {
@@ -709,6 +717,39 @@ export function AssemblyView({
               </div>
             );
           })()}
+
+          {/* Operation status — mirrors the operation view's header strip. */}
+          {operation && (
+            <div className="mt-auto flex shrink-0 flex-col gap-1.5 border-t border-border px-3 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Status
+              </p>
+              {operation.jobReadableId && (
+                <StatusRow label="Job" value={operation.jobReadableId} mono />
+              )}
+              {operation.description && (
+                <StatusRow label="Operation" value={operation.description} />
+              )}
+              <StatusRow
+                label="State"
+                value={
+                  operation.jobStatus === "Paused"
+                    ? "Paused"
+                    : (operation.operationStatus ?? "—")
+                }
+              />
+              <StatusRow
+                label="Duration"
+                value={formatDurationMilliseconds(operation.duration ?? 0, {
+                  style: "short"
+                })}
+              />
+              <StatusRow
+                label="Deadline"
+                value={operation.jobDeadlineType ?? "—"}
+              />
+            </div>
+          )}
         </aside>
 
         {/* ── MAIN: reference image + containment + current step ── */}
@@ -1180,13 +1221,17 @@ function StepCompleteAction({
   done: boolean;
 }) {
   const fetcher = useFetcher();
+  const user = useUser();
   const busy = fetcher.state !== "idle";
-  const [inputValue, setInputValue] = useState("");
+  const recordModal = useDisclosure();
 
   // Find the existing record for this unit (if done)
   const record = (step.jobOperationStepRecord ?? []).find(
     (r) => r.index === activeIndex
   );
+  // A record can only be undone by whoever created it (the delete RPC filters
+  // by createdBy) — mirror the operation view and disable undo otherwise.
+  const canUndo = !!record && record.createdBy === user.id;
 
   const type = step.type ?? "Task";
 
@@ -1199,12 +1244,12 @@ function StepCompleteAction({
     });
   }
 
-  // Submit a completion record
-  function submitRecord(extra: Record<string, string> = {}) {
+  // Quick-complete a Task step (no captured value — matches the operation view).
+  function markTaskDone() {
     const fd = new FormData();
     fd.append("jobOperationStepId", step.id);
     fd.append("index", String(activeIndex));
-    for (const [k, v] of Object.entries(extra)) fd.append(k, v);
+    fd.append("booleanValue", "true");
     fetcher.submit(fd, { method: "post", action: path.to.record });
   }
 
@@ -1246,6 +1291,10 @@ function StepCompleteAction({
           isIcon
           aria-label="Undo"
           isLoading={busy}
+          isDisabled={!canUndo}
+          title={
+            canUndo ? "Undo" : "Only the operator who recorded this can undo it"
+          }
           onClick={handleUndo}
         >
           <LuUndo2 className="size-3.5 text-muted-foreground" />
@@ -1254,10 +1303,11 @@ function StepCompleteAction({
     );
   }
 
-  // ── Not done: show type-appropriate input ──
-
-  // Task / Inspection → single "Mark done" button
-  if (type === "Task" || type === "Inspection") {
+  // ── Not done ──
+  // Task → quick "Mark done" submit. Every other type (Value, Measurement,
+  // Checkbox, List, Person, Timestamp, File, Inspection) opens the shared
+  // RecordModal — same component the operation view uses (incl. file upload).
+  if (type === "Task") {
     return (
       <Button
         variant="primary"
@@ -1265,143 +1315,58 @@ function StepCompleteAction({
         leftIcon={<LuCheck />}
         isLoading={busy}
         className="w-full"
-        onClick={() => submitRecord()}
+        onClick={markTaskDone}
       >
         Mark done
       </Button>
     );
   }
 
-  // Checkbox → toggle-style button
-  if (type === "Checkbox") {
-    return (
-      <div className="flex gap-2">
-        <Button
-          variant="primary"
-          size="sm"
-          isLoading={busy}
-          className="flex-1"
-          onClick={() => submitRecord({ booleanValue: "true" })}
-        >
-          ✓ Pass
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          isLoading={busy}
-          className="flex-1"
-          onClick={() => submitRecord({ booleanValue: "false" })}
-        >
-          ✗ Fail
-        </Button>
-      </div>
-    );
-  }
-
-  // Measurement → number input + UOM
-  if (type === "Measurement") {
-    const hint =
-      step.minValue != null && step.maxValue != null
-        ? `${step.minValue} – ${step.maxValue} ${step.unitOfMeasureCode ?? ""}`
-        : (step.unitOfMeasureCode ?? "");
-    return (
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <input
-            type="number"
-            placeholder={hint || "Value"}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            className="h-9 w-full rounded-md border border-border bg-background px-3 pr-16 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          />
-          {step.unitOfMeasureCode && (
-            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-              {step.unitOfMeasureCode}
-            </span>
-          )}
-        </div>
-        <Button
-          variant="primary"
-          size="sm"
-          isLoading={busy}
-          isDisabled={!inputValue}
-          onClick={() => {
-            submitRecord({ numericValue: inputValue });
-            setInputValue("");
-          }}
-        >
-          Record
-        </Button>
-      </div>
-    );
-  }
-
-  // List → native select
-  if (type === "List" && step.listValues?.length) {
-    return (
-      <div className="flex gap-2">
-        <select
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-        >
-          <option value="">Select…</option>
-          {step.listValues.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </select>
-        <Button
-          variant="primary"
-          size="sm"
-          isLoading={busy}
-          isDisabled={!inputValue}
-          onClick={() => {
-            submitRecord({ value: inputValue });
-            setInputValue("");
-          }}
-        >
-          Record
-        </Button>
-      </div>
-    );
-  }
-
-  // Value / Person / Timestamp / fallback → text/date input
-  const inputType = type === "Timestamp" ? "datetime-local" : "text";
-  const placeholder =
-    type === "Person"
-      ? "Name or ID…"
-      : type === "Timestamp"
-        ? undefined
-        : "Enter value…";
-
   return (
-    <div className="flex gap-2">
-      <input
-        type={inputType}
-        placeholder={placeholder}
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        className="h-9 flex-1 rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-      />
+    <>
       <Button
         variant="primary"
-        size="sm"
-        isLoading={busy}
-        isDisabled={!inputValue}
-        onClick={() => {
-          const field: Record<string, string> =
-            type === "Person"
-              ? { userValue: inputValue }
-              : { value: inputValue };
-          submitRecord(field);
-          setInputValue("");
-        }}
+        size="lg"
+        leftIcon={<LuCheck />}
+        className="w-full"
+        onClick={recordModal.onOpen}
       >
         Record
       </Button>
+      {recordModal.isOpen && (
+        <RecordModal
+          attribute={step as unknown as JobOperationStep}
+          activeStep={activeIndex}
+          onClose={recordModal.onClose}
+        />
+      )}
+    </>
+  );
+}
+
+// Label · value row for the left-panel Status section.
+function StatusRow({
+  label,
+  value,
+  mono
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="shrink-0 text-[10px] text-muted-foreground">
+        {label}
+      </span>
+      <span
+        className={cn(
+          "min-w-0 truncate text-[11px] font-medium text-foreground",
+          mono && "font-mono"
+        )}
+      >
+        {value}
+      </span>
     </div>
   );
 }
