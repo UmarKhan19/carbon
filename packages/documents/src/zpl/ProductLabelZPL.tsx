@@ -138,11 +138,21 @@ export function generateProductLabelZPL(
         const value = interpolateString(block.value ?? "", vars);
         if (value) {
           if (block.placement === "full") {
-            // Full-width band near the bottom.
-            const bcHeight = isSmallLabel ? 60 : 110;
-            const bcY = heightDots - bcHeight - (isSmallLabel ? 25 : 40);
-            zpl += `^FO${textStartX},${bcY > 0 ? bcY : heightDots - bcHeight}`;
+            // Full-width band that flows *below* the text (not a fixed bottom
+            // offset, which collided with the last text line). Scale it to the
+            // space left between the text and the bottom entity-id line.
+            const gap = 6;
+            // Clear the bottom entity-id line (placed at heightDots-25/-35).
+            const bottomReserve = isSmallLabel ? 30 : 44;
+            const bcY = yPosition + gap;
+            const avail = heightDots - bottomReserve - bcY;
+            const bcHeight = Math.max(
+              20,
+              Math.min(isSmallLabel ? 60 : 110, avail)
+            );
+            zpl += `^FO${textStartX},${bcY}`;
             zpl += zplBarcode(block.symbology, value, bcHeight);
+            yPosition = bcY + bcHeight;
           } else {
             // Top-right, like the old QR slot.
             const bcHeight = isSmallLabel ? 80 : 130;
