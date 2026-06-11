@@ -570,7 +570,7 @@ export function AssemblyView({
       {/* ── HEADER ── */}
       <header className="flex h-[52px] shrink-0 items-center bg-card border-b border-border pl-1">
         <SidebarTrigger />
-        <div className="flex h-full items-center border-l border-border px-4">
+        <div className="hidden h-full shrink-0 items-center border-l border-border px-4 sm:flex">
           {companyLogo ? (
             <img
               src={companyLogo}
@@ -578,7 +578,7 @@ export function AssemblyView({
               className="h-7 w-auto max-w-[140px] object-contain"
             />
           ) : (
-            <span className="text-base font-bold tracking-tight">
+            <span className="whitespace-nowrap text-base font-bold tracking-tight">
               {user.company.name}
             </span>
           )}
@@ -599,14 +599,14 @@ export function AssemblyView({
         </div>
 
         {isSerial && (
-          <div className="flex h-full items-center gap-3 border-r border-border px-5">
+          <div className="flex h-full shrink-0 items-center gap-1.5 border-r border-border px-2 md:gap-3 md:px-5">
             <span className="whitespace-nowrap text-sm font-medium">
               Unit <span className="font-bold">{displayUnitIndex + 1}</span>{" "}
               <span className="text-muted-foreground">
                 of {unitEntities.length}
               </span>
             </span>
-            <div className="flex h-[18px] items-end gap-0.5">
+            <div className="hidden h-[18px] items-end gap-0.5 md:flex">
               {SIGNAL_HEIGHTS.map((h, i) => {
                 const filled =
                   i <=
@@ -652,6 +652,7 @@ export function AssemblyView({
                 size="sm"
                 isIcon
                 aria-label="Select unit"
+                className="hidden sm:inline-flex"
                 onClick={serialModal.onOpen}
               >
                 <LuBarcode />
@@ -661,6 +662,7 @@ export function AssemblyView({
                 size="sm"
                 isIcon
                 aria-label="Print label"
+                className="hidden sm:inline-flex"
                 onClick={() =>
                   window.open(
                     window.location.origin +
@@ -679,11 +681,12 @@ export function AssemblyView({
 
         <div className="flex-1" />
 
-        <div className="flex h-full items-center gap-2 border-l border-border px-4">
+        <div className="flex h-full shrink-0 items-center gap-1 border-l border-border px-2 md:gap-2 md:px-4">
           <Button
             variant="outline"
             size="sm"
             leftIcon={<LuFlag />}
+            className="hidden lg:flex"
             onClick={qualityModal.onOpen}
           >
             Flag issue
@@ -695,7 +698,8 @@ export function AssemblyView({
               leftIcon={<LuCheck />}
               onClick={completeModal.onOpen}
             >
-              Complete
+              <span className="hidden sm:inline">Complete</span>
+              <span className="sm:hidden">Done</span>
             </Button>
           ) : null}
           {operation ? (
@@ -1417,8 +1421,8 @@ function TimerControl({
   const elapsed = pendingAction === "End" ? 0 : liveElapsed;
 
   return (
-    <div className="flex h-full items-center gap-2 border-l border-border px-4">
-      <span className="flex flex-col items-end leading-none">
+    <div className="flex h-full shrink-0 items-center gap-1 border-l border-border px-2 md:gap-2 md:px-4">
+      <span className="hidden flex-col items-end leading-none sm:flex">
         <span className="text-sm font-medium tabular-nums">
           {formatElapsed(elapsed)}
         </span>
