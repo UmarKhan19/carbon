@@ -2100,9 +2100,6 @@ msgstr "顧客タイプ"
 msgid "Customers"
 msgstr "顧客"
 
-msgid "Customize layout"
-msgstr ""
-
 msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
 msgstr ""
 

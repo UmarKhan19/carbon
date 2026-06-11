@@ -77,13 +77,11 @@ function DocumentCard({ doc }: { doc: (typeof DOCUMENT_CATALOG)[number] }) {
       </span>
       <span className="flex flex-col">
         <span className="text-sm font-medium">{doc.label}</span>
-        <span className="text-xs text-muted-foreground">
-          {doc.supported ? (
-            <Trans>Customize layout</Trans>
-          ) : (
+        {!doc.supported && (
+          <span className="text-xs text-muted-foreground">
             <Trans>Coming soon</Trans>
-          )}
-        </span>
+          </span>
+        )}
       </span>
       {doc.supported ? (
         <LuChevronRight className="ml-auto size-4 text-muted-foreground" />
