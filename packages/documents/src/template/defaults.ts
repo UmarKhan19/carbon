@@ -214,7 +214,7 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     addable: false
   },
   labelEntityId: {
-    label: "Tracked Entity ID",
+    label: "Identifier",
     isBuiltIn: true,
     removable: false,
     hideable: true,
@@ -355,7 +355,12 @@ function labelBlocks(): DocumentBlock[] {
       value: "{label.trackedEntityId}",
       placement: "right"
     },
-    { id: "labelEntityId", type: "labelEntityId", visible: true }
+    {
+      id: "labelEntityId",
+      type: "labelEntityId",
+      visible: true,
+      value: "{label.trackedEntityId}"
+    }
   ];
 }
 

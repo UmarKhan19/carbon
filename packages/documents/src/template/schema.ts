@@ -129,7 +129,12 @@ const labelNamedField = <T extends string>(type: T) =>
 const labelRevisionBlock = labelNamedField("labelRevision");
 const labelQuantityBlock = labelNamedField("labelQuantity");
 const labelTrackingBlock = labelNamedField("labelTracking");
-const labelEntityIdBlock = builtInBlock("labelEntityId");
+/** A human-readable identifier line (defaults to the tracked-entity id). */
+const labelEntityIdBlock = z.object({
+  ...baseFields,
+  type: z.literal("labelEntityId"),
+  value: z.string().default("{label.trackedEntityId}")
+});
 /**
  * A scannable code (QR / PDF417 / Code128 / DataMatrix). `placement` is "right"
  * (small, top-right next to the logo) or "full" (full-width band, e.g. PDF417).
@@ -453,3 +458,7 @@ export type LabelBarcodeBlock = Extract<
   { type: "labelBarcode" }
 >;
 export type LabelLogoBlock = Extract<DocumentBlock, { type: "labelLogo" }>;
+export type LabelEntityIdBlock = Extract<
+  DocumentBlock,
+  { type: "labelEntityId" }
+>;

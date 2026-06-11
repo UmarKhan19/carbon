@@ -30,7 +30,10 @@ export const trackingLabelBlockRegistry: Record<
     block.type === "labelTracking" ? (
       <LabelTrackingBlock block={block} data={data} />
     ) : null,
-  labelEntityId: ({ data }) => <LabelEntityIdBlock data={data} />,
+  labelEntityId: ({ block, data }) =>
+    block.type === "labelEntityId" ? (
+      <LabelEntityIdBlock block={block} data={data} />
+    ) : null,
   labelBarcode: ({ block, data }) =>
     block.type === "labelBarcode" ? (
       <LabelBarcodeBlock block={block} data={data} />

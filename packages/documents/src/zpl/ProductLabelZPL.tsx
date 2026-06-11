@@ -119,13 +119,15 @@ export function generateProductLabelZPL(
           yPosition += descGap;
         }
         break;
-      case "labelEntityId":
-        if (item.trackedEntityId) {
-          // Tracked entity id text at the bottom.
+      case "labelEntityId": {
+        // Human-readable identifier text at the bottom (interpolated value).
+        const value = interpolateString(block.value ?? "", vars);
+        if (value) {
           const idYPosition = isSmallLabel ? heightDots - 25 : heightDots - 35;
-          zpl += `^FO${textStartX},${idYPosition}^A0N,${smallFontSize},${smallFontSize}^FD${item.trackedEntityId}^FS`;
+          zpl += `^FO${textStartX},${idYPosition}^A0N,${smallFontSize},${smallFontSize}^FD${value}^FS`;
         }
         break;
+      }
       case "labelLogo":
         if (logo?.gfa) {
           // Top-right, like the QR slot.

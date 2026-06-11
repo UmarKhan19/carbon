@@ -45,6 +45,7 @@ import {
   FieldConfig,
   HeaderLogoConfig,
   LabelBarcodeConfig,
+  LabelEntityIdConfig,
   LabelFieldNameConfig,
   LabelLogoConfig
 } from "./labelConfigs";
@@ -137,7 +138,8 @@ export function BlockConfig() {
     block.type === "labelQuantity" ||
     block.type === "labelTracking" ||
     block.type === "labelBarcode" ||
-    block.type === "labelLogo";
+    block.type === "labelLogo" ||
+    block.type === "labelEntityId";
 
   return (
     <div className="flex flex-col gap-4">
@@ -172,6 +174,7 @@ export function BlockConfig() {
       {block.type === "field" && <FieldConfig block={block} />}
       {block.type === "labelBarcode" && <LabelBarcodeConfig block={block} />}
       {block.type === "labelLogo" && <LabelLogoConfig block={block} />}
+      {block.type === "labelEntityId" && <LabelEntityIdConfig block={block} />}
       {block.type === "customField" && <CustomFieldConfig block={block} />}
       {block.type === "shared" && (
         <div className="flex flex-col gap-2">

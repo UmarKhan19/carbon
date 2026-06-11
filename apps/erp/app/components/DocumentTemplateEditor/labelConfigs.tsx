@@ -1,6 +1,7 @@
 import type {
   FieldBlock,
   LabelBarcodeBlock,
+  LabelEntityIdBlock,
   LabelLogoBlock,
   LabelNamedBlock
 } from "@carbon/documents/template";
@@ -283,6 +284,27 @@ export function LabelLogoConfig({ block }: { block: LabelLogoBlock }) {
       <p className="text-xs text-muted-foreground">
         Label printers always print the logo in black & white.
       </p>
+    </div>
+  );
+}
+
+/** The identifier line: a single interpolated value (merge fields supported). */
+export function LabelEntityIdConfig({ block }: { block: LabelEntityIdBlock }) {
+  const { updateBlock } = useDocumentTemplate();
+  const insertField = (snippet: string) =>
+    updateBlock(block.id, { value: (block.value ?? "") + snippet });
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between">
+        <Label htmlFor="identifier-value">Value</Label>
+        <MergeFieldMenu onInsert={insertField} label="Insert field" />
+      </div>
+      <Input
+        id="identifier-value"
+        value={block.value ?? ""}
+        onChange={(e) => updateBlock(block.id, { value: e.target.value })}
+      />
     </div>
   );
 }

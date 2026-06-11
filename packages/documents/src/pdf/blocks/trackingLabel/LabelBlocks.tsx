@@ -3,6 +3,7 @@ import { generateBarcode } from "../../../qr/barcode";
 import type {
   FieldBlock,
   LabelBarcodeBlock as LabelBarcodeBlockType,
+  LabelEntityIdBlock as LabelEntityIdBlockType,
   LabelLogoBlock as LabelLogoBlockType,
   LabelNamedBlock
 } from "../../../template";
@@ -135,20 +136,26 @@ export function LabelTrackingBlock({
   );
 }
 
-/** Tracked-entity id, shown as text. */
-export function LabelEntityIdBlock({ data }: { data: LabelData }) {
-  const { item, descriptionFontSize } = data;
-  if (!item.trackedEntityId) return null;
+/** A human-readable identifier line (interpolated value), centered. */
+export function LabelEntityIdBlock({
+  block,
+  data
+}: {
+  block: LabelEntityIdBlockType;
+  data: LabelData;
+}) {
+  const value = interpolateString(block.value ?? "", data.vars);
+  if (!value) return null;
   return (
     <Text
       style={{
         ...tw("mt-1 text-center"),
-        fontSize: `${descriptionFontSize - 1}pt`,
+        fontSize: `${data.descriptionFontSize - 1}pt`,
         width: "100%",
         flexShrink: 0
       }}
     >
-      {item.trackedEntityId}
+      {value}
     </Text>
   );
 }
