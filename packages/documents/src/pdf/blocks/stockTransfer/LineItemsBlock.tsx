@@ -6,6 +6,7 @@ import {
   DEFAULT_LINE_ITEMS_OPTIONS,
   type LineItemsBlock as LineItemsBlockType
 } from "../../../template";
+import { itemTextOverflowStyle } from "../itemText";
 import { tw } from "../tw";
 import type { StockTransferData } from "./types";
 
@@ -30,6 +31,7 @@ export function LineItemsBlock({
 }) {
   const { stockTransferLines, thumbnails, theme } = data;
   const opts = { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options };
+  const overflow = itemTextOverflowStyle(opts);
 
   return (
     <View style={tw("mb-6 text-xs")}>
@@ -70,8 +72,12 @@ export function LineItemsBlock({
               wrap={false}
             >
               <View style={tw("w-2/5")}>
-                <Text style={tw("font-bold mb-1")}>{line.itemDescription}</Text>
-                <Text style={tw("text-[9px] opacity-80 mb-2")}>
+                <Text style={{ ...tw("font-bold mb-1"), ...overflow }}>
+                  {line.itemDescription}
+                </Text>
+                <Text
+                  style={{ ...tw("text-[9px] opacity-80 mb-2"), ...overflow }}
+                >
                   {line.itemReadableId}
                 </Text>
                 {opts.showThumbnails &&

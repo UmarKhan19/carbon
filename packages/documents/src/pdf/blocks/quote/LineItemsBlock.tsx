@@ -11,6 +11,7 @@ import {
   getLineDescriptionDetails
 } from "../../../utils/quote";
 import { Note } from "../../components";
+import { itemTextOverflowStyle } from "../itemText";
 import { tw } from "../tw";
 import type { QuoteData } from "./types";
 
@@ -37,6 +38,7 @@ export function LineItemsBlock({
     locale
   } = data;
   const opts = { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options };
+  const overflow = itemTextOverflowStyle(opts);
   let rowIndex = 0;
 
   return (
@@ -135,10 +137,17 @@ export function LineItemsBlock({
                       <View style={tw("w-1/3 pr-2")}>
                         {index === 0 && (
                           <>
-                            <Text style={tw("text-gray-800")}>
+                            <Text
+                              style={{ ...tw("text-gray-800"), ...overflow }}
+                            >
                               {getLineDescription(line)}
                             </Text>
-                            <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
+                            <Text
+                              style={{
+                                ...tw("text-[8px] text-gray-400 mt-0.5"),
+                                ...overflow
+                              }}
+                            >
                               {getLineDescriptionDetails(line)}
                             </Text>
                             {opts.showThumbnails &&

@@ -401,6 +401,23 @@ function LineItemsConfig({ block }: { block: LineItemsBlock }) {
         checked={opts.zebra}
         onChange={(v) => set("zebra", v)}
       />
+      <div className="flex flex-col gap-1.5">
+        <Label>Item text</Label>
+        <Select
+          value={opts.textOverflow}
+          onValueChange={(v) =>
+            set("textOverflow", v as typeof opts.textOverflow)
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="wrap">Wrap to new lines</SelectItem>
+            <SelectItem value="truncate">Truncate to one line</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

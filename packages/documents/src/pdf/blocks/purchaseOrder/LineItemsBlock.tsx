@@ -12,6 +12,7 @@ import {
 } from "../../../utils/purchase-order";
 import { formatTaxPercent } from "../../../utils/shared";
 import { Note } from "../../components";
+import { itemTextOverflowStyle } from "../itemText";
 import { tw } from "../tw";
 import type { PurchaseOrderData } from "./types";
 
@@ -40,6 +41,7 @@ export function LineItemsBlock({
     locale
   } = data;
   const opts = { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options };
+  const overflow = itemTextOverflowStyle(opts);
   let rowIndex = 0;
 
   return (
@@ -93,15 +95,20 @@ export function LineItemsBlock({
                 </Text>
                 <View style={tw("w-[22%] pr-2")}>
                   {isIndirect(line.purchaseOrderLineType) ? (
-                    <Text style={tw("text-gray-900")}>
+                    <Text style={{ ...tw("text-gray-900"), ...overflow }}>
                       {line.description ?? ""}
                     </Text>
                   ) : (
                     <>
-                      <Text style={tw("text-gray-900")}>
+                      <Text style={{ ...tw("text-gray-900"), ...overflow }}>
                         {getLineDescription(line)}
                       </Text>
-                      <Text style={tw("text-[7px] text-gray-600 mt-0.5")}>
+                      <Text
+                        style={{
+                          ...tw("text-[7px] text-gray-600 mt-0.5"),
+                          ...overflow
+                        }}
+                      >
                         {getLineDescriptionDetails(line)}
                       </Text>
                     </>

@@ -11,6 +11,7 @@ import {
   getLineTotal
 } from "../../utils/sales-invoice";
 import { Note } from "../components";
+import { itemTextOverflowStyle } from "./itemText";
 import { tw } from "./tw";
 import type { SalesInvoiceData } from "./types";
 
@@ -23,6 +24,7 @@ export function LineItemsBlock({
 }) {
   const { salesInvoiceLines, thumbnails, numberFormatter, theme } = data;
   const opts = { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options };
+  const overflow = itemTextOverflowStyle(opts);
   let rowIndex = 0;
 
   return (
@@ -74,10 +76,15 @@ export function LineItemsBlock({
               ]}
             >
               <View style={tw("w-1/2 pr-2")}>
-                <Text style={tw("text-gray-800")}>
+                <Text style={{ ...tw("text-gray-800"), ...overflow }}>
                   {getLineDescription(line)}
                 </Text>
-                <Text style={tw("text-[9px] text-gray-600 mt-0.5")}>
+                <Text
+                  style={{
+                    ...tw("text-[9px] text-gray-600 mt-0.5"),
+                    ...overflow
+                  }}
+                >
                   {getLineDescriptionDetails(line)}
                 </Text>
                 {opts.showThumbnails &&

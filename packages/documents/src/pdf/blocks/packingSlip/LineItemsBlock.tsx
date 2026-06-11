@@ -7,6 +7,7 @@ import {
   DEFAULT_LINE_ITEMS_OPTIONS,
   type LineItemsBlock as LineItemsBlockType
 } from "../../../template";
+import { itemTextOverflowStyle } from "../itemText";
 import { tw } from "../tw";
 import type { PackingSlipData } from "./types";
 
@@ -33,6 +34,7 @@ export function LineItemsBlock({
 }) {
   const { shipmentLines, trackedEntities, thumbnails } = data;
   const opts = { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options };
+  const overflow = itemTextOverflowStyle(opts);
   const hasTrackedEntities = trackedEntities.length > 0;
   let rowIndex = 0;
 
@@ -77,8 +79,15 @@ export function LineItemsBlock({
               <View
                 style={tw(`w-${hasTrackedEntities ? "5/12" : "7/12"} pr-2`)}
               >
-                <Text style={tw("text-gray-800")}>{line.itemReadableId}</Text>
-                <Text style={tw("text-[8px] text-gray-400 mt-0.5")}>
+                <Text style={{ ...tw("text-gray-800"), ...overflow }}>
+                  {line.itemReadableId}
+                </Text>
+                <Text
+                  style={{
+                    ...tw("text-[8px] text-gray-400 mt-0.5"),
+                    ...overflow
+                  }}
+                >
                   {line.description}
                 </Text>
                 {opts.showThumbnails &&

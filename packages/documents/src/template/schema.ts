@@ -63,12 +63,15 @@ export const headerOptionsSchema = z.object({
 /** Per-block display options for the Line Items table. */
 export const DEFAULT_LINE_ITEMS_OPTIONS = {
   showThumbnails: true,
-  zebra: true
+  zebra: true,
+  textOverflow: "wrap"
 } as const;
 
 const lineItemsOptionsSchema = z.object({
   showThumbnails: z.boolean().default(true),
-  zebra: z.boolean().default(true)
+  zebra: z.boolean().default(true),
+  /** How the item title/description behave: wrap to new lines or truncate. */
+  textOverflow: z.enum(["wrap", "truncate"]).default("wrap")
 });
 
 /** Per-block options for the Summary totals. */
