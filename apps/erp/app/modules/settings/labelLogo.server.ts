@@ -21,7 +21,7 @@ export interface ResolvedLabelLogo {
  * Returns null when there's no logo block or no company logo.
  */
 export async function resolveLabelLogo(
-  company: { logoLight?: string | null } | null,
+  company: { logoLight?: string | null; logoLightIcon?: string | null } | null,
   template: DocumentTemplate | null,
   labelSize: LabelSize
 ): Promise<ResolvedLabelLogo | null> {
@@ -29,7 +29,7 @@ export async function resolveLabelLogo(
   const hasLogo = resolved.blocks.some(
     (b) => b.type === "labelLogo" && b.visible
   );
-  const color = company?.logoLight;
+  const color = company?.logoLight ?? company?.logoLightIcon;
   if (!hasLogo || !color) return null;
 
   // Logo width ≈ 30% of the label, in printer dots.

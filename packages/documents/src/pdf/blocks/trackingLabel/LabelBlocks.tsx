@@ -206,9 +206,10 @@ export function LabelLogoBlock({
   block: LabelLogoBlockType;
   data: LabelData;
 }) {
+  const companyLogo = data.company?.logoLight ?? data.company?.logoLightIcon;
   const src = block.monochrome
-    ? (data.logo?.mono ?? data.logo?.color ?? data.company?.logoLight)
-    : (data.logo?.color ?? data.company?.logoLight);
+    ? (data.logo?.mono ?? data.logo?.color ?? companyLogo)
+    : (data.logo?.color ?? companyLogo);
   if (!src) return null;
   const height = block.height ?? 50;
   return (

@@ -1,3 +1,4 @@
+import { SUPABASE_URL } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type {
   DocumentTemplate,
@@ -97,11 +98,32 @@ export async function getCompanySettings(
     .single();
 }
 
+const PUBLIC_STORAGE_URL_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/public/`;
+
 export async function getCompany(
   client: SupabaseClient<Database>,
   companyId: string
 ) {
-  return client.from("company").select("*").eq("id", companyId).single();
+  const company = await client
+    .from("company")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+  if (company.error || !company.data) return company;
+  // Logos are stored as storage paths; expand to full public URLs (matches the
+  // ERP getCompany) so they're fetchable by the PDF/ZPL pipeline.
+  const url = (p: string | null) =>
+    p ? `${PUBLIC_STORAGE_URL_PREFIX}${p}` : p;
+  return {
+    data: {
+      ...company.data,
+      logoLight: url(company.data.logoLight),
+      logoDark: url(company.data.logoDark),
+      logoLightIcon: url(company.data.logoLightIcon),
+      logoDarkIcon: url(company.data.logoDarkIcon)
+    },
+    error: null
+  };
 }
 
 export async function getSerialNumbersForItem(
