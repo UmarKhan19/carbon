@@ -80,8 +80,8 @@ const ProductLabelPDF = ({
 
   // QR code size based on effective label dimensions accounting for rotation
   const qrCodeSize = Math.min(
-    effectiveLabelHeightPt * 0.8,
-    effectiveLabelWidthPt * 0.4
+    effectiveLabelHeightPt * 0.7,
+    effectiveLabelWidthPt * 0.33
   );
 
   // Calculate how many pages we need
@@ -139,7 +139,7 @@ const ProductLabelPDF = ({
                   titleFontSize,
                   descriptionFontSize,
                   qrCodeSize,
-                  labelColWidth: labelWidthPt * 0.4,
+                  labelColWidth: labelWidthPt * 0.26,
                   sections
                 };
 
@@ -187,13 +187,20 @@ const ProductLabelPDF = ({
                   >
                     <View style={tw("flex flex-row justify-between")}>
                       <View
-                        style={tw("flex flex-col justify-center flex-1 pr-2")}
+                        style={{
+                          ...tw("flex flex-col justify-center pr-2"),
+                          flex: 1,
+                          minWidth: 0
+                        }}
                       >
                         {textBlocks.map(renderBlock)}
                       </View>
                       {rightBlocks.length > 0 && (
                         <View
-                          style={tw("flex flex-col items-end justify-start")}
+                          style={{
+                            ...tw("flex flex-col items-end justify-start"),
+                            flexShrink: 0
+                          }}
                         >
                           {rightBlocks.map(renderBlock)}
                         </View>
