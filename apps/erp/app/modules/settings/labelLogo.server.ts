@@ -26,11 +26,17 @@ export async function resolveLabelLogo(
   labelSize: LabelSize
 ): Promise<ResolvedLabelLogo | null> {
   const resolved = resolveTemplate("trackingLabel", template);
-  const hasLogo = resolved.blocks.some(
+  const logoBlock = resolved.blocks.find(
     (b) => b.type === "labelLogo" && b.visible
   );
-  const color = company?.logoLight ?? company?.logoLightIcon;
-  if (!hasLogo || !color) return null;
+  if (!logoBlock) return null;
+  const variant = logoBlock.type === "labelLogo" ? logoBlock.variant : "mark";
+  const crop = logoBlock.type === "labelLogo" ? logoBlock.crop : undefined;
+  const color =
+    variant === "icon"
+      ? (company?.logoLightIcon ?? company?.logoLight)
+      : (company?.logoLight ?? company?.logoLightIcon);
+  if (!color) return null;
 
   // Logo width ≈ 30% of the label, in printer dots.
   const dpi = labelSize.zpl?.dpi ?? 203;
@@ -43,6 +49,13 @@ export async function resolveLabelLogo(
     const formData = new FormData();
     formData.append("file", blob, "logo.png");
     formData.append("widthDots", String(widthDots));
+    if (crop) {
+      // ZPL/mono can't clip at render — crop server-side before threshold.
+      formData.append("cropX", String(crop.x));
+      formData.append("cropY", String(crop.y));
+      formData.append("cropW", String(crop.width));
+      formData.append("cropH", String(crop.height));
+    }
     const res = await fetch(`${SUPABASE_URL}/functions/v1/logo-resizer`, {
       method: "POST",
       body: formData

@@ -238,6 +238,7 @@ export function DocumentTemplateProvider({
     const block: DocumentBlock = {
       id: nanoid(),
       type: "labelLogo",
+      variant: "mark",
       visible: true
     };
     setBlocks((prev) => [...prev, block]);

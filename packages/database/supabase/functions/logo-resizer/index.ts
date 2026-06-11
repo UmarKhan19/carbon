@@ -58,6 +58,17 @@ serve(async (req: Request) => {
       Math.min(1200, parseInt((formData.get("widthDots") as string) || "240", 10))
     );
     const threshold = parseInt((formData.get("threshold") as string) || "50", 10);
+    // Optional crop, normalized 0..1 relative to the source image.
+    const num = (k: string) => {
+      const v = formData.get(k);
+      return v === null ? null : parseFloat(v as string);
+    };
+    const cropX = num("cropX");
+    const cropY = num("cropY");
+    const cropW = num("cropW");
+    const cropH = num("cropH");
+    const hasCrop =
+      cropX !== null && cropY !== null && cropW !== null && cropH !== null;
 
     if (!file) throw new Error("No file provided");
     const bytes = new Uint8Array(await file.arrayBuffer());
@@ -68,6 +79,20 @@ serve(async (req: Request) => {
     let outH = 0;
 
     ImageMagick.read(bytes, (img) => {
+      // Crop first (normalized → pixels), so downstream sizing sees the region.
+      if (hasCrop) {
+        const px = Math.max(1, Math.round((cropW as number) * img.width));
+        const py = Math.max(1, Math.round((cropH as number) * img.height));
+        img.crop(
+          new MagickGeometry(
+            Math.round((cropX as number) * img.width),
+            Math.round((cropY as number) * img.height),
+            px,
+            py
+          )
+        );
+        img.resetPage();
+      }
       // Flatten transparency onto white so it doesn't threshold to black.
       img.backgroundColor = new MagickColor("white");
       img.alpha(AlphaOption.Remove);

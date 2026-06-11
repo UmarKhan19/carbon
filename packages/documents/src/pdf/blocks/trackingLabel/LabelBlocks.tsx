@@ -206,18 +206,56 @@ export function LabelLogoBlock({
   block: LabelLogoBlockType;
   data: LabelData;
 }) {
-  const companyLogo = data.company?.logoLight ?? data.company?.logoLightIcon;
+  const light = data.company?.logoLight;
+  const icon = data.company?.logoLightIcon;
+  // `icon` variant prefers the square logo; `mark` prefers the full logo.
+  const companyLogo =
+    block.variant === "icon" ? (icon ?? light) : (light ?? icon);
   const src = block.monochrome
     ? (data.logo?.mono ?? data.logo?.color ?? companyLogo)
     : (data.logo?.color ?? companyLogo);
   if (!src) return null;
   const height = block.height ?? 50;
+  const { crop } = block;
+
+  // No crop: render the logo as-is, height-constrained.
+  if (!crop) {
+    return (
+      <View style={tw("flex items-end mb-1")}>
+        <Image
+          src={src}
+          style={{ height, width: "auto", objectFit: "contain" }}
+        />
+      </View>
+    );
+  }
+
+  // Crop via a clip box: the box is the cropped region (sized by stored pixel
+  // aspect), the image is blown up so the crop fills it and shifted into place.
+  // `overflow: hidden` clips the rest — no intrinsic image dimensions needed.
+  const boxH = height;
+  const boxW = height * crop.aspect;
   return (
     <View style={tw("flex items-end mb-1")}>
-      <Image
-        src={src}
-        style={{ height, width: "auto", objectFit: "contain" }}
-      />
+      <View
+        style={{
+          width: boxW,
+          height: boxH,
+          overflow: "hidden",
+          position: "relative"
+        }}
+      >
+        <Image
+          src={src}
+          style={{
+            position: "absolute",
+            width: boxW / crop.width,
+            height: boxH / crop.height,
+            left: -(crop.x / crop.width) * boxW,
+            top: -(crop.y / crop.height) * boxH
+          }}
+        />
+      </View>
     </View>
   );
 }

@@ -43,8 +43,10 @@ import {
   LuTrash2
 } from "react-icons/lu";
 import { Link } from "react-router";
+import { useUser } from "~/hooks";
 import { path } from "~/utils/path";
 import { FOOTER_BLOCK_ID, useDocumentTemplate } from "./context";
+import { LogoCropper } from "./LogoCropper";
 import { MergeFieldMenu } from "./MergeFieldMenu";
 import { NumberRow } from "./NumberRow";
 import { SectionFormModal } from "./SectionFormModal";
@@ -447,8 +449,46 @@ function LabelBarcodeConfig({ block }: { block: LabelBarcodeBlock }) {
 /** Company logo: B&W toggle + height. */
 function LabelLogoConfig({ block }: { block: LabelLogoBlock }) {
   const { updateBlock } = useDocumentTemplate();
+  const { company } = useUser();
+  const variant = block.variant ?? "mark";
+  const src =
+    variant === "icon"
+      ? (company?.logoLightIcon ?? company?.logoLight)
+      : (company?.logoLight ?? company?.logoLightIcon);
   return (
     <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1.5">
+        <Label>Logo</Label>
+        <Select
+          value={variant}
+          onValueChange={(value) =>
+            // Switching source invalidates the old crop's aspect.
+            updateBlock(block.id, {
+              variant: value as LabelLogoBlock["variant"],
+              crop: undefined
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="mark">Logo mark</SelectItem>
+            <SelectItem value="icon">Icon</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {src ? (
+        <LogoCropper
+          src={src}
+          crop={block.crop}
+          onChange={(crop) => updateBlock(block.id, { crop })}
+        />
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          No company logo set — upload one in company settings to crop it.
+        </p>
+      )}
       <ToggleRow
         label="Print in black & white"
         checked={block.monochrome ?? false}
@@ -462,7 +502,7 @@ function LabelLogoConfig({ block }: { block: LabelLogoBlock }) {
         onChange={(v) => updateBlock(block.id, { height: v })}
       />
       <p className="text-xs text-muted-foreground">
-        Uses your company logo. ZPL printers always render it black & white.
+        ZPL printers always render the logo black & white.
       </p>
     </div>
   );

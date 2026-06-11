@@ -124,11 +124,28 @@ const labelBarcodeBlock = z.object({
   placement: z.enum(["right", "full"]).default("right"),
   height: z.number().min(16).max(300).optional()
 });
+/**
+ * A crop rectangle, normalized to the source image (0..1). `aspect` is the
+ * pixel aspect ratio of the cropped region (cropPxW / cropPxH) so renderers can
+ * size a clip box without knowing the image's intrinsic dimensions.
+ */
+const cropSchema = z.object({
+  x: z.number().min(0).max(1),
+  y: z.number().min(0).max(1),
+  width: z.number().min(0).max(1),
+  height: z.number().min(0).max(1),
+  aspect: z.number().positive()
+});
+
 /** The company logo. Color in the PDF by default; `monochrome` for B&W / ZPL. */
 const labelLogoBlock = z.object({
   ...baseFields,
   type: z.literal("labelLogo"),
+  /** Which company logo to use: full logo (`mark`) or the square `icon`. */
+  variant: z.enum(["mark", "icon"]).default("mark"),
   monochrome: z.boolean().optional(),
+  /** Optional crop applied before rendering (PDF clip box / ZPL pre-crop). */
+  crop: cropSchema.optional(),
   height: z.number().min(16).max(160).optional()
 });
 
