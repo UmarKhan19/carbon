@@ -1,3 +1,4 @@
+import type { DocumentBlockType } from "@carbon/documents/template";
 import {
   BLOCK_META,
   BUILT_IN_SECTION_IDS,
@@ -32,18 +33,25 @@ import { Fragment, type ReactNode } from "react";
 import {
   LuEye,
   LuEyeOff,
+  LuFileText,
   LuGripVertical,
+  LuHash,
   LuImage,
+  LuInfo,
   LuLibrary,
   LuLock,
   LuPanelBottom,
   LuPanelTop,
   LuPlus,
+  LuQrCode,
+  LuReceipt,
   LuSeparatorHorizontal,
+  LuStickyNote,
   LuTable,
   LuTag,
   LuTrash2,
-  LuType
+  LuType,
+  LuUsers
 } from "react-icons/lu";
 import { Link } from "react-router";
 import { path } from "~/utils/path";
@@ -75,6 +83,30 @@ const ADD_OPTIONS: {
     description: "Space, divider, or page break"
   }
 ];
+
+/** A consistent leading icon per block type, so every row reads the same. */
+const BLOCK_ICON: Partial<Record<DocumentBlockType, ReactNode>> = {
+  header: <LuPanelTop className="size-4" />,
+  parties: <LuUsers className="size-4" />,
+  details: <LuInfo className="size-4" />,
+  lineItems: <LuTable className="size-4" />,
+  summary: <LuReceipt className="size-4" />,
+  terms: <LuFileText className="size-4" />,
+  notes: <LuStickyNote className="size-4" />,
+  richText: <LuType className="size-4" />,
+  keyValue: <LuTable className="size-4" />,
+  spacer: <LuSeparatorHorizontal className="size-4" />,
+  shared: <LuLibrary className="size-4" />,
+  field: <LuType className="size-4" />,
+  customField: <LuTag className="size-4" />,
+  labelLogo: <LuImage className="size-4" />,
+  labelBarcode: <LuQrCode className="size-4" />,
+  labelEntityId: <LuHash className="size-4" />
+};
+
+function blockIcon(type: DocumentBlockType): ReactNode {
+  return BLOCK_ICON[type] ?? <LuType className="size-4" />;
+}
 
 export function BlockList() {
   const {
@@ -319,11 +351,15 @@ function BlockRow({ id }: { id: string }) {
         type="button"
         aria-label="Drag to reorder"
         onClick={(e) => e.stopPropagation()}
-        className="cursor-grab text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
+        className="relative cursor-grab text-muted-foreground/60 active:cursor-grabbing"
         {...attributes}
         {...listeners}
       >
-        <LuGripVertical className="size-4" />
+        {/* Type icon normally; grip on hover to signal draggability. */}
+        <span className="group-hover:opacity-0">{blockIcon(block.type)}</span>
+        <span className="absolute inset-0 opacity-0 group-hover:opacity-100">
+          <LuGripVertical className="size-4" />
+        </span>
       </button>
 
       <span className="flex flex-1 items-center gap-2 truncate text-sm">
@@ -425,6 +461,9 @@ function NestedBlockRow({ id }: { id: string }) {
           !shown && !isSelected && "opacity-60"
         )}
       >
+        <span className="p-1 text-muted-foreground/60">
+          {blockIcon(block.type)}
+        </span>
         <span className="flex-1 truncate text-sm">{label}</span>
         {meta.removable && (
           <button
