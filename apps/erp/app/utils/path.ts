@@ -1385,6 +1385,8 @@ export const path = {
       generatePath(`${x}/purchase-invoice/${id}/void`),
     purchaseInvoices: `${x}/purchasing/invoices`,
     purchaseOrder: (id: string) => generatePath(`${x}/purchase-order/${id}`),
+    purchaseOrderDuplicate: (id: string) =>
+      generatePath(`${x}/purchase-order/${id}/duplicate`),
     purchaseOrderDelivery: (id: string) =>
       generatePath(`${x}/purchase-order/${id}/delivery`),
     purchaseOrderDetails: (id: string) =>
@@ -1552,6 +1554,8 @@ export const path = {
       generatePath(`${x}/sales-order/${id}/release`),
     salesOrderStatus: (id: string) =>
       generatePath(`${x}/sales-order/${id}/status`),
+    salesOrderCancelPreview: (id: string) =>
+      generatePath(`${x}/sales-order/${id}/cancel-preview`),
     salesOrders: `${x}/sales/orders`,
     salesPriceList: `${x}/sales/price-list`,
     deletePriceOverride: (id: string) =>

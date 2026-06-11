@@ -122,15 +122,18 @@ export async function action({ request }: ActionFunctionArgs) {
         };
         const existingLineUpdates: OrderEntry[] = [];
         const ordersBySupplierPeriod = new Map<string, OrderEntry[]>();
+        const errors: string[] = [];
 
         for (const item of itemsToOrder) {
           itemIds.add(item.id);
+          let itemHasUsableOrder = false;
           for (const order of item.orders) {
             if (order.supplierId) supplierIds.add(order.supplierId);
             if (order.periodId) periodIds.add(order.periodId);
 
             if (order.existingLineId) {
               existingLineUpdates.push({ itemId: item.id, order });
+              itemHasUsableOrder = true;
             } else if (order.supplierId && order.periodId) {
               const key = `${order.supplierId}::${order.periodId}`;
               if (!ordersBySupplierPeriod.has(key)) {
@@ -140,7 +143,13 @@ export async function action({ request }: ActionFunctionArgs) {
                 itemId: item.id,
                 order
               });
+              itemHasUsableOrder = true;
             }
+          }
+          if (!itemHasUsableOrder) {
+            errors.push(
+              `Item ${item.id} skipped: no order had both a supplier and a period (check that the item has a preferred supplier)`
+            );
           }
         }
 
@@ -213,7 +222,6 @@ export async function action({ request }: ActionFunctionArgs) {
         const baseCurrencyCode = company.data?.baseCurrencyCode ?? "USD";
 
         let processedItems = 0;
-        let errors: string[] = [];
 
         // ── UPDATE existing draft/planned lines ──
         for (const { order } of existingLineUpdates) {
@@ -234,8 +242,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
         // ── CREATE new PO lines, one PO per supplier+period ──
         // Cache created POs so multiple items in the same supplier+period
-        // share one PO.
-        const poCache = new Map<string, string>(); // key → purchaseOrderId
+        // share one PO. Track readable id too so the client can present a
+        // clickable toast.
+        const poCache = new Map<string, { id: string; readableId: string }>();
 
         for (const [key, ordersInGroup] of ordersBySupplierPeriod) {
           const [supplierId, periodId] = key.split("::");
@@ -246,7 +255,8 @@ export async function action({ request }: ActionFunctionArgs) {
           }
 
           // Find or create a PO for this supplier+period
-          let purchaseOrderId = poCache.get(key);
+          let purchaseOrderId = poCache.get(key)?.id;
+          let purchaseOrderReadableId = poCache.get(key)?.readableId;
 
           if (!purchaseOrderId) {
             const period = periods.data?.find((p) => p.id === periodId);
@@ -257,7 +267,7 @@ export async function action({ request }: ActionFunctionArgs) {
               const { data: matchingLines } = await client
                 .from("purchaseOrderLine")
                 .select(
-                  "purchaseOrderId, purchaseOrder!inner(supplierId, status)"
+                  "purchaseOrderId, purchaseOrder!inner(readableId:purchaseOrderId, supplierId, status)"
                 )
                 .gte("requiredDate", period.startDate)
                 .lte("requiredDate", period.endDate)
@@ -267,6 +277,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
               if (matchingLines?.[0]) {
                 purchaseOrderId = matchingLines[0].purchaseOrderId;
+                purchaseOrderReadableId =
+                  matchingLines[0].purchaseOrder?.readableId ?? undefined;
               }
             }
           }
@@ -290,9 +302,13 @@ export async function action({ request }: ActionFunctionArgs) {
             }
 
             purchaseOrderId = createPO.data.id;
+            purchaseOrderReadableId = createPO.data.purchaseOrderId;
           }
 
-          poCache.set(key, purchaseOrderId);
+          poCache.set(key, {
+            id: purchaseOrderId,
+            readableId: purchaseOrderReadableId ?? purchaseOrderId
+          });
 
           // Create one line per item in this supplier+period group
           for (const { itemId, order } of ordersInGroup) {
@@ -443,11 +459,20 @@ export async function action({ request }: ActionFunctionArgs) {
                 errors.length > 2 ? "..." : ""
               }`;
 
+        // Dedupe by PO id — multiple supplier+period buckets can land on
+        // the same PO when an existing Draft/Planned PO covers them.
+        const purchaseOrders = Array.from(
+          new Map(
+            Array.from(poCache.values()).map((po) => [po.id, po])
+          ).values()
+        );
+
         return {
           success: processedItems > 0,
           message,
           processedItems,
           totalItems: itemsToOrder.length,
+          purchaseOrders,
           errors: errors.length > 0 ? errors : undefined
         };
       } catch (error) {

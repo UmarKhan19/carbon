@@ -93,6 +93,98 @@ export async function deletePurchaseOrderLine(
     .eq("id", purchaseOrderLineId);
 }
 
+// Creates a new Draft PO header + delivery + payment via insertPurchaseOrder
+// and copies the source PO's lines into it. Receipt/invoice progress is
+// reset; only the order/line definition is duplicated.
+export async function duplicatePurchaseOrder(
+  client: SupabaseClient<Database>,
+  {
+    sourcePurchaseOrderId,
+    companyId,
+    companyGroupId,
+    userId
+  }: {
+    sourcePurchaseOrderId: string;
+    companyId: string;
+    companyGroupId: string;
+    userId: string;
+  }
+): Promise<{
+  data: { id: string; purchaseOrderId: string } | null;
+  error: import("@supabase/supabase-js").PostgrestError | null;
+}> {
+  const [source, sourceDelivery, sourceLines] = await Promise.all([
+    client
+      .from("purchaseOrder")
+      .select(
+        "id, supplierId, supplierContactId, supplierLocationId, supplierReference, currencyCode, purchaseOrderType, internalNotes, externalNotes"
+      )
+      .eq("id", sourcePurchaseOrderId)
+      .single(),
+    client
+      .from("purchaseOrderDelivery")
+      .select("locationId, receiptRequestedDate")
+      .eq("id", sourcePurchaseOrderId)
+      .maybeSingle(),
+    client
+      .from("purchaseOrderLine")
+      .select(
+        "purchaseOrderLineType, itemId, assetId, description, purchaseQuantity, supplierUnitPrice, inventoryUnitOfMeasureCode, purchaseUnitOfMeasureCode, locationId, storageUnitId, setupPrice, requiresInspection, customFields, conversionFactor, tags, internalNotes, externalNotes, exchangeRate, supplierShippingCost, modelUploadId, supplierTaxAmount, jobId, jobOperationId, promisedDate, requiredDate, accountId, costCenterId, ownerId, sortOrder, supplierPartId"
+      )
+      .eq("purchaseOrderId", sourcePurchaseOrderId)
+  ]);
+
+  if (source.error || !source.data) {
+    return { data: null, error: source.error };
+  }
+  if (sourceLines.error) {
+    return { data: null, error: sourceLines.error };
+  }
+
+  const insertResult = await insertPurchaseOrder(client, {
+    supplierId: source.data.supplierId,
+    supplierContactId: source.data.supplierContactId ?? undefined,
+    supplierLocationId: source.data.supplierLocationId ?? undefined,
+    supplierReference: source.data.supplierReference ?? undefined,
+    currencyCode: source.data.currencyCode ?? undefined,
+    purchaseOrderType: source.data.purchaseOrderType ?? undefined,
+    notes: source.data.internalNotes ?? undefined,
+    externalNotes: source.data.externalNotes ?? undefined,
+    locationId: sourceDelivery.data?.locationId ?? undefined,
+    receiptRequestedDate:
+      sourceDelivery.data?.receiptRequestedDate ?? undefined,
+    status: "Draft",
+    companyId,
+    companyGroupId,
+    createdBy: userId
+  });
+
+  if (insertResult.error || !insertResult.data) {
+    return insertResult;
+  }
+
+  const newId = insertResult.data.id;
+
+  if (sourceLines.data && sourceLines.data.length > 0) {
+    const lineRows = sourceLines.data.map((line) => ({
+      ...line,
+      purchaseOrderId: newId,
+      companyId,
+      createdBy: userId
+    }));
+    const lineInsert = await client
+      .from("purchaseOrderLine")
+      .insert(lineRows as never);
+    if (lineInsert.error) {
+      // Best-effort rollback so we don't leave an orphan header.
+      await deletePurchaseOrder(client, newId);
+      return { data: null, error: lineInsert.error };
+    }
+  }
+
+  return insertResult;
+}
+
 export async function deleteSupplier(
   client: SupabaseClient<Database>,
   supplierId: string
@@ -1302,7 +1394,8 @@ export async function insertPurchaseOrder(
     supplierQuoteId?: string;
     receiptRequestedDate?: string;
     supplierReference?: string;
-    notes?: string;
+    notes?: Json;
+    externalNotes?: Json;
     customFields?: Json;
   }
 ): Promise<{
@@ -1387,6 +1480,7 @@ export async function insertPurchaseOrder(
       exchangeRateUpdatedAt,
       supplierReference: input.supplierReference ?? null,
       internalNotes: input.notes ?? null,
+      externalNotes: input.externalNotes ?? null,
       customFields: input.customFields,
       companyId: input.companyId,
       createdBy: input.createdBy,
