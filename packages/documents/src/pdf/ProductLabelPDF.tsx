@@ -140,6 +140,7 @@ const ProductLabelPDF = ({
                   descriptionFontSize,
                   qrCodeSize,
                   labelColWidth: labelWidthPt * 0.26,
+                  labelHeightPt: effectiveLabelHeightPt,
                   sections
                 };
 
@@ -181,6 +182,9 @@ const ProductLabelPDF = ({
                       ...tw("relative p-2 flex flex-col pl-[10pt]"),
                       width: labelWidthPt,
                       height: labelHeightPt,
+                      // Clip so a dense label's content can't bleed into the
+                      // neighbouring cell (which clipped the next heading).
+                      overflow: "hidden",
                       transform: rotated ? "rotate(90deg)" : undefined
                     }}
                     wrap={false}
@@ -188,7 +192,7 @@ const ProductLabelPDF = ({
                     <View style={tw("flex flex-row justify-between")}>
                       <View
                         style={{
-                          ...tw("flex flex-col justify-center pr-2"),
+                          ...tw("flex flex-col justify-start pr-2"),
                           flex: 1,
                           minWidth: 0
                         }}

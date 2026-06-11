@@ -25,6 +25,8 @@ export interface LabelData {
   qrCodeSize: number;
   /** Width (pt) of the label-name column, so field rows align. */
   labelColWidth: number;
+  /** Label cell height (pt), so full-width codes can size to the stock. */
+  labelHeightPt: number;
   sections: Record<string, ResolvedSection>;
 }
 

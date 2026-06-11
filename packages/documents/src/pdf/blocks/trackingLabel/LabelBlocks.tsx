@@ -64,7 +64,7 @@ export function LabelHeadingBlock({ data }: { data: LabelData }) {
         overflow: "hidden",
         textOverflow: "ellipsis",
         maxWidth: "100%",
-        ...tw("mb-2"),
+        ...tw("mb-1"),
         fontWeight: "bold",
         fontSize: `${titleFontSize}pt`
       }}
@@ -177,7 +177,10 @@ export function LabelBarcodeBlock({
   );
 
   if (block.placement === "full") {
-    const height = block.height ?? 56;
+    // Scale to the label stock so a full-width code never crowds out the text
+    // rows (which clip/overlap on short labels). ~32% of the cell height, capped.
+    const height =
+      block.height ?? Math.max(28, Math.min(64, data.labelHeightPt * 0.32));
     return (
       <View style={tw("w-full flex items-center mt-1")}>
         <Image
