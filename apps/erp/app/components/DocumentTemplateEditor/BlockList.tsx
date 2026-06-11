@@ -28,7 +28,7 @@ import {
   verticalListSortingStrategy
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import {
   LuEye,
   LuEyeOff,
@@ -98,6 +98,16 @@ export function BlockList() {
   // blocks between them are sortable.
   const headerBlock = blocks.find((b) => b.type === "header");
   const bodyBlocks = blocks.filter((b) => b.type !== "header");
+  // The Summary (totals) belongs to the Line Items table, so it's shown nested
+  // under it in the tree rather than as a separate sortable row. Only nest when
+  // a Line Items block is actually present.
+  const hasLineItems = bodyBlocks.some((b) => b.type === "lineItems");
+  const summaryBlock = hasLineItems
+    ? bodyBlocks.find((b) => b.type === "summary")
+    : undefined;
+  const sortableBlocks = summaryBlock
+    ? bodyBlocks.filter((b) => b.id !== summaryBlock.id)
+    : bodyBlocks;
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor)
@@ -122,12 +132,17 @@ export function BlockList() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={bodyBlocks.map((b) => b.id)}
+          items={sortableBlocks.map((b) => b.id)}
           strategy={verticalListSortingStrategy}
         >
           <div className="flex flex-col gap-1">
-            {bodyBlocks.map((block) => (
-              <BlockRow key={block.id} id={block.id} />
+            {sortableBlocks.map((block) => (
+              <Fragment key={block.id}>
+                <BlockRow id={block.id} />
+                {block.type === "lineItems" && summaryBlock && (
+                  <NestedBlockRow id={summaryBlock.id} />
+                )}
+              </Fragment>
             ))}
             <FooterRow />
           </div>
@@ -370,6 +385,91 @@ function BlockRow({ id }: { id: string }) {
           <LuLock className="size-3.5" />
         </span>
       )}
+    </div>
+  );
+}
+
+/**
+ * A non-draggable, indented block row — used for blocks shown nested under a
+ * parent (e.g. Summary under Line Items). Same selection / visibility / remove
+ * behavior as `BlockRow`, just without the drag handle.
+ */
+function NestedBlockRow({ id }: { id: string }) {
+  const { blocks, sections, selectedId, select, toggleVisible, removeBlock } =
+    useDocumentTemplate();
+  const block = blocks.find((b) => b.id === id);
+  if (!block) return null;
+  const meta = BLOCK_META[block.type];
+  const isSelected = selectedId === id;
+  const shown = block.visible;
+  const label =
+    block.type === "shared"
+      ? (sections.find((s) => s.id === block.sectionId)?.name ??
+        "Shared Section (deleted)")
+      : block.type === "customField"
+        ? block.label || meta.label
+        : block.type === "field"
+          ? block.label || block.value || meta.label
+          : meta.label;
+
+  return (
+    <div className="ml-3 border-l border-border/60 pl-2">
+      <div
+        onClick={() => select(isSelected ? null : id)}
+        className={cn(
+          "group flex cursor-pointer items-center gap-1.5 rounded-md border px-1.5 py-2",
+          "transition-colors duration-150",
+          isSelected
+            ? "border-primary bg-accent/50"
+            : "border-transparent hover:border-border hover:bg-accent/30",
+          !shown && !isSelected && "opacity-60"
+        )}
+      >
+        <span className="flex-1 truncate text-sm">{label}</span>
+        {meta.removable && (
+          <button
+            type="button"
+            aria-label="Remove block"
+            onClick={(e) => {
+              e.stopPropagation();
+              removeBlock(id);
+            }}
+            className="rounded p-1 text-muted-foreground opacity-0 transition-[opacity,color] hover:text-destructive group-hover:opacity-100"
+          >
+            <LuTrash2 className="size-4" />
+          </button>
+        )}
+        {meta.hideable ? (
+          <button
+            type="button"
+            aria-label={shown ? "Hide block" : "Show block"}
+            aria-pressed={shown}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleVisible(id);
+            }}
+            className={cn(
+              "rounded p-1 transition-colors",
+              shown
+                ? "text-foreground hover:bg-muted"
+                : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            {shown ? (
+              <LuEye className="size-4" />
+            ) : (
+              <LuEyeOff className="size-4" />
+            )}
+          </button>
+        ) : (
+          <span
+            title="Required — always shown"
+            className="p-1 text-muted-foreground/50"
+          >
+            <LuLock className="size-3.5" />
+          </span>
+        )}
+      </div>
     </div>
   );
 }
