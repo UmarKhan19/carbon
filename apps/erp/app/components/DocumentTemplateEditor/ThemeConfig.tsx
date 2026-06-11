@@ -1,5 +1,5 @@
 import type { DocumentTheme } from "@carbon/documents/template";
-import { ColorPicker } from "./ColorPicker";
+import { ColorPicker } from "~/components/ColorPicker";
 import { useDocumentTemplate } from "./context";
 
 const SWATCHES: { key: keyof DocumentTheme; label: string; hint: string }[] = [
