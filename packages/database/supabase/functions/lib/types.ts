@@ -3063,6 +3063,7 @@ export type Database = {
           materialGeneratedIds: boolean
           operationsDispatchNotificationGroup: string[] | null
           otherDispatchNotificationGroup: string[] | null
+          printing: Json | null
           productLabelSize: string | null
           purchasePriceUpdateTiming: Database["public"]["Enums"]["purchasePriceUpdateTiming"]
           qualityDispatchNotificationGroup: string[] | null
@@ -3108,6 +3109,7 @@ export type Database = {
           materialGeneratedIds?: boolean
           operationsDispatchNotificationGroup?: string[] | null
           otherDispatchNotificationGroup?: string[] | null
+          printing?: Json | null
           productLabelSize?: string | null
           purchasePriceUpdateTiming?: Database["public"]["Enums"]["purchasePriceUpdateTiming"]
           qualityDispatchNotificationGroup?: string[] | null
@@ -3153,6 +3155,7 @@ export type Database = {
           materialGeneratedIds?: boolean
           operationsDispatchNotificationGroup?: string[] | null
           otherDispatchNotificationGroup?: string[] | null
+          printing?: Json | null
           productLabelSize?: string | null
           purchasePriceUpdateTiming?: Database["public"]["Enums"]["purchasePriceUpdateTiming"]
           qualityDispatchNotificationGroup?: string[] | null
@@ -26864,6 +26867,211 @@ export type Database = {
           },
         ]
       }
+      printerRoute: {
+        Row: {
+          apiKey: string | null
+          companyId: string
+          createdAt: string
+          format: string
+          id: string
+          locationId: string | null
+          mediaSizeId: string | null
+          name: string
+          printerUrl: string
+          templateId: string | null
+          updatedAt: string | null
+        }
+        Insert: {
+          apiKey?: string | null
+          companyId: string
+          createdAt?: string
+          format: string
+          id?: string
+          locationId?: string | null
+          mediaSizeId?: string | null
+          name: string
+          printerUrl: string
+          templateId?: string | null
+          updatedAt?: string | null
+        }
+        Update: {
+          apiKey?: string | null
+          companyId?: string
+          createdAt?: string
+          format?: string
+          id?: string
+          locationId?: string | null
+          mediaSizeId?: string | null
+          name?: string
+          printerUrl?: string
+          templateId?: string | null
+          updatedAt?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "printerRoute_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printerRoute_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printerRoute_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "printerRoute_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "printerRoute_locationId_fkey"
+            columns: ["locationId"]
+            isOneToOne: false
+            referencedRelation: "location"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      printJob: {
+        Row: {
+          attempts: number
+          companyId: string
+          completedAt: string | null
+          content: string | null
+          contentType: string | null
+          createdAt: string
+          createdBy: string
+          description: string
+          error: string | null
+          id: string
+          origin: string
+          printerUrl: string
+          sourceDocument: string
+          sourceDocumentId: string
+          sourceDocumentReadableId: string | null
+          status: string
+          updatedAt: string | null
+          updatedBy: string | null
+        }
+        Insert: {
+          attempts?: number
+          companyId: string
+          completedAt?: string | null
+          content?: string | null
+          contentType?: string | null
+          createdAt?: string
+          createdBy: string
+          description: string
+          error?: string | null
+          id?: string
+          origin?: string
+          printerUrl: string
+          sourceDocument: string
+          sourceDocumentId: string
+          sourceDocumentReadableId?: string | null
+          status?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Update: {
+          attempts?: number
+          companyId?: string
+          completedAt?: string | null
+          content?: string | null
+          contentType?: string | null
+          createdAt?: string
+          createdBy?: string
+          description?: string
+          error?: string | null
+          id?: string
+          origin?: string
+          printerUrl?: string
+          sourceDocument?: string
+          sourceDocumentId?: string
+          sourceDocumentReadableId?: string | null
+          status?: string
+          updatedAt?: string | null
+          updatedBy?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "printJob_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printJob_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "company"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printJob_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "customFieldTables"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "printJob_companyId_fkey"
+            columns: ["companyId"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["companyId"]
+          },
+          {
+            foreignKeyName: "printJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeesAcrossCompanies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "employeeSummary"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "printJob_createdBy_fkey"
+            columns: ["createdBy"]
+            isOneToOne: false
+            referencedRelation: "userDefaults"
+            referencedColumns: ["userId"]
+          },
+        ]
+      }
       procedure: {
         Row: {
           assignee: string | null
@@ -38217,7 +38425,7 @@ export type Database = {
           },
         ]
       }
-      searchIndex_d8i6c9cjm0h04743p2ng: {
+      searchIndex_d8labgm360h02et7s650: {
         Row: {
           createdAt: string
           description: string | null
@@ -38259,7 +38467,7 @@ export type Database = {
         }
         Relationships: []
       }
-      searchIndex_Vah7cNqpjARtZDhq8CcaPu: {
+      searchIndex_K26piHAY3SwCbjCHpopqjz: {
         Row: {
           createdAt: string
           description: string | null
@@ -55853,14 +56061,14 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["customerCountryCode"]
+            columns: ["supplierCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["supplierCountryCode"]
+            columns: ["customerCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -59293,14 +59501,14 @@ export type Database = {
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["shipmentCountryCode"]
+            columns: ["invoiceCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
           },
           {
             foreignKeyName: "address_countryCode_fkey"
-            columns: ["invoiceCountryCode"]
+            columns: ["shipmentCountryCode"]
             isOneToOne: false
             referencedRelation: "country"
             referencedColumns: ["alpha2"]
@@ -65663,6 +65871,7 @@ export type Database = {
         | "Settings"
         | "Users"
         | "Quality"
+        | "Printing"
       month:
         | "January"
         | "February"
@@ -66961,6 +67170,7 @@ export const Constants = {
         "Settings",
         "Users",
         "Quality",
+        "Printing",
       ],
       month: [
         "January",

@@ -1200,6 +1200,24 @@ msgstr "Cancelar"
 msgid "Cancel Job"
 msgstr "Cancelar Trabajo"
 
+msgid "Cancel Sales Order"
+msgstr "Cancelar Orden de Venta"
+
+msgid "Cancel SO"
+msgstr "Cancelar SO"
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr "Cancelar SO + {0} trabajo{1}"
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr "Cancelar SO + {0} seleccionados"
+
+msgid "Cancel SO only"
+msgstr "Cancelar SO solamente"
+
 msgid "Canceled"
 msgstr "Cancelado"
 
@@ -4189,7 +4207,7 @@ msgid "Item Type"
 msgstr "Tipo de Artículo"
 
 msgid "Item types"
-msgstr "Tipos de artículos"
+msgstr "Tipos de artículo"
 
 msgid "items"
 msgstr "artículos"
@@ -4417,6 +4435,9 @@ msgstr "Recarga en vivo"
 
 msgid "Load Templates"
 msgstr "Cargar Plantillas"
+
+msgid "Loading associated jobs..."
+msgstr "Cargando trabajos asociados..."
 
 msgid "Loading item details..."
 msgstr "Cargando detalles del artículo..."
@@ -5161,6 +5182,9 @@ msgstr "Sin acceso"
 
 msgid "No action needed"
 msgstr "Sin acción necesaria"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr "No se encontraron trabajos activos para esta orden de venta. La orden será cancelada directamente."
 
 msgid "No active plan"
 msgstr "Sin plan activo"
@@ -6937,6 +6961,9 @@ msgstr "Selecciona una razón por la que la cotización no fue creada."
 msgid "Select a team"
 msgstr "Selecciona un equipo"
 
+msgid "Select all"
+msgstr "Seleccionar todo"
+
 msgid "Select an assignee"
 msgstr "Seleccionar un asignado"
 
@@ -7884,6 +7911,9 @@ msgstr "Este trabajo será recibido en el inventario. Ya no estará disponible e
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "Este trabajo ya no estará disponible en el piso de producción."
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr "Este pedido de venta tiene trabajos asociados. Elige qué hacer con ellos."
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Esta orden de venta tiene líneas que requieren que se creen trabajos"

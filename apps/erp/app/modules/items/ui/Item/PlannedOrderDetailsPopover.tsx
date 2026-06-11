@@ -45,8 +45,11 @@ export function PlannedOrderDetailsPopover({
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-md max-h-112 overflow-y-auto">
-        <div className="flex flex-col gap-3 p-2">
+      <PopoverContent
+        className="w-md max-h-112 overflow-y-auto pointer-events-auto"
+        onWheel={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col gap-3">
           {/* Section A — Order facts */}
           <div className="flex flex-col gap-1">
             <div className="text-sm font-medium">

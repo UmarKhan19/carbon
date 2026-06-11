@@ -1200,6 +1200,24 @@ msgstr "Abbrechen"
 msgid "Cancel Job"
 msgstr "Auftrag abbrechen"
 
+msgid "Cancel Sales Order"
+msgstr "Verkaufsauftrag stornieren"
+
+msgid "Cancel SO"
+msgstr "SO stornieren"
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr "SO stornieren + {0} Auftrag{1}"
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr "SO stornieren + {0} ausgewählt"
+
+msgid "Cancel SO only"
+msgstr "Nur SO stornieren"
+
 msgid "Canceled"
 msgstr "Abgebrochen"
 
@@ -4418,6 +4436,9 @@ msgstr "Live-Neuladen"
 msgid "Load Templates"
 msgstr "Vorlagen laden"
 
+msgid "Loading associated jobs..."
+msgstr "Zugehörige Aufträge werden geladen..."
+
 msgid "Loading item details..."
 msgstr "Artikeldetails werden geladen..."
 
@@ -5161,6 +5182,9 @@ msgstr "Kein Zugriff"
 
 msgid "No action needed"
 msgstr "Keine Aktion erforderlich"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr "Keine aktiven Aufträge für diese Bestellung gefunden. Die Bestellung wird direkt storniert."
 
 msgid "No active plan"
 msgstr "Kein aktiver Plan"
@@ -6937,6 +6961,9 @@ msgstr "Wählen Sie einen Grund aus, warum das Angebot nicht erstellt wurde."
 msgid "Select a team"
 msgstr "Wählen Sie ein Team"
 
+msgid "Select all"
+msgstr "Alle auswählen"
+
 msgid "Select an assignee"
 msgstr "Wählen Sie einen Verantwortlichen aus"
 
@@ -7884,6 +7911,9 @@ msgstr "Dieser Auftrag wird im Bestand eingegangen. Er ist nicht mehr auf der We
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "Dieser Auftrag ist auf der Werkstatt nicht mehr verfügbar."
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr "Diese Bestellung hat zugeordnete Aufträge. Wählen Sie, was damit geschehen soll."
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Diese Bestellung hat Positionen, für die Aufträge erstellt werden müssen"

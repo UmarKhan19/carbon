@@ -371,9 +371,9 @@ export default function PrintingSettingsRoute() {
       { id: string; name: string; locationId: string | null }[]
     >();
     for (const wc of workCenters) {
-      if (!wc.locationId) continue;
+      if (!wc.id || !wc.name || !wc.locationId) continue;
       const existing = map.get(wc.locationId) ?? [];
-      existing.push(wc);
+      existing.push({ id: wc.id, name: wc.name, locationId: wc.locationId });
       map.set(wc.locationId, existing);
     }
     return map;

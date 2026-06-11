@@ -164,7 +164,8 @@ export async function seedPrinting(
   const receiptId = receiptResult.rows[0].id;
 
   for (let i = 0; i < 3; i++) {
-    const isSerial = itemDefs[i].trackingType === "Serial";
+    const trackingType = itemDefs[i]?.trackingType;
+    const isSerial = trackingType === "Serial";
     await client.query(
       `INSERT INTO "receiptLine" (
         "receiptId", "lineId", "itemId", "orderQuantity", "receivedQuantity", "unitPrice",
@@ -179,7 +180,7 @@ export async function seedPrinting(
         receiptQuantities[i],
         locationId,
         isSerial,
-        !isSerial && itemDefs[i].trackingType === "Batch",
+        !isSerial && trackingType === "Batch",
         companyId,
         userId
       ]

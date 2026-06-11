@@ -1200,6 +1200,24 @@ msgstr "Annuler"
 msgid "Cancel Job"
 msgstr "Annuler le travail"
 
+msgid "Cancel Sales Order"
+msgstr "Annuler la commande client"
+
+msgid "Cancel SO"
+msgstr "Annuler BC"
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr "Annuler BC + {0} commande{1}"
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr "Annuler BC + {0} sélectionné(s)"
+
+msgid "Cancel SO only"
+msgstr "Annuler le BC uniquement"
+
 msgid "Canceled"
 msgstr "Annulé"
 
@@ -4418,6 +4436,9 @@ msgstr "Rechargement en direct"
 msgid "Load Templates"
 msgstr "Charger les modèles"
 
+msgid "Loading associated jobs..."
+msgstr "Chargement des tâches associées..."
+
 msgid "Loading item details..."
 msgstr "Chargement des détails de l'article..."
 
@@ -5161,6 +5182,9 @@ msgstr "Aucun accès"
 
 msgid "No action needed"
 msgstr "Aucune action requise"
+
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr "Aucune tâche active trouvée pour cette commande client. La commande sera annulée directement."
 
 msgid "No active plan"
 msgstr "Aucun plan actif"
@@ -6937,6 +6961,9 @@ msgstr "Sélectionnez une raison pour laquelle le devis n'a pas été créé."
 msgid "Select a team"
 msgstr "Sélectionner une équipe"
 
+msgid "Select all"
+msgstr "Sélectionner tout"
+
 msgid "Select an assignee"
 msgstr "Sélectionner un assigné"
 
@@ -7884,6 +7911,9 @@ msgstr "Ce travail sera reçu en inventaire. Il ne sera plus disponible sur l'at
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "Ce travail ne sera plus disponible sur l'atelier."
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr "Cette commande client a des tâches associées. Choisissez ce que vous souhaitez en faire."
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "Cette commande client contient des lignes qui nécessitent la création de tâches"

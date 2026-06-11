@@ -110,7 +110,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     stream.on("error", reject);
   });
 
-  return new Response(body, {
+  return new Response(new Uint8Array(body), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",

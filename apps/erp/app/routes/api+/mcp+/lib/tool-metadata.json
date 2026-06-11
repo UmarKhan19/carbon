@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-08T02:44:25.681Z",
-  "totalTools": 1179,
+  "generated": "2026-06-11T15:16:25.602Z",
+  "totalTools": 1181,
   "modules": 15,
   "tools": [
     {
@@ -17461,6 +17461,33 @@
       }
     },
     {
+      "name": "purchasing_duplicatePurchaseOrder",
+      "module": "purchasing",
+      "classification": "WRITE",
+      "description": "duplicate purchase order",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "{\n    sourcePurchaseOrderId,\n    companyId,\n    companyGroupId,\n    userId\n  }"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "sourcePurchaseOrderId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourcePurchaseOrderId"
+        ]
+      }
+    },
+    {
       "name": "purchasing_deleteSupplier",
       "module": "purchasing",
       "classification": "DESTRUCTIVE",
@@ -19346,7 +19373,7 @@
       "module": "purchasing",
       "classification": "WRITE",
       "description": "Create a new purchase order with all business logic - generates sequence, creates supplier interaction, resolves payment/shipping defaults from supplier. LLM can create a PO with just supplierId.",
-      "paramCount": 14,
+      "paramCount": 15,
       "serviceParams": [
         "client",
         "input"
@@ -19400,9 +19427,8 @@
           "supplierReference": {
             "type": "string"
           },
-          "notes": {
-            "type": "string"
-          },
+          "notes": {},
+          "externalNotes": {},
           "customFields": {}
         },
         "required": [
@@ -31777,6 +31803,37 @@
             ]
           },
           "customFields": {}
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "sales_cancelSalesOrder",
+      "module": "sales",
+      "classification": "WRITE",
+      "description": "cancel sales order",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "args"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
         },
         "required": [
           "id"

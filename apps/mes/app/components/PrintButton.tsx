@@ -78,8 +78,8 @@ export function PrintButton({
       {
         sourceDocument,
         sourceDocumentId,
-        locationId,
-        workCenterId,
+        ...(locationId ? { locationId } : {}),
+        ...(workCenterId ? { workCenterId } : {}),
         printerRouteId: selectedPrinterId
       },
       {

@@ -103,10 +103,12 @@ export const printJobFunction = inngest.createFunction(
         .single();
       if (route) {
         printerConfig = {
+          printerRouteId: route.id,
           printerUrl: route.printerUrl,
           format: route.format as "zpl" | "pdf",
           mediaSizeId: route.mediaSizeId,
-          templateId: route.templateId
+          templateId: route.templateId,
+          autoPrint: true
         };
       }
     } else if (locationId) {

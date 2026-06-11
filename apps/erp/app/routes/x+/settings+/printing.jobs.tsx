@@ -7,6 +7,7 @@ import {
   getPrintJob,
   getPrintJobContent,
   getPrintJobs,
+  type PrintJob,
   reprintValidator
 } from "@carbon/printing";
 import {
@@ -52,7 +53,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 
   return {
-    jobs: result.data ?? [],
+    jobs: (result.data ?? []) as PrintJob[],
     count: result.count ?? 0
   };
 }

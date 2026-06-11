@@ -74,14 +74,16 @@ export async function action({ request }: ActionFunctionArgs) {
   // Auto-print labels for split entities
   if (splitEntities.length > 0) {
     try {
-      const { data: op } = await serviceRole
-        .from("jobOperation")
-        .select("workCenterId")
-        .eq("id", validation.data.jobOperationId)
-        .single();
-
       let locationId: string | undefined;
-      const workCenterId = op?.workCenterId ?? undefined;
+      let workCenterId: string | undefined;
+      if (jobOperationId) {
+        const { data: op } = await serviceRole
+          .from("jobOperation")
+          .select("workCenterId")
+          .eq("id", jobOperationId)
+          .single();
+        workCenterId = op?.workCenterId ?? undefined;
+      }
       if (workCenterId) {
         const { data: wc } = await serviceRole
           .from("workCenter")

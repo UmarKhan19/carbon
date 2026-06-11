@@ -5143,6 +5143,100 @@ export async function updateSalesOrder(
     .single();
 }
 
+export const LIVE_JOB_STATUSES: Database["public"]["Enums"]["jobStatus"][] = [
+  "Draft",
+  "Ready",
+  "In Progress",
+  "Paused"
+];
+
+export async function cancelSalesOrder(
+  client: SupabaseClient<Database>,
+  args: {
+    id: string;
+    userId: string;
+    jobs?: string[];
+  }
+): Promise<{
+  success: boolean;
+  message: string;
+  cancelledJobIds: string[];
+}> {
+  const orderUpdate = await updateSalesOrderStatus(client, {
+    id: args.id,
+    status: "Cancelled",
+    assignee: undefined,
+    updatedBy: args.userId
+  });
+
+  if (orderUpdate.error) {
+    return {
+      success: false,
+      message: `Failed to cancel sales order: ${orderUpdate.error.message}`,
+      cancelledJobIds: []
+    };
+  }
+
+  // Resolve the set of job ids to cancel.
+  let jobIdsToCancel: string[];
+  if (args.jobs === undefined) {
+    const liveJobs = await client
+      .from("job")
+      .select("id")
+      .eq("salesOrderId", args.id)
+      .in("status", LIVE_JOB_STATUSES);
+    if (liveJobs.error) {
+      return {
+        success: false,
+        message:
+          "Sales order cancelled, but failed to look up associated jobs to cancel",
+        cancelledJobIds: []
+      };
+    }
+    jobIdsToCancel = (liveJobs.data ?? [])
+      .map((j) => j.id)
+      .filter((v): v is string => Boolean(v));
+  } else {
+    jobIdsToCancel = args.jobs.filter(Boolean);
+  }
+
+  if (jobIdsToCancel.length === 0) {
+    return {
+      success: true,
+      message: "Sales order cancelled",
+      cancelledJobIds: []
+    };
+  }
+
+  const jobUpdate = await client
+    .from("job")
+    .update({ status: "Cancelled", updatedBy: args.userId })
+    .in("id", jobIdsToCancel)
+    .in("status", LIVE_JOB_STATUSES)
+    .select("id");
+
+  if (jobUpdate.error) {
+    return {
+      success: false,
+      message: `Sales order cancelled, but failed to cancel some associated jobs: ${jobUpdate.error.message}`,
+      cancelledJobIds: []
+    };
+  }
+
+  const cancelledJobIds = (jobUpdate.data ?? [])
+    .map((j) => j.id)
+    .filter((v): v is string => Boolean(v));
+
+  return {
+    success: true,
+    message:
+      cancelledJobIds.length === 0
+        ? "Sales order cancelled"
+        : `Sales order cancelled and ${cancelledJobIds.length} job${cancelledJobIds.length === 1 ? "" : "s"} cancelled`,
+    cancelledJobIds
+  };
+}
+
 /** @deprecated Use insertSalesOrder for new orders, updateSalesOrder for existing orders */
 export async function upsertSalesOrder(
   client: SupabaseClient<Database>,
