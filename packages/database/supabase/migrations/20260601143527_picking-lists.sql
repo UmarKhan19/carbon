@@ -6,6 +6,7 @@
 
 -- Enums
 
+DROP TYPE IF EXISTS "pickingListStatus";
 CREATE TYPE "pickingListStatus" AS ENUM (
   'Draft',
   'In Progress',
@@ -13,6 +14,7 @@ CREATE TYPE "pickingListStatus" AS ENUM (
   'Cancelled'
 );
 
+DROP TYPE IF EXISTS "pickingListLineStatus";
 CREATE TYPE "pickingListLineStatus" AS ENUM (
   'Pending',
   'Picked',
@@ -24,7 +26,7 @@ CREATE TYPE "pickingListLineStatus" AS ENUM (
 -- pickingList table
 -- ============================================================================
 
-CREATE TABLE "pickingList" (
+CREATE TABLE IF NOT EXISTS "pickingList" (
   "id" TEXT NOT NULL DEFAULT xid(),
   "pickingListId" TEXT NOT NULL,
   "status" "pickingListStatus" NOT NULL DEFAULT 'Draft',
@@ -48,19 +50,20 @@ CREATE TABLE "pickingList" (
   CONSTRAINT "pickingList_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON DELETE RESTRICT
 );
 
-CREATE INDEX "pickingList_companyId_idx" ON "pickingList"("companyId");
-CREATE INDEX "pickingList_status_companyId_idx" ON "pickingList"("status", "companyId");
-CREATE INDEX "pickingList_assignee_companyId_idx" ON "pickingList"("assignee", "companyId");
-CREATE INDEX "pickingList_locationId_companyId_idx" ON "pickingList"("locationId", "companyId");
+CREATE INDEX IF NOT EXISTS "pickingList_companyId_idx" ON "pickingList"("companyId");
+CREATE INDEX IF NOT EXISTS "pickingList_status_companyId_idx" ON "pickingList"("status", "companyId");
+CREATE INDEX IF NOT EXISTS "pickingList_assignee_companyId_idx" ON "pickingList"("assignee", "companyId");
+CREATE INDEX IF NOT EXISTS "pickingList_locationId_companyId_idx" ON "pickingList"("locationId", "companyId");
 
 INSERT INTO "customFieldTable" ("table", "name", "module")
-VALUES ('pickingList', 'Picking List', 'Inventory');
+VALUES ('pickingList', 'Picking List', 'Inventory')
+ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- pickingListLine table
 -- ============================================================================
 
-CREATE TABLE "pickingListLine" (
+CREATE TABLE IF NOT EXISTS "pickingListLine" (
   "id" TEXT NOT NULL DEFAULT xid(),
   "pickingListId" TEXT NOT NULL,
   "jobId" TEXT NOT NULL,
@@ -90,22 +93,23 @@ CREATE TABLE "pickingListLine" (
   CONSTRAINT "pickingListLine_updatedBy_fkey" FOREIGN KEY ("updatedBy") REFERENCES "user"("id") ON DELETE RESTRICT
 );
 
-CREATE INDEX "pickingListLine_pickingListId_idx" ON "pickingListLine"("pickingListId");
-CREATE INDEX "pickingListLine_jobId_idx" ON "pickingListLine"("jobId");
-CREATE INDEX "pickingListLine_jobMaterialId_idx" ON "pickingListLine"("jobMaterialId");
-CREATE INDEX "pickingListLine_jobOperationId_idx" ON "pickingListLine"("jobOperationId");
-CREATE INDEX "pickingListLine_itemId_idx" ON "pickingListLine"("itemId");
-CREATE INDEX "pickingListLine_storageUnitId_idx" ON "pickingListLine"("storageUnitId");
-CREATE INDEX "pickingListLine_companyId_idx" ON "pickingListLine"("companyId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_pickingListId_idx" ON "pickingListLine"("pickingListId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_jobId_idx" ON "pickingListLine"("jobId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_jobMaterialId_idx" ON "pickingListLine"("jobMaterialId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_jobOperationId_idx" ON "pickingListLine"("jobOperationId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_itemId_idx" ON "pickingListLine"("itemId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_storageUnitId_idx" ON "pickingListLine"("storageUnitId");
+CREATE INDEX IF NOT EXISTS "pickingListLine_companyId_idx" ON "pickingListLine"("companyId");
 
 INSERT INTO "customFieldTable" ("table", "name", "module")
-VALUES ('pickingListLine', 'Picking List Line', 'Inventory');
+VALUES ('pickingListLine', 'Picking List Line', 'Inventory')
+ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- pickingListLineTrackedEntity table
 -- ============================================================================
 
-CREATE TABLE "pickingListLineTrackedEntity" (
+CREATE TABLE IF NOT EXISTS "pickingListLineTrackedEntity" (
   "pickingListLineId" TEXT NOT NULL,
   "trackedEntityId" TEXT NOT NULL,
   "quantity" NUMERIC(12,4) NOT NULL,
@@ -116,7 +120,7 @@ CREATE TABLE "pickingListLineTrackedEntity" (
   CONSTRAINT "pickingListLineTrackedEntity_trackedEntityId_fkey" FOREIGN KEY ("trackedEntityId") REFERENCES "trackedEntity"("id") ON DELETE RESTRICT
 );
 
-CREATE INDEX "pickingListLineTrackedEntity_trackedEntityId_idx"
+CREATE INDEX IF NOT EXISTS "pickingListLineTrackedEntity_trackedEntityId_idx"
   ON "pickingListLineTrackedEntity" ("trackedEntityId");
 
 -- ============================================================================
@@ -133,19 +137,30 @@ SELECT
   6,
   1,
   "id"
-FROM "company";
+FROM "company"
+ON CONFLICT DO NOTHING;
 
 -- ============================================================================
 -- storageUnit enhancement: add workCenterId
 -- ============================================================================
 
 ALTER TABLE "storageUnit"
-  ADD COLUMN "workCenterId" TEXT,
-  ADD CONSTRAINT "storageUnit_workCenterId_fkey"
-    FOREIGN KEY ("workCenterId") REFERENCES "workCenter"("id")
-    ON DELETE SET NULL;
+  ADD COLUMN IF NOT EXISTS "workCenterId" TEXT;
 
-CREATE INDEX "storageUnit_workCenterId_idx" ON "storageUnit"("workCenterId");
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'storageUnit_workCenterId_fkey'
+  ) THEN
+    ALTER TABLE "storageUnit"
+      ADD CONSTRAINT "storageUnit_workCenterId_fkey"
+        FOREIGN KEY ("workCenterId") REFERENCES "workCenter"("id")
+        ON DELETE SET NULL;
+  END IF;
+END
+$$;
+
+CREATE INDEX IF NOT EXISTS "storageUnit_workCenterId_idx" ON "storageUnit"("workCenterId");
 
 -- ============================================================================
 -- Function: get_effective_work_center_id
@@ -263,6 +278,7 @@ ALTER TABLE "pickingListLineTrackedEntity" ENABLE ROW LEVEL SECURITY;
 
 -- pickingList policies
 
+DROP POLICY IF EXISTS "SELECT" ON "pickingList";
 CREATE POLICY "SELECT" ON "pickingList"
 FOR SELECT USING (
   "companyId" = ANY (
@@ -273,6 +289,7 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "INSERT" ON "pickingList";
 CREATE POLICY "INSERT" ON "pickingList"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
@@ -283,6 +300,7 @@ FOR INSERT WITH CHECK (
   )
 );
 
+DROP POLICY IF EXISTS "UPDATE" ON "pickingList";
 CREATE POLICY "UPDATE" ON "pickingList"
 FOR UPDATE USING (
   "companyId" = ANY (
@@ -293,6 +311,7 @@ FOR UPDATE USING (
   )
 );
 
+DROP POLICY IF EXISTS "DELETE" ON "pickingList";
 CREATE POLICY "DELETE" ON "pickingList"
 FOR DELETE USING (
   "companyId" = ANY (
@@ -305,6 +324,7 @@ FOR DELETE USING (
 
 -- pickingListLine policies
 
+DROP POLICY IF EXISTS "SELECT" ON "pickingListLine";
 CREATE POLICY "SELECT" ON "pickingListLine"
 FOR SELECT USING (
   "companyId" = ANY (
@@ -315,6 +335,7 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "INSERT" ON "pickingListLine";
 CREATE POLICY "INSERT" ON "pickingListLine"
 FOR INSERT WITH CHECK (
   "companyId" = ANY (
@@ -325,6 +346,7 @@ FOR INSERT WITH CHECK (
   )
 );
 
+DROP POLICY IF EXISTS "UPDATE" ON "pickingListLine";
 CREATE POLICY "UPDATE" ON "pickingListLine"
 FOR UPDATE USING (
   "companyId" = ANY (
@@ -335,6 +357,7 @@ FOR UPDATE USING (
   )
 );
 
+DROP POLICY IF EXISTS "DELETE" ON "pickingListLine";
 CREATE POLICY "DELETE" ON "pickingListLine"
 FOR DELETE USING (
   "companyId" = ANY (
@@ -347,6 +370,7 @@ FOR DELETE USING (
 
 -- pickingListLineTrackedEntity policies (no companyId - uses FK lookup)
 
+DROP POLICY IF EXISTS "SELECT" ON "pickingListLineTrackedEntity";
 CREATE POLICY "SELECT" ON "pickingListLineTrackedEntity"
 FOR SELECT USING (
   EXISTS (
@@ -355,6 +379,7 @@ FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "INSERT" ON "pickingListLineTrackedEntity";
 CREATE POLICY "INSERT" ON "pickingListLineTrackedEntity"
 FOR INSERT WITH CHECK (
   EXISTS (
@@ -363,6 +388,7 @@ FOR INSERT WITH CHECK (
   )
 );
 
+DROP POLICY IF EXISTS "UPDATE" ON "pickingListLineTrackedEntity";
 CREATE POLICY "UPDATE" ON "pickingListLineTrackedEntity"
 FOR UPDATE USING (
   EXISTS (
@@ -371,6 +397,7 @@ FOR UPDATE USING (
   )
 );
 
+DROP POLICY IF EXISTS "DELETE" ON "pickingListLineTrackedEntity";
 CREATE POLICY "DELETE" ON "pickingListLineTrackedEntity"
 FOR DELETE USING (
   EXISTS (
