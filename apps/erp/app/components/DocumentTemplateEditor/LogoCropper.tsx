@@ -60,7 +60,7 @@ export function LogoCropper({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-16 items-center justify-center overflow-hidden rounded-md border bg-[repeating-conic-gradient(#0001_0_25%,transparent_0_50%)] bg-[length:12px_12px]"
+        className="flex h-16 items-center justify-center overflow-hidden rounded-md border bg-white p-1"
       >
         <img src={src} alt="" className="max-h-full w-auto" />
       </button>
@@ -170,7 +170,7 @@ function CropDialog({
           <div className="flex justify-center">
             <div
               ref={boxRef}
-              className="relative inline-block max-h-[55vh] select-none overflow-hidden rounded-md border bg-[repeating-conic-gradient(#0001_0_25%,transparent_0_50%)] bg-[length:16px_16px]"
+              className="relative inline-block max-h-[55vh] select-none overflow-hidden rounded-md border bg-white"
               style={{ touchAction: "none" }}
             >
               <img
