@@ -40,11 +40,14 @@ FROM (
   FROM "documentTemplate" AS dt2
   JOIN "terms" AS t ON t."id" = dt2."companyId"
   CROSS JOIN LATERAL (
+    -- The `terms` columns are JSON; cast to jsonb so the operators below match.
     SELECT
-      CASE
-        WHEN dt2."documentType" = 'purchaseOrder' THEN t."purchasingTerms"
-        ELSE t."salesTerms"
-      END AS value
+      (
+        CASE
+          WHEN dt2."documentType" = 'purchaseOrder' THEN t."purchasingTerms"
+          ELSE t."salesTerms"
+        END
+      )::jsonb AS value
   ) AS seed
   CROSS JOIN LATERAL jsonb_array_elements(dt2."blocks")
     WITH ORDINALITY AS arr(block, ord)
