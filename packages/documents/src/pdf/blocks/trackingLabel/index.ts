@@ -1,3 +1,3 @@
 export { trackingLabelBlockRegistry } from "./registry";
-export type { BlockRenderer, LabelData } from "./types";
+export type { BlockRenderer, LabelData, LabelLogo } from "./types";
 export { buildLabelVars } from "./vars";

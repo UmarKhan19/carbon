@@ -4,7 +4,8 @@ import { Fragment } from "react";
 import { createTw } from "react-pdf-tailwind";
 import type { DocumentTemplate, ResolvedSection } from "../template";
 import { resolveTemplate } from "../template";
-import type { LabelData } from "./blocks/trackingLabel";
+import type { Company } from "../types";
+import type { LabelData, LabelLogo } from "./blocks/trackingLabel";
 import {
   buildLabelVars,
   trackingLabelBlockRegistry
@@ -16,6 +17,8 @@ interface ProductLabelProps {
   labelSize: LabelSize;
   template?: DocumentTemplate | null;
   sections?: Record<string, ResolvedSection>;
+  company?: Company | null;
+  logo?: LabelLogo | null;
 }
 
 // Initialize tailwind-styled-components
@@ -38,7 +41,9 @@ const ProductLabelPDF = ({
   items,
   labelSize,
   template,
-  sections = {}
+  sections = {},
+  company,
+  logo
 }: ProductLabelProps) => {
   // Default to 1 row and 1 column if not specified
   const rows = labelSize.rows || 1;
@@ -127,11 +132,14 @@ const ProductLabelPDF = ({
 
                 const data: LabelData = {
                   item,
+                  company,
+                  logo,
                   theme: resolved.theme,
-                  vars: buildLabelVars(item),
+                  vars: buildLabelVars(item, company),
                   titleFontSize,
                   descriptionFontSize,
                   qrCodeSize,
+                  labelColWidth: labelWidthPt * 0.4,
                   sections
                 };
 
@@ -145,17 +153,23 @@ const ProductLabelPDF = ({
                   );
                 };
 
-                // Keep the proven label layout: text fields on the left, QR on
-                // the right, entity id full-width below. Reorder/hide still
-                // applies within each group.
-                const qrBlocks = visibleBlocks.filter(
-                  (b) => b.type === "labelQrCode"
+                // Slots: fields stack top-left; logo + QR top-right; barcode
+                // spans full width near the bottom; entity id at the very bottom.
+                const rightBlocks = visibleBlocks.filter(
+                  (b) => b.type === "labelLogo" || b.type === "labelQrCode"
+                );
+                const barcodeBlocks = visibleBlocks.filter(
+                  (b) => b.type === "labelBarcode"
                 );
                 const entityBlocks = visibleBlocks.filter(
                   (b) => b.type === "labelEntityId"
                 );
                 const textBlocks = visibleBlocks.filter(
-                  (b) => b.type !== "labelQrCode" && b.type !== "labelEntityId"
+                  (b) =>
+                    b.type !== "labelLogo" &&
+                    b.type !== "labelQrCode" &&
+                    b.type !== "labelBarcode" &&
+                    b.type !== "labelEntityId"
                 );
 
                 return (
@@ -175,12 +189,15 @@ const ProductLabelPDF = ({
                       >
                         {textBlocks.map(renderBlock)}
                       </View>
-                      {qrBlocks.length > 0 && (
-                        <View style={tw("flex items-center justify-center")}>
-                          {qrBlocks.map(renderBlock)}
+                      {rightBlocks.length > 0 && (
+                        <View
+                          style={tw("flex flex-col items-end justify-start")}
+                        >
+                          {rightBlocks.map(renderBlock)}
                         </View>
                       )}
                     </View>
+                    {barcodeBlocks.map(renderBlock)}
                     {entityBlocks.map(renderBlock)}
                   </View>
                 );

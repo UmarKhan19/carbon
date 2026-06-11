@@ -21,10 +21,29 @@ function labelVars(item: ProductLabelItem): Record<string, string> {
  * (QR stays top-right, the entity id stays at the bottom — same partitioning as
  * the PDF). Extension/custom blocks are skipped (no ZPL equivalent).
  */
+/** Map a barcode symbology to its ZPL command for a given dot height. */
+function zplBarcode(
+  symbology: string,
+  value: string,
+  heightDots: number
+): string {
+  switch (symbology) {
+    case "code128":
+      return `^BCN,${heightDots},N,N,N^FD${value}^FS`;
+    case "datamatrix":
+      return `^BXN,${Math.max(3, Math.floor(heightDots / 20))},200^FD${value}^FS`;
+    case "qrcode":
+      return `^BQN,2,${Math.max(3, Math.floor(heightDots / 30))}^FD${value}^FS`;
+    default: // pdf417
+      return `^BY2^B7N,${Math.max(2, Math.floor(heightDots / 20))},5,0,0,N^FD${value}^FS`;
+  }
+}
+
 export function generateProductLabelZPL(
   item: ProductLabelItem,
   labelSize: LabelSize,
-  template?: DocumentTemplate | null
+  template?: DocumentTemplate | null,
+  logo?: { gfa?: string; widthDots?: number } | null
 ): string {
   if (!labelSize.zpl) {
     throw new Error("Invalid label size or missing ZPL configuration");
@@ -117,6 +136,25 @@ export function generateProductLabelZPL(
           zpl += `^FO${textStartX},${idYPosition}^A0N,${smallFontSize},${smallFontSize}^FD${item.trackedEntityId}^FS`;
         }
         break;
+      case "labelLogo":
+        if (logo?.gfa) {
+          // Top-right, like the QR slot.
+          const logoW = logo.widthDots ?? Math.round(widthDots * 0.3);
+          const logoX = widthDots - logoW - 15;
+          zpl += `^FO${logoX > 0 ? logoX : 15},20${logo.gfa}^FS`;
+        }
+        break;
+      case "labelBarcode": {
+        // Full-width band near the bottom.
+        const value = interpolateString(block.value ?? "", vars);
+        if (value) {
+          const bcHeight = isSmallLabel ? 60 : 110;
+          const bcY = heightDots - bcHeight - (isSmallLabel ? 25 : 40);
+          zpl += `^FO${textStartX},${bcY > 0 ? bcY : heightDots - bcHeight}`;
+          zpl += zplBarcode(block.symbology, value, bcHeight);
+        }
+        break;
+      }
       case "field": {
         // A single authored line: "label: value" (or just the value).
         const value = interpolateString(block.value ?? "", vars);

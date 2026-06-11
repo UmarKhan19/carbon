@@ -1,9 +1,11 @@
 import type { DocumentBlockType } from "../../../template";
 import { CustomFieldBlock } from "../CustomFieldBlock";
 import {
+  LabelBarcodeBlock,
   LabelEntityIdBlock,
   LabelFieldBlock,
   LabelHeadingBlock,
+  LabelLogoBlock,
   LabelQrCodeBlock,
   LabelQuantityBlock,
   LabelRevisionBlock,
@@ -31,6 +33,14 @@ export const trackingLabelBlockRegistry: Record<
     ) : null,
   labelQrCode: ({ data }) => <LabelQrCodeBlock data={data} />,
   labelEntityId: ({ data }) => <LabelEntityIdBlock data={data} />,
+  labelBarcode: ({ block, data }) =>
+    block.type === "labelBarcode" ? (
+      <LabelBarcodeBlock block={block} data={data} />
+    ) : null,
+  labelLogo: ({ block, data }) =>
+    block.type === "labelLogo" ? (
+      <LabelLogoBlock block={block} data={data} />
+    ) : null,
   header: () => null,
   parties: () => null,
   notes: () => null,

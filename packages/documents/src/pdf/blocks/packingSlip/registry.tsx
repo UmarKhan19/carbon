@@ -54,6 +54,8 @@ export const packingSlipBlockRegistry: Record<
     block.type === "shared" ? (
       <SharedBlock block={block} sections={data.sections} vars={data.vars} />
     ) : null,
+  labelBarcode: () => null,
+  labelLogo: () => null,
   field: () => null,
   customField: ({ block, data }) =>
     block.type === "customField" ? (

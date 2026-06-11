@@ -218,6 +218,22 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     hideable: true,
     addable: false
   },
+  labelBarcode: {
+    // Added via the label add menu ("Barcode"), not the generic one.
+    label: "Barcode",
+    isBuiltIn: false,
+    removable: true,
+    hideable: true,
+    addable: false
+  },
+  labelLogo: {
+    // Added via the label add menu ("Logo").
+    label: "Logo",
+    isBuiltIn: false,
+    removable: true,
+    hideable: true,
+    addable: false
+  },
   richText: {
     label: "Rich Text",
     isBuiltIn: false,
