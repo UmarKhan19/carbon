@@ -271,7 +271,7 @@ msgid "Add a comment..."
 msgstr "添加评论..."
 
 msgid "Add a printer in the printing settings to print labels directly."
-msgstr ""
+msgstr "在打印设置中添加打印机以直接打印标签。"
 
 msgid "Add Actions"
 msgstr "添加操作"
@@ -343,7 +343,7 @@ msgid "Add Permissions"
 msgstr "添加权限"
 
 msgid "Add Printer"
-msgstr ""
+msgstr "添加打印机"
 
 msgid "Add Property"
 msgstr "添加属性"
@@ -767,7 +767,7 @@ msgstr "您确定要删除定价规则：{0}？此操作无法撤销。"
 
 #. placeholder {0}: printerToDelete.name
 msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
-msgstr ""
+msgstr "你确定要删除打印机\"{0}\"吗？任何引用此打印机的分配都将被清除。此操作无法撤销。"
 
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
@@ -939,7 +939,7 @@ msgid "Assets"
 msgstr "资产"
 
 msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
-msgstr ""
+msgstr "将打印机分配到位置。运输、接收和工作中心继承位置默认值，除非被覆盖。"
 
 msgid "Assign To"
 msgstr "分配给"
@@ -2604,7 +2604,7 @@ msgid "Download CSV"
 msgstr "下载 CSV"
 
 msgid "Download Labels"
-msgstr ""
+msgstr "下载标签"
 
 msgid "Download PDF"
 msgstr "下载 PDF"
@@ -2695,7 +2695,7 @@ msgid "e.g. DWG-1234"
 msgstr "例如 DWG-1234"
 
 msgid "e.g. Zebra 2x1"
-msgstr ""
+msgstr "例如 Zebra 2x1"
 
 msgid "Edit"
 msgstr "编辑"
@@ -3874,7 +3874,7 @@ msgid "If you wish to change the part numbers, please click Cancel and manually 
 msgstr "如果您希望更改零件号，请点击\"取消\"并在转换前为每个行项目手动分配零件。"
 
 msgid "Imperial"
-msgstr ""
+msgstr "英制"
 
 msgid "Implementation Support"
 msgstr "实施支持"
@@ -4336,7 +4336,7 @@ msgid "Leave any related receipts untouched"
 msgstr "保留任何相关收据不变"
 
 msgid "Leave blank for built-in"
-msgstr ""
+msgstr "留空以使用内置"
 
 msgid "Leave empty for exact match"
 msgstr "留空以精确匹配"
@@ -4713,7 +4713,7 @@ msgid "Measurement Standard"
 msgstr "测量标准"
 
 msgid "Media Size"
-msgstr ""
+msgstr "媒体尺寸"
 
 msgid "Members"
 msgstr "成员"
@@ -5254,7 +5254,7 @@ msgid "No issue types configured"
 msgstr "未配置问题类型"
 
 msgid "No locations found."
-msgstr ""
+msgstr "未找到位置。"
 
 msgid "No logo uploaded"
 msgstr "未上传徽标"
@@ -5308,10 +5308,10 @@ msgid "No pricing options found"
 msgstr "未找到定价选项"
 
 msgid "No printer configured"
-msgstr ""
+msgstr "未配置打印机"
 
 msgid "No printers configured. Click \"Add Printer\" to create one."
-msgstr ""
+msgstr "未配置打印机。点击\"添加打印机\"创建一个。"
 
 msgid "No Quote"
 msgstr "无报价"
@@ -5581,7 +5581,7 @@ msgid "Orders submitted"
 msgstr "订单已提交"
 
 msgid "Origin"
-msgstr ""
+msgstr "来源"
 
 msgid "Other Type"
 msgstr "其他类型"
@@ -5716,7 +5716,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF (Document)"
-msgstr ""
+msgstr "PDF（文档）"
 
 msgid "PDF downloaded"
 msgstr "PDF已下载"
@@ -5725,7 +5725,7 @@ msgid "PDF pages"
 msgstr "PDF 页面"
 
 msgid "PDF Preview"
-msgstr ""
+msgstr "PDF 预览"
 
 msgid "PDF Watermark"
 msgstr "PDF 水印"
@@ -5767,7 +5767,7 @@ msgid "Photo uploaded successfully"
 msgstr "照片上传成功"
 
 msgid "Physical printers available for assignment."
-msgstr ""
+msgstr "可用于分配的物理打印机。"
 
 msgid "Pick"
 msgstr "拣选"
@@ -5920,7 +5920,7 @@ msgid "Preview"
 msgstr "预览"
 
 msgid "Preview failed: {error}"
-msgstr ""
+msgstr "预览失败：{error}"
 
 msgid "Preview Quantity"
 msgstr "预览数量"
@@ -5965,33 +5965,33 @@ msgid "Pricing Trace"
 msgstr "定价追踪"
 
 msgid "Print"
-msgstr ""
+msgstr "打印"
 
 #. placeholder {0}: selectedIds.size
 msgid "Print {0} Labels"
-msgstr ""
+msgstr "打印 {0} 个标签"
 
 msgid "Print Jobs"
-msgstr ""
+msgstr "打印任务"
 
 msgid "Print Label"
 msgstr "打印标签"
 
 #. placeholder {0}: viewContent.contentType?.toUpperCase()
 msgid "Print Output ({0})"
-msgstr ""
+msgstr "打印输出 ({0})"
 
 msgid "Printer Settings"
-msgstr ""
+msgstr "打印机设置"
 
 msgid "Printer URL"
-msgstr ""
+msgstr "打印机 URL"
 
 msgid "Printers"
-msgstr ""
+msgstr "打印机"
 
 msgid "Printing"
-msgstr ""
+msgstr "打印"
 
 msgid "Priorities"
 msgstr "优先级"
@@ -6451,7 +6451,7 @@ msgid "Remove Transfer"
 msgstr "移除转移"
 
 msgid "Rendering label preview..."
-msgstr ""
+msgstr "正在渲染标签预览..."
 
 msgid "Reopen"
 msgstr "重新打开"
@@ -6511,7 +6511,7 @@ msgid "Reports"
 msgstr "报告"
 
 msgid "Reprint"
-msgstr ""
+msgstr "重新打印"
 
 msgid "Request Approval"
 msgstr "请求批准"
@@ -6995,7 +6995,7 @@ msgid "Select items"
 msgstr "选择项目"
 
 msgid "Select Printer"
-msgstr ""
+msgstr "选择打印机"
 
 msgid "Select Quantities"
 msgstr "选择数量"
@@ -7763,7 +7763,7 @@ msgid "Temperature"
 msgstr "温度"
 
 msgid "Template ID"
-msgstr ""
+msgstr "模板 ID"
 
 msgid "Terms and Privacy"
 msgstr "条款和隐私"
@@ -7772,7 +7772,7 @@ msgid "Terms of Service"
 msgstr "服务条款"
 
 msgid "Test"
-msgstr ""
+msgstr "测试"
 
 msgid "Test Value"
 msgstr "测试值"
@@ -8507,7 +8507,7 @@ msgid "View Permissions"
 msgstr "查看权限"
 
 msgid "View Prints"
-msgstr ""
+msgstr "查看打印"
 
 msgid "View Production Events"
 msgstr "查看生产事件"
@@ -8826,7 +8826,7 @@ msgid "Zoom out"
 msgstr "缩小"
 
 msgid "ZPL (Thermal Label)"
-msgstr ""
+msgstr "ZPL（热敏标签）"
 
 msgid "ZPL Label Preview"
-msgstr ""
+msgstr "ZPL 标签预览"

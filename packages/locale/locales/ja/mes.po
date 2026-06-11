@@ -61,7 +61,7 @@ msgid "Add & Issue"
 msgstr "追加して払出"
 
 msgid "Add a printer in the printing settings to print labels directly."
-msgstr ""
+msgstr "印刷設定でプリンターを追加して、ラベルを直接印刷します。"
 
 msgid "Add Inventory"
 msgstr "在庫追加"
@@ -267,7 +267,7 @@ msgid "Download"
 msgstr "ダウンロード"
 
 msgid "Download Labels"
-msgstr ""
+msgstr "ラベルをダウンロード"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "ファイルをここにドラッグ＆ドロップするか、クリックしてファイルを選択してください"
@@ -385,7 +385,7 @@ msgid "Impact"
 msgstr "影響"
 
 msgid "Imperial"
-msgstr ""
+msgstr "インペリアル"
 
 msgid "In Progress"
 msgstr "進行中"
@@ -502,7 +502,7 @@ msgid "Maximum number of records reached"
 msgstr "レコードの最大数に達しました"
 
 msgid "Metric"
-msgstr ""
+msgstr "メートル法"
 
 msgid "Model"
 msgstr "モデル"
@@ -584,7 +584,7 @@ msgid "No options found."
 msgstr "オプションが見つかりません。"
 
 msgid "No printer configured"
-msgstr ""
+msgstr "プリンターが設定されていません"
 
 msgid "No recent operations"
 msgstr "最近の工程はありません"
@@ -690,10 +690,10 @@ msgid "Preventive"
 msgstr "予防保全"
 
 msgid "Print"
-msgstr ""
+msgstr "印刷"
 
 msgid "Printer Settings"
-msgstr ""
+msgstr "プリンター設定"
 
 msgid "Priority"
 msgstr "優先度"
@@ -821,7 +821,7 @@ msgid "Select Batch {0}"
 msgstr "バッチ {0} を選択"
 
 msgid "Select Printer"
-msgstr ""
+msgstr "プリンターを選択"
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"

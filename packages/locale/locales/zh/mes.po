@@ -61,7 +61,7 @@ msgid "Add & Issue"
 msgstr "添加并发放"
 
 msgid "Add a printer in the printing settings to print labels directly."
-msgstr ""
+msgstr "在打印设置中添加打印机以直接打印标签。"
 
 msgid "Add Inventory"
 msgstr "添加库存"
@@ -267,7 +267,7 @@ msgid "Download"
 msgstr "下载"
 
 msgid "Download Labels"
-msgstr ""
+msgstr "下载标签"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "拖放文件到此处，或点击选择文件"
@@ -385,7 +385,7 @@ msgid "Impact"
 msgstr "影响"
 
 msgid "Imperial"
-msgstr ""
+msgstr "英制"
 
 msgid "In Progress"
 msgstr "进行中"
@@ -502,7 +502,7 @@ msgid "Maximum number of records reached"
 msgstr "已达到最大记录数"
 
 msgid "Metric"
-msgstr ""
+msgstr "公制"
 
 msgid "Model"
 msgstr "模型"
@@ -584,7 +584,7 @@ msgid "No options found."
 msgstr "未找到选项。"
 
 msgid "No printer configured"
-msgstr ""
+msgstr "未配置打印机"
 
 msgid "No recent operations"
 msgstr "无近期工序"
@@ -690,10 +690,10 @@ msgid "Preventive"
 msgstr "预防性"
 
 msgid "Print"
-msgstr ""
+msgstr "打印"
 
 msgid "Printer Settings"
-msgstr ""
+msgstr "打印机设置"
 
 msgid "Priority"
 msgstr "优先级"
@@ -821,7 +821,7 @@ msgid "Select Batch {0}"
 msgstr "选择批次 {0}"
 
 msgid "Select Printer"
-msgstr ""
+msgstr "选择打印机"
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"

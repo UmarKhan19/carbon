@@ -271,7 +271,7 @@ msgid "Add a comment..."
 msgstr "Aggiungi un commento..."
 
 msgid "Add a printer in the printing settings to print labels directly."
-msgstr ""
+msgstr "Aggiungi una stampante nelle impostazioni di stampa per stampare le etichette direttamente."
 
 msgid "Add Actions"
 msgstr "Aggiungi Azioni"
@@ -343,7 +343,7 @@ msgid "Add Permissions"
 msgstr "Aggiungi Autorizzazioni"
 
 msgid "Add Printer"
-msgstr ""
+msgstr "Aggiungi stampante"
 
 msgid "Add Property"
 msgstr "Aggiungi Proprietà"
@@ -767,7 +767,7 @@ msgstr "Sei sicuro di voler eliminare la regola di prezzo: {0}? Questa azione no
 
 #. placeholder {0}: printerToDelete.name
 msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
-msgstr ""
+msgstr "Sei sicuro di voler eliminare la stampante \"{0}\"? Tutti gli incarichi che fanno riferimento a questa stampante verranno cancellati. Questa azione non può essere annullata."
 
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
@@ -939,7 +939,7 @@ msgid "Assets"
 msgstr "Cespiti"
 
 msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
-msgstr ""
+msgstr "Assegna stampanti alle posizioni. Spedizione, ricezione e centri di lavoro ereditano l'impostazione predefinita della posizione se non sovrascritti."
 
 msgid "Assign To"
 msgstr "Assegna a"
@@ -2604,7 +2604,7 @@ msgid "Download CSV"
 msgstr "Scarica CSV"
 
 msgid "Download Labels"
-msgstr ""
+msgstr "Scarica Etichette"
 
 msgid "Download PDF"
 msgstr "Scarica PDF"
@@ -2695,7 +2695,7 @@ msgid "e.g. DWG-1234"
 msgstr "es. DWG-1234"
 
 msgid "e.g. Zebra 2x1"
-msgstr ""
+msgstr "ad es. Zebra 2x1"
 
 msgid "Edit"
 msgstr "Modifica"
@@ -3874,7 +3874,7 @@ msgid "If you wish to change the part numbers, please click Cancel and manually 
 msgstr "Se desideri modificare i numeri di parte, fai clic su Annulla e assegna manualmente le parti per ogni elemento di riga prima della conversione."
 
 msgid "Imperial"
-msgstr ""
+msgstr "Imperiale"
 
 msgid "Implementation Support"
 msgstr "Supporto all'implementazione"
@@ -4336,7 +4336,7 @@ msgid "Leave any related receipts untouched"
 msgstr "Lasciare le ricevute correlate intatte"
 
 msgid "Leave blank for built-in"
-msgstr ""
+msgstr "Lascia vuoto per built-in"
 
 msgid "Leave empty for exact match"
 msgstr "Lascia vuoto per una corrispondenza esatta"
@@ -4713,7 +4713,7 @@ msgid "Measurement Standard"
 msgstr "Standard di Misurazione"
 
 msgid "Media Size"
-msgstr ""
+msgstr "Dimensione supporto"
 
 msgid "Members"
 msgstr "Membri"
@@ -5254,7 +5254,7 @@ msgid "No issue types configured"
 msgstr "Nessun tipo di problema configurato"
 
 msgid "No locations found."
-msgstr ""
+msgstr "Nessuna posizione trovata."
 
 msgid "No logo uploaded"
 msgstr "Nessun logo caricato"
@@ -5308,10 +5308,10 @@ msgid "No pricing options found"
 msgstr "Nessuna opzione di prezzo trovata"
 
 msgid "No printer configured"
-msgstr ""
+msgstr "Nessuna stampante configurata"
 
 msgid "No printers configured. Click \"Add Printer\" to create one."
-msgstr ""
+msgstr "Nessuna stampante configurata. Fai clic su \"Aggiungi stampante\" per crearne una."
 
 msgid "No Quote"
 msgstr "Nessuna offerta"
@@ -5581,7 +5581,7 @@ msgid "Orders submitted"
 msgstr "Ordini inviati"
 
 msgid "Origin"
-msgstr ""
+msgstr "Origine"
 
 msgid "Other Type"
 msgstr "Altro Tipo"
@@ -5716,7 +5716,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF (Document)"
-msgstr ""
+msgstr "PDF (Documento)"
 
 msgid "PDF downloaded"
 msgstr "PDF scaricato"
@@ -5725,7 +5725,7 @@ msgid "PDF pages"
 msgstr "Pagine PDF"
 
 msgid "PDF Preview"
-msgstr ""
+msgstr "Anteprima PDF"
 
 msgid "PDF Watermark"
 msgstr "Filigrana PDF"
@@ -5767,7 +5767,7 @@ msgid "Photo uploaded successfully"
 msgstr "Foto caricata con successo"
 
 msgid "Physical printers available for assignment."
-msgstr ""
+msgstr "Stampanti fisiche disponibili per l'assegnazione."
 
 msgid "Pick"
 msgstr "Preleva"
@@ -5920,7 +5920,7 @@ msgid "Preview"
 msgstr "Anteprima"
 
 msgid "Preview failed: {error}"
-msgstr ""
+msgstr "Anteprima non riuscita: {error}"
 
 msgid "Preview Quantity"
 msgstr "Quantità Anteprima"
@@ -5965,33 +5965,33 @@ msgid "Pricing Trace"
 msgstr "Traccia Prezzi"
 
 msgid "Print"
-msgstr ""
+msgstr "Stampa"
 
 #. placeholder {0}: selectedIds.size
 msgid "Print {0} Labels"
-msgstr ""
+msgstr "Stampa {0} Etichette"
 
 msgid "Print Jobs"
-msgstr ""
+msgstr "Lavori di stampa"
 
 msgid "Print Label"
 msgstr "Stampa Etichetta"
 
 #. placeholder {0}: viewContent.contentType?.toUpperCase()
 msgid "Print Output ({0})"
-msgstr ""
+msgstr "Output di stampa ({0})"
 
 msgid "Printer Settings"
-msgstr ""
+msgstr "Impostazioni Stampante"
 
 msgid "Printer URL"
-msgstr ""
+msgstr "URL stampante"
 
 msgid "Printers"
-msgstr ""
+msgstr "Stampanti"
 
 msgid "Printing"
-msgstr ""
+msgstr "Stampa"
 
 msgid "Priorities"
 msgstr "Priorità"
@@ -6451,7 +6451,7 @@ msgid "Remove Transfer"
 msgstr "Rimuovi Trasferimento"
 
 msgid "Rendering label preview..."
-msgstr ""
+msgstr "Rendering dell'anteprima dell'etichetta..."
 
 msgid "Reopen"
 msgstr "Riapri"
@@ -6511,7 +6511,7 @@ msgid "Reports"
 msgstr "Rapporti"
 
 msgid "Reprint"
-msgstr ""
+msgstr "Ristampa"
 
 msgid "Request Approval"
 msgstr "Richiedi Approvazione"
@@ -6995,7 +6995,7 @@ msgid "Select items"
 msgstr "Seleziona articoli"
 
 msgid "Select Printer"
-msgstr ""
+msgstr "Seleziona Stampante"
 
 msgid "Select Quantities"
 msgstr "Seleziona Quantità"
@@ -7763,7 +7763,7 @@ msgid "Temperature"
 msgstr "Temperatura"
 
 msgid "Template ID"
-msgstr ""
+msgstr "ID Modello"
 
 msgid "Terms and Privacy"
 msgstr "Termini e Privacy"
@@ -7772,7 +7772,7 @@ msgid "Terms of Service"
 msgstr "Termini di Servizio"
 
 msgid "Test"
-msgstr ""
+msgstr "Prova"
 
 msgid "Test Value"
 msgstr "Valore di Test"
@@ -8507,7 +8507,7 @@ msgid "View Permissions"
 msgstr "Autorizzazioni di visualizzazione"
 
 msgid "View Prints"
-msgstr ""
+msgstr "Visualizza Stampe"
 
 msgid "View Production Events"
 msgstr "Visualizza Eventi di Produzione"
@@ -8826,7 +8826,7 @@ msgid "Zoom out"
 msgstr "Riduci zoom"
 
 msgid "ZPL (Thermal Label)"
-msgstr ""
+msgstr "ZPL (Etichetta Termica)"
 
 msgid "ZPL Label Preview"
-msgstr ""
+msgstr "Anteprima etichetta ZPL"

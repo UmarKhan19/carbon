@@ -61,7 +61,7 @@ msgid "Add & Issue"
 msgstr "Добавить и выдать"
 
 msgid "Add a printer in the printing settings to print labels directly."
-msgstr ""
+msgstr "Добавьте принтер в параметры печати, чтобы печатать этикетки напрямую."
 
 msgid "Add Inventory"
 msgstr "Добавить запас"
@@ -267,7 +267,7 @@ msgid "Download"
 msgstr "Скачать"
 
 msgid "Download Labels"
-msgstr ""
+msgstr "Загрузить этикетки"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Перетащите файл сюда или нажмите для выбора файла"
@@ -385,7 +385,7 @@ msgid "Impact"
 msgstr "Влияние"
 
 msgid "Imperial"
-msgstr ""
+msgstr "Имперская"
 
 msgid "In Progress"
 msgstr "В работе"
@@ -502,7 +502,7 @@ msgid "Maximum number of records reached"
 msgstr "Достигнуто максимальное количество записей"
 
 msgid "Metric"
-msgstr ""
+msgstr "Метрическая"
 
 msgid "Model"
 msgstr "Модель"
@@ -584,7 +584,7 @@ msgid "No options found."
 msgstr "Варианты не найдены."
 
 msgid "No printer configured"
-msgstr ""
+msgstr "Принтер не настроен"
 
 msgid "No recent operations"
 msgstr "Нет недавних операций"
@@ -690,10 +690,10 @@ msgid "Preventive"
 msgstr "Профилактическое"
 
 msgid "Print"
-msgstr ""
+msgstr "Печать"
 
 msgid "Printer Settings"
-msgstr ""
+msgstr "Параметры принтера"
 
 msgid "Priority"
 msgstr "Приоритет"
@@ -821,7 +821,7 @@ msgid "Select Batch {0}"
 msgstr "Выберите партию {0}"
 
 msgid "Select Printer"
-msgstr ""
+msgstr "Выберите принтер"
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"

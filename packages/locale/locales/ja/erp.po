@@ -271,7 +271,7 @@ msgid "Add a comment..."
 msgstr "コメントを追加..."
 
 msgid "Add a printer in the printing settings to print labels directly."
-msgstr ""
+msgstr "プリンター設定にプリンターを追加して、ラベルを直接印刷します。"
 
 msgid "Add Actions"
 msgstr "アクションを追加"
@@ -343,7 +343,7 @@ msgid "Add Permissions"
 msgstr "権限を追加"
 
 msgid "Add Printer"
-msgstr ""
+msgstr "プリンターを追加"
 
 msgid "Add Property"
 msgstr "プロパティを追加"
@@ -767,7 +767,7 @@ msgstr "本当に価格設定ルール: {0} を削除してもよろしいです
 
 #. placeholder {0}: printerToDelete.name
 msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
-msgstr ""
+msgstr "このプリンター「{0}」を削除してもよろしいですか？このプリンターを参照しているすべての割り当ては削除されます。この操作は取り消せません。"
 
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
@@ -939,7 +939,7 @@ msgid "Assets"
 msgstr "資産"
 
 msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
-msgstr ""
+msgstr "プリンターをロケーションに割り当てます。配送、受け取り、ワークセンターは、オーバーライドされない限りロケーションのデフォルトを継承します。"
 
 msgid "Assign To"
 msgstr "割り当て先"
@@ -2604,7 +2604,7 @@ msgid "Download CSV"
 msgstr "CSVをダウンロード"
 
 msgid "Download Labels"
-msgstr ""
+msgstr "ラベルをダウンロード"
 
 msgid "Download PDF"
 msgstr "PDFをダウンロード"
@@ -2695,7 +2695,7 @@ msgid "e.g. DWG-1234"
 msgstr "例：DWG-1234"
 
 msgid "e.g. Zebra 2x1"
-msgstr ""
+msgstr "例：Zebra 2x1"
 
 msgid "Edit"
 msgstr "編集"
@@ -3874,7 +3874,7 @@ msgid "If you wish to change the part numbers, please click Cancel and manually 
 msgstr "部品番号を変更したい場合は、[キャンセル]をクリックして、変換する前に各行アイテムの部品を手動で割り当ててください。"
 
 msgid "Imperial"
-msgstr ""
+msgstr "インペリアル"
 
 msgid "Implementation Support"
 msgstr "実装サポート"
@@ -4336,7 +4336,7 @@ msgid "Leave any related receipts untouched"
 msgstr "関連するすべての領収書はそのままにしておく"
 
 msgid "Leave blank for built-in"
-msgstr ""
+msgstr "組み込みの場合は空白のままにしてください"
 
 msgid "Leave empty for exact match"
 msgstr "正確な一致のために空のままにしてください"
@@ -4713,7 +4713,7 @@ msgid "Measurement Standard"
 msgstr "測定標準"
 
 msgid "Media Size"
-msgstr ""
+msgstr "メディアサイズ"
 
 msgid "Members"
 msgstr "メンバー"
@@ -5254,7 +5254,7 @@ msgid "No issue types configured"
 msgstr "問題タイプが設定されていません"
 
 msgid "No locations found."
-msgstr ""
+msgstr "ロケーションが見つかりません。"
 
 msgid "No logo uploaded"
 msgstr "ロゴがアップロードされていません"
@@ -5308,10 +5308,10 @@ msgid "No pricing options found"
 msgstr "価格オプションが見つかりません"
 
 msgid "No printer configured"
-msgstr ""
+msgstr "プリンターが設定されていません"
 
 msgid "No printers configured. Click \"Add Printer\" to create one."
-msgstr ""
+msgstr "プリンターが設定されていません。「プリンターを追加」をクリックして作成してください。"
 
 msgid "No Quote"
 msgstr "見積なし"
@@ -5581,7 +5581,7 @@ msgid "Orders submitted"
 msgstr "注文が送信されました"
 
 msgid "Origin"
-msgstr ""
+msgstr "オリジン"
 
 msgid "Other Type"
 msgstr "その他のタイプ"
@@ -5716,7 +5716,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF (Document)"
-msgstr ""
+msgstr "PDF（ドキュメント）"
 
 msgid "PDF downloaded"
 msgstr "PDFをダウンロードしました"
@@ -5725,7 +5725,7 @@ msgid "PDF pages"
 msgstr "PDFページ"
 
 msgid "PDF Preview"
-msgstr ""
+msgstr "PDFプレビュー"
 
 msgid "PDF Watermark"
 msgstr "PDF透かし"
@@ -5767,7 +5767,7 @@ msgid "Photo uploaded successfully"
 msgstr "写真が正常にアップロードされました"
 
 msgid "Physical printers available for assignment."
-msgstr ""
+msgstr "割り当て可能な物理プリンター。"
 
 msgid "Pick"
 msgstr "ピック"
@@ -5920,7 +5920,7 @@ msgid "Preview"
 msgstr "プレビュー"
 
 msgid "Preview failed: {error}"
-msgstr ""
+msgstr "プレビューに失敗しました: {error}"
 
 msgid "Preview Quantity"
 msgstr "プレビュー数量"
@@ -5965,33 +5965,33 @@ msgid "Pricing Trace"
 msgstr "価格トレース"
 
 msgid "Print"
-msgstr ""
+msgstr "印刷"
 
 #. placeholder {0}: selectedIds.size
 msgid "Print {0} Labels"
-msgstr ""
+msgstr "{0}個のラベルを印刷"
 
 msgid "Print Jobs"
-msgstr ""
+msgstr "印刷ジョブ"
 
 msgid "Print Label"
 msgstr "ラベルを印刷"
 
 #. placeholder {0}: viewContent.contentType?.toUpperCase()
 msgid "Print Output ({0})"
-msgstr ""
+msgstr "印刷出力 ({0})"
 
 msgid "Printer Settings"
-msgstr ""
+msgstr "プリンター設定"
 
 msgid "Printer URL"
-msgstr ""
+msgstr "プリンターURL"
 
 msgid "Printers"
-msgstr ""
+msgstr "プリンター"
 
 msgid "Printing"
-msgstr ""
+msgstr "印刷"
 
 msgid "Priorities"
 msgstr "優先度"
@@ -6451,7 +6451,7 @@ msgid "Remove Transfer"
 msgstr "転送を削除"
 
 msgid "Rendering label preview..."
-msgstr ""
+msgstr "ラベルプレビューをレンダリング中..."
 
 msgid "Reopen"
 msgstr "再度開く"
@@ -6511,7 +6511,7 @@ msgid "Reports"
 msgstr "レポート"
 
 msgid "Reprint"
-msgstr ""
+msgstr "再印刷"
 
 msgid "Request Approval"
 msgstr "承認をリクエスト"
@@ -6995,7 +6995,7 @@ msgid "Select items"
 msgstr "アイテムを選択"
 
 msgid "Select Printer"
-msgstr ""
+msgstr "プリンターを選択"
 
 msgid "Select Quantities"
 msgstr "数量を選択"
@@ -7763,7 +7763,7 @@ msgid "Temperature"
 msgstr "温度"
 
 msgid "Template ID"
-msgstr ""
+msgstr "テンプレートID"
 
 msgid "Terms and Privacy"
 msgstr "利用規約とプライバシー"
@@ -7772,7 +7772,7 @@ msgid "Terms of Service"
 msgstr "利用規約"
 
 msgid "Test"
-msgstr ""
+msgstr "テスト"
 
 msgid "Test Value"
 msgstr "テスト値"
@@ -8507,7 +8507,7 @@ msgid "View Permissions"
 msgstr "表示権限"
 
 msgid "View Prints"
-msgstr ""
+msgstr "プリントを表示"
 
 msgid "View Production Events"
 msgstr "生産イベントを表示"
@@ -8826,7 +8826,7 @@ msgid "Zoom out"
 msgstr "ズームアウト"
 
 msgid "ZPL (Thermal Label)"
-msgstr ""
+msgstr "ZPL（サーマルラベル）"
 
 msgid "ZPL Label Preview"
-msgstr ""
+msgstr "ZPLラベルプレビュー"

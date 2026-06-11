@@ -271,7 +271,7 @@ msgid "Add a comment..."
 msgstr "एक टिप्पणी जोड़ें..."
 
 msgid "Add a printer in the printing settings to print labels directly."
-msgstr ""
+msgstr "प्रिंटिंग सेटिंग्स में एक प्रिंटर जोड़ें ताकि लेबल सीधे प्रिंट कर सकें।"
 
 msgid "Add Actions"
 msgstr "कार्य जोड़ें"
@@ -343,7 +343,7 @@ msgid "Add Permissions"
 msgstr "अनुमतियां जोड़ें"
 
 msgid "Add Printer"
-msgstr ""
+msgstr "प्रिंटर जोड़ें"
 
 msgid "Add Property"
 msgstr "प्रॉपर्टी जोड़ें"
@@ -767,7 +767,7 @@ msgstr "क्या आप सुनिश्चित हैं कि आप 
 
 #. placeholder {0}: printerToDelete.name
 msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
-msgstr ""
+msgstr "क्या आप सुनिश्चित हैं कि आप प्रिंटर \"{0}\" को हटाना चाहते हैं? इस प्रिंटर को संदर्भित करने वाले किसी भी असाइनमेंट को साफ़ किया जाएगा। इसे पूर्ववत नहीं किया जा सकता।"
 
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
@@ -939,7 +939,7 @@ msgid "Assets"
 msgstr "संपत्तियां"
 
 msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
-msgstr ""
+msgstr "प्रिंटर को स्थानों को असाइन करें। शिपिंग, रिसीविंग और वर्क सेंटर स्थान डिफ़ॉल्ट को विरासत में लेते हैं जब तक कि ओवरराइड न किया जाए।"
 
 msgid "Assign To"
 msgstr "को असाइन करें"
@@ -2604,7 +2604,7 @@ msgid "Download CSV"
 msgstr "CSV डाउनलोड करें"
 
 msgid "Download Labels"
-msgstr ""
+msgstr "लेबल डाउनलोड करें"
 
 msgid "Download PDF"
 msgstr "PDF डाउनलोड करें"
@@ -2695,7 +2695,7 @@ msgid "e.g. DWG-1234"
 msgstr "उदा. DWG-1234"
 
 msgid "e.g. Zebra 2x1"
-msgstr ""
+msgstr "उदाहरण के लिए Zebra 2x1"
 
 msgid "Edit"
 msgstr "संपादित करें"
@@ -3874,7 +3874,7 @@ msgid "If you wish to change the part numbers, please click Cancel and manually 
 msgstr "यदि आप भाग संख्याओं को बदलना चाहते हैं, तो कृपया Cancel पर क्लिक करें और रूपांतरण से पहले प्रत्येक लाइन आइटम के लिए भागों को मैन्युअल रूप से असाइन करें।"
 
 msgid "Imperial"
-msgstr ""
+msgstr "इंपीरियल"
 
 msgid "Implementation Support"
 msgstr "कार्यान्वयन समर्थन"
@@ -4336,7 +4336,7 @@ msgid "Leave any related receipts untouched"
 msgstr "किसी भी संबंधित रसीदों को अछूता छोड़ें"
 
 msgid "Leave blank for built-in"
-msgstr ""
+msgstr "बिल्ट-इन के लिए खाली छोड़ें"
 
 msgid "Leave empty for exact match"
 msgstr "सटीक मिलान के लिए खाली छोड़ें"
@@ -4713,7 +4713,7 @@ msgid "Measurement Standard"
 msgstr "मापन मानक"
 
 msgid "Media Size"
-msgstr ""
+msgstr "मीडिया आकार"
 
 msgid "Members"
 msgstr "सदस्य"
@@ -5254,7 +5254,7 @@ msgid "No issue types configured"
 msgstr "कोई समस्या प्रकार कॉन्फ़िगर नहीं किया गया"
 
 msgid "No locations found."
-msgstr ""
+msgstr "कोई स्थान नहीं मिला।"
 
 msgid "No logo uploaded"
 msgstr "कोई लोगो अपलोड नहीं किया गया"
@@ -5308,10 +5308,10 @@ msgid "No pricing options found"
 msgstr "कोई मूल्य निर्धारण विकल्प नहीं मिला"
 
 msgid "No printer configured"
-msgstr ""
+msgstr "कोई प्रिंटर कॉन्फ़िगर नहीं किया गया"
 
 msgid "No printers configured. Click \"Add Printer\" to create one."
-msgstr ""
+msgstr "कोई प्रिंटर कॉन्फ़िगर नहीं किया गया है। एक बनाने के लिए \"प्रिंटर जोड़ें\" पर क्लिक करें।"
 
 msgid "No Quote"
 msgstr "कोई उद्धरण नहीं"
@@ -5581,7 +5581,7 @@ msgid "Orders submitted"
 msgstr "ऑर्डर जमा किए गए"
 
 msgid "Origin"
-msgstr ""
+msgstr "मूल"
 
 msgid "Other Type"
 msgstr "अन्य प्रकार"
@@ -5716,7 +5716,7 @@ msgid "PDF"
 msgstr "PDF"
 
 msgid "PDF (Document)"
-msgstr ""
+msgstr "PDF (दस्तावेज़)"
 
 msgid "PDF downloaded"
 msgstr "PDF डाउनलोड किया गया"
@@ -5725,7 +5725,7 @@ msgid "PDF pages"
 msgstr "पीडीएफ पृष्ठ"
 
 msgid "PDF Preview"
-msgstr ""
+msgstr "पीडीएफ पूर्वावलोकन"
 
 msgid "PDF Watermark"
 msgstr "PDF वॉटरमार्क"
@@ -5767,7 +5767,7 @@ msgid "Photo uploaded successfully"
 msgstr "फ़ोटो सफलतापूर्वक अपलोड हो गई"
 
 msgid "Physical printers available for assignment."
-msgstr ""
+msgstr "असाइनमेंट के लिए उपलब्ध भौतिक प्रिंटर।"
 
 msgid "Pick"
 msgstr "चुनें"
@@ -5920,7 +5920,7 @@ msgid "Preview"
 msgstr "पूर्वावलोकन"
 
 msgid "Preview failed: {error}"
-msgstr ""
+msgstr "पूर्वावलोकन विफल: {error}"
 
 msgid "Preview Quantity"
 msgstr "पूर्वावलोकन मात्रा"
@@ -5965,33 +5965,33 @@ msgid "Pricing Trace"
 msgstr "मूल्य निर्धारण ट्रेस"
 
 msgid "Print"
-msgstr ""
+msgstr "प्रिंट करें"
 
 #. placeholder {0}: selectedIds.size
 msgid "Print {0} Labels"
-msgstr ""
+msgstr "{0} लेबल प्रिंट करें"
 
 msgid "Print Jobs"
-msgstr ""
+msgstr "प्रिंट जॉब्स"
 
 msgid "Print Label"
 msgstr "लेबल प्रिंट करें"
 
 #. placeholder {0}: viewContent.contentType?.toUpperCase()
 msgid "Print Output ({0})"
-msgstr ""
+msgstr "प्रिंट आउटपुट ({0})"
 
 msgid "Printer Settings"
-msgstr ""
+msgstr "प्रिंटर सेटिंग्स"
 
 msgid "Printer URL"
-msgstr ""
+msgstr "प्रिंटर URL"
 
 msgid "Printers"
-msgstr ""
+msgstr "प्रिंटर"
 
 msgid "Printing"
-msgstr ""
+msgstr "मुद्रण"
 
 msgid "Priorities"
 msgstr "प्राथमिकताएं"
@@ -6451,7 +6451,7 @@ msgid "Remove Transfer"
 msgstr "ट्रांसफर हटाएं"
 
 msgid "Rendering label preview..."
-msgstr ""
+msgstr "लेबल पूर्वावलोकन प्रस्तुत किया जा रहा है..."
 
 msgid "Reopen"
 msgstr "फिर से खोलें"
@@ -6511,7 +6511,7 @@ msgid "Reports"
 msgstr "रिपोर्ट"
 
 msgid "Reprint"
-msgstr ""
+msgstr "दोबारा प्रिंट करें"
 
 msgid "Request Approval"
 msgstr "अनुमोदन का अनुरोध करें"
@@ -6995,7 +6995,7 @@ msgid "Select items"
 msgstr "आइटम चुनें"
 
 msgid "Select Printer"
-msgstr ""
+msgstr "प्रिंटर चुनें"
 
 msgid "Select Quantities"
 msgstr "मात्रा चुनें"
@@ -7763,7 +7763,7 @@ msgid "Temperature"
 msgstr "तापमान"
 
 msgid "Template ID"
-msgstr ""
+msgstr "टेम्पलेट आईडी"
 
 msgid "Terms and Privacy"
 msgstr "शर्तें और गोपनीयता"
@@ -7772,7 +7772,7 @@ msgid "Terms of Service"
 msgstr "सेवा की शर्तें"
 
 msgid "Test"
-msgstr ""
+msgstr "परीक्षण"
 
 msgid "Test Value"
 msgstr "परीक्षण मान"
@@ -8507,7 +8507,7 @@ msgid "View Permissions"
 msgstr "देखने की अनुमतियाँ"
 
 msgid "View Prints"
-msgstr ""
+msgstr "प्रिंट देखें"
 
 msgid "View Production Events"
 msgstr "उत्पादन घटनाएं देखें"
@@ -8826,7 +8826,7 @@ msgid "Zoom out"
 msgstr "ज़ूम आउट करें"
 
 msgid "ZPL (Thermal Label)"
-msgstr ""
+msgstr "ZPL (थर्मल लेबल)"
 
 msgid "ZPL Label Preview"
-msgstr ""
+msgstr "ZPL लेबल पूर्वावलोकन"

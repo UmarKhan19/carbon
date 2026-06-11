@@ -61,7 +61,7 @@ msgid "Add & Issue"
 msgstr "Agregar y emitir"
 
 msgid "Add a printer in the printing settings to print labels directly."
-msgstr ""
+msgstr "Añade una impresora en la configuración de impresión para imprimir etiquetas directamente."
 
 msgid "Add Inventory"
 msgstr "Agregar inventario"
@@ -267,7 +267,7 @@ msgid "Download"
 msgstr "Descargar"
 
 msgid "Download Labels"
-msgstr ""
+msgstr "Descargar Etiquetas"
 
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Arrastre y suelte un archivo aquí, o haga clic para seleccionar un archivo"
@@ -385,7 +385,7 @@ msgid "Impact"
 msgstr "Impacto"
 
 msgid "Imperial"
-msgstr ""
+msgstr "Imperial"
 
 msgid "In Progress"
 msgstr "En progreso"
@@ -502,7 +502,7 @@ msgid "Maximum number of records reached"
 msgstr "Se alcanzó el número máximo de registros"
 
 msgid "Metric"
-msgstr ""
+msgstr "Métrico"
 
 msgid "Model"
 msgstr "Modelo"
@@ -584,7 +584,7 @@ msgid "No options found."
 msgstr "No se encontraron opciones."
 
 msgid "No printer configured"
-msgstr ""
+msgstr "Sin impresora configurada"
 
 msgid "No recent operations"
 msgstr "No hay operaciones recientes"
@@ -690,10 +690,10 @@ msgid "Preventive"
 msgstr "Preventivo"
 
 msgid "Print"
-msgstr ""
+msgstr "Imprimir"
 
 msgid "Printer Settings"
-msgstr ""
+msgstr "Configuración de impresora"
 
 msgid "Priority"
 msgstr "Prioridad"
@@ -821,7 +821,7 @@ msgid "Select Batch {0}"
 msgstr "Seleccionar lote {0}"
 
 msgid "Select Printer"
-msgstr ""
+msgstr "Seleccionar Impresora"
 
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
