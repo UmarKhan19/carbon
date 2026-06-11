@@ -158,8 +158,7 @@ export function SectionFormModal({
                     Header layout
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    The logo is configured from the Logo item under Header in
-                    the block list.
+                    Set the logo from the Logo item under Header.
                   </p>
                   <ConfigSwitch
                     label="Show company address"

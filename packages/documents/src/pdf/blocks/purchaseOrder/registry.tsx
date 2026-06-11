@@ -1,5 +1,6 @@
 import type { DocumentBlockType } from "../../../template";
 import { CustomFieldBlock } from "../CustomFieldBlock";
+import { FieldBlock } from "../FieldBlock";
 import { KeyValueBlock } from "../KeyValueBlock";
 import { RichTextBlock } from "../RichTextBlock";
 import { SharedBlock } from "../SharedBlock";
@@ -58,7 +59,10 @@ export const purchaseOrderBlockRegistry: Record<
     ) : null,
   labelBarcode: () => null,
   labelLogo: () => null,
-  field: () => null,
+  field: ({ block, data }) =>
+    block.type === "field" ? (
+      <FieldBlock block={block} vars={data.vars} />
+    ) : null,
   customField: ({ block, data }) =>
     block.type === "customField" ? (
       <CustomFieldBlock

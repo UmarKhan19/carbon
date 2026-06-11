@@ -211,15 +211,23 @@ export function BlockList() {
               />
             </>
           ) : (
-            ADD_OPTIONS.map(({ type, icon, description }) => (
+            <>
               <AddMenuItem
-                key={type}
-                icon={icon}
-                title={BLOCK_META[type].label}
-                description={description}
-                onClick={() => addBlock(type)}
+                icon={<LuType className="size-4" />}
+                title="Text field"
+                description="A label and a value"
+                onClick={() => addField(true)}
               />
-            ))
+              {ADD_OPTIONS.map(({ type, icon, description }) => (
+                <AddMenuItem
+                  key={type}
+                  icon={icon}
+                  title={BLOCK_META[type].label}
+                  description={description}
+                  onClick={() => addBlock(type)}
+                />
+              ))}
+            </>
           )}
           {!isTextOnly && (
             <>

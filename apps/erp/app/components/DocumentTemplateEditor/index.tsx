@@ -158,7 +158,7 @@ function ControlRail() {
               <FontConfig />
             </section>
             <section className="flex flex-col gap-2">
-              <h3 className={RAIL_HEADING}>Theme Colors</h3>
+              <h3 className={RAIL_HEADING}>Theme colors</h3>
               <ThemeConfig />
             </section>
           </TabsContent>

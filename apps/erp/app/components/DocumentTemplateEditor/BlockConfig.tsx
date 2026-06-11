@@ -83,7 +83,7 @@ export function BlockConfig() {
             <TypeBadge category="page" />
           </div>
           <p className="text-xs text-muted-foreground">
-            The header logo, shared across every document.
+            Shown in the header of every document.
           </p>
         </div>
         <HeaderLogoConfig />
@@ -100,7 +100,7 @@ export function BlockConfig() {
             <TypeBadge category="page" />
           </div>
           <p className="text-xs text-muted-foreground">
-            Page chrome, repeated on every page.
+            Shown at the bottom of every page.
           </p>
         </div>
         <ChromeConfig kind="footer" />
@@ -152,7 +152,7 @@ export function BlockConfig() {
         </div>
         {meta.isBuiltIn && !hasOwnConfig && (
           <p className="text-xs text-muted-foreground">
-            Built-in section. Reorder or toggle its visibility from the list.
+            Reorder or show/hide it from the list.
           </p>
         )}
       </div>
@@ -177,7 +177,7 @@ export function BlockConfig() {
         <div className="flex flex-col gap-2">
           <p className="text-xs text-muted-foreground">
             {sharedName
-              ? "Linked to a shared section. Edit its content in the library — changes apply everywhere it's used."
+              ? "Linked to a shared section. Edit it in the library to update it everywhere."
               : "This shared section no longer exists. Remove the block or recreate the section."}
           </p>
           <Link
@@ -261,8 +261,8 @@ function ChromeConfig({ kind }: { kind: "header" | "footer" }) {
     <div className="flex flex-col gap-3">
       <p className="text-xs text-muted-foreground">
         {kind === "header"
-          ? "The header is a global shared section — its logo, fields, and banner are the same across every document."
-          : "The footer is a global shared section, reused across every document."}
+          ? "The header is shared by every document — same logo, fields, and banner everywhere."
+          : "The footer is shared by every document."}
       </p>
       <Button
         variant="secondary"
@@ -403,7 +403,7 @@ function LabelBarcodeConfig({ block }: { block: LabelBarcodeBlock }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1.5">
-        <Label>Symbology</Label>
+        <Label>Type</Label>
         <Select
           value={block.symbology}
           onValueChange={(value) =>
@@ -611,7 +611,7 @@ function LabelLogoConfig({ block }: { block: LabelLogoBlock }) {
         onChange={(v) => updateBlock(block.id, { height: v })}
       />
       <p className="text-xs text-muted-foreground">
-        ZPL printers always render the logo black & white.
+        Label printers always print the logo in black & white.
       </p>
     </div>
   );
@@ -706,7 +706,7 @@ function LineItemsConfig({ block }: { block: LineItemsBlock }) {
         onChange={(v) => set("showThumbnails", v)}
       />
       <ToggleRow
-        label="Zebra striping"
+        label="Striped rows"
         checked={opts.zebra}
         onChange={(v) => set("zebra", v)}
       />
