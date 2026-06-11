@@ -32,7 +32,6 @@ export const jobTravelerBlockRegistry: Record<
   labelRevision: () => null,
   labelQuantity: () => null,
   labelTracking: () => null,
-  labelQrCode: () => null,
   labelEntityId: () => null,
   richText: ({ block, data }) =>
     block.type === "richText" ? (

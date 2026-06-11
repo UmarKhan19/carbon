@@ -189,7 +189,6 @@ function categoryOf(type: DocumentBlockType): BlockCategory {
     type === "keyValue" ||
     type === "spacer" ||
     type === "field" ||
-    type === "labelBarcode" ||
     type === "labelLogo" ||
     type === "customField"
   ) {
@@ -414,6 +413,25 @@ function LabelBarcodeConfig({ block }: { block: LabelBarcodeBlock }) {
           value={block.value ?? ""}
           onChange={(e) => updateBlock(block.id, { value: e.target.value })}
         />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label>Placement</Label>
+        <Select
+          value={block.placement}
+          onValueChange={(value) =>
+            updateBlock(block.id, {
+              placement: value as LabelBarcodeBlock["placement"]
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="right">Top-right</SelectItem>
+            <SelectItem value="full">Full width</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <NumberRow
         label="Height (pt)"

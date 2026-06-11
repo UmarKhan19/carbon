@@ -153,13 +153,16 @@ const ProductLabelPDF = ({
                   );
                 };
 
-                // Slots: fields stack top-left; logo + QR top-right; barcode
-                // spans full width near the bottom; entity id at the very bottom.
+                // Slots: fields stack top-left; logo + "right" codes top-right;
+                // "full" codes span full width near the bottom; entity id at the
+                // very bottom.
                 const rightBlocks = visibleBlocks.filter(
-                  (b) => b.type === "labelLogo" || b.type === "labelQrCode"
+                  (b) =>
+                    b.type === "labelLogo" ||
+                    (b.type === "labelBarcode" && b.placement !== "full")
                 );
                 const barcodeBlocks = visibleBlocks.filter(
-                  (b) => b.type === "labelBarcode"
+                  (b) => b.type === "labelBarcode" && b.placement === "full"
                 );
                 const entityBlocks = visibleBlocks.filter(
                   (b) => b.type === "labelEntityId"
@@ -167,7 +170,6 @@ const ProductLabelPDF = ({
                 const textBlocks = visibleBlocks.filter(
                   (b) =>
                     b.type !== "labelLogo" &&
-                    b.type !== "labelQrCode" &&
                     b.type !== "labelBarcode" &&
                     b.type !== "labelEntityId"
                 );

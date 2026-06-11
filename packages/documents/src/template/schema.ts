@@ -109,16 +109,19 @@ const labelNamedField = <T extends string>(type: T) =>
 const labelRevisionBlock = labelNamedField("labelRevision");
 const labelQuantityBlock = labelNamedField("labelQuantity");
 const labelTrackingBlock = labelNamedField("labelTracking");
-const labelQrCodeBlock = builtInBlock("labelQrCode");
 const labelEntityIdBlock = builtInBlock("labelEntityId");
-/** A configurable barcode (symbology + value), e.g. a full-width PDF417. */
+/**
+ * A scannable code (QR / PDF417 / Code128 / DataMatrix). `placement` is "right"
+ * (small, top-right next to the logo) or "full" (full-width band, e.g. PDF417).
+ */
 const labelBarcodeBlock = z.object({
   ...baseFields,
   type: z.literal("labelBarcode"),
   symbology: z
-    .enum(["pdf417", "code128", "datamatrix", "qrcode"])
-    .default("pdf417"),
+    .enum(["qrcode", "pdf417", "code128", "datamatrix"])
+    .default("qrcode"),
   value: z.string().default("{label.trackedEntityId}"),
+  placement: z.enum(["right", "full"]).default("right"),
   height: z.number().min(16).max(300).optional()
 });
 /** The company logo. Color in the PDF by default; `monochrome` for B&W / ZPL. */
@@ -199,7 +202,6 @@ export const blockSchema = z.discriminatedUnion("type", [
   labelRevisionBlock,
   labelQuantityBlock,
   labelTrackingBlock,
-  labelQrCodeBlock,
   labelEntityIdBlock,
   labelBarcodeBlock,
   labelLogoBlock,
@@ -384,7 +386,6 @@ export type LabelHeadingBlock = Extract<
   DocumentBlock,
   { type: "labelHeading" }
 >;
-export type LabelQrCodeBlock = Extract<DocumentBlock, { type: "labelQrCode" }>;
 /** Label fields whose printed name is editable. */
 export type LabelNamedBlock = Extract<
   DocumentBlock,

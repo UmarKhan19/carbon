@@ -204,13 +204,6 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     hideable: true,
     addable: false
   },
-  labelQrCode: {
-    label: "QR Code",
-    isBuiltIn: true,
-    removable: false,
-    hideable: true,
-    addable: false
-  },
   labelEntityId: {
     label: "Tracked Entity ID",
     isBuiltIn: true,
@@ -219,10 +212,10 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     addable: false
   },
   labelBarcode: {
-    // Added via the label add menu ("Barcode"), not the generic one.
-    label: "Barcode",
-    isBuiltIn: false,
-    removable: true,
+    // The scannable code (QR / barcode) — built-in, configurable symbology.
+    label: "Code",
+    isBuiltIn: true,
+    removable: false,
     hideable: true,
     addable: false
   },
@@ -345,7 +338,14 @@ function labelBlocks(): DocumentBlock[] {
     { id: "labelRevision", type: "labelRevision", visible: true },
     { id: "labelQuantity", type: "labelQuantity", visible: true },
     { id: "labelTracking", type: "labelTracking", visible: true },
-    { id: "labelQrCode", type: "labelQrCode", visible: true },
+    {
+      id: "labelCode",
+      type: "labelBarcode",
+      visible: true,
+      symbology: "qrcode",
+      value: "{label.trackedEntityId}",
+      placement: "right"
+    },
     { id: "labelEntityId", type: "labelEntityId", visible: true }
   ];
 }

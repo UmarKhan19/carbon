@@ -6,7 +6,6 @@ import {
   LabelFieldBlock,
   LabelHeadingBlock,
   LabelLogoBlock,
-  LabelQrCodeBlock,
   LabelQuantityBlock,
   LabelRevisionBlock,
   LabelTrackingBlock
@@ -31,7 +30,6 @@ export const trackingLabelBlockRegistry: Record<
     block.type === "labelTracking" ? (
       <LabelTrackingBlock block={block} data={data} />
     ) : null,
-  labelQrCode: ({ data }) => <LabelQrCodeBlock data={data} />,
   labelEntityId: ({ data }) => <LabelEntityIdBlock data={data} />,
   labelBarcode: ({ block, data }) =>
     block.type === "labelBarcode" ? (

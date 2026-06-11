@@ -119,16 +119,6 @@ export function generateProductLabelZPL(
           yPosition += descGap;
         }
         break;
-      case "labelQrCode":
-        if (item.trackedEntityId) {
-          // QR Code for tracked entity ID — fixed top-right, independent of the
-          // text stack. Error correction level M, input mode A.
-          const qrYPosition = isSmallLabel ? 30 : 40;
-          zpl += `^FO${qrStartX},${qrYPosition}^BQN,2,${
-            isSmallLabel ? 5 : 7
-          },M,A^FD${item.trackedEntityId}^FS`;
-        }
-        break;
       case "labelEntityId":
         if (item.trackedEntityId) {
           // Tracked entity id text at the bottom.
@@ -145,13 +135,20 @@ export function generateProductLabelZPL(
         }
         break;
       case "labelBarcode": {
-        // Full-width band near the bottom.
         const value = interpolateString(block.value ?? "", vars);
         if (value) {
-          const bcHeight = isSmallLabel ? 60 : 110;
-          const bcY = heightDots - bcHeight - (isSmallLabel ? 25 : 40);
-          zpl += `^FO${textStartX},${bcY > 0 ? bcY : heightDots - bcHeight}`;
-          zpl += zplBarcode(block.symbology, value, bcHeight);
+          if (block.placement === "full") {
+            // Full-width band near the bottom.
+            const bcHeight = isSmallLabel ? 60 : 110;
+            const bcY = heightDots - bcHeight - (isSmallLabel ? 25 : 40);
+            zpl += `^FO${textStartX},${bcY > 0 ? bcY : heightDots - bcHeight}`;
+            zpl += zplBarcode(block.symbology, value, bcHeight);
+          } else {
+            // Top-right, like the old QR slot.
+            const bcHeight = isSmallLabel ? 80 : 130;
+            zpl += `^FO${qrStartX},${isSmallLabel ? 30 : 40}`;
+            zpl += zplBarcode(block.symbology, value, bcHeight);
+          }
         }
         break;
       }

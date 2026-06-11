@@ -1,6 +1,5 @@
 import { Image, Text, View } from "@react-pdf/renderer";
 import { generateBarcode } from "../../../qr/barcode";
-import { generateQRCode } from "../../../qr/qr-code";
 import type {
   FieldBlock,
   LabelBarcodeBlock as LabelBarcodeBlockType,
@@ -136,20 +135,6 @@ export function LabelTrackingBlock({
   );
 }
 
-/** QR code of the tracked-entity id. */
-export function LabelQrCodeBlock({ data }: { data: LabelData }) {
-  const { item, qrCodeSize } = data;
-  if (!item.trackedEntityId) return null;
-  return (
-    <View style={tw("flex items-center justify-center mb-1")}>
-      <Image
-        src={generateQRCode(item.trackedEntityId, qrCodeSize / 72)}
-        style={{ width: qrCodeSize, height: qrCodeSize, objectFit: "contain" }}
-      />
-    </View>
-  );
-}
-
 /** Tracked-entity id, shown as text. */
 export function LabelEntityIdBlock({ data }: { data: LabelData }) {
   const { item, descriptionFontSize } = data;
@@ -167,7 +152,10 @@ export function LabelEntityIdBlock({ data }: { data: LabelData }) {
   );
 }
 
-/** A configurable barcode (full width). */
+/**
+ * The scannable code. `right` placement renders square (top-right, like the
+ * old QR slot); `full` placement stretches full width (e.g. PDF417).
+ */
 export function LabelBarcodeBlock({
   block,
   data
@@ -177,21 +165,28 @@ export function LabelBarcodeBlock({
 }) {
   const value = interpolateString(block.value ?? "", data.vars);
   if (!value) return null;
-  const height = block.height ?? 56;
-  // 2D codes are square-ish; the linear PDF417/Code128 stretch full width.
-  const isSquare =
-    block.symbology === "qrcode" || block.symbology === "datamatrix";
+  const src = generateBarcode(value, block.symbology, {
+    height: block.symbology === "pdf417" ? 8 : 12
+  });
+
+  if (block.placement === "full") {
+    const height = block.height ?? 56;
+    return (
+      <View style={tw("w-full flex items-center mt-1")}>
+        <Image
+          src={src}
+          style={{ width: "100%", height, objectFit: "contain" }}
+        />
+      </View>
+    );
+  }
+
+  const size = block.height ?? data.qrCodeSize;
   return (
-    <View style={tw("w-full flex items-center mt-1")}>
+    <View style={tw("flex items-center justify-center mb-1")}>
       <Image
-        src={generateBarcode(value, block.symbology, {
-          height: block.symbology === "pdf417" ? 8 : 12
-        })}
-        style={{
-          width: isSquare ? height : "100%",
-          height,
-          objectFit: "contain"
-        }}
+        src={src}
+        style={{ width: size, height: size, objectFit: "contain" }}
       />
     </View>
   );

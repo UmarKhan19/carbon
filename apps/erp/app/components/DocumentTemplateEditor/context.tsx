@@ -87,7 +87,6 @@ interface DocumentTemplateContextValue {
   /** Add a single-line field. `withLabel` seeds an empty label (key-value). */
   addField: (withLabel: boolean) => void;
   addLabelLogo: () => void;
-  addLabelBarcode: () => void;
   removeBlock: (id: string) => void;
   toggleVisible: (id: string) => void;
   reorder: (activeId: string, overId: string) => void;
@@ -245,18 +244,6 @@ export function DocumentTemplateProvider({
     setSelectedId(block.id);
   }, []);
 
-  const addLabelBarcode = useCallback(() => {
-    const block: DocumentBlock = {
-      id: nanoid(),
-      type: "labelBarcode",
-      visible: true,
-      symbology: "pdf417",
-      value: "{label.trackedEntityId}"
-    };
-    setBlocks((prev) => [...prev, block]);
-    setSelectedId(block.id);
-  }, []);
-
   const removeBlock = useCallback((id: string) => {
     setBlocks((prev) => prev.filter((b) => b.id !== id));
     setSelectedId((current) => (current === id ? null : current));
@@ -371,7 +358,6 @@ export function DocumentTemplateProvider({
       addCustomFieldBlock,
       addField,
       addLabelLogo,
-      addLabelBarcode,
       removeBlock,
       toggleVisible,
       reorder,
@@ -403,7 +389,6 @@ export function DocumentTemplateProvider({
       addCustomFieldBlock,
       addField,
       addLabelLogo,
-      addLabelBarcode,
       removeBlock,
       toggleVisible,
       reorder,

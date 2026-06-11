@@ -30,7 +30,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { ReactNode } from "react";
 import {
-  LuBarcode,
   LuEye,
   LuEyeOff,
   LuGripVertical,
@@ -86,7 +85,6 @@ export function BlockList() {
     addCustomFieldBlock,
     addField,
     addLabelLogo,
-    addLabelBarcode,
     sections,
     customFields
   } = useDocumentTemplate();
@@ -155,12 +153,6 @@ export function BlockList() {
                 title="Text field"
                 description="A label and a value"
                 onClick={() => addField(true)}
-              />
-              <AddMenuItem
-                icon={<LuBarcode className="size-4" />}
-                title="Barcode"
-                description="PDF417, Code128, DataMatrix, QR"
-                onClick={() => addLabelBarcode()}
               />
               <AddMenuItem
                 icon={<LuImage className="size-4" />}
