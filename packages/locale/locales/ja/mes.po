@@ -60,6 +60,9 @@ msgstr "追加"
 msgid "Add & Issue"
 msgstr "追加して払出"
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr ""
+
 msgid "Add Inventory"
 msgstr "在庫追加"
 
@@ -381,6 +384,9 @@ msgstr "アイデア、提案、または問題はありますか？"
 msgid "Impact"
 msgstr "影響"
 
+msgid "Imperial"
+msgstr ""
+
 msgid "In Progress"
 msgstr "進行中"
 
@@ -495,6 +501,9 @@ msgstr "材料"
 msgid "Maximum number of records reached"
 msgstr "レコードの最大数に達しました"
 
+msgid "Metric"
+msgstr ""
+
 msgid "Model"
 msgstr "モデル"
 
@@ -573,6 +582,9 @@ msgstr "オプションが見つかりません。"
 
 msgid "No options found."
 msgstr "オプションが見つかりません。"
+
+msgid "No printer configured"
+msgstr ""
 
 msgid "No recent operations"
 msgstr "最近の工程はありません"
@@ -678,6 +690,9 @@ msgid "Preventive"
 msgstr "予防保全"
 
 msgid "Print"
+msgstr ""
+
+msgid "Printer Settings"
 msgstr ""
 
 msgid "Priority"

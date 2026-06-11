@@ -270,6 +270,9 @@ msgstr "在下方添加列以对视图进行排序"
 msgid "Add a comment..."
 msgstr "添加评论..."
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr ""
+
 msgid "Add Actions"
 msgstr "添加操作"
 
@@ -3870,6 +3873,9 @@ msgstr "如果项目已存在"
 msgid "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
 msgstr "如果您希望更改零件号，请点击\"取消\"并在转换前为每个行项目手动分配零件。"
 
+msgid "Imperial"
+msgstr ""
+
 msgid "Implementation Support"
 msgstr "实施支持"
 
@@ -5301,6 +5307,9 @@ msgstr "所选数量无定价"
 msgid "No pricing options found"
 msgstr "未找到定价选项"
 
+msgid "No printer configured"
+msgstr ""
+
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr ""
 
@@ -5970,6 +5979,9 @@ msgstr "打印标签"
 
 #. placeholder {0}: viewContent.contentType?.toUpperCase()
 msgid "Print Output ({0})"
+msgstr ""
+
+msgid "Printer Settings"
 msgstr ""
 
 msgid "Printer URL"

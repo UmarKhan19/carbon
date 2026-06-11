@@ -60,6 +60,9 @@ msgstr "Add"
 msgid "Add & Issue"
 msgstr "Add & Issue"
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "Add a printer in the printing settings to print labels directly."
+
 msgid "Add Inventory"
 msgstr "Add Inventory"
 
@@ -381,6 +384,9 @@ msgstr "Ideas, suggestions or problems?"
 msgid "Impact"
 msgstr "Impact"
 
+msgid "Imperial"
+msgstr "Imperial"
+
 msgid "In Progress"
 msgstr "In Progress"
 
@@ -495,6 +501,9 @@ msgstr "Materials"
 msgid "Maximum number of records reached"
 msgstr "Maximum number of records reached"
 
+msgid "Metric"
+msgstr "Metric"
+
 msgid "Model"
 msgstr "Model"
 
@@ -573,6 +582,9 @@ msgstr "No option found."
 
 msgid "No options found."
 msgstr "No options found."
+
+msgid "No printer configured"
+msgstr "No printer configured"
 
 msgid "No recent operations"
 msgstr "No recent operations"
@@ -679,6 +691,9 @@ msgstr "Preventive"
 
 msgid "Print"
 msgstr "Print"
+
+msgid "Printer Settings"
+msgstr "Printer Settings"
 
 msgid "Priority"
 msgstr "Priority"

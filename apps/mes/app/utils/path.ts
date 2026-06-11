@@ -128,6 +128,7 @@ export const path = {
     messagingNotify: `${x}/proxy/api/messaging/notify`,
     newMaintenanceDispatch: `${x}/dispatch/new`,
     onboarding: `${ERP_URL}/onboarding`,
+    printingSettings: `${ERP_URL}/x/settings/printing`,
     operation: (id: string) => generatePath(`${x}/operation/${id}`),
     operations: `${x}/operations?saved=1`,
     productionEvent: `${x}/event`,

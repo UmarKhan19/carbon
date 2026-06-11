@@ -270,6 +270,9 @@ msgstr "Dodaj kolumnę poniżej, aby posortować widok"
 msgid "Add a comment..."
 msgstr "Dodaj komentarz..."
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr ""
+
 msgid "Add Actions"
 msgstr "Dodaj Działania"
 
@@ -3870,6 +3873,9 @@ msgstr "Jeśli elementy już istnieją"
 msgid "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
 msgstr "Jeśli chcesz zmienić numery części, kliknij Anuluj i ręcznie przypisz części dla każdej pozycji wiersza przed konwersją."
 
+msgid "Imperial"
+msgstr ""
+
 msgid "Implementation Support"
 msgstr "Wsparcie wdrażania"
 
@@ -5301,6 +5307,9 @@ msgstr "Brak cen dla wybranej ilości"
 msgid "No pricing options found"
 msgstr "Nie znaleziono opcji cenowych"
 
+msgid "No printer configured"
+msgstr ""
+
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr ""
 
@@ -5970,6 +5979,9 @@ msgstr "Drukuj etykietę"
 
 #. placeholder {0}: viewContent.contentType?.toUpperCase()
 msgid "Print Output ({0})"
+msgstr ""
+
+msgid "Printer Settings"
 msgstr ""
 
 msgid "Printer URL"

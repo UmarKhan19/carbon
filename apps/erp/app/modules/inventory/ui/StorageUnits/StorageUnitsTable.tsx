@@ -262,7 +262,7 @@ const StorageUnitsTable = memo(
           // The id "Select" opts into the Table's compact checkbox-column
           // styling (px-2, shrink-to-fit width).
           id: "Select",
-          size: 1,
+          size: 50,
           minSize: 1,
           header: () => (
             <IndeterminateCheckbox
@@ -298,7 +298,7 @@ const StorageUnitsTable = memo(
             const hasChildren = hasChildrenSet.has(row.original.id);
 
             return (
-              <div className="flex items-stretch self-stretch">
+              <div className="flex flex-1">
                 {Array.from({ length: depth }).map((_, i) => (
                   <div
                     key={i}

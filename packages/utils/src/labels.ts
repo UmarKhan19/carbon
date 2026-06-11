@@ -13,6 +13,7 @@ export type LabelSize = {
   width: number;
   height: number;
   description: string;
+  metric?: boolean;
   rows?: number;
   columns?: number;
   rotated?: boolean;
@@ -76,6 +77,7 @@ export const labelSizes: LabelSize[] = [
     width: 3.937,
     height: 1.969,
     description: "Thermal Labels (50mm x 100mm)",
+    metric: true,
     rotated: false,
     zpl: {
       dpi: 203,
@@ -89,6 +91,7 @@ export const labelSizes: LabelSize[] = [
     width: 1.969,
     height: 0.984,
     description: "Thermal Labels (25mm x 50mm)",
+    metric: true,
     rotated: false,
     zpl: {
       dpi: 203,

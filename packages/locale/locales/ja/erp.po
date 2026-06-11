@@ -270,6 +270,9 @@ msgstr "下のカラムを追加してビューをソートします"
 msgid "Add a comment..."
 msgstr "コメントを追加..."
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr ""
+
 msgid "Add Actions"
 msgstr "アクションを追加"
 
@@ -3870,6 +3873,9 @@ msgstr "アイテムが既に存在する場合"
 msgid "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
 msgstr "部品番号を変更したい場合は、[キャンセル]をクリックして、変換する前に各行アイテムの部品を手動で割り当ててください。"
 
+msgid "Imperial"
+msgstr ""
+
 msgid "Implementation Support"
 msgstr "実装サポート"
 
@@ -5301,6 +5307,9 @@ msgstr "選択した数量の価格設定がありません"
 msgid "No pricing options found"
 msgstr "価格オプションが見つかりません"
 
+msgid "No printer configured"
+msgstr ""
+
 msgid "No printers configured. Click \"Add Printer\" to create one."
 msgstr ""
 
@@ -5970,6 +5979,9 @@ msgstr "ラベルを印刷"
 
 #. placeholder {0}: viewContent.contentType?.toUpperCase()
 msgid "Print Output ({0})"
+msgstr ""
+
+msgid "Printer Settings"
 msgstr ""
 
 msgid "Printer URL"

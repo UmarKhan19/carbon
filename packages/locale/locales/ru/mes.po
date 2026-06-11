@@ -60,6 +60,9 @@ msgstr "Добавить"
 msgid "Add & Issue"
 msgstr "Добавить и выдать"
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr ""
+
 msgid "Add Inventory"
 msgstr "Добавить запас"
 
@@ -381,6 +384,9 @@ msgstr "Идеи, предложения или проблемы?"
 msgid "Impact"
 msgstr "Влияние"
 
+msgid "Imperial"
+msgstr ""
+
 msgid "In Progress"
 msgstr "В работе"
 
@@ -495,6 +501,9 @@ msgstr "Материалы"
 msgid "Maximum number of records reached"
 msgstr "Достигнуто максимальное количество записей"
 
+msgid "Metric"
+msgstr ""
+
 msgid "Model"
 msgstr "Модель"
 
@@ -573,6 +582,9 @@ msgstr "Опция не найдена."
 
 msgid "No options found."
 msgstr "Варианты не найдены."
+
+msgid "No printer configured"
+msgstr ""
 
 msgid "No recent operations"
 msgstr "Нет недавних операций"
@@ -678,6 +690,9 @@ msgid "Preventive"
 msgstr "Профилактическое"
 
 msgid "Print"
+msgstr ""
+
+msgid "Printer Settings"
 msgstr ""
 
 msgid "Priority"

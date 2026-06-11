@@ -60,6 +60,9 @@ msgstr "जोड़ें"
 msgid "Add & Issue"
 msgstr "जोड़ें और जारी करें"
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr ""
+
 msgid "Add Inventory"
 msgstr "इन्वेंटरी जोड़ें"
 
@@ -381,6 +384,9 @@ msgstr "विचार, सुझाव या समस्याएं?"
 msgid "Impact"
 msgstr "प्रभाव"
 
+msgid "Imperial"
+msgstr ""
+
 msgid "In Progress"
 msgstr "प्रगति में"
 
@@ -495,6 +501,9 @@ msgstr "सामग्री"
 msgid "Maximum number of records reached"
 msgstr "रिकॉर्ड की अधिकतम संख्या तक पहुंच गई"
 
+msgid "Metric"
+msgstr ""
+
 msgid "Model"
 msgstr "मॉडल"
 
@@ -573,6 +582,9 @@ msgstr "कोई विकल्प नहीं मिला।"
 
 msgid "No options found."
 msgstr "कोई विकल्प नहीं मिला।"
+
+msgid "No printer configured"
+msgstr ""
 
 msgid "No recent operations"
 msgstr "कोई हाल के संचालन नहीं"
@@ -678,6 +690,9 @@ msgid "Preventive"
 msgstr "निवारक"
 
 msgid "Print"
+msgstr ""
+
+msgid "Printer Settings"
 msgstr ""
 
 msgid "Priority"

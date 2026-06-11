@@ -809,6 +809,12 @@ const Table = <T extends object>({
         calculateColumnWidths();
       });
       resizeObserver.observe(tableWrapper);
+      // Also observe the table itself: internal layout changes (e.g. tree
+      // expansion adding rows/widening columns) resize the table without
+      // resizing the wrapper, which would leave pinned offsets stale.
+      if (tableRef.current) {
+        resizeObserver.observe(tableRef.current);
+      }
       return () => resizeObserver.disconnect();
     }
   }, [

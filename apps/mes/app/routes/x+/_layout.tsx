@@ -117,7 +117,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
     }),
     client
       .from("companySettings")
-      .select("timeCardEnabled, consoleEnabled, printing")
+      .select("timeCardEnabled, consoleEnabled, printing, useMetric")
       .eq("id", companyId)
       .single(),
     getOpenClockEntry(client, effectiveUserId, companyId),
@@ -191,6 +191,7 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       printing: (companySettings.data as any)?.printing ?? null,
       printerRoutes: printerRoutes.data ?? [],
       timeCardEnabled,
+      useMetric: (companySettings.data as any)?.useMetric ?? false,
       user: user.data
     },
     headers.has("Set-Cookie") ? { headers } : undefined
