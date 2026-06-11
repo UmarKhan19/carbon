@@ -30,9 +30,11 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { ReactNode } from "react";
 import {
+  LuBarcode,
   LuEye,
   LuEyeOff,
   LuGripVertical,
+  LuImage,
   LuLibrary,
   LuLock,
   LuPanelBottom,
@@ -83,6 +85,8 @@ export function BlockList() {
     addSharedBlock,
     addCustomFieldBlock,
     addField,
+    addLabelLogo,
+    addLabelBarcode,
     sections,
     customFields
   } = useDocumentTemplate();
@@ -145,12 +149,26 @@ export function BlockList() {
           className="w-[--radix-popper-anchor-width] min-w-64"
         >
           {isTextOnly ? (
-            <AddMenuItem
-              icon={<LuType className="size-4" />}
-              title="Text field"
-              description="A label and a value"
-              onClick={() => addField(true)}
-            />
+            <>
+              <AddMenuItem
+                icon={<LuType className="size-4" />}
+                title="Text field"
+                description="A label and a value"
+                onClick={() => addField(true)}
+              />
+              <AddMenuItem
+                icon={<LuBarcode className="size-4" />}
+                title="Barcode"
+                description="PDF417, Code128, DataMatrix, QR"
+                onClick={() => addLabelBarcode()}
+              />
+              <AddMenuItem
+                icon={<LuImage className="size-4" />}
+                title="Logo"
+                description="Your company logo"
+                onClick={() => addLabelLogo()}
+              />
+            </>
           ) : (
             ADD_OPTIONS.map(({ type, icon, description }) => (
               <AddMenuItem

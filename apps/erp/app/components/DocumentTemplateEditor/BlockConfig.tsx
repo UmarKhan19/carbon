@@ -3,6 +3,8 @@ import type {
   DocumentBlockType,
   FieldBlock,
   KeyValueBlock,
+  LabelBarcodeBlock,
+  LabelLogoBlock,
   LabelNamedBlock,
   LineItemsBlock,
   RichTextBlock,
@@ -112,7 +114,9 @@ export function BlockConfig() {
     block.type === "terms" ||
     block.type === "labelRevision" ||
     block.type === "labelQuantity" ||
-    block.type === "labelTracking";
+    block.type === "labelTracking" ||
+    block.type === "labelBarcode" ||
+    block.type === "labelLogo";
 
   return (
     <div className="flex flex-col gap-4">
@@ -145,6 +149,8 @@ export function BlockConfig() {
       {block.type === "keyValue" && <KeyValueConfig block={block} />}
       {block.type === "spacer" && <SpacerConfig block={block} />}
       {block.type === "field" && <FieldConfig block={block} />}
+      {block.type === "labelBarcode" && <LabelBarcodeConfig block={block} />}
+      {block.type === "labelLogo" && <LabelLogoConfig block={block} />}
       {block.type === "customField" && <CustomFieldConfig block={block} />}
       {block.type === "shared" && (
         <div className="flex flex-col gap-2">
@@ -183,6 +189,8 @@ function categoryOf(type: DocumentBlockType): BlockCategory {
     type === "keyValue" ||
     type === "spacer" ||
     type === "field" ||
+    type === "labelBarcode" ||
+    type === "labelLogo" ||
     type === "customField"
   ) {
     return "custom";
@@ -355,6 +363,89 @@ function FieldConfig({ block }: { block: FieldBlock }) {
           onChange={(e) => updateBlock(block.id, { value: e.target.value })}
         />
       </div>
+    </div>
+  );
+}
+
+const BARCODE_SYMBOLOGIES: { value: string; label: string }[] = [
+  { value: "pdf417", label: "PDF417" },
+  { value: "code128", label: "Code 128" },
+  { value: "datamatrix", label: "Data Matrix" },
+  { value: "qrcode", label: "QR Code" }
+];
+
+/** Symbology + value + height for a barcode block. */
+function LabelBarcodeConfig({ block }: { block: LabelBarcodeBlock }) {
+  const { updateBlock } = useDocumentTemplate();
+  const insertField = (snippet: string) =>
+    updateBlock(block.id, { value: (block.value ?? "") + snippet });
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1.5">
+        <Label>Symbology</Label>
+        <Select
+          value={block.symbology}
+          onValueChange={(value) =>
+            updateBlock(block.id, {
+              symbology: value as LabelBarcodeBlock["symbology"]
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {BARCODE_SYMBOLOGIES.map((s) => (
+              <SelectItem key={s.value} value={s.value}>
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="barcode-value">Value</Label>
+          <MergeFieldMenu onInsert={insertField} label="Insert field" />
+        </div>
+        <Input
+          id="barcode-value"
+          value={block.value ?? ""}
+          onChange={(e) => updateBlock(block.id, { value: e.target.value })}
+        />
+      </div>
+      <NumberRow
+        label="Height (pt)"
+        minValue={16}
+        maxValue={300}
+        value={block.height ?? 56}
+        onChange={(v) => updateBlock(block.id, { height: v })}
+      />
+    </div>
+  );
+}
+
+/** Company logo: B&W toggle + height. */
+function LabelLogoConfig({ block }: { block: LabelLogoBlock }) {
+  const { updateBlock } = useDocumentTemplate();
+  return (
+    <div className="flex flex-col gap-3">
+      <ToggleRow
+        label="Print in black & white"
+        checked={block.monochrome ?? false}
+        onChange={(v) => updateBlock(block.id, { monochrome: v })}
+      />
+      <NumberRow
+        label="Height (pt)"
+        minValue={16}
+        maxValue={160}
+        value={block.height ?? 50}
+        onChange={(v) => updateBlock(block.id, { height: v })}
+      />
+      <p className="text-xs text-muted-foreground">
+        Uses your company logo. ZPL printers always render it black & white.
+      </p>
     </div>
   );
 }
