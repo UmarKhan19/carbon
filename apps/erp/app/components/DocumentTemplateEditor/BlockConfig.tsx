@@ -528,8 +528,8 @@ function HeaderLogoConfig() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="mark">Logo mark</SelectItem>
-            <SelectItem value="icon">Icon</SelectItem>
+            <SelectItem value="mark">Wordmark</SelectItem>
+            <SelectItem value="icon">Mark</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -582,8 +582,8 @@ function LabelLogoConfig({ block }: { block: LabelLogoBlock }) {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="mark">Logo mark</SelectItem>
-            <SelectItem value="icon">Icon</SelectItem>
+            <SelectItem value="mark">Wordmark</SelectItem>
+            <SelectItem value="icon">Mark</SelectItem>
           </SelectContent>
         </Select>
       </div>
