@@ -52,6 +52,7 @@ import {
   FOOTER_BLOCK_ID,
   useDocumentTemplate
 } from "./context";
+import { HEADER_LOGO_ID, useHeaderConfig } from "./useHeaderConfig";
 
 const ADD_OPTIONS: {
   type: AddableBlockType;
@@ -113,6 +114,7 @@ export function BlockList() {
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
         {headerBlock && <HeaderRow id={headerBlock.id} />}
+        {headerBlock && <HeaderLogoRow />}
       </div>
       <DndContext
         sensors={sensors}
@@ -393,6 +395,62 @@ function HeaderRow({ id }: { id: string }) {
         setHeaderSection(shown ? null : BUILT_IN_SECTION_IDS.header)
       }
     />
+  );
+}
+
+/**
+ * The Logo — a child of the Header, shown indented in the tree so it can be
+ * configured inline (variant, crop, height) instead of via the header dialog.
+ * Only rendered while the header is shown. Eye toggles `showLogo`.
+ */
+function HeaderLogoRow() {
+  const { selectedId, select, headerSectionId } = useDocumentTemplate();
+  const { section, config, patch } = useHeaderConfig();
+  // Hide the node when the header is off or its section isn't available.
+  if (!section || headerSectionId === null) return null;
+  const isSelected = selectedId === HEADER_LOGO_ID;
+  const shown = config.showLogo;
+
+  return (
+    <div className="ml-3 border-l border-border/60 pl-2">
+      <div
+        onClick={() => select(isSelected ? null : HEADER_LOGO_ID)}
+        className={cn(
+          "group flex cursor-pointer items-center gap-1.5 rounded-md border px-1.5 py-2",
+          "transition-colors duration-150",
+          isSelected
+            ? "border-primary bg-accent/50"
+            : "border-transparent hover:border-border hover:bg-accent/30",
+          !shown && !isSelected && "opacity-60"
+        )}
+      >
+        <span className="p-1 text-muted-foreground/40">
+          <LuImage className="size-4" />
+        </span>
+        <span className="flex-1 truncate text-sm">Logo</span>
+        <button
+          type="button"
+          aria-label={shown ? "Hide logo" : "Show logo"}
+          aria-pressed={shown}
+          onClick={(e) => {
+            e.stopPropagation();
+            patch({ showLogo: !shown });
+          }}
+          className={cn(
+            "rounded p-1 transition-colors",
+            shown
+              ? "text-foreground hover:bg-muted"
+              : "text-muted-foreground hover:bg-muted"
+          )}
+        >
+          {shown ? (
+            <LuEye className="size-4" />
+          ) : (
+            <LuEyeOff className="size-4" />
+          )}
+        </button>
+      </div>
+    </div>
   );
 }
 

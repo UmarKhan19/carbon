@@ -25,9 +25,6 @@ import {
 import { Editor } from "@carbon/react/Editor";
 import { useEffect, useRef, useState } from "react";
 import { useFetcher } from "react-router";
-import { useUser } from "~/hooks";
-import { LogoCropper } from "./LogoCropper";
-import { NumberRow } from "./NumberRow";
 
 export type SectionFormValue = {
   id: string;
@@ -59,7 +56,6 @@ export function SectionFormModal({
   action?: string;
 }) {
   const fetcher = useFetcher<{ success?: boolean }>();
-  const { company } = useUser();
   const [content, setContent] = useState<JSONContent>(
     section?.content ?? { type: "doc", content: [] }
   );
@@ -161,65 +157,10 @@ export function SectionFormModal({
                   <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     Header layout
                   </p>
-                  <ConfigSwitch
-                    label="Show logo"
-                    checked={config.showLogo}
-                    onChange={(v) => setConfigKey("showLogo", v)}
-                  />
-                  {config.showLogo &&
-                    (() => {
-                      const variant = config.logoVariant ?? "mark";
-                      const src =
-                        variant === "icon"
-                          ? (company?.logoLightIcon ?? company?.logoLight)
-                          : (company?.logoLight ?? company?.logoLightIcon);
-                      return (
-                        <>
-                          <div className="flex flex-col gap-1.5">
-                            <Label>Logo</Label>
-                            <Select
-                              value={variant}
-                              onValueChange={(value) => {
-                                // Switching source invalidates the crop aspect.
-                                setConfig((prev) => ({
-                                  ...prev,
-                                  logoVariant:
-                                    value as HeaderOptions["logoVariant"],
-                                  logoCrop: undefined
-                                }));
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="mark">Logo mark</SelectItem>
-                                <SelectItem value="icon">Icon</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          {src && (
-                            <LogoCropper
-                              src={src}
-                              crop={config.logoCrop}
-                              onChange={(crop) =>
-                                setConfigKey("logoCrop", crop)
-                              }
-                            />
-                          )}
-                          <NumberRow
-                            label="Logo height (pt)"
-                            minValue={16}
-                            maxValue={120}
-                            value={
-                              config.logoHeight ??
-                              DEFAULT_HEADER_OPTIONS.logoHeight
-                            }
-                            onChange={(v) => setConfigKey("logoHeight", v)}
-                          />
-                        </>
-                      );
-                    })()}
+                  <p className="text-xs text-muted-foreground">
+                    The logo is configured from the Logo item under Header in
+                    the block list.
+                  </p>
                   <ConfigSwitch
                     label="Show company address"
                     checked={config.showCompanyDetails}

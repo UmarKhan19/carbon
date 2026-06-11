@@ -15,6 +15,7 @@ import type {
 import {
   BLOCK_META,
   BUILT_IN_SECTION_IDS,
+  DEFAULT_HEADER_OPTIONS,
   DEFAULT_LINE_ITEMS_OPTIONS,
   DEFAULT_SUMMARY_OPTIONS,
   getMergeFields
@@ -34,7 +35,7 @@ import {
   Switch
 } from "@carbon/react";
 import { Editor } from "@carbon/react/Editor";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LuExternalLink,
   LuPencil,
@@ -50,6 +51,7 @@ import { LogoCropper } from "./LogoCropper";
 import { MergeFieldMenu } from "./MergeFieldMenu";
 import { NumberRow } from "./NumberRow";
 import { SectionFormModal } from "./SectionFormModal";
+import { HEADER_LOGO_ID, useHeaderConfig } from "./useHeaderConfig";
 
 /** Append a `{{token}}` snippet to the end of a tiptap doc (inline if possible). */
 function appendText(content: JSONContent, text: string): JSONContent {
@@ -71,6 +73,23 @@ function appendText(content: JSONContent, text: string): JSONContent {
 
 export function BlockConfig() {
   const { blocks, sections, selectedId } = useDocumentTemplate();
+
+  if (selectedId === HEADER_LOGO_ID) {
+    return (
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-sm font-medium">Logo</h3>
+            <TypeBadge category="page" />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            The header logo, shared across every document.
+          </p>
+        </div>
+        <HeaderLogoConfig />
+      </div>
+    );
+  }
 
   if (selectedId === FOOTER_BLOCK_ID) {
     return (
@@ -441,6 +460,96 @@ function LabelBarcodeConfig({ block }: { block: LabelBarcodeBlock }) {
         maxValue={300}
         value={block.height ?? 56}
         onChange={(v) => updateBlock(block.id, { height: v })}
+      />
+    </div>
+  );
+}
+
+/**
+ * The document header logo, edited inline (no dialog). Local draft for snappy
+ * UI; persists to the header section (debounced) so the crop drag doesn't spam
+ * the server. The preview refreshes once the section save revalidates.
+ */
+function HeaderLogoConfig() {
+  const { company } = useUser();
+  const { section, config, submit } = useHeaderConfig();
+  const [draft, setDraft] = useState(config);
+
+  // Re-seed when the persisted config changes (revalidation / external edit).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: seed on server value only
+  useEffect(() => {
+    setDraft(config);
+  }, [JSON.stringify(config)]);
+
+  // Debounced persist — only when the draft actually diverges from the server
+  // value, so re-seeding after a save can't loop back into another submit.
+  useEffect(() => {
+    if (JSON.stringify(draft) === JSON.stringify(config)) return;
+    const t = setTimeout(() => submit(draft), 400);
+    return () => clearTimeout(t);
+  }, [draft, config, submit]);
+
+  if (!section) {
+    return (
+      <p className="text-xs text-muted-foreground">
+        The header section isn't available yet — save the template first.
+      </p>
+    );
+  }
+
+  const variant = draft.logoVariant ?? "mark";
+  const src =
+    variant === "icon"
+      ? (company?.logoLightIcon ?? company?.logoLight)
+      : (company?.logoLight ?? company?.logoLightIcon);
+  const set = (patch: Partial<typeof draft>) =>
+    setDraft((prev) => ({ ...prev, ...patch }));
+
+  return (
+    <div className="flex flex-col gap-3">
+      {!draft.showLogo && (
+        <p className="text-xs text-muted-foreground">
+          Logo is hidden — turn it on with the eye toggle in the list.
+        </p>
+      )}
+      <div className="flex flex-col gap-1.5">
+        <Label>Logo</Label>
+        <Select
+          value={variant}
+          onValueChange={(value) =>
+            // Switching source invalidates the crop aspect.
+            set({
+              logoVariant: value as typeof draft.logoVariant,
+              logoCrop: undefined
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="mark">Logo mark</SelectItem>
+            <SelectItem value="icon">Icon</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {src ? (
+        <LogoCropper
+          src={src}
+          crop={draft.logoCrop}
+          onChange={(crop) => set({ logoCrop: crop })}
+        />
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          No company logo set — upload one in company settings to crop it.
+        </p>
+      )}
+      <NumberRow
+        label="Height (pt)"
+        minValue={16}
+        maxValue={120}
+        value={draft.logoHeight ?? DEFAULT_HEADER_OPTIONS.logoHeight}
+        onChange={(v) => set({ logoHeight: v })}
       />
     </div>
   );
