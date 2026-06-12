@@ -230,10 +230,10 @@ export const BLOCK_META: Record<DocumentBlockType, BlockMeta> = {
     addable: false
   },
   labelLogo: {
-    // Added via the label add menu ("Logo").
+    // Built-in like the Code block — toggle it on/off, not add/remove.
     label: "Logo",
-    isBuiltIn: false,
-    removable: true,
+    isBuiltIn: true,
+    removable: false,
     hideable: true,
     addable: false
   },
@@ -353,6 +353,12 @@ function labelBlocks(): DocumentBlock[] {
     { id: "labelRevision", type: "labelRevision", visible: true },
     { id: "labelQuantity", type: "labelQuantity", visible: true },
     { id: "labelTracking", type: "labelTracking", visible: true },
+    {
+      id: "labelLogo",
+      type: "labelLogo",
+      visible: false,
+      variant: "mark"
+    },
     {
       id: "labelCode",
       type: "labelBarcode",

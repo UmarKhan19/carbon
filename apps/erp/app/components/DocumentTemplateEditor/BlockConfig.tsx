@@ -216,7 +216,6 @@ function categoryOf(type: DocumentBlockType): BlockCategory {
     type === "keyValue" ||
     type === "spacer" ||
     type === "field" ||
-    type === "labelLogo" ||
     type === "customField"
   ) {
     return "custom";

@@ -117,7 +117,6 @@ export function BlockList() {
     addSharedBlock,
     addCustomFieldBlock,
     addField,
-    addLabelLogo,
     sections,
     customFields
   } = useDocumentTemplate();
@@ -196,20 +195,12 @@ export function BlockList() {
           className="w-[--radix-popper-anchor-width] min-w-64"
         >
           {isTextOnly ? (
-            <>
-              <AddMenuItem
-                icon={<LuType className="size-4" />}
-                title="Text field"
-                description="A label and a value"
-                onClick={() => addField(true)}
-              />
-              <AddMenuItem
-                icon={<LuImage className="size-4" />}
-                title="Logo"
-                description="Your company logo"
-                onClick={() => addLabelLogo()}
-              />
-            </>
+            <AddMenuItem
+              icon={<LuType className="size-4" />}
+              title="Text field"
+              description="A label and a value"
+              onClick={() => addField(true)}
+            />
           ) : (
             <>
               <AddMenuItem

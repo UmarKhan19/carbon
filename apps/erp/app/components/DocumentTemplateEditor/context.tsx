@@ -86,7 +86,6 @@ interface DocumentTemplateContextValue {
   addCustomFieldBlock: (fieldId: string, label: string) => void;
   /** Add a single-line field. `withLabel` seeds an empty label (key-value). */
   addField: (withLabel: boolean) => void;
-  addLabelLogo: () => void;
   removeBlock: (id: string) => void;
   toggleVisible: (id: string) => void;
   reorder: (activeId: string, overId: string) => void;
@@ -234,17 +233,6 @@ export function DocumentTemplateProvider({
     setSelectedId(block.id);
   }, []);
 
-  const addLabelLogo = useCallback(() => {
-    const block: DocumentBlock = {
-      id: nanoid(),
-      type: "labelLogo",
-      variant: "mark",
-      visible: true
-    };
-    setBlocks((prev) => [...prev, block]);
-    setSelectedId(block.id);
-  }, []);
-
   const removeBlock = useCallback((id: string) => {
     setBlocks((prev) => prev.filter((b) => b.id !== id));
     setSelectedId((current) => (current === id ? null : current));
@@ -358,7 +346,6 @@ export function DocumentTemplateProvider({
       addSharedBlock,
       addCustomFieldBlock,
       addField,
-      addLabelLogo,
       removeBlock,
       toggleVisible,
       reorder,
@@ -389,7 +376,6 @@ export function DocumentTemplateProvider({
       addSharedBlock,
       addCustomFieldBlock,
       addField,
-      addLabelLogo,
       removeBlock,
       toggleVisible,
       reorder,
