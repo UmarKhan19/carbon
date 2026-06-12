@@ -1159,34 +1159,33 @@ serve(async (req: Request) => {
           }
 
           if (trackedEntity.status !== "Consumed") {
-            // const activityId = nanoid();
-            // await trx
-            //   .insertInto("trackedActivity")
-            //   .values({
-            //     id: activityId,
-            //     type: "Complete",
-            //     sourceDocument: "Job Operation",
-            //     sourceDocumentId: row.jobOperationId,
-            //     attributes: {
-            //       "Job Operation": row.jobOperationId,
-            //       Employee: userId,
-            //     },
-            //     companyId,
-            //     createdBy: userId,
-            //   })
-            //   .execute();
+            const activityId = nanoid();
+            await trx
+              .insertInto("trackedActivity")
+              .values({
+                id: activityId,
+                type: "Complete",
+                sourceDocument: "Job Operation",
+                sourceDocumentId: row.jobOperationId,
+                attributes: {
+                  "Job Operation": row.jobOperationId,
+                  Employee: userId,
+                },
+                companyId,
+                createdBy: userId,
+              })
+              .execute();
 
-            // await trx
-            //   .insertInto("trackedActivityOutput")
-            //   .values({
-            //     trackedActivityId: activityId,
-            //     trackedEntityId: trackedEntityId,
-            //     quantity: 1,
-            //     companyId,
-            //     createdBy: userId,
-            //   })
-            //   .execute();
-            // Update the current trackedEntity to Complete
+            await trx
+              .insertInto("trackedActivityOutput")
+              .values({
+                trackedActivityId: activityId,
+                trackedEntityId: trackedEntityId,
+                quantity: 1,
+                companyId,
+                createdBy: userId,
+              })
+              .execute();
             await trx
               .updateTable("trackedEntity")
               .set({
@@ -2107,6 +2106,7 @@ serve(async (req: Request) => {
                 .insertInto("trackedEntity")
                 .values({
                   id: newTrackedEntityId,
+                  readableId: trackedEntity.readableId,
                   sourceDocumentId: trackedEntity.sourceDocumentId,
                   sourceDocument: "Item",
                   sourceDocumentReadableId:
@@ -3152,6 +3152,7 @@ serve(async (req: Request) => {
                 .insertInto("trackedEntity")
                 .values({
                   id: newTrackedEntityId,
+                  readableId: trackedEntity.readableId,
                   sourceDocumentId: trackedEntity.sourceDocumentId,
                   sourceDocument: "Item",
                   sourceDocumentReadableId:

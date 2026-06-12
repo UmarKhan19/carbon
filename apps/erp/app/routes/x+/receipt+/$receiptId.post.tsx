@@ -7,6 +7,8 @@ import {
   evaluateLinesForSurface,
   isBlocked
 } from "@carbon/ee/storage-rules.server";
+import { trigger } from "@carbon/jobs";
+import { getCachedPrinterConfig } from "@carbon/printing/printing.server";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { path } from "~/utils/path";
@@ -126,7 +128,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       .single();
 
     const companySettings = await (serviceRole.from("companySettings") as any)
-      .select("updateLeadTimesOnReceipt")
+      .select("updateLeadTimesOnReceipt,printing")
       .eq("id", companyId)
       .single();
 
@@ -182,8 +184,40 @@ export async function action({ request, params }: ActionFunctionArgs) {
         );
       }
     }
-    // biome-ignore lint/correctness/noUnusedVariables: suppressed due to migration
-  } catch (error) {
+
+    // Auto-print labels if enabled
+    try {
+      const { data: receipt } = await serviceRole
+        .from("receipt")
+        .select("locationId")
+        .eq("id", receiptId)
+        .single();
+      const locationId = receipt?.locationId as string | undefined;
+      if (locationId) {
+        const config = await getCachedPrinterConfig(
+          serviceRole,
+          companyId,
+          locationId,
+          "receiving"
+        );
+        if (config?.autoPrint ?? true) {
+          await trigger("print-job", {
+            sourceDocument: "Receipt",
+            sourceDocumentId: receiptId,
+            companyId,
+            userId,
+            locationId
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Auto-print failed:", e);
+    }
+  } catch (thrown) {
+    // Re-throw redirects — don't swallow them
+    if (thrown instanceof Response) throw thrown;
+
+    // Only reset to Draft for actual errors
     await client
       .from("receipt")
       .update({

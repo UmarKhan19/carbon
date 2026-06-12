@@ -372,8 +372,56 @@ export const path = {
 
         return generatePath(url);
       },
+      storageUnitLabelsZpl: (
+        ids: string | string[],
+        opts?: { labelSize?: string }
+      ) => {
+        const idString = Array.isArray(ids) ? ids.join(",") : ids;
+        let url = `${file}/storage-unit/labels.zpl?ids=${idString}`;
+        if (opts?.labelSize) url += `&labelSize=${opts.labelSize}`;
+        return url;
+      },
+      storageUnitLabelsPdf: (
+        ids: string | string[],
+        opts?: { labelSize?: string }
+      ) => {
+        const idString = Array.isArray(ids) ? ids.join(",") : ids;
+        let url = `${file}/storage-unit/labels.pdf?ids=${idString}`;
+        if (opts?.labelSize) url += `&labelSize=${opts.labelSize}`;
+        return url;
+      },
       stockTransfer: (id: string) =>
         generatePath(`${file}/stock-transfer/${id}.pdf`),
+      stockTransferLabelsPdf: (
+        id: string,
+        { labelSize, lineId }: { labelSize?: string; lineId?: string } = {}
+      ) => {
+        let url = `${file}/stock-transfer/${id}/labels.pdf`;
+        const params = new URLSearchParams();
+
+        if (labelSize) params.append("labelSize", labelSize);
+        if (lineId) params.append("lineId", lineId);
+
+        const queryString = params.toString();
+        if (queryString) url += `?${queryString}`;
+
+        return generatePath(url);
+      },
+      stockTransferLabelsZpl: (
+        id: string,
+        { labelSize, lineId }: { labelSize?: string; lineId?: string } = {}
+      ) => {
+        let url = `${file}/stock-transfer/${id}/labels.zpl`;
+        const params = new URLSearchParams();
+
+        if (labelSize) params.append("labelSize", labelSize);
+        if (lineId) params.append("lineId", lineId);
+
+        const queryString = params.toString();
+        if (queryString) url += `?${queryString}`;
+
+        return generatePath(url);
+      },
       quote: (id: string) => generatePath(`${file}/quote/${id}.pdf`)
     },
     legal: {
@@ -1005,6 +1053,7 @@ export const path = {
     documentTemplates: `${x}/templates`,
     documentSections: `${x}/templates/shared`,
     documentTemplate: (type: string) => generatePath(`${x}/templates/${type}`),
+    manualPrint: `${x}/print`,
     location: (id: string) => generatePath(`${x}/resources/locations/${id}`),
     locations: `${x}/resources/locations`,
     login: "/login",
@@ -1359,6 +1408,10 @@ export const path = {
       generatePath(`${x}/resources/processes/activate/${id}`),
     processDeactivate: (id: string) =>
       generatePath(`${x}/resources/processes/deactivate/${id}`),
+    printingSettings: `${x}/settings/printing`,
+    printingSettingsJobs: `${x}/settings/printing/jobs`,
+    deletePrinterRoute: (id: string) =>
+      generatePath(`${x}/settings/printing/${id}/delete`),
     production: `${x}/production`,
     productionPlanning: `${x}/production/planning`,
     productionPlanningItem: (itemId: string) =>

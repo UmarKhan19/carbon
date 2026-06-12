@@ -13,6 +13,7 @@ import QuotePDF from "./QuotePDF";
 import SalesInvoicePDF from "./SalesInvoicePDF";
 import SalesOrderPDF from "./SalesOrderPDF";
 import StockTransferPDF from "./StockTransferPDF";
+import StorageUnitLabelPDF from "./StorageUnitLabelPDF";
 import { SAMPLE_SALES_ORDER } from "./salesOrder.samples";
 import { SAMPLE_SALES_INVOICE } from "./samples";
 import { SAMPLE_TRACKING_LABEL } from "./trackingLabel.samples";
@@ -35,5 +36,6 @@ export {
   SAMPLE_SALES_ORDER,
   SAMPLE_TRACKING_LABEL,
   SalesOrderPDF,
-  StockTransferPDF
+  StockTransferPDF,
+  StorageUnitLabelPDF
 };

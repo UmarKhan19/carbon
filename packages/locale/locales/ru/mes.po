@@ -21,10 +21,6 @@ msgstr "{0} — Набор {1}"
 msgid "{0} Active"
 msgstr "{0} Активных"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} доступно"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -63,6 +59,9 @@ msgstr "Добавить"
 
 msgid "Add & Issue"
 msgstr "Добавить и выдать"
+
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "Добавьте принтер в параметры печати, чтобы печатать этикетки напрямую."
 
 msgid "Add Inventory"
 msgstr "Добавить запас"
@@ -105,11 +104,6 @@ msgstr "Ошибка аутентификации"
 
 msgid "Batch"
 msgstr "Партия"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "Партия {0} ({1} доступно)"
 
 msgid "Batch is not available"
 msgstr "Партия недоступна"
@@ -272,6 +266,9 @@ msgstr "Простой"
 msgid "Download"
 msgstr "Скачать"
 
+msgid "Download Labels"
+msgstr "Загрузить этикетки"
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Перетащите файл сюда или нажмите для выбора файла"
 
@@ -387,6 +384,9 @@ msgstr "Идеи, предложения или проблемы?"
 msgid "Impact"
 msgstr "Влияние"
 
+msgid "Imperial"
+msgstr "Имперская"
+
 msgid "In Progress"
 msgstr "В работе"
 
@@ -501,6 +501,9 @@ msgstr "Материалы"
 msgid "Maximum number of records reached"
 msgstr "Достигнуто максимальное количество записей"
 
+msgid "Metric"
+msgstr "Метрическая"
+
 msgid "Model"
 msgstr "Модель"
 
@@ -579,6 +582,9 @@ msgstr "Опция не найдена."
 
 msgid "No options found."
 msgstr "Варианты не найдены."
+
+msgid "No printer configured"
+msgstr "Принтер не настроен"
 
 msgid "No recent operations"
 msgstr "Нет недавних операций"
@@ -682,6 +688,12 @@ msgstr "Назад"
 
 msgid "Preventive"
 msgstr "Профилактическое"
+
+msgid "Print"
+msgstr "Печать"
+
+msgid "Printer Settings"
+msgstr "Параметры принтера"
 
 msgid "Priority"
 msgstr "Приоритет"
@@ -808,6 +820,9 @@ msgstr "Выберите номенклатуру..."
 msgid "Select Batch {0}"
 msgstr "Выберите партию {0}"
 
+msgid "Select Printer"
+msgstr "Выберите принтер"
+
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
 msgstr "Выберите серийный номер {0}"
@@ -823,10 +838,6 @@ msgstr "Отправить"
 
 msgid "Serial"
 msgstr "Серийный"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "Серийный {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
@@ -961,9 +972,6 @@ msgstr "Итого: {0}"
 
 msgid "Tracking"
 msgstr "Отслеживание"
-
-msgid "Tracking Labels"
-msgstr "Этикетки отслеживания"
 
 msgid "Type a message..."
 msgstr "Введите сообщение..."

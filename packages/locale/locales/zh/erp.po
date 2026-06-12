@@ -17,7 +17,7 @@ msgstr "供应商是向您销售零件或服务的企业或个人。"
 
 #. placeholder {0}: fieldDef?.label ?? condition.field
 msgid "\"{0}\" isn't available on the selected surface(s). Pick another field."
-msgstr ""
+msgstr "\"{0}\"在选定的表面上不可用。请选择另一个字段。"
 
 msgid "\"{storageUnitName}\" has {childCount} direct nested storage units. Deleting it will also delete them and anything underneath them. This cannot be undone."
 msgstr "\"{storageUnitName}\"有{childCount}个直接嵌套的存储单元。删除它也会删除它们及其下面的所有内容。此操作无法撤销。"
@@ -270,6 +270,9 @@ msgstr "在下方添加列以对视图进行排序"
 msgid "Add a comment..."
 msgstr "添加评论..."
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "在打印设置中添加打印机以直接打印标签。"
+
 msgid "Add Actions"
 msgstr "添加操作"
 
@@ -338,6 +341,9 @@ msgstr "添加合作伙伴"
 
 msgid "Add Permissions"
 msgstr "添加权限"
+
+msgid "Add Printer"
+msgstr "添加打印机"
 
 msgid "Add Property"
 msgstr "添加属性"
@@ -466,7 +472,7 @@ msgid "An item cannot be added to itself."
 msgstr "一个项目不能添加到自身。"
 
 msgid "AND"
-msgstr ""
+msgstr "且"
 
 msgid "and {remaining} more"
 msgstr "和 {remaining} 个更多"
@@ -487,10 +493,10 @@ msgid "Annotation updated"
 msgstr "注释已更新"
 
 msgid "Any item group"
-msgstr ""
+msgstr "任何项目组"
 
 msgid "Any item type"
-msgstr ""
+msgstr "任何物品类型"
 
 msgid "API and Webhooks"
 msgstr "API 和 Webhooks"
@@ -759,6 +765,10 @@ msgstr "您确定要删除付款条款：{0}？此操作无法撤销。"
 msgid "Are you sure you want to delete the pricing rule: {0}? This cannot be undone."
 msgstr "您确定要删除定价规则：{0}？此操作无法撤销。"
 
+#. placeholder {0}: printerToDelete.name
+msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
+msgstr "你确定要删除打印机\"{0}\"吗？任何引用此打印机的分配都将被清除。此操作无法撤销。"
+
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
 msgid "Are you sure you want to delete the purchase invoice line for {0} {1}? This cannot be undone."
@@ -927,6 +937,9 @@ msgstr "资产类别"
 
 msgid "Assets"
 msgstr "资产"
+
+msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
+msgstr "将打印机分配到位置。运输、接收和工作中心继承位置默认值，除非被覆盖。"
 
 msgid "Assign To"
 msgstr "分配给"
@@ -1188,22 +1201,22 @@ msgid "Cancel Job"
 msgstr "取消工作"
 
 msgid "Cancel Sales Order"
-msgstr ""
+msgstr "取消销售订单"
 
 msgid "Cancel SO"
-msgstr ""
+msgstr "取消销售订单"
 
 #. placeholder {0}: selectedIds.length
 #. placeholder {1}: selectedIds.length === 1 ? "" : "s"
 msgid "Cancel SO + {0} job{1}"
-msgstr ""
+msgstr "取消 SO + {0} 个工作{1}"
 
 #. placeholder {0}: selectedIds.length
 msgid "Cancel SO + {0} selected"
-msgstr ""
+msgstr "取消 SO + {0} 已选择"
 
 msgid "Cancel SO only"
-msgstr ""
+msgstr "仅取消销售订单"
 
 msgid "Canceled"
 msgstr "已取消"
@@ -1314,7 +1327,7 @@ msgid "Check your email"
 msgstr "检查您的电子邮件"
 
 msgid "Choose a company"
-msgstr ""
+msgstr "选择公司"
 
 msgid "Choose another file"
 msgstr "选择另一个文件"
@@ -1411,7 +1424,7 @@ msgid "Columns"
 msgstr "列"
 
 msgid "Combine filters"
-msgstr ""
+msgstr "合并筛选"
 
 msgid "Coming soon"
 msgstr "即将推出"
@@ -1650,6 +1663,9 @@ msgstr "将所有项目和定价复制到另一个客户或类型。"
 
 msgid "Copy API Key"
 msgstr "复制 API 密钥"
+
+msgid "Copy company unique identifier"
+msgstr "复制公司唯一标识符"
 
 msgid "Copy consumable number"
 msgstr "复制消耗品编号"
@@ -2239,9 +2255,6 @@ msgstr "默认单位"
 msgid "Defaults"
 msgstr "默认值"
 
-msgid "Define the default size of the product label. Used for tracking items in inventory."
-msgstr "定义产品标签的默认大小。用于跟踪库存中的物品。"
-
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "定义每批检查多少个跟踪实体，以及在批次被拒绝前允许多少个失败。"
 
@@ -2611,6 +2624,9 @@ msgstr "下载"
 msgid "Download CSV"
 msgstr "下载 CSV"
 
+msgid "Download Labels"
+msgstr "下载标签"
+
 msgid "Download PDF"
 msgstr "下载 PDF"
 
@@ -2698,6 +2714,9 @@ msgstr "时长"
 
 msgid "e.g. DWG-1234"
 msgstr "例如 DWG-1234"
+
+msgid "e.g. Zebra 2x1"
+msgstr "例如 Zebra 2x1"
 
 msgid "Edit"
 msgstr "编辑"
@@ -2985,7 +3004,7 @@ msgid "Employees"
 msgstr "员工"
 
 msgid "Empty = match every item"
-msgstr ""
+msgstr "空 = 匹配每个项目"
 
 msgid "Empty work centers"
 msgstr "空的工作中心"
@@ -3875,6 +3894,9 @@ msgstr "如果项目已存在"
 msgid "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
 msgstr "如果您希望更改零件号，请点击\"取消\"并在转换前为每个行项目手动分配零件。"
 
+msgid "Imperial"
+msgstr "英制"
+
 msgid "Implementation Support"
 msgstr "实施支持"
 
@@ -4053,7 +4075,7 @@ msgid "Invite"
 msgstr "邀请"
 
 msgid "Invited"
-msgstr ""
+msgstr "已邀请"
 
 msgid "Invoice"
 msgstr "发票"
@@ -4158,13 +4180,13 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "项目 {scannedItem} 与项目 {expectedItem} 不相同"
 
 msgid "Item filters"
-msgstr ""
+msgstr "项目筛选器"
 
 msgid "Item Group"
 msgstr "物品组"
 
 msgid "Item groups"
-msgstr ""
+msgstr "物品组"
 
 msgid "Item Groups"
 msgstr "物品组"
@@ -4176,10 +4198,10 @@ msgid "Item Master"
 msgstr "物料主数据"
 
 msgid "Item must match a selected type AND a selected group"
-msgstr ""
+msgstr "项目必须匹配选定的类型和选定的组"
 
 msgid "Item must match a selected type OR a selected group"
-msgstr ""
+msgstr "项目必须匹配选定的类型或选定的组"
 
 msgid "Item Scope"
 msgstr "物品范围"
@@ -4188,7 +4210,7 @@ msgid "Item Type"
 msgstr "物品类型"
 
 msgid "Item types"
-msgstr ""
+msgstr "物品类型"
 
 msgid "items"
 msgstr "项目"
@@ -4334,6 +4356,9 @@ msgstr "了解更多"
 msgid "Leave any related receipts untouched"
 msgstr "保留任何相关收据不变"
 
+msgid "Leave blank for built-in"
+msgstr "留空以使用内置"
+
 msgid "Leave empty for exact match"
 msgstr "留空以精确匹配"
 
@@ -4415,7 +4440,7 @@ msgid "Load Templates"
 msgstr "加载模板"
 
 msgid "Loading associated jobs..."
-msgstr ""
+msgstr "正在加载关联的工作..."
 
 msgid "Loading item details..."
 msgstr "正在加载项目详情..."
@@ -4604,13 +4629,13 @@ msgid "Match all"
 msgstr "全部匹配"
 
 msgid "Match all (AND)"
-msgstr ""
+msgstr "全部匹配 (AND)"
 
 msgid "Match any"
 msgstr "匹配任意"
 
 msgid "Match any (OR)"
-msgstr ""
+msgstr "匹配任意项 (OR)"
 
 msgid "Match none"
 msgstr "不匹配任何条件"
@@ -4710,6 +4735,9 @@ msgstr "平均修复时间"
 
 msgid "Measurement Standard"
 msgstr "测量标准"
+
+msgid "Media Size"
+msgstr "媒体尺寸"
 
 msgid "Members"
 msgstr "成员"
@@ -5159,7 +5187,7 @@ msgid "No action needed"
 msgstr "无需操作"
 
 msgid "No active jobs found for this sales order. The order will be cancelled directly."
-msgstr ""
+msgstr "未找到此销售订单的活跃工作。订单将直接取消。"
 
 msgid "No active plan"
 msgstr "没有活跃的计划"
@@ -5252,6 +5280,9 @@ msgstr "没有图像"
 msgid "No issue types configured"
 msgstr "未配置问题类型"
 
+msgid "No locations found."
+msgstr "未找到位置。"
+
 msgid "No logo uploaded"
 msgstr "未上传徽标"
 
@@ -5302,6 +5333,12 @@ msgstr "所选数量无定价"
 
 msgid "No pricing options found"
 msgstr "未找到定价选项"
+
+msgid "No printer configured"
+msgstr "未配置打印机"
+
+msgid "No printers configured. Click \"Add Printer\" to create one."
+msgstr "未配置打印机。点击\"添加打印机\"创建一个。"
 
 msgid "No Quote"
 msgstr "无报价"
@@ -5379,7 +5416,7 @@ msgid "Not started training for"
 msgstr "未开始培训"
 
 msgid "Not you?"
-msgstr ""
+msgstr "不是你？"
 
 msgid "Note"
 msgstr "备注"
@@ -5535,7 +5572,7 @@ msgid "Options"
 msgstr "选项"
 
 msgid "OR"
-msgstr ""
+msgstr "或"
 
 msgid "Order"
 msgstr "订单"
@@ -5569,6 +5606,9 @@ msgstr "订单"
 
 msgid "Orders submitted"
 msgstr "订单已提交"
+
+msgid "Origin"
+msgstr "来源"
 
 msgid "Other Type"
 msgstr "其他类型"
@@ -5702,11 +5742,17 @@ msgstr "付款条款"
 msgid "PDF"
 msgstr "PDF"
 
+msgid "PDF (Document)"
+msgstr "PDF（文档）"
+
 msgid "PDF downloaded"
 msgstr "PDF已下载"
 
 msgid "PDF pages"
 msgstr "PDF 页面"
+
+msgid "PDF Preview"
+msgstr "PDF 预览"
 
 msgid "PDF Watermark"
 msgstr "PDF 水印"
@@ -5746,6 +5792,9 @@ msgstr "照片已成功删除"
 
 msgid "Photo uploaded successfully"
 msgstr "照片上传成功"
+
+msgid "Physical printers available for assignment."
+msgstr "可用于分配的物理打印机。"
 
 msgid "Pick"
 msgstr "拣选"
@@ -5897,6 +5946,9 @@ msgstr "上一页"
 msgid "Preview"
 msgstr "预览"
 
+msgid "Preview failed: {error}"
+msgstr "预览失败：{error}"
+
 msgid "Preview Quantity"
 msgstr "预览数量"
 
@@ -5939,8 +5991,34 @@ msgstr "定价规则"
 msgid "Pricing Trace"
 msgstr "定价追踪"
 
+msgid "Print"
+msgstr "打印"
+
+#. placeholder {0}: selectedIds.size
+msgid "Print {0} Labels"
+msgstr "打印 {0} 个标签"
+
+msgid "Print Jobs"
+msgstr "打印任务"
+
 msgid "Print Label"
 msgstr "打印标签"
+
+#. placeholder {0}: viewContent.contentType?.toUpperCase()
+msgid "Print Output ({0})"
+msgstr "打印输出 ({0})"
+
+msgid "Printer Settings"
+msgstr "打印机设置"
+
+msgid "Printer URL"
+msgstr "打印机 URL"
+
+msgid "Printers"
+msgstr "打印机"
+
+msgid "Printing"
+msgstr "打印"
 
 msgid "Priorities"
 msgstr "优先级"
@@ -5971,9 +6049,6 @@ msgstr "流程类型"
 
 msgid "Processes"
 msgstr "流程"
-
-msgid "Product Label Size"
-msgstr "产品标签尺寸"
 
 msgid "Production"
 msgstr "生产"
@@ -6399,6 +6474,9 @@ msgstr "从所有引用此存储类型的存储单元中移除它并将其删除
 msgid "Remove Transfer"
 msgstr "移除转移"
 
+msgid "Rendering label preview..."
+msgstr "正在渲染标签预览..."
+
 msgid "Reopen"
 msgstr "重新打开"
 
@@ -6455,6 +6533,9 @@ msgstr "报告"
 
 msgid "Reports"
 msgstr "报告"
+
+msgid "Reprint"
+msgstr "重新打印"
 
 msgid "Request Approval"
 msgstr "请求批准"
@@ -6878,7 +6959,7 @@ msgid "Select a team"
 msgstr "选择一个团队"
 
 msgid "Select all"
-msgstr ""
+msgstr "全选"
 
 msgid "Select an assignee"
 msgstr "选择受理人"
@@ -6936,6 +7017,9 @@ msgstr "选择项目类型"
 
 msgid "Select items"
 msgstr "选择项目"
+
+msgid "Select Printer"
+msgstr "选择打印机"
 
 msgid "Select Quantities"
 msgstr "选择数量"
@@ -7432,7 +7516,7 @@ msgid "Storage client not available"
 msgstr "存储客户端不可用"
 
 msgid "Storage Rules"
-msgstr ""
+msgstr "存储规则"
 
 msgid "Storage Type"
 msgstr "存储类型"
@@ -7708,6 +7792,9 @@ msgstr "税:"
 msgid "Temperature"
 msgstr "温度"
 
+msgid "Template ID"
+msgstr "模板 ID"
+
 msgid "Templates"
 msgstr ""
 
@@ -7716,6 +7803,9 @@ msgstr "条款和隐私"
 
 msgid "Terms of Service"
 msgstr "服务条款"
+
+msgid "Test"
+msgstr "测试"
 
 msgid "Test Value"
 msgstr "测试值"
@@ -7829,7 +7919,7 @@ msgid "This job will no longer be available on the shop floor."
 msgstr "此工作将不再在车间可用。"
 
 msgid "This sales order has associated jobs. Choose what to do with them."
-msgstr ""
+msgstr "此销售订单有关联的工作。选择如何处理它们。"
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "此销售订单有需要创建工作的行项目"
@@ -8028,9 +8118,6 @@ msgstr "追踪"
 
 msgid "Tracking ID"
 msgstr "追踪ID"
-
-msgid "Tracking Labels"
-msgstr "追踪标签"
 
 msgid "Tracking Number"
 msgstr "跟踪号码"
@@ -8455,6 +8542,9 @@ msgstr "查看未结束的询价单"
 msgid "View Permissions"
 msgstr "查看权限"
 
+msgid "View Prints"
+msgstr "查看打印"
+
 msgid "View Production Events"
 msgstr "查看生产事件"
 
@@ -8714,7 +8804,7 @@ msgid "Yes, Update IDs"
 msgstr "是的，更新 ID"
 
 msgid "You belong to more than one company. Pick where to work."
-msgstr ""
+msgstr "你属于多个公司。选择你要工作的地方。"
 
 msgid "You can change the UI style any time through the theme setting"
 msgstr "您可以随时通过主题设置更改UI样式"
@@ -8770,3 +8860,9 @@ msgstr "放大"
 
 msgid "Zoom out"
 msgstr "缩小"
+
+msgid "ZPL (Thermal Label)"
+msgstr "ZPL（热敏标签）"
+
+msgid "ZPL Label Preview"
+msgstr "ZPL 标签预览"

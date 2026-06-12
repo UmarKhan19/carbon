@@ -13,6 +13,8 @@ const taskToEvent = {
   onboard: "carbon/onboard",
   "paperless-parts": "carbon/paperless-parts",
   "post-transactions": "carbon/post-transaction",
+  "print-job-deliver": "carbon/print-job-deliver",
+  "print-job": "carbon/print-job",
   recalculate: "carbon/recalculate",
   "schedule-job": "carbon/reschedule-job",
   "send-email": "carbon/send-email",

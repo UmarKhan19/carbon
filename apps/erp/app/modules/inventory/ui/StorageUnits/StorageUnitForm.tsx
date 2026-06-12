@@ -14,6 +14,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useFetcher } from "react-router";
 import type { z } from "zod";
+import { PrintButton } from "~/components";
 import {
   Hidden,
   Input,
@@ -115,6 +116,20 @@ const StorageUnitForm = ({
                 <Button size="md" variant="solid" onClick={onClose}>
                   <Trans>Cancel</Trans>
                 </Button>
+                {isEditing && initialValues.id && (
+                  <PrintButton
+                    sourceDocument="StorageUnit"
+                    sourceDocumentId={initialValues.id}
+                    locationId={locationId || undefined}
+                    context="inventory"
+                    fileRoutes={{
+                      pdf: (id: string, opts?: { labelSize?: string }) =>
+                        path.to.file.storageUnitLabelsPdf(id, opts),
+                      zpl: (id: string, opts?: { labelSize?: string }) =>
+                        path.to.file.storageUnitLabelsZpl(id, opts)
+                    }}
+                  />
+                )}
               </HStack>
             </ModalDrawerFooter>
           </ValidatedForm>

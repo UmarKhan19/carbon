@@ -15,6 +15,7 @@ import {
   LuLandmark,
   LuLayoutDashboard,
   LuNetwork,
+  LuPrinter,
   LuSheet,
   LuShoppingCart,
   LuSquareStack,
@@ -80,6 +81,12 @@ export default function useSettingsSubmodules() {
             to: path.to.logos,
             role: "employee",
             icon: <LuImage />
+          },
+          {
+            name: t`Printing`,
+            to: path.to.printingSettings,
+            role: "employee",
+            icon: <LuPrinter />
           }
         ]
       },
