@@ -314,7 +314,8 @@ export const DEFAULT_DOCUMENT_SETTINGS = {
   fontFamily: "Inter",
   showPageNumbers: true,
   pageNumberFormat: "pageOfTotal",
-  showRegistrationLine: true
+  showRegistrationLine: true,
+  showWatermark: true
 } as const;
 
 export const documentSettingsSchema = z.object({
@@ -336,7 +337,9 @@ export const documentSettingsSchema = z.object({
   showPageNumbers: z.boolean().default(true),
   /** "pageOfTotal" → "Page 1 of 3"; "page" → "Page 1". */
   pageNumberFormat: z.enum(["pageOfTotal", "page"]).default("pageOfTotal"),
-  showRegistrationLine: z.boolean().default(true)
+  showRegistrationLine: z.boolean().default(true),
+  /** Render the company watermark (if a watermark logo is uploaded). */
+  showWatermark: z.boolean().default(true)
 });
 
 /** Document types that support a customizable template. Widen as docs ship. */

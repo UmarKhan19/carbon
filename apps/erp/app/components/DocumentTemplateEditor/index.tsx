@@ -27,6 +27,7 @@ import { BlockConfig } from "./BlockConfig";
 import { BlockList } from "./BlockList";
 import type { CustomFieldRef, PreviewEntity, SectionRef } from "./context";
 import { DocumentTemplateProvider, useDocumentTemplate } from "./context";
+import { DocumentSettingsConfig } from "./DocumentSettingsConfig";
 import { FontConfig } from "./FontConfig";
 import { TemplatePreview } from "./TemplatePreview";
 import { ThemeConfig } from "./ThemeConfig";
@@ -160,6 +161,10 @@ function ControlRail() {
             <section className="flex flex-col gap-2">
               <h3 className={RAIL_HEADING}>Theme colors</h3>
               <ThemeConfig />
+            </section>
+            <section className="flex flex-col gap-2">
+              <h3 className={RAIL_HEADING}>Document</h3>
+              <DocumentSettingsConfig />
             </section>
           </TabsContent>
         </Tabs>

@@ -139,7 +139,7 @@ const SalesOrderPDF = ({
       headerContent={headerContent}
       footerContent={footerContent}
     >
-      {watermarkSrc && (
+      {settings.showWatermark && watermarkSrc && (
         <View
           fixed
           style={{
