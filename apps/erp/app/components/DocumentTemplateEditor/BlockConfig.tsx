@@ -507,8 +507,8 @@ function TermsConfig({ block }: { block: TermsBlock }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-xs text-muted-foreground">
-        Shown on this document only. Leave empty to use your company's default
-        terms.
+        Starts from your company's default terms. Edits apply to this document
+        only.
       </p>
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
