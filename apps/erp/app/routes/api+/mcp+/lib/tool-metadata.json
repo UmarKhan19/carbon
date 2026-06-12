@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-11T15:16:25.602Z",
-  "totalTools": 1181,
+  "generated": "2026-06-12T08:22:51.608Z",
+  "totalTools": 1188,
   "modules": 15,
   "tools": [
     {
@@ -33065,6 +33065,267 @@
       }
     },
     {
+      "name": "settings_getDocumentTemplate",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document template",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "documentType"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {}
+        },
+        "required": [
+          "documentType"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentTemplateConfig",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document template config",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "documentType"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {}
+        },
+        "required": [
+          "documentType"
+        ]
+      }
+    },
+    {
+      "name": "settings_upsertDocumentTemplate",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "upsert document template",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "documentTemplate"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "documentType": {},
+          "blocks": {
+            "type": "array",
+            "items": {}
+          },
+          "theme": {},
+          "settings": {},
+          "headerSectionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "footerSectionId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "documentType",
+          "blocks",
+          "theme",
+          "settings",
+          "headerSectionId",
+          "footerSectionId"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentSections",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document sections",
+      "paramCount": 0,
+      "serviceParams": [
+        "client",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "settings_getDocumentSection",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document section",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "settings_getDocumentSectionsByIds",
+      "module": "settings",
+      "classification": "READ",
+      "description": "get document sections by ids",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "ids"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      }
+    },
+    {
+      "name": "settings_upsertDocumentSection",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "upsert document section",
+      "paramCount": 6,
+      "serviceParams": [
+        "client",
+        "documentSection"
+      ],
+      "injectAuth": [
+        "companyId",
+        "createdBy",
+        "updatedBy"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "placement": {},
+          "content": {},
+          "config": {},
+          "} & ({ createdBy": {}
+        },
+        "required": [
+          "name",
+          "placement",
+          "content",
+          "} & ({ createdBy"
+        ]
+      }
+    },
+    {
+      "name": "settings_deleteDocumentSection",
+      "module": "settings",
+      "classification": "DESTRUCTIVE",
+      "description": "delete document section",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "id",
+        "companyId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "settings_resolveSections",
+      "module": "settings",
+      "classification": "WRITE",
+      "description": "resolve sections",
+      "paramCount": 1,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "ids"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      }
+    },
+    {
       "name": "settings_getWebhook",
       "module": "settings",
       "classification": "READ",
@@ -34039,33 +34300,6 @@
       }
     },
     {
-      "name": "settings_updatePurchasingPdfThumbnails",
-      "module": "settings",
-      "classification": "WRITE",
-      "description": "update purchasing pdf thumbnails",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "includeThumbnailsOnPurchasingPdfs"
-      ],
-      "injectAuth": [
-        "companyId",
-        "updatedBy"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "includeThumbnailsOnPurchasingPdfs": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "includeThumbnailsOnPurchasingPdfs"
-        ]
-      }
-    },
-    {
       "name": "settings_updateRfqReadySetting",
       "module": "settings",
       "classification": "WRITE",
@@ -34092,33 +34326,6 @@
         },
         "required": [
           "rfqReadyNotificationGroup"
-        ]
-      }
-    },
-    {
-      "name": "settings_updateSalesPdfThumbnails",
-      "module": "settings",
-      "classification": "WRITE",
-      "description": "update sales pdf thumbnails",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "includeThumbnailsOnSalesPdfs"
-      ],
-      "injectAuth": [
-        "companyId",
-        "updatedBy"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "includeThumbnailsOnSalesPdfs": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "includeThumbnailsOnSalesPdfs"
         ]
       }
     },

@@ -3948,12 +3948,6 @@ msgstr "Включить дополнительные детали в отпра
 msgid "Include Inactive"
 msgstr "Включить неактивные"
 
-msgid "Include Thumbnails on Purchasing Documents"
-msgstr "Включить миниатюры в документы закупок"
-
-msgid "Include Thumbnails on Sales Documents"
-msgstr "Включить миниатюры в документы продаж"
-
 msgid "Includes tax and shipping costs"
 msgstr "Включает налоги и стоимость доставки"
 
@@ -7289,12 +7283,6 @@ msgstr "Показать длительность"
 
 msgid "Show parent items"
 msgstr "Показать родительские элементы"
-
-msgid "Show part thumbnails on purchase order PDFs."
-msgstr "Показывать миниатюры деталей в PDF-файлах заказов на покупку."
-
-msgid "Show part thumbnails on quotes, sales orders, invoices, and shipments."
-msgstr "Показывать миниатюры деталей на предложениях, заказах на продажу, счетах-фактурах и отправках."
 
 msgid "Show Supplier IDs"
 msgstr "Показать ID поставщиков"

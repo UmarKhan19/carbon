@@ -1101,17 +1101,6 @@ export async function updateQuoteLineCategoryMarkups(
     .eq("id", companyId);
 }
 
-export async function updatePurchasingPdfThumbnails(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  includeThumbnailsOnPurchasingPdfs: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ includeThumbnailsOnPurchasingPdfs }))
-    .eq("id", companyId);
-}
-
 export async function updateRfqReadySetting(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -1120,17 +1109,6 @@ export async function updateRfqReadySetting(
   return client
     .from("companySettings")
     .update(sanitize({ rfqReadyNotificationGroup }))
-    .eq("id", companyId);
-}
-
-export async function updateSalesPdfThumbnails(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  includeThumbnailsOnSalesPdfs: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ includeThumbnailsOnSalesPdfs }))
     .eq("id", companyId);
 }
 

@@ -12,6 +12,7 @@ import {
   CURRENT_TEMPLATE_FORMAT_VERSION,
   DEFAULT_DOCUMENT_SETTINGS,
   DEFAULT_HEADER_OPTIONS,
+  DEFAULT_LINE_ITEMS_OPTIONS,
   DEFAULT_THEME
 } from "./schema";
 
@@ -559,6 +560,23 @@ export function resolveTemplate(
     headerSectionId,
     footerSectionId
   };
+}
+
+/**
+ * Whether a document's Line Items block renders thumbnails — the per-template
+ * replacement for the old company-level `includeThumbnailsOn*Pdfs` flags. Used
+ * by the file routes to decide whether to fetch the (expensive) image data.
+ */
+export function templateShowsThumbnails(
+  template: StoredTemplate | null,
+  documentType: DocumentTemplateType
+): boolean {
+  const resolved = resolveTemplate(documentType, template);
+  const block = resolved.blocks.find(
+    (b) => b.type === "lineItems" && b.visible
+  );
+  if (!block || block.type !== "lineItems") return false;
+  return { ...DEFAULT_LINE_ITEMS_OPTIONS, ...block.options }.showThumbnails;
 }
 
 /** Collect every section id a template references (body blocks + header/footer). */

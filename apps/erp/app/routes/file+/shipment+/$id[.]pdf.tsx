@@ -4,6 +4,7 @@ import { ensureFont, PackingSlipPDF } from "@carbon/documents/pdf";
 import {
   collectSectionIds,
   resolveTemplate,
+  templateShowsThumbnails,
   toDocumentTemplate
 } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
@@ -30,7 +31,6 @@ import {
 } from "~/modules/sales";
 import {
   getCompany,
-  getCompanySettings,
   getDocumentTemplate,
   resolveSections
 } from "~/modules/settings";
@@ -44,14 +44,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const { id } = params;
   if (!id) throw new Error("Could not find id");
 
-  const [company, companySettings, shipment, shipmentLines] = await Promise.all(
-    [
-      getCompany(client, companyId),
-      getCompanySettings(client, companyId),
-      getShipment(client, id),
-      getShipmentLinesWithDetails(client, id)
-    ]
-  );
+  const [company, shipment, shipmentLines] = await Promise.all([
+    getCompany(client, companyId),
+    getShipment(client, id),
+    getShipmentLinesWithDetails(client, id)
+  ]);
 
   if (company.error) {
     console.error(company.error);
@@ -94,6 +91,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     "packingSlip"
   );
   const resolvedTemplate = resolveTemplate("packingSlip", templateConfig);
+  const showThumbnails = templateShowsThumbnails(templateConfig, "packingSlip");
   const templateSections = await resolveSections(
     client,
     companyId,
@@ -141,7 +139,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
       let thumbnails: Record<string, string | null> = {};
 
-      if (companySettings.data?.includeThumbnailsOnSalesPdfs ?? true) {
+      if (showThumbnails) {
         const thumbnailPaths = shipmentLines.data?.reduce<
           Record<string, string | null>
         >((acc, line) => {
@@ -262,7 +260,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
       let thumbnails: Record<string, string | null> = {};
 
-      if (companySettings.data?.includeThumbnailsOnSalesPdfs ?? true) {
+      if (showThumbnails) {
         const thumbnailPaths = shipmentLines.data?.reduce<
           Record<string, string | null>
         >((acc, line) => {
@@ -378,7 +376,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
       let poThumbnails: Record<string, string | null> = {};
 
-      if (companySettings.data?.includeThumbnailsOnPurchasingPdfs ?? true) {
+      if (showThumbnails) {
         const poThumbnailPaths = shipmentLines.data?.reduce<
           Record<string, string | null>
         >((acc, line) => {

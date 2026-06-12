@@ -3948,12 +3948,6 @@ msgstr "在发货中包含额外零件"
 msgid "Include Inactive"
 msgstr "包括不活跃"
 
-msgid "Include Thumbnails on Purchasing Documents"
-msgstr "在采购文件上包含缩略图"
-
-msgid "Include Thumbnails on Sales Documents"
-msgstr "在销售文件上包含缩略图"
-
 msgid "Includes tax and shipping costs"
 msgstr "包括税费和运费"
 
@@ -7289,12 +7283,6 @@ msgstr "显示时长"
 
 msgid "Show parent items"
 msgstr "显示父项"
-
-msgid "Show part thumbnails on purchase order PDFs."
-msgstr "在采购订单 PDF 上显示零件缩略图。"
-
-msgid "Show part thumbnails on quotes, sales orders, invoices, and shipments."
-msgstr "在报价单、销售订单、发票和发货单上显示零件缩略图。"
 
 msgid "Show Supplier IDs"
 msgstr "显示供应商ID"

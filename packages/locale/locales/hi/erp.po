@@ -3948,12 +3948,6 @@ msgstr "शिपमेंट में अतिरिक्त पार्ट
 msgid "Include Inactive"
 msgstr "निष्क्रिय शामिल करें"
 
-msgid "Include Thumbnails on Purchasing Documents"
-msgstr "खरीद दस्तावेजों पर थंबनेल शामिल करें"
-
-msgid "Include Thumbnails on Sales Documents"
-msgstr "बिक्रय दस्तावेज़ों पर थंबनेल शामिल करें"
-
 msgid "Includes tax and shipping costs"
 msgstr "कर और शिपिंग लागत शामिल है"
 
@@ -7289,12 +7283,6 @@ msgstr "अवधि दिखाएं"
 
 msgid "Show parent items"
 msgstr "माता-पिता की वस्तुओं को दिखाएं"
-
-msgid "Show part thumbnails on purchase order PDFs."
-msgstr "खरीद आदेश पीडीएफ पर भाग थंबनेल दिखाएं।"
-
-msgid "Show part thumbnails on quotes, sales orders, invoices, and shipments."
-msgstr "उद्धरण, बिक्री आदेश, चालान और शिपमेंट पर भाग थंबनेल दिखाएं।"
 
 msgid "Show Supplier IDs"
 msgstr "आपूर्तिकर्ता आईडी दिखाएं"

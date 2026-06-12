@@ -47,7 +47,6 @@ import {
   updateDigitalQuoteSetting,
   updateQuoteLineCategoryMarkups,
   updateRfqReadySetting,
-  updateSalesPdfThumbnails,
   updateShowCustomerReadableIdSetting
 } from "~/modules/settings";
 import type { Handle } from "~/utils/handle";
@@ -144,20 +143,6 @@ export async function action({ request }: ActionFunctionArgs) {
         return { success: false, message: digitalQuote.error.message };
 
       return { success: true, message: "Digital quote setting updated" };
-
-    case "pdfs": {
-      const pdfEnabled = formData.get("enabled") === "true";
-      const thumbnailsResult = await updateSalesPdfThumbnails(
-        client,
-        companyId,
-        pdfEnabled
-      );
-
-      if (thumbnailsResult.error)
-        return { success: false, message: thumbnailsResult.error.message };
-
-      return { success: true, message: "PDF settings updated" };
-    }
 
     case "rfq":
       const rfqValidation =
@@ -456,34 +441,6 @@ export default function SalesSettingsRoute() {
             </ValidatedForm>
           </Card>
         )}
-        <Card>
-          <CardHeader>
-            <HStack className="justify-between items-center">
-              <div>
-                <CardTitle>
-                  <Trans>Include Thumbnails on Sales Documents</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>
-                    Show part thumbnails on quotes, sales orders, invoices, and
-                    shipments.
-                  </Trans>
-                </CardDescription>
-              </div>
-              <Switch
-                checked={companySettings.includeThumbnailsOnSalesPdfs ?? true}
-                onCheckedChange={(checked) => {
-                  toggleFetcher.submit(
-                    { intent: "pdfs", enabled: String(checked) },
-                    { method: "POST" }
-                  );
-                }}
-                disabled={toggleFetcher.state !== "idle"}
-              />
-            </HStack>
-          </CardHeader>
-        </Card>
-
         <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
           <Trans>Customers</Trans>
         </p>

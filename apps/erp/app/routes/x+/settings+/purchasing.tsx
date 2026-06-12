@@ -45,7 +45,6 @@ import {
   updateDefaultSupplierCc,
   updateLeadTimesOnReceiptSetting,
   updatePurchasePriceUpdateTimingSetting,
-  updatePurchasingPdfThumbnails,
   updateShowSupplierReadableIdSetting,
   updateSupplierQuoteNotificationSetting
 } from "~/modules/settings";
@@ -229,23 +228,6 @@ export async function action({ request }: ActionFunctionArgs) {
         success: true,
         message: "Supplier quote notification setting updated"
       };
-
-    case "pdfs": {
-      const pdfEnabled = formData.get("enabled") === "true";
-      const thumbnailsResult = await updatePurchasingPdfThumbnails(
-        client,
-        companyId,
-        pdfEnabled
-      );
-
-      if (thumbnailsResult.error)
-        return {
-          success: false,
-          message: thumbnailsResult.error.message
-        };
-
-      return { success: true, message: "PDF settings updated" };
-    }
 
     case "accountsPayableBillingAddress":
       const apBillingValidation = await validator(
@@ -529,33 +511,6 @@ export default function PurchasingSettingsRoute() {
             </ValidatedForm>
           </Card>
         )}
-
-        <Card>
-          <CardHeader>
-            <HStack className="justify-between items-center">
-              <div>
-                <CardTitle>
-                  <Trans>Include Thumbnails on Purchasing Documents</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>Show part thumbnails on purchase order PDFs.</Trans>
-                </CardDescription>
-              </div>
-              <Switch
-                checked={
-                  companySettings.includeThumbnailsOnPurchasingPdfs ?? true
-                }
-                onCheckedChange={(checked) => {
-                  toggleFetcher.submit(
-                    { intent: "pdfs", enabled: String(checked) },
-                    { method: "POST" }
-                  );
-                }}
-                disabled={toggleFetcher.state !== "idle"}
-              />
-            </HStack>
-          </CardHeader>
-        </Card>
 
         <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
           <Trans>Automatic Updates</Trans>

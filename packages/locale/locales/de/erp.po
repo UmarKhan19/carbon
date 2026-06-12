@@ -3948,12 +3948,6 @@ msgstr "Zusätzliche Teile in Sendung einbeziehen"
 msgid "Include Inactive"
 msgstr "Inaktive einschließen"
 
-msgid "Include Thumbnails on Purchasing Documents"
-msgstr "Miniaturansichten in Einkaufsdokumenten einschließen"
-
-msgid "Include Thumbnails on Sales Documents"
-msgstr "Miniaturansichten in Verkaufsdokumenten einschließen"
-
 msgid "Includes tax and shipping costs"
 msgstr "Enthält Steuern und Versandkosten"
 
@@ -7289,12 +7283,6 @@ msgstr "Dauern anzeigen"
 
 msgid "Show parent items"
 msgstr "Übergeordnete Elemente anzeigen"
-
-msgid "Show part thumbnails on purchase order PDFs."
-msgstr "Zeige Teile-Miniaturansichten auf Bestellungs-PDFs an."
-
-msgid "Show part thumbnails on quotes, sales orders, invoices, and shipments."
-msgstr "Zeigen Sie Teilthumbnails auf Angeboten, Bestellungen, Rechnungen und Lieferungen an."
 
 msgid "Show Supplier IDs"
 msgstr "Lieferanten-IDs anzeigen"

@@ -206,14 +206,6 @@ export const productLabelSizeValidator = z.object({
   )
 });
 
-export const includeThumbnailsOnPurchasingPdfsValidator = z.object({
-  includeThumbnailsOnPurchasingPdfs: zfd.checkbox()
-});
-
-export const includeThumbnailsOnSalesPdfsValidator = z.object({
-  includeThumbnailsOnSalesPdfs: zfd.checkbox()
-});
-
 export const rfqReadyValidator = z.object({
   rfqReadyNotificationGroup: z
     .array(z.string().min(1, { message: "Invalid selection" }))

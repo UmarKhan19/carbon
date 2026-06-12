@@ -3,6 +3,7 @@ import { ensureFont, SalesInvoicePDF } from "@carbon/documents/pdf";
 import {
   collectSectionIds,
   resolveTemplate,
+  templateShowsThumbnails,
   toDocumentTemplate
 } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
@@ -96,8 +97,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load sales order");
   }
 
-  const showThumbnails =
-    companySettings.data?.includeThumbnailsOnSalesPdfs ?? true;
+  const showThumbnails = templateShowsThumbnails(
+    toDocumentTemplate(documentTemplate.data, "salesInvoice"),
+    "salesInvoice"
+  );
 
   let thumbnails: Record<string, string | null> = {};
 

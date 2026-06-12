@@ -3,6 +3,7 @@ import { ensureFont, PurchaseOrderPDF } from "@carbon/documents/pdf";
 import {
   collectSectionIds,
   resolveTemplate,
+  templateShowsThumbnails,
   toDocumentTemplate
 } from "@carbon/documents/template";
 import type { JSONContent } from "@carbon/react";
@@ -85,8 +86,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load purchase order");
   }
 
-  const showThumbnails =
-    companySettings.data?.includeThumbnailsOnPurchasingPdfs ?? true;
+  const showThumbnails = templateShowsThumbnails(
+    toDocumentTemplate(documentTemplate.data, "purchaseOrder"),
+    "purchaseOrder"
+  );
 
   let thumbnails: Record<string, string | null> = {};
 

@@ -3948,12 +3948,6 @@ msgstr "出荷に追加部品を含める"
 msgid "Include Inactive"
 msgstr "非アクティブを含める"
 
-msgid "Include Thumbnails on Purchasing Documents"
-msgstr "購買ドキュメントにサムネイルを含める"
-
-msgid "Include Thumbnails on Sales Documents"
-msgstr "販売ドキュメントにサムネイルを含める"
-
 msgid "Includes tax and shipping costs"
 msgstr "税金と送料を含みます"
 
@@ -7289,12 +7283,6 @@ msgstr "期間を表示"
 
 msgid "Show parent items"
 msgstr "親アイテムを表示"
-
-msgid "Show part thumbnails on purchase order PDFs."
-msgstr "購買注文PDFに部品のサムネイルを表示します。"
-
-msgid "Show part thumbnails on quotes, sales orders, invoices, and shipments."
-msgstr "見積書、販売注文書、請求書、および出荷書にパーツサムネイルを表示します。"
 
 msgid "Show Supplier IDs"
 msgstr "仕入先IDを表示"
