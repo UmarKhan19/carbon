@@ -59,6 +59,8 @@ export const extensionBlocks: Partial<
         src={data.company?.logoWatermark}
         show
         opacity={block.opacity}
+        placement={block.placement}
+        size={block.size}
       />
     ) : null
 };

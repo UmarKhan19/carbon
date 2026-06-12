@@ -29,6 +29,8 @@ export const salesInvoiceBlockRegistry: Record<
         src={data.company.logoWatermark}
         show
         opacity={block.opacity}
+        placement={block.placement}
+        size={block.size}
       />
     ) : null,
   parties: ({ data }) => <PartiesBlock data={data} />,

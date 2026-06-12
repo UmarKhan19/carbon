@@ -305,7 +305,14 @@ export const ADDABLE_BLOCK_TYPES = (
  */
 function transactionalBlocks(): DocumentBlock[] {
   return [
-    { id: "watermark", type: "watermark", visible: true, opacity: 0.07 },
+    {
+      id: "watermark",
+      type: "watermark",
+      visible: true,
+      opacity: 0.07,
+      placement: "center",
+      size: 50
+    },
     { id: "header", type: "header", visible: true },
     { id: "parties", type: "parties", visible: true },
     { id: "notes", type: "notes", visible: true },

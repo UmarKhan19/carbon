@@ -225,7 +225,9 @@ const customFieldBlock = z.object({
 const watermarkBlock = z.object({
   ...baseFields,
   type: z.literal("watermark"),
-  opacity: z.number().min(0).max(1).default(0.07)
+  opacity: z.number().min(0).max(1).default(0.07),
+  placement: z.enum(["center", "top", "bottom"]).default("center"),
+  size: z.number().min(10).max(100).default(50)
 });
 
 export const blockSchema = z.discriminatedUnion("type", [

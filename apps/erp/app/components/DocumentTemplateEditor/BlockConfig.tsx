@@ -399,6 +399,33 @@ function WatermarkConfig({ block }: { block: WatermarkBlock }) {
         value={Math.round((block.opacity ?? 0.07) * 100)}
         onChange={(v) => updateBlock(block.id, { opacity: v / 100 })}
       />
+      <NumberRow
+        label="Size (% of width)"
+        minValue={10}
+        maxValue={100}
+        value={block.size ?? 50}
+        onChange={(v) => updateBlock(block.id, { size: v })}
+      />
+      <div className="flex flex-col gap-1.5">
+        <Label>Placement</Label>
+        <Select
+          value={block.placement ?? "center"}
+          onValueChange={(v) =>
+            updateBlock(block.id, {
+              placement: v as WatermarkBlock["placement"]
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="top">Top</SelectItem>
+            <SelectItem value="center">Center</SelectItem>
+            <SelectItem value="bottom">Bottom</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
       <p className="text-xs text-muted-foreground">
         {hasWatermark
           ? "Your watermark logo (set in Logos), faint behind the document."
