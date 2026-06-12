@@ -7,8 +7,8 @@ import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import {
   getStorageTypesList,
-  getStorageUnitDescendants,
   getStorageUnitParentIdsWithChildren,
+  getStorageUnitSubtrees,
   getStorageUnitRoots,
   searchStorageUnitsWithAncestors
 } from "~/modules/inventory";
@@ -127,7 +127,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     // tree renders fully expanded by default instead of lazily loading one
     // level at a time. Pagination still applies to roots; each shown root just
     // arrives with all of its descendants.
-    const descendants = await getStorageUnitDescendants(
+    const descendants = await getStorageUnitSubtrees(
       client,
       companyId,
       locationId,

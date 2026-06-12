@@ -678,7 +678,7 @@ export async function getStorageUnitChildren(
 // a root when that root appears in its ancestorPath, so a single `overlaps`
 // query returns the full subtrees in one round trip. Used to render the tree
 // fully expanded by default instead of lazily loading one level at a time.
-export async function getStorageUnitDescendants(
+export async function getStorageUnitSubtrees(
   client: SupabaseClient<Database>,
   companyId: string,
   locationId: string,
