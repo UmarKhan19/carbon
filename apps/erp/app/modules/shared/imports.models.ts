@@ -23,6 +23,21 @@ const supplierStatusTypes = [
   "Rejected"
 ] as const;
 
+// Name-only lookups that may be created inline during a CSV import. The value
+// doubles as the lookup's table name; the create-lookup route's zod enum, its
+// permission map, and the import modal's types all derive from this list.
+export const creatableLookups = [
+  "supplierType",
+  "customerType",
+  "customerStatus"
+] as const;
+export type CreatableLookup = (typeof creatableLookups)[number];
+
+// Rich lookups need more than a name (Net days, carrier, ...), so during a CSV
+// import they are created through their existing form modal, pre-filled with
+// the typed value. Client-only: maps a field to the form it opens.
+export type CreatableForm = "paymentTerm" | "shippingMethod";
+
 // Shared supplier-part import fields. Spread into every item-type entry
 // (part / material / tool / fixture / consumable) so a single CSV row can
 // optionally create a supplierPart link alongside the item itself. All
@@ -34,7 +49,7 @@ const supplierPartImportFields = {
     type: "enum",
     enumData: {
       description:
-        "Optional — link this item to a supplier (match by Supplier ID)",
+        "Optional — link this item to a supplier (match by Supplier ID or name)",
       fetcher: async (client: SupabaseClient<Database>, companyId: string) => {
         const { data, error } = await client
           .from("supplier")
@@ -42,14 +57,15 @@ const supplierPartImportFields = {
           .eq("companyId", companyId)
           .order("name");
         if (error) return { data: null, error };
-        // Returning readableId in the `name` slot makes it the option label;
-        // auto-match in FieldMappings keys on lowercase-trimmed label, so a
-        // CSV value of "SUPP-12" resolves to the supplier whose readableId
-        // is "SUPP-12".
+        // Return name and readableId as separate fields. FieldMappings chooses
+        // the display label per the showSupplierReadableId company setting and
+        // auto-matches on BOTH name and readableId — so a CSV that references
+        // suppliers by name still resolves when readable IDs are hidden.
         return {
           data: data.map((s) => ({
             id: s.id,
-            name: s.readableId ?? s.name
+            name: s.name,
+            readableId: s.readableId ?? undefined
           }))
         };
       }
@@ -177,6 +193,7 @@ const partnerPaymentImportFields = {
     type: "enum",
     enumData: {
       description: "Payment term (e.g., Net 30)",
+      creatableForm: "paymentTerm",
       fetcher: async (client: SupabaseClient<Database>, companyId: string) => {
         return client
           .from("paymentTerm")
@@ -199,6 +216,7 @@ const supplierShippingImportFields = {
     type: "enum",
     enumData: {
       description: "Carrier / shipping method (e.g., FedEx Ground)",
+      creatableForm: "shippingMethod",
       fetcher: async (client: SupabaseClient<Database>, companyId: string) => {
         return client
           .from("shippingMethod")
@@ -264,6 +282,7 @@ export const fieldMappings = {
       enumData: {
         description:
           "The status of the customer (from your configured statuses)",
+        creatableLookup: "customerStatus",
         fetcher: async (
           client: SupabaseClient<Database>,
           companyId: string
@@ -283,6 +302,7 @@ export const fieldMappings = {
       enumData: {
         description:
           "The category/type of the customer (from your configured types)",
+        creatableLookup: "customerType",
         fetcher: async (
           client: SupabaseClient<Database>,
           companyId: string
@@ -423,6 +443,7 @@ export const fieldMappings = {
       enumData: {
         description:
           "The category/type of the supplier (from your configured types)",
+        creatableLookup: "supplierType",
         fetcher: async (
           client: SupabaseClient<Database>,
           companyId: string

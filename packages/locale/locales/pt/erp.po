@@ -50,6 +50,10 @@ msgstr "{0} entidades não amostradas serão liberadas para Disponível. Passes 
 msgid "{0} uploaded successfully"
 msgstr "{0} enviado com sucesso"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
 
@@ -1816,6 +1820,10 @@ msgstr "Criar"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Criar {0}"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr ""
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Crie um novo cartão kanban para reabastecimento baseado em varredura."
@@ -8474,6 +8482,9 @@ msgstr "Ver Mestre do Item"
 
 msgid "View maintenance dispatch"
 msgstr "Ver despacho de manutenção"
+
+msgid "View missing values"
+msgstr ""
 
 msgid "View Open"
 msgstr "Ver Abertos"

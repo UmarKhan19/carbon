@@ -50,6 +50,10 @@ msgstr "{0} un-sampled entities will be released to Available. Sampled passes st
 msgid "{0} uploaded successfully"
 msgstr "{0} uploaded successfully"
 
+#. placeholder {0}: unmatchedValues.length
+msgid "{0} values missing"
+msgstr "{0} values missing"
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
 
@@ -1816,6 +1820,10 @@ msgstr "Create"
 #. placeholder {0}: search.trim() === "" ? label : search
 msgid "Create {0}"
 msgstr "Create {0}"
+
+#. placeholder {0}: unmatchedValues.length
+msgid "Create {0} values"
+msgstr "Create {0} values"
 
 msgid "Create a new kanban card for scan-based replenishment."
 msgstr "Create a new kanban card for scan-based replenishment."
@@ -8474,6 +8482,9 @@ msgstr "View Item Master"
 
 msgid "View maintenance dispatch"
 msgstr "View maintenance dispatch"
+
+msgid "View missing values"
+msgstr "View missing values"
 
 msgid "View Open"
 msgstr "View Open"
