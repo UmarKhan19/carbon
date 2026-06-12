@@ -46,6 +46,7 @@ import {
   LuQrCode,
   LuReceipt,
   LuSeparatorHorizontal,
+  LuStamp,
   LuStickyNote,
   LuTable,
   LuTag,
@@ -87,6 +88,7 @@ const ADD_OPTIONS: {
 /** A consistent leading icon per block type, so every row reads the same. */
 const BLOCK_ICON: Partial<Record<DocumentBlockType, ReactNode>> = {
   header: <LuPanelTop className="size-4" />,
+  watermark: <LuStamp className="size-4" />,
   parties: <LuUsers className="size-4" />,
   details: <LuInfo className="size-4" />,
   lineItems: <LuTable className="size-4" />,

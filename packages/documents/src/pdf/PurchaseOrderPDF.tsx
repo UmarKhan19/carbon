@@ -14,7 +14,7 @@ import {
   buildPurchaseOrderVars,
   purchaseOrderBlockRegistry
 } from "./blocks/purchaseOrder";
-import { Template, Watermark } from "./components";
+import { Template } from "./components";
 
 interface PurchaseOrderPDFProps extends PDF {
   purchaseOrder: Database["public"]["Views"]["purchaseOrders"]["Row"];
@@ -138,8 +138,6 @@ const PurchaseOrderPDF = ({
       headerContent={headerContent}
       footerContent={footerContent}
     >
-      <Watermark src={company.logoWatermark} show={settings.showWatermark} />
-
       {visibleBlocks.map((block) => {
         const render = purchaseOrderBlockRegistry[block.type];
         if (!render) return null;

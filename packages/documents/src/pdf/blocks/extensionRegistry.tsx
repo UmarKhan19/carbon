@@ -3,6 +3,7 @@ import type {
   DocumentBlockType,
   ResolvedSection
 } from "../../template";
+import { Watermark } from "../components";
 import { FieldBlock } from "./FieldBlock";
 import { KeyValueBlock } from "./KeyValueBlock";
 import { RichTextBlock } from "./RichTextBlock";
@@ -17,6 +18,7 @@ import { SpacerBlock } from "./SpacerBlock";
 interface ExtensionData {
   vars: Record<string, string>;
   sections: Record<string, ResolvedSection>;
+  company?: { logoWatermark?: string | null };
 }
 
 type ExtensionRenderer = (args: {
@@ -50,5 +52,13 @@ export const extensionBlocks: Partial<
   field: ({ block, data }) =>
     block.type === "field" ? (
       <FieldBlock block={block} vars={data.vars} />
+    ) : null,
+  watermark: ({ block, data }) =>
+    block.type === "watermark" ? (
+      <Watermark
+        src={data.company?.logoWatermark}
+        show
+        opacity={block.opacity}
+      />
     ) : null
 };

@@ -1,4 +1,5 @@
 import type { DocumentBlockType } from "../../template";
+import { Watermark } from "../components";
 import { CustomFieldBlock } from "./CustomFieldBlock";
 import { HeaderBlock } from "./HeaderBlock";
 import { KeyValueBlock } from "./KeyValueBlock";
@@ -22,6 +23,14 @@ export const salesInvoiceBlockRegistry: Record<
   BlockRenderer<SalesInvoiceData>
 > = {
   header: ({ data }) => <HeaderBlock data={data} />,
+  watermark: ({ block, data }) =>
+    block.type === "watermark" ? (
+      <Watermark
+        src={data.company.logoWatermark}
+        show
+        opacity={block.opacity}
+      />
+    ) : null,
   parties: ({ data }) => <PartiesBlock data={data} />,
   notes: ({ data }) => <NotesBlock data={data} />,
   details: () => null,

@@ -7,10 +7,12 @@ import { Image, View } from "@react-pdf/renderer";
  */
 export function Watermark({
   src,
-  show
+  show,
+  opacity = 0.07
 }: {
   src?: string | null;
   show?: boolean;
+  opacity?: number;
 }) {
   if (!show || !src) return null;
   return (
@@ -24,7 +26,7 @@ export function Watermark({
         bottom: 0,
         alignItems: "center",
         marginTop: 100,
-        opacity: 0.07
+        opacity
       }}
     >
       <Image src={src} style={{ width: "50%" }} />

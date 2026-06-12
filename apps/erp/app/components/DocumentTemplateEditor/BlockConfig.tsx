@@ -7,7 +7,8 @@ import type {
   RichTextBlock,
   SpacerBlock,
   SummaryBlock,
-  TermsBlock
+  TermsBlock,
+  WatermarkBlock
 } from "@carbon/documents/template";
 import {
   BLOCK_META,
@@ -131,6 +132,7 @@ export function BlockConfig() {
   // Built-in blocks that now expose real options shouldn't show the generic
   // "reorder / toggle" placeholder.
   const hasOwnConfig =
+    block.type === "watermark" ||
     block.type === "header" ||
     block.type === "lineItems" ||
     block.type === "summary" ||
@@ -162,6 +164,7 @@ export function BlockConfig() {
       </div>
 
       {block.type === "header" && <ChromeConfig kind="header" />}
+      {block.type === "watermark" && <WatermarkConfig block={block} />}
       {block.type === "lineItems" && <LineItemsConfig block={block} />}
       {block.type === "operations" && <OperationsConfig block={block} />}
       {block.type === "summary" && <SummaryConfig block={block} />}
@@ -380,6 +383,26 @@ function SummaryConfig({ block }: { block: SummaryBlock }) {
       />
       <p className="text-xs text-muted-foreground">
         Shown on the tax row, e.g. "VAT 15%".
+      </p>
+    </div>
+  );
+}
+
+function WatermarkConfig({ block }: { block: WatermarkBlock }) {
+  const { updateBlock, hasWatermark } = useDocumentTemplate();
+  return (
+    <div className="flex flex-col gap-3">
+      <NumberRow
+        label="Opacity (%)"
+        minValue={1}
+        maxValue={100}
+        value={Math.round((block.opacity ?? 0.07) * 100)}
+        onChange={(v) => updateBlock(block.id, { opacity: v / 100 })}
+      />
+      <p className="text-xs text-muted-foreground">
+        {hasWatermark
+          ? "Your watermark logo (set in Logos), faint behind the document."
+          : "Upload a watermark logo in Logos to see it."}
       </p>
     </div>
   );

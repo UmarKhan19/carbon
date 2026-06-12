@@ -11,7 +11,7 @@ import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { composeRegistrationLine } from "../utils/footer";
 import type { SalesInvoiceData, SalesInvoiceLocations } from "./blocks";
 import { buildSalesInvoiceVars, salesInvoiceBlockRegistry } from "./blocks";
-import { Template, Watermark } from "./components";
+import { Template } from "./components";
 
 interface SalesInvoicePDFProps extends PDF {
   salesInvoice: Database["public"]["Views"]["salesInvoices"]["Row"];
@@ -145,8 +145,6 @@ const SalesInvoicePDF = ({
       headerContent={headerContent}
       footerContent={footerContent}
     >
-      <Watermark src={company.logoWatermark} show={settings.showWatermark} />
-
       {visibleBlocks.map((block) => {
         const render = salesInvoiceBlockRegistry[block.type];
         if (!render) return null;

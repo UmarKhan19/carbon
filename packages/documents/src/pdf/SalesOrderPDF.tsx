@@ -14,7 +14,7 @@ import {
   buildSalesOrderVars,
   salesOrderBlockRegistry
 } from "./blocks/salesOrder";
-import { Template, Watermark } from "./components";
+import { Template } from "./components";
 
 interface SalesOrderPDFProps extends PDF {
   salesOrder: Database["public"]["Views"]["salesOrders"]["Row"];
@@ -136,8 +136,6 @@ const SalesOrderPDF = ({
       headerContent={headerContent}
       footerContent={footerContent}
     >
-      <Watermark src={company.logoWatermark} show={settings.showWatermark} />
-
       {visibleBlocks.map((block) => {
         const render = salesOrderBlockRegistry[block.type];
         if (!render) return null;

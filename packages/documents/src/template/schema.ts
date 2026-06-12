@@ -221,8 +221,16 @@ const customFieldBlock = z.object({
   label: z.string().default("")
 });
 
+/** Faint full-page company watermark (uses the company's watermark logo). */
+const watermarkBlock = z.object({
+  ...baseFields,
+  type: z.literal("watermark"),
+  opacity: z.number().min(0).max(1).default(0.07)
+});
+
 export const blockSchema = z.discriminatedUnion("type", [
   headerBlock,
+  watermarkBlock,
   partiesBlock,
   notesBlock,
   detailsBlock,
@@ -314,8 +322,7 @@ export const DEFAULT_DOCUMENT_SETTINGS = {
   fontFamily: "Inter",
   showPageNumbers: true,
   pageNumberFormat: "pageOfTotal",
-  showRegistrationLine: true,
-  showWatermark: true
+  showRegistrationLine: true
 } as const;
 
 export const documentSettingsSchema = z.object({
@@ -337,9 +344,7 @@ export const documentSettingsSchema = z.object({
   showPageNumbers: z.boolean().default(true),
   /** "pageOfTotal" → "Page 1 of 3"; "page" → "Page 1". */
   pageNumberFormat: z.enum(["pageOfTotal", "page"]).default("pageOfTotal"),
-  showRegistrationLine: z.boolean().default(true),
-  /** Render the company watermark (if a watermark logo is uploaded). */
-  showWatermark: z.boolean().default(true)
+  showRegistrationLine: z.boolean().default(true)
 });
 
 /** Document types that support a customizable template. Widen as docs ship. */
@@ -469,6 +474,7 @@ export type LabelBarcodeBlock = Extract<
   { type: "labelBarcode" }
 >;
 export type LabelLogoBlock = Extract<DocumentBlock, { type: "labelLogo" }>;
+export type WatermarkBlock = Extract<DocumentBlock, { type: "watermark" }>;
 export type LabelEntityIdBlock = Extract<
   DocumentBlock,
   { type: "labelEntityId" }

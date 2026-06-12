@@ -43,6 +43,7 @@ export const trackingLabelBlockRegistry: Record<
       <LabelLogoBlock block={block} data={data} />
     ) : null,
   header: () => null,
+  watermark: () => null,
   parties: () => null,
   notes: () => null,
   details: () => null,

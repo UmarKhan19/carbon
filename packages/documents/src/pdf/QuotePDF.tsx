@@ -11,7 +11,7 @@ import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { composeRegistrationLine } from "../utils/footer";
 import type { QuoteCustomerDetails, QuoteData } from "./blocks/quote";
 import { buildQuoteVars, quoteBlockRegistry } from "./blocks/quote";
-import { Template, Watermark } from "./components";
+import { Template } from "./components";
 
 type QuoteLinePrice = Database["public"]["Tables"]["quoteLinePrice"]["Row"];
 
@@ -236,8 +236,6 @@ const QuotePDF = ({
       headerContent={headerContent}
       footerContent={footerContent}
     >
-      <Watermark src={company.logoWatermark} show={settings.showWatermark} />
-
       {visibleBlocks.map((block) => {
         const render = quoteBlockRegistry[block.type];
         if (!render) return null;
