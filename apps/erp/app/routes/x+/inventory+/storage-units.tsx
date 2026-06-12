@@ -7,6 +7,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { Outlet, redirect, useLoaderData } from "react-router";
 import {
   getStorageTypesList,
+  getStorageUnitDescendants,
   getStorageUnitParentIdsWithChildren,
   getStorageUnitRoots,
   searchStorageUnitsWithAncestors
@@ -119,8 +120,33 @@ export async function loader({ request }: LoaderFunctionArgs) {
         )
       );
     }
-    rows = rootsResult.data ?? [];
+    const roots = rootsResult.data ?? [];
     count = rootsResult.count ?? 0;
+
+    // Eagerly load the full subtrees of the visible (paginated) roots so the
+    // tree renders fully expanded by default instead of lazily loading one
+    // level at a time. Pagination still applies to roots; each shown root just
+    // arrives with all of its descendants.
+    const descendants = await getStorageUnitDescendants(
+      client,
+      companyId,
+      locationId,
+      roots.map((r) => r.id as string)
+    );
+    if (descendants.error) {
+      throw redirect(
+        path.to.authenticatedRoot,
+        await flash(
+          request,
+          error(descendants.error, "Failed to fetch storageUnits")
+        )
+      );
+    }
+    rows = [...roots, ...(descendants.data ?? [])];
+
+    // Pre-expand every parent that has children. Ids not present in the
+    // displayed subtrees are simply ignored by the table's tree walk.
+    initialExpanded = parentIdsWithChildren.data ?? [];
   }
 
   return {

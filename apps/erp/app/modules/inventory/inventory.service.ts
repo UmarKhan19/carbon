@@ -674,6 +674,29 @@ export async function getStorageUnitChildren(
     .order("name");
 }
 
+// All descendants (depth > 1) of the given root ids. A node is a descendant of
+// a root when that root appears in its ancestorPath, so a single `overlaps`
+// query returns the full subtrees in one round trip. Used to render the tree
+// fully expanded by default instead of lazily loading one level at a time.
+export async function getStorageUnitDescendants(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  locationId: string,
+  rootIds: string[]
+) {
+  if (rootIds.length === 0) {
+    return { data: [] as any[], error: null };
+  }
+  return client
+    .from("storageUnits_recursive")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("locationId", locationId)
+    .gt("depth", 1)
+    .overlaps("ancestorPath", rootIds)
+    .order("name");
+}
+
 // Set of storageUnit ids that have at least one child in the given location.
 // Drives whether the table renders an expand chevron on a row.
 export async function getStorageUnitParentIdsWithChildren(
