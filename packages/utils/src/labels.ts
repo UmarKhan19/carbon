@@ -12,11 +12,7 @@ export type LabelSize = {
   name: string;
   width: number;
   height: number;
-  description: string;
   metric?: boolean;
-  rows?: number;
-  columns?: number;
-  rotated?: boolean;
   zpl?: {
     dpi: number;
     width: number;
@@ -45,19 +41,13 @@ export const labelSizes: LabelSize[] = [
     id: "avery5163",
     name: "Avery 5163",
     width: 4,
-    height: 2,
-    description: 'Shipping Labels (2" x 4")',
-    rows: 5,
-    columns: 2,
-    rotated: false
+    height: 2
   },
   {
     id: "label2x1",
     name: "Label 2x1",
     width: 2,
     height: 1,
-    description: 'Thermal Labels (1" x 2")',
-    rotated: false,
     zpl: {
       dpi: 203,
       width: 2,
@@ -69,8 +59,6 @@ export const labelSizes: LabelSize[] = [
     name: "Label 4x2",
     width: 4,
     height: 2,
-    description: 'Thermal Labels (2" x 4")',
-    rotated: false,
     zpl: {
       dpi: 203,
       width: 4,
@@ -82,9 +70,7 @@ export const labelSizes: LabelSize[] = [
     name: "Label 100x50mm",
     width: 3.937,
     height: 1.969,
-    description: "Thermal Labels (50mm x 100mm)",
     metric: true,
-    rotated: false,
     zpl: {
       dpi: 203,
       width: 3.937,
@@ -96,9 +82,7 @@ export const labelSizes: LabelSize[] = [
     name: "Label 50x25mm",
     width: 1.969,
     height: 0.984,
-    description: "Thermal Labels (25mm x 50mm)",
     metric: true,
-    rotated: false,
     zpl: {
       dpi: 203,
       width: 1.969,

@@ -3,10 +3,8 @@ import { ProductLabelPDF } from "@carbon/documents/pdf";
 import { labelSizes } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
 import { getCompanySettings } from "~/services/inventory.service";
 import { getTrackedEntitiesByOperationId } from "~/services/operations.service";
-import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {});
@@ -31,15 +29,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (!labelSize) {
     throw new Error("Invalid label size");
-  }
-
-  if (labelSize.zpl) {
-    throw redirect(
-      path.to.file.operationLabelsZpl(id, {
-        labelSize: labelSize.id,
-        trackedEntityId: trackedEntityIdParam ?? undefined
-      })
-    );
   }
 
   let filteredTracking = trackedEntities.data;

@@ -1,218 +1,100 @@
 import type { LabelSize, ProductLabelItem } from "@carbon/utils";
 import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
-import { createTw } from "react-pdf-tailwind";
 import { generateQRCode } from "../qr/qr-code";
-import Footer from "./components/Footer";
+import { getLabelPdfGeometry } from "./components/labelGeometry";
 
 interface ProductLabelProps {
   items: ProductLabelItem[];
   labelSize: LabelSize;
 }
 
-// Initialize tailwind-styled-components
-const tw = createTw({
-  theme: {
-    fontFamily: {
-      sans: ["Helvetica", "Arial", "sans-serif"]
-    },
-    extend: {
-      colors: {
-        gray: {
-          500: "#7d7d7d"
-        }
-      }
-    }
-  }
-});
-
+/**
+ * Renders one page per label, each page exactly the label size, with the
+ * same layout as the ZPL generator: item id top-left, detail lines below,
+ * QR code top-right, tracked entity id bottom-left.
+ */
 const ProductLabelPDF = ({ items, labelSize }: ProductLabelProps) => {
-  // Default to 1 row and 1 column if not specified
-  const rows = labelSize.rows || 1;
-  const columns = labelSize.columns || 1;
-  const rotated = labelSize.rotated || false;
-
-  // Standard letter size paper (8.5 x 11 inches in points)
-  const LETTER_WIDTH = 8.5 * 72;
-  const LETTER_HEIGHT = 11 * 72;
-
-  // Calculate dimensions in points (72 points per inch)
-  const labelWidthPt = labelSize.width * 72;
-  const labelHeightPt = labelSize.height * 72;
-
-  // Account for rotation when calculating effective dimensions
-  const effectiveLabelWidthPt = rotated ? labelHeightPt : labelWidthPt;
-  const effectiveLabelHeightPt = rotated ? labelWidthPt : labelHeightPt;
-
-  // Determine page size based on rows and columns
-  let pageWidth, pageHeight;
-
-  if (rows > 1 || columns > 1) {
-    // Using standard letter size paper
-    pageWidth = LETTER_WIDTH;
-    pageHeight = LETTER_HEIGHT;
-  } else {
-    // Single label per page - use effective dimensions for rotated labels
-    pageWidth = effectiveLabelWidthPt;
-    pageHeight = effectiveLabelHeightPt;
-  }
-
-  // Calculate font sizes based on label height
-  // Base sizes are optimized for labelSize.height = 1
-  // Scale up proportionally as height increases, with a cap at height = 4
-  const scaleFactor = Math.min(labelSize.height, 4);
-  const titleFontSize = 10 * Math.sqrt(scaleFactor);
-  const descriptionFontSize = 7 * Math.sqrt(scaleFactor);
-
-  // QR code size based on effective label dimensions accounting for rotation
-  const qrCodeSize = Math.min(
-    effectiveLabelHeightPt * 0.8,
-    effectiveLabelWidthPt * 0.4
-  );
-
-  // Calculate how many pages we need
-  const labelsPerPage = rows * columns;
-  const pageCount = Math.ceil(items.length / labelsPerPage);
-
-  // Reserve space for the footer (page number) at the bottom
-  const footerHeight = 35;
-
-  // Calculate margins to center labels on the page
-  // Use effective dimensions for rotated labels
-  const horizontalMargin = (pageWidth - columns * effectiveLabelWidthPt) / 2;
-  const availableHeight =
-    rows > 1 || columns > 1 ? pageHeight - footerHeight : pageHeight;
-  const verticalMargin = (availableHeight - rows * effectiveLabelHeightPt) / 2;
+  const g = getLabelPdfGeometry(labelSize);
+  const qrX = g.pageWidth - g.qrSize - g.margin;
 
   return (
     <Document>
-      {Array.from({ length: pageCount }).map((_, pageIndex) => (
-        <Page key={pageIndex} size={[pageWidth, pageHeight]} style={tw("p-0")}>
-          {Array.from({ length: rows }).map((_, rowIndex) => (
-            <View
-              key={`row-${rowIndex}`}
+      {items.map((item, index) => (
+        <Page
+          key={item.trackedEntityId || index}
+          size={[g.pageWidth, g.pageHeight]}
+        >
+          <View
+            style={{
+              position: "absolute",
+              left: g.margin,
+              top: g.contentTop,
+              maxWidth: qrX - g.margin - 4,
+              flexDirection: "column"
+            }}
+          >
+            <Text
               style={{
-                flexDirection: "row",
-                marginLeft: horizontalMargin,
-                marginTop: rowIndex === 0 ? verticalMargin : 0
+                fontSize: g.titleFontSize,
+                fontFamily: "Helvetica-Bold",
+                marginBottom: g.lineGap
               }}
             >
-              {Array.from({ length: columns }).map((_, colIndex) => {
-                const itemIndex =
-                  pageIndex * labelsPerPage + rowIndex * columns + colIndex;
-                const item = items[itemIndex];
+              {item.itemId}
+            </Text>
 
-                if (!item)
-                  return (
-                    <View
-                      key={`empty-${colIndex}`}
-                      style={{ width: labelWidthPt, height: labelHeightPt }}
-                    />
-                  );
+            {item.revision && (
+              <Text
+                style={{ fontSize: g.descFontSize, marginBottom: g.lineGap }}
+              >
+                Rev: {item.revision}
+              </Text>
+            )}
 
-                return (
-                  <View
-                    key={`label-${itemIndex}`}
-                    style={{
-                      ...tw("relative p-2 flex flex-col pl-[10pt]"),
-                      width: labelWidthPt,
-                      height: labelHeightPt,
-                      transform: rotated ? "rotate(90deg)" : undefined
-                    }}
-                    wrap={false}
-                  >
-                    <View style={tw("flex flex-row justify-between")}>
-                      <View
-                        style={tw("flex flex-col justify-center flex-1 pr-2")}
-                      >
-                        <Text
-                          style={{
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            maxWidth: "100%",
-                            ...tw("mb-2"),
-                            fontWeight: "bold",
-                            fontSize: `${titleFontSize}pt`
-                          }}
-                        >
-                          {item.itemId}
-                        </Text>
+            {["Serial", "Batch"].includes(item.trackingType) && (
+              <Text
+                style={{ fontSize: g.descFontSize, marginBottom: g.lineGap }}
+              >
+                Qty: {item.quantity}
+              </Text>
+            )}
 
-                        {item.revision && (
-                          <Text
-                            style={{
-                              ...tw("mb-1"),
-                              fontSize: `${descriptionFontSize}pt`
-                            }}
-                          >
-                            Rev: {item.revision}
-                          </Text>
-                        )}
+            {item.trackingType === "Serial" && item.number && (
+              <Text style={{ fontSize: g.descFontSize }}>
+                S/N: {item.number}
+              </Text>
+            )}
+            {item.trackingType === "Batch" && item.number && (
+              <Text style={{ fontSize: g.descFontSize }}>
+                Batch: {item.number}
+              </Text>
+            )}
+          </View>
 
-                        {["Serial", "Batch"].includes(item.trackingType) && (
-                          <Text
-                            style={{
-                              ...tw("mb-1"),
-                              fontSize: `${descriptionFontSize}pt`
-                            }}
-                          >
-                            Qty: {item.quantity}
-                          </Text>
-                        )}
+          <Image
+            src={generateQRCode(item.trackedEntityId, g.qrSize / 72)}
+            style={{
+              position: "absolute",
+              left: qrX,
+              top: g.contentTop,
+              width: g.qrSize,
+              height: g.qrSize,
+              objectFit: "contain"
+            }}
+          />
 
-                        {item.trackingType === "Serial" && item.number && (
-                          <Text
-                            style={{
-                              ...tw("mb-1"),
-                              fontSize: `${descriptionFontSize}pt`
-                            }}
-                          >
-                            S/N: {item.number}
-                          </Text>
-                        )}
-                        {item.trackingType === "Batch" && item.number && (
-                          <Text
-                            style={{
-                              ...tw("mb-1"),
-                              fontSize: `${descriptionFontSize}pt`
-                            }}
-                          >
-                            Batch: {item.number}
-                          </Text>
-                        )}
-                      </View>
-
-                      <View style={tw("flex items-center justify-center")}>
-                        <Image
-                          src={generateQRCode(
-                            item.trackedEntityId,
-                            qrCodeSize / 72
-                          )}
-                          style={{
-                            width: qrCodeSize,
-                            height: qrCodeSize,
-                            objectFit: "contain"
-                          }}
-                        />
-                      </View>
-                    </View>
-
-                    {item.trackedEntityId && (
-                      <Text
-                        style={{
-                          ...tw("mt-1 text-center"),
-                          fontSize: `${descriptionFontSize - 1}pt`,
-                          width: "100%"
-                        }}
-                      >
-                        {item.trackedEntityId}
-                      </Text>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          ))}
-          <Footer />
+          {item.trackedEntityId && (
+            <Text
+              style={{
+                position: "absolute",
+                left: g.margin,
+                bottom: g.bottomOffset,
+                fontSize: g.smallFontSize
+              }}
+            >
+              {item.trackedEntityId}
+            </Text>
+          )}
         </Page>
       ))}
     </Document>

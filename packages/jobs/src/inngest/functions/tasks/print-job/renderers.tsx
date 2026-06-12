@@ -1,8 +1,13 @@
-// This module is .tsx because the built-in kanban renderer uses JSX
-// to render a React PDF component (KanbanLabelPDF) via renderToStream.
+// This module is .tsx because the built-in renderers render React PDF
+// components (ProductLabelPDF, StorageUnitLabelPDF, KanbanLabelPDF) via
+// renderToStream.
 
 import type { Database } from "@carbon/database";
-import { KanbanLabelPDF } from "@carbon/documents/pdf";
+import {
+  KanbanLabelPDF,
+  ProductLabelPDF,
+  StorageUnitLabelPDF
+} from "@carbon/documents/pdf";
 import {
   generateProductLabelZPL,
   generateStorageUnitLabelZPL
@@ -13,6 +18,7 @@ import type { LabelSize, ProductLabelItem } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ReactElement } from "react";
 import type { KanbanCardItem, StorageUnitItem } from "./resolvers";
 
 export type GeneratedContent = {
@@ -52,44 +58,70 @@ export async function renderItemBuiltIn(
   mediaSizeId: string
 ): Promise<GeneratedContent> {
   switch (doc.type) {
-    case "productLabel":
+    case "productLabel": {
+      const mediaSize = requireMediaSize(mediaSizeId);
+      if (format === "pdf") {
+        return renderPdfContent(
+          <ProductLabelPDF items={[doc.item]} labelSize={mediaSize} />
+        );
+      }
+      requireZplCapable(mediaSize);
       return {
-        content: generateProductLabelZPL(
-          doc.item,
-          requireZplMediaSize("product label", format, mediaSizeId)
-        ),
+        content: generateProductLabelZPL(doc.item, mediaSize),
         contentType: "zpl"
       };
+    }
     case "kanbanCard":
       return renderKanbanCardPDF(client, doc.item, format);
-    case "storageUnitLabel":
+    case "storageUnitLabel": {
+      const mediaSize = requireMediaSize(mediaSizeId);
+      if (format === "pdf") {
+        return renderPdfContent(
+          <StorageUnitLabelPDF items={[doc.item]} labelSize={mediaSize} />
+        );
+      }
+      requireZplCapable(mediaSize);
       return {
-        content: generateStorageUnitLabelZPL(
-          doc.item,
-          requireZplMediaSize("storage unit label", format, mediaSizeId)
-        ),
+        content: generateStorageUnitLabelZPL(doc.item, mediaSize),
         contentType: "zpl"
       };
+    }
   }
 }
 
-function requireZplMediaSize(
-  documentName: string,
-  format: "zpl" | "pdf",
-  mediaSizeId: string
-): LabelSize {
-  if (format === "pdf") {
-    throw new Error(
-      `Built-in ${documentName} generation only supports ZPL printers. Use a BinderyPress template for PDF output.`
-    );
-  }
-
+function requireMediaSize(mediaSizeId: string): LabelSize {
   const mediaSize = labelSizes.find((s) => s.id === mediaSizeId);
-  if (!mediaSize?.zpl) {
-    throw new Error(`Media size ${mediaSizeId} does not support ZPL`);
+  if (!mediaSize) {
+    throw new Error(`Unknown media size ${mediaSizeId}`);
   }
-
   return mediaSize;
+}
+
+function requireZplCapable(mediaSize: LabelSize): void {
+  if (!mediaSize.zpl) {
+    throw new Error(`Media size ${mediaSize.id} does not support ZPL`);
+  }
+}
+
+async function renderPdfContent(
+  element: ReactElement
+): Promise<GeneratedContent> {
+  const stream = await renderToStream(element);
+  const body = await streamToBuffer(stream);
+
+  return {
+    content: body.toString("base64"),
+    contentType: "pdf"
+  };
+}
+
+function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const buffers: Uint8Array[] = [];
+    stream.on("data", (d: Uint8Array) => buffers.push(d));
+    stream.on("end", () => resolve(Buffer.concat(buffers)));
+    stream.on("error", reject);
+  });
 }
 
 async function renderKanbanCardPDF(
@@ -116,7 +148,7 @@ async function renderKanbanCardPDF(
     }
   }
 
-  const stream = await renderToStream(
+  return renderPdfContent(
     <KanbanLabelPDF
       baseUrl={ERP_URL ?? ""}
       labels={[
@@ -137,16 +169,4 @@ async function renderKanbanCardPDF(
       action="order"
     />
   );
-
-  const body: Buffer = await new Promise((resolve, reject) => {
-    const buffers: Uint8Array[] = [];
-    stream.on("data", (d: Uint8Array) => buffers.push(d));
-    stream.on("end", () => resolve(Buffer.concat(buffers)));
-    stream.on("error", reject);
-  });
-
-  return {
-    content: body.toString("base64"),
-    contentType: "pdf"
-  };
 }

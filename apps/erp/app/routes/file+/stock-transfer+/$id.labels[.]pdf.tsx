@@ -3,9 +3,7 @@ import { ProductLabelPDF } from "@carbon/documents/pdf";
 import { labelSizes } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
 import { getCompanySettings } from "~/modules/settings/settings.service";
-import { path } from "~/utils/path";
 import { getStockTransferLabelItems } from "./labels.server";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -28,15 +26,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (!labelSize) {
     throw new Error("Invalid label size");
-  }
-
-  if (labelSize.zpl) {
-    throw redirect(
-      path.to.file.stockTransferLabelsZpl(id, {
-        labelSize: labelSize.id,
-        lineId: lineIdParam ?? undefined
-      })
-    );
   }
 
   const items = await getStockTransferLabelItems(

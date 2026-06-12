@@ -4,11 +4,9 @@ import type { TrackedEntityAttributes } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
 import { renderToStream } from "@react-pdf/renderer";
 import type { LoaderFunctionArgs } from "react-router";
-import { redirect } from "react-router";
 import { getReceiptTracking } from "~/modules/inventory";
 import { getCompany } from "~/modules/settings";
 import { getCompanySettings } from "~/modules/settings/settings.service";
-import { path } from "~/utils/path";
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -41,15 +39,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   if (!labelSize) {
     throw new Error("Invalid label size");
-  }
-
-  if (labelSize.zpl) {
-    throw redirect(
-      path.to.file.receiptLabelsZpl(id, {
-        labelSize: labelSize.id,
-        lineId: lineIdParam ?? undefined
-      })
-    );
   }
 
   let filteredTracking = receiptLineTracking.data;

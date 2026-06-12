@@ -9,6 +9,7 @@ import QuotePDF from "./QuotePDF";
 import SalesInvoicePDF from "./SalesInvoicePDF";
 import SalesOrderPDF from "./SalesOrderPDF";
 import StockTransferPDF from "./StockTransferPDF";
+import StorageUnitLabelPDF from "./StorageUnitLabelPDF";
 export {
   Footer,
   IssuePDF,
@@ -21,5 +22,6 @@ export {
   QuotePDF,
   SalesInvoicePDF,
   SalesOrderPDF,
-  StockTransferPDF
+  StockTransferPDF,
+  StorageUnitLabelPDF
 };
