@@ -160,10 +160,9 @@ const PICKER_LABEL =
  */
 function ControlRail() {
   const [tab, setTab] = useState<"style">("style");
-  // Labels render on monochrome thermal stock — theme colors don't apply.
-  const showThemeColors = useEditorStore(
-    (s) => s.documentType !== "trackingLabel"
-  );
+  // Labels render on thermal stock with fixed printer fonts and no color —
+  // typography and theme don't apply, so the whole Style tab is hidden.
+  const isLabel = useEditorStore((s) => s.documentType === "trackingLabel");
 
   return (
     <ScrollArea className="h-full bg-card">
@@ -173,27 +172,27 @@ function ControlRail() {
           <BlockList />
         </section>
 
-        <Tabs
-          value={tab}
-          onValueChange={(v) => setTab(v as "style")}
-          className="border-t pt-1"
-        >
-          <TabsList className="h-auto w-full justify-start gap-1 rounded-none border-b bg-transparent p-0 shadow-none">
-            <UnderlineTab value="style" icon={<LuPalette />} label="Style" />
-          </TabsList>
-          <TabsContent value="style" className="flex flex-col gap-5 pt-4">
-            <section className="flex flex-col gap-3">
-              <h3 className={RAIL_HEADING}>Typography</h3>
-              <FontConfig />
-            </section>
-            {showThemeColors && (
+        {!isLabel && (
+          <Tabs
+            value={tab}
+            onValueChange={(v) => setTab(v as "style")}
+            className="border-t pt-1"
+          >
+            <TabsList className="h-auto w-full justify-start gap-1 rounded-none border-b bg-transparent p-0 shadow-none">
+              <UnderlineTab value="style" icon={<LuPalette />} label="Style" />
+            </TabsList>
+            <TabsContent value="style" className="flex flex-col gap-5 pt-4">
+              <section className="flex flex-col gap-3">
+                <h3 className={RAIL_HEADING}>Typography</h3>
+                <FontConfig />
+              </section>
               <section className="flex flex-col gap-2">
                 <h3 className={RAIL_HEADING}>Theme colors</h3>
                 <ThemeConfig />
               </section>
-            )}
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
     </ScrollArea>
   );
@@ -285,7 +284,7 @@ function EditorToolbar({
         </div>
       </div>
       {previewEntities.length > 0 && (
-        <div className="flex min-w-0 max-w-[280px] flex-1 flex-col items-center gap-0.5">
+        <div className="flex min-w-0 max-w-[280px] flex-1 flex-col items-center gap-0.5 self-end">
           <span className={PICKER_LABEL}>Preview data</span>
           <Select
             value={previewId ?? SAMPLE_DATA_VALUE}
@@ -307,7 +306,7 @@ function EditorToolbar({
           </Select>
         </div>
       )}
-      <div className="flex items-center gap-2">
+      <div className="flex items-end gap-2">
         <LabelSizePicker />
         {canEdit && (
           <>
@@ -347,7 +346,7 @@ function LabelSizePicker() {
 
   return (
     <div className="flex flex-col items-start gap-0.5">
-      <span className={PICKER_LABEL}>Label stock</span>
+      <span className={PICKER_LABEL}>Preview size</span>
       <Select value={labelSizeId} onValueChange={setLabelSizeId}>
         <SelectTrigger size="sm" className="w-[160px]">
           <SelectValue placeholder="Label size" />

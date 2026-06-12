@@ -3,16 +3,18 @@
 // renderToStream.
 
 import type { Database } from "@carbon/database";
+import { resolveLabelLogo } from "@carbon/documents/labels";
 import {
   KanbanLabelPDF,
   ProductLabelPDF,
   StorageUnitLabelPDF
 } from "@carbon/documents/pdf";
+import { toDocumentTemplate } from "@carbon/documents/template";
 import {
   generateProductLabelZPL,
   generateStorageUnitLabelZPL
 } from "@carbon/documents/zpl";
-import { ERP_URL } from "@carbon/env";
+import { ERP_URL, SUPABASE_URL } from "@carbon/env";
 import { renderWithBinderyPress } from "@carbon/printing/printing.server";
 import type { LabelSize, ProductLabelItem } from "@carbon/utils";
 import { labelSizes } from "@carbon/utils";
@@ -53,6 +55,7 @@ export async function renderItemWithTemplate(
 
 export async function renderItemBuiltIn(
   client: SupabaseClient<Database>,
+  companyId: string,
   doc: PrintableDocumentItem,
   format: "zpl" | "pdf",
   mediaSizeId: string
@@ -60,14 +63,27 @@ export async function renderItemBuiltIn(
   switch (doc.type) {
     case "productLabel": {
       const mediaSize = requireMediaSize(mediaSizeId);
+      // Apply the company's tracking-label template + logo, same as the
+      // interactive download routes — otherwise queued jobs print a layout
+      // that doesn't match what the customizer shows.
+      const { template, logo } = await loadProductLabelContext(
+        client,
+        companyId,
+        mediaSize
+      );
       if (format === "pdf") {
         return renderPdfContent(
-          <ProductLabelPDF items={[doc.item]} labelSize={mediaSize} />
+          <ProductLabelPDF
+            items={[doc.item]}
+            labelSize={mediaSize}
+            template={template}
+            logo={logo}
+          />
         );
       }
       requireZplCapable(mediaSize);
       return {
-        content: generateProductLabelZPL(doc.item, mediaSize),
+        content: generateProductLabelZPL(doc.item, mediaSize, template, logo),
         contentType: "zpl"
       };
     }
@@ -95,6 +111,51 @@ function requireMediaSize(mediaSizeId: string): LabelSize {
     throw new Error(`Unknown media size ${mediaSizeId}`);
   }
   return mediaSize;
+}
+
+const PUBLIC_STORAGE_URL_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/public/`;
+
+/**
+ * Resolve the company's tracking-label template + logo for a built-in render.
+ * Mirrors the interactive label routes (which use `getDocumentTemplateConfig`
+ * + `resolveLabelLogo`) so queued print jobs honor the customizer layout. The
+ * jobs package can't import app modules, so it reads the row directly here.
+ */
+async function loadProductLabelContext(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  labelSize: LabelSize
+) {
+  const [templateRow, companyRow] = await Promise.all([
+    client
+      .from("documentTemplate")
+      .select("*")
+      .eq("companyId", companyId)
+      .eq("documentType", "trackingLabel")
+      .maybeSingle(),
+    client
+      .from("company")
+      .select("logoLight, logoLightIcon")
+      .eq("id", companyId)
+      .maybeSingle()
+  ]);
+
+  const template = toDocumentTemplate(templateRow.data, "trackingLabel");
+
+  const expand = (path: string | null | undefined) =>
+    path ? `${PUBLIC_STORAGE_URL_PREFIX}${path}` : null;
+  const company = companyRow.data
+    ? {
+        logoLight: expand(companyRow.data.logoLight),
+        logoLightIcon: expand(companyRow.data.logoLightIcon)
+      }
+    : null;
+
+  const logo = await resolveLabelLogo(company, template, labelSize, {
+    supabaseUrl: SUPABASE_URL ?? ""
+  });
+
+  return { template, logo };
 }
 
 function requireZplCapable(mediaSize: LabelSize): void {
