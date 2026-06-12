@@ -44,6 +44,14 @@ export default function useSettingsSubmodules() {
         name: t`Company`,
         routes: [
           {
+            name: t`Billing`,
+            to: path.to.billing,
+            role: "employee",
+            icon: <LuCreditCard />,
+            requiresOwnership: true,
+            requiresCloudEnvironment: true
+          },
+          {
             name: t`Company`,
             to: path.to.company,
             role: "employee",
@@ -56,12 +64,10 @@ export default function useSettingsSubmodules() {
             icon: <LuNetwork />
           },
           {
-            name: t`Billing`,
-            to: path.to.billing,
+            name: t`Document Templates`,
+            to: path.to.documentTemplates,
             role: "employee",
-            icon: <LuCreditCard />,
-            requiresOwnership: true,
-            requiresCloudEnvironment: true
+            icon: <LuFileText />
           },
           {
             name: t`Labels`,
@@ -74,12 +80,6 @@ export default function useSettingsSubmodules() {
             to: path.to.logos,
             role: "employee",
             icon: <LuImage />
-          },
-          {
-            name: t`Document Templates`,
-            to: path.to.documentTemplates,
-            role: "employee",
-            icon: <LuFileText />
           }
         ]
       },
