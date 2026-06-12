@@ -104,6 +104,7 @@ Schema structure:
   "supplierName": { "value": string or null, "confidence": number },
   "supplierContactName": { "value": string or null, "confidence": number },
   "supplierContactEmail": { "value": string or null, "confidence": number },
+  "supplierContactPhone": { "value": string or null, "confidence": number },
   "supplierAddressLine1": { "value": string or null, "confidence": number },
   "supplierAddressLine2": { "value": string or null, "confidence": number },
   "supplierCity": { "value": string or null, "confidence": number },

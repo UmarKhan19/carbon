@@ -61,12 +61,9 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   const [extractedSupplierName, setExtractedSupplierName] = useState<
     string | undefined
   >();
-  const [extractedContactName, setExtractedContactName] = useState<
-    string | undefined
-  >();
-  const [extractedContactEmail, setExtractedContactEmail] = useState<
-    string | undefined
-  >();
+  const [extractedContactName, setExtractedContactName] = useState<string>();
+  const [extractedContactEmail, setExtractedContactEmail] = useState<string>();
+  const [extractedContactPhone, setExtractedContactPhone] = useState<string>();
   const [extractedAddress, setExtractedAddress] = useState<{
     addressLine1?: string | null;
     addressLine2?: string | null;
@@ -184,6 +181,12 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       setExtractedContactEmail(data.supplierContactEmail);
     } else {
       setExtractedContactEmail(undefined);
+    }
+
+    if (data.supplierContactPhone && !resolvedContactId) {
+      setExtractedContactPhone(data.supplierContactPhone);
+    } else {
+      setExtractedContactPhone(undefined);
     }
 
     if (data.supplierAddressLine1 && !resolvedLocationId) {
@@ -511,6 +514,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 value={invoiceSupplier.invoiceSupplierContactId}
                 extractedValue={extractedContactName}
                 extractedEmail={extractedContactEmail}
+                extractedPhone={extractedContactPhone}
                 onChange={(newValue) => {
                   if (newValue?.id) {
                     setInvoiceSupplier((prevSupplier) => ({

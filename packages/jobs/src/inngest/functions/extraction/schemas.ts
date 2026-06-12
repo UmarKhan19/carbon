@@ -21,6 +21,7 @@ export const invoiceExtractionSchema = z.object({
   supplierName: confidenceField(z.string()),
   supplierContactName: confidenceField(z.string()),
   supplierContactEmail: confidenceField(z.string()),
+  supplierContactPhone: confidenceField(z.string()),
   supplierAddressLine1: confidenceField(z.string()),
   supplierAddressLine2: confidenceField(z.string()),
   supplierCity: confidenceField(z.string()),

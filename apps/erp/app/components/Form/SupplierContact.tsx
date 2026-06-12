@@ -22,6 +22,7 @@ type SupplierContactSelectProps = Omit<
   inline?: boolean;
   extractedValue?: string;
   extractedEmail?: string;
+  extractedPhone?: string;
 };
 
 const SupplierContactPreview = (
@@ -44,6 +45,10 @@ const SupplierContactPreview = (
 const SupplierContact = ({
   extractedValue,
   extractedEmail,
+  extractedPhone,
+  onChange: propsOnChange,
+  inline,
+  supplier,
   ...props
 }: SupplierContactSelectProps) => {
   const { t } = useLingui();
@@ -66,12 +71,10 @@ const SupplierContact = ({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    if (props?.supplier) {
-      supplierContactsFetcher.load(
-        path.to.api.supplierContacts(props.supplier)
-      );
+    if (supplier) {
+      supplierContactsFetcher.load(path.to.api.supplierContacts(supplier));
     }
-  }, [props.supplier]);
+  }, [supplier]);
 
   const options = useMemo(
     () =>
@@ -91,7 +94,7 @@ const SupplierContact = ({
         (contact) => contact.id === newValue?.value
       ) ?? null;
 
-    props.onChange?.(contact ?? null);
+    propsOnChange?.(contact ?? null);
   };
 
   return (
@@ -102,7 +105,7 @@ const SupplierContact = ({
         {...props}
         extractedValue={extractedValue}
         placeholder={t`Select Contact`}
-        inline={props.inline ? SupplierContactPreview : undefined}
+        inline={inline ? SupplierContactPreview : undefined}
         label={props?.label ?? t`Supplier Contact`}
         onChange={onChange}
         onCreateOption={(option) => {
@@ -112,7 +115,7 @@ const SupplierContact = ({
       />
       {newContactModal.isOpen && (
         <SupplierContactForm
-          supplierId={props.supplier!}
+          supplierId={supplier!}
           type="modal"
           onClose={() => {
             setCreated("");
@@ -122,7 +125,8 @@ const SupplierContact = ({
           initialValues={{
             email: extractedEmail ?? "",
             firstName: initialFirstName,
-            lastName: initialLastName
+            lastName: initialLastName,
+            mobilePhone: extractedPhone ?? ""
           }}
         />
       )}
