@@ -1,3 +1,4 @@
+import { LabelDownloadModal } from "@carbon/printing/ui";
 import {
   Button,
   Checkbox,
@@ -35,7 +36,6 @@ import { Hyperlink, New, Table } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
 import { useStorageTypes } from "~/components/Form/StorageTypes";
-import { LabelDownloadModal } from "~/components/LabelDownloadModal";
 import { IndeterminateCheckbox } from "~/components/Table/components";
 import { usePermissions, usePrinting, useUrlParams } from "~/hooks";
 import { path } from "~/utils/path";

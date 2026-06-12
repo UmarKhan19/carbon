@@ -1,6 +1,7 @@
 import type { Database } from "@carbon/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
+  PrinterRoute,
   PrintingSettings,
   PrintJobContentType,
   PrintJobOrigin,
@@ -177,11 +178,17 @@ export async function getPrinterRoutes(
   client: SupabaseClient<Database>,
   companyId: string
 ) {
-  return client
+  const result = await client
     .from("printerRoute")
     .select("*")
     .eq("companyId", companyId)
     .order("name");
+
+  return {
+    ...result,
+    // "format" is text in the DB but constrained to 'zpl' | 'pdf' by a CHECK
+    data: result.data as PrinterRoute[] | null
+  };
 }
 
 export async function getPrinterRoute(

@@ -1,4 +1,13 @@
+export type { PrinterContext } from "./assignments";
 export {
+  emptyLocationAssignment,
+  getPrinterContextForSource,
+  printerContexts,
+  resolveContextAssignment,
+  setContextAssignment
+} from "./assignments";
+export {
+  manualPrintValidator,
   printerRouteValidator,
   reprintValidator,
   updateAssignmentValidator

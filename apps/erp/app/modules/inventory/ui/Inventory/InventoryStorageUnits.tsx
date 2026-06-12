@@ -6,6 +6,7 @@ import {
   Submit,
   ValidatedForm
 } from "@carbon/form";
+import { LabelDownloadModal } from "@carbon/printing/ui";
 import {
   Button,
   Card,
@@ -54,7 +55,6 @@ import { Enumerable } from "~/components/Enumerable";
 import { Input, Location, Select, TextArea } from "~/components/Form";
 import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
-import { LabelDownloadModal } from "~/components/LabelDownloadModal";
 import { usePermissions, usePrinting } from "~/hooks";
 import type {
   ItemStorageUnitQuantities,

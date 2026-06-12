@@ -1,10 +1,10 @@
+import { usePrinting } from "@carbon/printing/ui";
 import {
   useNanoStore,
   useOptimisticLocation,
   useRouteData,
   useUrlParams
 } from "@carbon/react";
-
 import { useCompanySettings } from "./useCompanySettings";
 import { useCurrencyFormatter } from "./useCurrencyFormatter";
 import { useDateFormatter } from "./useDateFormatter";
@@ -18,7 +18,6 @@ import { useOnboarding } from "./useOnboarding";
 import { usePercentFormatter } from "./usePercentFormatter";
 import { usePermissions } from "./usePermissions";
 import { usePlanGate } from "./usePlanGate";
-import { usePrinting } from "./usePrinting";
 import { useRealtime } from "./useRealtime";
 import { useScrollPosition } from "./useScrollPosition";
 import { useSettings } from "./useSettings";

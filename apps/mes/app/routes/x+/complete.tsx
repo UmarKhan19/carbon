@@ -14,6 +14,68 @@ import {
 } from "~/services/operations.service";
 import { path } from "~/utils/path";
 
+/**
+ * Triggers an auto-print of the entity's label when this is its first
+ * operation (i.e. the entity was just minted) and the work center's
+ * printer assignment has auto-print enabled.
+ */
+async function autoPrintFirstOperationLabel({
+  serviceRole,
+  trackedEntityId,
+  workCenterId,
+  companyId,
+  userId
+}: {
+  serviceRole: ReturnType<typeof getCarbonServiceRole>;
+  trackedEntityId: string;
+  workCenterId: string | undefined;
+  companyId: string;
+  userId: string;
+}) {
+  try {
+    const { data: entity } = await serviceRole
+      .from("trackedEntity")
+      .select("attributes")
+      .eq("id", trackedEntityId)
+      .single();
+
+    const attributes = (entity?.attributes ?? {}) as Record<string, unknown>;
+    const operationCount = Object.keys(attributes).filter((k) =>
+      k.startsWith("Operation ")
+    ).length;
+    if (operationCount > 1) return;
+
+    if (!workCenterId) return;
+    const { data: workCenter } = await serviceRole
+      .from("workCenter")
+      .select("locationId")
+      .eq("id", workCenterId)
+      .single();
+    const locationId = workCenter?.locationId ?? undefined;
+    if (!locationId) return;
+
+    const config = await getCachedPrinterConfig(
+      serviceRole,
+      companyId,
+      locationId,
+      "workCenter",
+      workCenterId
+    );
+    if (config?.autoPrint ?? true) {
+      await trigger("print-job", {
+        sourceDocument: "Job",
+        sourceDocumentId: trackedEntityId,
+        companyId,
+        userId,
+        locationId,
+        workCenterId
+      });
+    }
+  } catch (e) {
+    console.error("Auto-print failed:", e);
+  }
+}
+
 export async function action({ request }: ActionFunctionArgs) {
   assertIsPost(request);
   const { client, companyId, userId } = await requirePermissions(request, {});
@@ -75,56 +137,13 @@ export async function action({ request }: ActionFunctionArgs) {
     // Auto-print label on first operation only (entity was just minted)
     const printEntityId = completedEntityId || newTrackedEntityId;
     if (printEntityId) {
-      try {
-        const { data: printEntity } = await serviceRole
-          .from("trackedEntity")
-          .select("attributes")
-          .eq("id", printEntityId)
-          .single();
-
-        const attrs = (printEntity?.attributes ?? {}) as Record<
-          string,
-          unknown
-        >;
-        const operationCount = Object.keys(attrs).filter((k) =>
-          k.startsWith("Operation ")
-        ).length;
-        const isFirstOperation = operationCount <= 1;
-
-        if (isFirstOperation) {
-          let locationId: string | undefined;
-          const workCenterId = jobOperation.data.workCenterId ?? undefined;
-          if (workCenterId) {
-            const { data: wc } = await serviceRole
-              .from("workCenter")
-              .select("locationId")
-              .eq("id", workCenterId)
-              .single();
-            locationId = wc?.locationId ?? undefined;
-          }
-          if (locationId) {
-            const config = await getCachedPrinterConfig(
-              serviceRole,
-              companyId,
-              locationId,
-              "workCenter",
-              workCenterId
-            );
-            if (config?.autoPrint ?? true) {
-              await trigger("print-job", {
-                sourceDocument: "Job",
-                sourceDocumentId: printEntityId,
-                companyId,
-                userId,
-                locationId,
-                workCenterId
-              });
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Auto-print failed:", e);
-      }
+      await autoPrintFirstOperationLabel({
+        serviceRole,
+        trackedEntityId: printEntityId,
+        workCenterId: jobOperation.data.workCenterId ?? undefined,
+        companyId,
+        userId
+      });
     }
 
     const trackedEntityId = newTrackedEntityId;
@@ -174,7 +193,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
     return redirect(`${path.to.operation(validation.data.jobOperationId)}`);
   } else if (validation.data.trackingType === "Batch") {
-    const serviceRole = await getCarbonServiceRole();
     const response = await serviceRole.functions.invoke("issue", {
       body: {
         type: "jobOperationBatchComplete",
@@ -196,56 +214,13 @@ export async function action({ request }: ActionFunctionArgs) {
 
     // Auto-print label on first operation only (batch entity was just minted)
     if (validation.data.trackedEntityId) {
-      try {
-        const { data: batchEntity } = await serviceRole
-          .from("trackedEntity")
-          .select("attributes")
-          .eq("id", validation.data.trackedEntityId)
-          .single();
-
-        const batchAttrs = (batchEntity?.attributes ?? {}) as Record<
-          string,
-          unknown
-        >;
-        const batchOpCount = Object.keys(batchAttrs).filter((k) =>
-          k.startsWith("Operation ")
-        ).length;
-        const isFirstOperation = batchOpCount <= 1;
-
-        if (isFirstOperation) {
-          let batchLocationId: string | undefined;
-          const workCenterId = jobOperation.data.workCenterId ?? undefined;
-          if (workCenterId) {
-            const { data: wc } = await serviceRole
-              .from("workCenter")
-              .select("locationId")
-              .eq("id", workCenterId)
-              .single();
-            batchLocationId = wc?.locationId ?? undefined;
-          }
-          if (batchLocationId) {
-            const config = await getCachedPrinterConfig(
-              serviceRole,
-              companyId,
-              batchLocationId,
-              "workCenter",
-              workCenterId
-            );
-            if (config?.autoPrint ?? true) {
-              await trigger("print-job", {
-                sourceDocument: "Job",
-                sourceDocumentId: validation.data.trackedEntityId,
-                companyId,
-                userId,
-                locationId: batchLocationId,
-                workCenterId
-              });
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Auto-print failed:", e);
-      }
+      await autoPrintFirstOperationLabel({
+        serviceRole,
+        trackedEntityId: validation.data.trackedEntityId,
+        workCenterId: jobOperation.data.workCenterId ?? undefined,
+        companyId,
+        userId
+      });
     }
 
     if (willBeFinished) {

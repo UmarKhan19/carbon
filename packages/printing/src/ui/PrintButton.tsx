@@ -13,9 +13,9 @@ import { Trans } from "@lingui/react/macro";
 import { useEffect, useState } from "react";
 import { LuCheck, LuPrinter } from "react-icons/lu";
 import { useFetcher } from "react-router";
-import { usePrinting } from "~/hooks";
-import { path } from "~/utils/path";
+import type { PrinterContext } from "../assignments";
 import { LabelDownloadModal } from "./LabelDownloadModal";
+import { usePrinting } from "./PrintingProvider";
 
 type FileRoutes = {
   pdf: (id: string, opts?: { labelSize?: string }) => string;
@@ -34,13 +34,12 @@ export function PrintButton({
   sourceDocument: string;
   sourceDocumentId: string;
   locationId: string | undefined;
-  context: "shipping" | "receiving" | "inventory" | "workCenter";
+  context: PrinterContext;
   workCenterId?: string;
   fileRoutes: FileRoutes;
   disabled?: boolean;
-  variant?: "primary" | "secondary";
 }) {
-  const { printerRoutes, resolvePrinterRoute } = usePrinting();
+  const { printerRoutes, resolvePrinterRoute, printPath } = usePrinting();
   const modal = useDisclosure();
   const downloadModal = useDisclosure();
   const fetcher = useFetcher<{ success: boolean; message: string }>();
@@ -84,7 +83,7 @@ export function PrintButton({
       },
       {
         method: "POST",
-        action: path.to.manualPrint,
+        action: printPath,
         encType: "application/json"
       }
     );

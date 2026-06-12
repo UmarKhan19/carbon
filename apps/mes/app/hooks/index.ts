@@ -1,12 +1,11 @@
+import { usePrinting } from "@carbon/printing/ui";
 import {
   useNanoStore,
   useOptimisticLocation,
   useRouteData,
   useUrlParams
 } from "@carbon/react";
-
 import { useDateFormatter } from "./useDateFormatter";
-import { usePrinting } from "./usePrinting";
 import { useRealtime } from "./useRealtime";
 import { useUser } from "./useUser";
 

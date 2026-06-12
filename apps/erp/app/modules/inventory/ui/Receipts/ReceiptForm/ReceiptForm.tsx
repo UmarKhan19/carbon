@@ -175,7 +175,6 @@ const ReceiptForm = ({
                       pdf: path.to.file.receiptLabelsPdf,
                       zpl: path.to.file.receiptLabelsZpl
                     }}
-                    variant="secondary"
                   />
                 )}
                 <SourceDocumentLink

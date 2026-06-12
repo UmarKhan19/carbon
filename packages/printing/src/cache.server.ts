@@ -1,6 +1,8 @@
 import type { Database } from "@carbon/database";
 import { redis } from "@carbon/kv";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { PrinterContext } from "./assignments";
+import { resolveContextAssignment } from "./assignments";
 import type { PrintingSettings } from "./types";
 
 const CACHE_TTL_SECONDS = 3600;
@@ -14,13 +16,6 @@ export type CachedPrinterConfig = {
   templateId: string | null;
   autoPrint: boolean;
 };
-
-type PrinterContext =
-  | "default"
-  | "shipping"
-  | "receiving"
-  | "inventory"
-  | "workCenter";
 
 function buildCacheKey(
   companyId: string,
@@ -87,41 +82,11 @@ async function resolvePrinterConfig(
   const assignment = printing?.assignments?.[locationId];
   if (!assignment) return null;
 
-  let printerRouteId: string | null = null;
-  let autoPrint = true;
-
-  switch (context) {
-    case "shipping":
-      printerRouteId = assignment.shipping?.printerRouteId ?? null;
-      autoPrint = assignment.shipping?.autoPrint ?? true;
-      break;
-    case "receiving":
-      printerRouteId = assignment.receiving?.printerRouteId ?? null;
-      autoPrint = assignment.receiving?.autoPrint ?? true;
-      break;
-    case "inventory":
-      printerRouteId = assignment.inventory?.printerRouteId ?? null;
-      autoPrint = assignment.inventory?.autoPrint ?? true;
-      break;
-    case "workCenter":
-      if (contextId && assignment.workCenters?.[contextId]) {
-        printerRouteId =
-          assignment.workCenters[contextId].printerRouteId ?? null;
-        autoPrint = assignment.workCenters[contextId].autoPrint ?? true;
-      } else {
-        printerRouteId = assignment.defaultPrinterRouteId;
-        autoPrint = assignment.defaultAutoPrint ?? true;
-      }
-      break;
-    default:
-      printerRouteId = assignment.defaultPrinterRouteId;
-      autoPrint = assignment.defaultAutoPrint ?? true;
-      break;
-  }
-
-  if (!printerRouteId) {
-    printerRouteId = assignment.defaultPrinterRouteId;
-  }
+  const { printerRouteId, autoPrint } = resolveContextAssignment(
+    assignment,
+    context,
+    contextId
+  );
 
   if (!printerRouteId) {
     return {

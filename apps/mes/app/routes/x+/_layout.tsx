@@ -11,7 +11,9 @@ import {
   destroyAuthSession,
   requireAuthSession
 } from "@carbon/auth/session.server";
+import type { PrintingSettings } from "@carbon/printing";
 import { getPrinterRoutes } from "@carbon/printing";
+import { PrintingProvider } from "@carbon/printing/ui";
 import {
   ItarPopup,
   SidebarProvider,
@@ -134,9 +136,8 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
 
   const locationEmployeeIds =
     locationEmployees.data?.map((e: { id: string }) => e.id) ?? [];
-  const timeCardEnabled =
-    (companySettings.data as any)?.timeCardEnabled ?? false;
-  const consoleEnabled = (companySettings.data as any)?.consoleEnabled ?? false;
+  const timeCardEnabled = companySettings.data?.timeCardEnabled ?? false;
+  const consoleEnabled = companySettings.data?.consoleEnabled ?? false;
 
   // Get active maintenance count after we have the location
   const activeMaintenanceCount = await getActiveMaintenanceEventsCount(
@@ -188,10 +189,11 @@ export async function loader({ request, context }: LoaderFunctionArgs) {
       effectiveUserId,
       pinnedInUser,
       plan: companyPlan?.planId,
-      printing: (companySettings.data as any)?.printing ?? null,
+      printing:
+        (companySettings.data?.printing as PrintingSettings | null) ?? null,
       printerRoutes: printerRoutes.data ?? [],
       timeCardEnabled,
-      useMetric: (companySettings.data as any)?.useMetric ?? false,
+      useMetric: companySettings.data?.useMetric ?? false,
       user: user.data
     },
     headers.has("Set-Cookie") ? { headers } : undefined
@@ -212,7 +214,10 @@ export default function AuthenticatedRoute() {
     locations,
     openClockEntry,
     pinnedInUser,
+    printing,
+    printerRoutes,
     timeCardEnabled,
+    useMetric,
     user
   } = useLoaderData<typeof loader>();
 
@@ -249,60 +254,71 @@ export default function AuthenticatedRoute() {
         />
       ) : (
         <CarbonProvider session={session}>
-          <RealtimeDataProvider>
-            <SidebarProvider defaultOpen={false}>
-              <TooltipProvider delayDuration={0}>
-                <AppSidebar
-                  activeEvents={activeEvents}
-                  activeMaintenanceCount={activeMaintenanceCount}
-                  company={company}
-                  companies={companies}
-                  consoleEnabled={consoleEnabled}
-                  consoleMode={consoleMode}
-                  location={location}
-                  locations={locations}
-                  openClockEntry={openClockEntry}
-                  pinnedInUser={pinnedInUser}
-                  timeCardEnabled={timeCardEnabled}
-                />
-                <Outlet />
-                {timeCardEnabled && (
-                  <Suspense fallback={null}>
-                    <Await resolve={openClockEntry}>
-                      {(resolved) => (
-                        <TimeCardWarning
-                          openClockEntry={
-                            resolved?.data
-                              ? {
-                                  id: resolved.data.id,
-                                  clockIn: resolved.data.clockIn
-                                }
-                              : null
-                          }
-                        />
-                      )}
-                    </Await>
-                  </Suspense>
-                )}
-                {consoleMode && !pinnedInUser && (
-                  <PinInOverlay
-                    companyId={company.companyId!}
-                    locationEmployeeIds={locationEmployeeIds}
-                    sessionUserId={user?.id ?? ""}
-                    hasPinnedUser={false}
+          <PrintingProvider
+            value={{
+              printing,
+              printerRoutes,
+              useMetric,
+              printPath: path.to.manualPrint,
+              settingsPath: path.to.printingSettings,
+              settingsExternal: true
+            }}
+          >
+            <RealtimeDataProvider>
+              <SidebarProvider defaultOpen={false}>
+                <TooltipProvider delayDuration={0}>
+                  <AppSidebar
+                    activeEvents={activeEvents}
+                    activeMaintenanceCount={activeMaintenanceCount}
+                    company={company}
+                    companies={companies}
+                    consoleEnabled={consoleEnabled}
+                    consoleMode={consoleMode}
+                    location={location}
+                    locations={locations}
+                    openClockEntry={openClockEntry}
+                    pinnedInUser={pinnedInUser}
+                    timeCardEnabled={timeCardEnabled}
                   />
-                )}
-                {consoleMode && pinnedInUser && (
-                  <ConsolePill
-                    user={pinnedInUser}
-                    companyId={company.companyId!}
-                    locationEmployeeIds={locationEmployeeIds}
-                    sessionUserId={user?.id ?? ""}
-                  />
-                )}
-              </TooltipProvider>
-            </SidebarProvider>
-          </RealtimeDataProvider>
+                  <Outlet />
+                  {timeCardEnabled && (
+                    <Suspense fallback={null}>
+                      <Await resolve={openClockEntry}>
+                        {(resolved) => (
+                          <TimeCardWarning
+                            openClockEntry={
+                              resolved?.data
+                                ? {
+                                    id: resolved.data.id,
+                                    clockIn: resolved.data.clockIn
+                                  }
+                                : null
+                            }
+                          />
+                        )}
+                      </Await>
+                    </Suspense>
+                  )}
+                  {consoleMode && !pinnedInUser && (
+                    <PinInOverlay
+                      companyId={company.companyId!}
+                      locationEmployeeIds={locationEmployeeIds}
+                      sessionUserId={user?.id ?? ""}
+                      hasPinnedUser={false}
+                    />
+                  )}
+                  {consoleMode && pinnedInUser && (
+                    <ConsolePill
+                      user={pinnedInUser}
+                      companyId={company.companyId!}
+                      locationEmployeeIds={locationEmployeeIds}
+                      sessionUserId={user?.id ?? ""}
+                    />
+                  )}
+                </TooltipProvider>
+              </SidebarProvider>
+            </RealtimeDataProvider>
+          </PrintingProvider>
         </CarbonProvider>
       )}
     </div>

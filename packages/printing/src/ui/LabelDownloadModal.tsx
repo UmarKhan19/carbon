@@ -19,8 +19,7 @@ import { labelSizes } from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { LuDownload, LuInfo } from "react-icons/lu";
 import { Link } from "react-router";
-import { useCompanySettings } from "~/hooks";
-import { path } from "~/utils/path";
+import { usePrinting } from "./PrintingProvider";
 
 type FileRoutes = {
   pdf: (id: string, opts?: { labelSize?: string }) => string;
@@ -38,8 +37,7 @@ export function LabelDownloadModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  const companySettings = useCompanySettings();
-  const useMetric = Boolean(companySettings?.useMetric);
+  const { useMetric, settingsPath, settingsExternal } = usePrinting();
 
   if (!isOpen) return null;
 
@@ -120,9 +118,15 @@ export function LabelDownloadModal({
                     </Trans>
                   </span>
                   <Button variant="secondary" size="sm" asChild>
-                    <Link to={path.to.printingSettings}>
-                      <Trans>Printer Settings</Trans>
-                    </Link>
+                    {settingsExternal ? (
+                      <a href={settingsPath} target="_blank" rel="noreferrer">
+                        <Trans>Printer Settings</Trans>
+                      </a>
+                    ) : (
+                      <Link to={settingsPath}>
+                        <Trans>Printer Settings</Trans>
+                      </Link>
+                    )}
                   </Button>
                 </div>
               </AlertDescription>

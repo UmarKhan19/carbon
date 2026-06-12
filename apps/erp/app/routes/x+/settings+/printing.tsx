@@ -1,71 +1,26 @@
 import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
-import { Input, Select, Submit, ValidatedForm, validator } from "@carbon/form";
-import type { LocationAssignment, PrintingSettings } from "@carbon/printing";
+import { validator } from "@carbon/form";
+import type { PrintingSettings } from "@carbon/printing";
 import {
   getPrinterRoutes,
+  getPrintingSettings,
+  setContextAssignment,
   updateAssignmentValidator,
+  updatePrintingSettings,
   upsertPrinterRoute
 } from "@carbon/printing";
 import { invalidatePrinterCache } from "@carbon/printing/printing.server";
-import {
-  Button,
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Combobox,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuIcon,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  Heading,
-  HStack,
-  IconButton,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalTitle,
-  ScrollArea,
-  Switch,
-  toast,
-  useDisclosure,
-  VStack
-} from "@carbon/react";
+import { Button, Heading, ScrollArea, VStack } from "@carbon/react";
 import { labelSizes } from "@carbon/utils";
-import { Trans, useLingui } from "@lingui/react/macro";
-import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  LuEllipsisVertical,
-  LuHandCoins,
-  LuMapPin,
-  LuPackage,
-  LuPlay,
-  LuPlus,
-  LuPrinter,
-  LuTrash,
-  LuTruck,
-  LuWrench
-} from "react-icons/lu";
+import { Trans } from "@lingui/react/macro";
+import { LuPrinter } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import {
-  Link,
-  Outlet,
-  redirect,
-  useFetcher,
-  useLoaderData
-} from "react-router";
-import { Empty } from "~/components";
-import ConfirmDelete from "~/components/Modals/ConfirmDelete";
+import { Link, Outlet, redirect, useLoaderData } from "react-router";
 import { getLocationsList, getWorkCentersList } from "~/modules/resources";
 import { getCompanySettings, printerRouteValidator } from "~/modules/settings";
+import { AssignmentsCard, PrintersCard } from "~/modules/settings/ui/Printing";
 import { getUserDefaults } from "~/modules/users/users.server";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
@@ -99,7 +54,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
 
   return {
-    companySettings: companySettings.data,
+    printing:
+      (companySettings.data.printing as PrintingSettings | null) ?? null,
     printerRoutes: printerRoutes.data ?? [],
     workCenters: workCenters.data ?? [],
     locations: locations.data ?? [],
@@ -135,11 +91,6 @@ function generateTestLabel(
     "^XZ"
   ].join("\n");
 }
-
-const mediaSizeOptions = labelSizes.map((s) => ({
-  value: s.id,
-  label: `${s.name} (${s.description})`
-}));
 
 export async function action({ request }: ActionFunctionArgs) {
   const { client, companyId } = await requirePermissions(request, {
@@ -248,73 +199,20 @@ export async function action({ request }: ActionFunctionArgs) {
       const { locationId, context, contextId, printerRouteId, autoPrint } =
         validation.data;
 
-      const { data: existing } = await client
-        .from("companySettings")
-        .select("printing")
-        .eq("id", companyId)
-        .single();
-
+      const { data: existing } = await getPrintingSettings(client, companyId);
       const current = (existing?.printing as PrintingSettings | null) ?? {
         assignments: {}
       };
-      const assignments = { ...current.assignments };
 
-      const emptyContext = { printerRouteId: null, autoPrint: true };
-      const locationAssignment: LocationAssignment = assignments[locationId]
-        ? { ...assignments[locationId] }
-        : {
-            defaultPrinterRouteId: null,
-            defaultAutoPrint: true,
-            shipping: { ...emptyContext },
-            receiving: { ...emptyContext },
-            inventory: { ...emptyContext },
-            workCenters: {}
-          };
+      const updated = setContextAssignment(
+        current,
+        locationId,
+        context,
+        { printerRouteId: printerRouteId || null, autoPrint },
+        contextId
+      );
 
-      switch (context) {
-        case "default":
-          locationAssignment.defaultPrinterRouteId = printerRouteId || null;
-          locationAssignment.defaultAutoPrint = autoPrint;
-          break;
-        case "shipping":
-          locationAssignment.shipping = {
-            printerRouteId: printerRouteId || null,
-            autoPrint
-          };
-          break;
-        case "receiving":
-          locationAssignment.receiving = {
-            printerRouteId: printerRouteId || null,
-            autoPrint
-          };
-          break;
-        case "inventory":
-          locationAssignment.inventory = {
-            printerRouteId: printerRouteId || null,
-            autoPrint
-          };
-          break;
-        case "workCenter":
-          if (contextId) {
-            locationAssignment.workCenters = {
-              ...locationAssignment.workCenters,
-              [contextId]: {
-                printerRouteId: printerRouteId || null,
-                autoPrint
-              }
-            };
-          }
-          break;
-      }
-
-      assignments[locationId] = locationAssignment;
-
-      const result = await client
-        .from("companySettings")
-        .update({
-          printing: JSON.parse(JSON.stringify({ ...current, assignments }))
-        })
-        .eq("id", companyId);
+      const result = await updatePrintingSettings(client, companyId, updated);
 
       if (result.error)
         return { success: false, message: result.error.message };
@@ -329,102 +227,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function PrintingSettingsRoute() {
-  const { companySettings, printerRoutes, workCenters, locations } =
+  const { printing, printerRoutes, workCenters, locations } =
     useLoaderData<typeof loader>();
-  const { t } = useLingui();
-  const routeFetcher = useFetcher<typeof action>();
-  const assignmentFetcher = useFetcher<typeof action>();
-
-  const formatOptions = [
-    { value: "zpl", label: t`ZPL (Thermal Label)` },
-    { value: "pdf", label: t`PDF (Document)` }
-  ];
-
-  const newPrinterDisclosure = useDisclosure();
-  const deletePrinterDisclosure = useDisclosure();
-  const [printerToDelete, setPrinterToDelete] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
-
-  const printing = companySettings.printing as PrintingSettings | null;
-
-  const printerRouteOptions = useMemo(
-    () => [
-      { value: "", label: t`None` },
-      ...printerRoutes.map((r) => ({
-        value: r.id,
-        label: r.name
-      }))
-    ],
-    [printerRoutes, t]
-  );
-
-  const printerRouteMap = useMemo(
-    () => new Map(printerRoutes.map((r) => [r.id, r.name])),
-    [printerRoutes]
-  );
-
-  const workCentersByLocation = useMemo(() => {
-    const map = new Map<
-      string,
-      { id: string; name: string; locationId: string | null }[]
-    >();
-    for (const wc of workCenters) {
-      if (!wc.id || !wc.name || !wc.locationId) continue;
-      const existing = map.get(wc.locationId) ?? [];
-      existing.push({ id: wc.id, name: wc.name, locationId: wc.locationId });
-      map.set(wc.locationId, existing);
-    }
-    return map;
-  }, [workCenters]);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: we don't need to re-run this effect when onClose changes
-  useEffect(() => {
-    if (routeFetcher.data?.success === true && routeFetcher.data?.message) {
-      toast.success(routeFetcher.data.message);
-      newPrinterDisclosure.onClose();
-    }
-    if (routeFetcher.data?.success === false && routeFetcher.data?.message) {
-      toast.error(routeFetcher.data.message);
-    }
-  }, [routeFetcher.data?.message, routeFetcher.data?.success]);
-
-  useEffect(() => {
-    if (
-      assignmentFetcher.data?.success === true &&
-      assignmentFetcher.data?.message
-    ) {
-      toast.success(assignmentFetcher.data.message);
-    }
-    if (
-      assignmentFetcher.data?.success === false &&
-      assignmentFetcher.data?.message
-    ) {
-      toast.error(assignmentFetcher.data.message);
-    }
-  }, [assignmentFetcher.data?.message, assignmentFetcher.data?.success]);
-
-  const submitAssignment = useCallback(
-    (data: {
-      locationId: string;
-      context: string;
-      contextId?: string;
-      printerRouteId?: string;
-      autoPrint?: boolean;
-    }) => {
-      const formData = new FormData();
-      formData.set("intent", "updateAssignment");
-      formData.set("locationId", data.locationId);
-      formData.set("context", data.context);
-      if (data.contextId) formData.set("contextId", data.contextId);
-      if (data.printerRouteId)
-        formData.set("printerRouteId", data.printerRouteId);
-      if (data.autoPrint) formData.set("autoPrint", "on");
-      assignmentFetcher.submit(formData, { method: "POST" });
-    },
-    [assignmentFetcher]
-  );
 
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
@@ -443,500 +247,16 @@ export default function PrintingSettingsRoute() {
           </Button>
         </div>
 
-        {/* Printers */}
-        <Card>
-          <HStack className="w-full justify-between items-start">
-            <CardHeader>
-              <CardTitle>
-                <Trans>Printers</Trans>
-              </CardTitle>
-              <CardDescription>
-                <Trans>Physical printers available for assignment.</Trans>
-              </CardDescription>
-            </CardHeader>
-            <CardAction className="py-6">
-              <Button
-                leftIcon={<LuPlus />}
-                onClick={newPrinterDisclosure.onOpen}
-              >
-                <Trans>Add Printer</Trans>
-              </Button>
-            </CardAction>
-          </HStack>
-          <CardContent>
-            {printerRoutes.length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {printerRoutes.map((route) => (
-                  <div
-                    key={route.id}
-                    className="flex items-center justify-between rounded-lg border border-border p-3"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-sm font-medium">{route.name}</span>
-                      <span className="text-xs text-muted-foreground uppercase">
-                        {route.format}
-                      </span>
-                      {route.mediaSizeId && (
-                        <span className="text-xs text-muted-foreground">
-                          {route.mediaSizeId}
-                        </span>
-                      )}
-                      <span className="text-xs text-muted-foreground font-mono truncate max-w-[300px]">
-                        {route.printerUrl}
-                      </span>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <IconButton
-                          aria-label={t`More`}
-                          icon={<LuEllipsisVertical />}
-                          variant="ghost"
-                          size="sm"
-                        />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onSelect={() =>
-                            routeFetcher.submit(
-                              { intent: "testPrint", routeId: route.id },
-                              { method: "POST" }
-                            )
-                          }
-                        >
-                          <DropdownMenuIcon icon={<LuPlay />} />
-                          <Trans>Test</Trans>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          destructive
-                          onSelect={() => {
-                            setPrinterToDelete({
-                              id: route.id,
-                              name: route.name
-                            });
-                            deletePrinterDisclosure.onOpen();
-                          }}
-                        >
-                          <DropdownMenuIcon icon={<LuTrash />} />
-                          <Trans>Delete</Trans>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <Empty>
-                <p className="text-sm text-muted-foreground mt-10">
-                  <Trans>
-                    No printers configured. Click "Add Printer" to create one.
-                  </Trans>
-                </p>
-              </Empty>
-            )}
-          </CardContent>
-        </Card>
+        <PrintersCard printerRoutes={printerRoutes} />
 
-        {/* Assignments */}
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Trans>Assignments</Trans>
-            </CardTitle>
-            <CardDescription>
-              <Trans>
-                Assign printers to locations. Shipping, receiving, and work
-                centers inherit the location default unless overridden.
-              </Trans>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {locations.length > 0 ? (
-              <div className="flex flex-col">
-                {locations.map((location) => {
-                  const assignment = printing?.assignments?.[location.id];
-                  const locationWCs =
-                    workCentersByLocation.get(location.id) ?? [];
-
-                  return (
-                    <LocationSection
-                      key={location.id}
-                      locationId={location.id}
-                      locationName={location.name}
-                      assignment={assignment ?? null}
-                      workCenters={locationWCs}
-                      printerRouteOptions={printerRouteOptions}
-                      printerRouteMap={printerRouteMap}
-                      onUpdate={submitAssignment}
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                <Trans>No locations found.</Trans>
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </VStack>
-
-      {newPrinterDisclosure.isOpen && (
-        <Modal
-          open
-          onOpenChange={(open) => {
-            if (!open) newPrinterDisclosure.onClose();
-          }}
-        >
-          <ModalContent size="large">
-            <ValidatedForm
-              method="post"
-              validator={printerRouteValidator}
-              fetcher={routeFetcher}
-              defaultValues={{ format: "zpl" }}
-              className="flex flex-col h-full"
-            >
-              <input type="hidden" name="intent" value="upsertRoute" />
-              <ModalHeader>
-                <ModalTitle>
-                  <Trans>Add Printer</Trans>
-                </ModalTitle>
-              </ModalHeader>
-              <ModalBody>
-                <div className="flex flex-col gap-4">
-                  <div className="grid grid-cols-1 gap-4">
-                    <Input
-                      name="name"
-                      label={t`Name`}
-                      placeholder={t`e.g. Zebra 2x1`}
-                    />
-                    <Select
-                      name="format"
-                      label={t`Format`}
-                      options={formatOptions}
-                    />
-
-                    <Select
-                      name="mediaSizeId"
-                      label={t`Media Size`}
-                      options={mediaSizeOptions}
-                    />
-                    <Input
-                      name="templateId"
-                      label={t`Template ID`}
-                      placeholder={t`Leave blank for built-in`}
-                    />
-
-                    <Input
-                      name="printerUrl"
-                      label={t`Printer URL`}
-                      placeholder="https://pbx-XXXX.pbxz.cloud/api/v1/print/..."
-                    />
-                    <Input
-                      name="apiKey"
-                      label={t`API Key`}
-                      placeholder={t`Optional`}
-                    />
-                  </div>
-                </div>
-              </ModalBody>
-              <ModalFooter>
-                <HStack>
-                  <Button
-                    size="md"
-                    variant="solid"
-                    onClick={newPrinterDisclosure.onClose}
-                  >
-                    <Trans>Cancel</Trans>
-                  </Button>
-                  <Submit>
-                    <Trans>Add Printer</Trans>
-                  </Submit>
-                </HStack>
-              </ModalFooter>
-            </ValidatedForm>
-          </ModalContent>
-        </Modal>
-      )}
-
-      {deletePrinterDisclosure.isOpen && printerToDelete && (
-        <ConfirmDelete
-          action={path.to.deletePrinterRoute(printerToDelete.id)}
-          isOpen={deletePrinterDisclosure.isOpen}
-          name={printerToDelete.name}
-          text={t`Are you sure you want to delete the printer "${printerToDelete.name}"? Any assignments referencing this printer will be cleared. This cannot be undone.`}
-          onCancel={() => {
-            deletePrinterDisclosure.onClose();
-            setPrinterToDelete(null);
-          }}
-          onSubmit={() => {
-            deletePrinterDisclosure.onClose();
-            setPrinterToDelete(null);
-          }}
+        <AssignmentsCard
+          printing={printing}
+          printerRoutes={printerRoutes}
+          locations={locations}
+          workCenters={workCenters}
         />
-      )}
+      </VStack>
       <Outlet />
     </ScrollArea>
-  );
-}
-
-function LocationSection({
-  locationId,
-  locationName,
-  assignment,
-  workCenters,
-  printerRouteOptions,
-  printerRouteMap,
-  onUpdate
-}: {
-  locationId: string;
-  locationName: string;
-  assignment: LocationAssignment | null;
-  workCenters: { id: string; name: string }[];
-  printerRouteOptions: { value: string; label: string }[];
-  printerRouteMap: Map<string, string>;
-  onUpdate: (data: {
-    locationId: string;
-    context: string;
-    contextId?: string;
-    printerRouteId?: string;
-    autoPrint?: boolean;
-  }) => void;
-}) {
-  const defaultPrinterId = assignment?.defaultPrinterRouteId ?? null;
-  const defaultPrinterName = defaultPrinterId
-    ? (printerRouteMap.get(defaultPrinterId) ?? null)
-    : null;
-
-  return (
-    <div className="border-b border-border last:border-b-0">
-      {/* Location default */}
-      <AssignmentRow
-        label={locationName}
-        icon={<LuMapPin />}
-        isBold
-        printerRouteId={defaultPrinterId}
-        inheritedName={null}
-        autoPrint={assignment?.defaultAutoPrint ?? true}
-        printerRouteOptions={printerRouteOptions}
-        onPrinterChange={(printerRouteId) =>
-          onUpdate({
-            locationId,
-            context: "default",
-            printerRouteId,
-            autoPrint: printerRouteId
-              ? true
-              : (assignment?.defaultAutoPrint ?? false)
-          })
-        }
-        onAutoPrintChange={(autoPrint) =>
-          onUpdate({
-            locationId,
-            context: "default",
-            printerRouteId: defaultPrinterId ?? undefined,
-            autoPrint
-          })
-        }
-      />
-
-      {/* Shipping */}
-      <AssignmentRow
-        label="Shipping"
-        icon={<LuTruck />}
-        isIndented
-        printerRouteId={assignment?.shipping?.printerRouteId ?? null}
-        inheritedName={defaultPrinterName}
-        autoPrint={assignment?.shipping?.autoPrint ?? true}
-        printerRouteOptions={printerRouteOptions}
-        onPrinterChange={(printerRouteId) =>
-          onUpdate({
-            locationId,
-            context: "shipping",
-            printerRouteId,
-            autoPrint: printerRouteId
-              ? true
-              : (assignment?.shipping?.autoPrint ?? false)
-          })
-        }
-        onAutoPrintChange={(autoPrint) =>
-          onUpdate({
-            locationId,
-            context: "shipping",
-            printerRouteId: assignment?.shipping?.printerRouteId ?? undefined,
-            autoPrint
-          })
-        }
-      />
-
-      {/* Receiving */}
-      <AssignmentRow
-        label="Receiving"
-        icon={<LuHandCoins />}
-        isIndented
-        printerRouteId={assignment?.receiving?.printerRouteId ?? null}
-        inheritedName={defaultPrinterName}
-        autoPrint={assignment?.receiving?.autoPrint ?? true}
-        printerRouteOptions={printerRouteOptions}
-        onPrinterChange={(printerRouteId) =>
-          onUpdate({
-            locationId,
-            context: "receiving",
-            printerRouteId,
-            autoPrint: printerRouteId
-              ? true
-              : (assignment?.receiving?.autoPrint ?? false)
-          })
-        }
-        onAutoPrintChange={(autoPrint) =>
-          onUpdate({
-            locationId,
-            context: "receiving",
-            printerRouteId: assignment?.receiving?.printerRouteId ?? undefined,
-            autoPrint
-          })
-        }
-      />
-
-      {/* Inventory */}
-      <AssignmentRow
-        label="Inventory"
-        icon={<LuPackage />}
-        isIndented
-        printerRouteId={assignment?.inventory?.printerRouteId ?? null}
-        inheritedName={defaultPrinterName}
-        autoPrint={assignment?.inventory?.autoPrint ?? true}
-        printerRouteOptions={printerRouteOptions}
-        onPrinterChange={(printerRouteId) =>
-          onUpdate({
-            locationId,
-            context: "inventory",
-            printerRouteId,
-            autoPrint: printerRouteId
-              ? true
-              : (assignment?.inventory?.autoPrint ?? false)
-          })
-        }
-        onAutoPrintChange={(autoPrint) =>
-          onUpdate({
-            locationId,
-            context: "inventory",
-            printerRouteId: assignment?.inventory?.printerRouteId ?? undefined,
-            autoPrint
-          })
-        }
-      />
-
-      {/* Work Centers */}
-      {workCenters.map((wc) => {
-        const wcAssignment = assignment?.workCenters?.[wc.id];
-        return (
-          <AssignmentRow
-            key={wc.id}
-            label={wc.name}
-            icon={<LuWrench />}
-            isIndented
-            printerRouteId={wcAssignment?.printerRouteId ?? null}
-            inheritedName={defaultPrinterName}
-            autoPrint={wcAssignment?.autoPrint ?? true}
-            printerRouteOptions={printerRouteOptions}
-            onPrinterChange={(printerRouteId) =>
-              onUpdate({
-                locationId,
-                context: "workCenter",
-                contextId: wc.id,
-                printerRouteId,
-                autoPrint: printerRouteId
-                  ? true
-                  : (wcAssignment?.autoPrint ?? false)
-              })
-            }
-            onAutoPrintChange={(autoPrint) =>
-              onUpdate({
-                locationId,
-                context: "workCenter",
-                contextId: wc.id,
-                printerRouteId: wcAssignment?.printerRouteId ?? undefined,
-                autoPrint
-              })
-            }
-          />
-        );
-      })}
-    </div>
-  );
-}
-
-function AssignmentRow({
-  label,
-  icon,
-  isBold,
-  isIndented,
-  printerRouteId,
-  inheritedName,
-  autoPrint,
-  printerRouteOptions,
-  onPrinterChange,
-  onAutoPrintChange
-}: {
-  label: string;
-  icon: ReactNode;
-  isBold?: boolean;
-  isIndented?: boolean;
-  printerRouteId: string | null;
-  inheritedName: string | null;
-  autoPrint: boolean;
-  printerRouteOptions: { value: string; label: string }[];
-  onPrinterChange: (printerRouteId: string) => void;
-  onAutoPrintChange: (autoPrint: boolean) => void;
-}) {
-  const displayState = printerRouteId
-    ? ("assigned" as const)
-    : inheritedName
-      ? ("inherited" as const)
-      : ("missing" as const);
-
-  const placeholder =
-    displayState === "inherited"
-      ? `inherits ${inheritedName}`
-      : displayState === "missing"
-        ? "No printer"
-        : undefined;
-
-  return (
-    <div
-      className={`flex items-center justify-between py-2.5 ${isIndented ? "pl-7" : ""} ${!isBold ? "border-t border-border/50" : ""}`}
-    >
-      <div className="flex items-center gap-2">
-        <div className="size-7 bg-muted rounded-lg flex items-center justify-center shrink-0">
-          <span className="size-4 text-muted-foreground">{icon}</span>
-        </div>
-        <span
-          className={`text-sm ${isBold ? "font-medium" : "text-muted-foreground"}`}
-        >
-          {label}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <div className="w-[320px]">
-          <Combobox
-            size="sm"
-            value={printerRouteId ?? ""}
-            options={printerRouteOptions}
-            onChange={(selected) => onPrinterChange(selected)}
-            isClearable
-            placeholder={placeholder}
-          />
-        </div>
-
-        <div className="flex items-center gap-1.5">
-          <Switch
-            variant="small"
-            checked={autoPrint}
-            onCheckedChange={onAutoPrintChange}
-          />
-          <span className="text-xs text-muted-foreground">Auto-print</span>
-        </div>
-      </div>
-    </div>
   );
 }
