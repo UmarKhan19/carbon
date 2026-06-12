@@ -333,7 +333,12 @@ function jobTravelerBlocks(): DocumentBlock[] {
   return [
     { id: "header", type: "header", visible: true },
     { id: "jobDetails", type: "jobDetails", visible: true },
-    { id: "operations", type: "operations", visible: true },
+    {
+      id: "operations",
+      type: "operations",
+      visible: true,
+      showWorkInstructions: false
+    },
     { id: "notes", type: "notes", visible: true }
   ];
 }

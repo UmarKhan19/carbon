@@ -28,7 +28,6 @@ export interface JobTravelerData {
   notes?: JSONContent;
   thumbnail?: string | null;
   methodRevision?: string | null;
-  includeWorkInstructions?: boolean;
   theme: DocumentTheme;
   sections: Record<string, ResolvedSection>;
   vars: Record<string, string>;

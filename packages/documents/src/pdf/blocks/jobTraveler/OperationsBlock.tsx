@@ -3,6 +3,7 @@ import type { JSONContent } from "@carbon/react";
 import { formatFactor } from "@carbon/utils";
 import { Image, Text, View } from "@react-pdf/renderer";
 import { generateQRCode } from "../../../qr/qr-code";
+import type { OperationsBlock as OperationsBlockType } from "../../../template";
 import { Note } from "../../components";
 import { tw } from "./tw";
 import type { JobOperationWithSteps, JobTravelerData } from "./types";
@@ -31,8 +32,15 @@ function getParallelizedOrder(
 }
 
 /** Routing table: seq, operation, expected times, QR actions, steps, work instructions. */
-export function OperationsBlock({ data }: { data: JobTravelerData }) {
-  const { jobOperations, includeWorkInstructions = false } = data;
+export function OperationsBlock({
+  block,
+  data
+}: {
+  block: OperationsBlockType;
+  data: JobTravelerData;
+}) {
+  const { jobOperations } = data;
+  const includeWorkInstructions = block.showWorkInstructions ?? false;
 
   return (
     <View style={tw("mb-6 text-xs")}>

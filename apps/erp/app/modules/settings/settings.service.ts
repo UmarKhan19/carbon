@@ -857,17 +857,6 @@ export async function updateIntegrationMetadata(
     .eq("id", integrationId);
 }
 
-export async function updateJobTravelerWorkInstructions(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  jobTravelerIncludeWorkInstructions: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ jobTravelerIncludeWorkInstructions }))
-    .eq("id", companyId);
-}
-
 export async function updateAccountingEnabledSetting(
   client: SupabaseClient<Database>,
   companyId: string,

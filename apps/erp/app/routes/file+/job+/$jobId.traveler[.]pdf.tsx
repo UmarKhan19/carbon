@@ -30,7 +30,6 @@ import {
 } from "~/modules/production/production.service";
 import {
   getCompany,
-  getCompanySettings,
   getDocumentTemplate,
   resolveSections
 } from "~/modules/settings";
@@ -69,17 +68,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load job make methods");
   }
 
-  const [company, companySettings] = await Promise.all([
-    getCompany(serviceRole, job.data.companyId ?? ""),
-    getCompanySettings(serviceRole, job.data.companyId ?? "")
-  ]);
+  const company = await getCompany(serviceRole, job.data.companyId ?? "");
   if (company.error) {
     console.error(company.error);
     throw new Error("Failed to load company");
-  }
-  if (companySettings.error) {
-    console.error(companySettings.error);
-    throw new Error("Failed to load company settings");
   }
 
   const customer = await serviceRole
@@ -248,9 +240,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
             notes={index === 0 ? jobNotes : undefined}
             thumbnail={data.thumbnail}
             methodRevision={data.makeMethod.version?.toString()}
-            includeWorkInstructions={
-              companySettings.data?.jobTravelerIncludeWorkInstructions ?? false
-            }
             template={templateConfig}
             sections={sections}
           />

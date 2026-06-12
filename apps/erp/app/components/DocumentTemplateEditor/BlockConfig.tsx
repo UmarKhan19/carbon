@@ -3,6 +3,7 @@ import type {
   DocumentBlockType,
   KeyValueBlock,
   LineItemsBlock,
+  OperationsBlock,
   RichTextBlock,
   SpacerBlock,
   SummaryBlock,
@@ -139,7 +140,8 @@ export function BlockConfig() {
     block.type === "labelTracking" ||
     block.type === "labelBarcode" ||
     block.type === "labelLogo" ||
-    block.type === "labelEntityId";
+    block.type === "labelEntityId" ||
+    block.type === "operations";
 
   return (
     <div className="flex flex-col gap-4">
@@ -161,6 +163,7 @@ export function BlockConfig() {
 
       {block.type === "header" && <ChromeConfig kind="header" />}
       {block.type === "lineItems" && <LineItemsConfig block={block} />}
+      {block.type === "operations" && <OperationsConfig block={block} />}
       {block.type === "summary" && <SummaryConfig block={block} />}
       {block.type === "terms" && <TermsConfig block={block} />}
       {(block.type === "labelRevision" ||
@@ -380,6 +383,17 @@ function SummaryConfig({ block }: { block: SummaryBlock }) {
         Shown on the tax row, e.g. "VAT 15%".
       </p>
     </div>
+  );
+}
+
+function OperationsConfig({ block }: { block: OperationsBlock }) {
+  const { updateBlock } = useDocumentTemplate();
+  return (
+    <ToggleRow
+      label="Show work instructions"
+      checked={block.showWorkInstructions ?? false}
+      onChange={(v) => updateBlock(block.id, { showWorkInstructions: v })}
+    />
   );
 }
 

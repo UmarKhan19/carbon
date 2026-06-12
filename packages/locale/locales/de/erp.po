@@ -1534,9 +1534,6 @@ msgstr "Konfigurieren Sie Benachrichtigungen für den Fall, dass Wartungseinsät
 msgid "Configure notifications for when new suggestions are submitted."
 msgstr "Konfigurieren Sie Benachrichtigungen für neue eingereichte Vorschläge."
 
-msgid "Configure the content displayed on job traveler PDFs."
-msgstr "Konfigurieren Sie den auf Job-Traveler-PDFs angezeigten Inhalt."
-
 msgid "Configure the default accounts used for various transaction types across your system"
 msgstr "Konfigurieren Sie die Standardkonten, die für verschiedene Transaktionstypen in Ihrem System verwendet werden"
 
@@ -3045,9 +3042,6 @@ msgstr "Aktivieren Sie diese Option, um steuerspezifische Abschreibungsmethoden 
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Aktivieren Sie diese Option, um IDs und Beschreibungen für Rohstoffe zu generieren."
 
-msgid "Enable to include work instructions on job traveler PDFs."
-msgstr "Aktivieren Sie diese Option, um Arbeitsanweisungen in Job-Traveler-PDFs einzubeziehen."
-
 msgid "Enable to start tracking changes to your data."
 msgstr "Aktivieren Sie diese Option, um Änderungen an Ihren Daten zu verfolgen."
 
@@ -4232,12 +4226,6 @@ msgstr "Arbeitsgang"
 
 msgid "Job Operations"
 msgstr "Arbeitsvorgänge"
-
-msgid "Job Traveler"
-msgstr "Arbeitsauftrag-Begleiter"
-
-msgid "Job traveler PDFs include work instructions."
-msgstr "Job-Traveler-PDFs enthalten Arbeitsanweisungen."
 
 msgid "Jobs"
 msgstr "Aufträge"
@@ -8754,12 +8742,6 @@ msgstr "Arbeitszentren"
 
 msgid "Work Instructions"
 msgstr "Arbeitsanweisungen"
-
-msgid "Work instructions are included"
-msgstr "Arbeitsanweisungen sind enthalten"
-
-msgid "Work instructions are not included"
-msgstr "Arbeitsanweisungen sind nicht enthalten"
 
 msgid "Work Phone"
 msgstr "Geschäftstelefon"

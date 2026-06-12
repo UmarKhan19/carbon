@@ -311,10 +311,6 @@ export const webhookValidator = z
     }
   );
 
-export const jobTravelerSettingsValidator = z.object({
-  jobTravelerIncludeWorkInstructions: zfd.checkbox()
-});
-
 export const consoleSettingsValidator = z.object({
   consoleEnabled: zfd.checkbox()
 });

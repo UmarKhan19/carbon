@@ -1534,9 +1534,6 @@ msgstr "Configure notifications for when maintenance dispatches are created from
 msgid "Configure notifications for when new suggestions are submitted."
 msgstr "Configure notifications for when new suggestions are submitted."
 
-msgid "Configure the content displayed on job traveler PDFs."
-msgstr "Configure the content displayed on job traveler PDFs."
-
 msgid "Configure the default accounts used for various transaction types across your system"
 msgstr "Configure the default accounts used for various transaction types across your system"
 
@@ -3045,9 +3042,6 @@ msgstr "Enable to configure tax-specific depreciation methods on asset classes (
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Enable to generate IDs and descriptions for raw materials."
 
-msgid "Enable to include work instructions on job traveler PDFs."
-msgstr "Enable to include work instructions on job traveler PDFs."
-
 msgid "Enable to start tracking changes to your data."
 msgstr "Enable to start tracking changes to your data."
 
@@ -4232,12 +4226,6 @@ msgstr "Job Operation"
 
 msgid "Job Operations"
 msgstr "Job Operations"
-
-msgid "Job Traveler"
-msgstr "Job Traveler"
-
-msgid "Job traveler PDFs include work instructions."
-msgstr "Job traveler PDFs include work instructions."
 
 msgid "Jobs"
 msgstr "Jobs"
@@ -8754,12 +8742,6 @@ msgstr "Work Centers"
 
 msgid "Work Instructions"
 msgstr "Work Instructions"
-
-msgid "Work instructions are included"
-msgstr "Work instructions are included"
-
-msgid "Work instructions are not included"
-msgstr "Work instructions are not included"
 
 msgid "Work Phone"
 msgstr "Work Phone"

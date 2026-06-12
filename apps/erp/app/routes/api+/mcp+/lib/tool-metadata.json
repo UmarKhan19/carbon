@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-12T08:22:51.608Z",
-  "totalTools": 1188,
+  "generated": "2026-06-12T08:34:31.151Z",
+  "totalTools": 1187,
   "modules": 15,
   "tools": [
     {
@@ -33695,33 +33695,6 @@
         "required": [
           "integrationId",
           "metadata"
-        ]
-      }
-    },
-    {
-      "name": "settings_updateJobTravelerWorkInstructions",
-      "module": "settings",
-      "classification": "WRITE",
-      "description": "update job traveler work instructions",
-      "paramCount": 1,
-      "serviceParams": [
-        "client",
-        "companyId",
-        "jobTravelerIncludeWorkInstructions"
-      ],
-      "injectAuth": [
-        "companyId",
-        "updatedBy"
-      ],
-      "schema": {
-        "type": "object",
-        "properties": {
-          "jobTravelerIncludeWorkInstructions": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "jobTravelerIncludeWorkInstructions"
         ]
       }
     },

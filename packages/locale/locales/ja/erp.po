@@ -1534,9 +1534,6 @@ msgstr "保全ディスパッチが作業現場から作成されるときの通
 msgid "Configure notifications for when new suggestions are submitted."
 msgstr "新しい提案が送信されたときの通知を設定します。"
 
-msgid "Configure the content displayed on job traveler PDFs."
-msgstr "ジョブトラベラーPDFに表示されるコンテンツを設定します。"
-
 msgid "Configure the default accounts used for various transaction types across your system"
 msgstr "様々なトランザクションタイプに使用されるデフォルトアカウントをシステム全体で設定します"
 
@@ -3045,9 +3042,6 @@ msgstr "税固有の減価償却方法を資産クラスで設定するために
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "有効にして、原材料のIDと説明を生成します。"
 
-msgid "Enable to include work instructions on job traveler PDFs."
-msgstr "ジョブトラベラーPDFに作業指示を含めるには有効にしてください。"
-
 msgid "Enable to start tracking changes to your data."
 msgstr "データへの変更の追跡を開始するには有効にしてください。"
 
@@ -4232,12 +4226,6 @@ msgstr "作業操作"
 
 msgid "Job Operations"
 msgstr "ジョブ操作"
-
-msgid "Job Traveler"
-msgstr "ジョブトラベラー"
-
-msgid "Job traveler PDFs include work instructions."
-msgstr "ジョブトラベラーPDFに作業指示が含まれています。"
 
 msgid "Jobs"
 msgstr "ジョブ"
@@ -8754,12 +8742,6 @@ msgstr "作業センター"
 
 msgid "Work Instructions"
 msgstr "作業指示"
-
-msgid "Work instructions are included"
-msgstr "作業指示が含まれています"
-
-msgid "Work instructions are not included"
-msgstr "作業指示は含まれていません"
 
 msgid "Work Phone"
 msgstr "仕事用電話"

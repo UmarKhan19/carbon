@@ -34,7 +34,6 @@ interface JobTravelerProps extends PDF {
   bomId?: string;
   notes?: JSONContent;
   thumbnail?: string | null;
-  includeWorkInstructions?: boolean;
   template?: DocumentTemplate | null;
   sections?: Record<string, ResolvedSection>;
 }
@@ -71,7 +70,6 @@ function buildData(
     notes: props.notes,
     thumbnail: props.thumbnail,
     methodRevision: props.methodRevision,
-    includeWorkInstructions: props.includeWorkInstructions,
     theme: template.theme,
     sections,
     vars,
@@ -117,7 +115,6 @@ const JobTravelerPDF = ({
   notes,
   thumbnail,
   title = "Job Traveler",
-  includeWorkInstructions = false,
   template,
   sections = {}
 }: JobTravelerProps) => {
@@ -166,7 +163,6 @@ const JobTravelerPDF = ({
         notes={notes}
         thumbnail={thumbnail}
         methodRevision={jobMakeMethod?.version?.toString()}
-        includeWorkInstructions={includeWorkInstructions}
         template={template}
         sections={sections}
       />

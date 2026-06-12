@@ -114,7 +114,12 @@ const termsBlock = z.object({
 });
 /** Job Traveler built-ins (data-bound; render the existing bespoke content). */
 const jobDetailsBlock = builtInBlock("jobDetails");
-const operationsBlock = builtInBlock("operations");
+const operationsBlock = z.object({
+  ...baseFields,
+  type: z.literal("operations"),
+  /** Print the full work instructions / procedure steps under each operation. */
+  showWorkInstructions: z.boolean().default(false)
+});
 /** Issue built-ins (data-bound; render the existing bespoke content). */
 const issueDetailsBlock = builtInBlock("issueDetails");
 const associationsBlock = builtInBlock("associations");

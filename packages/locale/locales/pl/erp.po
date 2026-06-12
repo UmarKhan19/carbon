@@ -1534,9 +1534,6 @@ msgstr "Skonfiguruj powiadomienia dla dyspozycji konserwacyjnych tworzonych z ha
 msgid "Configure notifications for when new suggestions are submitted."
 msgstr "Skonfiguruj powiadomienia dla nowych przesłanych sugestii."
 
-msgid "Configure the content displayed on job traveler PDFs."
-msgstr "Skonfiguruj zawartość wyświetlaną w plikach PDF podróżnika zadania."
-
 msgid "Configure the default accounts used for various transaction types across your system"
 msgstr "Skonfiguruj domyślne konta używane dla różnych typów transakcji w całym systemie"
 
@@ -3045,9 +3042,6 @@ msgstr "Włącz, aby skonfigurować metody amortyzacji specyficzne dla podatku n
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "Włącz, aby generować identyfikatory i opisy dla surowców."
 
-msgid "Enable to include work instructions on job traveler PDFs."
-msgstr "Włącz, aby dołączyć instrukcje pracy do plików PDF podróżnika zadania."
-
 msgid "Enable to start tracking changes to your data."
 msgstr "Włącz, aby rozpocząć śledzenie zmian w Twoich danych."
 
@@ -4232,12 +4226,6 @@ msgstr "Operacja zadania"
 
 msgid "Job Operations"
 msgstr "Operacje Zadań"
-
-msgid "Job Traveler"
-msgstr "Dokument Podróży Pracy"
-
-msgid "Job traveler PDFs include work instructions."
-msgstr "Pliki PDF podróżnika zadania zawierają instrukcje pracy."
 
 msgid "Jobs"
 msgstr "Zadania"
@@ -8754,12 +8742,6 @@ msgstr "Centra pracy"
 
 msgid "Work Instructions"
 msgstr "Instrukcje pracy"
-
-msgid "Work instructions are included"
-msgstr "Instrukcje pracy są dołączone"
-
-msgid "Work instructions are not included"
-msgstr "Instrukcje pracy nie są uwzględnione"
 
 msgid "Work Phone"
 msgstr "Telefon służbowy"
