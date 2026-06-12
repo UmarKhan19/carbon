@@ -52,6 +52,21 @@ export const SAMPLE_QUOTE = {
       taxPercent: 0.06,
       additionalCharges: {},
       externalNotes: {}
+    },
+    {
+      // Long title + description — exercises the Line Items text overflow
+      // option (wrap grows the row; truncate clamps each to one line).
+      id: "line-3",
+      status: "Active",
+      itemReadableId:
+        "ASSEMBLY-HOUSING-ANODIZED-LONG-PART-NUMBER-FOR-OVERFLOW-0001",
+      description:
+        "Fully machined precision aluminium housing assembly with anodized finish, integrated mounting flange, and laser-etched serial marking — used to verify line-item text wrap versus truncate behaviour",
+      quantity: [2],
+      unitPricePrecision: 2,
+      taxPercent: 0.06,
+      additionalCharges: {},
+      externalNotes: {}
     }
   ],
   quoteLinePrices: [
@@ -70,6 +85,14 @@ export const SAMPLE_QUOTE = {
       convertedNetExtendedPrice: 48,
       convertedShippingCost: 0,
       leadTime: 7
+    },
+    {
+      quoteLineId: "line-3",
+      quantity: 2,
+      convertedUnitPrice: 120,
+      convertedNetExtendedPrice: 240,
+      convertedShippingCost: 0,
+      leadTime: 21
     }
   ],
   quoteCustomerDetails: {
