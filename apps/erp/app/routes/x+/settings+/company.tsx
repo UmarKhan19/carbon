@@ -17,8 +17,8 @@ import {
   TooltipTrigger,
   VStack
 } from "@carbon/react";
-import { msg, t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
+import { msg } from "@lingui/core/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import { LuKeySquare } from "react-icons/lu";
 import type { ActionFunctionArgs } from "react-router";
 import { data } from "react-router";
@@ -65,6 +65,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Company() {
+  const { t } = useLingui();
   const routeData = useRouteData<{ company: CompanyType }>(
     path.to.authenticatedRoot
   );
