@@ -5450,6 +5450,9 @@ msgstr "打开"
 msgid "Open Actions"
 msgstr "开放操作"
 
+msgid "Open an NCR for MRB disposition"
+msgstr ""
+
 msgid "Open Audit Log"
 msgstr "打开审计日志"
 
@@ -6311,6 +6314,9 @@ msgstr "录音"
 msgid "Record deleted"
 msgstr "记录已删除"
 
+msgid "Record the inspection result for this sample."
+msgstr ""
+
 msgid "Records"
 msgstr "记录"
 
@@ -6707,6 +6713,10 @@ msgstr "销售条款和条件"
 
 msgid "Sample"
 msgstr "样本"
+
+#. placeholder {0}: idx + 1
+msgid "Sample {0}"
+msgstr ""
 
 msgid "Sample Size"
 msgstr "样本量"
@@ -7389,8 +7399,12 @@ msgstr "州/省"
 
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
-msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr "统计验收失败，因此整个批次被视为不符合要求 (ISO 9001:2015 §8.7)。所有 {0} 个实体 — {passes} 个抽样合格品、{fails} 个不合格品和 {1} 个未检验品 — 将被标记为已拒收。不符合项报告 (NCR) 将自动开启以供物料评审委员会 (MRB) 处置。"
+msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
+msgstr ""
+
+#. placeholder {0}: inspection.lotSize
+msgid "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
+msgstr ""
 
 msgid "Status"
 msgstr "状态"
@@ -7744,8 +7758,14 @@ msgstr "以下行项目缺少价格或交货期："
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
 msgstr "最迟下达此采购订单的日期，以便在考虑供应商交货期的情况下按需求日期前送达。"
 
-msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
-msgstr "该批次仍将被拒收，但在至少配置一个问题类型之前，无法自动创建NCR。"
+msgid "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+msgstr ""
+
+msgid "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
+msgstr ""
+
+msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
+msgstr ""
 
 msgid "The new version number of the method"
 msgstr "该方法的新版本号"

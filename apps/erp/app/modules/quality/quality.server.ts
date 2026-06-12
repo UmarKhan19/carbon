@@ -55,15 +55,21 @@ export async function upsertInboundInspectionSample(
         .executeTakeFirst();
       if (!inspection) throw new Error("Inspection not found");
 
-      const existing = await trx
-        .selectFrom("inboundInspectionSample")
-        .select(["id"])
-        .where("trackedEntityId", "=", sample.trackedEntityId)
-        .executeTakeFirst();
+      // Serial parts carry a tracked entity that may only be sampled once, so we
+      // upsert by it. Batch / inventory / non-inventory parts have no entity —
+      // each recorded result is a fresh anonymous sample.
+      const trackedEntityId = sample.trackedEntityId || null;
+      const existing = trackedEntityId
+        ? await trx
+            .selectFrom("inboundInspectionSample")
+            .select(["id"])
+            .where("trackedEntityId", "=", trackedEntityId)
+            .executeTakeFirst()
+        : undefined;
 
       const samplePayload = {
         inboundInspectionId: sample.inspectionId,
-        trackedEntityId: sample.trackedEntityId,
+        trackedEntityId,
         status: sample.status,
         notes: sample.notes ?? null,
         inspectedBy: sample.inspectedBy,
@@ -93,53 +99,58 @@ export async function upsertInboundInspectionSample(
         sampleId = inserted.id;
       }
 
-      const trackedEntityStatus =
-        sample.status === "Passed" ? "Available" : "Rejected";
-      await trx
-        .updateTable("trackedEntity")
-        .set({ status: trackedEntityStatus })
-        .where("id", "=", sample.trackedEntityId)
-        .where("companyId", "=", sample.companyId)
-        .execute();
+      // Entity-level side effects only apply when a tracked entity is present
+      // (serial parts). For anonymous samples the lot's disposition handles any
+      // status changes.
+      if (trackedEntityId) {
+        const trackedEntityStatus =
+          sample.status === "Passed" ? "Available" : "Rejected";
+        await trx
+          .updateTable("trackedEntity")
+          .set({ status: trackedEntityStatus })
+          .where("id", "=", trackedEntityId)
+          .where("companyId", "=", sample.companyId)
+          .execute();
 
-      const activity = await trx
-        .insertInto("trackedActivity")
-        .values({
-          type: "Inspect",
-          sourceDocument: "Inbound Inspection",
-          sourceDocumentId: sample.inspectionId,
-          attributes: {
-            Result: sample.status,
-            Receipt: inspection.receiptId,
-            Inspector: sample.inspectedBy,
-            ...(sample.notes ? { Notes: sample.notes } : {})
-          },
-          companyId: sample.companyId,
-          createdBy: sample.inspectedBy
-        })
-        .returning(["id"])
-        .executeTakeFirstOrThrow();
+        const activity = await trx
+          .insertInto("trackedActivity")
+          .values({
+            type: "Inspect",
+            sourceDocument: "Inbound Inspection",
+            sourceDocumentId: sample.inspectionId,
+            attributes: {
+              Result: sample.status,
+              Receipt: inspection.receiptId,
+              Inspector: sample.inspectedBy,
+              ...(sample.notes ? { Notes: sample.notes } : {})
+            },
+            companyId: sample.companyId,
+            createdBy: sample.inspectedBy
+          })
+          .returning(["id"])
+          .executeTakeFirstOrThrow();
 
-      await trx
-        .insertInto("trackedActivityInput")
-        .values({
-          trackedActivityId: activity.id,
-          trackedEntityId: sample.trackedEntityId,
-          quantity: 0,
-          companyId: sample.companyId,
-          createdBy: sample.inspectedBy
-        })
-        .execute();
-      await trx
-        .insertInto("trackedActivityOutput")
-        .values({
-          trackedActivityId: activity.id,
-          trackedEntityId: sample.trackedEntityId,
-          quantity: 0,
-          companyId: sample.companyId,
-          createdBy: sample.inspectedBy
-        })
-        .execute();
+        await trx
+          .insertInto("trackedActivityInput")
+          .values({
+            trackedActivityId: activity.id,
+            trackedEntityId,
+            quantity: 0,
+            companyId: sample.companyId,
+            createdBy: sample.inspectedBy
+          })
+          .execute();
+        await trx
+          .insertInto("trackedActivityOutput")
+          .values({
+            trackedActivityId: activity.id,
+            trackedEntityId,
+            quantity: 0,
+            companyId: sample.companyId,
+            createdBy: sample.inspectedBy
+          })
+          .execute();
+      }
 
       const isTerminal =
         inspection.status === "Passed" ||

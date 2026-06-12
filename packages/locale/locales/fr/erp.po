@@ -5450,6 +5450,9 @@ msgstr "Ouvrir"
 msgid "Open Actions"
 msgstr "Actions ouvertes"
 
+msgid "Open an NCR for MRB disposition"
+msgstr ""
+
 msgid "Open Audit Log"
 msgstr "Ouvrir le journal d'audit"
 
@@ -6311,6 +6314,9 @@ msgstr "Enregistrer"
 msgid "Record deleted"
 msgstr "Enregistrement supprimé"
 
+msgid "Record the inspection result for this sample."
+msgstr ""
+
 msgid "Records"
 msgstr "Enregistrements"
 
@@ -6707,6 +6713,10 @@ msgstr "Conditions générales de vente"
 
 msgid "Sample"
 msgstr "Échantillon"
+
+#. placeholder {0}: idx + 1
+msgid "Sample {0}"
+msgstr ""
 
 msgid "Sample Size"
 msgstr "Taille de l'échantillon"
@@ -7389,8 +7399,12 @@ msgstr "État / Province"
 
 #. placeholder {0}: lotEntities.length
 #. placeholder {1}: Math.max(0, lotEntities.length - inspected)
-msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected. An NCR will be opened automatically for MRB disposition."
-msgstr "L'acceptation statistique a échoué, de sorte que l'ensemble du lot est considéré comme non conforme (ISO 9001:2015 §8.7). Toutes les {0} entités — {passes} passage(s) échantillonné(s), {fails} défaillance(s) et {1} non inspectée(s) — seront marquées comme Rejetées. Un NCR sera ouvert automatiquement pour la disposition du MRB."
+msgid "Statistical acceptance failed, so the entire lot is considered non-conforming (ISO 9001:2015 §8.7). All {0} entities — {passes} sampled pass(es), {fails} failure(s), and {1} un-inspected — will be marked Rejected."
+msgstr ""
+
+#. placeholder {0}: inspection.lotSize
+msgid "Statistical acceptance failed, so the entire lot of {0} is considered non-conforming (ISO 9001:2015 §8.7) — {passes} sampled pass(es) and {fails} failure(s)."
+msgstr ""
 
 msgid "Status"
 msgstr "Statut"
@@ -7744,8 +7758,14 @@ msgstr "Les articles de ligne suivants n'ont pas de prix ou de délais de livrai
 msgid "The latest date to place this PO so it arrives by the need-by date, given the supplier's lead time."
 msgstr "La date limite pour passer cette commande afin qu'elle arrive à la date requise, compte tenu du délai de livraison du fournisseur."
 
-msgid "The lot will still be rejected, but an NCR cannot be auto-created until at least one Issue Type is configured."
-msgstr "Le lot sera toujours rejeté, mais une NCR ne peut pas être créée automatiquement tant qu'au moins un type de problème n'est pas configuré."
+msgid "The lot stays open so you can keep inspecting and disposition later. Sampled outcomes are preserved."
+msgstr ""
+
+msgid "The lot will be marked Passed. {fails} sampled failure(s) are recorded for your records."
+msgstr ""
+
+msgid "The lot will still be rejected, but an NCR cannot be created until at least one Issue Type is configured."
+msgstr ""
 
 msgid "The new version number of the method"
 msgstr "Le nouveau numéro de version de la méthode"

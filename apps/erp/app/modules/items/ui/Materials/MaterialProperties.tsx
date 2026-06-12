@@ -708,28 +708,25 @@ const MaterialProperties = ({ data }: MaterialPropertiesProps) => {
             }}
           />
         </ValidatedForm>
-        {(routeData?.materialSummary?.itemTrackingType === "Serial" ||
-          routeData?.materialSummary?.itemTrackingType === "Batch") && (
-          <ValidatedForm
-            defaultValues={{
-              requiresInspection:
-                routeData?.materialSummary?.requiresInspection ?? false
+        <ValidatedForm
+          defaultValues={{
+            requiresInspection:
+              routeData?.materialSummary?.requiresInspection ?? false
+          }}
+          validator={z.object({
+            requiresInspection: zfd.checkbox()
+          })}
+          className="w-full"
+        >
+          <Boolean
+            label={t`Requires Inspection`}
+            name="requiresInspection"
+            variant="small"
+            onChange={(value) => {
+              onUpdate("requiresInspection", value ? "on" : "off");
             }}
-            validator={z.object({
-              requiresInspection: zfd.checkbox()
-            })}
-            className="w-full"
-          >
-            <Boolean
-              label={t`Requires Inspection`}
-              name="requiresInspection"
-              variant="small"
-              onChange={(value) => {
-                onUpdate("requiresInspection", value ? "on" : "off");
-              }}
-            />
-          </ValidatedForm>
-        )}
+          />
+        </ValidatedForm>
         <ValidatedForm
           defaultValues={{
             tags: routeData?.materialSummary?.tags ?? []

@@ -11863,7 +11863,7 @@ export type Database = {
           inspectedBy: string | null
           notes: string | null
           status: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId: string
+          trackedEntityId: string | null
           updatedAt: string | null
           updatedBy: string | null
         }
@@ -11877,7 +11877,7 @@ export type Database = {
           inspectedBy?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId: string
+          trackedEntityId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }
@@ -11891,7 +11891,7 @@ export type Database = {
           inspectedBy?: string | null
           notes?: string | null
           status?: Database["public"]["Enums"]["inboundInspectionSampleStatus"]
-          trackedEntityId?: string
+          trackedEntityId?: string | null
           updatedAt?: string | null
           updatedBy?: string | null
         }

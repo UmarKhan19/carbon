@@ -542,28 +542,25 @@ const ToolProperties = ({ data }: ToolPropertiesProps) => {
           }}
         />
       </ValidatedForm>
-      {(routeData?.toolSummary?.itemTrackingType === "Serial" ||
-        routeData?.toolSummary?.itemTrackingType === "Batch") && (
-        <ValidatedForm
-          defaultValues={{
-            requiresInspection:
-              (routeData?.toolSummary as any)?.requiresInspection ?? false
+      <ValidatedForm
+        defaultValues={{
+          requiresInspection:
+            (routeData?.toolSummary as any)?.requiresInspection ?? false
+        }}
+        validator={z.object({
+          requiresInspection: zfd.checkbox()
+        })}
+        className="w-full"
+      >
+        <Boolean
+          label={t`Requires Inspection`}
+          name="requiresInspection"
+          variant="small"
+          onChange={(value) => {
+            onUpdate("requiresInspection", value ? "on" : "off");
           }}
-          validator={z.object({
-            requiresInspection: zfd.checkbox()
-          })}
-          className="w-full"
-        >
-          <Boolean
-            label={t`Requires Inspection`}
-            name="requiresInspection"
-            variant="small"
-            onChange={(value) => {
-              onUpdate("requiresInspection", value ? "on" : "off");
-            }}
-          />
-        </ValidatedForm>
-      )}
+        />
+      </ValidatedForm>
       <ValidatedForm
         defaultValues={{
           tags: routeData?.toolSummary?.tags ?? []
