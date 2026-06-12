@@ -154,7 +154,7 @@ const labelBarcodeBlock = z.object({
     .enum(["qrcode", "pdf417", "code128", "datamatrix"])
     .default("qrcode"),
   value: z.string().default("{label.trackedEntityId}"),
-  placement: z.enum(["right", "full"]).default("right"),
+  placement: z.enum(["right", "full", "center"]).default("right"),
   height: z.number().min(16).max(300).optional()
 });
 /** The company logo. Color in the PDF by default; `monochrome` for B&W / ZPL. */

@@ -121,6 +121,7 @@ export function LabelBarcodeConfig({ block }: { block: LabelBarcodeBlock }) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="right">Top-right</SelectItem>
+            <SelectItem value="center">Centered</SelectItem>
             <SelectItem value="full">Full width</SelectItem>
           </SelectContent>
         </Select>

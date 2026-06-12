@@ -199,6 +199,19 @@ export function LabelBarcodeBlock({
   }
 
   const size = block.height ?? data.qrCodeSize;
+
+  if (block.placement === "center") {
+    // Centered square in its own full-width row (e.g. a QR-only small label).
+    return (
+      <View style={{ ...tw("w-full flex items-center mt-1"), flexShrink: 0 }}>
+        <Image
+          src={src}
+          style={{ width: size, height: size, objectFit: "contain" }}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={tw("flex items-center justify-center mb-1")}>
       <Image

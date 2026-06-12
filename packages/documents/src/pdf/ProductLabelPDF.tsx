@@ -160,10 +160,12 @@ const ProductLabelPDF = ({
                 const rightBlocks = visibleBlocks.filter(
                   (b) =>
                     b.type === "labelLogo" ||
-                    (b.type === "labelBarcode" && b.placement !== "full")
+                    (b.type === "labelBarcode" && b.placement === "right")
                 );
                 const barcodeBlocks = visibleBlocks.filter(
-                  (b) => b.type === "labelBarcode" && b.placement === "full"
+                  (b) =>
+                    b.type === "labelBarcode" &&
+                    (b.placement === "full" || b.placement === "center")
                 );
                 const entityBlocks = visibleBlocks.filter(
                   (b) => b.type === "labelEntityId"

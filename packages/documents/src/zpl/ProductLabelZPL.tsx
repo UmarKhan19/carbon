@@ -155,6 +155,20 @@ export function generateProductLabelZPL(
             zpl += `^FO${textStartX},${bcY}`;
             zpl += zplBarcode(block.symbology, value, bcHeight);
             yPosition = bcY + bcHeight;
+          } else if (block.placement === "center") {
+            // Centered square that flows below the text (e.g. QR-only label).
+            const gap = 6;
+            const bottomReserve = isSmallLabel ? 30 : 44;
+            const bcY = yPosition + gap;
+            const avail = heightDots - bottomReserve - bcY;
+            const bcSize = Math.max(20, Math.min(qrSize, avail));
+            const bcX = Math.max(
+              textStartX,
+              Math.round((widthDots - bcSize) / 2)
+            );
+            zpl += `^FO${bcX},${bcY}`;
+            zpl += zplBarcode(block.symbology, value, bcSize);
+            yPosition = bcY + bcSize;
           } else {
             // Top-right, like the old QR slot.
             const bcHeight = isSmallLabel ? 80 : 130;
