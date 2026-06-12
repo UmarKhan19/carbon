@@ -3,7 +3,8 @@ import { ThemeToggle } from "./ThemeToggle";
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-[999] h-[68px] flex items-center bg-[var(--canvas-blur)] backdrop-blur-[12px] saturate-[160%] border-b border-border">
+    // z-40 keeps the nav above page content but below the z-50 screenshot lightbox.
+    <header className="sticky top-0 z-40 h-[68px] flex items-center bg-[var(--canvas-blur)] backdrop-blur-[12px] saturate-[160%] border-b border-border">
       <div className="container flex items-center gap-[26px] w-full">
         <a
           className="flex items-center gap-[9px] font-semibold text-base tracking-[-0.02em]"

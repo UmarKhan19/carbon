@@ -4,6 +4,7 @@ import { LuArrowDown, LuPlug, LuTerminal } from "react-icons/lu";
 import { CopyButton } from "./CopyButton";
 import { CLIENTS, type Client, ENDPOINT } from "./mcp-content";
 import { SELECT_CLIENT_EVENT } from "./quickstart-nav";
+import { Screenshot } from "./Screenshot";
 
 const FLOW_META = {
   connector: { Icon: LuPlug, label: "OAuth · no key" },
@@ -160,11 +161,7 @@ export function SetupPipeline() {
                   </pre>
                 </div>
               )}
-              <img
-                src={s.img}
-                alt={s.alt}
-                className="w-full rounded-[9px] block outline outline-1 outline-black/10 -outline-offset-1"
-              />
+              <Screenshot src={s.img} alt={s.alt} />
             </div>
             {i < steps.length - 1 && (
               <div
