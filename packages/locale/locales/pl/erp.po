@@ -1424,7 +1424,7 @@ msgid "Columns"
 msgstr "Kolumny"
 
 msgid "Combine filters"
-msgstr "Łącz filtry"
+msgstr "Połącz filtry"
 
 msgid "Coming soon"
 msgstr "Wkrótce"
@@ -1663,6 +1663,9 @@ msgstr "Skopiuj wszystkie pozycje i ceny do innego klienta lub typu."
 
 msgid "Copy API Key"
 msgstr "Skopiuj klucz API"
+
+msgid "Copy company unique identifier"
+msgstr "Skopiuj unikalny identyfikator firmy"
 
 msgid "Copy consumable number"
 msgstr "Skopiuj numer artykułu zużywalnego"
@@ -2622,7 +2625,7 @@ msgid "Download CSV"
 msgstr "Pobierz CSV"
 
 msgid "Download Labels"
-msgstr "Pobierz etykiety"
+msgstr "Pobierz Etykiety"
 
 msgid "Download PDF"
 msgstr "Pobierz PDF"
@@ -6009,7 +6012,7 @@ msgid "Printer Settings"
 msgstr "Ustawienia drukarki"
 
 msgid "Printer URL"
-msgstr "Adres URL drukarki"
+msgstr "URL drukarki"
 
 msgid "Printers"
 msgstr "Drukarki"

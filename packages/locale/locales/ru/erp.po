@@ -939,7 +939,7 @@ msgid "Assets"
 msgstr "Активы"
 
 msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
-msgstr "Назначьте принтеры местоположениям. Доставка, получение и рабочие центры наследуют значение по умолчанию для местоположения, если не переопределены."
+msgstr "Назначьте принтеры местоположениям. Доставка, получение и рабочие центры наследуют значение по умолчанию для местоположения, если не переопределено."
 
 msgid "Assign To"
 msgstr "Назначить"
@@ -1201,7 +1201,7 @@ msgid "Cancel Job"
 msgstr "Отменить задание"
 
 msgid "Cancel Sales Order"
-msgstr "Отменить заказ на продажу"
+msgstr "Отмена заказа на продажу"
 
 msgid "Cancel SO"
 msgstr "Отменить ПП"
@@ -1663,6 +1663,9 @@ msgstr "Скопируйте все товары и цены другому кл
 
 msgid "Copy API Key"
 msgstr "Копировать API ключ"
+
+msgid "Copy company unique identifier"
+msgstr "Скопировать уникальный идентификатор компании"
 
 msgid "Copy consumable number"
 msgstr "Скопировать номер расходного материала"
@@ -4632,7 +4635,7 @@ msgid "Match any"
 msgstr "Совпадает с любым"
 
 msgid "Match any (OR)"
-msgstr "Совпадение с любым (ИЛИ)"
+msgstr "Совпадать с любым (ИЛИ)"
 
 msgid "Match none"
 msgstr "Не совпадает ни одно"

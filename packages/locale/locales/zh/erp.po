@@ -496,7 +496,7 @@ msgid "Any item group"
 msgstr "任何项目组"
 
 msgid "Any item type"
-msgstr "任何项目类型"
+msgstr "任何物品类型"
 
 msgid "API and Webhooks"
 msgstr "API 和 Webhooks"
@@ -1663,6 +1663,9 @@ msgstr "将所有项目和定价复制到另一个客户或类型。"
 
 msgid "Copy API Key"
 msgstr "复制 API 密钥"
+
+msgid "Copy company unique identifier"
+msgstr "复制公司唯一标识符"
 
 msgid "Copy consumable number"
 msgstr "复制消耗品编号"
@@ -4177,7 +4180,7 @@ msgid "Item {scannedItem} is not the same as the item {expectedItem}"
 msgstr "项目 {scannedItem} 与项目 {expectedItem} 不相同"
 
 msgid "Item filters"
-msgstr "物品筛选器"
+msgstr "项目筛选器"
 
 msgid "Item Group"
 msgstr "物品组"

@@ -1664,6 +1664,9 @@ msgstr "Copia tutti gli articoli e i prezzi a un altro cliente o tipo."
 msgid "Copy API Key"
 msgstr "Copia Chiave API"
 
+msgid "Copy company unique identifier"
+msgstr "Copia identificatore univoco azienda"
+
 msgid "Copy consumable number"
 msgstr "Copia numero consumabile"
 
