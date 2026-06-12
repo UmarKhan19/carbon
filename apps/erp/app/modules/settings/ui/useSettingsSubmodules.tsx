@@ -1,7 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import {
-  LuBarcode,
   LuBox,
   LuCircleCheck,
   LuClipboardCheck,
@@ -69,12 +68,6 @@ export default function useSettingsSubmodules() {
             to: path.to.documentTemplates,
             role: "employee",
             icon: <LuFileText />
-          },
-          {
-            name: t`Labels`,
-            to: path.to.labelsSettings,
-            role: "employee",
-            icon: <LuBarcode />
           },
           {
             name: t`Logos`,

@@ -1049,7 +1049,6 @@ export const path = {
     jobStatus: (id: string) => generatePath(`${x}/job/${id}/status`),
     kanban: (id: string) => generatePath(`${x}/inventory/kanbans/${id}`),
     kanbans: `${x}/inventory/kanbans`,
-    labelsSettings: `${x}/settings/labels`,
     documentTemplates: `${x}/templates`,
     documentSections: `${x}/templates/shared`,
     documentTemplate: (type: string) => generatePath(`${x}/templates/${type}`),
