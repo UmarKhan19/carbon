@@ -169,6 +169,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
             source: "purchaseOrder",
             purchaseOrderId: receiptMetadata.data.sourceDocumentId,
             companyId,
+            userId,
             updatePrices: false,
             updateLeadTimes: true
           }
