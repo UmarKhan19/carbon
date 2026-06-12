@@ -1,9 +1,10 @@
 -- The PDF thumbnail toggle is now per-document-template (Line Items block
--- "Show thumbnails" option). Before dropping the company-level flags, bake the
--- preference of companies that turned thumbnails OFF into their existing
--- document templates so their documents keep rendering the same way.
--- (Companies with no stored template just fall back to the template default,
--- which is thumbnails ON — matching the old column default of true.)
+-- "Show thumbnails" option). The company flag used to be authoritative at
+-- render (the template's own option was ignored), so bake each company's
+-- actual flag value into its existing templates' Line Items block before
+-- dropping the columns — true OR false — so documents render identically.
+-- (Companies with no stored template fall back to the template default of
+-- thumbnails ON, matching the old column default of true.)
 
 -- Sales documents: quote / sales order / sales invoice / packing slip.
 UPDATE "documentTemplate" dt
@@ -13,7 +14,10 @@ SET blocks = (
       WHEN block->>'type' = 'lineItems' THEN jsonb_set(
         block,
         '{options}',
-        COALESCE(block->'options', '{}'::jsonb) || '{"showThumbnails": false}'::jsonb
+        COALESCE(block->'options', '{}'::jsonb)
+          || jsonb_build_object(
+               'showThumbnails', cs."includeThumbnailsOnSalesPdfs"
+             )
       )
       ELSE block
     END
@@ -23,7 +27,6 @@ SET blocks = (
 FROM "companySettings" cs
 WHERE cs.id = dt."companyId"
   AND dt."documentType" IN ('quote', 'salesOrder', 'salesInvoice', 'packingSlip')
-  AND cs."includeThumbnailsOnSalesPdfs" = false
   AND dt.blocks @> '[{"type":"lineItems"}]';
 
 -- Purchasing documents: purchase order.
@@ -34,7 +37,10 @@ SET blocks = (
       WHEN block->>'type' = 'lineItems' THEN jsonb_set(
         block,
         '{options}',
-        COALESCE(block->'options', '{}'::jsonb) || '{"showThumbnails": false}'::jsonb
+        COALESCE(block->'options', '{}'::jsonb)
+          || jsonb_build_object(
+               'showThumbnails', cs."includeThumbnailsOnPurchasingPdfs"
+             )
       )
       ELSE block
     END
@@ -44,7 +50,6 @@ SET blocks = (
 FROM "companySettings" cs
 WHERE cs.id = dt."companyId"
   AND dt."documentType" = 'purchaseOrder'
-  AND cs."includeThumbnailsOnPurchasingPdfs" = false
   AND dt.blocks @> '[{"type":"lineItems"}]';
 
 ALTER TABLE "companySettings"
