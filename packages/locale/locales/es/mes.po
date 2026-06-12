@@ -21,10 +21,6 @@ msgstr "{0} - Conjunto {1}"
 msgid "{0} Active"
 msgstr "{0} Activos"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} disponibles"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -63,6 +59,9 @@ msgstr "Agregar"
 
 msgid "Add & Issue"
 msgstr "Agregar y emitir"
+
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "Añade una impresora en la configuración de impresión para imprimir etiquetas directamente."
 
 msgid "Add Inventory"
 msgstr "Agregar inventario"
@@ -105,11 +104,6 @@ msgstr "Error de autenticación"
 
 msgid "Batch"
 msgstr "Lote"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "Lote {0} ({1} disponibles)"
 
 msgid "Batch is not available"
 msgstr "El lote no está disponible"
@@ -272,6 +266,9 @@ msgstr "Fuera de servicio"
 msgid "Download"
 msgstr "Descargar"
 
+msgid "Download Labels"
+msgstr "Descargar Etiquetas"
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Arrastre y suelte un archivo aquí, o haga clic para seleccionar un archivo"
 
@@ -280,8 +277,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Se canceló el arrastre de {0}."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Vence {0}"
 
@@ -386,6 +383,9 @@ msgstr "¿Ideas, sugerencias o problemas?"
 
 msgid "Impact"
 msgstr "Impacto"
+
+msgid "Imperial"
+msgstr "Imperial"
 
 msgid "In Progress"
 msgstr "En progreso"
@@ -501,6 +501,9 @@ msgstr "Materiales"
 msgid "Maximum number of records reached"
 msgstr "Se alcanzó el número máximo de registros"
 
+msgid "Metric"
+msgstr "Métrico"
+
 msgid "Model"
 msgstr "Modelo"
 
@@ -579,6 +582,9 @@ msgstr "No se encontró ninguna opción."
 
 msgid "No options found."
 msgstr "No se encontraron opciones."
+
+msgid "No printer configured"
+msgstr "Sin impresora configurada"
 
 msgid "No recent operations"
 msgstr "No hay operaciones recientes"
@@ -682,6 +688,12 @@ msgstr "Anterior"
 
 msgid "Preventive"
 msgstr "Preventivo"
+
+msgid "Print"
+msgstr "Imprimir"
+
+msgid "Printer Settings"
+msgstr "Configuración de impresora"
 
 msgid "Priority"
 msgstr "Prioridad"
@@ -808,6 +820,9 @@ msgstr "Seleccione un artículo..."
 msgid "Select Batch {0}"
 msgstr "Seleccionar lote {0}"
 
+msgid "Select Printer"
+msgstr "Seleccionar Impresora"
+
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
 msgstr "Seleccionar serie {0}"
@@ -823,10 +838,6 @@ msgstr "Enviar"
 
 msgid "Serial"
 msgstr "Serie"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "Serie {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
@@ -961,9 +972,6 @@ msgstr "Total: {0}"
 
 msgid "Tracking"
 msgstr "Seguimiento"
-
-msgid "Tracking Labels"
-msgstr "Etiquetas de seguimiento"
 
 msgid "Type a message..."
 msgstr "Escriba un mensaje..."

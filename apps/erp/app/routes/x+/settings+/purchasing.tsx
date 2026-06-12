@@ -1,4 +1,4 @@
-import { error, useCarbon } from "@carbon/auth";
+import { error } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
 import {
@@ -9,44 +9,34 @@ import {
   ValidatedForm,
   validator
 } from "@carbon/form";
-import type { JSONContent } from "@carbon/react";
 import {
-  Badge,
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-  generateHTML,
   Heading,
   HStack,
   Label,
   ScrollArea,
   Switch,
   toast,
-  useDebounce,
   VStack
 } from "@carbon/react";
-import { Editor } from "@carbon/react/Editor";
-import { getLocalTimeZone, today } from "@internationalized/date";
 import { msg } from "@lingui/core/macro";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useCallback, useEffect, useState } from "react";
-import { LuCircleCheck } from "react-icons/lu";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect, useFetcher, useLoaderData } from "react-router";
 import CompanyDefaultAttachmentsCard from "~/components/CompanyDefaultAttachmentsCard";
 import { EmailRecipients, Users } from "~/components/Form";
 import Country from "~/components/Form/Country";
-import { usePermissions, useUser } from "~/hooks";
 import {
   accountsPayableBillingAddressValidator,
   defaultSupplierCcValidator,
   getAccountsPayableBillingAddress,
   getCompanySettings,
-  getTerms,
   purchasePriceUpdateTimingTypes,
   purchasePriceUpdateTimingValidator,
   supplierQuoteNotificationValidator,
@@ -55,7 +45,6 @@ import {
   updateDefaultSupplierCc,
   updateLeadTimesOnReceiptSetting,
   updatePurchasePriceUpdateTimingSetting,
-  updatePurchasingPdfThumbnails,
   updateShowSupplierReadableIdSetting,
   updateSupplierQuoteNotificationSetting
 } from "~/modules/settings";
@@ -72,10 +61,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     view: "settings"
   });
 
-  const [companySettings, terms, apBillingAddress, defaultAttachmentsResult] =
+  const [companySettings, apBillingAddress, defaultAttachmentsResult] =
     await Promise.all([
       getCompanySettings(client, companyId),
-      getTerms(client, companyId),
       getAccountsPayableBillingAddress(client, companyId),
       client.storage
         .from("private")
@@ -92,16 +80,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     );
   }
 
-  if (terms.error) {
-    throw redirect(
-      path.to.settings,
-      await flash(request, error(terms.error, "Failed to load terms"))
-    );
-  }
-
   return {
     companySettings: companySettings.data,
-    terms: terms.data,
     apBillingAddress: apBillingAddress.data,
     defaultAttachments: defaultAttachmentsResult.data ?? []
   };
@@ -249,23 +229,6 @@ export async function action({ request }: ActionFunctionArgs) {
         message: "Supplier quote notification setting updated"
       };
 
-    case "pdfs": {
-      const pdfEnabled = formData.get("enabled") === "true";
-      const thumbnailsResult = await updatePurchasingPdfThumbnails(
-        client,
-        companyId,
-        pdfEnabled
-      );
-
-      if (thumbnailsResult.error)
-        return {
-          success: false,
-          message: thumbnailsResult.error.message
-        };
-
-      return { success: true, message: "PDF settings updated" };
-    }
-
     case "accountsPayableBillingAddress":
       const apBillingValidation = await validator(
         accountsPayableBillingAddressValidator
@@ -335,15 +298,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function PurchasingSettingsRoute() {
   const { t } = useLingui();
-  const { companySettings, terms, apBillingAddress, defaultAttachments } =
+  const { companySettings, apBillingAddress, defaultAttachments } =
     useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
-  const permissions = usePermissions();
-  const { carbon } = useCarbon();
-  const {
-    id: userId,
-    company: { id: companyId }
-  } = useUser();
 
   useEffect(() => {
     if (fetcher.data?.success === true && fetcher?.data?.message) {
@@ -414,38 +371,6 @@ export default function PurchasingSettingsRoute() {
     }
   }, [toggleFetcher.data?.message, toggleFetcher.data?.success]);
 
-  const [purchasingTermsStatus, setPurchasingTermsStatus] = useState<
-    "saved" | "draft"
-  >("saved");
-
-  const handleUpdatePurchasingTerms = (content: JSONContent) => {
-    setPurchasingTermsStatus("draft");
-    onUpdatePurchasingTerms(content);
-  };
-  const onUpdatePurchasingTerms = useDebounce(
-    async (content: JSONContent) => {
-      if (!carbon) return;
-      const { error } = await carbon
-        .from("terms")
-        .update({
-          purchasingTerms: content,
-          updatedAt: today(getLocalTimeZone()).toString(),
-          updatedBy: userId
-        })
-        .eq("id", companyId);
-      if (!error) setPurchasingTermsStatus("saved");
-    },
-    2500,
-    true
-  );
-
-  const onUploadImage = async (file: File) => {
-    // Implement image upload logic here
-    // This is a placeholder function
-    console.error("Image upload not implemented", file);
-    return "";
-  };
-
   return (
     <ScrollArea className="w-full h-[calc(100dvh-49px)]">
       <VStack
@@ -460,45 +385,6 @@ export default function PurchasingSettingsRoute() {
           <Trans>Documents</Trans>
         </p>
 
-        <Card>
-          <HStack className="justify-between items-start">
-            <CardHeader>
-              <CardTitle>
-                <Trans>Purchasing Terms &amp; Conditions</Trans>
-              </CardTitle>
-              <CardDescription>
-                <Trans>
-                  Define the terms and conditions for purchase orders
-                </Trans>
-              </CardDescription>
-            </CardHeader>
-            <CardAction className="py-6">
-              {purchasingTermsStatus === "draft" ? (
-                <Badge variant="secondary">
-                  <Trans>Draft</Trans>
-                </Badge>
-              ) : (
-                <LuCircleCheck className="w-4 h-4 text-emerald-500" />
-              )}
-            </CardAction>
-          </HStack>
-          <CardContent>
-            {permissions.can("update", "settings") ? (
-              <Editor
-                initialValue={(terms.purchasingTerms ?? {}) as JSONContent}
-                onUpload={onUploadImage}
-                onChange={handleUpdatePurchasingTerms}
-              />
-            ) : (
-              <div
-                className="prose dark:prose-invert"
-                dangerouslySetInnerHTML={{
-                  __html: generateHTML(terms.purchasingTerms as JSONContent)
-                }}
-              />
-            )}
-          </CardContent>
-        </Card>
         <CompanyDefaultAttachmentsCard
           files={(defaultAttachments ?? []) as any}
         />
@@ -625,33 +511,6 @@ export default function PurchasingSettingsRoute() {
             </ValidatedForm>
           </Card>
         )}
-
-        <Card>
-          <CardHeader>
-            <HStack className="justify-between items-center">
-              <div>
-                <CardTitle>
-                  <Trans>Include Thumbnails on Purchasing Documents</Trans>
-                </CardTitle>
-                <CardDescription>
-                  <Trans>Show part thumbnails on purchase order PDFs.</Trans>
-                </CardDescription>
-              </div>
-              <Switch
-                checked={
-                  companySettings.includeThumbnailsOnPurchasingPdfs ?? true
-                }
-                onCheckedChange={(checked) => {
-                  toggleFetcher.submit(
-                    { intent: "pdfs", enabled: String(checked) },
-                    { method: "POST" }
-                  );
-                }}
-                disabled={toggleFetcher.state !== "idle"}
-              />
-            </HStack>
-          </CardHeader>
-        </Card>
 
         <p className="mt-4 text-xxs text-foreground/70 uppercase font-light tracking-wide">
           <Trans>Automatic Updates</Trans>

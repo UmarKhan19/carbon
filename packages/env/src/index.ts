@@ -119,6 +119,10 @@ export function isAuthProviderEnabled(provider: AuthProvider) {
   const AUTH_PROVIDERS_LIST = AUTH_PROVIDERS.split(",").map((p) => p.trim());
   return AUTH_PROVIDERS_LIST.includes(provider);
 }
+export const BINDERY_PRESS_API_KEY = getEnv("BINDERY_PRESS_API_KEY", {
+  isRequired: false,
+  isSecret: true
+});
 
 const CARBON_EDITION = getEnv("CARBON_EDITION", {
   isRequired: false,
@@ -156,6 +160,7 @@ export const CLOUDFLARE_TURNSTILE_SECRET_KEY = getEnv(
 );
 
 export const DOMAIN = getEnv("DOMAIN", { isRequired: false }); // preview environments need no domain
+
 export const EXCHANGE_RATES_API_KEY = getEnv("EXCHANGE_RATES_API_KEY", {
   isRequired: false,
   isSecret: true
@@ -243,6 +248,10 @@ export const SLACK_STATE_SECRET = getEnv("SLACK_STATE_SECRET", {
 });
 
 export const SUPABASE_SERVICE_ROLE_KEY = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+export const SUPABASE_JWT_SECRET = getEnv("SUPABASE_JWT_SECRET", {
+  isSecret: true,
+  isRequired: false
+});
 export const SUPABASE_DB_URL = getEnv("SUPABASE_DB_URL", {
   isRequired: true,
   isSecret: true

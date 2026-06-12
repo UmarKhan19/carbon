@@ -21,10 +21,6 @@ msgstr "{0} - सेट {1}"
 msgid "{0} Active"
 msgstr "{0} सक्रिय"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} उपलब्ध"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -63,6 +59,9 @@ msgstr "जोड़ें"
 
 msgid "Add & Issue"
 msgstr "जोड़ें और जारी करें"
+
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "प्रिंटिंग सेटिंग्स में एक प्रिंटर जोड़ें ताकि लेबल सीधे प्रिंट कर सकें।"
 
 msgid "Add Inventory"
 msgstr "इन्वेंटरी जोड़ें"
@@ -105,11 +104,6 @@ msgstr "प्रमाणीकरण त्रुटि"
 
 msgid "Batch"
 msgstr "बैच"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "बैच {0} ({1} उपलब्ध)"
 
 msgid "Batch is not available"
 msgstr "बैच उपलब्ध नहीं है"
@@ -272,6 +266,9 @@ msgstr "डाउन"
 msgid "Download"
 msgstr "डाउनलोड"
 
+msgid "Download Labels"
+msgstr "लेबल डाउनलोड करें"
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "यहाँ एक फ़ाइल को ड्रैग और ड्रॉप करें, या फ़ाइल चुनने के लिए क्लिक करें"
 
@@ -280,8 +277,8 @@ msgid "Dragging {0} cancelled."
 msgstr "\"{0}\" को ड्रैग करना रद्द किया गया।"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Due {0} के लिए"
 
@@ -386,6 +383,9 @@ msgstr "विचार, सुझाव या समस्याएं?"
 
 msgid "Impact"
 msgstr "प्रभाव"
+
+msgid "Imperial"
+msgstr "इंपीरियल"
 
 msgid "In Progress"
 msgstr "प्रगति में"
@@ -501,6 +501,9 @@ msgstr "सामग्री"
 msgid "Maximum number of records reached"
 msgstr "रिकॉर्ड की अधिकतम संख्या तक पहुंच गई"
 
+msgid "Metric"
+msgstr "मीट्रिक"
+
 msgid "Model"
 msgstr "मॉडल"
 
@@ -579,6 +582,9 @@ msgstr "कोई विकल्प नहीं मिला।"
 
 msgid "No options found."
 msgstr "कोई विकल्प नहीं मिला।"
+
+msgid "No printer configured"
+msgstr "कोई प्रिंटर कॉन्फ़िगर नहीं किया गया"
 
 msgid "No recent operations"
 msgstr "कोई हाल के संचालन नहीं"
@@ -682,6 +688,12 @@ msgstr "पिछला"
 
 msgid "Preventive"
 msgstr "निवारक"
+
+msgid "Print"
+msgstr "प्रिंट करें"
+
+msgid "Printer Settings"
+msgstr "प्रिंटर सेटिंग्स"
 
 msgid "Priority"
 msgstr "प्राथमिकता"
@@ -808,6 +820,9 @@ msgstr "एक आइटम चुनें..."
 msgid "Select Batch {0}"
 msgstr "बैच {0} चुनें"
 
+msgid "Select Printer"
+msgstr "प्रिंटर चुनें"
+
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
 msgstr "सीरियल {0} चुनें"
@@ -823,10 +838,6 @@ msgstr "भेजें"
 
 msgid "Serial"
 msgstr "सीरीज़"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "सीरियल {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
@@ -961,9 +972,6 @@ msgstr "कुल: {0}"
 
 msgid "Tracking"
 msgstr "ट्रैकिंग"
-
-msgid "Tracking Labels"
-msgstr "ट्रैकिंग लेबल"
 
 msgid "Type a message..."
 msgstr "एक संदेश लिखें..."

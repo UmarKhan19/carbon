@@ -1,8 +1,49 @@
 import type { LabelSize, ProductLabelItem } from "@carbon/utils";
+import type { DocumentTemplate } from "../template";
+import { interpolateString, resolveTemplate } from "../template";
+
+/** Merge-field values for a label (kept in sync with buildLabelVars). */
+function labelVars(item: ProductLabelItem): Record<string, string> {
+  const str = (v: unknown): string => (v == null ? "" : String(v));
+  return {
+    "item.id": str(item.itemId),
+    "item.revision": str(item.revision),
+    "label.quantity": str(item.quantity),
+    "label.trackingType": str(item.trackingType),
+    "label.number": str(item.number),
+    "label.trackedEntityId": str(item.trackedEntityId)
+  };
+}
+
+/**
+ * Generate ZPL for a tracked-entity label. Honors the `trackingLabel` template:
+ * only visible fields are emitted, and the text fields stack in block order
+ * (QR stays top-right, the entity id stays at the bottom — same partitioning as
+ * the PDF). Extension/custom blocks are skipped (no ZPL equivalent).
+ */
+/** Map a barcode symbology to its ZPL command for a given dot height. */
+function zplBarcode(
+  symbology: string,
+  value: string,
+  heightDots: number
+): string {
+  switch (symbology) {
+    case "code128":
+      return `^BCN,${heightDots},N,N,N^FD${value}^FS`;
+    case "datamatrix":
+      return `^BXN,${Math.max(3, Math.floor(heightDots / 20))},200^FD${value}^FS`;
+    case "qrcode":
+      return `^BQN,2,${Math.max(3, Math.floor(heightDots / 30))}^FD${value}^FS`;
+    default: // pdf417
+      return `^BY2^B7N,${Math.max(2, Math.floor(heightDots / 20))},5,0,0,N^FD${value}^FS`;
+  }
+}
 
 export function generateProductLabelZPL(
   item: ProductLabelItem,
-  labelSize: LabelSize
+  labelSize: LabelSize,
+  template?: DocumentTemplate | null,
+  logo?: { gfa?: string | null; widthDots?: number } | null
 ): string {
   if (!labelSize.zpl) {
     throw new Error("Invalid label size or missing ZPL configuration");
@@ -19,9 +60,11 @@ export function generateProductLabelZPL(
 
   // Calculate positions based on label size
   const textStartX = 20;
-  let fontSize = isSmallLabel ? 25 : 35; // Smaller font for small labels
-  let descFontSize = isSmallLabel ? 18 : 25;
-  let smallFontSize = isSmallLabel ? 12 : 18;
+  const fontSize = isSmallLabel ? 25 : 35; // Smaller font for small labels
+  const descFontSize = isSmallLabel ? 18 : 25;
+  const smallFontSize = isSmallLabel ? 12 : 18;
+  const headingGap = isSmallLabel ? 35 : 50;
+  const descGap = isSmallLabel ? 25 : 35;
 
   // QR code positioning and sizing
   const qrSize = isSmallLabel
@@ -32,49 +75,134 @@ export function generateProductLabelZPL(
     ? widthDots - qrSize - 15 // Tighter spacing on small labels
     : widthDots - qrSize - 40; // More spacing on larger labels
 
-  // Start ZPL command sequence
-  let zpl = "^XA"; // Start format
+  const resolved = resolveTemplate("trackingLabel", template ?? null);
+  const visibleBlocks = resolved.blocks.filter((block) => block.visible);
+  const vars = labelVars(item);
 
-  // Set label dimensions
+  let zpl = "^XA"; // Start format
   zpl += `^PW${widthDots}`;
   zpl += `^LL${heightDots}`;
 
-  // Item ID (larger font)
-  zpl += `^FO${textStartX},30^A0N,${fontSize},${fontSize}^FD${item.itemId}^FS`;
+  // Text fields stack from the top, following block order.
+  let yPosition = 30;
+  const textLine = (size: number, text: string) => {
+    zpl += `^FO${textStartX},${yPosition}^A0N,${size},${size}^FD${text}^FS`;
+  };
 
-  // Revision if available
-  let yPosition = isSmallLabel ? 65 : 80;
-  if (item.revision) {
-    zpl += `^FO${textStartX},${yPosition}^A0N,${descFontSize},${descFontSize}^FDRev: ${item.revision}^FS`;
-    yPosition += isSmallLabel ? 25 : 35;
+  for (const block of visibleBlocks) {
+    switch (block.type) {
+      case "labelHeading":
+        if (item.itemId) {
+          textLine(fontSize, item.itemId);
+          yPosition += headingGap;
+        }
+        break;
+      case "labelRevision":
+        if (item.revision) {
+          textLine(descFontSize, `${block.label || "Rev"}: ${item.revision}`);
+          yPosition += descGap;
+        }
+        break;
+      case "labelQuantity":
+        if (["Serial", "Batch"].includes(item.trackingType)) {
+          textLine(descFontSize, `${block.label || "Qty"}: ${item.quantity}`);
+          yPosition += descGap;
+        }
+        break;
+      case "labelTracking":
+        if (item.number && ["Serial", "Batch"].includes(item.trackingType)) {
+          const defaultName = item.trackingType === "Serial" ? "S/N" : "Batch";
+          textLine(
+            descFontSize,
+            `${block.label || defaultName}: ${item.number}`
+          );
+          yPosition += descGap;
+        }
+        break;
+      case "labelEntityId": {
+        // Human-readable identifier text at the bottom (interpolated value).
+        const value = interpolateString(block.value ?? "", vars);
+        if (value) {
+          const idYPosition = isSmallLabel ? heightDots - 25 : heightDots - 35;
+          zpl += `^FO${textStartX},${idYPosition}^A0N,${smallFontSize},${smallFontSize}^FD${value}^FS`;
+        }
+        break;
+      }
+      case "labelLogo":
+        if (logo?.gfa) {
+          // Top-right, like the QR slot.
+          const logoW = logo.widthDots ?? Math.round(widthDots * 0.3);
+          const logoX = widthDots - logoW - 15;
+          zpl += `^FO${logoX > 0 ? logoX : 15},20${logo.gfa}^FS`;
+        }
+        break;
+      case "labelBarcode": {
+        const value = interpolateString(block.value ?? "", vars);
+        if (value) {
+          if (block.placement === "full") {
+            // Full-width band that flows *below* the text (not a fixed bottom
+            // offset, which collided with the last text line). Scale it to the
+            // space left between the text and the bottom entity-id line.
+            const gap = 6;
+            // Clear the bottom entity-id line (placed at heightDots-25/-35).
+            const bottomReserve = isSmallLabel ? 30 : 44;
+            const bcY = yPosition + gap;
+            const avail = heightDots - bottomReserve - bcY;
+            const bcHeight = Math.max(
+              20,
+              Math.min(isSmallLabel ? 60 : 110, avail)
+            );
+            zpl += `^FO${textStartX},${bcY}`;
+            zpl += zplBarcode(block.symbology, value, bcHeight);
+            yPosition = bcY + bcHeight;
+          } else if (block.placement === "center") {
+            // Centered square that flows below the text (e.g. QR-only label).
+            const gap = 6;
+            const bottomReserve = isSmallLabel ? 30 : 44;
+            const bcY = yPosition + gap;
+            const avail = heightDots - bottomReserve - bcY;
+            const bcSize = Math.max(20, Math.min(qrSize, avail));
+            const bcX = Math.max(
+              textStartX,
+              Math.round((widthDots - bcSize) / 2)
+            );
+            zpl += `^FO${bcX},${bcY}`;
+            zpl += zplBarcode(block.symbology, value, bcSize);
+            yPosition = bcY + bcSize;
+          } else {
+            // Top-right, like the old QR slot.
+            const bcHeight = isSmallLabel ? 80 : 130;
+            zpl += `^FO${qrStartX},${isSmallLabel ? 30 : 40}`;
+            zpl += zplBarcode(block.symbology, value, bcHeight);
+          }
+        }
+        break;
+      }
+      case "field": {
+        // A single authored line: "label: value" (or just the value).
+        const value = interpolateString(block.value ?? "", vars);
+        const text = block.label ? `${block.label}: ${value}` : value;
+        if (text) {
+          textLine(descFontSize, text);
+          yPosition += descGap;
+        }
+        break;
+      }
+      case "customField": {
+        const value = item.customFields?.[block.fieldId];
+        if (value != null && value !== "") {
+          textLine(descFontSize, `${block.label}: ${value}`);
+          yPosition += descGap;
+        }
+        break;
+      }
+      // Rich text / key-value lists / spacers / shared sections have no
+      // single-line ZPL equivalent — skip.
+      default:
+        break;
+    }
   }
 
-  // Quantity
-  if (["Serial", "Batch"].includes(item.trackingType)) {
-    zpl += `^FO${textStartX},${yPosition}^A0N,${descFontSize},${descFontSize}^FDQty: ${item.quantity}^FS`;
-    yPosition += isSmallLabel ? 25 : 35;
-  }
-
-  // Serial or Batch number
-  if (item.trackingType === "Serial") {
-    zpl += `^FO${textStartX},${yPosition}^A0N,${descFontSize},${descFontSize}^FDS/N: ${item.number}^FS`;
-  } else if (item.trackingType === "Batch") {
-    zpl += `^FO${textStartX},${yPosition}^A0N,${descFontSize},${descFontSize}^FDBatch: ${item.number}^FS`;
-  }
-
-  // QR Code for tracked entity ID
-  // Using proper error correction level (M) and input mode (A)
-  const qrYPosition = isSmallLabel ? 30 : 40;
-  zpl += `^FO${qrStartX},${qrYPosition}^BQN,2,${isSmallLabel ? 5 : 7},M,A^FD${
-    item.trackedEntityId
-  }^FS`;
-
-  // Tracked entity ID at bottom
-  const idYPosition = isSmallLabel ? heightDots - 25 : heightDots - 35;
-  zpl += `^FO${textStartX},${idYPosition}^A0N,${smallFontSize},${smallFontSize}^FD${item.trackedEntityId}^FS`;
-
-  // End ZPL command sequence
   zpl += "^XZ"; // End format
-
   return zpl;
 }

@@ -9,10 +9,12 @@
     "@carbon/kv": "workspace:*",
     "@carbon/lib": "workspace:*",
     "@carbon/notifications": "workspace:*",
+    "@carbon/printing": "workspace:*",
     "@carbon/stripe": "workspace:*",
     "@carbon/utils": "workspace:*",
     "@internationalized/date": "catalog:",
     "@react-email/components": "catalog:",
+    "@react-pdf/renderer": "catalog:",
     "@slack/web-api": "catalog:",
     "@supabase/functions-js": "catalog:",
     "@supabase/supabase-js": "catalog:",
@@ -22,6 +24,7 @@
     "kysely": "catalog:",
     "nanoid": "catalog:",
     "nodemailer": "6.10.1",
+    "react": "catalog:",
     "react-pdf": "catalog:",
     "resend": "3.5.0",
     "sst": "catalog:",
@@ -32,6 +35,7 @@
   "devDependencies": {
     "@carbon/config": "workspace:*",
     "@types/nodemailer": "6.4.23",
+    "@types/react": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:"
   },

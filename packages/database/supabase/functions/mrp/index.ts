@@ -19,7 +19,7 @@ import {
 import { Kysely, sql } from "npm:kysely";
 import z from "npm:zod@^3.24.1";
 import { corsHeaders } from "../lib/headers.ts";
-import { getSupabaseServiceRole } from "../lib/supabase.ts";
+import { requirePermissions } from "../lib/supabase.ts";
 import { Database } from "../lib/types.ts";
 
 const pool = getConnectionPool(1);
@@ -85,11 +85,7 @@ serve(async (req: Request) => {
   const ranges = getStartAndEndDates(today, "Week");
   const periods = await getOrCreateDemandPeriods(db, ranges, "Week");
 
-  const client = await getSupabaseServiceRole(
-    req.headers.get("Authorization"),
-    req.headers.get("carbon-key") ?? "",
-    companyId
-  );
+  const client = await requirePermissions(req, companyId, userId, { update: "production" });
 
   const locations = await client
     .from("location")
@@ -411,6 +407,20 @@ serve(async (req: Request) => {
     // PHASE 5: Level-by-level BOM explosion with inventory netting
     // ──────────────────────────────────────────────────────────────
 
+    // Merge open-PO supply into the job-supply map for BOM netting. POs
+    // offset gross demand the same way production does, but they're tracked
+    // separately above because Phase 4's projection netting and the
+    // supplyActual output (later in this function) consume them differently.
+    const jobAndPoSupplyByLocationPeriodItem = new Map(
+      jobSupplyByLocationPeriodItem
+    );
+    for (const [key, qty] of poSupplyByLocationPeriodItem) {
+      jobAndPoSupplyByLocationPeriodItem.set(
+        key,
+        (jobAndPoSupplyByLocationPeriodItem.get(key) ?? 0) + qty
+      );
+    }
+
     const { bomDerivedDemand, demandContributors } = explodeBom({
       grossDemand,
       bomByItem,
@@ -418,7 +428,7 @@ serve(async (req: Request) => {
       leadTimeByItem,
       periods: periods.map((p) => ({ id: p.id ?? "" })),
       onHandByLocationItem: new Map(baseInventoryByLocationItem),
-      jobSupplyByLocationPeriodItem,
+      jobSupplyByLocationPeriodItem: jobAndPoSupplyByLocationPeriodItem,
       topLevelContributors,
     });
 

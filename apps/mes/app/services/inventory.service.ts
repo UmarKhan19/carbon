@@ -1,7 +1,32 @@
+import { SUPABASE_URL } from "@carbon/auth";
 import type { Database } from "@carbon/database";
+import type {
+  DocumentTemplate,
+  DocumentTemplateType
+} from "@carbon/documents/template";
+import { toDocumentTemplate } from "@carbon/documents/template";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+
+/**
+ * Load a stored document template as a `DocumentTemplate | null` to pass to a
+ * PDF/ZPL generator (which runs it through `resolveTemplate`). Returns null when
+ * nothing is stored, so the output falls back to the type's default.
+ */
+export async function getDocumentTemplateConfig(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  documentType: DocumentTemplateType
+): Promise<DocumentTemplate | null> {
+  const stored = await client
+    .from("documentTemplate")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("documentType", documentType)
+    .maybeSingle();
+  return toDocumentTemplate(stored.data, documentType);
+}
 
 export const inventoryAdjustmentValidator = z.object({
   itemId: z.string().min(1, { message: "Item ID is required" }),
@@ -54,6 +79,34 @@ export async function getCompanySettings(
     .select("*")
     .eq("id", companyId)
     .single();
+}
+
+const PUBLIC_STORAGE_URL_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/public/`;
+
+export async function getCompany(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  const company = await client
+    .from("company")
+    .select("*")
+    .eq("id", companyId)
+    .single();
+  if (company.error || !company.data) return company;
+  // Logos are stored as storage paths; expand to full public URLs (matches the
+  // ERP getCompany) so they're fetchable by the PDF/ZPL pipeline.
+  const url = (p: string | null) =>
+    p ? `${PUBLIC_STORAGE_URL_PREFIX}${p}` : p;
+  return {
+    data: {
+      ...company.data,
+      logoLight: url(company.data.logoLight),
+      logoDark: url(company.data.logoDark),
+      logoLightIcon: url(company.data.logoLightIcon),
+      logoDarkIcon: url(company.data.logoDarkIcon)
+    },
+    error: null
+  };
 }
 
 export async function getSerialNumbersForItem(

@@ -2126,3 +2126,240 @@ export async function getTrackedEntityExpirations(
     {}
   );
 }
+
+export async function insertStockTransfer(
+  client: SupabaseClient<Database>,
+  input: {
+    locationId: string;
+    lines: Array<{
+      itemId: string;
+      fromStorageUnitId?: string | null;
+      toStorageUnitId?: string | null;
+      quantity?: number;
+      requiresSerialTracking?: boolean;
+      requiresBatchTracking?: boolean;
+    }>;
+    companyId: string;
+    createdBy: string;
+    stockTransferId?: string;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string; stockTransferId: string } | null;
+  error: PostgrestError | { message: string } | null;
+}> {
+  const { locationId, lines, companyId, createdBy, customFields } = input;
+
+  let stockTransferId = input.stockTransferId;
+  if (!stockTransferId) {
+    const sequence = await client.rpc("get_next_sequence", {
+      sequence_name: "stockTransfer",
+      company_id: companyId
+    });
+    if (sequence.error || !sequence.data) {
+      return {
+        data: null,
+        error: sequence.error ?? { message: "Failed to get sequence" }
+      };
+    }
+    stockTransferId = sequence.data;
+  }
+
+  const linesWithExpandedSerialTracking = lines.reduce<typeof lines>(
+    (acc, line) => {
+      if (line.quantity && !Number.isInteger(line.quantity)) {
+        return acc;
+      }
+      if (line.requiresSerialTracking && line.quantity && line.quantity > 1) {
+        acc.push(
+          ...Array.from({ length: line.quantity }, () => ({
+            ...line,
+            quantity: 1
+          }))
+        );
+      } else {
+        acc.push(line);
+      }
+      return acc;
+    },
+    []
+  );
+
+  const createTransfer = await client
+    .from("stockTransfer")
+    .insert({
+      stockTransferId,
+      locationId,
+      status: "Released",
+      companyId,
+      createdBy,
+      customFields
+    })
+    .select("id")
+    .single();
+
+  if (createTransfer.error || !createTransfer.data) {
+    return { data: null, error: createTransfer.error };
+  }
+
+  const createLines = await client.from("stockTransferLine").insert(
+    linesWithExpandedSerialTracking.map((line) => ({
+      ...line,
+      stockTransferId: createTransfer.data.id,
+      companyId,
+      createdBy
+    }))
+  );
+
+  if (createLines.error) {
+    await client
+      .from("stockTransfer")
+      .delete()
+      .eq("id", createTransfer.data.id);
+    return { data: null, error: createLines.error };
+  }
+
+  return {
+    data: { id: createTransfer.data.id, stockTransferId: stockTransferId! },
+    error: null
+  };
+}
+
+export async function insertWarehouseTransfer(
+  client: SupabaseClient<Database>,
+  input: {
+    fromLocationId: string;
+    toLocationId: string;
+    companyId: string;
+    createdBy: string;
+    transferId?: string;
+    status?: Database["public"]["Enums"]["warehouseTransferStatus"];
+    transferDate?: string;
+    expectedReceiptDate?: string;
+    notes?: string;
+    reference?: string;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string; transferId: string } | null;
+  error: PostgrestError | { message: string } | null;
+}> {
+  const {
+    fromLocationId,
+    toLocationId,
+    companyId,
+    createdBy,
+    status = "Draft",
+    transferDate,
+    expectedReceiptDate,
+    notes,
+    reference,
+    customFields
+  } = input;
+
+  let transferId = input.transferId;
+  if (!transferId) {
+    const sequence = await client.rpc("get_next_sequence", {
+      sequence_name: "warehouseTransfer",
+      company_id: companyId
+    });
+    if (sequence.error || !sequence.data) {
+      return {
+        data: null,
+        error: sequence.error ?? { message: "Failed to get sequence" }
+      };
+    }
+    transferId = sequence.data;
+  }
+
+  const createTransfer = await client
+    .from("warehouseTransfer")
+    .insert({
+      transferId,
+      fromLocationId,
+      toLocationId,
+      status,
+      transferDate: transferDate || null,
+      expectedReceiptDate: expectedReceiptDate || null,
+      notes: notes || null,
+      reference: reference || null,
+      companyId,
+      createdBy,
+      customFields
+    })
+    .select("id")
+    .single();
+
+  if (createTransfer.error || !createTransfer.data) {
+    return { data: null, error: createTransfer.error };
+  }
+
+  return {
+    data: { id: createTransfer.data.id, transferId: transferId! },
+    error: null
+  };
+}
+
+export async function updateStockTransfer(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    locationId?: string;
+    stockTransferId?: string;
+    updatedBy: string;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string } | null;
+  error: PostgrestError | null;
+}> {
+  const { id, updatedBy, customFields, ...fields } = input;
+  return client
+    .from("stockTransfer")
+    .update(
+      sanitize({
+        ...fields,
+        customFields,
+        updatedBy,
+        updatedAt: new Date().toISOString()
+      })
+    )
+    .eq("id", id)
+    .select("id")
+    .single();
+}
+
+export async function updateWarehouseTransfer(
+  client: SupabaseClient<Database>,
+  input: {
+    id: string;
+    fromLocationId?: string;
+    toLocationId?: string;
+    transferId?: string;
+    status?: Database["public"]["Enums"]["warehouseTransferStatus"];
+    transferDate?: string;
+    expectedReceiptDate?: string;
+    notes?: string;
+    reference?: string;
+    updatedBy: string;
+    customFields?: Json;
+  }
+): Promise<{
+  data: { id: string } | null;
+  error: PostgrestError | null;
+}> {
+  const { id, updatedBy, customFields, ...fields } = input;
+  return client
+    .from("warehouseTransfer")
+    .update(
+      sanitize({
+        ...fields,
+        customFields,
+        updatedBy,
+        updatedAt: today(getLocalTimeZone()).toString()
+      })
+    )
+    .eq("id", id)
+    .select("id")
+    .single();
+}

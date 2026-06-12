@@ -1,21 +1,21 @@
 import { useLingui } from "@lingui/react/macro";
 import { useMemo } from "react";
 import {
-  LuBarcode,
   LuBox,
   LuCircleCheck,
   LuClipboardCheck,
   LuCreditCard,
   LuCrown,
   LuFactory,
+  LuFileText,
   LuHistory,
   LuImage,
   LuKey,
   LuLandmark,
   LuLayoutDashboard,
   LuNetwork,
+  LuPrinter,
   LuSheet,
-  LuShieldCheck,
   LuShoppingCart,
   LuSquareStack,
   LuUsers,
@@ -44,6 +44,14 @@ export default function useSettingsSubmodules() {
         name: t`Company`,
         routes: [
           {
+            name: t`Billing`,
+            to: path.to.billing,
+            role: "employee",
+            icon: <LuCreditCard />,
+            requiresOwnership: true,
+            requiresCloudEnvironment: true
+          },
+          {
             name: t`Company`,
             to: path.to.company,
             role: "employee",
@@ -56,24 +64,22 @@ export default function useSettingsSubmodules() {
             icon: <LuNetwork />
           },
           {
-            name: t`Billing`,
-            to: path.to.billing,
+            name: t`Document Templates`,
+            to: path.to.documentTemplates,
             role: "employee",
-            icon: <LuCreditCard />,
-            requiresOwnership: true,
-            requiresCloudEnvironment: true
-          },
-          {
-            name: t`Labels`,
-            to: path.to.labelsSettings,
-            role: "employee",
-            icon: <LuBarcode />
+            icon: <LuFileText />
           },
           {
             name: t`Logos`,
             to: path.to.logos,
             role: "employee",
             icon: <LuImage />
+          },
+          {
+            name: t`Printing`,
+            to: path.to.printingSettings,
+            role: "employee",
+            icon: <LuPrinter />
           }
         ]
       },
@@ -150,12 +156,6 @@ export default function useSettingsSubmodules() {
             to: path.to.approvalRules,
             role: "employee",
             icon: <LuCircleCheck />
-          },
-          {
-            name: t`Custom Rules`,
-            to: path.to.customRules,
-            role: "employee",
-            icon: <LuShieldCheck />
           },
           {
             name: t`Audit Logs`,

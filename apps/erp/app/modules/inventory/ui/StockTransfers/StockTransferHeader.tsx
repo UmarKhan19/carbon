@@ -1,5 +1,5 @@
 import type { Result } from "@carbon/auth";
-import { useCustomRuleViolations } from "@carbon/ee/custom-rules";
+import { useStorageRuleViolations } from "@carbon/ee/storage-rules";
 import {
   Button,
   Copy,
@@ -24,6 +24,7 @@ import {
   LuTrash
 } from "react-icons/lu";
 import { useFetcher, useParams } from "react-router";
+import { PrintButton } from "~/components";
 import Assignee, { useOptimisticAssignment } from "~/components/Assignee";
 import { useAuditLog } from "~/components/AuditLog";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
@@ -59,11 +60,11 @@ const StockTransferHeader = () => {
   // Item rules fire on Release + Complete (the "go" transitions). Each gets
   // its own fetcher so Release's loading state doesn't disable Complete and
   // vice versa, and violations surface via a single shared modal.
-  const releaseRules = useCustomRuleViolations({
+  const releaseRules = useStorageRuleViolations({
     action: path.to.stockTransferStatus(id)
   });
   const releaseFetcher = releaseRules.fetcher;
-  const completeRules = useCustomRuleViolations({
+  const completeRules = useStorageRuleViolations({
     action: path.to.stockTransferStatus(id)
   });
   const completeFetcher = completeRules.fetcher;
@@ -95,6 +96,10 @@ const StockTransferHeader = () => {
 
   const hasPickedItems = routeData?.stockTransferLines.some(
     (line) => line.pickedQuantity && line.pickedQuantity > 0
+  );
+
+  const hasTrackedLines = routeData?.stockTransferLines.some(
+    (line) => !!line.trackedEntityId
   );
 
   return (
@@ -167,6 +172,18 @@ const StockTransferHeader = () => {
               table="stockTransfer"
               isReadOnly={!permissions.can("update", "inventory")}
             />
+            {hasTrackedLines && (
+              <PrintButton
+                sourceDocument="StockTransfer"
+                sourceDocumentId={id}
+                locationId={routeData?.stockTransfer?.locationId ?? undefined}
+                context="inventory"
+                fileRoutes={{
+                  pdf: path.to.file.stockTransferLabelsPdf,
+                  zpl: path.to.file.stockTransferLabelsZpl
+                }}
+              />
+            )}
             <Button variant="secondary" leftIcon={<LuBarcode />} asChild>
               <a
                 target="_blank"

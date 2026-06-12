@@ -133,11 +133,14 @@ export const purchaseOrderValidator = z.object({
       message: "Type is required"
     })
   }),
+  status: z.enum(purchaseOrderStatusType).optional(),
   supplierId: z.string().min(1, { message: "Supplier is required" }),
   locationId: zfd.text(z.string().optional()),
   supplierLocationId: zfd.text(z.string().optional()),
   supplierContactId: zfd.text(z.string().optional()),
   supplierReference: zfd.text(z.string().optional()),
+  orderDate: zfd.text(z.string().optional()),
+  notes: z.any().optional(),
   currencyCode: zfd.text(z.string().optional()),
   exchangeRate: zfd.numeric(z.number().optional()),
   exchangeRateUpdatedAt: zfd.text(z.string().optional())

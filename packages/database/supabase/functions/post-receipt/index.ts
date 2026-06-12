@@ -4,7 +4,7 @@ import { nanoid } from "https://deno.land/x/nanoid@v3.0.0/mod.ts";
 import { z } from "https://deno.land/x/zod@v3.21.4/mod.ts";
 import { DB, getConnectionPool, getDatabaseClient } from "../lib/database.ts";
 import { corsHeaders } from "../lib/headers.ts";
-import { getSupabaseServiceRole } from "../lib/supabase.ts";
+import { requirePermissions } from "../lib/supabase.ts";
 import type { Database } from "../lib/types.ts";
 import {
   credit,
@@ -50,11 +50,7 @@ serve(async (req: Request) => {
       companyId,
     });
 
-    const client = await getSupabaseServiceRole(
-      req.headers.get("Authorization"),
-      req.headers.get("carbon-key") ?? "",
-      companyId
-    );
+    const client = await requirePermissions(req, companyId, userId, { update: "inventory" });
 
     const [companyRecord, accountingSettings] = await Promise.all([
       client
@@ -1896,11 +1892,7 @@ serve(async (req: Request) => {
   } catch (err) {
     console.error(err);
     if (payload.type !== "void" && "receiptId" in payload) {
-      const client = await getSupabaseServiceRole(
-        req.headers.get("Authorization"),
-        req.headers.get("carbon-key") ?? "",
-        payload.companyId
-      );
+      const client = await requirePermissions(req, payload.companyId, payload.userId, { update: "inventory" });
       await client
         .from("receipt")
         .update({ status: "Draft" })

@@ -12,9 +12,9 @@ import {
   VStack
 } from "@carbon/react";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { LuShieldCheck } from "react-icons/lu";
-import { Link, useFetcher } from "react-router";
+import { useFetcher } from "react-router";
 import type { z } from "zod";
+import { PrintButton } from "~/components";
 import {
   Hidden,
   Input,
@@ -109,28 +109,27 @@ const StorageUnitForm = ({
               </VStack>
             </ModalDrawerBody>
             <ModalDrawerFooter>
-              <HStack className="justify-between w-full">
-                {isEditing ? (
-                  <Button
-                    asChild
-                    variant="secondary"
-                    leftIcon={<LuShieldCheck />}
-                  >
-                    <Link to={path.to.storageUnitRules(initialValues.id!)}>
-                      <Trans>Manage rules</Trans>
-                    </Link>
-                  </Button>
-                ) : (
-                  <span />
+              <HStack>
+                <Submit isDisabled={isDisabled}>
+                  <Trans>Save</Trans>
+                </Submit>
+                <Button size="md" variant="solid" onClick={onClose}>
+                  <Trans>Cancel</Trans>
+                </Button>
+                {isEditing && initialValues.id && (
+                  <PrintButton
+                    sourceDocument="StorageUnit"
+                    sourceDocumentId={initialValues.id}
+                    locationId={locationId || undefined}
+                    context="inventory"
+                    fileRoutes={{
+                      pdf: (id: string, opts?: { labelSize?: string }) =>
+                        path.to.file.storageUnitLabelsPdf(id, opts),
+                      zpl: (id: string, opts?: { labelSize?: string }) =>
+                        path.to.file.storageUnitLabelsZpl(id, opts)
+                    }}
+                  />
                 )}
-                <HStack>
-                  <Submit isDisabled={isDisabled}>
-                    <Trans>Save</Trans>
-                  </Submit>
-                  <Button size="md" variant="solid" onClick={onClose}>
-                    <Trans>Cancel</Trans>
-                  </Button>
-                </HStack>
               </HStack>
             </ModalDrawerFooter>
           </ValidatedForm>

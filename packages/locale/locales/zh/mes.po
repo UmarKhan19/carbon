@@ -21,10 +21,6 @@ msgstr "{0} - 组 {1}"
 msgid "{0} Active"
 msgstr "{0} 个活跃"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} 可用"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -63,6 +59,9 @@ msgstr "添加"
 
 msgid "Add & Issue"
 msgstr "添加并发放"
+
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "在打印设置中添加打印机以直接打印标签。"
 
 msgid "Add Inventory"
 msgstr "添加库存"
@@ -105,11 +104,6 @@ msgstr "认证错误"
 
 msgid "Batch"
 msgstr "批次"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "批次 {0}（{1} 可用）"
 
 msgid "Batch is not available"
 msgstr "批次不可用"
@@ -272,6 +266,9 @@ msgstr "停机"
 msgid "Download"
 msgstr "下载"
 
+msgid "Download Labels"
+msgstr "下载标签"
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "拖放文件到此处，或点击选择文件"
 
@@ -280,8 +277,8 @@ msgid "Dragging {0} cancelled."
 msgstr "拖拽 {0} 已取消。"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "截止 {0}"
 
@@ -386,6 +383,9 @@ msgstr "有想法、建议或问题？"
 
 msgid "Impact"
 msgstr "影响"
+
+msgid "Imperial"
+msgstr "英制"
 
 msgid "In Progress"
 msgstr "进行中"
@@ -501,6 +501,9 @@ msgstr "物料"
 msgid "Maximum number of records reached"
 msgstr "已达到最大记录数"
 
+msgid "Metric"
+msgstr "公制"
+
 msgid "Model"
 msgstr "模型"
 
@@ -579,6 +582,9 @@ msgstr "未找到选项。"
 
 msgid "No options found."
 msgstr "未找到选项。"
+
+msgid "No printer configured"
+msgstr "未配置打印机"
 
 msgid "No recent operations"
 msgstr "无近期工序"
@@ -682,6 +688,12 @@ msgstr "上一个"
 
 msgid "Preventive"
 msgstr "预防性"
+
+msgid "Print"
+msgstr "打印"
+
+msgid "Printer Settings"
+msgstr "打印机设置"
 
 msgid "Priority"
 msgstr "优先级"
@@ -808,6 +820,9 @@ msgstr "选择物料..."
 msgid "Select Batch {0}"
 msgstr "选择批次 {0}"
 
+msgid "Select Printer"
+msgstr "选择打印机"
+
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
 msgstr "选择序列号 {0}"
@@ -823,10 +838,6 @@ msgstr "发送"
 
 msgid "Serial"
 msgstr "序列号"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "序列号 {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
@@ -961,9 +972,6 @@ msgstr "合计：{0}"
 
 msgid "Tracking"
 msgstr "追踪"
-
-msgid "Tracking Labels"
-msgstr "追踪标签"
 
 msgid "Type a message..."
 msgstr "输入消息..."

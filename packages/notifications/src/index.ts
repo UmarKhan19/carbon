@@ -31,6 +31,7 @@ export enum NotificationEvent {
   SupplierQuoteAssignment = "supplier-quote-assignment",
   SupplierQuoteResponse = "supplier-quote-response",
   TrainingAssignment = "training-assignment",
+  ResourceTrainingAssignment = "resource-training-assignment",
   Digest = "digest"
 }
 
@@ -91,6 +92,7 @@ export function getNotificationTopic(
       return NotificationTopic.Quality;
     case NotificationEvent.ProcedureAssignment:
     case NotificationEvent.TrainingAssignment:
+    case NotificationEvent.ResourceTrainingAssignment:
       return NotificationTopic.Training;
     case NotificationEvent.StockTransferAssignment:
       return NotificationTopic.Inventory;
@@ -153,6 +155,8 @@ export function getNotificationEmailHeading(event: NotificationEvent): string {
       return "Procedure assigned to you";
     case NotificationEvent.TrainingAssignment:
       return "Training assigned to you";
+    case NotificationEvent.ResourceTrainingAssignment:
+      return "New training available";
     case NotificationEvent.StockTransferAssignment:
       return "Stock transfer assigned to you";
     case NotificationEvent.SuggestionResponse:

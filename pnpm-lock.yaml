@@ -168,6 +168,9 @@ catalogs:
     isbot:
       specifier: '5'
       version: 5.1.37
+    jose:
+      specifier: 6.0.11
+      version: 6.0.11
     kysely:
       specifier: 0.28.15
       version: 0.28.15
@@ -562,6 +565,9 @@ importers:
       '@carbon/ee':
         specifier: workspace:*
         version: link:../../packages/ee
+      '@carbon/env':
+        specifier: workspace:*
+        version: link:../../packages/env
       '@carbon/form':
         specifier: workspace:*
         version: link:../../packages/form
@@ -580,6 +586,9 @@ importers:
       '@carbon/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
+      '@carbon/printing':
+        specifier: workspace:*
+        version: link:../../packages/printing
       '@carbon/react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -1022,6 +1031,9 @@ importers:
       '@carbon/notifications':
         specifier: workspace:*
         version: link:../../packages/notifications
+      '@carbon/printing':
+        specifier: workspace:*
+        version: link:../../packages/printing
       '@carbon/react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -1639,6 +1651,9 @@ importers:
       dompurify:
         specifier: 'catalog:'
         version: 3.4.0
+      jose:
+        specifier: 'catalog:'
+        version: 6.0.11
       nanoid:
         specifier: 'catalog:'
         version: 5.1.7
@@ -1889,6 +1904,9 @@ importers:
       sst:
         specifier: 'catalog:'
         version: 4.6.9
+      zod:
+        specifier: 'catalog:'
+        version: 3.25.76
     devDependencies:
       '@carbon/config':
         specifier: workspace:*
@@ -2163,6 +2181,9 @@ importers:
       '@carbon/notifications':
         specifier: workspace:*
         version: link:../notifications
+      '@carbon/printing':
+        specifier: workspace:*
+        version: link:../printing
       '@carbon/stripe':
         specifier: workspace:*
         version: link:../stripe
@@ -2175,6 +2196,9 @@ importers:
       '@react-email/components':
         specifier: 'catalog:'
         version: 0.3.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@react-pdf/renderer':
+        specifier: 'catalog:'
+        version: 3.4.5(react@18.3.1)
       '@slack/web-api':
         specifier: 'catalog:'
         version: 7.10.0
@@ -2202,6 +2226,9 @@ importers:
       nodemailer:
         specifier: 6.10.1
         version: 6.10.1
+      react:
+        specifier: 'catalog:'
+        version: 18.3.1
       react-pdf:
         specifier: 'catalog:'
         version: 10.4.1(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2227,6 +2254,9 @@ importers:
       '@types/nodemailer':
         specifier: 6.4.23
         version: 6.4.23
+      '@types/react':
+        specifier: 'catalog:'
+        version: 18.3.28
       tsx:
         specifier: 'catalog:'
         version: 4.21.0
@@ -2383,6 +2413,55 @@ importers:
       sst:
         specifier: 'catalog:'
         version: 4.6.9
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+
+  packages/printing:
+    dependencies:
+      '@carbon/kv':
+        specifier: workspace:*
+        version: link:../kv
+      '@carbon/react':
+        specifier: workspace:*
+        version: link:../react
+      '@carbon/utils':
+        specifier: workspace:*
+        version: link:../utils
+      '@lingui/react':
+        specifier: 'catalog:'
+        version: 5.9.4(@lingui/babel-plugin-lingui-macro@5.9.4(babel-plugin-macros@3.1.0)(typescript@5.8.3))(babel-plugin-macros@3.1.0)(react@18.3.1)
+      react:
+        specifier: 'catalog:'
+        version: 18.3.1
+      react-icons:
+        specifier: 'catalog:'
+        version: 5.6.0(react@18.3.1)
+      react-router:
+        specifier: 'catalog:'
+        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      zod:
+        specifier: 'catalog:'
+        version: 3.25.76
+      zod-form-data:
+        specifier: 'catalog:'
+        version: 2.0.8(zod@3.25.76)
+    devDependencies:
+      '@carbon/config':
+        specifier: workspace:*
+        version: link:../config
+      '@carbon/database':
+        specifier: workspace:*
+        version: link:../database
+      '@supabase/supabase-js':
+        specifier: 'catalog:'
+        version: 2.80.0
+      '@types/node':
+        specifier: 20.19.39
+        version: 20.19.39
+      '@types/react':
+        specifier: 'catalog:'
+        version: 18.3.28
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
@@ -8519,10 +8598,6 @@ packages:
     resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==}
     engines: {node: '>=10'}
 
-  ansi-styles@6.2.1:
-    resolution: {integrity: sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==}
-    engines: {node: '>=12'}
-
   ansi-styles@6.2.3:
     resolution: {integrity: sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==}
     engines: {node: '>=12'}
@@ -10291,6 +10366,9 @@ packages:
 
   jose@5.2.3:
     resolution: {integrity: sha512-KUXdbctm1uHVL8BYhnyHkgp3zDX5KW8ZhAKVFEfUbU2P8Alpzjb+48hHvjOdQIyPshoblhzsuqOwEEAbtHVirA==}
+
+  jose@6.0.11:
+    resolution: {integrity: sha512-QxG7EaliDARm1O1S8BGakqncGT9s25bKL1WSf6/oa17Tkqwi8D2ZNglqCF+DsYF88/rV66Q/Q2mFAy697E1DUg==}
 
   jose@6.2.2:
     resolution: {integrity: sha512-d7kPDd34KO/YnzaDOlikGpOurfF0ByC2sEV4cANCtdqLlTfBlw2p14O/5d/zv40gJPbIQxfES3nSx1/oYNyuZQ==}
@@ -12371,10 +12449,6 @@ packages:
   strip-ansi@6.0.1:
     resolution: {integrity: sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==}
     engines: {node: '>=8'}
-
-  strip-ansi@7.1.0:
-    resolution: {integrity: sha512-iq6eVVI64nQQTRYq2KtEg2d2uU7LElhTJwsH4YzIHZshxlgZms/wIc4VoDQTlG/IvVIrBKG06CrZnp0qv7hkcQ==}
-    engines: {node: '>=12'}
 
   strip-ansi@7.2.0:
     resolution: {integrity: sha512-yDPMNjp4WyfYBkHnjIRLfca1i6KMyGCtsVgoKe/z1+6vukgaENdgGBZt+ZmKPc4gavvEZ5OgHfHdrazhgNyG7w==}
@@ -19785,8 +19859,6 @@ snapshots:
 
   ansi-styles@5.2.0: {}
 
-  ansi-styles@6.2.1: {}
-
   ansi-styles@6.2.3: {}
 
   any-promise@1.3.0: {}
@@ -21886,6 +21958,8 @@ snapshots:
 
   jose@5.2.3: {}
 
+  jose@6.0.11: {}
+
   jose@6.2.2: {}
 
   jotai@2.19.1(@babel/core@7.29.0)(@babel/template@7.28.6)(@types/react@18.3.28)(react@18.3.1):
@@ -22153,7 +22227,7 @@ snapshots:
       ansi-escapes: 7.3.0
       cli-cursor: 5.0.0
       slice-ansi: 7.1.2
-      strip-ansi: 7.1.0
+      strip-ansi: 7.2.0
       wrap-ansi: 9.0.2
 
   long@5.3.2: {}
@@ -24387,7 +24461,7 @@ snapshots:
     dependencies:
       emoji-regex: 10.6.0
       get-east-asian-width: 1.5.0
-      strip-ansi: 7.1.0
+      strip-ansi: 7.2.0
 
   string-width@8.2.0:
     dependencies:
@@ -24440,10 +24514,6 @@ snapshots:
   strip-ansi@6.0.1:
     dependencies:
       ansi-regex: 5.0.1
-
-  strip-ansi@7.1.0:
-    dependencies:
-      ansi-regex: 6.2.2
 
   strip-ansi@7.2.0:
     dependencies:
@@ -25399,9 +25469,9 @@ snapshots:
 
   wrap-ansi@9.0.2:
     dependencies:
-      ansi-styles: 6.2.1
+      ansi-styles: 6.2.3
       string-width: 7.2.0
-      strip-ansi: 7.1.0
+      strip-ansi: 7.2.0
 
   wrappy@1.0.2: {}
 

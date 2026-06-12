@@ -7,7 +7,7 @@ import { redirect, useLoaderData, useNavigate } from "react-router";
 import {
   fixedAssetValidator,
   getFixedAsset,
-  upsertFixedAsset
+  updateFixedAsset
 } from "~/modules/accounting";
 import { FixedAssetForm } from "~/modules/accounting/ui/FixedAssets";
 import { path } from "~/utils/path";
@@ -50,9 +50,23 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id, ...d } = validation.data;
   if (!id) throw notFound("Fixed Asset ID was not found");
 
-  const result = await upsertFixedAsset(client, {
+  const result = await updateFixedAsset(client, {
     id,
-    ...d,
+    fixedAssetClassId: d.fixedAssetClassId,
+    name: d.name,
+    description: d.description ?? null,
+    serialNumber: d.serialNumber ?? null,
+    depreciationMethod: d.depreciationMethod,
+    usefulLifeMonths: d.usefulLifeMonths,
+    residualValuePercent: d.residualValuePercent,
+    assetLifetimeUsage: d.assetLifetimeUsage ?? null,
+    locationId: d.locationId ?? null,
+    taxDepreciationMethod: d.taxDepreciationMethod ?? null,
+    taxUsefulLifeMonths: d.taxUsefulLifeMonths ?? null,
+    taxResidualValuePercent: d.taxResidualValuePercent ?? null,
+    macrsPropertyClass: d.macrsPropertyClass ?? null,
+    macrsConvention: d.macrsConvention ?? null,
+    bonusDepreciationPercent: d.bonusDepreciationPercent ?? null,
     updatedBy: userId
   });
 
