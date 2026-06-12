@@ -262,7 +262,7 @@ async function enrichTrackedEntities(
 
   const { data: items } = await client
     .from("item")
-    .select("id, readableId, revision")
+    .select("id, readableId, revision, itemTrackingType")
     .in("id", sourceDocIds);
 
   const itemMap = new Map(items?.map((i) => [i.id, i]) ?? []);
@@ -277,7 +277,7 @@ async function enrichTrackedEntities(
       number: te.readableId || te.id,
       trackedEntityId: te.id,
       quantity: te.quantity ?? 1,
-      trackingType: (te.quantity ?? 1) > 1 ? "Batch" : "Serial"
+      trackingType: item.itemTrackingType
     };
   });
 }

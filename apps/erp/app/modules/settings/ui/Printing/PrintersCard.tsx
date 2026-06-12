@@ -25,19 +25,19 @@ import {
   toast,
   useDisclosure
 } from "@carbon/react";
-import { labelSizes } from "@carbon/utils";
+import { getLabelSizeLabel, labelSizes } from "@carbon/utils";
 import { Trans, useLingui } from "@lingui/react/macro";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LuEllipsisVertical, LuPlay, LuPlus, LuTrash } from "react-icons/lu";
 import { useFetcher } from "react-router";
 import { Empty } from "~/components";
 import ConfirmDelete from "~/components/Modals/ConfirmDelete";
 import { path } from "~/utils/path";
 
-const mediaSizeOptions = labelSizes.map((s) => ({
-  value: s.id,
-  label: `${s.name} (${s.description})`
-}));
+function getMediaSizeLabel(mediaSizeId: string): string {
+  const size = labelSizes.find((s) => s.id === mediaSizeId);
+  return size ? getLabelSizeLabel(size) : mediaSizeId;
+}
 
 export function PrintersCard({
   printerRoutes
@@ -58,6 +58,16 @@ export function PrintersCard({
     id: string;
     name: string;
   } | null>(null);
+
+  // ZPL printers can only print thermal sizes; PDF printers can print any size
+  const [selectedFormat, setSelectedFormat] = useState<"zpl" | "pdf">("zpl");
+  const mediaSizeOptions = useMemo(
+    () =>
+      labelSizes
+        .filter((s) => (selectedFormat === "zpl" ? Boolean(s.zpl) : true))
+        .map((s) => ({ value: s.id, label: getLabelSizeLabel(s) })),
+    [selectedFormat]
+  );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: we don't need to re-run this effect when onClose changes
   useEffect(() => {
@@ -83,7 +93,13 @@ export function PrintersCard({
             </CardDescription>
           </CardHeader>
           <CardAction className="py-6">
-            <Button leftIcon={<LuPlus />} onClick={newPrinterDisclosure.onOpen}>
+            <Button
+              leftIcon={<LuPlus />}
+              onClick={() => {
+                setSelectedFormat("zpl");
+                newPrinterDisclosure.onOpen();
+              }}
+            >
               <Trans>Add Printer</Trans>
             </Button>
           </CardAction>
@@ -103,7 +119,7 @@ export function PrintersCard({
                     </span>
                     {route.mediaSizeId && (
                       <span className="text-xs text-muted-foreground">
-                        {route.mediaSizeId}
+                        {getMediaSizeLabel(route.mediaSizeId)}
                       </span>
                     )}
                     <span className="text-xs text-muted-foreground font-mono truncate max-w-[300px]">
@@ -194,6 +210,14 @@ export function PrintersCard({
                       name="format"
                       label={t`Format`}
                       options={formatOptions}
+                      onChange={(option) => {
+                        if (
+                          option?.value === "zpl" ||
+                          option?.value === "pdf"
+                        ) {
+                          setSelectedFormat(option.value);
+                        }
+                      }}
                     />
 
                     <Select

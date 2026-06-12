@@ -24,17 +24,23 @@ export type LabelSize = {
   };
 };
 
+/** Dimensions as `2" x 1"` or `100mm x 50mm` (width x height). */
+export function getLabelSizeDimensions(size: LabelSize): string {
+  if (size.metric) {
+    const widthMm = Math.round(size.width * 25.4);
+    const heightMm = Math.round(size.height * 25.4);
+    return `${widthMm}mm x ${heightMm}mm`;
+  }
+  return `${size.width}" x ${size.height}"`;
+}
+
+/** Display label as `2" x 1"` for thermal sizes or `Avery 5163 4" x 2"` for sheets. */
+export function getLabelSizeLabel(size: LabelSize): string {
+  const dimensions = getLabelSizeDimensions(size);
+  return size.zpl ? dimensions : `${size.name} ${dimensions}`;
+}
+
 export const labelSizes: LabelSize[] = [
-  {
-    id: "avery5160",
-    name: "Avery 5160",
-    width: 2.625, // inches to points (72 points per inch)
-    height: 1,
-    description: 'Address Labels (1" x 2.625")',
-    rows: 10,
-    columns: 3,
-    rotated: false
-  },
   {
     id: "avery5163",
     name: "Avery 5163",

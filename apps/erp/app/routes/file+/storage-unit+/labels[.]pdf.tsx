@@ -29,7 +29,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return new Response("No valid storage unit IDs provided", { status: 400 });
   }
 
-  const labelSizeId = url.searchParams.get("labelSize") ?? "avery5160";
+  const labelSizeId = url.searchParams.get("labelSize") ?? "avery5163";
   const labelSize = labelSizes.find((s) => s.id === labelSizeId);
 
   if (!labelSize) {

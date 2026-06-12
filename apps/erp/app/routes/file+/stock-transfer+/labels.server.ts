@@ -36,6 +36,23 @@ export async function getStockTransferLabelItems(
     .in("id", entityIds)
     .eq("companyId", companyId);
 
+  const itemIds = [
+    ...new Set(
+      (trackedEntities ?? [])
+        .map((e) => e.sourceDocumentId)
+        .filter((id): id is string => !!id)
+    )
+  ];
+
+  const { data: items } = await client
+    .from("item")
+    .select("id, itemTrackingType")
+    .in("id", itemIds);
+
+  const trackingTypeByItemId = new Map(
+    items?.map((i) => [i.id, i.itemTrackingType]) ?? []
+  );
+
   return (trackedEntities ?? [])
     .map((entity) => ({
       itemId: entity.sourceDocumentReadableId ?? "",
@@ -43,7 +60,9 @@ export async function getStockTransferLabelItems(
       number: entity.readableId ?? "",
       trackedEntityId: entity.id,
       quantity: entity.quantity,
-      trackingType: entity.quantity > 1 ? "Batch" : "Serial"
+      trackingType:
+        trackingTypeByItemId.get(entity.sourceDocumentId ?? "") ??
+        (entity.quantity > 1 ? "Batch" : "Serial")
     }))
     .sort((a, b) => {
       if (a.itemId === b.itemId) {

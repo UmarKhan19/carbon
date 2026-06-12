@@ -455,7 +455,7 @@ function ReceiptLineItem({
               aria-label={t`Line options`}
               variant="secondary"
               icon={<LuEllipsisVertical />}
-              size="sm"
+              size="md"
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -831,28 +831,30 @@ function BatchForm({
       <div className="flex justify-between items-center gap-4">
         <Heading size="h4">Batch Properties</Heading>
         <div className="flex items-center gap-2">
-          <PrintButton
-            sourceDocument="Receipt"
-            sourceDocumentId={receipt?.id ?? ""}
-            locationId={receipt?.locationId ?? undefined}
-            context="receiving"
-            fileRoutes={{
-              pdf: (id, opts) =>
-                path.to.file.receiptLabelsPdf(id, {
-                  ...opts,
-                  lineId: line.id!
-                }),
-              zpl: (id, opts) =>
-                path.to.file.receiptLabelsZpl(id, {
-                  ...opts,
-                  lineId: line.id!
-                })
-            }}
-          />
+          {values.number.trim() !== "" && (
+            <PrintButton
+              sourceDocument="Receipt"
+              sourceDocumentId={receipt?.id ?? ""}
+              locationId={receipt?.locationId ?? undefined}
+              context="receiving"
+              fileRoutes={{
+                pdf: (id, opts) =>
+                  path.to.file.receiptLabelsPdf(id, {
+                    ...opts,
+                    lineId: line.id!
+                  }),
+                zpl: (id, opts) =>
+                  path.to.file.receiptLabelsZpl(id, {
+                    ...opts,
+                    lineId: line.id!
+                  })
+              }}
+            />
+          )}
           <Button
             variant="secondary"
             leftIcon={<LuGroup />}
-            size="sm"
+            size="md"
             onClick={propertiesDisclosure.onOpen}
           >
             Edit Properties
@@ -1062,7 +1064,7 @@ function SerialForm({
   );
 
   const propertiesDisclosure = useDisclosure();
-  console.log({ serialNumbers, expiryDate });
+
   return (
     <div className="flex flex-col gap-6 p-6 border rounded-lg">
       <div className="flex justify-between items-center gap-6">

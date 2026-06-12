@@ -110629,12 +110629,12 @@ export default {
           type: "array"
         },
         productLabelSize: {
-          default: "avery5160",
+          default: "avery5163",
           format: "text",
           type: "string"
         },
         shelfLabelSize: {
-          default: "avery5160",
+          default: "avery5163",
           format: "text",
           type: "string"
         },

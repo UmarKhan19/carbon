@@ -22,7 +22,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const companySettings = await getCompanySettings(client, companyId);
   const labelSizeId =
-    labelParam || companySettings.data?.productLabelSize || "avery5160";
+    labelParam || companySettings.data?.productLabelSize || "avery5163";
 
   const labelSize = labelSizes.find((size) => size.id === labelSizeId);
 

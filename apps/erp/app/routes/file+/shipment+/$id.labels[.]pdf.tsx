@@ -29,12 +29,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load company");
   }
 
-  // Get the label size from query params or default to avery5160
+  // Get the label size from query params or default to avery5163
   const url = new URL(request.url);
   const labelParam = url.searchParams.get("labelSize");
   const lineIdParam = url.searchParams.get("lineId");
   const labelSizeId =
-    labelParam || companySettings.data?.productLabelSize || "avery5160";
+    labelParam || companySettings.data?.productLabelSize || "avery5163";
 
   // Find the label size configuration
   let labelSize = labelSizes.find((size) => size.id === labelSizeId);

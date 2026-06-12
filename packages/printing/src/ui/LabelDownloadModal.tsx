@@ -15,7 +15,7 @@ import {
   TabsTrigger
 } from "@carbon/react";
 import type { LabelSize } from "@carbon/utils";
-import { labelSizes } from "@carbon/utils";
+import { getLabelSizeLabel, labelSizes } from "@carbon/utils";
 import { Trans } from "@lingui/react/macro";
 import { LuDownload, LuInfo } from "react-icons/lu";
 import { Link } from "react-router";
@@ -61,9 +61,8 @@ export function LabelDownloadModal({
           >
             <LuDownload className="size-4 text-muted-foreground shrink-0" />
             <div className="flex-1 min-w-0">
-              <span className="text-sm font-medium">{size.name}</span>
-              <span className="text-xs text-muted-foreground ml-2">
-                {size.description}
+              <span className="text-sm font-medium">
+                {getLabelSizeLabel(size)}
               </span>
             </div>
             <Badge variant="green">ZPL</Badge>
@@ -80,9 +79,8 @@ export function LabelDownloadModal({
         >
           <LuDownload className="size-4 text-muted-foreground shrink-0" />
           <div className="flex-1 min-w-0">
-            <span className="text-sm font-medium">{size.name}</span>
-            <span className="text-xs text-muted-foreground ml-2">
-              {size.description}
+            <span className="text-sm font-medium">
+              {getLabelSizeLabel(size)}
             </span>
           </div>
           <Badge variant="blue">PDF</Badge>
