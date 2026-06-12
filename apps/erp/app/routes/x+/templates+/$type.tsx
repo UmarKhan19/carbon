@@ -20,6 +20,7 @@ import { DocumentTemplateEditor } from "~/components/DocumentTemplateEditor";
 import { usePermissions } from "~/hooks";
 import {
   documentTemplateValidator,
+  getCompany,
   getDocumentSections,
   getDocumentTemplate,
   getTerms,
@@ -42,18 +43,25 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
 
   const documentType = documentTemplateTypeSchema.parse(params.type);
 
-  const [stored, sections, customFieldSchemas, previewEntities, terms] =
-    await Promise.all([
-      getDocumentTemplate(client, companyId, documentType),
-      getDocumentSections(client, companyId),
-      // Custom field definitions for this record type, to offer as insertable
-      // blocks. The customField `table` matches the document type.
-      getCustomFieldsSchemas(client, { companyId, table: documentType }),
-      // Recent records to optionally preview against live data.
-      listPreviewEntities(client, companyId, documentType),
-      // Company terms setting — seeds the Terms block when it has no content.
-      getTerms(client, companyId)
-    ]);
+  const [
+    stored,
+    sections,
+    customFieldSchemas,
+    previewEntities,
+    terms,
+    company
+  ] = await Promise.all([
+    getDocumentTemplate(client, companyId, documentType),
+    getDocumentSections(client, companyId),
+    // Custom field definitions for this record type, to offer as insertable
+    // blocks. The customField `table` matches the document type.
+    getCustomFieldsSchemas(client, { companyId, table: documentType }),
+    // Recent records to optionally preview against live data.
+    listPreviewEntities(client, companyId, documentType),
+    // Company terms setting — seeds the Terms block when it has no content.
+    getTerms(client, companyId),
+    getCompany(client, companyId)
+  ]);
 
   // Map the document type to the relevant company terms setting (the Terms
   // block's default/fallback). Internal docs have no terms.
@@ -107,7 +115,10 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     })),
     customFields,
     previewEntities,
-    termsSeed
+    termsSeed,
+    hasWatermark: Boolean(
+      (company.data as { logoWatermark?: string | null } | null)?.logoWatermark
+    )
   };
 }
 
@@ -175,7 +186,8 @@ export default function DocumentTemplateRoute() {
     sections,
     customFields,
     previewEntities,
-    termsSeed
+    termsSeed,
+    hasWatermark
   } = useLoaderData<typeof loader>();
   const permissions = usePermissions();
 
@@ -193,6 +205,7 @@ export default function DocumentTemplateRoute() {
       customFields={customFields}
       previewEntities={previewEntities}
       termsSeed={termsSeed as JSONContent | undefined}
+      hasWatermark={hasWatermark}
       canEdit={permissions.can("update", "settings")}
     />
   );

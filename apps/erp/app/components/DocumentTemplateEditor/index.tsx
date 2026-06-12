@@ -44,6 +44,7 @@ export function DocumentTemplateEditor({
   customFields,
   previewEntities,
   termsSeed,
+  hasWatermark,
   canEdit
 }: {
   documentType: DocumentTemplateType;
@@ -57,6 +58,7 @@ export function DocumentTemplateEditor({
   customFields: CustomFieldRef[];
   previewEntities: PreviewEntity[];
   termsSeed?: JSONContent;
+  hasWatermark: boolean;
   canEdit: boolean;
 }) {
   return (
@@ -72,6 +74,7 @@ export function DocumentTemplateEditor({
       customFields={customFields}
       previewEntities={previewEntities}
       termsSeed={termsSeed}
+      hasWatermark={hasWatermark}
     >
       <div className="flex h-full w-full min-w-0 flex-col bg-background">
         <EditorToolbar

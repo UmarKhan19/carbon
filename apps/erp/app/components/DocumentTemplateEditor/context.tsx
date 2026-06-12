@@ -75,6 +75,8 @@ interface DocumentTemplateContextValue {
   termsSeed?: JSONContent;
   /** Real records the preview can render against. */
   previewEntities: PreviewEntity[];
+  /** Whether the company has a watermark logo set (gates the watermark toggle). */
+  hasWatermark: boolean;
   /** Selected record id for live-data preview (null = sample data). */
   previewId: string | null;
   setPreviewId: (id: string | null) => void;
@@ -141,6 +143,7 @@ export function DocumentTemplateProvider({
   customFields,
   previewEntities,
   termsSeed,
+  hasWatermark,
   children
 }: PropsWithChildren<{
   documentType: DocumentTemplateType;
@@ -154,6 +157,7 @@ export function DocumentTemplateProvider({
   customFields: CustomFieldRef[];
   previewEntities: PreviewEntity[];
   termsSeed?: JSONContent;
+  hasWatermark: boolean;
 }>) {
   const fetcher = useFetcher<{ success?: boolean }>();
   const [blocks, setBlocks] = useState<DocumentBlock[]>(initialBlocks);
@@ -338,6 +342,7 @@ export function DocumentTemplateProvider({
       customFields,
       termsSeed,
       previewEntities,
+      hasWatermark,
       previewId,
       setPreviewId,
       selectedId,
@@ -370,6 +375,7 @@ export function DocumentTemplateProvider({
       customFields,
       termsSeed,
       previewEntities,
+      hasWatermark,
       previewId,
       selectedId,
       addBlock,
