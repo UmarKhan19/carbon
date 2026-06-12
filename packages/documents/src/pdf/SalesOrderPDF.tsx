@@ -1,6 +1,5 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { Image, View } from "@react-pdf/renderer";
 import { Fragment } from "react";
 import type { DocumentTemplate, ResolvedSection } from "../template";
 import {
@@ -15,7 +14,7 @@ import {
   buildSalesOrderVars,
   salesOrderBlockRegistry
 } from "./blocks/salesOrder";
-import { Template } from "./components";
+import { Template, Watermark } from "./components";
 
 interface SalesOrderPDFProps extends PDF {
   salesOrder: Database["public"]["Views"]["salesOrders"]["Row"];
@@ -64,8 +63,6 @@ const SalesOrderPDF = ({
     country: company.countryCode,
     eori: company.eori
   });
-
-  const watermarkSrc = company.logoWatermark;
 
   const { blocks, theme, settings, headerSectionId, footerSectionId } =
     resolveTemplate("salesOrder", template);
@@ -139,23 +136,7 @@ const SalesOrderPDF = ({
       headerContent={headerContent}
       footerContent={footerContent}
     >
-      {settings.showWatermark && watermarkSrc && (
-        <View
-          fixed
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            alignItems: "center",
-            marginTop: 100,
-            opacity: 0.07
-          }}
-        >
-          <Image src={watermarkSrc} style={{ width: "50%" }} />
-        </View>
-      )}
+      <Watermark src={company.logoWatermark} show={settings.showWatermark} />
 
       {visibleBlocks.map((block) => {
         const render = salesOrderBlockRegistry[block.type];

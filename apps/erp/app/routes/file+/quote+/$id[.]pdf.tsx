@@ -97,10 +97,8 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load quote");
   }
 
-  const showThumbnails = templateShowsThumbnails(
-    toDocumentTemplate(documentTemplate.data, "quote"),
-    "quote"
-  );
+  const templateConfig = toDocumentTemplate(documentTemplate.data, "quote");
+  const showThumbnails = templateShowsThumbnails(templateConfig, "quote");
 
   let thumbnails: Record<string, string | null> = {};
 
@@ -147,8 +145,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       exchangeRate = currency.data.exchangeRate;
     }
   }
-
-  const templateConfig = toDocumentTemplate(documentTemplate.data, "quote");
 
   const resolved = resolveTemplate("quote", templateConfig);
   const sections = await resolveSections(

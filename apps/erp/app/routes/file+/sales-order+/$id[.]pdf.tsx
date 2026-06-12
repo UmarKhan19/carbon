@@ -89,10 +89,11 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load sales order");
   }
 
-  const showThumbnails = templateShowsThumbnails(
-    toDocumentTemplate(documentTemplate.data, "salesOrder"),
+  const templateConfig = toDocumentTemplate(
+    documentTemplate.data,
     "salesOrder"
   );
+  const showThumbnails = templateShowsThumbnails(templateConfig, "salesOrder");
 
   let thumbnails: Record<string, string | null> = {};
 
@@ -129,11 +130,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const { locale } = getPreferenceHeaders(request);
-
-  const templateConfig = toDocumentTemplate(
-    documentTemplate.data,
-    "salesOrder"
-  );
 
   const resolved = resolveTemplate("salesOrder", templateConfig);
   const sections = await resolveSections(

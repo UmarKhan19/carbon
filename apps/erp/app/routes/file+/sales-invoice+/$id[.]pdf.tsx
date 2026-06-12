@@ -97,8 +97,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load sales order");
   }
 
+  const templateConfig = toDocumentTemplate(
+    documentTemplate.data,
+    "salesInvoice"
+  );
   const showThumbnails = templateShowsThumbnails(
-    toDocumentTemplate(documentTemplate.data, "salesInvoice"),
+    templateConfig,
     "salesInvoice"
   );
 
@@ -159,11 +163,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const { locale } = getPreferenceHeaders(request);
-
-  const templateConfig = toDocumentTemplate(
-    documentTemplate.data,
-    "salesInvoice"
-  );
 
   // Resolve against the effective template (default when nothing is stored) so
   // built-in / forked header & footer sections render even before a company

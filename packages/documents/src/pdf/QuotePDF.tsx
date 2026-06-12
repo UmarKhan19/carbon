@@ -1,6 +1,5 @@
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
-import { Image, View } from "@react-pdf/renderer";
 import { Fragment } from "react";
 import type { DocumentTemplate, ResolvedSection } from "../template";
 import {
@@ -12,7 +11,7 @@ import type { AccountsReceivableBillingAddress, PDF } from "../types";
 import { composeRegistrationLine } from "../utils/footer";
 import type { QuoteCustomerDetails, QuoteData } from "./blocks/quote";
 import { buildQuoteVars, quoteBlockRegistry } from "./blocks/quote";
-import { Template } from "./components";
+import { Template, Watermark } from "./components";
 
 type QuoteLinePrice = Database["public"]["Tables"]["quoteLinePrice"]["Row"];
 
@@ -156,8 +155,6 @@ const QuotePDF = ({
     total: subtotal + shipping + fees + taxes
   };
 
-  const watermarkSrc = company.logoWatermark;
-
   const { blocks, theme, settings, headerSectionId, footerSectionId } =
     resolveTemplate("quote", template);
 
@@ -239,23 +236,7 @@ const QuotePDF = ({
       headerContent={headerContent}
       footerContent={footerContent}
     >
-      {settings.showWatermark && watermarkSrc && (
-        <View
-          fixed
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            alignItems: "center",
-            marginTop: 100,
-            opacity: 0.07
-          }}
-        >
-          <Image src={watermarkSrc} style={{ width: "50%" }} />
-        </View>
-      )}
+      <Watermark src={company.logoWatermark} show={settings.showWatermark} />
 
       {visibleBlocks.map((block) => {
         const render = quoteBlockRegistry[block.type];

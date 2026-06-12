@@ -86,8 +86,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     throw new Error("Failed to load purchase order");
   }
 
+  const templateConfig = toDocumentTemplate(
+    documentTemplate.data,
+    "purchaseOrder"
+  );
   const showThumbnails = templateShowsThumbnails(
-    toDocumentTemplate(documentTemplate.data, "purchaseOrder"),
+    templateConfig,
     "purchaseOrder"
   );
 
@@ -126,11 +130,6 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   }
 
   const { locale } = getPreferenceHeaders(request);
-
-  const templateConfig = toDocumentTemplate(
-    documentTemplate.data,
-    "purchaseOrder"
-  );
 
   const resolved = resolveTemplate("purchaseOrder", templateConfig);
   const sections = await resolveSections(
