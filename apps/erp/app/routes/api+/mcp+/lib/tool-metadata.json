@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-12T08:34:31.151Z",
-  "totalTools": 1187,
+  "generated": "2026-06-12T12:13:33.200Z",
+  "totalTools": 1188,
   "modules": 15,
   "tools": [
     {
@@ -17352,6 +17352,34 @@
           "jobId",
           "mode",
           "direction"
+        ]
+      }
+    },
+    {
+      "name": "production_getJobMaterialPurchaseOrderLines",
+      "module": "production",
+      "classification": "READ",
+      "description": "get job material purchase order lines",
+      "paramCount": 2,
+      "serviceParams": [
+        "client",
+        "materials",
+        "locationId"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "materials": {},
+          "locationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "materials",
+          "locationId"
         ]
       }
     },

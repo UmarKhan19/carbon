@@ -38,7 +38,7 @@ import type {
   productionQuantityValidator,
   scrapReasonValidator
 } from "./production.models";
-import type { Job } from "./types";
+import type { Job, JobMaterialPurchaseOrderLine } from "./types";
 
 export async function convertSalesOrderLinesToJobs(
   client: SupabaseClient<Database>,
@@ -3373,4 +3373,40 @@ export async function triggerJobSchedule(
   });
 
   return { success: true };
+}
+
+// Purchase order lines for a job's materials, scoped by item + location (not
+// jobId, since planning-generated POs aren't linked to the job). Flattened to
+// the procurement-status shape used by the BoM tree and the Materials table.
+export async function getJobMaterialPurchaseOrderLines(
+  client: SupabaseClient<Database>,
+  materials: Array<{ jobMaterialItemId: string | null }>,
+  locationId: string
+): Promise<JobMaterialPurchaseOrderLine[]> {
+  const itemIds = Array.from(
+    new Set(
+      materials
+        .map((material) => material.jobMaterialItemId)
+        .filter((id): id is string => Boolean(id))
+    )
+  );
+  if (itemIds.length === 0) return [];
+
+  const { data } = await client
+    .from("purchaseOrderLine")
+    .select("itemId, purchaseQuantity, quantityReceived, purchaseOrder(status)")
+    .in("itemId", itemIds)
+    .eq("locationId", locationId);
+
+  return (data ?? []).map((line) => ({
+    itemId: line.itemId,
+    purchaseQuantity: line.purchaseQuantity,
+    quantityReceived: line.quantityReceived,
+    status:
+      (
+        line.purchaseOrder as {
+          status: Database["public"]["Enums"]["purchaseOrderStatus"] | null;
+        } | null
+      )?.status ?? null
+  }));
 }

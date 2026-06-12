@@ -18,9 +18,9 @@ export function PulsingDot({
   return (
     <span className={cn("relative flex h-2 w-2", className)} {...props}>
       <span
-        className={`absolute h-full w-full animate-ping rounded-full border border-emerald-500 opacity-100 duration-1000`}
+        className={`absolute h-full w-full animate-ping rounded-full border border-red-500 opacity-100 duration-1000`}
       />
-      <span className={`h-2 w-2 rounded-full bg-emerald-500`} />
+      <span className={`h-2 w-2 rounded-full bg-red-500`} />
     </span>
   );
 }

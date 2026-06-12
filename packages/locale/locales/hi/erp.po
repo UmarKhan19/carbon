@@ -1040,6 +1040,9 @@ msgstr "उपलब्ध"
 msgid "Avg Days to Close"
 msgstr "बंद करने के लिए औसत दिन"
 
+msgid "Awaiting approval"
+msgstr ""
+
 msgid "Back"
 msgstr "वापस"
 
@@ -3858,6 +3861,9 @@ msgstr "घंटे/1000 पीस"
 msgid "Hours/Piece"
 msgstr "घंटे/टुकड़ा"
 
+msgid "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "हल की गई कीमत की गणना कैसे की गई।"
 
@@ -5445,6 +5451,9 @@ msgstr "होल्ड पर"
 msgid "On Jobs"
 msgstr "नौकरियों पर"
 
+msgid "On order"
+msgstr ""
+
 msgid "On Purchase Order"
 msgstr "खरीद आदेश पर"
 
@@ -5558,6 +5567,9 @@ msgstr "या"
 
 msgid "Order"
 msgstr "आदेश"
+
+msgid "Order {jobQuantity} for this job"
+msgstr ""
 
 msgid "Order by"
 msgstr "आदेश दें"
@@ -5820,6 +5832,9 @@ msgstr "नियोजित आदेश"
 msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
 msgstr "नियोजित आदेश = अनुमानित मांग को कवर करने के लिए MRP सुझाव आइटम की पुनः आदेश नीति के आधार पर (या मैन्युअल रूप से जोड़ा गया)।"
 
+msgid "Planned purchase order"
+msgstr ""
+
 msgid "Planned Start"
 msgstr "नियोजित प्रारंभ"
 
@@ -6032,6 +6047,9 @@ msgstr "प्रक्रिया प्रकार"
 msgid "Processes"
 msgstr "प्रक्रियाएं"
 
+msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
+msgstr ""
+
 msgid "Production"
 msgstr "उत्पादन"
 
@@ -6201,8 +6219,14 @@ msgstr "मात्रा"
 msgid "Quantity"
 msgstr "मात्रा"
 
+msgid "Quantity arriving — on open purchase orders plus on production (make) orders."
+msgstr ""
+
 msgid "Quantity Completed"
 msgstr "पूर्ण मात्रा"
+
+msgid "Quantity in transit to the storage unit via open stock transfers."
+msgstr ""
 
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "मात्रा MES में पूर्ण सीरीज़/बैच से प्राप्त है और संपादित नहीं की जा सकती।"
@@ -6227,6 +6251,9 @@ msgstr "प्रति जॉब मात्रा"
 
 msgid "Quantity per Parent"
 msgstr "प्रति पैरेंट मात्रा"
+
+msgid "Quantity physically on the material's assigned storage unit (shelf). Turns red when it's below what that unit needs to supply."
+msgstr ""
 
 msgid "Quantity Type"
 msgstr "मात्रा प्रकार"
@@ -6341,6 +6368,9 @@ msgstr "{0} को इन्वेंटरी में प्राप्त �
 msgid "Receive to Inventory"
 msgstr "इन्वेंटरी में प्राप्त करें"
 
+msgid "Received"
+msgstr ""
+
 msgid "Received At"
 msgstr "प्राप्त किया गया"
 
@@ -6349,6 +6379,9 @@ msgstr "द्वारा प्राप्त"
 
 msgid "Received Qty"
 msgstr "प्राप्त मात्रा"
+
+msgid "Receiving"
+msgstr ""
 
 msgid "Receiving Location"
 msgstr "प्राप्ति स्थान"
@@ -7894,6 +7927,9 @@ msgstr "यह जॉब इन्वेंटरी में प्राप�
 msgid "This job will no longer be available on the shop floor."
 msgstr "यह नौकरी अब शॉप फ्लोर पर उपलब्ध नहीं होगी।"
 
+msgid "This job's own required quantity for the material."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "इस बिक्रय आदेश के संबंधित कार्य हैं। उनके साथ क्या करना है यह चुनें।"
 
@@ -8049,6 +8085,12 @@ msgstr "कुल मूल्य"
 
 msgid "Total Quantity"
 msgstr "कुल मात्रा"
+
+msgid "Total quantity on hand for the item across all storage units at this location. Turns red when on hand plus incoming can't cover total demand."
+msgstr ""
+
+msgid "Total quantity required across all active jobs and sales orders at this location — not just this job."
+msgstr ""
 
 msgid "Total:"
 msgstr "कुल:"

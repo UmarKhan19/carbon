@@ -1,3 +1,4 @@
+import type { Database } from "@carbon/database";
 import type {
   getActiveProductionEvents,
   getFailureMode,
@@ -101,6 +102,13 @@ export type JobOperation = NonNullable<
 export type JobPurchaseOrderLine = NonNullable<
   Awaited<ReturnType<typeof getJobPurchaseOrderLines>>["data"]
 >[number];
+
+export type JobMaterialPurchaseOrderLine = {
+  itemId: string | null;
+  purchaseQuantity: number | null;
+  quantityReceived: number | null;
+  status: Database["public"]["Enums"]["purchaseOrderStatus"] | null;
+};
 
 export type ProductionEvent = NonNullable<
   Awaited<ReturnType<typeof getProductionEvents>>["data"]

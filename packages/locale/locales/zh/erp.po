@@ -1040,6 +1040,9 @@ msgstr "可用"
 msgid "Avg Days to Close"
 msgstr "平均关闭天数"
 
+msgid "Awaiting approval"
+msgstr ""
+
 msgid "Back"
 msgstr "返回"
 
@@ -3858,6 +3861,9 @@ msgstr "小时/1000件"
 msgid "Hours/Piece"
 msgstr "小时/件"
 
+msgid "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "已解决价格的计算方式。"
 
@@ -5445,6 +5451,9 @@ msgstr "暂停"
 msgid "On Jobs"
 msgstr "在工作中"
 
+msgid "On order"
+msgstr ""
+
 msgid "On Purchase Order"
 msgstr "采购订单上"
 
@@ -5558,6 +5567,9 @@ msgstr "或"
 
 msgid "Order"
 msgstr "订单"
+
+msgid "Order {jobQuantity} for this job"
+msgstr ""
 
 msgid "Order by"
 msgstr "订购截止日期"
@@ -5820,6 +5832,9 @@ msgstr "计划订单"
 msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
 msgstr "计划订单 = MRP 建议，用于根据物品的重新订购政策（或手动添加）覆盖预计需求。"
 
+msgid "Planned purchase order"
+msgstr ""
+
 msgid "Planned Start"
 msgstr "计划开始"
 
@@ -6032,6 +6047,9 @@ msgstr "流程类型"
 msgid "Processes"
 msgstr "流程"
 
+msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
+msgstr ""
+
 msgid "Production"
 msgstr "生产"
 
@@ -6201,8 +6219,14 @@ msgstr "数量"
 msgid "Quantity"
 msgstr "数量"
 
+msgid "Quantity arriving — on open purchase orders plus on production (make) orders."
+msgstr ""
+
 msgid "Quantity Completed"
 msgstr "完成数量"
+
+msgid "Quantity in transit to the storage unit via open stock transfers."
+msgstr ""
 
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "数量来自MES中已完成的序列号/批次，无法编辑。"
@@ -6227,6 +6251,9 @@ msgstr "每个工作的数量"
 
 msgid "Quantity per Parent"
 msgstr "每个父项的数量"
+
+msgid "Quantity physically on the material's assigned storage unit (shelf). Turns red when it's below what that unit needs to supply."
+msgstr ""
 
 msgid "Quantity Type"
 msgstr "数量类型"
@@ -6341,6 +6368,9 @@ msgstr "将 {0} 接收到库存"
 msgid "Receive to Inventory"
 msgstr "接收到库存"
 
+msgid "Received"
+msgstr ""
+
 msgid "Received At"
 msgstr "接收于"
 
@@ -6349,6 +6379,9 @@ msgstr "接收人"
 
 msgid "Received Qty"
 msgstr "已收货数量"
+
+msgid "Receiving"
+msgstr ""
 
 msgid "Receiving Location"
 msgstr "收货地点"
@@ -7894,6 +7927,9 @@ msgstr "此工作将被接收到库存中。它将不再在车间可用。"
 msgid "This job will no longer be available on the shop floor."
 msgstr "此工作将不再在车间可用。"
 
+msgid "This job's own required quantity for the material."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "此销售订单有关联的工作。选择如何处理它们。"
 
@@ -8049,6 +8085,12 @@ msgstr "总价"
 
 msgid "Total Quantity"
 msgstr "总数量"
+
+msgid "Total quantity on hand for the item across all storage units at this location. Turns red when on hand plus incoming can't cover total demand."
+msgstr ""
+
+msgid "Total quantity required across all active jobs and sales orders at this location — not just this job."
+msgstr ""
 
 msgid "Total:"
 msgstr "总计："

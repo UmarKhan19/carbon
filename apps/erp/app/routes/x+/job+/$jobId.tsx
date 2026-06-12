@@ -20,6 +20,8 @@ import type { JobMethodTreeItem } from "~/modules/production";
 import {
   getJob,
   getJobDocuments,
+  getJobMaterialPurchaseOrderLines,
+  getJobMaterialsWithQuantityOnHand,
   getJobMethodTree,
   getTrackedEntitiesByJobId
 } from "~/modules/production";
@@ -28,9 +30,38 @@ import {
   JobHeader,
   JobProperties
 } from "~/modules/production/ui/Jobs";
+import type { JobOrderStatusData } from "~/modules/production/ui/Jobs/JobBoMExplorer";
 import { getTagsList } from "~/modules/shared";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
+
+// Resolves each job material's procurement status for the BoM explorer badge:
+// its quantity-on-hand row (for the "needs ordering" shortfall, matching the
+// Materials page) and its purchase order lines (looked up by item + location,
+// not jobId, since planning-generated POs aren't linked to the job). Returned as
+// a promise so the explorer renders immediately and the badges stream in.
+async function getJobOrderStatus(
+  client: Parameters<typeof getJob>[0],
+  jobId: string,
+  companyId: string,
+  locationId: string
+): Promise<JobOrderStatusData> {
+  const materials = await getJobMaterialsWithQuantityOnHand(
+    client,
+    jobId,
+    companyId,
+    locationId
+  );
+
+  return {
+    materials: materials.data ?? [],
+    purchaseOrderLines: await getJobMaterialPurchaseOrderLines(
+      client,
+      materials.data ?? [],
+      locationId
+    )
+  };
+}
 
 export const handle: Handle = {
   breadcrumb: msg`Jobs`,
@@ -69,6 +100,12 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     files: getJobDocuments(client, companyId, job.data),
     trackedEntities: getTrackedEntitiesByJobId(client, jobId),
     method: getJobMethodTree(client, jobId), // returns a promise
+    orderStatus: getJobOrderStatus(
+      client,
+      jobId,
+      companyId,
+      job.data.locationId ?? ""
+    ), // returns a promise
     configurationParameters: getConfigurationParameters(
       client,
       job.data.itemId!,
@@ -82,7 +119,7 @@ export default function JobRoute() {
   const { jobId } = params;
   if (!jobId) throw new Error("Could not find jobId");
 
-  const { method } = useLoaderData<typeof loader>();
+  const { method, orderStatus } = useLoaderData<typeof loader>();
 
   return (
     <PanelProvider>
@@ -105,6 +142,7 @@ export default function JobRoute() {
                       {(resolvedMethod) => (
                         <JobBoMExplorerWrapper
                           method={resolvedMethod.data ?? []}
+                          orderStatus={orderStatus}
                         />
                       )}
                     </Await>
@@ -126,13 +164,15 @@ export default function JobRoute() {
 }
 
 function JobBoMExplorerWrapper({
-  method
+  method,
+  orderStatus
 }: {
   method: JobMethodTreeItem[] | null;
+  orderStatus: Promise<JobOrderStatusData>;
 }) {
   const memoizedMethod = useMemo(
     () => (method && method.length > 0 ? flattenTree(method[0]) : []),
     [method]
   );
-  return <JobBoMExplorer method={memoizedMethod} />;
+  return <JobBoMExplorer method={memoizedMethod} orderStatus={orderStatus} />;
 }

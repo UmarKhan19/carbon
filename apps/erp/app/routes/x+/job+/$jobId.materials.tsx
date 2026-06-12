@@ -8,6 +8,7 @@ import { redirect, useLoaderData } from "react-router";
 import { usePanels } from "~/components/Layout";
 import {
   getJob,
+  getJobMaterialPurchaseOrderLines,
   getJobMaterialsWithQuantityOnHand
 } from "~/modules/production";
 import { JobMaterialsTable } from "~/modules/production/ui/Jobs";
@@ -91,18 +92,27 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     }
   }
 
+  // Purchase order lines (item + location scoped) for the procurement-status
+  // column — same source the BoM tree uses.
+  const purchaseOrderLines = await getJobMaterialPurchaseOrderLines(
+    client,
+    materials.data ?? [],
+    job.data.locationId ?? ""
+  );
+
   return {
     count: materials.count ?? 0,
     materials: (materials.data ?? []).map((m) => ({
       ...m,
       hasExpiredBatch: expiredItemIds.has(m.jobMaterialItemId ?? "")
     })),
+    purchaseOrderLines,
     nearExpiryWarningDays
   };
 }
 
 export default function JobMaterialsRoute() {
-  const { count, materials, nearExpiryWarningDays } =
+  const { count, materials, purchaseOrderLines, nearExpiryWarningDays } =
     useLoaderData<typeof loader>();
   const { setIsExplorerCollapsed } = usePanels();
 
@@ -115,6 +125,7 @@ export default function JobMaterialsRoute() {
       <JobMaterialsTable
         data={materials}
         count={count}
+        purchaseOrderLines={purchaseOrderLines}
         nearExpiryWarningDays={nearExpiryWarningDays}
       />
     </VStack>

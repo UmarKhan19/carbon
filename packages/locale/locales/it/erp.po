@@ -1040,6 +1040,9 @@ msgstr "Disponibile"
 msgid "Avg Days to Close"
 msgstr "Giorni medi per chiudere"
 
+msgid "Awaiting approval"
+msgstr ""
+
 msgid "Back"
 msgstr "Indietro"
 
@@ -3858,6 +3861,9 @@ msgstr "Ore/1000 Pezzi"
 msgid "Hours/Piece"
 msgstr "Ore/Pezzo"
 
+msgid "How the material is sourced (make, purchase, or pull from inventory) and the storage unit it's pulled from."
+msgstr ""
+
 msgid "How the resolved price was calculated."
 msgstr "Come è stato calcolato il prezzo risolto."
 
@@ -5445,6 +5451,9 @@ msgstr "In Sospeso"
 msgid "On Jobs"
 msgstr "Su Lavori"
 
+msgid "On order"
+msgstr ""
+
 msgid "On Purchase Order"
 msgstr "In Ordine di Acquisto"
 
@@ -5558,6 +5567,9 @@ msgstr "O"
 
 msgid "Order"
 msgstr "Ordine"
+
+msgid "Order {jobQuantity} for this job"
+msgstr ""
 
 msgid "Order by"
 msgstr "Ordina entro"
@@ -5820,6 +5832,9 @@ msgstr "Ordine Pianificato"
 msgid "Planned order = MRP suggestion to cover projected demand based on the item's reorder policy (or manually added)."
 msgstr "Ordine pianificato = suggerimento MRP per coprire la domanda prevista in base alla politica di riordino dell'articolo (o aggiunto manualmente)."
 
+msgid "Planned purchase order"
+msgstr ""
+
 msgid "Planned Start"
 msgstr "Inizio Pianificato"
 
@@ -6032,6 +6047,9 @@ msgstr "Tipo di Processo"
 msgid "Processes"
 msgstr "Processi"
 
+msgid "Procurement status — needs ordering, planned, on order, or received. The same indicator shown in the BoM tree."
+msgstr ""
+
 msgid "Production"
 msgstr "Produzione"
 
@@ -6201,8 +6219,14 @@ msgstr "Quantità"
 msgid "Quantity"
 msgstr "Quantità"
 
+msgid "Quantity arriving — on open purchase orders plus on production (make) orders."
+msgstr ""
+
 msgid "Quantity Completed"
 msgstr "Quantità Completata"
+
+msgid "Quantity in transit to the storage unit via open stock transfers."
+msgstr ""
 
 msgid "Quantity is derived from completed serials/batches in MES and cannot be edited."
 msgstr "La quantità è derivata dai seriali/lotti completati in MES e non può essere modificata."
@@ -6227,6 +6251,9 @@ msgstr "Quantità Per Lavoro"
 
 msgid "Quantity per Parent"
 msgstr "Quantità per Genitore"
+
+msgid "Quantity physically on the material's assigned storage unit (shelf). Turns red when it's below what that unit needs to supply."
+msgstr ""
 
 msgid "Quantity Type"
 msgstr "Tipo di Quantità"
@@ -6341,6 +6368,9 @@ msgstr "Ricevi {0} in Inventario"
 msgid "Receive to Inventory"
 msgstr "Ricevi in Inventario"
 
+msgid "Received"
+msgstr ""
+
 msgid "Received At"
 msgstr "Ricevuto il"
 
@@ -6349,6 +6379,9 @@ msgstr "Ricevuto da"
 
 msgid "Received Qty"
 msgstr "Quantità Ricevuta"
+
+msgid "Receiving"
+msgstr ""
 
 msgid "Receiving Location"
 msgstr "Ubicazione di ricezione"
@@ -7894,6 +7927,9 @@ msgstr "Questo lavoro sarà ricevuto in inventario. Non sarà più disponibile s
 msgid "This job will no longer be available on the shop floor."
 msgstr "Questo lavoro non sarà più disponibile in officina."
 
+msgid "This job's own required quantity for the material."
+msgstr ""
+
 msgid "This sales order has associated jobs. Choose what to do with them."
 msgstr "Questo ordine di vendita ha processi associati. Scegli cosa fare con loro."
 
@@ -8049,6 +8085,12 @@ msgstr "Prezzo Totale"
 
 msgid "Total Quantity"
 msgstr "Quantità Totale"
+
+msgid "Total quantity on hand for the item across all storage units at this location. Turns red when on hand plus incoming can't cover total demand."
+msgstr ""
+
+msgid "Total quantity required across all active jobs and sales orders at this location — not just this job."
+msgstr ""
 
 msgid "Total:"
 msgstr "Totale:"

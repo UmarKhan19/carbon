@@ -17,7 +17,7 @@ import {
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useNumberFormatter } from "@react-aria/i18n";
 import type { ColumnDef } from "@tanstack/react-table";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, type ReactNode, useEffect, useMemo, useState } from "react";
 import {
   LuArrowDown,
   LuArrowLeftRight,
@@ -55,17 +55,52 @@ import {
 } from "~/stores/stock-transfer";
 import { path } from "~/utils/path";
 import type { Job, JobMaterial } from "../../types";
+import {
+  getJobMaterialOrderStatus,
+  JobOrderStatusBadge,
+  type JobPurchaseOrderLine
+} from "./JobOrderStatus";
 
 type JobMaterialsTableProps = {
   data: JobMaterial[];
   count: number;
+  purchaseOrderLines: JobPurchaseOrderLine[];
   nearExpiryWarningDays?: number | null;
 };
+// A column header with an explanatory tooltip on hover.
+function HeaderTooltip({ label, hint }: { label: ReactNode; hint: ReactNode }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="cursor-help">{label}</span>
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs">{hint}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 const JobMaterialsTable = memo(
-  ({ data, count, nearExpiryWarningDays }: JobMaterialsTableProps) => {
+  ({
+    data,
+    count,
+    purchaseOrderLines,
+    nearExpiryWarningDays
+  }: JobMaterialsTableProps) => {
     const { jobId } = useParams();
     const { t } = useLingui();
     if (!jobId) throw new Error("Job ID is required");
+
+    // Purchase order lines grouped by item, for the procurement-status column.
+    const poLinesByItemId = useMemo(() => {
+      const map = new Map<string, JobPurchaseOrderLine[]>();
+      for (const line of purchaseOrderLines) {
+        if (!line.itemId) continue;
+        const lines = map.get(line.itemId) ?? [];
+        lines.push(line);
+        map.set(line.itemId, lines);
+      }
+      return map;
+    }, [purchaseOrderLines]);
 
     const routeData = useRouteData<{ job: Job }>(path.to.job(jobId));
     const isRequired = ["Planned", "Ready", "In Progress", "Paused"].includes(
@@ -109,24 +144,28 @@ const JobMaterialsTable = memo(
           : material.quantityFromProductionOrderInStorageUnit +
             material.estimatedQuantity;
 
-        // Check if transfer is needed
+        // Check if transfer is needed. Only propose moving what actually exists
+        // in OTHER storage units (quantityOnHandNotInStorageUnit) — a transfer
+        // can't source stock that isn't there. Any remaining gap is a genuine
+        // shortage, handled by the order path below.
         const quantityOnHandInStorageUnit =
           material.quantityOnHandInStorageUnit;
         const quantityInTransitToStorageUnit =
           material.quantityInTransitToStorageUnit;
-        const hasStorageUnitQuantityFlag =
-          quantityOnHandInStorageUnit + quantityInTransitToStorageUnit <
-          quantityRequiredByStorageUnit;
+        const transferQuantity = Math.min(
+          quantityRequiredByStorageUnit -
+            (quantityOnHandInStorageUnit + quantityInTransitToStorageUnit),
+          material.quantityOnHandNotInStorageUnit
+        );
 
-        if (hasStorageUnitQuantityFlag) {
+        if (transferQuantity > 0) {
           itemsToAdd.push({
             id: material.id, // Job material ID
             itemId: material.jobMaterialItemId, // Actual item ID
             itemReadableId: material.itemReadableId,
             description: material.description,
             action: "transfer",
-            quantity:
-              quantityRequiredByStorageUnit - quantityOnHandInStorageUnit,
+            quantity: transferQuantity,
             requiresSerialTracking: material.itemTrackingType === "Serial",
             requiresBatchTracking: material.itemTrackingType === "Batch",
             storageUnitId: material.storageUnitId
@@ -225,8 +264,45 @@ const JobMaterialsTable = memo(
           }
         },
         {
+          id: "orderStatus",
+          header: () => (
+            <HeaderTooltip
+              label={t`Status`}
+              hint={
+                <Trans>
+                  Procurement status — needs ordering, planned, on order, or
+                  received. The same indicator shown in the BoM tree.
+                </Trans>
+              }
+            />
+          ),
+          cell: ({ row }) => {
+            const poLines = row.original.jobMaterialItemId
+              ? (poLinesByItemId.get(row.original.jobMaterialItemId) ?? [])
+              : [];
+            return (
+              <JobOrderStatusBadge
+                status={getJobMaterialOrderStatus(row.original, poLines)}
+                jobQuantity={row.original.estimatedQuantity ?? 0}
+              />
+            );
+          },
+          meta: {
+            icon: <LuShoppingCart />
+          }
+        },
+        {
           accessorKey: "estimatedQuantity",
-          header: t`Required`,
+          header: () => (
+            <HeaderTooltip
+              label={t`Required`}
+              hint={
+                <Trans>
+                  This job's own required quantity for the material.
+                </Trans>
+              }
+            />
+          ),
           cell: ({ row }) => formatter.format(row.original.estimatedQuantity),
           meta: {
             icon: <LuHash />
@@ -234,7 +310,17 @@ const JobMaterialsTable = memo(
         },
         {
           id: "method",
-          header: t`Method`,
+          header: () => (
+            <HeaderTooltip
+              label={t`Method`}
+              hint={
+                <Trans>
+                  How the material is sourced (make, purchase, or pull from
+                  inventory) and the storage unit it's pulled from.
+                </Trans>
+              }
+            />
+          ),
           cell: ({ row }) => (
             <HStack>
               <Badge variant="secondary">
@@ -253,7 +339,18 @@ const JobMaterialsTable = memo(
 
         {
           id: "quantityOnHandInStorageUnit",
-          header: t`On Storage Unit`,
+          header: () => (
+            <HeaderTooltip
+              label={t`On Storage Unit`}
+              hint={
+                <Trans>
+                  Quantity physically on the material's assigned storage unit
+                  (shelf). Turns red when it's below what that unit needs to
+                  supply.
+                </Trans>
+              }
+            />
+          ),
           cell: ({ row }) => {
             const isInventoried =
               row.original.itemTrackingType !== "Non-Inventory";
@@ -336,7 +433,18 @@ const JobMaterialsTable = memo(
         },
         {
           id: "quantityOnHand",
-          header: t`On Hand`,
+          header: () => (
+            <HeaderTooltip
+              label={t`On Hand`}
+              hint={
+                <Trans>
+                  Total quantity on hand for the item across all storage units
+                  at this location. Turns red when on hand plus incoming can't
+                  cover total demand.
+                </Trans>
+              }
+            />
+          ),
           cell: ({ row }) => {
             if (
               row.original.itemTrackingType === "Non-Inventory" ||
@@ -403,20 +511,38 @@ const JobMaterialsTable = memo(
         },
         {
           id: "required",
-          header: t`Required`,
+          header: () => (
+            <HeaderTooltip
+              label={t`Required`}
+              hint={
+                <Trans>
+                  Total quantity required across all active jobs and sales
+                  orders at this location — not just this job.
+                </Trans>
+              }
+            />
+          ),
           cell: ({ row }) =>
             formatter.format(
               row.original.quantityFromProductionOrderInStorageUnit +
                 row.original.quantityFromProductionOrderNotInStorageUnit +
                 row.original.quantityOnSalesOrder
             ),
-          meta: {
-            icon: <LuArrowDown className="text-red-600" />
-          }
+          meta: { icon: <LuArrowDown className="text-red-600" /> }
         },
         {
           id: "incoming",
-          header: t`Incoming`,
+          header: () => (
+            <HeaderTooltip
+              label={t`Incoming`}
+              hint={
+                <Trans>
+                  Quantity arriving — on open purchase orders plus on production
+                  (make) orders.
+                </Trans>
+              }
+            />
+          ),
           cell: ({ row }) =>
             formatter.format(
               row.original.quantityOnPurchaseOrder +
@@ -428,7 +554,17 @@ const JobMaterialsTable = memo(
         },
         {
           id: "transfer",
-          header: t`Transfer`,
+          header: () => (
+            <HeaderTooltip
+              label={t`Transfer`}
+              hint={
+                <Trans>
+                  Quantity in transit to the storage unit via open stock
+                  transfers.
+                </Trans>
+              }
+            />
+          ),
           cell: ({ row }) =>
             formatter.format(row.original.quantityInTransitToStorageUnit),
           meta: {
@@ -442,7 +578,8 @@ const JobMaterialsTable = memo(
       setSearchParams,
       isRequired,
       formatter,
-      sessionItemsCount
+      sessionItemsCount,
+      poLinesByItemId
     ]);
 
     const renderContextMenu = useMemo(() => {
