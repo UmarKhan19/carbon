@@ -71,7 +71,8 @@ export async function listPreviewEntities(
     .select(`id, ${cfg.idColumn}`)
     .eq("companyId", companyId)
     .order("createdAt", { ascending: false })
-    .limit(25);
+    // Just the latest handful — the picker is for sampling, not browsing.
+    .limit(6);
 
   return ((data ?? []) as Record<string, string>[])
     .filter((row) => row.id)
