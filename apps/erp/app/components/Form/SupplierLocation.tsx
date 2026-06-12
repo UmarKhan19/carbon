@@ -9,7 +9,9 @@ import type {
   SupplierLocation as SupplierLocationType
 } from "~/modules/purchasing";
 import { SupplierLocationForm } from "~/modules/purchasing/ui/Supplier";
+import { useSuppliers } from "~/stores";
 import { path } from "~/utils/path";
+import { useCountries } from "./Country";
 
 type SupplierLocationSelectProps = Omit<
   CreatableComboboxProps,
@@ -18,7 +20,14 @@ type SupplierLocationSelectProps = Omit<
   supplier?: string;
   inline?: boolean;
   onChange?: (supplier: SupplierLocationType | null) => void;
-  extractedValue?: string;
+  extractedAddress?: {
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    stateProvince?: string | null;
+    postalCode?: string | null;
+    countryCode?: string | null;
+  };
 };
 
 const SupplierLocationPreview = (
@@ -31,7 +40,10 @@ const SupplierLocationPreview = (
 };
 
 const SupplierLocation = ({
-  extractedValue,
+  extractedAddress,
+  onChange: propsOnChange,
+  inline,
+  supplier,
   ...props
 }: SupplierLocationSelectProps) => {
   const newLocationModal = useDisclosure();
@@ -39,15 +51,29 @@ const SupplierLocation = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const supplierLocationsFetcher =
     useFetcher<Awaited<ReturnType<typeof getSupplierLocations>>>();
+  const [suppliers] = useSuppliers();
+  const supplierName =
+    suppliers.find((s) => s.id === supplier)?.name ?? "Main Location";
+
+  const countries = useCountries();
+  const mappedCountryCode = useMemo(() => {
+    if (!extractedAddress?.countryCode) return "";
+    const raw = extractedAddress.countryCode;
+    if (raw.length === 2) return raw.toUpperCase();
+    const match = countries.find(
+      (c) =>
+        c.label.toLowerCase().includes(raw.toLowerCase()) ||
+        raw.toLowerCase().includes(c.label.toLowerCase())
+    );
+    return match ? match.value : raw;
+  }, [extractedAddress?.countryCode, countries]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
-    if (props?.supplier) {
-      supplierLocationsFetcher.load(
-        path.to.api.supplierLocations(props.supplier)
-      );
+    if (supplier) {
+      supplierLocationsFetcher.load(path.to.api.supplierLocations(supplier));
     }
-  }, [props.supplier]);
+  }, [supplier]);
 
   const options = useMemo(
     () =>
@@ -72,7 +98,7 @@ const SupplierLocation = ({
         (location) => location.id === newValue?.value
       ) ?? null;
 
-    props.onChange?.(location as SupplierLocationType | null);
+    propsOnChange?.(location as SupplierLocationType | null);
   };
 
   return (
@@ -81,8 +107,8 @@ const SupplierLocation = ({
         ref={triggerRef}
         options={options}
         {...props}
-        extractedValue={extractedValue}
-        inline={props?.inline ? SupplierLocationPreview : undefined}
+        extractedValue={extractedAddress?.addressLine1 ?? undefined}
+        inline={inline ? SupplierLocationPreview : undefined}
         label={props?.label ?? "Supplier Location"}
         onChange={onChange}
         onCreateOption={(option) => {
@@ -92,7 +118,7 @@ const SupplierLocation = ({
       />
       {newLocationModal.isOpen && (
         <SupplierLocationForm
-          supplierId={props.supplier!}
+          supplierId={supplier!}
           type="modal"
           onClose={() => {
             setCreated("");
@@ -100,8 +126,13 @@ const SupplierLocation = ({
             triggerRef.current?.click();
           }}
           initialValues={{
-            name: "",
-            addressLine1: created || (extractedValue ?? "")
+            name: supplierName,
+            addressLine1: extractedAddress?.addressLine1 || created || "",
+            addressLine2: extractedAddress?.addressLine2 || "",
+            city: extractedAddress?.city || "",
+            stateProvince: extractedAddress?.stateProvince || "",
+            postalCode: extractedAddress?.postalCode || "",
+            countryCode: mappedCountryCode
           }}
         />
       )}

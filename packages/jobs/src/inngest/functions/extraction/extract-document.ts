@@ -98,12 +98,18 @@ export const extractDocumentFunction = inngest.createFunction(
           extraction.documentType === "purchaseInvoice"
             ? `
 Return your response ONLY as a valid JSON object matching this schema. Do not include markdown code block formatting (like \`\`\`json) or any other text.
+Important: For \`supplierCountry\`, you MUST return the ISO 3166-1 alpha-2 country code (e.g. "US", "ID", "GB", "SG"), not the full country name.
 Schema structure:
 {
   "supplierName": { "value": string or null, "confidence": number },
   "supplierContactName": { "value": string or null, "confidence": number },
   "supplierContactEmail": { "value": string or null, "confidence": number },
-  "supplierAddress": { "value": string or null, "confidence": number },
+  "supplierAddressLine1": { "value": string or null, "confidence": number },
+  "supplierAddressLine2": { "value": string or null, "confidence": number },
+  "supplierCity": { "value": string or null, "confidence": number },
+  "supplierStateProvince": { "value": string or null, "confidence": number },
+  "supplierPostalCode": { "value": string or null, "confidence": number },
+  "supplierCountry": { "value": string or null, "confidence": number },
   "invoiceNumber": { "value": string or null, "confidence": number },
   "invoiceDate": { "value": string or null, "confidence": number },
   "dueDate": { "value": string or null, "confidence": number },

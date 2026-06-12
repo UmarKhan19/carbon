@@ -67,9 +67,14 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   const [extractedContactEmail, setExtractedContactEmail] = useState<
     string | undefined
   >();
-  const [extractedAddress, setExtractedAddress] = useState<
-    string | undefined
-  >();
+  const [extractedAddress, setExtractedAddress] = useState<{
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    stateProvince?: string | null;
+    postalCode?: string | null;
+    countryCode?: string | null;
+  }>();
   const [extractedLineItems, setExtractedLineItems] = useState<any[]>([]);
 
   const [formKey, setFormKey] = useState(0);
@@ -146,7 +151,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
         }
 
         if (locationResult.data) {
-          const addressLower = data.supplierAddress?.trim().toLowerCase();
+          const addressLower = data.supplierAddressLine1?.trim().toLowerCase();
           if (addressLower) {
             const matchedLocation = locationResult.data.find((l: any) => {
               const dbAddress = l.address?.addressLine1?.trim().toLowerCase();
@@ -181,8 +186,15 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       setExtractedContactEmail(undefined);
     }
 
-    if (data.supplierAddress && !resolvedLocationId) {
-      setExtractedAddress(data.supplierAddress);
+    if (data.supplierAddressLine1 && !resolvedLocationId) {
+      setExtractedAddress({
+        addressLine1: data.supplierAddressLine1,
+        addressLine2: data.supplierAddressLine2,
+        city: data.supplierCity,
+        stateProvince: data.supplierStateProvince,
+        postalCode: data.supplierPostalCode,
+        countryCode: data.supplierCountry
+      });
     } else {
       setExtractedAddress(undefined);
     }
@@ -482,7 +494,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
                 label={t`Invoice Supplier Location`}
                 supplier={supplier.id}
                 value={invoiceSupplier.invoiceSupplierLocationId}
-                extractedValue={extractedAddress}
+                extractedAddress={extractedAddress}
                 onChange={(newValue) => {
                   if (newValue?.id) {
                     setInvoiceSupplier((prevSupplier) => ({
