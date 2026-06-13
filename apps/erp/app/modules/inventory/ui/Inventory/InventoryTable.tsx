@@ -47,7 +47,7 @@ import {
 } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
-import { StorageUnitDrillSelect } from "~/components/Form/StorageUnitDrillSelect";
+import { StorageUnitSelectControl } from "~/components/Form/StorageUnitSelect";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { useFilters } from "~/components/Table/components/Filter/useFilters";
 import { useUrlParams } from "~/hooks";
@@ -564,11 +564,11 @@ const InventoryTable = memo(
                         )}
                       </div>
                     )}
-                    <StorageUnitDrillSelect
+                    <StorageUnitSelectControl
                       locationId={locationId}
                       value={null}
-                      onChange={(id) => {
-                        if (id) toggle(id);
+                      onChange={(storageUnit) => {
+                        if (storageUnit) toggle(storageUnit.id);
                       }}
                       allowCreate={false}
                     />

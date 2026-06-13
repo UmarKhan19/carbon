@@ -20,9 +20,9 @@ import {
   Input,
   Location,
   StorageTypes,
-  StorageUnit,
   Submit
 } from "~/components/Form";
+import { StorageUnitDrillSelectField } from "~/components/Form/StorageUnitDrillSelect";
 import { usePermissions } from "~/hooks";
 import { storageUnitValidator } from "~/modules/inventory";
 import { path } from "~/utils/path";
@@ -93,12 +93,11 @@ const StorageUnitForm = ({
                   name="locationId"
                   label={t`Location`}
                 />
-                <StorageUnit
+                <StorageUnitDrillSelectField
                   name="parentId"
                   label={t`Parent Storage Unit`}
                   locationId={locationId}
                   isOptional
-                  browseMode="tree"
                   helperText={t`Must be in the same location`}
                   excludeDescendantsOf={initialValues.id}
                 />

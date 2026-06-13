@@ -74,16 +74,6 @@ type StorageUnitDrillSelectProps = {
   placeholder?: string;
   className?: string;
   /**
-   * How the list behaves before the user searches:
-   * - `"leaf"` (default): open straight to a flat list of every leaf storage
-   *   unit (the actual storable bins), each with its hierarchy path. Best for
-   *   location/bin pickers.
-   * - `"tree"`: hierarchical drill-down from the roots with a breadcrumb. Used
-   *   by the Parent picker, where intermediate/root nodes are the target.
-   * Search always spans every unit regardless of mode.
-   */
-  browseMode?: "leaf" | "tree";
-  /**
    * Exclude the given unit and all its descendants from the tree. Used by
    * parent-pickers so a user can't pick themselves / a child (cycle). DB
    * also enforces via `storage_unit_enforce_no_cycle`.
@@ -99,7 +89,6 @@ export function StorageUnitDrillSelect({
   allowCreate = true,
   placeholder = "Select",
   className,
-  browseMode = "leaf",
   excludeDescendantsOf
 }: StorageUnitDrillSelectProps) {
   const allRows = useStorageUnitsTree(locationId);
@@ -139,18 +128,6 @@ export function StorageUnitDrillSelect({
     return m;
   }, [rows]);
 
-  const isLeafMode = browseMode === "leaf";
-
-  // Leaf nodes (no children) across the whole location, sorted by name. These
-  // are the actual storable bins surfaced as the default list in leaf mode.
-  const leaves = useMemo(
-    () =>
-      rows
-        .filter((r) => (childrenOf.get(r.id) ?? []).length === 0)
-        .sort((a, b) => a.name.localeCompare(b.name)),
-    [rows, childrenOf]
-  );
-
   const currentParentId = stack.length === 0 ? null : stack[stack.length - 1];
   const currentChildren = childrenOf.get(currentParentId) ?? [];
   const breadcrumb = stack
@@ -178,11 +155,6 @@ export function StorageUnitDrillSelect({
     });
   }, [search, rows, byId]);
 
-  // The flat (name + path) list rendered when searching, or — in leaf mode —
-  // as the default list of leaf bins. `null` falls through to the hierarchical
-  // drill view (tree mode, no search).
-  const flatList = searchResults ?? (isLeafMode ? leaves : null);
-
   const selectedRow = value ? byId.get(value) : undefined;
   const triggerLabel = selectedRow?.name ?? "";
 
@@ -194,16 +166,14 @@ export function StorageUnitDrillSelect({
   }, [locations, locationId]);
 
   // Open with the selected row's parent stack so the user sees the selected
-  // unit highlighted in its sibling list on reopen. Tree mode only — leaf mode
-  // has no drill stack.
+  // unit highlighted in its sibling list on reopen.
   useEffect(() => {
-    if (isLeafMode) return;
     if (!open) return;
     if (!value) return;
     const row = byId.get(value);
     if (!row) return;
     setStack((row.ancestorPath ?? []).slice(0, -1));
-  }, [isLeafMode, open, value, byId]);
+  }, [open, value, byId]);
 
   const reset = () => {
     setStack([]);
@@ -269,44 +239,41 @@ export function StorageUnitDrillSelect({
           avoidCollisions
           className="w-auto min-w-[280px] max-w-[min(420px,calc(100vw-24px))] p-0"
         >
-          {/* Breadcrumb — tree mode only. Root crumb = location, non-clickable
-              (DrillSelect is single-location); subsequent crumbs are parent
-              units (clickable to navigate up the tree). Leaf mode is a flat
-              list, so there's nothing to navigate. */}
-          {!isLeafMode && (
-            <div className="flex flex-wrap items-center gap-0.5 border-b px-2 py-1.5">
-              <button
-                type="button"
-                onClick={() => setStack([])}
-                className={cn(
-                  "flex items-center gap-1 rounded px-1.5 py-0.5 text-xs hover:bg-muted",
-                  stack.length === 0
-                    ? "font-medium text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <LuMapPin className="h-3 w-3 opacity-70" />
-                {locationLabel || "Location"}
-              </button>
-              {breadcrumb.map((row, i) => (
-                <span key={row.id} className="flex items-center gap-0.5">
-                  <LuChevronRight className="h-3 w-3 text-muted-foreground/60" />
-                  <button
-                    type="button"
-                    onClick={() => setStack(stack.slice(0, i + 1))}
-                    className={cn(
-                      "rounded px-1.5 py-0.5 text-xs hover:bg-muted",
-                      i === breadcrumb.length - 1
-                        ? "font-medium text-foreground"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    {row.name}
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
+          {/* Breadcrumb — root crumb = location, non-clickable (DrillSelect is
+              single-location); subsequent crumbs are parent units (clickable to
+              navigate up the tree). */}
+          <div className="flex flex-wrap items-center gap-0.5 border-b px-2 py-1.5">
+            <button
+              type="button"
+              onClick={() => setStack([])}
+              className={cn(
+                "flex items-center gap-1 rounded px-1.5 py-0.5 text-xs hover:bg-muted",
+                stack.length === 0
+                  ? "font-medium text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <LuMapPin className="h-3 w-3 opacity-70" />
+              {locationLabel || "Location"}
+            </button>
+            {breadcrumb.map((row, i) => (
+              <span key={row.id} className="flex items-center gap-0.5">
+                <LuChevronRight className="h-3 w-3 text-muted-foreground/60" />
+                <button
+                  type="button"
+                  onClick={() => setStack(stack.slice(0, i + 1))}
+                  className={cn(
+                    "rounded px-1.5 py-0.5 text-xs hover:bg-muted",
+                    i === breadcrumb.length - 1
+                      ? "font-medium text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {row.name}
+                </button>
+              </span>
+            ))}
+          </div>
 
           {/* Search — flush, borderless. */}
           <Input
@@ -320,13 +287,13 @@ export function StorageUnitDrillSelect({
 
           {/* List */}
           <ul className="max-h-[260px] overflow-y-auto py-1">
-            {flatList ? (
-              flatList.length === 0 ? (
+            {searchResults ? (
+              searchResults.length === 0 ? (
                 <li className="px-3 py-6 text-center text-xs text-muted-foreground">
-                  {searchResults ? "No matches" : "No storage units"}
+                  No matches
                 </li>
               ) : (
-                flatList.map((row) => (
+                searchResults.map((row) => (
                   <li key={row.id}>
                     <button
                       type="button"
@@ -462,7 +429,6 @@ type StorageUnitDrillSelectFieldProps = {
   allowCreate?: boolean;
   placeholder?: string;
   className?: string;
-  browseMode?: "leaf" | "tree";
   excludeDescendantsOf?: string;
   /**
    * Callback fired after the form value updates. Receives the chosen row so
@@ -483,7 +449,6 @@ export function StorageUnitDrillSelectField({
   allowCreate,
   placeholder,
   className,
-  browseMode,
   excludeDescendantsOf,
   onChange
 }: StorageUnitDrillSelectFieldProps) {
@@ -543,7 +508,6 @@ export function StorageUnitDrillSelectField({
         allowCreate={allowCreate}
         placeholder={placeholder}
         className={className}
-        browseMode={browseMode}
         excludeDescendantsOf={excludeDescendantsOf}
       />
       {error ? (

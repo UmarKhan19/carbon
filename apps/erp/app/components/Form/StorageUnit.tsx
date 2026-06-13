@@ -1,7 +1,10 @@
-// Compatibility shim: keeps the historical `<StorageUnit>` form API but
-// renders the hierarchical drill-down picker (Location → tree) underneath.
-// All existing callsites continue to work; new code should prefer
-// `StorageUnitDrillSelectField` directly.
+// `<StorageUnit>` — the historical leaf/bin picker API. Delegates to the
+// `CreatableCombobox`-based `StorageUnitSelect`:
+// - with `name`     -> form-bound variant
+// - with no `name`  -> controlled variant (`storageUnitId` + `onChange`)
+//
+// The hierarchical drill-down (`StorageUnitDrillSelect`) is a separate
+// component used only by the Parent picker.
 
 import type { ComboboxProps } from "@carbon/form";
 import { forwardRef, useEffect, useMemo } from "react";
@@ -10,88 +13,76 @@ import type { getStorageUnitsList } from "~/modules/inventory";
 import type { ListItem } from "~/types";
 import { path } from "~/utils/path";
 import {
-  StorageUnitDrillSelectField,
-  type StorageUnitTreeRow
-} from "./StorageUnitDrillSelect";
+  StorageUnitSelect,
+  StorageUnitSelectControl
+} from "./StorageUnitSelect";
 
 type StorageUnitSelectProps = Omit<
   ComboboxProps,
   "options" | "onChange" | "inline"
 > & {
   locationId?: string;
-  /** Kept for API compat; the drill picker doesn't display per-item qty. */
+  /** Per-item qty hints shown as option helper text when provided. */
   itemId?: string;
+  /** Controlled value (used when `name` is absent). */
+  storageUnitId?: string | null;
   inline?: boolean;
   onChange?: (storageUnit: ListItem | null) => void;
-  /**
-   * List behavior before searching: `"leaf"` (default) opens to a flat list of
-   * leaf bins; `"tree"` opens the hierarchical drill-down. The Parent picker
-   * passes `"tree"` since it targets intermediate/root nodes.
-   */
-  browseMode?: "leaf" | "tree";
-  /**
-   * Exclude the given storage unit and every one of its descendants — used
-   * by `StorageUnitForm`'s Parent picker so a user cannot pick themselves or
-   * a child (which would create a cycle). DB enforces the same invariant
-   * via `storage_unit_enforce_no_cycle`.
-   */
-  excludeDescendantsOf?: string;
 };
 
 const StorageUnit = forwardRef<HTMLDivElement, StorageUnitSelectProps>(
   (props, _ref) => {
     const {
       name,
+      storageUnitId,
       label,
       inline,
       locationId,
+      itemId,
       isReadOnly,
       isOptional,
-      browseMode,
-      excludeDescendantsOf,
       onChange,
       ...rest
     } = props;
 
-    // Field name is required to bind to the form. The original component
-    // declared `name` via ComboboxProps (also required).
+    // Controlled (non-form) usage: table cells / line editors that own the
+    // value and update via `onChange`.
     if (!name) {
-      console.warn("<StorageUnit /> requires a `name` prop.");
-      return null;
+      return (
+        <StorageUnitSelectControl
+          locationId={locationId}
+          value={storageUnitId}
+          itemId={itemId}
+          isReadOnly={isReadOnly}
+          placeholder={
+            typeof rest.placeholder === "string" ? rest.placeholder : undefined
+          }
+          onChange={(unit) => onChange?.(unit)}
+        />
+      );
     }
 
     return (
-      <StorageUnitDrillSelectField
+      <StorageUnitSelect
         name={name}
-        label={typeof label === "string" ? label : undefined}
+        label={label}
         inline={inline}
         helperText={
           typeof rest.helperText === "string" ? rest.helperText : undefined
         }
         locationId={locationId}
+        itemId={itemId}
         isReadOnly={isReadOnly}
         isOptional={isOptional}
-        browseMode={browseMode}
-        excludeDescendantsOf={excludeDescendantsOf}
         placeholder={
-          typeof rest.placeholder === "string"
-            ? rest.placeholder
-            : "Select storage unit"
+          typeof rest.placeholder === "string" ? rest.placeholder : undefined
         }
-        onChange={(row) => {
-          if (!onChange) return;
-          onChange(rowToListItem(row));
-        }}
+        onChange={(unit) => onChange?.(unit)}
       />
     );
   }
 );
 StorageUnit.displayName = "StorageUnit";
-
-const rowToListItem = (row: StorageUnitTreeRow | null): ListItem | null => {
-  if (!row) return null;
-  return { id: row.id, name: row.name } as ListItem;
-};
 
 export default StorageUnit;
 
