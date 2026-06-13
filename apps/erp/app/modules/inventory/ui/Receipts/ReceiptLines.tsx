@@ -66,7 +66,7 @@ import {
 import DocumentIcon from "~/components/DocumentIcon";
 import { Enumerable } from "~/components/Enumerable";
 import FileDropzone from "~/components/FileDropzone";
-import { StorageUnitSelectControl } from "~/components/Form/StorageUnitSelect";
+import StorageUnit from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { ConfirmDelete } from "~/components/Modals";
 import { useRouteData, useUser } from "~/hooks";
@@ -575,7 +575,7 @@ function ReceiptLineItem({
             <label className="text-xs text-muted-foreground">
               Storage Unit
             </label>
-            <StorageUnitSelectControl
+            <StorageUnit
               locationId={line.locationId}
               value={line.storageUnitId}
               isReadOnly={isReadOnly}

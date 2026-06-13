@@ -53,7 +53,7 @@ import { Outlet, useFetcher } from "react-router";
 import type { z } from "zod";
 import { Enumerable } from "~/components/Enumerable";
 import { Input, Location, Select, TextArea } from "~/components/Form";
-import { StorageUnitSelect } from "~/components/Form/StorageUnitSelect";
+import StorageUnit from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { usePermissions, usePrinting } from "~/hooks";
 import type {
@@ -349,7 +349,7 @@ const InventoryStorageUnits = ({
 
                 <VStack spacing={2}>
                   <Location name="locationId" label={t`Location`} isReadOnly />
-                  <StorageUnitSelect
+                  <StorageUnit
                     name="storageUnitId"
                     locationId={pickMethod.locationId}
                     label={t`Storage Unit`}

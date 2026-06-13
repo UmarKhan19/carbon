@@ -47,7 +47,7 @@ import {
 } from "~/components";
 import { Enumerable } from "~/components/Enumerable";
 import { useLocations } from "~/components/Form/Location";
-import { StorageUnitSelectControl } from "~/components/Form/StorageUnitSelect";
+import StorageUnit from "~/components/Form/StorageUnit";
 import { useUnitOfMeasure } from "~/components/Form/UnitOfMeasure";
 import { useFilters } from "~/components/Table/components/Filter/useFilters";
 import { useUrlParams } from "~/hooks";
@@ -564,7 +564,7 @@ const InventoryTable = memo(
                         )}
                       </div>
                     )}
-                    <StorageUnitSelectControl
+                    <StorageUnit
                       locationId={locationId}
                       value={null}
                       onChange={(storageUnit) => {
