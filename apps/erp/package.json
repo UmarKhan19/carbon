@@ -24,6 +24,7 @@
     "@carbon/notifications": "workspace:*",
     "@carbon/printing": "workspace:*",
     "@carbon/react": "workspace:*",
+    "@carbon/result": "workspace:*",
     "@carbon/stripe": "workspace:*",
     "@carbon/utils": "workspace:*",
     "@dagrejs/dagre": "^1.1.4",

@@ -1,6 +1,6 @@
 import { toast } from "@carbon/react";
 import type { MiddlewareFunction } from "react-router";
-import type { Result } from "../types";
+import type { FlashResult } from "../types";
 
 type ClientMiddlewareResult = Record<
   string,
@@ -15,7 +15,7 @@ export const flashClientMiddleware: MiddlewareFunction<
   const rootData = data?.root;
   if (rootData?.type === "data" && rootData.result) {
     const result = (rootData.result as Record<string, unknown>)
-      .result as Result | null;
+      .result as FlashResult | null;
     if (result?.success === true) {
       toast.success(result.message);
     } else if (result?.message) {

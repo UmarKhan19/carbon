@@ -50,6 +50,10 @@ msgstr "{0}個の未サンプリングエンティティが利用可能にリリ
 msgid "{0} uploaded successfully"
 msgstr "{0}が正常にアップロードされました"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB制限"
 
@@ -468,6 +472,10 @@ msgstr "金額"
 msgid "Amount Type"
 msgstr "金額タイプ"
 
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr ""
+
 msgid "An item cannot be added to itself."
 msgstr "アイテムをそれ自体に追加することはできません。"
 
@@ -539,6 +547,10 @@ msgstr "承認日"
 
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
 msgstr "この金額以上で次のルールの最小値までの承認が必要です"
+
+#. js-lingui-explicit-id
+msgid "approvals.notPending"
+msgstr ""
 
 msgid "Approval Requirements"
 msgstr "承認要件"
@@ -5454,6 +5466,10 @@ msgstr "販売注文中"
 msgid "On Storage Unit"
 msgstr "保管ユニット上"
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr ""
+
 msgid "Onshape Status"
 msgstr "Onshape ステータス"
 
@@ -7323,6 +7339,10 @@ msgstr "会社の祝日に予定されたメンテナンスをスキップする
 msgid "Skipped"
 msgstr "スキップ"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr ""
+
 msgid "Something went wrong. Please try again."
 msgstr "何か問題が発生しました。もう一度お試しください。"
 
@@ -7869,6 +7889,14 @@ msgstr "これらのメールアドレスは、顧客に送信されるすべて
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "これらのジョブにはこのワークセンターに割り当てられた操作があります:"
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "この情報はドキュメントヘッダーで使用されます"
@@ -8421,6 +8449,10 @@ msgstr "有効期限"
 
 msgid "Validating job..."
 msgstr "ジョブを検証中..."
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr ""
 
 msgid "Value"
 msgstr "値"

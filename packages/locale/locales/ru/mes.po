@@ -42,6 +42,10 @@ msgstr "{0} из {1} завершено"
 msgid "{0} Scrapped"
 msgstr "{0} Списано"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr ""
+
 msgid "About"
 msgstr "О системе"
 
@@ -71,6 +75,10 @@ msgstr "Добавить запасную часть"
 
 msgid "All"
 msgstr "Все"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr ""
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Вы уверены, что хотите удалить этот шаг?"
@@ -277,8 +285,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Перетаскивание {0} отменено."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Срок {0}"
 
@@ -885,6 +893,10 @@ msgstr "Вход выполнен как {stationName}"
 msgid "Size"
 msgstr "Размер"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr ""
+
 msgid "Source"
 msgstr "Источник"
 
@@ -943,6 +955,14 @@ msgstr "Количество готовой продукции по этой о�
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "В спецификации есть материалы с серийным или партионным учётом, которые не были полностью выданы. Завершение без выдачи может привести к некорректным записям прослеживаемости."
 
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
+
 msgid "Thumbnail"
 msgstr "Миниатюра"
 
@@ -998,6 +1018,10 @@ msgstr "Загружено: {0}"
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "Загрузка {0}"
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "Просмотреть наряд на обслуживание"

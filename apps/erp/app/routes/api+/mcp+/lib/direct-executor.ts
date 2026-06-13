@@ -213,6 +213,27 @@ export async function executeFunction(
       }
     }
 
+    // better-result Results carry a `status` discriminant. Unwrap them into the
+    // executor's success/error envelope so a typed failure (e.g. NotFound) is
+    // reported as a failure instead of `success: true`.
+    if (
+      result &&
+      typeof result === "object" &&
+      (result.status === "ok" || result.status === "error")
+    ) {
+      if (result.status === "error") {
+        const resultError = result.error;
+        return {
+          success: false,
+          error:
+            resultError?.messageDescriptor?.message ||
+            resultError?._tag ||
+            "Operation failed"
+        };
+      }
+      result = result.value;
+    }
+
     return {
       success: true,
       data: result

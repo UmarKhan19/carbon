@@ -42,6 +42,10 @@ msgstr "{0} sur {1} terminé(s)"
 msgid "{0} Scrapped"
 msgstr "{0} Rebuté(s)"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr ""
+
 msgid "About"
 msgstr "À propos"
 
@@ -71,6 +75,10 @@ msgstr "Ajouter une pièce de rechange"
 
 msgid "All"
 msgstr "Tout"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr ""
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette étape ?"
@@ -277,8 +285,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Déplacement de {0} annulé."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Échéance {0}"
 
@@ -885,6 +893,10 @@ msgstr "Connecté en tant que {stationName}"
 msgid "Size"
 msgstr "Taille"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr ""
+
 msgid "Source"
 msgstr "Source"
 
@@ -943,6 +955,14 @@ msgstr "La quantité produite pour cette opération est inférieure à la quanti
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Il existe des matériaux suivis par numéro de série ou par lot dans la nomenclature qui n'ont pas été entièrement distribués. Terminer sans distribuer peut entraîner des enregistrements de traçabilité incorrects."
 
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
+
 msgid "Thumbnail"
 msgstr "Miniature"
 
@@ -998,6 +1018,10 @@ msgstr "Téléversé : {0}"
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "Téléversement de {0}"
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "Voir l'intervention de maintenance"

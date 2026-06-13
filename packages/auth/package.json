@@ -8,6 +8,7 @@
     "sst": "catalog:",
     "tsup": "catalog:",
     "typescript": "catalog:",
+    "vite-plugin-babel-macros": "catalog:",
     "vitest": "catalog:"
   },
   "exports": {
@@ -52,6 +53,8 @@
     "@carbon/env": "workspace:*",
     "@carbon/kv": "workspace:*",
     "@carbon/lib": "workspace:*",
+    "@carbon/result": "workspace:*",
+    "@lingui/core": "catalog:",
     "@react-email/components": "catalog:",
     "@simplewebauthn/server": "^13.1.0",
     "cookie": "catalog:",

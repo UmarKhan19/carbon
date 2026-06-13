@@ -50,6 +50,10 @@ msgstr "{0} entidades no muestreadas serán liberadas a Disponible. Los pases mu
 msgid "{0} uploaded successfully"
 msgstr "{0} cargado exitosamente"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB límite"
 
@@ -468,6 +472,10 @@ msgstr "Cantidad"
 msgid "Amount Type"
 msgstr "Tipo de Cantidad"
 
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr ""
+
 msgid "An item cannot be added to itself."
 msgstr "Un elemento no puede agregarse a sí mismo."
 
@@ -539,6 +547,10 @@ msgstr "Fecha de Aprobación"
 
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
 msgstr "Se requiere aprobación en o por encima de este monto, hasta el mínimo de la siguiente regla"
+
+#. js-lingui-explicit-id
+msgid "approvals.notPending"
+msgstr ""
 
 msgid "Approval Requirements"
 msgstr "Requisitos de Aprobación"
@@ -5454,6 +5466,10 @@ msgstr "En Orden de Venta"
 msgid "On Storage Unit"
 msgstr "En Unidad de Almacenamiento"
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr ""
+
 msgid "Onshape Status"
 msgstr "Estado de Onshape"
 
@@ -7323,6 +7339,10 @@ msgstr "Omitir mantenimiento programado en días festivos de la empresa"
 msgid "Skipped"
 msgstr "Omitido"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr ""
+
 msgid "Something went wrong. Please try again."
 msgstr "Algo salió mal. Por favor, inténtalo de nuevo."
 
@@ -7869,6 +7889,14 @@ msgstr "Estas direcciones de correo electrónico se copiarán automáticamente e
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Estos trabajos tienen operaciones asignadas a este centro de trabajo:"
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "Esta información se utilizará en los encabezados de documentos"
@@ -8421,6 +8449,10 @@ msgstr "Válido Hasta"
 
 msgid "Validating job..."
 msgstr "Validando trabajo..."
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr ""
 
 msgid "Value"
 msgstr "Valor"

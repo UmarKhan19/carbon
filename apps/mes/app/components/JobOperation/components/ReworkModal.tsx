@@ -1,4 +1,4 @@
-import type { Result } from "@carbon/auth";
+import type { FlashResult } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import {
   Hidden,
@@ -60,7 +60,7 @@ export function ReworkModal({
   parentIsBatch?: boolean;
 }) {
   const { t } = useLingui();
-  const fetcher = useFetcher<Result>();
+  const fetcher = useFetcher<FlashResult>();
   const targetsFetcher = useFetcher<{
     operations: UpstreamOperation[];
   }>();

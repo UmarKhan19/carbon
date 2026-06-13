@@ -84,6 +84,37 @@
 - NEVER update the cache about staged/uncommitted code.
 - NEVER rebuild the database to test changes. Wait for the user to do that.
 
+## Error Handling (Result)
+
+Service functions return a typed `Result<T, E>` from `@carbon/result` whose
+failure side is a tagged, translatable error. See
+[docs/adr/0001-result-based-errors-with-boundary-translation.md](docs/adr/0001-result-based-errors-with-boundary-translation.md)
+and the glossary in [CONTEXT.md](CONTEXT.md).
+
+- **Greenfield Rule (adoption):** new service functions and materially modified
+  ones must return `Result`; untouched legacy code keeps its existing style. Do
+  not do big-bang rewrites.
+- **Import surface:** import `Result`, the core errors, and `createCarbonError`
+  only from `@carbon/result` — never from `better-result` directly.
+- **Core errors (closed set):** `NotFoundError`, `ValidationError`,
+  `ConflictError`, `BusinessRuleError`, `DatabaseError`, `ExternalServiceError`.
+  Conflict = the operation is valid but the current state already blocks/satisfies
+  it; BusinessRule = the operation itself violates an invariant. There is no
+  `PermissionError` — auth and RLS enforce permissions upstream.
+- **Domain errors** live next to the service that raises them; author their
+  messages with the Lingui `msg` macro (a `*.errors.ts` next to the service is
+  the pattern), extending the same base via `createCarbonError`.
+- **Adapters:** wrap Supabase queries with `fromQuery(query, { entity, id })` and
+  Kysely transactions with `fromTransaction(db, fn)` from `@carbon/database/result`.
+  Never return a raw `PostgrestError` to a caller.
+- **Boundary:** in the action/loader, convert a failed Result with
+  `errorFlash(error, i18n)` (and `successFlash`) from `@carbon/auth`, building the
+  request i18n with `getRequestI18n(request)`. Translation happens here, at write
+  time, in the requester's locale.
+- **Defects** (raw throws, better-result `Panic`) bypass Result/flash and surface
+  via the route ErrorBoundary. Result models expected failures only.
+- The approvals module (`apps/erp/app/modules/shared`) is the reference pilot.
+
 ## Browser Automation
 
 With the user's permission, use the `/login` and `/test` skill to verify fixes.

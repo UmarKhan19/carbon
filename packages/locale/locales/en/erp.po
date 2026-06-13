@@ -50,6 +50,10 @@ msgstr "{0} un-sampled entities will be released to Available. Sampled passes st
 msgid "{0} uploaded successfully"
 msgstr "{0} uploaded successfully"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "{entity} not found"
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
 
@@ -468,6 +472,10 @@ msgstr "Amount"
 msgid "Amount Type"
 msgstr "Amount Type"
 
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "An external service is currently unavailable"
+
 msgid "An item cannot be added to itself."
 msgstr "An item cannot be added to itself."
 
@@ -539,6 +547,10 @@ msgstr "Approval Date"
 
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
 msgstr "Approval is required at or above this amount, up to the next rule's minimum"
+
+#. js-lingui-explicit-id
+msgid "approvals.notPending"
+msgstr "Approval request is not pending"
 
 msgid "Approval Requirements"
 msgstr "Approval Requirements"
@@ -5454,6 +5466,10 @@ msgstr "On Sales Order"
 msgid "On Storage Unit"
 msgstr "On Storage Unit"
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr "Only the requester can cancel an approval request"
+
 msgid "Onshape Status"
 msgstr "Onshape Status"
 
@@ -7323,6 +7339,10 @@ msgstr "Skip scheduled maintenance on company holidays"
 msgid "Skipped"
 msgstr "Skipped"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Something went wrong while saving your changes"
+
 msgid "Something went wrong. Please try again."
 msgstr "Something went wrong. Please try again."
 
@@ -7869,6 +7889,14 @@ msgstr "These email addresses will be automatically CC'd on all quote emails sen
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "These jobs have operations assigned to this work center:"
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr "This action conflicts with the current state"
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr "This action is not allowed by a business rule"
 
 msgid "This information will be used on document headers"
 msgstr "This information will be used on document headers"
@@ -8421,6 +8449,10 @@ msgstr "Valid To"
 
 msgid "Validating job..."
 msgstr "Validating job..."
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr "Validation failed"
 
 msgid "Value"
 msgstr "Value"

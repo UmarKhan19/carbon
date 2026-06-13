@@ -1,4 +1,4 @@
-import { assertIsPost, error, success } from "@carbon/auth";
+import { assertIsPost, error, errorFlash, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
@@ -20,6 +20,7 @@ import {
   rejectRequest
 } from "~/modules/shared";
 import { getDatabaseClient } from "~/services/database.server";
+import { getRequestI18n } from "~/services/lingui.server";
 import { path } from "~/utils/path";
 
 export async function action({ request, params }: ActionFunctionArgs) {
@@ -193,16 +194,11 @@ export async function action({ request, params }: ActionFunctionArgs) {
       ? await approveRequest(db, approvalRequestId, userId, notes || undefined)
       : await rejectRequest(db, approvalRequestId, userId, notes || undefined);
 
-  if (result.error) {
+  if (result.isErr()) {
+    const i18n = await getRequestI18n(request);
     throw redirect(
       path.to.supplier(supplierId),
-      await flash(
-        request,
-        error(
-          result.error,
-          result.error?.message ?? "Failed to process approval decision"
-        )
-      )
+      await flash(request, errorFlash(result.error, i18n))
     );
   }
 

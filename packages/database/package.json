@@ -13,7 +13,9 @@
     "tsup": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
-    "uuid": "9.0.0"
+    "uuid": "9.0.0",
+    "vite-plugin-babel-macros": "catalog:",
+    "vitest": "catalog:"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -23,6 +25,7 @@
     "./audit": "./src/audit.ts",
     "./audit.config": "./src/audit.config.ts",
     "./audit.types": "./src/audit.types.ts",
+    "./result": "./src/result.ts",
     "./swagger-docs-schema": "./src/swagger-docs-schema.ts"
   },
   "private": true,
@@ -35,11 +38,13 @@
     "db:seed:dev": "tsx src/seed-dev.ts",
     "deploy": "supabase link --project-ref $SUPABASE_PROJECT_ID && supabase db push",
     "lint": "biome lint --write ",
+    "test": "vitest run",
     "typecheck": "tsgo --noEmit"
   },
   "sideEffects": false,
   "version": "0.0.0",
   "dependencies": {
+    "@carbon/result": "workspace:*",
     "@supabase/postgrest-js": "catalog:",
     "cookie": "catalog:",
     "dompurify": "catalog:",

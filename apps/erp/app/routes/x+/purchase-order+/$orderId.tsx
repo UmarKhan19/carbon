@@ -1,4 +1,4 @@
-import { assertIsPost, error, success } from "@carbon/auth";
+import { assertIsPost, error, errorFlash, success } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import { flash } from "@carbon/auth/session.server";
@@ -44,6 +44,7 @@ import {
 import { getUser } from "~/modules/users/users.server";
 import { loader as pdfLoader } from "~/routes/file+/purchase-order+/$orderId[.]pdf";
 import { getDatabaseClient } from "~/services/database.server";
+import { getRequestI18n } from "~/services/lingui.server";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
 import { stripSpecialCharacters } from "~/utils/string";
@@ -123,16 +124,11 @@ export async function action(args: ActionFunctionArgs) {
       ? await approveRequest(db, approvalRequestId, userId)
       : await rejectRequest(db, approvalRequestId, userId);
 
-  if (result.error) {
+  if (result.isErr()) {
+    const i18n = await getRequestI18n(request);
     throw redirect(
       path.to.purchaseOrder(orderId),
-      await flash(
-        request,
-        error(
-          result.error,
-          result.error?.message ?? "Failed to process approval decision"
-        )
-      )
+      await flash(request, errorFlash(result.error, i18n))
     );
   }
 

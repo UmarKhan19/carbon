@@ -1,4 +1,4 @@
-import type { Result } from "@carbon/auth";
+import type { FlashResult } from "@carbon/auth";
 import { error, getClaims, getPermissionCacheKey, success } from "@carbon/auth";
 import { getCarbonServiceRole } from "@carbon/auth/client.server";
 import type { Database } from "@carbon/database";
@@ -47,7 +47,7 @@ export async function updatePermissions(
     >;
     companyId: string;
   }
-): Promise<Result> {
+): Promise<FlashResult> {
   if (await client.rpc("is_claims_admin")) {
     const claims = await getClaims(client, id);
 

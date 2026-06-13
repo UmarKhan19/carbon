@@ -1,4 +1,4 @@
-import type { Result } from "@carbon/auth";
+import type { FlashResult } from "@carbon/auth";
 import { useCarbon } from "@carbon/auth";
 import type { Database } from "@carbon/database";
 import type { JSONContent } from "@carbon/react";
@@ -288,7 +288,7 @@ export const JobOperation = ({
         }
       : null;
 
-  const fetcher = useFetcher<Result>();
+  const fetcher = useFetcher<FlashResult>();
 
   // Lazy creation of Inspection steps for non-conformance actions
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
@@ -390,7 +390,7 @@ export const JobOperation = ({
   );
   const locationId = layoutData?.location;
 
-  const completeFetcher = useFetcher<Result>();
+  const completeFetcher = useFetcher<FlashResult>();
   useKeyboardWedge({
     test: (input) => {
       if (kanban?.completedBarcodeOverride) {

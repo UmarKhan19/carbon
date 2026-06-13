@@ -42,6 +42,10 @@ msgstr "{0} von {1} abgeschlossen"
 msgid "{0} Scrapped"
 msgstr "{0} Ausschuss"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr ""
+
 msgid "About"
 msgstr "Über"
 
@@ -71,6 +75,10 @@ msgstr "Ersatzteil hinzufügen"
 
 msgid "All"
 msgstr "Alle"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr ""
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Möchten Sie diesen Schritt wirklich löschen?"
@@ -277,8 +285,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Ziehen von {0} abgebrochen."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Fällig {0}"
 
@@ -885,6 +893,10 @@ msgstr "Angemeldet als {stationName}"
 msgid "Size"
 msgstr "Größe"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr ""
+
 msgid "Source"
 msgstr "Quelle"
 
@@ -943,6 +955,14 @@ msgstr "Die abgeschlossene Menge für diesen Arbeitsgang ist geringer als die er
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Es gibt serien- oder chargenverfolgte Materialien in der Stückliste, die noch nicht vollständig ausgegeben wurden. Ein Abschluss ohne Ausgabe kann zu fehlerhaften Rückverfolgbarkeitsdaten führen."
 
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
+
 msgid "Thumbnail"
 msgstr "Vorschaubild"
 
@@ -998,6 +1018,10 @@ msgstr "Hochgeladen: {0}"
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "{0} wird hochgeladen"
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "Instandhaltungseinsatz anzeigen"

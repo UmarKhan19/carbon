@@ -1,4 +1,4 @@
-import type { Result } from "@carbon/auth";
+import type { FlashResult } from "@carbon/auth";
 import { Hidden, Select, Submit, TextArea, ValidatedForm } from "@carbon/form";
 import {
   Button,
@@ -31,7 +31,7 @@ export function QualityIssueModal({
   onClose: () => void;
 }) {
   const { t } = useLingui();
-  const fetcher = useFetcher<Result>();
+  const fetcher = useFetcher<FlashResult>();
   const issueTypeFetcher =
     useFetcher<PostgrestResponse<{ id: string; name: string }>>();
 

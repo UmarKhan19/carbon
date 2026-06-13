@@ -1,4 +1,4 @@
-import type { Result } from "@carbon/auth";
+import type { FlashResult } from "@carbon/auth";
 import {
   Badge,
   Button,
@@ -578,7 +578,7 @@ JobMaterialsTable.displayName = "JobMaterialsTable";
 export default JobMaterialsTable;
 
 const StockTransferSessionWidget = ({ jobId }: { jobId: string }) => {
-  const fetcher = useFetcher<Result>();
+  const fetcher = useFetcher<FlashResult>();
   const { t } = useLingui();
 
   const [session, setStockTransferSession] = useStockTransferSession();

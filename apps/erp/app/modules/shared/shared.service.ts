@@ -1,10 +1,22 @@
 import type { Database } from "@carbon/database";
 import type { Kysely, KyselyDatabase } from "@carbon/database/client";
+import { fromQuery, fromTransaction } from "@carbon/database/result";
+import {
+  BusinessRuleError,
+  ConflictError,
+  type DatabaseError,
+  NotFoundError,
+  Result
+} from "@carbon/result";
 import { getPurchaseOrderStatus, supportedModelTypes } from "@carbon/utils";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { GenericQueryFilters } from "~/utils/query";
 import { setGenericQueryFilters } from "~/utils/query";
 import { sanitize } from "~/utils/supabase";
+import {
+  approvalNotPendingMessage,
+  onlyRequesterCanCancelMessage
+} from "./shared.errors";
 import type {
   approvalDocumentType,
   documentTypes,
@@ -21,12 +33,21 @@ import type {
   UpsertApprovalRuleInput
 } from "./types";
 
+/** The record returned when an approval decision (approve/reject) succeeds. */
+type ApprovalDecisionResult = {
+  id: string;
+  documentType: string;
+  documentId: string;
+};
+
 export async function approveRequest(
   db: Kysely<KyselyDatabase>,
   id: string,
   userId: string,
   notes?: string
-) {
+): Promise<
+  Result<ApprovalDecisionResult, NotFoundError | ConflictError | DatabaseError>
+> {
   // Pre-flight check: verify approval request exists and is pending
   const approvalRequest = await db
     .selectFrom("approvalRequest")
@@ -35,21 +56,24 @@ export async function approveRequest(
     .executeTakeFirst();
 
   if (!approvalRequest) {
-    return { error: { message: "Approval request not found" }, data: null };
+    return Result.err(new NotFoundError({ entity: "Approval request", id }));
   }
 
   if (approvalRequest.status !== "Pending") {
-    return {
-      error: { message: "Approval request is not pending" },
-      data: null
-    };
+    return Result.err(
+      new ConflictError({
+        entity: "Approval request",
+        descriptor: approvalNotPendingMessage
+      })
+    );
   }
 
   const { documentType, documentId } = approvalRequest;
   const now = new Date().toISOString();
 
-  try {
-    const result = await db.transaction().execute(async (trx) => {
+  return fromTransaction(
+    db,
+    async (trx) => {
       // 1. Update approval request to "Approved"
       const updatedApproval = await trx
         .updateTable("approvalRequest")
@@ -131,19 +155,9 @@ export async function approveRequest(
       }
 
       return updatedApproval;
-    });
-
-    return { data: result, error: null };
-  } catch (error) {
-    // Transaction automatically rolled back on error
-    return {
-      error: {
-        message:
-          error instanceof Error ? error.message : "Failed to process approval"
-      },
-      data: null
-    };
-  }
+    },
+    { operation: "approveRequest" }
+  );
 }
 
 export async function canApproveRequest(
@@ -254,41 +268,59 @@ export async function cancelApprovalRequest(
   client: SupabaseClient<Database>,
   id: string,
   userId: string
-) {
-  const existing = await client
-    .from("approvalRequest")
-    .select("id, status, requestedBy")
-    .eq("id", id)
-    .single();
+): Promise<
+  Result<
+    { id: string },
+    NotFoundError | ConflictError | BusinessRuleError | DatabaseError
+  >
+> {
+  const existing = await fromQuery<{
+    id: string;
+    status: string;
+    requestedBy: string | null;
+  }>(
+    client
+      .from("approvalRequest")
+      .select("id, status, requestedBy")
+      .eq("id", id)
+      .single(),
+    { entity: "Approval request", id }
+  );
 
-  if (existing.error || !existing.data) {
-    return { error: { message: "Approval request not found" }, data: null };
+  if (existing.isErr()) {
+    return existing;
   }
 
-  if (existing.data.status !== "Pending") {
-    return {
-      error: { message: "Approval request is not pending" },
-      data: null
-    };
+  const row = existing.value;
+
+  if (row.status !== "Pending") {
+    return Result.err(
+      new ConflictError({
+        entity: "Approval request",
+        descriptor: approvalNotPendingMessage
+      })
+    );
   }
 
-  if (existing.data.requestedBy !== userId) {
-    return {
-      error: { message: "Only the requester can cancel an approval request" },
-      data: null
-    };
+  if (row.requestedBy !== userId) {
+    return Result.err(
+      new BusinessRuleError({ descriptor: onlyRequesterCanCancelMessage })
+    );
   }
 
-  return client
-    .from("approvalRequest")
-    .update({
-      status: "Cancelled",
-      updatedBy: userId,
-      updatedAt: new Date().toISOString()
-    })
-    .eq("id", id)
-    .select("id")
-    .single();
+  return fromQuery<{ id: string }>(
+    client
+      .from("approvalRequest")
+      .update({
+        status: "Cancelled",
+        updatedBy: userId,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", id)
+      .select("id")
+      .single(),
+    { entity: "Approval request", id }
+  );
 }
 
 export async function canViewApprovalRequest(
@@ -1123,7 +1155,9 @@ export async function rejectRequest(
   id: string,
   userId: string,
   notes?: string
-) {
+): Promise<
+  Result<ApprovalDecisionResult, NotFoundError | ConflictError | DatabaseError>
+> {
   // Pre-flight check: verify approval request exists and is pending
   const approvalRequest = await db
     .selectFrom("approvalRequest")
@@ -1132,21 +1166,24 @@ export async function rejectRequest(
     .executeTakeFirst();
 
   if (!approvalRequest) {
-    return { error: { message: "Approval request not found" }, data: null };
+    return Result.err(new NotFoundError({ entity: "Approval request", id }));
   }
 
   if (approvalRequest.status !== "Pending") {
-    return {
-      error: { message: "Approval request is not pending" },
-      data: null
-    };
+    return Result.err(
+      new ConflictError({
+        entity: "Approval request",
+        descriptor: approvalNotPendingMessage
+      })
+    );
   }
 
   const { documentType, documentId } = approvalRequest;
   const now = new Date().toISOString();
 
-  try {
-    const result = await db.transaction().execute(async (trx) => {
+  return fromTransaction(
+    db,
+    async (trx) => {
       // 1. Update approval request to "Rejected"
       const updatedApproval = await trx
         .updateTable("approvalRequest")
@@ -1202,19 +1239,9 @@ export async function rejectRequest(
       }
 
       return updatedApproval;
-    });
-
-    return { data: result, error: null };
-  } catch (error) {
-    // Transaction automatically rolled back on error
-    return {
-      error: {
-        message:
-          error instanceof Error ? error.message : "Failed to process rejection"
-      },
-      data: null
-    };
-  }
+    },
+    { operation: "rejectRequest" }
+  );
 }
 
 export async function upsertApprovalRule(

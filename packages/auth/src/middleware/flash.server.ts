@@ -1,8 +1,8 @@
 import { createContext, type MiddlewareFunction } from "react-router";
 import { getSessionFlash } from "../services/session.server";
-import type { Result } from "../types";
+import type { FlashResult } from "../types";
 
-export const flashResultContext = createContext<Result | null>(null);
+export const flashResultContext = createContext<FlashResult | null>(null);
 export const flashHeadersContext = createContext<Record<string, string> | null>(
   null
 );

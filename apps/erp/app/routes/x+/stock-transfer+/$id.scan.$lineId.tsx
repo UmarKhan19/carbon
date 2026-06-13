@@ -1,4 +1,4 @@
-import type { Result } from "@carbon/auth";
+import type { FlashResult } from "@carbon/auth";
 import { error, success, useCarbon } from "@carbon/auth";
 import { requirePermissions } from "@carbon/auth/auth.server";
 import { flash } from "@carbon/auth/session.server";
@@ -205,7 +205,7 @@ export default function StockTransferScan() {
   const [isValid, setIsValid] = useState<boolean | null>(null);
   const [serialNumber, setSerialNumber] = useState("");
 
-  const fetcher = useFetcher<Result>();
+  const fetcher = useFetcher<FlashResult>();
 
   useEffect(() => {
     if (fetcher.data?.success === false) {

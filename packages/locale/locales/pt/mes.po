@@ -42,6 +42,10 @@ msgstr "{0} de {1} concluído(s)"
 msgid "{0} Scrapped"
 msgstr "{0} Refugado(s)"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr ""
+
 msgid "About"
 msgstr "Sobre"
 
@@ -71,6 +75,10 @@ msgstr "Adicionar Peça Sobressalente"
 
 msgid "All"
 msgstr "Todos"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr ""
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Tem certeza de que deseja excluir esta etapa?"
@@ -277,8 +285,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Arraste de {0} cancelado."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Vencimento {0}"
 
@@ -885,6 +893,10 @@ msgstr "Conectado como {stationName}"
 msgid "Size"
 msgstr "Tamanho"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr ""
+
 msgid "Source"
 msgstr "Origem"
 
@@ -943,6 +955,14 @@ msgstr "A quantidade concluída para esta operação é menor que a quantidade r
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "Existem materiais rastreados por série ou lote na lista de materiais que não foram totalmente emitidos. Concluir sem emitir pode resultar em registros de rastreabilidade incorretos."
 
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
+
 msgid "Thumbnail"
 msgstr "Miniatura"
 
@@ -998,6 +1018,10 @@ msgstr "Enviado: {0}"
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "Enviando {0}"
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "Ver despacho de manutenção"

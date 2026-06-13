@@ -10,7 +10,7 @@ import {
   SESSION_MAX_AGE,
   SESSION_SECRET
 } from "../config/env";
-import type { AuthSession, Result } from "../types";
+import type { AuthSession, FlashResult } from "../types";
 import { getCookieDomain } from "../utils/cookie";
 import { getCurrentPath, isGet, makeRedirectToFromHere } from "../utils/http";
 import { path } from "../utils/path";
@@ -83,7 +83,7 @@ export async function destroyAuthSession(request: Request) {
   });
 }
 
-export async function flash(request: Request, result: Result) {
+export async function flash(request: Request, result: FlashResult) {
   const session = await getSession(request);
   if (typeof result.success === "boolean") {
     session.flash("success", result.success);
@@ -121,7 +121,7 @@ export async function getOrRefreshAuthSession(
 export async function getSessionFlash(request: Request) {
   const session = await getSession(request);
 
-  const result: Result = {
+  const result: FlashResult = {
     success: session.get("success") === true,
     message: session.get("message"),
     flash: session.get("flash") as "success" | "error" | undefined

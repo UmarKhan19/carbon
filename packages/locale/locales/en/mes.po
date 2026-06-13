@@ -42,6 +42,10 @@ msgstr "{0} of {1} completed"
 msgid "{0} Scrapped"
 msgstr "{0} Scrapped"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr "{entity} not found"
+
 msgid "About"
 msgstr "About"
 
@@ -71,6 +75,10 @@ msgstr "Add Spare Part"
 
 msgid "All"
 msgstr "All"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr "An external service is currently unavailable"
 
 msgid "Are you sure you want to delete this step?"
 msgstr "Are you sure you want to delete this step?"
@@ -277,8 +285,8 @@ msgid "Dragging {0} cancelled."
 msgstr "Dragging {0} cancelled."
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "Due {0}"
 
@@ -885,6 +893,10 @@ msgstr "Signed in as {stationName}"
 msgid "Size"
 msgstr "Size"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr "Something went wrong while saving your changes"
+
 msgid "Source"
 msgstr "Source"
 
@@ -943,6 +955,14 @@ msgstr "The completed quantity for this operation is less than the required quan
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr "This action conflicts with the current state"
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr "This action is not allowed by a business rule"
+
 msgid "Thumbnail"
 msgstr "Thumbnail"
 
@@ -998,6 +1018,10 @@ msgstr "Uploaded: {0}"
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "Uploading {0}"
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr "Validation failed"
 
 msgid "View maintenance dispatch"
 msgstr "View maintenance dispatch"

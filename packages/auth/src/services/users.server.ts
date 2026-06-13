@@ -2,7 +2,7 @@ import type { Database, Json } from "@carbon/database";
 import { redis } from "@carbon/kv";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCarbonServiceRole } from "../lib/supabase/client.server";
-import type { Permission, Result } from "../types";
+import type { FlashResult, Permission } from "../types";
 import { error, success } from "../utils/result";
 import {
   getClaims,
@@ -67,7 +67,7 @@ export async function deactivateCustomer(
   serviceRole: SupabaseClient<Database>,
   userId: string,
   companyId: string
-): Promise<Result> {
+): Promise<FlashResult> {
   const currentPermissions = await serviceRole
     .from("userPermission")
     .select("*")
@@ -144,7 +144,7 @@ export async function deactivateEmployee(
   serviceRole: SupabaseClient<Database>,
   userId: string,
   companyId: string
-): Promise<Result> {
+): Promise<FlashResult> {
   const currentPermissions = await serviceRole
     .from("userPermission")
     .select("*")
@@ -231,7 +231,7 @@ export async function deactivateUser(
     .eq("companyId", companyId)
     .single();
 
-  let result: Result;
+  let result: FlashResult;
 
   if (userToCompany.error) {
     // No userToCompany row — either pending invite, or already deactivated.
@@ -307,7 +307,7 @@ export async function deactivateSupplier(
   serviceRole: SupabaseClient<Database>,
   userId: string,
   companyId: string
-): Promise<Result> {
+): Promise<FlashResult> {
   const currentPermissions = await serviceRole
     .from("userPermission")
     .select("*")

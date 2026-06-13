@@ -42,6 +42,10 @@ msgstr "{0} / {1} 已完成"
 msgid "{0} Scrapped"
 msgstr "{0} 已报废"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr ""
+
 msgid "About"
 msgstr "关于"
 
@@ -71,6 +75,10 @@ msgstr "添加备件"
 
 msgid "All"
 msgstr "全部"
+
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr ""
 
 msgid "Are you sure you want to delete this step?"
 msgstr "确定要删除此步骤吗？"
@@ -277,8 +285,8 @@ msgid "Dragging {0} cancelled."
 msgstr "拖拽 {0} 已取消。"
 
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
+#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString( operation.operationDueDate ) )
 #. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(operation.jobDueDate) )
-#. placeholder {0}: formatRelativeTime( convertDateStringToIsoString(item.dueDate) )
 msgid "Due {0}"
 msgstr "截止 {0}"
 
@@ -885,6 +893,10 @@ msgstr "已登录为 {stationName}"
 msgid "Size"
 msgstr "大小"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr ""
+
 msgid "Source"
 msgstr "来源"
 
@@ -943,6 +955,14 @@ msgstr "此工序的完成数量小于所需数量 {0}。"
 msgid "There are serial or batch tracked materials on the bill of material that have not been fully issued. Completing without issuing may result in incorrect traceability records."
 msgstr "物料清单中有序列号或批次追踪的物料尚未完全发放。不发放即完成可能导致追溯记录不正确。"
 
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
+
 msgid "Thumbnail"
 msgstr "缩略图"
 
@@ -998,6 +1018,10 @@ msgstr "已上传：{0}"
 #. placeholder {0}: fileUpload.name
 msgid "Uploading {0}"
 msgstr "正在上传 {0}"
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr ""
 
 msgid "View maintenance dispatch"
 msgstr "查看维护工单"

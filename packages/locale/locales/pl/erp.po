@@ -50,6 +50,10 @@ msgstr "{0} nieprzetestowane jednostki zostaną zwolnione do Dostępne. Przebada
 msgid "{0} uploaded successfully"
 msgstr "{0} przesłano pomyślnie"
 
+#. js-lingui-explicit-id
+msgid "error.notFound"
+msgstr ""
+
 msgid "{maxSizeMB}MB limit"
 msgstr "{maxSizeMB}MB limit"
 
@@ -468,6 +472,10 @@ msgstr "Kwota"
 msgid "Amount Type"
 msgstr "Typ kwoty"
 
+#. js-lingui-explicit-id
+msgid "error.externalService"
+msgstr ""
+
 msgid "An item cannot be added to itself."
 msgstr "Przedmiot nie może być dodany do siebie."
 
@@ -539,6 +547,10 @@ msgstr "Data zatwierdzenia"
 
 msgid "Approval is required at or above this amount, up to the next rule's minimum"
 msgstr "Zatwierdzenie jest wymagane przy tej kwocie lub wyższej, aż do minimum następnej reguły"
+
+#. js-lingui-explicit-id
+msgid "approvals.notPending"
+msgstr ""
 
 msgid "Approval Requirements"
 msgstr "Wymagania zatwierdzenia"
@@ -5454,6 +5466,10 @@ msgstr "Na zamówieniu sprzedaży"
 msgid "On Storage Unit"
 msgstr "Na jednostce magazynowej"
 
+#. js-lingui-explicit-id
+msgid "approvals.onlyRequesterCanCancel"
+msgstr ""
+
 msgid "Onshape Status"
 msgstr "Status Onshape"
 
@@ -7323,6 +7339,10 @@ msgstr "Pomiń zaplanowaną konserwację w dni świąt firmowych"
 msgid "Skipped"
 msgstr "Pominięte"
 
+#. js-lingui-explicit-id
+msgid "error.database"
+msgstr ""
+
 msgid "Something went wrong. Please try again."
 msgstr "Coś poszło nie tak. Spróbuj ponownie."
 
@@ -7869,6 +7889,14 @@ msgstr "Te adresy e-mail będą automatycznie dodawane w polu DW do wszystkich w
 
 msgid "These jobs have operations assigned to this work center:"
 msgstr "Te zadania mają operacje przypisane do tego centrum pracy:"
+
+#. js-lingui-explicit-id
+msgid "error.conflict"
+msgstr ""
+
+#. js-lingui-explicit-id
+msgid "error.businessRule"
+msgstr ""
 
 msgid "This information will be used on document headers"
 msgstr "Te informacje będą używane w nagłówkach dokumentów"
@@ -8421,6 +8449,10 @@ msgstr "Ważne do"
 
 msgid "Validating job..."
 msgstr "Walidacja zadania..."
+
+#. js-lingui-explicit-id
+msgid "error.validation"
+msgstr ""
 
 msgid "Value"
 msgstr "Wartość"

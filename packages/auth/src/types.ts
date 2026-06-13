@@ -30,7 +30,7 @@ export type Permission = {
   delete: string[];
 };
 
-export type Result = {
+export type FlashResult = {
   success: boolean;
   message?: string;
   flash?: "success" | "error";
