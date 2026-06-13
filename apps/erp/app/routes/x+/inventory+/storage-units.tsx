@@ -8,8 +8,8 @@ import { Outlet, redirect, useLoaderData } from "react-router";
 import {
   getStorageTypesList,
   getStorageUnitParentIdsWithChildren,
-  getStorageUnitSubtrees,
   getStorageUnitRoots,
+  getStorageUnitSubtrees,
   searchStorageUnitsWithAncestors
 } from "~/modules/inventory";
 import StorageUnitsTable from "~/modules/inventory/ui/StorageUnits/StorageUnitsTable";
@@ -24,6 +24,10 @@ export const handle: Handle = {
   to: path.to.storageUnits,
   module: "inventory"
 };
+
+// Deepest level (1-based, roots = 1) the tree eagerly loads and pre-expands.
+// Nodes below this still render with an expand chevron and lazy-load on click.
+const EAGER_EXPAND_MAX_DEPTH = 5;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const { client, companyId, userId } = await requirePermissions(request, {
@@ -123,15 +127,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
     const roots = rootsResult.data ?? [];
     count = rootsResult.count ?? 0;
 
-    // Eagerly load the full subtrees of the visible (paginated) roots so the
-    // tree renders fully expanded by default instead of lazily loading one
-    // level at a time. Pagination still applies to roots; each shown root just
-    // arrives with all of its descendants.
+    // Eagerly load the subtrees of the visible (paginated) roots so the tree
+    // renders expanded by default instead of lazily loading one level at a
+    // time. Pagination still applies to roots; each shown root just arrives
+    // with its descendants. The depth cap bounds how much of a deep tree we
+    // pull (and pre-expand) up front — anything below it still lazy-loads.
     const descendants = await getStorageUnitSubtrees(
       client,
       companyId,
       locationId,
-      roots.map((r) => r.id as string)
+      roots.map((r) => r.id as string),
+      EAGER_EXPAND_MAX_DEPTH
     );
     if (descendants.error) {
       throw redirect(
@@ -144,9 +150,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
     rows = [...roots, ...(descendants.data ?? [])];
 
-    // Pre-expand every parent that has children. Ids not present in the
-    // displayed subtrees are simply ignored by the table's tree walk.
-    initialExpanded = parentIdsWithChildren.data ?? [];
+    // Pre-expand only nodes whose children were actually loaded (i.e. any node
+    // that appears as a parent within the fetched rows). Deriving this from the
+    // loaded set — rather than the location-wide parentIdsWithChildren — keeps
+    // nodes at the depth cap collapsed so their (unfetched) children lazy-load
+    // on click instead of rendering as expanded-but-empty.
+    const expandedParents = new Set<string>();
+    for (const row of rows) {
+      if (row.parentId) expandedParents.add(row.parentId as string);
+    }
+    initialExpanded = Array.from(expandedParents);
   }
 
   return {

@@ -674,15 +674,18 @@ export async function getStorageUnitChildren(
     .order("name");
 }
 
-// All descendants (depth > 1) of the given root ids. A node is a descendant of
-// a root when that root appears in its ancestorPath, so a single `overlaps`
-// query returns the full subtrees in one round trip. Used to render the tree
-// fully expanded by default instead of lazily loading one level at a time.
+// Descendants of the given root ids, from just below the roots (depth > 1) down
+// to `maxDepth` inclusive. A node is a descendant of a root when that root
+// appears in its ancestorPath, so a single `overlaps` query returns the
+// subtrees in one round trip. Used to render the tree expanded by default;
+// the depth cap keeps very deep trees from loading their entire subtree
+// eagerly — anything below `maxDepth` still lazy-loads on demand.
 export async function getStorageUnitSubtrees(
   client: SupabaseClient<Database>,
   companyId: string,
   locationId: string,
-  rootIds: string[]
+  rootIds: string[],
+  maxDepth: number
 ) {
   if (rootIds.length === 0) {
     return { data: [] as any[], error: null };
@@ -693,6 +696,7 @@ export async function getStorageUnitSubtrees(
     .eq("companyId", companyId)
     .eq("locationId", locationId)
     .gt("depth", 1)
+    .lte("depth", maxDepth)
     .overlaps("ancestorPath", rootIds)
     .order("name");
 }

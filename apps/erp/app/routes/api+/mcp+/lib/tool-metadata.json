@@ -1,6 +1,6 @@
 {
-  "generated": "2026-06-12T08:34:31.151Z",
-  "totalTools": 1187,
+  "generated": "2026-06-13T02:22:15.288Z",
+  "totalTools": 1188,
   "modules": 15,
   "tools": [
     {
@@ -4404,6 +4404,45 @@
         },
         "required": [
           "parentId"
+        ]
+      }
+    },
+    {
+      "name": "inventory_getStorageUnitSubtrees",
+      "module": "inventory",
+      "classification": "READ",
+      "description": "get storage unit subtrees",
+      "paramCount": 3,
+      "serviceParams": [
+        "client",
+        "companyId",
+        "locationId",
+        "rootIds",
+        "maxDepth"
+      ],
+      "injectAuth": [
+        "companyId"
+      ],
+      "schema": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string"
+          },
+          "rootIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxDepth": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "locationId",
+          "rootIds",
+          "maxDepth"
         ]
       }
     },
