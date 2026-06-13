@@ -24,6 +24,12 @@ type StorageUnitSelectProps = Omit<
   inline?: boolean;
   onChange?: (storageUnit: ListItem | null) => void;
   /**
+   * List behavior before searching: `"leaf"` (default) opens to a flat list of
+   * leaf bins; `"tree"` opens the hierarchical drill-down. The Parent picker
+   * passes `"tree"` since it targets intermediate/root nodes.
+   */
+  browseMode?: "leaf" | "tree";
+  /**
    * Exclude the given storage unit and every one of its descendants — used
    * by `StorageUnitForm`'s Parent picker so a user cannot pick themselves or
    * a child (which would create a cycle). DB enforces the same invariant
@@ -41,6 +47,7 @@ const StorageUnit = forwardRef<HTMLDivElement, StorageUnitSelectProps>(
       locationId,
       isReadOnly,
       isOptional,
+      browseMode,
       excludeDescendantsOf,
       onChange,
       ...rest
@@ -64,6 +71,7 @@ const StorageUnit = forwardRef<HTMLDivElement, StorageUnitSelectProps>(
         locationId={locationId}
         isReadOnly={isReadOnly}
         isOptional={isOptional}
+        browseMode={browseMode}
         excludeDescendantsOf={excludeDescendantsOf}
         placeholder={
           typeof rest.placeholder === "string"

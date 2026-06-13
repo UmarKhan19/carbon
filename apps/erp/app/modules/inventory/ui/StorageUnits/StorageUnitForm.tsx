@@ -98,6 +98,7 @@ const StorageUnitForm = ({
                   label={t`Parent Storage Unit`}
                   locationId={locationId}
                   isOptional
+                  browseMode="tree"
                   helperText={t`Must be in the same location`}
                   excludeDescendantsOf={initialValues.id}
                 />
