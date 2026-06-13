@@ -137,6 +137,10 @@ backend = "postgres"
 enabled = true
 verify_jwt = false
 
+[functions.logo-resizer]
+enabled = true
+verify_jwt = false
+
 [functions.sync]
 enabled = true
 verify_jwt = true

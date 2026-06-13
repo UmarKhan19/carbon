@@ -21,10 +21,6 @@ msgstr "{0} - Jeu {1}"
 msgid "{0} Active"
 msgstr "{0} Actif(s)"
 
-#. placeholder {0}: batch.quantity
-msgid "{0} available"
-msgstr "{0} disponible(s)"
-
 #. placeholder {0}: operation.quantityComplete
 #. placeholder {0}: serialIndex + 1
 #. placeholder {1}: operation.operationQuantity
@@ -63,6 +59,9 @@ msgstr "Ajouter"
 
 msgid "Add & Issue"
 msgstr "Ajouter et distribuer"
+
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "Ajoutez une imprimante dans les paramètres d'impression pour imprimer les étiquettes directement."
 
 msgid "Add Inventory"
 msgstr "Ajouter au stock"
@@ -105,11 +104,6 @@ msgstr "Erreur d'authentification"
 
 msgid "Batch"
 msgstr "Lot"
-
-#. placeholder {0}: batch.readableId
-#. placeholder {1}: batch.quantity
-msgid "Batch {0} ({1} available)"
-msgstr "Lot {0} ({1} disponible(s))"
 
 msgid "Batch is not available"
 msgstr "Le lot n'est pas disponible"
@@ -275,6 +269,9 @@ msgstr "En panne"
 msgid "Download"
 msgstr "Télécharger"
 
+msgid "Download Labels"
+msgstr "Télécharger les étiquettes"
+
 msgid "Drag and drop a file here, or click to select a file"
 msgstr "Glissez-déposez un fichier ici, ou cliquez pour sélectionner un fichier"
 
@@ -393,6 +390,9 @@ msgstr "Des idées, suggestions ou problèmes ?"
 msgid "Impact"
 msgstr "Impact"
 
+msgid "Imperial"
+msgstr "Impérial"
+
 msgid "In Progress"
 msgstr "En cours"
 
@@ -507,6 +507,9 @@ msgstr "Matériaux"
 msgid "Maximum number of records reached"
 msgstr "Nombre maximum d'enregistrements atteint"
 
+msgid "Metric"
+msgstr "Métrique"
+
 msgid "Model"
 msgstr "Modèle"
 
@@ -588,6 +591,9 @@ msgstr "Aucune option trouvée."
 
 msgid "No picking lists assigned"
 msgstr ""
+
+msgid "No printer configured"
+msgstr "Aucune imprimante configurée"
 
 msgid "No recent operations"
 msgstr "Aucune opération récente"
@@ -694,6 +700,12 @@ msgstr "Précédent"
 
 msgid "Preventive"
 msgstr "Préventif"
+
+msgid "Print"
+msgstr "Imprimer"
+
+msgid "Printer Settings"
+msgstr "Paramètres d'impression"
 
 msgid "Priority"
 msgstr "Priorité"
@@ -823,6 +835,9 @@ msgstr "Sélectionner un article..."
 msgid "Select Batch {0}"
 msgstr "Sélectionner le lot {0}"
 
+msgid "Select Printer"
+msgstr "Sélectionner l'imprimante"
+
 #. placeholder {0}: index + 1
 msgid "Select Serial {0}"
 msgstr "Sélectionner le numéro de série {0}"
@@ -838,10 +853,6 @@ msgstr "Envoyer"
 
 msgid "Serial"
 msgstr "Série"
-
-#. placeholder {0}: sn.readableId
-msgid "Serial {0}"
-msgstr "Série {0}"
 
 #. placeholder {0}: index + 1
 msgid "Serial Number {0}"
@@ -979,9 +990,6 @@ msgstr "Total : {0}"
 
 msgid "Tracking"
 msgstr "Suivi"
-
-msgid "Tracking Labels"
-msgstr "Étiquettes de suivi"
 
 msgid "Type a message..."
 msgstr "Saisissez un message..."

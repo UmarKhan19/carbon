@@ -58,7 +58,7 @@ import { SupplierPartForm } from "~/modules/items/ui/Item";
 import { getLinkToItemPlanning } from "~/modules/items/ui/Item/ItemForm";
 import { ItemPlanningChart } from "~/modules/items/ui/Item/ItemPlanningChart";
 import { ItemReorderPolicy } from "~/modules/items/ui/Item/ItemReorderPolicy";
-import type { action as bulkUpdateAction } from "~/routes/x+/production+/planning.update";
+import type { action as bulkUpdateAction } from "~/routes/x+/purchasing+/planning.update";
 import { path } from "~/utils/path";
 import type { PlannedOrder } from "../../purchasing.models";
 import type { PurchasingPlanningItem } from "../../types";
@@ -304,16 +304,48 @@ export const PurchasingPlanningOrderDrawer = memo(
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
     useEffect(() => {
+      if (fetcher.state !== "idle" || !fetcher.data) {
+        return;
+      }
+
       if (fetcher.data?.success === false && fetcher?.data?.message) {
         toast.error(fetcher.data.message);
       }
 
       if (fetcher.data?.success === true) {
-        toast.success(t`Orders submitted`);
+        const purchaseOrders =
+          (
+            fetcher.data as {
+              purchaseOrders?: { id: string; readableId: string }[];
+            }
+          )?.purchaseOrders ?? [];
+
+        if (purchaseOrders.length === 0) {
+          toast.success(t`Orders submitted`);
+        } else {
+          toast.success(
+            <div className="flex gap-1">
+              <span>{t`Orders submitted`}</span>
+              <span className="flex flex-wrap gap-2 text-xs">
+                {purchaseOrders.map((po) => (
+                  <Link
+                    key={po.id}
+                    to={path.to.purchaseOrder(po.id)}
+                    className="underline underline-offset-2 hover:opacity-80"
+                  >
+                    {po.readableId}
+                  </Link>
+                ))}
+              </span>
+            </div>,
+            { duration: 8000 }
+          );
+        }
+
         setOrders(selectedItem, []);
         onClose();
       }
-    }, [fetcher.data?.success]);
+    }, [fetcher.state, fetcher.data]);
 
     const supplierDisclosure = useDisclosure();
 

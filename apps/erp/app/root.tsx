@@ -57,7 +57,37 @@ export const links: LinksFunction = () => {
     { href: Tailwind, rel: "stylesheet" },
     { href: Background, rel: "stylesheet" },
     { href: NProgress, rel: "stylesheet" },
-    { href: SonnerStyle, rel: "stylesheet" }
+    { href: SonnerStyle, rel: "stylesheet" },
+    {
+      rel: "icon",
+      type: "image/svg+xml",
+      href: "/carbon-mark-light.svg",
+      media: "(prefers-color-scheme: light)"
+    },
+    {
+      rel: "icon",
+      type: "image/svg+xml",
+      href: "/carbon-mark-dark.svg",
+      media: "(prefers-color-scheme: dark)"
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "32x32",
+      href: "/favicon-32x32.png"
+    },
+    {
+      rel: "icon",
+      type: "image/png",
+      sizes: "16x16",
+      href: "/favicon-16x16.png"
+    },
+    {
+      rel: "apple-touch-icon",
+      sizes: "180x180",
+      href: "/apple-touch-icon.png"
+    },
+    { rel: "manifest", href: "/site.webmanifest" }
   ];
 };
 
@@ -213,7 +243,6 @@ export function Document({
         />
         <Meta />
         <title>{title}</title>
-        <link rel="manifest" href="/site.webmanifest" />
         <Links />
       </head>
       <body className="h-full bg-background antialiased selection:bg-primary/10 selection:text-primary">

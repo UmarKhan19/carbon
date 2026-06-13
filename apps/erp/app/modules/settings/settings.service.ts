@@ -1,5 +1,21 @@
 import { SUPABASE_URL } from "@carbon/auth";
-import type { Database } from "@carbon/database";
+import type { Database, Json } from "@carbon/database";
+import type {
+  DocumentBlock,
+  DocumentSectionPlacement,
+  DocumentSettings,
+  DocumentTemplate,
+  DocumentTemplateType,
+  DocumentTheme,
+  ResolvedSection
+} from "@carbon/documents/template";
+import {
+  CURRENT_TEMPLATE_FORMAT_VERSION,
+  getBuiltInSection,
+  isBuiltInSectionId,
+  toDocumentTemplate
+} from "@carbon/documents/template";
+import type { JSONContent } from "@carbon/react";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { z } from "zod";
 import type { GenericQueryFilters } from "~/utils/query";
@@ -463,6 +479,198 @@ export async function getTerms(
   return client.from("terms").select("*").eq("id", companyId).single();
 }
 
+export async function getDocumentTemplate(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  documentType: DocumentTemplateType
+) {
+  return client
+    .from("documentTemplate")
+    .select("*")
+    .eq("companyId", companyId)
+    .eq("documentType", documentType)
+    .maybeSingle();
+}
+
+/**
+ * Load a stored document template as a `DocumentTemplate | null` ready to pass
+ * to a PDF (which runs it through `resolveTemplate`). Returns null when no row
+ * is stored, so the PDF falls back to the type's default.
+ */
+export async function getDocumentTemplateConfig(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  documentType: DocumentTemplateType
+): Promise<DocumentTemplate | null> {
+  const stored = await getDocumentTemplate(client, companyId, documentType);
+  return toDocumentTemplate(stored.data, documentType);
+}
+
+export async function upsertDocumentTemplate(
+  client: SupabaseClient<Database>,
+  documentTemplate: {
+    companyId: string;
+    documentType: DocumentTemplateType;
+    blocks: DocumentBlock[];
+    theme: DocumentTheme;
+    settings: DocumentSettings;
+    headerSectionId: string | null;
+    footerSectionId: string | null;
+    createdBy: string;
+    updatedBy: string;
+  }
+) {
+  return client.from("documentTemplate").upsert(
+    {
+      ...documentTemplate,
+      // Always persist the current schema version of the JSON we're writing.
+      formatVersion: CURRENT_TEMPLATE_FORMAT_VERSION,
+      updatedAt: new Date().toISOString()
+    },
+    { onConflict: "companyId,documentType" }
+  );
+}
+
+export async function getDocumentSections(
+  client: SupabaseClient<Database>,
+  companyId: string
+) {
+  return client
+    .from("documentSection")
+    .select("*")
+    .eq("companyId", companyId)
+    .order("name");
+}
+
+export async function getDocumentSection(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("documentSection")
+    .select("*")
+    .eq("id", id)
+    .eq("companyId", companyId)
+    .maybeSingle();
+}
+
+export async function getDocumentSectionsByIds(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  ids: string[]
+) {
+  return client
+    .from("documentSection")
+    .select("*")
+    .eq("companyId", companyId)
+    .in("id", ids);
+}
+
+export async function upsertDocumentSection(
+  client: SupabaseClient<Database>,
+  documentSection: {
+    id?: string;
+    companyId: string;
+    name: string;
+    placement: DocumentSectionPlacement;
+    content: JSONContent;
+    config?: Record<string, unknown>;
+  } & ({ createdBy: string } | { updatedBy: string })
+) {
+  // Editing a system default forks it into a real row keyed by the same id, so
+  // it overrides the built-in everywhere it's referenced. Upsert keeps repeat
+  // edits idempotent (the row may or may not exist yet).
+  if (documentSection.id && isBuiltInSectionId(documentSection.id)) {
+    const actor =
+      "createdBy" in documentSection
+        ? documentSection.createdBy
+        : documentSection.updatedBy;
+    return client
+      .from("documentSection")
+      .upsert(
+        {
+          id: documentSection.id,
+          companyId: documentSection.companyId,
+          name: documentSection.name,
+          placement: documentSection.placement,
+          content: documentSection.content as Json,
+          config: (documentSection.config ?? {}) as Json,
+          createdBy: actor,
+          updatedBy: actor,
+          updatedAt: new Date().toISOString()
+        },
+        { onConflict: "id,companyId" }
+      )
+      .select("id");
+  }
+
+  if ("createdBy" in documentSection) {
+    return client
+      .from("documentSection")
+      .insert({
+        ...documentSection,
+        content: documentSection.content as Json,
+        config: (documentSection.config ?? {}) as Json
+      })
+      .select("id");
+  }
+  const { id, companyId, ...update } = documentSection;
+  return client
+    .from("documentSection")
+    .update({
+      ...update,
+      content: update.content as Json,
+      config: (update.config ?? {}) as Json,
+      updatedAt: new Date().toISOString()
+    })
+    .eq("id", id ?? "")
+    .eq("companyId", companyId)
+    .select("id");
+}
+
+export async function deleteDocumentSection(
+  client: SupabaseClient<Database>,
+  id: string,
+  companyId: string
+) {
+  return client
+    .from("documentSection")
+    .delete()
+    .eq("id", id)
+    .eq("companyId", companyId);
+}
+
+/** Fetch the given section ids and return them keyed by id for rendering. */
+export async function resolveSections(
+  client: SupabaseClient<Database>,
+  companyId: string,
+  ids: string[]
+): Promise<Record<string, ResolvedSection>> {
+  if (ids.length === 0) return {};
+  const map: Record<string, ResolvedSection> = {};
+
+  // System sections live in code, not the DB. Seed them first so a stored row
+  // with the same id (a customized/forked default) overrides below.
+  for (const id of ids) {
+    const builtIn = getBuiltInSection(id);
+    if (builtIn) map[id] = builtIn;
+  }
+
+  const dbIds = ids.filter((id) => !map[id] || map[id]?.builtIn);
+  const { data } = await getDocumentSectionsByIds(client, companyId, dbIds);
+  for (const row of (data ?? []) as ResolvedSection[]) {
+    map[row.id] = {
+      id: row.id,
+      name: row.name,
+      placement: row.placement,
+      content: row.content,
+      config: row.config
+    };
+  }
+  return map;
+}
+
 export async function getWebhook(client: SupabaseClient<Database>, id: string) {
   return client.from("webhook").select("*").eq("id", id).single();
 }
@@ -647,17 +855,6 @@ export async function updateIntegrationMetadata(
     )
     .eq("companyId", companyId)
     .eq("id", integrationId);
-}
-
-export async function updateJobTravelerWorkInstructions(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  jobTravelerIncludeWorkInstructions: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ jobTravelerIncludeWorkInstructions }))
-    .eq("id", companyId);
 }
 
 export async function updateAccountingEnabledSetting(
@@ -893,17 +1090,6 @@ export async function updateQuoteLineCategoryMarkups(
     .eq("id", companyId);
 }
 
-export async function updatePurchasingPdfThumbnails(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  includeThumbnailsOnPurchasingPdfs: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ includeThumbnailsOnPurchasingPdfs }))
-    .eq("id", companyId);
-}
-
 export async function updateRfqReadySetting(
   client: SupabaseClient<Database>,
   companyId: string,
@@ -912,17 +1098,6 @@ export async function updateRfqReadySetting(
   return client
     .from("companySettings")
     .update(sanitize({ rfqReadyNotificationGroup }))
-    .eq("id", companyId);
-}
-
-export async function updateSalesPdfThumbnails(
-  client: SupabaseClient<Database>,
-  companyId: string,
-  includeThumbnailsOnSalesPdfs: boolean
-) {
-  return client
-    .from("companySettings")
-    .update(sanitize({ includeThumbnailsOnSalesPdfs }))
     .eq("id", companyId);
 }
 

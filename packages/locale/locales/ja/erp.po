@@ -270,6 +270,9 @@ msgstr "下のカラムを追加してビューをソートします"
 msgid "Add a comment..."
 msgstr "コメントを追加..."
 
+msgid "Add a printer in the printing settings to print labels directly."
+msgstr "プリンター設定にプリンターを追加して、ラベルを直接印刷します。"
+
 msgid "Add Actions"
 msgstr "アクションを追加"
 
@@ -338,6 +341,9 @@ msgstr "パートナーを追加"
 
 msgid "Add Permissions"
 msgstr "権限を追加"
+
+msgid "Add Printer"
+msgstr "プリンターを追加"
 
 msgid "Add Property"
 msgstr "プロパティを追加"
@@ -759,6 +765,10 @@ msgstr "支払い条件「{0}」を削除してもよろしいですか？この
 msgid "Are you sure you want to delete the pricing rule: {0}? This cannot be undone."
 msgstr "本当に価格設定ルール: {0} を削除してもよろしいですか？この操作は取り消せません。"
 
+#. placeholder {0}: printerToDelete.name
+msgid "Are you sure you want to delete the printer \"{0}\"? Any assignments referencing this printer will be cleared. This cannot be undone."
+msgstr "このプリンター「{0}」を削除してもよろしいですか？このプリンターを参照しているすべての割り当ては削除されます。この操作は取り消せません。"
+
 #. placeholder {0}: purchaseInvoiceLine.quantity ?? 0
 #. placeholder {1}: purchaseInvoiceLine.description ?? ""
 msgid "Are you sure you want to delete the purchase invoice line for {0} {1}? This cannot be undone."
@@ -927,6 +937,9 @@ msgstr "資産クラス"
 
 msgid "Assets"
 msgstr "資産"
+
+msgid "Assign printers to locations. Shipping, receiving, and work centers inherit the location default unless overridden."
+msgstr "プリンターをロケーションに割り当てます。配送、受け取り、ワークセンターは、オーバーライドされない限りロケーションのデフォルトを継承します。"
 
 msgid "Assign To"
 msgstr "割り当て先"
@@ -1189,6 +1202,24 @@ msgstr "キャンセル"
 
 msgid "Cancel Job"
 msgstr "ジョブをキャンセル"
+
+msgid "Cancel Sales Order"
+msgstr "販売注文をキャンセル"
+
+msgid "Cancel SO"
+msgstr "SO をキャンセル"
+
+#. placeholder {0}: selectedIds.length
+#. placeholder {1}: selectedIds.length === 1 ? "" : "s"
+msgid "Cancel SO + {0} job{1}"
+msgstr "SO をキャンセル + {0} 件のジョブ{1}"
+
+#. placeholder {0}: selectedIds.length
+msgid "Cancel SO + {0} selected"
+msgstr "SO をキャンセル + {0} 件選択"
+
+msgid "Cancel SO only"
+msgstr "SO のみをキャンセル"
 
 msgid "Canceled"
 msgstr "キャンセル済み"
@@ -1506,9 +1537,6 @@ msgstr "保全ディスパッチが作業現場から作成されるときの通
 msgid "Configure notifications for when new suggestions are submitted."
 msgstr "新しい提案が送信されたときの通知を設定します。"
 
-msgid "Configure the content displayed on job traveler PDFs."
-msgstr "ジョブトラベラーPDFに表示されるコンテンツを設定します。"
-
 msgid "Configure the default accounts used for various transaction types across your system"
 msgstr "様々なトランザクションタイプに使用されるデフォルトアカウントをシステム全体で設定します"
 
@@ -1635,6 +1663,9 @@ msgstr "すべてのアイテムと価格設定を別の顧客またはタイプ
 
 msgid "Copy API Key"
 msgstr "APIキーをコピー"
+
+msgid "Copy company unique identifier"
+msgstr "会社の一意の識別子をコピー"
 
 msgid "Copy consumable number"
 msgstr "消耗品番号をコピー"
@@ -2085,6 +2116,9 @@ msgstr "顧客タイプ"
 msgid "Customers"
 msgstr "顧客"
 
+msgid "Customize the layout of your PDF documents — reorder sections, hide what you don't need, and add your own blocks."
+msgstr ""
+
 msgid "Daily Usage"
 msgstr "日次使用量"
 
@@ -2220,15 +2254,6 @@ msgstr "デフォルト単位"
 
 msgid "Defaults"
 msgstr "デフォルト"
-
-msgid "Define the default size of the product label. Used for tracking items in inventory."
-msgstr "製品ラベルのデフォルトサイズを定義します。在庫内のアイテムを追跡するために使用されます。"
-
-msgid "Define the terms and conditions for purchase orders"
-msgstr "購買注文の利用規約と条件を定義します"
-
-msgid "Define the terms and conditions for quotes and sales orders"
-msgstr "見積書と販売注文の利用規約と条件を定義します"
 
 msgid "Defines how many tracked entities are inspected per lot, and how many failures are tolerated before the lot is rejected."
 msgstr "ロットごとに検査される追跡対象エンティティの数と、ロットが却下される前に許容される失敗の数を定義します。"
@@ -2581,6 +2606,9 @@ msgstr "ドキュメント"
 msgid "Document Control"
 msgstr "ドキュメント管理"
 
+msgid "Document Templates"
+msgstr ""
+
 msgid "Document:"
 msgstr "ドキュメント:"
 
@@ -2598,6 +2626,9 @@ msgstr "ダウンロード"
 
 msgid "Download CSV"
 msgstr "CSVをダウンロード"
+
+msgid "Download Labels"
+msgstr "ラベルをダウンロード"
 
 msgid "Download PDF"
 msgstr "PDFをダウンロード"
@@ -2686,6 +2717,9 @@ msgstr "期間"
 
 msgid "e.g. DWG-1234"
 msgstr "例：DWG-1234"
+
+msgid "e.g. Zebra 2x1"
+msgstr "例：Zebra 2x1"
 
 msgid "Edit"
 msgstr "編集"
@@ -3016,9 +3050,6 @@ msgstr "税固有の減価償却方法を資産クラスで設定するために
 
 msgid "Enable to generate IDs and descriptions for raw materials."
 msgstr "有効にして、原材料のIDと説明を生成します。"
-
-msgid "Enable to include work instructions on job traveler PDFs."
-msgstr "ジョブトラベラーPDFに作業指示を含めるには有効にしてください。"
 
 msgid "Enable to start tracking changes to your data."
 msgstr "データへの変更の追跡を開始するには有効にしてください。"
@@ -3869,6 +3900,9 @@ msgstr "アイテムが既に存在する場合"
 msgid "If you wish to change the part numbers, please click Cancel and manually assign the parts for each line item before converting."
 msgstr "部品番号を変更したい場合は、[キャンセル]をクリックして、変換する前に各行アイテムの部品を手動で割り当ててください。"
 
+msgid "Imperial"
+msgstr "インペリアル"
+
 msgid "Implementation Support"
 msgstr "実装サポート"
 
@@ -3919,12 +3953,6 @@ msgstr "出荷に追加部品を含める"
 
 msgid "Include Inactive"
 msgstr "非アクティブを含める"
-
-msgid "Include Thumbnails on Purchasing Documents"
-msgstr "購買ドキュメントにサムネイルを含める"
-
-msgid "Include Thumbnails on Sales Documents"
-msgstr "販売ドキュメントにサムネイルを含める"
 
 msgid "Includes tax and shipping costs"
 msgstr "税金と送料を含みます"
@@ -4214,12 +4242,6 @@ msgstr "作業操作"
 msgid "Job Operations"
 msgstr "ジョブ操作"
 
-msgid "Job Traveler"
-msgstr "ジョブトラベラー"
-
-msgid "Job traveler PDFs include work instructions."
-msgstr "ジョブトラベラーPDFに作業指示が含まれています。"
-
 msgid "Jobs"
 msgstr "ジョブ"
 
@@ -4331,6 +4353,9 @@ msgstr "詳細を見る"
 msgid "Leave any related receipts untouched"
 msgstr "関連するすべての領収書はそのままにしておく"
 
+msgid "Leave blank for built-in"
+msgstr "組み込みの場合は空白のままにしてください"
+
 msgid "Leave empty for exact match"
 msgstr "正確な一致のために空のままにしてください"
 
@@ -4410,6 +4435,9 @@ msgstr "ライブリロード中"
 
 msgid "Load Templates"
 msgstr "テンプレートを読み込む"
+
+msgid "Loading associated jobs..."
+msgstr "関連するジョブを読み込み中..."
 
 msgid "Loading item details..."
 msgstr "アイテムの詳細を読み込み中..."
@@ -4704,6 +4732,9 @@ msgstr "平均修復時間"
 
 msgid "Measurement Standard"
 msgstr "測定標準"
+
+msgid "Media Size"
+msgstr "メディアサイズ"
 
 msgid "Members"
 msgstr "メンバー"
@@ -5155,6 +5186,9 @@ msgstr "アクセスなし"
 msgid "No action needed"
 msgstr "対応は不要です"
 
+msgid "No active jobs found for this sales order. The order will be cancelled directly."
+msgstr "このセールスオーダーのアクティブなジョブが見つかりません。注文は直接キャンセルされます。"
+
 msgid "No active plan"
 msgstr "アクティブなプランなし"
 
@@ -5246,6 +5280,9 @@ msgstr "画像なし"
 msgid "No issue types configured"
 msgstr "問題タイプが設定されていません"
 
+msgid "No locations found."
+msgstr "ロケーションが見つかりません。"
+
 msgid "No logo uploaded"
 msgstr "ロゴがアップロードされていません"
 
@@ -5299,6 +5336,12 @@ msgstr "選択した数量の価格設定がありません"
 
 msgid "No pricing options found"
 msgstr "価格オプションが見つかりません"
+
+msgid "No printer configured"
+msgstr "プリンターが設定されていません"
+
+msgid "No printers configured. Click \"Add Printer\" to create one."
+msgstr "プリンターが設定されていません。「プリンターを追加」をクリックして作成してください。"
 
 msgid "No Quote"
 msgstr "見積なし"
@@ -5567,6 +5610,9 @@ msgstr "注文"
 msgid "Orders submitted"
 msgstr "注文が送信されました"
 
+msgid "Origin"
+msgstr "オリジン"
+
 msgid "Other Type"
 msgstr "その他のタイプ"
 
@@ -5699,11 +5745,17 @@ msgstr "支払条件"
 msgid "PDF"
 msgstr "PDF"
 
+msgid "PDF (Document)"
+msgstr "PDF（ドキュメント）"
+
 msgid "PDF downloaded"
 msgstr "PDFをダウンロードしました"
 
 msgid "PDF pages"
 msgstr "PDFページ"
+
+msgid "PDF Preview"
+msgstr "PDFプレビュー"
 
 msgid "PDF Watermark"
 msgstr "PDF透かし"
@@ -5743,6 +5795,9 @@ msgstr "写真が正常に削除されました"
 
 msgid "Photo uploaded successfully"
 msgstr "写真が正常にアップロードされました"
+
+msgid "Physical printers available for assignment."
+msgstr "割り当て可能な物理プリンター。"
 
 msgid "Pick"
 msgstr "ピック"
@@ -5906,6 +5961,9 @@ msgstr "前へ"
 msgid "Preview"
 msgstr "プレビュー"
 
+msgid "Preview failed: {error}"
+msgstr "プレビューに失敗しました: {error}"
+
 msgid "Preview Quantity"
 msgstr "プレビュー数量"
 
@@ -5948,8 +6006,34 @@ msgstr "価格設定ルール"
 msgid "Pricing Trace"
 msgstr "価格トレース"
 
+msgid "Print"
+msgstr "印刷"
+
+#. placeholder {0}: selectedIds.size
+msgid "Print {0} Labels"
+msgstr "{0}個のラベルを印刷"
+
+msgid "Print Jobs"
+msgstr "印刷ジョブ"
+
 msgid "Print Label"
 msgstr "ラベルを印刷"
+
+#. placeholder {0}: viewContent.contentType?.toUpperCase()
+msgid "Print Output ({0})"
+msgstr "印刷出力 ({0})"
+
+msgid "Printer Settings"
+msgstr "プリンター設定"
+
+msgid "Printer URL"
+msgstr "プリンターURL"
+
+msgid "Printers"
+msgstr "プリンター"
+
+msgid "Printing"
+msgstr "印刷"
 
 msgid "Priorities"
 msgstr "優先度"
@@ -5980,9 +6064,6 @@ msgstr "プロセスタイプ"
 
 msgid "Processes"
 msgstr "プロセス"
-
-msgid "Product Label Size"
-msgstr "製品ラベルサイズ"
 
 msgid "Production"
 msgstr "生産"
@@ -6103,9 +6184,6 @@ msgstr "購買"
 
 msgid "Purchasing Contact"
 msgstr "購買担当者"
-
-msgid "Purchasing Terms & Conditions"
-msgstr "購買条件"
 
 msgid "Purchasing Unit of Measure"
 msgstr "購買単位"
@@ -6411,6 +6489,9 @@ msgstr "このストレージタイプをすべての参照ストレージユニ
 msgid "Remove Transfer"
 msgstr "転送を削除"
 
+msgid "Rendering label preview..."
+msgstr "ラベルプレビューをレンダリング中..."
+
 msgid "Reopen"
 msgstr "再度開く"
 
@@ -6467,6 +6548,9 @@ msgstr "レポート"
 
 msgid "Reports"
 msgstr "レポート"
+
+msgid "Reprint"
+msgstr "再印刷"
 
 msgid "Request Approval"
 msgstr "承認をリクエスト"
@@ -6711,9 +6795,6 @@ msgstr "営業担当者"
 msgid "Sales Revenue"
 msgstr "売上収益"
 
-msgid "Sales Terms & Conditions"
-msgstr "営業条件"
-
 msgid "Sample"
 msgstr "サンプル"
 
@@ -6900,7 +6981,7 @@ msgid "Select a team"
 msgstr "チームを選択"
 
 msgid "Select all"
-msgstr ""
+msgstr "すべて選択"
 
 msgid "Select an assignee"
 msgstr "担当者を選択"
@@ -6958,6 +7039,9 @@ msgstr "アイテムタイプを選択"
 
 msgid "Select items"
 msgstr "アイテムを選択"
+
+msgid "Select Printer"
+msgstr "プリンターを選択"
 
 msgid "Select Quantities"
 msgstr "数量を選択"
@@ -7114,6 +7198,9 @@ msgstr "リンクを共有"
 msgid "Share Quote"
 msgstr "見積もりを共有"
 
+msgid "Shared Sections"
+msgstr ""
+
 msgid "Shelf life"
 msgstr "棚卸し期間"
 
@@ -7225,12 +7312,6 @@ msgstr "期間を表示"
 msgid "Show parent items"
 msgstr "親アイテムを表示"
 
-msgid "Show part thumbnails on purchase order PDFs."
-msgstr "購買注文PDFに部品のサムネイルを表示します。"
-
-msgid "Show part thumbnails on quotes, sales orders, invoices, and shipments."
-msgstr "見積書、販売注文書、請求書、および出荷書にパーツサムネイルを表示します。"
-
 msgid "Show Supplier IDs"
 msgstr "仕入先IDを表示"
 
@@ -7284,6 +7365,9 @@ msgstr "スキップ"
 
 msgid "Something went wrong. Please try again."
 msgstr "何か問題が発生しました。もう一度お試しください。"
+
+msgid "Soon"
+msgstr ""
 
 msgid "Soonest expiry across every material sets the finished good."
 msgstr "最も早い有効期限が完成品を決定します。"
@@ -7727,11 +7811,20 @@ msgstr "税:"
 msgid "Temperature"
 msgstr "温度"
 
+msgid "Template ID"
+msgstr "テンプレートID"
+
+msgid "Templates"
+msgstr ""
+
 msgid "Terms and Privacy"
 msgstr "利用規約とプライバシー"
 
 msgid "Terms of Service"
 msgstr "利用規約"
+
+msgid "Test"
+msgstr "テスト"
 
 msgid "Test Value"
 msgstr "テスト値"
@@ -7843,6 +7936,9 @@ msgstr "このジョブはインベントリに受け取られます。ショッ
 
 msgid "This job will no longer be available on the shop floor."
 msgstr "このジョブはショップフロアで利用できなくなります。"
+
+msgid "This sales order has associated jobs. Choose what to do with them."
+msgstr "この販売注文には関連するジョブがあります。それらをどうするかを選択してください。"
 
 msgid "This sales order has lines that require jobs to be created"
 msgstr "この販売注文には、ジョブを作成する必要があるラインがあります"
@@ -8044,9 +8140,6 @@ msgstr "追跡"
 
 msgid "Tracking ID"
 msgstr "追跡ID"
-
-msgid "Tracking Labels"
-msgstr "トラッキングラベル"
 
 msgid "Tracking Number"
 msgstr "追跡番号"
@@ -8474,6 +8567,9 @@ msgstr "表示権限"
 msgid "View Picking List"
 msgstr ""
 
+msgid "View Prints"
+msgstr "プリントを表示"
+
 msgid "View Production Events"
 msgstr "生産イベントを表示"
 
@@ -8696,12 +8792,6 @@ msgstr "作業センター"
 msgid "Work Instructions"
 msgstr "作業指示"
 
-msgid "Work instructions are included"
-msgstr "作業指示が含まれています"
-
-msgid "Work instructions are not included"
-msgstr "作業指示は含まれていません"
-
 msgid "Work Phone"
 msgstr "仕事用電話"
 
@@ -8789,3 +8879,9 @@ msgstr "ズームイン"
 
 msgid "Zoom out"
 msgstr "ズームアウト"
+
+msgid "ZPL (Thermal Label)"
+msgstr "ZPL（サーマルラベル）"
+
+msgid "ZPL Label Preview"
+msgstr "ZPLラベルプレビュー"

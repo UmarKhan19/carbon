@@ -1,13 +1,26 @@
-import { Document, Font, Page, StyleSheet } from "@react-pdf/renderer";
+import type { JSONContent } from "@carbon/react";
+import { Document, Font, Page, StyleSheet, View } from "@react-pdf/renderer";
 import type { PropsWithChildren } from "react";
 import type { Meta } from "../../types";
 import Footer from "./Footer";
+import Note from "./Note";
 
 type TemplateProps = PropsWithChildren<{
   title: string;
   meta: Meta;
   footerLabel?: string;
   footerDocumentId?: string | null;
+  /** When false, the entire footer band (registration line + page numbers) is omitted. */
+  showFooter?: boolean;
+  showPageNumbers?: boolean;
+  pageNumberFormat?: "pageOfTotal" | "page";
+  showRegistrationLine?: boolean;
+  /** Body font (Inter is registered; the rest are PDF standard fonts). */
+  fontFamily?: string;
+  /** Shared-section content repeated at the top of every page. */
+  headerContent?: JSONContent | null;
+  /** Shared-section content repeated in the footer of every page. */
+  footerContent?: JSONContent | null;
 }>;
 
 const Template = ({
@@ -15,8 +28,20 @@ const Template = ({
   meta,
   footerLabel,
   footerDocumentId,
+  showFooter = true,
+  showPageNumbers = true,
+  pageNumberFormat = "pageOfTotal",
+  showRegistrationLine = true,
+  fontFamily = "Inter",
+  headerContent,
+  footerContent,
   children
 }: TemplateProps) => {
+  const hasHeader =
+    headerContent &&
+    typeof headerContent === "object" &&
+    Array.isArray(headerContent.content) &&
+    headerContent.content.length > 0;
   Font.register({
     family: "Inter",
     fonts: [
@@ -42,9 +67,24 @@ const Template = ({
     ]
   });
 
+  // Built-ins need no registration; otherwise the font must have been
+  // registered (Inter statically here, Google fonts via ensureFont before
+  // render). Fall back to Helvetica so an unregistered font never errors.
+  const BUILT_IN_FONTS = ["Helvetica", "Times-Roman", "Courier"];
+  const safeFontFamily =
+    BUILT_IN_FONTS.includes(fontFamily) ||
+    Font.getRegisteredFontFamilies().includes(fontFamily)
+      ? fontFamily
+      : "Helvetica";
+
   const styles = StyleSheet.create({
     body: {
-      fontFamily: "Inter",
+      fontFamily: safeFontFamily,
+      // Unitless line-height = a multiple of font size, so vertical rhythm is
+      // identical for every font (Inter, serif, mono) and every text size.
+      // letterSpacing 0 drops each font's default tracking for consistency.
+      lineHeight: 1.4,
+      letterSpacing: 0,
       padding: "10px 16px 36px 16px",
       color: "#000000",
       backgroundColor: "#FFFFFF"
@@ -59,8 +99,22 @@ const Template = ({
       title={title}
     >
       <Page size="A4" style={styles.body}>
+        {hasHeader && (
+          <View fixed style={{ marginBottom: 8 }}>
+            <Note content={headerContent} />
+          </View>
+        )}
         {children}
-        <Footer label={footerLabel} documentId={footerDocumentId} />
+        {showFooter && (
+          <Footer
+            label={footerLabel}
+            documentId={footerDocumentId}
+            content={footerContent}
+            showPageNumbers={showPageNumbers}
+            pageNumberFormat={pageNumberFormat}
+            showRegistrationLine={showRegistrationLine}
+          />
+        )}
       </Page>
     </Document>
   );
