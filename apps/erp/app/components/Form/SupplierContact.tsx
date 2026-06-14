@@ -59,15 +59,12 @@ const SupplierContact = ({
   const [created, setCreated] = useState<string>("");
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const [firstName, ...lastName] = created ? created.split(" ") : [];
-  const initialFirstName =
-    firstName || (extractedValue ? extractedValue.split(" ")[0] : "");
-  const initialLastName =
-    lastName && lastName.length > 0
-      ? lastName.join(" ")
-      : extractedValue
-        ? extractedValue.split(" ").slice(1).join(" ")
-        : "";
+  const sourceName = created || extractedValue || "";
+  const [namePart, ...titleParts] = sourceName.split(" - ");
+  const initialTitle = titleParts.join(" - ").trim();
+  const nameTokens = namePart.trim().split(" ");
+  const initialFirstName = nameTokens[0] || "";
+  const initialLastName = nameTokens.slice(1).join(" ");
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: suppressed due to migration
   useEffect(() => {
@@ -126,6 +123,7 @@ const SupplierContact = ({
             email: extractedEmail ?? "",
             firstName: initialFirstName,
             lastName: initialLastName,
+            title: initialTitle,
             mobilePhone: extractedPhone ?? ""
           }}
         />
