@@ -74,6 +74,7 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
   }>();
   const [extractedLineItems, setExtractedLineItems] = useState<any[]>([]);
   const [extractedTaxAmount, setExtractedTaxAmount] = useState<number>(0);
+  const [extractedStoragePath, setExtractedStoragePath] = useState<string>();
 
   const [formKey, setFormKey] = useState(0);
   const [currentValues, setCurrentValues] = useState(initialValues);
@@ -311,6 +312,10 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
       setExtractedTaxAmount(data.taxAmount);
     }
 
+    if (data._storagePath) {
+      setExtractedStoragePath(data._storagePath);
+    }
+
     setFormKey((prev) => prev + 1);
   };
 
@@ -458,6 +463,13 @@ const PurchaseInvoiceForm = ({ initialValues }: PurchaseInvoiceFormProps) => {
             name="extractedTaxAmount"
             value={extractedTaxAmount}
           />
+          {extractedStoragePath && (
+            <input
+              type="hidden"
+              name="extractedStoragePath"
+              value={extractedStoragePath}
+            />
+          )}
           {currentValues.supplierShippingCost !== undefined && (
             <input
               type="hidden"

@@ -29,9 +29,17 @@ export function PdfExtractor({
   // When extraction completes, notify parent
   useEffect(() => {
     if (extraction?.status === "completed" && extraction.filteredData) {
-      onExtractionComplete(extraction.filteredData);
+      onExtractionComplete({
+        ...extraction.filteredData,
+        _storagePath: extraction.storagePath
+      });
     }
-  }, [extraction?.status, extraction?.filteredData, onExtractionComplete]);
+  }, [
+    extraction?.status,
+    extraction?.filteredData,
+    extraction?.storagePath,
+    onExtractionComplete
+  ]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -9,6 +9,7 @@ import type { FunctionsResponse } from "@supabase/functions-js";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { redirect } from "react-router";
 import { useUrlParams, useUser } from "~/hooks";
+import { upsertDocument } from "~/modules/documents";
 import {
   createPurchaseInvoiceFromPurchaseOrder,
   insertPurchaseInvoice,
@@ -19,6 +20,7 @@ import {
 import { setCustomFields } from "~/utils/form";
 import type { Handle } from "~/utils/handle";
 import { path } from "~/utils/path";
+import { stripSpecialCharacters } from "~/utils/string";
 
 export const handle: Handle = {
   breadcrumb: msg`Purchasing`,
@@ -136,6 +138,40 @@ export async function action({ request }: ActionFunctionArgs) {
         companyId,
         createdBy: userId,
         customFields: {}
+      });
+    }
+  }
+
+  const extractedStoragePath = formData.get("extractedStoragePath") as
+    | string
+    | undefined;
+  if (extractedStoragePath && result.data.supplierInteractionId) {
+    const filenameParts = extractedStoragePath.split("/");
+    const basename =
+      filenameParts[filenameParts.length - 1] || "Extracted_Invoice.pdf";
+    // Usually the filename has a prefix like 123456_FileName.pdf
+    const originalFilename = basename.includes("_")
+      ? basename.split("_").slice(1).join("_")
+      : basename;
+    const safeFilename = stripSpecialCharacters(originalFilename);
+    const interactionId = result.data.supplierInteractionId;
+    const newStoragePath = `${companyId}/supplier-interaction/${interactionId}/${safeFilename}`;
+
+    const copyResult = await client.storage
+      .from("private")
+      .copy(extractedStoragePath, newStoragePath);
+
+    if (!copyResult.error) {
+      await upsertDocument(client, {
+        path: newStoragePath,
+        name: originalFilename,
+        size: 0, // Fallback since we don't know the exact size here
+        sourceDocument: "Purchase Invoice",
+        sourceDocumentId: result.data.id,
+        readGroups: [userId],
+        writeGroups: [userId],
+        createdBy: userId,
+        companyId
       });
     }
   }
