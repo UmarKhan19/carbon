@@ -12,6 +12,7 @@ import { useUrlParams, useUser } from "~/hooks";
 import { upsertDocument } from "~/modules/documents";
 import {
   createPurchaseInvoiceFromPurchaseOrder,
+  getPurchaseInvoice,
   insertPurchaseInvoice,
   PurchaseInvoiceForm,
   purchaseInvoiceValidator,
@@ -145,34 +146,39 @@ export async function action({ request }: ActionFunctionArgs) {
   const extractedStoragePath = formData.get("extractedStoragePath") as
     | string
     | undefined;
-  if (extractedStoragePath && result.data.supplierInteractionId) {
-    const filenameParts = extractedStoragePath.split("/");
-    const basename =
-      filenameParts[filenameParts.length - 1] || "Extracted_Invoice.pdf";
-    // Usually the filename has a prefix like 123456_FileName.pdf
-    const originalFilename = basename.includes("_")
-      ? basename.split("_").slice(1).join("_")
-      : basename;
-    const safeFilename = stripSpecialCharacters(originalFilename);
-    const interactionId = result.data.supplierInteractionId;
-    const newStoragePath = `${companyId}/supplier-interaction/${interactionId}/${safeFilename}`;
 
-    const copyResult = await client.storage
-      .from("private")
-      .copy(extractedStoragePath, newStoragePath);
+  if (extractedStoragePath) {
+    const fetchedInvoice = await getPurchaseInvoice(client, result.data.id);
+    const interactionId = fetchedInvoice.data?.supplierInteractionId;
 
-    if (!copyResult.error) {
-      await upsertDocument(client, {
-        path: newStoragePath,
-        name: originalFilename,
-        size: 0, // Fallback since we don't know the exact size here
-        sourceDocument: "Purchase Invoice",
-        sourceDocumentId: result.data.id,
-        readGroups: [userId],
-        writeGroups: [userId],
-        createdBy: userId,
-        companyId
-      });
+    if (interactionId) {
+      const filenameParts = extractedStoragePath.split("/");
+      const basename =
+        filenameParts[filenameParts.length - 1] || "Extracted_Invoice.pdf";
+      // Usually the filename has a prefix like 123456_FileName.pdf
+      const originalFilename = basename.includes("_")
+        ? basename.split("_").slice(1).join("_")
+        : basename;
+      const safeFilename = stripSpecialCharacters(originalFilename);
+      const newStoragePath = `${companyId}/supplier-interaction/${interactionId}/${safeFilename}`;
+
+      const copyResult = await client.storage
+        .from("private")
+        .copy(extractedStoragePath, newStoragePath);
+
+      if (!copyResult.error) {
+        await upsertDocument(client, {
+          path: newStoragePath,
+          name: originalFilename,
+          size: 0, // Fallback since we don't know the exact size here
+          sourceDocument: "Purchase Invoice",
+          sourceDocumentId: result.data.id,
+          readGroups: [userId],
+          writeGroups: [userId],
+          createdBy: userId,
+          companyId
+        });
+      }
     }
   }
 
