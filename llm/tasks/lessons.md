@@ -61,3 +61,15 @@ Patterns learned from corrections. Review at the start of each session.
 ## Bash fallbacks when tools are missing
 
 - `pandoc` is not on the user's machine. For `.docx` extraction, use the `anthropic-skills:docx` skill's `unpack.py` (needs `defusedxml`; install via `mise x python@3.14.2 -- pip install defusedxml`) or an equivalent Python/JS extraction, rather than assuming pandoc is available.
+
+## Verify which component a callsite actually renders before calling it "broken"
+
+- When auditing a shared component's callsites, confirm the JSX tag resolves to
+  the import you think it does. A name like `<StorageUnit>` can be a *local*
+  function in the same file (ShipmentLines defines its own `StorageUnit` over
+  `useStorageUnits` + `Combobox`), not the shared shim. I wrongly concluded the
+  shim was "broken" and edited the callsite, breaking the type (`storageUnit`
+  was a `string` there, not `ListItem`).
+- Rule: before claiming a callsite is broken or changing its `onChange` shape,
+  grep the file for a local `function <Name>` / `const <Name> =` shadowing the
+  import, and check the actual prop/callback types at that callsite.
